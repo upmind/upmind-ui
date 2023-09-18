@@ -1,0 +1,21 @@
+{
+  "name": "@upmind/playground",
+  "private": true,
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@upmind/core": "^0.0.0"
+  },
+  "devDependencies": {
+    "vite": "^2.8.0"
+  }
+}
