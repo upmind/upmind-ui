@@ -1,6 +1,6 @@
 // Main TS goes here
 export function test() {
-  return "Hello from FLOW!";
+  return "Hello from @upmind FLOW!";
 }
 
 export function isEven(n: number): boolean {

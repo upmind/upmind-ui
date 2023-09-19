@@ -1,0 +1,35 @@
+{
+  "name": "@upmind/components",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "main": "./dist/upmind-flow.umd.cjs",
+  "module": "./dist/upmind-flow.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/upmind-flow.js",
+      "require": "./dist/upmind-flow.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@upmind/flow": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.2",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.5.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED"
+}
