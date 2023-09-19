@@ -1,6 +1,17 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {},
-  "include": ["src", "vite.config.ts", "vite.config.ts"],
-  "exclude": ["node_modules", "dist"]
+  "files": [],
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ]
 }

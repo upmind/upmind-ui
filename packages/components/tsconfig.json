@@ -1,11 +1,18 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "files": [],
   "compilerOptions": {
-    "paths": {
-      "@upmind/flow": ["../flow/src/index.ts"]
-    }
+    "composite": true
   },
-  "include": ["src", "vite.config.ts", "vite.config.ts"],
-  "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../flow" }]
+  "references": [
+    { "path": "../flow" },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ]
 }

@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 
 import { mount } from "@vue/test-utils";
-import HelloWorld from "../HelloWorld.vue";
+import Toggle from "../components/Toggle.vue";
 
-describe("HelloWorld", () => {
+describe("Toggle", () => {
   it("renders properly", () => {
-    const wrapper = mount(HelloWorld, { props: { msg: "Hello Vitest" } });
+    const wrapper = mount(Toggle, {});
+    debugger;
     expect(wrapper.text()).toContain("Hello Vitest");
   });
 });

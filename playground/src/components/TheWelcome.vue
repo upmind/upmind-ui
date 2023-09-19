@@ -7,8 +7,7 @@ import CommunityIcon from "./icons/IconCommunity.vue";
 import SupportIcon from "./icons/IconSupport.vue";
 import StateMachineIcon from "./icons/IconStateMachine.vue";
 
-import UpmToggle from "@/components/Toggle.vue";
-import { test } from "@upmind/flow";
+import UpmToggle from "@/modules/toggle/components/Toggle.vue";
 </script>
 
 <template>
@@ -18,11 +17,9 @@ import { test } from "@upmind/flow";
     </template>
     <template #heading>State</template>
 
-    <code>
-      <pre>{{ test() }}</pre>
-    </code>
-
+    <UpmToggle use-global>Global Instance</UpmToggle>
     <UpmToggle></UpmToggle>
+    <UpmToggle use-global>Global Instance</UpmToggle>
   </WelcomeItem>
 
   <WelcomeItem>

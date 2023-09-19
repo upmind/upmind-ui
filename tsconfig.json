@@ -4,7 +4,7 @@
     "incremental": true,
     "outDir": "./dist",
     "baseUrl": ".",
-    "moduleResolution": "Node",
+    "moduleResolution": "Node10",
     "module": "esnext",
     "target": "ES2018",
     "sourceMap": true,
@@ -18,7 +18,11 @@
     "noUnusedLocals": true,
     "resolveJsonModule": true
   },
-  "include": ["packages/*/src", "playground/src"],
+  "include": [
+    "packages/*/src",
+    "playground/src",
+    "playground/typings/index.d.ts"
+  ],
 
   "references": [
     { "path": "playground/" },
