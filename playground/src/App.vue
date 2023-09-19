@@ -19,12 +19,6 @@
 
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import { inspect } from "@xstate/inspect";
-
-inspect({
-  url: "https://statecharts.io/inspect",
-  iframe: false
-});
 </script>
 
 <style scoped>

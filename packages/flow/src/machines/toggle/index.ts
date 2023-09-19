@@ -66,6 +66,4 @@ const machine = createMachine<ToggleContext, ToggleEvents>(machineConfig, {
 
 export default machine; // allow for independent instance creation
 
-export const service = interpret(machine, {
-  devTools: true
-}).start(); // allow for global/shared instance creation
+export const service = interpret(machine, { devTools: true }).start(); // allow for global/shared instance creation
