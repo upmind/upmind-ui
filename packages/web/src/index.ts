@@ -1,2 +1,2 @@
-import '@upmind/core';
-console.log('Hello from WEB!');
+import "@upmind/core";
+console.log("Hello from WEB!");

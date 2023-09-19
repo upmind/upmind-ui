@@ -1,6 +1,11 @@
 {
   "extends": "../tsconfig.base.json",
-  "compilerOptions": {},
-  "include": ["src", "vite.config.ts", "vite.config.ts"]
-  // "references": [{ "path": "../packages/core" }]
+  "compilerOptions": {
+    "paths": {
+      "@upmind/core": ["../packages/core/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "../packages/core" }]
 }
