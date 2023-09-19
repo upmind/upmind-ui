@@ -5,9 +5,26 @@ import ToolingIcon from "./icons/IconTooling.vue";
 import EcosystemIcon from "./icons/IconEcosystem.vue";
 import CommunityIcon from "./icons/IconCommunity.vue";
 import SupportIcon from "./icons/IconSupport.vue";
+import StateMachineIcon from "./icons/IconStateMachine.vue";
+
+import UpmToggle from "@/components/Toggle.vue";
+import { test } from "@upmind/flow";
 </script>
 
 <template>
+  <WelcomeItem>
+    <template #icon>
+      <StateMachineIcon />
+    </template>
+    <template #heading>State</template>
+
+    <code>
+      <pre>{{ test() }}</pre>
+    </code>
+
+    <UpmToggle></UpmToggle>
+  </WelcomeItem>
+
   <WelcomeItem>
     <template #icon>
       <DocumentationIcon />

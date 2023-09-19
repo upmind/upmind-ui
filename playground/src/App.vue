@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
-import { test } from "@upmind/flow";
-</script>
-
 <template>
   <header>
     <img
@@ -15,10 +9,6 @@ import { test } from "@upmind/flow";
     />
 
     <div class="wrapper">
-      <code>
-        <pre>{{ test() }}</pre>
-      </code>
-
       <HelloWorld msg="You did it!" />
 
       <nav>
@@ -30,6 +20,17 @@ import { test } from "@upmind/flow";
 
   <RouterView />
 </template>
+
+<script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router";
+import HelloWorld from "./components/HelloWorld.vue";
+import { inspect } from "@xstate/inspect";
+
+inspect({
+  url: "https://statecharts.io/inspect",
+  iframe: false
+});
+</script>
 
 <style scoped>
 header {
