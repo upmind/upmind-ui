@@ -2,13 +2,7 @@
   "files": [],
   "compilerOptions": {
     "composite": true
-
-    //   "paths": {
-    //     "@upmind/flow": ["../packages/flow/src/index.ts"]
-    //   }
   },
-  // "include": ["src", "vite.config.ts", "vite.config.ts"],
-  // "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../packages/flow" },
     {
