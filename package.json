@@ -12,8 +12,9 @@
   },
   "scripts": {
     "clean": "rm -rf packages/**/{dist,*.tsbuildinfo}",
-    "start": "npm start -w @upmind/playground",
-    "build": "tsc --build --verbose",
+    "start": "npm run start --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "build:tsc": "tsc --build --verbose",
     "lint": "eslint . --ext .ts",
     "format": "prettier . --write",
     "prepare": "husky install"
@@ -37,9 +38,8 @@
     "typescript": "^5.0.2"
   },
   "workspaces": [
-    "packages/web",
-    "packages/cli",
+    "playground",
     "packages/flow",
-    "playground"
+    "packages/components"
   ]
 }

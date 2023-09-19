@@ -1,11 +1,22 @@
 {
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "paths": {
-      "@upmind/flow": ["../packages/flow/src/index.ts"]
+  "files": [],
+  // "compilerOptions": {
+  //   "paths": {
+  //     "@upmind/flow": ["../packages/flow/src/index.ts"]
+  //   }
+  // },
+  // "include": ["src", "vite.config.ts", "vite.config.ts"],
+  // "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../packages/flow" },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
     }
-  },
-  "include": ["src", "vite.config.ts", "vite.config.ts"],
-  "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../packages/flow" }]
+  ]
 }

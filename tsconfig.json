@@ -21,10 +21,9 @@
   "include": ["packages/*/src", "playground/src"],
 
   "references": [
+    { "path": "playground/" },
     { "path": "packages/flow" },
-    { "path": "packages/cli" },
-    { "path": "packages/web" },
-    { "path": "playground/" }
+    { "path": "packages/components" }
   ],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }

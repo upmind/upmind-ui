@@ -1,9 +1,14 @@
-import "./style.css";
+import "./assets/main.css";
 
-import { test } from "@upmind/flow";
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-const app = document.querySelector<HTMLDivElement>("#app")!;
-app.innerHTML = `
-  <h1>${test()}!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`;
+import App from "./App.vue";
+import router from "./router";
+
+const app = createApp(App);
+
+app.use(createPinia());
+app.use(router);
+
+app.mount("#app");
