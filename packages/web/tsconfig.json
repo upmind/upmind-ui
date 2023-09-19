@@ -2,10 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@upmind/core": ["../core/src/index.ts"]
+      "@upmind/flow": ["../flow/src/index.ts"]
     }
   },
   "include": ["src", "vite.config.ts", "vite.config.ts"],
   "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../core" }]
+  "references": [{ "path": "../flow" }]
 }

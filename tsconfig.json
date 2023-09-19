@@ -21,7 +21,7 @@
   "include": ["packages/*/src", "playground/src"],
 
   "references": [
-    { "path": "packages/core" },
+    { "path": "packages/flow" },
     { "path": "packages/cli" },
     { "path": "packages/web" },
     { "path": "playground/" }

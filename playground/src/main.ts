@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { test } from "@upmind/core";
+import { test } from "@upmind/flow";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `

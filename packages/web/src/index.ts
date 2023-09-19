@@ -1,2 +1,2 @@
-import "@upmind/core";
+import "@upmind/flow";
 console.log("Hello from WEB!");

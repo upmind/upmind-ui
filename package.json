@@ -37,9 +37,9 @@
     "typescript": "^5.0.2"
   },
   "workspaces": [
-    "packages/core",
     "packages/web",
     "packages/cli",
+    "packages/flow",
     "playground"
   ]
 }

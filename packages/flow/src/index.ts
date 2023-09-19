@@ -1,6 +1,6 @@
 // Main TS goes here
 export function test() {
-  return "Hello from CORE!";
+  return "Hello from FLOW!";
 }
 
 export function isEven(n: number): boolean {
