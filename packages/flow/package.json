@@ -28,5 +28,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@xstate/inspect": "^0.8.0",
+    "lodash-es": "^4.17.21",
+    "xstate": "^4.38.2"
+  }
 }
