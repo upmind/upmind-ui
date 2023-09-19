@@ -36,12 +36,6 @@
   "dependencies": {
     "typescript": "^5.0.2"
   },
-  "lint-staged": {
-    "*.{js,css,ts,tsx,jsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
-  },
   "workspaces": [
     "packages/core",
     "packages/web",
