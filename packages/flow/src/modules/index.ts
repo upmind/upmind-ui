@@ -1,1 +1,1 @@
-export { default as toggleMachine } from "./toggle";
+export * from "./toggle";
