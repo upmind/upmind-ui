@@ -1,13 +1,18 @@
 import { computed } from "vue";
 import { useMachine, useActor } from "@xstate/vue";
-import { toggleMachine, toggleService } from "@upmind/flow";
+import { interpret } from "xstate";
 
-export function useToggle({ useGlobal = false }) {
+import { toggleMachine } from "@upmind/flow";
+
+// create a global instance of the toggle machine
+const service = interpret(toggleMachine, { devTools: true }).start();
+
+// ---------------
+
+export function useToggle({ useGlobal = true }) {
   const { state, send } = useGlobal
-    ? useActor(toggleService)
-    : useMachine(toggleMachine, {
-        devTools: true
-      });
+    ? useActor(service)
+    : useMachine(toggleMachine, { devTools: true });
 
   return {
     state,

@@ -8,6 +8,7 @@ import SupportIcon from "./icons/IconSupport.vue";
 import StateMachineIcon from "./icons/IconStateMachine.vue";
 
 import UpmToggle from "@/modules/toggle/components/Toggle.vue";
+import { test as testFlow } from "@upmind/flow";
 </script>
 
 <template>
@@ -15,7 +16,7 @@ import UpmToggle from "@/modules/toggle/components/Toggle.vue";
     <template #icon>
       <StateMachineIcon />
     </template>
-    <template #heading>State</template>
+    <template #heading> {{ testFlow() || "State" }} </template>
 
     <UpmToggle use-global>Global Instance</UpmToggle>
     <UpmToggle></UpmToggle>
