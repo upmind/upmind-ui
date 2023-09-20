@@ -18,12 +18,14 @@ import { test as testFlow } from "@upmind/flow";
     </template>
     <template #heading> {{ testFlow() || "State" }} </template>
 
+    <template #subheading> Toggle Machine </template>
+
     <UpmToggle use-global>Global Instance</UpmToggle>
     <UpmToggle></UpmToggle>
     <UpmToggle use-global>Global Instance</UpmToggle>
   </WelcomeItem>
 
-  <WelcomeItem>
+  <!-- <WelcomeItem>
     <template #icon>
       <DocumentationIcon />
     </template>
@@ -132,5 +134,5 @@ import { test as testFlow } from "@upmind/flow";
     <a href="https://vuejs.org/sponsor/" target="_blank" rel="noopener"
       >becoming a sponsor</a
     >.
-  </WelcomeItem>
+  </WelcomeItem> -->
 </template>
