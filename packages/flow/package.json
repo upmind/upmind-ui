@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "description": "",
   "type": "module",
-  "main": "./dist/upmind-flow.umd.cjs",
+  "main": "./src/upmind-flow.umd.cjs",
   "module": "./dist/upmind-flow.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/upmind-flow.js",
+      "import": "./src/index.ts",
       "require": "./dist/upmind-flow.umd.cjs"
     }
   },
