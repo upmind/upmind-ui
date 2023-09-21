@@ -1,7 +1,8 @@
+// --- external
 import { createMachine, assign, sendParent } from "xstate";
-// ---
+// --- internal
 import machineServices, { FetchMethods } from "./services";
-// ---
+// --- utils
 import { isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
@@ -102,9 +103,6 @@ export default createMachine(
   },
   {
     actions: {
-      // ------------------------------------
-      // REQUEST ACTIONS
-
       setRequest: assign((context, { data: { url, init, useCache } }) => {
         debugger;
         return {
@@ -149,9 +147,6 @@ export default createMachine(
           data
         };
       }),
-
-      // ------------------------------------
-      // ERROR HANDLING
 
       setError: assign({
         error: (context, { data }) => data || "Unknown error"

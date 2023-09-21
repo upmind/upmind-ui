@@ -17,7 +17,7 @@
       title="Reset the toggle"
       @click="reset"
       :disabled="isProcessing"
-      v-if="isDisabled"
+      v-show="isDisabled"
     >
       <RefreshIcon />
     </button>
@@ -29,7 +29,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import { useToggle } from "../composables/useToggle";
 import RefreshIcon from "@/components/icons/IconRefresh.vue";
