@@ -27,26 +27,23 @@ export interface Typegen0 {
     useRequest: "done.invoke.process";
   };
   missingImplementations: {
-    actions:
-      | "clearError"
-      | "clearRequestPromise"
-      | "setError"
-      | "setPromise"
-      | "setResponse";
+    actions: never;
     delays: never;
-    guards: "isBeforeNoon";
+    guards: never;
     services: "cancelRequest" | "generateRequest" | "useRequest";
   };
   eventsCausingActions: {
-    clearError: "RETRY";
+    clearError: "" | "RETRY" | "done.invoke.process";
     clearRequestPromise: "CANCEL" | "xstate.after(100)#request.processed";
     setError: "error.platform.cancel" | "error.platform.process";
-    setPromise: "done.invoke.process";
+    setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
+    setRequestPromise: "done.invoke.process";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    isBeforeNoon: "";
+    hasRequest: "";
+    hasRequestPromise: "";
   };
   eventsCausingServices: {
     cancelRequest: "CANCEL";

@@ -14,7 +14,9 @@
     <!-- </nav> -->
   </header>
 
-  <RouterView />
+  <main class="view">
+    <RouterView />
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -22,6 +24,14 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <style scoped>
+main {
+  width: 100%;
+  height: 100%;
+}
+
+.view {
+  border-left: 1px solid var(--color-border);
+}
 header {
   line-height: 1.5;
   max-height: 100vh;

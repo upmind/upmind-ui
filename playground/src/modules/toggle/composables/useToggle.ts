@@ -20,6 +20,11 @@ export function useToggle({ useGlobal = true }) {
     // -----------------
     count: computed(() => state.value?.context.count),
     isInactive: computed(() => ["inactive"].some(state.value.matches)),
-    isDisabled: computed(() => ["disabled"].some(state.value.matches))
+    isDisabled: computed(() => ["disabled"].some(state.value.matches)),
+    isProcessing: computed(() =>
+      ["disabled.processing", "inactive.processing", "active.processing"].some(
+        state.value.matches
+      )
+    )
   };
 }

@@ -56,6 +56,7 @@ export interface RequestEvent {
   init: RequestInit;
   useCache?: boolean;
   promise?: CancellablePromise<FetchResponse>;
+  error?: FetchError;
 }
 
 export interface RequestPromiseEvent {
@@ -68,6 +69,6 @@ export type RequestEvents = {
 };
 
 export type RequestsEvents = {
-  type: "ADD" | "STASH" | "CANCEL" | "REMOVE" | "RETRY";
+  type: "ADD" | "REMOVE" | "STASH" | "DUMP" | "CANCEL" | "RETRY";
   data: any;
 };
