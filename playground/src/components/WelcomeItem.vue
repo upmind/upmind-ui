@@ -7,7 +7,7 @@
       <h3>
         <slot name="heading"></slot>
       </h3>
-      <h4>
+      <h4 class="green">
         <slot name="subheading"></slot>
       </h4>
       <slot></slot>

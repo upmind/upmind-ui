@@ -1,7 +1,8 @@
-import { createMachine } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 // ---
-import actions from "./actions";
-import services from "./services";
+import machineServices, { FetchMethods } from "./services";
+// ---
+import { isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -18,7 +19,8 @@ export default createMachine(
       hash: null,
       // ---
       request: null,
-      data: null
+      data: null,
+      error: null
     },
     states: {
       // our initial state depends on how the machine was invoked
@@ -28,8 +30,8 @@ export default createMachine(
       // individual request events are defined to allow for more granular control
       idle: {
         always: [
-          { target: "generating", cond: "isBeforeNoon" },
-          { target: "processing", cond: "isBeforeNoon" }
+          { target: "generating", cond: "hasRequest" },
+          { target: "processing", cond: "hasRequestPromise" }
         ],
         on: {
           GET: { target: "generating" },
@@ -42,16 +44,18 @@ export default createMachine(
 
       // Generate the request promise through our service
       generating: {
+        entry: ["setRequest"],
         invoke: {
           id: "process",
           src: "generateRequest",
-          onDone: { target: "processing", actions: ["setPromise"] },
+          onDone: { target: "processing", actions: ["setRequestPromise"] },
           onError: { target: "error", actions: ["setError"] }
         }
       },
 
       // Process the request through our service
       processing: {
+        entry: ["clearError"],
         invoke: {
           id: "process",
           src: "useRequest",
@@ -97,7 +101,73 @@ export default createMachine(
     }
   },
   {
-    actions,
-    services
+    actions: {
+      // ------------------------------------
+      // REQUEST ACTIONS
+
+      setRequest: assign((context, { data: { url, init, useCache } }) => {
+        debugger;
+        return {
+          url: url,
+          init: init,
+          useCache: useCache
+        };
+      }),
+
+      setRequestPromise: assign((context, { data: { promise } }) => {
+        debugger;
+        return {
+          request: promise
+        };
+      }),
+
+      clearRequestPromise: assign(({ init, hash }) => {
+        debugger;
+        // If we are using a GET request, we need to add the promise to the parent
+        // this allows us to abort the request if needed or re-use the request if it's already in progress
+        // if (init?.method === FetchMethods.GET) {
+        sendParent({ type: "REMOVE", data: { hash } });
+        // }
+
+        // finally update our context with the request promise
+        return {
+          request: null
+        };
+      }),
+
+      setResponse: assign(({ init, hash }, { data }) => {
+        debugger;
+
+        // If we are using a GET request, we need to add the response to the parent's cache
+        // this allows us to re-use the response if it is not stale
+        if (init?.method === FetchMethods.GET) {
+          sendParent({ type: "STASH", data: { hash, data } });
+        }
+
+        // finally update our context with the response data
+        return {
+          data
+        };
+      }),
+
+      // ------------------------------------
+      // ERROR HANDLING
+
+      setError: assign({
+        error: (context, { data }) => data || "Unknown error"
+      }),
+
+      clearError: assign({ error: null })
+    },
+    services: machineServices,
+    guards: {
+      hasRequest: ({ url, init }) => {
+        return !!url && !!init;
+      },
+
+      hasRequestPromise: ({ request }) => {
+        return !isEmpty(request);
+      }
+    }
   }
 );

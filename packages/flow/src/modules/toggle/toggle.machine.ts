@@ -10,37 +10,67 @@ export const machineConfig = {
   },
   states: {
     inactive: {
-      on: {
-        TOGGLE: [
-          {
-            target: "disabled",
+      id: "inactive",
+      initial: "idle",
+      states: {
+        idle: {
+          always: {
+            target: "#disabled",
             cond: (context: ToggleContext) => context.count >= 3
           },
-          {
-            target: "active",
-            actions: ["increment"]
+          on: {
+            TOGGLE: {
+              target: "processing",
+              actions: ["increment"]
+            }
           }
-        ]
+        },
+        processing: {
+          after: {
+            500: "#active"
+          }
+        }
       }
     },
     active: {
-      on: {
-        TOGGLE: [
-          {
-            target: "disabled",
+      id: "active",
+      initial: "idle",
+      states: {
+        idle: {
+          always: {
+            target: "#disabled",
             cond: (context: ToggleContext) => context.count >= 3
           },
-          {
-            target: "inactive"
+          on: {
+            TOGGLE: {
+              target: "processing",
+              actions: ["increment"]
+            }
           }
-        ]
+        },
+        processing: {
+          after: {
+            500: "#inactive"
+          }
+        }
       }
     },
     disabled: {
-      on: {
-        RESET: {
-          target: "inactive",
-          actions: ["reset"]
+      id: "disabled",
+      initial: "idle",
+      states: {
+        idle: {
+          on: {
+            RESET: {
+              target: "processing",
+              actions: ["reset"]
+            }
+          }
+        },
+        processing: {
+          after: {
+            1000: "#inactive"
+          }
         }
       }
     }

@@ -1,32 +1,32 @@
 <template>
-  <span class="toggles">
+  <div class="toggles">
     <button
       type="button"
       @click="toggle"
-      class="toggle"
+      :class="['toggle', { processing: !isDisabled && isProcessing }]"
       :title="isInactive ? 'Click to activate' : 'Active! Click to deactivate'"
-      v-if="!isDisabled"
+      :disabled="isProcessing || isDisabled"
     >
       <ToggleOffIcon v-if="isInactive" />
       <ToggleOnIcon v-else />
     </button>
 
     <button
-      type="button"
-      class="toggle"
+      type="reset"
+      :class="['toggle', { processing: isProcessing }]"
       title="Reset the toggle"
       @click="reset"
-      v-else
+      :disabled="isProcessing"
+      v-if="isDisabled"
     >
       <RefreshIcon />
     </button>
 
-    <span class="status"><slot></slot></span>
-
-    <span class="status debug">
+    <div class="status debug">
+      <div><slot></slot></div>
       Active : <strong>{{ count }}</strong> times
-    </span>
-  </span>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -53,13 +53,14 @@ export default defineComponent({
   setup(props, { attrs }) {
     const toggle = useToggle(props);
 
-    const { send, isInactive, isDisabled, count } = toggle;
+    const { send, isInactive, isDisabled, isProcessing, count } = toggle;
 
     return {
       send,
       count,
       isInactive,
-      isDisabled
+      isDisabled,
+      isProcessing
     };
   },
 
@@ -82,6 +83,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
 
   &:not(:first-child) {
     margin-top: 16px;
@@ -107,6 +109,20 @@ export default defineComponent({
 
   .text {
     margin-left: 4px;
+  }
+
+  .processing .icon {
+    animation: rotate 1s linear infinite;
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }
 .status {
