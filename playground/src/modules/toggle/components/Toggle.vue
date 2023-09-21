@@ -7,8 +7,8 @@
       :title="isInactive ? 'Click to activate' : 'Active! Click to deactivate'"
       :disabled="isProcessing || isDisabled"
     >
-      <ToggleOffIcon v-if="isInactive" />
-      <ToggleOnIcon v-else />
+      <toggle-off-icon v-if="isInactive" />
+      <toggle-on-icon v-else />
     </button>
 
     <button
@@ -19,7 +19,7 @@
       :disabled="isProcessing"
       v-show="isDisabled"
     >
-      <RefreshIcon />
+      <refresh-icon />
     </button>
 
     <div class="status debug">

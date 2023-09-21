@@ -6,7 +6,7 @@ import type { RequestsContext, RequestsEvents } from "./types";
 import services from "./services";
 import { addMeta, getMaxAge, generateHash } from "./utils";
 // --- utils
-import { isEmpty, set, get, unset, upperCase } from "lodash-es";
+import { isEmpty, set, get, unset } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -42,11 +42,11 @@ export default createMachine(
             actions: ["forward"]
           },
           CANCEL: {
-            actions: ["forward"],
-            target: "idle"
+            actions: ["forward"]
+            // target: "idle"
           },
           REMOVE: {
-            target: "idle",
+            // target: "idle",
             actions: ["remove"]
           }
         }
@@ -57,7 +57,7 @@ export default createMachine(
     },
     on: {
       ADD: {
-        actions: ["dumpStale", "add"]
+        actions: ["add"]
       },
       STOP: {
         target: "complete"
@@ -74,10 +74,7 @@ export default createMachine(
           const hash = generateHash(url, init);
 
           // spawn an actor for the new request
-          const machine = spawn(requestMachine, {
-            name: hash,
-            sync: true
-          });
+          const machine = spawn(requestMachine, hash);
 
           // todo check if the request is already in progress or cached
           // if so, we can skip the request and either:
@@ -88,9 +85,9 @@ export default createMachine(
           set(requests, hash, machine);
 
           // and then forward the request to the new machine to process
-          sendTo(hash, {
-            type: upperCase(init.method),
-            data: { url, init, useCache }
+          machine.send({
+            type: init.method,
+            data: { hash, url, init, useCache, parent: this }
           });
 
           return requests;
@@ -117,7 +114,7 @@ export default createMachine(
       }),
 
       forward: (
-        { requests }: RequestsContext,
+        context: RequestsContext,
         { type, data: { hash } }: RequestsEvents
       ) => {
         debugger;
@@ -129,6 +126,7 @@ export default createMachine(
           { cache }: RequestsContext,
           { data: { hash, data } }: RequestsEvents
         ) => {
+          debugger;
           addMeta(data, "maxAge", getMaxAge());
           set(cache, hash, data);
           return cache;

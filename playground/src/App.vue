@@ -15,12 +15,25 @@
   </header>
 
   <main class="view">
-    <RouterView />
+    <router-view />
   </main>
 </template>
 
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+import { inject } from "vue";
+import { RouterView } from "vue-router";
+import type { UseApiFunctions } from "@/modules/api/types";
+
+const upmind = inject("upmind") as UseApiFunctions;
+console.log("App Intialized", upmind);
+
+// attempt to get the data from a server
+
+upmind
+  .get({
+    url: "https://dummyjson.com/products/"
+  })
+  .then(response => console.log(response));
 </script>
 
 <style scoped>

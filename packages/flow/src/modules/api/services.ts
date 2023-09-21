@@ -4,12 +4,7 @@ import { includes, get } from "lodash-es";
 
 // --------------------------------------------------------
 
-import type {
-  FetchResponse,
-  RequestsContext,
-  RequestContext,
-  RequestEvent
-} from "./types";
+import type { RequestsContext, RequestContext, RequestEvent } from "./types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -30,15 +25,23 @@ export enum FetchMethods {
 // which allows us to abort the request if needed
 // or re-use the request if it's already in progress
 function generateRequest(
-  { hash }: RequestContext,
-  { url, init }: RequestEvent
+  context: RequestContext,
+  { data: { url, init } }: RequestEvent
 ) {
   // safety check, not sure we need this as our machine implementation is pretty strict
   if (!includes(FetchMethods, init.method)) {
     throw new Error(`Invalid method: ${init.method}`);
   }
 
-  const request = fetch(url, init).then(async response => {
+  const request = () => fetch(url, init);
+
+  // return the generated request promise to be used in the machine
+  return Promise.resolve(request);
+}
+
+function useRequest({ request }: RequestContext) {
+  // Process the actual request
+  return request().then(async response => {
     // Digest response data (JSON)
     const data = await response.json();
     // Unpack response object
@@ -48,16 +51,7 @@ function generateRequest(
 
     // Resolve the promise
     return { status, data };
-  });
-
-  // return the generated request promise to be used in the machine
-  return Promise.resolve(request);
-}
-
-function useRequest({ request }: RequestContext) {
-  // Process the actual request
-  debugger;
-  return request; //request();
+  }); //request();
 }
 
 function useCache(
@@ -66,7 +60,7 @@ function useCache(
 ) {
   // 1st: return existing request promise (if found)
   const reqPromise = get(requests, hash);
-  if (!!reqPromise) return reqPromise;
+  if (reqPromise) return reqPromise;
 
   // 2nd: Get cached response (if any)
   // NB: logic to clean up cache happens in actions on receiving the message to fetch
@@ -74,7 +68,7 @@ function useCache(
 
   // return cached result (if found)
   return new Promise((resolve, reject) => {
-    if (!!cachedResponse) return resolve(cachedResponse);
+    if (cachedResponse) return resolve(cachedResponse);
     else return reject();
   });
 }

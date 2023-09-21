@@ -15,7 +15,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    dumpStale: "ADD" | "DUMP";
+    dumpStale: "DUMP";
     forward: "CANCEL" | "RETRY";
     remove: "REMOVE";
     stash: "STASH";

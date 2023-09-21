@@ -10,7 +10,7 @@ import { toggleMachine } from "@upmind/flow";
 // --------------------------------------------------------
 // create a global instance of the toggle machine
 
-const shared = interpret(toggleMachine, { devTools: true }).start();
+const shared = interpret(toggleMachine, { devTools: false }).start();
 
 // --------------------------------------------------------
 
@@ -21,7 +21,7 @@ export function useToggle({ useGlobal = true }) {
     service = shared
   } = useGlobal
     ? useActor(shared)
-    : useMachine(toggleMachine, { devTools: true });
+    : useMachine(toggleMachine, { devTools: false });
 
   return {
     state,
