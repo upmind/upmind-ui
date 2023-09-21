@@ -1,24 +1,33 @@
+// --- external
 import { computed } from "vue";
-import { useMachine, useActor } from "@xstate/vue";
+import { useMachine, useActor, useSelector } from "@xstate/vue";
 import { interpret } from "xstate";
-
+// --- internal
 import { toggleMachine } from "@upmind/flow";
+// --- utils
+// import {} from 'lodash-es';
 
+// --------------------------------------------------------
 // create a global instance of the toggle machine
-const service = interpret(toggleMachine, { devTools: true }).start();
 
-// ---------------
+const shared = interpret(toggleMachine, { devTools: true }).start();
+
+// --------------------------------------------------------
 
 export function useToggle({ useGlobal = true }) {
-  const { state, send } = useGlobal
-    ? useActor(service)
+  const {
+    state,
+    send,
+    service = shared
+  } = useGlobal
+    ? useActor(shared)
     : useMachine(toggleMachine, { devTools: true });
 
   return {
     state,
     send,
-    // -----------------
-    count: computed(() => state.value?.context.count),
+    // ---
+    count: useSelector(service, ({ context }) => context.count),
     isInactive: computed(() => ["inactive"].some(state.value.matches)),
     isDisabled: computed(() => ["disabled"].some(state.value.matches)),
     isProcessing: computed(() =>

@@ -1,5 +1,9 @@
 // import { Url } from "url";
+// --- utils
 import { includes, get } from "lodash-es";
+
+// --------------------------------------------------------
+
 import type {
   FetchResponse,
   RequestsContext,
@@ -7,7 +11,7 @@ import type {
   RequestEvent
 } from "./types";
 
-// ------------------------------------
+// --------------------------------------------------------
 // ENUMS
 
 export enum FetchMethods {
@@ -17,7 +21,7 @@ export enum FetchMethods {
   PUT = "PUT"
 }
 
-// ------------------------------------
+// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -75,7 +79,7 @@ function useCache(
   });
 }
 
-// ------------------------------------
+// --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{

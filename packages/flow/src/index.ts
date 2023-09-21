@@ -3,7 +3,7 @@ export function test() {
   return "Upmind Flow";
 }
 
-// -----------------
+// --------------------------------------------------------
 // TODO: Only enable this in development and/or 'debug' is enabled
 import { inspect } from "@xstate/inspect";
 

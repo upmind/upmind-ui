@@ -1,13 +1,12 @@
+// --- external
 import { createMachine, assign, sendTo, spawn } from "xstate";
-// ---
+// --- internal
 import requestMachine from "./request.machine";
 import type { RequestsContext, RequestsEvents } from "./types";
-
 import services from "./services";
 import { addMeta, getMaxAge, generateHash } from "./utils";
-// ---
-import { isEmpty } from "lodash-es";
-import { set, get, unset, upperCase } from "lodash-es";
+// --- utils
+import { isEmpty, set, get, unset, upperCase } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -67,9 +66,6 @@ export default createMachine(
   },
   {
     actions: {
-      // ------------------------------------
-      // PARENT REQUESTS MANAGER ACTIONS
-
       add: assign({
         requests: (
           { requests }: RequestsContext,

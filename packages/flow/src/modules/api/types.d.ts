@@ -30,7 +30,7 @@ export interface useApiPostParams {
   init?: RequestInit;
 }
 
-// ------------------------------------
+// --------------------------------------------------------
 // Contexts
 
 export interface RequestContext {
@@ -48,7 +48,7 @@ export interface RequestsContext {
   cache: Record<string, FetchResponse["data"]>;
 }
 
-// ------------------------------------
+// --------------------------------------------------------
 // Events
 
 export interface RequestEvent {
