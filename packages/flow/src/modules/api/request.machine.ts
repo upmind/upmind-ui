@@ -2,6 +2,7 @@
 import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import machineServices, { FetchMethods } from "./services";
+
 // --- utils
 import { isEmpty } from "lodash-es";
 
@@ -18,6 +19,7 @@ export default createMachine(
       init: null,
       useCache: null,
       hash: null,
+      parent: null,
       // ---
       request: null,
       data: null,
@@ -60,7 +62,18 @@ export default createMachine(
         invoke: {
           id: "process",
           src: "useRequest",
-          onDone: { target: "processed", actions: ["setResponse"] },
+          onDone: [
+            {
+              target: "processed",
+              actions: ["setResponse", "sendStashResponse"],
+              cond: "isCachable"
+            },
+
+            {
+              target: "processed",
+              actions: ["setResponse"]
+            }
+          ],
           onError: { target: "error", actions: ["setError"] }
         },
         on: {
@@ -96,57 +109,63 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        entry: ["clearRequestPromise"],
+        entry: ["sendClearRequest", "clearRequestPromise"],
         type: "final"
       }
     }
   },
   {
     actions: {
-      setRequest: assign((context, { data: { url, init, useCache } }) => {
-        debugger;
+      setRequest: assign(
+        (context, { data: { hash, url, init, useCache } }) => ({
+          hash,
+          url,
+          init,
+          useCache
+        })
+      ),
+
+      setRequestPromise: assign((context, { data }) => {
         return {
-          url: url,
-          init: init,
-          useCache: useCache
+          request: data
         };
       }),
 
-      setRequestPromise: assign((context, { data: { promise } }) => {
-        debugger;
+      clearRequestPromise: assign(({ hash }) => {
         return {
-          request: promise
+          // request: null
         };
       }),
 
-      clearRequestPromise: assign(({ init, hash }) => {
-        debugger;
-        // If we are using a GET request, we need to add the promise to the parent
-        // this allows us to abort the request if needed or re-use the request if it's already in progress
-        // if (init?.method === FetchMethods.GET) {
-        sendParent({ type: "REMOVE", data: { hash } });
-        // }
+      // If we are using a GET request, we need to add the promise to the parent
+      // this allows us to abort the request if needed or re-use the request if it's already in progress
+      // if (init?.method === FetchMethods.GET) {
+      // }
+      sendClearRequest: sendParent(({ hash }) => ({
+        type: "REMOVE",
+        data: { hash }
+      })),
 
-        // finally update our context with the request promise
-        return {
-          request: null
-        };
-      }),
-
-      setResponse: assign(({ init, hash }, { data }) => {
+      setResponse: assign(({ init, hash }, { data: { data } }) => {
         debugger;
 
         // If we are using a GET request, we need to add the response to the parent's cache
         // this allows us to re-use the response if it is not stale
-        if (init?.method === FetchMethods.GET) {
-          sendParent({ type: "STASH", data: { hash, data } });
-        }
+        // if (init?.method === FetchMethods.GET) {
+        //   debugger;
+        //   sendParent({ type: "STASH", data: { hash, data } });
+        // }
 
         // finally update our context with the response data
         return {
           data
         };
       }),
+
+      sendStashResponse: sendParent(({ hash }, { data: { data } }) => ({
+        type: "STASH",
+        data: { hash, data }
+      })),
 
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
@@ -156,6 +175,9 @@ export default createMachine(
     },
     services: machineServices,
     guards: {
+      isCachable: ({ init }) => {
+        return init?.method === FetchMethods.GET;
+      },
       hasRequest: ({ url, init }) => {
         return !!url && !!init;
       },

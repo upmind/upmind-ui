@@ -35,6 +35,8 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearError: "" | "RETRY" | "done.invoke.process";
     clearRequestPromise: "CANCEL" | "xstate.after(100)#request.processed";
+    sendClearRequest: "CANCEL" | "xstate.after(100)#request.processed";
+    sendStashResponse: "done.invoke.process";
     setError: "error.platform.cancel" | "error.platform.process";
     setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     setRequestPromise: "done.invoke.process";
@@ -44,6 +46,7 @@ export interface Typegen0 {
   eventsCausingGuards: {
     hasRequest: "";
     hasRequestPromise: "";
+    isCachable: "done.invoke.process";
   };
   eventsCausingServices: {
     cancelRequest: "CANCEL";
