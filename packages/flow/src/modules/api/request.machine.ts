@@ -3,9 +3,6 @@ import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import machineServices, { FetchMethods } from "./services";
 
-// --- utils
-import { isEmpty } from "lodash-es";
-
 // --------------------------------------------------------
 
 export default createMachine(
@@ -20,9 +17,9 @@ export default createMachine(
       useCache: null,
       hash: null,
       parent: null,
+      maxAge: 60000, // 1 minute
       // ---
-      request: null,
-      data: null,
+      response: null,
       error: null
     },
     states: {
@@ -33,47 +30,28 @@ export default createMachine(
       // individual request events are defined to allow for more granular control
       idle: {
         always: [
-          { target: "generating", cond: "hasRequest" },
-          { target: "processing", cond: "hasRequestPromise" }
+          { target: "processing", cond: ({ url, init }) => !!url && !!init }
         ],
         on: {
-          GET: { target: "generating" },
-          POST: { target: "generating" },
-          PUT: { target: "generating" },
-          PATCH: { target: "generating" },
-          DELETE: { target: "generating" }
-        }
-      },
-
-      // Generate the request promise through our service
-      generating: {
-        entry: ["setRequest"],
-        invoke: {
-          id: "process",
-          src: "generateRequest",
-          onDone: { target: "processing", actions: ["setRequestPromise"] },
-          onError: { target: "error", actions: ["setError"] }
+          GET: { target: "processing" },
+          POST: { target: "processing" },
+          PUT: { target: "processing" },
+          PATCH: { target: "processing" },
+          DELETE: { target: "processing" }
         }
       },
 
       // Process the request through our service
       processing: {
-        entry: ["clearError"],
+        entry: ["setRequest", "clearError"],
+        id: "processing",
         invoke: {
           id: "process",
-          src: "useRequest",
-          onDone: [
-            {
-              target: "processed",
-              actions: ["setResponse", "sendStashResponse"],
-              cond: "isCachable"
-            },
-
-            {
-              target: "processed",
-              actions: ["setResponse"]
-            }
-          ],
+          src: "doFetch",
+          onDone: {
+            target: "processed",
+            actions: ["setResponse"]
+          },
           onError: { target: "error", actions: ["setError"] }
         },
         on: {
@@ -86,30 +64,68 @@ export default createMachine(
         invoke: {
           id: "cancel",
           src: "cancelRequest",
-          onDone: { target: "processed" },
+          onDone: { target: "processed", actions: ["clearResponse"] },
           onError: { target: "error", actions: ["setError"] }
         }
       },
 
       // Use a transient state to indicate a successful process
       // We have an imperceptible delay to allow the components to understand the process is complete
+      // We could also move into a cached state if we have a GET request
       processed: {
-        after: {
-          100: [{ target: "complete" }]
+        id: "processed",
+        initial: "idle",
+        states: {
+          idle: {
+            after: [
+              {
+                delay: 0,
+                target: "cached",
+                cond: "isCachable"
+              },
+              {
+                delay: 100,
+                target: "#complete"
+              }
+            ]
+          },
+          cached: {
+            after: { maxAge: "stale" }, // automatically move to stale after max age
+            on: {
+              CANCEL: { target: "#complete" }
+            }
+          },
+          stale: {
+            on: {
+              REFRESH: { target: "#processing", actions: ["clearResponse"] },
+              CANCEL: { target: "#complete" }
+            }
+          }
+        },
+        on: {
+          RETRY: { target: "processing", actions: ["clearResponse"] },
+          CANCEL: { target: "#complete" }
         }
+        // after: {
+        //   100: [{ target: "#complete" }]
+        // }
       },
 
       // Handle errors
       error: {
+        after: {
+          maxAge: "#complete" // automatically move to complete after  max age
+        },
         on: {
           RETRY: { target: "processing", actions: ["clearError"] },
-          CANCEL: { target: "complete" }
+          CANCEL: { target: "#complete" }
         }
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        entry: ["sendClearRequest", "clearRequestPromise"],
+        id: "complete",
+        entry: ["sendClearRequest"],
         type: "final"
       }
     }
@@ -125,17 +141,9 @@ export default createMachine(
         })
       ),
 
-      setRequestPromise: assign((context, { data }) => {
-        return {
-          request: data
-        };
-      }),
+      setResponse: assign({ response: (context, { data }) => data }),
 
-      clearRequestPromise: assign(({ hash }) => {
-        return {
-          // request: null
-        };
-      }),
+      clearResponse: assign({ response: null }),
 
       // If we are using a GET request, we need to add the promise to the parent
       // this allows us to abort the request if needed or re-use the request if it's already in progress
@@ -146,27 +154,6 @@ export default createMachine(
         data: { hash }
       })),
 
-      setResponse: assign(({ init, hash }, { data: { data } }) => {
-        debugger;
-
-        // If we are using a GET request, we need to add the response to the parent's cache
-        // this allows us to re-use the response if it is not stale
-        // if (init?.method === FetchMethods.GET) {
-        //   debugger;
-        //   sendParent({ type: "STASH", data: { hash, data } });
-        // }
-
-        // finally update our context with the response data
-        return {
-          data
-        };
-      }),
-
-      sendStashResponse: sendParent(({ hash }, { data: { data } }) => ({
-        type: "STASH",
-        data: { hash, data }
-      })),
-
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
       }),
@@ -175,16 +162,10 @@ export default createMachine(
     },
     services: machineServices,
     guards: {
-      isCachable: ({ init }) => {
-        return init?.method === FetchMethods.GET;
-      },
-      hasRequest: ({ url, init }) => {
-        return !!url && !!init;
-      },
-
-      hasRequestPromise: ({ request }) => {
-        return !isEmpty(request);
-      }
+      isCachable: ({ init }) => init?.method === FetchMethods.GET
+    },
+    delays: {
+      maxAge: ({ maxAge }) => maxAge // this allows us to override the max age in the context
     }
   }
 );

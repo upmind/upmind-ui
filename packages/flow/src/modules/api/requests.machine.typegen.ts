@@ -15,13 +15,12 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    dumpStale: "DUMP";
-    forward: "CANCEL" | "RETRY";
+    forward: "CANCEL" | "REFRESH" | "RETRY";
     remove: "REMOVE";
-    stash: "STASH";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
+    hasNoRequests: "";
     hasRequests: "";
   };
   eventsCausingServices: {};

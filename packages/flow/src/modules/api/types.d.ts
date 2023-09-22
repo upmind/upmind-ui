@@ -1,3 +1,5 @@
+import type { StateMachine } from "xstate";
+
 interface CancellablePromise<T> extends Promise<T> {
   stop: () => void;
   abort: () => void;
@@ -44,23 +46,20 @@ export interface RequestContext {
 }
 
 export interface RequestsContext {
-  requests: Record<string, CancellablePromise<FetchResponse>>;
-  cache: Record<string, FetchResponse["data"]>;
+  requests: Record<string, StateMachine>;
 }
 
 // --------------------------------------------------------
 // Events
 
 export interface RequestEvent {
-  url: string;
-  init: RequestInit;
-  useCache?: boolean;
-  promise?: CancellablePromise<FetchResponse>;
+  data: {
+    url: string;
+    init: RequestInit;
+    useCache: boolean;
+    hash: string;
+  };
   error?: FetchError;
-}
-
-export interface RequestPromiseEvent {
-  promise: string;
 }
 
 export type RequestEvents = {
