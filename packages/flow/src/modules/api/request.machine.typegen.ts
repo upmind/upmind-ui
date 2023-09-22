@@ -16,50 +16,74 @@ export interface Typegen0 {
     };
     "error.platform.cancel": { type: "error.platform.cancel"; data: unknown };
     "error.platform.process": { type: "error.platform.process"; data: unknown };
-    "xstate.after(100)#request.processed": {
-      type: "xstate.after(100)#request.processed";
+    "xstate.after(maxAge)#request.error": {
+      type: "xstate.after(maxAge)#request.error";
+    };
+    "xstate.after(maxAge)#request.processed.cached": {
+      type: "xstate.after(maxAge)#request.processed.cached";
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
     cancelRequest: "done.invoke.cancel";
-    generateRequest: "done.invoke.process";
-    useRequest: "done.invoke.process";
+    doFetch: "done.invoke.process";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "cancelRequest" | "generateRequest" | "useRequest";
+    services: "cancelRequest" | "doFetch";
   };
   eventsCausingActions: {
-    clearError: "" | "RETRY" | "done.invoke.process";
-    clearRequestPromise: "CANCEL" | "xstate.after(100)#request.processed";
-    sendClearRequest: "CANCEL" | "xstate.after(100)#request.processed";
-    sendStashResponse: "done.invoke.process";
+    clearError:
+      | ""
+      | "DELETE"
+      | "GET"
+      | "PATCH"
+      | "POST"
+      | "PUT"
+      | "REFRESH"
+      | "RETRY";
+    clearResponse: "REFRESH" | "RETRY" | "done.invoke.cancel";
+    sendClearRequest: "CANCEL" | "xstate.after(maxAge)#request.error";
     setError: "error.platform.cancel" | "error.platform.process";
-    setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
-    setRequestPromise: "done.invoke.process";
+    setRequest:
+      | ""
+      | "DELETE"
+      | "GET"
+      | "PATCH"
+      | "POST"
+      | "PUT"
+      | "REFRESH"
+      | "RETRY";
     setResponse: "done.invoke.process";
   };
-  eventsCausingDelays: {};
-  eventsCausingGuards: {
-    hasRequest: "";
-    hasRequestPromise: "";
-    isCachable: "done.invoke.process";
+  eventsCausingDelays: {
+    maxAge: "error.platform.cancel" | "error.platform.process";
   };
+  eventsCausingGuards: {};
   eventsCausingServices: {
     cancelRequest: "CANCEL";
-    generateRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
-    useRequest: "" | "RETRY" | "done.invoke.process";
+    doFetch:
+      | ""
+      | "DELETE"
+      | "GET"
+      | "PATCH"
+      | "POST"
+      | "PUT"
+      | "REFRESH"
+      | "RETRY";
   };
   matchesStates:
     | "cancelling"
     | "complete"
     | "error"
-    | "generating"
     | "idle"
     | "processed"
-    | "processing";
+    | "processed.cached"
+    | "processed.idle"
+    | "processed.stale"
+    | "processing"
+    | { processed?: "cached" | "idle" | "stale" };
   tags: never;
 }

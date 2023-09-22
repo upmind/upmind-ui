@@ -4,7 +4,7 @@ import { createMachine, assign, sendTo, spawn } from "xstate";
 import requestMachine from "./request.machine";
 import type { RequestsContext, RequestsEvents } from "./types";
 import services from "./services";
-import { addMeta, getMaxAge, generateHash } from "./utils";
+import { generateHash } from "./utils";
 // --- utils
 import { isEmpty, set, get, unset } from "lodash-es";
 
@@ -18,36 +18,27 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "idle",
     context: {
-      requests: {},
-      cache: {}
+      requests: {}
     },
     states: {
       // our initial state depends on if the machine has any requests
       // If we have context > requests, we can skip to active
       // otherwise we will await a request
       // individual request events are defined to allow for more granular control
-
       idle: {
         always: [{ target: "active", cond: "hasRequests" }]
       },
       active: {
+        always: [{ target: "idle", cond: "hasNoRequests" }],
         on: {
-          STASH: {
-            actions: ["stash"]
-          },
-          DUMP: {
-            actions: ["dumpStale"] // 'dump'
+          REFRESH: {
+            actions: ["forward"]
           },
           RETRY: {
             actions: ["forward"]
           },
           CANCEL: {
             actions: ["forward"]
-            // target: "idle"
-          },
-          REMOVE: {
-            // target: "idle",
-            actions: ["remove"]
           }
         }
       },
@@ -58,6 +49,9 @@ export default createMachine(
     on: {
       ADD: {
         actions: ["add"]
+      },
+      REMOVE: {
+        actions: ["remove"]
       },
       STOP: {
         target: "complete"
@@ -72,23 +66,32 @@ export default createMachine(
           { data: { url, init, useCache } }: RequestsEvents
         ) => {
           const hash = generateHash(url, init);
+          // check if we already have a request with the same hash
+          const request = get(requests, hash);
 
-          // spawn an actor for the new request
-          const machine = spawn(requestMachine, hash);
+          // if we dont then spawn a new request machine
+          // and send the request to it
+          if (!request) {
+            // spawn an actor for the new request
+            const machine = spawn(requestMachine, hash);
 
-          // todo check if the request is already in progress or cached
-          // if so, we can skip the request and either:
-          // 1. return the cached request's data
-          // 2. return the request in progress
+            // for now well just add the new machine to our list
+            set(requests, hash, machine);
 
-          // for now well just add the new machine to our list
-          set(requests, hash, machine);
+            // and then forward the request to the new machine to process
+            machine.send({
+              type: init.method,
+              data: { hash, url, init, useCache, parent: this }
+            });
+          }
 
-          // and then forward the request to the new machine to process
-          machine.send({
-            type: init.method,
-            data: { hash, url, init, useCache, parent: this }
-          });
+          // if we already have a request with the same hash
+          // we can check if its stale and needs to be refreshed
+          else if (request.state.matches("processed.stale")) {
+            request.send({
+              type: "REFRESH"
+            });
+          }
 
           return requests;
         }
@@ -117,54 +120,17 @@ export default createMachine(
         context: RequestsContext,
         { type, data: { hash } }: RequestsEvents
       ) => {
-        debugger;
         sendTo(hash, { type });
-      },
-
-      stash: assign({
-        cache: (
-          { cache }: RequestsContext,
-          { data: { hash, data } }: RequestsEvents
-        ) => {
-          debugger;
-          addMeta(data, "maxAge", getMaxAge());
-          set(cache, hash, data);
-          return cache;
-        }
-      }),
-
-      dumpStale: assign({
-        cache: (
-          { cache }: RequestsContext,
-          { data: { hash } }: RequestsEvents
-        ) => {
-          debugger;
-          const cached = get(cache, hash);
-
-          // Dump if NOT within Max Age
-          if (cached?._maxAge < new Date()) unset(cache, hash);
-
-          return cache;
-        }
-      })
-
-      // do we need a force dump? This will dump regardless of maxAge
-      // dump: assign({
-      //   cache: (
-      //     { cache }: RequestsContext,
-      //     { data: { hash } }: RequestsEvents
-      //   ) => {
-      //     debugger;
-      //     unset(cache, hash);
-      //     return cache;
-      //   }
-      // })
+      }
     },
 
     services,
     guards: {
       hasRequests: ({ requests }) => {
         return !isEmpty(requests);
+      },
+      hasNoRequests: ({ requests }) => {
+        return isEmpty(requests);
       }
     }
   }
