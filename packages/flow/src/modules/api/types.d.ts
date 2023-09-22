@@ -40,6 +40,7 @@ export interface RequestContext {
   init: RequestInit | null;
   useCache: boolean | null;
   hash: string | null;
+  maxAge: number;
   // ---
   request: CancellablePromise<FetchResponse> | null;
   data: FetchResponse["data"] | null;
@@ -53,6 +54,7 @@ export interface RequestsContext {
 // Events
 
 export interface RequestEvent {
+  type: string;
   data: {
     url: string;
     init: RequestInit;

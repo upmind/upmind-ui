@@ -2,12 +2,14 @@
 import type { Url } from "url";
 import { computed } from "vue";
 import { useActor, useSelector } from "@xstate/vue";
-import { interpret } from "xstate";
+import { interpret, t } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
+
 // --- internal
-import { requestsMachine } from "@upmind/flow";
+import { requestsMachine, generateHash } from "@upmind/flow";
 import type { UseApi, UseApiFunctions } from "./types";
 // --- utils
-import { keys, set } from "lodash-es";
+import { keys, set, get } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -29,7 +31,43 @@ export const useApi = () => {
   // --------------------------------------------------------
   // Syntax sugar for the requests machine
 
-  async function get(
+  async function request(
+    { url, init = {} }: { url: string; init: RequestInit },
+    useCache = true
+  ) {
+    // re-enable once we have locales
+    // url?.searchParams?.set("lang", activeLocale.value);
+
+    // safe guard
+    init ??= {};
+
+    // Enforce method & header
+    set(init, "headers", { "Content-Type": "application/json" });
+
+    const hash = generateHash(url, init);
+
+    // first we trigger the request
+    send({
+      type: "ADD",
+      data: { hash, url, init, useCache }
+    });
+
+    // then we get the request from context
+    const request = get(state.value.context.requests, hash);
+
+    if (request) {
+      // then we await the state of the request to be processed/cached
+      await waitFor(request, state => state.matches("processed"));
+
+      // finnaly we return the response
+      return request.state.context.response.data;
+    }
+
+    // todo
+    throw new Error("Request not found");
+  }
+
+  async function getRequest(
     { url, init = {} }: { url: string; init: RequestInit },
     useCache = true
   ) {
@@ -41,21 +79,11 @@ export const useApi = () => {
 
     // Enforce method & header
     set(init, "method", "GET");
-    set(init, "headers", { "Content-Type": "application/json" });
 
-    const response = send({
-      type: "ADD",
-      data: { url, init, useCache }
-    });
-
-    // todo get the actual response
-    // for that we have to get the request id
-    // and then await the response from the machine
-
-    return response;
+    return request({ url, init }, useCache);
   }
 
-  async function post({
+  async function postRequest({
     url,
     data,
     init = {}
@@ -69,19 +97,9 @@ export const useApi = () => {
 
     // Enforce method, header, parse body
     set(init, "method", "GET");
-    set(init, "headers", { "Content-Type": "application/json" });
     set(init, "body", JSON.stringify(data));
 
-    const response = send({
-      type: "ADD",
-      data: { url, init }
-    });
-
-    // todo get the actual response
-    // for that we have to get the request id
-    // and then await the response from the machine
-
-    return response;
+    return request({ url, init });
   }
 
   // --------------------------------------------------------
@@ -102,7 +120,7 @@ export const useApi = () => {
       )
     ),
     useUrl,
-    get,
-    post
+    get: getRequest,
+    post: postRequest
   };
 };
