@@ -133,11 +133,12 @@ export default createMachine(
   {
     actions: {
       setRequest: assign(
-        (context, { data: { hash, url, init, useCache } }) => ({
+        (context, { data: { hash, url, init, useCache, maxAge } }) => ({
           hash,
           url,
           init,
-          useCache
+          useCache,
+          maxAge: maxAge || context.maxAge
         })
       ),
 
