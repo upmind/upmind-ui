@@ -17,7 +17,7 @@ export default createMachine(
       useCache: null,
       hash: null,
       parent: null,
-      maxAge: 6000, // 1 minute
+      maxAge: 60000, // 1 minute
       // ---
       response: null,
       error: null
