@@ -1,4 +1,7 @@
 <template>
+  <h2>
+    Requests <span v-if="isActive">({{ count }})</span>
+  </h2>
   <table class="requests">
     <tr>
       <th>url</th>
@@ -20,5 +23,5 @@ import type { UseApiFunctions } from "@/modules/api/types";
 const upmind = inject("upmind") as UseApiFunctions;
 
 // attempt to get the data from a server
-const requests = upmind.requests;
+const { requests, count, isActive } = upmind;
 </script>

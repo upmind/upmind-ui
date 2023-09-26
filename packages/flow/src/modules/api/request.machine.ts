@@ -68,7 +68,7 @@ export default createMachine(
         invoke: {
           id: "cancel",
           src: "cancelRequest",
-          onDone: { target: "processed", actions: ["clearResponse"] },
+          onDone: { target: "processed", actions: [] },
           onError: { target: "error", actions: ["setError"] }
         }
       },
@@ -100,19 +100,13 @@ export default createMachine(
             }
           },
           stale: {
+            after: { maxAge: "#complete" }, // automatically move to complete after max age
             on: {
               REFRESH: { target: "#processing" },
               CANCEL: { target: "#complete" }
             }
           }
-        },
-        on: {
-          RETRY: { target: "processing", actions: ["clearResponse"] },
-          CANCEL: { target: "#complete" }
         }
-        // after: {
-        //   100: [{ target: "#complete" }]
-        // }
       },
 
       // Handle errors
@@ -129,7 +123,7 @@ export default createMachine(
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        entry: ["sendClearRequest", "clearResponse"],
+        entry: ["sendClearRequest"],
         type: "final"
       }
     }
@@ -167,7 +161,8 @@ export default createMachine(
     },
     services: machineServices,
     guards: {
-      isCachable: ({ init }) => init?.method === FetchMethods.GET
+      isCachable: ({ init, useCache }) =>
+        init?.method === FetchMethods.GET && !!useCache
     },
     delays: {
       maxAge: ({ maxAge }) => maxAge // this allows us to override the max age in the context
