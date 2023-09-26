@@ -35,7 +35,6 @@ export default defineComponent({
     const request = ref();
 
     machine.onTransition(state => {
-      console.log("Request", props.hash, state.value);
       request.value = {
         url: state.context.url,
         state: state.value,
