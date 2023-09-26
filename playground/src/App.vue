@@ -22,6 +22,85 @@
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
+
+import { inject } from "vue";
+import type { UseApiFunctions } from "@/modules/api/types";
+import { delay, forEach } from "lodash-es";
+
+const upmind = inject("upmind") as UseApiFunctions;
+console.log("Upmind Intialized", upmind);
+
+const TIME = {
+  IMMIDIATE: 0,
+  MILLISECOND: 1,
+  get SECOND() {
+    return 1000 * this.MILLISECOND;
+  },
+  get MINUTE() {
+    return 60 * this.SECOND;
+  },
+  get HOUR() {
+    return 60 * this.MINUTE;
+  },
+  get DAY() {
+    return 24 * this.HOUR;
+  },
+  get WEEK() {
+    return 7 * this.DAY;
+  },
+  get MONTH() {
+    return 30 * this.DAY;
+  },
+  get YEAR() {
+    return 365 * this.DAY;
+  }
+};
+
+const requests = [
+  { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
+  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
+  { url: "https://dummyjson.com/products/2", delay: TIME.IMMIDIATE },
+
+  { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
+  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
+  { url: "https://dummyjson.com/products/2", delay: TIME.IMMIDIATE },
+
+  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 10 },
+  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 10 },
+  { url: "https://dummyjson.com/products/2", delay: TIME.SECOND * 10 },
+
+  { url: "https://dummyjson.com/products/", delay: TIME.MINUTE },
+  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE },
+  { url: "https://dummyjson.com/products/2", delay: TIME.MINUTE },
+
+  {
+    url: "https://dummyjson.com/products/",
+    delay: TIME.MINUTE + TIME.SECOND * 10
+  },
+  {
+    url: "https://dummyjson.com/products/1",
+    delay: TIME.MINUTE + TIME.SECOND * 10
+  },
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.MINUTE + TIME.SECOND * 10
+  },
+
+  { url: "https://dummyjson.com/products/", delay: TIME.MINUTE * 2 },
+  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 2 },
+  { url: "https://dummyjson.com/products/2", delay: TIME.MINUTE * 2 }
+];
+
+forEach(requests, request => {
+  delay(
+    url => {
+      console.log("fetching...", request.url, request.delay);
+      upmind.get({ url });
+    },
+    request.delay,
+    request.url
+  );
+});
 </script>
 
 <style scoped>

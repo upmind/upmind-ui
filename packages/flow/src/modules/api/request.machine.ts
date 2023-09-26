@@ -17,7 +17,7 @@ export default createMachine(
       useCache: null,
       hash: null,
       parent: null,
-      maxAge: 60000, // 1 minute
+      maxAge: 6000, // 1 minute
       // ---
       response: null,
       error: null
@@ -30,20 +30,24 @@ export default createMachine(
       // individual request events are defined to allow for more granular control
       idle: {
         always: [
-          { target: "processing", cond: ({ url, init }) => !!url && !!init }
+          {
+            target: "processing",
+            actions: ["setRequest"],
+            cond: ({ url, init }) => !!url && !!init
+          }
         ],
         on: {
-          GET: { target: "processing" },
-          POST: { target: "processing" },
-          PUT: { target: "processing" },
-          PATCH: { target: "processing" },
-          DELETE: { target: "processing" }
+          GET: { target: "processing", actions: ["setRequest"] },
+          POST: { target: "processing", actions: ["setRequest"] },
+          PUT: { target: "processing", actions: ["setRequest"] },
+          PATCH: { target: "processing", actions: ["setRequest"] },
+          DELETE: { target: "processing", actions: ["setRequest"] }
         }
       },
 
       // Process the request through our service
       processing: {
-        entry: ["setRequest", "clearError"],
+        entry: ["clearResponse"],
         id: "processing",
         invoke: {
           id: "process",
@@ -97,7 +101,7 @@ export default createMachine(
           },
           stale: {
             on: {
-              REFRESH: { target: "#processing", actions: ["clearResponse"] },
+              REFRESH: { target: "#processing" },
               CANCEL: { target: "#complete" }
             }
           }
@@ -125,7 +129,7 @@ export default createMachine(
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        entry: ["sendClearRequest"],
+        entry: ["sendClearRequest", "clearResponse"],
         type: "final"
       }
     }

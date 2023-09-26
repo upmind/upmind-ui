@@ -57,10 +57,12 @@ export const useApi = () => {
 
     if (request) {
       // then we await the state of the request to be processed/cached
-      await waitFor(request, state => state.matches("processed"));
+      await waitFor(request, state =>
+        ["processed", "error"].some(state.matches)
+      );
 
       // finnaly we return the response
-      return request.state.context.response.data;
+      return request.state.context?.response?.data;
     }
 
     // todo

@@ -24,17 +24,17 @@ export enum FetchMethods {
 // we do this so we can store the request in context
 // which allows us to abort the request if needed
 // or re-use the request if it's already in progress
-async function doFetch(
-  context: RequestContext,
-  { data: { url, init } }: RequestEvent
-) {
+async function doFetch({ url, init }: RequestContext) {
   // safety check, not sure we need this as our machine implementation is pretty strict
   if (!includes(FetchMethods, init.method)) {
     throw new Error(`Invalid method: ${init.method}`);
   }
 
   // do the fetch
-  const response = await fetch(url, init);
+  const response = await fetch(url, init).catch(error => {
+    console.error("doFetch error", error);
+    Promise.reject(error);
+  });
 
   // Digest response data (JSON)
   const data = await response.json();

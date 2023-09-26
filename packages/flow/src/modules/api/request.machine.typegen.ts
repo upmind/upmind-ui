@@ -35,27 +35,22 @@ export interface Typegen0 {
     services: "cancelRequest" | "doFetch";
   };
   eventsCausingActions: {
-    clearError:
+    clearError: "RETRY";
+    clearResponse:
       | ""
+      | "CANCEL"
       | "DELETE"
       | "GET"
       | "PATCH"
       | "POST"
       | "PUT"
       | "REFRESH"
-      | "RETRY";
-    clearResponse: "REFRESH" | "RETRY" | "done.invoke.cancel";
+      | "RETRY"
+      | "done.invoke.cancel"
+      | "xstate.after(maxAge)#request.error";
     sendClearRequest: "CANCEL" | "xstate.after(maxAge)#request.error";
     setError: "error.platform.cancel" | "error.platform.process";
-    setRequest:
-      | ""
-      | "DELETE"
-      | "GET"
-      | "PATCH"
-      | "POST"
-      | "PUT"
-      | "REFRESH"
-      | "RETRY";
+    setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
