@@ -8,10 +8,11 @@
       height="125"
     />
 
-    <!-- <nav> -->
-    <!-- <RouterLink to="/">Home</RouterLink> -->
-    <!-- <RouterLink to="/about">About</RouterLink> -->
-    <!-- </nav> -->
+    <nav>
+      <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/requests">Requests</RouterLink>
+      <!-- <RouterLink to="/about">About</RouterLink> -->
+    </nav>
   </header>
 
   <main class="view">
@@ -20,43 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
 import { RouterView } from "vue-router";
-import type { UseApiFunctions } from "@/modules/api/types";
-import { delay } from "lodash-es";
-
-const upmind = inject("upmind") as UseApiFunctions;
-console.log("App Intialized", upmind);
-
-// attempt to get the data from a server
-
-const req1 = upmind
-  .get({
-    url: "https://dummyjson.com/products/"
-  })
-  .then(response => console.log("request 1", response));
-
-const req2 = upmind
-  .get({
-    url: "https://dummyjson.com/products/"
-  })
-  .then(response => console.log("request duplicate 1", response));
-
-const req3 = upmind
-  .get({
-    url: "https://dummyjson.com/products/1"
-  })
-  .then(response => console.log("request 2", response));
-
-const dupe2 = delay(
-  url => {
-    upmind.get({ url }).then(response => {
-      console.log("request duplicate 2", response);
-    });
-  },
-  1000,
-  "https://dummyjson.com/products/"
-);
 </script>
 
 <style scoped>
