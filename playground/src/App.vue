@@ -57,48 +57,78 @@ const TIME = {
 };
 
 const requests = [
+  // --- request 1
   { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/2", delay: TIME.IMMIDIATE },
-
   { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/2", delay: TIME.IMMIDIATE },
+  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 15 },
+  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 30 },
+  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 45 },
+  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 60 },
+  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 75 },
 
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 10 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 10 },
-  { url: "https://dummyjson.com/products/2", delay: TIME.SECOND * 10 },
-
-  { url: "https://dummyjson.com/products/", delay: TIME.MINUTE },
-  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE },
-  { url: "https://dummyjson.com/products/2", delay: TIME.MINUTE },
-
-  {
-    url: "https://dummyjson.com/products/",
-    delay: TIME.MINUTE + TIME.SECOND * 10
-  },
+  // --- request 2
   {
     url: "https://dummyjson.com/products/1",
-    delay: TIME.MINUTE + TIME.SECOND * 10
+    delay: TIME.IMMIDIATE,
+    maxAge: 10000
+  },
+  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
+  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 15 },
+  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 30 },
+  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 45 },
+  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 60 },
+  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 75 },
+
+  // --- request 3
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.IMMIDIATE,
+    useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.MINUTE + TIME.SECOND * 10
+    delay: TIME.IMMIDIATE,
+    useCache: false
   },
-
-  { url: "https://dummyjson.com/products/", delay: TIME.MINUTE * 2 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 2 },
-  { url: "https://dummyjson.com/products/2", delay: TIME.MINUTE * 2 }
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.SECOND * 15,
+    useCache: false
+  },
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.SECOND * 30,
+    useCache: false
+  },
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.SECOND * 45,
+    useCache: false
+  },
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.SECOND * 60,
+    useCache: false
+  },
+  {
+    url: "https://dummyjson.com/products/2",
+    delay: TIME.SECOND * 75,
+    useCache: false
+  }
 ];
 
 forEach(requests, request => {
   delay(
-    url => {
+    ({ url, init, useCache, maxAge }) => {
       console.log("fetching...", request.url, request.delay);
-      upmind.get({ url });
+      upmind
+        .get({ url, init, useCache, maxAge })
+        .then(({ data }) =>
+          console.log("fetched", request.url, request.delay, data)
+        );
     },
     request.delay,
-    request.url
+    request
   );
 });
 </script>

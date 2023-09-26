@@ -34,7 +34,8 @@ interface UseApiFunctions {
   useUrl: (path: Url["path"]) => string;
   get: (
     { url, init }: { url: string; init?: RequestInit },
-    useCache?: boolean
+    useCache?: boolean,
+    maxAge?: number
   ) => Promise<any>;
   post: ({
     url,

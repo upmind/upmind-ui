@@ -16,8 +16,7 @@
 </template>
 
 <script>
-import { defineComponent, toRefs, computed, watch, inject, ref } from "vue";
-import { useSelector, useActor } from "@xstate/vue";
+import { defineComponent, inject, ref } from "vue";
 import { get } from "lodash-es";
 
 export default defineComponent({

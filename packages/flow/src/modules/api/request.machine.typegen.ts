@@ -22,6 +22,9 @@ export interface Typegen0 {
     "xstate.after(maxAge)#request.processed.cached": {
       type: "xstate.after(maxAge)#request.processed.cached";
     };
+    "xstate.after(maxAge)#request.processed.stale": {
+      type: "xstate.after(maxAge)#request.processed.stale";
+    };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -38,23 +41,26 @@ export interface Typegen0 {
     clearError: "RETRY";
     clearResponse:
       | ""
-      | "CANCEL"
       | "DELETE"
       | "GET"
       | "PATCH"
       | "POST"
       | "PUT"
       | "REFRESH"
-      | "RETRY"
-      | "done.invoke.cancel"
-      | "xstate.after(maxAge)#request.error";
-    sendClearRequest: "CANCEL" | "xstate.after(maxAge)#request.error";
+      | "RETRY";
+    sendClearRequest:
+      | "CANCEL"
+      | "xstate.after(maxAge)#request.error"
+      | "xstate.after(maxAge)#request.processed.stale";
     setError: "error.platform.cancel" | "error.platform.process";
     setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
-    maxAge: "error.platform.cancel" | "error.platform.process";
+    maxAge:
+      | "error.platform.cancel"
+      | "error.platform.process"
+      | "xstate.after(maxAge)#request.processed.cached";
   };
   eventsCausingGuards: {};
   eventsCausingServices: {

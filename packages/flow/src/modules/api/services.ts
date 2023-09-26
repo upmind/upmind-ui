@@ -1,17 +1,16 @@
-// import { Url } from "url";
+// --- internal
+import type { RequestContext } from "./types";
+
 // --- utils
-import { includes, get } from "lodash-es";
-
-// --------------------------------------------------------
-
-import type { RequestsContext, RequestContext, RequestEvent } from "./types";
+import { includes } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
 
 export enum FetchMethods {
-  GET = "GET",
   DELETE = "DELETE",
+  GET = "GET",
+  PATCH = "PATCH",
   POST = "POST",
   PUT = "PUT"
 }
@@ -20,10 +19,7 @@ export enum FetchMethods {
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// this will generate the actual request promise
-// we do this so we can store the request in context
-// which allows us to abort the request if needed
-// or re-use the request if it's already in progress
+// this will process the request and return a promise
 async function doFetch({ url, init }: RequestContext) {
   // safety check, not sure we need this as our machine implementation is pretty strict
   if (!includes(FetchMethods, init.method)) {

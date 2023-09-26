@@ -63,7 +63,7 @@ export default createMachine(
       add: assign({
         requests: (
           { requests }: RequestsContext,
-          { data: { url, init, useCache } }: RequestsEvents
+          { data: { url, init, useCache, maxAge } }: RequestsEvents
         ) => {
           const hash = generateHash(url, init);
           // check if we already have a request with the same hash
@@ -73,7 +73,10 @@ export default createMachine(
           // and send the request to it
           if (!request) {
             // spawn an actor for the new request
-            const machine = spawn(requestMachine, hash);
+            const machine = spawn(requestMachine, {
+              name: hash,
+              sync: true
+            });
 
             // for now well just add the new machine to our list
             set(requests, hash, machine);
@@ -81,7 +84,7 @@ export default createMachine(
             // and then forward the request to the new machine to process
             machine.send({
               type: init.method,
-              data: { hash, url, init, useCache, parent: this }
+              data: { hash, url, init, useCache, maxAge, parent: this }
             });
           }
 
@@ -124,7 +127,6 @@ export default createMachine(
       }
     },
 
-    services,
     guards: {
       hasRequests: ({ requests }) => {
         return !isEmpty(requests);
@@ -132,6 +134,7 @@ export default createMachine(
       hasNoRequests: ({ requests }) => {
         return isEmpty(requests);
       }
-    }
+    },
+    services
   }
 );
