@@ -107,9 +107,9 @@ export const useApi = () => {
   return {
     state,
     send,
+    service,
     // ---
     count: useSelector(service, ({ context }) => keys(context.requests).length),
-    cache: useSelector(service, ({ context }) => context.cache),
     requests: useSelector(service, ({ context }) => context.requests),
     // ---
     isIdle: computed(() => ["inactive"].some(state.value.matches)),
