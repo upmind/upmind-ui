@@ -35,7 +35,7 @@ export default createMachine(
           },
           onError: {
             target: "generating",
-            actions: ["setError"]
+            actions: []
           }
         }
       },

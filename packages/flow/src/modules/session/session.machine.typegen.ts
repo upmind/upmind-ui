@@ -51,7 +51,6 @@ export interface Typegen0 {
       | "done.invoke.checking:invocation[0]"
       | "done.invoke.sessionManager.generating.basket:invocation[0]";
     setError:
-      | "error.platform.checking:invocation[0]"
       | "error.platform.sessionManager.generating.basket:invocation[0]"
       | "error.platform.sessionManager.generating.token:invocation[0]";
     setToken:
