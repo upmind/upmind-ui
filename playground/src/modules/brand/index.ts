@@ -20,7 +20,7 @@ export const useBrand = () => {
   return {
     state: computed(() => state.value.toStrings()),
     values: computed(() => state.value.context),
-    isAvailable: computed(() => ["available"].some(state.value.matches)),
+    isAvailable: computed(() => ["processed"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
     isError: computed(() => ["error"].some(state.value.matches))
   };

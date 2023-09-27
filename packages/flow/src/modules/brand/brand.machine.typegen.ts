@@ -92,8 +92,9 @@ export interface Typegen0 {
     fetchOrganisationConfig: "RETRY" | "xstate.init";
   };
   matchesStates:
-    | "available"
     | "error"
+    | "processed"
+    | "processed.available"
     | "processing"
     | "processing.config"
     | "processing.currencies"
@@ -101,6 +102,7 @@ export interface Typegen0 {
     | "processing.organisation"
     | "processing.settings"
     | {
+        processed?: "available";
         processing?:
           | "config"
           | "currencies"

@@ -97,7 +97,7 @@ export default createMachine(
             invoke: {
               src: "fetchCurrencies",
               onDone: {
-                target: "#available",
+                target: "#processed",
                 actions: ["setCurrencies"]
               },
               onError: {
@@ -110,10 +110,16 @@ export default createMachine(
           }
         }
       },
-      available: {
-        id: "available"
-        // type: "final" // do we need to stop the machine here?
+      processed: {
+        id: "processed",
+        initial: "available",
+        states: {
+          available: {
+            // type: "final" // do we need to stop the machine here?
+          }
+        }
       },
+
       // Handle errors
       error: {
         id: "error",
