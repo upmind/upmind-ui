@@ -23,7 +23,7 @@ export default createMachine(
     tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "processing",
     context: {
       //  we dont have a set type for this yet as its 100% dynamic from the API
       //  on fetch we will inject the data into the context
@@ -31,8 +31,8 @@ export default createMachine(
       error: null
     },
     states: {
-      loading: {
-        id: "loading",
+      processing: {
+        id: "processing",
         initial: "organisation",
         states: {
           organisation: {
@@ -118,7 +118,7 @@ export default createMachine(
       error: {
         id: "error",
         on: {
-          RETRY: { target: "loading", actions: ["clearError"] }
+          RETRY: { target: "processing", actions: ["clearError"] }
         }
       }
     }

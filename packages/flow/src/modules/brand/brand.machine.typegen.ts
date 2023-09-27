@@ -3,59 +3,59 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.brandManager.loading.config:invocation[0]": {
-      type: "done.invoke.brandManager.loading.config:invocation[0]";
+    "done.invoke.brandManager.processing.config:invocation[0]": {
+      type: "done.invoke.brandManager.processing.config:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.loading.currencies:invocation[0]": {
-      type: "done.invoke.brandManager.loading.currencies:invocation[0]";
+    "done.invoke.brandManager.processing.currencies:invocation[0]": {
+      type: "done.invoke.brandManager.processing.currencies:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.loading.modules:invocation[0]": {
-      type: "done.invoke.brandManager.loading.modules:invocation[0]";
+    "done.invoke.brandManager.processing.modules:invocation[0]": {
+      type: "done.invoke.brandManager.processing.modules:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.loading.organisation:invocation[0]": {
-      type: "done.invoke.brandManager.loading.organisation:invocation[0]";
+    "done.invoke.brandManager.processing.organisation:invocation[0]": {
+      type: "done.invoke.brandManager.processing.organisation:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.loading.settings:invocation[0]": {
-      type: "done.invoke.brandManager.loading.settings:invocation[0]";
+    "done.invoke.brandManager.processing.settings:invocation[0]": {
+      type: "done.invoke.brandManager.processing.settings:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.brandManager.loading.config:invocation[0]": {
-      type: "error.platform.brandManager.loading.config:invocation[0]";
+    "error.platform.brandManager.processing.config:invocation[0]": {
+      type: "error.platform.brandManager.processing.config:invocation[0]";
       data: unknown;
     };
-    "error.platform.brandManager.loading.currencies:invocation[0]": {
-      type: "error.platform.brandManager.loading.currencies:invocation[0]";
+    "error.platform.brandManager.processing.currencies:invocation[0]": {
+      type: "error.platform.brandManager.processing.currencies:invocation[0]";
       data: unknown;
     };
-    "error.platform.brandManager.loading.modules:invocation[0]": {
-      type: "error.platform.brandManager.loading.modules:invocation[0]";
+    "error.platform.brandManager.processing.modules:invocation[0]": {
+      type: "error.platform.brandManager.processing.modules:invocation[0]";
       data: unknown;
     };
-    "error.platform.brandManager.loading.organisation:invocation[0]": {
-      type: "error.platform.brandManager.loading.organisation:invocation[0]";
+    "error.platform.brandManager.processing.organisation:invocation[0]": {
+      type: "error.platform.brandManager.processing.organisation:invocation[0]";
       data: unknown;
     };
-    "error.platform.brandManager.loading.settings:invocation[0]": {
-      type: "error.platform.brandManager.loading.settings:invocation[0]";
+    "error.platform.brandManager.processing.settings:invocation[0]": {
+      type: "error.platform.brandManager.processing.settings:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    fetchBrandConfig: "done.invoke.brandManager.loading.config:invocation[0]";
-    fetchBrandSettings: "done.invoke.brandManager.loading.settings:invocation[0]";
-    fetchCurrencies: "done.invoke.brandManager.loading.currencies:invocation[0]";
-    fetchModules: "done.invoke.brandManager.loading.modules:invocation[0]";
-    fetchOrganisationConfig: "done.invoke.brandManager.loading.organisation:invocation[0]";
+    fetchBrandConfig: "done.invoke.brandManager.processing.config:invocation[0]";
+    fetchBrandSettings: "done.invoke.brandManager.processing.settings:invocation[0]";
+    fetchCurrencies: "done.invoke.brandManager.processing.currencies:invocation[0]";
+    fetchModules: "done.invoke.brandManager.processing.modules:invocation[0]";
+    fetchOrganisationConfig: "done.invoke.brandManager.processing.organisation:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -70,38 +70,38 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clearError: "RETRY";
-    setConfig: "done.invoke.brandManager.loading.config:invocation[0]";
-    setCurrencies: "done.invoke.brandManager.loading.currencies:invocation[0]";
+    setConfig: "done.invoke.brandManager.processing.config:invocation[0]";
+    setCurrencies: "done.invoke.brandManager.processing.currencies:invocation[0]";
     setError:
-      | "error.platform.brandManager.loading.config:invocation[0]"
-      | "error.platform.brandManager.loading.currencies:invocation[0]"
-      | "error.platform.brandManager.loading.modules:invocation[0]"
-      | "error.platform.brandManager.loading.organisation:invocation[0]"
-      | "error.platform.brandManager.loading.settings:invocation[0]";
-    setModules: "done.invoke.brandManager.loading.modules:invocation[0]";
-    setOrganisation: "done.invoke.brandManager.loading.organisation:invocation[0]";
-    setSettings: "done.invoke.brandManager.loading.settings:invocation[0]";
+      | "error.platform.brandManager.processing.config:invocation[0]"
+      | "error.platform.brandManager.processing.currencies:invocation[0]"
+      | "error.platform.brandManager.processing.modules:invocation[0]"
+      | "error.platform.brandManager.processing.organisation:invocation[0]"
+      | "error.platform.brandManager.processing.settings:invocation[0]";
+    setModules: "done.invoke.brandManager.processing.modules:invocation[0]";
+    setOrganisation: "done.invoke.brandManager.processing.organisation:invocation[0]";
+    setSettings: "done.invoke.brandManager.processing.settings:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    fetchBrandConfig: "done.invoke.brandManager.loading.settings:invocation[0]";
-    fetchBrandSettings: "done.invoke.brandManager.loading.organisation:invocation[0]";
-    fetchCurrencies: "done.invoke.brandManager.loading.modules:invocation[0]";
-    fetchModules: "done.invoke.brandManager.loading.config:invocation[0]";
+    fetchBrandConfig: "done.invoke.brandManager.processing.settings:invocation[0]";
+    fetchBrandSettings: "done.invoke.brandManager.processing.organisation:invocation[0]";
+    fetchCurrencies: "done.invoke.brandManager.processing.modules:invocation[0]";
+    fetchModules: "done.invoke.brandManager.processing.config:invocation[0]";
     fetchOrganisationConfig: "RETRY" | "xstate.init";
   };
   matchesStates:
     | "available"
     | "error"
-    | "loading"
-    | "loading.config"
-    | "loading.currencies"
-    | "loading.modules"
-    | "loading.organisation"
-    | "loading.settings"
+    | "processing"
+    | "processing.config"
+    | "processing.currencies"
+    | "processing.modules"
+    | "processing.organisation"
+    | "processing.settings"
     | {
-        loading?:
+        processing?:
           | "config"
           | "currencies"
           | "modules"

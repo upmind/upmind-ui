@@ -13,7 +13,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 import requestsMachine from "./requests.machine";
 import { generateHash, useTime } from "./utils";
-import type { useFetchParams } from "./types";
+import type { RequestParams } from "./types";
 
 // --- utils
 import { set, get, trimStart } from "lodash-es";
@@ -45,7 +45,7 @@ export const useApi = () => {
     init = {},
     useCache = false,
     maxAge = null
-  }: useFetchParams) {
+  }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
 
@@ -88,7 +88,7 @@ export const useApi = () => {
     init = {},
     useCache = true,
     maxAge = null
-  }: useFetchParams) {
+  }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
 
@@ -101,7 +101,7 @@ export const useApi = () => {
     return request({ url, init, useCache, maxAge });
   }
 
-  async function postRequest({ url, data, init = {} }: useFetchParams) {
+  async function postRequest({ url, data, init = {} }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -112,7 +112,7 @@ export const useApi = () => {
     return request({ url, init });
   }
 
-  async function putRequest({ url, data, init = {} }: useFetchParams) {
+  async function putRequest({ url, data, init = {} }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -123,7 +123,7 @@ export const useApi = () => {
     return request({ url, init });
   }
 
-  async function patchRequest({ url, data, init = {} }: useFetchParams) {
+  async function patchRequest({ url, data, init = {} }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -134,7 +134,7 @@ export const useApi = () => {
     return request({ url, init });
   }
 
-  async function deleteRequest({ url, data, init = {} }: useFetchParams) {
+  async function deleteRequest({ url, data, init = {} }: RequestParams) {
     // safe guard
     init ??= {};
 
