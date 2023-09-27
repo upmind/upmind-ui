@@ -2,7 +2,9 @@
   <div class="request">
     <h4 class="url">{{ request.url }}</h4>
     <code class="status">{{ request.state }}</code>
-    <small class="status">{{ expiresIn }}</small>
+    <small class="status" v-if="request.isCached || request.isStale">{{
+      expiresIn
+    }}</small>
   </div>
 </template>
 
@@ -92,7 +94,7 @@ export default defineComponent({
     onMounted(() => {
       setInterval(() => {
         timestamp.value = Date.now();
-      }, 1000);
+      }, 500);
     });
 
     return {
