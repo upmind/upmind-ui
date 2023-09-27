@@ -76,15 +76,15 @@ export interface Typegen0 {
       | "RETRY";
   };
   matchesStates:
+    | "available"
     | "cancelling"
     | "complete"
     | "error"
-    | "idle"
     | "processed"
+    | "processed.available"
     | "processed.cached"
-    | "processed.idle"
     | "processed.stale"
     | "processing"
-    | { processed?: "cached" | "idle" | "stale" };
+    | { processed?: "available" | "cached" | "stale" };
   tags: never;
 }
