@@ -16,20 +16,20 @@ export default createMachine(
     tsTypes: {} as import("./requests.machine.typegen").Typegen0,
     id: "requestsManager",
     predictableActionArguments: true,
-    initial: "idle",
+    initial: "checking",
     context: {
       requests: {}
     },
     states: {
       // our initial state depends on if the machine has any requests
-      // If we have context > requests, we can skip to active
+      // If we have context > requests, we can skip to processing
       // otherwise we will await a request
       // individual request events are defined to allow for more granular control
-      idle: {
-        always: [{ target: "active", cond: "hasRequests" }]
+      checking: {
+        always: [{ target: "processing", cond: "hasRequests" }]
       },
-      active: {
-        always: [{ target: "idle", cond: "hasNoRequests" }],
+      processing: {
+        always: [{ target: "checking", cond: "hasNoRequests" }],
         on: {
           REFRESH: {
             actions: ["forward"]

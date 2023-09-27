@@ -10,7 +10,7 @@ export default createMachine(
     tsTypes: {} as import("./request.machine.typegen").Typegen0,
     id: "request",
     predictableActionArguments: true,
-    initial: "idle",
+    initial: "available",
     context: {
       url: null,
       init: null,
@@ -28,7 +28,7 @@ export default createMachine(
       // If we have context > request, we can skip to processing
       // otherwise we will await a request
       // individual request events are defined to allow for more granular control
-      idle: {
+      available: {
         always: [
           {
             target: "processing",
@@ -78,9 +78,9 @@ export default createMachine(
       // We could also move into a cached state if we have a GET request
       processed: {
         id: "processed",
-        initial: "idle",
+        initial: "available",
         states: {
-          idle: {
+          available: {
             after: [
               {
                 delay: 0,

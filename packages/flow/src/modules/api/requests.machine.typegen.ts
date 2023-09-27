@@ -24,6 +24,6 @@ export interface Typegen0 {
     hasRequests: "";
   };
   eventsCausingServices: {};
-  matchesStates: "active" | "complete" | "idle";
+  matchesStates: "checking" | "complete" | "processing";
   tags: never;
 }
