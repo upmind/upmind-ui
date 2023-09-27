@@ -1,5 +1,5 @@
 // --- internal
-import type { RequestContext } from "./types";
+import type { useFetchParams } from "./types";
 
 // --- utils
 import { includes } from "lodash-es";
@@ -20,7 +20,7 @@ export enum FetchMethods {
 // Invoked by machines, providing context and event data
 
 // this will process the request and return a promise
-async function doFetch({ url, init }: RequestContext) {
+async function doFetch({ url, init }: useFetchParams) {
   // safety check, not sure we need this as our machine implementation is pretty strict
   if (!includes(FetchMethods, init.method)) {
     throw new Error(`Invalid method: ${init.method}`);

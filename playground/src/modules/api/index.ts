@@ -19,7 +19,7 @@ export const useApi = () => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => state.value),
+    state: computed(() => state.value.toStrings()),
     count: computed(() => keys(state.value.context.requests)?.length || 0),
     requests: computed(() => state.value.context.requests),
     isIdle: computed(() => ["inactive"].some(state.value.matches)),
@@ -31,6 +31,7 @@ export const useApi = () => {
     ),
     // ---
     useUrl: api.useUrl,
+    useTime: api.useTime,
     get: api.get,
     post: api.post
   };

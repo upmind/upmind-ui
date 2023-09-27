@@ -5,113 +5,39 @@ import { createMachine, assign } from "xstate";
 import services from "./services";
 
 // --- utils
+import { reduce, set, get } from "lodash-es";
 
 // --------------------------------------------------------
+const parseData = data =>
+  reduce(
+    data,
+    (result, value, key) => {
+      set(result, key, value);
+      return result;
+    },
+    {}
+  );
+
 export default createMachine(
   {
     tsTypes: {} as import("./brand.machine.typegen").Typegen0,
-    id: "brand",
+    id: "brandManager",
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      package: {
-        enabled_features: {
-          remove_upmind_branding: null
-        }
-      },
-      // ---
-      id: null,
-      code: null,
-      name: null,
-      style: {
-        brand_color: null,
-        brand_font: {
-          family: null,
-          version: null
-        }
-      },
-      prefix: null,
-      currency_id: null,
-      country_id: null,
-      language_id: null,
-      pricelist_id: null,
-      tax_type: null,
-      vat_exempt: null,
-      vat_number: null,
-      wipe_data: null,
-      demo_data_import_id: null,
-      region_id: null,
-      domain: null,
-      has_demo_data: null,
-      currencies: null,
-      oauth_clients: null,
-      languages: null,
-      image: null,
-      icon: null,
-      favicon: null,
-      email_logo: null,
-      // ---
-      analytics: {
-        gtm: {
-          container_id: null
-        },
-        google: {
-          measurement_id: null
-        }
-      },
-      // ---
-      billing: {
-        gateway: {
-          force_card_storage: null,
-          allow_card_removal_replacement: null,
-          force_auto_payment_for_stored_details: null
-        }
-      },
-      // ---
-      tickets: {
-        support: {
-          support_pin_enabled: null
-        }
-      },
-      // ---
-      ui: {
-        basket: {
-          default_currency: null,
-          price_before_discount_position: null,
-          payment_term_descriptions: null,
-          truncate_product_description: null
-        },
-        checkout: {
-          checkout_flow: null,
-          checkout_summary_color_stop1: null,
-          checkout_summary_color_stop2: null,
-          checkout_summary_contrast_mode: null,
-          hide_promotions_field: null
-        },
-        client_area: {
-          allow_vault: null,
-          homepage: null,
-          hide_registration_forms: null,
-          require_phone: null,
-          show_catalog: null,
-          disable_support_system: null,
-          page_after_login: null,
-          enter_key_action: null
-        },
-        client_registration: {
-          require_phone: null
-        }
-      },
+      //  we dont have a set type for this yet as its 100% dynamic from the API
+      //  on fetch we will inject the data into the context
       // ---
       error: null
     },
     states: {
       loading: {
         id: "loading",
+        initial: "organisation",
         states: {
           organisation: {
             invoke: {
-              src: "fetchOrganisation",
+              src: "fetchOrganisationConfig",
               onDone: {
                 target: "settings",
                 actions: ["setOrganisation"]
@@ -124,7 +50,7 @@ export default createMachine(
           },
           settings: {
             invoke: {
-              src: "fetchSettings",
+              src: "fetchBrandSettings",
               onDone: {
                 target: "config",
                 actions: ["setSettings"]
@@ -139,7 +65,7 @@ export default createMachine(
           },
           config: {
             invoke: {
-              src: "fetchConfig",
+              src: "fetchBrandConfig",
               onDone: {
                 target: "modules",
                 actions: ["setConfig"]
@@ -199,11 +125,13 @@ export default createMachine(
   },
   {
     actions: {
-      setOrganisation: assign((context, { data }) => ({ ...data })),
-      setSettings: assign((context, { data }) => ({ ...data })),
-      setConfig: assign((context, { data }) => ({ ...data })),
-      setModules: assign((context, { data }) => ({ ...data })),
-      setCurrencies: assign((context, { data }) => ({ ...data })),
+      setOrganisation: assign((context, { data }) => parseData(data)),
+      setSettings: assign((context, { data }) => parseData(data)),
+      setConfig: assign((context, { data }) => parseData(data)),
+      setModules: assign((context, { data }) => parseData(data)),
+      setCurrencies: assign({
+        currencies: (context, { data }) => data
+      }),
       // ---
       setError: assign({
         error: (context, { data }) => data || "Unknown error"

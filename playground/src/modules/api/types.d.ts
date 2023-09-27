@@ -32,6 +32,7 @@ interface UseApi {
 
 interface UseApiFunctions {
   useUrl: (path: Url["path"]) => string;
+  useTime: () => Object;
   get: (
     { url, init }: { url: string; init?: RequestInit },
     useCache?: boolean,

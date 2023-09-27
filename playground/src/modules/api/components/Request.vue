@@ -1,12 +1,14 @@
 <template>
-  <tr>
-    <td>{{ request.url }}</td>
-    <td>{{ request.state }}</td>
+  <div class="request">
+    <h4 class="url">{{ request.url }}</h4>
+    <code class="status">{{ request.state }}</code>
+
     <!-- <td>{{ request.isProcessing }}</td> -->
     <!-- <td>{{ request.isCached }}</td>
     <td>{{ request.isStale }}</td> -->
     <!-- <td>{{ request.isError }}</td> -->
-  </tr>
+  </div>
+
   <!-- <code>
     <pre>
         {{ hash}}
@@ -15,7 +17,7 @@
   </code> -->
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject, ref } from "vue";
 import { get } from "lodash-es";
 
@@ -28,8 +30,8 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const upmind = inject("upmind");
-    const machine = get(upmind.state.value.context.requests, props.hash);
+    const { requests } = inject("upmind");
+    const machine = get(requests.value, props.hash);
 
     const request = ref();
 
@@ -53,3 +55,19 @@ export default defineComponent({
   }
 });
 </script>
+
+<style scoped lang="scss">
+.request {
+  margin-top: 1em;
+  &:not(:last-child) {
+    border-bottom: 1px solid whitesmoke;
+    padding-bottom: 1em;
+  }
+  .url {
+    word-break: break-all;
+  }
+  .status {
+    color: gray;
+  }
+}
+</style>
