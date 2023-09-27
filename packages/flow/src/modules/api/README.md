@@ -131,7 +131,7 @@ request 2 is periodically getting a single product with a reduced cache time (ma
 request 3 is periodically getting a single product with no caching
 
 ```javascript
-import { useApi } from "@/modules/api";
+import { useApi } from "@/path-to-api-composable";
 import { delay, forEach } from "lodash-es";
 
 const { get, useTime } = useApi();
