@@ -2,7 +2,7 @@
 import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import machineServices, { FetchMethods } from "./services";
-
+import { useTime } from "./utils";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -17,7 +17,7 @@ export default createMachine(
       useCache: null,
       hash: null,
       parent: null,
-      maxAge: 60000, // 1 minute
+      maxAge: useTime().MINUTE, // 1 minute
       // ---
       response: null,
       error: null

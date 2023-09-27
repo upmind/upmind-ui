@@ -18,18 +18,10 @@ export interface FetchError {
 
 export interface useFetchParams {
   url: string;
-  init: RequestInit;
-}
-
-export interface useApiGetParams {
-  url: URL;
-  init?: RequestInit;
-}
-
-export interface useApiPostParams {
-  url: string;
-  data: Record<string, any>;
-  init?: RequestInit;
+  init?: RequestInit | null;
+  useCache?: boolean | null;
+  maxAge?: number | null;
+  data?: any;
 }
 
 // --------------------------------------------------------

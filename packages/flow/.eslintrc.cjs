@@ -27,6 +27,7 @@ module.exports = {
     // "@intlify/vue-i18n/no-v-html": "off",
 
     // typecript
+
     "@typescript-eslint/no-var-requires": "off", // we have a vite plugin that resolves this
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/ban-types": "off",

@@ -9,6 +9,11 @@
   font-weight: normal;
 }
 
+.view {
+  position: relative;
+  padding: 1em;
+}
+
 a,
 .green {
   text-decoration: none;
@@ -33,5 +38,22 @@ a,
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
+  }
+
+  .view {
+    max-width: 640px;
+    min-width: 640px;
+    height: 100vh;
+    overflow: auto;
+  }
+
+  .view .title {
+    position: sticky;
+    top: -1em;
+    left: 0;
+    right: 0;
+    background-color: white;
+    padding-top: 1em;
+    padding-bottom: 1em;
   }
 }

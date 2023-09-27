@@ -17,7 +17,7 @@ The module operates as a state machine with built-in context to store each reque
 For example, to fetch data from an API endpoint:
 
 ```javascript
-import { requestsMachine, generateHash } from "@upmind/flow";
+import { requestsMachine, generateHash, useTime } from "@upmind/flow";
 import { waitFor } from "xstate/lib/waitFor";
 import { useMachine } from "@xstate/vue";
 import { interpret } from "xstate";
@@ -118,93 +118,66 @@ import { inject } from "vue";
 import type { UseApiFunctions } from "@/modules/api/types";
 import { delay, forEach } from "lodash-es";
 
-const upmind = inject("upmind") as UseApiFunctions;
-console.log("Upmind Intialized", upmind);
-
-const TIME = {
-  IMMIDIATE: 0,
-  MILLISECOND: 1,
-  get SECOND() {
-    return 1000 * this.MILLISECOND;
-  },
-  get MINUTE() {
-    return 60 * this.SECOND;
-  },
-  get HOUR() {
-    return 60 * this.MINUTE;
-  },
-  get DAY() {
-    return 24 * this.HOUR;
-  },
-  get WEEK() {
-    return 7 * this.DAY;
-  },
-  get MONTH() {
-    return 30 * this.DAY;
-  },
-  get YEAR() {
-    return 365 * this.DAY;
-  }
-};
+const {get, useTime} = inject("upmind") as UseApiFunctions;
 
 
 const requests = [
   // --- request 1
-  { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 15 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 30 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 45 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 60 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 75 },
+  { url: "https://dummyjson.com/products/", delay: useTime().IMMIDIATE },
+  { url: "https://dummyjson.com/products/", delay: useTime().IMMIDIATE },
+  { url: "https://dummyjson.com/products/", delay: useTime().SECOND * 15 },
+  { url: "https://dummyjson.com/products/", delay: useTime().SECOND * 30 },
+  { url: "https://dummyjson.com/products/", delay: useTime().SECOND * 45 },
+  { url: "https://dummyjson.com/products/", delay: useTime().SECOND * 60 },
+  { url: "https://dummyjson.com/products/", delay: useTime().SECOND * 75 },
 
   // --- request 2
   {
     url: "https://dummyjson.com/products/1",
-    delay: TIME.IMMIDIATE,
-    maxAge: 10000
+    delay: useTime().IMMIDIATE,
+    maxAge: useTime().MINUTE
   },
-  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 15 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 30 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 45 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 60 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 75 },
+  { url: "https://dummyjson.com/products/1", delay: useTime().IMMIDIATE },
+  { url: "https://dummyjson.com/products/1", delay: useTime().SECOND * 15 },
+  { url: "https://dummyjson.com/products/1", delay: useTime().SECOND * 30 },
+  { url: "https://dummyjson.com/products/1", delay: useTime().SECOND * 45 },
+  { url: "https://dummyjson.com/products/1", delay: useTime().MINUTE * 60 },
+  { url: "https://dummyjson.com/products/1", delay: useTime().MINUTE * 75 },
 
   // --- request 3
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.IMMIDIATE,
+    delay: useTime().IMMIDIATE,
     useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.IMMIDIATE,
+    delay: useTime().IMMIDIATE,
     useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 15,
+    delay: useTime().SECOND * 15,
     useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 30,
+    delay: useTime().SECOND * 30,
     useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 45,
+    delay: useTime().SECOND * 45,
     useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 60,
+    delay: useTime().SECOND * 60,
     useCache: false
   },
   {
     url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 75,
+    delay: useTime().SECOND * 75,
     useCache: false
   }
 ];
@@ -213,8 +186,7 @@ forEach(requests, request => {
   delay(
     ({ url, init, useCache, maxAge }) => {
       console.log("fetching...", request.url, request.delay);
-      upmind
-        .get({ url, init , useCache, maxAge})
+        get({ url, init , useCache, maxAge})
         .then(({ data }) => console.log("fetched", request.url, request.delay));
     },
     request.delay,

@@ -10,127 +10,19 @@
 
     <nav>
       <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/brand">Brand</RouterLink>
       <RouterLink to="/requests">Requests</RouterLink>
       <!-- <RouterLink to="/about">About</RouterLink> -->
     </nav>
   </header>
 
-  <main class="view">
-    <router-view />
+  <main>
+    <router-view class="view" />
   </main>
 </template>
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
-
-import { inject } from "vue";
-import type { UseApiFunctions } from "@/modules/api/types";
-import { delay, forEach } from "lodash-es";
-
-const upmind = inject("upmind") as UseApiFunctions;
-console.log("Upmind Intialized", upmind);
-
-const TIME = {
-  IMMIDIATE: 0,
-  MILLISECOND: 1,
-  get SECOND() {
-    return 1000 * this.MILLISECOND;
-  },
-  get MINUTE() {
-    return 60 * this.SECOND;
-  },
-  get HOUR() {
-    return 60 * this.MINUTE;
-  },
-  get DAY() {
-    return 24 * this.HOUR;
-  },
-  get WEEK() {
-    return 7 * this.DAY;
-  },
-  get MONTH() {
-    return 30 * this.DAY;
-  },
-  get YEAR() {
-    return 365 * this.DAY;
-  }
-};
-
-const requests = [
-  // --- request 1
-  { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 15 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 30 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 45 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 60 },
-  { url: "https://dummyjson.com/products/", delay: TIME.SECOND * 75 },
-
-  // --- request 2
-  {
-    url: "https://dummyjson.com/products/1",
-    delay: TIME.IMMIDIATE,
-    maxAge: 10000
-  },
-  { url: "https://dummyjson.com/products/1", delay: TIME.IMMIDIATE },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 15 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 30 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.SECOND * 45 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 60 },
-  { url: "https://dummyjson.com/products/1", delay: TIME.MINUTE * 75 },
-
-  // --- request 3
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.IMMIDIATE,
-    useCache: false
-  },
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.IMMIDIATE,
-    useCache: false
-  },
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 15,
-    useCache: false
-  },
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 30,
-    useCache: false
-  },
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 45,
-    useCache: false
-  },
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 60,
-    useCache: false
-  },
-  {
-    url: "https://dummyjson.com/products/2",
-    delay: TIME.SECOND * 75,
-    useCache: false
-  }
-];
-
-forEach(requests, request => {
-  delay(
-    ({ url, init, useCache, maxAge }) => {
-      console.log("fetching...", request.url, request.delay);
-      upmind
-        .get({ url, init, useCache, maxAge })
-        .then(({ data }) =>
-          console.log("fetched", request.url, request.delay, data)
-        );
-    },
-    request.delay,
-    request
-  );
-});
 </script>
 
 <style scoped>

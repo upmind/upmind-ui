@@ -1,17 +1,22 @@
-export { default as requestsMachine } from "./requests.machine";
-export { default as requestMachine } from "./request.machine";
-export { generateHash } from "./utils";
-
 // --- external
 import type { Url } from "url";
-import { interpret } from "xstate";
+import {
+  State,
+  interpret,
+  type AnyEventObject,
+  type BaseActionObject,
+  type ResolveTypegenMeta,
+  type ServiceMap
+} from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { requestsMachine, generateHash } from "@upmind/flow";
+import requestsMachine from "./requests.machine";
+import { generateHash, useTime } from "./utils";
+import type { useFetchParams } from "./types";
 
 // --- utils
-import { set, get } from "lodash-es";
+import { set, get, trimStart } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -19,11 +24,11 @@ import { set, get } from "lodash-es";
 
 let currentState = null;
 
-const service = interpret(requestsMachine, { devTools: true })
-  .onTransition(state => {
+const service = interpret(requestsMachine, { devTools: true }).onTransition(
+  state => {
     currentState = state;
-  })
-  .start();
+  }
+);
 // --------------------------------------------------------
 
 export const useApi = () => {
@@ -31,7 +36,8 @@ export const useApi = () => {
   // methods
 
   const useUrl = (path: Url["path"]) => {
-    return [import.meta.env.VITE_API_URL, "api", path].join("/");
+    const base = import.meta.env.VITE_API_URL;
+    return [base, "api", trimStart(path, "/")].join("/");
   };
 
   async function request({
@@ -39,12 +45,7 @@ export const useApi = () => {
     init = {},
     useCache = false,
     maxAge = null
-  }: {
-    url: string;
-    init: RequestInit;
-    useCache?: boolean;
-    maxAge?: number | null;
-  }) {
+  }: useFetchParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
 
@@ -87,12 +88,7 @@ export const useApi = () => {
     init = {},
     useCache = true,
     maxAge = null
-  }: {
-    url: string;
-    init: RequestInit;
-    useCache?: boolean;
-    maxAge?: number | null;
-  }) {
+  }: useFetchParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
 
@@ -105,15 +101,7 @@ export const useApi = () => {
     return request({ url, init, useCache, maxAge });
   }
 
-  async function postRequest({
-    url,
-    data,
-    init = {}
-  }: {
-    url: string;
-    data: any;
-    init: RequestInit;
-  }) {
+  async function postRequest({ url, data, init = {} }: useFetchParams) {
     // safe guard
     init ??= {};
 
@@ -124,15 +112,7 @@ export const useApi = () => {
     return request({ url, init });
   }
 
-  async function putRequest({
-    url,
-    data,
-    init = {}
-  }: {
-    url: string;
-    data: any;
-    init: RequestInit;
-  }) {
+  async function putRequest({ url, data, init = {} }: useFetchParams) {
     // safe guard
     init ??= {};
 
@@ -143,15 +123,7 @@ export const useApi = () => {
     return request({ url, init });
   }
 
-  async function patchRequest({
-    url,
-    data,
-    init = {}
-  }: {
-    url: string;
-    data: any;
-    init: RequestInit;
-  }) {
+  async function patchRequest({ url, data, init = {} }: useFetchParams) {
     // safe guard
     init ??= {};
 
@@ -162,15 +134,7 @@ export const useApi = () => {
     return request({ url, init });
   }
 
-  async function deleteRequest({
-    url,
-    data,
-    init = {}
-  }: {
-    url: string;
-    data: any;
-    init: RequestInit;
-  }) {
+  async function deleteRequest({ url, data, init = {} }: useFetchParams) {
     // safe guard
     init ??= {};
 
@@ -181,12 +145,12 @@ export const useApi = () => {
     return request({ url, init });
   }
   // --------------------------------------------------------
-
   return {
-    service, // allow for interpreting the machine
+    service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     useUrl,
     generateHash,
+    useTime,
     // ---
     get: getRequest,
     post: postRequest,

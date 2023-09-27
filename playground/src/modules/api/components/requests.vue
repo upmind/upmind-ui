@@ -1,18 +1,14 @@
 <template>
-  <h2>
-    Requests <span v-if="isActive">({{ count }})</span>
-  </h2>
-  <table class="requests">
-    <tr>
-      <th>url</th>
-      <th>status</th>
-    </tr>
+  <section class="requests">
+    <h2 class="title">
+      Requests <span v-if="isActive">({{ count }})</span>
+    </h2>
     <upm-request
       v-for="(request, hash) in requests"
       :key="hash"
       :hash="hash"
     ></upm-request>
-  </table>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -25,3 +21,8 @@ const upmind = inject("upmind") as UseApiFunctions;
 // attempt to get the data from a server
 const { requests, count, isActive } = upmind;
 </script>
+
+<style scoped lang="scss">
+.requests {
+}
+</style>
