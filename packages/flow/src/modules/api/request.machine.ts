@@ -2,7 +2,7 @@
 import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import machineServices, { FetchMethods } from "./services";
-import { useTime } from "./utils";
+import { useTime } from "../../utils";
 // --------------------------------------------------------
 
 export default createMachine(

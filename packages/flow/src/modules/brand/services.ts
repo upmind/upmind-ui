@@ -1,5 +1,5 @@
 // --- internal
-import { useApi } from "@/modules/api";
+import { useApi } from "../api";
 
 // --- utils
 

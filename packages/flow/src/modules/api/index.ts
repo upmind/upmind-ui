@@ -1,18 +1,12 @@
 // --- external
 import type { Url } from "url";
-import {
-  State,
-  interpret,
-  type AnyEventObject,
-  type BaseActionObject,
-  type ResolveTypegenMeta,
-  type ServiceMap
-} from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import requestsMachine from "./requests.machine";
-import { generateHash, useTime } from "./utils";
+import { generateHash } from "./utils";
+import { useTime } from "../../utils";
 import type { RequestParams } from "./types";
 
 // --- utils
