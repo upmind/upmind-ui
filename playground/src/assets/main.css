@@ -52,8 +52,7 @@ a,
     top: -1em;
     left: 0;
     right: 0;
-    background-color: white;
-    padding-top: 1em;
-    padding-bottom: 1em;
+    background-color: whitesmoke;
+    padding: 0.5em 1em;
   }
 }
