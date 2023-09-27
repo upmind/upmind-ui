@@ -8,7 +8,7 @@
       height="125"
     />
 
-    <nav>
+    <nav class="vertical">
       <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/brand">Brand</RouterLink>
       <RouterLink to="/session">Session</RouterLink>
@@ -26,7 +26,7 @@
 import { RouterView } from "vue-router";
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 main {
   width: 100%;
   height: 100%;
@@ -50,24 +50,31 @@ nav {
   font-size: 12px;
   text-align: center;
   margin-top: 2rem;
-}
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+  a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-left: 1px solid var(--color-border);
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
+    &.router-link-exact-active {
+      color: var(--color-text);
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
 
-nav a:first-of-type {
-  border: 0;
+  &.vertical {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &:not(.vertical) {
+    a:first-of-type {
+      border: 0;
+    }
+  }
 }
 
 @media (min-width: 1024px) {
@@ -75,16 +82,16 @@ nav a:first-of-type {
     display: flex;
     place-items: center;
     padding-right: calc(var(--section-gap) / 2);
+
+    .wrapper {
+      display: flex;
+      place-items: flex-start;
+      flex-wrap: wrap;
+    }
   }
 
   .logo {
     margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
   }
 
   nav {

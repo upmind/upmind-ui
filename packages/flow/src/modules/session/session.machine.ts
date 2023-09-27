@@ -87,7 +87,7 @@ export default createMachine(
           available: {
             after: [
               {
-                delay: 100000, // todo determine that from the token/local storage
+                delay: useTime().MINUTE, // todo determine that from the token/local storage
                 target: "stale"
               }
             ]
