@@ -1,109 +1,126 @@
-# API Requests Module
+# API Requests Manager Module
 
-The "API Requests" module within the "Upmind Flow" framework is designed to simplify and manage HTTP requests to the Upmind API and other external endpoints. Whether you're fetching data from Upmind's servers or interacting with other APIs, this module streamlines the process, ensuring efficient and reliable communication.
+The **API Requests Manager** module within the **Upmind Flow** framework is a powerful tool for handling HTTP requests to the Upmind API and external endpoints. It simplifies request management, ensures efficient communication, and provides cache handling capabilities.
+
+## Table of Contents
+
+- [API Requests Manager Module](#api-requests-manager-module)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+  - [Usage](#usage)
+  - [Request Configuration](#request-configuration)
+  - [API Request Handler](#api-request-handler)
+  - [Requests Manager](#requests-manager)
+    - [Parallel and Duplicate Requests](#parallel-and-duplicate-requests)
+  - [API Documentation](#api-documentation)
+  - [Examples](#examples)
+  - [License](#license)
+  - [Acknowledgments](#acknowledgments)
 
 ## Getting Started
 
 ### Installation
 
-To use the "API Requests" module, you can import it from the "@upmind/flow" package in your JavaScript project.
+To use the **API Requests Manager** module in your project, follow these installation steps:
 
-(For specific installation details within the "Upmind Flow" framework, please refer to the main framework README.)
+1. Install **Upmind Flow** if you haven't already. Refer to the **Upmind Flow** framework's README for installation instructions.
 
-### Basic Usage
+2. Import the **API Requests Manager** module from the `@upmind/flow` package in your JavaScript project.
 
-The module operates as a state machine with built-in context to store each request you send. Making an API request is as simple as creating an object with the URL and optional configuration, then passing it to the module.
+## Usage
 
-For example, to fetch data from an API endpoint:
+The **API Requests Manager** module functions as a state machine with built-in context to store each request you send. Making an API request is straightforward. Here's an example of fetching data from an API endpoint:
 
 ```javascript
-import { requestsMachine, generateHash, useTime } from "@upmind/flow";
-import { waitFor } from "xstate/lib/waitFor";
-import { useMachine } from "@xstate/vue";
-import { interpret } from "xstate";
+import { useApi as useUpmindApi } from `@upmind/flow`;
+import { useActor } from "@xstate/vue"; // or @xstate/react, @xstate/svelte, etc.
 
-const { state, send,service }  = useMachine(requestsMachine, { devTools: true });
+// Its a good idea to create a composable
+// This will handle the reactive state from the service
+// and provide a simple interface to the component
+export const useApi = () => {
+  const api = useUpmindApi();
 
-async function request(
-    { url, init = {} }: { url: string; init: RequestInit },
-    useCache = true
-  ) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
+  const { state } = useActor(api.service);
 
-    // safe guard
-    init ??= {};
-
-    // Enforce method & header
-    set(init, "headers", { "Content-Type": "application/json" });
-
-    const hash = generateHash(url, init);
-
-    // first we trigger the request
-    send({
-      type: "ADD",
-      data: { hash, url, init, useCache }
-    });
-
-    // then we get the request from context
-    const request = get(state.value.context.requests, hash);
-
-    if (request) {
-      // then we await the state of the request to be processed/cached
-      await waitFor(request, state =>
-        ["processed", "error"].some(state.matches)
-      );
-
-      // finnaly we return the response
-      return request.state.context?.response?.data;
-    }
-
-    // todo
-    throw new Error("Request not found");
-  }
-
-const upmind = inject("upmind");
-
-const response = request({ url }).then(data => {
-  // Do something with the response data.
-});
+  return {
+    state: computed(() => state.value.toStrings()),
+    count: computed(() => keys(state.value.context.requests)?.length || 0),
+    requests: computed(() => state.value.context.requests),
+    isIdle: computed(() => ["checking"].some(state.value.matches)),
+    isProcessing: computed(() => ["processing"].some(state.value.matches)),
+    // ---
+    useUrl: api.useUrl,
+    useTime: api.useTime,
+    get: api.get,
+    post: api.post
+  };
+};
 ```
 
-### Request Configuration
+```javascript
+import { useApi } from "@/path-to-api-composable";
+const products = useApi()
+  .get({ url: "https://dummyjson.com/products/" })
+  .then(({ data }) => data);
+```
+
+## Request Configuration
+
+No specific configuration is required for the **API Requests Manager** module at this stage, other than setting `.env` variables for the API endpoint. The module seamlessly integrates into your project with minimal setup.
 
 Each request can be customized with the following options:
 
 - `url`: The URL of the API endpoint.
-- `init`: Configuration options for the fetch API, including headers, request method, and more.
+- `init`: Configuration options for the _fetch API_, including headers, request method, and more.
 - `useCache`: A flag to indicate whether to use caching for the request.
 - `maxAge`: The maximum age of the cache, in seconds.
+- `data`: The data to be sent with the request.
 
-### Request States
+## API Request Handler
 
-The module guides the request through different states:
+The API Request Handler state machine is designed to handle individual HTTP requests. It offers features such as request caching, automatic error handling, and asynchronous request processing.
 
-- **Initialization**: The request is triggered, and its details are added to the module's context.
-- **Processing**: The actual HTTP request is made.
-- **Processed**: The request is successfully processed, and the response is available. Automatically transitions to the "Completed" state.
-- **Processed (with Cache)**: The request is successfully processed, and caching is applied if specified.
-- **Processed (Stale Cache)**: Once caching is applied, and after the maximum age, the request automatically enters this state, and allows for REFRESH to go back and reprocess the request.
-- **Error**: If an error occurs during processing, the request transitions to this state.
-- **Completed**: The request is successfully completed and will notify that it is ready to be removed from the context.
+Here's an overview of its states:
+
+- **Available**: The initial state, where requests are received or initiated. It supports various HTTP methods like GET, POST, PUT, PATCH, and DELETE.
+
+- **Processing**: The state where the actual request is sent to the API. It handles responses, errors, and cancellations.
+
+- **Cached**: If a GET request is cacheable, it moves to this state after processing. It automatically refreshes if it becomes stale.
+
+- **Stale**: The state indicating that a cached GET request has become stale. It provides options to refresh or cancel the request.
+
+- **Error**: Handles errors and offers the option to retry the request or cancel it.
+
+- **Complete**: The final state, indicating the completion of the request process. This also sends any parent a message to remove/destroy the request.
+
+## Requests Manager
+
+The Requests Manager state machine coordinates multiple API requests. It tracks and manages the status of these requests efficiently. Key features include:
+
+- **Checking**: The initial state, where the manager checks if there are any pending requests to process.
+
+- **Processing**: The state where requests are actively processed. If there are no pending requests, it transitions back to the "Checking" state.
+
+- **Complete**: The final state, indicating that all requests have been processed and the manager has completed its task.
+
+The API Module simplifies handling API requests within your application, making it easy to integrate and manage HTTP interactions with the Upmind API. It ensures robust error handling, request caching, and efficient coordination of multiple requests.
 
 ### Parallel and Duplicate Requests
 
-This module allows you to make parallel requests, providing flexibility in handling various scenarios.
-If the same request is made multiple times, the module will automatically detect it and handle it accordingly, preventing duplicate requests from being made.
-If the request is cached, the module will automatically return the cached response, preventing duplicate requests from being made.
-If the cached response is stale, the module will automatically refresh the next time the same request is made.
+The **API Requests Manager** allows you to make parallel requests, providing flexibility in handling various scenarios.
 
-## Configuration
+- If the same request is made multiple times, the module automatically detects it and handles it accordingly, preventing duplicate requests.
 
-At this stage, there is no specific configuration required for the "API Requests" module, other than setting environment variables for the API endpoint. The module seamlessly integrates into your project with minimal setup.
+- If the request is cached, the module returns the cached response, preventing duplicate requests.
+
+- If the cached response is stale, the module automatically refreshes it the next time the same request is made.
 
 ## API Documentation
 
-Currently, there is no dedicated API documentation for this module. However, you can refer to the module's usage examples and the framework's main documentation for practical guidance.
+Currently, there is no dedicated API documentation for this module. However, you can refer to the module's usage examples and the **Upmind Flow** framework's main documentation for practical guidance.
 
 ## Examples
 
@@ -114,13 +131,14 @@ request 2 is periodically getting a single product with a reduced cache time (ma
 request 3 is periodically getting a single product with no caching
 
 ```javascript
-import { inject } from "vue";
-import type { UseApiFunctions } from "@/modules/api/types";
+import { useApi } from "@/modules/api";
 import { delay, forEach } from "lodash-es";
 
-const {get, useTime} = inject("upmind") as UseApiFunctions;
+const { get, useTime } = useApi();
 
-
+// a mix of duplicate requests to illustrate the caching mechanism
+// and requests with different maxAge to illustrate the cache time
+// and requests with useCache: false to illustrate no caching
 const requests = [
   // --- request 1
   { url: "https://dummyjson.com/products/", delay: useTime().IMMIDIATE },
@@ -182,12 +200,14 @@ const requests = [
   }
 ];
 
+// make the requests
 forEach(requests, request => {
   delay(
     ({ url, init, useCache, maxAge }) => {
       console.log("fetching...", request.url, request.delay);
-        get({ url, init , useCache, maxAge})
-        .then(({ data }) => console.log("fetched", request.url, request.delay));
+      get({ url, init, useCache, maxAge }).then(({ data }) =>
+        console.log("fetched", request.url, request.delay)
+      );
     },
     request.delay,
     request
@@ -197,9 +217,10 @@ forEach(requests, request => {
 
 ## License
 
-The "API Requests" module is proprietary and closed source.
+The **API Requests Manager** module is proprietary and closed source.
 
 ## Acknowledgments
 
-This module is developed by Dominic da Costa (dominic.dacosta@upmind.com).
-Dominic is the main contributor and developer responsible for maintaining this module of the "Upmind Flow" package.
+The **API Requests Manager** in the **Upmind Flow** framework leverages the power of XState for state management and is designed to enhance the Upmind ecosystem's capabilities.
+
+[![XState](https://img.shields.io/badge/Powered%20by-XState-brightgreen)](https://xstate.js.org/)

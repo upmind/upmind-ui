@@ -16,14 +16,12 @@ export interface Typegen0 {
     };
     "error.platform.cancel": { type: "error.platform.cancel"; data: unknown };
     "error.platform.process": { type: "error.platform.process"; data: unknown };
-    "xstate.after(maxAge)#request.error": {
-      type: "xstate.after(maxAge)#request.error";
-    };
     "xstate.after(maxAge)#request.processed.cached": {
       type: "xstate.after(maxAge)#request.processed.cached";
     };
-    "xstate.after(maxAge)#request.processed.stale": {
-      type: "xstate.after(maxAge)#request.processed.stale";
+    "xstate.after(wait)#error": { type: "xstate.after(wait)#error" };
+    "xstate.after(wait)#request.processed.stale": {
+      type: "xstate.after(wait)#request.processed.stale";
     };
     "xstate.init": { type: "xstate.init" };
   };
@@ -50,14 +48,14 @@ export interface Typegen0 {
       | "RETRY";
     sendClearRequest:
       | "CANCEL"
-      | "xstate.after(maxAge)#request.error"
-      | "xstate.after(maxAge)#request.processed.stale";
+      | "xstate.after(wait)#error"
+      | "xstate.after(wait)#request.processed.stale";
     setError: "error.platform.cancel" | "error.platform.process";
     setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
-    maxAge:
+    wait:
       | "error.platform.cancel"
       | "error.platform.process"
       | "xstate.after(maxAge)#request.processed.cached";

@@ -100,7 +100,7 @@ export default createMachine(
             }
           },
           stale: {
-            after: { maxAge: "#complete" }, // automatically move to complete after max age
+            after: { wait: "#complete" }, // automatically move to complete after max age
             on: {
               REFRESH: { target: "#processing" },
               CANCEL: { target: "#complete" }
@@ -111,8 +111,9 @@ export default createMachine(
 
       // Handle errors
       error: {
+        id: "error",
         after: {
-          maxAge: "#complete" // automatically move to complete after  max age
+          wait: "#complete" // automatically move to complete after  max age
         },
         on: {
           RETRY: { target: "processing", actions: ["clearError"] },
@@ -165,7 +166,8 @@ export default createMachine(
         init?.method === FetchMethods.GET && !!useCache
     },
     delays: {
-      maxAge: ({ maxAge }) => maxAge // this allows us to override the max age in the context
+      maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
+      wait: () => useTime().MINUTE // this allows us to wait for a reasonable amount of time before continuing
     }
   }
 );
