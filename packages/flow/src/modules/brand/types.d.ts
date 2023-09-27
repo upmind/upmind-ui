@@ -10,7 +10,7 @@ export interface BrandContext {
   hash: string | null;
   maxAge: number;
   // ---
-  data: FetchResponse["data"] | null;
+  data: RequestResponse["data"] | null;
 }
 
 export interface BrandsContext {
@@ -28,7 +28,7 @@ export interface BrandEvent {
     useCache: boolean;
     hash: string;
   };
-  error?: FetchError;
+  error?: RequestError;
 }
 
 export type BrandEvents = {
