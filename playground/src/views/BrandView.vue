@@ -2,8 +2,7 @@
   <section class="brand">
     <h2 class="title">Brand is {{ state }}</h2>
 
-    <div>
-      Values:
+    <div class="values">
       <code>
         <pre>{{ values }}</pre>
       </code>
@@ -18,5 +17,12 @@ const { state, isAvailable, values } = useBrand();
 
 <style scoped lang="scss">
 .brand {
+  .values {
+    margin-top: 1em;
+    &:not(:last-child) {
+      border-bottom: 1px solid whitesmoke;
+      padding-bottom: 1em;
+    }
+  }
 }
 </style>
