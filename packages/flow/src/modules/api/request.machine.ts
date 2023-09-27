@@ -19,6 +19,8 @@ export default createMachine(
       parent: null,
       maxAge: useTime().MINUTE, // 1 minute
       // ---
+      created: null,
+      completed: null,
       response: null,
       error: null
     },
@@ -137,13 +139,17 @@ export default createMachine(
           url,
           init,
           useCache,
-          maxAge: maxAge || context.maxAge
+          maxAge: maxAge || context.maxAge,
+          created: Date.now()
         })
       ),
 
-      setResponse: assign({ response: (context, { data }) => data }),
+      setResponse: assign({
+        response: (context, { data }) => data,
+        completed: () => Date.now()
+      }),
 
-      clearResponse: assign({ response: null }),
+      clearResponse: assign({ response: null, completed: null }),
 
       // If we are using a GET request, we need to add the promise to the parent
       // this allows us to abort the request if needed or re-use the request if it's already in progress

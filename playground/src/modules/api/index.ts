@@ -22,13 +22,8 @@ export const useApi = () => {
     state: computed(() => state.value.toStrings()),
     count: computed(() => keys(state.value.context.requests)?.length || 0),
     requests: computed(() => state.value.context.requests),
-    isIdle: computed(() => ["inactive"].some(state.value.matches)),
-    isActive: computed(() => ["active"].some(state.value.matches)),
-    isProcessing: computed(() =>
-      ["disabled.processing", "inactive.processing", "active.processing"].some(
-        state.value.matches
-      )
-    ),
+    isIdle: computed(() => ["checking"].some(state.value.matches)),
+    isActive: computed(() => ["processing"].some(state.value.matches)),
     // ---
     useUrl: api.useUrl,
     useTime: api.useTime,

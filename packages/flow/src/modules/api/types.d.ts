@@ -32,6 +32,9 @@ export interface RequestContext {
   hash: string | null;
   maxAge: number;
   // ---
+  created: null | EpochTimeStamp;
+  completed: null | EpochTimeStamp;
+
   response: null | RequestResponse["data"];
   error: null | RequestError;
   parent: null | StateMachine;
