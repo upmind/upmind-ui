@@ -24,9 +24,4 @@ See individual modules for examples.
 
 ## License
 
-The "Upmind Flow" package is proprietary and closed source.
-
-## Acknowledgments
-
-This package is developed by Dominic da Costa (dominic.dacosta@upmind.com).
-Dominic is the main contributor and developer responsible for maintaining this essential component of the "Upmind" framework.
+The **Upmind Flow** package is proprietary and closed source.
