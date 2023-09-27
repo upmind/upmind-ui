@@ -2,24 +2,59 @@
   <div class="request">
     <h4 class="url">{{ request.url }}</h4>
     <code class="status">{{ request.state }}</code>
-
-    <!-- <td>{{ request.isProcessing }}</td> -->
-    <!-- <td>{{ request.isCached }}</td>
-    <td>{{ request.isStale }}</td> -->
-    <!-- <td>{{ request.isError }}</td> -->
+    <small class="status">{{ expiresIn }}</small>
   </div>
-
-  <!-- <code>
-    <pre>
-        {{ hash}}
-        {{ request }}
-      </pre>
-  </code> -->
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref } from "vue";
+import { defineComponent, inject, ref, computed, onMounted } from "vue";
 import { get } from "lodash-es";
+
+function calculateRelativeTime(
+  timestamp: EpochTimeStamp,
+  maxAge: number,
+  currentTime: EpochTimeStamp
+) {
+  const expiresIn = timestamp + maxAge - currentTime;
+  const isExpired = expiresIn <= 0;
+
+  const seconds = Math.floor(Math.abs(expiresIn) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  const remainingSeconds = seconds % 60;
+  const remainingMinutes = minutes % 60;
+
+  let formattedString = "";
+
+  if (hours > 0) {
+    formattedString += `${hours} hour${hours > 1 ? "s" : ""}`;
+    if (remainingMinutes > 0 || remainingSeconds > 0) {
+      formattedString += " and ";
+    }
+  }
+
+  if (remainingMinutes > 0) {
+    formattedString += `${remainingMinutes} minute${
+      remainingMinutes > 1 ? "s" : ""
+    }`;
+    if (remainingSeconds > 0) {
+      formattedString += " and ";
+    }
+  }
+
+  if (remainingSeconds > 0) {
+    formattedString += `${remainingSeconds} second${
+      remainingSeconds > 1 ? "s" : ""
+    }`;
+  }
+
+  return expiresIn == 0
+    ? "Expires now"
+    : isExpired
+    ? `Expired ${formattedString} ago`
+    : `Expires in ${formattedString}`;
+}
 
 export default defineComponent({
   name: "UpmRequest",
@@ -32,16 +67,21 @@ export default defineComponent({
   setup(props) {
     const { requests } = inject("upmind");
     const machine = get(requests.value, props.hash);
-
+    const timestamp = ref(Date.now());
     const request = ref();
 
     machine.onTransition(state => {
       request.value = {
         url: state.context.url,
         state: state.value,
+        maxAge: state.context.maxAge,
+        created: state.context.created,
+        completed: state.context.completed,
+        // ---
         // response: state.context.response,
         // status: state.context.response?.status,
         // data: state.context.response?.data,
+        // ---
         isProcessing: state.matches("processing"),
         isCached: state.matches("processed.cached"),
         isStale: state.matches("processed.stale"),
@@ -49,9 +89,31 @@ export default defineComponent({
       };
     });
 
+    onMounted(() => {
+      setInterval(() => {
+        timestamp.value = Date.now();
+      }, 1000);
+    });
+
     return {
-      request
+      request,
+      timestamp
     };
+  },
+  computed: {
+    expiresIn() {
+      if (!this.request?.completed || !this.request.maxAge) {
+        return "";
+      }
+      // const expiresIn =
+      //   this.request.completed + this.request.maxAge - this.timestamp;
+
+      return calculateRelativeTime(
+        this.request.completed,
+        this.request.maxAge,
+        this.timestamp
+      );
+    }
   }
 });
 </script>
@@ -68,6 +130,7 @@ export default defineComponent({
   }
   .status {
     color: gray;
+    display: block;
   }
 }
 </style>
