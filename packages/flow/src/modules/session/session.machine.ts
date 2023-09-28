@@ -28,7 +28,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      debug: true,
+      debug: false,
       context: "guest", // role
       // ---
       token: {

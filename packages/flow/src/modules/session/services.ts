@@ -35,7 +35,9 @@ async function check(context: SessionContext, _event: any) {
   // Also, when wh have client logins, we need to check for a valid token thats not guest
 
   const sessionContext = get(context, "context", "guest");
+
   const token = get(localStorage, `${sessionContext}/auth/token`);
+
   return new Promise((resolve, reject) => {
     if (token) {
       return resolve(JSON.parse(token));
@@ -70,6 +72,9 @@ async function refreshToken(context: SessionContext, _event: any) {
 async function persistToken(context: SessionContext, _event: any) {
   const sessionContext = get(context, "context", "guest");
   const token = omit(context.token, ["actor_id", "actor_type", "context"]);
+
+  if (!localStorage) return Promise.reject("No localStorage available");
+
   localStorage.setItem(`${sessionContext}/auth/token`, JSON.stringify(token));
 
   // Deprecated: we are now storing the entire token in localStorage as opposed to individual keys
