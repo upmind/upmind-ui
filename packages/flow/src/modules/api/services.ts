@@ -27,7 +27,7 @@ async function doFetch({ url, init }: RequestParams) {
   }
 
   // do the fetch
-  const response = await fetch(url, init).catch(error => {
+  const response = await fetch(url.toString(), init).catch(error => {
     console.error("doFetch error", error);
     Promise.reject(error);
   });

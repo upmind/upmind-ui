@@ -1,5 +1,7 @@
 // --- external
 import type { Url } from "url";
+
+// import type { Url } from "url";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -7,10 +9,10 @@ import { waitFor } from "xstate/lib/waitFor";
 import requestsMachine from "./requests.machine";
 import { generateHash } from "./utils";
 import { useTime } from "../../utils";
-import type { RequestParams } from "./types.d";
+import type { RequestParams } from "./types";
 
 // --- utils
-import { set, get, trimStart } from "lodash-es";
+import { set, get, trimStart, forIn } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -29,9 +31,20 @@ export const useApi = () => {
   // --------------------------------------------------------
   // methods
 
-  const useUrl = (path: Url["path"], prepend = "api") => {
+  const useUrl = (path: Url["path"], params: Object, prepend = "api") => {
+    // get base url from env
     const base = import.meta.env.VITE_API_URL;
-    return [base, prepend, trimStart(path, "/")].join("/");
+
+    // clean up path
+    path = [prepend, trimStart(path, "/")].join("/");
+
+    // now we can create the url
+    const url = new URL(path, base);
+
+    // and add any params
+    forIn(params, (value, key) => url.searchParams.set(key, value));
+
+    return url;
   };
 
   async function request({
