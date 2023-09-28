@@ -10,9 +10,10 @@
 
     <nav class="vertical">
       <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/requests">Requests</RouterLink>
       <RouterLink to="/brand">Brand</RouterLink>
       <RouterLink to="/session">Session</RouterLink>
-      <RouterLink to="/requests">Requests</RouterLink>
+      <RouterLink to="/basket">Basket</RouterLink>
     </nav>
   </header>
 
