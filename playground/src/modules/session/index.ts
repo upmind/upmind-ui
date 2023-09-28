@@ -12,18 +12,30 @@ import { useSession as useUpmindSession } from "@upmind/flow";
 //  with some state helpers
 
 export const useSession = () => {
-  const brand = useUpmindSession();
-  const { state } = useActor(brand.service);
+  const session = useUpmindSession();
+  const { state } = useActor(session.service);
 
   // --------------------------------------------------------
 
   return {
     state: computed(() => state.value.toStrings()),
+    token: computed(() => state.value.context.token.access_token),
+    role: computed(() => state.value.context.role),
     values: computed(() => state.value.context),
-    isAvailable: computed(() => ["processed"].some(state.value.matches)),
+    // ---
     isLoading: computed(() => ["loading"].some(state.value.matches)),
-    isGenerating: computed(() => ["generating"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
+    isGenerating: computed(() =>
+      ["processing.generating"].some(state.value.matches)
+    ),
+    isRefreshing: computed(() =>
+      ["processing.generating"].some(state.value.matches)
+    ),
+    isPersisting: computed(() =>
+      ["processing.persisting"].some(state.value.matches)
+    ),
+    isAvailable: computed(() => ["processed"].some(state.value.matches)),
+    isStale: computed(() => ["processed.stale"].some(state.value.matches)),
     isError: computed(() => ["error"].some(state.value.matches))
   };
 };
