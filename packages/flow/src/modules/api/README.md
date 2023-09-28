@@ -48,7 +48,7 @@ export const useApi = () => {
     state: computed(() => state.value.toStrings()),
     count: computed(() => keys(state.value.context.requests)?.length || 0),
     requests: computed(() => state.value.context.requests),
-    isIdle: computed(() => ["checking"].some(state.value.matches)),
+    isIdle: computed(() => ["loading"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
     // ---
     useUrl: api.useUrl,
@@ -100,9 +100,9 @@ Here's an overview of its states:
 
 The Requests Manager state machine coordinates multiple API requests. It tracks and manages the status of these requests efficiently. Key features include:
 
-- **Checking**: The initial state, where the manager checks if there are any pending requests to process.
+- **Loading**: The initial state, where the manager checks if there are any pending requests to process.
 
-- **Processing**: The state where requests are actively processed. If there are no pending requests, it transitions back to the "Checking" state.
+- **Processing**: The state where requests are actively processed. If there are no pending requests, it transitions back to the "Loading" state.
 
 - **Complete**: The final state, indicating that all requests have been processed and the manager has completed its task.
 
