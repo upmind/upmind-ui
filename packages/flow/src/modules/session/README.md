@@ -1,6 +1,6 @@
 # Session Manager Module
 
-The **Session Manager** module within the **Upmind Flow** framework is designed to handle user sessions, including managing authentication tokens and guest users. This module is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
+The **Session Manager** module within the **Upmind Flow** framework is designed to handle user sessions, including managing authentication tokens and role based users. This module is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
 
 ## Table of Contents
 
@@ -29,13 +29,15 @@ To use the **Session Manager** module, you can import it from the `@upmind/flow`
 
 The module operates as a state machine with built-in context to manage user sessions. It goes through different states to check and generate user tokens and claims. Below are the key states:
 
-- **Loading**: In this initial state, the module checks if a user has a valid token. If both are present, it proceeds to the "Processed" state. Otherwise, it generates a guest token in the "Generating" state.
+- **Loading**: In this initial state, the module checks if there is a valid token. If present, it proceeds to the **Processed** state. Otherwise, it generates a role based token in the "Generating" state.
 
-- **Generating**: In this state, the module generates a guest token. Once both are generated, it transitions to the "Processed" state.
+- **Processing**: This state represents a processing state for specific actions, which can be invoked as needed. It has three sub-states, **Generating**, **Refreshing**, and **Persisting**, depending on the action being performed.
 
-- **Processed**: This state indicates that a valid session is available. It has two sub-states, "Available" and "Stale," depending on the session's freshness. If the session becomes stale, you can trigger a refresh to move back to the "Processing" state.
+  - **Generating**: In this state, the module generates a role based token. Once generated, it transitions to the **Persisting** state.
+  - **Refreshing**: In this state, the module refreshes a role based token. Once refreshed, it transitions to the **Persisting** state.
+  - **Persisting**: In this state, the module persists the token in local storage. Once persisted, it transitions to the **Processed** state.
 
-- **Processing**: This state represents a processing state for specific actions, which can be invoked as needed.
+- **Processed**: This state indicates that a valid session + token is available. It has two sub-states, **Available** and **Stale**, depending on the session's freshness. If the session becomes stale, you can trigger a **REFRESH** to move back to the **Processing** state.
 
 - **Error**: If an error occurs during session management, the module transitions to this state. You can retry the operation or cancel it.
 
@@ -57,32 +59,35 @@ export const useSession= () => {
 
   return {
     state: computed(() => state.value.toStrings()),
+    token: computed(() => state.value.context.token.access_token),
+    role: computed(() => state.value.context.role),
+    values: computed(() => state.value.context),
+    // ---
     isLoading: computed(() => ["loading"].some(state.value.matches)),
-    isGenerating: computed(() => ["generating"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
+    isGenerating: computed(() =>
+      ["processing.generating"].some(state.value.matches)
+    ),
+    isRefreshing: computed(() =>
+      ["processing.generating"].some(state.value.matches)
+    ),
+    isPersisting: computed(() =>
+      ["processing.persisting"].some(state.value.matches)
+    ),
     isAvailable: computed(() => ["processed"].some(state.value.matches)),
     isStale: computed(() => ["processed.stale"].some(state.value.matches)),
+    isError: computed(() => ["error"].some(state.value.matches))
     // ---
-    useToken: session.useToken,
-    useBasket: session.useBasket,
   };
 };
 ```
 
 ```javascript
 import { useSession } from "@/path-to-session-composable";
-const {
-  state,
-  isAvailable,
-  isGenerating,
-  isProcessing,
-  isStale,
-  useToken,
-  useBasket
-} = useSession();
+const { state, isAvailable, isGenerating, isProcessing, isStale, useToken } =
+  useSession();
 
 const currentToken = useToken();
-const currentBasket = useBasket();
 ```
 
 ## Configuration

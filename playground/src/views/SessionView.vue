@@ -1,6 +1,6 @@
 <template>
   <section class="brand">
-    <h2 class="title">Session is {{ state }}</h2>
+    <h2 class="title">{{ role.toUpperCase() }} Session is {{ state }}</h2>
 
     <div class="values">
       <code>
@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { useSession } from "@/modules/session";
-const { state, values } = useSession();
+const { state, values, role } = useSession();
 </script>
 
 <style scoped lang="scss">
