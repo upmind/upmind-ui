@@ -13,7 +13,6 @@
       <RouterLink to="/brand">Brand</RouterLink>
       <RouterLink to="/session">Session</RouterLink>
       <RouterLink to="/requests">Requests</RouterLink>
-      <!-- <RouterLink to="/about">About</RouterLink> -->
     </nav>
   </header>
 
