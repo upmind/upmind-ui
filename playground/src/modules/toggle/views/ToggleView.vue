@@ -1,6 +1,6 @@
 <template>
   <section class="brand">
-    <h2 class="title">{{ role.toUpperCase() }} Session is {{ state }}</h2>
+    <h2 class="title">Toggle is {{ state }}</h2>
 
     <div class="values">
       <code>
@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { useSession } from "@/modules/session";
-const { state, values, role } = useSession();
+import { useToggle } from "../";
+const { state, values } = useToggle();
 </script>
 
 <style scoped lang="scss">

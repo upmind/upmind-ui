@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import UpmRequests from "@/modules/api/components/Requests.vue";
+import UpmRequests from "../components/Requests.vue";
 
 import { inject, onMounted } from "vue";
-import type { UseApiFunctions } from "@/modules/api/types";
+import type { UseApiFunctions } from "../types";
 import { delay, forEach } from "lodash-es";
 
 const { get, useTime } = inject("upmind") as UseApiFunctions;
