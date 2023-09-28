@@ -5,21 +5,11 @@ import { createMachine, assign } from "xstate";
 import services from "./services";
 import type { SessionContext, SessionEvents } from "./types.d";
 // --- utils
+import { useTokenParser } from "./utils";
 import { useTime } from "../../utils";
-import { toNumber, isBoolean, toString } from "lodash-es";
+import { toNumber } from "lodash-es";
 
 // --------------------------------------------------------
-const tokenParser = (data: any) => ({
-  access_token: toString(data?.access_token),
-  created_at: toNumber(data?.created_at) || Date.now(),
-  expires_in: toNumber(data?.expires_in),
-  refresh_expires_in: toNumber(data?.refresh_expires_in),
-  refresh_token: toString(data?.refresh_token),
-  second_factor_required: isBoolean(data?.isBoolean)
-    ? data?.isBoolean
-    : data?.isBoolean === "true",
-  token_type: toString(data?.token_type)
-});
 
 export default createMachine(
   {
@@ -29,7 +19,7 @@ export default createMachine(
     initial: "loading",
     context: {
       debug: false,
-      context: "guest", // role
+      role: "guest",
       // ---
       token: {
         access_token: null,
@@ -70,7 +60,7 @@ export default createMachine(
             id: "generating",
             invoke: {
               src: "generateToken",
-              onDone: { target: "#persisting" },
+              onDone: { target: "persisting" },
               onError: { target: "#error" }
             }
           },
@@ -78,24 +68,22 @@ export default createMachine(
             id: "refreshing",
             invoke: {
               src: "refreshToken",
-              onDone: { target: "#persisting" },
+              onDone: { target: "persisting" },
               onError: { target: "#error" }
+            }
+          },
+          persisting: {
+            entry: "setToken",
+            invoke: {
+              src: "persistToken",
+              onDone: {
+                target: "#processed"
+              }
             }
           }
         }
 
         // TODO invoke a sub states/service to do something
-      },
-
-      persisting: {
-        id: "persisting",
-        entry: "setToken",
-        invoke: {
-          src: "persistToken",
-          onDone: {
-            target: "#processed"
-          }
-        }
       },
 
       // Use a state to indicate a successful process
@@ -140,10 +128,7 @@ export default createMachine(
   {
     actions: {
       setToken: assign({
-        token: (context, { data }) => {
-          const token = tokenParser(data);
-          return token;
-        }
+        token: (context, { data }) => useTokenParser(data)
       }),
 
       resetToken: assign({
@@ -165,6 +150,7 @@ export default createMachine(
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
       }),
+
       clearError: assign({ error: null })
     },
     guards: {

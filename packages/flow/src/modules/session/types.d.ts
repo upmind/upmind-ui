@@ -34,7 +34,7 @@ export enum TwofaProviders {
 
 export interface SessionContext {
   debug: boolean;
-  context: AccessRoleTypes;
+  role: AccessRoleTypes;
   token: SessionToken;
   error?: RequestError;
 }

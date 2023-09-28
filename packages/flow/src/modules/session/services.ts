@@ -34,7 +34,7 @@ async function check(context: SessionContext, _event: any) {
   // if it is not expired, resolve with the token
   // Also, when wh have client logins, we need to check for a valid token thats not guest
 
-  const sessionContext = get(context, "context", "guest");
+  const sessionContext = get(context, "role", "guest");
 
   const token = get(localStorage, `${sessionContext}/auth/token`);
 
@@ -70,8 +70,8 @@ async function refreshToken(context: SessionContext, _event: any) {
 }
 
 async function persistToken(context: SessionContext, _event: any) {
-  const sessionContext = get(context, "context", "guest");
-  const token = omit(context.token, ["actor_id", "actor_type", "context"]);
+  const sessionContext = get(context, "role", "guest");
+  const token = omit(context.token, ["actor_id", "actor_type"]);
 
   if (!localStorage) return Promise.reject("No localStorage available");
 
@@ -89,7 +89,7 @@ async function persistToken(context: SessionContext, _event: any) {
 }
 
 async function dumpToken(context: SessionContext, _event: any) {
-  const sessionContext = get(context, "context", "guest");
+  const sessionContext = get(context, "role", "guest");
 
   localStorage.removeItem(`${sessionContext}/auth/token`);
 
