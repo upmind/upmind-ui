@@ -53,10 +53,6 @@ export interface SessionToken {
   actor_type?: AccessRoleTypes | null;
 }
 
-export interface SessionsContext {
-  requests: Record<string, StateMachine>;
-}
-
 // --------------------------------------------------------
 // Events
 

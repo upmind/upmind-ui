@@ -10,10 +10,6 @@ export interface BrandContext {
   error?: RequestError;
 }
 
-export interface BrandsContext {
-  requests: Record<string, StateMachine>;
-}
-
 // --------------------------------------------------------
 // Events
 
