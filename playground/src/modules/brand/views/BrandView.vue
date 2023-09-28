@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBrand } from "@/modules/brand";
+import { useBrand } from "../";
 const { state, isAvailable, values } = useBrand();
 </script>
 

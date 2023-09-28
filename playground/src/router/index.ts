@@ -1,5 +1,34 @@
-import { createRouter, createWebHistory } from "vue-router";
+// --- external
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw
+} from "vue-router";
+
+// --- internal
 import HomeView from "@/views/HomeView.vue";
+
+// --- utils
+import { get } from "lodash-es";
+
+// -----------------------------------------------------
+// Dynamic Routes
+
+const importedRoutes = import.meta.glob<Object>("@/modules/**/routes/*.ts", {
+  import: "default",
+  eager: true
+});
+
+const routes: RouteRecordRaw[] = [];
+
+for (const modules in importedRoutes) {
+  const moduleRoutes = get(importedRoutes[modules], "routes", []);
+
+  // No Promises since it's eager loaded.
+  routes.push(...moduleRoutes);
+}
+
+// -----------------------------------------------------
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,25 +43,11 @@ const router = createRouter({
       name: "about",
       component: () => import("@/views/AboutView.vue")
     },
-    {
-      path: "/requests",
-      name: "requests",
-      //  is lazy-loaded when the route is visited.
-      component: () => import("@/views/RequestsView.vue")
-    },
-    {
-      path: "/brand",
-      name: "brand",
-      //  is lazy-loaded when the route is visited.
-      component: () => import("@/views/BrandView.vue")
-    },
-    {
-      path: "/session",
-      name: "session",
-      //  is lazy-loaded when the route is visited.
-      component: () => import("@/views/SessionView.vue")
-    }
+    // ---
+    ...routes
   ]
 });
+
+// -----------------------------------------------------
 
 export default router;
