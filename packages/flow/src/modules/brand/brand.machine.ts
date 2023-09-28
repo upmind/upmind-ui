@@ -3,20 +3,10 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-
+import type { BrandContext, BrandEvent } from "./types.d";
 // --- utils
-import { reduce, set, get } from "lodash-es";
-
+import { useBrandParser } from "./utils";
 // --------------------------------------------------------
-const parseData = data =>
-  reduce(
-    data,
-    (result, value, key) => {
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
 
 export default createMachine(
   {
@@ -25,11 +15,13 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "processing",
     context: {
+      currencies: null,
+      // ---
       //  we dont have a set type for this yet as its 100% dynamic from the API
       //  on fetch we will inject the data into the context
       // ---
       error: null
-    },
+    } as BrandContext,
     states: {
       processing: {
         id: "processing",
@@ -131,16 +123,25 @@ export default createMachine(
   },
   {
     actions: {
-      setOrganisation: assign((context, { data }) => parseData(data)),
-      setSettings: assign((context, { data }) => parseData(data)),
-      setConfig: assign((context, { data }) => parseData(data)),
-      setModules: assign((context, { data }) => parseData(data)),
+      setOrganisation: assign((_context: BrandContext, { data }: BrandEvent) =>
+        useBrandParser(data)
+      ),
+      setSettings: assign((_context: BrandContext, { data }: BrandEvent) =>
+        useBrandParser(data)
+      ),
+      setConfig: assign((_context: BrandContext, { data }: BrandEvent) =>
+        useBrandParser(data)
+      ),
+      setModules: assign((_context: BrandContext, { data }: BrandEvent) =>
+        useBrandParser(data)
+      ),
       setCurrencies: assign({
-        currencies: (context, { data }) => data
+        currencies: (_context: BrandContext, { data }: BrandEvent) => data
       }),
       // ---
       setError: assign({
-        error: (context, { data }) => data || "Unknown error"
+        error: (_context: BrandContext, { data }: BrandEvent) =>
+          data || "Unknown error"
       }),
       clearError: assign({ error: null })
     },

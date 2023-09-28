@@ -13,13 +13,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.persisting:invocation[0]": {
-      type: "done.invoke.persisting:invocation[0]";
+    "done.invoke.refreshing:invocation[0]": {
+      type: "done.invoke.refreshing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.refreshing:invocation[0]": {
-      type: "done.invoke.refreshing:invocation[0]";
+    "done.invoke.sessionManager.processing.persisting:invocation[0]": {
+      type: "done.invoke.sessionManager.processing.persisting:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -44,7 +44,7 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     check: "done.invoke.loading:invocation[0]";
     generateToken: "done.invoke.generating:invocation[0]";
-    persistToken: "done.invoke.persisting:invocation[0]";
+    persistToken: "done.invoke.sessionManager.processing.persisting:invocation[0]";
     refreshToken: "done.invoke.refreshing:invocation[0]";
   };
   missingImplementations: {
@@ -67,7 +67,7 @@ export interface Typegen0 {
   eventsCausingDelays: {
     expires:
       | "done.invoke.loading:invocation[0]"
-      | "done.invoke.persisting:invocation[0]";
+      | "done.invoke.sessionManager.processing.persisting:invocation[0]";
     wait:
       | "error.platform.generating:invocation[0]"
       | "error.platform.refreshing:invocation[0]";
@@ -87,16 +87,16 @@ export interface Typegen0 {
     | "complete"
     | "error"
     | "loading"
-    | "persisting"
     | "processed"
     | "processed.available"
     | "processed.stale"
     | "processing"
     | "processing.generating"
+    | "processing.persisting"
     | "processing.refreshing"
     | {
         processed?: "available" | "stale";
-        processing?: "generating" | "refreshing";
+        processing?: "generating" | "persisting" | "refreshing";
       };
   tags: never;
 }
