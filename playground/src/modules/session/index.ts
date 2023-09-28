@@ -21,7 +21,7 @@ export const useSession = () => {
     state: computed(() => state.value.toStrings()),
     values: computed(() => state.value.context),
     isAvailable: computed(() => ["processed"].some(state.value.matches)),
-    isChecking: computed(() => ["checking"].some(state.value.matches)),
+    isLoading: computed(() => ["loading"].some(state.value.matches)),
     isGenerating: computed(() => ["generating"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
     isError: computed(() => ["error"].some(state.value.matches))

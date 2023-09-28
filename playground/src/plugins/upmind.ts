@@ -1,6 +1,7 @@
 import type { App, Plugin } from "vue";
 import { useApi } from "@/modules/api";
 import { useBrand } from "@/modules/brand";
+import { useSession } from "@/modules/session";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
@@ -12,8 +13,9 @@ const upmindPlugin: Plugin = {
   install: (app: App): void => {
     const api = useApi();
 
-    // lets initialize our brand
+    // lets initialize our brand + session
     useBrand();
+    useSession();
 
     app.provide("upmind", api);
   }

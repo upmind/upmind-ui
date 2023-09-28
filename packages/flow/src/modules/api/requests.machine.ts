@@ -2,7 +2,7 @@
 import { createMachine, assign, sendTo, spawn } from "xstate";
 // --- internal
 import requestMachine from "./request.machine";
-import type { RequestsContext, RequestsEvents } from "./types";
+import type { RequestsContext, RequestsEvents } from "./types.d";
 import services from "./services";
 import { generateHash } from "./utils";
 // --- utils
@@ -16,7 +16,7 @@ export default createMachine(
     tsTypes: {} as import("./requests.machine.typegen").Typegen0,
     id: "requestsManager",
     predictableActionArguments: true,
-    initial: "checking",
+    initial: "loading",
     context: {
       requests: {}
     },
@@ -25,11 +25,11 @@ export default createMachine(
       // If we have context > requests, we can skip to processing
       // otherwise we will await a request
       // individual request events are defined to allow for more granular control
-      checking: {
+      loading: {
         always: [{ target: "processing", cond: "hasRequests" }]
       },
       processing: {
-        always: [{ target: "checking", cond: "hasNoRequests" }],
+        always: [{ target: "loading", cond: "hasNoRequests" }],
         on: {
           REFRESH: {
             actions: ["forward"]

@@ -1,5 +1,5 @@
 import { createMachine, assign } from "xstate";
-import type { ToggleContext, ToggleEvents } from "./types";
+import type { ToggleContext, ToggleEvents } from "./types.d";
 
 export const machineConfig = {
   id: "toggle",

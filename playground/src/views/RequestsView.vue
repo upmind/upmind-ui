@@ -21,7 +21,7 @@ const requests = [
   {
     url: "https://dummyjson.com/products/1",
     delay: useTime().IMMIDIATE,
-    maxAge: useTime().MINUTE
+    maxAge: useTime().MINUTE * 10
   },
   { url: "https://dummyjson.com/products/1", delay: useTime().IMMIDIATE },
   { url: "https://dummyjson.com/products/1", delay: useTime().SECOND * 15 },

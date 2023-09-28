@@ -1,6 +1,6 @@
 # Session Manager Module
 
-The **Session Manager** module within the **Upmind Flow** framework is designed to handle user sessions, including managing authentication tokens and user baskets. This module is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
+The **Session Manager** module within the **Upmind Flow** framework is designed to handle user sessions, including managing authentication tokens and guest users. This module is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
 
 ## Table of Contents
 
@@ -27,11 +27,11 @@ To use the **Session Manager** module, you can import it from the `@upmind/flow`
 
 ## State Machine Overview
 
-The module operates as a state machine with built-in context to manage user sessions. It goes through different states to check and generate user tokens and baskets. Below are the key states:
+The module operates as a state machine with built-in context to manage user sessions. It goes through different states to check and generate user tokens and claims. Below are the key states:
 
-- **Checking**: In this initial state, the module checks if a user has a valid token and basket. If both are present, it proceeds to the "Processed" state. Otherwise, it generates a guest token and a new basket in the "Generating" state.
+- **Loading**: In this initial state, the module checks if a user has a valid token. If both are present, it proceeds to the "Processed" state. Otherwise, it generates a guest token in the "Generating" state.
 
-- **Generating**: In this state, the module generates a guest token and a new basket. Once both are generated, it transitions to the "Processed" state.
+- **Generating**: In this state, the module generates a guest token. Once both are generated, it transitions to the "Processed" state.
 
 - **Processed**: This state indicates that a valid session is available. It has two sub-states, "Available" and "Stale," depending on the session's freshness. If the session becomes stale, you can trigger a refresh to move back to the "Processing" state.
 
@@ -57,7 +57,7 @@ export const useSession= () => {
 
   return {
     state: computed(() => state.value.toStrings()),
-    isChecking: computed(() => ["checking"].some(state.value.matches)),
+    isLoading: computed(() => ["loading"].some(state.value.matches)),
     isGenerating: computed(() => ["generating"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
     isAvailable: computed(() => ["processed"].some(state.value.matches)),

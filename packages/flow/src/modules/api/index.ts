@@ -7,7 +7,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import requestsMachine from "./requests.machine";
 import { generateHash } from "./utils";
 import { useTime } from "../../utils";
-import type { RequestParams } from "./types";
+import type { RequestParams } from "./types.d";
 
 // --- utils
 import { set, get, trimStart } from "lodash-es";
@@ -29,9 +29,9 @@ export const useApi = () => {
   // --------------------------------------------------------
   // methods
 
-  const useUrl = (path: Url["path"]) => {
+  const useUrl = (path: Url["path"], prepend = "api") => {
     const base = import.meta.env.VITE_API_URL;
-    return [base, "api", trimStart(path, "/")].join("/");
+    return [base, prepend, trimStart(path, "/")].join("/");
   };
 
   async function request({

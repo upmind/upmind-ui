@@ -1,5 +1,5 @@
 // --- internal
-import type { RequestParams } from "./types";
+import type { RequestParams } from "./types.d";
 
 // --- utils
 import { includes } from "lodash-es";
