@@ -1,3 +1,4 @@
+import type { Url } from "url";
 import type { StateMachine } from "xstate";
 
 // --------------------------------------------------------
@@ -15,7 +16,7 @@ export interface RequestError {
 }
 
 export interface RequestParams {
-  url: string;
+  url: Url;
   init?: RequestInit | null;
   useCache?: boolean | null;
   maxAge?: number | null;
@@ -26,7 +27,7 @@ export interface RequestParams {
 // Context Types
 
 export interface RequestContext {
-  url: string | null;
+  url: Url | null;
   init: RequestInit | null;
   useCache: boolean | null;
   hash: string | null;
@@ -50,7 +51,7 @@ export interface RequestsContext {
 export interface RequestEvent {
   type: string;
   data: {
-    url: string;
+    url: Url;
     init: RequestInit;
     useCache: boolean;
     hash: string;

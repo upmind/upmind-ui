@@ -30,7 +30,9 @@ export const useSession = () => {
   // --------------------------------------------------------
 
   return {
-    service: service.start() // allow for interpreting the machine + inspecting it
+    service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+    role: currentState?.context?.role,
+    token: currentState?.context?.token?.access_token
   };
 };

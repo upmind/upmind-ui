@@ -1,10 +1,10 @@
 // --- internal
 import { useApi } from "../api";
+import { useSession } from "../session";
 
 // --- utils
 import { get, omit } from "lodash-es";
 import { type BasketContext, GrantTypes } from "./types.d";
-
 // --------------------------------------------------------
 // ENUMS
 // enum GrantTypes {
@@ -28,19 +28,50 @@ import { type BasketContext, GrantTypes } from "./types.d";
 // this will process the request and return a promise
 
 async function check(context: BasketContext, _event: any) {
-  // TODO: This needs to evolve to check for a valid token
-  // and if it is valid, check if it is expired
-  // if it is expired, reject with a refresh error
-  // if it is not expired, resolve with the token
-  // Also, when wh have client logins, we need to check for a valid token thats not guest
+  const { get, useUrl } = useApi();
+  let { service, token } = useSession();
 
-  const basketContext = get(context, "role", "guest");
+  // ensure we have a token and watch for changes
+  // service.onTransition(state => {
+  //   token = get(state, "token.access_token", "");
+  // });
 
-  const token = get(localStorage, `${basketContext}/auth/token`);
+  return get({
+    url: useUrl({
+      path: "/api/orders/current",
+      params: {
+        with: [
+          "account.brand.image",
+          "account.pricelist",
+          "client.image",
+          "contract",
+          "currency",
+          "custom_fields.field",
+          "products.product.image",
+          `products.product.category${".top_category".repeat(4)}`,
+          "products.product.images",
+          "products.product.prices",
+          "products.product.products_attributes",
+          "products.product.products_attributes.category",
+          "products.product.products_options",
+          "products.product.products_options.category",
+          "products.product.products_options.prices",
+          "products.tags",
+          "promotions",
+          "status",
+          "payments",
+          "taxes",
+          "taxes.tax_tag_data"
+        ].join()
+      }
+    })
+  });
+
+  const basket = null;
 
   return new Promise((resolve, reject) => {
-    if (token) {
-      return resolve(JSON.parse(token));
+    if (basket) {
+      return resolve(basket);
     } else {
       return reject();
     }
@@ -52,7 +83,7 @@ async function generateToken(_context: BasketContext, _event: any) {
 
   return post({
     url: useUrl("access_token", "oauth"),
-    data: { grant_type: GrantTypes.GUEST }
+    data: {}
   });
 }
 
@@ -63,7 +94,6 @@ async function refreshToken(context: BasketContext, _event: any) {
   return await post({
     url: useUrl("access_token", "oauth"),
     data: {
-      grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token
     }
   });
