@@ -9,11 +9,9 @@
     />
 
     <nav class="vertical">
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/requests">Requests</RouterLink>
-      <RouterLink to="/brand">Brand</RouterLink>
-      <RouterLink to="/session">Session</RouterLink>
-      <RouterLink to="/basket">Basket</RouterLink>
+      <router-link v-for="route in routes" :key="route.path" :to="route.path">
+        {{ upperFirst(route.name) }}
+      </router-link>
     </nav>
   </header>
 
@@ -23,7 +21,12 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView } from "vue-router";
+import { ref } from "vue";
+import { RouterView, useRouter } from "vue-router";
+import { upperFirst } from "lodash-es";
+
+const router = useRouter();
+const routes = ref(router.options.routes);
 </script>
 
 <style scoped lang="scss">

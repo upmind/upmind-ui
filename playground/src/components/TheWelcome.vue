@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import WelcomeItem from "./WelcomeItem.vue";
-// import DocumentationIcon from "./icons/IconDocumentation.vue";
-// import ToolingIcon from "./icons/IconTooling.vue";
-// import EcosystemIcon from "./icons/IconEcosystem.vue";
-// import CommunityIcon from "./icons/IconCommunity.vue";
-// import SupportIcon from "./icons/IconSupport.vue";
+import DocumentationIcon from "./icons/IconDocumentation.vue";
+import ToolingIcon from "./icons/IconTooling.vue";
+import EcosystemIcon from "./icons/IconEcosystem.vue";
+import CommunityIcon from "./icons/IconCommunity.vue";
+import SupportIcon from "./icons/IconSupport.vue";
 import StateMachineIcon from "./icons/IconStateMachine.vue";
-
-import UpmToggle from "@/modules/toggle/components/Toggle.vue";
 import { test as testFlow } from "@upmind/flow";
 </script>
 
@@ -18,14 +16,10 @@ import { test as testFlow } from "@upmind/flow";
     </template>
     <template #heading> {{ testFlow() || "State" }} </template>
 
-    <template #subheading> Toggle Machine </template>
-
-    <upm-toggle use-global>Global Instance</upm-toggle>
-    <upm-toggle></upm-toggle>
-    <upm-toggle use-global>Global Instance</upm-toggle>
+    This project is using the Upmind Flow to manage state and user journeys.
   </welcome-item>
 
-  <!-- <WelcomeItem>
+  <WelcomeItem>
     <template #icon>
       <DocumentationIcon />
     </template>
@@ -134,5 +128,5 @@ import { test as testFlow } from "@upmind/flow";
     <a href="https://vuejs.org/sponsor/" target="_blank" rel="noopener"
       >becoming a sponsor</a
     >.
-  </WelcomeItem> -->
+  </WelcomeItem>
 </template>

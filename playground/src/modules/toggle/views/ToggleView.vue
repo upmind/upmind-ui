@@ -1,22 +1,19 @@
 <template>
-  <section class="brand">
-    <h2 class="title">Toggle is {{ state }}</h2>
+  <section class="toggle">
+    <h2 class="title">Toggle Machine</h2>
 
-    <div class="values">
-      <code>
-        <pre>{{ values }}</pre>
-      </code>
-    </div>
+    <upm-toggle use-global>Global Instance</upm-toggle>
+    <upm-toggle></upm-toggle>
+    <upm-toggle use-global>Global Instance</upm-toggle>
   </section>
 </template>
 
 <script setup lang="ts">
-import { useToggle } from "../";
-const { state, values } = useToggle();
+import UpmToggle from "../components/Toggle.vue";
 </script>
 
 <style scoped lang="scss">
-.brand {
+.toggle {
   .values {
     margin-top: 1em;
     &:not(:last-child) {
