@@ -93,7 +93,7 @@ export default createMachine(
           unauthorized: {
             invoke: {
               src: "refreshToken",
-              onDone: { target: "#processing" },
+              onDone: { target: "#loading" },
               onError: { target: "#error" }
             }
           }
