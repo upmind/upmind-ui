@@ -66,10 +66,7 @@ async function refreshToken(context: BasketContext, _event: any) {
     waitFor(service, state => ["processed", "error"].some(state.matches))
       .then(state => {
         if (state.matches("processed")) {
-          // if the service was processed, we return the response
-          const token = get(state, "context.token");
-          debugger;
-          resolve();
+          resolve(true);
         } else if (state.matches("error")) {
           const error = get(state, "context.error");
           reject(error);
@@ -85,5 +82,6 @@ async function refreshToken(context: BasketContext, _event: any) {
 // EXPORTS
 
 export default <Object>{
-  check
+  check,
+  refreshToken
 };

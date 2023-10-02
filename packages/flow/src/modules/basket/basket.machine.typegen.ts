@@ -53,10 +53,10 @@ export interface Typegen0 {
     isUnauthorized: "error.platform.loading:invocation[0]";
   };
   eventsCausingServices: {
-    check: "xstate.init";
-    generateBasket:
-      | "RETRY"
-      | "done.invoke.basketManager.error.unauthorized:invocation[0]";
+    check:
+      | "done.invoke.basketManager.error.unauthorized:invocation[0]"
+      | "xstate.init";
+    generateBasket: "RETRY";
     refreshToken: "error.platform.loading:invocation[0]";
   };
   matchesStates:
