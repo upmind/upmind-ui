@@ -51,7 +51,7 @@ async function generateToken(_context: SessionContext, _event: any) {
   const { post, useUrl } = useApi();
 
   return post({
-    url: useUrl("access_token", "oauth"),
+    url: useUrl("access_token", {}, "oauth"),
     data: { grant_type: GrantTypes.GUEST }
   });
 }

@@ -40,6 +40,7 @@ async function doFetch({ url, init }: RequestParams) {
 
   return new Promise((resolve, reject) => {
     if (!ok) {
+      console.error("doFetch !ok", { status, data }, response);
       reject({ status, data });
     } else {
       resolve({ status, data });

@@ -2,6 +2,18 @@ import type { Url } from "url";
 import type { StateMachine } from "xstate";
 
 // --------------------------------------------------------
+// ENUMS
+export enum responseCodes {
+  200 = "OK",
+  204 = "No Content",
+  401 = "Unauthorized",
+  403 = "Forbidden",
+  404 = "Not Found",
+  409 = "Conflict",
+  429 = "Too Many Requests"
+}
+
+// --------------------------------------------------------
 // Request Types
 
 export interface RequestResponse {
@@ -21,6 +33,7 @@ export interface RequestParams {
   useCache?: boolean | null;
   maxAge?: number | null;
   data?: any;
+  withAccessToken?: boolean;
 }
 
 // --------------------------------------------------------

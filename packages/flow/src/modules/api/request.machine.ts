@@ -58,7 +58,34 @@ export default createMachine(
             target: "processed",
             actions: ["setResponse"]
           },
-          onError: { target: "error", actions: ["setError"] }
+          onError: [
+            {
+              target: "error.unauthorized",
+              actions: ["setError"],
+              cond: "isUnauthorized"
+            },
+            {
+              target: "error.forbidden",
+              actions: ["setError"],
+              cond: "isForbidden"
+            },
+            {
+              target: "error.notFound",
+              actions: ["setError"],
+              cond: "isNotFound"
+            },
+            {
+              target: "error.conflict",
+              actions: ["setError"],
+              cond: "isConflict"
+            },
+            {
+              target: "error.tooManyRequests",
+              actions: ["setError"],
+              cond: "isTooManyRequests"
+            },
+            { target: "error", actions: ["setError"] }
+          ]
         },
         on: {
           CANCEL: { target: "cancelling" }
@@ -95,6 +122,7 @@ export default createMachine(
               }
             ]
           },
+          noContent: {},
           cached: {
             after: { maxAge: "stale" }, // automatically move to stale after max age
             on: {
@@ -114,9 +142,22 @@ export default createMachine(
       // Handle errors
       error: {
         id: "error",
-        after: {
-          wait: "#complete" // automatically move to complete after  max age
+        initial: "unknown",
+        states: {
+          unknown: {
+            after: {
+              wait: "#complete" // automatically move to complete after  max age
+            }
+          },
+          unauthorized: {
+            // tryReAuthentication
+          },
+          forbidden: {},
+          notFound: {},
+          conflict: {},
+          tooManyRequests: {}
         },
+
         on: {
           RETRY: { target: "processing", actions: ["clearError"] },
           CANCEL: { target: "#complete" }
@@ -161,13 +202,25 @@ export default createMachine(
       })),
 
       setError: assign({
-        error: (context, { data }) => data || "Unknown error"
-      }),
+        error: (context, { data }) => {
+          debugger;
+          return data || "Unknown error";
+        }
+      })
 
-      clearError: assign({ error: null })
+      // clearError: assign({ error: null })
     },
     services: machineServices,
     guards: {
+      isUnauthorized: (_context, { data }) => {
+        debugger;
+        return data?.status === 401;
+      },
+      isForbidden: (_context, { data }) => data?.status === 403,
+      isNotFound: (_context, { data }) => data?.status === 404,
+      isConflict: (_context, { data }) => data?.status === 409,
+      isTooManyRequests: (_context, { data }) => data?.status === 429,
+      // ---
       isCachable: ({ init, useCache }) =>
         init?.method === FetchMethods.GET && !!useCache
     },

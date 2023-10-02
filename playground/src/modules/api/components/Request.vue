@@ -1,5 +1,5 @@
 <template>
-  <div class="request">
+  <div class="request" :class="{ error: request.isError }">
     <h4 class="url">{{ request.url }}</h4>
     <code class="status">{{ request.state }}</code>
     <small class="status" v-if="request.isCached || request.isStale">{{
@@ -126,6 +126,10 @@ export default defineComponent({
   &:not(:last-child) {
     border-bottom: 1px solid whitesmoke;
     padding-bottom: 1em;
+  }
+
+  &.error {
+    color: red;
   }
   .url {
     word-break: break-all;
