@@ -76,7 +76,7 @@ export const useSession= () => {
     ),
     isAvailable: computed(() => ["processed"].some(state.value.matches)),
     isStale: computed(() => ["processed.stale"].some(state.value.matches)),
-    isError: computed(() => ["error"].some(state.value.matches))
+    hasError: computed(() => ["error"].some(state.value.matches))
     // ---
   };
 };

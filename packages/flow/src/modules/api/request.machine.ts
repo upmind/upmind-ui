@@ -2,6 +2,7 @@
 import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import machineServices, { FetchMethods } from "./services";
+import { responseCodes } from "./types.d";
 import { useTime } from "../../utils";
 // --------------------------------------------------------
 
@@ -77,12 +78,12 @@ export default createMachine(
             {
               target: "error.conflict",
               actions: ["setError"],
-              cond: "isConflict"
+              cond: "hasConflict"
             },
             {
               target: "error.tooManyRequests",
               actions: ["setError"],
-              cond: "isTooManyRequests"
+              cond: "hasTooManyRequests"
             },
             { target: "error", actions: ["setError"] }
           ]
@@ -111,6 +112,11 @@ export default createMachine(
         states: {
           available: {
             after: [
+              {
+                delay: 0,
+                target: "noContent",
+                cond: "hasNoContent"
+              },
               {
                 delay: 0,
                 target: "cached",
@@ -192,34 +198,32 @@ export default createMachine(
 
       clearResponse: assign({ response: null, completed: null }),
 
-      // If we are using a GET request, we need to add the promise to the parent
-      // this allows us to abort the request if needed or re-use the request if it's already in progress
-      // if (init?.method === FetchMethods.GET) {
-      // }
       sendClearRequest: sendParent(({ hash }) => ({
         type: "REMOVE",
         data: { hash }
       })),
 
       setError: assign({
-        error: (context, { data }) => {
-          debugger;
-          return data || "Unknown error";
-        }
-      })
+        error: (context, { data }) => data || "Unknown error"
+      }),
 
-      // clearError: assign({ error: null })
+      clearError: assign({ error: null })
     },
     services: machineServices,
     guards: {
-      isUnauthorized: (_context, { data }) => {
-        debugger;
-        return data?.status === 401;
-      },
-      isForbidden: (_context, { data }) => data?.status === 403,
-      isNotFound: (_context, { data }) => data?.status === 404,
-      isConflict: (_context, { data }) => data?.status === 409,
-      isTooManyRequests: (_context, { data }) => data?.status === 429,
+      isUnauthorized: (_context, { data }) =>
+        data?.status === responseCodes.Unauthorized,
+      isForbidden: (_context, { data }) =>
+        data?.status === responseCodes.Forbidden,
+      isNotFound: (_context, { data }) =>
+        data?.status === responseCodes.NotFound,
+      hasConflict: (_context, { data }) =>
+        data?.status === responseCodes.Conflict,
+      hasTooManyRequests: (_context, { data }) =>
+        data?.status === responseCodes.Too_Many_Requests,
+      // ---
+      hasNoContent: ({ response }, { data }) =>
+        response?.status === responseCodes.No_Content,
       // ---
       isCachable: ({ init, useCache }) =>
         init?.method === FetchMethods.GET && !!useCache

@@ -32,7 +32,7 @@ export interface Typegen0 {
     doFetch: "done.invoke.process";
   };
   missingImplementations: {
-    actions: "clearError";
+    actions: never;
     delays: never;
     guards: never;
     services: "cancelRequest" | "doFetch";
@@ -63,10 +63,10 @@ export interface Typegen0 {
       | "xstate.after(maxAge)#request.processed.cached";
   };
   eventsCausingGuards: {
-    isConflict: "error.platform.process";
+    hasConflict: "error.platform.process";
+    hasTooManyRequests: "error.platform.process";
     isForbidden: "error.platform.process";
     isNotFound: "error.platform.process";
-    isTooManyRequests: "error.platform.process";
     isUnauthorized: "error.platform.process";
   };
   eventsCausingServices: {

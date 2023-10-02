@@ -59,16 +59,19 @@ export const useApi = () => {
     // safe guard
     init ??= {};
 
-    // Enforce method & header
+    // Enforce Method (default to GET)
+    set(init, "method", get(init, "method", "GET"));
+
+    // Enforce Content Type header
     set(init, "headers.Content-Type", "application/json");
 
-    // Add Authorization header
+    // Enforce Authorization header, if required
     if (withAccessToken) {
       const { token } = useSession();
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    const hash = generateHash(url, init);
+    const hash = generateHash(url.toString(), init);
 
     // first we trigger the request
     service.send({
