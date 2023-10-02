@@ -19,7 +19,9 @@ export interface Typegen0 {
     "xstate.after(maxAge)#request.processed.cached": {
       type: "xstate.after(maxAge)#request.processed.cached";
     };
-    "xstate.after(wait)#error": { type: "xstate.after(wait)#error" };
+    "xstate.after(wait)#request.error.unknown": {
+      type: "xstate.after(wait)#request.error.unknown";
+    };
     "xstate.after(wait)#request.processed.stale": {
       type: "xstate.after(wait)#request.processed.stale";
     };
@@ -30,7 +32,7 @@ export interface Typegen0 {
     doFetch: "done.invoke.process";
   };
   missingImplementations: {
-    actions: never;
+    actions: "clearError";
     delays: never;
     guards: never;
     services: "cancelRequest" | "doFetch";
@@ -48,7 +50,7 @@ export interface Typegen0 {
       | "RETRY";
     sendClearRequest:
       | "CANCEL"
-      | "xstate.after(wait)#error"
+      | "xstate.after(wait)#request.error.unknown"
       | "xstate.after(wait)#request.processed.stale";
     setError: "error.platform.cancel" | "error.platform.process";
     setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
@@ -60,7 +62,13 @@ export interface Typegen0 {
       | "error.platform.process"
       | "xstate.after(maxAge)#request.processed.cached";
   };
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    isConflict: "error.platform.process";
+    isForbidden: "error.platform.process";
+    isNotFound: "error.platform.process";
+    isTooManyRequests: "error.platform.process";
+    isUnauthorized: "error.platform.process";
+  };
   eventsCausingServices: {
     cancelRequest: "CANCEL";
     doFetch:
@@ -78,11 +86,27 @@ export interface Typegen0 {
     | "cancelling"
     | "complete"
     | "error"
+    | "error.conflict"
+    | "error.forbidden"
+    | "error.notFound"
+    | "error.tooManyRequests"
+    | "error.unauthorized"
+    | "error.unknown"
     | "processed"
     | "processed.available"
     | "processed.cached"
+    | "processed.noContent"
     | "processed.stale"
     | "processing"
-    | { processed?: "available" | "cached" | "stale" };
+    | {
+        error?:
+          | "conflict"
+          | "forbidden"
+          | "notFound"
+          | "tooManyRequests"
+          | "unauthorized"
+          | "unknown";
+        processed?: "available" | "cached" | "noContent" | "stale";
+      };
   tags: never;
 }

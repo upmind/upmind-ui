@@ -37,34 +37,33 @@ async function check(context: BasketContext, _event: any) {
   // });
 
   return get({
-    url: useUrl({
-      path: "/api/orders/current",
-      params: {
-        with: [
-          "account.brand.image",
-          "account.pricelist",
-          "client.image",
-          "contract",
-          "currency",
-          "custom_fields.field",
-          "products.product.image",
-          `products.product.category${".top_category".repeat(4)}`,
-          "products.product.images",
-          "products.product.prices",
-          "products.product.products_attributes",
-          "products.product.products_attributes.category",
-          "products.product.products_options",
-          "products.product.products_options.category",
-          "products.product.products_options.prices",
-          "products.tags",
-          "promotions",
-          "status",
-          "payments",
-          "taxes",
-          "taxes.tax_tag_data"
-        ].join()
-      }
-    })
+    url: useUrl("/orders/current", {
+      with: [
+        "account.brand.image",
+        "account.pricelist",
+        "brand.image",
+        "client.image",
+        "contract",
+        "currency",
+        "custom_fields.field",
+        "payments",
+        "products.product.image",
+        "products.product.images",
+        "products.product.prices",
+        "products.product.products_attributes",
+        "products.product.products_attributes.category",
+        "products.product.products_options",
+        "products.product.products_options.category",
+        "products.product.products_options.prices",
+        "products.tags",
+        "promotions",
+        "status",
+        "taxes",
+        "taxes.tax_tag_data",
+        `products.product.category${".top_category".repeat(4)}`
+      ].join()
+    }),
+    withAccessToken: true
   });
 
   const basket = null;

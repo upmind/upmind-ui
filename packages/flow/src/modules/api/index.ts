@@ -1,11 +1,10 @@
 // --- external
 import type { Url } from "url";
-
-// import type { Url } from "url";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useSession } from "../session";
 import requestsMachine from "./requests.machine";
 import { generateHash } from "./utils";
 import { useTime } from "../../utils";
@@ -37,19 +36,20 @@ export const useApi = () => {
 
     // clean up path
     path = [prepend, trimStart(path, "/")].join("/");
-
     // now we can create the url
     const url = new URL(path, base);
 
     // and add any params
     forIn(params, (value, key) => url.searchParams.set(key, value));
 
-    return url;
+    const safeUrl = url.toString();
+    return safeUrl;
   };
 
   async function request({
     url,
-    init = {},
+    init,
+    withAccessToken,
     useCache = false,
     maxAge = null
   }: RequestParams) {
@@ -60,7 +60,13 @@ export const useApi = () => {
     init ??= {};
 
     // Enforce method & header
-    set(init, "headers", { "Content-Type": "application/json" });
+    set(init, "headers.Content-Type", "application/json");
+
+    // Add Authorization header
+    if (withAccessToken) {
+      const { token } = useSession();
+      set(init, `headers.Authorization`, `Bearer ${token}`);
+    }
 
     const hash = generateHash(url, init);
 
@@ -92,7 +98,8 @@ export const useApi = () => {
 
   async function getRequest({
     url,
-    init = {},
+    init,
+    withAccessToken,
     useCache = true,
     maxAge = null
   }: RequestParams) {
@@ -105,10 +112,15 @@ export const useApi = () => {
     // Enforce method & header
     set(init, "method", "GET");
 
-    return request({ url, init, useCache, maxAge });
+    return request({ url, init, withAccessToken, useCache, maxAge });
   }
 
-  async function postRequest({ url, data, init = {} }: RequestParams) {
+  async function postRequest({
+    url,
+    init,
+    data,
+    withAccessToken
+  }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -116,10 +128,15 @@ export const useApi = () => {
     set(init, "method", "POST");
     set(init, "body", JSON.stringify(data));
 
-    return request({ url, init });
+    return request({ url, init, withAccessToken });
   }
 
-  async function putRequest({ url, data, init = {} }: RequestParams) {
+  async function putRequest({
+    url,
+    init,
+    data,
+    withAccessToken
+  }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -127,10 +144,15 @@ export const useApi = () => {
     set(init, "method", "PUT");
     set(init, "body", JSON.stringify(data));
 
-    return request({ url, init });
+    return request({ url, init, withAccessToken });
   }
 
-  async function patchRequest({ url, data, init = {} }: RequestParams) {
+  async function patchRequest({
+    url,
+    init,
+    data,
+    withAccessToken
+  }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -138,10 +160,15 @@ export const useApi = () => {
     set(init, "method", "PATCH");
     set(init, "body", JSON.stringify(data));
 
-    return request({ url, init });
+    return request({ url, init, withAccessToken });
   }
 
-  async function deleteRequest({ url, data, init = {} }: RequestParams) {
+  async function deleteRequest({
+    url,
+    init,
+    data,
+    withAccessToken
+  }: RequestParams) {
     // safe guard
     init ??= {};
 
@@ -149,7 +176,7 @@ export const useApi = () => {
     set(init, "method", "DELETE");
     set(init, "body", JSON.stringify(data));
 
-    return request({ url, init });
+    return request({ url, init, withAccessToken });
   }
   // --------------------------------------------------------
   return {
