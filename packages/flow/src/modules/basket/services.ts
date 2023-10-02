@@ -1,9 +1,13 @@
+// --- external
+import { waitFor } from "xstate/lib/waitFor";
+
 // --- internal
 import { useApi } from "../api";
 import { useSession } from "../session";
 import { type BasketContext } from "./types.d";
 
 // --- utils
+import { get } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -15,13 +19,13 @@ import { type BasketContext } from "./types.d";
 
 async function check(context: BasketContext, _event: any) {
   const { get, useUrl } = useApi();
-  let { service, token } = useSession();
 
   // ensure we have a token and watch for changes
   // service.onTransition(state => {
   //   token = get(state, "token.access_token", "");
   // });
 
+  // get returns a promise so we can pass it directly back to the machine
   return get({
     url: useUrl("/orders/current", {
       with: [
@@ -53,6 +57,30 @@ async function check(context: BasketContext, _event: any) {
   });
 }
 
+async function refreshToken(context: BasketContext, _event: any) {
+  let { service, token } = useSession();
+
+  service.send("REFRESH");
+
+  return new Promise((resolve, reject) => {
+    waitFor(service, state => ["processed", "error"].some(state.matches))
+      .then(state => {
+        if (state.matches("processed")) {
+          // if the service was processed, we return the response
+          const token = get(state, "context.token");
+          debugger;
+          resolve();
+        } else if (state.matches("error")) {
+          const error = get(state, "context.error");
+          reject(error);
+        }
+      })
+      .catch(error => {
+        console.error("Error refreshing token", error);
+        reject(error);
+      });
+  });
+}
 // --------------------------------------------------------
 // EXPORTS
 

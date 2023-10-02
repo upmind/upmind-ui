@@ -74,7 +74,7 @@ onMounted(() => {
       ({ url, init, useCache, maxAge }) => {
         console.log("fetching...", request.url, request.delay);
         get({ url, init, useCache, maxAge }).then(({ data }) =>
-          console.log("fetched", request.url, request.delay)
+          console.log("fetched", request.url, request.delay, data)
         );
       },
       request.delay,

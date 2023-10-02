@@ -114,7 +114,7 @@ export default createMachine(
             after: [
               {
                 delay: 0,
-                target: "noContent",
+                target: "empty",
                 cond: "hasNoContent"
               },
               {
@@ -128,7 +128,7 @@ export default createMachine(
               }
             ]
           },
-          noContent: {},
+          empty: {},
           cached: {
             after: { maxAge: "stale" }, // automatically move to stale after max age
             on: {
