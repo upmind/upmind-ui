@@ -32,15 +32,18 @@ async function doFetch({ url, init }: RequestParams) {
     Promise.reject(error);
   });
 
-  // Digest response data (JSON)
-  const data = await response.json();
-
   // Unpack response object
   const { ok, status } = response;
 
+  // Digest response data (JSON)
+  // maybe instead of catching error, we can check if 204 and return null
+  const data = await response.json().catch(error => {
+    console.error("doFetch response.json error", error);
+    return null;
+  });
+
   return new Promise((resolve, reject) => {
     if (!ok) {
-      console.error("doFetch !ok", { status, data }, response);
       reject({ status, data });
     } else {
       resolve({ status, data });

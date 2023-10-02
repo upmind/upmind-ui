@@ -1,5 +1,8 @@
 <template>
-  <div class="request" :class="{ error: request.isError }">
+  <div
+    class="request"
+    :class="{ error: request.hasError, warning: request.hasNoContent }"
+  >
     <h4 class="url">{{ request.url }}</h4>
     <code class="status">{{ request.state }}</code>
     <small class="status" v-if="request.isCached || request.isStale">{{
@@ -87,7 +90,8 @@ export default defineComponent({
         isProcessing: state.matches("processing"),
         isCached: state.matches("processed.cached"),
         isStale: state.matches("processed.stale"),
-        isError: state.matches("error")
+        hasNoContent: state.matches("processed.noContent"),
+        hasError: state.matches("error")
       };
     });
 
@@ -128,9 +132,14 @@ export default defineComponent({
     padding-bottom: 1em;
   }
 
+  // ---
   &.error {
     color: red;
   }
+  &.warning {
+    color: orange;
+  }
+  // ---
   .url {
     word-break: break-all;
   }

@@ -68,7 +68,7 @@ export const useBasket= () => {
       ["processing.generating"].some(state.value.matches)
     ),
     isAvailable: computed(() => ["processed"].some(state.value.matches)),
-    isError: computed(() => ["error"].some(state.value.matches))
+    hasError: computed(() => ["error"].some(state.value.matches))
     // ---
   };
 };

@@ -4,21 +4,23 @@ import type { StateMachine } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 export enum responseCodes {
-  200 = "OK",
-  204 = "No Content",
-  401 = "Unauthorized",
-  403 = "Forbidden",
-  404 = "Not Found",
-  409 = "Conflict",
-  429 = "Too Many Requests"
+  "OK" = 200,
+  "No_Content" = 204,
+  "Unauthorized" = 401,
+  "Forbidden" = 403,
+  "Not_Found" = 404,
+  "Conflict" = 409,
+  "Too_Many_Requests" = 429
 }
 
 // --------------------------------------------------------
 // Request Types
 
 export interface RequestResponse {
-  status: Response["status"];
-  data: any;
+  data: {
+    status: Response["status"];
+    data: any;
+  };
 }
 
 export interface RequestError {
