@@ -4,6 +4,8 @@ import { createMachine, assign } from "xstate";
 // --- internal
 import services from "./services";
 import type { BasketContext, BasketEvents } from "./types";
+import { responseCodes } from "../api/types.d";
+
 // --- utils
 import { useBasketParser } from "./utils";
 import { useTime } from "../../utils";
@@ -31,8 +33,19 @@ export default createMachine(
         id: "loading",
         invoke: {
           src: "check",
-          onDone: { target: "#processed", actions: ["setBasket"] },
-          onError: { target: "#generating" }
+          onDone: [
+            { target: "#processed.empty", cond: "hasNoContent" },
+            { target: "#processed", actions: ["setBasket"] }
+          ],
+          onError: [
+            {
+              target: "error.unauthorized",
+              actions: ["setError"],
+              cond: "isUnauthorized"
+            },
+
+            { target: "error", actions: ["setError"] }
+          ]
         }
       },
 
@@ -61,19 +74,33 @@ export default createMachine(
         id: "processed",
         initial: "available",
         states: {
-          available: {}
+          available: {},
+          empty: {}
         }
       },
 
       // Handle errors
+      // Handle errors
       error: {
-        entry: "setError",
         id: "error",
-        after: {
-          wait: "#complete" // automatically move to complete after  max age
+        initial: "unknown",
+        states: {
+          unknown: {
+            after: {
+              wait: "#complete" // automatically move to complete after  max age
+            }
+          },
+          unauthorized: {
+            invoke: {
+              src: "refreshToken",
+              onDone: { target: "#processing" },
+              onError: { target: "#error" }
+            }
+          }
         },
+
         on: {
-          RETRY: { target: "#processing", actions: ["clearError"] },
+          RETRY: { target: "processing", actions: ["clearError"] },
           CANCEL: { target: "#complete" }
         }
       },
@@ -114,7 +141,13 @@ export default createMachine(
 
       clearError: assign({ error: null })
     },
-    guards: {},
+    guards: {
+      isUnauthorized: (_context, { data }) =>
+        data?.status === responseCodes.Unauthorized,
+
+      hasNoContent: (_context, { data }) =>
+        data?.status === responseCodes.No_Content
+    },
 
     delays: {
       wait: () => useTime().MINUTE // this allows us to wait for a reasonable amount of time before continuing

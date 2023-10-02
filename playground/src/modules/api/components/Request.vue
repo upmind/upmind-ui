@@ -90,7 +90,7 @@ export default defineComponent({
         isProcessing: state.matches("processing"),
         isCached: state.matches("processed.cached"),
         isStale: state.matches("processed.stale"),
-        hasNoContent: state.matches("processed.noContent"),
+        hasNoContent: state.matches("processed.empty"),
         hasError: state.matches("error")
       };
     });

@@ -30,6 +30,14 @@ export const useApi = () => {
   // --------------------------------------------------------
   // methods
 
+  /**
+   * Constructs a URL with the given path and query parameters.
+   * @function
+   * @param {string} path - The path to append to the base URL.
+   * @param {Object} params - The query parameters to include in the URL.
+   * @param {string} [prepend="api"] - The string to prepend to the path.
+   * @returns {string} The constructed URL as a string.
+   */
   const useUrl = (path: Url["path"], params: Object, prepend = "api") => {
     // get base url from env
     const base = import.meta.env.VITE_API_URL;
@@ -46,6 +54,14 @@ export const useApi = () => {
     return safeUrl;
   };
 
+  /**
+   * Sends a request  with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   * @throws {Error} If the request was not found.
+   */
   async function request({
     url,
     init,
@@ -88,8 +104,17 @@ export const useApi = () => {
         ["processed", "error"].some(state.matches)
       );
 
-      // finnaly we return the response
-      return request.state.context?.response?.data;
+      // finally ...
+      return new Promise((resolve, reject) => {
+        if (request.state.matches("processed")) {
+          // if the request was processed, we return the response
+          const response = get(request, "state.context.response");
+          resolve(response);
+        } else if (request.state.matches("error")) {
+          const error = get(request, "state.context.error");
+          reject(error);
+        }
+      });
     }
 
     // todo
@@ -99,6 +124,13 @@ export const useApi = () => {
   // --------------------------------------------------------
   // Syntax sugar for requests
 
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   */
   async function getRequest({
     url,
     init,
@@ -118,6 +150,13 @@ export const useApi = () => {
     return request({ url, init, withAccessToken, useCache, maxAge });
   }
 
+  /**
+   * Syntax sugar for sending a POST request to the server with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   */
   async function postRequest({
     url,
     init,
@@ -134,6 +173,13 @@ export const useApi = () => {
     return request({ url, init, withAccessToken });
   }
 
+  /**
+   * Syntax sugar for sending a PUT request to the server with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   */
   async function putRequest({
     url,
     init,
@@ -150,6 +196,13 @@ export const useApi = () => {
     return request({ url, init, withAccessToken });
   }
 
+  /**
+   * Syntax sugar for sending a PATCH request to the server with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   */
   async function patchRequest({
     url,
     init,
@@ -166,6 +219,13 @@ export const useApi = () => {
     return request({ url, init, withAccessToken });
   }
 
+  /**
+   * Syntax sugar for sending a DELETE request to the server with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   */
   async function deleteRequest({
     url,
     init,
@@ -181,7 +241,9 @@ export const useApi = () => {
 
     return request({ url, init, withAccessToken });
   }
+
   // --------------------------------------------------------
+
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
