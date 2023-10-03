@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { useBrand } from "../";
-const { state, isAvailable, values } = useBrand();
+const { state, values } = useBrand();
 </script>
 
 <style scoped lang="scss">

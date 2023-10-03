@@ -16,9 +16,7 @@ import brandMachine from "./brand.machine";
 let currentState = null;
 
 const service = interpret(brandMachine, { devTools: false }).onTransition(
-  state => {
-    currentState = state;
-  }
+  state => (currentState = state)
 );
 // --------------------------------------------------------
 
@@ -29,7 +27,8 @@ export const useBrand = () => {
   // --------------------------------------------------------
 
   return {
-    service: service.start() // allow for interpreting the machine + inspecting it
+    service: service.start(), // allow for interpreting the machine + inspecting it
+    state: currentState
     // ---
   };
 };

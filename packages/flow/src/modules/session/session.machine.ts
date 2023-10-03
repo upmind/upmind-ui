@@ -3,7 +3,7 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-import type { SessionContext, SessionEvents } from "./types.d";
+import type { SessionContext } from "./types.d";
 // --- utils
 import { useTokenParser } from "./utils";
 import { useTime } from "../../utils";

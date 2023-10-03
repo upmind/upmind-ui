@@ -1,5 +1,5 @@
 // --- external
-import type { Url } from "url";
+
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -38,7 +38,11 @@ export const useApi = () => {
    * @param {string} [prepend="api"] - The string to prepend to the path.
    * @returns {string} The constructed URL as a string.
    */
-  const useUrl = (path: Url["path"], params: Object, prepend = "api") => {
+  const useUrl = (
+    path: string | URL["pathname"],
+    params: Object = {},
+    prepend = "api"
+  ) => {
     // get base url from env
     const base = import.meta.env.VITE_API_URL;
 
@@ -46,12 +50,12 @@ export const useApi = () => {
     path = [prepend, trimStart(path, "/")].join("/");
     // now we can create the url
     const url = new URL(path, base);
-
+    debugger;
     // and add any params
     forIn(params, (value, key) => url.searchParams.set(key, value));
 
-    const safeUrl = url.toString();
-    return safeUrl;
+    debugger;
+    return url;
   };
 
   /**
@@ -87,7 +91,8 @@ export const useApi = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    const hash = generateHash(url.toString(), init);
+    debugger;
+    const hash = generateHash(url, init);
 
     // first we trigger the request
     service.send({

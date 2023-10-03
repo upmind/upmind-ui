@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, computed, onMounted } from "vue";
+import { defineComponent, inject, ref, onMounted } from "vue";
 import { get } from "lodash-es";
 
 function calculateRelativeTime(
