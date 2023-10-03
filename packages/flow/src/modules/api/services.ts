@@ -3,7 +3,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession } from "../session";
-import type { RequestContext, FetchResponse } from "./types.d";
+import type { RequestContext } from "./types.d";
 
 // --- utils
 import { includes, get, set } from "lodash-es";
@@ -32,7 +32,6 @@ async function doFetch({ url, init }: RequestContext) {
   }
 
   // do the fetch
-
   const response = await fetch(url.toString(), init).catch(error => {
     Promise.reject(error);
   });

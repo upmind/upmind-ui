@@ -1,4 +1,3 @@
-import type { Url } from "url";
 import type { Ref } from "vue";
 import type { StateMachine } from "xstate";
 
@@ -31,7 +30,7 @@ interface UseApi {
 }
 
 interface UseApiFunctions {
-  useUrl: (path: Url["path"]) => string;
+  useUrl: (path: URL["pathname"]) => string;
   useTime: () => Object;
   get: (
     { url, init }: { url: string; init?: RequestInit },

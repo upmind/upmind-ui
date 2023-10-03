@@ -17,7 +17,7 @@ export function addMeta(obj: Object, prop: PropertyKey, value: any) {
   });
 }
 
-export function generateHash(url: string, init: RequestInit) {
-  const hash = sha1({ ...omit(init, ["signal"]), url });
+export function generateHash(url: URL, init: RequestInit) {
+  const hash = sha1({ ...omit(init, ["signal"]), url: url.toString() });
   return hash;
 }

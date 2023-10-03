@@ -57,8 +57,8 @@ async function create(context: BasketContext, _event: any) {
     url: useUrl("/orders"),
     data: {
       category_slug: "new_contract"
-      // currency_code: "GBP",
-      // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860",
+      // currency_code: "GBP", // from brand
+      // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
       // products: [
       //   {
       //     product_id: "d7382485-0793-157e-622c-91e642d59e06",
@@ -86,22 +86,36 @@ async function create(context: BasketContext, _event: any) {
   });
 }
 
-async function createWithProduct(context: BasketContext, _event: any) {}
+async function refresh(context: BasketContext, _event: any) {}
 
-// ---
-
-async function add(context: BasketContext, _event: any) {}
+// --- Basket Methods
 
 async function update(context: BasketContext, _event: any) {}
 
-async function clear(context: BasketContext, _event: any) {}
-
 async function remove(context: BasketContext, _event: any) {}
+
+async function claim(context: BasketContext, _event: any) {}
+
+async function hideWarnings(context: BasketContext, _event: any) {}
+
+async function convertToInvoice(context: BasketContext, _event: any) {}
+
+// --------------------------------------------------------
+// --- Syntax sugar to Update Basket
+// --------------------------------------------------------
+
+async function setBasket(context: BasketContext, _event: any) {}
+
+async function setCurrency(context: BasketContext, _event: any) {}
+
+async function setPriceList(context: BasketContext, _event: any) {}
 
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
   check,
-  create
+  create,
+  refresh
+  // ---
 };
