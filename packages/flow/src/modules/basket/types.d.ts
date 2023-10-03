@@ -7,6 +7,7 @@
 export interface BasketContext {
   debug: boolean;
   basket: Basket;
+  spawned: Record<string, any>;
   error?: RequestError;
 }
 

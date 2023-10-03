@@ -13,7 +13,7 @@ import { useBrand as useUpmindBrand } from "@upmind/flow";
 
 export const useBrand = () => {
   const brand = useUpmindBrand();
-  const { state } = useActor(brand.service);
+  const { state, send } = useActor(brand.service);
 
   // --------------------------------------------------------
 

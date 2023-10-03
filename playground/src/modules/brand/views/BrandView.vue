@@ -2,8 +2,7 @@
   <section class="brand">
     <header class="toolbar">
       <h2 class="title">Brand is {{ state }}</h2>
-
-      <slot name="actions"></slot>
+      <slot name="actions"> </slot>
     </header>
 
     <div class="values">

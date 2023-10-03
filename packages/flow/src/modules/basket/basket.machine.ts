@@ -1,14 +1,16 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, sendTo, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
 import type { BasketContext } from "./types";
 import { responseCodes } from "../api/types.d";
+import productMachine from "./product.machine";
 
 // --- utils
 import { useBasketParser } from "./utils";
 import { useTime } from "../../utils";
+import { remove, find, get, set, unset, isEmpty, uniqueId } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -21,7 +23,9 @@ export default createMachine(
     context: {
       debug: false,
       // ---
+      spawned: {},
       basket: {},
+
       // ---
       error: null
     } as BasketContext,
@@ -62,6 +66,32 @@ export default createMachine(
               onDone: { target: "#processed", actions: ["setBasket"] },
               onError: { target: "#error" }
             }
+          },
+          updating: {
+            id: "updating",
+            invoke: {
+              src: "update",
+              onDone: { target: "#processed", actions: ["setBasket"] },
+              onError: { target: "#error" }
+            }
+          },
+          spawning: {
+            always: [{ target: "#processed", cond: "hasNoSpawned" }],
+            on: {
+              KILL: {
+                actions: ["setBasket", "killSpawn"]
+              },
+
+              "PRODUCT.ADD": {
+                target: "#processing.spawning",
+                actions: ["addProduct"]
+                // cond: "canAddProduct"
+              }
+
+              // KILL_ALL: {
+              //   actions: "killAllSpawn"
+              // }
+            }
           }
         }
 
@@ -84,6 +114,23 @@ export default createMachine(
             //   CREATE: { target: "#processing", actions: ["clearError"] }
             // }
           }
+        },
+        on: {
+          "PRODUCT.ADD": {
+            target: "#processing.spawning",
+            actions: ["addProduct"]
+            // cond: "canAddProduct"
+          }
+          // "PRODUCT.UPDATE": {
+          //   target: "#processing.updating",
+          //   actions: ["updateProduct"]
+          //   // cond: "canUpdateProduct"
+          // },
+          // "PRODUCT.REMOVE": {
+          //   target: "#processing.updating",
+          //   actions: ["removeProduct"]
+          //   // cond: "canRemoveProduct"
+          // }
         }
       },
 
@@ -114,7 +161,7 @@ export default createMachine(
         }
       },
 
-      // Handle completion, stop the machine and prevent further requests
+      // Handle completion, stop the machine and prevent further basket
       complete: {
         id: "complete",
         entry: ["resetBasket"],
@@ -132,7 +179,48 @@ export default createMachine(
         basket: {}
       }),
 
+      // --- Product actions
+
+      addProduct: assign({
+        spawned: ({ spawned, basket }, { data }) => {
+          // spawn an actor for the new request
+          const uuid = uniqueId("product_");
+          const machine = spawn(productMachine, {
+            name: uuid,
+            sync: true
+          });
+
+          // for now well just add the new machine to our list
+          set(spawned, uuid, machine);
+
+          // and then forward the request to the new machine to process
+          machine.send({
+            type: "ADD",
+            data: { id: uuid, basket_id: basket.id, product: data }
+          });
+
+          return spawned;
+        }
+      }),
+
+      killSpawn: assign({
+        spawned: ({ spawned }, { data: { id } }) => {
+          // try find any basket with the same hash
+          const machine = get(spawned, id);
+
+          // if it exists, stop the referenced machine
+          // and remove it from our list of basket
+          if (machine) {
+            machine.stop();
+            unset(spawned, id);
+          }
+
+          return spawned;
+        }
+      }),
+
       // ---
+
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
       }),
@@ -144,7 +232,9 @@ export default createMachine(
         data?.status === responseCodes.Unauthorized,
 
       hasNoContent: (_context, { data }) =>
-        data?.status === responseCodes.No_Content
+        data?.status === responseCodes.No_Content,
+
+      hasNoSpawned: ({ spawned }) => isEmpty(spawned)
     },
 
     delays: {
