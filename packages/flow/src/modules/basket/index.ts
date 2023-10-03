@@ -15,7 +15,7 @@ import basketMachine from "./basket.machine";
 
 let currentState = null;
 
-const service = interpret(basketMachine, { devTools: false }).onTransition(
+const service = interpret(basketMachine, { devTools: true }).onTransition(
   state => {
     currentState = state;
   }

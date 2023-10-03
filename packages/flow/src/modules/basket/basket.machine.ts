@@ -58,8 +58,8 @@ export default createMachine(
           generating: {
             id: "generating",
             invoke: {
-              src: "generateBasket",
-              onDone: { target: "#processed" },
+              src: "create",
+              onDone: { target: "#processed", actions: ["setBasket"] },
               onError: { target: "#error" }
             }
           }
@@ -75,7 +75,15 @@ export default createMachine(
         initial: "available",
         states: {
           available: {},
-          empty: {}
+          empty: {
+            // temporarily autocreate basket
+            always: {
+              target: "#processing"
+            }
+            // on: {
+            //   CREATE: { target: "#processing", actions: ["clearError"] }
+            // }
+          }
         }
       },
 
@@ -101,8 +109,8 @@ export default createMachine(
         },
 
         on: {
-          RETRY: { target: "processing", actions: ["clearError"] },
-          CANCEL: { target: "#complete" }
+          RETRY: { target: "loading", actions: ["clearError"] },
+          CANCEL: { target: "complete" }
         }
       },
 
@@ -121,18 +129,7 @@ export default createMachine(
       }),
 
       resetBasket: assign({
-        basket: {
-          access_basket: null,
-          actor_id: null,
-          actor_type: null,
-          created_at: null,
-          expires_in: null,
-          redirect: null,
-          refresh_expires_in: null,
-          refresh_basket: null,
-          second_factor_required: null,
-          basket_type: null
-        }
+        basket: {}
       }),
 
       // ---

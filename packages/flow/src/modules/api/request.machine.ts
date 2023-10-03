@@ -177,7 +177,7 @@ export default createMachine(
           unauthorized: {
             entry: ["clearError"],
             invoke: {
-              src: "doAuth",
+              src: "doUpdateToken",
               onDone: { actions: ["setAuthHeader"], target: "#processing" },
               onError: { target: "#error" }
             }

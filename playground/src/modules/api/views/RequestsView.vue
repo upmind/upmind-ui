@@ -73,12 +73,7 @@ function processRequests() {
   processing.value = true;
   forEach(requests, request => {
     delay(
-      ({ url, init, useCache, maxAge }) => {
-        console.log("fetching...", request.url, request.delay);
-        get({ url, init, useCache, maxAge }).then(({ data }) =>
-          console.log("fetched", request.url, request.delay, data)
-        );
-      },
+      ({ url, init, useCache, maxAge }) => get({ url, init, useCache, maxAge }),
       request.delay,
       request
     );

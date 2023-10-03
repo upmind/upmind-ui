@@ -3,10 +3,10 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession } from "../session";
-import type { RequestParams, RequestContext } from "./types.d";
+import type { RequestContext, FetchResponse } from "./types.d";
 
 // --- utils
-import { includes, get } from "lodash-es";
+import { includes, get, set } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -26,47 +26,50 @@ export enum FetchMethods {
 // this will process the request and return a promise
 async function doFetch({ url, init }: RequestContext) {
   // safety check, not sure we need this as our machine implementation is pretty strict
-  if (!includes(FetchMethods, init.method)) {
-    throw new Error(`Invalid method: ${init.method}`);
+
+  if (!includes(FetchMethods, init?.method)) {
+    Promise.reject(`Invalid method: ${init?.method}`);
   }
 
   // do the fetch
+
   const response = await fetch(url.toString(), init).catch(error => {
-    console.error("doFetch error", error);
     Promise.reject(error);
   });
 
-  // Unpack response object
-  const { ok, status } = response;
-
   // Digest response data (JSON)
   // maybe instead of catching error, we can check if 204 and return null
+  // this catchall seems more robust though
   const data = await response.json().catch(error => {
     console.warn("doFetch response.json error", error);
-    return null;
+    return {};
   });
 
   return new Promise((resolve, reject) => {
+    // Unpack response object
+    const { ok, status } = response;
+
+    set(data, "status", status); // ensure the correct status code
+
     if (!ok) {
-      reject({ status, data });
+      reject(data);
     } else {
-      resolve({ status, data });
+      resolve(data);
     }
   });
 }
 
-async function doAuth(_context: RequestContext, _event: any) {
+async function doUpdateToken(_context: RequestContext, _event: any) {
   // start by getting the current service and state
   let { service, state } = useSession();
 
   // then watch for changes to the state
   service.onTransition(s => (state = s));
 
-  // now check if we have a stale token, if we do, refresh it
-  if (state.matches("processed")) {
-    service.send("REFRESH");
-  }
+  // kick off the auth process
+  service.send("REFRESH");
 
+  // wait for the service to complete
   if (state.matches("processing")) {
     await waitFor(service, s =>
       ["processed", "cancelled", "error.unknown"].some(s.matches)
@@ -75,11 +78,11 @@ async function doAuth(_context: RequestContext, _event: any) {
     });
   }
 
+  // return the token or error
   return new Promise((resolve, reject) => {
-    if (state.matches("processed.available")) {
+    if (state.matches("processed")) {
       resolve(state.context.token);
-    }
-    if (["cancelled", "error"].some(state.matches)) {
+    } else {
       const error = get(state, "context.error");
       reject(error);
     }
@@ -91,5 +94,5 @@ async function doAuth(_context: RequestContext, _event: any) {
 
 export default <Object>{
   doFetch,
-  doAuth
+  doUpdateToken
 };

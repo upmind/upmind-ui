@@ -16,6 +16,14 @@ export enum responseCodes {
 // --------------------------------------------------------
 // Request Types
 
+export type FetchResponse = {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  headers: Headers;
+  data: T;
+};
+
 export interface RequestResponse {
   data: {
     status: Response["status"];

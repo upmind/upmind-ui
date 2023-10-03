@@ -31,14 +31,14 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     cancelRequest: "done.invoke.cancel";
-    doAuth: "done.invoke.request.error.unauthorized:invocation[0]";
     doFetch: "done.invoke.process";
+    doUpdateToken: "done.invoke.request.error.unauthorized:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "cancelRequest" | "doAuth" | "doFetch";
+    services: "cancelRequest" | "doFetch" | "doUpdateToken";
   };
   eventsCausingActions: {
     clearError:
@@ -91,7 +91,6 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     cancelRequest: "CANCEL";
-    doAuth: "";
     doFetch:
       | ""
       | "DELETE"
@@ -102,6 +101,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "RETRY"
       | "done.invoke.request.error.unauthorized:invocation[0]";
+    doUpdateToken: "";
   };
   matchesStates:
     | "available"

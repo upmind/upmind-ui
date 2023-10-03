@@ -3,8 +3,14 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.basketManager.error.unauthorized:invocation[0]": {
       type: "done.invoke.basketManager.error.unauthorized:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.generating:invocation[0]": {
+      type: "done.invoke.generating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -28,19 +34,21 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     check: "done.invoke.loading:invocation[0]";
-    generateBasket: "done.invoke.generating:invocation[0]";
+    create: "done.invoke.generating:invocation[0]";
     refreshToken: "done.invoke.basketManager.error.unauthorized:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "check" | "generateBasket" | "refreshToken";
+    services: "check" | "create" | "refreshToken";
   };
   eventsCausingActions: {
     clearError: "RETRY" | "error.platform.loading:invocation[0]";
     resetBasket: "CANCEL" | "xstate.after(wait)#basketManager.error.unknown";
-    setBasket: "done.invoke.loading:invocation[0]";
+    setBasket:
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.loading:invocation[0]";
     setError: "error.platform.loading:invocation[0]";
   };
   eventsCausingDelays: {
@@ -54,9 +62,10 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     check:
+      | "RETRY"
       | "done.invoke.basketManager.error.unauthorized:invocation[0]"
       | "xstate.init";
-    generateBasket: "RETRY";
+    create: "";
     refreshToken: "error.platform.loading:invocation[0]";
   };
   matchesStates:

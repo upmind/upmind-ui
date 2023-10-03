@@ -8,6 +8,15 @@
     <small class="status" v-if="request.isCached || request.isStale">{{
       expiresIn
     }}</small>
+
+    <details>
+      <summary>Response</summary>
+      <div>
+        <code>
+          <pre>{{ request.response }}</pre>
+        </code>
+      </div>
+    </details>
   </div>
 </template>
 
@@ -83,7 +92,7 @@ export default defineComponent({
         created: state.context.created,
         completed: state.context.completed,
         // ---
-        // response: state.context.response,
+        response: state.context.response,
         // status: state.context.response?.status,
         // data: state.context.response?.data,
         // ---
