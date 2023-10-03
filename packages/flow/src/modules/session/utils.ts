@@ -1,7 +1,6 @@
-import { toNumber, isBoolean, toString, get } from "lodash-es";
+import { toNumber, isBoolean, toString } from "lodash-es";
 
 export const useTokenParser = (data: any) => {
-  data = get(data, "data", data);
   return {
     access_token: toString(data?.access_token),
     created_at: toNumber(data?.created_at) || Date.now(),
