@@ -50,11 +50,9 @@ export const useApi = () => {
     path = [prepend, trimStart(path, "/")].join("/");
     // now we can create the url
     const url = new URL(path, base);
-    debugger;
     // and add any params
     forIn(params, (value, key) => url.searchParams.set(key, value));
 
-    debugger;
     return url;
   };
 
@@ -91,7 +89,6 @@ export const useApi = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    debugger;
     const hash = generateHash(url, init);
 
     // first we trigger the request

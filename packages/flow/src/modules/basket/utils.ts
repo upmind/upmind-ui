@@ -1,9 +1,10 @@
 // --- utils
+import { get } from "lodash-es";
 
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
-  return data;
+  return get(data, "data", data);
 
   // return {
   //   account: Object; //IAccount;

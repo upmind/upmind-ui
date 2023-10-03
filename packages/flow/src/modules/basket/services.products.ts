@@ -5,6 +5,7 @@ import { useApi } from "../api";
 import { type BasketContext } from "./types";
 
 // --- utils
+import { random } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -17,7 +18,15 @@ import { type BasketContext } from "./types";
 // --------------------------------------------------------
 //  Syntax sugar to manage Products (likely to move to a separate product machine, like requests)
 
-async function add(context: BasketContext, _event: any) {}
+async function add({ basket_id, product }, _event: any) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl(`/orders/${basket_id}/products`),
+    data: product,
+    withAccessToken: true,
+    useCache: false
+  });
+}
 
 async function update(context: BasketContext, _event: any) {}
 

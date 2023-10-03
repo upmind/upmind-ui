@@ -1,3 +1,13 @@
+<template>
+  <upm-requests>
+    <template #actions>
+      <button @click="processRequests" :disabled="processing">
+        Process dummy requests
+      </button>
+    </template>
+  </upm-requests>
+</template>
+
 <script setup lang="ts">
 import { inject, ref } from "vue";
 import type { UseApiFunctions } from "../types";
@@ -80,15 +90,5 @@ function processRequests() {
   });
 }
 </script>
-
-<template>
-  <upm-requests>
-    <template #actions>
-      <button @click="processRequests" :disabled="processing">
-        Process dummy requests
-      </button>
-    </template>
-  </upm-requests>
-</template>
 
 <style scoped lang="scss"></style>

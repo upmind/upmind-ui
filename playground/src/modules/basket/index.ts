@@ -13,11 +13,12 @@ import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 export const useBasket = () => {
   const basket = useUpmindBasket();
-  const { state } = useActor(basket.service);
+  const { state, send } = useActor(basket.service);
 
   // --------------------------------------------------------
 
   return {
+    send,
     state: computed(() => state.value.toStrings()),
     basket: computed(() => state.value.context.basket),
     values: computed(() => state.value.context),
