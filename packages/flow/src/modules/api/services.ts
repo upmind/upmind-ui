@@ -62,7 +62,9 @@ async function doFetch({ url, init }: RequestContext) {
 
 async function doUpdateToken(_context: RequestContext, _event: any) {
   // start by getting the current service and state
-  let { service, state } = useSession();
+  const session = useSession();
+  const { service } = session;
+  let { state } = session;
 
   // then watch for changes to the state
   service.onTransition(s => (state = s));

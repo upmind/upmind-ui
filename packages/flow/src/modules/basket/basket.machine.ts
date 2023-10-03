@@ -3,7 +3,7 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-import type { BasketContext, BasketEvents } from "./types";
+import type { BasketContext } from "./types";
 import { responseCodes } from "../api/types.d";
 
 // --- utils

@@ -16,9 +16,7 @@ import basketMachine from "./basket.machine";
 let currentState = null;
 
 const service = interpret(basketMachine, { devTools: true }).onTransition(
-  state => {
-    currentState = state;
-  }
+  state => (currentState = state)
 );
 // --------------------------------------------------------
 
@@ -29,7 +27,8 @@ export const useBasket = () => {
   // --------------------------------------------------------
 
   return {
-    service: service.start() // allow for interpreting the machine + inspecting it
+    service: service.start(), // allow for interpreting the machine + inspecting it
+    state: currentState
     // ---
   };
 };
