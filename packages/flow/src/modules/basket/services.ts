@@ -1,13 +1,10 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useApi } from "../api";
-import { useSession } from "../session";
 import { type BasketContext } from "./types.d";
 
 // --- utils
-import { get } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -53,35 +50,14 @@ async function check(context: BasketContext, _event: any) {
         `products.product.category${".top_category".repeat(4)}`
       ].join()
     }),
-    withAccessToken: true
+    withAccessToken: true,
+    useCache: false
   });
 }
 
-async function refreshToken(context: BasketContext, _event: any) {
-  let { service, token } = useSession();
-
-  service.send("REFRESH");
-
-  return new Promise((resolve, reject) => {
-    waitFor(service, state => ["processed", "error"].some(state.matches))
-      .then(state => {
-        if (state.matches("processed")) {
-          resolve(true);
-        } else if (state.matches("error")) {
-          const error = get(state, "context.error");
-          reject(error);
-        }
-      })
-      .catch(error => {
-        console.error("Error refreshing token", error);
-        reject(error);
-      });
-  });
-}
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
-  check,
-  refreshToken
+  check
 };

@@ -47,12 +47,16 @@ a,
     overflow: auto;
   }
 
-  .view .title {
-    position: sticky;
-    top: -1em;
-    left: 0;
-    right: 0;
+  .view .toolbar {
+    align-items: center;
     background-color: whitesmoke;
+    border-radius: 0.25em;
+    display: flex;
+    justify-content: space-between;
+    left: 0;
     padding: 0.5em 1em;
+    position: sticky;
+    right: 0;
+    top: -1em;
   }
 }

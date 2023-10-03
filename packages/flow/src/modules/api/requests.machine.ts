@@ -96,6 +96,14 @@ export default createMachine(
             });
           }
 
+          // if we already have a request with the same hash
+          // we can check if its errored and needs to be retried
+          else if (request.state.matches("error")) {
+            request.send({
+              type: "RETRY"
+            });
+          }
+
           return requests;
         }
       }),

@@ -1,6 +1,10 @@
 <template>
   <section class="brand">
-    <h2 class="title">Basket is {{ state }}</h2>
+    <header class="toolbar">
+      <h2 class="title">Basket is {{ state }}</h2>
+
+      <slot name="actions"></slot>
+    </header>
 
     <div class="values">
       <code>

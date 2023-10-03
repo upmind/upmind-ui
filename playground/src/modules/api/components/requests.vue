@@ -1,8 +1,12 @@
 <template>
   <section class="requests">
-    <h2 class="title">
-      Requests <span v-if="isActive">({{ count }})</span>
-    </h2>
+    <header class="toolbar">
+      <h2 class="title">
+        Requests <span v-if="isActive">({{ count }})</span>
+      </h2>
+      <slot name="actions"></slot>
+    </header>
+
     <upm-request
       v-for="(request, hash) in requests"
       :key="hash"

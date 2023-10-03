@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import UpmRequests from "../components/Requests.vue";
-
-import { inject, onMounted } from "vue";
+import { inject, ref } from "vue";
 import type { UseApiFunctions } from "../types";
 import { delay, forEach } from "lodash-es";
+import UpmRequests from "../components/Requests.vue";
 
 const { get, useTime } = inject("upmind") as UseApiFunctions;
+
+const processing = ref(false);
 
 const requests = [
   // --- request 1
@@ -68,7 +69,8 @@ const requests = [
   }
 ];
 
-onMounted(() => {
+function processRequests() {
+  processing.value = true;
   forEach(requests, request => {
     delay(
       ({ url, init, useCache, maxAge }) => {
@@ -81,9 +83,17 @@ onMounted(() => {
       request
     );
   });
-});
+}
 </script>
 
 <template>
-  <upm-requests />
+  <upm-requests>
+    <template #actions>
+      <button @click="processRequests" :disabled="processing">
+        Process dummy requests
+      </button>
+    </template>
+  </upm-requests>
 </template>
+
+<style scoped lang="scss"></style>

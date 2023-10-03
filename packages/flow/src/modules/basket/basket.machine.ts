@@ -91,6 +91,7 @@ export default createMachine(
             }
           },
           unauthorized: {
+            entry: ["clearError"],
             invoke: {
               src: "refreshToken",
               onDone: { target: "#loading" },

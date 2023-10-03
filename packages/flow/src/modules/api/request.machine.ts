@@ -4,6 +4,9 @@ import { createMachine, assign, sendParent } from "xstate";
 import machineServices, { FetchMethods } from "./services";
 import { responseCodes } from "./types.d";
 import { useTime } from "../../utils";
+
+// --utils
+import { toNumber, set } from "lodash-es";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -23,7 +26,9 @@ export default createMachine(
       created: null,
       completed: null,
       response: null,
-      error: null
+      error: null,
+      // ---
+      attempts: 0
     },
     states: {
       // our initial state depends on how the machine was invoked
@@ -36,7 +41,7 @@ export default createMachine(
           {
             target: "processing",
             actions: ["setRequest"],
-            cond: ({ url, init }) => !!url && !!init
+            cond: "hasRequest"
           }
         ],
         on: {
@@ -50,7 +55,7 @@ export default createMachine(
 
       // Process the request through our service
       processing: {
-        entry: ["clearResponse"],
+        entry: ["clearError", "clearResponse", "incrementAttempts"],
         id: "processing",
         invoke: {
           id: "process",
@@ -59,34 +64,7 @@ export default createMachine(
             target: "processed",
             actions: ["setResponse"]
           },
-          onError: [
-            {
-              target: "error.unauthorized",
-              actions: ["setError"],
-              cond: "isUnauthorized"
-            },
-            {
-              target: "error.forbidden",
-              actions: ["setError"],
-              cond: "isForbidden"
-            },
-            {
-              target: "error.notFound",
-              actions: ["setError"],
-              cond: "isNotFound"
-            },
-            {
-              target: "error.conflict",
-              actions: ["setError"],
-              cond: "hasConflict"
-            },
-            {
-              target: "error.tooManyRequests",
-              actions: ["setError"],
-              cond: "hasTooManyRequests"
-            },
-            { target: "error", actions: ["setError"] }
-          ]
+          onError: { target: "error", actions: ["setError"] }
         },
         on: {
           CANCEL: { target: "cancelling" }
@@ -98,7 +76,7 @@ export default createMachine(
         invoke: {
           id: "cancel",
           src: "cancelRequest",
-          onDone: { target: "processed", actions: [] },
+          onDone: { target: "cancelled", actions: [] },
           onError: { target: "error", actions: ["setError"] }
         }
       },
@@ -145,18 +123,64 @@ export default createMachine(
         }
       },
 
+      // Handle cancellation completion, before moving to complete
+      cancelled: {
+        id: "cancelled"
+        // after: {
+        //   wait: "#complete" // automatically move to complete after  max age
+        // }
+      },
+
       // Handle errors
       error: {
         id: "error",
-        initial: "unknown",
+        initial: "loading",
         states: {
-          unknown: {
-            after: {
-              wait: "#complete" // automatically move to complete after  max age
-            }
+          // detrmine the error type and move to the appropriate state
+          // this may kick off a sub state/service to handle the error
+          loading: {
+            always: [
+              {
+                target: "#cancelled",
+                cond: "hasRetried"
+              },
+              {
+                target: "unauthorized",
+                cond: "isUnauthorized"
+              },
+              {
+                target: "forbidden",
+                cond: "isForbidden"
+              },
+              {
+                target: "notFound",
+                cond: "isNotFound"
+              },
+              {
+                target: "conflict",
+                cond: "hasConflict"
+              },
+              {
+                target: "tooManyRequests",
+                cond: "hasTooManyRequests"
+              },
+              { target: "unknown" } // automatically move to complete after  max age
+            ]
           },
+          // this is for errors we don't know how to handle
+          unknown: {
+            after: [
+              { delay: "wait", target: "#complete" } // automatically move to complete after  max age
+            ]
+          },
+          // if we are unauthorized, we need to attempt to refresh the token
           unauthorized: {
-            // tryReAuthentication
+            entry: ["clearError"],
+            invoke: {
+              src: "doAuth",
+              onDone: { actions: ["setAuthHeader"], target: "#processing" },
+              onError: { target: "#error" }
+            }
           },
           forbidden: {},
           notFound: {},
@@ -165,12 +189,16 @@ export default createMachine(
         },
 
         on: {
-          RETRY: { target: "processing", actions: ["clearError"] },
+          RETRY: {
+            target: "processing",
+            actions: []
+          },
           CANCEL: { target: "#complete" }
         }
       },
 
       // Handle completion, stop the machine and prevent further requests
+      // also send a message to the parent machine to remove the request
       complete: {
         id: "complete",
         entry: ["sendClearRequest"],
@@ -207,22 +235,34 @@ export default createMachine(
         error: (context, { data }) => data || "Unknown error"
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
+
+      incrementAttempts: assign({
+        attempts: ({ attempts }) => toNumber(attempts) + 1
+      }),
+
+      setAuthHeader: assign({
+        init: ({ init }, { data }) => {
+          set(init, "headers.Authorization", `Bearer ${data.access_token}`);
+          return init;
+        }
+      })
     },
     services: machineServices,
     guards: {
-      isUnauthorized: (_context, { data }) =>
-        data?.status === responseCodes.Unauthorized,
-      isForbidden: (_context, { data }) =>
-        data?.status === responseCodes.Forbidden,
-      isNotFound: (_context, { data }) =>
-        data?.status === responseCodes.NotFound,
-      hasConflict: (_context, { data }) =>
-        data?.status === responseCodes.Conflict,
-      hasTooManyRequests: (_context, { data }) =>
-        data?.status === responseCodes.Too_Many_Requests,
+      hasRequest: ({ url, init }) => !!url && !!init,
+      hasRetried: ({ attempts }) => toNumber(attempts) > 1,
       // ---
-      hasNoContent: ({ response }, { data }) =>
+      isUnauthorized: context =>
+        context?.error?.status === responseCodes.Unauthorized,
+      isForbidden: context =>
+        context?.error?.status === responseCodes.Forbidden,
+      isNotFound: context => context?.error?.status === responseCodes.NotFound,
+      hasConflict: context => context?.error?.status === responseCodes.Conflict,
+      hasTooManyRequests: context =>
+        context?.error?.status === responseCodes.Too_Many_Requests,
+      // ---
+      hasNoContent: ({ response }) =>
         response?.status === responseCodes.No_Content,
       // ---
       isCachable: ({ init, useCache }) =>

@@ -1,6 +1,5 @@
 // --- external
 import { interpret } from "xstate";
-// import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import brandMachine from "./brand.machine";
@@ -16,7 +15,7 @@ import brandMachine from "./brand.machine";
 
 let currentState = null;
 
-const service = interpret(brandMachine, { devTools: true }).onTransition(
+const service = interpret(brandMachine, { devTools: false }).onTransition(
   state => {
     currentState = state;
   }
