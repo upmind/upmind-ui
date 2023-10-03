@@ -61,7 +61,7 @@ async function refreshToken(context: SessionContext, _event: any) {
   const refresh_token = get(context, "token.refresh_token", "");
 
   return await post({
-    url: useUrl("access_token", "oauth"),
+    url: useUrl("access_token", {}, "oauth"),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token

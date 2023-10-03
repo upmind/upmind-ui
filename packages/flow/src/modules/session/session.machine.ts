@@ -97,10 +97,12 @@ export default createMachine(
           },
           stale: {
             on: {
-              REFRESH: { target: "#processing.refreshing" },
               CANCEL: { target: "#complete" }
             }
           }
+        },
+        on: {
+          REFRESH: { target: "#processing.refreshing" }
         }
       },
 

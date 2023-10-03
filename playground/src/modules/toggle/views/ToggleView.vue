@@ -1,6 +1,10 @@
 <template>
   <section class="toggle">
-    <h2 class="title">Toggle Machine</h2>
+    <header class="toolbar">
+      <h2 class="title">Toggle Machine</h2>
+
+      <slot name="actions"></slot>
+    </header>
 
     <upm-toggle use-global>Global Instance</upm-toggle>
     <upm-toggle></upm-toggle>

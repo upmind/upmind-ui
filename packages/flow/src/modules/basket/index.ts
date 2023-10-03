@@ -1,6 +1,5 @@
 // --- external
 import { interpret } from "xstate";
-// import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import basketMachine from "./basket.machine";
@@ -16,7 +15,7 @@ import basketMachine from "./basket.machine";
 
 let currentState = null;
 
-const service = interpret(basketMachine, { devTools: true }).onTransition(
+const service = interpret(basketMachine, { devTools: false }).onTransition(
   state => {
     currentState = state;
   }

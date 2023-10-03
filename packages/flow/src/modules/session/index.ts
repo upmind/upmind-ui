@@ -1,6 +1,5 @@
 // --- external
 import { interpret } from "xstate";
-// import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import sessionMachine from "./session.machine";
@@ -16,7 +15,7 @@ import sessionMachine from "./session.machine";
 
 let currentState = null;
 
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
+const service = interpret(sessionMachine, { devTools: false }).onTransition(
   state => {
     currentState = state;
   }
@@ -31,6 +30,7 @@ export const useSession = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
+    state: currentState,
     // ---
     role: currentState?.context?.role,
     token: currentState?.context?.token?.access_token

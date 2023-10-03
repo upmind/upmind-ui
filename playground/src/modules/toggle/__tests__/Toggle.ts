@@ -6,7 +6,6 @@ import Toggle from "../components/Toggle.vue";
 describe("Toggle", () => {
   it("renders properly", () => {
     const wrapper = mount(Toggle, {});
-    debugger;
     expect(wrapper.text()).toContain("Hello Vitest");
   });
 });

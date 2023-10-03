@@ -38,7 +38,7 @@ export interface Typegen0 {
     services: "check" | "generateBasket" | "refreshToken";
   };
   eventsCausingActions: {
-    clearError: "RETRY";
+    clearError: "RETRY" | "error.platform.loading:invocation[0]";
     resetBasket: "CANCEL" | "xstate.after(wait)#basketManager.error.unknown";
     setBasket: "done.invoke.loading:invocation[0]";
     setError: "error.platform.loading:invocation[0]";
