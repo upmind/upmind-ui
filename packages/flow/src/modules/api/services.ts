@@ -42,7 +42,9 @@ async function doFetch({ url, init }: RequestContext) {
   // this catchall seems more robust though
   const data = await response.json().catch(error => {
     console.warn("doFetch response.json error", error);
-    return {};
+    return {
+      data: null
+    };
   });
 
   return new Promise((resolve, reject) => {
