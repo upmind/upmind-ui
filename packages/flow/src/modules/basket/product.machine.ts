@@ -5,7 +5,7 @@ import services from "./services.products";
 import { useTime } from "../../utils";
 
 // --utils
-import { toNumber, set } from "lodash-es";
+import { useBasketParser } from "./utils";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -18,7 +18,8 @@ export default createMachine(
       id: null,
       basket_id: null,
       product: null,
-      response: null
+      response: null,
+      error: null
     },
     states: {
       available: {
@@ -83,10 +84,7 @@ export default createMachine(
       setProduct: assign((context, { data }) => data),
 
       setResponse: assign({
-        response: (context, { data }) => {
-          // this will be the updated cart!
-          return data;
-        }
+        response: (context, { data }) => useBasketParser(data)
       }),
 
       sendRemoveMessage: sendParent(({ id, response }) => ({

@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendTo, spawn } from "xstate";
+import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -83,7 +83,6 @@ export default createMachine(
               },
 
               "PRODUCT.ADD": {
-                target: "#processing.spawning",
                 actions: ["addProduct"]
                 // cond: "canAddProduct"
               }
