@@ -11,7 +11,7 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types";
 
 // --- utils
-import { set, get, trimStart, forIn } from "lodash-es";
+import { set, get, trimStart, forIn, keys } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -89,7 +89,8 @@ export const useApi = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    const hash = generateHash(url, init);
+    const queue = keys(currentState?.context?.requests);
+    const hash = generateHash(url, init, queue);
 
     // first we trigger the request
     service.send({
@@ -103,7 +104,7 @@ export const useApi = () => {
     if (request) {
       // then we await the state of the request to be processed/cached
       await waitFor(request, state =>
-        ["processed", "cencelled", "error.unknown"].some(state.matches)
+        ["processed", "cancelled", "error.unknown"].some(state.matches)
       );
 
       // finally ...

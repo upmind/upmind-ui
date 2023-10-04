@@ -6,7 +6,7 @@ import type { RequestsContext, RequestsEvents } from "./types.d";
 import services from "./services";
 import { generateHash } from "./utils";
 // --- utils
-import { isEmpty, set, get, unset } from "lodash-es";
+import { isEmpty, set, get, unset, keys } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -63,11 +63,12 @@ export default createMachine(
       add: assign({
         requests: (
           { requests }: RequestsContext,
-          { data: { url, init, useCache, maxAge } }: RequestsEvents
+          { data: { hash, url, init, useCache, maxAge } }: RequestsEvents
         ) => {
-          const hash = generateHash(url, init);
+          hash ??= generateHash(url, init, keys(requests));
+
           // check if we already have a request with the same hash
-          const request = get(requests, hash);
+          const request = !useCache && get(requests, hash);
 
           // if we dont then spawn a new request machine
           // and send the request to it
