@@ -1,5 +1,7 @@
 // --- external
-import { createMachine, assign, sendTo, spawn } from "xstate";
+import { createMachine, assign, actions, spawn } from "xstate";
+const { sendTo } = actions;
+
 // --- internal
 import requestMachine from "./request.machine";
 import type { RequestsContext, RequestsEvents } from "./types.d";

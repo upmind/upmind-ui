@@ -31,13 +31,11 @@ export enum TwofaProviders {
 // Contexts
 
 export interface SessionContext {
-  debug: boolean;
-  role: AccessRoleTypes;
-  token: SessionToken;
+  token: Token;
   error?: RequestError;
 }
 
-export interface SessionToken {
+export interface Token {
   access_token: string | null;
   created_at?: number | null;
   expires_in: number | null;

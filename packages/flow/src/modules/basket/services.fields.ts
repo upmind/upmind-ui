@@ -2,7 +2,7 @@
 
 // --- internal
 import { useApi } from "../api";
-import { type BasketContext } from "./types";
+import { type BasketContext } from "./types.d";
 
 // --- utils
 

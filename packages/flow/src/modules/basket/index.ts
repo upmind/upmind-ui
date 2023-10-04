@@ -9,14 +9,14 @@ import basketMachine from "./basket.machine";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
-// and a global object to store currentState
+// and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let currentState = null;
+let state = null;
 
 const service = interpret(basketMachine, { devTools: true }).onTransition(
-  state => (currentState = state)
+  newState => (state = newState)
 );
 // --------------------------------------------------------
 
@@ -28,7 +28,7 @@ export const useBasket = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    state: currentState
+    state
     // ---
   };
 };

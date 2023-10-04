@@ -2,29 +2,25 @@
 import { interpret } from "xstate";
 
 // --- internal
-import sessionMachine from "./session.machine";
-import { useClient } from "./client";
-import { useGuest } from "./guest";
+import guestMachine from "./guest.machine";
 // --- utils
 // import { set, get } from "lodash-es";
 
 // --------------------------------------------------------
-// create a global instance of the session machine
+// create a global instance of the guest machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state = null;
 
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
+const service = interpret(guestMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
 // --------------------------------------------------------
 
-export const useSession = () => {
-  let { subscription } = useClient();
-
+export const useGuest = () => {
   // --------------------------------------------------------
   // methods
 
@@ -63,7 +59,7 @@ export const useSession = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     state,
     // ---
-    useClient: subscription,
+    useAuth: subscription,
     // --- syntax sugar
     token: state?.context?.token?.access_token
   };
