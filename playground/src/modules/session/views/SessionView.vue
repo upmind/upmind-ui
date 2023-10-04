@@ -1,7 +1,7 @@
 <template>
   <section class="brand">
     <header class="toolbar">
-      <h2 class="title">Session is {{ state }}</h2>
+      <h2 class="title">Session is a {{ state }}</h2>
 
       <slot name="actions"></slot>
     </header>

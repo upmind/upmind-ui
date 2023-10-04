@@ -34,41 +34,24 @@ export default createMachine(
             // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
             // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
             {
-              target: "valid.client",
+              target: "client",
               cond: "isClientToken",
               actions: ["setToken"]
             },
             {
-              target: "valid.guest",
+              target: "guest",
               actions: ["setToken"]
             }
           ],
-          onError: { target: "valid.guest" }
+          onError: { target: "guest" }
         }
       },
 
-      valid: {
-        states: {
-          guest: {
-            invoke: {
-              id: "guest",
-              src: guestMachine,
-              onDone: { target: "#loading", actions: ["clearToken"] }
-            }
-          },
-          client: {
-            invoke: {
-              id: "client",
-              src: clientMachine,
-              onDone: { target: "#loading", actions: ["clearToken"] }
-            }
-          }
-          // admin: {
-          // invoke the admin machine
-          // },
-          // actor: {
-          // invoke the actor machine
-          // },
+      guest: {
+        invoke: {
+          id: "guest",
+          src: guestMachine,
+          onDone: { target: "#loading", actions: ["clearToken"] }
         },
         on: {
           AUTHENTICATED: { actions: ["setToken"] }
@@ -76,6 +59,26 @@ export default createMachine(
           // pass through to the appropriate machine
         }
       },
+
+      client: {
+        invoke: {
+          id: "client",
+          src: clientMachine,
+          onDone: { target: "#loading", actions: ["clearToken"] }
+        },
+        on: {
+          AUTHENTICATED: { actions: ["setToken"] }
+          // login/logout/refresh
+          // pass through to the appropriate machine
+        }
+      },
+
+      // admin: {
+      // invoke the admin machine
+      // },
+      // actor: {
+      // invoke the actor machine
+      // },
 
       // Handle errors
       error: {

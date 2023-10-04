@@ -53,13 +53,6 @@ export interface Typegen0 {
       | "done.invoke.loading:invocation[0]"
       | "error.platform.loading:invocation[0]";
   };
-  matchesStates:
-    | "complete"
-    | "error"
-    | "loading"
-    | "valid"
-    | "valid.client"
-    | "valid.guest"
-    | { valid?: "client" | "guest" };
+  matchesStates: "client" | "complete" | "error" | "guest" | "loading";
   tags: never;
 }
