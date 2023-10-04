@@ -51,12 +51,14 @@ export default createMachine(
         states: {
           guest: {
             invoke: {
+              id: "guest",
               src: guestMachine,
               onDone: { target: "#loading", actions: ["clearToken"] }
             }
           },
           client: {
             invoke: {
+              id: "client",
               src: clientMachine,
               onDone: { target: "#loading", actions: ["clearToken"] }
             }
