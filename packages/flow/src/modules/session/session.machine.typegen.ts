@@ -3,18 +3,18 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "done.invoke.client": {
+      type: "done.invoke.client";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.guest": {
+      type: "done.invoke.guest";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.loading:invocation[0]": {
       type: "done.invoke.loading:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.sessionManager.valid.client:invocation[0]": {
-      type: "done.invoke.sessionManager.valid.client:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.sessionManager.valid.guest:invocation[0]": {
-      type: "done.invoke.sessionManager.valid.guest:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -37,8 +37,8 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearToken:
       | "KILL"
-      | "done.invoke.sessionManager.valid.client:invocation[0]"
-      | "done.invoke.sessionManager.valid.guest:invocation[0]"
+      | "done.invoke.client"
+      | "done.invoke.guest"
       | "xstate.after(wait)#error";
     setToken: "AUTHENTICATED" | "done.invoke.loading:invocation[0]";
   };
@@ -47,10 +47,11 @@ export interface Typegen0 {
     isClientToken: "done.invoke.loading:invocation[0]";
   };
   eventsCausingServices: {
-    check:
-      | "done.invoke.sessionManager.valid.client:invocation[0]"
-      | "done.invoke.sessionManager.valid.guest:invocation[0]"
-      | "xstate.init";
+    check: "done.invoke.client" | "done.invoke.guest" | "xstate.init";
+    client: "done.invoke.loading:invocation[0]";
+    guest:
+      | "done.invoke.loading:invocation[0]"
+      | "error.platform.loading:invocation[0]";
   };
   matchesStates:
     | "complete"
