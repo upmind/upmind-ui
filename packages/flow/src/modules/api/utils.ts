@@ -1,5 +1,5 @@
 import { sha1 } from "object-hash";
-import { omit } from "lodash-es";
+import { omit, startsWith, filter } from "lodash-es";
 
 // --------------------------------------------------------
 // utils
@@ -17,7 +17,16 @@ export function addMeta(obj: Object, prop: PropertyKey, value: any) {
   });
 }
 
-export function generateHash(url: URL, init: RequestInit) {
+export function generateHash(
+  url: URL,
+  init: RequestInit,
+  queue?: Array<string> // this is to prevent duplicate requests
+) {
   const hash = sha1({ ...omit(init, ["signal"]), url: url.toString() });
-  return hash;
+
+  const existing = filter(queue, item => startsWith(item, hash));
+
+  if (!existing?.length) return hash;
+
+  return `${hash}-${existing.length}`;
 }
