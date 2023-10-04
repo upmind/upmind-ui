@@ -81,8 +81,7 @@ async function create(context: BasketContext, _event: any) {
       // ],
       // promotions: []
     },
-    withAccessToken: true,
-    useCache: false
+    withAccessToken: true
   });
 }
 

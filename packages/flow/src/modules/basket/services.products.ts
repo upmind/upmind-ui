@@ -23,8 +23,7 @@ async function add({ basket_id, product }, _event: any) {
   return post({
     url: useUrl(`/orders/${basket_id}/products`),
     data: product,
-    withAccessToken: true,
-    useCache: false
+    withAccessToken: true
   });
 }
 
