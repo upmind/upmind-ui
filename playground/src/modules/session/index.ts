@@ -19,8 +19,6 @@ export const useSession = () => {
 
   return {
     state: computed(() => state.value.toStrings()),
-    token: computed(() => state.value.context.token.access_token),
-    role: computed(() => state.value.context.role),
     values: computed(() => state.value.context),
     // ---
     isLoading: computed(() => ["loading"].some(state.value.matches)),

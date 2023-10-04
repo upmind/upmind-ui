@@ -8,21 +8,19 @@ import { useSession } from "../session";
 import requestsMachine from "./requests.machine";
 import { generateHash } from "./utils";
 import { useTime } from "../../utils";
-import type { RequestParams } from "./types";
+import type { RequestParams } from "./types.d";
 
 // --- utils
 import { set, get, trimStart, forIn, keys } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
-// and a global object to store currentState
+// and a global object to store state
 
-let currentState = null;
+let state = null;
 
 const service = interpret(requestsMachine, { devTools: true }).onTransition(
-  state => {
-    currentState = state;
-  }
+  newState => (state = newState)
 );
 // --------------------------------------------------------
 
@@ -89,7 +87,7 @@ export const useApi = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    const queue = keys(currentState?.context?.requests);
+    const queue = keys(state?.context?.requests);
     const hash = generateHash(url, init, queue);
 
     // first we trigger the request
@@ -99,7 +97,7 @@ export const useApi = () => {
     });
 
     // then we get the request from context
-    const request = get(currentState?.context?.requests, hash);
+    const request = get(state?.context?.requests, hash);
 
     if (request) {
       // then we await the state of the request to be processed/cached
@@ -249,6 +247,7 @@ export const useApi = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
+    state,
     // ---
     useUrl,
     generateHash,

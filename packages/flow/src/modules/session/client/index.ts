@@ -2,58 +2,55 @@
 import { interpret } from "xstate";
 
 // --- internal
-import sessionMachine from "./session.machine";
-import { useClient } from "./client";
-import { useGuest } from "./guest";
+import clientMachine from "./client.machine";
+
 // --- utils
 // import { set, get } from "lodash-es";
 
 // --------------------------------------------------------
-// create a global instance of the session machine
+// create a global instance of the client machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state = null;
 
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
+const service = interpret(clientMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
 // --------------------------------------------------------
 
-export const useSession = () => {
-  let { subscription } = useClient();
-
+export const useClient = () => {
   // --------------------------------------------------------
   // methods
 
-  const doAuthCallback = callback => {
-    if (authState.matches("authenticated")) {
+  const doCallback = callback => {
+    if (state.matches("cliententicated")) {
       callback({ type: "VALID" });
-    } else if (authState.matches("unauthenticated")) {
+    } else if (state.matches("uncliententicated")) {
       callback({ type: "INVAID" });
     }
   };
 
-  const checkAuth = (_context, _event) => async (callback, onReceive) => {
+  const subscription = (_context, _event) => async (callback, onReceive) => {
     // firstly, send service's current state upon subscription
 
-    doAuthCallback(callback);
+    doCallback(callback);
 
-    // then listen for any changes to the auth service
-    // if we get a change to either authenticated or unauthenticated
+    // then listen for any changes to the client service
+    // if we get a change to either cliententicated or uncliententicated
     // then we need to send the callback to the subscriber
     service.onTransition(newState => {
-      authState = newState;
-      doAuthCallback(callback);
+      // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
+      doCallback(callback);
     });
 
     return () => {
       // The subscriber has unsubscribed from this service
       // typically when the transitioning out of the state node
       // we dont need to do anything here as we are consuming a global service
-      // console.info('authStore', 'checkAuth', 'unsubscribed');
+      // console.info('clientStore', 'checkClient', 'unsubscribed');
     };
   };
 
@@ -63,8 +60,6 @@ export const useSession = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     state,
     // ---
-    useClient: subscription,
-    // --- syntax sugar
-    token: state?.context?.token?.access_token
+    subscription
   };
 };

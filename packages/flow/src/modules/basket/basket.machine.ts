@@ -1,9 +1,10 @@
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign, spawn, actions } from "xstate";
+const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
-import type { BasketContext } from "./types";
+import type { BasketContext } from "./types.d";
 import { responseCodes } from "../api/types.d";
 import productMachine from "./product.machine";
 
@@ -23,7 +24,7 @@ export default createMachine(
     context: {
       debug: false,
       // ---
-      spawned: {},
+      products: {},
       basket: {},
 
       // ---
@@ -133,6 +134,47 @@ export default createMachine(
         }
       },
 
+      // we are idle when we have a basket, nothing being processed and no errors
+      idle: {
+        type: "parallel",
+        states: {
+          session: {
+            initial: "auth",
+            states: {
+              // Set up the auth machine to check the permissions and conditions
+              auth: {
+                id: "auth",
+                invoke: {
+                  id: "authCallback",
+                  src: "checkAuth"
+                },
+                exit: sendTo("authCallback", { type: "CHECK" })
+              }
+            }
+          },
+          items: {}
+        },
+
+        onDone: {
+          target: "confirm"
+        }
+      },
+
+      confirm: {},
+
+      checkout: {
+        type: "parallel",
+        states: {
+          billing: {},
+          shipping: {},
+          payment: {},
+          additional: {}
+        },
+        onDone: {
+          target: "complete"
+        }
+      },
+
       // Handle errors
       // Handle errors
       error: {
@@ -163,7 +205,6 @@ export default createMachine(
       // Handle completion, stop the machine and prevent further basket
       complete: {
         id: "complete",
-        entry: ["resetBasket"],
         type: "final"
       }
     }
