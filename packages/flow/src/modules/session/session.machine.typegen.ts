@@ -43,8 +43,9 @@ export interface Typegen0 {
     services: "check" | "dumpTokens";
   };
   eventsCausingActions: {
-    clearError: "done.state.role";
+    clearError: "SWAP" | "done.state.role";
     clearMessage:
+      | "SWAP"
       | "done.state.role"
       | "error.platform.client"
       | "error.platform.guest";
