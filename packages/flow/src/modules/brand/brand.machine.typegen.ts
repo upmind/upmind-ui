@@ -60,7 +60,7 @@ export interface Typegen0 {
   };
   missingImplementations: {
     actions: never;
-    delays: "wait";
+    delays: never;
     guards: never;
     services:
       | "fetchBrandConfig"

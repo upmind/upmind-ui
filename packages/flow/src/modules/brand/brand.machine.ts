@@ -4,8 +4,11 @@ import { createMachine, assign } from "xstate";
 // --- internal
 import services from "./services";
 import type { BrandContext, BrandEvent } from "./types.d";
+
 // --- utils
 import { useBrandParser } from "./utils";
+import { useTime } from "../../utils";
+
 // --------------------------------------------------------
 
 export default createMachine(
@@ -149,6 +152,9 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {},
+    delays: {
+      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+    },
     services
   }
 );

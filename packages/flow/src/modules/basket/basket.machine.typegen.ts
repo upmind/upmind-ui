@@ -83,8 +83,8 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     authSubscription:
-      | "INVALID"
-      | "VALID"
+      | "AUTHENTICATED"
+      | "UNAUTHENTICATED"
       | "done.invoke.loading:invocation[0]"
       | "xstate.after(wait)#processed";
     check:
@@ -102,16 +102,17 @@ export interface Typegen0 {
     | "checkout.payment"
     | "checkout.shipping"
     | "complete"
-    | "confirm"
     | "error"
     | "error.unauthorized"
     | "error.unknown"
     | "idle"
     | "idle.items"
-    | "idle.items.available"
     | "idle.items.empty"
+    | "idle.items.invalid"
+    | "idle.items.valid"
     | "idle.user"
     | "idle.user.invalid"
+    | "idle.user.subscribing"
     | "idle.user.valid"
     | "loading"
     | "processed"
@@ -119,13 +120,17 @@ export interface Typegen0 {
     | "processing.generating"
     | "processing.spawning"
     | "processing.updating"
+    | "readyForCheckout"
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
         error?: "unauthorized" | "unknown";
         idle?:
           | "items"
           | "user"
-          | { items?: "available" | "empty"; user?: "invalid" | "valid" };
+          | {
+              items?: "empty" | "invalid" | "valid";
+              user?: "invalid" | "subscribing" | "valid";
+            };
         processing?: "generating" | "spawning" | "updating";
       };
   tags: never;

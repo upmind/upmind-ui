@@ -102,26 +102,29 @@ export default createMachine(
         after: { wait: "idle" }
       },
 
-      // we are idle when we have a basket, nothing being processed and no errors
+      // we are idle when we have a basket
       idle: {
         id: "idle",
         type: "parallel",
         states: {
           // Subscribe to changes in auth and listen for a valid Authenticated user
           user: {
-            initial: "invalid",
+            initial: "subscribing",
             states: {
-              invalid: {
+              subscribing: {
                 invoke: {
                   id: "authCallback",
                   src: "authSubscription"
                 }
               },
-              valid: { type: "final" }
+              invalid: {},
+              valid: {
+                type: "final"
+              }
             },
             on: {
-              VALID: { target: "user.valid" },
-              INVALID: { target: "user.invalid" }
+              AUTHENTICATED: { target: "user.valid" },
+              UNAUTHENTICATED: { target: "user.invalid" }
             }
           },
 
@@ -129,9 +132,12 @@ export default createMachine(
             initial: "empty",
             states: {
               empty: {
-                always: { target: "available", cond: "hasItems" }
+                always: { target: "valid", cond: "hasItems" }
               },
-              available: {}
+              valid: {
+                type: "final"
+              },
+              invalid: {}
             },
             on: {
               "PRODUCT.ADD": {
@@ -152,13 +158,12 @@ export default createMachine(
             }
           }
         },
-
         onDone: {
-          target: "confirm"
+          target: "readyForCheckout"
         }
       },
 
-      confirm: {},
+      readyForCheckout: {},
 
       checkout: {
         type: "parallel",
@@ -218,6 +223,7 @@ export default createMachine(
       addProduct: assign({
         spawned: ({ spawned, basket }, { data }) => {
           // spawn an actor for the new request
+          debugger;
           const uuid = uniqueId("product_");
           const machine = spawn(productMachine, {
             name: uuid,
@@ -270,7 +276,7 @@ export default createMachine(
 
       hasNoSpawned: ({ spawned }) => isEmpty(spawned),
 
-      hasItems: ({ basket }) => !isEmpty(basket?.products?.length)
+      hasItems: ({ basket }) => !!basket?.products?.length
     },
 
     delays: {},
