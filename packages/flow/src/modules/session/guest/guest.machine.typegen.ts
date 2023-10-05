@@ -4,8 +4,8 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.complete:invocation[0]": {
-      type: "done.invoke.complete:invocation[0]";
+    "done.invoke.clearing:invocation[0]": {
+      type: "done.invoke.clearing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -19,19 +19,10 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.persisting:invocation[0]": {
-      type: "done.invoke.persisting:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.refreshing:invocation[0]": {
       type: "done.invoke.refreshing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.complete:invocation[0]": {
-      type: "error.platform.complete:invocation[0]";
-      data: unknown;
     };
     "error.platform.generating:invocation[0]": {
       type: "error.platform.generating:invocation[0]";
@@ -45,15 +36,12 @@ export interface Typegen0 {
       type: "error.platform.refreshing:invocation[0]";
       data: unknown;
     };
-    "xstate.after(expires)#guest.authenticated.idle": {
-      type: "xstate.after(expires)#guest.authenticated.idle";
-    };
-    "xstate.after(wait)#error": { type: "xstate.after(wait)#error" };
     "xstate.init": { type: "xstate.init" };
+    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
     check: "done.invoke.loading:invocation[0]";
-    dumpToken: "done.invoke.complete:invocation[0]";
+    dumpToken: "done.invoke.clearing:invocation[0]";
     generateToken: "done.invoke.generating:invocation[0]";
     persistToken: "done.invoke.persisting:invocation[0]";
     refreshToken: "done.invoke.refreshing:invocation[0]";
@@ -70,13 +58,12 @@ export interface Typegen0 {
       | "refreshToken";
   };
   eventsCausingActions: {
-    clearError: "RETRY";
+    clearError: "done.invoke.clearing:invocation[0]" | "xstate.init";
     clearToken:
-      | "done.invoke.complete:invocation[0]"
+      | "done.invoke.clearing:invocation[0]"
       | "error.platform.loading:invocation[0]"
-      | "error.platform.refreshing:invocation[0]";
+      | "xstate.stop";
     setError:
-      | "error.platform.complete:invocation[0]"
       | "error.platform.generating:invocation[0]"
       | "error.platform.refreshing:invocation[0]";
     setToken:
@@ -84,42 +71,33 @@ export interface Typegen0 {
       | "done.invoke.loading:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";
   };
-  eventsCausingDelays: {
-    expires: "done.invoke.persisting:invocation[0]";
-    wait:
-      | "error.platform.complete:invocation[0]"
-      | "error.platform.generating:invocation[0]"
-      | "error.platform.refreshing:invocation[0]";
-  };
+  eventsCausingDelays: {};
   eventsCausingGuards: {
-    hasExpiry: "xstate.after(expires)#guest.authenticated.idle";
+    isRefreshing: "" | "done.invoke.clearing:invocation[0]";
     isUnauthorized: "error.platform.refreshing:invocation[0]";
   };
   eventsCausingServices: {
-    check: "RETRY" | "error.platform.refreshing:invocation[0]" | "xstate.init";
-    dumpToken: "KILL" | "xstate.after(wait)#error";
+    check: "done.invoke.clearing:invocation[0]" | "xstate.init";
+    dumpToken: "error.platform.refreshing:invocation[0]";
     generateToken: "";
-    persistToken:
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]"
-      | "done.invoke.refreshing:invocation[0]";
-    refreshToken: "REFRESH";
+    persistToken: "" | "done.invoke.refreshing:invocation[0]";
+    refreshToken: "";
   };
   matchesStates:
     | "authenticated"
+    | "authenticated.clearing"
     | "authenticated.idle"
     | "authenticated.persisting"
-    | "authenticated.stale"
+    | "authenticated.refreshing"
     | "complete"
     | "error"
     | "loading"
     | "unauthenticated"
     | "unauthenticated.generating"
     | "unauthenticated.idle"
-    | "unauthenticated.refreshing"
     | {
-        authenticated?: "idle" | "persisting" | "stale";
-        unauthenticated?: "generating" | "idle" | "refreshing";
+        authenticated?: "clearing" | "idle" | "persisting" | "refreshing";
+        unauthenticated?: "generating" | "idle";
       };
   tags: never;
 }

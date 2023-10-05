@@ -76,14 +76,17 @@ export default createMachine(
         invoke: {
           id: "cancel",
           src: "cancelRequest",
-          onDone: { target: "cancelled", actions: [] },
+          onDone: { target: "processed.cancelled", actions: [] },
           onError: { target: "error", actions: ["setError"] }
         }
       },
 
-      // Use a transient state to indicate a successful process
-      // We have an imperceptible delay to allow the components to understand the process is complete
-      // We could also move into a cached state if we have a GET request
+      // Use have an Available state to indicate a successful process
+      // We could also move into a Cached state if we have a request that is cachable
+      // We could move into a Stale state if we have a GET request and a max age
+      // We could move into an Empty state if we have a no content
+      // We could move into a Cancelled state if we have a cancelled request
+      //  - Available & Cancelled are transient states with an imperceptible delay to allow the components to understand the process is complete
       processed: {
         id: "processed",
         initial: "available",
@@ -101,10 +104,15 @@ export default createMachine(
                 cond: "isCachable"
               },
               {
-                delay: 100,
+                delay: "wait",
                 target: "#complete"
               }
             ]
+          },
+          cancelled: {
+            after: {
+              wait: "#complete" // automatically move to complete after  max age
+            }
           },
           empty: {},
           cached: {
@@ -114,21 +122,12 @@ export default createMachine(
             }
           },
           stale: {
-            after: { wait: "#complete" }, // automatically move to complete after max age
             on: {
               REFRESH: { target: "#processing" },
               CANCEL: { target: "#complete" }
             }
           }
         }
-      },
-
-      // Handle cancellation completion, before moving to complete
-      cancelled: {
-        id: "cancelled"
-        // after: {
-        //   wait: "#complete" // automatically move to complete after  max age
-        // }
       },
 
       // Handle errors
@@ -141,7 +140,7 @@ export default createMachine(
           loading: {
             always: [
               {
-                target: "#cancelled",
+                target: "#processed.cancelled",
                 cond: "hasRetried"
               },
               {
@@ -168,11 +167,7 @@ export default createMachine(
             ]
           },
           // this is for errors we don't know how to handle
-          unknown: {
-            after: [
-              { delay: "wait", target: "#complete" } // automatically move to complete after  max age
-            ]
-          },
+          unknown: {},
           // if we are unauthorized, we need to attempt to refresh the token
           unauthorized: {
             entry: ["clearError"],
@@ -253,11 +248,8 @@ export default createMachine(
       hasRequest: ({ url, init }) => !!url && !!init,
       hasRetried: ({ attempts }) => toNumber(attempts) > 1,
       // ---
-      isUnauthorized: context => {
-        // request
-        debugger;
-        return context?.error?.status === responseCodes.Unauthorized;
-      },
+      isUnauthorized: context =>
+        context?.error?.status === responseCodes.Unauthorized,
       isForbidden: context =>
         context?.error?.status === responseCodes.Forbidden,
       isNotFound: context => context?.error?.status === responseCodes.Not_Found,
@@ -273,7 +265,7 @@ export default createMachine(
     },
     delays: {
       maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
-      wait: () => useTime().MINUTE // this allows us to wait for a reasonable amount of time before continuing
+      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
     }
   }
 );

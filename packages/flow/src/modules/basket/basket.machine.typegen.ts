@@ -33,20 +33,9 @@ export interface Typegen0 {
       type: "error.platform.authCallback";
       data: unknown;
     };
-    "error.platform.generating:invocation[0]": {
-      type: "error.platform.generating:invocation[0]";
-      data: unknown;
-    };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
-    };
-    "error.platform.updating:invocation[0]": {
-      type: "error.platform.updating:invocation[0]";
-      data: unknown;
-    };
-    "xstate.after(wait)#basketManager.error.unknown": {
-      type: "xstate.after(wait)#basketManager.error.unknown";
     };
     "xstate.init": { type: "xstate.init" };
   };
@@ -74,12 +63,7 @@ export interface Typegen0 {
       | "done.invoke.updating:invocation[0]";
     setError: "error.platform.loading:invocation[0]";
   };
-  eventsCausingDelays: {
-    wait:
-      | "error.platform.generating:invocation[0]"
-      | "error.platform.loading:invocation[0]"
-      | "error.platform.updating:invocation[0]";
-  };
+  eventsCausingDelays: {};
   eventsCausingGuards: {
     hasNoContent: "done.invoke.loading:invocation[0]";
     hasNoSpawned: "";

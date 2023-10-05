@@ -21,6 +21,7 @@ export default createMachine(
     initial: "loading",
     context: {
       token: {},
+      refresh: false,
       error: null
     } as SessionContext,
     states: {
@@ -29,129 +30,112 @@ export default createMachine(
       // TODO: add necessary cheand and states when we add user accounts with auth
       loading: {
         id: "loading",
-        invoke: {
-          src: "check",
-          onDone: [
-            // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
-            // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
-            {
-              target: "client",
-              cond: "isClientToken",
-              actions: ["setToken"]
-            },
-            {
-              target: "guest",
-              actions: ["setToken"]
-            }
-          ],
-          onError: { target: "guest" }
-        }
-      },
-
-      guest: {
-        initial: "loading",
+        initial: "check",
         states: {
-          loading: {
+          check: {
+            invoke: {
+              src: "check",
+              onDone: [
+                // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
+                // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
+                {
+                  target: "client",
+                  cond: "isClientToken",
+                  actions: ["setToken"]
+                },
+                {
+                  target: "guest",
+                  actions: ["setToken"]
+                }
+              ],
+              onError: { target: "guest" }
+            }
+          },
+          guest: {
             invoke: {
               id: "guest",
               src: guestMachine,
-              onDone: { target: "#loading", actions: ["clearToken"] }
-            },
-            on: {
-              AUTHENTICATED: { actions: ["setToken"], target: "idle" }
+              data: {
+                refresh: context => context.refresh
+              },
+              onDone: { target: "#idle.guest", actions: ["setToken"] },
+              onError: { target: "#error", actions: ["setError"] }
             }
           },
-          idle: {},
-          clearing: {}
-        },
-        on: {
-          REFRESH: {
-            target: "loading",
-            actions: sendTo("guest", { type: "REFRESH" })
-          },
-          KILL: { target: "guest.clearing" }
-        }
-      },
-
-      client: {
-        initial: "loading",
-        states: {
-          loading: {
+          client: {
             invoke: {
               id: "client",
               src: clientMachine,
-              onDone: { target: "#loading", actions: ["clearToken"] }
-            },
+              onDone: { target: "#idle.client", actions: ["setToken"] },
+              onError: { target: "#error", actions: ["setError"] }
+            }
+          }
+        },
+        exit: "clearRefresh"
+      },
+
+      idle: {
+        id: "idle",
+        initial: "none",
+        states: {
+          none: {},
+          guest: {
             on: {
-              AUTHENTICATED: { actions: ["setToken"] }
+              REFRESH: { target: "#loading", actions: "setRefresh" },
+              KILL: { target: "#clearing" }
             }
           },
-          idle: {},
-          clearing: {}
-        },
+          client: {
+            on: {
+              REFRESH: { target: "#loading", actions: "setRefresh" },
+              LOGIN: { target: "#loading", actions: "setCredentials" },
+              LOGOUT: { target: "#clearing" },
+              KILL: { target: "#clearing" }
+            }
+          }
 
-        on: {
-          REFRESH: {
-            target: "loading",
-            actions: sendTo("client", { type: "REFRESH" })
-          },
-          LOGIN: {
-            target: "loading",
-            actions: sendTo("client", (context, { data }) => ({
-              type: "LOGIN",
-              data
-            }))
-
-            // actions: sendTo("client", ({ context, event }) => {
-            //   return { type: "LOGIN", data: event.data };
-            // })
-            // actions: sendTo(({ _context, event }) => "client", {
-            //   type: "someEvent",
-            //   data: event?.data
-            // })
-          },
-          LOGOUT: { target: "guest.clearing" },
-          KILL: { target: "guest.clearing" }
+          // admin: {
+          // invoke the admin machine
+          // },
+          // actor: {
+          // invoke the actor machine
+          // },
         }
       },
 
-      // admin: {
-      // invoke the admin machine
-      // },
-      // actor: {
-      // invoke the actor machine
-      // },
+      clearing: {
+        id: "clearing",
+        invoke: {
+          src: "dumpToken",
+          onDone: { target: "#loading", actions: ["clearToken"] }
+        }
+      },
 
       // Handle errors
       error: {
-        entry: "setError",
-        id: "error",
-        after: {
-          wait: "#complete" // automatically move to complete after  max age
-        },
-        on: { KILL: { target: "#complete" } }
+        id: "error"
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        entry: ["clearToken"],
+        entry: "clearToken",
         type: "final"
       }
     }
   },
   {
     actions: {
-      setToken: assign({
-        token: (context, { data }) => useTokenParser(data)
-      }),
-      clearToken: assign({
-        token: {}
-      }),
+      setRefresh: assign({ refresh: true }),
+      clearRefresh: assign({ refresh: false }),
+      // ---
+      setToken: assign({ token: (context, { data }) => useTokenParser(data) }),
+      clearToken: assign({ token: {} }),
       // ---
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
-      })
+      }),
+      clearError: assign({ error: null })
     },
     guards: {
       isClientToken: (_context, { data }) => {
@@ -168,9 +152,7 @@ export default createMachine(
       // }
     },
 
-    delays: {
-      wait: () => useTime().MINUTE // this allows us to wait for a reasonable amount of time before continuing
-    },
+    delays: {},
     services
   }
 );

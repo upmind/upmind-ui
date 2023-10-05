@@ -17,6 +17,8 @@ import { get, omit } from "lodash-es";
 async function check(context: GuestContext, _event: any) {
   const token = get(localStorage, `guest/auth/token`);
 
+  console.log("guest", "check", token);
+
   return new Promise((resolve, reject) => {
     if (token) {
       return resolve(JSON.parse(token));
@@ -39,7 +41,9 @@ async function refreshToken(context: GuestContext, _event: any) {
   const { post, useUrl } = useApi();
   const refresh_token = get(context, "token.refresh_token", "");
 
-  return await post({
+  console.log("guest", "refresh Token", context.token);
+
+  return post({
     url: useUrl("access_token", {}, "oauth"),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
@@ -52,6 +56,8 @@ async function persistToken(context: GuestContext, _event: any) {
   const token = omit(context.token, ["actor_id", "actor_type"]);
   token.type = "guest";
 
+  console.log("guest", "persistToken", token);
+
   if (!localStorage) return Promise.reject("No localStorage available");
 
   localStorage.setItem(`guest/auth/token`, JSON.stringify(token));
@@ -60,6 +66,8 @@ async function persistToken(context: GuestContext, _event: any) {
 }
 
 async function dumpToken(context: GuestContext, _event: any) {
+  console.log("guest", "dumpToken");
+
   localStorage.removeItem(`guest/auth/token`);
   return Promise.resolve(); // we dont need to return anything
 }

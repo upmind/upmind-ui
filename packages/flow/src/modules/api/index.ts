@@ -102,7 +102,7 @@ export const useApi = () => {
     if (request) {
       // then we await the state of the request to be processed/cached
       await waitFor(request, state =>
-        ["processed", "cancelled", "error.unknown"].some(state.matches)
+        ["processed", "error.unknown"].some(state.matches)
       );
 
       // finally ...

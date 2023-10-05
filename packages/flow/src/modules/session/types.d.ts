@@ -33,6 +33,7 @@ export enum TwofaProviders {
 export interface SessionContext {
   token: Token;
   error?: RequestError;
+  refresh: boolean;
 }
 
 export interface Token {

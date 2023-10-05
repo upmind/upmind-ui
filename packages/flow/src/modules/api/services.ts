@@ -61,7 +61,6 @@ async function doFetch({ url, init }: RequestContext) {
 }
 
 async function doUpdateToken(_context: RequestContext, _event: any) {
-  debugger;
   // start by getting the current service and state
   const session = useSession();
   const { service } = session;
@@ -74,24 +73,19 @@ async function doUpdateToken(_context: RequestContext, _event: any) {
   service.send("REFRESH");
 
   // wait for the service to complete
-  if (state.matches("processing")) {
-    await waitFor(service, newState =>
-      ["guest", "client", "error"].some(newState.matches)
-    ).catch(error => {
-      debugger;
-      return Promise.reject(error);
-    });
-  }
+  await waitFor(service, newState =>
+    ["idle", "error"].some(newState.matches)
+  ).catch(error => {
+    return Promise.reject(error);
+  });
 
   // return the token or error
   return new Promise((resolve, reject) => {
-    if (["guest", "client"].some(state.matches)) {
-      debugger;
-      resolve(state.context.token);
-    } else {
-      debugger;
+    if (["error"].some(state.matches)) {
       const error = get(state, "context.error");
       reject(error);
+    } else {
+      resolve(state.context.token);
     }
   });
 }
