@@ -19,7 +19,7 @@ import { set, get, trimStart, forIn, keys } from "lodash-es";
 
 let state = null;
 
-const service = interpret(requestsMachine, { devTools: true }).onTransition(
+const service = interpret(requestsMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------

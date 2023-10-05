@@ -12,16 +12,25 @@ import { get, omit } from "lodash-es";
 // this will process the request and return a promise
 
 async function check(context: ClientContext, _event: any) {
-  // if we have a user, we are potentially cliententicated
+  // if we have a token, we are potentially authenticated
   // and we need to check the token
-  const token = get(localStorage, `client/client/token`);
+  const token = get(localStorage, `client/auth/token`);
 
   return new Promise((resolve, reject) => {
     if (token) {
-      return refreshToken({ token });
+      return resolve(JSON.parse(token));
     } else {
       return reject();
     }
+  });
+}
+
+// login!
+async function generateToken(_context: ClientContext, { data }: any) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl("access_token", {}, "oauth"),
+    data
   });
 }
 
@@ -30,7 +39,7 @@ async function refreshToken(context: ClientContext) {
   const refresh_token = get(context, "token.refresh_token", "");
 
   return post({
-    url: useUrl("access_token", {}, "oclient"),
+    url: useUrl("access_token", {}, "oauth"),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token
@@ -44,13 +53,13 @@ async function persistToken(context: ClientContext, _event: any) {
 
   if (!localStorage) return Promise.reject("No localStorage available");
 
-  localStorage.setItem(`client/client/user`, JSON.stringify(token));
+  localStorage.setItem(`client/auth/token`, JSON.stringify(token));
 
   return Promise.resolve(); // we dont need to return anything
 }
 
 async function dumpToken(context: ClientContext, _event: any) {
-  localStorage.removeItem(`client/client/user`);
+  localStorage.removeItem(`client/auth/token`);
 
   return Promise.resolve(); // we dont need to return anything
 }
@@ -60,6 +69,7 @@ async function dumpToken(context: ClientContext, _event: any) {
 
 export default <Object>{
   check,
+  generateToken,
   refreshToken,
   persistToken,
   dumpToken
