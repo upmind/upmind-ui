@@ -1,12 +1,14 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, actions } from "xstate";
+const { escalate, sendParent } = actions;
+
 // --- internal
 import machineServices, { FetchMethods } from "./services";
 import { responseCodes } from "./types.d";
 import { useTime } from "../../utils";
 
 // --utils
-import { toNumber, set } from "lodash-es";
+import { toNumber, set, includes } from "lodash-es";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -53,6 +55,16 @@ export default createMachine(
         }
       },
 
+      // Process auth refresh tokens before processing the request
+      authorizing: {
+        entry: ["clearError"],
+        invoke: {
+          src: "refreshToken",
+          onDone: { actions: ["setAuthHeader"], target: "#processing" },
+          onError: { target: "#error", actions: ["setError"] }
+        }
+      },
+
       // Process the request through our service
       processing: {
         entry: ["clearError", "clearResponse", "incrementAttempts"],
@@ -64,7 +76,10 @@ export default createMachine(
             target: "processed",
             actions: ["setResponse"]
           },
-          onError: { target: "error", actions: ["setError"] }
+          onError: [
+            { target: "authorizing", cond: "canAuthorize" },
+            { target: "error", actions: ["setError"] }
+          ]
         },
         on: {
           CANCEL: { target: "cancelling" }
@@ -134,6 +149,7 @@ export default createMachine(
       error: {
         id: "error",
         initial: "loading",
+
         states: {
           // detrmine the error type and move to the appropriate state
           // this may kick off a sub state/service to handle the error
@@ -169,14 +185,7 @@ export default createMachine(
           // this is for errors we don't know how to handle
           unknown: {},
           // if we are unauthorized, we need to attempt to refresh the token
-          unauthorized: {
-            entry: ["clearError"],
-            invoke: {
-              src: "doUpdateToken",
-              onDone: { actions: ["setAuthHeader"], target: "#processing" },
-              onError: { target: "#error", actions: ["setError"] }
-            }
-          },
+          unauthorized: {},
           forbidden: {},
           notFound: {},
           conflict: {},
@@ -247,6 +256,13 @@ export default createMachine(
     guards: {
       hasRequest: ({ url, init }) => !!url && !!init,
       hasRetried: ({ attempts }) => toNumber(attempts) > 1,
+      // ---
+      // NB: we cannot authorise oauth requests and we can only try once
+      canAuthorize: (context, { data }) => {
+        const isAuth = includes(context.url.pathname, "oauth");
+        const isUnauthorized = data?.status === responseCodes.Unauthorized;
+        return !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1;
+      },
       // ---
       isUnauthorized: context =>
         context?.error?.status === responseCodes.Unauthorized,

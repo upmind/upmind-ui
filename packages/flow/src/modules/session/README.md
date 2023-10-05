@@ -63,7 +63,7 @@ export const useSession= () => {
   const { state } = useActor(session.service);
 
   return {
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     token: computed(() => state.value.context.token.access_token),
     role: computed(() => state.value.context.role),
     values: computed(() => state.value.context),

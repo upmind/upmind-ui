@@ -19,7 +19,7 @@ export const useBasket = () => {
 
   return {
     send,
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     basket: computed(() => state.value.context.basket),
     values: computed(() => state.value.context),
     // ---

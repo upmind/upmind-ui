@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.clearing:invocation[0]": {
       type: "done.invoke.clearing:invocation[0]";
       data: unknown;
@@ -18,22 +19,21 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.sessionManager.loading.check:invocation[0]": {
-      type: "done.invoke.sessionManager.loading.check:invocation[0]";
+    "done.invoke.sessionManager.loading.role.check:invocation[0]": {
+      type: "done.invoke.sessionManager.loading.role.check:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.client": { type: "error.platform.client"; data: unknown };
     "error.platform.guest": { type: "error.platform.guest"; data: unknown };
-    "error.platform.sessionManager.loading.check:invocation[0]": {
-      type: "error.platform.sessionManager.loading.check:invocation[0]";
+    "error.platform.sessionManager.loading.role.check:invocation[0]": {
+      type: "error.platform.sessionManager.loading.role.check:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
-    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    check: "done.invoke.sessionManager.loading.check:invocation[0]";
+    check: "done.invoke.sessionManager.loading.role.check:invocation[0]";
     dumpTokens: "done.invoke.clearing:invocation[0]";
   };
   missingImplementations: {
@@ -43,24 +43,29 @@ export interface Typegen0 {
     services: "check" | "dumpTokens";
   };
   eventsCausingActions: {
-    clearRefresh:
-      | "done.invoke.client"
-      | "done.invoke.guest"
+    clearError: "done.state.role";
+    clearMessage:
+      | "done.state.role"
       | "error.platform.client"
-      | "error.platform.guest"
-      | "xstate.stop";
+      | "error.platform.guest";
+    clearRefresh: "done.state.role";
     clearToken: "done.invoke.clearing:invocation[0]";
     setError: "error.platform.client" | "error.platform.guest";
+    setMessage: "MESSAGE";
     setRefresh: "REFRESH";
     setToken:
       | "done.invoke.client"
       | "done.invoke.guest"
-      | "done.invoke.sessionManager.loading.check:invocation[0]";
+      | "done.invoke.sessionManager.loading.role.check:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
+    hasError: "";
+    hasMessage: "";
+    hasNoError: "";
+    hasNoMessage: "";
     isClientRole: "SWAP";
-    isClientToken: "done.invoke.sessionManager.loading.check:invocation[0]";
+    isClientToken: "done.invoke.sessionManager.loading.role.check:invocation[0]";
     isGuestRole: "SWAP";
   };
   eventsCausingServices: {
@@ -69,28 +74,40 @@ export interface Typegen0 {
       | "SWAP"
       | "done.invoke.clearing:invocation[0]"
       | "xstate.init";
-    client: "SWAP" | "done.invoke.sessionManager.loading.check:invocation[0]";
+    client:
+      | "SWAP"
+      | "done.invoke.sessionManager.loading.role.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
     guest:
       | "SWAP"
-      | "done.invoke.sessionManager.loading.check:invocation[0]"
-      | "error.platform.sessionManager.loading.check:invocation[0]";
+      | "done.invoke.sessionManager.loading.role.check:invocation[0]"
+      | "error.platform.sessionManager.loading.role.check:invocation[0]";
   };
   matchesStates:
     | "clearing"
     | "complete"
-    | "error"
     | "idle"
     | "idle.client"
     | "idle.guest"
     | "idle.none"
     | "loading"
-    | "loading.check"
-    | "loading.client"
-    | "loading.guest"
+    | "loading.role"
+    | "loading.role.check"
+    | "loading.role.client"
+    | "loading.role.guest"
+    | "loading.status"
+    | "loading.status.error"
+    | "loading.status.processing"
+    | "loading.status.waiting"
     | {
         idle?: "client" | "guest" | "none";
-        loading?: "check" | "client" | "guest";
+        loading?:
+          | "role"
+          | "status"
+          | {
+              role?: "check" | "client" | "guest";
+              status?: "error" | "processing" | "waiting";
+            };
       };
   tags: never;
 }

@@ -25,41 +25,41 @@ export const useClient = () => {
   // --------------------------------------------------------
   // methods
 
-  const doCallback = callback => {
-    if (state.matches("cliententicated")) {
-      callback({ type: "VALID" });
-    } else if (state.matches("uncliententicated")) {
-      callback({ type: "INVAID" });
-    }
-  };
+  // const doCallback = callback => {
+  //   if (state.matches("authenticated")) {
+  //     callback({ type: "VALID" });
+  //   } else if (state.matches("unauthenticated")) {
+  //     callback({ type: "INVAID" });
+  //   }
+  // };
 
-  const subscription = (_context, _event) => async (callback, onReceive) => {
-    // firstly, send service's current state upon subscription
+  // const subscription = (_context, _event) => async (callback, onReceive) => {
+  //   // firstly, send service's current state upon subscription
 
-    doCallback(callback);
+  //   doCallback(callback);
 
-    // then listen for any changes to the client service
-    // if we get a change to either cliententicated or uncliententicated
-    // then we need to send the callback to the subscriber
-    service.onTransition(newState => {
-      // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
-      doCallback(callback);
-    });
+  //   // then listen for any changes to the client service
+  //   // if we get a change to either authenticated or unauthenticated
+  //   // then we need to send the callback to the subscriber
+  //   service.onTransition(newState => {
+  //     // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
+  //     doCallback(callback);
+  //   });
 
-    return () => {
-      // The subscriber has unsubscribed from this service
-      // typically when the transitioning out of the state node
-      // we dont need to do anything here as we are consuming a global service
-      // console.info('clientStore', 'checkClient', 'unsubscribed');
-    };
-  };
+  //   return () => {
+  //     // The subscriber has unsubscribed from this service
+  //     // typically when the transitioning out of the state node
+  //     // we dont need to do anything here as we are consuming a global service
+  //     // console.info('clientStore', 'checkClient', 'unsubscribed');
+  //   };
+  // };
 
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    state,
+    state
     // ---
-    subscription
+    // subscription
   };
 };

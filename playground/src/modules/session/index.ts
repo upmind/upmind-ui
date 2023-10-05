@@ -19,15 +19,19 @@ export const useSession = () => {
 
   return {
     send,
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     values: computed(() => state.value.context),
     // ---
     isLoading: computed(() => ["loading"].some(state.value.matches)),
+    isProcessing: computed(() =>
+      ["loading.status.processing"].some(state.value.matches)
+    ),
+
     isClient: computed(() =>
-      ["idle.client", "loading.client"].some(state.value.matches)
+      ["idle.client", "loading.role.client"].some(state.value.matches)
     ),
     isLoggedIn: computed(() => ["idle.client"].some(state.value.matches)),
     isAvailable: computed(() => ["idle"].some(state.value.matches)),
-    hasError: computed(() => ["error"].some(state.value.matches))
+    hasError: computed(() => ["loading.status.error"].some(state.value.matches))
   };
 };

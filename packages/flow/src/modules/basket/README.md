@@ -58,7 +58,7 @@ export const useBasket= () => {
   const { state } = useActor(basket.service);
 
   return {
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     basket: computed(() => state.value.context.basket),
     values: computed(() => state.value.context),
     // ---
