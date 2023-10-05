@@ -1,3 +1,9 @@
+// TODO: make the basket transfer/dump on session change
+//  on auth it should take the current  gues tbasket and transfer it to the new user
+//  on unauth it should dump the current basket and wait for a new one to be created
+//  also try get away from autogenerating the basket immediately...wait for a product or something
+// might make the transfer/dumping of the basket easier
+
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
