@@ -29,7 +29,7 @@ async function refreshToken(context: ClientContext) {
   const { post, useUrl } = useApi();
   const refresh_token = get(context, "token.refresh_token", "");
 
-  return await post({
+  return post({
     url: useUrl("access_token", {}, "oclient"),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,

@@ -8,6 +8,7 @@ export interface ClientContext {
   token: Token;
   user: User;
   error?: RequestError;
+  refresh?: boolean;
 }
 
 export interface User {}
