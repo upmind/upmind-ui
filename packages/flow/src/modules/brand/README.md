@@ -60,7 +60,7 @@ export const useBrand= () => {
   const { state } = useActor(session.service);
 
   return {
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     values: computed(() => state.value.context),
     isAvailable: computed(() => ["available"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),

@@ -18,7 +18,7 @@ export const useBrand = () => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     values: computed(() => state.value.context),
     isAvailable: computed(() => ["processed"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),

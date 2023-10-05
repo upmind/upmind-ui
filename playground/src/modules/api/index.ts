@@ -19,7 +19,7 @@ export const useApi = () => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => state.value.toStrings()),
+    state: computed(() => state.value.value),
     count: computed(() => keys(state.value.context.requests)?.length || 0),
     requests: computed(() => state.value.context.requests),
     isIdle: computed(() => ["loading"].some(state.value.matches)),

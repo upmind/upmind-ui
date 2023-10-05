@@ -23,7 +23,7 @@ const service = interpret(sessionMachine, { devTools: true }).onTransition(
 // --------------------------------------------------------
 
 export const useSession = () => {
-  let { subscription } = useClient();
+  // let { subscription } = useClient();
 
   // --------------------------------------------------------
   // methods
@@ -63,7 +63,7 @@ export const useSession = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     state,
     // ---
-    useClient: subscription,
+    // useClient: subscription,
     // --- syntax sugar
     token: state?.context?.token?.access_token
   };

@@ -21,7 +21,8 @@ export default createMachine(
     context: {
       token: {},
       refresh: false,
-      error: null
+      error: null,
+      message: null
     } as SessionContext,
     states: {
       // our initial state will check 'self' and see if we have a token
@@ -29,56 +30,93 @@ export default createMachine(
       // TODO: add necessary cheand and states when we add user accounts with auth
       loading: {
         id: "loading",
-        initial: "check",
+        type: "parallel",
         states: {
-          check: {
-            invoke: {
-              src: "check",
-              onDone: [
-                // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
-                // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
-                {
-                  target: "client",
-                  cond: "isClientToken",
-                  actions: ["setToken"]
-                },
-                {
-                  target: "guest",
-                  actions: ["setToken"]
+          role: {
+            id: "role",
+            initial: "check",
+            states: {
+              check: {
+                invoke: {
+                  src: "check",
+                  onDone: [
+                    // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
+                    // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
+                    {
+                      target: "client",
+                      cond: "isClientToken",
+                      actions: ["setToken"]
+                    },
+                    {
+                      target: "guest",
+                      actions: ["setToken"]
+                    }
+                  ],
+                  onError: { target: "guest" }
                 }
-              ],
-              onError: { target: "guest" }
-            }
-          },
-          guest: {
-            invoke: {
-              id: "guest",
-              src: guestMachine,
-              data: {
-                refresh: context => context.refresh
               },
-              onDone: { target: "#idle.guest", actions: ["setToken"] },
-              onError: { target: "#error", actions: ["setError"] }
+              guest: {
+                invoke: {
+                  id: "guest",
+                  src: guestMachine,
+                  data: {
+                    refresh: context => context.refresh
+                  },
+                  onDone: { target: "#idle.guest", actions: ["setToken"] },
+                  onError: { actions: ["setError", "clearMessage"] }
+                },
+                on: {
+                  MESSAGE: {
+                    actions: ["setMessage"]
+                  }
+                }
+              },
+              client: {
+                invoke: {
+                  id: "client",
+                  src: clientMachine,
+                  onDone: { target: "#idle.client", actions: ["setToken"] },
+                  onError: { actions: ["setError", "clearMessage"] }
+                },
+                on: {
+                  MESSAGE: {
+                    actions: ["setMessage"]
+                  },
+                  LOGIN: {
+                    actions: sendTo("client", (context, { data }) => ({
+                      type: "LOGIN",
+                      data
+                    }))
+                  }
+                }
+              }
+            },
+            onDone: {
+              target: "#idle",
+              actions: ["clearRefresh", "clearError", "clearMessage"]
             }
           },
-          client: {
-            invoke: {
-              id: "client",
-              src: clientMachine,
-              onDone: { target: "#idle.client", actions: ["setToken"] },
-              onError: { target: "#error", actions: ["setError"] }
-            },
-            on: {
-              LOGIN: {
-                actions: sendTo("client", (context, { data }) => ({
-                  type: "LOGIN",
-                  data
-                }))
+          status: {
+            initial: "waiting",
+            states: {
+              waiting: {
+                always: [
+                  { target: "processing", cond: "hasMessage" },
+                  { target: "error", cond: "hasError" }
+                ]
+              },
+              processing: {
+                always: [
+                  { target: "error", cond: "hasError" },
+                  { target: "waiting", cond: "hasNoMessage" }
+                ]
+              },
+              error: {
+                always: { target: "waiting", cond: "hasNoError" }
               }
             }
           }
-        },
-        exit: "clearRefresh"
+        }
       },
 
       idle: {
@@ -109,8 +147,8 @@ export default createMachine(
         },
         on: {
           SWAP: [
-            { target: "#loading.client", cond: "isClientRole" },
-            { target: "#loading.guest", cond: "isGuestRole" }
+            { target: "#loading.role.client", cond: "isClientRole" },
+            { target: "#loading.role.guest", cond: "isGuestRole" }
           ]
         }
       },
@@ -123,11 +161,6 @@ export default createMachine(
         }
       },
 
-      // Handle errors
-      error: {
-        id: "error"
-      },
-
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
@@ -138,6 +171,12 @@ export default createMachine(
   },
   {
     actions: {
+      setMessage: assign({
+        message: (context, { data }) => data
+      }),
+
+      clearMessage: assign({ message: false }),
+      // ---
       setRefresh: assign({ refresh: true }),
       clearRefresh: assign({ refresh: false }),
       // ---
@@ -150,6 +189,11 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
+      hasError: ({ error }) => !!error,
+      hasNoError: ({ error }) => !error,
+      hasMessage: ({ message }) => !!message,
+      hasNoMessage: ({ message }) => !message,
+      // ---
       isClientRole: (_context, { data }) => data === "client",
       isGuestRole: (_context, { data }) => data === "guest",
       // ---

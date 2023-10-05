@@ -19,7 +19,7 @@ import { set, get, trimStart, forIn, keys } from "lodash-es";
 
 let state = null;
 
-const service = interpret(requestsMachine, { devTools: false }).onTransition(
+const service = interpret(requestsMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -102,7 +102,7 @@ export const useApi = () => {
     if (request) {
       // then we await the state of the request to be processed/cached
       await waitFor(request, state =>
-        ["processed", "error.unknown"].some(state.matches)
+        ["processed", "error"].some(state.matches)
       );
 
       // finally ...

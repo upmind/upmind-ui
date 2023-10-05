@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate } = actions;
+const { escalate, sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -52,6 +52,7 @@ export default createMachine(
       // in this state, we are unauthenticated, and we can either login or register
       unauthenticated: {
         id: "unauthenticated",
+        entry: sendParent({ type: "MESSAGE", data: null }),
         initial: "idle",
         states: {
           idle: {
@@ -63,6 +64,7 @@ export default createMachine(
           // effectively logging in with credentials as the event payload
           generating: {
             id: "generating",
+            entry: sendParent({ type: "MESSAGE", data: "Generating Token" }),
             invoke: {
               src: "generateToken",
               onDone: { target: "#authenticated", actions: ["setToken"] },
@@ -87,6 +89,7 @@ export default createMachine(
       // in this state, we are authenticated, and we can either refresh or kill the token
       authenticated: {
         id: "authenticated",
+        entry: sendParent({ type: "MESSAGE", data: null }),
         initial: "idle",
         states: {
           idle: {
@@ -101,6 +104,7 @@ export default createMachine(
           // which will generate a new token
           refreshing: {
             id: "refreshing",
+            entry: sendParent({ type: "MESSAGE", data: "Refreshing Token" }),
             invoke: {
               src: "refreshToken",
               onDone: { target: "persisting", actions: ["setToken"] },
@@ -119,6 +123,7 @@ export default createMachine(
           // and then we start over
           clearing: {
             id: "clearing",
+            entry: sendParent({ type: "MESSAGE", data: "Clearing Token" }),
             invoke: {
               src: "dumpToken",
               onDone: [
@@ -133,6 +138,7 @@ export default createMachine(
           // and then we are done
           persisting: {
             id: "persisting",
+            entry: sendParent({ type: "MESSAGE", data: "Persisting Token" }),
             invoke: {
               src: "persistToken",
               onDone: {
@@ -157,6 +163,7 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
+        entry: sendParent({ type: "MESSAGE", data: null }),
         id: "complete",
         type: "final",
         data: (context, event) => context.token
@@ -165,6 +172,7 @@ export default createMachine(
   },
   {
     actions: {
+      // ---
       setToken: assign({
         token: (context, { data }) => useTokenParser(data)
       }),

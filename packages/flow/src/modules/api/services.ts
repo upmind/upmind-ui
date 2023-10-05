@@ -60,7 +60,7 @@ async function doFetch({ url, init }: RequestContext) {
   });
 }
 
-async function doUpdateToken(_context: RequestContext, _event: any) {
+async function refreshToken(_context: RequestContext, _event: any) {
   // start by getting the current service and state
   const session = useSession();
   const { service } = session;
@@ -95,5 +95,5 @@ async function doUpdateToken(_context: RequestContext, _event: any) {
 
 export default <Object>{
   doFetch,
-  doUpdateToken
+  refreshToken
 };
