@@ -3,7 +3,8 @@
 // --- internal
 import { useApi } from "../api";
 import { type BasketContext } from "./types.d";
-
+import { useSession } from "../session";
+const { authSubscription } = useSession();
 // --- utils
 
 // --------------------------------------------------------
@@ -115,6 +116,7 @@ async function setPriceList(context: BasketContext, _event: any) {}
 export default <Object>{
   check,
   create,
-  refresh
+  refresh,
+  authSubscription
   // ---
 };

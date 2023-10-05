@@ -48,6 +48,7 @@ export interface Typegen0 {
       type: "error.platform.brandManager.processing.settings:invocation[0]";
       data: unknown;
     };
+    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -59,7 +60,7 @@ export interface Typegen0 {
   };
   missingImplementations: {
     actions: never;
-    delays: never;
+    delays: "wait";
     guards: never;
     services:
       | "fetchBrandConfig"
@@ -82,7 +83,9 @@ export interface Typegen0 {
     setOrganisation: "done.invoke.brandManager.processing.organisation:invocation[0]";
     setSettings: "done.invoke.brandManager.processing.settings:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    wait: "done.invoke.brandManager.processing.currencies:invocation[0]";
+  };
   eventsCausingGuards: {};
   eventsCausingServices: {
     fetchBrandConfig: "done.invoke.brandManager.processing.settings:invocation[0]";
@@ -92,9 +95,9 @@ export interface Typegen0 {
     fetchOrganisationConfig: "RETRY" | "xstate.init";
   };
   matchesStates:
+    | "complete"
     | "error"
     | "processed"
-    | "processed.available"
     | "processing"
     | "processing.config"
     | "processing.currencies"
@@ -102,7 +105,6 @@ export interface Typegen0 {
     | "processing.organisation"
     | "processing.settings"
     | {
-        processed?: "available";
         processing?:
           | "config"
           | "currencies"

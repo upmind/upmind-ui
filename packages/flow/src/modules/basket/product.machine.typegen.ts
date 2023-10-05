@@ -10,9 +10,7 @@ export interface Typegen0 {
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.process": { type: "error.platform.process"; data: unknown };
-    "xstate.after(wait)#product.processed.available": {
-      type: "xstate.after(wait)#product.processed.available";
-    };
+    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -26,7 +24,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clearError: "" | "ADD";
-    sendRemoveMessage: "xstate.after(wait)#product.processed.available";
+    sendRemoveMessage: "xstate.after(wait)#processed";
     setError: "error.platform.process";
     setProduct: "" | "ADD";
     setResponse: "done.invoke.process";
@@ -45,8 +43,6 @@ export interface Typegen0 {
     | "complete"
     | "error"
     | "processed"
-    | "processed.available"
-    | "processing"
-    | { processed?: "available" };
+    | "processing";
   tags: never;
 }
