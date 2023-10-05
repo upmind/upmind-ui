@@ -4,7 +4,7 @@
       <h2 class="title">Session is {{ state }}</h2>
 
       <slot name="actions">
-        <button @click="swapRole('client')" v-if="!isClient">swap</button>
+        <button @click="swapRole('client')" v-if="!isClient">Login Form</button>
         <button @click="logout" v-if="isClient && isLoggedIn">logout</button>
 
         <form @submit.prevent="login" v-if="isClient && !isLoggedIn">
@@ -28,6 +28,7 @@
           </p>
           <div>
             <button type="submit" :disabled="isProcessing">login</button>
+            <button @click.prevent="swapRole('guest')">cancel</button>
           </div>
         </form>
       </slot>

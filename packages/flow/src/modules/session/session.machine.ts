@@ -116,6 +116,20 @@ export default createMachine(
               }
             }
           }
+        },
+        on: {
+          SWAP: [
+            {
+              target: "#loading.role.client",
+              cond: "isClientRole",
+              actions: ["clearMessage", "clearError"]
+            },
+            {
+              target: "#loading.role.guest",
+              cond: "isGuestRole",
+              actions: ["clearMessage", "clearError"]
+            }
+          ]
         }
       },
 
@@ -147,8 +161,16 @@ export default createMachine(
         },
         on: {
           SWAP: [
-            { target: "#loading.role.client", cond: "isClientRole" },
-            { target: "#loading.role.guest", cond: "isGuestRole" }
+            {
+              target: "#loading.role.client",
+              cond: "isClientRole",
+              actions: ["clearMessage", "clearError"]
+            },
+            {
+              target: "#loading.role.guest",
+              cond: "isGuestRole",
+              actions: ["clearMessage", "clearError"]
+            }
           ]
         }
       },
@@ -195,7 +217,7 @@ export default createMachine(
       hasNoMessage: ({ message }) => !message,
       // ---
       isClientRole: (_context, { data }) => data === "client",
-      isGuestRole: (_context, { data }) => data === "guest",
+      isGuestRole: (_context, { data }) => !data || data === "guest",
       // ---
       isClientToken: (_context, { data }) => data?.type === "client"
     },
