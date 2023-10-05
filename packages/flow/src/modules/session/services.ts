@@ -2,25 +2,11 @@
 import { useApi } from "../api";
 
 // --- utils
-import { get, omit } from "lodash-es";
-import { type SessionContext, GrantTypes } from "./types.d";
+import { get } from "lodash-es";
+import { type SessionContext } from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
-// enum GrantTypes {
-//   ADMIN = "admin",
-//   ADMIN_PASSWORD_RESET = "admin_password_reset",
-//   COMPLETE_ORG_REGISTRATION = "complete_org_registration",
-//   COMPLETE_USER_REGISTRATION = "complete_user_registration",
-//   COMPLETE_REGISTRATION = "complete_registration",
-//   GUEST = "guest",
-//   GUEST_CUSTOMER = "guest_customer",
-//   PASSWORD = "password",
-//   PASSWORD_RESET = "password_reset",
-//   REFRESH_TOKEN = "refresh_token",
-//   TWOFA_ADMIN = "twofa-admin",
-//   TWOFA = "twofa"
-// }
 
 // --------------------------------------------------------
 // SERVICE METHODS

@@ -37,20 +37,26 @@ export interface Typegen0 {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
+    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
+    authSubscription: "done.invoke.authCallback";
     check: "done.invoke.loading:invocation[0]";
-    checkAuth: "done.invoke.authCallback";
     create: "done.invoke.generating:invocation[0]";
     refreshToken: "done.invoke.basketManager.error.unauthorized:invocation[0]";
     update: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
-    delays: never;
+    delays: "wait";
     guards: never;
-    services: "check" | "checkAuth" | "create" | "refreshToken" | "update";
+    services:
+      | "authSubscription"
+      | "check"
+      | "create"
+      | "refreshToken"
+      | "update";
   };
   eventsCausingActions: {
     addProduct: "PRODUCT.ADD";
@@ -63,19 +69,29 @@ export interface Typegen0 {
       | "done.invoke.updating:invocation[0]";
     setError: "error.platform.loading:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    wait:
+      | ""
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.updating:invocation[0]";
+  };
   eventsCausingGuards: {
+    hasItems: "";
     hasNoContent: "done.invoke.loading:invocation[0]";
     hasNoSpawned: "";
     isUnauthorized: "error.platform.loading:invocation[0]";
   };
   eventsCausingServices: {
+    authSubscription:
+      | "INVALID"
+      | "VALID"
+      | "done.invoke.loading:invocation[0]"
+      | "xstate.after(wait)#processed";
     check:
       | "RETRY"
       | "done.invoke.basketManager.error.unauthorized:invocation[0]"
       | "xstate.init";
-    checkAuth: never;
-    create: "" | "PRODUCT.ADD";
+    create: "PRODUCT.ADD" | "done.invoke.loading:invocation[0]";
     refreshToken: "error.platform.loading:invocation[0]";
     update: never;
   };
@@ -92,12 +108,13 @@ export interface Typegen0 {
     | "error.unknown"
     | "idle"
     | "idle.items"
-    | "idle.session"
-    | "idle.session.auth"
+    | "idle.items.available"
+    | "idle.items.empty"
+    | "idle.user"
+    | "idle.user.invalid"
+    | "idle.user.valid"
     | "loading"
     | "processed"
-    | "processed.available"
-    | "processed.empty"
     | "processing"
     | "processing.generating"
     | "processing.spawning"
@@ -105,8 +122,10 @@ export interface Typegen0 {
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
         error?: "unauthorized" | "unknown";
-        idle?: "items" | "session" | { session?: "auth" };
-        processed?: "available" | "empty";
+        idle?:
+          | "items"
+          | "user"
+          | { items?: "available" | "empty"; user?: "invalid" | "valid" };
         processing?: "generating" | "spawning" | "updating";
       };
   tags: never;

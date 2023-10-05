@@ -10,7 +10,6 @@ import productMachine from "./product.machine";
 
 // --- utils
 import { useBasketParser } from "./utils";
-import { useTime } from "../../utils";
 import { remove, find, get, set, unset, isEmpty, uniqueId } from "lodash-es";
 
 // --------------------------------------------------------
@@ -24,23 +23,22 @@ export default createMachine(
     context: {
       debug: false,
       // ---
-      products: {},
+      items: {},
       basket: {},
-
       // ---
       error: null
     } as BasketContext,
     states: {
       // our initial state will check 'self' and see if we have a basket
       // if we do, we can skip generating a basket
-      // TODO: add necessary cheand and states when we add user accounts with auth
+      // but if its empty..then autogenerate a new basket, maybe we dont want to do this until we add a product
       loading: {
         id: "loading",
         invoke: {
           src: "check",
           onDone: [
-            { target: "#processed.empty", cond: "hasNoContent" },
-            { target: "#processed", actions: ["setBasket"] }
+            { target: "#processing", cond: "hasNoContent" },
+            { target: "#idle", actions: ["setBasket"] }
           ],
           onError: [
             {
@@ -55,7 +53,6 @@ export default createMachine(
       },
 
       // otherwise we will generate an "empty" basket
-
       processing: {
         id: "processing",
         initial: "generating",
@@ -98,61 +95,62 @@ export default createMachine(
         // TODO invoke a sub states/service to do something
       },
 
-      // Use a state to indicate a successful process
-      // We automatically move into a stale state  based on the basket/local storage refresh time
+      // Use a transient state to indicate a successful process
+      // We have an imperceptible delay to allow the components to understand the process is complete
       processed: {
         id: "processed",
-        initial: "available",
-        states: {
-          available: {},
-          empty: {
-            // temporarily autocreate basket
-            always: {
-              target: "#processing"
-            }
-            // on: {
-            //   CREATE: { target: "#processing", actions: ["clearError"] }
-            // }
-          }
-        },
-        on: {
-          "PRODUCT.ADD": {
-            target: "#processing.spawning",
-            actions: ["addProduct"]
-            // cond: "canAddProduct"
-          }
-          // "PRODUCT.UPDATE": {
-          //   target: "#processing.updating",
-          //   actions: ["updateProduct"]
-          //   // cond: "canUpdateProduct"
-          // },
-          // "PRODUCT.REMOVE": {
-          //   target: "#processing.updating",
-          //   actions: ["removeProduct"]
-          //   // cond: "canRemoveProduct"
-          // }
-        }
+        after: { wait: "idle" }
       },
 
       // we are idle when we have a basket, nothing being processed and no errors
       idle: {
+        id: "idle",
         type: "parallel",
         states: {
-          session: {
-            initial: "auth",
+          // Subscribe to changes in auth and listen for a valid Authenticated user
+          user: {
+            initial: "invalid",
             states: {
-              // Set up the auth machine to check the permissions and conditions
-              auth: {
-                id: "auth",
+              invalid: {
                 invoke: {
                   id: "authCallback",
-                  src: "checkAuth"
-                },
-                exit: sendTo("authCallback", { type: "CHECK" })
-              }
+                  src: "authSubscription"
+                }
+              },
+              valid: { type: "final" }
+            },
+            on: {
+              VALID: { target: "user.valid" },
+              INVALID: { target: "user.invalid" }
             }
           },
-          items: {}
+
+          items: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: { target: "available", cond: "hasItems" }
+              },
+              available: {}
+            },
+            on: {
+              "PRODUCT.ADD": {
+                target: "#processing.spawning",
+                actions: ["addProduct"]
+                // cond: "canAddProduct"
+              }
+              // "PRODUCT.UPDATE": {
+              //   target: "#processing.updating",
+              //   actions: ["updateProduct"]
+              //   // cond: "canUpdateProduct"
+              // },
+              // "PRODUCT.REMOVE": {
+              //   target: "#processing.updating",
+              //   actions: ["removeProduct"]
+              //   // cond: "canRemoveProduct"
+              // }
+            }
+          }
         },
 
         onDone: {
@@ -270,7 +268,9 @@ export default createMachine(
       hasNoContent: (_context, { data }) =>
         data?.status === responseCodes.No_Content,
 
-      hasNoSpawned: ({ spawned }) => isEmpty(spawned)
+      hasNoSpawned: ({ spawned }) => isEmpty(spawned),
+
+      hasItems: ({ basket }) => !isEmpty(basket?.products?.length)
     },
 
     delays: {},

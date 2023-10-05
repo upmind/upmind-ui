@@ -102,14 +102,17 @@ export default createMachine(
           }
         }
       },
+      // Use a transient state to indicate a successful process
+      // We have an imperceptible delay to allow the components to understand the process is complete
       processed: {
         id: "processed",
-        initial: "available",
-        states: {
-          available: {
-            // type: "final" // do we need to stop the machine here?
-          }
+        after: {
+          wait: "complete"
         }
+      },
+
+      complete: {
+        type: "final"
       },
 
       // Handle errors

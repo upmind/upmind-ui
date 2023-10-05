@@ -3,8 +3,7 @@ import { interpret } from "xstate";
 
 // --- internal
 import sessionMachine from "./session.machine";
-import { useClient } from "./client";
-import { useGuest } from "./guest";
+
 // --- utils
 // import { set, get } from "lodash-es";
 
@@ -28,40 +27,51 @@ export const useSession = () => {
   // --------------------------------------------------------
   // methods
 
-  const doAuthCallback = callback => {
-    if (authState.matches("authenticated")) {
+  // We have a valid AUTH session when we are logged in as a client (todo: admin + actor)
+  // this will fire every time we transition to a new state
+  const authCallback = callback => {
+    console.log("authCallback", "TRANSITIONED", state.value);
+
+    callback({ type: "TRANSITIONED", data: state.value });
+
+    if (["idle.client"].some(state.matches)) {
       callback({ type: "VALID" });
-    } else if (authState.matches("unauthenticated")) {
+    } else {
       callback({ type: "INVAID" });
     }
   };
 
-  const checkAuth = (_context, _event) => async (callback, onReceive) => {
-    // firstly, send service's current state upon subscription
+  // --------------------------------------------------------
+  // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
-    doAuthCallback(callback);
+  const authSubscription =
+    (_context, _event) => async (callback, onReceive) => {
+      // firstly, send service's current state upon subscription
 
-    // then listen for any changes to the auth service
-    // if we get a change to either authenticated or unauthenticated
-    // then we need to send the callback to the subscriber
-    service.onTransition(newState => {
-      authState = newState;
-      doAuthCallback(callback);
-    });
+      authCallback(callback);
 
-    return () => {
-      // The subscriber has unsubscribed from this service
-      // typically when the transitioning out of the state node
-      // we dont need to do anything here as we are consuming a global service
-      // console.info('authStore', 'checkAuth', 'unsubscribed');
+      // then listen for any changes to the client service
+      // if we get a change to either authenticated or unauthenticated
+      // then we need to send the callback to the subscriber
+      service.onTransition(newState => {
+        // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
+        authCallback(callback);
+      });
+
+      return () => {
+        // The subscriber has unsubscribed from this service
+        // typically when the transitioning out of the state node
+        // we dont need to do anything here as we are consuming a global service
+        // console.info('clientStore', 'checkClient', 'unsubscribed');
+      };
     };
-  };
 
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     state,
+    authSubscription,
     // ---
     // useClient: subscription,
     // --- syntax sugar

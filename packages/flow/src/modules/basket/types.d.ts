@@ -7,7 +7,7 @@
 export interface BasketContext {
   debug: boolean;
   basket: Basket;
-  products: Array<Object>; // todo make this product machine type
+  items: Array<Object>; // todo make this product machine type
   error?: RequestError;
 }
 

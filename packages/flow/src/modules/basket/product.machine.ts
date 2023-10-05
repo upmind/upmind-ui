@@ -52,16 +52,10 @@ export default createMachine(
 
       // Use a transient state to indicate a successful process
       // We have an imperceptible delay to allow the components to understand the process is complete
-      // We could also move into a cached state if we have a GET product
       processed: {
         id: "processed",
-        initial: "available",
-        states: {
-          available: {
-            after: {
-              wait: "#complete"
-            }
-          }
+        after: {
+          wait: "#complete"
         }
       },
 
