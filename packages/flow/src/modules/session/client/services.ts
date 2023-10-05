@@ -55,6 +55,9 @@ async function persistToken(context: ClientContext, _event: any) {
 
   localStorage.setItem(`client/auth/token`, JSON.stringify(token));
 
+  // now remember to destroy any guest token as we are now authenticated
+  localStorage.removeItem(`guest/auth/token`);
+
   return Promise.resolve(); // we dont need to return anything
 }
 
