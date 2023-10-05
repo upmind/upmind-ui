@@ -61,31 +61,35 @@ async function doFetch({ url, init }: RequestContext) {
 }
 
 async function doUpdateToken(_context: RequestContext, _event: any) {
+  debugger;
   // start by getting the current service and state
   const session = useSession();
   const { service } = session;
   let { state } = session;
 
   // then watch for changes to the state
-  service.onTransition(s => (state = s));
+  service.onTransition(newState => (state = newState));
 
   // kick off the auth process
   service.send("REFRESH");
 
   // wait for the service to complete
   if (state.matches("processing")) {
-    await waitFor(service, s =>
-      ["processed", "cancelled", "error.unknown"].some(s.matches)
+    await waitFor(service, newState =>
+      ["guest", "client", "error"].some(newState.matches)
     ).catch(error => {
+      debugger;
       return Promise.reject(error);
     });
   }
 
   // return the token or error
   return new Promise((resolve, reject) => {
-    if (state.matches("processed")) {
+    if (["guest", "client"].some(state.matches)) {
+      debugger;
       resolve(state.context.token);
     } else {
+      debugger;
       const error = get(state, "context.error");
       reject(error);
     }

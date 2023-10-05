@@ -4,6 +4,7 @@ import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import services from "./services";
 import type { GuestContext } from "./types.d";
+import { responseCodes } from "../../api/types.d";
 
 // --- utils
 import { useTokenParser } from "../utils";
@@ -70,7 +71,14 @@ export default createMachine(
             invoke: {
               src: "refreshToken",
               onDone: { target: "#authenticated" },
-              onError: { target: "#error" }
+              onError: [
+                {
+                  target: "#loading",
+                  cond: "isUnauthorized",
+                  actions: ["clearToken"]
+                },
+                { target: "#error" }
+              ]
             }
           }
         }
@@ -102,7 +110,6 @@ export default createMachine(
               KILL: { target: "#complete" }
             }
           },
-
           stale: {
             on: {
               REFRESH: { target: "#unauthenticated.refreshing" },
@@ -163,6 +170,11 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
+      isUnauthorized: context => {
+        // guest
+        debugger;
+        return context?.error?.status === responseCodes.Unauthorized;
+      },
       hasExpiry: context => toNumber(context.token.expires_in) > 0
     },
 
