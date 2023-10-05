@@ -4,7 +4,7 @@
       <h2 class="title">Basket is {{ state }}</h2>
 
       <slot name="actions">
-        <button @click="addProduct">addProduct</button>
+        <button @click="addProduct()" v-if="isAvailable">addProduct</button>
       </slot>
     </header>
 
@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { useBasket } from "..";
-const { state, values, send } = useBasket();
+const { state, values, send, isAvailable } = useBasket();
 
 const products = [
   {
