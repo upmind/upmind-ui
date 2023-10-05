@@ -179,7 +179,7 @@ export default createMachine(
             invoke: {
               src: "doUpdateToken",
               onDone: { actions: ["setAuthHeader"], target: "#processing" },
-              onError: { target: "#error" }
+              onError: { target: "#error", actions: ["setError"] }
             }
           },
           forbidden: {},
@@ -253,11 +253,14 @@ export default createMachine(
       hasRequest: ({ url, init }) => !!url && !!init,
       hasRetried: ({ attempts }) => toNumber(attempts) > 1,
       // ---
-      isUnauthorized: context =>
-        context?.error?.status === responseCodes.Unauthorized,
+      isUnauthorized: context => {
+        // request
+        debugger;
+        return context?.error?.status === responseCodes.Unauthorized;
+      },
       isForbidden: context =>
         context?.error?.status === responseCodes.Forbidden,
-      isNotFound: context => context?.error?.status === responseCodes.NotFound,
+      isNotFound: context => context?.error?.status === responseCodes.Not_Found,
       hasConflict: context => context?.error?.status === responseCodes.Conflict,
       hasTooManyRequests: context =>
         context?.error?.status === responseCodes.Too_Many_Requests,

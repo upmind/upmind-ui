@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, actions } from "xstate";
+const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
@@ -48,28 +49,69 @@ export default createMachine(
       },
 
       guest: {
-        invoke: {
-          id: "guest",
-          src: guestMachine,
-          onDone: { target: "#loading", actions: ["clearToken"] }
+        initial: "loading",
+        states: {
+          loading: {
+            invoke: {
+              id: "guest",
+              src: guestMachine,
+              onDone: { target: "#loading", actions: ["clearToken"] }
+            },
+            on: {
+              AUTHENTICATED: { actions: ["setToken"], target: "idle" }
+            }
+          },
+          idle: {},
+          clearing: {}
         },
         on: {
-          AUTHENTICATED: { actions: ["setToken"] }
-          // login/logout/refresh
-          // pass through to the appropriate machine
+          REFRESH: {
+            target: "loading",
+            actions: sendTo("guest", { type: "REFRESH" })
+          },
+          KILL: { target: "guest.clearing" }
         }
       },
 
       client: {
-        invoke: {
-          id: "client",
-          src: clientMachine,
-          onDone: { target: "#loading", actions: ["clearToken"] }
+        initial: "loading",
+        states: {
+          loading: {
+            invoke: {
+              id: "client",
+              src: clientMachine,
+              onDone: { target: "#loading", actions: ["clearToken"] }
+            },
+            on: {
+              AUTHENTICATED: { actions: ["setToken"] }
+            }
+          },
+          idle: {},
+          clearing: {}
         },
+
         on: {
-          AUTHENTICATED: { actions: ["setToken"] }
-          // login/logout/refresh
-          // pass through to the appropriate machine
+          REFRESH: {
+            target: "loading",
+            actions: sendTo("client", { type: "REFRESH" })
+          },
+          LOGIN: {
+            target: "loading",
+            actions: sendTo("client", (context, { data }) => ({
+              type: "LOGIN",
+              data
+            }))
+
+            // actions: sendTo("client", ({ context, event }) => {
+            //   return { type: "LOGIN", data: event.data };
+            // })
+            // actions: sendTo(({ _context, event }) => "client", {
+            //   type: "someEvent",
+            //   data: event?.data
+            // })
+          },
+          LOGOUT: { target: "guest.clearing" },
+          KILL: { target: "guest.clearing" }
         }
       },
 

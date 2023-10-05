@@ -21,6 +21,10 @@ export interface Typegen0 {
     };
     "error.platform.cancel": { type: "error.platform.cancel"; data: unknown };
     "error.platform.process": { type: "error.platform.process"; data: unknown };
+    "error.platform.request.error.unauthorized:invocation[0]": {
+      type: "error.platform.request.error.unauthorized:invocation[0]";
+      data: unknown;
+    };
     "xstate.after(maxAge)#request.processed.cached": {
       type: "xstate.after(maxAge)#request.processed.cached";
     };
@@ -73,7 +77,10 @@ export interface Typegen0 {
       | "done.invoke.request.error.unauthorized:invocation[0]";
     sendClearRequest: "CANCEL" | "xstate.after(wait)#request.processed.stale";
     setAuthHeader: "done.invoke.request.error.unauthorized:invocation[0]";
-    setError: "error.platform.cancel" | "error.platform.process";
+    setError:
+      | "error.platform.cancel"
+      | "error.platform.process"
+      | "error.platform.request.error.unauthorized:invocation[0]";
     setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     setResponse: "done.invoke.process";
   };

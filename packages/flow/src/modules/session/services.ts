@@ -42,6 +42,7 @@ async function check(context: SessionContext, _event: any) {
   });
 }
 
+async function dumpToken(context: SessionContext, event: any) {}
 // --------------------------------------------------------
 // EXPORTS
 

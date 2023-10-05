@@ -73,7 +73,8 @@ export interface Typegen0 {
     clearError: "RETRY";
     clearToken:
       | "done.invoke.complete:invocation[0]"
-      | "error.platform.loading:invocation[0]";
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.refreshing:invocation[0]";
     setError:
       | "error.platform.complete:invocation[0]"
       | "error.platform.generating:invocation[0]"
@@ -92,9 +93,10 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasExpiry: "xstate.after(expires)#guest.authenticated.idle";
+    isUnauthorized: "error.platform.refreshing:invocation[0]";
   };
   eventsCausingServices: {
-    check: "RETRY" | "xstate.init";
+    check: "RETRY" | "error.platform.refreshing:invocation[0]" | "xstate.init";
     dumpToken: "KILL" | "xstate.after(wait)#error";
     generateToken: "";
     persistToken:

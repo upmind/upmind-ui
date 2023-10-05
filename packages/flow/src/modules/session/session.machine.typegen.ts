@@ -47,12 +47,34 @@ export interface Typegen0 {
     isClientToken: "done.invoke.loading:invocation[0]";
   };
   eventsCausingServices: {
-    check: "done.invoke.client" | "done.invoke.guest" | "xstate.init";
+    check:
+      | "LOGIN"
+      | "REFRESH"
+      | "done.invoke.client"
+      | "done.invoke.guest"
+      | "xstate.init";
     client: "done.invoke.loading:invocation[0]";
     guest:
+      | "KILL"
+      | "LOGOUT"
       | "done.invoke.loading:invocation[0]"
       | "error.platform.loading:invocation[0]";
   };
-  matchesStates: "client" | "complete" | "error" | "guest" | "loading";
+  matchesStates:
+    | "client"
+    | "client.clearing"
+    | "client.idle"
+    | "client.loading"
+    | "complete"
+    | "error"
+    | "guest"
+    | "guest.clearing"
+    | "guest.idle"
+    | "guest.loading"
+    | "loading"
+    | {
+        client?: "clearing" | "idle" | "loading";
+        guest?: "clearing" | "idle" | "loading";
+      };
   tags: never;
 }

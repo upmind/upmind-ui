@@ -1,6 +1,11 @@
 # Session Manager Module
 
-The **Session Manager** module within the **Upmind Flow** framework is designed to handle user sessions, including managing authentication tokens and role based users. This module is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
+The **Session Manager** module within the **Upmind Flow** framework is designed to handle user sessions, specifically the auth token and claims. It is a state machine that manages the session lifecycle and is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
+
+Sessions can be of different types, namely:
+Guest, User, Admin, etc. Each session type has a different set of claims and permissions. The **Session Manager** module handles the session lifecycle for all session types.
+
+The **Session Manager** module will invoke the appropriate session handler based on the session type. The session handler is responsible for generating and refreshing the token and claims. It also handles the session's persistence and retrieval from local storage.
 
 ## Table of Contents
 
