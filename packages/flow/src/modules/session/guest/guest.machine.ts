@@ -128,10 +128,7 @@ export default createMachine(
 
       // Handle errors
       error: {
-        entry: escalate(({ error }, _event) => {
-          debugger;
-          return error;
-        }),
+        entry: escalate(({ error }, _event) => error),
         id: "error"
       },
 
