@@ -3,6 +3,11 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "done.invoke.clearing:invocation[0]": {
+      type: "done.invoke.clearing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.client": {
       type: "done.invoke.client";
       data: unknown;
@@ -13,68 +18,77 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.loading:invocation[0]": {
-      type: "done.invoke.loading:invocation[0]";
+    "done.invoke.sessionManager.loading.check:invocation[0]": {
+      type: "done.invoke.sessionManager.loading.check:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.loading:invocation[0]": {
-      type: "error.platform.loading:invocation[0]";
+    "error.platform.client": { type: "error.platform.client"; data: unknown };
+    "error.platform.guest": { type: "error.platform.guest"; data: unknown };
+    "error.platform.sessionManager.loading.check:invocation[0]": {
+      type: "error.platform.sessionManager.loading.check:invocation[0]";
       data: unknown;
     };
-    "xstate.after(wait)#error": { type: "xstate.after(wait)#error" };
     "xstate.init": { type: "xstate.init" };
+    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    check: "done.invoke.loading:invocation[0]";
+    check: "done.invoke.sessionManager.loading.check:invocation[0]";
+    dumpToken: "done.invoke.clearing:invocation[0]";
   };
   missingImplementations: {
-    actions: never;
+    actions: "setCredentials";
     delays: never;
     guards: never;
-    services: "check";
+    services: "check" | "dumpToken";
   };
   eventsCausingActions: {
-    clearToken:
-      | "KILL"
+    clearRefresh:
       | "done.invoke.client"
       | "done.invoke.guest"
-      | "xstate.after(wait)#error";
-    setToken: "AUTHENTICATED" | "done.invoke.loading:invocation[0]";
+      | "error.platform.client"
+      | "error.platform.guest"
+      | "xstate.stop";
+    clearToken: "done.invoke.clearing:invocation[0]";
+    setCredentials: "LOGIN";
+    setError: "error.platform.client" | "error.platform.guest";
+    setRefresh: "REFRESH";
+    setToken:
+      | "done.invoke.client"
+      | "done.invoke.guest"
+      | "done.invoke.sessionManager.loading.check:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    isClientToken: "done.invoke.loading:invocation[0]";
+    isClientToken: "done.invoke.sessionManager.loading.check:invocation[0]";
   };
   eventsCausingServices: {
     check:
       | "LOGIN"
       | "REFRESH"
-      | "done.invoke.client"
-      | "done.invoke.guest"
+      | "done.invoke.clearing:invocation[0]"
       | "xstate.init";
-    client: "done.invoke.loading:invocation[0]";
+    client: "done.invoke.sessionManager.loading.check:invocation[0]";
+    dumpToken: "KILL" | "LOGOUT";
     guest:
-      | "KILL"
-      | "LOGOUT"
-      | "done.invoke.loading:invocation[0]"
-      | "error.platform.loading:invocation[0]";
+      | "done.invoke.sessionManager.loading.check:invocation[0]"
+      | "error.platform.sessionManager.loading.check:invocation[0]";
   };
   matchesStates:
-    | "client"
-    | "client.clearing"
-    | "client.idle"
-    | "client.loading"
+    | "clearing"
     | "complete"
     | "error"
-    | "guest"
-    | "guest.clearing"
-    | "guest.idle"
-    | "guest.loading"
+    | "idle"
+    | "idle.client"
+    | "idle.guest"
+    | "idle.none"
     | "loading"
+    | "loading.check"
+    | "loading.client"
+    | "loading.guest"
     | {
-        client?: "clearing" | "idle" | "loading";
-        guest?: "clearing" | "idle" | "loading";
+        idle?: "client" | "guest" | "none";
+        loading?: "check" | "client" | "guest";
       };
   tags: never;
 }

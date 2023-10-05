@@ -7,6 +7,7 @@
 export interface GuestContext {
   token: Token;
   error?: RequestError;
+  refresh?: boolean;
 }
 
 // --------------------------------------------------------

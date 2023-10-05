@@ -181,11 +181,7 @@ export default createMachine(
         id: "error",
         initial: "unknown",
         states: {
-          unknown: {
-            after: {
-              wait: "#complete" // automatically move to complete after  max age
-            }
-          },
+          unknown: {},
           unauthorized: {
             entry: ["clearError"],
             invoke: {
@@ -277,9 +273,7 @@ export default createMachine(
       hasNoSpawned: ({ spawned }) => isEmpty(spawned)
     },
 
-    delays: {
-      wait: () => useTime().MINUTE // this allows us to wait for a reasonable amount of time before continuing
-    },
+    delays: {},
     services
   }
 );

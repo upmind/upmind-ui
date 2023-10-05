@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, actions } from "xstate";
+const { escalate } = actions;
 
 // --- internal
 import services from "./services";
@@ -8,8 +9,6 @@ import { responseCodes } from "../../api/types.d";
 
 // --- utils
 import { useTokenParser } from "../utils";
-import { useTime } from "../../../utils";
-import { toNumber } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -33,6 +32,7 @@ export default createMachine(
         actor_id: null,
         actor_type: null
       },
+      refresh: false,
       // ---
       error: null
     } as GuestContext,
@@ -41,6 +41,7 @@ export default createMachine(
       // if we do, we can are authenticated, if not, we are unauthenticated,
       loading: {
         id: "loading",
+        entry: "clearError",
         invoke: {
           src: "check",
           onDone: { target: "#authenticated", actions: ["setToken"] },
@@ -61,96 +62,84 @@ export default createMachine(
             id: "generating",
             invoke: {
               src: "generateToken",
-              onDone: { target: "#authenticated" },
-              onError: { target: "#error" }
-            }
-          },
-
-          refreshing: {
-            id: "refreshing",
-            invoke: {
-              src: "refreshToken",
-              onDone: { target: "#authenticated" },
-              onError: [
-                {
-                  target: "#loading",
-                  cond: "isUnauthorized",
-                  actions: ["clearToken"]
-                },
-                { target: "#error" }
-              ]
+              onDone: { target: "#authenticated", actions: ["setToken"] },
+              onError: { target: "#error", actions: ["setError"] }
             }
           }
         }
       },
 
       // in this state, we are authenticated, and we can either refresh or kill the token
-      // We automatically move into a stale state  based on the token/local storage refresh time
       authenticated: {
         id: "authenticated",
-        initial: "persisting",
+        initial: "idle",
         states: {
+          idle: {
+            always: [
+              { target: "refreshing", cond: "isRefreshing" },
+              { target: "persisting" }
+            ]
+          },
+          // in this state, we are attempting to refresh our token
+          // if we are unauthorized (refresh token has expired),
+          // we will clear the token and go back to our unauthenticated state
+          // which will generate a new token
+          refreshing: {
+            id: "refreshing",
+            invoke: {
+              src: "refreshToken",
+              onDone: { target: "persisting", actions: ["setToken"] },
+              onError: [
+                {
+                  target: "clearing",
+                  cond: "isUnauthorized",
+                  actions: ["setError"]
+                },
+                { target: "#error", actions: ["setError"] }
+              ]
+            }
+          },
+          // in this state, we are removing our token to localStorage,
+          // and then we start over
+          clearing: {
+            id: "clearing",
+            invoke: {
+              src: "dumpToken",
+              onDone: [
+                { target: "#loading", cond: "isRefreshing" },
+                { target: "#complete" }
+              ]
+            },
+            exit: "clearToken"
+          },
+          // in this state, we are persisting our token to localStorage,
+          // and then we are done
           persisting: {
             id: "persisting",
-            entry: "setToken",
             invoke: {
               src: "persistToken",
               onDone: {
-                target: "idle",
-                actions: sendParent(({ token }) => ({
-                  type: "AUTHENTICATED",
-                  data: token
-                }))
+                target: "#complete"
               }
             }
-          },
-          idle: {
-            after: { expires: { target: "stale", cond: "hasExpiry" } },
-            on: {
-              KILL: { target: "#complete" }
-            }
-          },
-          stale: {
-            on: {
-              REFRESH: { target: "#unauthenticated.refreshing" },
-              KILL: { target: "#complete" }
-            }
           }
-        },
-        on: {
-          REFRESH: { target: "#unauthenticated.refreshing" }
         }
       },
 
       // Handle errors
       error: {
-        entry: "setError",
-        id: "error",
-        after: {
-          wait: "#complete" // automatically shut down
-        },
-        on: {
-          RETRY: { target: "#loading", actions: ["clearError"] },
-          KILL: { target: "#complete" }
-        }
+        entry: escalate(({ error }, _event) => {
+          debugger;
+          return error;
+        }),
+        id: "error"
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        invoke: {
-          src: "dumpToken",
-          onDone: {
-            actions: [
-              "clearToken",
-              sendParent(({ token }) => ({
-                type: "UNAUTHENTICATED"
-              }))
-            ]
-          },
-          onError: { target: "#error", actions: ["setError"] }
-        },
-        type: "final"
+        type: "final",
+        data: (context, event) => context.token
       }
     }
   },
@@ -170,19 +159,12 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      isUnauthorized: context => {
-        // guest
-        debugger;
-        return context?.error?.status === responseCodes.Unauthorized;
-      },
-      hasExpiry: context => toNumber(context.token.expires_in) > 0
+      isRefreshing: context => !!context.refresh,
+      isUnauthorized: context =>
+        context?.error?.status === responseCodes.Unauthorized
     },
 
-    delays: {
-      expires: context =>
-        toNumber(context.token.expires_in) * 1000 || useTime().HOUR, // use the refresh time if we have it, but its in seconds so we need to convert to ms
-      wait: () => useTime().MINUTE // this allows us to wait for a reasonable amount of time before continuing
-    },
+    delays: {},
     services
   }
 );

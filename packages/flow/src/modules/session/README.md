@@ -5,7 +5,7 @@ The **Session Manager** module within the **Upmind Flow** framework is designed 
 Sessions can be of different types, namely:
 Guest, User, Admin, etc. Each session type has a different set of claims and permissions. The **Session Manager** module handles the session lifecycle for all session types.
 
-The **Session Manager** module will invoke the appropriate session handler based on the session type. The session handler is responsible for generating and refreshing the token and claims. It also handles the session's persistence and retrieval from local storage.
+The **Session Manager** module will invoke the appropriate session handler based on the session type. The session handler is ONLY responsible for generating and refreshing the token and claims. It is responsible for the session's persistence and retrieval from local storage. Session handlers are short-lived and are only invoked when needed to either generate or refresh a token.
 
 ## Table of Contents
 
