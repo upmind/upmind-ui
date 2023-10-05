@@ -42,10 +42,29 @@ async function check(context: SessionContext, _event: any) {
   });
 }
 
-async function dumpToken(context: SessionContext, event: any) {}
+async function dumpGuestToken(context: SessionContext, event: any) {
+  localStorage.removeItem(`guest/auth/token`);
+  return Promise.resolve(); // we dont need to return anything
+}
+
+async function dumpClientToken(context: SessionContext, event: any) {
+  localStorage.removeItem(`client/auth/token`);
+  return Promise.resolve(); // we dont need to return anything
+}
+
+async function dumpTokens(context: SessionContext, event: any) {
+  localStorage.removeItem(`client/auth/token`);
+  localStorage.removeItem(`guest/auth/token`);
+
+  return Promise.resolve(); // we dont need to return anything
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
-  check
+  check,
+  dumpTokens,
+  dumpGuestToken,
+  dumpClientToken
 };

@@ -34,13 +34,13 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     check: "done.invoke.sessionManager.loading.check:invocation[0]";
-    dumpToken: "done.invoke.clearing:invocation[0]";
+    dumpTokens: "done.invoke.clearing:invocation[0]";
   };
   missingImplementations: {
-    actions: "setCredentials";
+    actions: never;
     delays: never;
     guards: never;
-    services: "check" | "dumpToken";
+    services: "check" | "dumpTokens";
   };
   eventsCausingActions: {
     clearRefresh:
@@ -50,7 +50,6 @@ export interface Typegen0 {
       | "error.platform.guest"
       | "xstate.stop";
     clearToken: "done.invoke.clearing:invocation[0]";
-    setCredentials: "LOGIN";
     setError: "error.platform.client" | "error.platform.guest";
     setRefresh: "REFRESH";
     setToken:
@@ -60,17 +59,20 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
+    isClientRole: "SWAP";
     isClientToken: "done.invoke.sessionManager.loading.check:invocation[0]";
+    isGuestRole: "SWAP";
   };
   eventsCausingServices: {
     check:
-      | "LOGIN"
       | "REFRESH"
+      | "SWAP"
       | "done.invoke.clearing:invocation[0]"
       | "xstate.init";
-    client: "done.invoke.sessionManager.loading.check:invocation[0]";
-    dumpToken: "KILL" | "LOGOUT";
+    client: "SWAP" | "done.invoke.sessionManager.loading.check:invocation[0]";
+    dumpTokens: "KILL" | "LOGOUT";
     guest:
+      | "SWAP"
       | "done.invoke.sessionManager.loading.check:invocation[0]"
       | "error.platform.sessionManager.loading.check:invocation[0]";
   };

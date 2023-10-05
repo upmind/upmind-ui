@@ -9,7 +9,6 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 // --- utils
 import { useTokenParser } from "./utils";
-import { useTime } from "../../utils";
 
 // --------------------------------------------------------
 
@@ -68,6 +67,14 @@ export default createMachine(
               src: clientMachine,
               onDone: { target: "#idle.client", actions: ["setToken"] },
               onError: { target: "#error", actions: ["setError"] }
+            },
+            on: {
+              LOGIN: {
+                actions: sendTo("client", (context, { data }) => ({
+                  type: "LOGIN",
+                  data
+                }))
+              }
             }
           }
         },
@@ -88,7 +95,6 @@ export default createMachine(
           client: {
             on: {
               REFRESH: { target: "#loading", actions: "setRefresh" },
-              LOGIN: { target: "#loading", actions: "setCredentials" },
               LOGOUT: { target: "#clearing" },
               KILL: { target: "#clearing" }
             }
@@ -100,13 +106,19 @@ export default createMachine(
           // actor: {
           // invoke the actor machine
           // },
+        },
+        on: {
+          SWAP: [
+            { target: "#loading.client", cond: "isClientRole" },
+            { target: "#loading.guest", cond: "isGuestRole" }
+          ]
         }
       },
 
       clearing: {
         id: "clearing",
         invoke: {
-          src: "dumpToken",
+          src: "dumpTokens",
           onDone: { target: "#loading", actions: ["clearToken"] }
         }
       },
@@ -138,18 +150,10 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      isClientToken: (_context, { data }) => {
-        return data?.type === "client";
-      }
-
-      // isAdminToken: (_context, { data }) => {
-      //   debugger;
-      //   return data?.type === "admin";
-      // },
-      // isActorToken: (_context, { data }) => {
-      //   debugger;
-      //   return data?.actor_type === "actor";
-      // }
+      isClientRole: (_context, { data }) => data === "client",
+      isGuestRole: (_context, { data }) => data === "guest",
+      // ---
+      isClientToken: (_context, { data }) => data?.type === "client"
     },
 
     delays: {},

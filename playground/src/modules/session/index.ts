@@ -13,27 +13,21 @@ import { useSession as useUpmindSession } from "@upmind/flow";
 
 export const useSession = () => {
   const session = useUpmindSession();
-  const { state } = useActor(session.service);
+  const { state, send } = useActor(session.service);
 
   // --------------------------------------------------------
 
   return {
+    send,
     state: computed(() => state.value.toStrings()),
     values: computed(() => state.value.context),
     // ---
     isLoading: computed(() => ["loading"].some(state.value.matches)),
-    isProcessing: computed(() => ["processing"].some(state.value.matches)),
-    isGenerating: computed(() =>
-      ["processing.generating"].some(state.value.matches)
+    isClient: computed(() =>
+      ["idle.client", "loading.client"].some(state.value.matches)
     ),
-    isRefreshing: computed(() =>
-      ["processing.generating"].some(state.value.matches)
-    ),
-    isPersisting: computed(() =>
-      ["processing.persisting"].some(state.value.matches)
-    ),
-    isAvailable: computed(() => ["processed"].some(state.value.matches)),
-    isStale: computed(() => ["processed.stale"].some(state.value.matches)),
+    isLoggedIn: computed(() => ["idle.client"].some(state.value.matches)),
+    isAvailable: computed(() => ["idle"].some(state.value.matches)),
     hasError: computed(() => ["error"].some(state.value.matches))
   };
 };
