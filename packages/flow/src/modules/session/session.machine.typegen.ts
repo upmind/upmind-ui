@@ -43,9 +43,11 @@ export interface Typegen0 {
     services: "check" | "dumpTokens";
   };
   eventsCausingActions: {
-    clearError: "SWAP" | "done.state.role";
+    clearError: "CANCEL" | "LOGIN" | "REGISTER" | "done.state.role";
     clearMessage:
-      | "SWAP"
+      | "CANCEL"
+      | "LOGIN"
+      | "REGISTER"
       | "done.state.role"
       | "error.platform.client"
       | "error.platform.guest";
@@ -65,22 +67,26 @@ export interface Typegen0 {
     hasMessage: "";
     hasNoError: "";
     hasNoMessage: "";
-    isClientRole: "SWAP";
+    isChallenging: "";
     isClientToken: "done.invoke.sessionManager.starting.role.check:invocation[0]";
-    isGuestRole: "SWAP";
+    isNotChallenging: "";
+    isNotVerifying: "";
+    isVerifying: "";
   };
   eventsCausingServices: {
     check:
+      | "CANCEL"
+      | "LOGIN"
       | "REFRESH"
-      | "SWAP"
+      | "REGISTER"
       | "done.invoke.clearing:invocation[0]"
       | "xstate.init";
     client:
-      | "SWAP"
+      | "LOGIN"
+      | "REGISTER"
       | "done.invoke.sessionManager.starting.role.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
     guest:
-      | "SWAP"
       | "done.invoke.sessionManager.starting.role.check:invocation[0]"
       | "error.platform.sessionManager.starting.role.check:invocation[0]";
   };
@@ -97,8 +103,10 @@ export interface Typegen0 {
     | "starting.role.client"
     | "starting.role.guest"
     | "starting.status"
+    | "starting.status.challenging"
     | "starting.status.error"
     | "starting.status.processing"
+    | "starting.status.verifying"
     | "starting.status.waiting"
     | {
         idle?: "client" | "guest" | "none";
@@ -107,7 +115,12 @@ export interface Typegen0 {
           | "status"
           | {
               role?: "check" | "client" | "guest";
-              status?: "error" | "processing" | "waiting";
+              status?:
+                | "challenging"
+                | "error"
+                | "processing"
+                | "verifying"
+                | "waiting";
             };
       };
   tags: never;
