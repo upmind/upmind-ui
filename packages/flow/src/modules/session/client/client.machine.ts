@@ -52,7 +52,7 @@ export default createMachine(
         }
       },
 
-      // in this state, we are unauthenticated, and we can either login or register
+      // in this state, we are unauthenticated, and we can either login or register, possibly with a challenge like 2fa or recaptcha
       unauthenticated: {
         id: "unauthenticated",
         entry: sendParent({ type: "MESSAGE", data: null }),
@@ -60,32 +60,140 @@ export default createMachine(
         states: {
           idle: {
             on: {
-              LOGIN: { target: "generating" }
+              LOGIN: { target: "login" },
+              REGISTER: { target: "register" }
             }
           },
 
-          // effectively logging in with credentials as the event payload
-          generating: {
-            id: "generating",
-            entry: sendParent({ type: "MESSAGE", data: "Generating Token" }),
-            invoke: {
-              src: "generateToken",
-              onDone: { target: "#authenticated", actions: ["setToken"] },
-              onError: { target: "#error", actions: ["setError"] }
+          // --- Start the login flow
+          // in essence show a login form and await an event to authenticate
+          login: {
+            initial: "idle",
+            states: {
+              // loading: {} // loading state not required?
+              idle: {
+                on: {
+                  AUTHENTICATE: { target: "checking" }
+                }
+              },
+              checking: {
+                invoke: {
+                  src: "checkForChallenge",
+                  onDone: [
+                    { target: "challenging", cond: "requiresReCaptcha" },
+                    { target: "authenticating" }
+                  ],
+                  onError: { target: "#error", actions: ["setError"] }
+                }
+              },
+              challenging: {
+                entry: sendParent({
+                  type: "MESSAGE",
+                  data: "Awaiting Verification"
+                }),
+                on: {
+                  VERIFY: { target: "verifying" },
+                  CANCEL: { target: "idle" }
+                }
+              },
+              verifying: {
+                entry: sendParent({
+                  type: "MESSAGE",
+                  data: "Verifying 2FA"
+                }),
+                invoke: {
+                  src: "verify2fa",
+                  onDone: {
+                    target: "#authenticated",
+                    actions: ["setChallengeToken"]
+                  },
+                  onError: { target: "challenging", actions: ["setError"] }
+                }
+              },
+              authenticating: {
+                entry: sendParent({ type: "MESSAGE", data: "Authenticating" }),
+                invoke: {
+                  src: "authenticate",
+                  onDone: [
+                    {
+                      target: "challenging",
+                      actions: ["setToken"],
+                      cond: "requires2fa"
+                    },
+                    { target: "#authenticated", actions: ["setToken"] }
+                  ],
+                  onError: { target: "#error", actions: ["setError"] }
+                }
+              }
+            }
+          },
+
+          // --- Start the create flow
+          // in essence show a register form, possibly with custom fields, and await an event to register
+          register: {
+            initial: "loading",
+            states: {
+              loading: {
+                invoke: {
+                  src: "getCustomFields",
+                  onDone: { target: "idle", actions: ["setCustomFields"] },
+                  onError: { target: "#error", actions: ["setError"] }
+                }
+              },
+              idle: {
+                on: {
+                  REGISTER: { target: "checking" }
+                }
+              },
+              checking: {
+                invoke: {
+                  src: "checkForChallenge",
+                  onDone: [
+                    { target: "challenging", cond: "requiresReCaptcha" },
+                    { target: "registering" }
+                  ],
+                  onError: { target: "#error", actions: ["setError"] }
+                }
+              },
+              challenging: {
+                on: {
+                  VERIFY: { target: "verifying" }
+                }
+              },
+              verifying: {
+                entry: sendParent({
+                  type: "MESSAGE",
+                  data: "Verifying reCaptcha"
+                }),
+                invoke: {
+                  src: "verifyReCaptcha",
+                  onDone: {
+                    target: "registering",
+                    actions: ["setChallengeToken"]
+                  },
+                  onError: { target: "challenging", actions: ["setError"] }
+                }
+              },
+              registering: {
+                entry: sendParent({
+                  type: "MESSAGE",
+                  data: "Registering"
+                }),
+                invoke: {
+                  src: "register",
+                  onDone: { target: "#authenticated", actions: ["setToken"] },
+                  onError: { target: "#error", actions: ["setError"] }
+                }
+              }
             }
           }
 
+          // --- potential alternate/future form flows
+          // social: {}, // when we require user to login with a social provider
           // ---
-          // potential future states
-          // --- maybe have states for the login form/steps(s)
-          // loginForm: {},
-          // socialLoginForm: {},
-          // "2fa": {}
-          // ---
-          // registering: {},
-          // confirming: {},
-          // recovering: {},
-          // reseting: {},
+          // confirm: {}, // when we require user to confirm their email
+          // recover: {},  // when we require user to recover their password
+          // reset: {}, // when we user is in the process of reset their password
         }
       },
 
@@ -106,7 +214,6 @@ export default createMachine(
           // we will clear the token and go back to our unauthenticated state
           // which will generate a new token
           refreshing: {
-            id: "refreshing",
             entry: sendParent({ type: "MESSAGE", data: "Refreshing Token" }),
             invoke: {
               src: "refreshToken",
@@ -125,7 +232,6 @@ export default createMachine(
           // in this state, we are removing our token to localStorage,
           // and then we start over
           clearing: {
-            id: "clearing",
             entry: sendParent({ type: "MESSAGE", data: "Clearing Token" }),
             invoke: {
               src: "dumpToken",
@@ -140,7 +246,6 @@ export default createMachine(
           // in this state, we are persisting our token to localStorage,
           // and then we are done
           persisting: {
-            id: "persisting",
             entry: sendParent({ type: "MESSAGE", data: "Persisting Token" }),
             invoke: {
               src: "persistToken",
@@ -190,6 +295,8 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
+      requires2fa: context => !!context.token.second_factor_required,
+      requiresReCaptcha: context => !!context.token.recaptcha_required,
       isRefreshing: context => !!context.refresh,
       isUnauthorized: context =>
         context?.error?.status === responseCodes.Unauthorized
