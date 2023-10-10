@@ -106,14 +106,14 @@ export interface Typegen0 {
     | "error.unauthorized"
     | "error.unknown"
     | "idle"
+    | "idle.client"
+    | "idle.client.authenticated"
+    | "idle.client.subscribing"
+    | "idle.client.unauthenticated"
     | "idle.items"
     | "idle.items.empty"
     | "idle.items.invalid"
     | "idle.items.valid"
-    | "idle.user"
-    | "idle.user.invalid"
-    | "idle.user.subscribing"
-    | "idle.user.valid"
     | "loading"
     | "processed"
     | "processing"
@@ -125,11 +125,11 @@ export interface Typegen0 {
         checkout?: "additional" | "billing" | "payment" | "shipping";
         error?: "unauthorized" | "unknown";
         idle?:
+          | "client"
           | "items"
-          | "user"
           | {
+              client?: "authenticated" | "subscribing" | "unauthenticated";
               items?: "empty" | "invalid" | "valid";
-              user?: "invalid" | "subscribing" | "valid";
             };
         processing?: "generating" | "spawning" | "updating";
       };
