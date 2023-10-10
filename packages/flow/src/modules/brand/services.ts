@@ -48,7 +48,7 @@ async function fetchBrandConfig(_context: any, _event: any) {
   const { get, useUrl, useTime } = useApi();
 
   return get({
-    url: useUrl("/config/brand/values", {
+    url: useUrl("config/brand/values", {
       keys: [
         "analytics.google.measurement_id",
         "analytics.gtm.container_id",
