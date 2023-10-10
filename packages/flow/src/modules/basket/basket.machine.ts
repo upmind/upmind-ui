@@ -1,5 +1,5 @@
 // TODO: make the basket transfer/dump on session change
-//  on auth it should take the current  gues tbasket and transfer it to the new user
+//  on auth it should take the current  gues tbasket and transfer it to the new client
 //  on unauth it should dump the current basket and wait for a new one to be created
 //  also try get away from autogenerating the basket immediately...wait for a product or something
 // might make the transfer/dumping of the basket easier
@@ -113,8 +113,8 @@ export default createMachine(
         id: "idle",
         type: "parallel",
         states: {
-          // Subscribe to changes in auth and listen for a valid Authenticated user
-          user: {
+          // Subscribe to changes in auth and listen for a valid Authenticated client
+          client: {
             initial: "subscribing",
             states: {
               subscribing: {
@@ -123,14 +123,14 @@ export default createMachine(
                   src: "authSubscription"
                 }
               },
-              invalid: {},
-              valid: {
+              unauthenticated: {},
+              authenticated: {
                 type: "final"
               }
             },
             on: {
-              AUTHENTICATED: { target: "user.valid" },
-              UNAUTHENTICATED: { target: "user.invalid" }
+              AUTHENTICATED: { target: "client.authenticated" },
+              UNAUTHENTICATED: { target: "client.unauthenticated" }
             }
           },
 
@@ -185,7 +185,6 @@ export default createMachine(
       },
 
       // Handle errors
-      // Handle errors
       error: {
         id: "error",
         initial: "unknown",
@@ -207,7 +206,6 @@ export default createMachine(
         }
       },
 
-      // Handle completion, stop the machine and prevent further basket
       complete: {
         type: "final"
       }
