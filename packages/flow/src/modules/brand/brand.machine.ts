@@ -257,7 +257,7 @@ export default createMachine(
       },
 
       complete: {
-        type: "final"
+        // type: "final" //NB: dont use final here as we want to  have the machine available
       }
     }
   },
