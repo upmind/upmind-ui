@@ -50,7 +50,6 @@ export default createMachine(
                         { data }: BrandEvent
                       ) => {
                         set(error, "organisation", data || "Unknown error");
-                        debugger;
                         return error;
                       }
                     })
@@ -90,7 +89,6 @@ export default createMachine(
                         { error }: BrandContext,
                         { data }: BrandEvent
                       ) => {
-                        debugger;
                         set(error, "settings", data || "Unknown error");
                         return error;
                       }
