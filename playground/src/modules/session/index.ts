@@ -22,16 +22,18 @@ export const useSession = () => {
     state: computed(() => state.value.value),
     values: computed(() => state.value.context),
     // ---
-    isLoading: computed(() => ["loading"].some(state.value.matches)),
+    isLoading: computed(() => ["starting"].some(state.value.matches)),
     isProcessing: computed(() =>
-      ["loading.status.processing"].some(state.value.matches)
+      ["starting.status.processing"].some(state.value.matches)
     ),
 
     isClient: computed(() =>
-      ["idle.client", "loading.role.client"].some(state.value.matches)
+      ["idle.client", "starting.role.client"].some(state.value.matches)
     ),
     isLoggedIn: computed(() => ["idle.client"].some(state.value.matches)),
     isAvailable: computed(() => ["idle"].some(state.value.matches)),
-    hasError: computed(() => ["loading.status.error"].some(state.value.matches))
+    hasError: computed(() =>
+      ["starting.status.error"].some(state.value.matches)
+    )
   };
 };

@@ -19,21 +19,21 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.sessionManager.loading.role.check:invocation[0]": {
-      type: "done.invoke.sessionManager.loading.role.check:invocation[0]";
+    "done.invoke.sessionManager.starting.role.check:invocation[0]": {
+      type: "done.invoke.sessionManager.starting.role.check:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.client": { type: "error.platform.client"; data: unknown };
     "error.platform.guest": { type: "error.platform.guest"; data: unknown };
-    "error.platform.sessionManager.loading.role.check:invocation[0]": {
-      type: "error.platform.sessionManager.loading.role.check:invocation[0]";
+    "error.platform.sessionManager.starting.role.check:invocation[0]": {
+      type: "error.platform.sessionManager.starting.role.check:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    check: "done.invoke.sessionManager.loading.role.check:invocation[0]";
+    check: "done.invoke.sessionManager.starting.role.check:invocation[0]";
     dumpTokens: "done.invoke.clearing:invocation[0]";
   };
   missingImplementations: {
@@ -57,7 +57,7 @@ export interface Typegen0 {
     setToken:
       | "done.invoke.client"
       | "done.invoke.guest"
-      | "done.invoke.sessionManager.loading.role.check:invocation[0]";
+      | "done.invoke.sessionManager.starting.role.check:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
@@ -66,7 +66,7 @@ export interface Typegen0 {
     hasNoError: "";
     hasNoMessage: "";
     isClientRole: "SWAP";
-    isClientToken: "done.invoke.sessionManager.loading.role.check:invocation[0]";
+    isClientToken: "done.invoke.sessionManager.starting.role.check:invocation[0]";
     isGuestRole: "SWAP";
   };
   eventsCausingServices: {
@@ -77,12 +77,12 @@ export interface Typegen0 {
       | "xstate.init";
     client:
       | "SWAP"
-      | "done.invoke.sessionManager.loading.role.check:invocation[0]";
+      | "done.invoke.sessionManager.starting.role.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
     guest:
       | "SWAP"
-      | "done.invoke.sessionManager.loading.role.check:invocation[0]"
-      | "error.platform.sessionManager.loading.role.check:invocation[0]";
+      | "done.invoke.sessionManager.starting.role.check:invocation[0]"
+      | "error.platform.sessionManager.starting.role.check:invocation[0]";
   };
   matchesStates:
     | "clearing"
@@ -91,18 +91,18 @@ export interface Typegen0 {
     | "idle.client"
     | "idle.guest"
     | "idle.none"
-    | "loading"
-    | "loading.role"
-    | "loading.role.check"
-    | "loading.role.client"
-    | "loading.role.guest"
-    | "loading.status"
-    | "loading.status.error"
-    | "loading.status.processing"
-    | "loading.status.waiting"
+    | "starting"
+    | "starting.role"
+    | "starting.role.check"
+    | "starting.role.client"
+    | "starting.role.guest"
+    | "starting.status"
+    | "starting.status.error"
+    | "starting.status.processing"
+    | "starting.status.waiting"
     | {
         idle?: "client" | "guest" | "none";
-        loading?:
+        starting?:
           | "role"
           | "status"
           | {
