@@ -185,7 +185,6 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        id: "complete",
         entry: "clearToken",
         type: "final"
       }

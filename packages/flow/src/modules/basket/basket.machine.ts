@@ -209,7 +209,6 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further basket
       complete: {
-        id: "complete",
         type: "final"
       }
     }
