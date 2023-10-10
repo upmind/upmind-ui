@@ -17,7 +17,7 @@ export default createMachine(
     tsTypes: {} as import("./session.machine.typegen").Typegen0,
     id: "sessionManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "starting",
     context: {
       token: {},
       refresh: false,
@@ -28,8 +28,8 @@ export default createMachine(
       // our initial state will check 'self' and see if we have a token
       // if we do, we can skip generating a token
       // TODO: add necessary cheand and states when we add user accounts with auth
-      loading: {
-        id: "loading",
+      starting: {
+        id: "starting",
         type: "parallel",
         states: {
           role: {
@@ -120,12 +120,12 @@ export default createMachine(
         on: {
           SWAP: [
             {
-              target: "#loading.role.client",
+              target: "#starting.role.client",
               cond: "isClientRole",
               actions: ["clearMessage", "clearError"]
             },
             {
-              target: "#loading.role.guest",
+              target: "#starting.role.guest",
               cond: "isGuestRole",
               actions: ["clearMessage", "clearError"]
             }
@@ -140,13 +140,13 @@ export default createMachine(
           none: {},
           guest: {
             on: {
-              REFRESH: { target: "#loading", actions: "setRefresh" },
+              REFRESH: { target: "#starting", actions: "setRefresh" },
               KILL: { target: "#clearing" }
             }
           },
           client: {
             on: {
-              REFRESH: { target: "#loading", actions: "setRefresh" },
+              REFRESH: { target: "#starting", actions: "setRefresh" },
               LOGOUT: { target: "#clearing" },
               KILL: { target: "#clearing" }
             }
@@ -162,12 +162,12 @@ export default createMachine(
         on: {
           SWAP: [
             {
-              target: "#loading.role.client",
+              target: "#starting.role.client",
               cond: "isClientRole",
               actions: ["clearMessage", "clearError"]
             },
             {
-              target: "#loading.role.guest",
+              target: "#starting.role.guest",
               cond: "isGuestRole",
               actions: ["clearMessage", "clearError"]
             }
@@ -179,7 +179,7 @@ export default createMachine(
         id: "clearing",
         invoke: {
           src: "dumpTokens",
-          onDone: { target: "#loading", actions: ["clearToken"] }
+          onDone: { target: "#starting", actions: ["clearToken"] }
         }
       },
 
