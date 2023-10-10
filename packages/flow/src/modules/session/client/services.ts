@@ -25,14 +25,43 @@ async function check(context: ClientContext, _event: any) {
   });
 }
 
-// login!
-async function generateToken(_context: ClientContext, { data }: any) {
+// --- LOGIN
+
+async function authenticate(_context: ClientContext, { data }: any) {
   const { post, useUrl } = useApi();
   return post({
     url: useUrl("access_token", {}, "oauth"),
-    data
+    data: {
+      username: data.username,
+      password: data.password,
+      grant_type: GrantTypes.PASSWORD
+    }
   });
 }
+
+async function verify2fa(_context: ClientContext, { data }: any) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl("access_token", {}, "oauth"),
+    data: {
+      username: data.username,
+      password: data.password,
+      grant_type: GrantTypes.TWOFA
+    }
+  });
+}
+
+// --- REGISTER
+
+async function getCustomFields(_context: ClientContext, { data }: any) {}
+
+async function checkForReCaptcha(_context: ClientContext, { data }: any) {}
+
+async function verifyReCaptcha(_context: ClientContext, { data }: any) {}
+
+async function register(_context: ClientContext, { data }: any) {}
+
+// --- AUTHENTICATED
 
 async function refreshToken(context: ClientContext) {
   const { post, useUrl } = useApi();
@@ -72,7 +101,15 @@ async function dumpToken(context: ClientContext, _event: any) {
 
 export default <Object>{
   check,
-  generateToken,
+  // ---
+  verify2fa,
+  authenticate,
+  // ---
+  getCustomFields,
+  checkForReCaptcha,
+  verifyReCaptcha,
+  register,
+  // ---
   refreshToken,
   persistToken,
   dumpToken

@@ -15,7 +15,7 @@ import brandMachine from "./brand.machine";
 
 let state = null;
 
-const service = interpret(brandMachine, { devTools: true }).onTransition(
+const service = interpret(brandMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------

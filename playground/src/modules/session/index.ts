@@ -26,11 +26,12 @@ export const useSession = () => {
     isProcessing: computed(() =>
       ["starting.status.processing"].some(state.value.matches)
     ),
-
+    // ---
     isClient: computed(() =>
       ["idle.client", "starting.role.client"].some(state.value.matches)
     ),
     isLoggedIn: computed(() => ["idle.client"].some(state.value.matches)),
+    // ---
     isAvailable: computed(() => ["idle"].some(state.value.matches)),
     hasError: computed(() =>
       ["starting.status.error"].some(state.value.matches)

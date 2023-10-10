@@ -9,6 +9,7 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 // --- utils
 import { useTokenParser } from "./utils";
+import { includes } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -19,7 +20,19 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "starting",
     context: {
-      token: {},
+      token: {
+        access_token: null,
+        created_at: null,
+        expires_in: null,
+        refresh_expires_in: null,
+        refresh_token: null,
+        second_factor_required: null,
+        token_type: null,
+        // ---
+        redirect: null,
+        actor_id: null,
+        actor_type: null
+      },
       refresh: false,
       error: null,
       message: null
@@ -82,9 +95,9 @@ export default createMachine(
                   MESSAGE: {
                     actions: ["setMessage"]
                   },
-                  LOGIN: {
+                  AUTHENTICATE: {
                     actions: sendTo("client", (context, { data }) => ({
-                      type: "LOGIN",
+                      type: "AUTHENTICATE",
                       data
                     }))
                   }
@@ -107,9 +120,17 @@ export default createMachine(
               },
               processing: {
                 always: [
+                  { target: "challenging", cond: "isChallenging" },
+                  { target: "verifying", cond: "isVerifying" },
                   { target: "error", cond: "hasError" },
                   { target: "waiting", cond: "hasNoMessage" }
                 ]
+              },
+              challenging: {
+                always: [{ target: "processing", cond: "isNotChallenging" }]
+              },
+              verifying: {
+                always: [{ target: "processing", cond: "isNotVerifying" }]
               },
               error: {
                 always: { target: "waiting", cond: "hasNoError" }
@@ -117,19 +138,12 @@ export default createMachine(
             }
           }
         },
+
         on: {
-          SWAP: [
-            {
-              target: "#starting.role.client",
-              cond: "isClientRole",
-              actions: ["clearMessage", "clearError"]
-            },
-            {
-              target: "#starting.role.guest",
-              cond: "isGuestRole",
-              actions: ["clearMessage", "clearError"]
-            }
-          ]
+          CANCEL: {
+            target: "#starting",
+            actions: ["clearMessage", "clearError"]
+          }
         }
       },
 
@@ -140,6 +154,22 @@ export default createMachine(
           none: {},
           guest: {
             on: {
+              LOGIN: {
+                target: "#starting.role.client",
+                actions: [
+                  "clearMessage",
+                  "clearError",
+                  sendTo("client", "LOGIN", { delay: 0 }) // delay needed to only trigger when in the correct state
+                ]
+              },
+              REGISTER: {
+                target: "#starting.role.client",
+                actions: [
+                  "clearMessage",
+                  "clearError",
+                  sendTo("client", "REGISTER", { delay: 0 }) // delay needed to only trigger when in the correct state
+                ]
+              },
               REFRESH: { target: "#starting", actions: "setRefresh" },
               KILL: { target: "#clearing" }
             }
@@ -160,18 +190,10 @@ export default createMachine(
           // },
         },
         on: {
-          SWAP: [
-            {
-              target: "#starting.role.client",
-              cond: "isClientRole",
-              actions: ["clearMessage", "clearError"]
-            },
-            {
-              target: "#starting.role.guest",
-              cond: "isGuestRole",
-              actions: ["clearMessage", "clearError"]
-            }
-          ]
+          CANCEL: {
+            target: "#starting",
+            actions: ["clearMessage", "clearError"]
+          }
         }
       },
 
@@ -212,11 +234,15 @@ export default createMachine(
     guards: {
       hasError: ({ error }) => !!error,
       hasNoError: ({ error }) => !error,
+
       hasMessage: ({ message }) => !!message,
       hasNoMessage: ({ message }) => !message,
-      // ---
-      isClientRole: (_context, { data }) => data === "client",
-      isGuestRole: (_context, { data }) => !data || data === "guest",
+
+      isChallenging: ({ message }) => includes(message, "challenging"),
+      isNotChallenging: ({ message }) => !includes(message, "challenging"),
+
+      isVerifying: ({ message }) => includes(message, "verifying"),
+      isNotVerifying: ({ message }) => !includes(message, "verifying"),
       // ---
       isClientToken: (_context, { data }) => data?.type === "client"
     },

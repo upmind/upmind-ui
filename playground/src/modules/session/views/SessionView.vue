@@ -4,17 +4,22 @@
       <h2 class="title">Session is {{ state }}</h2>
 
       <slot name="actions">
-        <button @click="swapRole('client')" v-if="!isClient">
-          Login&nbsp;Form
+        <button @click="showLogin" v-if="!isClient">Login&nbsp;Form</button>
+        <button @click="showRegister" v-if="!isClient">
+          Register&nbsp;Form
         </button>
+
         <button @click="logout" v-if="isClient && isLoggedIn">logout</button>
 
-        <form @submit.prevent="login" v-if="isClient && !isLoggedIn">
+        <form
+          @submit.prevent="login"
+          v-if="isClient && showLoginForm && !isLoggedIn"
+        >
           <p>
             <input
               name="email"
               type="email"
-              v-model="creds.username"
+              v-model="model.username"
               autocomplete="email"
               :disabled="isProcessing"
             />
@@ -23,14 +28,14 @@
             <input
               name="password"
               type="password"
-              v-model="creds.password"
+              v-model="model.password"
               autocomplete="current-password"
               :disabled="isProcessing"
             />
           </p>
           <div>
             <button type="submit" :disabled="isProcessing">login</button>
-            <button @click.prevent="swapRole('guest')">cancel</button>
+            <button @click.prevent="cancel">cancel</button>
           </div>
         </form>
       </slot>
@@ -50,25 +55,59 @@ import { useSession } from "../";
 const { state, values, send, isLoggedIn, isClient, isProcessing } =
   useSession();
 
-const creds = ref({
+const model = ref({
   username: null,
-  password: null,
-  grant_type: "password" //GrantTypes.PASSWORD,
+  password: null
 });
 
-function swapRole(role = "client") {
+const showLoginForm = ref(false);
+const showRegisterForm = ref(false);
+
+function cancel() {
   send({
-    type: "SWAP",
-    data: role
+    type: "CANCEL"
   });
+
+  model.value = {
+    username: null,
+    password: null
+  };
+  showLoginForm.value = false;
+  showRegisterForm.value = false;
+}
+
+function showLogin() {
+  send({
+    type: "LOGIN"
+  });
+
+  showLoginForm.value = true;
+  showRegisterForm.value = false;
+}
+
+function showRegister() {
+  send({
+    type: "REGISTER"
+  });
+
+  showLoginForm.value = false;
+  showRegisterForm.value = true;
 }
 
 function login() {
   send({
-    type: "LOGIN",
-    data: creds.value
+    type: "AUTHENTICATE",
+    data: model.value
   });
 }
+
+function register() {
+  send({
+    type: "CREATE",
+    data: model.value
+  });
+}
+
 function logout() {
   send({
     type: "LOGOUT"
