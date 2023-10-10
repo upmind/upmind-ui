@@ -38,7 +38,10 @@ export default createMachine(
     } as ClientContext,
     states: {
       // our initial state will check 'self' and see if we have a token
-      // if we do, we can are authenticated, if not, we are unauthenticated,
+      // if we do, we move to the authenticated state and attempt to refresh if needed
+      // if we don't, we move to the unauthenticated state and await a login or register event
+      // TODO: add checks for if a client needs to confirm their email, or is in a recovery flow
+      // and then we move to the appropriate state
       loading: {
         id: "loading",
         entry: "clearError",
