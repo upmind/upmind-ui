@@ -24,6 +24,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.client.unauthenticated.register.authenticating:invocation[0]": {
+      type: "done.invoke.client.unauthenticated.register.authenticating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.client.unauthenticated.register.checking:invocation[0]": {
       type: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
       data: unknown;
@@ -61,6 +66,10 @@ export interface Typegen0 {
       type: "error.platform.client.unauthenticated.login.verifying:invocation[0]";
       data: unknown;
     };
+    "error.platform.client.unauthenticated.register.authenticating:invocation[0]": {
+      type: "error.platform.client.unauthenticated.register.authenticating:invocation[0]";
+      data: unknown;
+    };
     "error.platform.client.unauthenticated.register.checking:invocation[0]": {
       type: "error.platform.client.unauthenticated.register.checking:invocation[0]";
       data: unknown;
@@ -85,9 +94,11 @@ export interface Typegen0 {
     "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    authenticate: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
+    authenticate:
+      | "done.invoke.client.unauthenticated.login.authenticating:invocation[0]"
+      | "done.invoke.client.unauthenticated.register.authenticating:invocation[0]";
     check: "done.invoke.loading:invocation[0]";
-    checkForChallenge: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
+    checkForReCaptcha: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
     dumpToken: "done.invoke.client.authenticated.clearing:invocation[0]";
     getCustomFields: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
     persistToken: "done.invoke.client.authenticated.persisting:invocation[0]";
@@ -97,13 +108,13 @@ export interface Typegen0 {
     verifyReCaptcha: "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
   };
   missingImplementations: {
-    actions: "setChallengeToken" | "setCustomFields";
+    actions: "setChallengeToken";
     delays: never;
     guards: never;
     services:
       | "authenticate"
       | "check"
-      | "checkForChallenge"
+      | "checkForReCaptcha"
       | "dumpToken"
       | "getCustomFields"
       | "persistToken"
@@ -129,13 +140,16 @@ export interface Typegen0 {
       | "error.platform.client.authenticated.refreshing:invocation[0]"
       | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
       | "error.platform.client.unauthenticated.login.verifying:invocation[0]"
+      | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
       | "error.platform.client.unauthenticated.register.checking:invocation[0]"
       | "error.platform.client.unauthenticated.register.loading:invocation[0]"
       | "error.platform.client.unauthenticated.register.registering:invocation[0]"
       | "error.platform.client.unauthenticated.register.verifying:invocation[0]";
+    setModel: "AUTHENTICATE" | "REGISTER";
     setToken:
       | "done.invoke.client.authenticated.refreshing:invocation[0]"
       | "done.invoke.client.unauthenticated.login.authenticating:invocation[0]"
+      | "done.invoke.client.unauthenticated.register.authenticating:invocation[0]"
       | "done.invoke.client.unauthenticated.register.registering:invocation[0]"
       | "done.invoke.loading:invocation[0]";
   };
@@ -149,11 +163,13 @@ export interface Typegen0 {
     requiresReCaptcha: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
   };
   eventsCausingServices: {
-    authenticate: "AUTHENTICATE";
+    authenticate:
+      | "AUTHENTICATE"
+      | "done.invoke.client.unauthenticated.register.registering:invocation[0]";
     check:
       | "done.invoke.client.authenticated.clearing:invocation[0]"
       | "xstate.init";
-    checkForChallenge: "REGISTER";
+    checkForReCaptcha: "REGISTER";
     dumpToken: "error.platform.client.authenticated.refreshing:invocation[0]";
     getCustomFields: "REGISTER";
     persistToken:
@@ -183,6 +199,7 @@ export interface Typegen0 {
     | "unauthenticated.login.idle"
     | "unauthenticated.login.verifying"
     | "unauthenticated.register"
+    | "unauthenticated.register.authenticating"
     | "unauthenticated.register.challenging"
     | "unauthenticated.register.checking"
     | "unauthenticated.register.idle"
@@ -198,6 +215,7 @@ export interface Typegen0 {
           | {
               login?: "authenticating" | "challenging" | "idle" | "verifying";
               register?:
+                | "authenticating"
                 | "challenging"
                 | "checking"
                 | "idle"

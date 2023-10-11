@@ -27,13 +27,13 @@ async function check(context: ClientContext, _event: any) {
 
 // --- LOGIN
 
-async function authenticate(_context: ClientContext, { data }: any) {
+async function authenticate({ model }: ClientContext) {
   const { post, useUrl } = useApi();
   return post({
     url: useUrl("access_token", {}, "oauth"),
     data: {
-      username: data.username,
-      password: data.password,
+      username: model.email,
+      password: model.password,
       grant_type: GrantTypes.PASSWORD
     }
   });
@@ -54,13 +54,41 @@ async function verify2fa(context: ClientContext, { data }: any) {
 
 // --- REGISTER
 
-async function getCustomFields(_context: ClientContext, { data }: any) {}
+async function getCustomFields(_context: ClientContext, { data }: any) {
+  const { get, useUrl } = useApi();
+  return get({
+    // url: useUrl("clients_fields", { brand_id: null }),
+    url: useUrl("clients_fields")
+  });
+}
 
-async function checkForReCaptcha(_context: ClientContext, { data }: any) {}
+async function checkForReCaptcha(_context: ClientContext, { data }: any) {
+  // not implemented so pass through
+  return Promise.resolve(data);
+}
 
-async function verifyReCaptcha(_context: ClientContext, { data }: any) {}
+async function verifyReCaptcha(_context: ClientContext, { data }: any) {
+  // not implemented so pass through
+  return Promise.resolve(data);
+}
 
-async function register(_context: ClientContext, { data }: any) {}
+async function register({ model }: ClientContext) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl("clients/register"),
+    data: {
+      custom_fields: model?.custom_fields,
+      email: model?.email,
+      firstname: model?.firstname,
+      lastname: model?.lastname,
+      password: model?.password,
+      phone: model?.phone,
+      phone_code: model?.phone_code,
+      phone_country_code: model?.phone_country_code,
+      recaptcha_token: model?.recaptcha_token
+    }
+  });
+}
 
 // --- AUTHENTICATED
 

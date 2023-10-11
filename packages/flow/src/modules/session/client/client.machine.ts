@@ -19,6 +19,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      customFields: {},
       token: {
         access_token: null,
         created_at: null,
@@ -32,6 +33,7 @@ export default createMachine(
         actor_id: null,
         actor_type: null
       },
+      model: {},
       refresh: false,
       // ---
       error: null
@@ -73,7 +75,10 @@ export default createMachine(
               // loading: {} // loading state not required?
               idle: {
                 on: {
-                  AUTHENTICATE: { target: "authenticating" }
+                  AUTHENTICATE: {
+                    target: "authenticating",
+                    actions: ["setModel"]
+                  }
                 }
               },
               authenticating: {
@@ -123,12 +128,12 @@ export default createMachine(
               },
               idle: {
                 on: {
-                  REGISTER: { target: "checking" }
+                  REGISTER: { target: "checking", actions: ["setModel"] }
                 }
               },
               checking: {
                 invoke: {
-                  src: "checkForChallenge",
+                  src: "checkForReCaptcha",
                   onDone: [
                     { target: "challenging", cond: "requiresReCaptcha" },
                     { target: "registering" }
@@ -154,6 +159,13 @@ export default createMachine(
               registering: {
                 invoke: {
                   src: "register",
+                  onDone: { target: "authenticating", actions: ["setToken"] },
+                  onError: { target: "#error", actions: ["setError"] }
+                }
+              },
+              authenticating: {
+                invoke: {
+                  src: "authenticate",
                   onDone: { target: "#authenticated", actions: ["setToken"] },
                   onError: { target: "#error", actions: ["setError"] }
                 }
@@ -249,6 +261,13 @@ export default createMachine(
   },
   {
     actions: {
+      setCustomFields: assign({
+        customFields: (context, { data: { data } }) => data
+      }),
+      setModel: assign({
+        model: (context, { data }) => data
+      }),
+
       // ---
       set2faToken: assign({
         token: (context, { data }) => data
@@ -268,8 +287,8 @@ export default createMachine(
     },
     guards: {
       requires2fa: (_context, { data }) =>
-        data.actor_type == "twofa" && !!data.second_factor_required,
-      requiresReCaptcha: (_context, { data }) => !!data.recaptcha_required,
+        data.actor_type == "twofa" && !!data?.second_factor_required,
+      requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
       isRefreshing: context => !!context.refresh,
       isUnauthorized: context =>
         context?.error?.status === responseCodes.Unauthorized

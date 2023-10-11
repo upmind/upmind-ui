@@ -18,6 +18,16 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.sessionManager.client.processing:invocation[0]": {
+      type: "done.invoke.sessionManager.client.processing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.sessionManager.guest.processing:invocation[0]": {
+      type: "done.invoke.sessionManager.guest.processing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.sessionManager.starting.check:invocation[0]": {
       type: "done.invoke.sessionManager.starting.check:invocation[0]";
       data: unknown;
@@ -25,34 +35,62 @@ export interface Typegen0 {
     };
     "error.platform.client": { type: "error.platform.client"; data: unknown };
     "error.platform.guest": { type: "error.platform.guest"; data: unknown };
+    "error.platform.sessionManager.client.processing:invocation[0]": {
+      type: "error.platform.sessionManager.client.processing:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionManager.guest.processing:invocation[0]": {
+      type: "error.platform.sessionManager.guest.processing:invocation[0]";
+      data: unknown;
+    };
     "error.platform.sessionManager.starting.check:invocation[0]": {
       type: "error.platform.sessionManager.starting.check:invocation[0]";
       data: unknown;
+    };
+    "xstate.after(wait)#sessionManager.client.error": {
+      type: "xstate.after(wait)#sessionManager.client.error";
+    };
+    "xstate.after(wait)#sessionManager.guest.error": {
+      type: "xstate.after(wait)#sessionManager.guest.error";
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
     check: "done.invoke.sessionManager.starting.check:invocation[0]";
     dumpTokens: "done.invoke.clearing:invocation[0]";
+    getUser:
+      | "done.invoke.sessionManager.client.processing:invocation[0]"
+      | "done.invoke.sessionManager.guest.processing:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "check" | "dumpTokens";
+    services: "check" | "dumpTokens" | "getUser";
   };
   eventsCausingActions: {
     clearError: "CANCEL" | "LOGIN" | "REGISTER" | "done.state.starting";
     clearRefresh: "done.state.starting";
     clearToken: "done.invoke.clearing:invocation[0]";
-    setError: "error.platform.client" | "error.platform.guest";
+    setError:
+      | "error.platform.client"
+      | "error.platform.guest"
+      | "error.platform.sessionManager.client.processing:invocation[0]"
+      | "error.platform.sessionManager.guest.processing:invocation[0]";
     setRefresh: "REFRESH";
     setToken:
       | "done.invoke.client"
       | "done.invoke.guest"
       | "done.invoke.sessionManager.starting.check:invocation[0]";
+    setUser:
+      | "done.invoke.sessionManager.client.processing:invocation[0]"
+      | "done.invoke.sessionManager.guest.processing:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    wait:
+      | "error.platform.sessionManager.client.processing:invocation[0]"
+      | "error.platform.sessionManager.guest.processing:invocation[0]";
+  };
   eventsCausingGuards: {
     isClientToken: "done.invoke.sessionManager.starting.check:invocation[0]";
   };
@@ -69,23 +107,29 @@ export interface Typegen0 {
       | "REGISTER"
       | "done.invoke.sessionManager.starting.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
+    getUser: "SELF";
     guest:
       | "done.invoke.sessionManager.starting.check:invocation[0]"
       | "error.platform.sessionManager.starting.check:invocation[0]";
   };
   matchesStates:
     | "clearing"
+    | "client"
+    | "client.error"
+    | "client.idle"
+    | "client.processing"
     | "complete"
-    | "idle"
-    | "idle.client"
-    | "idle.guest"
-    | "idle.none"
+    | "guest"
+    | "guest.error"
+    | "guest.idle"
+    | "guest.processing"
     | "starting"
     | "starting.check"
     | "starting.client"
     | "starting.guest"
     | {
-        idle?: "client" | "guest" | "none";
+        client?: "error" | "idle" | "processing";
+        guest?: "error" | "idle" | "processing";
         starting?: "check" | "client" | "guest";
       };
   tags: never;

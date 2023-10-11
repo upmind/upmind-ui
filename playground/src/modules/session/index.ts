@@ -72,7 +72,7 @@ export const useSession = () => {
 
   function register(model) {
     send({
-      type: "CREATE",
+      type: "REGISTER",
       data: unref(model)
     });
   }
@@ -90,6 +90,11 @@ export const useSession = () => {
     });
   }
 
+  function getUser() {
+    send({
+      type: "SELF"
+    });
+  }
   // --------------------------------------------------------
 
   return {
@@ -111,9 +116,9 @@ export const useSession = () => {
     // --- Guest
     // --- Client
     client,
-    isAuthenticated: computed(() => ["idle.client"].some(state.value.matches)),
+    isAuthenticated: computed(() => ["client"].some(state.value.matches)),
     isClient: computed(() =>
-      ["idle.client", "starting.client"].some(state.value.matches)
+      ["client", "starting.client"].some(state.value.matches)
     ),
     showLoginForm: computed(
       () => client.value?.matches("unauthenticated.login")
@@ -125,6 +130,11 @@ export const useSession = () => {
     showRegisterForm: computed(
       () => client.value?.matches("unauthenticated.register")
     ),
+
+    registerFormCustomFields: computed(
+      () => client.value?.context?.customFields
+    ),
+
     showReCaptcha: computed(
       () => client.value?.matches("unauthenticated.register.challenging")
     ),
@@ -141,6 +151,7 @@ export const useSession = () => {
     register,
     verifyReCaptcha,
     logout,
-    cancel
+    cancel,
+    getUser
   };
 };
