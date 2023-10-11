@@ -34,8 +34,7 @@ export default createMachine(
         actor_type: null
       },
       refresh: false,
-      error: null,
-      message: null
+      error: null
     } as SessionContext,
     states: {
       // our initial state will check 'self' and see if we have a token
@@ -43,106 +42,57 @@ export default createMachine(
       // TODO: add necessary cheand and states when we add user accounts with auth
       starting: {
         id: "starting",
-        type: "parallel",
+        initial: "check",
         states: {
-          role: {
-            id: "role",
-            initial: "check",
-            states: {
-              check: {
-                invoke: {
-                  src: "check",
-                  onDone: [
-                    // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
-                    // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
-                    {
-                      target: "client",
-                      cond: "isClientToken",
-                      actions: ["setToken"]
-                    },
-                    {
-                      target: "guest",
-                      actions: ["setToken"]
-                    }
-                  ],
-                  onError: { target: "guest" }
-                }
-              },
-              guest: {
-                invoke: {
-                  id: "guest",
-                  src: guestMachine,
-                  data: {
-                    refresh: context => context.refresh
-                  },
-                  onDone: { target: "#idle.guest", actions: ["setToken"] },
-                  onError: { actions: ["setError", "clearMessage"] }
+          check: {
+            invoke: {
+              src: "check",
+              onDone: [
+                // { target: "valid.admin", cond: "isAdminToken", actions: ["setToken"]  },
+                // { target: "valid.actor", cond: "isActorToken", actions: ["setToken"] },
+                {
+                  target: "client",
+                  cond: "isClientToken",
+                  actions: ["setToken"]
                 },
-                on: {
-                  MESSAGE: {
-                    actions: ["setMessage"]
-                  }
+                {
+                  target: "guest",
+                  actions: ["setToken"]
                 }
-              },
-              client: {
-                invoke: {
-                  id: "client",
-                  src: clientMachine,
-                  onDone: { target: "#idle.client", actions: ["setToken"] },
-                  onError: { actions: ["setError", "clearMessage"] }
-                },
-                on: {
-                  MESSAGE: {
-                    actions: ["setMessage"]
-                  },
-                  AUTHENTICATE: {
-                    actions: sendTo("client", (context, { data }) => ({
-                      type: "AUTHENTICATE",
-                      data
-                    }))
-                  }
-                }
-              }
-            },
-            onDone: {
-              target: "#idle",
-              actions: ["clearRefresh", "clearError", "clearMessage"]
+              ],
+              onError: { target: "guest" }
             }
           },
-          status: {
-            initial: "waiting",
-            states: {
-              waiting: {
-                always: [
-                  { target: "processing", cond: "hasMessage" },
-                  { target: "error", cond: "hasError" }
-                ]
+          guest: {
+            invoke: {
+              id: "guest",
+              src: guestMachine,
+              autoForward: true,
+              data: {
+                refresh: context => context.refresh
               },
-              processing: {
-                always: [
-                  { target: "challenging", cond: "isChallenging" },
-                  { target: "verifying", cond: "isVerifying" },
-                  { target: "error", cond: "hasError" },
-                  { target: "waiting", cond: "hasNoMessage" }
-                ]
-              },
-              challenging: {
-                always: [{ target: "processing", cond: "isNotChallenging" }]
-              },
-              verifying: {
-                always: [{ target: "processing", cond: "isNotVerifying" }]
-              },
-              error: {
-                always: { target: "waiting", cond: "hasNoError" }
-              }
+              onDone: { target: "#idle.guest", actions: ["setToken"] },
+              onError: { actions: ["setError"] }
+            }
+          },
+          client: {
+            invoke: {
+              id: "client",
+              src: clientMachine,
+              autoForward: true,
+              onDone: { target: "#idle.client", actions: ["setToken"] },
+              onError: { actions: ["setError"] }
             }
           }
         },
-
+        onDone: {
+          target: "#idle",
+          actions: ["clearRefresh", "clearError"]
+        },
         on: {
           CANCEL: {
             target: "#starting",
-            actions: ["clearMessage", "clearError"]
+            actions: ["clearError"]
           }
         }
       },
@@ -155,17 +105,15 @@ export default createMachine(
           guest: {
             on: {
               LOGIN: {
-                target: "#starting.role.client",
+                target: "#starting.client",
                 actions: [
-                  "clearMessage",
                   "clearError",
                   sendTo("client", "LOGIN", { delay: 0 }) // delay needed to only trigger when in the correct state
                 ]
               },
               REGISTER: {
-                target: "#starting.role.client",
+                target: "#starting.client",
                 actions: [
-                  "clearMessage",
                   "clearError",
                   sendTo("client", "REGISTER", { delay: 0 }) // delay needed to only trigger when in the correct state
                 ]
@@ -192,7 +140,7 @@ export default createMachine(
         on: {
           CANCEL: {
             target: "#starting",
-            actions: ["clearMessage", "clearError"]
+            actions: ["clearError"]
           }
         }
       },
@@ -214,11 +162,6 @@ export default createMachine(
   },
   {
     actions: {
-      setMessage: assign({
-        message: (context, { data }) => data
-      }),
-
-      clearMessage: assign({ message: false }),
       // ---
       setRefresh: assign({ refresh: true }),
       clearRefresh: assign({ refresh: false }),
@@ -235,14 +178,6 @@ export default createMachine(
       hasError: ({ error }) => !!error,
       hasNoError: ({ error }) => !error,
 
-      hasMessage: ({ message }) => !!message,
-      hasNoMessage: ({ message }) => !message,
-
-      isChallenging: ({ message }) => includes(message, "challenging"),
-      isNotChallenging: ({ message }) => !includes(message, "challenging"),
-
-      isVerifying: ({ message }) => includes(message, "verifying"),
-      isNotVerifying: ({ message }) => !includes(message, "verifying"),
       // ---
       isClientToken: (_context, { data }) => data?.type === "client"
     },

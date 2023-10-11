@@ -19,11 +19,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.client.unauthenticated.login.checking:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.login.checking:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.client.unauthenticated.login.verifying:invocation[0]": {
       type: "done.invoke.client.unauthenticated.login.verifying:invocation[0]";
       data: unknown;
@@ -62,10 +57,6 @@ export interface Typegen0 {
       type: "error.platform.client.unauthenticated.login.authenticating:invocation[0]";
       data: unknown;
     };
-    "error.platform.client.unauthenticated.login.checking:invocation[0]": {
-      type: "error.platform.client.unauthenticated.login.checking:invocation[0]";
-      data: unknown;
-    };
     "error.platform.client.unauthenticated.login.verifying:invocation[0]": {
       type: "error.platform.client.unauthenticated.login.verifying:invocation[0]";
       data: unknown;
@@ -96,9 +87,7 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     authenticate: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
     check: "done.invoke.loading:invocation[0]";
-    checkForChallenge:
-      | "done.invoke.client.unauthenticated.login.checking:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.checking:invocation[0]";
+    checkForChallenge: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
     dumpToken: "done.invoke.client.authenticated.clearing:invocation[0]";
     getCustomFields: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
     persistToken: "done.invoke.client.authenticated.persisting:invocation[0]";
@@ -131,6 +120,7 @@ export interface Typegen0 {
       | "done.invoke.client.authenticated.clearing:invocation[0]"
       | "error.platform.loading:invocation[0]"
       | "xstate.stop";
+    set2faToken: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
     setChallengeToken:
       | "done.invoke.client.unauthenticated.login.verifying:invocation[0]"
       | "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
@@ -138,7 +128,6 @@ export interface Typegen0 {
     setError:
       | "error.platform.client.authenticated.refreshing:invocation[0]"
       | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.login.checking:invocation[0]"
       | "error.platform.client.unauthenticated.login.verifying:invocation[0]"
       | "error.platform.client.unauthenticated.register.checking:invocation[0]"
       | "error.platform.client.unauthenticated.register.loading:invocation[0]"
@@ -157,16 +146,14 @@ export interface Typegen0 {
       | "done.invoke.client.authenticated.clearing:invocation[0]";
     isUnauthorized: "error.platform.client.authenticated.refreshing:invocation[0]";
     requires2fa: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
-    requiresReCaptcha:
-      | "done.invoke.client.unauthenticated.login.checking:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.checking:invocation[0]";
+    requiresReCaptcha: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
   };
   eventsCausingServices: {
-    authenticate: "done.invoke.client.unauthenticated.login.checking:invocation[0]";
+    authenticate: "AUTHENTICATE";
     check:
       | "done.invoke.client.authenticated.clearing:invocation[0]"
       | "xstate.init";
-    checkForChallenge: "AUTHENTICATE" | "REGISTER";
+    checkForChallenge: "REGISTER";
     dumpToken: "error.platform.client.authenticated.refreshing:invocation[0]";
     getCustomFields: "REGISTER";
     persistToken:
@@ -193,7 +180,6 @@ export interface Typegen0 {
     | "unauthenticated.login"
     | "unauthenticated.login.authenticating"
     | "unauthenticated.login.challenging"
-    | "unauthenticated.login.checking"
     | "unauthenticated.login.idle"
     | "unauthenticated.login.verifying"
     | "unauthenticated.register"
@@ -210,12 +196,7 @@ export interface Typegen0 {
           | "login"
           | "register"
           | {
-              login?:
-                | "authenticating"
-                | "challenging"
-                | "checking"
-                | "idle"
-                | "verifying";
+              login?: "authenticating" | "challenging" | "idle" | "verifying";
               register?:
                 | "challenging"
                 | "checking"

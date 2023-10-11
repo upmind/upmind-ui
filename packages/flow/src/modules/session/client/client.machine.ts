@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { escalate } = actions;
 
 // --- internal
 import services from "./services";
@@ -55,7 +55,7 @@ export default createMachine(
       // in this state, we are unauthenticated, and we can either login or register, possibly with a challenge like 2fa or recaptcha
       unauthenticated: {
         id: "unauthenticated",
-        entry: sendParent({ type: "MESSAGE", data: null }),
+
         initial: "idle",
         states: {
           idle: {
@@ -73,34 +73,30 @@ export default createMachine(
               // loading: {} // loading state not required?
               idle: {
                 on: {
-                  AUTHENTICATE: { target: "checking" }
+                  AUTHENTICATE: { target: "authenticating" }
                 }
               },
-              checking: {
+              authenticating: {
                 invoke: {
-                  src: "checkForChallenge",
+                  src: "authenticate",
                   onDone: [
-                    { target: "challenging", cond: "requiresReCaptcha" },
-                    { target: "authenticating" }
+                    {
+                      target: "challenging",
+                      actions: ["set2faToken"],
+                      cond: "requires2fa"
+                    },
+                    { target: "#authenticated", actions: ["setToken"] }
                   ],
                   onError: { target: "#error", actions: ["setError"] }
                 }
               },
               challenging: {
-                entry: sendParent({
-                  type: "MESSAGE",
-                  data: "Awaiting Verification"
-                }),
                 on: {
                   VERIFY: { target: "verifying" },
                   CANCEL: { target: "idle" }
                 }
               },
               verifying: {
-                entry: sendParent({
-                  type: "MESSAGE",
-                  data: "Verifying 2FA"
-                }),
                 invoke: {
                   src: "verify2fa",
                   onDone: {
@@ -108,21 +104,6 @@ export default createMachine(
                     actions: ["setChallengeToken"]
                   },
                   onError: { target: "challenging", actions: ["setError"] }
-                }
-              },
-              authenticating: {
-                entry: sendParent({ type: "MESSAGE", data: "Authenticating" }),
-                invoke: {
-                  src: "authenticate",
-                  onDone: [
-                    {
-                      target: "challenging",
-                      actions: ["setToken"],
-                      cond: "requires2fa"
-                    },
-                    { target: "#authenticated", actions: ["setToken"] }
-                  ],
-                  onError: { target: "#error", actions: ["setError"] }
                 }
               }
             }
@@ -161,10 +142,6 @@ export default createMachine(
                 }
               },
               verifying: {
-                entry: sendParent({
-                  type: "MESSAGE",
-                  data: "Verifying reCaptcha"
-                }),
                 invoke: {
                   src: "verifyReCaptcha",
                   onDone: {
@@ -175,10 +152,6 @@ export default createMachine(
                 }
               },
               registering: {
-                entry: sendParent({
-                  type: "MESSAGE",
-                  data: "Registering"
-                }),
                 invoke: {
                   src: "register",
                   onDone: { target: "#authenticated", actions: ["setToken"] },
@@ -200,7 +173,7 @@ export default createMachine(
       // in this state, we are authenticated, and we can either refresh or kill the token
       authenticated: {
         id: "authenticated",
-        entry: sendParent({ type: "MESSAGE", data: null }),
+
         initial: "idle",
         states: {
           idle: {
@@ -214,7 +187,6 @@ export default createMachine(
           // we will clear the token and go back to our unauthenticated state
           // which will generate a new token
           refreshing: {
-            entry: sendParent({ type: "MESSAGE", data: "Refreshing Token" }),
             invoke: {
               src: "refreshToken",
               onDone: { target: "persisting", actions: ["setToken"] },
@@ -232,7 +204,6 @@ export default createMachine(
           // in this state, we are removing our token to localStorage,
           // and then we start over
           clearing: {
-            entry: sendParent({ type: "MESSAGE", data: "Clearing Token" }),
             invoke: {
               src: "dumpToken",
               onDone: [
@@ -246,7 +217,6 @@ export default createMachine(
           // in this state, we are persisting our token to localStorage,
           // and then we are done
           persisting: {
-            entry: sendParent({ type: "MESSAGE", data: "Persisting Token" }),
             invoke: {
               src: "persistToken",
               onDone: {
@@ -271,7 +241,6 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        entry: sendParent({ type: "MESSAGE", data: null }),
         id: "complete",
         type: "final",
         data: (context, event) => context.token
@@ -281,6 +250,9 @@ export default createMachine(
   {
     actions: {
       // ---
+      set2faToken: assign({
+        token: (context, { data }) => data
+      }),
       setToken: assign({
         token: (context, { data }) => useTokenParser(data)
       }),
@@ -295,8 +267,9 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      requires2fa: context => !!context.token.second_factor_required,
-      requiresReCaptcha: context => !!context.token.recaptcha_required,
+      requires2fa: (_context, { data }) =>
+        data.actor_type == "twofa" && !!data.second_factor_required,
+      requiresReCaptcha: (_context, { data }) => !!data.recaptcha_required,
       isRefreshing: context => !!context.refresh,
       isUnauthorized: context =>
         context?.error?.status === responseCodes.Unauthorized

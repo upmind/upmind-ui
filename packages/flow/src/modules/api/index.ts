@@ -11,7 +11,7 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types.d";
 
 // --- utils
-import { set, get, trimStart, forIn, keys } from "lodash-es";
+import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -82,8 +82,11 @@ export const useApi = () => {
     set(init, "headers.Content-Type", "application/json");
 
     // Enforce Authorization header, if required
+    // also allow us to pass a custom token, for eg 2fa
     if (withAccessToken) {
-      const { token } = useSession();
+      const token = isString(withAccessToken)
+        ? withAccessToken
+        : useSession()?.token;
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
