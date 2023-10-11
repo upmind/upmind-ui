@@ -32,6 +32,7 @@ export enum TwofaProviders {
 
 export interface SessionContext {
   token: Token;
+  user: User;
   error?: RequestError | null;
   refresh?: boolean;
   message?: string | null;
@@ -50,6 +51,8 @@ export interface Token {
   actor_id?: string | null;
   actor_type?: AccessRoleTypes | null;
 }
+
+export interface User {}
 
 // --------------------------------------------------------
 // Events

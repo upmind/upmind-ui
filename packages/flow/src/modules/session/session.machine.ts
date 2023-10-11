@@ -9,7 +9,7 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 // --- utils
 import { useTokenParser } from "./utils";
-import { includes } from "lodash-es";
+import { useTime } from "../../utils";
 
 // --------------------------------------------------------
 
@@ -33,6 +33,7 @@ export default createMachine(
         actor_id: null,
         actor_type: null
       },
+      user: {},
       refresh: false,
       error: null
     } as SessionContext,
@@ -71,7 +72,7 @@ export default createMachine(
               data: {
                 refresh: context => context.refresh
               },
-              onDone: { target: "#idle.guest", actions: ["setToken"] },
+              onDone: { target: "#guest", actions: ["setToken"] },
               onError: { actions: ["setError"] }
             }
           },
@@ -80,13 +81,12 @@ export default createMachine(
               id: "client",
               src: clientMachine,
               autoForward: true,
-              onDone: { target: "#idle.client", actions: ["setToken"] },
+              onDone: { target: "#client", actions: ["setToken"] },
               onError: { actions: ["setError"] }
             }
           }
         },
         onDone: {
-          target: "#idle",
           actions: ["clearRefresh", "clearError"]
         },
         on: {
@@ -97,53 +97,94 @@ export default createMachine(
         }
       },
 
-      idle: {
-        id: "idle",
-        initial: "none",
+      guest: {
+        id: "guest",
+        initial: "idle",
         states: {
-          none: {},
-          guest: {
+          idle: {
             on: {
-              LOGIN: {
-                target: "#starting.client",
-                actions: [
-                  "clearError",
-                  sendTo("client", "LOGIN", { delay: 0 }) // delay needed to only trigger when in the correct state
-                ]
-              },
-              REGISTER: {
-                target: "#starting.client",
-                actions: [
-                  "clearError",
-                  sendTo("client", "REGISTER", { delay: 0 }) // delay needed to only trigger when in the correct state
-                ]
-              },
-              REFRESH: { target: "#starting", actions: "setRefresh" },
-              KILL: { target: "#clearing" }
+              SELF: { target: "processing" }
             }
           },
-          client: {
-            on: {
-              REFRESH: { target: "#starting", actions: "setRefresh" },
-              LOGOUT: { target: "#clearing" },
-              KILL: { target: "#clearing" }
+          processing: {
+            invoke: {
+              src: "getUser",
+              onDone: {
+                target: "idle",
+                actions: ["setUser"]
+              },
+              onError: {
+                target: "error",
+                actions: ["setError"]
+              }
             }
+          },
+          error: {
+            after: { wait: "idle" }
           }
-
-          // admin: {
-          // invoke the admin machine
-          // },
-          // actor: {
-          // invoke the actor machine
-          // },
         },
         on: {
-          CANCEL: {
-            target: "#starting",
-            actions: ["clearError"]
-          }
+          LOGIN: {
+            target: "#starting.client",
+            actions: [
+              "clearError",
+              sendTo("client", "LOGIN", { delay: 0 }) // delay needed to only trigger when in the correct state
+            ]
+          },
+          REGISTER: {
+            target: "#starting.client",
+            actions: [
+              "clearError",
+              sendTo("client", "REGISTER", { delay: 0 }) // delay needed to only trigger when in the correct state
+            ]
+          },
+          REFRESH: { target: "#starting", actions: "setRefresh" },
+          KILL: { target: "#clearing" },
+          CANCEL: { target: "#starting", actions: ["clearError"] }
         }
       },
+
+      client: {
+        id: "client",
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              SELF: { target: "processing" }
+            }
+          },
+          processing: {
+            invoke: {
+              src: "getUser",
+              onDone: {
+                target: "idle",
+                actions: ["setUser"]
+              },
+              onError: {
+                target: "error",
+                actions: ["setError"]
+              }
+            }
+          },
+          error: {
+            after: { wait: "idle" }
+          }
+        },
+        on: {
+          LOGOUT: { target: "#clearing" },
+          REFRESH: { target: "#starting", actions: "setRefresh" },
+          KILL: { target: "#clearing" },
+          CANCEL: { target: "#starting", actions: ["clearError"] }
+        }
+      },
+
+      // admin: {
+      // invoke the admin machine
+      // },
+
+      // actor: {
+      // invoke the actor machine
+      // },
 
       clearing: {
         id: "clearing",
@@ -169,6 +210,9 @@ export default createMachine(
       setToken: assign({ token: (context, { data }) => useTokenParser(data) }),
       clearToken: assign({ token: {} }),
       // ---
+      setUser: assign({ user: (context, { data }) => data }),
+      clearUser: assign({ user: {} }),
+      // ---
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
       }),
@@ -182,7 +226,9 @@ export default createMachine(
       isClientToken: (_context, { data }) => data?.type === "client"
     },
 
-    delays: {},
+    delays: {
+      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+    },
     services
   }
 );

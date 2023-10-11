@@ -33,14 +33,17 @@ export const useSession = () => {
     // callback({ type: "TRANSITIONED", data: state.value });
 
     // Valid session
-    if (["idle"].some(state.matches)) {
+    if (["client", "guest"].some(state.matches)) {
+      // console.log("authCallback", "SESSION");
       callback({ type: "SESSION" });
     }
 
     // Authenticated
-    if (["idle.client"].some(state.matches)) {
+    if (["client"].some(state.matches)) {
+      // console.log("authCallback", "INVAID");
       callback({ type: "AUTHENTICATED" });
     } else {
+      // console.log("authCallback", "INVALID");
       callback({ type: "UNAUTHENTICATED" });
     }
   };

@@ -45,6 +45,47 @@ async function dumpTokens(context: SessionContext, event: any) {
   return Promise.resolve(); // we dont need to return anything
 }
 
+async function getUser(context: SessionContext, event: any) {
+  const { get, useUrl } = useApi();
+
+  return get({
+    url: useUrl("self", {
+      with: [
+        "actor",
+        "accounts"
+        // client specific only
+        // "actor.account", // Relation required for determining `topup_enabled` value
+        // "actor.brand", // Relation required for determining `topup_enabled` value
+        // "delegated_ids",
+        // "enabled_modules"
+      ].join()
+    }),
+    withAccessToken: true
+  });
+
+  // const self = await dispatch(
+  //   "api/call",
+  //   {
+  //     method: Methods.GET,
+  //     path: "api/self",
+  //     requestConfig: {
+  //       params: {
+  //         with: [
+  //           "actor",
+  //           "actor.account", // Relation required for determining `topup_enabled` value
+  //           "actor.brand", // Relation required for determining `topup_enabled` value
+  //           "accounts",
+  //           "delegated_ids",
+  //           "enabled_modules"
+
+  //         ].join()
+  //       }
+  //     }
+  //   },
+  //   { root: true }
+  // );
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
@@ -52,5 +93,6 @@ export default <Object>{
   check,
   dumpTokens,
   dumpGuestToken,
-  dumpClientToken
+  dumpClientToken,
+  getUser
 };

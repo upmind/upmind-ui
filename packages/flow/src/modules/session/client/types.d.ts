@@ -6,13 +6,23 @@
 
 export interface ClientContext {
   token: Token;
-  user: User;
+  model: ClientModel;
   error?: RequestError;
   refresh?: boolean;
+  customFields?: Array<Object>;
 }
 
-export interface User {}
-
+export interface ClientModel {
+  custom_fields: { [key: string]: number | string | boolean };
+  email: string;
+  firstname: string;
+  lastname: string;
+  password: string;
+  phone: IPhone["phone"] | null;
+  phone_code: IPhone["phone_code"] | null;
+  phone_country_code: IPhone["phone_country_code"] | null;
+  recaptcha_token: string;
+}
 // --------------------------------------------------------
 // Events
 
