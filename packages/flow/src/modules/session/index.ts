@@ -30,22 +30,17 @@ export const useSession = () => {
   // We have a valid AUTH session when we are logged in as a client (todo: admin + actor)
   // this will fire every time we transition to a new state
   const authCallback = callback => {
-    // console.log("authCallback", "TRANSITIONED", state.value);
-
     // callback({ type: "TRANSITIONED", data: state.value });
 
     // Valid session
     if (["idle"].some(state.matches)) {
-      console.log("authCallback", "SESSION");
       callback({ type: "SESSION" });
     }
 
     // Authenticated
     if (["idle.client"].some(state.matches)) {
-      console.log("authCallback", "INVAID");
       callback({ type: "AUTHENTICATED" });
     } else {
-      console.log("authCallback", "INVALID");
       callback({ type: "UNAUTHENTICATED" });
     }
   };
@@ -80,6 +75,7 @@ export const useSession = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     state,
+    // ---
     authSubscription,
     // ---
     // useClient: subscription,

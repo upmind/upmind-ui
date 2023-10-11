@@ -39,13 +39,14 @@ async function authenticate(_context: ClientContext, { data }: any) {
   });
 }
 
-async function verify2fa(_context: ClientContext, { data }: any) {
+async function verify2fa(context: ClientContext, { data }: any) {
   const { post, useUrl } = useApi();
   return post({
     url: useUrl("access_token", {}, "oauth"),
+    withAccessToken: context.token.access_token,
     data: {
-      username: data.username,
-      password: data.password,
+      twofa_provider: "google",
+      twofa_code: data,
       grant_type: GrantTypes.TWOFA
     }
   });
