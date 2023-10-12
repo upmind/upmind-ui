@@ -6,7 +6,6 @@
 
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
@@ -134,7 +133,7 @@ export default createMachine(
         on: {
           GENERATE: { target: "#generating" },
           AUTHENTICATED: { target: "#claiming" },
-          UNAUTHENTICATED: { target: "#idle", actions: ["resetBasket"] }
+          UNAUTHENTICATED: { target: "#idle" }
         }
       },
 
@@ -197,9 +196,7 @@ export default createMachine(
       addProduct: assign({
         spawned: ({ spawned, basket }, { data }) => {
           // spawn an actor for the new request
-          debugger;
           const uuid = uniqueId("product_");
-          debugger;
           const machine = spawn(
             productMachine({ id: uuid, basketId: basket.id, product: data }),
             {
@@ -207,11 +204,8 @@ export default createMachine(
               sync: true
             }
           );
-          debugger;
           // for now well just add the new machine to our list
           set(spawned, uuid, machine);
-          debugger;
-
           return spawned;
         }
       }),
