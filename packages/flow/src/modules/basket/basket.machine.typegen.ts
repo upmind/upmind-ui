@@ -64,7 +64,6 @@ export interface Typegen0 {
   eventsCausingActions: {
     addProduct: "PRODUCT.ADD";
     clearError: "RETRY" | "error.platform.loading:invocation[0]";
-    resetBasket: "UNAUTHENTICATED";
     setBasket:
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"

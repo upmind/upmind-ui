@@ -7,7 +7,7 @@ import { useSession } from "../session";
 const { authSubscription } = useSession();
 
 // --- utils
-import { isEmpty, first } from "lodash-es";
+import { isEmpty, first, isObject, isArray } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -53,68 +53,50 @@ async function check(context: BasketContext, _event: any) {
   });
 }
 
-async function create(context: BasketContext, _event: any) {
+async function create(context: BasketContext, { data }: any) {
   const { post, useUrl } = useApi();
+
+  // we may be passed a product or an array of products to create the basket with...
+  // todo: ensure the data payload is a valid product(s)
+  const products = [];
+  if (isArray(data)) products.push(...data);
+  else if (isObject(data)) products.push(data);
 
   return post({
     url: useUrl("orders"),
+    withAccessToken: true,
     data: {
-      category_slug: "new_contract"
+      category_slug: "new_contract",
       // currency_code: "GBP", // from brand
       // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
-      // products: [
-      //   {
-      //     product_id: "d7382485-0793-157e-622c-91e642d59e06",
-      //     quantity: 1,
-      //     billing_cycle_months: 1,
-      //     total: 15,
-      //     options: [
-      //       {
-      //         billing_cycle_months: 1,
-      //         order_type: 1,
-      //         product_id: "4038696e-5472-1d26-09ec-e18d9305e7d2",
-      //         total: 10,
-      //         unit_quantity: 1,
-      //         unit_total: 10
-      //       }
-      //     ],
-      //     attributes: [],
-      //     start_trial: false
-      //   }
-      // ],
+      products
       // promotions: []
-    },
-    withAccessToken: true
+    }
   });
 }
 
 async function refresh(context: BasketContext, _event: any) {}
 
-// --- Basket Methods
-
-async function update(context: BasketContext, _event: any) {}
-
-async function remove(context: BasketContext, _event: any) {}
-
 async function claim({ basket }: BasketContext, _event: any) {
-  debugger;
-
   if (isEmpty(basket)) return Promise.resolve();
 
   const { patch, useUrl } = useApi();
   const { history } = useSession();
   const token = first(history);
-
   if (isEmpty(token)) return Promise.resolve();
-
   return await patch({
-    url: useUrl("client/claim"),
+    url: useUrl("orders/claim"),
     withAccessToken: true,
     data: {
       guest_token: token.access_token
     }
   });
 }
+
+// --- Basket Methods
+async function update(context: BasketContext, _event: any) {}
+
+async function remove(context: BasketContext, _event: any) {}
 
 async function hideWarnings(context: BasketContext, _event: any) {}
 
