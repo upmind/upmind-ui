@@ -10,7 +10,7 @@ import { isEmpty } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a request
 // instead of using an event
-export default ({ id, basketId, product }) =>
+export default ({ name, basketId, product }) =>
   createMachine(
     {
       tsTypes: {} as import("./product.machine.typegen").Typegen0,
@@ -18,7 +18,7 @@ export default ({ id, basketId, product }) =>
       predictableActionArguments: true,
       initial: "available",
       context: {
-        id,
+        name,
         basket_id: basketId,
         product,
         response: null,
@@ -80,9 +80,9 @@ export default ({ id, basketId, product }) =>
           response: (context, { data }) => useBasketParser(data)
         }),
 
-        sendRemoveMessage: sendParent(({ id, response }) => ({
+        sendRemoveMessage: sendParent(({ name, response }) => ({
           type: "KILL",
-          data: response
+          data: { name, response }
         })),
 
         setError: assign({

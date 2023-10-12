@@ -6,15 +6,16 @@
 
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
+const { raise } = actions;
 
 // --- internal
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import { responseCodes } from "../api/types.d";
 import productMachine from "./product.machine";
-
+import itemsMachine from "./items.machine";
 // --- utils
-import { get, set, unset, isEmpty, uniqueId } from "lodash-es";
+import { get, set, unset, isEmpty, uniqueId, forEach } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -28,6 +29,7 @@ export default createMachine(
       debug: false,
       // ---
       basket: {},
+      spawned: {},
       // ---
       error: null
     } as BasketContext,
@@ -106,17 +108,31 @@ export default createMachine(
             initial: "empty",
             states: {
               empty: {
-                always: { target: "valid", cond: "hasItems" }
+                always: [{ target: "idle", cond: "hasItems" }]
               },
-              valid: {
+              idle: {
+                invoke: {
+                  id: "items",
+                  src: itemsMachine,
+                  data: {
+                    basketId: context => context.basket.id,
+                    items: context => context.basket.products
+                  },
+                  onError: { actions: ["setError"] }
+                }
+              },
+              spawning: {
+                always: [{ target: "empty", cond: "hasNoSpawned" }]
+              },
+              processed: {
                 type: "final"
-              },
-              invalid: {}
+              }
             },
             on: {
+              KILL: { actions: ["killSpawned"] },
               "PRODUCT.ADD": [
                 { target: "#generating", cond: "hasNoBasket" },
-                { actions: ["addProduct"] }
+                { target: "items.spawning", actions: ["addProduct"] }
               ]
               // "PRODUCT.UPDATE": {
               //   target: "updating",
@@ -166,10 +182,7 @@ export default createMachine(
 
       // Handle errors
       error: {
-        id: "error",
-        on: {
-          CANCEL: { target: "complete" }
-        }
+        id: "error"
       },
 
       complete: {
@@ -195,31 +208,45 @@ export default createMachine(
       addProduct: assign({
         spawned: ({ spawned, basket }, { data }) => {
           // spawn an actor for the new request
-          const uuid = uniqueId("product_");
+          const name = uniqueId("product_");
           const machine = spawn(
-            productMachine({ id: uuid, basketId: basket.id, product: data }),
+            productMachine({ name, basketId: basket.id, product: data }),
             {
-              name: uuid,
+              name,
               sync: true
             }
           );
+
           // for now well just add the new machine to our list
-          set(spawned, uuid, machine);
+          set(spawned, name, machine);
           return spawned;
         }
       }),
 
-      killSpawn: assign({
-        spawned: ({ spawned }, { data: { id } }) => {
-          // try find any basket with the same hash
-          const machine = get(spawned, id);
+      killSpawned: assign({
+        spawned: ({ spawned }, { data }) => {
+          // try find any basket with the same name
+          const machine = get(spawned, data.name);
 
           // if it exists, stop the referenced machine
+          if (machine) machine.stop();
+
           // and remove it from our list of basket
-          if (machine) {
+          unset(spawned, data.name);
+
+          return spawned;
+        },
+        basket: ({ basket }, { data }) => data.response
+      }),
+
+      killAllSpawned: assign({
+        spawned: ({ spawned }) => {
+          // try find any basket with the same name
+          forEach(spawned, ({ machine, name }) => {
             machine.stop();
-            unset(spawned, id);
-          }
+            // and remove it from our list of basket
+            unset(spawned, name);
+          });
 
           return spawned;
         }
