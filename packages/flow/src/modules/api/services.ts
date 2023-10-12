@@ -3,6 +3,8 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession } from "../session";
+const { getSnapshot, service: sessionService } = useSession();
+
 import type { RequestContext } from "./types.d";
 
 // --- utils
@@ -62,18 +64,12 @@ async function doFetch({ url, init }: RequestContext) {
 
 async function refreshToken(_context: RequestContext, _event: any) {
   // start by getting the current service and state
-  const session = useSession();
-  const { service } = session;
-  let { state } = session;
-
-  // then watch for changes to the state
-  service.onTransition(newState => (state = newState));
 
   // kick off the auth process
-  service.send("REFRESH");
+  sessionService.send("REFRESH");
 
   // wait for the service to complete
-  await waitFor(service, newState =>
+  await waitFor(sessionService, newState =>
     ["idle", "error"].some(newState.matches)
   ).catch(error => {
     return Promise.reject(error);
@@ -81,6 +77,9 @@ async function refreshToken(_context: RequestContext, _event: any) {
 
   // return the token or error
   return new Promise((resolve, reject) => {
+    // get the current state
+    const state = getSnapshot();
+
     if (["error"].some(state.matches)) {
       const error = get(state, "context.error");
       reject(error);

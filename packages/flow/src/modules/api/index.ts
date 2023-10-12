@@ -4,11 +4,13 @@ import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useSession } from "../session";
 import requestsMachine from "./requests.machine";
 import { generateHash } from "./utils";
 import { useTime } from "../../utils";
 import type { RequestParams } from "./types.d";
+
+import { useSession } from "../session";
+const { getToken } = useSession();
 
 // --- utils
 import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
@@ -18,7 +20,6 @@ import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
 // and a global object to store state
 
 let state = null;
-
 const service = interpret(requestsMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
@@ -84,9 +85,7 @@ export const useApi = () => {
     // Enforce Authorization header, if required
     // also allow us to pass a custom token, for eg 2fa
     if (withAccessToken) {
-      const token = isString(withAccessToken)
-        ? withAccessToken
-        : useSession()?.token;
+      const token = isString(withAccessToken) ? withAccessToken : getToken();
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 

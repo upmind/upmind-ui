@@ -4,7 +4,7 @@
 import { useApi } from "../api";
 import { type BasketContext } from "./types.d";
 import { useSession } from "../session";
-const { authSubscription } = useSession();
+const { authSubscription, getHistory } = useSession();
 
 // --- utils
 import { isEmpty, first, isObject, isArray } from "lodash-es";
@@ -81,8 +81,7 @@ async function claim({ basket }: BasketContext, _event: any) {
   if (isEmpty(basket)) return Promise.resolve();
 
   const { patch, useUrl } = useApi();
-  const { history } = useSession();
-  const token = first(history);
+  const token = first(getHistory());
   if (isEmpty(token)) return Promise.resolve();
   return await patch({
     url: useUrl("orders/claim"),

@@ -77,13 +77,20 @@ export const useSession = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    state,
     // ---
+    getToken: () => state?.context?.token?.access_token,
+    getHistory: () => state?.context?.history,
+    getSnapshot: () => state,
     authSubscription,
-    // ---
-    // useClient: subscription,
-    // --- syntax sugar
-    token: state?.context?.token?.access_token,
-    history: state?.context?.history
+    isAuthenticated: () => {
+      return new Promise((resolve, reject) => {
+        const authenticated = ["client"].some(state.matches);
+        if (authenticated) {
+          return resolve(true);
+        } else {
+          return reject();
+        }
+      });
+    }
   };
 };
