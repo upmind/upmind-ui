@@ -1,11 +1,14 @@
 // --- utils
-import { get } from "lodash-es";
+import { get, isArray, first } from "lodash-es";
 
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
-  return get(data, "data", data);
+  data = get(data, "data", data); // handle the reponse types from the api
+  data = isArray(data) ? first(data) : data; // usually from the claims endpoint
 
+  return data;
+  // todo...map properly...
   // return {
   //   account: Object; //IAccount;
   // account_id: string; //IAccount["id"];

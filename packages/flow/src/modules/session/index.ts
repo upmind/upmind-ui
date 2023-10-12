@@ -38,11 +38,14 @@ export const useSession = () => {
       callback({ type: "SESSION" });
     }
 
-    // Authenticated
+    // Authenticated if client ( eventually +admin +actor)
     if (["client"].some(state.matches)) {
-      // console.log("authCallback", "INVAID");
+      // console.log("authCallback", "VAID");
       callback({ type: "AUTHENTICATED" });
-    } else {
+    }
+
+    // Unauthenticated if guest
+    else if (["guest"].some(state.matches)) {
       // console.log("authCallback", "INVALID");
       callback({ type: "UNAUTHENTICATED" });
     }
@@ -78,9 +81,9 @@ export const useSession = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+    getSnapshot: () => state,
     getToken: () => state?.context?.token?.access_token,
     getHistory: () => state?.context?.history,
-    getSnapshot: () => state,
     authSubscription,
     isAuthenticated: () => {
       return new Promise((resolve, reject) => {

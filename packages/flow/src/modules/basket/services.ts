@@ -4,9 +4,10 @@
 import { useApi } from "../api";
 import { type BasketContext } from "./types.d";
 import { useSession } from "../session";
-const { authSubscription, getHistory } = useSession();
+const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
+import { useBasketParser } from "./utils";
 import { isEmpty, first, isObject, isArray } from "lodash-es";
 
 // --------------------------------------------------------
@@ -50,7 +51,7 @@ async function check(context: BasketContext, _event: any) {
     }),
     withAccessToken: true,
     useCache: false
-  });
+  }).then(useBasketParser);
 }
 
 async function create(context: BasketContext, { data }: any) {
@@ -72,7 +73,7 @@ async function create(context: BasketContext, { data }: any) {
       products
       // promotions: []
     }
-  });
+  }).then(useBasketParser);
 }
 
 async function refresh(context: BasketContext, _event: any) {}
@@ -83,13 +84,22 @@ async function claim({ basket }: BasketContext, _event: any) {
   const { patch, useUrl } = useApi();
   const token = first(getHistory());
   if (isEmpty(token)) return Promise.resolve();
+
+  // this will return an array of the users baskets, ordered by most recent
+  // but the response basket does not contain the products, so we need to
+  // request the basket by id to get the products?
   return await patch({
     url: useUrl("orders/claim"),
     withAccessToken: true,
     data: {
       guest_token: token.access_token
     }
-  });
+  }).then(useBasketParser);
+}
+
+async function dumpBasket(context: SessionContext, event: any) {
+  // do we need to tell the api to dump the basket?
+  return Promise.resolve(); // we dont need to return anything
 }
 
 // --- Basket Methods
@@ -118,7 +128,9 @@ export default <Object>{
   check,
   create,
   refresh,
-  authSubscription,
-  claim
+  claim,
+  dumpBasket,
   // ---
+  authSubscription,
+  isAuthenticated
 };

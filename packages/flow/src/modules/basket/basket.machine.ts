@@ -14,8 +14,7 @@ import { responseCodes } from "../api/types.d";
 import productMachine from "./product.machine";
 
 // --- utils
-import { useBasketParser } from "./utils";
-import { remove, find, get, set, unset, isEmpty, uniqueId } from "lodash-es";
+import { get, set, unset, isEmpty, uniqueId } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -28,7 +27,6 @@ export default createMachine(
     context: {
       debug: false,
       // ---
-      items: {},
       basket: {},
       // ---
       error: null
@@ -79,7 +77,10 @@ export default createMachine(
         id: "claiming",
         invoke: {
           src: "claim",
-          onDone: { target: "#idle", actions: ["setBasket"] },
+          onDone: {
+            target: "#idle"
+            // actions: ["setBasket"] // we dont need to set the basket again..do we?
+          },
           onError: { target: "#error", actions: ["setError"] }
         }
       },
@@ -90,12 +91,22 @@ export default createMachine(
         type: "parallel",
         states: {
           client: {
-            initial: "unauthenticated",
+            initial: "checking",
             states: {
+              checking: {
+                invoke: {
+                  src: "isAuthenticated",
+                  onDone: { target: "authenticated" },
+                  onError: { target: "unauthenticated" }
+                }
+              },
               unauthenticated: {},
               authenticated: {
                 type: "final"
               }
+            },
+            on: {
+              AUTHENTICATED: { target: "#claiming" }
             }
           },
           items: {
@@ -131,9 +142,7 @@ export default createMachine(
           target: "readyForCheckout"
         },
         on: {
-          GENERATE: { target: "#generating" },
-          AUTHENTICATED: { target: "#claiming" },
-          UNAUTHENTICATED: { target: "#idle" }
+          GENERATE: { target: "#generating" }
         }
       },
 
@@ -154,6 +163,14 @@ export default createMachine(
         }
       },
 
+      clearing: {
+        id: "clearing",
+        invoke: {
+          src: "dumpBasket",
+          onDone: { target: "#loading", actions: ["clearBasket"] }
+        }
+      },
+
       // Handle errors
       error: {
         id: "error",
@@ -171,7 +188,6 @@ export default createMachine(
         },
 
         on: {
-          RETRY: { target: "loading", actions: ["clearError"] },
           CANCEL: { target: "complete" }
         }
       },
@@ -179,15 +195,18 @@ export default createMachine(
       complete: {
         type: "final"
       }
+    },
+    on: {
+      UNAUTHENTICATED: { target: "#clearing" }
     }
   },
   {
     actions: {
       setBasket: assign({
-        basket: (context, { data }) => useBasketParser(data)
+        basket: (context, { data }) => data
       }),
 
-      resetBasket: assign({
+      clearBasket: assign({
         basket: {}
       }),
 

@@ -28,7 +28,7 @@ export const useBrand = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    state
     // ---
+    getSnapshot: () => state
   };
 };

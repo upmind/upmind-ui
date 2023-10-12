@@ -249,8 +249,8 @@ export const useApi = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    state,
     // ---
+    getSnapshot: () => state,
     useUrl,
     generateHash,
     useTime,
