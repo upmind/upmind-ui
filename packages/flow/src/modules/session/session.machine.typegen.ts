@@ -77,6 +77,7 @@ export interface Typegen0 {
       | "error.platform.guest"
       | "error.platform.sessionManager.client.processing:invocation[0]"
       | "error.platform.sessionManager.guest.processing:invocation[0]";
+    setHistory: "done.invoke.client";
     setRefresh: "REFRESH";
     setToken:
       | "done.invoke.client"

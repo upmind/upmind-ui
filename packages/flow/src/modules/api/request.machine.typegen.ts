@@ -47,32 +47,17 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearError:
       | ""
-      | "DELETE"
-      | "GET"
-      | "PATCH"
-      | "POST"
-      | "PUT"
       | "REFRESH"
       | "RETRY"
       | "done.invoke.request.authorizing:invocation[0]"
       | "error.platform.process";
     clearResponse:
       | ""
-      | "DELETE"
-      | "GET"
-      | "PATCH"
-      | "POST"
-      | "PUT"
       | "REFRESH"
       | "RETRY"
       | "done.invoke.request.authorizing:invocation[0]";
     incrementAttempts:
       | ""
-      | "DELETE"
-      | "GET"
-      | "PATCH"
-      | "POST"
-      | "PUT"
       | "REFRESH"
       | "RETRY"
       | "done.invoke.request.authorizing:invocation[0]";
@@ -84,7 +69,6 @@ export interface Typegen0 {
       | "error.platform.cancel"
       | "error.platform.process"
       | "error.platform.request.authorizing:invocation[0]";
-    setRequest: "" | "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
@@ -104,11 +88,6 @@ export interface Typegen0 {
     cancelRequest: "CANCEL";
     doFetch:
       | ""
-      | "DELETE"
-      | "GET"
-      | "PATCH"
-      | "POST"
-      | "PUT"
       | "REFRESH"
       | "RETRY"
       | "done.invoke.request.authorizing:invocation[0]";

@@ -43,6 +43,7 @@ export interface RequestParams {
   maxAge?: number | null;
   data?: any;
   withAccessToken?: boolean;
+  hash?: string;
 }
 
 // --------------------------------------------------------

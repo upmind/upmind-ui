@@ -83,6 +83,7 @@ export const useSession = () => {
     // ---
     // useClient: subscription,
     // --- syntax sugar
-    token: state?.context?.token?.access_token
+    token: state?.context?.token?.access_token,
+    history: state?.context?.history
   };
 };

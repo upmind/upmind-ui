@@ -14,6 +14,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.claiming:invocation[0]": {
+      type: "done.invoke.claiming:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.generating:invocation[0]": {
       type: "done.invoke.generating:invocation[0]";
       data: unknown;
@@ -24,76 +29,65 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.updating:invocation[0]": {
-      type: "done.invoke.updating:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "error.platform.authCallback": {
       type: "error.platform.authCallback";
+      data: unknown;
+    };
+    "error.platform.claiming:invocation[0]": {
+      type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
-    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
     check: "done.invoke.loading:invocation[0]";
+    claim: "done.invoke.claiming:invocation[0]";
     create: "done.invoke.generating:invocation[0]";
     refreshToken: "done.invoke.basketManager.error.unauthorized:invocation[0]";
-    update: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
-    delays: "wait";
+    delays: never;
     guards: never;
     services:
       | "authSubscription"
       | "check"
+      | "claim"
       | "create"
-      | "refreshToken"
-      | "update";
+      | "refreshToken";
   };
   eventsCausingActions: {
     addProduct: "PRODUCT.ADD";
     clearError: "RETRY" | "error.platform.loading:invocation[0]";
-    killSpawn: "KILL";
+    resetBasket: "UNAUTHENTICATED";
     setBasket:
-      | "KILL"
+      | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]"
-      | "done.invoke.updating:invocation[0]";
-    setError: "error.platform.loading:invocation[0]";
+      | "done.invoke.loading:invocation[0]";
+    setError:
+      | "error.platform.claiming:invocation[0]"
+      | "error.platform.loading:invocation[0]";
   };
-  eventsCausingDelays: {
-    wait:
-      | ""
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.updating:invocation[0]";
-  };
+  eventsCausingDelays: {};
   eventsCausingGuards: {
     hasItems: "";
-    hasNoContent: "done.invoke.loading:invocation[0]";
-    hasNoSpawned: "";
+    hasNoBasket: "PRODUCT.ADD";
     isUnauthorized: "error.platform.loading:invocation[0]";
   };
   eventsCausingServices: {
-    authSubscription:
-      | "AUTHENTICATED"
-      | "UNAUTHENTICATED"
-      | "done.invoke.loading:invocation[0]"
-      | "xstate.after(wait)#processed";
+    authSubscription: "xstate.init";
     check:
       | "RETRY"
-      | "done.invoke.basketManager.error.unauthorized:invocation[0]"
-      | "xstate.init";
-    create: "PRODUCT.ADD" | "done.invoke.loading:invocation[0]";
+      | "SESSION"
+      | "done.invoke.basketManager.error.unauthorized:invocation[0]";
+    claim: "AUTHENTICATED";
+    create: "GENERATE" | "PRODUCT.ADD";
     refreshToken: "error.platform.loading:invocation[0]";
-    update: never;
   };
   matchesStates:
     | "checkout"
@@ -101,26 +95,23 @@ export interface Typegen0 {
     | "checkout.billing"
     | "checkout.payment"
     | "checkout.shipping"
+    | "claiming"
     | "complete"
     | "error"
     | "error.unauthorized"
     | "error.unknown"
+    | "generating"
     | "idle"
     | "idle.client"
     | "idle.client.authenticated"
-    | "idle.client.subscribing"
     | "idle.client.unauthenticated"
     | "idle.items"
     | "idle.items.empty"
     | "idle.items.invalid"
     | "idle.items.valid"
     | "loading"
-    | "processed"
-    | "processing"
-    | "processing.generating"
-    | "processing.spawning"
-    | "processing.updating"
     | "readyForCheckout"
+    | "subscribing"
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
         error?: "unauthorized" | "unknown";
@@ -128,10 +119,9 @@ export interface Typegen0 {
           | "client"
           | "items"
           | {
-              client?: "authenticated" | "subscribing" | "unauthenticated";
+              client?: "authenticated" | "unauthenticated";
               items?: "empty" | "invalid" | "valid";
             };
-        processing?: "generating" | "spawning" | "updating";
       };
   tags: never;
 }

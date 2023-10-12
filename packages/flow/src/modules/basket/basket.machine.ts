@@ -25,7 +25,7 @@ export default createMachine(
     tsTypes: {} as import("./basket.machine.typegen").Typegen0,
     id: "basketManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {
       debug: false,
       // ---
@@ -35,105 +35,70 @@ export default createMachine(
       error: null
     } as BasketContext,
     states: {
-      // our initial state will check 'self' and see if we have a basket
-      // if we do, we can skip generating a basket
-      // but if its empty..then autogenerate a new basket, maybe we dont want to do this until we add a product
+      // Subscribe to changes in auth and listen for a valid Authenticated client,
+      // we will also wait for a session before we can continue
+      subscribing: {
+        invoke: {
+          id: "authCallback",
+          src: "authSubscription"
+        },
+        on: {
+          SESSION: { target: "#loading" }
+        }
+      },
+      // our initial state will check and see if we have an existing basket
+      // if not, we dont generating a basket as this will inundate the backend with empty baskets
+      // instead we will wait for an Action before we generate a basket
       loading: {
         id: "loading",
         invoke: {
           src: "check",
-          onDone: [
-            { target: "#processing", cond: "hasNoContent" },
-            { target: "#idle", actions: ["setBasket"] }
-          ],
+          onDone: { target: "#idle", actions: ["setBasket"] },
           onError: [
             {
               target: "error.unauthorized",
               actions: ["setError"],
               cond: "isUnauthorized"
             },
-
             { target: "error", actions: ["setError"] }
           ]
         }
       },
 
       // otherwise we will generate an "empty" basket
-      processing: {
-        id: "processing",
-        initial: "generating",
-        states: {
-          generating: {
-            id: "generating",
-            invoke: {
-              src: "create",
-              onDone: { target: "#processed", actions: ["setBasket"] },
-              onError: { target: "#error" }
-            }
-          },
-          updating: {
-            id: "updating",
-            invoke: {
-              src: "update",
-              onDone: { target: "#processed", actions: ["setBasket"] },
-              onError: { target: "#error" }
-            }
-          },
-          spawning: {
-            always: [{ target: "#processed", cond: "hasNoSpawned" }],
-            on: {
-              KILL: {
-                actions: ["setBasket", "killSpawn"]
-              },
-
-              "PRODUCT.ADD": {
-                actions: ["addProduct"]
-                // cond: "canAddProduct"
-              }
-
-              // KILL_ALL: {
-              //   actions: "killAllSpawn"
-              // }
-            }
-          }
+      generating: {
+        id: "generating",
+        invoke: {
+          src: "create",
+          onDone: { target: "#idle", actions: ["setBasket"] },
+          onError: { target: "#error" }
         }
-
-        // TODO invoke a sub states/service to do something
       },
 
-      // Use a transient state to indicate a successful process
-      // We have an imperceptible delay to allow the components to understand the process is complete
-      processed: {
-        id: "processed",
-        after: { wait: "idle" }
+      // if we have a session, we can now claim any existing basket
+      claiming: {
+        id: "claiming",
+        invoke: {
+          src: "claim",
+          onDone: { target: "#idle", actions: ["setBasket"] },
+          onError: { target: "#error", actions: ["setError"] }
+        }
       },
 
-      // we are idle when we have a basket
+      // We can now generate a basket (only when we have something to put in it), and start listening for items being added/removed/updated
       idle: {
         id: "idle",
         type: "parallel",
         states: {
-          // Subscribe to changes in auth and listen for a valid Authenticated client
           client: {
-            initial: "subscribing",
+            initial: "unauthenticated",
             states: {
-              subscribing: {
-                invoke: {
-                  id: "authCallback",
-                  src: "authSubscription"
-                }
-              },
               unauthenticated: {},
               authenticated: {
                 type: "final"
               }
-            },
-            on: {
-              AUTHENTICATED: { target: "client.authenticated" },
-              UNAUTHENTICATED: { target: "client.unauthenticated" }
             }
           },
-
           items: {
             initial: "empty",
             states: {
@@ -146,18 +111,17 @@ export default createMachine(
               invalid: {}
             },
             on: {
-              "PRODUCT.ADD": {
-                target: "#processing.spawning",
-                actions: ["addProduct"]
-                // cond: "canAddProduct"
-              }
+              "PRODUCT.ADD": [
+                { target: "#generating", cond: "hasNoBasket" },
+                { actions: ["addProduct"] }
+              ]
               // "PRODUCT.UPDATE": {
-              //   target: "#processing.updating",
+              //   target: "updating",
               //   actions: ["updateProduct"]
               //   // cond: "canUpdateProduct"
               // },
               // "PRODUCT.REMOVE": {
-              //   target: "#processing.updating",
+              //   target: "updating",
               //   actions: ["removeProduct"]
               //   // cond: "canRemoveProduct"
               // }
@@ -166,9 +130,16 @@ export default createMachine(
         },
         onDone: {
           target: "readyForCheckout"
+        },
+        on: {
+          GENERATE: { target: "#generating" },
+          AUTHENTICATED: { target: "#claiming" },
+          UNAUTHENTICATED: { target: "#idle", actions: ["resetBasket"] }
         }
       },
 
+      // when we are ready for checkout, we can start the checkout process
+      // and lock the basket from being modified
       readyForCheckout: {},
 
       checkout: {
@@ -228,19 +199,18 @@ export default createMachine(
           // spawn an actor for the new request
           debugger;
           const uuid = uniqueId("product_");
-          const machine = spawn(productMachine, {
-            name: uuid,
-            sync: true
-          });
-
+          debugger;
+          const machine = spawn(
+            productMachine({ id: uuid, basketId: basket.id, product: data }),
+            {
+              name: uuid,
+              sync: true
+            }
+          );
+          debugger;
           // for now well just add the new machine to our list
           set(spawned, uuid, machine);
-
-          // and then forward the request to the new machine to process
-          machine.send({
-            type: "ADD",
-            data: { id: uuid, basket_id: basket.id, product: data }
-          });
+          debugger;
 
           return spawned;
         }
@@ -278,6 +248,8 @@ export default createMachine(
         data?.status === responseCodes.No_Content,
 
       hasNoSpawned: ({ spawned }) => isEmpty(spawned),
+
+      hasNoBasket: ({ basket }) => isEmpty(basket),
 
       hasItems: ({ basket }) => !!basket?.products?.length
     },

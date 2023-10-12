@@ -23,10 +23,9 @@ export interface Typegen0 {
     services: "add";
   };
   eventsCausingActions: {
-    clearError: "" | "ADD";
+    clearError: "";
     sendRemoveMessage: "xstate.after(wait)#processed";
     setError: "error.platform.process";
-    setProduct: "" | "ADD";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
@@ -36,7 +35,7 @@ export interface Typegen0 {
     hasProduct: "";
   };
   eventsCausingServices: {
-    add: "" | "ADD";
+    add: "";
   };
   matchesStates:
     | "available"
