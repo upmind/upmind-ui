@@ -20,7 +20,7 @@ import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
 // and a global object to store state
 
 let state = null;
-const service = interpret(requestsMachine, { devTools: false }).onTransition(
+const service = interpret(requestsMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------

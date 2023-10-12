@@ -25,8 +25,9 @@ export const useBasket = () => {
     // ---
     isLoading: computed(() => ["loading"].some(state.value.matches)),
     isProcessing: computed(() => ["processing"].some(state.value.matches)),
-    isAvailable: computed(() =>
-      ["idle", "readyForCheckout"].some(state.value.matches)
+    isAvailable: computed(() => ["idle"].some(state.value.matches)),
+    isReadyForCheckout: computed(() =>
+      ["readyForCheckout"].some(state.value.matches)
     ),
     hasError: computed(() => ["error"].some(state.value.matches))
   };

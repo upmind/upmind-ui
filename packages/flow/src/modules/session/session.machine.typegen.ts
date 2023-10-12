@@ -72,6 +72,7 @@ export interface Typegen0 {
     clearError: "CANCEL" | "LOGIN" | "REGISTER" | "done.state.starting";
     clearRefresh: "done.state.starting";
     clearToken: "done.invoke.clearing:invocation[0]";
+    clearUser: "done.invoke.clearing:invocation[0]";
     setError:
       | "error.platform.client"
       | "error.platform.guest"

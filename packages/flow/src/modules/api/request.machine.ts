@@ -206,17 +206,6 @@ export default (request: RequestParams) =>
     },
     {
       actions: {
-        setRequest: assign(
-          (context, { data: { hash, url, init, useCache, maxAge } }) => ({
-            hash,
-            url,
-            init,
-            useCache,
-            maxAge: maxAge || context.maxAge,
-            created: Date.now()
-          })
-        ),
-
         setResponse: assign({
           response: (context, { data }) => data,
           completed: () => Date.now()

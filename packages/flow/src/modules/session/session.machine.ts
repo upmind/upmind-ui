@@ -83,6 +83,9 @@ export default createMachine(
               id: "client",
               src: clientMachine,
               autoForward: true,
+              data: {
+                refresh: context => context.refresh
+              },
               onDone: {
                 target: "#client",
                 actions: ["setHistory", "setToken"]
@@ -197,13 +200,13 @@ export default createMachine(
         id: "clearing",
         invoke: {
           src: "dumpTokens",
-          onDone: { target: "#starting", actions: ["clearToken"] }
+          onDone: { target: "#starting", actions: ["clearToken", "clearUser"] }
         }
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        entry: "clearToken",
+        entry: ["clearToken", "clearUser"],
         type: "final"
       }
     }

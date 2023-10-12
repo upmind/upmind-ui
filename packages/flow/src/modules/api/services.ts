@@ -64,13 +64,14 @@ async function doFetch({ url, init }: RequestContext) {
 
 async function refreshToken(_context: RequestContext, _event: any) {
   // start by getting the current service and state
-
   // kick off the auth process
   sessionService.send("REFRESH");
 
   // wait for the service to complete
   await waitFor(sessionService, newState =>
-    ["idle", "error"].some(newState.matches)
+    ["client.idle", "guest.idle", "client.error", "guest.error"].some(
+      newState.matches
+    )
   ).catch(error => {
     return Promise.reject(error);
   });
@@ -79,12 +80,11 @@ async function refreshToken(_context: RequestContext, _event: any) {
   return new Promise((resolve, reject) => {
     // get the current state
     const state = getSnapshot();
-
-    if (["error"].some(state.matches)) {
+    if (["client.idle", "guest.idle"].some(state.matches)) {
+      resolve(state.context.token);
+    } else {
       const error = get(state, "context.error");
       reject(error);
-    } else {
-      resolve(state.context.token);
     }
   });
 }

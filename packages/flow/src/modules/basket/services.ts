@@ -2,9 +2,10 @@
 
 // --- internal
 import { useApi } from "../api";
-import { type BasketContext } from "./types.d";
+import type { BasketContext } from "./types.d";
 import { useSession } from "../session";
-const { authSubscription, getHistory, isAuthenticated } = useSession();
+import type { Token } from "../session/types.d";
+const { authSubscription, getHistory, isAuthenticated, service } = useSession();
 
 // --- utils
 import { useBasketParser } from "./utils";
@@ -18,7 +19,7 @@ import { isEmpty, first, isObject, isArray } from "lodash-es";
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(context: BasketContext, _event: any) {
+async function check(_context: BasketContext, _event: any) {
   const { get, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
@@ -54,7 +55,7 @@ async function check(context: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function create(context: BasketContext, { data }: any) {
+async function create(_context: BasketContext, { data }: any) {
   const { post, useUrl } = useApi();
 
   // we may be passed a product or an array of products to create the basket with...
@@ -76,14 +77,12 @@ async function create(context: BasketContext, { data }: any) {
   }).then(useBasketParser);
 }
 
-async function refresh(context: BasketContext, _event: any) {}
-
 async function claim({ basket }: BasketContext, _event: any) {
   if (isEmpty(basket)) return Promise.resolve();
 
   const { patch, useUrl } = useApi();
-  const token = first(getHistory());
-  if (isEmpty(token)) return Promise.resolve();
+  const token: Token | undefined = first(getHistory());
+  if (!token) return Promise.resolve();
 
   // this will return an array of the users baskets, ordered by most recent
   // but the response basket does not contain the products, so we need to
@@ -97,7 +96,7 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function dumpBasket(context: SessionContext, event: any) {
+async function dump(_context: BasketContext, _event: any) {
   // do we need to tell the api to dump the basket?
   return Promise.resolve(); // we dont need to return anything
 }
@@ -127,9 +126,8 @@ async function setPriceList(context: BasketContext, _event: any) {}
 export default <Object>{
   check,
   create,
-  refresh,
   claim,
-  dumpBasket,
+  dump,
   // ---
   authSubscription,
   isAuthenticated
