@@ -28,7 +28,7 @@ export const useBasket = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    state
     // ---
+    getSnapshot: () => state
   };
 };
