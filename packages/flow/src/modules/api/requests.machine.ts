@@ -76,19 +76,16 @@ export default createMachine(
           // and send the request to it
           if (!request) {
             // spawn an actor for the new request
-            const machine = spawn(requestMachine, {
-              name: hash,
-              sync: true
-            });
+            const machine = spawn(
+              requestMachine({ hash, url, init, useCache, maxAge }),
+              {
+                name: hash,
+                sync: true
+              }
+            );
 
             // for now well just add the new machine to our list
             set(requests, hash, machine);
-
-            // and then forward the request to the new machine to process
-            machine.send({
-              type: init.method,
-              data: { hash, url, init, useCache, maxAge, parent: this }
-            });
           }
 
           // if we already have a request with the same hash
@@ -134,6 +131,7 @@ export default createMachine(
         context: RequestsContext,
         { type, data: { hash } }: RequestsEvents
       ) => {
+        debugger;
         sendTo(hash, { type });
       }
     },

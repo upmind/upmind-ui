@@ -7,10 +7,11 @@ import services from "./services";
 import type { SessionContext } from "./types.d";
 import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
+
 // --- utils
 import { useTokenParser } from "./utils";
 import { useTime } from "../../utils";
-
+import { isEqual } from "lodash-es";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -33,6 +34,7 @@ export default createMachine(
         actor_id: null,
         actor_type: null
       },
+      history: [],
       user: {},
       refresh: false,
       error: null
@@ -81,7 +83,10 @@ export default createMachine(
               id: "client",
               src: clientMachine,
               autoForward: true,
-              onDone: { target: "#client", actions: ["setToken"] },
+              onDone: {
+                target: "#client",
+                actions: ["setHistory", "setToken"]
+              },
               onError: { actions: ["setError"] }
             }
           }
@@ -102,6 +107,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
+            type: "final",
             on: {
               SELF: { target: "processing" }
             }
@@ -149,6 +155,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
+            type: "final",
             on: {
               SELF: { target: "processing" }
             }
@@ -207,8 +214,15 @@ export default createMachine(
       setRefresh: assign({ refresh: true }),
       clearRefresh: assign({ refresh: false }),
       // ---
+      setHistory: assign({
+        history: (context, { data }) => {
+          if (isEqual(context.token, data)) return context.history;
+          context.history.push(context.token);
+          return context.history;
+        }
+      }),
       setToken: assign({ token: (context, { data }) => useTokenParser(data) }),
-      clearToken: assign({ token: {} }),
+      clearToken: assign({ token: {}, history: [] }),
       // ---
       setUser: assign({ user: (context, { data }) => data }),
       clearUser: assign({ user: {} }),

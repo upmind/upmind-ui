@@ -5,7 +5,9 @@ import { useApi } from "../api";
 import { type BasketContext } from "./types.d";
 import { useSession } from "../session";
 const { authSubscription } = useSession();
+
 // --- utils
+import { isEmpty, first } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -20,7 +22,7 @@ async function check(context: BasketContext, _event: any) {
 
   // get returns a promise so we can pass it directly back to the machine
   return await get({
-    url: useUrl("/orders/current", {
+    url: useUrl("orders/current", {
       with: [
         "account.brand.image",
         "account.pricelist",
@@ -55,7 +57,7 @@ async function create(context: BasketContext, _event: any) {
   const { post, useUrl } = useApi();
 
   return post({
-    url: useUrl("/orders"),
+    url: useUrl("orders"),
     data: {
       category_slug: "new_contract"
       // currency_code: "GBP", // from brand
@@ -94,7 +96,25 @@ async function update(context: BasketContext, _event: any) {}
 
 async function remove(context: BasketContext, _event: any) {}
 
-async function claim(context: BasketContext, _event: any) {}
+async function claim({ basket }: BasketContext, _event: any) {
+  debugger;
+
+  if (isEmpty(basket)) return Promise.resolve();
+
+  const { patch, useUrl } = useApi();
+  const { history } = useSession();
+  const token = first(history);
+
+  if (isEmpty(token)) return Promise.resolve();
+
+  return await patch({
+    url: useUrl("client/claim"),
+    withAccessToken: true,
+    data: {
+      guest_token: token.access_token
+    }
+  });
+}
 
 async function hideWarnings(context: BasketContext, _event: any) {}
 
@@ -117,6 +137,7 @@ export default <Object>{
   check,
   create,
   refresh,
-  authSubscription
+  authSubscription,
+  claim
   // ---
 };
