@@ -4,7 +4,9 @@
       <h2 class="title">Basket is {{ state }}</h2>
 
       <slot name="actions">
-        <button @click="addProduct()" v-if="isAvailable">addProduct</button>
+        <button @click="addProduct()" :disabled="!isAvailable">
+          addProduct
+        </button>
       </slot>
     </header>
 

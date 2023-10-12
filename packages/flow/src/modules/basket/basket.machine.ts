@@ -51,14 +51,7 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: { target: "#idle", actions: ["setBasket"] },
-          onError: [
-            {
-              target: "error.unauthorized",
-              actions: ["setError"],
-              cond: "isUnauthorized"
-            },
-            { target: "error", actions: ["setError"] }
-          ]
+          onError: { target: "error", actions: ["setError"] }
         }
       },
 
@@ -166,7 +159,7 @@ export default createMachine(
       clearing: {
         id: "clearing",
         invoke: {
-          src: "dumpBasket",
+          src: "dump",
           onDone: { target: "#loading", actions: ["clearBasket"] }
         }
       },
@@ -174,19 +167,6 @@ export default createMachine(
       // Handle errors
       error: {
         id: "error",
-        initial: "unknown",
-        states: {
-          unknown: {},
-          unauthorized: {
-            entry: ["clearError"],
-            invoke: {
-              src: "refreshToken",
-              onDone: { target: "#loading" },
-              onError: { target: "#error" }
-            }
-          }
-        },
-
         on: {
           CANCEL: { target: "complete" }
         }
@@ -254,9 +234,6 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      isUnauthorized: (_context, { data }) =>
-        data?.status === responseCodes.Unauthorized,
-
       hasNoContent: (_context, { data }) =>
         data?.status === responseCodes.No_Content,
 

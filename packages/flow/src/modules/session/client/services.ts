@@ -95,7 +95,6 @@ async function register({ model }: ClientContext) {
 async function refreshToken(context: ClientContext) {
   const { post, useUrl } = useApi();
   const refresh_token = get(context, "token.refresh_token", "");
-
   return post({
     url: useUrl("access_token", {}, "oauth"),
     data: {
