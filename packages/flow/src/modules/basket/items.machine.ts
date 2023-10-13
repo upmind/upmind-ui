@@ -7,16 +7,7 @@ import services from "./services";
 import itemMachine from "./item.machine";
 
 // --- utils
-import {
-  isEmpty,
-  set,
-  get,
-  unset,
-  some,
-  every,
-  map,
-  uniqueId
-} from "lodash-es";
+import { isEmpty, get, unset, some, every, map, uniqueId } from "lodash-es";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
@@ -54,13 +45,7 @@ export default createMachine(
           src: "create",
           onDone: {
             target: "empty",
-            actions: [
-              "load",
-              sendParent((_context, { data }) => ({
-                type: "REFRESH",
-                data
-              }))
-            ]
+            actions: ["load", "setBasket", "sendBasket"]
           },
           onError: { target: "#error" }
         }
@@ -97,6 +82,9 @@ export default createMachine(
       }
     },
     on: {
+      REFRESH: {
+        actions: ["sendBasket"]
+      },
       ADD: {
         actions: ["add"]
       },
@@ -110,6 +98,16 @@ export default createMachine(
   },
   {
     actions: {
+      setBasket: assign({
+        basketId: (_context, { data }) => data?.id
+      }),
+
+      sendBasket: sendParent((_context, { data }) => ({
+        type: "REFRESH",
+        data
+      })),
+
+      // ---
       load: assign({
         items: ({ basketId, items }) => {
           const machines = map(items, item => spawnItem(basketId, item));

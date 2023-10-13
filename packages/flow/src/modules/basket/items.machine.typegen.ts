@@ -24,6 +24,8 @@ export interface Typegen0 {
     add: "ADD";
     load: "" | "done.invoke.generating:invocation[0]";
     remove: "REMOVE";
+    sendBasket: "REFRESH" | "done.invoke.generating:invocation[0]";
+    setBasket: "done.invoke.generating:invocation[0]";
     update: "UPDATE";
   };
   eventsCausingDelays: {};

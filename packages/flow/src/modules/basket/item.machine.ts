@@ -15,61 +15,203 @@ export default ({ name, basketId, product }) =>
       tsTypes: {} as import("./item.machine.typegen").Typegen0,
       id: "item",
       predictableActionArguments: true,
-      initial: "idle",
+      initial: "loading",
       context: {
         name,
-        product,
-        model: null,
+        basketId,
+        product, // this is the full product object from the DB,
+        configurationFields: null,
+        model: null, // this is the product model, which will be added to the basket
         error: null
       },
       states: {
-        idle: {
-          always: [{ target: "configuring", cond: "needsConfiguring" }]
+        // first load our product
+        loading: {
+          invoke: {
+            id: "load",
+            src: "load",
+            onDone: [
+              { target: "configuring", actions: ["setProduct", "setModel"] },
+              { target: "error", actions: ["setError"] }
+            ]
+          }
         },
 
         // The product requires configuration
         configuring: {
           // TODO
+          type: "parallel",
+          states: {
+            term: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkTerm",
+                    onDone: {
+                      target: "complete"
+                    },
+                    onError: {
+                      target: "required",
+                      actions: []
+                    }
+                  }
+                },
+                required: {
+                  invoke: {
+                    src: "configureTerm",
+                    onDone: {
+                      target: "complete",
+                      actions: ["clearConfigurationFields"]
+                    },
+                    onError: {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  }
+                },
+                error: {},
+                complete: {
+                  type: "final"
+                }
+              }
+            },
+            options: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkOptions",
+                    onDone: {
+                      target: "complete"
+                    },
+                    onError: {
+                      target: "required",
+                      actions: []
+                    }
+                  }
+                },
+                required: {
+                  invoke: {
+                    src: "configureTerm",
+                    onDone: {
+                      target: "complete",
+                      actions: ["clearConfigurationFields"]
+                    },
+                    onError: {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  }
+                },
+                error: {},
+                complete: {
+                  type: "final"
+                }
+              }
+            },
+            attributes: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkAttributes",
+                    onDone: {
+                      target: "complete"
+                    },
+                    onError: {
+                      target: "required",
+                      actions: []
+                    }
+                  }
+                },
+                required: {
+                  invoke: {
+                    src: "configureTerm",
+                    onDone: {
+                      target: "complete",
+                      actions: ["clearConfigurationFields"]
+                    },
+                    onError: {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  }
+                },
+                error: {},
+                complete: {
+                  type: "final"
+                }
+              }
+            },
+            provisioning: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkProvisioning",
+                    onDone: {
+                      target: "complete",
+                      actions: ["clearConfigurationFields"]
+                    },
+                    onError: {
+                      target: "required",
+                      actions: ["setConfigurationFields"]
+                    }
+                  }
+                },
+                required: {
+                  invoke: {
+                    src: "configureTerm",
+                    onDone: {
+                      target: "complete",
+                      actions: ["clearConfigurationFields"]
+                    },
+                    onError: {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  }
+                },
+                error: {},
+                complete: {
+                  type: "final"
+                }
+              }
+            }
+          },
+          on: {
+            // maybe individual updates for each of the above?
+            UPDATE: { target: "updating", actions: ["clearError", "setModel"] }
+          },
+          onDone: "adding"
         },
 
-        processing: {
-          entry: ["clearError"],
-          id: "processing",
+        // The product configuration is being updated
+        updating: {
           invoke: {
-            id: "process",
-            src: "add",
+            src: "update",
             onDone: {
-              target: "processed",
-              actions: ["setResponse"]
+              target: "configuring",
+              actions: ["setResponse", "clearModel"]
             },
             onError: { target: "error", actions: ["setError"] }
           }
         },
 
-        // Use a transient state to indicate a successful process
-        // We have an imperceptible delay to allow the components to understand the process is complete
-        processed: {
-          id: "processed",
-          after: {
-            wait: "idle"
-          }
-        },
-
-        // The product is being removed from the basket
-        clearing: {
-          id: "clearing",
+        // The product is being added to the basket
+        adding: {
+          id: "adding",
           invoke: {
-            src: "dump",
-            onDone: { target: "#complete" }
-          }
-        },
-
-        // The product is being updated
-        updating: {
-          id: "updating",
-          invoke: {
-            src: "update",
-            onDone: { target: "idle", actions: ["setResponse", "clearModel"] },
+            id: "process",
+            src: "add",
+            onDone: {
+              target: "complete",
+              actions: sendParent((_context, { data }) => ({
+                type: "REFRESH",
+                data
+              }))
+            },
             onError: { target: "error", actions: ["setError"] }
           }
         },
@@ -85,10 +227,6 @@ export default ({ name, basketId, product }) =>
           id: "complete",
           type: "final"
         }
-      },
-      on: {
-        UPDATE: { target: "updating", actions: ["clearError", "setModel"] },
-        REMOVE: { target: "clearing" }
       }
     },
     {
@@ -98,6 +236,17 @@ export default ({ name, basketId, product }) =>
         }),
         clearModel: assign({
           model: null
+        }),
+        // ---
+        setProduct: assign({
+          product: (context, { data }) => data
+        }),
+        // ---
+        setConfigurationFields: assign({
+          configurationFields: (context, { data }) => data
+        }),
+        clearConfigurationFields: assign({
+          configurationFields: null
         }),
         // ---
         setResponse: assign({
@@ -129,8 +278,3 @@ export default ({ name, basketId, product }) =>
       }
     }
   );
-
-// term
-// options
-// attributes
-// provisioning
