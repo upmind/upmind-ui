@@ -89,7 +89,7 @@ export default createMachine(
                   src: itemsMachine,
                   autoForward: true,
                   data: {
-                    basketId: ({ basket }) => basket.id,
+                    basketId: ({ basket }) => basket?.id, // pass the basket Id, if we have one : this will auto generate a basket if we dont
                     items: (_context, { data }) => [data] // pass through the item being added
                   },
                   onDone: { target: "empty" }

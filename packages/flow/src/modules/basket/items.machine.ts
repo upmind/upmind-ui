@@ -3,16 +3,25 @@ import { createMachine, assign, actions, spawn } from "xstate";
 const { sendTo, sendParent } = actions;
 
 // --- internal
-import services from "./services.products";
+import services from "./services";
 import itemMachine from "./item.machine";
 
 // --- utils
-import { isEmpty, set, get, unset, some, every, map } from "lodash-es";
+import {
+  isEmpty,
+  set,
+  get,
+  unset,
+  some,
+  every,
+  map,
+  uniqueId
+} from "lodash-es";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
 function spawnItem(basketId, product) {
-  const name = product.id;
+  const name = product?.id || uniqueId("item_");
   return spawn(itemMachine({ name, basketId, product }), {
     name,
     sync: true
@@ -34,7 +43,7 @@ export default createMachine(
       loading: {
         always: [
           { target: "generating", cond: "hasNoBasket" },
-          { target: "empty", actions: ["spawnItems"] }
+          { target: "empty", actions: ["load"] }
         ]
       },
 
@@ -46,7 +55,7 @@ export default createMachine(
           onDone: {
             target: "empty",
             actions: [
-              "spawnItems",
+              "load",
               sendParent((_context, { data }) => ({
                 type: "REFRESH",
                 data
@@ -73,6 +82,7 @@ export default createMachine(
           { target: "configured", cond: "allConfigured" }
         ]
       },
+
       configured: {
         always: [
           { target: "empty", cond: "hasNoItems" },
@@ -87,6 +97,9 @@ export default createMachine(
       }
     },
     on: {
+      ADD: {
+        actions: ["add"]
+      },
       REMOVE: {
         actions: ["remove"]
       },
@@ -97,18 +110,21 @@ export default createMachine(
   },
   {
     actions: {
-      spawnItems: assign({
+      load: assign({
         items: ({ basketId, items }) => {
           const machines = map(items, item => spawnItem(basketId, item));
           return machines;
         }
       }),
-      // ---
-      setError: assign({
-        error: (context, { data }) => data || "Unknown error"
+
+      add: assign({
+        items: ({ basketId, items }, { data }) => {
+          const machine = spawnItem(basketId, data);
+          items.push(machine);
+          return items;
+        }
       }),
-      clearError: assign({ error: null }),
-      // ---
+
       remove: assign({
         items: ({ items }, { data: { name } }) => {
           // try find any items with the same hash
@@ -124,11 +140,17 @@ export default createMachine(
         }
       }),
 
-      // update
       update: (_context, { data: { name, item } }) => {
         debugger;
         sendTo(name, { type: "UPDATE", data: item });
-      }
+      },
+
+      // ---
+
+      setError: assign({
+        error: (context, { data }) => data || "Unknown error"
+      }),
+      clearError: assign({ error: null })
     },
 
     guards: {

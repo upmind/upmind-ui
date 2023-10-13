@@ -1,8 +1,10 @@
 // --- external
+import { spawn } from "xstate";
 
 // --- internal
 import { useApi } from "../api";
 import { type BasketContext } from "./types.d";
+import itemMachine from "./item.machine";
 
 // --- utils
 
@@ -16,6 +18,8 @@ import { type BasketContext } from "./types.d";
 
 // --------------------------------------------------------
 //  Syntax sugar to manage Products (likely to move to a separate product machine, like requests)
+
+// utility function to spawn machines based on the given items
 
 async function add({ basket_id, product }, _event: any) {
   const { post, useUrl } = useApi();

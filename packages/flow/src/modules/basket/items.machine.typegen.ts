@@ -21,8 +21,9 @@ export interface Typegen0 {
     services: "create";
   };
   eventsCausingActions: {
+    add: "ADD";
+    load: "" | "done.invoke.generating:invocation[0]";
     remove: "REMOVE";
-    spawnItems: "" | "done.invoke.generating:invocation[0]";
     update: "UPDATE";
   };
   eventsCausingDelays: {};
