@@ -9,7 +9,7 @@ import { useBasketParser } from "./utils";
 import { isEmpty } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with an existing basket product
-export default ({ name, product }) =>
+export default ({ name, basketId, product }) =>
   createMachine(
     {
       tsTypes: {} as import("./item.machine.typegen").Typegen0,
@@ -30,6 +30,29 @@ export default ({ name, product }) =>
         // The product requires configuration
         configuring: {
           // TODO
+        },
+
+        processing: {
+          entry: ["clearError"],
+          id: "processing",
+          invoke: {
+            id: "process",
+            src: "add",
+            onDone: {
+              target: "processed",
+              actions: ["setResponse"]
+            },
+            onError: { target: "error", actions: ["setError"] }
+          }
+        },
+
+        // Use a transient state to indicate a successful process
+        // We have an imperceptible delay to allow the components to understand the process is complete
+        processed: {
+          id: "processed",
+          after: {
+            wait: "idle"
+          }
         },
 
         // The product is being removed from the basket
@@ -91,8 +114,14 @@ export default ({ name, product }) =>
       },
       services,
       guards: {
+        isNew: ({ basket_id, product }) => !!basket_id && !isEmpty(product),
+
         needsConfiguring: ({ product }) => {
-          return false; // TBD
+          // provision_setup_field_defer_mode; hidden | inherit | none | optional
+
+          const hasProvider = !!product.provision_provider_id;
+          const hasConfig = false; //!!product.config;
+          return hasProvider && !hasConfig;
         }
       },
       delays: {
@@ -100,3 +129,8 @@ export default ({ name, product }) =>
       }
     }
   );
+
+// term
+// options
+// attributes
+// provisioning

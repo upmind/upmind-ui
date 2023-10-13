@@ -19,11 +19,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.generating:invocation[0]": {
-      type: "done.invoke.generating:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.loading:invocation[0]": {
       type: "done.invoke.loading:invocation[0]";
       data: unknown;
@@ -37,7 +32,6 @@ export interface Typegen0 {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
-    "error.platform.items": { type: "error.platform.items"; data: unknown };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
@@ -48,9 +42,8 @@ export interface Typegen0 {
     authSubscription: "done.invoke.authCallback";
     check: "done.invoke.loading:invocation[0]";
     claim: "done.invoke.claiming:invocation[0]";
-    create: "done.invoke.generating:invocation[0]";
     dump: "done.invoke.clearing:invocation[0]";
-    isAuthenticated: "done.invoke.basketManager.idle.client.checking:invocation[0]";
+    isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -60,39 +53,29 @@ export interface Typegen0 {
       | "authSubscription"
       | "check"
       | "claim"
-      | "create"
       | "dump"
       | "isAuthenticated";
   };
   eventsCausingActions: {
-    addProduct: "PRODUCT.ADD";
     clearBasket: "done.invoke.clearing:invocation[0]";
-    killSpawned: "KILL";
-    setBasket:
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]";
+    setBasket: "REFRESH" | "done.invoke.loading:invocation[0]";
     setError:
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.items"
       | "error.platform.loading:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasItems: "";
-    hasNoBasket: "PRODUCT.ADD";
-    hasNoSpawned: "";
   };
   eventsCausingServices: {
-    authSubscription: "UNAUTHENTICATED" | "xstate.init";
+    authSubscription: "xstate.init";
     check: "SESSION" | "done.invoke.clearing:invocation[0]";
     claim: "AUTHENTICATED";
-    create: "GENERATE" | "PRODUCT.ADD";
     dump: "UNAUTHENTICATED";
     isAuthenticated:
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
-    items: "";
+    queue: "ADD";
   };
   matchesStates:
     | "checkout"
@@ -104,28 +87,30 @@ export interface Typegen0 {
     | "clearing"
     | "complete"
     | "error"
-    | "generating"
-    | "idle"
-    | "idle.client"
-    | "idle.client.authenticated"
-    | "idle.client.checking"
-    | "idle.client.unauthenticated"
-    | "idle.items"
-    | "idle.items.empty"
-    | "idle.items.idle"
-    | "idle.items.processed"
-    | "idle.items.spawning"
     | "loading"
-    | "readyForCheckout"
+    | "shopping"
+    | "shopping.client"
+    | "shopping.client.authenticated"
+    | "shopping.client.checking"
+    | "shopping.client.unauthenticated"
+    | "shopping.items"
+    | "shopping.items.empty"
+    | "shopping.items.processed"
+    | "shopping.items.processing"
+    | "shopping.queue"
+    | "shopping.queue.empty"
+    | "shopping.queue.processing"
     | "subscribing"
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
-        idle?:
+        shopping?:
           | "client"
           | "items"
+          | "queue"
           | {
               client?: "authenticated" | "checking" | "unauthenticated";
-              items?: "empty" | "idle" | "processed" | "spawning";
+              items?: "empty" | "processed" | "processing";
+              queue?: "empty" | "processing";
             };
       };
   tags: never;

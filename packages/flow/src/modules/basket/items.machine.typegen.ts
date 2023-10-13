@@ -4,28 +4,44 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
+    "done.invoke.generating:invocation[0]": {
+      type: "done.invoke.generating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "xstate.init": { type: "xstate.init" };
   };
-  invokeSrcNameMap: {};
+  invokeSrcNameMap: {
+    create: "done.invoke.generating:invocation[0]";
+  };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: never;
+    services: "create";
   };
   eventsCausingActions: {
     remove: "REMOVE";
-    spawnItems: "xstate.init";
+    spawnItems: "" | "done.invoke.generating:invocation[0]";
     update: "UPDATE";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     allConfigured: "";
     hasItems: "";
+    hasNoBasket: "";
     hasNoItems: "";
     someConfiguring: "";
   };
-  eventsCausingServices: {};
-  matchesStates: "configured" | "configuring" | "empty" | "error" | "loading";
+  eventsCausingServices: {
+    create: "";
+  };
+  matchesStates:
+    | "configured"
+    | "configuring"
+    | "empty"
+    | "error"
+    | "generating"
+    | "loading";
   tags: never;
 }
