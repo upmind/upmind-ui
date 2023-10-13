@@ -83,7 +83,7 @@ const selected = ref();
 
 function addProduct() {
   send({
-    type: "PRODUCT.ADD",
+    type: "ADD",
     data: selected.value
   });
 }
