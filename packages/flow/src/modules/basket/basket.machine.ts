@@ -5,14 +5,11 @@
 // might make the transfer/dumping of the basket easier
 
 // --- external
-import { createMachine, assign, spawn, actions } from "xstate";
-const { raise } = actions;
+import { createMachine, assign, actions } from "xstate";
 
 // --- internal
 import services from "./services";
 import type { BasketContext } from "./types.d";
-import { responseCodes } from "../api/types.d";
-import productMachine from "./product.machine";
 import itemsMachine from "./items.machine";
 // --- utils
 import { get, set, unset, isEmpty, uniqueId, forEach } from "lodash-es";
@@ -26,11 +23,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      debug: false,
-      // ---
       basket: {},
-      spawned: {},
-      // ---
       error: null
     } as BasketContext,
     states: {
@@ -52,18 +45,8 @@ export default createMachine(
         id: "loading",
         invoke: {
           src: "check",
-          onDone: { target: "#idle", actions: ["setBasket"] },
+          onDone: { target: "#shopping", actions: ["setBasket"] },
           onError: { target: "error", actions: ["setError"] }
-        }
-      },
-
-      // otherwise we will generate an "empty" basket
-      generating: {
-        id: "generating",
-        invoke: {
-          src: "create",
-          onDone: { target: "#idle", actions: ["setBasket"] },
-          onError: { target: "#error" }
         }
       },
 
@@ -73,18 +56,72 @@ export default createMachine(
         invoke: {
           src: "claim",
           onDone: {
-            target: "#idle"
+            target: "#shopping"
             // actions: ["setBasket"] // we dont need to set the basket again..do we?
           },
           onError: { target: "#error", actions: ["setError"] }
         }
       },
 
-      // We can now generate a basket (only when we have something to put in it), and start listening for items being added/removed/updated
-      idle: {
-        id: "idle",
+      // We are now ready to start accepting items into the basket
+      // items are added to a queue and processed
+      // this allows us to have multiple products added at once
+      // once items in the queue are configured, we can then add them to the basket,
+      // once successfully added, we can then remove them from the queue
+      // and listen for update/remove events
+      shopping: {
+        id: "shopping",
         type: "parallel",
         states: {
+          queue: {
+            initial: "empty",
+            states: {
+              empty: {
+                type: "final",
+                on: {
+                  ADD: [{ target: "processing" }]
+                }
+              },
+
+              processing: {
+                invoke: {
+                  id: "queue",
+                  src: itemsMachine,
+                  autoForward: true,
+                  data: {
+                    basketId: ({ basket }) => basket.id,
+                    items: (_context, { data }) => [data] // pass through the item being added
+                  },
+                  onDone: { target: "empty" }
+                },
+                on: {
+                  REFRESH: { actions: ["setBasket"] }
+                }
+              }
+            }
+          },
+          items: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: [{ target: "processed", cond: "hasItems" }]
+              },
+              processing: {},
+              processed: {
+                type: "final"
+              }
+            }
+            // on: {
+            // "PRODUCT.UPDATE": {
+            //   target: "processing",
+            // cond: "hasItems"
+            // },
+            // "PRODUCT.REMOVE": {
+            //   target: "processing",
+            // cond: "hasItems"
+            // }
+            // }
+          },
           client: {
             initial: "checking",
             states: {
@@ -103,62 +140,18 @@ export default createMachine(
             on: {
               AUTHENTICATED: { target: "#claiming" }
             }
-          },
-          items: {
-            initial: "empty",
-            states: {
-              empty: {
-                always: [{ target: "idle", cond: "hasItems" }]
-              },
-              idle: {
-                invoke: {
-                  id: "items",
-                  src: itemsMachine,
-                  data: {
-                    basketId: context => context.basket.id,
-                    items: context => context.basket.products
-                  },
-                  onError: { actions: ["setError"] }
-                }
-              },
-              spawning: {
-                always: [{ target: "empty", cond: "hasNoSpawned" }]
-              },
-              processed: {
-                type: "final"
-              }
-            },
-            on: {
-              KILL: { actions: ["killSpawned"] },
-              "PRODUCT.ADD": [
-                { target: "#generating", cond: "hasNoBasket" },
-                { target: "items.spawning", actions: ["addProduct"] }
-              ]
-              // "PRODUCT.UPDATE": {
-              //   target: "updating",
-              //   actions: ["updateProduct"]
-              //   // cond: "canUpdateProduct"
-              // },
-              // "PRODUCT.REMOVE": {
-              //   target: "updating",
-              //   actions: ["removeProduct"]
-              //   // cond: "canRemoveProduct"
-              // }
-            }
           }
         },
-        onDone: {
-          target: "readyForCheckout"
-        },
         on: {
-          GENERATE: { target: "#generating" }
+          UNAUTHENTICATED: { target: "#clearing" }
+        },
+        onDone: {
+          target: "checkout"
         }
       },
 
       // when we are ready for checkout, we can start the checkout process
       // and lock the basket from being modified
-      readyForCheckout: {},
-
       checkout: {
         type: "parallel",
         states: {
@@ -167,11 +160,15 @@ export default createMachine(
           payment: {},
           additional: {}
         },
+        on: {
+          UNAUTHENTICATED: { target: "#clearing" }
+        },
         onDone: {
           target: "complete"
         }
       },
 
+      // Dump the current basket...maybe confirm with the user?
       clearing: {
         id: "clearing",
         invoke: {
@@ -188,9 +185,6 @@ export default createMachine(
       complete: {
         type: "final"
       }
-    },
-    on: {
-      UNAUTHENTICATED: { target: "#clearing" }
     }
   },
   {
@@ -203,55 +197,6 @@ export default createMachine(
         basket: {}
       }),
 
-      // --- Product actions
-
-      addProduct: assign({
-        spawned: ({ spawned, basket }, { data }) => {
-          // spawn an actor for the new request
-          const name = uniqueId("product_");
-          const machine = spawn(
-            productMachine({ name, basketId: basket.id, product: data }),
-            {
-              name,
-              sync: true
-            }
-          );
-
-          // for now well just add the new machine to our list
-          set(spawned, name, machine);
-          return spawned;
-        }
-      }),
-
-      killSpawned: assign({
-        spawned: ({ spawned }, { data }) => {
-          // try find any basket with the same name
-          const machine = get(spawned, data.name);
-
-          // if it exists, stop the referenced machine
-          if (machine) machine.stop();
-
-          // and remove it from our list of basket
-          unset(spawned, data.name);
-
-          return spawned;
-        },
-        basket: ({ basket }, { data }) => data.response
-      }),
-
-      killAllSpawned: assign({
-        spawned: ({ spawned }) => {
-          // try find any basket with the same name
-          forEach(spawned, ({ machine, name }) => {
-            machine.stop();
-            // and remove it from our list of basket
-            unset(spawned, name);
-          });
-
-          return spawned;
-        }
-      }),
-
       // ---
 
       setError: assign({
@@ -261,13 +206,6 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      hasNoContent: (_context, { data }) =>
-        data?.status === responseCodes.No_Content,
-
-      hasNoSpawned: ({ spawned }) => isEmpty(spawned),
-
-      hasNoBasket: ({ basket }) => isEmpty(basket),
-
       hasItems: ({ basket }) => !!basket?.products?.length
     },
 

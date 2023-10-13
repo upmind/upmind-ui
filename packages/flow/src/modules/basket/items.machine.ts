@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions, spawn } from "xstate";
-const { sendTo } = actions;
+const { sendTo, sendParent } = actions;
 
 // --- internal
 import services from "./services.products";
@@ -11,9 +11,9 @@ import { isEmpty, set, get, unset, some, every, map } from "lodash-es";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnItem(basketId, item) {
-  const name = item.id;
-  return spawn(itemMachine({ name, basketId, item }), {
+function spawnItem(basketId, product) {
+  const name = product.id;
+  return spawn(itemMachine({ name, basketId, product }), {
     name,
     sync: true
   });
@@ -32,8 +32,29 @@ export default createMachine(
     },
     states: {
       loading: {
-        entry: ["spawnItems"],
-        always: { target: "empty" }
+        always: [
+          { target: "generating", cond: "hasNoBasket" },
+          { target: "empty", actions: ["spawnItems"] }
+        ]
+      },
+
+      // otherwise we will generate an "empty" basket
+      generating: {
+        id: "generating",
+        invoke: {
+          src: "create",
+          onDone: {
+            target: "empty",
+            actions: [
+              "spawnItems",
+              sendParent((_context, { data }) => ({
+                type: "REFRESH",
+                data
+              }))
+            ]
+          },
+          onError: { target: "#error" }
+        }
       },
 
       // our initial state depends on if the machine has any items, and what state they are in
@@ -45,6 +66,7 @@ export default createMachine(
       empty: {
         always: [{ target: "configuring", cond: "hasItems" }]
       },
+
       configuring: {
         always: [
           { target: "empty", cond: "hasNoItems" },
@@ -110,6 +132,8 @@ export default createMachine(
     },
 
     guards: {
+      hasNoBasket: ({ basket }) => isEmpty(basket),
+
       hasItems: ({ items }) => {
         return !isEmpty(items);
       },

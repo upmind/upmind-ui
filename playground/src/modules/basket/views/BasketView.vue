@@ -4,8 +4,22 @@
       <h2 class="title">Basket is {{ state }}</h2>
 
       <slot name="actions">
-        <button @click="addProduct()" :disabled="!isAvailable">
-          addProduct
+        <select v-model="selected">
+          <component
+            v-for="(item, index) in products"
+            :key="`item-${index}`"
+            :is="item.type || 'option'"
+            v-bind="item"
+          >
+            <option
+              v-for="(subitem, subindex) in item?.options"
+              :key="`item-${index}-${subindex}`"
+              v-bind="subitem"
+            ></option>
+          </component>
+        </select>
+        <button @click="addProduct" :disabled="!isAvailable || !selected">
+          +
         </button>
       </slot>
     </header>
@@ -19,39 +33,58 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useBasket } from "..";
 const { state, values, send, isAvailable } = useBasket();
 
 const products = [
   {
-    product_id: "3de78642-de53-9714-542c-21208469530d",
-    quantity: 1,
-    billing_cycle_months: 0,
-    total: 1500,
+    type: "optgroup",
+    label: "Simple Products",
     options: [
       {
-        billing_cycle_months: 0,
-        order_type: 3,
-        product_id: "320e4357-95e7-8d18-45ea-31643202d986",
-        total: 2500,
-        unit_quantity: 1,
-        unit_total: 2500
+        label: "Logo Design ( 99.99 )",
+        value: "47d73824-8507-9315-345f-81e642d59e06"
       }
-    ],
-    attributes: [],
-    start_trial: false
+    ]
   },
   {
-    product_id: "d7382485-0793-157e-622c-91e642d59e06",
-    billing_cycle_months: 1,
-    quantity: 1
+    type: "optgroup",
+    label: "Products with Options",
+    options: [
+      {
+        label: "Blocks ( 1500 )",
+        value: "3de78642-de53-9714-542c-21208469530d"
+      }
+    ]
+  },
+  // {
+  //   type: "optgroup",
+  //   label: "Products with Attributes",
+  //   options: [
+  //     // {
+  //     //   label: "Blocks ( 1500 )",
+  //     //   value: "3de78642-de53-9714-542c-21208469530d"
+  //     // }
+  //   ]
+  // },
+  {
+    type: "optgroup",
+    label: "Products With Provisioning",
+    options: [
+      {
+        label: "Starter Hosting (5.00)",
+        value: "5d085e69-d562-3719-7d6f-218e940d4237"
+      }
+    ]
   }
 ];
+const selected = ref();
 
-function addProduct(id = 0) {
+function addProduct() {
   send({
     type: "PRODUCT.ADD",
-    data: products[id]
+    data: selected.value
   });
 }
 </script>
