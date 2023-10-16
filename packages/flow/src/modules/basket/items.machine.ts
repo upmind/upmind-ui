@@ -152,7 +152,7 @@ export default createMachine(
     },
 
     guards: {
-      hasNoBasket: ({ basket }) => isEmpty(basket),
+      hasNoBasket: ({ basketId }) => !basketId,
 
       hasItems: ({ items }) => {
         return !isEmpty(items);
@@ -161,10 +161,10 @@ export default createMachine(
         return isEmpty(items);
       },
       allConfigured: ({ items }) => {
-        return every(items, item => item.state.matches("idle"));
+        return every(items, (item, id) => item?.state?.matches("idle"));
       },
       someConfiguring: ({ items }) => {
-        return some(items, item => item.state.matches("configuring"));
+        return some(items, item => item?.state?.matches("configuring"));
       }
     },
     services
