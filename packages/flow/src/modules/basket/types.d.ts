@@ -4,8 +4,14 @@
 // --------------------------------------------------------
 // Contexts
 
+export interface BasketItemContext {
+  basketId: string;
+  product: IProduct | string;
+  model: IProductModel;
+  error?: RequestError;
+}
+
 export interface BasketContext {
-  debug: boolean;
   basket: Basket;
   error?: RequestError;
 }
