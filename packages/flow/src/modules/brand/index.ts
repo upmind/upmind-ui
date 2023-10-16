@@ -1,11 +1,14 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import brandMachine from "./brand.machine";
+import { BrandConfigKeys } from "./services";
+export { BrandConfigKeys } from "./services";
 
 // --- utils
-// import { set, get } from "lodash-es";
+import { pick, isArray } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the brand machine
@@ -15,7 +18,7 @@ import brandMachine from "./brand.machine";
 
 let state = null;
 
-const service = interpret(brandMachine, { devTools: false }).onTransition(
+const service = interpret(brandMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -29,6 +32,22 @@ export const useBrand = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state
+    getSnapshot: () => state,
+    getConfig: async (keys: BrandConfigKeys) => {
+      // ensure we have an array of keys
+      keys = isArray(keys) ? keys : [keys];
+
+      // request the keys from the machine,
+      // It will handle any keys that have already been requested
+      service.send({ type: "CONFIG.GET", data: keys });
+
+      // then we await the state of the request to be processed/cached
+      await waitFor(service, state =>
+        ["config.complete", "config.error"].some(state.matches)
+      );
+
+      // finally return the requested keys from the config
+      return pick(state.context, keys);
+    }
   };
 };
