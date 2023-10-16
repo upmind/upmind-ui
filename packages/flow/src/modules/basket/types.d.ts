@@ -7,8 +7,35 @@
 export interface BasketItemContext {
   basketId: string;
   product: IProduct | string;
-  model: IProductModel;
+  config: IProductConfig;
+  // ---
+  availableTerms: null;
+  availableOptions: null;
+  availableAttributes: null;
+  // ---
   error?: RequestError;
+}
+
+export interface IProductConfig {
+  attributes: {
+    product_id: IProductAttribute["id"];
+  }[];
+  billing_cycle_months: IProductPrice["billing_cycle_months"];
+  options: {
+    billing_cycle_months: IProductOption["billing_cycle_months"];
+    order_type?: IProductOption["order_type"];
+    product_id: IProductOption["id"];
+    selling_price?: number;
+    total?: number;
+    unit_quantity: IProductOption["unit_quantity"];
+    unit_total?: number;
+  }[];
+  product_id: IProduct["id"];
+  promotions?: { promocode: string }[];
+  quantity: IProduct["unit_quantity"]; // Configuration quantity
+  selling_price?: number; // Override selling price
+  start_trial?: boolean;
+  total?: number;
 }
 
 export interface BasketContext {

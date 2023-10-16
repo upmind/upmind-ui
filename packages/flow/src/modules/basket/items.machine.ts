@@ -45,7 +45,7 @@ export default createMachine(
           src: "create",
           onDone: {
             target: "empty",
-            actions: ["load", "setBasket", "sendBasket"]
+            actions: ["setBasket", "sendBasket", "load"]
           },
           onError: { target: "#error" }
         }
