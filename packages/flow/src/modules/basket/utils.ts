@@ -1,19 +1,5 @@
 // --- utils
-import {
-  filter,
-  find,
-  first,
-  get,
-  isArray,
-  isEmpty,
-  map,
-  orderBy,
-  pick,
-  reject,
-  set,
-  uniqBy,
-  unset
-} from "lodash-es";
+import { first, get, isArray } from "lodash-es";
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
@@ -103,44 +89,4 @@ export const useBasketParser = (data: any) => {
   //   //   : data?.isBoolean === "true",
   //   // token_type: toString(data?.token_type)
   // };
-};
-// --------------------------------------------------------
-// Parsing Models for an Item/Product that is queued/configuring for the basket
-export const useProductTermsParser = (data: any) => {
-  return data;
-};
-
-export const useProductOptionsParser = (data: any) => {
-  // this is quite complex...we have to do the followg steps:
-  //  get the available product options
-  //    a) get the available product option as a category
-  //    b) map the category options
-  //    c) remove any options that don't have any prices
-  //    d) sort the options by the attached order
-
-  return data;
-};
-
-export const useProductAttributesParser = (data: any) => {
-  return data;
-};
-
-export const useProductParser = (data: any) => {
-  return data;
-};
-
-export const useProductConfigParser = (data: any) => {
-  return {
-    product_id: data.id,
-    quantity: data.unit_quantity,
-    billing_cycle_months: 0,
-    // ---
-    attributes: [],
-    options: [],
-    promotions: []
-    // ---
-    // selling_price?: number; // Override selling price
-    // total: 0
-    // start_trial: false,
-  };
 };

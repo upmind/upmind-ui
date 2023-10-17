@@ -12,7 +12,6 @@ import services from "./services";
 import type { BasketContext } from "./types.d";
 import itemsMachine from "./items.machine";
 // --- utils
-import { get, set, unset, isEmpty, uniqueId, forEach } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -57,7 +56,6 @@ export default createMachine(
           src: "claim",
           onDone: {
             target: "#shopping"
-            // actions: ["setBasket"] // we dont need to set the basket again..do we?
           },
           onError: { target: "#error", actions: ["setError"] }
         }
@@ -190,7 +188,10 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
-        basket: (context, { data }) => data
+        basket: (context, { data }) => {
+          // debugger;
+          return data;
+        }
       }),
 
       clearBasket: assign({

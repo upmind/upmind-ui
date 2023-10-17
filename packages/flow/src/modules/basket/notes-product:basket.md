@@ -62,3 +62,10 @@ https://api.staging.upmind.io/api/orders/8d632507-9806-5d1e-342b-8174e234e98d/pr
 
 // check provisioning fields: PATCH
 https://api.staging.upmind.io/api/orders/8d632507-9806-5d1e-342b-8174e234e98d/provision_fields/values/check
+
+// needsProvisioning: ({ product }) => {
+// // provision_setup_field_defer_mode; hidden | inherit | none | optional
+// const hasProvider = !!product.provision_provider_id;
+// const hasConfig = false; //!!product.config;
+// return hasProvider && !hasConfig;
+// }
