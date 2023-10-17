@@ -58,16 +58,16 @@ const products = [
       }
     ]
   },
-  // {
-  //   type: "optgroup",
-  //   label: "Products with Attributes",
-  //   options: [
-  //     // {
-  //     //   label: "Blocks ( 1500 )",
-  //     //   value: "3de78642-de53-9714-542c-21208469530d"
-  //     // }
-  //   ]
-  // },
+  {
+    type: "optgroup",
+    label: "Products with Attributes",
+    options: [
+      {
+        label: "Consulting Block ( 1500 )",
+        value: "5952098d-3de4-0917-e88b-31578626e347"
+      }
+    ]
+  },
   {
     type: "optgroup",
     label: "Products With Provisioning",

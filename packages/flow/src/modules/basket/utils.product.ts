@@ -4,18 +4,21 @@ import {
   find,
   first,
   get,
+  groupBy,
+  identity,
   isArray,
   isEmpty,
   isNil,
   map,
   orderBy,
   pick,
+  pickBy,
+  reduce,
   reject,
   set,
   uniqBy,
   unset,
-  pickBy,
-  identity
+  values
 } from "lodash-es";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
@@ -66,7 +69,53 @@ export const useProductOptionsParser = (data: any) => {
 };
 
 export const useProductAttributesParser = (data: any) => {
-  return data;
+  // safety check, bail if we have no data
+  if (isEmpty(data)) return [];
+  // When getting the attributes from the API, we get a flat list of attributes
+  // We would rather have the attributes grouped by their category
+  // And with each category having a list of attributes
+  // so to do this we have to do the following:
+
+  // 0. sort the data by attached_order for further lookups
+  let sorted = orderBy(data, "attached_order");
+
+  // then reduce the sorted data, creating a new object keyed by the category id
+  // with the parsed data as the values
+  const attributes = reduce(
+    sorted,
+    (result, rawAttribute) => {
+      // create the attribute based on the category ... if it isnt already set
+      const attribute = get(
+        result,
+        rawAttribute.category_id,
+        pick(rawAttribute.category, [
+          "id",
+          "name",
+          "name_translated",
+          "multiple",
+          "required"
+        ])
+      );
+
+      // get the prev values...if there are any
+      const values = get(attribute, "values", []);
+
+      // add this raw attribute to the values, with limited properties
+      const value = pick(rawAttribute, ["id", "name", "name_translated"]);
+      values.push(value);
+
+      // then set the updated values
+      set(attribute, "values", values);
+
+      // finally  set the updated attribute
+      set(result, rawAttribute.category_id, attribute);
+      return result;
+    },
+    {}
+  );
+
+  // return just the values of the reduced object.
+  return values(attributes);
 };
 
 export const useProductParser = (data: any) => {

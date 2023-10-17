@@ -71,10 +71,12 @@ export default createMachine(
       },
 
       // Products that need configuring BEFORE they are added to the basket
+      // MAYBE: Once added we can receive a message to update the product, if we wan tto keep he item after saving to allow updates?
       configuring: {
         always: [{ target: "complete", cond: "allConfigured" }],
         on: {
-          // This transition will match any event
+          // REFRESH: { actions: "sendBasket" },
+          // This transition will match any event, but we will target the completion of ANY spawned machine
           "*": {
             actions: ["sendBasket", "remove"],
             cond: (context, event) => includes(event.type, "done.invoke")

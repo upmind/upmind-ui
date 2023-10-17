@@ -13,7 +13,7 @@ import {
   useProductTermsParser
 } from "./utils.product";
 
-import { set } from "lodash-es";
+import { set, map } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default createMachine(
@@ -68,7 +68,37 @@ export default createMachine(
                 invoke: {
                   src: "checkTerm",
                   onDone: { target: "complete", actions: ["setTerm"] },
-                  onError: { target: "incomplete", actions: [] }
+                  onError: { target: "incomplete", actions: ["setError"] }
+                }
+              },
+              incomplete: {},
+              processing: {
+                // invoke: {
+                //   src: "configureTerm",
+                //   onDone: {
+                //     target: "complete",
+                //     actions: []
+                //   },
+                //   onError: {
+                //     target: "error",
+                //     actions: ["setError"]
+                //   }
+                // }
+              },
+              error: {},
+              complete: {
+                type: "final"
+              }
+            }
+          },
+          attributes: {
+            initial: "checking",
+            states: {
+              checking: {
+                invoke: {
+                  src: "checkAttributes",
+                  onDone: { target: "complete", actions: ["setAttributes"] },
+                  onError: { target: "incomplete", actions: ["setError"] }
                 }
               },
               incomplete: {},
@@ -97,40 +127,6 @@ export default createMachine(
           //   //       checking: {
           //   //         // invoke: {
           //   //         //   src: "checkOptions",
-          //   //         //   onDone: {
-          //   //         //     target: "complete"
-          //   //         //   },
-          //   //         //   onError: {
-          //   //         //     target: "required",
-          //   //         //     actions: []
-          //   //         //   }
-          //   //         // }
-          //   //       },
-          //   //       required: {
-          //   //         // invoke: {
-          //   //         //   src: "configureTerm",
-          //   //         //   onDone: {
-          //   //         //     target: "complete",
-          //   //         //     actions: []
-          //   //         //   },
-          //   //         //   onError: {
-          //   //         //     target: "error",
-          //   //         //     actions: ["setError"]
-          //   //         //   }
-          //   //         // }
-          //   //       },
-          //   //       error: {},
-          //   //       complete: {
-          //   //         type: "final"
-          //   //       }
-          //   //     }
-          //   //   },
-          //   //   attributes: {
-          //   //     initial: "checking",
-          //   //     states: {
-          //   //       checking: {
-          //   //         // invoke: {
-          //   //         //   src: "checkAttributes",
           //   //         //   onDone: {
           //   //         //     target: "complete"
           //   //         //   },
@@ -212,27 +208,47 @@ export default createMachine(
       setConfig: assign({
         config: (context, { data }) => useProductConfigParser(data)
       }),
+
       setTerm: assign({
         selected: ({ selected }, { data }) => {
+          selected ??= {}; //safety check in case its doesnt exist yet
           set(selected, "term", data);
           return selected;
         },
         config: ({ config }, { data }) => {
+          config ??= {}; //safety check in case its doesnt exist yet
           set(config, "billing_cycle_months", data.billing_cycle_months);
-          set(config, "quantity", 1); // todo use the options to set this, do we even need to set the quantity?
-          set(config, "total", data.price); //todo calculate this base don price and quantity . Do we even need to set the total?
           return config;
         }
       }),
+
       setOptions: assign({
+        selected: ({ selected }, { data }) => {
+          selected ??= {}; //safety check in case its doesnt exist yet
+          set(selected, "options", data);
+          return selected;
+        },
         config: ({ config }, { data }) => {
-          set(config, "", data);
+          // set(config, "quantity", 1); // todo use the options to set this, do we even need to set the quantity?
+
+          config ??= {}; //safety check in case its doesnt exist yet
+          debugger;
+          const options = map(data, ({ id }) => ({ product_id: id }));
+          set(config, "options", options);
           return config;
         }
       }),
+
       setAttributes: assign({
+        selected: ({ selected }, { data }) => {
+          selected ??= {}; //safety check in case its doesnt exist yet
+          set(selected, "attributes", data);
+          return selected;
+        },
         config: ({ config }, { data }) => {
-          set(config, "", data);
+          config ??= {}; //safety check in case its doesnt exist yet
+          const attributes = map(data, ({ id }) => ({ product_id: id }));
+          set(config, "attributes", attributes);
           return config;
         }
       }),

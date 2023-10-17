@@ -8,7 +8,20 @@ const { getConfig } = useBrand();
 import type { BasketContext, ProductConfigContext } from "./types.d";
 
 // --- utils
-import { first, find, some, maxBy, minBy, get } from "lodash-es";
+import {
+  filter,
+  find,
+  first,
+  forEach,
+  get,
+  includes,
+  intersectionWith,
+  isEqual,
+  map,
+  maxBy,
+  minBy,
+  some
+} from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -122,9 +135,14 @@ async function checkTerm(
   _event: any
 ) {
   let term = null;
+
   if (!available?.terms?.length) {
-    return Promise.reject("No Terms Available");
-  } else if (available.terms.length === 1) {
+    return Promise.resolve(term);
+  }
+
+  // ---
+
+  if (available.terms.length === 1) {
     term = first(available.terms);
   } else if (!selected?.term) {
     term = await calculateBillingTerm(
@@ -142,6 +160,58 @@ async function checkTerm(
   });
 }
 
+async function checkAttributes(
+  { product, available, selected }: ProductConfigContext,
+  _event: any
+) {
+  // safety check, resolve if we have no attributes to check
+  if (!available?.attributes?.length) {
+    return Promise.resolve([]);
+  }
+
+  // ---
+  // for attributes we have to check a few things:
+  // do we have any attributes that are:
+  // required?
+  // single vs multiple?
+  // invalid : ie selected but not actually available values
+  // able to be auto selected?
+
+  // make sure we have a selected object with only valid attribute values
+  const attributes = filter(selected?.attributes, ({ product_id }) =>
+    some(available.attributes, ({ values }) => includes(values, product_id))
+  );
+
+  const errors = [];
+
+  forEach(available.attributes, attribute => {
+    // if we have an attribute with  only 1 value AND its required, we can just select it
+    // if (attribute.values.length === 1 && attribute.required) {
+    //   const value = get(first(available.attributes), "id");
+    //   if (value) attributes.push({ product_id: value });
+    // }
+
+    const values = intersectionWith(
+      attribute?.values,
+      selected?.attributes,
+      ({ id }, { product_id }) => isEqual(id, product_id)
+    );
+
+    // check if we are missing required attribute
+    if (attribute?.required && !values.length)
+      errors.push({ message: "Is required", attribute });
+
+    // check if we selected too many values for this attribute
+    if (!attribute?.multiple && values.length > 1)
+      errors.push({ message: "Multiple choice not allowed", attribute });
+  });
+
+  return new Promise((resolve, reject) => {
+    if (errors || !attributes.length) reject(errors);
+    else resolve(attributes);
+  });
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
@@ -152,5 +222,6 @@ export default <Object>{
   // ---
   getProduct,
   // ---
-  checkTerm
+  checkTerm,
+  checkAttributes
 };
