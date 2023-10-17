@@ -33,12 +33,12 @@ export default ({ basketId, productId }) =>
             src: configMachine,
             autoForward: true,
             data: { product: ({ productId }) => productId },
-            onDone: { target: "processing", actions: ["setConfig"] }
+            onDone: { target: "addingToBasket", actions: ["setConfig"] }
           }
         },
 
         // The product configuration is being processed
-        processing: {
+        addingToBasket: {
           entry: "clearError",
           invoke: {
             src: "add",
