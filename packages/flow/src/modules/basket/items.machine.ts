@@ -7,14 +7,23 @@ import services from "./services";
 import itemMachine from "./item.machine";
 
 // --- utils
-import { isEmpty, get, unset, some, every, map, uniqueId } from "lodash-es";
+import {
+  every,
+  find,
+  includes,
+  isEmpty,
+  map,
+  remove,
+  some,
+  trimStart,
+  uniqueId
+} from "lodash-es";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnItem(basketId, product) {
-  const name = product?.id || uniqueId("item_");
-  return spawn(itemMachine({ name, basketId, product }), {
-    name,
+function spawnItem(basketId, productId) {
+  return spawn(itemMachine({ basketId, productId }), {
+    name: uniqueId(`${productId}_`),
     sync: true
   });
 }
@@ -55,25 +64,31 @@ export default createMachine(
       // If we have donts have items, we go to empty
       // otherwise we will check if any items are still configuring
       // if so we will go to configuring
-      // otherwise we will go to configured, which indicates there is no further work to do
+      // otherwise we will go to complete, which indicates there is no further work to do
       // unless we receive an ADD event, which will send us back to configuring
       empty: {
         always: [{ target: "configuring", cond: "hasItems" }]
       },
 
+      // Products that need configuring BEFORE they are added to the basket
       configuring: {
-        always: [
-          { target: "empty", cond: "hasNoItems" },
-          { target: "configured", cond: "allConfigured" }
-        ]
+        always: [{ target: "complete", cond: "allConfigured" }],
+        on: {
+          // This transition will match any event
+          "*": {
+            actions: ["sendBasket", "remove"],
+            cond: (context, event) => includes(event.type, "done.invoke")
+          }
+        }
       },
 
-      configured: {
-        always: [
-          { target: "empty", cond: "hasNoItems" },
-          { target: "configuring", cond: "someConfiguring" }
-        ]
-        // type: "final"
+      // // Products that need provisioning AFTER they are added to the basket
+      // provisioning: {
+      //   always: [{ target: "complete", cond: "allConfigured" }]
+      // },
+
+      complete: {
+        type: "final"
       },
 
       // Handle errors
@@ -82,18 +97,16 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: {
-        actions: ["sendBasket"]
-      },
       ADD: {
+        target: "configuring",
         actions: ["add"]
       },
       REMOVE: {
         actions: ["remove"]
-      },
-      UPDATE: {
-        actions: ["update"]
       }
+      // UPDATE: {
+      //   actions: ["update"]
+      // }
     }
   },
   {
@@ -124,24 +137,24 @@ export default createMachine(
       }),
 
       remove: assign({
-        items: ({ items }, { data: { name } }) => {
+        items: ({ items }, event, other) => {
+          console.log("remove", { event, other });
+          const name =
+            event?.data?.name || trimStart(event.type, "invoke.done.");
           // try find any items with the same hash
-          const item = get(items, name);
-
+          const item = find(items, ["id", name]);
           // if it exists, stop the referenced machine
           // and remove it from our list of items
           if (item) item.stop();
-
-          unset(items, name);
-
+          remove(items, ["id", name]);
           return items;
         }
       }),
 
-      update: (_context, { data: { name, item } }) => {
-        debugger;
-        sendTo(name, { type: "UPDATE", data: item });
-      },
+      // update: (_context, { data: { name, item } }) => {
+      //   debugger;
+      //   sendTo(name, { type: "UPDATE", data: item });
+      // },
 
       // ---
 
@@ -161,7 +174,11 @@ export default createMachine(
         return isEmpty(items);
       },
       allConfigured: ({ items }) => {
-        return every(items, (item, id) => item?.state?.matches("idle"));
+        // debugger;
+        return (
+          !items.length ||
+          every(items, (item, id) => item?.state?.matches("idle"))
+        );
       },
       someConfiguring: ({ items }) => {
         return some(items, item => item?.state?.matches("configuring"));

@@ -5,7 +5,7 @@ import { useApi } from "../api";
 import { useBrand, BrandConfigKeys } from "../brand";
 const { getConfig } = useBrand();
 
-import type { BasketContext, BasketItemContext } from "./types.d";
+import type { BasketContext, ProductConfigContext } from "./types.d";
 
 // --- utils
 import { first, find, some, maxBy, minBy, get } from "lodash-es";
@@ -29,15 +29,6 @@ export enum DefaultPaymentPeriod {
 
 // utility function to spawn machines based on the given items
 
-async function add({ basket_id, product }, _event: any) {
-  const { post, useUrl } = useApi();
-  return post({
-    url: useUrl(`/orders/${basket_id}/products`),
-    data: product,
-    withAccessToken: true
-  });
-}
-
 async function update(context: BasketContext, _event: any) {}
 
 async function remove(context: BasketContext, _event: any) {}
@@ -46,16 +37,12 @@ async function clear(context: BasketContext, _event: any) {}
 
 // ---
 // Get the product that has been prepared for the basket, with all the required data
-async function getProduct(
-  { product, basketId }: BasketItemContext,
-  _event: any
-) {
+async function getProduct({ product }: ProductConfigContext, _event: any) {
   product = product?.id || product;
   const { get, useUrl } = useApi();
-
   return get({
     url: useUrl(`basket/products/${product}`, {
-      basket_id: basketId,
+      // basket_id: basketId, // we dont necessarily have one yet....
       // currency_id: "e47d7382-4850-7931-56c8-1e642d59e063", // comes from brand/basket
       // promotions: "": todo,
       with_staged_imports: true,
@@ -117,7 +104,6 @@ async function calculateBillingTerm(
       term = first(availableTerms);
       break;
   }
-
   return term;
 }
 
@@ -132,19 +118,20 @@ async function calculateBillingTerm(
  * We Resolve the valid Selected option
  */
 async function checkTerm(
-  { product, available, selected }: BasketItemContext,
+  { product, available, selected }: ProductConfigContext,
   _event: any
 ) {
   let term = null;
-
-  if (!available?.terms?.length) Promise.reject("No Terms Available");
-  else if (available.terms.length === 1) term = first(available.terms);
-  else if (!selected.term) {
+  if (!available?.terms?.length) {
+    return Promise.reject("No Terms Available");
+  } else if (available.terms.length === 1) {
+    term = first(available.terms);
+  } else if (!selected?.term) {
     term = await calculateBillingTerm(
       product.default_payment_period,
       available.terms
     );
-  } else if (selected.term) {
+  } else if (selected?.term) {
     const valid = some(available.terms, ["id", selected.term.id]);
     if (valid) term = selected.term;
   }
@@ -159,7 +146,6 @@ async function checkTerm(
 // EXPORTS
 
 export default <Object>{
-  add,
   update,
   remove,
   clear,

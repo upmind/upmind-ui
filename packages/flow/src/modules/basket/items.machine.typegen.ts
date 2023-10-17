@@ -23,24 +23,21 @@ export interface Typegen0 {
   eventsCausingActions: {
     add: "ADD";
     load: "" | "done.invoke.generating:invocation[0]";
-    remove: "REMOVE";
-    sendBasket: "REFRESH" | "done.invoke.generating:invocation[0]";
+    remove: "*" | "REMOVE";
+    sendBasket: "*" | "done.invoke.generating:invocation[0]";
     setBasket: "done.invoke.generating:invocation[0]";
-    update: "UPDATE";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     allConfigured: "";
     hasItems: "";
     hasNoBasket: "";
-    hasNoItems: "";
-    someConfiguring: "";
   };
   eventsCausingServices: {
     create: "";
   };
   matchesStates:
-    | "configured"
+    | "complete"
     | "configuring"
     | "empty"
     | "error"

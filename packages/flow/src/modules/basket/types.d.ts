@@ -4,14 +4,21 @@
 // --------------------------------------------------------
 // Contexts
 
-export interface BasketItemContext {
-  basketId: string;
+export interface ProductConfigContext {
   product: IProduct | string;
   config: IProductConfig;
   // ---
-  availableTerms: null;
-  availableOptions: null;
-  availableAttributes: null;
+  available: {
+    terms: null;
+    options: null;
+    attributes: null;
+  };
+  selected: {
+    term: null;
+    options: null;
+    attributes: null;
+  };
+
   // ---
   error?: RequestError;
 }

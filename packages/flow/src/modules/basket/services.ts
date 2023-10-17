@@ -102,6 +102,16 @@ async function dump(_context: BasketContext, _event: any) {
 }
 
 // --- Basket Methods
+
+async function add({ basketId, config }, _event: any) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl(`/orders/${basketId}/products`),
+    data: config,
+    withAccessToken: true
+  });
+}
+
 async function update(context: BasketContext, _event: any) {}
 
 async function remove(context: BasketContext, _event: any) {}
@@ -128,6 +138,8 @@ export default <Object>{
   create,
   claim,
   dump,
+  // ---
+  add,
   // ---
   authSubscription,
   isAuthenticated
