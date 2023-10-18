@@ -3,39 +3,39 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.brandManager.config.fetching:invocation[0]": {
-      type: "done.invoke.brandManager.config.fetching:invocation[0]";
+    "done.invoke.brandManager.config.loading:invocation[0]": {
+      type: "done.invoke.brandManager.config.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.currencies.fetching:invocation[0]": {
-      type: "done.invoke.brandManager.currencies.fetching:invocation[0]";
+    "done.invoke.brandManager.currencies.loading:invocation[0]": {
+      type: "done.invoke.brandManager.currencies.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.modules.fetching:invocation[0]": {
-      type: "done.invoke.brandManager.modules.fetching:invocation[0]";
+    "done.invoke.brandManager.modules.loading:invocation[0]": {
+      type: "done.invoke.brandManager.modules.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.organisation.fetching:invocation[0]": {
-      type: "done.invoke.brandManager.organisation.fetching:invocation[0]";
+    "done.invoke.brandManager.organisation.loading:invocation[0]": {
+      type: "done.invoke.brandManager.organisation.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.brandManager.settings.fetching:invocation[0]": {
-      type: "done.invoke.brandManager.settings.fetching:invocation[0]";
+    "done.invoke.brandManager.settings.loading:invocation[0]": {
+      type: "done.invoke.brandManager.settings.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    fetchBrandConfig: "done.invoke.brandManager.config.fetching:invocation[0]";
-    fetchBrandSettings: "done.invoke.brandManager.settings.fetching:invocation[0]";
-    fetchCurrencies: "done.invoke.brandManager.currencies.fetching:invocation[0]";
-    fetchModules: "done.invoke.brandManager.modules.fetching:invocation[0]";
-    fetchOrganisationConfig: "done.invoke.brandManager.organisation.fetching:invocation[0]";
+    fetchBrandConfig: "done.invoke.brandManager.config.loading:invocation[0]";
+    fetchBrandSettings: "done.invoke.brandManager.settings.loading:invocation[0]";
+    fetchCurrencies: "done.invoke.brandManager.currencies.loading:invocation[0]";
+    fetchModules: "done.invoke.brandManager.modules.loading:invocation[0]";
+    fetchOrganisationConfig: "done.invoke.brandManager.organisation.loading:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -49,12 +49,12 @@ export interface Typegen0 {
       | "fetchOrganisationConfig";
   };
   eventsCausingActions: {
-    setConfig: "done.invoke.brandManager.config.fetching:invocation[0]";
+    setConfig: "done.invoke.brandManager.config.loading:invocation[0]";
     setConfigKeys: "CONFIG.GET";
-    setCurrencies: "done.invoke.brandManager.currencies.fetching:invocation[0]";
-    setModules: "done.invoke.brandManager.modules.fetching:invocation[0]";
-    setOrganisation: "done.invoke.brandManager.organisation.fetching:invocation[0]";
-    setSettings: "done.invoke.brandManager.settings.fetching:invocation[0]";
+    setCurrencies: "done.invoke.brandManager.currencies.loading:invocation[0]";
+    setModules: "done.invoke.brandManager.modules.loading:invocation[0]";
+    setOrganisation: "done.invoke.brandManager.organisation.loading:invocation[0]";
+    setSettings: "done.invoke.brandManager.settings.loading:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
@@ -69,29 +69,29 @@ export interface Typegen0 {
     | "config"
     | "config.complete"
     | "config.error"
-    | "config.fetching"
+    | "config.loading"
     | "currencies"
     | "currencies.complete"
     | "currencies.error"
-    | "currencies.fetching"
+    | "currencies.loading"
     | "modules"
     | "modules.complete"
     | "modules.error"
-    | "modules.fetching"
+    | "modules.loading"
     | "organisation"
     | "organisation.complete"
     | "organisation.error"
-    | "organisation.fetching"
+    | "organisation.loading"
     | "settings"
     | "settings.complete"
     | "settings.error"
-    | "settings.fetching"
+    | "settings.loading"
     | {
-        config?: "complete" | "error" | "fetching";
-        currencies?: "complete" | "error" | "fetching";
-        modules?: "complete" | "error" | "fetching";
-        organisation?: "complete" | "error" | "fetching";
-        settings?: "complete" | "error" | "fetching";
+        config?: "complete" | "error" | "loading";
+        currencies?: "complete" | "error" | "loading";
+        modules?: "complete" | "error" | "loading";
+        organisation?: "complete" | "error" | "loading";
+        settings?: "complete" | "error" | "loading";
       };
   tags: never;
 }

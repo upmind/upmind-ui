@@ -3,7 +3,9 @@
     <header class="toolbar">
       <h2 class="title">Basket</h2>
 
-      <slot name="actions"> </slot>
+      <div class="actions">
+        <slot name="actions"> </slot>
+      </div>
     </header>
 
     <div class="content">

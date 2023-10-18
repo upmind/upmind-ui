@@ -12,20 +12,19 @@
         }}
       </h2>
 
-      <slot name="actions">
-        <button @click="showLogin" v-if="!meta.isClient">
-          Login&nbsp;Form
-        </button>
-        <button @click="showRegister" v-if="!meta.isClient">
-          Register&nbsp;Form
-        </button>
-
-        <button @click="logout" v-if="meta.isAuthenticated">logout</button>
-
-        <button @click="getUser" v-if="meta.isAuthenticated">get user</button>
-
-        <button @click.prevent="cancel" v-if="client">cancel</button>
-      </slot>
+      <div class="actions">
+        <slot name="actions">
+          <button @click="showLogin" v-if="!meta.isClient">Login</button>
+          <button @click="showRegister" v-if="!meta.isClient">Register</button>
+          <!-- <button @click="getUser" v-if="meta.isAuthenticated">get user</button> -->
+          <button type="reset" @click="logout" v-if="meta.isAuthenticated">
+            logout
+          </button>
+          <button type="reset" @click.prevent="cancel" v-if="client">
+            cancel
+          </button>
+        </slot>
+      </div>
     </header>
 
     <div class="content">
@@ -53,9 +52,9 @@
             required
           />
         </p>
-        <div>
+        <div class="actions">
           <button type="submit" :disabled="meta.isProcessing">login</button>
-          <button @click.prevent="cancel">cancel</button>
+          <button type="reset" @click.prevent="cancel">cancel</button>
         </div>
       </form>
 
@@ -77,9 +76,9 @@
           />
         </p>
 
-        <div>
+        <div class="actions">
           <button type="submit" :disabled="meta.isProcessing">verify</button>
-          <button @click.prevent="cancel">cancel</button>
+          <button type="reset" @click.prevent="cancel">cancel</button>
         </div>
       </form>
 
@@ -137,16 +136,16 @@
             :required="field.required"
           />
         </p>
-        <div>
+        <div class="actions">
           <button type="submit" :disabled="meta.isProcessing">continue</button>
-          <button @click.prevent="cancel">cancel</button>
+          <button type="reset" @click.prevent="cancel">cancel</button>
         </div>
       </form>
     </div>
 
     <footer>
       <Debug
-        title="Basket"
+        title="Session"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
         :values="values"
         :errors="errors"

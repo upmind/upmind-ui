@@ -24,8 +24,10 @@ interface UseApi {
   count: Ref<number>;
   cache: Ref<Record<string, any>>;
   requests: Ref<Record<string, any>>;
-  isIdle: Ref<boolean>;
-  isActive: Ref<boolean>;
+  meta: {
+    isIdle: Ref<boolean>;
+    isActive: Ref<boolean>;
+  };
   isProcessing: Ref<boolean>;
 }
 

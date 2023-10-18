@@ -20,10 +20,10 @@ export const useBasket = () => {
   return {
     send,
     state: computed(() => state.value.value),
-    basket: computed(() => state.value.context.basket),
     values: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.errors),
-    messages: computed(() => state.value.context?.messages),
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
+
     // ---
     meta: computed(() => {
       return {
@@ -31,8 +31,10 @@ export const useBasket = () => {
         isProcessing: ["processing"].some(state.value.matches),
         isAvailable: ["shopping"].some(state.value.matches),
         isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
-        hasError: ["error"].some(state.value.matches)
+        hasErrors: ["error"].some(state.value.matches)
       };
-    })
+    }),
+    //  ---
+    basket: computed(() => state.value.context.basket)
   };
 };

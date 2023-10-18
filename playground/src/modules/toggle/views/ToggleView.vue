@@ -3,7 +3,9 @@
     <header class="toolbar">
       <h2 class="title">Toggle Machine</h2>
 
-      <slot name="actions"></slot>
+      <div class="actions">
+        <slot name="actions"></slot>
+      </div>
     </header>
 
     <upm-toggle use-global>Global Instance</upm-toggle>

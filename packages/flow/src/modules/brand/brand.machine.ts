@@ -68,9 +68,9 @@ export default createMachine(
     type: "parallel",
     states: {
       organisation: {
-        initial: "fetching",
+        initial: "loading",
         states: {
-          fetching: {
+          loading: {
             invoke: {
               src: "fetchOrganisationConfig",
               onDone: {
@@ -92,7 +92,7 @@ export default createMachine(
           error: {
             on: {
               RETRY: {
-                target: "fetching",
+                target: "loading",
                 actions: assign({
                   error: ({ error }: BrandContext) => {
                     unset(error, "organisation");
@@ -105,9 +105,9 @@ export default createMachine(
         }
       },
       config: {
-        initial: "fetching",
+        initial: "loading",
         states: {
-          fetching: {
+          loading: {
             invoke: {
               src: "fetchBrandConfig",
               onDone: {
@@ -127,13 +127,13 @@ export default createMachine(
           },
           complete: {
             on: {
-              "CONFIG.GET": { target: "fetching", actions: ["setConfigKeys"] }
+              "CONFIG.GET": { target: "loading", actions: ["setConfigKeys"] }
             }
           },
           error: {
             on: {
               RETRY: {
-                target: "fetching",
+                target: "loading",
                 actions: assign({
                   error: ({ error }: BrandContext) => {
                     unset(error, "config");
@@ -149,9 +149,9 @@ export default createMachine(
         // /config/brand/values?keys=analytics.google.measurement_id,analytics.gtm.container_id,ui.basket.default_currency,billing.gateway.force_auto_payment_for_stored_details,billing.gateway.force_card_storage,ui.checkout.checkout_flow,ui.checkout.hide_promotions_field,ui.checkout.checkout_summary_color_stop1,ui.checkout.checkout_summary_color_stop2,ui.checkout.checkout_summary_contrast_mode,ui.client_area.allow_vault,ui.client_area.homepage,ui.client_area.hide_registration_forms,billing.gateway.allow_card_removal_replacement,ui.client_registration.require_phone,ui.basket.truncate_product_description,ui.client_area.show_catalog,tickets.support.support_pin_enabled,ui.client_area.disable_support_system,ui.client_area.page_after_login,ui.client_area.payment_term_descriptions,ui.client_area.enter_key_action,ui.client_area.price_before_discount_position&lang=en
       },
       settings: {
-        initial: "fetching",
+        initial: "loading",
         states: {
-          fetching: {
+          loading: {
             invoke: {
               src: "fetchBrandSettings",
               onDone: {
@@ -173,7 +173,7 @@ export default createMachine(
           error: {
             on: {
               RETRY: {
-                target: "fetching",
+                target: "loading",
                 actions: assign({
                   error: ({ error }: BrandContext) => {
                     unset(error, "settings");
@@ -189,9 +189,9 @@ export default createMachine(
         // /brand/settings?lang=en
       },
       modules: {
-        initial: "fetching",
+        initial: "loading",
         states: {
-          fetching: {
+          loading: {
             invoke: {
               src: "fetchModules",
               onDone: {
@@ -213,7 +213,7 @@ export default createMachine(
           error: {
             on: {
               RETRY: {
-                target: "fetching",
+                target: "loading",
                 actions: assign({
                   error: ({ error }: BrandContext) => {
                     unset(error, "modules");
@@ -230,9 +230,9 @@ export default createMachine(
       },
       // todo move to SYSTEM machine
       currencies: {
-        initial: "fetching",
+        initial: "loading",
         states: {
-          fetching: {
+          loading: {
             invoke: {
               src: "fetchCurrencies",
               onDone: {
@@ -254,7 +254,7 @@ export default createMachine(
           error: {
             on: {
               RETRY: {
-                target: "fetching",
+                target: "loading",
                 actions: assign({
                   error: ({ error }: BrandContext) => {
                     unset(error, "currencies");

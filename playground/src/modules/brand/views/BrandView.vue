@@ -1,21 +1,27 @@
 <template>
   <section class="brand">
     <header class="toolbar">
-      <h2 class="title">Brand is {{ state }}</h2>
-      <slot name="actions"> </slot>
+      <h2 class="title">Brand is {{ meta.isLoading ? "loading" : "ready" }}</h2>
+      <div><slot name="actions"> </slot></div>
     </header>
 
-    <div class="values">
-      <code>
-        <pre>{{ values }}</pre>
-      </code>
-    </div>
+    <footer>
+      <Debug
+        title="Brand"
+        :state="state"
+        :values="values"
+        :errors="errors"
+        :meta="meta"
+      ></Debug>
+    </footer>
   </section>
 </template>
 
 <script setup lang="ts">
 import { useBrand } from "../";
-const { state, values } = useBrand();
+import Debug from "@/components/Debug.vue";
+
+const { state, values, meta, errors } = useBrand();
 </script>
 
 <style scoped lang="scss">

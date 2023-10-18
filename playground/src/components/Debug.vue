@@ -3,6 +3,7 @@
     ref="debugbar"
     v-if="isDebugging"
     class="debug"
+    :open="isOpen"
     @toggle="({ target }) => (isOpen = target.open)"
   >
     <summary>
@@ -11,28 +12,28 @@
     </summary>
 
     <div>
-      <details v-if="state">
+      <details v-if="state" :open="open?.state">
         <summary>State</summary>
         <code>
           <pre> {{ state }}</pre>
         </code>
       </details>
 
-      <details v-if="meta">
+      <details v-if="meta" :open="open?.meta">
         <summary>Meta</summary>
         <code>
           <pre> {{ meta }}</pre>
         </code>
       </details>
 
-      <details v-if="values">
+      <details v-if="values" :open="open?.values">
         <summary>Values</summary>
         <code>
           <pre> {{ values }}</pre>
         </code>
       </details>
 
-      <details v-if="errors">
+      <details v-if="errors" :open="open?.errors">
         <summary>Errors</summary>
         <code>
           <pre> {{ errors }}</pre>
@@ -55,12 +56,13 @@ export default defineComponent({
     title: String,
     values: Object,
     state: [Object, String],
+    open: Object,
     meta: Object,
     errors: [Object, String]
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
-    const isOpen = ref(false);
+    const isOpen = ref(props.open);
     const debugbar = ref();
 
     return {

@@ -1,7 +1,7 @@
 <template>
   <div
     class="request"
-    :class="{ error: request.hasError, warning: request.hasNoContent }"
+    :class="{ error: request.hasErrors, warning: request.hasNoContent }"
   >
     <h4 class="url">{{ request.url }}</h4>
     <code class="status">{{ request.state }}</code>
@@ -100,7 +100,7 @@ export default defineComponent({
         isCached: state.matches("processed.cached"),
         isStale: state.matches("processed.stale"),
         hasNoContent: state.matches("processed.empty"),
-        hasError: state.matches("error")
+        hasErrors: state.matches("error")
       };
     });
 
@@ -135,7 +135,9 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .request {
-  margin-top: 1em;
+  &:not(:first-child) {
+    margin-top: 1em;
+  }
   &:not(:last-child) {
     border-bottom: 1px solid whitesmoke;
     padding-bottom: 1em;
