@@ -47,9 +47,9 @@ header {
 
 nav {
   width: 100%;
-  font-size: 12px;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 1em;
+  padding: 1rem;
 
   a {
     display: inline-block;
@@ -75,8 +75,9 @@ nav {
       flex-direction: column;
     }
 
-    a:first-of-type {
-      border-left: 1px solid var(--color-border);
+    a {
+      border-left: none;
+      border-top: 1px solid var(--color-border);
     }
   }
 }
@@ -84,14 +85,11 @@ nav {
 @media (min-width: 1024px) {
   header {
     display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-
-    .wrapper {
-      display: flex;
-      place-items: flex-start;
-      flex-wrap: wrap;
-    }
+    flex-wrap: wrap;
+    padding: 1em 0;
+    // padding-right: calc(var(--section-gap) / 2);
+    align-self: flex-start;
+    justify-content: center;
   }
 
   .logo {
@@ -100,14 +98,9 @@ nav {
 
   nav {
     text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
   }
   .view {
-    border-left: 1px solid var(--color-border);
+    // border-left: 1px solid var(--color-border);
   }
 }
 </style>
