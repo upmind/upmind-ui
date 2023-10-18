@@ -1,14 +1,18 @@
 // --- external
 import { createMachine, assign, sendParent } from "xstate";
+
 // --- internal
 import services from "./services";
 import configMachine from "./productConfig.machine";
 import { useBasketParser } from "./utils";
+
 // --utils
 import { useTime } from "../../utils";
+import { defaultsDeep } from "lodash-es";
+
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with an existing basket product
-export default ({ basketId, productId }) =>
+export default ({ basketId, productId, config }) =>
   createMachine(
     {
       tsTypes: {} as import("./item.machine.typegen").Typegen0,
@@ -19,7 +23,7 @@ export default ({ basketId, productId }) =>
         basketId,
         productId, // this is the product that requires configuring/adding to basket
         // ---
-        config: {}, // this is the product config, which will be added to the basket
+        config, // this is the product config, which will be added to the basket
         response: null, // this is the response from the basket, once it has been added
         // ---
         error: null
@@ -67,7 +71,7 @@ export default ({ basketId, productId }) =>
     {
       actions: {
         setConfig: assign({
-          config: (context, { data }) => data
+          config: (context, { data }) => defaultsDeep(data, config)
         }),
         // ---
         setResponse: assign({

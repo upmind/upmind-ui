@@ -11,7 +11,9 @@ import { createMachine, assign, actions } from "xstate";
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import itemsMachine from "./items.machine";
+
 // --- utils
+import { isArray } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -88,7 +90,8 @@ export default createMachine(
                   autoForward: true,
                   data: {
                     basketId: ({ basket }) => basket?.id, // pass the basket Id, if we have one : this will auto generate a basket if we dont
-                    items: (_context, { data }) => [data] // pass through the item being added
+                    items: (_context, { data }) =>
+                      isArray(data) ? data : [data] // pass through the item being added
                   },
                   onDone: { target: "empty" }
                 },

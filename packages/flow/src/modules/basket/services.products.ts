@@ -207,7 +207,8 @@ async function checkAttributes(
   });
 
   return new Promise((resolve, reject) => {
-    if (errors || !attributes.length) reject(errors);
+    debugger;
+    if (errors?.length) reject(errors);
     else resolve(attributes);
   });
 }
