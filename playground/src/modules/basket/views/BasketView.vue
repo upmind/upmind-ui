@@ -1,9 +1,13 @@
 <template>
   <section class="brand">
     <header class="toolbar">
-      <h2 class="title">Basket is {{ state }}</h2>
+      <h2 class="title">Basket</h2>
 
-      <slot name="actions">
+      <slot name="actions"> </slot>
+    </header>
+
+    <div class="content">
+      <form>
         <select v-model="selected">
           <component
             v-for="(item, index) in products"
@@ -18,25 +22,29 @@
             ></option>
           </component>
         </select>
-        <button @click="addProduct" :disabled="!isAvailable || !selected">
+        <button @click="addProduct" :disabled="!meta.isAvailable || !selected">
           +
         </button>
-      </slot>
-    </header>
-
-    <div class="values">
-      <code>
-        <pre>{{ values }}</pre>
-      </code>
+      </form>
     </div>
+
+    <footer>
+      <Debug
+        title="Basket"
+        :state="state"
+        :values="basket"
+        :errors="errors"
+        :meta="meta"
+      ></Debug>
+    </footer>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useBasket } from "..";
-import { random } from "lodash-es";
-const { state, values, send, isAvailable } = useBasket();
+import Debug from "@/components/Debug.vue";
+const { state, basket, errors, meta, send } = useBasket();
 
 const products = [
   {
