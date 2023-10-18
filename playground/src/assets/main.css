@@ -4,8 +4,6 @@
   font-weight: normal;
   height: 100%;
   margin: 0 auto;
-  max-width: 1280px;
-  min-width: 720px;
   padding: 2rem;
 }
 
@@ -14,16 +12,115 @@
   position: relative;
 }
 
-a,
-.green {
+.view {
+  height: 100vh;
+  overflow: auto;
+}
+
+.view a,
+.view .green {
   color: hsla(160, 100%, 37%, 1);
   text-decoration: none;
-  transition: 0.4s;
+  transition: all 200ms linear;
+}
+
+.view .toolbar {
+  align-items: center;
+  background-color: whitesmoke;
+  border-radius: 0.25em;
+  display: flex;
+  justify-content: space-between;
+  left: 0;
+  padding: 0.5em 1em;
+  position: sticky;
+  right: 0;
+  top: -1em;
+}
+
+.view .actions {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5em 0;
+}
+
+.view form .actions {
+  margin-top: 1em;
+}
+
+.view .actions button {
+  transition: all 200ms linear;
+  margin: 0 0.5em;
+  background-color: #3a3a3a;
+  color: white;
+  border: none;
+  padding: 0.25em 0.5em;
+  border-radius: 0.25em;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.view .actions button[type="reset"] {
+  font-size: 0.75rem;
+  margin: 0 0.5em;
+  background-color: transparent;
+  color: unset;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 0.25em;
+}
+
+.view .actions button.primary,
+.view .actions button[type="submit"] {
+  background: hsla(160, 100%, 37%, 1);
+  text-decoration: none;
+  transition: all 200ms linear;
+}
+
+.view .actions button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.view .actions button:first-of-type {
+  margin-left: 0;
+}
+.view .actions button:last-of-type {
+  margin-right: 0;
+}
+
+.view .content {
+  /* display: flex; */
+  margin-top: 1em;
+  padding: 0.5em 1em;
+}
+.view .debug {
+  background-color: whitesmoke;
+  border-radius: 0.25em;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  margin-top: 1em;
+  padding: 0.5em 1em;
+  overflow: auto;
 }
 
 @media (hover: hover) {
-  a:hover {
+  .view a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
+  }
+
+  .view .actions button:hover,
+  .view .actions button[type="reset"]:hover {
+    background-color: black;
+    color: white;
+  }
+
+  .view .actions button.primary:hover,
+  .view .actions button[type="submit"]:hover {
+    background: hsla(160, 100%, 20%, 1);
+    text-decoration: none;
+    transition: all 200ms linear;
   }
 }
 
@@ -38,91 +135,12 @@ a,
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
+    max-width: 1280px;
+    min-width: 720px;
   }
 
   .view {
-    height: 100vh;
     max-width: 640px;
     min-width: 640px;
-    overflow: auto;
-  }
-
-  .view .toolbar {
-    align-items: center;
-    background-color: whitesmoke;
-    border-radius: 0.25em;
-    display: flex;
-    justify-content: space-between;
-    left: 0;
-    padding: 0.5em 1em;
-    position: sticky;
-    right: 0;
-    top: -1em;
-  }
-  .view .actions {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 0.5em 0;
-  }
-
-  .view form .actions {
-    margin-top: 1em;
-  }
-
-  .view .actions button {
-    transition: all 200ms linear;
-    margin: 0 0.5em;
-    background-color: #3a3a3a;
-    color: white;
-    border: none;
-    padding: 0.25em 0.5em;
-    border-radius: 0.25em;
-    cursor: pointer;
-    text-transform: uppercase;
-  }
-
-  .view .actions button[type="reset"] {
-    font-size: 0.75rem;
-    margin: 0 0.5em;
-    background-color: transparent;
-    color: unset;
-    border: none;
-    padding: 0.5em 1em;
-    border-radius: 0.25em;
-  }
-
-  .view .actions button:hover,
-  .view .actions button[type="reset"]:hover {
-    background-color: black;
-    color: white;
-  }
-
-  .view .actions button:disabled {
-    opacity: 0.5;
-    cursor: wait;
-  }
-
-  .view .actions button:first-of-type {
-    margin-left: 0;
-  }
-  .view .actions button:last-of-type {
-    margin-right: 0;
-  }
-
-  .view .content {
-    /* display: flex; */
-    margin-top: 1em;
-    padding: 0.5em 1em;
-  }
-  .view .debug {
-    background-color: whitesmoke;
-    border-radius: 0.25em;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    font-size: 0.75rem;
-    margin-top: 1em;
-    padding: 0.5em 1em;
-    overflow: auto;
   }
 }

@@ -35,9 +35,6 @@ main {
   height: 100%;
 }
 
-.view {
-  border-left: 1px solid var(--color-border);
-}
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -68,14 +65,18 @@ nav {
     }
   }
 
-  &.vertical {
-    display: flex;
-    flex-direction: column;
+  a:first-of-type {
+    border: 0;
   }
 
-  &:not(.vertical) {
+  @media (min-width: 1024px) {
+    &.vertical {
+      display: flex;
+      flex-direction: column;
+    }
+
     a:first-of-type {
-      border: 0;
+      border-left: 1px solid var(--color-border);
     }
   }
 }
@@ -104,6 +105,9 @@ nav {
 
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+  .view {
+    border-left: 1px solid var(--color-border);
   }
 }
 </style>
