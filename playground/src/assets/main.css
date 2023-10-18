@@ -1,23 +1,23 @@
 @import "./base.css";
 
 #app {
+  font-weight: normal;
+  height: 100%;
+  margin: 0 auto;
   max-width: 1280px;
   min-width: 720px;
-  margin: 0 auto;
   padding: 2rem;
-  height: 100%;
-  font-weight: normal;
 }
 
 .view {
-  position: relative;
   padding: 1em;
+  position: relative;
 }
 
 a,
 .green {
-  text-decoration: none;
   color: hsla(160, 100%, 37%, 1);
+  text-decoration: none;
   transition: 0.4s;
 }
 
@@ -41,9 +41,9 @@ a,
   }
 
   .view {
+    height: 100vh;
     max-width: 640px;
     min-width: 640px;
-    height: 100vh;
     overflow: auto;
   }
 
@@ -58,5 +58,21 @@ a,
     position: sticky;
     right: 0;
     top: -1em;
+  }
+
+  .view .content {
+    /* display: flex; */
+    margin-top: 1em;
+    padding: 0.5em 1em;
+  }
+  .view .debug {
+    background-color: whitesmoke;
+    border-radius: 0.25em;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+    margin-top: 1em;
+    padding: 0.5em 1em;
   }
 }

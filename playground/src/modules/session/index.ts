@@ -101,48 +101,41 @@ export const useSession = () => {
     send,
     state: computed(() => state.value.value),
     values: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.errors),
+    messages: computed(() => state.value.context?.messages),
     // ---
-    isLoading: computed(() => ["starting"].some(state.value.matches)),
-    isProcessing: computed(
-      () =>
+    meta: computed(() => ({
+      isLoading: ["starting"].some(state.value.matches),
+      isProcessing:
+        client.value &&
         ![
           "unauthenticated.idle",
           "unauthenticated.login.idle",
           "unauthenticated.login.challenging",
           "unauthenticated.register.idle",
           "unauthenticated.register.challenging"
-        ].some(client.value.matches)
-    ),
+        ].some(client.value.matches),
+
+      hasError: ["starting.status.error"].some(state.value.matches),
+      // ---
+      isClient: ["client", "starting.client"].some(state.value.matches),
+      isAuthenticated: ["client"].some(state.value.matches),
+      // ---
+      showReCaptcha: client.value?.matches(
+        "unauthenticated.register.challenging"
+      ),
+      showLoginForm: client.value?.matches("unauthenticated.login"),
+      show2fa: client.value?.matches("unauthenticated.login.challenging"),
+      showRegisterForm: client.value?.matches("unauthenticated.register")
+    })),
     // --- Guest
+    guest,
     // --- Client
     client,
-    isAuthenticated: computed(() => ["client"].some(state.value.matches)),
-    isClient: computed(() =>
-      ["client", "starting.client"].some(state.value.matches)
-    ),
-    showLoginForm: computed(
-      () => client.value?.matches("unauthenticated.login")
-    ),
-    show2fa: computed(
-      () => client.value?.matches("unauthenticated.login.challenging")
-    ),
-    // ---
-    showRegisterForm: computed(
-      () => client.value?.matches("unauthenticated.register")
-    ),
-
     registerFormCustomFields: computed(
       () => client.value?.context?.customFields
     ),
 
-    showReCaptcha: computed(
-      () => client.value?.matches("unauthenticated.register.challenging")
-    ),
-
-    // ---
-    hasError: computed(() =>
-      ["starting.status.error"].some(state.value.matches)
-    ),
     // ---
     showLogin,
     showRegister,

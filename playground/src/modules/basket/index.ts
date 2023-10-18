@@ -22,13 +22,17 @@ export const useBasket = () => {
     state: computed(() => state.value.value),
     basket: computed(() => state.value.context.basket),
     values: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.errors),
+    messages: computed(() => state.value.context?.messages),
     // ---
-    isLoading: computed(() => ["loading"].some(state.value.matches)),
-    isProcessing: computed(() => ["processing"].some(state.value.matches)),
-    isAvailable: computed(() => ["shopping"].some(state.value.matches)),
-    isReadyForCheckout: computed(() =>
-      ["readyForCheckout"].some(state.value.matches)
-    ),
-    hasError: computed(() => ["error"].some(state.value.matches))
+    meta: computed(() => {
+      return {
+        isLoading: ["loading"].some(state.value.matches),
+        isProcessing: ["processing"].some(state.value.matches),
+        isAvailable: ["shopping"].some(state.value.matches),
+        isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
+        hasError: ["error"].some(state.value.matches)
+      };
+    })
   };
 };
