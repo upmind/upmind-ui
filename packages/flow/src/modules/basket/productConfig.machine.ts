@@ -230,9 +230,7 @@ export default createMachine(
         },
         config: ({ config }, { data }) => {
           // set(config, "quantity", 1); // todo use the options to set this, do we even need to set the quantity?
-
           config ??= {}; //safety check in case its doesnt exist yet
-          debugger;
           const options = map(data, ({ id }) => ({ product_id: id }));
           set(config, "options", options);
           return config;

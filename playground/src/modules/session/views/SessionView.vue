@@ -29,7 +29,7 @@
 
     <div class="content">
       <form @submit.prevent="login(model)" v-if="meta.showLoginForm">
-        <p>
+        <fieldset>
           <label for="email">Your Email</label>
           <input
             name="email"
@@ -38,9 +38,10 @@
             autocomplete="email"
             :disabled="meta.isProcessing"
             required
+            placeholder="name@email.com"
           />
-        </p>
-        <p>
+        </fieldset>
+        <fieldset>
           <label for="password">Your Password</label>
 
           <input
@@ -49,9 +50,10 @@
             v-model="model.password"
             autocomplete="current-password"
             :disabled="meta.isProcessing"
+            placeholder="Use a strong password or passphrase"
             required
           />
-        </p>
+        </fieldset>
         <div class="actions">
           <button type="submit" :disabled="meta.isProcessing">login</button>
           <button type="reset" @click.prevent="cancel">cancel</button>
@@ -59,7 +61,7 @@
       </form>
 
       <form @submit.prevent="verify2fa(model.token)" v-if="meta.show2fa">
-        <p>
+        <fieldset>
           <label for="token">Your 2fa Code </label>
 
           <input
@@ -74,7 +76,7 @@
             :disabled="meta.isProcessing"
             required
           />
-        </p>
+        </fieldset>
 
         <div class="actions">
           <button type="submit" :disabled="meta.isProcessing">verify</button>
@@ -83,7 +85,7 @@
       </form>
 
       <form @submit.prevent="register(model)" v-if="meta.showRegisterForm">
-        <p>
+        <fieldset>
           <label for="firstname">Your First name</label>
           <input
             name="firstname"
@@ -92,40 +94,44 @@
             :disabled="meta.isProcessing"
             required
           />
-        </p>
-        <p>
+        </fieldset>
+
+        <fieldset>
           <label for="lastname">Your Last Name</label>
           <input
             name="lastname"
             v-model="model.lastname"
             autocomplete="family-name"
-            :disabled="isProcessing"
+            :disabled="meta.isProcessing"
             required
           />
-        </p>
-        <p>
+        </fieldset>
+
+        <fieldset>
           <label for="firstname">Your Email</label>
           <input
             name="email"
             type="email"
             v-model="model.email"
             autocomplete="email"
-            :disabled="isProcessing"
+            :disabled="meta.isProcessing"
             required
           />
-        </p>
-        <p>
+        </fieldset>
+
+        <fieldset>
           <label for="firstname">Your Password</label>
           <input
             name="password"
             type="password"
             v-model="model.password"
             autocomplete="current-password"
-            :disabled="isProcessing"
+            :disabled="meta.isProcessing"
             required
           />
-        </p>
-        <p v-for="field in registerFormCustomFields">
+        </fieldset>
+
+        <fieldset v-for="field in registerFormCustomFields">
           <label :for="field.code">{{ field.name_translated }}</label>
           <input
             :name="field.code"
@@ -135,7 +141,7 @@
             :disabled="meta.isProcessing"
             :required="field.required"
           />
-        </p>
+        </fieldset>
         <div class="actions">
           <button type="submit" :disabled="meta.isProcessing">continue</button>
           <button type="reset" @click.prevent="cancel">cancel</button>
@@ -198,7 +204,7 @@ const model = ref({
   .values {
     margin-top: 1em;
     &:not(:last-child) {
-      border-bottom: 1px solid whitesmoke;
+      border-bottom: 1px solid var(--upm-c-white-mute);
       padding-bottom: 1em;
     }
   }
