@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useBasket } from "..";
+import { random } from "lodash-es";
 const { state, values, send, isAvailable } = useBasket();
 
 const products = [
@@ -44,7 +45,7 @@ const products = [
     options: [
       {
         label: "Logo Design ( 99.99 )",
-        value: "47d73824-8507-9315-345f-81e642d59e06"
+        value: { product: "47d73824-8507-9315-345f-81e642d59e06", quantity: 1 }
       }
     ]
   },
@@ -54,7 +55,7 @@ const products = [
     options: [
       {
         label: "Blocks ( 1500 )",
-        value: "3de78642-de53-9714-542c-21208469530d"
+        value: { product: "3de78642-de53-9714-542c-21208469530d", quantity: 1 }
       }
     ]
   },
@@ -63,8 +64,12 @@ const products = [
     label: "Products with Attributes",
     options: [
       {
+        label: "Meeting ( FREE )",
+        value: { product: "47d73824-8507-9315-385b-81e642d59e06", quantity: 1 }
+      },
+      {
         label: "Consulting Block ( 1500 )",
-        value: "5952098d-3de4-0917-e88b-31578626e347"
+        value: { product: "5952098d-3de4-0917-e88b-31578626e347", quantity: 1 }
       }
     ]
   },
@@ -73,8 +78,8 @@ const products = [
     label: "Products With Provisioning",
     options: [
       {
-        label: "Starter Hosting (5.00)",
-        value: "5d085e69-d562-3719-7d6f-218e940d4237"
+        label: "Starter Hosting ( 5.00   )",
+        value: { product: "5d085e69-d562-3719-7d6f-218e940d4237", quantity: 1 }
       }
     ]
   }

@@ -21,8 +21,8 @@ import {
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnItem(basketId, productId) {
-  return spawn(itemMachine({ basketId, productId }), {
+function spawnItem(basketId, productId, quantity: 1) {
+  return spawn(itemMachine({ basketId, productId, config: { quantity } }), {
     name: uniqueId(`${productId}_`),
     sync: true
   });
@@ -125,14 +125,16 @@ export default createMachine(
       // ---
       load: assign({
         items: ({ basketId, items }) => {
-          const machines = map(items, item => spawnItem(basketId, item));
+          const machines = map(items, ({ product, quantity }) =>
+            spawnItem(basketId, product, quantity)
+          );
           return machines;
         }
       }),
 
       add: assign({
-        items: ({ basketId, items }, { data }) => {
-          const machine = spawnItem(basketId, data);
+        items: ({ basketId, items }, { data: { product, quantity } }) => {
+          const machine = spawnItem(basketId, product, quantity);
           items.push(machine);
           return items;
         }
