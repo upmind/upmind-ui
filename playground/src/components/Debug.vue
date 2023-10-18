@@ -26,6 +26,13 @@
         </code>
       </details>
 
+      <details v-if="model" :open="open?.model">
+        <summary>Model</summary>
+        <code>
+          <pre> {{ model }}</pre>
+        </code>
+      </details>
+
       <details v-if="values" :open="open?.values">
         <summary>Values</summary>
         <code>
@@ -55,6 +62,7 @@ export default defineComponent({
     disable: { type: Boolean, default: false },
     title: String,
     values: Object,
+    model: Object,
     state: [Object, String],
     open: Object,
     meta: Object,

@@ -139,7 +139,7 @@ export default defineComponent({
     margin-top: 1em;
   }
   &:not(:last-child) {
-    border-bottom: 1px solid whitesmoke;
+    border-bottom: 1px solid var(--upm-c-white-mute);
     padding-bottom: 1em;
   }
 

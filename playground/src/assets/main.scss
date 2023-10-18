@@ -1,0 +1,238 @@
+@import "./reset.css";
+@import "./base.css";
+#app {
+  font-weight: normal;
+  height: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+
+  a {
+    color: var(--upm-c-primary);
+    text-decoration: none;
+    transition: all 200ms linear;
+    &:hover {
+      background-color: var(--upm-c-primary--dark);
+    }
+  }
+  .green,
+  .primary {
+    color: var(--upm-c-primary);
+  }
+
+  .view {
+    padding: 1em;
+    position: relative;
+    height: 100vh;
+    overflow: auto;
+    // max-width: 86.875vw;
+    // min-width: 86.875vw;
+
+    .toolbar {
+      align-items: center;
+      background-color: var(--upm-c-white-mute);
+      border-radius: 0.25em;
+      display: flex;
+      justify-content: space-between;
+      left: 0;
+      padding: 0.5em 1em;
+      position: sticky;
+      right: 0;
+      top: -1em;
+      &:stuck {
+        box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.25);
+      }
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 0.5em 0;
+      margin: 0 -0.5em;
+      button {
+        margin: 0 0.5em;
+      }
+    }
+
+    button {
+      appearance: none;
+      background-color: var(--upm-c-black-mute);
+      border-radius: 0.25em;
+      border: 0;
+      color: var(--upm-c-white);
+      cursor: pointer;
+      display: flex;
+      height: auto;
+      line-height: 1;
+      padding: 0.333em 0.667em;
+      text-transform: uppercase;
+      transition: all 200ms linear;
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      &:not(:disabled):hover {
+        background-color: var(--upm-c-black);
+        color: var(--upm-c-white);
+      }
+    }
+    button[type="reset"] {
+      font-size: 0.75rem;
+      margin: 0 0.5em;
+      background-color: transparent;
+      color: unset;
+      border: none;
+      padding: 0.5em 1em;
+      border-radius: 0.25em;
+
+      &:not(:disabled):hover {
+        background-color: var(--upm-c-black);
+        color: var(--upm-c-white);
+      }
+    }
+    button.primary {
+      background: var(--upm-c-primary);
+      transition: all 200ms linear;
+
+      &:not(:disabled):hover {
+        background: var(--upm-c-primary--dark);
+        transition: all 200ms linear;
+      }
+    }
+    button[type="submit"] {
+      background: var(--upm-c-primary);
+      transition: all 200ms linear;
+
+      &:not(:disabled):hover {
+        background: hsla(160, 100%, 20%, 1);
+        transition: all 200ms linear;
+      }
+    }
+
+    form {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      max-width: 640px;
+      width: 100%;
+
+      p,
+      fieldset {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0;
+        border: none;
+        padding: 0;
+
+        &:not(:first-of-type) {
+          margin-top: 1em;
+        }
+      }
+
+      legend {
+        display: none;
+      }
+
+      label {
+        display: block;
+        flex-basis: 100%;
+      }
+
+      textarea,
+      select,
+      input {
+        // appearance: none;
+        display: block;
+        height: auto !important;
+        line-height: 1 !important;
+        max-width: 100%;
+        outline: none;
+        padding: 0.5em;
+        transition: all 200ms linear;
+        border: 1px solid var(--color-border);
+        border-radius: 0.25em;
+        background-color: var(--upm-c-white);
+
+        &:disabled {
+          background-color: var(--upm-c-white-mute);
+        }
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          appearance: none;
+          margin: 0;
+        }
+
+        &::placeholder {
+          color: unset;
+          opacity: 0.5;
+        }
+
+        // means we have an appended element
+        &:not(:last-child) {
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+          border-right: none;
+        }
+      }
+
+      .prepend + input,
+      .prepend + select,
+      .prepend + textarea {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
+      }
+
+      .prepend,
+      .append {
+        display: inline-flex;
+        padding: 0.5em 1em;
+      }
+
+      .prepend {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border: 1px solid currentColor;
+        border-right: none;
+      }
+      .append {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border: 1px solid currentColor;
+        border-left: none;
+      }
+
+      .actions {
+        margin-top: 1em;
+      }
+    }
+
+    .content {
+      margin-top: 1em;
+      padding: 0.5em 1em;
+    }
+
+    .debug {
+      font-size: 0.825rem;
+      letter-spacing: 0.025em;
+      border: 1px solid var(--color-border);
+      background-color: var(--upm-c-white-mute);
+      border-radius: 0.25em;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      overflow: auto;
+      max-width: 74vw;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    padding: 0 2rem;
+  }
+}

@@ -132,7 +132,7 @@ export default defineComponent({
   font-family: monospace;
 }
 .debug {
-  background-color: whitesmoke;
+  background-color: var(--upm-c-white-mute);
   padding: 4px 8px;
   margin: 4px 0 0;
   border-radius: 0.25em;

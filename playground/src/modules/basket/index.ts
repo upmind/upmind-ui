@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -12,9 +12,22 @@ import { useBasket as useUpmindBasket } from "@upmind/flow";
 //  with some state helpers
 
 export const useBasket = () => {
-  const basket = useUpmindBasket();
-  const { state, send } = useActor(basket.service);
+  const { service } = useUpmindBasket();
+  const { state, send } = useActor(service);
+  // --------------------------------------------------------
 
+  // We can create reactive refs to the child machines,
+  // so that when they are invoked we can listen to their state changes
+  const queue = ref();
+  service.onTransition(newState => {
+    if (newState.children?.queue) {
+      newState.children.queue.onTransition(
+        queueState => (queue.value = queueState)
+      );
+    } else {
+      queue.value = null;
+    }
+  });
   // --------------------------------------------------------
 
   return {
@@ -30,11 +43,16 @@ export const useBasket = () => {
         isLoading: ["loading"].some(state.value.matches),
         isProcessing: ["processing"].some(state.value.matches),
         isAvailable: ["shopping"].some(state.value.matches),
+        hasItems: ["shopping.items.processed"].some(state.value.matches),
+        needsConfiguring: ["shopping.queue.processing"].some(
+          state.value.matches
+        ),
         isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
         hasErrors: ["error"].some(state.value.matches)
       };
     }),
     //  ---
-    basket: computed(() => state.value.context.basket)
+    basket: computed(() => state.value.context.basket),
+    queue
   };
 };
