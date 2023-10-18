@@ -101,23 +101,24 @@ export const useSession = () => {
     send,
     state: computed(() => state.value.value),
     values: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.errors),
-    messages: computed(() => state.value.context?.messages),
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
       isLoading: ["starting"].some(state.value.matches),
-      isProcessing:
-        client.value &&
-        ![
-          "unauthenticated.idle",
-          "unauthenticated.login.idle",
-          "unauthenticated.login.challenging",
-          "unauthenticated.register.idle",
-          "unauthenticated.register.challenging"
-        ].some(client.value.matches),
+      isProcessing: !client.value
+        ? false
+        : ![
+            "unauthenticated.idle",
+            "unauthenticated.login.idle",
+            "unauthenticated.login.challenging",
+            "unauthenticated.register.idle",
+            "unauthenticated.register.challenging"
+          ].some(client.value.matches),
 
-      hasError: ["starting.status.error"].some(state.value.matches),
+      hasErrors: ["starting.status.error"].some(state.value.matches),
       // ---
+      isGuest: ["guest", "starting.guest"].some(state.value.matches),
       isClient: ["client", "starting.client"].some(state.value.matches),
       isAuthenticated: ["client"].some(state.value.matches),
       // ---
@@ -135,7 +136,6 @@ export const useSession = () => {
     registerFormCustomFields: computed(
       () => client.value?.context?.customFields
     ),
-
     // ---
     showLogin,
     showRegister,

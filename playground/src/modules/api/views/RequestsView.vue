@@ -1,24 +1,43 @@
 <template>
-  <upm-requests>
-    <template #actions>
-      <button @click="processRequests" :disabled="processing">
-        Process dummy requests
-      </button>
-    </template>
-  </upm-requests>
+  <section class="requests">
+    <header class="toolbar">
+      <h2 class="title">
+        Requests <span v-if="meta.isActive">({{ count }})</span>
+      </h2>
+      <div class="actions">
+        <slot name="actions">
+          <button @click="processRequests">Process dummy requests</button>
+        </slot>
+      </div>
+    </header>
+
+    <div class="content">
+      <upm-request
+        v-for="(request, hash) in requests"
+        :key="hash"
+        :hash="hash"
+      ></upm-request>
+    </div>
+
+    <footer>
+      <Debug
+        title="Requests"
+        :state="state"
+        :errors="errors"
+        :meta="meta"
+      ></Debug>
+    </footer>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
-import type { UseApiFunctions } from "../types";
 import { delay, forEach } from "lodash-es";
-import UpmRequests from "../components/Requests.vue";
+import UpmRequest from "../components/Request.vue";
+import Debug from "@/components/Debug.vue";
+import { useApi } from "..";
+const { state, errors, count, meta, requests, get, useTime } = useApi();
 
-const { get, useTime } = inject("upmind") as UseApiFunctions;
-
-const processing = ref(false);
-
-const requests = [
+const dummyRequests = [
   // --- request 1
   { url: "https://dummyjson.com/products/", delay: useTime().IMMIDIATE },
   { url: "https://dummyjson.com/products/", delay: useTime().IMMIDIATE },
@@ -80,8 +99,7 @@ const requests = [
 ];
 
 function processRequests() {
-  processing.value = true;
-  forEach(requests, request => {
+  forEach(dummyRequests, request => {
     delay(
       ({ url, init, useCache, maxAge }) => get({ url, init, useCache, maxAge }),
       request.delay,
@@ -90,5 +108,3 @@ function processRequests() {
   });
 }
 </script>
-
-<style scoped lang="scss"></style>

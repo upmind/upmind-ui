@@ -14,16 +14,25 @@ import { keys } from "lodash-es";
 
 export const useApi = () => {
   const api = useUpmindApi();
-  const { state } = useActor(api.service);
+  const { state, send } = useActor(api.service);
 
   // --------------------------------------------------------
 
   return {
+    send,
     state: computed(() => state.value.value),
-    count: computed(() => keys(state.value.context.requests)?.length || 0),
+    values: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
+    // ---
+    meta: computed(() => ({
+      isIdle: ["loading"].some(state.value.matches),
+      isActive: ["processing"].some(state.value.matches),
+      hasErrors: ["error"].some(state.value.matches)
+    })),
+    //  ---
     requests: computed(() => state.value.context.requests),
-    isIdle: computed(() => ["loading"].some(state.value.matches)),
-    isActive: computed(() => ["processing"].some(state.value.matches)),
+    count: computed(() => keys(state.value.context.requests)?.length || 0),
     // ---
     useUrl: api.useUrl,
     useTime: api.useTime,

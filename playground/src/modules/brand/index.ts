@@ -18,10 +18,35 @@ export const useBrand = () => {
   // --------------------------------------------------------
 
   return {
+    send,
     state: computed(() => state.value.value),
     values: computed(() => state.value.context),
-    isAvailable: computed(() => ["processed"].some(state.value.matches)),
-    isProcessing: computed(() => ["processing"].some(state.value.matches)),
-    hasError: computed(() => ["error"].some(state.value.matches))
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
+    // ---
+    meta: computed(() => ({
+      isLoading: [
+        "organisation.loading",
+        "config.loading",
+        "settings.loading",
+        "modules.loading",
+        "currencies.loading"
+      ].some(state.value.matches),
+      isReady: [
+        "organisation.complete",
+        "config.complete",
+        "settings.complete",
+        "modules.complete",
+        "currencies.complete"
+      ].every(state.value.matches),
+
+      hasErrors: [
+        "organisation.error",
+        "config.error",
+        "settings.error",
+        "modules.error",
+        "currencies.error"
+      ].some(state.value.matches)
+    }))
   };
 };
