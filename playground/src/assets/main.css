@@ -7,6 +7,13 @@
   padding: 2rem;
 }
 
+a,
+.green {
+  color: hsla(160, 100%, 37%, 1);
+  text-decoration: none;
+  transition: all 200ms linear;
+}
+
 .view {
   padding: 1em;
   position: relative;
@@ -15,13 +22,6 @@
 .view {
   height: 100vh;
   overflow: auto;
-}
-
-.view a,
-.view .green {
-  color: hsla(160, 100%, 37%, 1);
-  text-decoration: none;
-  transition: all 200ms linear;
 }
 
 .view .toolbar {
@@ -106,7 +106,7 @@
 }
 
 @media (hover: hover) {
-  .view a:hover {
+  a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 
@@ -140,7 +140,7 @@
   }
 
   .view {
-    max-width: 640px;
-    min-width: 640px;
+    max-width: 70vw;
+    min-width: 70vw;
   }
 }
