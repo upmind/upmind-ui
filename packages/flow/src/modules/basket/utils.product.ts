@@ -1,3 +1,7 @@
+// ---internal
+import { useBrand } from "../brand";
+const { getBillingCycle } = useBrand();
+
 // --- utils
 import {
   filter,
@@ -25,7 +29,7 @@ import {
 export const useProductTermsParser = (data: any) => {
   // 1. sort the terms by billing_cycle_months
   let terms = orderBy(data, "billing_cycle_months");
-
+  getBillingCycle;
   // 2. Parse the terms with
   //  - a limited number of properties
   //  - and some syntactic sugar
@@ -42,6 +46,9 @@ export const useProductTermsParser = (data: any) => {
       "price_discounted_formatted",
       "price_formatted"
     ]);
+
+    term.billing_cycle_name = getBillingCycle(rawTerm.billing_cycle_months)
+      ?.name;
 
     // --- Coupon Syntax Sugar
     term.coupons = map(rawTerm.promotions, promo => `'${promo.code}'`);

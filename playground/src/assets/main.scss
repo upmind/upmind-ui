@@ -1,23 +1,36 @@
 @import "./reset.css";
 @import "./base.css";
+
+a {
+  color: var(--upm-c-primary);
+  text-decoration: none;
+  transition: all 200ms linear;
+  &:hover {
+    background-color: var(--upm-c-primary-muted);
+  }
+}
+.green,
+.primary {
+  color: var(--upm-c-primary);
+}
+.error {
+  color: var(--upm-c-error);
+}
+.warning {
+  color: var(--upm-c-warning);
+}
+.success {
+  color: var(--upm-c-success);
+}
+.info {
+  color: var(--upm-c-info);
+}
+
 #app {
   font-weight: normal;
   height: 100%;
   margin: 0 auto;
   padding: 2rem;
-
-  a {
-    color: var(--upm-c-primary);
-    text-decoration: none;
-    transition: all 200ms linear;
-    &:hover {
-      background-color: var(--upm-c-primary--dark);
-    }
-  }
-  .green,
-  .primary {
-    color: var(--upm-c-primary);
-  }
 
   .view {
     padding: 1em;
@@ -39,7 +52,7 @@
       right: 0;
       top: -1em;
       &:stuck {
-        box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.25);
+        box-shadow: var(--shadow-hover);
       }
     }
     .actions {
@@ -96,7 +109,7 @@
       transition: all 200ms linear;
 
       &:not(:disabled):hover {
-        background: var(--upm-c-primary--dark);
+        background: var(--upm-c-primary);
         transition: all 200ms linear;
       }
     }
@@ -216,10 +229,11 @@
     }
 
     .debug {
-      font-size: 0.825rem;
+      font-size: 0.875rem;
       letter-spacing: 0.025em;
       border: 1px solid var(--color-border);
       background-color: var(--upm-c-white-mute);
+      color: var(--upm-c-black);
       border-radius: 0.25em;
       display: flex;
       flex-direction: column;

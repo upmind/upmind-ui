@@ -22,7 +22,8 @@ export const useBasket = () => {
   const items = ref();
   service.onTransition(newState => {
     if (newState.context.items) {
-      items.value = newState.context.items; // todo:
+      // update the items on any synced state change
+      items.value = map(newState.context.items, item => item.getSnapshot()); // todo:
     } else {
       items.value = null;
     }
@@ -32,7 +33,7 @@ export const useBasket = () => {
   return {
     send,
     state: computed(() => state.value.value),
-    values: computed(() => state.value.context),
+    context: computed(() => state.value.context),
     errors: computed(() => state.value.context?.error),
     //messages: computed(() => state.value.context?.messages),
 
@@ -54,6 +55,6 @@ export const useBasket = () => {
     basket: computed(() => state.value.context.basket),
     // ---
     items,
-    products: computed(() => state.value.context.basket?.products)
+    products: computed(() => state.value.context.basket?.products || [])
   };
 };

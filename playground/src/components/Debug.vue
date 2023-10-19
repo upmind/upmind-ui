@@ -33,10 +33,10 @@
         </code>
       </details>
 
-      <details v-if="values" :open="open?.values">
-        <summary>Values</summary>
+      <details v-if="context" :open="open?.context">
+        <summary>Context</summary>
         <code>
-          <pre> {{ values }}</pre>
+          <pre> {{ context }}</pre>
         </code>
       </details>
 
@@ -61,7 +61,7 @@ export default defineComponent({
   props: {
     disable: { type: Boolean, default: false },
     title: String,
-    values: Object,
+    context: Object,
     model: Object,
     state: [Object, String],
     open: Object,

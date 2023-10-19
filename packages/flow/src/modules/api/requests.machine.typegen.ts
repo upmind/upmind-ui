@@ -15,7 +15,6 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    forward: "CANCEL" | "REFRESH" | "RETRY";
     remove: "REMOVE";
   };
   eventsCausingDelays: {};

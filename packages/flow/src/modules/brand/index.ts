@@ -8,7 +8,7 @@ import { BrandConfigKeys } from "./services";
 export { BrandConfigKeys } from "./services";
 
 // --- utils
-import { pick, isArray } from "lodash-es";
+import { pick, isArray, find } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the brand machine
@@ -48,6 +48,14 @@ export const useBrand = () => {
 
       // finally return the requested keys from the config
       return pick(state.context, keys);
-    }
+    },
+    // ---
+    // syntax sugar
+    getCurrencies: () => state.context.currencies,
+    getCurrency: code => find(state.context.currencies, ["code", code]),
+
+    getBillingCycles: () => state.context.billingCycles,
+    getBillingCycle: months =>
+      find(state.context.billingCycles, ["months", months])
   };
 };

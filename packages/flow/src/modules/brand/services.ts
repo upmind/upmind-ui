@@ -148,6 +148,16 @@ async function fetchCurrencies(_context: any, _event: any) {
   }).then(({ data }: any) => data);
 }
 
+async function fetchBillingCycles(_context: any, _event: any) {
+  const { get, useUrl, useTime } = useApi();
+
+  return get({
+    url: useUrl("billing_cycles", { limit: 0 }),
+    useCache: true,
+    maxAge: useTime()?.DAY
+  }).then(({ data }: any) => data);
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
@@ -156,5 +166,6 @@ export default <Object>{
   fetchBrandSettings,
   fetchBrandConfig,
   fetchModules,
-  fetchCurrencies
+  fetchCurrencies,
+  fetchBillingCycles
 };

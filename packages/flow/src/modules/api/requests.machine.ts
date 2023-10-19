@@ -33,15 +33,15 @@ export default createMachine(
       processing: {
         always: [{ target: "loading", cond: "hasNoRequests" }],
         on: {
-          REFRESH: {
-            actions: ["forward"]
-          },
-          RETRY: {
-            actions: ["forward"]
-          },
-          CANCEL: {
-            actions: ["forward"]
-          }
+          // REFRESH: {
+          //   actions: ["forward"]
+          // },
+          // RETRY: {
+          //   actions: ["forward"]
+          // },
+          // CANCEL: {
+          //   actions: ["forward"]
+          // }
         }
       },
       complete: {
@@ -125,15 +125,15 @@ export default createMachine(
 
           return requests;
         }
-      }),
+      })
 
-      forward: (
-        context: RequestsContext,
-        { type, data: { hash } }: RequestsEvents
-      ) => {
-        debugger;
-        sendTo(hash, { type });
-      }
+      // forward: (
+      //   context: RequestsContext,
+      //   { type, data: { hash } }: RequestsEvents
+      // ) => {
+      //   debugger;
+      //   sendTo(hash, { type });
+      // }
     },
 
     guards: {

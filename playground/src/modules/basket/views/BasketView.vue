@@ -42,105 +42,71 @@
       </div>
     </header>
 
-    <div class="content">
-      <template v-if="meta.needsConfiguring">
+    <div class="content" v-if="!meta.isLoading">
+      <!-- status -->
+
+      <div v-if="products?.length">
+        <h3>
+          We have <em class="success">{{ products.length }}</em> Product{{
+            products.length > 1 ? "s" : ""
+          }}
+          in the basket
+        </h3>
+      </div>
+
+      <div v-else>
+        <h3>We <em class="error">don't have any</em> Products in the basket</h3>
+      </div>
+
+      <div v-if="meta.needsConfiguring">
         <h3>
           We have
-          <em class="primary">{{ items?.length }}</em> item{{
+          <em class="warning">{{ items?.length }}</em> item{{
             items?.length > 1 ? "s" : ""
           }}
           that need{{ items?.length == 1 ? "s" : "" }}
           configuring before
           {{ items?.length > 1 ? "they" : "it" }}
           can be added to the basket
-
-          <code>
-            <pre>{{ items }}</pre>
-          </code>
         </h3>
+      </div>
 
-        <!-- <template v-if="meta?.canChangeQuantity || true">
-        <button
-          class="prepend"
-          @click.prevent="increment"
-          :disabled="!meta.isAvailable"
-        >
-          +
-        </button>
+      <!-- cards -->
+      <hr />
 
-        <input type="number" v-model="model.quantity" min="1" max="10" />
+      <ul class="cards">
+        <li v-for="product in products" :key="product.id">
+          <section class="card success">
+            <h4 class="title">{{ product.product_name }}</h4>
+            <h5 class="subtitle">{{ product.description }}</h5>
 
-        <button
-          class="append"
-          @click.prevent="decrement"
-          :disabled="!meta.isAvailable"
-        >
-          -
-        </button>
-      </template> -->
-      </template>
+            <dl class="summary">
+              <dt>Quantity:</dt>
+              <dd>{{ product.quantity }}</dd>
+              <dt>Price:</dt>
+              <dd>{{ product.total_amount_formatted }}</dd>
+              <dt>Billing Cycle:</dt>
+              <dd>{{ product.billing_cycle_months }}</dd>
+            </dl>
+          </section>
+        </li>
+        <li v-for="item in items" :key="item.id">
+          <ProductConfig :item="item"></ProductConfig>
+        </li>
+      </ul>
+    </div>
 
-      <template v-if="products?.length">
-        <hr />
-
-        <h3>
-          We have <em class="primary">{{ products.length }}</em> Product{{
-            products.length > 1 ? "s" : ""
-          }}
-          in the basket
-
-          <ul class="cards">
-            <li v-for="product in products" class="card">
-              <h4 class="title">{{ product.product_name }}</h4>
-              <h5 class="subtitle">{{ product.description }}</h5>
-
-              <dl class="details">
-                <dt>Quantity:</dt>
-                <dd>{{ product.quantity }}</dd>
-                <dt>Price:</dt>
-                <dd>{{ product.total_amount_formatted }}</dd>
-                <dt>Billing Cycle:</dt>
-                <dd>{{ product.billing_cycle_months }}</dd>
-              </dl>
-            </li>
-          </ul>
-        </h3>
-        <!-- <template v-if="meta?.canChangeQuantity || true">
-        <button
-          class="prepend"
-          @click.prevent="increment"
-          :disabled="!meta.isAvailable"
-        >
-          +
-        </button>
-
-        <input type="number" v-model="model.quantity" min="1" max="10" />
-
-        <button
-          class="append"
-          @click.prevent="decrement"
-          :disabled="!meta.isAvailable"
-        >
-          -
-        </button>
-      </template> -->
-      </template>
-
-      <template v-else
-        >We <em class="primary">don't have any</em> Products in the
-        basket</template
-      >
+    <div class="content" v-else>
+      <h3>Loading...</h3>
     </div>
 
     <footer>
-      <Debug v-if="items?.length" title="Queue" :values="items"></Debug>
-
       <Debug
         :open="{ state: true }"
         title="Basket"
         :state="state"
         :model="model"
-        :values="basket"
+        :context="{ items, products, basket }"
         :errors="errors"
         :meta="meta"
       ></Debug>
@@ -151,8 +117,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useBasket } from "..";
+import ProductConfig from "../components/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
 const { state, basket, errors, meta, send, items, products } = useBasket();
+import { map } from "lodash-es";
 
 const productCatalogue = [
   {
@@ -206,15 +174,6 @@ const model = ref({
   quantity: 1
 });
 
-function increment() {
-  model.value.quantity++;
-  model.value.quantity = Math.min(model.value.quantity, 10);
-}
-function decrement() {
-  model.value.quantity--;
-  model.value.quantity = Math.max(model.value.quantity, 1);
-}
-
 function addProduct() {
   send({
     type: "ADD",
@@ -228,10 +187,15 @@ function addProduct() {
 
 <style scoped lang="scss">
 hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem !important;
+  margin: 2rem 0;
   border: none;
   border-top: 1px solid var(--color-border);
+}
+
+.content > div:first-of-type {
+  hr {
+    display: none;
+  }
 }
 .cards {
   display: grid;
@@ -241,6 +205,7 @@ hr {
 }
 
 .card {
+  color: var(--upm-c-black);
   background-color: var(--upm-c-white-soft);
   padding: 1em;
   border: 1px solid var(--color-border);
@@ -248,16 +213,20 @@ hr {
   transition: all 200ms linear;
 
   &.info {
-    background-color: var(--upm-c-info);
+    background-color: var(--upm-c-info-muted);
+    color: var(--upm-c-black);
   }
   &.warning {
-    background-color: var(--upm-c-warning);
+    background-color: var(--upm-c-warning-muted);
+    color: var(--upm-c-black);
   }
   &.error {
-    background-color: var(--upm-c-error);
+    background-color: var(--upm-c-error-muted);
+    color: var(--upm-c-black);
   }
   &.success {
-    background-color: var(--upm-c-success);
+    background-color: var(--upm-c-success-muted);
+    color: var(--upm-c-black);
   }
 
   // &:hover {
@@ -273,12 +242,12 @@ hr {
     font-style: italic;
   }
 
-  .details {
+  .summary {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 0.5em;
     margin-top: 1em;
-    font-size: 0.825em;
+    font-size: 0.875em;
 
     dt {
       font-weight: bold;

@@ -3,6 +3,11 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "done.invoke.brandManager.billingCycles.loading:invocation[0]": {
+      type: "done.invoke.brandManager.billingCycles.loading:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.brandManager.config.loading:invocation[0]": {
       type: "done.invoke.brandManager.config.loading:invocation[0]";
       data: unknown;
@@ -31,6 +36,7 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
+    fetchBillingCycles: "done.invoke.brandManager.billingCycles.loading:invocation[0]";
     fetchBrandConfig: "done.invoke.brandManager.config.loading:invocation[0]";
     fetchBrandSettings: "done.invoke.brandManager.settings.loading:invocation[0]";
     fetchCurrencies: "done.invoke.brandManager.currencies.loading:invocation[0]";
@@ -42,6 +48,7 @@ export interface Typegen0 {
     delays: never;
     guards: never;
     services:
+      | "fetchBillingCycles"
       | "fetchBrandConfig"
       | "fetchBrandSettings"
       | "fetchCurrencies"
@@ -49,6 +56,7 @@ export interface Typegen0 {
       | "fetchOrganisationConfig";
   };
   eventsCausingActions: {
+    setBillingCycles: "done.invoke.brandManager.billingCycles.loading:invocation[0]";
     setConfig: "done.invoke.brandManager.config.loading:invocation[0]";
     setConfigKeys: "CONFIG.GET";
     setCurrencies: "done.invoke.brandManager.currencies.loading:invocation[0]";
@@ -59,6 +67,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
+    fetchBillingCycles: "RETRY" | "xstate.init";
     fetchBrandConfig: "CONFIG.GET" | "RETRY" | "xstate.init";
     fetchBrandSettings: "RETRY" | "xstate.init";
     fetchCurrencies: "RETRY" | "xstate.init";
@@ -66,6 +75,10 @@ export interface Typegen0 {
     fetchOrganisationConfig: "RETRY" | "xstate.init";
   };
   matchesStates:
+    | "billingCycles"
+    | "billingCycles.complete"
+    | "billingCycles.error"
+    | "billingCycles.loading"
     | "config"
     | "config.complete"
     | "config.error"
@@ -87,6 +100,7 @@ export interface Typegen0 {
     | "settings.error"
     | "settings.loading"
     | {
+        billingCycles?: "complete" | "error" | "loading";
         config?: "complete" | "error" | "loading";
         currencies?: "complete" | "error" | "loading";
         modules?: "complete" | "error" | "loading";
