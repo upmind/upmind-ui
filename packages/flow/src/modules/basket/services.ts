@@ -9,7 +9,7 @@ const { authSubscription, getHistory, isAuthenticated, service } = useSession();
 
 // --- utils
 import { useBasketParser } from "./utils";
-import { isEmpty, first, isObject, isArray } from "lodash-es";
+import { isEmpty, first, isObject, isArray, filter, has } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -55,24 +55,20 @@ async function check(_context: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function create(_context: BasketContext, { data }: any) {
-  const { post, useUrl } = useApi();
+// this generates an empty basket!
+async function generate({ basket }: BasketContext, _event: any) {
+  // safety check, if we have a basket, we dont need to generate one
+  if (!isEmpty(basket)) return Promise.resolve(basket);
 
-  // we may be passed a product or an array of products to create the basket with...
-  // todo: ensure the data payload is a valid product(s)
-  const products = [];
-  if (isArray(data)) products.push(...data);
-  else if (isObject(data)) products.push(data);
+  const { post, useUrl } = useApi();
 
   return post({
     url: useUrl("orders"),
     withAccessToken: true,
     data: {
-      category_slug: "new_contract",
+      category_slug: "new_contract"
       // currency_code: "GBP", // from brand
       // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
-      products
-      // promotions: []
     }
   }).then(useBasketParser);
 }
@@ -96,20 +92,36 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function dump(_context: BasketContext, _event: any) {
-  // do we need to tell the api to dump the basket?
-  return Promise.resolve(); // we dont need to return anything
-}
-
 // --- Basket Methods
 
-async function add({ basketId, config }, _event: any) {
+// this function effectively processes the queu of items 1 at a time
+// to achieve this we simply take the 1st configured item and add it to the basket
+// and then return the  new basket AND the internal id/machine of the item that was added
+async function addToBasket({ basket, items }, event: any) {
+  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
+
+  const item = first(
+    filter(
+      items,
+      ({ state }) =>
+        state.matches("configured") && !has(state, "context.config.id")
+    )
+  );
+
+  console.log("add item to basket", { basket: basket.id, item, event });
+
+  if (!item) return Promise.reject("No item to add to basket");
+
+  const config = item.state.context.config;
+
   const { post, useUrl } = useApi();
   return post({
-    url: useUrl(`/orders/${basketId}/products`),
+    url: useUrl(`/orders/${basket.id}/products`),
     data: config,
     withAccessToken: true
-  });
+  })
+    .then(({ data }) => ({ basket: data, itemId: item.id }))
+    .catch(error => ({ error, itemId: item.id }));
 }
 
 async function update(context: BasketContext, _event: any) {}
@@ -135,11 +147,10 @@ async function setPriceList(context: BasketContext, _event: any) {}
 
 export default <Object>{
   check,
-  create,
+  generate,
   claim,
-  dump,
   // ---
-  add,
+  addToBasket,
   // ---
   authSubscription,
   isAuthenticated

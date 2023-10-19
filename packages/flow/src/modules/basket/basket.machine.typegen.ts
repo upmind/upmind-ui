@@ -4,6 +4,11 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
+    "done.invoke.adding:invocation[0]": {
+      type: "done.invoke.adding:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.authCallback": {
       type: "done.invoke.authCallback";
       data: unknown;
@@ -14,8 +19,8 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.clearing:invocation[0]": {
-      type: "done.invoke.clearing:invocation[0]";
+    "done.invoke.generating:invocation[0]": {
+      type: "done.invoke.generating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -39,10 +44,11 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
+    addToBasket: "done.invoke.adding:invocation[0]";
     authSubscription: "done.invoke.authCallback";
     check: "done.invoke.loading:invocation[0]";
     claim: "done.invoke.claiming:invocation[0]";
-    dump: "done.invoke.clearing:invocation[0]";
+    generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
   };
   missingImplementations: {
@@ -50,32 +56,43 @@ export interface Typegen0 {
     delays: never;
     guards: never;
     services:
+      | "addToBasket"
       | "authSubscription"
       | "check"
       | "claim"
-      | "dump"
+      | "generate"
       | "isAuthenticated";
   };
   eventsCausingActions: {
-    clearBasket: "done.invoke.clearing:invocation[0]";
-    setBasket: "REFRESH" | "done.invoke.loading:invocation[0]";
+    addItem: "ADD";
+    clearBasket: "UNAUTHENTICATED";
+    removeItem: "done.invoke.adding:invocation[0]";
+    setBasket:
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.loading:invocation[0]";
     setError:
       | "error.platform.claiming:invocation[0]"
       | "error.platform.loading:invocation[0]";
+    setResponse: "done.invoke.adding:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    hasItems: "";
+    hasNewItems: "";
+    hasNoBasket: "ADD";
+    hasProducts: "";
+    needsConfiguring: "";
   };
   eventsCausingServices: {
+    addToBasket: "";
     authSubscription: "xstate.init";
-    check: "SESSION" | "done.invoke.clearing:invocation[0]";
+    check: "SESSION" | "UNAUTHENTICATED";
     claim: "AUTHENTICATED";
-    dump: "UNAUTHENTICATED";
+    generate: "ADD";
     isAuthenticated:
+      | "ADD"
       | "done.invoke.claiming:invocation[0]"
+      | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
-    queue: "ADD";
   };
   matchesStates:
     | "checkout"
@@ -84,9 +101,9 @@ export interface Typegen0 {
     | "checkout.payment"
     | "checkout.shipping"
     | "claiming"
-    | "clearing"
     | "complete"
     | "error"
+    | "generating"
     | "loading"
     | "shopping"
     | "shopping.client"
@@ -94,23 +111,23 @@ export interface Typegen0 {
     | "shopping.client.checking"
     | "shopping.client.unauthenticated"
     | "shopping.items"
+    | "shopping.items.configuring"
     | "shopping.items.empty"
-    | "shopping.items.processed"
-    | "shopping.items.processing"
-    | "shopping.queue"
-    | "shopping.queue.empty"
-    | "shopping.queue.processing"
+    | "shopping.products"
+    | "shopping.products.added"
+    | "shopping.products.adding"
+    | "shopping.products.empty"
     | "subscribing"
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
         shopping?:
           | "client"
           | "items"
-          | "queue"
+          | "products"
           | {
               client?: "authenticated" | "checking" | "unauthenticated";
-              items?: "empty" | "processed" | "processing";
-              queue?: "empty" | "processing";
+              items?: "configuring" | "empty";
+              products?: "added" | "adding" | "empty";
             };
       };
   tags: never;

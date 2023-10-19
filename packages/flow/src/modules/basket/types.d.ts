@@ -24,6 +24,8 @@ export interface ProductConfigContext {
 }
 
 export interface IProductConfig {
+  id?: string; // this is only when it exists in the basket
+  // ---
   attributes: {
     product_id: IProductAttribute["id"];
   }[];
@@ -40,13 +42,13 @@ export interface IProductConfig {
   product_id: IProduct["id"];
   promotions?: { promocode: string }[];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
-  selling_price?: number; // Override selling price
   start_trial?: boolean;
-  total?: number;
 }
 
 export interface BasketContext {
-  basket: Basket;
+  basket: Basket | null;
+  items: Array;
+  products: Array<IProductConfig | null>;
   error?: RequestError;
 }
 

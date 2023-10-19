@@ -5,15 +5,33 @@
 // might make the transfer/dumping of the basket easier
 
 // --- external
-import { createMachine, assign, actions } from "xstate";
+import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
 import type { BasketContext } from "./types.d";
-import itemsMachine from "./items.machine";
+import configurationMachine from "./productConfig.machine";
 
 // --- utils
-import { isArray } from "lodash-es";
+import {
+  every,
+  find,
+  has,
+  includes,
+  isEmpty,
+  remove,
+  some,
+  trimStart
+} from "lodash-es";
+import { useBasketParser } from "./utils";
+
+// --------------------------------------------------------
+// utility function to spawn machines based on the given items
+function spawnConfiguration(product, config: { quantity: 1 }) {
+  return spawn(configurationMachine({ product, config }), {
+    sync: true
+  });
+}
 
 // --------------------------------------------------------
 
@@ -24,7 +42,8 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      basket: {},
+      basket: null,
+      items: [],
       error: null
     } as BasketContext,
     states: {
@@ -63,63 +82,92 @@ export default createMachine(
         }
       },
 
+      // if we dont have a basket, we can now generate one
+      generating: {
+        id: "generating",
+        invoke: {
+          src: "generate",
+          onDone: {
+            target: "shopping",
+            actions: ["setBasket"]
+          },
+          onError: { target: "#error" }
+        }
+      },
+
       // We are now ready to start accepting items into the basket
-      // items are added to a queue and processed
-      // this allows us to have multiple products added at once
-      // once items in the queue are configured, we can then add them to the basket,
-      // once successfully added, we can then remove them from the queue
-      // and listen for update/remove events
+      // items are effectively products that are not yet added to the basket OR products that are being changed
+      // regardles, these items require configuring
+      // once items are configured, we can then add them (back) into the basket,
+      // NB: this allows us to have multiple products added at once and have a mixed basket
+      // once successfully added, they become products and can be updated/removed
       shopping: {
         id: "shopping",
         type: "parallel",
         states: {
-          queue: {
-            initial: "empty",
-            states: {
-              empty: {
-                type: "final",
-                on: {
-                  ADD: [{ target: "processing" }]
-                }
-              },
-
-              processing: {
-                invoke: {
-                  id: "queue",
-                  src: itemsMachine,
-                  autoForward: true,
-                  data: {
-                    basketId: ({ basket }) => basket?.id, // pass the basket Id, if we have one : this will auto generate a basket if we dont
-                    items: (_context, { data }) =>
-                      isArray(data) ? data : [data] // pass through the item being added
-                  },
-                  onDone: { target: "empty" }
-                },
-                on: {
-                  REFRESH: { actions: ["setBasket"] }
-                }
-              }
-            }
-          },
           items: {
             initial: "empty",
             states: {
               empty: {
-                always: [{ target: "processed", cond: "hasItems" }]
+                always: [{ target: "configuring", cond: "needsConfiguring" }],
+                type: "final"
               },
-              processing: {},
-              processed: {
+              configuring: {
+                // always: [{ target: "empty", cond: "allConfigured" }]
+              }
+            },
+            on: {
+              // This transition will match any event, but we will target the completion of ANY spawned machine
+              // CONFIGURED: { actions: ["addProduct"] },
+              // "*": {
+              //   actions: ["removeItem"],
+              //   cond: (_context, event) => includes(event.type, "done.invoke")
+              // }
+            }
+          },
+          products: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: [
+                  { target: "adding", cond: "hasNewItems" },
+                  // { target: "updating", cond: "hasChangedItems" },
+                  { target: "added", cond: "hasProducts" }
+                ]
+              },
+              adding: {
+                id: "adding",
+                invoke: {
+                  src: "addToBasket",
+                  onDone: {
+                    target: "empty",
+                    actions: ["removeItem", "setResponse"]
+                  }
+                }
+              },
+              // updating: {
+              //   id: "updating",
+              //   invoke: {
+              //     src: "update",
+              //     onDone: {
+              //       target: "empty",
+              //       actions: ["remove", "setResponse"]
+              //     }
+              //   }
+              // },
+              added: {
+                always: [{ target: "adding", cond: "hasNewItems" }],
                 type: "final"
               }
             }
             // on: {
             // "PRODUCT.UPDATE": {
             //   target: "processing",
-            // cond: "hasItems"
+            // cond: "needsConfiguring"
             // },
             // "PRODUCT.REMOVE": {
             //   target: "processing",
-            // cond: "hasItems"
+            // cond: "needsConfiguring"
             // }
             // }
           },
@@ -144,7 +192,15 @@ export default createMachine(
           }
         },
         on: {
-          UNAUTHENTICATED: { target: "#clearing" }
+          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
+          ADD: [
+            {
+              target: "#generating",
+              cond: "hasNoBasket",
+              actions: ["addItem"]
+            },
+            { target: "shopping", actions: ["addItem"] }
+          ]
         },
         onDone: {
           target: "checkout"
@@ -153,6 +209,7 @@ export default createMachine(
 
       // when we are ready for checkout, we can start the checkout process
       // and lock the basket from being modified
+      //  todo merge this into shopping as additional parallel state
       checkout: {
         type: "parallel",
         states: {
@@ -162,19 +219,10 @@ export default createMachine(
           additional: {}
         },
         on: {
-          UNAUTHENTICATED: { target: "#clearing" }
+          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
         },
         onDone: {
           target: "complete"
-        }
-      },
-
-      // Dump the current basket...maybe confirm with the user?
-      clearing: {
-        id: "clearing",
-        invoke: {
-          src: "dump",
-          onDone: { target: "#loading", actions: ["clearBasket"] }
         }
       },
 
@@ -191,9 +239,13 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
+        basket: (context, { data }) => data
+      }),
+
+      setResponse: assign({
         basket: (context, { data }) => {
-          // debugger;
-          return data;
+          debugger;
+          return data.basket;
         }
       }),
 
@@ -201,6 +253,32 @@ export default createMachine(
         basket: {}
       }),
 
+      // --- Configuring Items Actions
+      addItem: assign({
+        items: ({ items }, { data: { product, quantity } }) => {
+          const machine = spawnConfiguration(product, { quantity });
+          items.push(machine);
+          return items;
+        }
+      }),
+
+      removeItem: assign({
+        items: ({ items }, { type, data }, other) => {
+          console.log("remove item", { type, data, other });
+          // me may be given a name, but if not we can determine it from the event type
+          const itemId = data?.itemId || trimStart(type, "invoke.done.");
+
+          // try find any items with the same hash
+          const item = find(items, ["id", itemId]);
+
+          // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          if (item) item.stop();
+
+          // finally remove it from our items
+          remove(items, ["id", itemId]);
+          return items;
+        }
+      }),
       // ---
 
       setError: assign({
@@ -210,7 +288,33 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      hasItems: ({ basket }) => !!basket?.products?.length
+      hasNoBasket: ({ basket }) => isEmpty(basket),
+
+      // --- Configuration Guards
+      needsConfiguring: ({ items }) => !isEmpty(items),
+
+      allConfigured: ({ items }) =>
+        !items.length ||
+        every(items, ({ state }) => state?.matches("configured")),
+
+      // --- Item Guards
+      hasNewItems: ({ items }) => {
+        return some(
+          items,
+          ({ state }) =>
+            state.matches("configured") && !has(state, "context.config.id")
+        );
+      },
+
+      hasChangedItems: ({ items }) => {
+        return some(
+          items,
+          ({ state }) =>
+            state.matches("configured") && has(state, "context.config.id")
+        );
+      },
+
+      hasProducts: ({ basket }) => !!basket?.products?.length
     },
 
     delays: {},
