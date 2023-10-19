@@ -1,63 +1,64 @@
 <template>
   <section class="brand">
     <header class="toolbar">
-      <h2 class="title">Basket</h2>
+      <h2 class="title">
+        Basket <span v-if="products?.length">({{ products.length }})</span>
+      </h2>
 
       <div class="actions">
-        <slot name="actions"> </slot>
+        <slot name="actions">
+          <form @submit.prevent="addProduct(model)">
+            <fieldset>
+              <select v-model="model.product" placeholder="Select product">
+                <component
+                  v-for="(item, index) in productCatalogue"
+                  :key="`item-${index}`"
+                  :is="item.type || 'option'"
+                  v-bind="item"
+                >
+                  <option
+                    v-for="(subitem, subindex) in item?.options"
+                    :key="`item-${index}-${subindex}`"
+                    v-bind="subitem"
+                  ></option>
+                </component>
+              </select>
+
+              <button
+                type="submit"
+                :disabled="meta.isProcessing || !model.product"
+              >
+                add to basket
+              </button>
+
+              <button
+                type="reset"
+                :disabled="meta.isProcessing || !model.product"
+                @click.prevent="model.product = null"
+              >
+                cancel
+              </button>
+            </fieldset>
+          </form>
+        </slot>
       </div>
     </header>
 
     <div class="content">
-      <form @submit.prevent="addProduct(model)">
-        <fieldset>
-          <label for="product">Product</label>
-          <select v-model="model.product">
-            <component
-              v-for="(item, index) in products"
-              :key="`item-${index}`"
-              :is="item.type || 'option'"
-              v-bind="item"
-            >
-              <option
-                v-for="(subitem, subindex) in item?.options"
-                :key="`item-${index}-${subindex}`"
-                v-bind="subitem"
-              ></option>
-            </component>
-          </select>
-        </fieldset>
-
-        <div class="actions">
-          <button type="submit" :disabled="meta.isProcessing || !model.product">
-            add to basket
-          </button>
-
-          <button
-            type="reset"
-            v-if="model.product"
-            :disabled="meta.isProcessing"
-            @click.prevent="model.product = null"
-          >
-            cancel
-          </button>
-        </div>
-      </form>
-
-      <hr />
-
       <template v-if="meta.needsConfiguring">
         <h3>
           We have
-          <em class="primary">{{ queue?.context?.items?.length }}</em> item{{
-            queue?.context?.items?.length > 1 ? "s" : ""
+          <em class="primary">{{ items?.length }}</em> item{{
+            items?.length > 1 ? "s" : ""
           }}
-          that need{{ queue?.context?.items?.length == 1 ? "s" : "" }}
+          that need{{ items?.length == 1 ? "s" : "" }}
           configuring before
-          {{ queue?.context?.items?.length > 1 ? "they" : "it" }}
+          {{ items?.length > 1 ? "they" : "it" }}
           can be added to the basket
 
-          <code><pre></pre></code>
+          <code>
+            <pre>{{ items }}</pre>
+          </code>
         </h3>
 
         <!-- <template v-if="meta?.canChangeQuantity || true">
@@ -81,15 +82,17 @@
       </template> -->
       </template>
 
-      <template v-if="meta.hasItems">
+      <template v-if="products?.length">
+        <hr />
+
         <h3>
-          We have <em class="primary">{{ basket.products.length }}</em> item{{
-            basket.products.length > 1 ? "s" : ""
+          We have <em class="primary">{{ products.length }}</em> item{{
+            products.length > 1 ? "s" : ""
           }}
           in the basket
 
           <ul class="cards">
-            <li v-for="product in basket.products" class="card">
+            <li v-for="product in products" class="card">
               <h4 class="title">{{ product.product_name }}</h4>
               <h5 class="subtitle">{{ product.description }}</h5>
 
@@ -127,16 +130,10 @@
     </div>
 
     <footer>
-      <Debug
-        v-if="queue"
-        title="Queue"
-        :state="queue.value"
-        :values="queue.context.items"
-        :errors="queue.context.errors"
-      ></Debug>
+      <Debug v-if="items?.length" title="Queue" :values="items"></Debug>
 
       <Debug
-        :open="{ meta: true }"
+        :open="{ state: true }"
         title="Basket"
         :state="state"
         :model="model"
@@ -152,9 +149,9 @@
 import { ref } from "vue";
 import { useBasket } from "..";
 import Debug from "@/components/Debug.vue";
-const { state, basket, errors, meta, send, queue } = useBasket();
+const { state, basket, errors, meta, send, items, products } = useBasket();
 
-const products = [
+const productCatalogue = [
   {
     type: "optgroup",
     label: "Simple Products",
@@ -229,7 +226,7 @@ function addProduct() {
 <style scoped lang="scss">
 hr {
   margin-top: 1rem;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   border: none;
   border-top: 1px solid var(--color-border);
 }

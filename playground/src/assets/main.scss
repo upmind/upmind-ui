@@ -59,7 +59,8 @@
       border: 0;
       color: var(--upm-c-white);
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
+      align-items: center;
       height: auto;
       line-height: 1;
       padding: 0.333em 0.667em;

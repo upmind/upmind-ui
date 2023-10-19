@@ -6,6 +6,7 @@ import { useActor } from "@xstate/vue";
 import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 // --- utils
+import { map, find } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -16,16 +17,14 @@ export const useBasket = () => {
   const { state, send } = useActor(service);
   // --------------------------------------------------------
 
-  // We can create reactive refs to the child machines,
-  // so that when they are invoked we can listen to their state changes
-  const queue = ref();
+  // We can create reactive refs to the actors for machines that are spawned
+  // so that we can listen to their state changes, and send them events
+  const items = ref();
   service.onTransition(newState => {
-    if (newState.children?.queue) {
-      newState.children.queue.onTransition(
-        queueState => (queue.value = queueState)
-      );
+    if (newState.context.items) {
+      items.value = newState.context.items; // todo:
     } else {
-      queue.value = null;
+      items.value = null;
     }
   });
   // --------------------------------------------------------
@@ -43,8 +42,8 @@ export const useBasket = () => {
         isLoading: ["loading"].some(state.value.matches),
         isProcessing: ["processing"].some(state.value.matches),
         isAvailable: ["shopping"].some(state.value.matches),
-        hasItems: ["shopping.items.processed"].some(state.value.matches),
-        needsConfiguring: ["shopping.queue.processing"].some(
+        hasProducts: !["shopping.products.empty"].some(state.value.matches),
+        needsConfiguring: ["shopping.items.configuring"].some(
           state.value.matches
         ),
         isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
@@ -53,6 +52,8 @@ export const useBasket = () => {
     }),
     //  ---
     basket: computed(() => state.value.context.basket),
-    queue
+    // ---
+    items,
+    products: computed(() => state.value.context.basket?.products)
   };
 };

@@ -10,14 +10,12 @@ import type { BasketContext, ProductConfigContext } from "./types.d";
 // --- utils
 import {
   filter,
-  find,
   first,
   forEach,
   get,
   includes,
   intersectionWith,
   isEqual,
-  map,
   maxBy,
   minBy,
   some
@@ -41,12 +39,6 @@ export enum DefaultPaymentPeriod {
 //  Syntax sugar to manage Products (likely to move to a separate product machine, like requests)
 
 // utility function to spawn machines based on the given items
-
-async function update(context: BasketContext, _event: any) {}
-
-async function remove(context: BasketContext, _event: any) {}
-
-async function clear(context: BasketContext, _event: any) {}
 
 // ---
 // Get the product that has been prepared for the basket, with all the required data
@@ -216,10 +208,6 @@ async function checkAttributes(
 // EXPORTS
 
 export default <Object>{
-  update,
-  remove,
-  clear,
-  // ---
   getProduct,
   // ---
   checkTerm,
