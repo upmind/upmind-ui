@@ -91,7 +91,7 @@
           </section>
         </li>
         <li v-for="item in items" :key="item.id">
-          <ProductConfig :item="item"></ProductConfig>
+          <ProductConfig :item="item" @update:term="updateTerm"></ProductConfig>
         </li>
       </ul>
     </div>
@@ -119,8 +119,8 @@ import { ref } from "vue";
 import { useBasket } from "..";
 import ProductConfig from "../components/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
-const { state, basket, errors, meta, send, items, products } = useBasket();
-import { map } from "lodash-es";
+const { state, basket, errors, meta, updateTerm, items, products, send } =
+  useBasket();
 
 const productCatalogue = [
   {
@@ -133,20 +133,24 @@ const productCatalogue = [
       }
     ]
   },
-  {
-    type: "optgroup",
-    label: "Products with Options",
-    options: [
-      {
-        label: "Blocks ( 1500 )",
-        value: "3de78642-de53-9714-542c-21208469530d"
-      }
-    ]
-  },
+  // {
+  //   type: "optgroup",
+  //   label: "Products with Options",
+  //   options: [
+  //     {
+  //       label: "Blocks ( 1500 )",
+  //       value: "3de78642-de53-9714-542c-21208469530d"
+  //     }
+  //   ]
+  // },
   {
     type: "optgroup",
     label: "Products with Attributes",
     options: [
+      {
+        label: "Domain ( Terms Apply )",
+        value: "78985742-6489-7012-096c-21e325d0ed36"
+      },
       {
         label: "Meeting ( FREE )",
         value: "47d73824-8507-9315-385b-81e642d59e06"

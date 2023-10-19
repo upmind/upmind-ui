@@ -158,34 +158,33 @@ export default ({ product, config }) =>
             //   //   },
           },
 
-          // on: {
-          // Raw update for the full product config....maybe individual updates for each of the above?
-          // UPDATE: { target: "processing.update", actions: ["setConfig"] },
-          // ---
-          // // syntax sugar to update the config
-          // TERM.SELECT": {
-          //   target: "processing.update",
-          //   actions: ["setConfig"]
-          // },
-          // Raw update for the options
-          // "OPTIONS.UPDATE": {
-          //   target: "processing.update",
-          //   actions: ["setConfig"]
-          // },
-          // "OPTION.REMOVE": {
-          //   target: "processing.update",
-          //   actions: ["setConfig"]
-          // },
-          // "OPTION.REMOVE": {
-          //   target: "processing.update",
-          //   actions: ["setConfig"]
-          // },
-          // "OPTION.UPDATE": {
-          //   target: "processing.update",
-          //   actions: ["setConfig"]
-          // },
-
-          // }
+          on: {
+            // Raw update for the full product config....maybe individual updates for each of the above?
+            // UPDATE: { target: "processing.update", actions: ["setConfig"] },
+            // ---
+            // // syntax sugar to update the config
+            "TERM.UPDATE": {
+              target: "configuring.term",
+              actions: ["setConfig"]
+            }
+            // Raw update for the options
+            // "OPTIONS.UPDATE": {
+            //   target: "processing.update",
+            //   actions: ["setConfig"]
+            // },
+            // "OPTION.REMOVE": {
+            //   target: "processing.update",
+            //   actions: ["setConfig"]
+            // },
+            // "OPTION.REMOVE": {
+            //   target: "processing.update",
+            //   actions: ["setConfig"]
+            // },
+            // "OPTION.UPDATE": {
+            //   target: "processing.update",
+            //   actions: ["setConfig"]
+            // },
+          },
           onDone: { target: "configured" }
         },
 

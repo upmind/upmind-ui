@@ -5,7 +5,7 @@
 // might make the transfer/dumping of the basket easier
 
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign, spawn, sendTo } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -114,6 +114,15 @@ export default createMachine(
               },
               configuring: {
                 // always: [{ target: "empty", cond: "allConfigured" }]
+                on: {
+                  "TERM.UPDATE": sendTo(
+                    ({ context }, { data: { itemId } }) => itemId,
+                    ({ context }, { data: { term } }) => ({
+                      type: "TERM.UPDATE",
+                      data: term
+                    })
+                  )
+                }
               }
             },
             on: {

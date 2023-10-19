@@ -16,7 +16,13 @@
         class="term"
         :class="{ selected: isSelectedTerm(term) }"
       >
-        <input type="checkbox" :value="term" :checked="isSelectedTerm(term)" />
+        <input
+          type="checkbox"
+          :value="term"
+          readonly
+          :checked="isSelectedTerm(term)"
+          @click.prevent="selectTerm(term)"
+        />
         <h4 class="title" v-if="term?.billing_cycle_name">
           {{ term.billing_cycle_name }}
         </h4>
@@ -71,13 +77,14 @@ export default defineComponent({
   components: {
     Debug
   },
+  emits: ["update:term"],
   props: {
     item: {
       type: Object, // This is really an Actor for a spawned Item
       required: true
     }
   },
-  setup: props => {
+  setup: (props, { emit }) => {
     const config = ref(props.item.context.config);
     const state = computed(() => props.item.value);
     const product = computed(() => props.item.context.product);
@@ -101,12 +108,13 @@ export default defineComponent({
     }
 
     function isSelectedTerm(term) {
-      debugger;
       const selectedTerm = selected.value.term;
-      debugger;
       const value = isEqual(selectedTerm, term);
-      debugger;
       return value;
+    }
+
+    function selectTerm(term) {
+      emit("update:term", { itemId: props.item.id, term });
     }
 
     return {
@@ -138,6 +146,7 @@ export default defineComponent({
         if (props.item.context.config?.id) return "Added";
       }),
       // ---
+      selectTerm,
       isSelectedTerm,
       increment,
       decrement
@@ -220,8 +229,8 @@ export default defineComponent({
 
 .terms {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  grid-gap: 1em;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  grid-gap: 0.5em;
   margin: 1em 0;
 }
 
@@ -253,14 +262,14 @@ export default defineComponent({
   .title {
     background-color: var(--upm-c-white);
     font-size: 0.875em;
-    padding: 0.5em 1em;
+    padding: 0.5em 0.125em;
     border-bottom: 1px solid var(--color-border);
     font-weight: 600;
   }
   .price {
     font-weight: 600;
-    font-size: 1.5em;
-    padding: 1em;
+    font-size: 1.25em;
+    padding: 1em 0.125em;
   }
 }
 </style>

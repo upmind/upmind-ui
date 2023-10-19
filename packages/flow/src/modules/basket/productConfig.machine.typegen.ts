@@ -44,7 +44,7 @@ export interface Typegen0 {
     sendConfig: "done.state.configuring";
     setAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
-    setConfig: "UPDATE" | "done.invoke.load";
+    setConfig: "TERM.UPDATE" | "UPDATE" | "done.invoke.load";
     setError:
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
@@ -55,8 +55,8 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    checkAttributes: "UPDATE" | "done.invoke.load";
-    checkTerm: "UPDATE" | "done.invoke.load";
+    checkAttributes: "TERM.UPDATE" | "UPDATE" | "done.invoke.load";
+    checkTerm: "TERM.UPDATE" | "UPDATE" | "done.invoke.load";
     getProduct: "xstate.init";
   };
   matchesStates:
