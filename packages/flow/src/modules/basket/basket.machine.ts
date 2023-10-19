@@ -244,8 +244,7 @@ export default createMachine(
 
       setResponse: assign({
         basket: (context, { data }) => {
-          debugger;
-          return data.basket;
+          data?.basket || context.basket;
         }
       }),
 

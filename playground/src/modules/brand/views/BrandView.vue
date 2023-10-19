@@ -9,7 +9,7 @@
       <Debug
         title="Brand"
         :state="state"
-        :values="values"
+        :context="context"
         :errors="errors"
         :meta="meta"
       ></Debug>
@@ -21,12 +21,12 @@
 import { useBrand } from "../";
 import Debug from "@/components/Debug.vue";
 
-const { state, values, meta, errors } = useBrand();
+const { state, context, meta, errors } = useBrand();
 </script>
 
 <style scoped lang="scss">
 .brand {
-  .values {
+  .context {
     margin-top: 1em;
     &:not(:last-child) {
       border-bottom: 1px solid var(--upm-c-white-mute);

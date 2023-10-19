@@ -20,6 +20,7 @@ export default createMachine(
     initial: "processing",
     context: {
       currencies: null,
+      billingCycles: null,
       keys: {
         // start with these defaults
         organisation: [
@@ -268,6 +269,43 @@ export default createMachine(
 
         // Currencies
         // /currencies?limit=0&lang=en
+      },
+      billingCycles: {
+        initial: "loading",
+        states: {
+          loading: {
+            invoke: {
+              src: "fetchBillingCycles",
+              onDone: {
+                target: "complete",
+                actions: ["setBillingCycles"]
+              },
+              onError: {
+                target: "error",
+                actions: assign({
+                  error: ({ error }: BrandContext, { data }: BrandEvent) => {
+                    set(error, "billingCycles", data || "Unknown error");
+                    return error;
+                  }
+                })
+              }
+            }
+          },
+          complete: {},
+          error: {
+            on: {
+              RETRY: {
+                target: "loading",
+                actions: assign({
+                  error: ({ error }: BrandContext) => {
+                    unset(error, "billingCycles");
+                    return error;
+                  }
+                })
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -298,6 +336,9 @@ export default createMachine(
       ),
       setCurrencies: assign({
         currencies: (_context: BrandContext, { data }: BrandEvent) => data
+      }),
+      setBillingCycles: assign({
+        billingCycles: (_context: BrandContext, { data }: BrandEvent) => data
       })
       // ---
     },

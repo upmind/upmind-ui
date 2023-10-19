@@ -153,7 +153,7 @@
       <Debug
         title="Session"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
-        :values="values"
+        :context="context"
         :errors="errors"
         :meta="meta"
       ></Debug>
@@ -168,7 +168,7 @@ import Debug from "@/components/Debug.vue";
 
 const {
   state,
-  values,
+  context,
   errors,
   meta,
   // ---
@@ -201,7 +201,7 @@ const model = ref({
 
 <style scoped lang="scss">
 .brand {
-  .values {
+  .context {
     margin-top: 1em;
     &:not(:last-child) {
       border-bottom: 1px solid var(--upm-c-white-mute);

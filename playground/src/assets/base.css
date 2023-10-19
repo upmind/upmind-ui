@@ -13,25 +13,22 @@
   /* ------------------------------------------------------------------------ */
 
   --upm-c-primary: hsla(160, 100%, 37%, 1);
-  --upm-c-primary--dark: hsla(160, 100%, 37%, 0.2);
+  --upm-c-primary-muted: hsla(160, 100%, 37%, 0.2);
 
-  --upm-c-secondary: hsla(160, 100%, 37%, 1);
-  --upm-c-secondary--dark: hsla(160, 100%, 37%, 0.2);
+  --upm-c-success: hsla(150, 100%, 75%, 1);
+  --upm-c-success-muted: hsla(150, 100%, 95%, 0.333);
 
-  --upm-c-success: hsla(150, 100%, 98%, 1);
-  --upm-c-success--dark: hsla(150, 100%, 98%, 0.8);
+  --upm-c-error: hsla(6, 100%, 75%, 1);
+  --upm-c-error-muted: hsla(6, 100%, 95%, 0.333);
 
-  --upm-c-error: hsla(6, 100%, 94%, 1);
-  --upm-c-error--dark: hsla(6, 100%, 94%, 0.8);
+  --upm-c-warning: hsla(25, 100%, 75%, 1);
+  --upm-c-warning-muted: hsla(25, 100%, 95%, 0.333);
 
-  --upm-c-warning: hsla(25, 100%, 97%, 1);
-  --upm-c-warning--dark: hsla(25, 100%, 97%, 0.8);
+  --upm-c-info: hsla(180, 100%, 75%, 1);
+  --upm-c-info-muted: hsla(180, 100%, 95%, 0.333);
 
-  --upm-c-info: hsla(180, 100%, 97%, 1);
-  --upm-c-info--dark: hsla(180, 100%, 97%, 0.8);
-
-  --upm-c-disabled: hsla(160, 100%, 37%, 1);
-  --upm-c-disabled--dark: hsla(160, 100%, 37%, 0.8);
+  --upm-c-disabled: hsla(160, 100%, 75%, 0.8);
+  --upm-c-disabled-muted: hsla(160, 100%, 95%, 0.333);
 
   /* ------------------------------------------------------------------------ */
 
@@ -54,6 +51,9 @@
 
   --color-border: var(--upm-c-divider-light-2);
   --color-border-hover: var(--upm-c-divider-light-1);
+
+  --shadow: 0 0 0.125em 0.0625em rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 0 0.25em 0.125em rgba(0, 0, 0, 0.1);
 
   --color-heading: var(--upm-c-text-light-1);
   --color-text: var(--upm-c-text-light-1);
