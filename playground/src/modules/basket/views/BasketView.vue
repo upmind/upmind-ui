@@ -1,9 +1,7 @@
 <template>
   <section class="brand">
     <header class="toolbar">
-      <h2 class="title">
-        Basket <span v-if="products?.length">({{ products.length }})</span>
-      </h2>
+      <h2 class="title">Basket</h2>
 
       <div class="actions">
         <slot name="actions">
@@ -86,7 +84,7 @@
         <hr />
 
         <h3>
-          We have <em class="primary">{{ products.length }}</em> item{{
+          We have <em class="primary">{{ products.length }}</em> Product{{
             products.length > 1 ? "s" : ""
           }}
           in the basket
@@ -127,6 +125,11 @@
         </button>
       </template> -->
       </template>
+
+      <template v-else
+        >We <em class="primary">don't have any</em> Products in the
+        basket</template
+      >
     </div>
 
     <footer>
