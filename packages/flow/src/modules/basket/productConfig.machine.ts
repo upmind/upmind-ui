@@ -90,6 +90,12 @@ export default ({ product, config }) =>
                 complete: {
                   type: "final"
                 }
+              },
+              on: {
+                "UPDATE.TERM": {
+                  target: "term.checking",
+                  actions: ["setTerm"]
+                }
               }
             },
             attributes: {
@@ -158,33 +164,6 @@ export default ({ product, config }) =>
             //   //   },
           },
 
-          on: {
-            // Raw update for the full product config....maybe individual updates for each of the above?
-            // UPDATE: { target: "processing.update", actions: ["setConfig"] },
-            // ---
-            // // syntax sugar to update the config
-            "TERM.UPDATE": {
-              target: "configuring.term",
-              actions: ["setConfig"]
-            }
-            // Raw update for the options
-            // "OPTIONS.UPDATE": {
-            //   target: "processing.update",
-            //   actions: ["setConfig"]
-            // },
-            // "OPTION.REMOVE": {
-            //   target: "processing.update",
-            //   actions: ["setConfig"]
-            // },
-            // "OPTION.REMOVE": {
-            //   target: "processing.update",
-            //   actions: ["setConfig"]
-            // },
-            // "OPTION.UPDATE": {
-            //   target: "processing.update",
-            //   actions: ["setConfig"]
-            // },
-          },
           onDone: { target: "configured" }
         },
 
@@ -208,6 +187,29 @@ export default ({ product, config }) =>
           type: "final",
           data: (context, event) => context.config
         }
+      },
+      on: {
+        // Raw update for the full product config....maybe individual updates for each of the above?
+        // UPDATE: { target: "processing.update", actions: ["setConfig"] },
+        // ---
+        // // syntax sugar to update the config
+        // Raw update for the options
+        // "OPTIONS.UPDATE": {
+        //   target: "processing.update",
+        //   actions: ["setConfig"]
+        // },
+        // "OPTION.REMOVE": {
+        //   target: "processing.update",
+        //   actions: ["setConfig"]
+        // },
+        // "OPTION.REMOVE": {
+        //   target: "processing.update",
+        //   actions: ["setConfig"]
+        // },
+        // "OPTION.UPDATE": {
+        //   target: "processing.update",
+        //   actions: ["setConfig"]
+        // },
       }
     },
     {

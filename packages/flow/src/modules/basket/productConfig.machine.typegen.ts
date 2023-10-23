@@ -44,19 +44,21 @@ export interface Typegen0 {
     sendConfig: "done.state.configuring";
     setAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
-    setConfig: "TERM.UPDATE" | "UPDATE" | "done.invoke.load";
+    setConfig: "UPDATE" | "done.invoke.load";
     setError:
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     setProduct: "done.invoke.load";
-    setTerm: "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
+    setTerm:
+      | "UPDATE.TERM"
+      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    checkAttributes: "TERM.UPDATE" | "UPDATE" | "done.invoke.load";
-    checkTerm: "TERM.UPDATE" | "UPDATE" | "done.invoke.load";
+    checkAttributes: "UPDATE" | "done.invoke.load";
+    checkTerm: "UPDATE" | "UPDATE.TERM" | "done.invoke.load";
     getProduct: "xstate.init";
   };
   matchesStates:

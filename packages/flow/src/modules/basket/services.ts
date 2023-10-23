@@ -108,8 +108,6 @@ async function addToBasket({ basket, items }, event: any) {
     )
   );
 
-  console.log("add item to basket", { basket: basket.id, item, event });
-
   if (!item) return Promise.reject("No item to add to basket");
 
   const config = item.state.context.config;

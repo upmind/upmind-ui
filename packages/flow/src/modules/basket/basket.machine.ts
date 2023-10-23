@@ -5,7 +5,8 @@
 // might make the transfer/dumping of the basket easier
 
 // --- external
-import { createMachine, assign, spawn, sendTo } from "xstate";
+import { createMachine, assign, spawn, actions } from "xstate";
+const { sendTo, pure } = actions;
 
 // --- internal
 import services from "./services";
@@ -114,18 +115,11 @@ export default createMachine(
               },
               configuring: {
                 // always: [{ target: "empty", cond: "allConfigured" }]
-                on: {
-                  "TERM.UPDATE": sendTo(
-                    ({ context }, { data: { itemId } }) => itemId,
-                    ({ context }, { data: { term } }) => ({
-                      type: "TERM.UPDATE",
-                      data: term
-                    })
-                  )
-                }
               }
             },
             on: {
+              "UPDATE.TERM": { actions: ["forwardTermUpdate"] }
+
               // This transition will match any event, but we will target the completion of ANY spawned machine
               // CONFIGURED: { actions: ["addProduct"] },
               // "*": {
@@ -262,6 +256,7 @@ export default createMachine(
       }),
 
       // --- Configuring Items Actions
+
       addItem: assign({
         items: ({ items }, { data: { product, quantity } }) => {
           const machine = spawnConfiguration(product, { quantity });
@@ -272,7 +267,6 @@ export default createMachine(
 
       removeItem: assign({
         items: ({ items }, { type, data }, other) => {
-          console.log("remove item", { type, data, other });
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
 
@@ -287,6 +281,14 @@ export default createMachine(
           return items;
         }
       }),
+
+      // ---
+
+      forwardTermUpdate: ({ items }, { data: { itemId, term } }) => {
+        const item = find(items, ["id", itemId]);
+        if (item) item.send({ type: "UPDATE.TERM", data: term });
+      },
+
       // ---
 
       setError: assign({

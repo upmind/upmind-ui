@@ -66,6 +66,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     addItem: "ADD";
     clearBasket: "UNAUTHENTICATED";
+    forwardTermUpdate: "UPDATE.TERM";
     removeItem: "done.invoke.adding:invocation[0]";
     setBasket:
       | "done.invoke.generating:invocation[0]"

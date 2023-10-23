@@ -15,13 +15,14 @@
         v-for="term in available.terms"
         class="term"
         :class="{ selected: isSelectedTerm(term) }"
+        @click.prevent="selectTerm(term)"
       >
         <input
+          :key="term.billing_cycle_months"
           type="checkbox"
           :value="term"
-          readonly
+          disabled
           :checked="isSelectedTerm(term)"
-          @click.prevent="selectTerm(term)"
         />
         <h4 class="title" v-if="term?.billing_cycle_name">
           {{ term.billing_cycle_name }}
@@ -108,9 +109,7 @@ export default defineComponent({
     }
 
     function isSelectedTerm(term) {
-      const selectedTerm = selected.value.term;
-      const value = isEqual(selectedTerm, term);
-      return value;
+      return isEqual(term, selected.value?.term);
     }
 
     function selectTerm(term) {
