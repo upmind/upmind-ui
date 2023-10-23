@@ -21,18 +21,16 @@ export const useBasket = () => {
   // so that we can listen to their state changes, and send them events
   const items = ref();
   service.onTransition(newState => {
-    if (newState.context.items) {
-      // update the items on any synced state change
-      items.value = map(newState.context.items, item => item.getSnapshot()); // todo:
-    } else {
-      items.value = null;
-    }
+    items.value = map(newState.context.items, item => ({
+      id: item.id,
+      ...item.getSnapshot()
+    }));
   });
   // --------------------------------------------------------
 
   return {
     send,
-    updateTerm: (itemId, term) =>
+    updateTerm: ({ itemId, term }) =>
       send({ type: "UPDATE.TERM", data: { itemId, term } }),
     // ---
     state: computed(() => state.value.value),

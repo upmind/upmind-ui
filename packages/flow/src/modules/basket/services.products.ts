@@ -142,7 +142,7 @@ async function checkTerm(
       available.terms
     );
   } else if (selected?.term) {
-    const valid = some(available.terms, ["id", selected.term.id]);
+    const valid = some(available.terms, selected.term);
     if (valid) term = selected.term;
   }
 
