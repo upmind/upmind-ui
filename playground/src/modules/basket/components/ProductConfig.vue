@@ -46,7 +46,7 @@
         >
           <button class="prepend" @click.prevent="increment">+</button>
 
-          <input type="number" v-model="config.quantity" min="1" max="10" />
+          <input type="number" :value="config.quantity" min="1" max="10" />
 
           <button class="append" @click.prevent="decrement">-</button>
         </fieldset>
@@ -78,7 +78,7 @@ export default defineComponent({
   components: {
     Debug
   },
-  emits: ["update:term"],
+  emits: ["update:term", "update:quantity"],
   props: {
     item: {
       type: Object, // This is really an Actor for a spawned Item
@@ -86,7 +86,7 @@ export default defineComponent({
     }
   },
   setup: (props, { emit }) => {
-    const config = ref(props.item.context.config);
+    const config = computed(() => props.item.context.config);
     const state = computed(() => props.item.value);
     const product = computed(() => props.item.context.product);
     const selected = computed(() => props.item.context.selected);
@@ -100,12 +100,14 @@ export default defineComponent({
     });
 
     function increment() {
-      config.value.quantity++;
-      config.value.quantity = Math.min(config.value.quantity, 10);
+      let quantity = config.value.quantity + 1;
+      quantity = Math.min(quantity, 10);
+      emit("update:quantity", { itemId: props.item.id, quantity });
     }
     function decrement() {
-      config.value.quantity--;
-      config.value.quantity = Math.max(config.value.quantity, 1);
+      let quantity = config.value.quantity - 1;
+      quantity = Math.max(quantity, 1);
+      emit("update:quantity", { itemId: props.item.id, quantity });
     }
 
     function isSelectedTerm(term) {

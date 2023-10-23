@@ -32,6 +32,8 @@ export const useBasket = () => {
     send,
     updateTerm: ({ itemId, term }) =>
       send({ type: "UPDATE.TERM", data: { itemId, term } }),
+    updateQuantity: ({ itemId, quantity }) =>
+      send({ type: "UPDATE.QUANTITY", data: { itemId, quantity } }),
     // ---
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
