@@ -92,7 +92,11 @@
         </li>
         <li v-for="item in items" :key="item.id">
           id: {{ item.id }}
-          <ProductConfig :item="item" @update:term="updateTerm"></ProductConfig>
+          <ProductConfig
+            :item="item"
+            @update:term="updateTerm"
+            @update:quantity="updateQuantity"
+          ></ProductConfig>
         </li>
       </ul>
     </div>
@@ -120,8 +124,17 @@ import { ref } from "vue";
 import { useBasket } from "..";
 import ProductConfig from "../components/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
-const { state, basket, errors, meta, updateTerm, items, products, send } =
-  useBasket();
+const {
+  state,
+  basket,
+  errors,
+  meta,
+  updateTerm,
+  updateQuantity,
+  items,
+  products,
+  send
+} = useBasket();
 
 const productCatalogue = [
   {

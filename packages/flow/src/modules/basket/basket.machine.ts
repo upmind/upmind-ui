@@ -6,7 +6,7 @@
 
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo, pure } = actions;
+const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
@@ -22,7 +22,8 @@ import {
   isEmpty,
   remove,
   some,
-  trimStart
+  trimStart,
+  uniqueId
 } from "lodash-es";
 import { useBasketParser } from "./utils";
 
@@ -30,6 +31,7 @@ import { useBasketParser } from "./utils";
 // utility function to spawn machines based on the given items
 function spawnConfiguration(product, config: { quantity: 1 }) {
   return spawn(configurationMachine({ product, config }), {
+    name: uniqueId("item_"),
     sync: true
   });
 }
@@ -118,8 +120,8 @@ export default createMachine(
               }
             },
             on: {
-              "UPDATE.TERM": { actions: ["forwardTermUpdate"] }
-
+              "UPDATE.TERM": { actions: ["sendToItem"] },
+              "UPDATE.QUANTITY": { actions: ["sendToItem"] }
               // This transition will match any event, but we will target the completion of ANY spawned machine
               // CONFIGURED: { actions: ["addProduct"] },
               // "*": {
@@ -283,11 +285,10 @@ export default createMachine(
       }),
 
       // ---
-
-      forwardTermUpdate: ({ items }, { data: { itemId, term } }) => {
-        const item = find(items, ["id", itemId]);
-        if (item) item.send({ type: "UPDATE.TERM", data: term });
-      },
+      sendToItem: sendTo(
+        (_context, { data: { itemId } }) => itemId,
+        (_context, { type, data }) => ({ type, data })
+      ),
 
       // ---
 

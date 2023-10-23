@@ -14,7 +14,7 @@ import {
   useProductTermsParser
 } from "./utils.product";
 
-import { set, map, defaultsDeep } from "lodash-es";
+import { get, set, map, defaultsDeep } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default ({ product, config }) =>
@@ -163,7 +163,12 @@ export default ({ product, config }) =>
             //   //     }
             //   //   },
           },
-
+          on: {
+            "UPDATE.QUANTITY": {
+              // target: "configuring.options.checking",
+              actions: ["setQuantity"]
+            }
+          },
           onDone: { target: "configured" }
         },
 
@@ -225,28 +230,33 @@ export default ({ product, config }) =>
         })),
         // ---
 
+        setQuantity: assign({
+          config: ({ config }, { data }) => {
+            const quantity = get(data, "quantity", data); // workaround to allow the same action to be used for different event sources
+            set(config, "quantity", Math.max(1, quantity)); //todo min check? step check
+            return config;
+          }
+        }),
+
         setTerm: assign({
           selected: ({ selected }, { data }) => {
-            selected ??= {}; //safety check in case its doesnt exist yet
-            set(selected, "term", data);
+            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
+            set(selected, "term", term);
             return selected;
           },
           config: ({ config }, { data }) => {
-            config ??= {}; //safety check in case its doesnt exist yet
-            set(config, "billing_cycle_months", data.billing_cycle_months);
+            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
+            set(config, "billing_cycle_months", term.billing_cycle_months);
             return config;
           }
         }),
 
         setOptions: assign({
           selected: ({ selected }, { data }) => {
-            selected ??= {}; //safety check in case its doesnt exist yet
             set(selected, "options", data);
             return selected;
           },
           config: ({ config }, { data }) => {
-            // set(config, "quantity", 1); // todo use the options to set this, do we even need to set the quantity?
-            config ??= {}; //safety check in case its doesnt exist yet
             const options = map(data, ({ id }) => ({ product_id: id }));
             set(config, "options", options);
             return config;
@@ -255,12 +265,10 @@ export default ({ product, config }) =>
 
         setAttributes: assign({
           selected: ({ selected }, { data }) => {
-            selected ??= {}; //safety check in case its doesnt exist yet
             set(selected, "attributes", data);
             return selected;
           },
           config: ({ config }, { data }) => {
-            config ??= {}; //safety check in case its doesnt exist yet
             const attributes = map(data, ({ id }) => ({ product_id: id }));
             set(config, "attributes", attributes);
             return config;

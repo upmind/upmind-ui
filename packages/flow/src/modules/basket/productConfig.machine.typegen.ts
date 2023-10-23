@@ -50,6 +50,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     setProduct: "done.invoke.load";
+    setQuantity: "UPDATE.QUANTITY";
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
