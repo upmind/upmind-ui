@@ -1,5 +1,5 @@
 // ---internal
-import { useBrand } from "../brand";
+import { useBrand } from "../../brand";
 const { getBillingCycle } = useBrand();
 
 // --- utils
