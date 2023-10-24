@@ -12,9 +12,11 @@ import {
   find,
   first,
   get,
+  intersectionWith,
   isArray,
   isNil,
   isNumber,
+  map,
   maxBy,
   minBy,
   reduce,
@@ -215,20 +217,24 @@ async function checkAttributes(
   const attributes = reduce(
     available.attributes,
     (result, attribute, index) => {
-      const selected = get(
-        values,
-        `attributes.${attribute.id}`,
-        attribute?.multiple ? [] : null
-      );
+      let selected = get(values, `attributes.${attribute.id}`, []);
 
-      // TODO: check if our values exists as an available option
+      // only include valid values, if we have any
+      if (selected) {
+        selected = intersectionWith(
+          isArray(selected) ? selected : [selected],
+          attribute.values,
+          (optionId, option) => option.id === optionId
+        );
+        // selected = map(selected, "id");
+      }
 
       // check if we are missing required attribute
       if (attribute?.required && !selected?.length)
         errors.push({ message: "Is required", attribute });
 
       // check if we values too many values for this attribute
-      if (!attribute?.multiple && isArray(selected) && selected?.length > 1) {
+      if (!attribute?.multiple && selected?.length > 1) {
         errors.push({ message: "Multiple choice not allowed", attribute });
       }
       // ---
@@ -244,6 +250,45 @@ async function checkAttributes(
   });
 }
 
+async function checkOptions(
+  { available, values }: ProductConfigContext,
+  _event: any
+) {
+  // safety check, resolve if we have no attributes to check
+  if (!available?.options?.length) {
+    return Promise.resolve([]);
+  }
+
+  const errors = [];
+
+  const options = reduce(
+    available.options,
+    (result, option, index) => {
+      const selected = get(values, `options.${option.id}`, []);
+
+      // TODO: lots more checks...
+
+      // check if we are missing required option
+      if (option?.required && !selected?.length)
+        errors.push({ message: "Is required", option });
+
+      // check if we values too many values for this option
+      if (!option?.multiple && selected?.length > 1) {
+        errors.push({ message: "Multiple choice not allowed", option });
+      }
+      // ---
+      set(result, option.id, selected);
+      return result;
+    },
+    {}
+  );
+
+  return new Promise((resolve, reject) => {
+    if (errors?.length) reject({ options, errors });
+    else resolve(options);
+  });
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
@@ -252,5 +297,6 @@ export default <Object>{
   // ---
   checkQuantity,
   checkTerm,
-  checkAttributes
+  checkAttributes,
+  checkOptions
 };
