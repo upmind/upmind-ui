@@ -35,32 +35,59 @@
     </ul>
 
     <!-- attributes -->
-    <form>
-      <dl class="attributes">
-        <template v-for="attribute in available.attributes" :key="attribute.id">
-          <dt class="attribute">
-            <h4 class="subtitle">
-              {{ attribute.name }}
-            </h4>
-          </dt>
-          <dd v-for="value in attribute.values">
-            <fieldset v-if="model.attributes">
-              <input
-                :type="attribute.multiple ? 'checkbox' : 'radio'"
-                v-model="model.attributes[attribute.id]"
-                :name="`attributes[${attribute.id}][]`"
-                @change="setAttributes"
-                :required="attribute.required"
-                :id="value.id"
-                :value="value.id"
-              />
-              <label :for="value.id">{{ value.name }}</label>
-            </fieldset>
-          </dd>
-        </template>
-      </dl>
-    </form>
+
+    <dl class="attributes">
+      <template v-for="attribute in available.attributes" :key="attribute.id">
+        <dt class="attribute">
+          <h4 class="subtitle">
+            {{ attribute.name }}
+          </h4>
+        </dt>
+        <dd v-for="value in attribute.values">
+          <fieldset v-if="model.attributes">
+            <input
+              :type="attribute.multiple ? 'checkbox' : 'radio'"
+              v-model="model.attributes[attribute.id]"
+              :name="`attributes[${attribute.id}][]`"
+              @change="setAttributes"
+              :required="attribute.required"
+              :id="value.id"
+              :value="value.id"
+            />
+            <label :for="value.id">{{ value.name }}</label>
+          </fieldset>
+        </dd>
+      </template>
+    </dl>
+
     <!-- options -->
+
+    <dl class="options">
+      <template v-for="option in available.options" :key="option.id">
+        <dt class="option">
+          <h4 class="subtitle">
+            {{ option.name }}
+          </h4>
+        </dt>
+        <dd v-for="value in option.values">
+          <fieldset v-if="model.options">
+            <input
+              :type="option.multiple ? 'checkbox' : 'radio'"
+              v-model="model.options[option.id]"
+              :name="`options[${option.id}][]`"
+              @change="setAttributes"
+              :required="option.required"
+              :id="value.id"
+              :value="value.id"
+            />
+            <label :for="value.id"
+              >{{ value.name }}
+              <strong>{{ value.price.price_formatted }}</strong></label
+            >
+          </fieldset>
+        </dd>
+      </template>
+    </dl>
 
     <!-- summary -->
     <dl class="summary" v-if="!meta.isLoading">
@@ -387,6 +414,14 @@ export default defineComponent({
     font-weight: 600;
     font-size: 1.25em;
     padding: 1em 0.125em;
+  }
+}
+
+form {
+  label {
+    display: flex !important;
+    justify-content: space-between;
+    flex-grow: 1;
   }
 }
 </style>
