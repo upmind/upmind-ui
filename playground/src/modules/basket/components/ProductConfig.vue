@@ -16,7 +16,7 @@
         :key="term.billing_cycle_months"
         class="term"
         :class="{ selected: isSelectedTerm(term) }"
-        @click.prevent="selectTerm(term)"
+        @click.prevent="setTerm(term)"
       >
         <input
           :key="term.billing_cycle_months"
@@ -254,7 +254,7 @@ export default defineComponent({
       return isEqual(term.billing_cycle_months, this.model?.term);
     },
 
-    selectTerm(term) {
+    setTerm(term) {
       this.$emit("update:term", {
         itemId: this.id,
         term: term.billing_cycle_months

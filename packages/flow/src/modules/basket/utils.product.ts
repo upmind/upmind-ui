@@ -4,12 +4,8 @@ const { getBillingCycle } = useBrand();
 
 // --- utils
 import {
-  filter,
-  find,
-  first,
+  forEach,
   get,
-  groupBy,
-  identity,
   isArray,
   isEmpty,
   isNil,
@@ -17,12 +13,8 @@ import {
   omit,
   orderBy,
   pick,
-  pickBy,
   reduce,
-  reject,
   set,
-  uniqBy,
-  unset,
   values
 } from "lodash-es";
 // --------------------------------------------------------
@@ -138,20 +130,27 @@ export const useProductValuesParser = (data: any) => {
 
 export const useProductConfigParser = (data: any) => {
   // strip out any falsy values
-  return pickBy(
-    {
-      product_id: data?.productId,
-      quantity: data?.quantity,
-      billing_cycle_months: data?.term?.billing_cycle_months,
-      // ---
-      // attributes: data?.attributes,
-      // options: data?.options,
-      // promotions: data?.promtions,
-      // ---
-      start_trial: data?.start_trial
-    },
-    identity
-  );
+  return {
+    product_id: data?.productId,
+    quantity: data?.quantity,
+    billing_cycle_months: data?.term,
+    // ---
+    attributes: reduce(
+      data?.attributes,
+      (result, value, attribute) => {
+        if (value) {
+          value = isArray(value) ? value : [value];
+          forEach(value, product_id => result.push({ product_id }));
+        }
+        return result;
+      },
+      []
+    ),
+    // options: data?.options,
+    // promotions: data?.promtions,
+    // ---
+    start_trial: !!data?.start_trial
+  };
 };
 
 // --------------------------------------------------------

@@ -9,20 +9,16 @@ import type { ProductConfigContext } from "./types.d";
 
 // --- utils
 import {
-  filter,
+  find,
   first,
-  forEach,
   get,
-  includes,
-  intersectionWith,
   isArray,
-  isEqual,
+  isNil,
   isNumber,
   maxBy,
   minBy,
   reduce,
-  set,
-  some
+  set
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -162,28 +158,32 @@ async function checkTerm(
   { available, values }: ProductConfigContext,
   _event: any
 ) {
-  let term = 0;
+  let term;
 
   if (!available?.terms?.length) {
-    return Promise.resolve(term.billing_cycle_months);
+    return Promise.reject("No Terms available");
   }
 
   // ---
+  // try ge the full term object from the available terms
+  term = find(available.terms, ["billing_cycle_months", values.term]);
 
-  if (available.terms.length === 1) {
-    term = first(available.terms);
-  } else if (!values?.term) {
-    term = await calculateBillingTerm(
-      available.product.default_payment_period,
-      available.terms
-    );
-  } else if (values?.term) {
-    const valid = some(available.terms, values.term);
-    if (valid) term = values.term;
+  if (!term) {
+    if (available.terms.length === 1) {
+      term = first(available.terms);
+    } else {
+      term = await calculateBillingTerm(
+        available.product.default_payment_period,
+        available.terms
+      );
+    }
   }
 
+  // now just return the billing_cycle_months, if we have one
+  term = get(term, "billing_cycle_months", null);
+
   return new Promise((resolve, reject) => {
-    if (term) resolve(term.billing_cycle_months);
+    if (!isNil(term)) resolve(term);
     else reject("Invalid Term Selected");
   });
 }

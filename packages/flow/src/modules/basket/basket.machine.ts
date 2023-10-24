@@ -17,6 +17,7 @@ import configurationMachine from "./productConfig.machine";
 import {
   every,
   find,
+  get,
   has,
   includes,
   isEmpty,
@@ -25,6 +26,7 @@ import {
   trimStart,
   uniqueId
 } from "lodash-es";
+
 import { useBasketParser } from "./utils";
 
 // --------------------------------------------------------
@@ -254,7 +256,8 @@ export default createMachine(
 
       setResponse: assign({
         basket: (context, { data }) => {
-          data?.basket || context.basket;
+          const value = get(data, "basket", context.basket);
+          return useBasketParser(value);
         }
       }),
 
