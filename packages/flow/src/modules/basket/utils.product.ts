@@ -14,6 +14,7 @@ import {
   isEmpty,
   isNil,
   map,
+  omit,
   orderBy,
   pick,
   pickBy,
@@ -126,6 +127,12 @@ export const useProductAttributesParser = (data: any) => {
 };
 
 export const useProductParser = (data: any) => {
+  // todo pick only the properties we need
+  return omit(data, ["prices", "products_attributes", "products_options"]);
+};
+
+export const useProductValuesParser = (data: any) => {
+  // todo, map these safetly
   return data;
 };
 
@@ -133,18 +140,18 @@ export const useProductConfigParser = (data: any) => {
   // strip out any falsy values
   return pickBy(
     {
-      product_id: data?.id,
-      quantity: data?.unit_quantity,
-      billing_cycle_months: data?.billing_cycle_months,
+      product_id: data?.productId,
+      quantity: data?.quantity,
+      billing_cycle_months: data?.term?.billing_cycle_months,
       // ---
-      attributes: data?.attributes,
-      options: data?.options,
-      promotions: data?.promtions,
+      // attributes: data?.attributes,
+      // options: data?.options,
+      // promotions: data?.promtions,
       // ---
-      selling_price: data?.selling_price,
-      total: data?.total,
       start_trial: data?.start_trial
     },
     identity
   );
 };
+
+// --------------------------------------------------------

@@ -29,9 +29,9 @@ import { useBasketParser } from "./utils";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnConfiguration(product, config: { quantity: 1 }) {
-  return spawn(configurationMachine({ product, config }), {
-    name: uniqueId("item_"),
+function spawnConfiguration(values) {
+  return spawn(configurationMachine(values), {
+    name: uniqueId("basket_item_"),
     sync: true
   });
 }
@@ -116,14 +116,19 @@ export default createMachine(
                 type: "final"
               },
               configuring: {
-                // always: [{ target: "empty", cond: "allConfigured" }]
+                always: [{ target: "empty", cond: "allConfigured" }]
               }
             },
             on: {
+              "UPDATE.QUANTITY": { actions: ["sendToItem"] },
               "UPDATE.TERM": { actions: ["sendToItem"] },
-              "UPDATE.QUANTITY": { actions: ["sendToItem"] }
-              // This transition will match any event, but we will target the completion of ANY spawned machine
+              "UPDATE.OPTIONS": { actions: ["sendToItem"] },
+              "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
+              "UPDATE.PROVISIONING": { actions: ["sendToItem"] }
+
               // CONFIGURED: { actions: ["addProduct"] },
+
+              // This transition will match any event, but we will target the completion of ANY spawned machine
               // "*": {
               //   actions: ["removeItem"],
               //   cond: (_context, event) => includes(event.type, "done.invoke")
@@ -260,8 +265,8 @@ export default createMachine(
       // --- Configuring Items Actions
 
       addItem: assign({
-        items: ({ items }, { data: { product, quantity } }) => {
-          const machine = spawnConfiguration(product, { quantity });
+        items: ({ items }, { data }) => {
+          const machine = spawnConfiguration(data);
           items.push(machine);
           return items;
         }
@@ -304,9 +309,7 @@ export default createMachine(
       // --- Configuration Guards
       needsConfiguring: ({ items }) => !isEmpty(items),
 
-      allConfigured: ({ items }) =>
-        !items.length ||
-        every(items, ({ state }) => state?.matches("configured")),
+      allConfigured: ({ items }) => isEmpty(items), // ||  every(items, ({ state }) => state?.matches("configured")),
 
       // --- Item Guards
       hasNewItems: ({ items }) => {

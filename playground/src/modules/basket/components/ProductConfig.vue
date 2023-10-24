@@ -3,8 +3,8 @@
     <header>
       <template v-if="!meta.isLoading">
         <h6 class="meta">{{ status }}</h6>
-        <h4 class="title">{{ product.name }}</h4>
-        <h5 class="subtitle">{{ product.description }}</h5>
+        <h4 class="title">{{ available.product.name }}</h4>
+        <h5 class="subtitle">{{ available.product.description }}</h5>
       </template>
       <template v-else> Loading... </template>
     </header>
@@ -13,6 +13,7 @@
     <ul class="terms">
       <li
         v-for="term in available.terms"
+        :key="term.billing_cycle_months"
         class="term"
         :class="{ selected: isSelectedTerm(term) }"
         @click.prevent="selectTerm(term)"
@@ -34,6 +35,31 @@
     </ul>
 
     <!-- attributes -->
+    <form>
+      <dl class="attributes">
+        <template v-for="attribute in available.attributes" :key="attribute.id">
+          <dt class="attribute">
+            <h4 class="subtitle">
+              {{ attribute.name }}
+            </h4>
+          </dt>
+          <dd v-for="value in attribute.values">
+            <fieldset v-if="model.attributes">
+              <input
+                :type="attribute.multiple ? 'checkbox' : 'radio'"
+                v-model="model.attributes[attribute.id]"
+                :name="`attributes[${attribute.id}][]`"
+                @change="setAttributes"
+                :required="attribute.required"
+                :id="value.id"
+                :value="value.id"
+              />
+              <label :for="value.id">{{ value.name }}</label>
+            </fieldset>
+          </dd>
+        </template>
+      </dl>
+    </form>
     <!-- options -->
 
     <!-- summary -->
@@ -41,12 +67,18 @@
       <dt>Quantity:</dt>
       <dd>
         <fieldset
-          v-if="product?.canChangeQuantity || true"
+          v-if="available.product?.canChangeQuantity || true"
           class="quantity-increment"
         >
           <button class="prepend" @click.prevent="increment">+</button>
 
-          <input type="number" :value="config.quantity" min="1" max="10" />
+          <input
+            type="number"
+            v-model="model.quantity"
+            min="1"
+            max="10"
+            @input="setQuantity"
+          />
 
           <button class="append" @click.prevent="decrement">-</button>
         </fieldset>
@@ -59,8 +91,8 @@
       <Debug
         title="Product Config"
         :state="state"
-        :model="config"
-        :context="{ product, selected, available }"
+        :model="model"
+        :context="available"
         :errors="error"
         :meta="meta"
       ></Debug>
@@ -69,89 +101,173 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, toRef } from "vue";
 import Debug from "@/components/Debug.vue";
-import { isEqual } from "lodash-es";
+import {
+  isEqual,
+  get,
+  set,
+  find,
+  some,
+  forEach,
+  intersectionWith,
+  first,
+  map,
+  remove
+} from "lodash-es";
 
 export default defineComponent({
   name: "ProductConfig",
   components: {
     Debug
   },
-  emits: ["update:term", "update:quantity"],
+  emits: [
+    "update:term",
+    "update:quantity",
+    "update:attributes",
+    "update:options"
+  ],
   props: {
-    item: {
-      type: Object, // This is really an Actor for a spawned Item
+    id: {
+      type: String,
       required: true
+    },
+    values: {
+      type: Object,
+      required: true
+    },
+    state: {
+      type: [String, Object],
+      required: true
+    },
+    available: {
+      type: Object,
+      required: true
+    },
+    matches: {
+      type: Function,
+      required: true
+    },
+    error: {
+      type: [Array, Object]
     }
   },
-  setup: (props, { emit }) => {
-    const config = computed(() => props.item.context.config);
-    const state = computed(() => props.item.value);
-    const product = computed(() => props.item.context.product);
-    const selected = computed(() => props.item.context.selected);
-    const available = computed(() => props.item.context.available);
-    const error = computed(() => props.item.context.error);
-
-    const meta = computed(() => {
-      return {
-        isLoading: props.item.matches("loading")
-      };
-    });
-
-    function increment() {
-      let quantity = config.value.quantity + 1;
-      quantity = Math.min(quantity, 10);
-      emit("update:quantity", { itemId: props.item.id, quantity });
-    }
-    function decrement() {
-      let quantity = config.value.quantity - 1;
-      quantity = Math.max(quantity, 1);
-      emit("update:quantity", { itemId: props.item.id, quantity });
-    }
-
-    function isSelectedTerm(term) {
-      return isEqual(term, selected.value?.term);
-    }
-
-    function selectTerm(term) {
-      emit("update:term", { itemId: props.item.id, term });
-    }
+  setup: props => {
+    const model = toRef(props, "values");
 
     return {
-      state,
-      config,
-      product,
-      selected,
-      available,
-      error,
-      meta,
-      // ---
-      total_amount_formatted: computed(() => {
-        // get this from the machine
-        return selected.value?.term
-          ? config.value.quantity * selected.value.term?.price
-          : config.value.quantity * product.value.price;
-      }),
-      color: computed(() => {
-        return {
-          warning: props.item.matches("configuring"),
-          error: props.item.matches("error"),
-          success: props.item.matches("configured")
-        };
-      }),
-      status: computed(() => {
-        if (props.item.matches("configuring")) return "Configuring";
-        if (props.item.matches("error")) return "Error";
-        if (props.item.matches("configured")) return "Configured";
-        if (props.item.context.config?.id) return "Added";
-      }),
-      // ---
-      selectTerm,
-      isSelectedTerm,
-      increment,
-      decrement
+      model
     };
+  },
+  computed: {
+    // attributes: {
+    //   get() {
+    //     // ensure our attributes are set up correctly for mapping:
+    //     const values = {};
+    //     forEach(this.available.attributes, attribute => {
+    //       const value = intersectionWith(
+    //         this.model.attributes,
+    //         attribute.values,
+    //         ({ product_id }, { id }) => product_id === id
+    //       );
+    //       if (!attribute.multiple) {
+    //         set(values, attribute.id, first(value)?.id || null);
+    //       } else {
+    //         set(values, attribute.id, map(value, "id"));
+    //       }
+    //     });
+
+    //     return values;
+    //   },
+    //   set(value) {
+    //     this.selectAttributes(value);
+    //   }
+    // },
+    // ---
+    meta() {
+      return {
+        isLoading: this.matches("loading")
+      };
+    },
+    total_amount_formatted() {
+      // get this from the machine
+      return this.model?.billing_cycle_months
+        ? this.model.quantity *
+            get(
+              find(this.available.terms, [
+                "billing_cycle_months",
+                this.model.billing_cycle_months
+              ]),
+              "price",
+              0
+            )
+        : this.model.quantity * this.available?.product?.price || 0;
+    },
+    color() {
+      return {
+        warning: this.matches("configuring"),
+        error: this.matches("error"),
+        success: this.matches("configured")
+      };
+    },
+    status() {
+      if (this.matches("configuring")) return "Configuring";
+      if (this.matches("error")) return "Error";
+      if (this.matches("configured")) return "Configured";
+      if (this.model?.id) return "Added";
+    }
+  },
+  methods: {
+    increment() {
+      this.model.quantity++;
+
+      if (this.available.product.max_order_quantity) {
+        this.model.quantity = Math.min(
+          this.model.quantity,
+          this.available.product.max_order_quantity
+        );
+      }
+
+      this.setQuantity();
+    },
+    decrement() {
+      this.model.quantity--;
+
+      this.model.quantity = Math.max(
+        this.model.quantity,
+        Math.max(this.available.product.min_order_quantity, 1)
+      );
+
+      this.setQuantity();
+    },
+
+    setQuantity() {
+      this.$emit("update:quantity", {
+        itemId: this.id,
+        quantity: this.model.quantity
+      });
+    },
+
+    // ---
+
+    isSelectedTerm(term) {
+      return isEqual(term.billing_cycle_months, this.model?.term);
+    },
+
+    selectTerm(term) {
+      this.$emit("update:term", {
+        itemId: this.id,
+        term: term.billing_cycle_months
+      });
+    },
+    // ---
+
+    setAttributes() {
+      this.$emit("update:attributes", {
+        itemId: this.id,
+        attributes: this.model.attributes
+      });
+    }
   }
 });
 </script>

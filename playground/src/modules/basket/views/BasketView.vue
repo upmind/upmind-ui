@@ -7,7 +7,7 @@
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
-              <select v-model="model.product" placeholder="Select product">
+              <select v-model="model.productId" placeholder="Select product">
                 <component
                   v-for="(item, index) in productCatalogue"
                   :key="`item-${index}`"
@@ -24,15 +24,15 @@
 
               <button
                 type="submit"
-                :disabled="meta.isProcessing || !model.product"
+                :disabled="meta.isProcessing || !model.productId"
               >
                 add to basket
               </button>
 
               <button
                 type="reset"
-                :disabled="meta.isProcessing || !model.product"
-                @click.prevent="model.product = null"
+                :disabled="meta.isProcessing || !model.productId"
+                @click.prevent="model.productId = null"
               >
                 cancel
               </button>
@@ -71,6 +71,19 @@
         </h3>
       </div>
 
+      <div v-if="meta.hasErrors">
+        <h3>
+          We have
+          <em class="warning">{{ errors?.length }}</em> error{{
+            errors?.length > 1 ? "s" : ""
+          }}
+          that need{{ errors?.length == 1 ? "s" : "" }}
+          configuring before
+          {{ errors?.length > 1 ? "they" : "it" }}
+          in the basket
+        </h3>
+      </div>
+
       <!-- cards -->
       <hr />
 
@@ -91,11 +104,15 @@
           </section>
         </li>
         <li v-for="item in items" :key="item.id">
-          id: {{ item.id }}
           <ProductConfig
-            :item="item"
+            v-bind="item.context"
+            :id="item.id"
+            :matches="item.matches"
+            :state="item.value"
             @update:term="updateTerm"
             @update:quantity="updateQuantity"
+            @update:attributes="updateAttributes"
+            @update:options="updateOptions"
           ></ProductConfig>
         </li>
       </ul>
@@ -129,8 +146,12 @@ const {
   basket,
   errors,
   meta,
+  addProduct,
   updateTerm,
   updateQuantity,
+  updateAttributes,
+  updateOptions,
+  updateProvisioning,
   items,
   products,
   send
@@ -188,19 +209,9 @@ const productCatalogue = [
 ];
 
 const model = ref({
-  product: null,
+  productId: null,
   quantity: 1
 });
-
-function addProduct() {
-  send({
-    type: "ADD",
-    data: model.value
-  });
-
-  model.value.product = null;
-  model.value.quantity = 1;
-}
 </script>
 
 <style scoped lang="scss">

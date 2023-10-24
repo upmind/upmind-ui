@@ -153,6 +153,13 @@ a {
         flex-basis: 100%;
       }
 
+      input[type="checkbox"] ~ label,
+      input[type="radio"] ~ label {
+        flex-basis: auto;
+        margin-left: 0.5em;
+        cursor: pointer;
+      }
+
       textarea,
       select,
       input {
@@ -232,7 +239,7 @@ a {
       font-size: 0.875rem;
       letter-spacing: 0.025em;
       border: 1px solid var(--color-border);
-      background-color: var(--upm-c-white-mute);
+      background-color: var(--upm-c-black-semi);
       color: var(--upm-c-black);
       border-radius: 0.25em;
       display: flex;
