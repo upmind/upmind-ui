@@ -153,8 +153,7 @@ const {
   updateOptions,
   updateProvisioning,
   items,
-  products,
-  send
+  products
 } = useBasket();
 
 const productCatalogue = [
@@ -168,16 +167,16 @@ const productCatalogue = [
       }
     ]
   },
-  // {
-  //   type: "optgroup",
-  //   label: "Products with Options",
-  //   options: [
-  //     {
-  //       label: "Blocks ( 1500 )",
-  //       value: "3de78642-de53-9714-542c-21208469530d"
-  //     }
-  //   ]
-  // },
+  {
+    type: "optgroup",
+    label: "Products with Options",
+    options: [
+      {
+        label: "Blocks ( 1500 )",
+        value: "3de78642-de53-9714-542c-21208469530d"
+      }
+    ]
+  },
   {
     type: "optgroup",
     label: "Products with Attributes",

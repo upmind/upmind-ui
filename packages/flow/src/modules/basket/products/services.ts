@@ -1,11 +1,11 @@
 // --- external
 
 // --- internal
-import { useApi } from "../api";
-import { useBrand, BrandConfigKeys } from "../brand";
+import { useApi } from "../../api";
+import { useBrand, BrandConfigKeys } from "../../brand";
 const { getConfig } = useBrand();
 
-import type { ProductConfigContext } from "./types.d";
+import type { ProductConfigContext } from "../types";
 
 // --- utils
 import {

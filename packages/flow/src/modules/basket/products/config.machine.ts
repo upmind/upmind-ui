@@ -2,10 +2,10 @@
 import { createMachine, assign, sendParent, sendUpdate } from "xstate";
 
 // --- internal
-import services from "./services.products";
+import services from "./services";
 
 // --utils
-import { useTime } from "../../utils";
+import { useTime } from "../../../utils";
 import {
   useProductAttributesParser,
   useProductConfigParser,
@@ -13,7 +13,7 @@ import {
   useProductParser,
   useProductTermsParser,
   useProductValuesParser
-} from "./utils.product";
+} from "./utils";
 
 import { get, set, map, defaultsDeep, toNumber } from "lodash-es";
 // --------------------------------------------------------
@@ -21,7 +21,7 @@ import { get, set, map, defaultsDeep, toNumber } from "lodash-es";
 export default values =>
   createMachine(
     {
-      tsTypes: {} as import("./productConfig.machine.typegen").Typegen0,
+      tsTypes: {} as import("./config.machine.typegen").Typegen0,
       id: "productConfigurator",
       predictableActionArguments: true,
       initial: "loading",
