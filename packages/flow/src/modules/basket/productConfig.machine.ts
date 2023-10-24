@@ -201,7 +201,7 @@ export default values =>
 
         // this is our state where we are all good and can add/update this configuration to the basket
         configured: {
-          entry: [sendUpdate(), "sendConfig"],
+          entry: ["setConfig", sendUpdate(), "sendConfig"],
           on: {
             UPDATE: { target: "configuring", actions: ["setValues"] }
           }
@@ -218,7 +218,7 @@ export default values =>
         complete: {
           id: "valid",
           type: "final",
-          data: (context, event) => useProductConfigParser(context.values)
+          data: ({ values }, _event) => useProductConfigParser(values)
         }
       },
       on: {
@@ -247,9 +247,13 @@ export default values =>
     },
     {
       actions: {
-        sendConfig: sendParent((context, event) => ({
+        setConfig: assign({
+          config: ({ values }, _event) => useProductConfigParser(values)
+        }),
+
+        sendConfig: sendParent(({ values }, _event) => ({
           type: "CONFIGURED",
-          data: useProductConfigParser(context.values)
+          data: useProductConfigParser(values)
         })),
 
         // ---

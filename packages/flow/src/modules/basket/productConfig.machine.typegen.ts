@@ -57,6 +57,7 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
+    setConfig: "done.state.configuring";
     setError:
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
