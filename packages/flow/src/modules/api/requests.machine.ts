@@ -18,7 +18,7 @@ export default createMachine(
     tsTypes: {} as import("./requests.machine.typegen").Typegen0,
     id: "requestsManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "empty",
     context: {
       requests: {}
     },
@@ -27,11 +27,11 @@ export default createMachine(
       // If we have context > requests, we can skip to processing
       // otherwise we will await a request
       // individual request events are defined to allow for more granular control
-      loading: {
+      empty: {
         always: [{ target: "processing", cond: "hasRequests" }]
       },
       processing: {
-        always: [{ target: "loading", cond: "hasNoRequests" }],
+        always: [{ target: "empty", cond: "hasNoRequests" }],
         on: {
           // REFRESH: {
           //   actions: ["forward"]
@@ -126,14 +126,6 @@ export default createMachine(
           return requests;
         }
       })
-
-      // forward: (
-      //   context: RequestsContext,
-      //   { type, data: { hash } }: RequestsEvents
-      // ) => {
-      //   debugger;
-      //   sendTo(hash, { type });
-      // }
     },
 
     guards: {

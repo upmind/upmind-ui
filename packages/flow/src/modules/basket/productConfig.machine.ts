@@ -11,13 +11,14 @@ import {
   useProductConfigParser,
   useProductOptionsParser,
   useProductParser,
-  useProductTermsParser
+  useProductTermsParser,
+  useProductValuesParser
 } from "./utils.product";
 
-import { get, set, map, defaultsDeep } from "lodash-es";
+import { get, set, map, defaultsDeep, toNumber } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default ({ product, config }) =>
+export default values =>
   createMachine(
     {
       tsTypes: {} as import("./productConfig.machine.typegen").Typegen0,
@@ -25,17 +26,15 @@ export default ({ product, config }) =>
       predictableActionArguments: true,
       initial: "loading",
       context: {
-        product, // this starts life as an id, then is updated to the full product object from the DB,
-        config, // this is the product config, which will be generated to be used eg: when adding to the basket
         // ---
-        // syntax sugar to manage the product, basically lookups, to make ut easier for any ui to consume,
+        // the model use dto generate our coonfig,
+        // but with better structure / more detail to make ut easier for any ui to consume,
         // and keep the generated config separate & clean
-        selected: {
-          term: null,
-          options: [],
-          attributes: []
-        },
+        values: useProductValuesParser(values),
+        // ---
+        // the various lookups that we are using in our configuation
         available: {
+          product: null,
           terms: null,
           options: null,
           attributes: null
@@ -51,7 +50,7 @@ export default ({ product, config }) =>
             src: "getProduct",
             onDone: {
               target: "configuring",
-              actions: ["setProduct", "setAvailable", "setConfig"]
+              actions: ["setAvailable"]
             },
             onError: { target: "error", actions: ["setError"] }
           }
@@ -62,22 +61,46 @@ export default ({ product, config }) =>
           id: "configuring",
           type: "parallel",
           states: {
+            quantity: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkQuantity",
+                    onDone: { target: "valid", actions: ["setQuantity"] },
+                    onError: { target: "invalid", actions: ["setError"] }
+                  }
+                },
+                invalid: {},
+                processing: {},
+                error: {},
+                valid: {
+                  type: "final"
+                }
+              },
+              on: {
+                "UPDATE.QUANTITY": {
+                  target: "quantity.checking",
+                  actions: ["setQuantity"]
+                }
+              }
+            },
             term: {
               initial: "checking",
               states: {
                 checking: {
                   invoke: {
                     src: "checkTerm",
-                    onDone: { target: "complete", actions: ["setTerm"] },
-                    onError: { target: "incomplete", actions: ["setError"] }
+                    onDone: { target: "valid", actions: ["setTerm"] },
+                    onError: { target: "invalid", actions: ["setError"] }
                   }
                 },
-                incomplete: {},
+                invalid: {},
                 processing: {
                   // invoke: {
                   //   src: "configureTerm",
                   //   onDone: {
-                  //     target: "complete",
+                  //     target: "valid",
                   //     actions: []
                   //   },
                   //   onError: {
@@ -87,7 +110,7 @@ export default ({ product, config }) =>
                   // }
                 },
                 error: {},
-                complete: {
+                valid: {
                   type: "final"
                 }
               },
@@ -104,16 +127,19 @@ export default ({ product, config }) =>
                 checking: {
                   invoke: {
                     src: "checkAttributes",
-                    onDone: { target: "complete", actions: ["setAttributes"] },
-                    onError: { target: "incomplete", actions: ["setError"] }
+                    onDone: { target: "valid", actions: ["setAttributes"] },
+                    onError: {
+                      target: "invalid",
+                      actions: ["setAttributes", "setError"]
+                    }
                   }
                 },
-                incomplete: {},
+                invalid: {},
                 processing: {
                   // invoke: {
                   //   src: "configureTerm",
                   //   onDone: {
-                  //     target: "complete",
+                  //     target: "valid",
                   //     actions: []
                   //   },
                   //   onError: {
@@ -123,8 +149,14 @@ export default ({ product, config }) =>
                   // }
                 },
                 error: {},
-                complete: {
+                valid: {
                   type: "final"
+                }
+              },
+              on: {
+                "UPDATE.ATTRIBUTES": {
+                  target: "attributes.checking",
+                  actions: ["setAttributes"]
                 }
               }
             }
@@ -135,7 +167,7 @@ export default ({ product, config }) =>
             //   //         // invoke: {
             //   //         //   src: "checkOptions",
             //   //         //   onDone: {
-            //   //         //     target: "complete"
+            //   //         //     target: "valid"
             //   //         //   },
             //   //         //   onError: {
             //   //         //     target: "required",
@@ -147,7 +179,7 @@ export default ({ product, config }) =>
             //   //         // invoke: {
             //   //         //   src: "configureTerm",
             //   //         //   onDone: {
-            //   //         //     target: "complete",
+            //   //         //     target: "valid",
             //   //         //     actions: []
             //   //         //   },
             //   //         //   onError: {
@@ -157,28 +189,24 @@ export default ({ product, config }) =>
             //   //         // }
             //   //       },
             //   //       error: {},
-            //   //       complete: {
+            //   //       valid: {
             //   //         type: "final"
             //   //       }
             //   //     }
             //   //   },
           },
-          on: {
-            "UPDATE.QUANTITY": {
-              // target: "configuring.options.checking",
-              actions: ["setQuantity"]
-            }
-          },
+
           onDone: { target: "configured" }
         },
 
+        // this is our state where we are all good and can add/update this configuration to the basket
         configured: {
           entry: [sendUpdate(), "sendConfig"],
           on: {
-            UPDATE: { target: "configuring", actions: ["setConfig"] },
-            KILL: { target: "complete" }
+            UPDATE: { target: "configuring", actions: ["setValues"] }
           }
         },
+
         // Handle errors
         error: {
           id: "error"
@@ -186,116 +214,94 @@ export default ({ product, config }) =>
 
         // Handle completion, stop the machine and prevent further products
         // also send a message to the parent machine to remove the product
-        // with the config that has been generated
+        // with the config that has been generated, just in case...
         complete: {
-          id: "complete",
+          id: "valid",
           type: "final",
-          data: (context, event) => context.config
+          data: (context, event) => useProductConfigParser(context.values)
         }
       },
       on: {
         // Raw update for the full product config....maybe individual updates for each of the above?
-        // UPDATE: { target: "processing.update", actions: ["setConfig"] },
+        // UPDATE: { target: "processing.update", actions: ["setValues"] },
         // ---
         // // syntax sugar to update the config
         // Raw update for the options
         // "OPTIONS.UPDATE": {
         //   target: "processing.update",
-        //   actions: ["setConfig"]
+        //   actions: ["setValues"]
         // },
         // "OPTION.REMOVE": {
         //   target: "processing.update",
-        //   actions: ["setConfig"]
+        //   actions: ["setValues"]
         // },
         // "OPTION.REMOVE": {
         //   target: "processing.update",
-        //   actions: ["setConfig"]
+        //   actions: ["setValues"]
         // },
         // "OPTION.UPDATE": {
         //   target: "processing.update",
-        //   actions: ["setConfig"]
+        //   actions: ["setValues"]
         // },
       }
     },
     {
       actions: {
-        setConfig: assign({
-          config: ({ config }, { data }) =>
-            defaultsDeep(useProductConfigParser(data), config)
-        }),
-
         sendConfig: sendParent((context, event) => ({
           type: "CONFIGURED",
-          data: context.config
+          data: useProductConfigParser(context.values)
         })),
+
         // ---
 
         setQuantity: assign({
-          config: ({ config }, { data }) => {
-            const quantity = get(data, "quantity", data); // workaround to allow the same action to be used for different event sources
-            set(config, "quantity", Math.max(1, quantity)); //todo min check? step check
-            return config;
+          values: ({ values }, { data }) => {
+            const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
+            set(values, "quantity", Math.max(1, quantity)); //todo min check? step check
+            return values;
           }
         }),
 
         setTerm: assign({
-          selected: ({ selected }, { data }) => {
+          values: ({ values }, { data }) => {
             const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
-            set(selected, "term", term);
-            return selected;
-          },
-          config: ({ config }, { data }) => {
-            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
-            set(config, "billing_cycle_months", term.billing_cycle_months);
-            return config;
+            set(values, "term", term);
+            return values;
           }
         }),
 
         setOptions: assign({
-          selected: ({ selected }, { data }) => {
-            set(selected, "options", data);
-            return selected;
-          },
-          config: ({ config }, { data }) => {
-            const options = map(data, ({ id }) => ({ product_id: id }));
-            set(config, "options", options);
-            return config;
+          values: ({ values }, { data }) => {
+            set(values, "options", data);
+            return values;
           }
         }),
 
         setAttributes: assign({
-          selected: ({ selected }, { data }) => {
-            set(selected, "attributes", data);
-            return selected;
-          },
-          config: ({ config }, { data }) => {
-            const attributes = map(data, ({ id }) => ({ product_id: id }));
-            set(config, "attributes", attributes);
-            return config;
+          values: ({ values }, { data }) => {
+            const attributes = get(data, "attributes", data); // workaround to allow the same action to be used for different event sources
+            set(values, "attributes", attributes);
+            return values;
           }
         }),
 
         // ---
-        setProduct: assign({
-          product: (context, { data }) => useProductParser(data)
-        }),
 
         // ---
         setAvailable: assign({
-          available: ({ product, selected }, { data }) => {
+          available: (_contect, { data }) => {
             return {
-              terms: useProductTermsParser(product.prices),
-              options: useProductOptionsParser(product.products_options),
-              attributes: useProductAttributesParser(
-                product.products_attributes
-              )
+              product: useProductParser(data),
+              terms: useProductTermsParser(data.prices),
+              options: useProductOptionsParser(data.products_options),
+              attributes: useProductAttributesParser(data.products_attributes)
             };
           }
         }),
 
         // ---
         setError: assign({
-          error: (context, { data }) => data || "Unknown error"
+          error: (context, { data }) => data?.errors || data || "Unknown error"
         }),
         clearError: assign({ error: null })
       },

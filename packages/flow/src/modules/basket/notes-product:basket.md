@@ -116,3 +116,13 @@ fetch("https://api.staging.upmind.io/api/orders/2785d26e-9678-3d16-e0ea-314502e7
 "mode": "cors",
 "credentials": "include"
 });
+
+<!-- NB we can use actors -->
+
+map(state.value.context.items, item => {
+const {state} = useActor(item);
+return state;
+// return {
+// id: item.id,
+// state
+}

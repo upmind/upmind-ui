@@ -67,7 +67,12 @@ export interface Typegen0 {
     addItem: "ADD";
     clearBasket: "UNAUTHENTICATED";
     removeItem: "done.invoke.adding:invocation[0]";
-    sendToItem: "UPDATE.QUANTITY" | "UPDATE.TERM";
+    sendToItem:
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.PROVISIONING"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM";
     setBasket:
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
@@ -78,6 +83,7 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
+    allConfigured: "";
     hasNewItems: "";
     hasNoBasket: "ADD";
     hasProducts: "";

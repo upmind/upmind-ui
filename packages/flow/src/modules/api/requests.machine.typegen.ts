@@ -23,6 +23,6 @@ export interface Typegen0 {
     hasRequests: "";
   };
   eventsCausingServices: {};
-  matchesStates: "complete" | "loading" | "processing";
+  matchesStates: "complete" | "empty" | "processing";
   tags: never;
 }

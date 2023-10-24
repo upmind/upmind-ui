@@ -5,22 +5,30 @@
 // Contexts
 
 export interface ProductConfigContext {
-  product: IProduct | string;
+  available: {
+    product: IProduct;
+    terms: array;
+    options: array;
+    attributes: array;
+  };
+  values: IProductValues;
+  // ---
   config: IProductConfig;
   // ---
-  available: {
-    terms: null;
-    options: null;
-    attributes: null;
-  };
-  selected: {
-    term: null;
-    options: null;
-    attributes: null;
-  };
-
-  // ---
   error?: RequestError;
+}
+
+export interface IProductValues {
+  id?: string; // this is only when it exists in the basket
+  // ---
+  productId: IProduct["id"];
+  quantity: IProduct["unit_quantity"]; // Configuration quantity
+  // ---
+  term: IProductTerm;
+  attributes: array;
+  options: array;
+  promotions?: { promocode: string }[];
+  start_trial?: boolean;
 }
 
 export interface IProductConfig {
@@ -48,7 +56,6 @@ export interface IProductConfig {
 export interface BasketContext {
   basket: Basket | null;
   items: Array;
-  products: Array<IProductConfig | null>;
   error?: RequestError;
 }
 

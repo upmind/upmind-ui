@@ -13,6 +13,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.productConfigurator.configuring.term.checking:invocation[0]": {
       type: "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
       data: unknown;
@@ -23,6 +28,10 @@ export interface Typegen0 {
       type: "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
       data: unknown;
     };
+    "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]";
+      data: unknown;
+    };
     "error.platform.productConfigurator.configuring.term.checking:invocation[0]": {
       type: "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
       data: unknown;
@@ -31,34 +40,41 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     checkAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
+    checkQuantity: "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
     checkTerm: "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
     getProduct: "done.invoke.load";
   };
   missingImplementations: {
-    actions: never;
+    actions: "setValues";
     delays: never;
     guards: never;
-    services: "checkAttributes" | "checkTerm" | "getProduct";
+    services: "checkAttributes" | "checkQuantity" | "checkTerm" | "getProduct";
   };
   eventsCausingActions: {
     sendConfig: "done.state.configuring";
-    setAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
+    setAttributes:
+      | "UPDATE.ATTRIBUTES"
+      | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
-    setConfig: "UPDATE" | "done.invoke.load";
     setError:
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
-    setProduct: "done.invoke.load";
-    setQuantity: "UPDATE.QUANTITY";
+    setQuantity:
+      | "UPDATE.QUANTITY"
+      | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
+    setValues: "UPDATE";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    checkAttributes: "UPDATE" | "done.invoke.load";
+    checkAttributes: "UPDATE" | "UPDATE.ATTRIBUTES" | "done.invoke.load";
+    checkQuantity: "UPDATE" | "UPDATE.QUANTITY" | "done.invoke.load";
     checkTerm: "UPDATE" | "UPDATE.TERM" | "done.invoke.load";
     getProduct: "xstate.init";
   };
@@ -68,35 +84,43 @@ export interface Typegen0 {
     | "configuring"
     | "configuring.attributes"
     | "configuring.attributes.checking"
-    | "configuring.attributes.complete"
     | "configuring.attributes.error"
-    | "configuring.attributes.incomplete"
+    | "configuring.attributes.invalid"
     | "configuring.attributes.processing"
+    | "configuring.attributes.valid"
+    | "configuring.quantity"
+    | "configuring.quantity.checking"
+    | "configuring.quantity.error"
+    | "configuring.quantity.invalid"
+    | "configuring.quantity.processing"
+    | "configuring.quantity.valid"
     | "configuring.term"
     | "configuring.term.checking"
-    | "configuring.term.complete"
     | "configuring.term.error"
-    | "configuring.term.incomplete"
+    | "configuring.term.invalid"
     | "configuring.term.processing"
+    | "configuring.term.valid"
     | "error"
     | "loading"
     | {
         configuring?:
           | "attributes"
+          | "quantity"
           | "term"
           | {
               attributes?:
                 | "checking"
-                | "complete"
                 | "error"
-                | "incomplete"
-                | "processing";
-              term?:
+                | "invalid"
+                | "processing"
+                | "valid";
+              quantity?:
                 | "checking"
-                | "complete"
                 | "error"
-                | "incomplete"
-                | "processing";
+                | "invalid"
+                | "processing"
+                | "valid";
+              term?: "checking" | "error" | "invalid" | "processing" | "valid";
             };
       };
   tags: never;

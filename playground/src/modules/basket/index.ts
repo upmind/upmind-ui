@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, reactive, ref, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -14,29 +14,42 @@ import { map, find } from "lodash-es";
 
 export const useBasket = () => {
   const { service } = useUpmindBasket();
-  const { state, send } = useActor(service);
-  // --------------------------------------------------------
 
-  // We can create reactive refs to the actors for machines that are spawned
-  // so that we can listen to their state changes, and send them events
-  const items = ref();
-  service.onTransition(newState => {
-    items.value = map(newState.context.items, item => ({
-      id: item.id,
-      ...item.getSnapshot()
-    }));
-  });
+  // --------------------------------------------------------
+  // we need this for reactive state
+  const { state, send } = useActor(service);
+
   // --------------------------------------------------------
 
   return {
-    send,
+    addProduct: ({ productId, quantity, term, attributes, options }) => {
+      // const { productId, quantity, term, attributes, options } = unref(model);
+      send({
+        type: "ADD",
+        data: { productId, quantity, term, attributes, options }
+      });
+    },
+
     updateTerm: ({ itemId, term }) =>
       send({ type: "UPDATE.TERM", data: { itemId, term } }),
+
     updateQuantity: ({ itemId, quantity }) =>
       send({ type: "UPDATE.QUANTITY", data: { itemId, quantity } }),
+
+    updateAttributes: ({ itemId, attributes }) =>
+      send({ type: "UPDATE.ATTRIBUTES", data: { itemId, attributes } }),
+
+    updateOptions: ({ itemId, options }) =>
+      send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
+
+    updateProvisioning: ({ itemId, provisioning }) =>
+      send({ type: "UPDATE.PROVISIONING", data: { itemId, provisioning } }),
+
     // ---
     state: computed(() => state.value.value),
+
     context: computed(() => state.value.context),
+
     errors: computed(() => state.value.context?.error),
     //messages: computed(() => state.value.context?.messages),
 
@@ -57,7 +70,14 @@ export const useBasket = () => {
     //  ---
     basket: computed(() => state.value.context.basket),
     // ---
-    items,
+
+    items: computed(() =>
+      map(state.value.context.items, item => ({
+        id: item.id,
+        ...item.getSnapshot()
+      }))
+    ),
+
     products: computed(() => state.value.context.basket?.products || [])
   };
 };
