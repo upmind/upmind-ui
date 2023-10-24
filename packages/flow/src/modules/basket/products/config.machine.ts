@@ -15,7 +15,7 @@ import {
   useProductValuesParser
 } from "./utils";
 
-import { get, set, map, defaultsDeep, toNumber } from "lodash-es";
+import { get, set, map, defaultsDeep, toNumber, find } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default values =>
@@ -276,6 +276,22 @@ export default values =>
             const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
             set(values, "term", term);
             return values;
+          },
+          available: ({ available }, { data }) => {
+            // set the price for the available options based on the term selected
+            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
+            available.options = map(available.options, option => {
+              option.values = map(option.values, value => {
+                value.price = find(value.prices, [
+                  "billing_cycle_months",
+                  term
+                ]);
+                return value;
+              });
+
+              return option;
+            });
+            return available;
           }
         }),
 
