@@ -4,6 +4,7 @@ const { getBillingCycle } = useBrand();
 
 // --- utils
 import {
+  flatten,
   forEach,
   get,
   isArray,
@@ -15,10 +16,17 @@ import {
   pick,
   reduce,
   set,
+  uniq,
   values
 } from "lodash-es";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
+
+export const useProductParser = (data: any) => {
+  // todo pick only the properties we need
+  return omit(data, ["prices", "products_attributes", "products_options"]);
+};
+
 export const useProductTermsParser = (data: any) => {
   // 1. sort the terms by billing_cycle_months
   let terms = orderBy(data, "billing_cycle_months");
@@ -55,17 +63,6 @@ export const useProductTermsParser = (data: any) => {
 
     return term;
   });
-};
-
-export const useProductOptionsParser = (data: any) => {
-  // this is quite complex...we have to do the followg steps:
-  //  get the available product options
-  //    a) get the available product option as a category
-  //    b) map the category options
-  //    c) remove any options that don't have any prices
-  //    d) sort the options by the attached order
-
-  return data;
 };
 
 export const useProductAttributesParser = (data: any) => {
@@ -118,9 +115,77 @@ export const useProductAttributesParser = (data: any) => {
   return values(attributes);
 };
 
-export const useProductParser = (data: any) => {
-  // todo pick only the properties we need
-  return omit(data, ["prices", "products_attributes", "products_options"]);
+export const useProductOptionsParser = (data: any) => {
+  // safety check, bail if we have no data
+  if (isEmpty(data)) return [];
+  // When getting the attributes from the API, we get a flat list of attributes
+  // We would rather have the attributes grouped by their category
+  // And with each category having a list of attributes
+  // so to do this we have to do the following:
+
+  // 0. sort the data by attached_order for further lookups
+  let sorted = orderBy(data, "attached_order");
+
+  // then reduce the sorted data, creating a new object keyed by the category id
+  // with the parsed data as the values
+  const options = reduce(
+    sorted,
+    (result, rawOption) => {
+      // create the option based on the category ... if it isnt already set
+      const option = get(
+        result,
+        rawOption.category_id,
+        pick(rawOption.category, [
+          "id",
+          "name",
+          "name_translated",
+          "multiple",
+          "required",
+          "price_override"
+        ])
+      );
+
+      // get the prev values...if there are any
+      const values = get(option, "values", []);
+
+      // add this raw option to the values, with limited properties
+      const value = pick(rawOption, [
+        "id",
+        "name",
+        "name_translated",
+        "id",
+        "order_type",
+        "unit_quantity",
+        "max_order_quantity"
+      ]);
+
+      // add the prices to the value, with limited properties
+      value.prices = map(rawOption.prices, price =>
+        pick(price, [
+          "mixed_promotions",
+          "billing_cycle_months",
+          "price",
+          "price_discounted",
+          "price_formatted",
+          "price_discounted_formatted",
+          "promotions"
+        ])
+      );
+
+      // then set the updated values
+      values.push(value);
+
+      set(option, "values", values);
+
+      // finally  set the updated option
+      set(result, rawOption.category_id, option);
+      return result;
+    },
+    {}
+  );
+
+  // return just the values of the reduced object.
+  return values(options);
 };
 
 export const useProductValuesParser = (data: any) => {

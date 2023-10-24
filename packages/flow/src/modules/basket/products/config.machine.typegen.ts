@@ -13,6 +13,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.productConfigurator.configuring.options.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.configuring.options.checking:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]": {
       type: "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
       data: unknown;
@@ -28,6 +33,10 @@ export interface Typegen0 {
       type: "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
       data: unknown;
     };
+    "error.platform.productConfigurator.configuring.options.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.configuring.options.checking:invocation[0]";
+      data: unknown;
+    };
     "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]": {
       type: "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]";
       data: unknown;
@@ -40,6 +49,7 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     checkAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
+    checkOptions: "done.invoke.productConfigurator.configuring.options.checking:invocation[0]";
     checkQuantity: "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
     checkTerm: "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
     getProduct: "done.invoke.load";
@@ -48,7 +58,12 @@ export interface Typegen0 {
     actions: "setValues";
     delays: never;
     guards: never;
-    services: "checkAttributes" | "checkQuantity" | "checkTerm" | "getProduct";
+    services:
+      | "checkAttributes"
+      | "checkOptions"
+      | "checkQuantity"
+      | "checkTerm"
+      | "getProduct";
   };
   eventsCausingActions: {
     sendConfig: "done.state.configuring";
@@ -61,8 +76,13 @@ export interface Typegen0 {
     setError:
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+    setOptions:
+      | "UPDATE.ATTRIBUTES"
+      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]";
     setQuantity:
       | "UPDATE.QUANTITY"
       | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
@@ -75,6 +95,7 @@ export interface Typegen0 {
   eventsCausingGuards: {};
   eventsCausingServices: {
     checkAttributes: "UPDATE" | "UPDATE.ATTRIBUTES" | "done.invoke.load";
+    checkOptions: "UPDATE" | "UPDATE.ATTRIBUTES" | "done.invoke.load";
     checkQuantity: "UPDATE" | "UPDATE.QUANTITY" | "done.invoke.load";
     checkTerm: "UPDATE" | "UPDATE.TERM" | "done.invoke.load";
     getProduct: "xstate.init";
@@ -89,6 +110,12 @@ export interface Typegen0 {
     | "configuring.attributes.invalid"
     | "configuring.attributes.processing"
     | "configuring.attributes.valid"
+    | "configuring.options"
+    | "configuring.options.checking"
+    | "configuring.options.error"
+    | "configuring.options.invalid"
+    | "configuring.options.processing"
+    | "configuring.options.valid"
     | "configuring.quantity"
     | "configuring.quantity.checking"
     | "configuring.quantity.error"
@@ -106,10 +133,17 @@ export interface Typegen0 {
     | {
         configuring?:
           | "attributes"
+          | "options"
           | "quantity"
           | "term"
           | {
               attributes?:
+                | "checking"
+                | "error"
+                | "invalid"
+                | "processing"
+                | "valid";
+              options?:
                 | "checking"
                 | "error"
                 | "invalid"

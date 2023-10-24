@@ -159,41 +159,46 @@ export default values =>
                   actions: ["setAttributes"]
                 }
               }
+            },
+            options: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkOptions",
+                    onDone: { target: "valid", actions: ["setOptions"] },
+                    onError: {
+                      target: "invalid",
+                      actions: ["setOptions", "setError"]
+                    }
+                  }
+                },
+                invalid: {},
+                processing: {
+                  // invoke: {
+                  //   src: "configureTerm",
+                  //   onDone: {
+                  //     target: "valid",
+                  //     actions: []
+                  //   },
+                  //   onError: {
+                  //     target: "error",
+                  //     actions: ["setError"]
+                  //   }
+                  // }
+                },
+                error: {},
+                valid: {
+                  type: "final"
+                }
+              },
+              on: {
+                "UPDATE.ATTRIBUTES": {
+                  target: "options.checking",
+                  actions: ["setOptions"]
+                }
+              }
             }
-            //   //   options: {
-            //   //     initial: "checking",
-            //   //     states: {
-            //   //       checking: {
-            //   //         // invoke: {
-            //   //         //   src: "checkOptions",
-            //   //         //   onDone: {
-            //   //         //     target: "valid"
-            //   //         //   },
-            //   //         //   onError: {
-            //   //         //     target: "required",
-            //   //         //     actions: []
-            //   //         //   }
-            //   //         // }
-            //   //       },
-            //   //       required: {
-            //   //         // invoke: {
-            //   //         //   src: "configureTerm",
-            //   //         //   onDone: {
-            //   //         //     target: "valid",
-            //   //         //     actions: []
-            //   //         //   },
-            //   //         //   onError: {
-            //   //         //     target: "error",
-            //   //         //     actions: ["setError"]
-            //   //         //   }
-            //   //         // }
-            //   //       },
-            //   //       error: {},
-            //   //       valid: {
-            //   //         type: "final"
-            //   //       }
-            //   //     }
-            //   //   },
           },
 
           onDone: { target: "configured" }
@@ -274,13 +279,6 @@ export default values =>
           }
         }),
 
-        setOptions: assign({
-          values: ({ values }, { data }) => {
-            set(values, "options", data);
-            return values;
-          }
-        }),
-
         setAttributes: assign({
           values: ({ values }, { data }) => {
             const attributes = get(data, "attributes", data); // workaround to allow the same action to be used for different event sources
@@ -289,16 +287,24 @@ export default values =>
           }
         }),
 
+        setOptions: assign({
+          values: ({ values }, { data }) => {
+            const attributes = get(data, "options", data); // workaround to allow the same action to be used for different event sources
+            set(values, "options", attributes);
+            return values;
+          }
+        }),
+
         // ---
 
         // ---
         setAvailable: assign({
-          available: (_contect, { data }) => {
+          available: (_context, { data }) => {
             return {
               product: useProductParser(data),
               terms: useProductTermsParser(data.prices),
-              options: useProductOptionsParser(data.products_options),
-              attributes: useProductAttributesParser(data.products_attributes)
+              attributes: useProductAttributesParser(data.products_attributes),
+              options: useProductOptionsParser(data.products_options)
             };
           }
         }),
