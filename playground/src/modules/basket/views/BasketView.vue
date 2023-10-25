@@ -226,7 +226,7 @@ hr {
 }
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
   grid-gap: 1em;
   margin: 1em 0;
 }
