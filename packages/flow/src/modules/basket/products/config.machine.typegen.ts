@@ -80,7 +80,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     setOptions:
-      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
       | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.options.checking:invocation[0]";
     setQuantity:
@@ -95,7 +95,7 @@ export interface Typegen0 {
   eventsCausingGuards: {};
   eventsCausingServices: {
     checkAttributes: "UPDATE" | "UPDATE.ATTRIBUTES" | "done.invoke.load";
-    checkOptions: "UPDATE" | "UPDATE.ATTRIBUTES" | "done.invoke.load";
+    checkOptions: "UPDATE" | "UPDATE.OPTIONS" | "done.invoke.load";
     checkQuantity: "UPDATE" | "UPDATE.QUANTITY" | "done.invoke.load";
     checkTerm: "UPDATE" | "UPDATE.TERM" | "done.invoke.load";
     getProduct: "xstate.init";

@@ -4,19 +4,19 @@ const { getBillingCycle } = useBrand();
 
 // --- utils
 import {
-  flatten,
+  defaultsDeep,
   forEach,
   get,
   isArray,
   isEmpty,
   isNil,
+  isString,
   map,
   omit,
   orderBy,
   pick,
   reduce,
   set,
-  uniq,
   values
 } from "lodash-es";
 // --------------------------------------------------------
@@ -193,6 +193,8 @@ export const useProductValuesParser = (data: any) => {
   return data;
 };
 
+// --------------------------------------------------------
+
 export const useProductConfigParser = (data: any) => {
   // strip out any falsy values
   return {
@@ -202,17 +204,37 @@ export const useProductConfigParser = (data: any) => {
     // ---
     attributes: reduce(
       data?.attributes,
-      (result, value, attribute) => {
-        if (value) {
-          value = isArray(value) ? value : [value];
-          forEach(value, product_id => result.push({ product_id }));
+      (result, attribute) => {
+        if (attribute) {
+          attribute = isArray(attribute) ? attribute : [attribute];
+          forEach(attribute, value => {
+            if (isString(value)) value = { product_id: value }; // add quantity + billing term here?
+            // value = defaultsDeep(value, { billing_cycle_months: data?.term });
+            result.push(value);
+          });
         }
         return result;
       },
       []
     ),
-    // options: data?.options,
-    // promotions: data?.promtions,
+    options: reduce(
+      data?.options,
+      (result, option) => {
+        if (option) {
+          option = isArray(option) ? option : [option];
+          forEach(option, value => {
+            if (isString(value)) value = { product_id: value }; // add quantity + billing term here?
+            value = defaultsDeep(value, {
+              billing_cycle_months: data?.term,
+              quantity: 1
+            });
+            result.push(value);
+          });
+        }
+        return result;
+      },
+      []
+    ), // promotions: data?.promtions,
     // ---
     start_trial: !!data?.start_trial
   };

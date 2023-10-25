@@ -35,7 +35,6 @@
     </ul>
 
     <!-- attributes -->
-
     <dl class="attributes">
       <template v-for="attribute in available.attributes" :key="attribute.id">
         <dt class="attribute">
@@ -61,7 +60,6 @@
     </dl>
 
     <!-- options -->
-
     <dl class="options">
       <template v-for="option in available.options" :key="option.id">
         <dt class="option">
@@ -75,7 +73,7 @@
               :type="option.multiple ? 'checkbox' : 'radio'"
               v-model="model.options[option.id]"
               :name="`options[${option.id}][]`"
-              @change="setAttributes"
+              @change="setOptions"
               :required="option.required"
               :id="value.id"
               :value="value.id"
@@ -293,6 +291,13 @@ export default defineComponent({
       this.$emit("update:attributes", {
         itemId: this.id,
         attributes: this.model.attributes
+      });
+    },
+
+    setOptions() {
+      this.$emit("update:options", {
+        itemId: this.id,
+        options: this.model.options
       });
     }
   }
