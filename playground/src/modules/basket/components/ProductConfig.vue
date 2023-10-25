@@ -46,13 +46,14 @@
           <fieldset v-if="model.attributes">
             <input
               :type="attribute.multiple ? 'checkbox' : 'radio'"
-              v-model="model.attributes[attribute.id]"
-              :name="`attributes[${attribute.id}][]`"
-              @change="setAttributes"
+              :name="`attributes[${attribute.id}][${value.id}]`"
+              @change="selectAttribute(attribute.id, value.id, $event)"
+              :checked="isSelectedAttribute(attribute.id, value.id)"
               :required="attribute.required"
               :id="value.id"
               :value="value.id"
             />
+
             <label :for="value.id">{{ value.name }}</label>
           </fieldset>
         </dd>
@@ -71,17 +72,53 @@
           <fieldset v-if="model.options">
             <input
               :type="option.multiple ? 'checkbox' : 'radio'"
-              v-model="model.options[option.id]"
-              :name="`options[${option.id}][]`"
-              @change="setOptions"
+              :name="`options[${option.id}][${value.id}]`"
+              @change="selectOption(option.id, value.id, $event)"
+              :checked="isSelectedOption(option.id, value.id)"
               :required="option.required"
               :id="value.id"
               :value="value.id"
             />
-            <label :for="value.id"
-              >{{ value.name }}
-              <strong>{{ value.price.price_formatted }}</strong></label
-            >
+
+            <label :for="value.id">
+              {{ value.name }}
+            </label>
+
+            <template v-if="model.options[option.id][value.id]">
+              <fieldset
+                v-if="available.product?.canChangeQuantity || true"
+                class="quantity-increment"
+                disabled
+              >
+                <button
+                  class="prepend"
+                  @click.prevent="
+                    model.options[option.id][value.id].unit_quantity++
+                  "
+                >
+                  +
+                </button>
+
+                <input
+                  type="number"
+                  v-model="model.options[option.id][value.id].unit_quantity"
+                  :min="value.min_order_quantity"
+                  :max="value.max_order_quantity"
+                  :step="value.unit_quantity"
+                />
+
+                <button
+                  class="append"
+                  @click.prevent="
+                    model.options[option.id][value.id].unit_quantity--
+                  "
+                >
+                  -
+                </button>
+              </fieldset>
+            </template>
+
+            <strong>{{ value.price.price_formatted }}</strong>
           </fieldset>
         </dd>
       </template>
@@ -95,17 +132,35 @@
           v-if="available.product?.canChangeQuantity || true"
           class="quantity-increment"
         >
-          <button class="prepend" @click.prevent="increment">+</button>
+          <button
+            class="prepend"
+            @click.prevent="
+              setQuantity(
+                model.quantity + (available.product?.unit_quantity || 1)
+              )
+            "
+          >
+            +
+          </button>
 
           <input
             type="number"
             v-model="model.quantity"
             min="1"
             max="10"
-            @input="setQuantity"
+            @change="setQuantity"
           />
 
-          <button class="append" @click.prevent="decrement">-</button>
+          <button
+            class="append"
+            @click.prevent="
+              setQuantity(
+                model.quantity - (available.product?.unit_quantity || 1)
+              )
+            "
+          >
+            -
+          </button>
         </fieldset>
       </dd>
       <dt>Price:</dt>
@@ -138,7 +193,8 @@ import {
   intersectionWith,
   first,
   map,
-  remove
+  remove,
+  unset
 } from "lodash-es";
 
 export default defineComponent({
@@ -181,6 +237,7 @@ export default defineComponent({
     const model = toRef(props, "values");
 
     return {
+      some,
       model
     };
   },
@@ -243,33 +300,10 @@ export default defineComponent({
     }
   },
   methods: {
-    increment() {
-      this.model.quantity++;
-
-      if (this.available.product.max_order_quantity) {
-        this.model.quantity = Math.min(
-          this.model.quantity,
-          this.available.product.max_order_quantity
-        );
-      }
-
-      this.setQuantity();
-    },
-    decrement() {
-      this.model.quantity--;
-
-      this.model.quantity = Math.max(
-        this.model.quantity,
-        Math.max(this.available.product.min_order_quantity, 1)
-      );
-
-      this.setQuantity();
-    },
-
-    setQuantity() {
+    setQuantity(value) {
       this.$emit("update:quantity", {
         itemId: this.id,
-        quantity: this.model.quantity
+        quantity: value || this.model.quantity
       });
     },
 
@@ -287,11 +321,47 @@ export default defineComponent({
     },
     // ---
 
+    isSelectedAttribute(attributeId, value) {
+      return some(this.model.attributes[attributeId], ["product_id", value]);
+    },
+
+    selectAttribute(attributeId, value, { target }) {
+      if (target.checked) {
+        set(this.model.attributes, [attributeId, value], {
+          product_id: value
+        });
+      } else {
+        unset(this.model.attributes, [attributeId, value]);
+      }
+
+      // emit the event
+      this.setAttributes();
+    },
+
     setAttributes() {
       this.$emit("update:attributes", {
         itemId: this.id,
         attributes: this.model.attributes
       });
+    },
+
+    // ---
+
+    isSelectedOption(optionId, value) {
+      return some(this.model.options[optionId], ["product_id", value]);
+    },
+
+    selectOption(optionId, value, { target }) {
+      if (target.checked) {
+        set(this.model.options, [optionId, value], {
+          product_id: value
+        });
+      } else {
+        unset(this.model.options, [optionId, value]);
+      }
+
+      // emit the event
+      this.setOptions();
     },
 
     setOptions() {

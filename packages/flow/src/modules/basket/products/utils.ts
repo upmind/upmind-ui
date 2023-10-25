@@ -156,7 +156,8 @@ export const useProductOptionsParser = (data: any) => {
         "id",
         "order_type",
         "unit_quantity",
-        "max_order_quantity"
+        "max_order_quantity",
+        "min_order_quantity"
       ]);
 
       // add the prices to the value, with limited properties
@@ -195,6 +196,36 @@ export const useProductValuesParser = (data: any) => {
 
 // --------------------------------------------------------
 
+export const quantityParser = (quantity: number, product: any) => {
+  console.log("quantityParser", quantity, product);
+
+  // Check the product is available
+  // Check the quantity is valid,
+  //  - min Quantity matches the product min
+  //  - max Quantity matches the product max
+  //  - quantity is a multiple of the product step
+
+  // ensure the quantity is at least the min, or 1
+  if (quantity < Math.max(product.min_order_quantity, 1)) {
+    quantity = Math.max(product.min_order_quantity, 1);
+  }
+
+  // ensure the quantity is at most the max (if set)
+  if (product.max_order_quantity && quantity > product.max_order_quantity) {
+    quantity = product.max_order_quantity;
+  }
+
+  // ensure the quantity is a multiple of the step (if set)
+  if (product.unit_quantity && quantity % product.unit_quantity !== 0) {
+    quantity =
+      Math.ceil(quantity / product.unit_quantity) * product.unit_quantity;
+  }
+
+  return quantity;
+};
+
+// --------------------------------------------------------
+
 export const useProductConfigParser = (data: any) => {
   // strip out any falsy values
   return {
@@ -206,12 +237,7 @@ export const useProductConfigParser = (data: any) => {
       data?.attributes,
       (result, attribute) => {
         if (attribute) {
-          attribute = isArray(attribute) ? attribute : [attribute];
-          forEach(attribute, value => {
-            if (isString(value)) value = { product_id: value }; // add quantity + billing term here?
-            // value = defaultsDeep(value, { billing_cycle_months: data?.term });
-            result.push(value);
-          });
+          result.push(...values(attribute));
         }
         return result;
       },
@@ -221,15 +247,7 @@ export const useProductConfigParser = (data: any) => {
       data?.options,
       (result, option) => {
         if (option) {
-          option = isArray(option) ? option : [option];
-          forEach(option, value => {
-            if (isString(value)) value = { product_id: value }; // add quantity + billing term here?
-            value = defaultsDeep(value, {
-              billing_cycle_months: data?.term,
-              quantity: 1
-            });
-            result.push(value);
-          });
+          result.push(...values(option));
         }
         return result;
       },
@@ -239,5 +257,3 @@ export const useProductConfigParser = (data: any) => {
     start_trial: !!data?.start_trial
   };
 };
-
-// --------------------------------------------------------

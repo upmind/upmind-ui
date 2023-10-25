@@ -5,22 +5,28 @@ import { useApi } from "../../api";
 import { useBrand, BrandConfigKeys } from "../../brand";
 const { getConfig } = useBrand();
 
-import type { ProductConfigContext } from "../types";
+import type { IProductConfig, ProductConfigContext } from "../types";
 
 // --- utils
+import { quantityParser } from "./utils";
+
 import {
+  defaultsDeep,
   find,
   first,
   get,
-  intersectionWith,
-  isArray,
+  isEmpty,
   isNil,
   isNumber,
-  map,
+  isObject,
+  mapValues,
+  keys,
   maxBy,
   minBy,
+  pickBy,
   reduce,
-  set
+  set,
+  some
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -118,27 +124,7 @@ async function checkQuantity(
   let { quantity } = values;
   // ---
 
-  // Check the product is available
-  // Check the quantity is valid,
-  //  - min Quantity matches the product min
-  //  - max Quantity matches the product max
-  //  - quantity is a multiple of the product step
-
-  // ensure the quantity is at least the min, or 1
-  if (quantity < Math.max(product.min_order_quantity, 1)) {
-    quantity = Math.max(product.min_order_quantity, 1);
-  }
-
-  // ensure the quantity is at most the max (if set)
-  if (product.max_order_quantity && quantity > product.max_order_quantity) {
-    quantity = product.max_order_quantity;
-  }
-
-  // ensure the quantity is a multiple of the step (if set)
-  if (product.unit_quantity && quantity % product.unit_quantity !== 0) {
-    quantity =
-      Math.ceil(quantity / product.unit_quantity) * product.unit_quantity;
-  }
+  quantity = quantityParser(quantity, product);
 
   return new Promise((resolve, reject) => {
     if (isNumber(quantity)) resolve(quantity);
@@ -217,24 +203,22 @@ async function checkAttributes(
   const attributes = reduce(
     available.attributes,
     (result, attribute, index) => {
-      let selected = get(values, `attributes.${attribute.id}`, []);
+      let selected = get(values, `attributes.${attribute.id}`, {});
 
       // only include valid values, if we have any
-      if (selected?.length) {
-        selected = intersectionWith(
-          isArray(selected) ? selected : [selected],
-          attribute.values,
-          (s, v) => v.id === get(s, "id", s) // selected may be aqn id or an  full object
+      if (!isEmpty(selected)) {
+        selected = pickBy(selected, (_value, id) =>
+          some(attribute.values, ["id", id])
         );
         // selected = map(selected, "id");
       }
 
       // check if we are missing required attribute
-      if (attribute?.required && !selected?.length)
+      if (attribute?.required && isEmpty(selected))
         errors.push({ message: "Is required", attribute });
 
       // check if we values too many values for this attribute
-      if (!attribute?.multiple && selected?.length > 1) {
+      if (!attribute?.multiple && keys(selected)?.length > 1) {
         errors.push({ message: "Multiple choice not allowed", attribute });
       }
       // ---
@@ -252,7 +236,7 @@ async function checkAttributes(
 
 async function checkOptions(
   { available, values }: ProductConfigContext,
-  _event: any
+  { data }: any
 ) {
   // safety check, resolve if we have no attributes to check
   if (!available?.options?.length) {
@@ -264,24 +248,42 @@ async function checkOptions(
   const options = reduce(
     available.options,
     (result, option, index) => {
-      let selected = get(values, `options.${option.id}`, []);
+      // try get any selected values for this option
+      let selected = get(data, `options.${option.id}`, {});
 
-      // only include valid values, if we have any
-      if (selected?.length) {
-        selected = intersectionWith(
-          isArray(selected) ? selected : [selected],
-          option.values,
-          (s, v) => v.id === get(s, "id", s) // selected may be aqn id or an  full object
+      // if we have selected values, ensure they are valid and fully formed
+      if (!isEmpty(selected)) {
+        // only include valid values, stripping out any invalid ones, if we have any
+        selected = pickBy(selected, (_value, id) =>
+          some(option.values, ["id", id])
         );
-        // selected = map(selected, "id");
+
+        // then parse each selected value, and ensure it has all its required attributes
+        // and that it has valid values for each of those attributes
+        selected = mapValues(selected, (value, id) => {
+          // ensure we have an object
+          if (!isObject(value)) value = { product_id: id };
+          const product = find(option.values, ["id", value.product_id]);
+
+          //  ensure we have the required attributes
+          value = defaultsDeep(value, {
+            billing_cycle_months: values?.term,
+            unit_quantity: 1
+          });
+
+          // ensure we have a valid unit_quantity
+          value.unit_quantity = quantityParser(value?.unit_quantity, product);
+
+          return value;
+        });
       }
 
       // check if we are missing required option
-      if (option?.required && !selected?.length)
+      if (option?.required && isEmpty(selected))
         errors.push({ message: "Is required", option });
 
       // check if we values too many values for this option
-      if (!option?.multiple && selected?.length > 1) {
+      if (!option?.multiple && keys(selected)?.length > 1) {
         errors.push({ message: "Multiple choice not allowed", option });
       }
       // ---

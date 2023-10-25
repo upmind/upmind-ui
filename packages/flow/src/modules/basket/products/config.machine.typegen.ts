@@ -80,7 +80,6 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     setOptions:
-      | "UPDATE.OPTIONS"
       | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.options.checking:invocation[0]";
     setQuantity:
