@@ -2,6 +2,10 @@
   <form class="card" :class="color">
     <header>
       <template v-if="!meta.isLoading">
+        <div class="actions floating" v-if="!meta.isNew">
+          <button type="reset">remove</button>
+        </div>
+
         <h6 class="meta">{{ status }}</h6>
         <h4 class="title">{{ available.product.name }}</h4>
         <h5 class="subtitle">{{ available.product.description }}</h5>
@@ -268,7 +272,8 @@ export default defineComponent({
     // ---
     meta() {
       return {
-        isLoading: this.matches("loading")
+        isLoading: this.matches("loading"),
+        isNew: !this?.values?.id
       };
     },
     total_amount_formatted() {
@@ -287,16 +292,18 @@ export default defineComponent({
     },
     color() {
       return {
+        added: !this.meta.isNew,
+        info: this.meta.isNew,
         warning: this.matches("configuring"),
         error: this.matches("error"),
-        success: this.matches("configured") && !this?.values?.id,
-        added: !!this?.values?.id
+        success: this.matches("configured") && !this?.values?.id
       };
     },
     status() {
       const values = [];
       if (this.matches("error")) values.push("Errors");
-      if (!!this?.values?.id) values.push("Added");
+      if (this.meta.isNew) values.push("New");
+      if (!this.meta.isNew) values.push("Added");
       if (this.matches("configuring")) values.push("Configuring");
       if (this.matches("configured")) values.push("Configured");
 
@@ -387,18 +394,9 @@ export default defineComponent({
   border: 1px solid var(--color-border);
   border-radius: 0.25em;
   transition: all 200ms linear;
-
+  position: relative;
   max-width: none !important;
-  label {
-    display: flex !important;
-    justify-content: space-between;
-    flex-grow: 1;
-  }
 
-  &.info {
-    background-color: var(--upm-c-info-muted);
-    color: var(--upm-c-black);
-  }
   &.warning {
     background-color: var(--upm-c-warning-muted);
     color: var(--upm-c-black);
@@ -411,6 +409,10 @@ export default defineComponent({
     background-color: var(--upm-c-success-muted);
     color: var(--upm-c-black);
   }
+  &.info {
+    background-color: var(--upm-c-info-muted);
+    color: var(--upm-c-black);
+  }
 
   &.added {
     background-color: var(--upm-c-white-soft);
@@ -421,6 +423,19 @@ export default defineComponent({
   //   box-shadow: 0 0 0.5em 0.25em rgba(0, 0, 0, 0.1);
   // }
 
+  .actions {
+    &.floating {
+      margin: 0 !important;
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      button,
+      button[type="reset"] {
+        font-size: 0.667em !important;
+      }
+    }
+  }
   .title {
     font-size: 1.25em;
     font-weight: bold;
@@ -460,6 +475,12 @@ export default defineComponent({
         }
       }
     }
+  }
+
+  label {
+    display: flex !important;
+    justify-content: space-between;
+    flex-grow: 1;
   }
 }
 
