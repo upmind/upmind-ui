@@ -54,15 +54,20 @@ export default values =>
         error: null
       },
       states: {
-        // first load our product
+        // first load our product, we do this even if we are given a configured set of values
+        //  as we need the additional 'with' properties
         loading: {
           invoke: {
             id: "load",
             src: "getProduct",
-            onDone: {
-              target: "configuring",
-              actions: ["setAvailable"]
-            },
+            onDone: [
+              // {
+              //   target: "configured",
+              //   actions: ["setAvailable"],
+              //   cond: ({ values }) => !!values?.id
+              // },
+              { target: "configuring", actions: ["setAvailable"] }
+            ],
             onError: { target: "error", actions: ["setError"] }
           }
         },
@@ -205,7 +210,8 @@ export default values =>
               },
               on: {
                 "UPDATE.OPTIONS": {
-                  target: "options.checking"
+                  target: "options.checking",
+                  actions: ["setOptions"]
                 }
               }
             }

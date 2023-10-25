@@ -101,11 +101,11 @@ async function addToBasket({ basket, items }, event: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = first(
-    filter(
-      items,
-      ({ state }) =>
-        state.matches("configured") && !has(state, "context.config.id")
-    )
+    filter(items, ({ state }) => {
+      const isConfigured = state.matches("configured");
+      const isNew = !has(state, "context.config.id");
+      return isConfigured && isNew;
+    })
   );
 
   if (!item) return Promise.reject("No item to add to basket");

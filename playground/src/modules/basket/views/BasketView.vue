@@ -45,10 +45,10 @@
     <div class="content" v-if="!meta.isLoading">
       <!-- status -->
 
-      <div v-if="products?.length">
+      <div v-if="items?.length">
         <h3>
-          We have <em class="success">{{ products.length }}</em> Product{{
-            products.length > 1 ? "s" : ""
+          We have <em class="success">{{ items.length }}</em> Product{{
+            items.length > 1 ? "s" : ""
           }}
           in the basket
         </h3>
@@ -58,7 +58,7 @@
         <h3>We <em class="error">don't have any</em> Products in the basket</h3>
       </div>
 
-      <div v-if="meta.needsConfiguring">
+      <!-- <div v-if="meta.needsConfiguring">
         <h3>
           We have
           <em class="warning">{{ items?.length }}</em> item{{
@@ -69,7 +69,7 @@
           {{ items?.length > 1 ? "they" : "it" }}
           can be added to the basket
         </h3>
-      </div>
+      </div> -->
 
       <div v-if="meta.hasErrors">
         <h3>
@@ -88,7 +88,7 @@
       <hr />
 
       <ul class="cards">
-        <li v-for="product in products" :key="product.id">
+        <!-- <li v-for="product in products" :key="product.id">
           <section class="card success">
             <h4 class="title">{{ product.product_name }}</h4>
             <h5 class="subtitle">{{ product.description }}</h5>
@@ -102,7 +102,7 @@
               <dd>{{ product.billing_cycle_months }}</dd>
             </dl>
           </section>
-        </li>
+        </li> -->
         <li v-for="item in items" :key="item.id">
           <ProductConfig
             v-bind="item.context"
@@ -128,7 +128,7 @@
         title="Basket"
         :state="state"
         :model="model"
-        :context="{ items, products, basket }"
+        :context="{ items, basket }"
         :errors="errors"
         :meta="meta"
       ></Debug>
@@ -152,8 +152,7 @@ const {
   updateAttributes,
   updateOptions,
   updateProvisioning,
-  items,
-  products
+  items
 } = useBasket();
 
 const productCatalogue = [

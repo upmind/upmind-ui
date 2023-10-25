@@ -16,11 +16,12 @@ import configurationMachine from "./products/config.machine";
 // --- utils
 import {
   every,
-  find,
+  findIndex,
+  forEach,
   get,
   has,
-  includes,
   isEmpty,
+  reduce,
   remove,
   some,
   trimStart,
@@ -33,7 +34,7 @@ import { useBasketParser } from "./utils";
 // utility function to spawn machines based on the given items
 function spawnConfiguration(values) {
   return spawn(configurationMachine(values), {
-    name: uniqueId("basket_item_"),
+    name: values?.id || uniqueId("basket_item_"),
     sync: true
   });
 }
@@ -70,7 +71,7 @@ export default createMachine(
         id: "loading",
         invoke: {
           src: "check",
-          onDone: { target: "#shopping", actions: ["setBasket"] },
+          onDone: { target: "#shopping", actions: ["setBasket", "loadItems"] },
           onError: { target: "error", actions: ["setError"] }
         }
       },
@@ -114,11 +115,40 @@ export default createMachine(
             initial: "empty",
             states: {
               empty: {
-                always: [{ target: "configuring", cond: "needsConfiguring" }],
-                type: "final"
+                always: [{ target: "configuring", cond: "hasItems" }]
               },
               configuring: {
-                always: [{ target: "empty", cond: "allConfigured" }]
+                always: [
+                  { target: "empty", cond: "hasNoItems" },
+                  { target: "adding", cond: "hasNewItems" },
+                  // { target: "updating", cond: "hasUpdatedItems" },
+                  // { target: "removing", cond: "hasUpdatedItems" },
+                  { target: "configured", cond: "allConfigured" }
+                ]
+              },
+              adding: {
+                id: "adding",
+                invoke: {
+                  src: "addToBasket",
+                  onDone: {
+                    target: "configuring",
+                    actions: ["replaceItem", "updateBasket"]
+                  }
+                }
+              },
+              // updating: {
+              //   id: "updating",
+              //   invoke: {
+              //     src: "updateBasket",
+              //     onDone: {
+              //       target: "configuring",
+              //       actions: ["updateBasket"]
+              //     }
+              //   }
+              // },
+              configured: {
+                always: [{ target: "empty", cond: "hasNoItems" }],
+                type: "final"
               }
             },
             on: {
@@ -137,52 +167,52 @@ export default createMachine(
               // }
             }
           },
-          products: {
-            initial: "empty",
-            states: {
-              empty: {
-                always: [
-                  { target: "adding", cond: "hasNewItems" },
-                  // { target: "updating", cond: "hasChangedItems" },
-                  { target: "added", cond: "hasProducts" }
-                ]
-              },
-              adding: {
-                id: "adding",
-                invoke: {
-                  src: "addToBasket",
-                  onDone: {
-                    target: "empty",
-                    actions: ["removeItem", "setResponse"]
-                  }
-                }
-              },
-              // updating: {
-              //   id: "updating",
-              //   invoke: {
-              //     src: "update",
-              //     onDone: {
-              //       target: "empty",
-              //       actions: ["remove", "setResponse"]
-              //     }
-              //   }
-              // },
-              added: {
-                always: [{ target: "adding", cond: "hasNewItems" }],
-                type: "final"
-              }
-            }
-            // on: {
-            // "PRODUCT.UPDATE": {
-            //   target: "processing",
-            // cond: "needsConfiguring"
-            // },
-            // "PRODUCT.REMOVE": {
-            //   target: "processing",
-            // cond: "needsConfiguring"
-            // }
-            // }
-          },
+          // products: {
+          //   initial: "empty",
+          //   states: {
+          //     empty: {
+          //       always: [
+          //         { target: "adding", cond: "hasNewItems" },
+          //         // { target: "updating", cond: "hasChangedItems" },
+          //         { target: "added", cond: "hasProducts" }
+          //       ]
+          //     },
+          //     adding: {
+          //       id: "adding",
+          //       invoke: {
+          //         src: "addToBasket",
+          //         onDone: {
+          //           target: "empty",
+          //           actions: ["removeItem", "updateBasket"]
+          //         }
+          //       }
+          //     },
+          //     // updating: {
+          //     //   id: "updating",
+          //     //   invoke: {
+          //     //     src: "update",
+          //     //     onDone: {
+          //     //       target: "empty",
+          //     //       actions: ["remove", "updateBasket"]
+          //     //     }
+          //     //   }
+          //     // },
+          //     added: {
+          //       always: [{ target: "adding", cond: "hasNewItems" }],
+          //       type: "final"
+          //     }
+          //   }
+          //   // on: {
+          //   // "PRODUCT.UPDATE": {
+          //   //   target: "processing",
+          //   // cond: "hasItems"
+          //   // },
+          //   // "PRODUCT.REMOVE": {
+          //   //   target: "processing",
+          //   // cond: "hasItems"
+          //   // }
+          //   // }
+          // },
           client: {
             initial: "checking",
             states: {
@@ -254,7 +284,7 @@ export default createMachine(
         basket: (context, { data }) => data
       }),
 
-      setResponse: assign({
+      updateBasket: assign({
         basket: (context, { data }) => {
           const value = get(data, "basket", context.basket);
           return useBasketParser(value);
@@ -266,6 +296,20 @@ export default createMachine(
       }),
 
       // --- Configuring Items Actions
+
+      loadItems: assign({
+        items: ({ items, basket }, { data }) => {
+          forEach(basket?.products, product => {
+            // todo check if the item already exists
+
+            // const item = find(items, ["id", product.id]);
+
+            const machine = spawnConfiguration(product);
+            items.push(machine);
+          });
+          return items;
+        }
+      }),
 
       addItem: assign({
         items: ({ items }, { data }) => {
@@ -280,14 +324,50 @@ export default createMachine(
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
 
-          // try find any items with the same hash
-          const item = find(items, ["id", itemId]);
+          const index = findIndex(items, ["id", itemId]);
+          const item = get(items, index);
 
           // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
-          if (item) item.stop();
+          if (item) {
+            item.stop();
+          }
 
           // finally remove it from our items
           remove(items, ["id", itemId]);
+          return items;
+        }
+      }),
+
+      replaceItem: assign({
+        items: ({ items }, { type, data }, other) => {
+          // me may be given a name, but if not we can determine it from the event type
+          const itemId = data?.itemId;
+
+          // find the item to be removed
+          const index = findIndex(items, ["id", itemId]);
+          const item = get(items, index);
+          if (item) item.stop(); // ensure the machine is stopped
+
+          // spawn the item(s) that are missing form the updated basket
+          // should only ever be 1 new item, but we will be safe and handle multiple
+          const newItems = reduce(
+            data?.basket?.products,
+            (result, product) => {
+              const isNew = !some(items, ["id", product.id]);
+
+              if (isNew) {
+                const machine = spawnConfiguration(product);
+                result.push(machine);
+              }
+              return result;
+            },
+            []
+          );
+
+          // now put the item(s) back into the items array, at the same index
+          // so that we dont have any ui ordering issues
+          items.splice(index, 1, ...newItems);
+
           return items;
         }
       }),
@@ -310,17 +390,22 @@ export default createMachine(
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
       // --- Configuration Guards
-      needsConfiguring: ({ items }) => !isEmpty(items),
+      hasItems: ({ items }) => !isEmpty(items),
 
-      allConfigured: ({ items }) => isEmpty(items), // ||  every(items, ({ state }) => state?.matches("configured")),
+      hasNoItems: ({ items }) => isEmpty(items),
+
+      allConfigured: ({ items }) =>
+        every(items, ({ state }) => state?.matches("configured")),
 
       // --- Item Guards
       hasNewItems: ({ items }) => {
-        return some(
-          items,
-          ({ state }) =>
-            state.matches("configured") && !has(state, "context.config.id")
-        );
+        const value = some(items, ({ id, state }) => {
+          const isConfigured = state.matches("configured");
+          const isNew = !has(state, "context.config.id");
+          return isConfigured && isNew;
+        });
+
+        return value;
       },
 
       hasChangedItems: ({ items }) => {

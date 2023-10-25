@@ -8,7 +8,7 @@ const { getConfig } = useBrand();
 import type { IProductConfig, ProductConfigContext } from "../types";
 
 // --- utils
-import { quantityParser } from "./utils";
+import { useQuantityParser } from "./utils";
 
 import {
   defaultsDeep,
@@ -124,7 +124,7 @@ async function checkQuantity(
   let { quantity } = values;
   // ---
 
-  quantity = quantityParser(quantity, product);
+  quantity = useQuantityParser(quantity, product);
 
   return new Promise((resolve, reject) => {
     if (isNumber(quantity)) resolve(quantity);
@@ -236,7 +236,7 @@ async function checkAttributes(
 
 async function checkOptions(
   { available, values }: ProductConfigContext,
-  { data }: any
+  _event: any
 ) {
   // safety check, resolve if we have no attributes to check
   if (!available?.options?.length) {
@@ -248,8 +248,9 @@ async function checkOptions(
   const options = reduce(
     available.options,
     (result, option, index) => {
-      // try get any selected values for this option
-      let selected = get(data, `options.${option.id}`, {});
+      // try get any selected values for this option,
+
+      let selected = get(values, `options.${option.id}`, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
@@ -272,7 +273,10 @@ async function checkOptions(
           });
 
           // ensure we have a valid unit_quantity
-          value.unit_quantity = quantityParser(value?.unit_quantity, product);
+          value.unit_quantity = useQuantityParser(
+            value?.unit_quantity,
+            product
+          );
 
           return value;
         });
