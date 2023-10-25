@@ -28,7 +28,7 @@
         <h4 class="title" v-if="term?.billing_cycle_name">
           {{ term.billing_cycle_name }}
         </h4>
-        <h5 class="price">{{ term.price_formatted }}</h5>
+        <h5 class="price">{{ term?.price_formatted }}</h5>
         <h6 class="savings" v-if="term.saving">{{ term.saving_formatted }}</h6>
         <!-- {{ term }} -->
       </li>
@@ -84,7 +84,7 @@
               {{ value.name }}
             </label>
 
-            <template v-if="model.options[option.id][value.id]">
+            <template v-if="model.options?.[option.id]?.[value.id]">
               <fieldset
                 v-if="available.product?.canChangeQuantity || true"
                 class="quantity-increment"
@@ -118,7 +118,7 @@
               </fieldset>
             </template>
 
-            <strong>{{ value.price.price_formatted }}</strong>
+            <strong>{{ value?.price?.price_formatted }}</strong>
           </fieldset>
         </dd>
       </template>
@@ -289,14 +289,18 @@ export default defineComponent({
       return {
         warning: this.matches("configuring"),
         error: this.matches("error"),
-        success: this.matches("configured")
+        success: this.matches("configured") && !this?.values?.id,
+        added: !!this?.values?.id
       };
     },
     status() {
-      if (this.matches("configuring")) return "Configuring";
-      if (this.matches("error")) return "Error";
-      if (this.matches("configured")) return "Configured";
-      if (this.model?.id) return "Added";
+      const values = [];
+      if (this.matches("error")) values.push("Errors");
+      if (!!this?.values?.id) values.push("Added");
+      if (this.matches("configuring")) values.push("Configuring");
+      if (this.matches("configured")) values.push("Configured");
+
+      return values.join(" · ");
     }
   },
   methods: {
@@ -310,7 +314,8 @@ export default defineComponent({
     // ---
 
     isSelectedTerm(term) {
-      return isEqual(term.billing_cycle_months, this.model?.term);
+      const value = isEqual(term.billing_cycle_months, this.model?.term);
+      return value;
     },
 
     setTerm(term) {
@@ -383,6 +388,13 @@ export default defineComponent({
   border-radius: 0.25em;
   transition: all 200ms linear;
 
+  max-width: none !important;
+  label {
+    display: flex !important;
+    justify-content: space-between;
+    flex-grow: 1;
+  }
+
   &.info {
     background-color: var(--upm-c-info-muted);
     color: var(--upm-c-black);
@@ -397,6 +409,11 @@ export default defineComponent({
   }
   &.success {
     background-color: var(--upm-c-success-muted);
+    color: var(--upm-c-black);
+  }
+
+  &.added {
+    background-color: var(--upm-c-white-soft);
     color: var(--upm-c-black);
   }
 
@@ -489,14 +506,6 @@ export default defineComponent({
     font-weight: 600;
     font-size: 1.25em;
     padding: 1em 0.125em;
-  }
-}
-
-form {
-  label {
-    display: flex !important;
-    justify-content: space-between;
-    flex-grow: 1;
   }
 }
 </style>

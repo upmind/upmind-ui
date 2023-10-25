@@ -22,6 +22,31 @@ import {
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
+export const useQuantityParser = (quantity: number, data: any) => {
+  // Check the data is available
+  // Check the quantity is valid,
+  //  - min Quantity matches the data min
+  //  - max Quantity matches the data max
+  //  - quantity is a multiple of the data step
+
+  // ensure the quantity is at least the min, or 1
+  if (quantity < Math.max(data.min_order_quantity, 1)) {
+    quantity = Math.max(data.min_order_quantity, 1);
+  }
+
+  // ensure the quantity is at most the max (if set)
+  if (data.max_order_quantity && quantity > data.max_order_quantity) {
+    quantity = data.max_order_quantity;
+  }
+
+  // ensure the quantity is a multiple of the step (if set)
+  if (data.unit_quantity && quantity % data.unit_quantity !== 0) {
+    quantity = Math.ceil(quantity / data.unit_quantity) * data.unit_quantity;
+  }
+
+  return quantity;
+};
+
 export const useProductParser = (data: any) => {
   // todo pick only the properties we need
   return omit(data, ["prices", "products_attributes", "products_options"]);
@@ -189,46 +214,73 @@ export const useProductOptionsParser = (data: any) => {
   return values(options);
 };
 
+// --------------------------------------------------------
+//  Setting Values for an Item that is configuring,
+//  this may be a new item, or an existing item that has been added to the basket
+
 export const useProductValuesParser = (data: any) => {
-  // todo, map these safetly
-  return data;
+  // handle new product values
+  const values = pick(data, [
+    "quantity",
+    "productId",
+    "term",
+    "attributes",
+    "options",
+    "provisioning"
+  ]);
+
+  // ---
+  // handle existing products that have been added to the basket
+  if (data?.id) {
+    set(values, "id", data.id);
+    set(values, "term", data.billing_cycle_months);
+    set(values, "productId", data.product_id);
+    set(values, "attributes", useAddedAttributesParser(data.attributes));
+    set(values, "options", useAddedOptionsParser(data.options)); // todo
+    // set(values, "provisioning", null); // todo
+  }
+
+  // ---
+  return values;
 };
 
-// --------------------------------------------------------
+// ---
+const useAddedAttributesParser = (data: any) => {
+  const attributes = reduce(
+    data,
+    (result, attribute) => {
+      set(result, [attribute.product.category_id, attribute.product_id], {
+        product_id: attribute.product_id
+      });
+      return result;
+    },
+    {}
+  );
 
-export const quantityParser = (quantity: number, product: any) => {
-  console.log("quantityParser", quantity, product);
+  return attributes;
+};
 
-  // Check the product is available
-  // Check the quantity is valid,
-  //  - min Quantity matches the product min
-  //  - max Quantity matches the product max
-  //  - quantity is a multiple of the product step
-
-  // ensure the quantity is at least the min, or 1
-  if (quantity < Math.max(product.min_order_quantity, 1)) {
-    quantity = Math.max(product.min_order_quantity, 1);
-  }
-
-  // ensure the quantity is at most the max (if set)
-  if (product.max_order_quantity && quantity > product.max_order_quantity) {
-    quantity = product.max_order_quantity;
-  }
-
-  // ensure the quantity is a multiple of the step (if set)
-  if (product.unit_quantity && quantity % product.unit_quantity !== 0) {
-    quantity =
-      Math.ceil(quantity / product.unit_quantity) * product.unit_quantity;
-  }
-
-  return quantity;
+const useAddedOptionsParser = (data: any) => {
+  const options = reduce(
+    data,
+    (result, option) => {
+      set(result, [option.product.category_id, option.product_id], {
+        product_id: option.product_id,
+        unit_quantity: option.unit_quantity,
+        billing_cycle_months: option.billing_cycle_months
+      });
+      return result;
+    },
+    {}
+  );
+  return options;
 };
 
 // --------------------------------------------------------
 
 export const useProductConfigParser = (data: any) => {
   // strip out any falsy values
-  return {
+  const config = {
     product_id: data?.productId,
     quantity: data?.quantity,
     billing_cycle_months: data?.term,
@@ -256,4 +308,9 @@ export const useProductConfigParser = (data: any) => {
     // ---
     start_trial: !!data?.start_trial
   };
+
+  // only add the id if it exists
+  if (data?.id) set(config, "id", data.id);
+
+  return config;
 };

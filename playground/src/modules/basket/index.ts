@@ -60,9 +60,6 @@ export const useBasket = () => {
         isProcessing: ["processing"].some(state.value.matches),
         isAvailable: ["shopping"].some(state.value.matches),
         hasProducts: !["shopping.products.empty"].some(state.value.matches),
-        needsConfiguring: ["shopping.items.configuring"].some(
-          state.value.matches
-        ),
         isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
         hasErrors: ["error"].some(state.value.matches)
       };
