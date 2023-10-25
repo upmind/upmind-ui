@@ -205,8 +205,7 @@ export default values =>
               },
               on: {
                 "UPDATE.OPTIONS": {
-                  target: "options.checking",
-                  actions: ["setOptions"]
+                  target: "options.checking"
                 }
               }
             }
@@ -317,27 +316,7 @@ export default values =>
         setOptions: assign({
           values: ({ values }, { data }) => {
             let options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
-            debugger;
-            reduce(
-              options,
-              (result, option) => {
-                if (option) {
-                  option = isArray(option) ? option : [option];
-                  forEach(option, value => {
-                    debugger;
-                    if (isString(value)) value = { product_id: value }; // add quantity + billing term here?
-                    value = defaultsDeep(value, {
-                      billing_cycle_months: values?.term,
-                      quantity: 1
-                    });
-                    result.push(value);
-                  });
-                }
-                return result;
-              },
-              []
-            ), // promotions: data?.promtions,
-              set(values, "options", options);
+            set(values, "options", options);
             return values;
           }
         }),
