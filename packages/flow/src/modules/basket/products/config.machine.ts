@@ -15,7 +15,18 @@ import {
   useProductValuesParser
 } from "./utils";
 
-import { get, set, map, defaultsDeep, toNumber, find } from "lodash-es";
+import {
+  get,
+  set,
+  map,
+  defaultsDeep,
+  toNumber,
+  find,
+  forEach,
+  isArray,
+  isString,
+  reduce
+} from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default values =>
@@ -193,7 +204,7 @@ export default values =>
                 }
               },
               on: {
-                "UPDATE.ATTRIBUTES": {
+                "UPDATE.OPTIONS": {
                   target: "options.checking",
                   actions: ["setOptions"]
                 }
@@ -305,8 +316,28 @@ export default values =>
 
         setOptions: assign({
           values: ({ values }, { data }) => {
-            const attributes = get(data, "options", data); // workaround to allow the same action to be used for different event sources
-            set(values, "options", attributes);
+            let options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
+            debugger;
+            reduce(
+              options,
+              (result, option) => {
+                if (option) {
+                  option = isArray(option) ? option : [option];
+                  forEach(option, value => {
+                    debugger;
+                    if (isString(value)) value = { product_id: value }; // add quantity + billing term here?
+                    value = defaultsDeep(value, {
+                      billing_cycle_months: values?.term,
+                      quantity: 1
+                    });
+                    result.push(value);
+                  });
+                }
+                return result;
+              },
+              []
+            ), // promotions: data?.promtions,
+              set(values, "options", options);
             return values;
           }
         }),

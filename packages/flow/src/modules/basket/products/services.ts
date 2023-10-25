@@ -220,11 +220,11 @@ async function checkAttributes(
       let selected = get(values, `attributes.${attribute.id}`, []);
 
       // only include valid values, if we have any
-      if (selected) {
+      if (selected?.length) {
         selected = intersectionWith(
           isArray(selected) ? selected : [selected],
           attribute.values,
-          (optionId, option) => option.id === optionId
+          (s, v) => v.id === get(s, "id", s) // selected may be aqn id or an  full object
         );
         // selected = map(selected, "id");
       }
@@ -264,9 +264,17 @@ async function checkOptions(
   const options = reduce(
     available.options,
     (result, option, index) => {
-      const selected = get(values, `options.${option.id}`, []);
+      let selected = get(values, `options.${option.id}`, []);
 
-      // TODO: lots more checks...
+      // only include valid values, if we have any
+      if (selected?.length) {
+        selected = intersectionWith(
+          isArray(selected) ? selected : [selected],
+          option.values,
+          (s, v) => v.id === get(s, "id", s) // selected may be aqn id or an  full object
+        );
+        // selected = map(selected, "id");
+      }
 
       // check if we are missing required option
       if (option?.required && !selected?.length)

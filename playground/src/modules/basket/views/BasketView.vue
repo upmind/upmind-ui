@@ -97,7 +97,7 @@
               <dt>Quantity:</dt>
               <dd>{{ product.quantity }}</dd>
               <dt>Price:</dt>
-              <dd>{{ product.total_amount_formatted }}</dd>
+              <dd>{{ product.configuration_total_amount_formatted }}</dd>
               <dt>Billing Cycle:</dt>
               <dd>{{ product.billing_cycle_months }}</dd>
             </dl>
