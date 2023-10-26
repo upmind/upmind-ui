@@ -122,9 +122,29 @@ async function addToBasket({ basket, items }, event: any) {
     .catch(error => ({ error, itemId: item.id }));
 }
 
-async function update(context: BasketContext, _event: any) {}
+async function removeFromBasket({ basket, bin }: BasketContext, _event: any) {
+  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-async function remove(context: BasketContext, _event: any) {}
+  const item = first(bin);
+
+  const isNew = !has(item.state, "context.config.id");
+
+  debugger;
+
+  if (isNew) return Promise.resolve({ itemId: item.id }); // we dont need to make a request
+
+  debugger;
+
+  const { del, useUrl } = useApi();
+  return del({
+    url: useUrl(`/orders/${basket.id}/products/${item.id}`),
+    withAccessToken: true
+  })
+    .then(({ data }) => ({ basket: data, itemId: item.id }))
+    .catch(error => ({ error, itemId: item.id }));
+}
+
+async function update(context: BasketContext, _event: any) {}
 
 async function hideWarnings(context: BasketContext, _event: any) {}
 
@@ -149,6 +169,7 @@ export default <Object>{
   claim,
   // ---
   addToBasket,
+  removeFromBasket,
   // ---
   authSubscription,
   isAuthenticated
