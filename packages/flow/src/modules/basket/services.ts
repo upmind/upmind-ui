@@ -126,14 +126,9 @@ async function removeFromBasket({ basket, bin }: BasketContext, _event: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = first(bin);
-
   const isNew = !has(item.state, "context.config.id");
 
-  debugger;
-
   if (isNew) return Promise.resolve({ itemId: item.id }); // we dont need to make a request
-
-  debugger;
 
   const { del, useUrl } = useApi();
   return del({
