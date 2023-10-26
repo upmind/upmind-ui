@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendParent, sendUpdate } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -15,18 +15,7 @@ import {
   useProductValuesParser
 } from "./utils";
 
-import {
-  get,
-  set,
-  map,
-  defaultsDeep,
-  toNumber,
-  find,
-  forEach,
-  isArray,
-  isString,
-  reduce
-} from "lodash-es";
+import { get, set, map, toNumber, find } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default values =>
@@ -42,6 +31,12 @@ export default values =>
         // but with better structure / more detail to make ut easier for any ui to consume,
         // and keep the generated config separate & clean
         values: useProductValuesParser(values),
+
+        // we mark the config with flags to help us determine what to do with it
+        // once we have finished configuring it
+        isNew: !values?.id,
+        isDirty: false,
+
         // ---
         // the various lookups that we are using in our configuation
         available: {
@@ -68,7 +63,7 @@ export default values =>
               // },
               { target: "configuring", actions: ["setAvailable"] }
             ],
-            onError: { target: "error", actions: ["setError"] }
+            onError: { target: "#error", actions: ["setError"] }
           }
         },
 
@@ -89,7 +84,6 @@ export default values =>
                 },
                 invalid: {},
                 processing: {},
-                error: {},
                 valid: {
                   type: "final"
                 }
@@ -120,12 +114,10 @@ export default values =>
                   //     actions: []
                   //   },
                   //   onError: {
-                  //     target: "error",
                   //     actions: ["setError"]
                   //   }
                   // }
                 },
-                error: {},
                 valid: {
                   type: "final"
                 }
@@ -159,12 +151,10 @@ export default values =>
                   //     actions: []
                   //   },
                   //   onError: {
-                  //     target: "error",
                   //     actions: ["setError"]
                   //   }
                   // }
                 },
-                error: {},
                 valid: {
                   type: "final"
                 }
@@ -198,12 +188,10 @@ export default values =>
                   //     actions: []
                   //   },
                   //   onError: {
-                  //     target: "error",
                   //     actions: ["setError"]
                   //   }
                   // }
                 },
-                error: {},
                 valid: {
                   type: "final"
                 }
@@ -222,9 +210,30 @@ export default values =>
 
         // this is our state where we are all good and can add/update this configuration to the basket
         configured: {
-          entry: ["setConfig", sendUpdate(), "sendConfig"],
+          entry: ["setConfig", "sendConfig"],
           on: {
-            UPDATE: { target: "configuring", actions: ["setValues"] }
+            REFRESH: {
+              target: "loading",
+              actions: ["setValues", "setClean"]
+            },
+            // ---
+
+            "UPDATE.QUANTITY": {
+              target: "configuring.quantity.checking",
+              actions: ["setQuantity", "setDirty"]
+            },
+            "UPDATE.TERM": {
+              target: "configuring.term.checking",
+              actions: ["setTerm", "setDirty"]
+            },
+            "UPDATE.ATTRIBUTES": {
+              target: "configuring.attributes.checking",
+              actions: ["setAttributes", "setDirty"]
+            },
+            "UPDATE.OPTIONS": {
+              target: "configuring.options.checking",
+              actions: ["setOptions", "setDirty"]
+            }
           }
         },
 
@@ -241,33 +250,16 @@ export default values =>
           type: "final",
           data: ({ values }, _event) => useProductConfigParser(values)
         }
-      },
-      on: {
-        // Raw update for the full product config....maybe individual updates for each of the above?
-        // UPDATE: { target: "processing.update", actions: ["setValues"] },
-        // ---
-        // // syntax sugar to update the config
-        // Raw update for the options
-        // "OPTIONS.UPDATE": {
-        //   target: "processing.update",
-        //   actions: ["setValues"]
-        // },
-        // "OPTION.REMOVE": {
-        //   target: "processing.update",
-        //   actions: ["setValues"]
-        // },
-        // "OPTION.REMOVE": {
-        //   target: "processing.update",
-        //   actions: ["setValues"]
-        // },
-        // "OPTION.UPDATE": {
-        //   target: "processing.update",
-        //   actions: ["setValues"]
-        // },
       }
     },
     {
       actions: {
+        setValues: assign({
+          values: ({ values }, { data }) => useProductValuesParser(data)
+        }),
+
+        // ---
+
         setConfig: assign({
           config: ({ values }, _event) => useProductConfigParser(values)
         }),
@@ -328,6 +320,9 @@ export default values =>
         }),
 
         // ---
+
+        setDirty: assign({ isDirty: true }),
+        setClean: assign({ isDirty: false }),
 
         // ---
         setAvailable: assign({

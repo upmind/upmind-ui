@@ -8,6 +8,7 @@ const { getConfig } = useBrand();
 import type { IProductConfig, ProductConfigContext } from "../types";
 
 // --- utils
+import { useTime } from "../../../utils";
 import { useQuantityParser } from "./utils";
 
 import {
@@ -112,6 +113,8 @@ async function getProduct({ values }: ProductConfigContext, _event: any) {
         "trial_migration_rule.new_product.prices"
       ].join()
     }),
+    useCache: true,
+    maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true
   }).then(({ data }) => data);
 }

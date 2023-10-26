@@ -34,6 +34,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.updating:invocation[0]": {
+      type: "done.invoke.updating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "error.platform.authCallback": {
       type: "error.platform.authCallback";
       data: unknown;
@@ -49,32 +54,35 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    addToBasket: "done.invoke.adding:invocation[0]";
+    addItem: "done.invoke.adding:invocation[0]";
     authSubscription: "done.invoke.authCallback";
     check: "done.invoke.loading:invocation[0]";
     claim: "done.invoke.claiming:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
-    removeFromBasket: "done.invoke.removing:invocation[0]";
+    removeItem: "done.invoke.removing:invocation[0]";
+    updateItem: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
     services:
-      | "addToBasket"
+      | "addItem"
       | "authSubscription"
       | "check"
       | "claim"
       | "generate"
       | "isAuthenticated"
-      | "removeFromBasket";
+      | "removeItem"
+      | "updateItem";
   };
   eventsCausingActions: {
     addItem: "ADD";
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
     loadItems: "done.invoke.loading:invocation[0]";
+    refreshItem: "done.invoke.updating:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     replaceItem: "done.invoke.adding:invocation[0]";
     sendToItem:
@@ -91,19 +99,21 @@ export interface Typegen0 {
       | "error.platform.loading:invocation[0]";
     updateBasket:
       | "done.invoke.adding:invocation[0]"
-      | "done.invoke.removing:invocation[0]";
+      | "done.invoke.removing:invocation[0]"
+      | "done.invoke.updating:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     allConfigured: "";
     hasBinnedItems: "";
+    hasDirtyItems: "";
     hasItems: "";
     hasNewItems: "";
     hasNoBasket: "ADD";
     hasNoItems: "";
   };
   eventsCausingServices: {
-    addToBasket: "";
+    addItem: "";
     authSubscription: "xstate.init";
     check: "SESSION" | "UNAUTHENTICATED";
     claim: "AUTHENTICATED";
@@ -112,7 +122,8 @@ export interface Typegen0 {
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
-    removeFromBasket: "";
+    removeItem: "";
+    updateItem: "";
   };
   matchesStates:
     | "checkout"
@@ -136,6 +147,7 @@ export interface Typegen0 {
     | "shopping.items.configuring"
     | "shopping.items.empty"
     | "shopping.items.removing"
+    | "shopping.items.updating"
     | "subscribing"
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
@@ -149,7 +161,8 @@ export interface Typegen0 {
                 | "configured"
                 | "configuring"
                 | "empty"
-                | "removing";
+                | "removing"
+                | "updating";
             };
       };
   tags: never;

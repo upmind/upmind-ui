@@ -9,7 +9,15 @@ const { authSubscription, getHistory, isAuthenticated, service } = useSession();
 
 // --- utils
 import { useBasketParser } from "./utils";
-import { isEmpty, first, isObject, isArray, filter, has } from "lodash-es";
+import {
+  isEmpty,
+  first,
+  get,
+  defaultsDeep,
+  find,
+  filter,
+  has
+} from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -92,18 +100,19 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-// --- Basket Methods
+// --- Basket Item Methods
 
-// this function effectively processes the queu of items 1 at a time
-// to achieve this we simply take the 1st configured item and add it to the basket
-// and then return the  new basket AND the internal id/machine of the item that was added
-async function addToBasket({ basket, items }, event: any) {
+// this function effectively processes the items 1 at a time
+// to achieve this we simply take the 1st  item and process it
+// and then return the  new basket AND the internal id/machine of the item that was processed
+
+async function addItem({ basket, items }, event: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = first(
     filter(items, ({ state }) => {
       const isConfigured = state.matches("configured");
-      const isNew = !has(state, "context.config.id");
+      const isNew = get(state, "context.isNew");
       return isConfigured && isNew;
     })
   );
@@ -122,11 +131,38 @@ async function addToBasket({ basket, items }, event: any) {
     .catch(error => ({ error, itemId: item.id }));
 }
 
-async function removeFromBasket({ basket, bin }: BasketContext, _event: any) {
+async function updateItem({ basket, items }, _event: any) {
+  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
+
+  const item = first(
+    filter(items, ({ state }) => {
+      const isConfigured = state.matches("configured");
+      const isDirty = get(state, "context.isDirty");
+      const isNew = get(state, "context.isNew");
+      return isConfigured && !isNew & isDirty;
+    })
+  );
+
+  if (!item) return Promise.reject("No item to add to basket");
+
+  const config = item.state.context.config;
+
+  const { put, useUrl } = useApi();
+
+  return put({
+    url: useUrl(`/orders/${basket.id}/products/${item.id}`),
+    data: config,
+    withAccessToken: true
+  })
+    .then(({ data }) => ({ basket: data, itemId: item.id }))
+    .catch(error => ({ error, itemId: item.id }));
+}
+
+async function removeItem({ basket, bin }: BasketContext, _event: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = first(bin);
-  const isNew = !has(item.state, "context.config.id");
+  const isNew = get(item.state, "context.isNew");
 
   if (isNew) return Promise.resolve({ itemId: item.id }); // we dont need to make a request
 
@@ -139,7 +175,7 @@ async function removeFromBasket({ basket, bin }: BasketContext, _event: any) {
     .catch(error => ({ error, itemId: item.id }));
 }
 
-async function update(context: BasketContext, _event: any) {}
+// --------------------------------------------------------
 
 async function hideWarnings(context: BasketContext, _event: any) {}
 
@@ -163,8 +199,9 @@ export default <Object>{
   generate,
   claim,
   // ---
-  addToBasket,
-  removeFromBasket,
+  addItem,
+  updateItem,
+  removeItem,
   // ---
   authSubscription,
   isAuthenticated
