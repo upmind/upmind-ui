@@ -50,6 +50,7 @@ export default createMachine(
     context: {
       basket: null,
       items: [],
+      bin: [],
       error: null
     } as BasketContext,
     states: {
@@ -115,17 +116,21 @@ export default createMachine(
             initial: "empty",
             states: {
               empty: {
-                always: [{ target: "configuring", cond: "hasItems" }]
+                always: [
+                  { target: "configuring", cond: "hasItems" },
+                  { target: "removing", cond: "hasBinnedItems" }
+                ]
               },
               configuring: {
                 always: [
                   { target: "empty", cond: "hasNoItems" },
                   { target: "adding", cond: "hasNewItems" },
-                  // { target: "updating", cond: "hasUpdatedItems" },
-                  // { target: "removing", cond: "hasUpdatedItems" },
+                  { target: "removing", cond: "hasBinnedItems" },
+                  // { target: "updating", cond: "hasChangedItems" },
                   { target: "configured", cond: "allConfigured" }
                 ]
               },
+
               adding: {
                 id: "adding",
                 invoke: {
@@ -136,6 +141,18 @@ export default createMachine(
                   }
                 }
               },
+
+              removing: {
+                id: "removing",
+                invoke: {
+                  src: "removeFromBasket",
+                  onDone: {
+                    target: "configuring",
+                    actions: ["removeItem", "updateBasket"]
+                  }
+                }
+              },
+
               // updating: {
               //   id: "updating",
               //   invoke: {
@@ -146,12 +163,27 @@ export default createMachine(
               //     }
               //   }
               // },
+
               configured: {
-                always: [{ target: "empty", cond: "hasNoItems" }],
+                always: [
+                  { target: "empty", cond: "hasNoItems" },
+                  { target: "adding", cond: "hasNewItems" },
+                  { target: "removing", cond: "hasBinnedItems" }
+                  // { target: "updating", cond: "hasChangedItems" },
+                ],
                 type: "final"
               }
             },
             on: {
+              ADD: [
+                {
+                  target: "#generating",
+                  cond: "hasNoBasket",
+                  actions: ["addItem"]
+                },
+                { actions: ["addItem"] }
+              ],
+              REMOVE: { actions: ["binItem"] },
               "UPDATE.QUANTITY": { actions: ["sendToItem"] },
               "UPDATE.TERM": { actions: ["sendToItem"] },
               "UPDATE.OPTIONS": { actions: ["sendToItem"] },
@@ -167,52 +199,6 @@ export default createMachine(
               // }
             }
           },
-          // products: {
-          //   initial: "empty",
-          //   states: {
-          //     empty: {
-          //       always: [
-          //         { target: "adding", cond: "hasNewItems" },
-          //         // { target: "updating", cond: "hasChangedItems" },
-          //         { target: "added", cond: "hasProducts" }
-          //       ]
-          //     },
-          //     adding: {
-          //       id: "adding",
-          //       invoke: {
-          //         src: "addToBasket",
-          //         onDone: {
-          //           target: "empty",
-          //           actions: ["removeItem", "updateBasket"]
-          //         }
-          //       }
-          //     },
-          //     // updating: {
-          //     //   id: "updating",
-          //     //   invoke: {
-          //     //     src: "update",
-          //     //     onDone: {
-          //     //       target: "empty",
-          //     //       actions: ["remove", "updateBasket"]
-          //     //     }
-          //     //   }
-          //     // },
-          //     added: {
-          //       always: [{ target: "adding", cond: "hasNewItems" }],
-          //       type: "final"
-          //     }
-          //   }
-          //   // on: {
-          //   // "PRODUCT.UPDATE": {
-          //   //   target: "processing",
-          //   // cond: "hasItems"
-          //   // },
-          //   // "PRODUCT.REMOVE": {
-          //   //   target: "processing",
-          //   // cond: "hasItems"
-          //   // }
-          //   // }
-          // },
           client: {
             initial: "checking",
             states: {
@@ -234,15 +220,7 @@ export default createMachine(
           }
         },
         on: {
-          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
-          ADD: [
-            {
-              target: "#generating",
-              cond: "hasNoBasket",
-              actions: ["addItem"]
-            },
-            { target: "shopping", actions: ["addItem"] }
-          ]
+          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
         },
         onDone: {
           target: "checkout"
@@ -319,22 +297,30 @@ export default createMachine(
         }
       }),
 
+      binItem: assign({
+        bin: ({ items, bin }, { data }) => {
+          const itemId = data?.itemId || trimStart(type, "invoke.done.");
+          debugger;
+          const removed = remove(items, ["id", itemId]);
+          if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          return bin;
+        }
+      }),
+
       removeItem: assign({
         items: ({ items }, { type, data }, other) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
-
-          const index = findIndex(items, ["id", itemId]);
-          const item = get(items, index);
-
-          // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
-          if (item) {
-            item.stop();
-          }
-
-          // finally remove it from our items
-          remove(items, ["id", itemId]);
+          const removed = remove(items, ["id", itemId]);
+          if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return items;
+        },
+        bin: ({ bin }, { data }, other) => {
+          // me may be given a name, but if not we can determine it from the event type
+          const itemId = data?.itemId || trimStart(type, "invoke.done.");
+          const removed = remove(bin, ["id", itemId]);
+          if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          return bin;
         }
       }),
 
@@ -407,6 +393,8 @@ export default createMachine(
 
         return value;
       },
+
+      hasBinnedItems: ({ bin }) => !isEmpty(bin),
 
       hasChangedItems: ({ items }) => {
         return some(

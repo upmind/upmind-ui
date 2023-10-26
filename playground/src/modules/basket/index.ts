@@ -30,6 +30,10 @@ export const useBasket = () => {
       });
     },
 
+    removeProduct: ({ itemId }) => {
+      send({ type: "REMOVE", data: { itemId } });
+    },
+
     updateTerm: ({ itemId, term }) =>
       send({ type: "UPDATE.TERM", data: { itemId, term } }),
 

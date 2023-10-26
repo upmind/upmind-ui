@@ -2,8 +2,8 @@
   <form class="card" :class="color">
     <header>
       <template v-if="!meta.isLoading">
-        <div class="actions floating" v-if="!meta.isNew">
-          <button type="reset">remove</button>
+        <div class="actions floating">
+          <button type="reset" @click.prevent="doRemove">remove</button>
         </div>
 
         <h6 class="meta">{{ status }}</h6>
@@ -50,7 +50,7 @@
           <fieldset v-if="model.attributes">
             <input
               :type="attribute.multiple ? 'checkbox' : 'radio'"
-              :name="`attributes[${attribute.id}][${value.id}]`"
+              :name="`attributes[${attribute.id}]`"
               @change="selectAttribute(attribute.id, value.id, $event)"
               :checked="isSelectedAttribute(attribute.id, value.id)"
               :required="attribute.required"
@@ -76,7 +76,7 @@
           <fieldset v-if="model.options">
             <input
               :type="option.multiple ? 'checkbox' : 'radio'"
-              :name="`options[${option.id}][${value.id}]`"
+              :name="`options[${option.id}]`"
               @change="selectOption(option.id, value.id, $event)"
               :checked="isSelectedOption(option.id, value.id)"
               :required="option.required"
@@ -207,6 +207,7 @@ export default defineComponent({
     Debug
   },
   emits: [
+    "remove",
     "update:term",
     "update:quantity",
     "update:attributes",
@@ -311,6 +312,12 @@ export default defineComponent({
     }
   },
   methods: {
+    doRemove() {
+      this.$emit("remove", {
+        itemId: this.id
+      });
+    },
+
     setQuantity(value) {
       this.$emit("update:quantity", {
         itemId: this.id,
@@ -338,6 +345,7 @@ export default defineComponent({
     },
 
     selectAttribute(attributeId, value, { target }) {
+      // todo: handle non multiple attributes
       if (target.checked) {
         set(this.model.attributes, [attributeId, value], {
           product_id: value
@@ -364,6 +372,8 @@ export default defineComponent({
     },
 
     selectOption(optionId, value, { target }) {
+      // todo: handle non multiple attributes
+
       if (target.checked) {
         set(this.model.options, [optionId, value], {
           product_id: value

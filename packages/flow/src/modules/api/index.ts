@@ -259,6 +259,6 @@ export const useApi = () => {
     post: postRequest,
     put: putRequest,
     patch: patchRequest,
-    delete: deleteRequest
+    del: deleteRequest
   };
 };

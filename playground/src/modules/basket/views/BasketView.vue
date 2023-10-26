@@ -109,6 +109,7 @@
             :id="item.id"
             :matches="item.matches"
             :state="item.value"
+            @remove="removeProduct"
             @update:term="updateTerm"
             @update:quantity="updateQuantity"
             @update:attributes="updateAttributes"
@@ -147,6 +148,7 @@ const {
   errors,
   meta,
   addProduct,
+  removeProduct,
   updateTerm,
   updateQuantity,
   updateAttributes,
