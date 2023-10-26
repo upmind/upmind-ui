@@ -55,7 +55,7 @@ export interface Typegen0 {
     getProduct: "done.invoke.load";
   };
   missingImplementations: {
-    actions: "setValues";
+    actions: never;
     delays: never;
     guards: never;
     services:
@@ -72,7 +72,13 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
+    setClean: "REFRESH";
     setConfig: "done.state.configuring";
+    setDirty:
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM";
     setError:
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
@@ -89,16 +95,36 @@ export interface Typegen0 {
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
-    setValues: "UPDATE";
+    setValues: "REFRESH";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    checkAttributes: "UPDATE" | "UPDATE.ATTRIBUTES" | "done.invoke.load";
-    checkOptions: "UPDATE" | "UPDATE.OPTIONS" | "done.invoke.load";
-    checkQuantity: "UPDATE" | "UPDATE.QUANTITY" | "done.invoke.load";
-    checkTerm: "UPDATE" | "UPDATE.TERM" | "done.invoke.load";
-    getProduct: "xstate.init";
+    checkAttributes:
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM"
+      | "done.invoke.load";
+    checkOptions:
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM"
+      | "done.invoke.load";
+    checkQuantity:
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM"
+      | "done.invoke.load";
+    checkTerm:
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM"
+      | "done.invoke.load";
+    getProduct: "REFRESH" | "xstate.init";
   };
   matchesStates:
     | "complete"
@@ -106,25 +132,21 @@ export interface Typegen0 {
     | "configuring"
     | "configuring.attributes"
     | "configuring.attributes.checking"
-    | "configuring.attributes.error"
     | "configuring.attributes.invalid"
     | "configuring.attributes.processing"
     | "configuring.attributes.valid"
     | "configuring.options"
     | "configuring.options.checking"
-    | "configuring.options.error"
     | "configuring.options.invalid"
     | "configuring.options.processing"
     | "configuring.options.valid"
     | "configuring.quantity"
     | "configuring.quantity.checking"
-    | "configuring.quantity.error"
     | "configuring.quantity.invalid"
     | "configuring.quantity.processing"
     | "configuring.quantity.valid"
     | "configuring.term"
     | "configuring.term.checking"
-    | "configuring.term.error"
     | "configuring.term.invalid"
     | "configuring.term.processing"
     | "configuring.term.valid"
@@ -137,25 +159,10 @@ export interface Typegen0 {
           | "quantity"
           | "term"
           | {
-              attributes?:
-                | "checking"
-                | "error"
-                | "invalid"
-                | "processing"
-                | "valid";
-              options?:
-                | "checking"
-                | "error"
-                | "invalid"
-                | "processing"
-                | "valid";
-              quantity?:
-                | "checking"
-                | "error"
-                | "invalid"
-                | "processing"
-                | "valid";
-              term?: "checking" | "error" | "invalid" | "processing" | "valid";
+              attributes?: "checking" | "invalid" | "processing" | "valid";
+              options?: "checking" | "invalid" | "processing" | "valid";
+              quantity?: "checking" | "invalid" | "processing" | "valid";
+              term?: "checking" | "invalid" | "processing" | "valid";
             };
       };
   tags: never;

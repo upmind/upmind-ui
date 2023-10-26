@@ -250,6 +250,7 @@ const useAddedAttributesParser = (data: any) => {
     data,
     (result, attribute) => {
       set(result, [attribute.product.category_id, attribute.product_id], {
+        id: attribute?.id,
         product_id: attribute.product_id
       });
       return result;
@@ -265,6 +266,7 @@ const useAddedOptionsParser = (data: any) => {
     data,
     (result, option) => {
       set(result, [option.product.category_id, option.product_id], {
+        id: option?.id,
         product_id: option.product_id,
         unit_quantity: option.unit_quantity,
         billing_cycle_months: option.billing_cycle_months

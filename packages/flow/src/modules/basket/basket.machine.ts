@@ -16,6 +16,7 @@ import configurationMachine from "./products/config.machine";
 // --- utils
 import {
   every,
+  find,
   findIndex,
   forEach,
   get,
@@ -125,8 +126,8 @@ export default createMachine(
                 always: [
                   { target: "empty", cond: "hasNoItems" },
                   { target: "adding", cond: "hasNewItems" },
+                  { target: "updating", cond: "hasDirtyItems" },
                   { target: "removing", cond: "hasBinnedItems" },
-                  // { target: "updating", cond: "hasChangedItems" },
                   { target: "configured", cond: "allConfigured" }
                 ]
               },
@@ -134,7 +135,7 @@ export default createMachine(
               adding: {
                 id: "adding",
                 invoke: {
-                  src: "addToBasket",
+                  src: "addItem",
                   onDone: {
                     target: "configuring",
                     actions: ["replaceItem", "updateBasket"]
@@ -145,7 +146,7 @@ export default createMachine(
               removing: {
                 id: "removing",
                 invoke: {
-                  src: "removeFromBasket",
+                  src: "removeItem",
                   onDone: {
                     target: "configuring",
                     actions: ["removeItem", "updateBasket"]
@@ -153,23 +154,23 @@ export default createMachine(
                 }
               },
 
-              // updating: {
-              //   id: "updating",
-              //   invoke: {
-              //     src: "updateBasket",
-              //     onDone: {
-              //       target: "configuring",
-              //       actions: ["updateBasket"]
-              //     }
-              //   }
-              // },
+              updating: {
+                id: "updating",
+                invoke: {
+                  src: "updateItem",
+                  onDone: {
+                    target: "configuring",
+                    actions: ["refreshItem", "updateBasket"]
+                  }
+                }
+              },
 
               configured: {
                 always: [
                   { target: "empty", cond: "hasNoItems" },
                   { target: "adding", cond: "hasNewItems" },
+                  { target: "updating", cond: "hasDirtyItems" },
                   { target: "removing", cond: "hasBinnedItems" }
-                  // { target: "updating", cond: "hasChangedItems" },
                 ],
                 type: "final"
               }
@@ -300,7 +301,6 @@ export default createMachine(
       binItem: assign({
         bin: ({ items, bin }, { data }) => {
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
-          debugger;
           const removed = remove(items, ["id", itemId]);
           if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
@@ -324,18 +324,18 @@ export default createMachine(
         }
       }),
 
-      replaceItem: assign({
-        items: ({ items }, { type, data }, other) => {
-          // me may be given a name, but if not we can determine it from the event type
+      refreshItem: assign({
+        items: ({ items }, { data }, other) => {
           const itemId = data?.itemId;
-
-          // find the item to be removed
           const index = findIndex(items, ["id", itemId]);
           const item = get(items, index);
-          if (item) item.stop(); // ensure the machine is stopped
+
+          const newValues = find(data?.basket?.products, ["id", itemId]);
+
+          if (item) item.send({ type: "REFRESH", data: newValues });
 
           // spawn the item(s) that are missing form the updated basket
-          // should only ever be 1 new item, but we will be safe and handle multiple
+          // changing quantity can result in, but we will be safe and handle multiple
           const newItems = reduce(
             data?.basket?.products,
             (result, product) => {
@@ -350,9 +350,44 @@ export default createMachine(
             []
           );
 
-          // now put the item(s) back into the items array, at the same index
-          // so that we dont have any ui ordering issues
-          items.splice(index, 1, ...newItems);
+          // now add any new item(s)  the items array,
+          // at the same index so that we dont have any ui jank
+          if (newItems.length) items.splice(index, 0, ...newItems);
+          // if (newItems.length) items.push(...newItems);
+
+          return items;
+        }
+      }),
+
+      replaceItem: assign({
+        items: ({ items }, { type, data }, other) => {
+          // me may be given a name, but if not we can determine it from the event type
+          const itemId = data?.itemId;
+
+          // find the item to be removed
+          const index = findIndex(items, ["id", itemId]);
+          const item = get(items, index);
+          if (item) item.stop(); // ensure the machine is stopped
+
+          // spawn any item(s) that are missing form the updated basket
+          // this may occur when adding an item with more than 1 quantity
+          const newItems = reduce(
+            data?.basket?.products,
+            (result, product) => {
+              const isNew = !some(items, ["id", product.id]);
+
+              if (isNew) {
+                const machine = spawnConfiguration(product);
+                result.push(machine);
+              }
+              return result;
+            },
+            []
+          );
+
+          // now put the item(s) back into the items array,
+          // at the same index so that we dont have any ui jank
+          if (newItems.length) items.splice(index, 1, ...newItems);
 
           return items;
         }
@@ -387,7 +422,7 @@ export default createMachine(
       hasNewItems: ({ items }) => {
         const value = some(items, ({ id, state }) => {
           const isConfigured = state.matches("configured");
-          const isNew = !has(state, "context.config.id");
+          const isNew = get(state, "context.isNew");
           return isConfigured && isNew;
         });
 
@@ -396,12 +431,13 @@ export default createMachine(
 
       hasBinnedItems: ({ bin }) => !isEmpty(bin),
 
-      hasChangedItems: ({ items }) => {
-        return some(
-          items,
-          ({ state }) =>
-            state.matches("configured") && has(state, "context.config.id")
-        );
+      hasDirtyItems: ({ items }) => {
+        return some(items, ({ state }) => {
+          const isConfigured = state.matches("configured");
+          const isDirty = get(state, "context.isDirty");
+          const isNew = get(state, "context.isNew");
+          return isConfigured && !isNew && isDirty;
+        });
       },
 
       hasProducts: ({ basket }) => !!basket?.products?.length

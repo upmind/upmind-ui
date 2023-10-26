@@ -51,7 +51,7 @@
             <input
               :type="attribute.multiple ? 'checkbox' : 'radio'"
               :name="`attributes[${attribute.id}]`"
-              @change="selectAttribute(attribute.id, value.id, $event)"
+              @change="selectAttribute(attribute, value.id, $event)"
               :checked="isSelectedAttribute(attribute.id, value.id)"
               :required="attribute.required"
               :id="value.id"
@@ -77,7 +77,7 @@
             <input
               :type="option.multiple ? 'checkbox' : 'radio'"
               :name="`options[${option.id}]`"
-              @change="selectOption(option.id, value.id, $event)"
+              @change="selectOption(option, value.id, $event)"
               :checked="isSelectedOption(option.id, value.id)"
               :required="option.required"
               :id="value.id"
@@ -302,6 +302,7 @@ export default defineComponent({
     },
     status() {
       const values = [];
+      // if (this.id) values.push(`ID: ${this.id}`);
       if (this.matches("error")) values.push("Errors");
       if (this.meta.isNew) values.push("New");
       if (!this.meta.isNew) values.push("Added");
@@ -344,14 +345,18 @@ export default defineComponent({
       return some(this.model.attributes[attributeId], ["product_id", value]);
     },
 
-    selectAttribute(attributeId, value, { target }) {
+    selectAttribute(attribute, value, { target }) {
       // todo: handle non multiple attributes
+
+      if (!attribute.multiple && target.checked)
+        set(this.model.attributes, attribute.id, {}); // reset all previous attributes
+
       if (target.checked) {
-        set(this.model.attributes, [attributeId, value], {
+        set(this.model.attributes, [attribute.id, value], {
           product_id: value
         });
       } else {
-        unset(this.model.attributes, [attributeId, value]);
+        unset(this.model.attributes, [attribute.id, value]);
       }
 
       // emit the event
@@ -371,15 +376,16 @@ export default defineComponent({
       return some(this.model.options[optionId], ["product_id", value]);
     },
 
-    selectOption(optionId, value, { target }) {
-      // todo: handle non multiple attributes
+    selectOption(option, value, { target }) {
+      if (!option.multiple && target.checked)
+        set(this.model.options, option.id, {}); // reset all previous options
 
       if (target.checked) {
-        set(this.model.options, [optionId, value], {
+        set(this.model.options, [option.id, value], {
           product_id: value
         });
       } else {
-        unset(this.model.options, [optionId, value]);
+        unset(this.model.options, [option.id, value]);
       }
 
       // emit the event
