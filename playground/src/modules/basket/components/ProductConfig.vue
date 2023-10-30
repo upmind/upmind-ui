@@ -180,6 +180,44 @@
       </template>
     </dl>
 
+    <!-- provisioning -->
+    <dl class="provisioning">
+      <template v-for="field in available.provisioning" :key="field.id">
+        <fieldset
+          :disabled="meta.isLoading || processing"
+          v-show="!field.deferrable"
+        >
+          <label :for="field.id">{{ field.field_label }}</label>
+          <select
+            v-if="field.field_type == 'select'"
+            :name="`provisioning[${field.id}]`"
+            :value="model.provisioning[field.name]"
+            :required="field.required"
+            :id="field.id"
+          >
+            <option v-for="option in field.options" v-bind="option"></option>
+          </select>
+
+          <textarea
+            v-else-if="field.field_type == 'textarea'"
+            :name="`provisioning[${field.id}]`"
+            :value="model.provisioning[field.name]"
+            :required="field.required"
+            :id="field.id"
+          ></textarea>
+
+          <input
+            v-else
+            :type="field.field_type.replace('input_', '')"
+            :name="`provisioning[${field.id}]`"
+            :value="model.provisioning[field.name]"
+            :required="field.required"
+            :id="field.id"
+          />
+        </fieldset>
+      </template>
+    </dl>
+
     <!-- summary -->
     <dl class="summary" v-if="!meta.isLoading && !processing">
       <dt>Quantity:</dt>
@@ -238,6 +276,7 @@ export default defineComponent({
     "update:term",
     "update:quantity",
     "update:attributes",
+    "update:provisioning",
     "update:options"
   ],
   props: {
