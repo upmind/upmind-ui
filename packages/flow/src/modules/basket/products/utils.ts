@@ -4,13 +4,9 @@ const { getBillingCycle } = useBrand();
 
 // --- utils
 import {
-  defaultsDeep,
-  forEach,
   get,
-  isArray,
   isEmpty,
   isNil,
-  isString,
   map,
   omit,
   orderBy,
@@ -225,6 +221,7 @@ export const useProductOptionsParser = (data: any) => {
 };
 
 export const useProductProvisioningParser = (data: any) => {
+  // TODO: pick only the properties we need
   return data;
 };
 
@@ -251,7 +248,7 @@ export const useProductValuesParser = (data: any) => {
     set(values, "productId", data.product_id);
     set(values, "attributes", useAddedAttributesParser(data.attributes));
     set(values, "options", useAddedOptionsParser(data.options)); // TODO:
-    // set(values, "provisioning", null); // TODO:
+    set(values, "provisioning", useAddProvisioningParser(data.provisioning)); // TODO:
   }
 
   // ---
@@ -292,6 +289,21 @@ const useAddedOptionsParser = (data: any) => {
     {}
   );
   return options;
+};
+
+const useAddProvisioningParser = (data: any) => {
+  debugger;
+  const fields = reduce(
+    data,
+    (result, field) => {
+      debugger;
+      set(result, field.name, field?.value);
+      return result;
+    },
+    {}
+  );
+  debugger;
+  return fields;
 };
 
 // --------------------------------------------------------
