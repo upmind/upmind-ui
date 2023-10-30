@@ -224,7 +224,9 @@ export const useProductOptionsParser = (data: any) => {
   return values(options);
 };
 
-export const useProductProvisioningParser = (data: any) => {};
+export const useProductProvisioningParser = (data: any) => {
+  return data;
+};
 
 // --------------------------------------------------------
 //  Setting Values for an Item that is configuring,

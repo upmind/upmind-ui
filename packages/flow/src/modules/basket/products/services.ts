@@ -129,6 +129,8 @@ async function getProduct({ values }: ProductConfigContext, _event: any) {
   );
 }
 
+// ---
+
 async function getProvisioningFields(
   { values }: ProductConfigContext,
   _event: any
@@ -142,6 +144,75 @@ async function getProvisioningFields(
     useCache: false,
     withAccessToken: true
   }).then(({ data }) => data);
+}
+
+async function checkProvisioning(
+  { available, values }: ProductConfigContext,
+  _event: any
+) {
+  // safety check, resolve if we have no attributes to check
+  if (!available?.provisioning?.length) {
+    return Promise.resolve([]);
+  }
+
+  const errors = [];
+
+  const provisioning = reduce(
+    available.provisioning,
+    (result, field, index) => {
+      // try get any selected values for this provisioning,
+
+      let selected = get(values, `provisioning.${field.id}`, {});
+
+      // if we have selected values, ensure they are valid and fully formed
+      // if (!isEmpty(selected)) {
+      //   // only include valid values, stripping out any invalid ones, if we have any
+      //   selected = pickBy(selected, (_value, id) =>
+      //     some(field.values, ["id", id])
+      //   );
+
+      //   // then parse each selected value, and ensure it has all its required attributes
+      //   // and that it has valid values for each of those attributes
+      //   selected = mapValues(selected, (value, id) => {
+      //     // ensure we have an object
+      //     if (!isObject(value)) value = { product_id: id };
+      //     const product = find(field.values, ["id", value.product_id]);
+
+      //     //  ensure we have the required attributes
+      //     value = defaultsDeep(value, {
+      //       billing_cycle_months: values?.term,
+      //       unit_quantity: 1
+      //     });
+
+      //     // ensure we have a valid unit_quantity
+      //     value.unit_quantity = useQuantityParser(
+      //       value?.unit_quantity,
+      //       product
+      //     );
+
+      //     return value;
+      //   });
+      // }
+
+      // check if we are missing required provisioning
+      if (provisioning?.required && isEmpty(selected))
+        errors.push({ message: "Is required", provisioning });
+
+      // check if we values too many values for this provisioning
+      if (!provisioning?.multiple && keys(selected)?.length > 1) {
+        errors.push({ message: "Multiple choice not allowed", provisioning });
+      }
+      // ---
+      set(result, provisioning.id, selected);
+      return result;
+    },
+    {}
+  );
+
+  return new Promise((resolve, reject) => {
+    if (errors?.length) reject({ provisioning, errors });
+    else resolve(provisioning);
+  });
 }
 
 // ---
@@ -362,5 +433,6 @@ export default <Object>{
   checkQuantity,
   checkTerm,
   checkAttributes,
-  checkOptions
+  checkOptions,
+  checkProvisioning
 };
