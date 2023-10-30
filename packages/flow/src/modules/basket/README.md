@@ -2,7 +2,7 @@
 
 The **Basket Manager** module within the **Upmind Flow** framework is designed to handle user baskets. This module is responsible for ensuring that users have a valid basket when interacting with the Upmind platform.
 
-<!-- todo describe the basket role in more detail -->
+<!-- TODO: describe the basket role in more detail -->
 
 ## Table of Contents
 

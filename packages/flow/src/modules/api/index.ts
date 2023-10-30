@@ -120,7 +120,7 @@ export const useApi = () => {
       });
     }
 
-    // todo
+    // TODO:
     throw new Error("Request not found");
   }
 
