@@ -10,7 +10,7 @@ import {
   useProductAttributesParser,
   useProductConfigParser,
   useProductOptionsParser,
-  // useProductProvisioningParser,
+  useProductProvisioningParser,
   useProductParser,
   useProductTermsParser,
   useProductValuesParser
@@ -44,8 +44,8 @@ export default values =>
           product: null,
           terms: null,
           options: null,
-          attributes: null
-          // provisioning: null
+          attributes: null,
+          provisioning: null
         },
         // ---
         error: null
@@ -167,32 +167,32 @@ export default values =>
                   actions: ["setOptions"]
                 }
               }
+            },
+            provisioning: {
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkProvisioning",
+                    onDone: { target: "valid", actions: ["setProvisioning"] },
+                    onError: {
+                      target: "invalid",
+                      actions: ["setProvisioning", "setError"]
+                    }
+                  }
+                },
+                invalid: {},
+                valid: {
+                  type: "final"
+                }
+              },
+              on: {
+                "UPDATE.PROVISIONING": {
+                  target: "provisioning.checking",
+                  actions: ["setProvisioning"]
+                }
+              }
             }
-            // provisioning: {
-            //   initial: "checking",
-            //   states: {
-            //     checking: {
-            //       invoke: {
-            //         src: "checkProvisioning",
-            //         onDone: { target: "valid", actions: ["setProvisioning"] },
-            //         onError: {
-            //           target: "invalid",
-            //           actions: ["setProvisioning", "setError"]
-            //         }
-            //       }
-            //     },
-            //     invalid: {},
-            //     valid: {
-            //       type: "final"
-            //     }
-            //   },
-            //   on: {
-            //     "UPDATE.PROVISIONING": {
-            //       target: "provisioning.checking",
-            //       actions: ["setProvisioning"]
-            //     }
-            //   }
-            // }
           },
 
           onDone: { target: "configured" }
@@ -223,11 +223,11 @@ export default values =>
             "UPDATE.OPTIONS": {
               target: "configuring.options.checking",
               actions: ["setOptions", "setDirty"]
+            },
+            "UPDATE.PROVISIONING": {
+              target: "configuring.provisioning.checking",
+              actions: ["setProvisioning", "setDirty"]
             }
-            // "UPDATE.PROVISIONING": {
-            //   target: "configuring.provisioning.checking",
-            //   actions: ["setProvisioning", "setDirty"]
-            // }
           }
         },
 
@@ -313,13 +313,13 @@ export default values =>
           }
         }),
 
-        // setProvisioning: assign({
-        //   values: ({ values }, { data }) => {
-        //     let provisioning = get(data, "provisioning", data); // workaround to allow the same action to be used for different event sources
-        //     set(values, "provisioning", provisioning);
-        //     return values;
-        //   }
-        // }),
+        setProvisioning: assign({
+          values: ({ values }, { data }) => {
+            let provisioning = get(data, "provisioning", data); // workaround to allow the same action to be used for different event sources
+            set(values, "provisioning", provisioning);
+            return values;
+          }
+        }),
 
         // ---
 
@@ -333,10 +333,10 @@ export default values =>
               product: useProductParser(data),
               terms: useProductTermsParser(data.prices),
               attributes: useProductAttributesParser(data.products_attributes),
-              options: useProductOptionsParser(data.products_options)
-              // provisioning: useProductProvisioningParser(
-              //   data.products_provisioning
-              // )
+              options: useProductOptionsParser(data.products_options),
+              provisioning: useProductProvisioningParser(
+                data.products_provisioning
+              )
             };
           }
         }),
