@@ -1,5 +1,5 @@
 // --- external
-import { computed, reactive, ref, unref, toRef } from "vue";
+import { computed, toRef } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -97,7 +97,10 @@ export const useBasketItem = item => {
   const errors = computed(() => state.value.context.errors);
   const meta = computed(() => ({
     isLoading: state.value.matches("loading"),
-    isNew: !model.value?.id
+    isNew: !model.value?.id,
+    hasErrors: state.value.matches("error"),
+    isConfiguring: state.value.matches("configuring"),
+    isConfigured: state.value.matches("configured")
   }));
 
   const updateQuantity = value =>
