@@ -133,22 +133,18 @@ export interface Typegen0 {
     | "configuring.attributes"
     | "configuring.attributes.checking"
     | "configuring.attributes.invalid"
-    | "configuring.attributes.processing"
     | "configuring.attributes.valid"
     | "configuring.options"
     | "configuring.options.checking"
     | "configuring.options.invalid"
-    | "configuring.options.processing"
     | "configuring.options.valid"
     | "configuring.quantity"
     | "configuring.quantity.checking"
     | "configuring.quantity.invalid"
-    | "configuring.quantity.processing"
     | "configuring.quantity.valid"
     | "configuring.term"
     | "configuring.term.checking"
     | "configuring.term.invalid"
-    | "configuring.term.processing"
     | "configuring.term.valid"
     | "error"
     | "loading"
@@ -159,10 +155,10 @@ export interface Typegen0 {
           | "quantity"
           | "term"
           | {
-              attributes?: "checking" | "invalid" | "processing" | "valid";
-              options?: "checking" | "invalid" | "processing" | "valid";
-              quantity?: "checking" | "invalid" | "processing" | "valid";
-              term?: "checking" | "invalid" | "processing" | "valid";
+              attributes?: "checking" | "invalid" | "valid";
+              options?: "checking" | "invalid" | "valid";
+              quantity?: "checking" | "invalid" | "valid";
+              term?: "checking" | "invalid" | "valid";
             };
       };
   tags: never;

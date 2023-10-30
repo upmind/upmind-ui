@@ -78,6 +78,40 @@
             />
 
             <label :for="value.id">{{ value.name }}</label>
+
+            <template v-if="model.attributes?.[attribute.id]?.[value.id]">
+              <fieldset
+                v-if="value.canChangeQuantity"
+                class="quantity-increment"
+              >
+                <button
+                  class="prepend"
+                  @click.prevent="incrementAttribute(attribute.id, value)"
+                >
+                  +
+                </button>
+
+                <input
+                  type="number"
+                  v-model="
+                    model.attributes[attribute.id][value.id].unit_quantity
+                  "
+                  :min="value.min_order_quantity"
+                  :max="value.max_order_quantity"
+                  :step="value.min_order_quantity || 1"
+                  readonly
+                />
+
+                <button
+                  class="append"
+                  @click.prevent="decrementAttribute(attribute.id, value)"
+                >
+                  -
+                </button>
+              </fieldset>
+            </template>
+
+            <strong>{{ value?.price?.price_formatted }}</strong>
           </fieldset>
         </dd>
       </template>
@@ -112,15 +146,12 @@
 
             <template v-if="model.options?.[option.id]?.[value.id]">
               <fieldset
-                v-if="available.product?.canChangeQuantity || true"
+                v-if="value.canChangeQuantity"
                 class="quantity-increment"
-                disabled
               >
                 <button
                   class="prepend"
-                  @click.prevent="
-                    model.options[option.id][value.id].unit_quantity++
-                  "
+                  @click.prevent="incrementOption(option.id, value)"
                 >
                   +
                 </button>
@@ -130,14 +161,13 @@
                   v-model="model.options[option.id][value.id].unit_quantity"
                   :min="value.min_order_quantity"
                   :max="value.max_order_quantity"
-                  :step="value.unit_quantity"
+                  :step="value.min_order_quantity || 1"
+                  readonly
                 />
 
                 <button
                   class="append"
-                  @click.prevent="
-                    model.options[option.id][value.id].unit_quantity--
-                  "
+                  @click.prevent="decrementOption(option.id, value)"
                 >
                   -
                 </button>
@@ -155,42 +185,26 @@
       <dt>Quantity:</dt>
       <dd>
         <fieldset
-          v-if="available.product?.canChangeQuantity || true"
+          v-if="available.product?.canChangeQuantity"
           class="quantity-increment"
         >
-          <button
-            class="prepend"
-            @click.prevent="
-              updateQuantity(
-                model.quantity + (available.product?.unit_quantity || 1)
-              )
-            "
-          >
-            +
-          </button>
+          <button class="prepend" @click.prevent="incrementQuantity">+</button>
 
           <input
             type="number"
             v-model="model.quantity"
             min="1"
             max="10"
+            readonly
             @change="updateQuantity"
           />
 
-          <button
-            class="append"
-            @click.prevent="
-              updateQuantity(
-                model.quantity - (available.product?.unit_quantity || 1)
-              )
-            "
-          >
-            -
-          </button>
+          <button class="append" @click.prevent="decrementQuantity">-</button>
         </fieldset>
+        <span v-else>{{ model.quantity }}</span>
       </dd>
       <dt>Price:</dt>
-      <dd>{{ total_amount_formatted }}</dd>
+      <dd>{{ totalAmount }}</dd>
     </dl>
 
     <footer>
@@ -212,7 +226,7 @@
 import { defineComponent, toRef, computed } from "vue";
 import { useBasketItem } from "..";
 import Debug from "@/components/Debug.vue";
-import { isEqual, get, set, find, some, unset } from "lodash-es";
+import { get, find } from "lodash-es";
 
 export default defineComponent({
   name: "ProductConfig",
@@ -251,20 +265,6 @@ export default defineComponent({
     };
   },
   computed: {
-    total_amount_formatted() {
-      // get this from the machine
-      return this.model?.billing_cycle_months
-        ? this.model.quantity *
-            get(
-              find(this.available.terms, [
-                "billing_cycle_months",
-                this.model.billing_cycle_months
-              ]),
-              "price",
-              0
-            )
-        : this.model.quantity * this.available?.product?.price || 0;
-    },
     color() {
       return {
         added: !this.meta.isNew,
@@ -290,93 +290,7 @@ export default defineComponent({
       return values.join(" · ");
     }
   },
-  methods: {
-    // doRemove() {
-    //   this.$emit("remove", {
-    //     itemId: this.id
-    //   });
-    // },
-
-    // updateQuantity(value) {
-    //   this.$emit("update:quantity", {
-    //     itemId: this.id,
-    //     quantity: value || this.model.quantity
-    //   });
-    // },
-
-    // ---
-
-    isSelectedTerm(term) {
-      const value = isEqual(term.billing_cycle_months, this.model?.term);
-      return value;
-    },
-
-    // updateTerm(term) {
-    //   this.$emit("update:term", {
-    //     itemId: this.id,
-    //     term: term.billing_cycle_months
-    //   });
-    // },
-    // ---
-
-    isSelectedAttribute(attributeId, value) {
-      return some(this.model.attributes[attributeId], ["product_id", value]);
-    },
-
-    selectAttribute(attribute, value, { target }) {
-      // TODO: handle non multiple attributes
-
-      if (!attribute.multiple && target.checked)
-        set(this.model.attributes, attribute.id, {}); // reset all previous attributes
-
-      if (target.checked) {
-        set(this.model.attributes, [attribute.id, value], {
-          product_id: value
-        });
-      } else {
-        unset(this.model.attributes, [attribute.id, value]);
-      }
-
-      // emit the event
-      this.updateAttributes();
-    },
-
-    // updateAttributes() {
-    //   this.$emit("update:attributes", {
-    //     itemId: this.id,
-    //     attributes: this.model.attributes
-    //   });
-    // },
-
-    // ---
-
-    isSelectedOption(optionId, value) {
-      return some(this.model.options[optionId], ["product_id", value]);
-    },
-
-    selectOption(option, value, { target }) {
-      if (!option.multiple && target.checked)
-        set(this.model.options, option.id, {}); // reset all previous options
-
-      if (target.checked) {
-        set(this.model.options, [option.id, value], {
-          product_id: value
-        });
-      } else {
-        unset(this.model.options, [option.id, value]);
-      }
-
-      // emit the event
-      this.updateOptions();
-    }
-
-    // updateOptions() {
-    //   this.$emit("update:options", {
-    //     itemId: this.id,
-    //     options: this.model.options
-    //   });
-    // }
-  }
+  methods: {}
 });
 </script>
 

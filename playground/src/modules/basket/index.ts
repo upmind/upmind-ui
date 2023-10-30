@@ -6,7 +6,17 @@ import { useActor } from "@xstate/vue";
 import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 // --- utils
-import { map, find } from "lodash-es";
+import {
+  map,
+  isEqual,
+  get,
+  set,
+  some,
+  unset,
+  add,
+  subtract,
+  find
+} from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -103,7 +113,24 @@ export const useBasketItem = item => {
     isConfigured: state.value.matches("configured")
   }));
 
-  const updateQuantity = value =>
+  const totalAmount = computed(() => {
+    // TODO: calculate the pricess of options and attributes, etc
+    debugger;
+    // get this from the machine
+    const term = find(available.value.terms, [
+      "billing_cycle_months",
+      model.value.term
+    ]);
+    debugger;
+
+    const price = get(term, "price", available.value?.product?.price || 0);
+
+    debugger;
+    return model.value.quantity * price || 0;
+  });
+
+  // --- QUANTITY
+  const updateQuantity = (value?: number) =>
     send({
       type: "UPDATE.QUANTITY",
       data: {
@@ -111,6 +138,41 @@ export const useBasketItem = item => {
       }
     });
   //emit("update:quantity",{itemId: props.id,...);
+
+  function incrementQuantity() {
+    // sanity check
+    if (!available.value.product?.canChangeQuantity) return;
+
+    const qty = get(model.value, "quantity", 0);
+    set(
+      model.value,
+      "unit_quantity",
+      add(qty, available.value.product?.unit_quantity || 1)
+    );
+    // emit the event
+    updateQuantity();
+  }
+
+  function decrementQuantity() {
+    // sanity check
+    if (!available.value.product?.canChangeQuantity) return;
+
+    const qty = get(model.value, "quantity", 0);
+    set(
+      model.value,
+      "unit_quantity",
+      subtract(qty, available.value.product?.unit_quantity || 1)
+    );
+    // emit the event
+    updateQuantity();
+  }
+
+  // --- TERMS
+
+  function isSelectedTerm(term) {
+    const value = isEqual(term.billing_cycle_months, model.value?.term);
+    return value;
+  }
 
   const updateTerm = term =>
     send({
@@ -121,6 +183,8 @@ export const useBasketItem = item => {
     });
   //emit("update:term",{itemId: props.id,...);
 
+  // --- ATTRIBUTES
+
   const updateAttributes = () =>
     send({
       type: "UPDATE.ATTRIBUTES",
@@ -129,6 +193,64 @@ export const useBasketItem = item => {
       }
     });
   //emit("update:attributes",{itemId: props.id,...);
+
+  function isSelectedAttribute(attributeId, value) {
+    return some(model.value.attributes[attributeId], ["product_id", value]);
+  }
+
+  function selectAttribute(attribute, value, { target }) {
+    // TODO: handle non multiple attributes
+
+    if (!attribute.multiple && target.checked)
+      set(model.value.attributes, attribute.id, {}); // reset all previous attributes
+
+    if (target.checked) {
+      set(model.value.attributes, [attribute.id, value], {
+        product_id: value
+      });
+    } else {
+      unset(model.value.attributes, [attribute.id, value]);
+    }
+
+    // emit the event
+    updateAttributes();
+  }
+
+  function incrementAttribute(attributeId, value) {
+    // sanity check
+    if (!value?.canChangeQuantity) return;
+    const qty = get(
+      model.value.attributes,
+      [attributeId, value.id, "unit_quantity"],
+      0
+    );
+    set(
+      model.value.attributes,
+      [attributeId, value.id, "unit_quantity"],
+      add(qty, value?.min_order_quantity || 1)
+    );
+    // emit the event
+    updateAttributes();
+  }
+
+  function decrementAttribute(attributeId, value) {
+    // sanity check
+    if (!value?.canChangeQuantity) return;
+    const qty = get(
+      model.value.attributes,
+      [attributeId, value.id, "unit_quantity"],
+      0
+    );
+    set(
+      model.value.attributes,
+      [attributeId, value.id, "unit_quantity"],
+      subtract(qty, value?.min_order_quantity || 1)
+    );
+    // emit the event
+    updateAttributes();
+  }
+
+  // --- OPTIONS
 
   const updateOptions = () =>
     send({
@@ -139,7 +261,63 @@ export const useBasketItem = item => {
     });
   //emit("update:options",{itemId: props.id,...);
 
-  // const
+  function isSelectedOption(optionId, value) {
+    return some(model.value.options[optionId], ["product_id", value]);
+  }
+
+  function selectOption(option, value, { target }) {
+    if (!option.multiple && target.checked)
+      set(model.value.options, option.id, {}); // reset all previous options
+
+    if (target.checked) {
+      set(model.value.options, [option.id, value], {
+        product_id: value
+      });
+    } else {
+      unset(model.value.options, [option.id, value]);
+    }
+
+    // emit the event
+    updateOptions();
+  }
+
+  function incrementOption(optionId, value) {
+    // sanity check
+    if (!value?.canChangeQuantity) return;
+
+    const qty = get(
+      model.value.options,
+      [optionId, value.id, "unit_quantity"],
+      0
+    );
+    set(
+      model.value.options,
+      [optionId, value.id, "unit_quantity"],
+      add(qty, value?.min_order_quantity || 1)
+    );
+    // emit the event
+    updateOptions();
+  }
+
+  function decrementOption(optionId, value) {
+    // sanity check
+    if (!value?.canChangeQuantity) return;
+    const qty = get(
+      model.value.options,
+      [optionId, value.id, "unit_quantity"],
+      0
+    );
+    set(
+      model.value.options,
+      [optionId, value.id, "unit_quantity"],
+      subtract(qty, value?.min_order_quantity || 1)
+    );
+    // emit the event
+    updateOptions();
+  }
+
+  // --------------------------------------------------------
+
   return {
     state,
     available,
@@ -147,9 +325,25 @@ export const useBasketItem = item => {
     model,
     meta,
     // ---
+    totalAmount,
+    // ---
     updateQuantity,
+    incrementQuantity,
+    decrementQuantity,
+    // ---
     updateTerm,
+    isSelectedTerm,
+    // ---
     updateAttributes,
-    updateOptions
+    isSelectedAttribute,
+    selectAttribute,
+    incrementAttribute,
+    decrementAttribute,
+    // ---
+    updateOptions,
+    isSelectedOption,
+    selectOption,
+    incrementOption,
+    decrementOption
   };
 };
