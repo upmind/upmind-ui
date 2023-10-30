@@ -89,35 +89,62 @@ async function getProduct({ values }: ProductConfigContext, _event: any) {
   if (!productId) return Promise.reject("No Product ID provided");
 
   const { get, useUrl } = useApi();
-  return get({
+  const productPromise = get({
     url: useUrl(`basket/products/${productId}`, {
       // promotions: "": TODO:,
       with_staged_imports: true,
       with: [
-        "allowed_migrations",
-        "allowed_migrations.migration_product",
-        "category.top_category.top_category.top_category.top_category",
         "image",
         "images",
-        "import.credentials",
-        "import.source",
         "prices",
         "products_attributes",
         "products_options",
-        "products_options.prices",
-        "provision_blueprint",
-        "set_products",
-        "sets",
-        "trial_migration_rule",
-        "trial_migration_rule.new_product",
-        "trial_migration_rule.new_product.prices"
+        "products_options.prices"
+        // "provision_blueprint"
+        // "allowed_migrations",
+        // "allowed_migrations.migration_product",
+        // "category.top_category.top_category.top_category.top_category",
+        // "import.credentials",
+        // "import.source",
+        // "set_products"
+        // "sets",
+        // "trial_migration_rule",
+        // "trial_migration_rule.new_product",
+        // "trial_migration_rule.new_product.prices"
       ].join()
     }),
     useCache: true,
     maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true
   }).then(({ data }) => data);
+
+  // lets get our provisioning fields early, so we can make them available
+  const provisioningPromise = getProvisioningFields({ values }, _event);
+
+  return Promise.all([productPromise, provisioningPromise]).then(
+    ([product, provisioning]) => {
+      set(product, "products_provisioning", provisioning);
+      return product;
+    }
+  );
 }
+
+async function getProvisioningFields(
+  { values }: ProductConfigContext,
+  _event: any
+) {
+  const { get, useUrl } = useApi();
+  const { productId } = values;
+
+  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+  return get({
+    url: useUrl(`basket/products/${productId}/provision_fields`),
+    useCache: false,
+    withAccessToken: true
+  }).then(({ data }) => data);
+}
+
+// ---
 
 async function checkQuantity(
   { available, values }: ProductConfigContext,
@@ -126,7 +153,6 @@ async function checkQuantity(
   const { product } = available;
   let { quantity } = values;
   // ---
-
   quantity = useQuantityParser(quantity, product);
 
   return new Promise((resolve, reject) => {
@@ -213,7 +239,28 @@ async function checkAttributes(
         selected = pickBy(selected, (_value, id) =>
           some(attribute.values, ["id", id])
         );
-        // selected = map(selected, "id");
+
+        // then parse each selected value, and ensure it has all its required attributes
+        // and that it has valid values for each of those attributes
+        selected = mapValues(selected, (value, id) => {
+          // ensure we have an object
+          if (!isObject(value)) value = { product_id: id };
+          const product = find(attribute.values, ["id", value.product_id]);
+
+          //  ensure we have the required attributes
+          value = defaultsDeep(value, {
+            billing_cycle_months: values?.term,
+            unit_quantity: 1
+          });
+
+          // ensure we have a valid unit_quantity
+          value.unit_quantity = useQuantityParser(
+            value?.unit_quantity,
+            product
+          );
+
+          return value;
+        });
       }
 
       // check if we are missing required attribute

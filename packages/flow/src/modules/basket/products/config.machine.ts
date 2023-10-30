@@ -10,6 +10,7 @@ import {
   useProductAttributesParser,
   useProductConfigParser,
   useProductOptionsParser,
+  // useProductProvisioningParser,
   useProductParser,
   useProductTermsParser,
   useProductValuesParser
@@ -44,6 +45,7 @@ export default values =>
           terms: null,
           options: null,
           attributes: null
+          // provisioning: null
         },
         // ---
         error: null
@@ -83,7 +85,6 @@ export default values =>
                   }
                 },
                 invalid: {},
-                processing: {},
                 valid: {
                   type: "final"
                 }
@@ -106,18 +107,6 @@ export default values =>
                   }
                 },
                 invalid: {},
-                processing: {
-                  // invoke: {
-                  //   src: "configureTerm",
-                  //   onDone: {
-                  //     target: "valid",
-                  //     actions: []
-                  //   },
-                  //   onError: {
-                  //     actions: ["setError"]
-                  //   }
-                  // }
-                },
                 valid: {
                   type: "final"
                 }
@@ -143,18 +132,6 @@ export default values =>
                   }
                 },
                 invalid: {},
-                processing: {
-                  // invoke: {
-                  //   src: "configureTerm",
-                  //   onDone: {
-                  //     target: "valid",
-                  //     actions: []
-                  //   },
-                  //   onError: {
-                  //     actions: ["setError"]
-                  //   }
-                  // }
-                },
                 valid: {
                   type: "final"
                 }
@@ -180,18 +157,6 @@ export default values =>
                   }
                 },
                 invalid: {},
-                processing: {
-                  // invoke: {
-                  //   src: "configureTerm",
-                  //   onDone: {
-                  //     target: "valid",
-                  //     actions: []
-                  //   },
-                  //   onError: {
-                  //     actions: ["setError"]
-                  //   }
-                  // }
-                },
                 valid: {
                   type: "final"
                 }
@@ -203,6 +168,31 @@ export default values =>
                 }
               }
             }
+            // provisioning: {
+            //   initial: "checking",
+            //   states: {
+            //     checking: {
+            //       invoke: {
+            //         src: "checkProvisioning",
+            //         onDone: { target: "valid", actions: ["setProvisioning"] },
+            //         onError: {
+            //           target: "invalid",
+            //           actions: ["setProvisioning", "setError"]
+            //         }
+            //       }
+            //     },
+            //     invalid: {},
+            //     valid: {
+            //       type: "final"
+            //     }
+            //   },
+            //   on: {
+            //     "UPDATE.PROVISIONING": {
+            //       target: "provisioning.checking",
+            //       actions: ["setProvisioning"]
+            //     }
+            //   }
+            // }
           },
 
           onDone: { target: "configured" }
@@ -234,6 +224,10 @@ export default values =>
               target: "configuring.options.checking",
               actions: ["setOptions", "setDirty"]
             }
+            // "UPDATE.PROVISIONING": {
+            //   target: "configuring.provisioning.checking",
+            //   actions: ["setProvisioning", "setDirty"]
+            // }
           }
         },
 
@@ -319,6 +313,14 @@ export default values =>
           }
         }),
 
+        // setProvisioning: assign({
+        //   values: ({ values }, { data }) => {
+        //     let provisioning = get(data, "provisioning", data); // workaround to allow the same action to be used for different event sources
+        //     set(values, "provisioning", provisioning);
+        //     return values;
+        //   }
+        // }),
+
         // ---
 
         setDirty: assign({ isDirty: true }),
@@ -332,6 +334,9 @@ export default values =>
               terms: useProductTermsParser(data.prices),
               attributes: useProductAttributesParser(data.products_attributes),
               options: useProductOptionsParser(data.products_options)
+              // provisioning: useProductProvisioningParser(
+              //   data.products_provisioning
+              // )
             };
           }
         }),
