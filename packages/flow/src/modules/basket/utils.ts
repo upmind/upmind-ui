@@ -7,7 +7,7 @@ export const useBasketParser = (data: any) => {
   data = isArray(data) ? first(data) : data; // usually from the claims endpoint
 
   return data;
-  // todo...map properly...
+  // TODO:...map properly...
   // return {
   //   account: Object; //IAccount;
   // account_id: string; //IAccount["id"];

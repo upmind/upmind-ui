@@ -91,7 +91,7 @@ async function getProduct({ values }: ProductConfigContext, _event: any) {
   const { get, useUrl } = useApi();
   return get({
     url: useUrl(`basket/products/${productId}`, {
-      // promotions: "": todo,
+      // promotions: "": TODO:,
       with_staged_imports: true,
       with: [
         "allowed_migrations",

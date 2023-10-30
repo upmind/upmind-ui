@@ -229,7 +229,7 @@ export default createMachine(
         // Modules
         // /org/modules?lang=en
       },
-      // todo move to SYSTEM machine
+      // TODO: move to SYSTEM machine
       currencies: {
         initial: "loading",
         states: {

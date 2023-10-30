@@ -274,7 +274,7 @@ export default values =>
         setQuantity: assign({
           values: ({ values }, { data }) => {
             const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
-            set(values, "quantity", Math.max(1, quantity)); //todo min check? step check
+            set(values, "quantity", Math.max(1, quantity)); //TODO: min check? step check
             return values;
           }
         }),

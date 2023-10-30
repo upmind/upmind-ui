@@ -122,6 +122,7 @@ export default createMachine(
                   { target: "removing", cond: "hasBinnedItems" }
                 ]
               },
+
               configuring: {
                 always: [
                   { target: "empty", cond: "hasNoItems" },
@@ -190,7 +191,6 @@ export default createMachine(
               "UPDATE.OPTIONS": { actions: ["sendToItem"] },
               "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
               "UPDATE.PROVISIONING": { actions: ["sendToItem"] }
-
               // CONFIGURED: { actions: ["addProduct"] },
 
               // This transition will match any event, but we will target the completion of ANY spawned machine
@@ -230,7 +230,7 @@ export default createMachine(
 
       // when we are ready for checkout, we can start the checkout process
       // and lock the basket from being modified
-      //  todo merge this into shopping as additional parallel state
+      //  TODO: merge this into shopping as additional parallel state
       checkout: {
         type: "parallel",
         states: {
@@ -279,7 +279,7 @@ export default createMachine(
       loadItems: assign({
         items: ({ items, basket }, { data }) => {
           forEach(basket?.products, product => {
-            // todo check if the item already exists
+            // TODO: check if the item already exists
 
             // const item = find(items, ["id", product.id]);
 

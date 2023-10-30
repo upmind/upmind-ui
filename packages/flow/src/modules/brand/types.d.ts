@@ -4,7 +4,7 @@
 export interface BrandContext {
   currencies: Array<any> | null;
   billingCycles: Array<any> | null;
-  // todo add all the other types
+  // TODO: add all the other types
   // ---
   error?: RequestError;
 }

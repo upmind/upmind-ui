@@ -24,14 +24,14 @@
 
               <button
                 type="submit"
-                :disabled="meta.isProcessing || !model.productId"
+                :disabled="meta.isUpdating || !model.productId"
               >
                 add to basket
               </button>
 
               <button
                 type="reset"
-                :disabled="meta.isProcessing || !model.productId"
+                :disabled="meta.isUpdating || !model.productId"
                 @click.prevent="model.productId = null"
               >
                 cancel
@@ -105,10 +105,9 @@
         </li> -->
         <li v-for="item in items" :key="item.id">
           <ProductConfig
-            v-bind="item.context"
+            :item="item"
             :id="item.id"
-            :matches="item.matches"
-            :state="item.value"
+            :processing="meta.isUpdating || meta.isAdding || meta.isRemoving"
             @remove="removeProduct"
             @update:term="updateTerm"
             @update:quantity="updateQuantity"

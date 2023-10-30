@@ -48,7 +48,7 @@ export const useQuantityParser = (quantity: number, data: any) => {
 };
 
 export const useProductParser = (data: any) => {
-  // todo pick only the properties we need
+  // TODO: pick only the properties we need
   return omit(data, ["prices", "products_attributes", "products_options"]);
 };
 
@@ -236,8 +236,8 @@ export const useProductValuesParser = (data: any) => {
     set(values, "term", data.billing_cycle_months);
     set(values, "productId", data.product_id);
     set(values, "attributes", useAddedAttributesParser(data.attributes));
-    set(values, "options", useAddedOptionsParser(data.options)); // todo
-    // set(values, "provisioning", null); // todo
+    set(values, "options", useAddedOptionsParser(data.options)); // TODO:
+    // set(values, "provisioning", null); // TODO:
   }
 
   // ---

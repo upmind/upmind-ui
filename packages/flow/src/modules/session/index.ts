@@ -27,7 +27,7 @@ export const useSession = () => {
   // --------------------------------------------------------
   // methods
 
-  // We have a valid AUTH session when we are logged in as a client (todo: admin + actor)
+  // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
   // this will fire every time we transition to a new state
   const authCallback = callback => {
     // callback({ type: "TRANSITIONED", data: state.value });

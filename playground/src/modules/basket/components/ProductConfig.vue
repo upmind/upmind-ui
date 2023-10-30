@@ -1,16 +1,23 @@
 <template>
   <form class="card" :class="color">
     <header>
-      <template v-if="!meta.isLoading">
-        <div class="actions floating">
-          <button type="reset" @click.prevent="doRemove">remove</button>
-        </div>
+      <div class="actions floating">
+        <button
+          :disabled="meta.isLoading || processing"
+          type="reset"
+          @click.prevent="remove"
+        >
+          remove
+        </button>
+      </div>
 
-        <h6 class="meta">{{ status }}</h6>
-        <h4 class="title">{{ available.product.name }}</h4>
-        <h5 class="subtitle">{{ available.product.description }}</h5>
-      </template>
-      <template v-else> Loading... </template>
+      <h6 class="meta">{{ status }}</h6>
+      <h4 class="title" v-if="available?.product?.name">
+        {{ available.product.name }}
+      </h4>
+      <h5 class="subtitle" v-if="available?.product?.description">
+        {{ available.product.description }}
+      </h5>
     </header>
 
     <!-- terms -->
@@ -19,8 +26,13 @@
         v-for="term in available.terms"
         :key="term.billing_cycle_months"
         class="term"
-        :class="{ selected: isSelectedTerm(term) }"
-        @click.prevent="setTerm(term)"
+        :class="{
+          selected: isSelectedTerm(term),
+          disabled: meta.isLoading || processing
+        }"
+        @click.prevent="
+          !meta.isLoading && !processing ? updateTerm(term) : null
+        "
       >
         <input
           :key="term.billing_cycle_months"
@@ -33,7 +45,9 @@
           {{ term.billing_cycle_name }}
         </h4>
         <h5 class="price">{{ term?.price_formatted }}</h5>
-        <h6 class="savings" v-if="term.saving">{{ term.saving_formatted }}</h6>
+        <h6 class="savings" v-if="term.saving">
+          {{ term.saving_formatted }}
+        </h6>
         <!-- {{ term }} -->
       </li>
     </ul>
@@ -47,7 +61,10 @@
           </h4>
         </dt>
         <dd v-for="value in attribute.values">
-          <fieldset v-if="model.attributes">
+          <fieldset
+            v-if="model.attributes"
+            :disabled="meta.isLoading || processing"
+          >
             <input
               :type="attribute.multiple ? 'checkbox' : 'radio'"
               :name="`attributes[${attribute.id}]`"
@@ -73,7 +90,10 @@
           </h4>
         </dt>
         <dd v-for="value in option.values">
-          <fieldset v-if="model.options">
+          <fieldset
+            v-if="model.options"
+            :disabled="meta.isLoading || processing"
+          >
             <input
               :type="option.multiple ? 'checkbox' : 'radio'"
               :name="`options[${option.id}]`"
@@ -129,7 +149,7 @@
     </dl>
 
     <!-- summary -->
-    <dl class="summary" v-if="!meta.isLoading">
+    <dl class="summary" v-if="!meta.isLoading && !processing">
       <dt>Quantity:</dt>
       <dd>
         <fieldset
@@ -139,7 +159,7 @@
           <button
             class="prepend"
             @click.prevent="
-              setQuantity(
+              updateQuantity(
                 model.quantity + (available.product?.unit_quantity || 1)
               )
             "
@@ -152,13 +172,13 @@
             v-model="model.quantity"
             min="1"
             max="10"
-            @change="setQuantity"
+            @change="updateQuantity"
           />
 
           <button
             class="append"
             @click.prevent="
-              setQuantity(
+              updateQuantity(
                 model.quantity - (available.product?.unit_quantity || 1)
               )
             "
@@ -174,32 +194,23 @@
     <footer>
       <Debug
         title="Product Config"
-        :state="state"
+        :state="state.value"
         :model="model"
         :context="available"
-        :errors="error"
+        :errors="errors"
         :meta="meta"
       ></Debug>
+
+      <div class="overlay" v-if="processing">Updating...</div>
     </footer>
   </form>
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef } from "vue";
+import { defineComponent, toRef, computed } from "vue";
+import { useBasketItem } from "..";
 import Debug from "@/components/Debug.vue";
-import {
-  isEqual,
-  get,
-  set,
-  find,
-  some,
-  forEach,
-  intersectionWith,
-  first,
-  map,
-  remove,
-  unset
-} from "lodash-es";
+import { isEqual, get, set, find, some, unset } from "lodash-es";
 
 export default defineComponent({
   name: "ProductConfig",
@@ -218,65 +229,26 @@ export default defineComponent({
       type: String,
       required: true
     },
-    values: {
-      type: Object,
+    item: {
+      type: Object, // xstate actor
       required: true
     },
-    state: {
-      type: [String, Object],
-      required: true
-    },
-    available: {
-      type: Object,
-      required: true
-    },
-    matches: {
-      type: Function,
-      required: true
-    },
-    error: {
-      type: [Array, Object]
+    processing: {
+      type: Boolean,
+      default: false
     }
   },
-  setup: props => {
-    const model = toRef(props, "values");
+  setup: (props, { emit }) => {
+    const basketItem = useBasketItem(props.item);
+    const remove = () => emit("remove", { itemId: props.id });
 
+    // const
     return {
-      some,
-      model
+      remove,
+      ...basketItem
     };
   },
   computed: {
-    // attributes: {
-    //   get() {
-    //     // ensure our attributes are set up correctly for mapping:
-    //     const values = {};
-    //     forEach(this.available.attributes, attribute => {
-    //       const value = intersectionWith(
-    //         this.model.attributes,
-    //         attribute.values,
-    //         ({ product_id }, { id }) => product_id === id
-    //       );
-    //       if (!attribute.multiple) {
-    //         set(values, attribute.id, first(value)?.id || null);
-    //       } else {
-    //         set(values, attribute.id, map(value, "id"));
-    //       }
-    //     });
-
-    //     return values;
-    //   },
-    //   set(value) {
-    //     this.selectAttributes(value);
-    //   }
-    // },
-    // ---
-    meta() {
-      return {
-        isLoading: this.matches("loading"),
-        isNew: !this?.values?.id
-      };
-    },
     total_amount_formatted() {
       // get this from the machine
       return this.model?.billing_cycle_months
@@ -295,36 +267,36 @@ export default defineComponent({
       return {
         added: !this.meta.isNew,
         info: this.meta.isNew,
-        warning: this.matches("configuring"),
-        error: this.matches("error"),
-        success: this.matches("configured") && !this?.values?.id
+        warning: this.state.matches("configuring"),
+        error: this.state.matches("error"),
+        success: this.state.matches("configured") && !this?.model?.id
       };
     },
     status() {
       const values = [];
       // if (this.id) values.push(`ID: ${this.id}`);
-      if (this.matches("error")) values.push("Errors");
+      if (this.state.matches("error")) values.push("Errors");
       if (this.meta.isNew) values.push("New");
       if (!this.meta.isNew) values.push("Added");
-      if (this.matches("configuring")) values.push("Configuring");
-      if (this.matches("configured")) values.push("Configured");
+      if (this.state.matches("configuring")) values.push("Configuring");
+      if (this.state.matches("configured")) values.push("Configured");
 
       return values.join(" · ");
     }
   },
   methods: {
-    doRemove() {
-      this.$emit("remove", {
-        itemId: this.id
-      });
-    },
+    // doRemove() {
+    //   this.$emit("remove", {
+    //     itemId: this.id
+    //   });
+    // },
 
-    setQuantity(value) {
-      this.$emit("update:quantity", {
-        itemId: this.id,
-        quantity: value || this.model.quantity
-      });
-    },
+    // updateQuantity(value) {
+    //   this.$emit("update:quantity", {
+    //     itemId: this.id,
+    //     quantity: value || this.model.quantity
+    //   });
+    // },
 
     // ---
 
@@ -333,12 +305,12 @@ export default defineComponent({
       return value;
     },
 
-    setTerm(term) {
-      this.$emit("update:term", {
-        itemId: this.id,
-        term: term.billing_cycle_months
-      });
-    },
+    // updateTerm(term) {
+    //   this.$emit("update:term", {
+    //     itemId: this.id,
+    //     term: term.billing_cycle_months
+    //   });
+    // },
     // ---
 
     isSelectedAttribute(attributeId, value) {
@@ -346,7 +318,7 @@ export default defineComponent({
     },
 
     selectAttribute(attribute, value, { target }) {
-      // todo: handle non multiple attributes
+      // TODO: handle non multiple attributes
 
       if (!attribute.multiple && target.checked)
         set(this.model.attributes, attribute.id, {}); // reset all previous attributes
@@ -360,15 +332,15 @@ export default defineComponent({
       }
 
       // emit the event
-      this.setAttributes();
+      this.updateAttributes();
     },
 
-    setAttributes() {
-      this.$emit("update:attributes", {
-        itemId: this.id,
-        attributes: this.model.attributes
-      });
-    },
+    // updateAttributes() {
+    //   this.$emit("update:attributes", {
+    //     itemId: this.id,
+    //     attributes: this.model.attributes
+    //   });
+    // },
 
     // ---
 
@@ -389,15 +361,15 @@ export default defineComponent({
       }
 
       // emit the event
-      this.setOptions();
-    },
-
-    setOptions() {
-      this.$emit("update:options", {
-        itemId: this.id,
-        options: this.model.options
-      });
+      this.updateOptions();
     }
+
+    // updateOptions() {
+    //   this.$emit("update:options", {
+    //     itemId: this.id,
+    //     options: this.model.options
+    //   });
+    // }
   }
 });
 </script>
@@ -525,6 +497,14 @@ export default defineComponent({
     box-shadow: var(--shadow-hover);
   }
 
+  &.disabled {
+    cursor: default;
+    background-color: var(--upm-c-disabled-muted);
+    color: var(--upm-c-black);
+    border-color: var(--upm-c-disabled);
+    box-shadow: none;
+  }
+
   input[type="checkbox"] {
     position: absolute;
     top: 0;
@@ -544,5 +524,22 @@ export default defineComponent({
     font-size: 1.25em;
     padding: 1em 0.125em;
   }
+}
+
+.overlay {
+  // font-weight: 800;
+  align-items: center;
+  background-color: var(--overlay);
+  bottom: 0;
+  color: var(--overlay-text);
+  display: flex;
+  font-size: 0.873em;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  text-transform: uppercase;
+  top: 0;
+  z-index: 1;
 }
 </style>
