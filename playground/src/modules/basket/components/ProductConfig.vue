@@ -44,7 +44,9 @@
         <h4 class="title" v-if="term?.billing_cycle_name">
           {{ term.billing_cycle_name }}
         </h4>
-        <h5 class="price">{{ term?.price_formatted }}</h5>
+        <h5 class="price">
+          {{ !term?.price ? "Free" : term?.price_formatted }}
+        </h5>
         <h6 class="savings" v-if="term.saving">
           {{ term.saving_formatted }}
         </h6>
@@ -267,19 +269,23 @@ export default defineComponent({
       return {
         added: !this.meta.isNew,
         info: this.meta.isNew,
-        warning: this.state.matches("configuring"),
-        error: this.state.matches("error"),
-        success: this.state.matches("configured") && !this?.model?.id
+        warning: this.meta.isConfiguring,
+        error: this.meta.hasErrors,
+        success: this.meta.isConfigured && !this?.model?.id
       };
     },
     status() {
       const values = [];
       // if (this.id) values.push(`ID: ${this.id}`);
-      if (this.state.matches("error")) values.push("Errors");
+      if (this.meta.isLoading) values.push("Loading");
       if (this.meta.isNew) values.push("New");
       if (!this.meta.isNew) values.push("Added");
-      if (this.state.matches("configuring")) values.push("Configuring");
-      if (this.state.matches("configured")) values.push("Configured");
+
+      if (!this.meta.isLoading) {
+        if (this.meta.hasErrors) values.push("Errors");
+        if (this.meta.isConfiguring) values.push("Configuring");
+        if (this.meta.isConfigured) values.push("Configured");
+      }
 
       return values.join(" · ");
     }

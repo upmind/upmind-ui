@@ -17,25 +17,18 @@ export const useSession = () => {
 
   // We can create reactive refs to the child machines,
   // so that when they are invoked we can listen to their state changes
-  const client = ref();
-  const guest = ref();
-  service.onTransition(newState => {
-    if (newState.children?.client) {
-      newState.children.client.onTransition(
-        clientState => (client.value = clientState)
-      );
-    } else {
-      client.value = null;
-    }
-
-    if (newState.children?.guest) {
-      newState.children.guest.onTransition(
-        guestState => (guest.value = guestState)
-      );
-    } else {
-      guest.value = null;
-    }
+  const client = computed(() => {
+    if (!state.value?.children?.client) return null;
+    const { state: clientState } = useActor(state.value.children.client);
+    return clientState.value;
   });
+
+  const guest = computed(() => {
+    if (!state.value?.children?.guest) return null;
+    const { state: guestState } = useActor(state.value.children.guest);
+    return guestState.value;
+  });
+
   // --------------------------------------------------------
 
   function cancel() {
@@ -106,7 +99,7 @@ export const useSession = () => {
     // ---
     meta: computed(() => ({
       isLoading: ["starting"].some(state.value.matches),
-      isProcessing: !client.value
+      isProcessing: !client.value?.state
         ? false
         : ![
             "unauthenticated.idle",
@@ -114,7 +107,7 @@ export const useSession = () => {
             "unauthenticated.login.challenging",
             "unauthenticated.register.idle",
             "unauthenticated.register.challenging"
-          ].some(client.value.matches),
+          ].some(client.value?.matches),
 
       hasErrors: ["starting.status.error"].some(state.value.matches),
       // ---
