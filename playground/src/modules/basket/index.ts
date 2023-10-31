@@ -56,8 +56,8 @@ export const useBasket = () => {
     updateOptions: ({ itemId, options }) =>
       send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
 
-    updateProvisioning: ({ itemId, provisioning }) =>
-      send({ type: "UPDATE.PROVISIONING", data: { itemId, provisioning } }),
+    updateProvisioning: ({ itemId, provision_fields }) =>
+      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
 
     // ---
     state: computed(() => state.value.value),
@@ -115,17 +115,14 @@ export const useBasketItem = item => {
 
   const totalAmount = computed(() => {
     // TODO: calculate the pricess of options and attributes, etc
-    debugger;
     // get this from the machine
     const term = find(available.value.terms, [
       "billing_cycle_months",
       model.value.term
     ]);
-    debugger;
 
     const price = get(term, "price", available.value?.product?.price || 0);
 
-    debugger;
     return model.value.quantity * price || 0;
   });
 
@@ -316,6 +313,25 @@ export const useBasketItem = item => {
     updateOptions();
   }
 
+  // --- PROVISIONING
+  function setProvisioningField(name, value) {
+    set(model.value.provision_fields, name, value);
+    // emit the event
+    updateProvisioning();
+  }
+
+  function getProvisioningField(field) {
+    const value = get(model.value, ["provision_fields", field], null);
+    return value;
+  }
+
+  const updateProvisioning = () => {
+    send({
+      type: "UPDATE.PROVISIONING",
+      data: { provision_fields: model.value.provision_fields }
+    });
+  };
+
   // --------------------------------------------------------
 
   return {
@@ -344,6 +360,10 @@ export const useBasketItem = item => {
     isSelectedOption,
     selectOption,
     incrementOption,
-    decrementOption
+    decrementOption,
+    // ---
+    setProvisioningField,
+    updateProvisioning,
+    getProvisioningField
   };
 };

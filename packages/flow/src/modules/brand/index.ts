@@ -8,7 +8,7 @@ import { BrandConfigKeys } from "./services";
 export { BrandConfigKeys } from "./services";
 
 // --- utils
-import { pick, isArray, find } from "lodash-es";
+import { pick, isArray, find, some } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the brand machine
@@ -26,7 +26,8 @@ const service = interpret(brandMachine, { devTools: false }).onTransition(
 export const useBrand = () => {
   // --------------------------------------------------------
   // methods
-
+  const hasModuleEnabled = code =>
+    some(state?.context?.modules, ["code", code]);
   // --------------------------------------------------------
 
   return {
@@ -56,6 +57,8 @@ export const useBrand = () => {
 
     getBillingCycles: () => state.context.billingCycles,
     getBillingCycle: months =>
-      find(state.context.billingCycles, ["months", months])
+      find(state.context.billingCycles, ["months", months]),
+    // ---
+    hasModuleEnabled
   };
 };

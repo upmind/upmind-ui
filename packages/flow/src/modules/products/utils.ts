@@ -1,5 +1,5 @@
 // ---internal
-import { useBrand } from "../../brand";
+import { useBrand } from "../brand";
 const { getBillingCycle } = useBrand();
 
 // --- utils
@@ -237,7 +237,7 @@ export const useProductValuesParser = (data: any) => {
     "term",
     "attributes",
     "options",
-    "provisioning"
+    "provision_fields"
   ]);
 
   // ---
@@ -248,7 +248,11 @@ export const useProductValuesParser = (data: any) => {
     set(values, "productId", data.product_id);
     set(values, "attributes", useAddedAttributesParser(data.attributes));
     set(values, "options", useAddedOptionsParser(data.options)); // TODO:
-    set(values, "provisioning", useAddProvisioningParser(data.provisioning)); // TODO:
+    set(
+      values,
+      "provision_fields",
+      useAddProvisioningParser(data.provision_fields)
+    ); // TODO:
   }
 
   // ---
@@ -292,18 +296,15 @@ const useAddedOptionsParser = (data: any) => {
 };
 
 const useAddProvisioningParser = (data: any) => {
-  debugger;
-  const fields = reduce(
-    data,
-    (result, field) => {
-      debugger;
-      set(result, field.name, field?.value);
-      return result;
-    },
-    {}
-  );
-  debugger;
-  return fields;
+  // const fields = reduce(
+  //   data,
+  //   (result, value, key) => {
+  //     set(result, key, value);
+  //     return result;
+  //   },
+  //   {}
+  // );
+  return data;
 };
 
 // --------------------------------------------------------
@@ -334,7 +335,9 @@ export const useProductConfigParser = (data: any) => {
         return result;
       },
       []
-    ), // promotions: data?.promtions,
+    ),
+    provision_field_values: data.provision_fields,
+    // promotions: data?.promtions,
     // ---
     start_trial: !!data?.start_trial
   };

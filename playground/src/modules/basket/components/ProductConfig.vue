@@ -182,17 +182,18 @@
 
     <!-- provisioning -->
     <dl class="provisioning">
-      <template v-for="field in available.provisioning" :key="field.id">
+      <template v-for="field in available.provision_fields" :key="field.id">
         <fieldset
           :disabled="meta.isLoading || processing"
-          v-show="!field.deferrable"
+          v-if="field.defer_mode != 'hidden'"
         >
           <label :for="field.id">{{ field.field_label }}</label>
           <select
             v-if="field.field_type == 'select'"
-            :name="`provisioning[${field.id}]`"
-            :value="model.provisioning[field.name]"
+            :name="`provision_fields[${field.id}]`"
+            :value="getProvisioningField(field.name)"
             :required="field.required"
+            @blur="setProvisioningField(field.name, $event.target.value)"
             :id="field.id"
           >
             <option v-for="option in field.options" v-bind="option"></option>
@@ -200,19 +201,21 @@
 
           <textarea
             v-else-if="field.field_type == 'textarea'"
-            :name="`provisioning[${field.id}]`"
-            :value="model.provisioning[field.name]"
+            :name="`provision_fields[${field.id}]`"
+            :value="getProvisioningField(field.name)"
             :required="field.required"
             :id="field.id"
+            @blur="setProvisioningField(field.name, $event.target.value)"
           ></textarea>
 
           <input
             v-else
             :type="field.field_type.replace('input_', '')"
-            :name="`provisioning[${field.id}]`"
-            :value="model.provisioning[field.name]"
+            :name="`provision_fields[${field.id}]`"
+            :value="getProvisioningField(field.name)"
             :required="field.required"
             :id="field.id"
+            @blur="setProvisioningField(field.name, $event.target.value)"
           />
         </fieldset>
       </template>

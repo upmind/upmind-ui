@@ -21,6 +21,7 @@ export default createMachine(
     context: {
       currencies: null,
       billingCycles: null,
+      modules: null,
       keys: {
         // start with these defaults
         organisation: [
@@ -331,9 +332,10 @@ export default createMachine(
         useBrandParser(data)
       ),
 
-      setModules: assign((_context: BrandContext, { data }: BrandEvent) =>
-        useBrandParser(data)
-      ),
+      setModules: assign({
+        modules: (_context: BrandContext, { data }: BrandEvent) => data
+      }),
+
       setCurrencies: assign({
         currencies: (_context: BrandContext, { data }: BrandEvent) => data
       }),
