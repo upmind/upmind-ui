@@ -1,14 +1,14 @@
 // --- external
 
 // --- internal
-import { useApi } from "../../api";
-import { useBrand, BrandConfigKeys } from "../../brand";
+import { useApi } from "../api";
+import { useBrand, BrandConfigKeys } from "../brand";
 const { getConfig } = useBrand();
 
-import type { IProductConfig, ProductConfigContext } from "../types";
+import type { IProductConfig, ProductConfigContext } from "./types";
 
 // --- utils
-import { useTime } from "../../../utils";
+import { useTime } from "../../utils";
 import { useQuantityParser } from "./utils";
 
 import {
@@ -20,14 +20,15 @@ import {
   isNil,
   isNumber,
   isObject,
-  mapValues,
   keys,
+  mapValues,
   maxBy,
   minBy,
   pickBy,
   reduce,
   set,
-  some
+  some,
+  unset
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -118,12 +119,12 @@ async function getProduct({ values }: ProductConfigContext, _event: any) {
     withAccessToken: true
   }).then(({ data }) => data);
 
-  // lets get our provisioning fields early, so we can make them available
+  // lets get our provision_fields fields early, so we can make them available
   const provisioningPromise = getProvisioningFields({ values }, _event);
 
   return Promise.all([productPromise, provisioningPromise]).then(
-    ([product, provisioning]) => {
-      set(product, "products_provisioning", provisioning);
+    ([product, provision_fields]) => {
+      set(product, "products_provisioning", provision_fields);
       return product;
     }
   );
@@ -138,7 +139,7 @@ async function getProvisioningFields(
   const { get, useUrl } = useApi();
   const { productId } = values;
 
-  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+  // we dont cache provision_fields fields, as they can change with diferent options/attributes being selected
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     useCache: false,
@@ -151,18 +152,19 @@ async function checkProvisioning(
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
-  if (!available?.provisioning?.length) {
+  if (!available?.provision_fields?.length) {
     return Promise.resolve([]);
   }
 
   const errors = [];
 
-  const provisioning = reduce(
-    available.provisioning,
+  const provision_fields = reduce(
+    available.provision_fields,
     (result, field, index) => {
-      // try get any selected values for this provisioning,
+      // try get any selected values for this provision_fields,
+      let selected = get(values, `provision_fields.${field.name}`, null);
 
-      let selected = get(values, `provisioning.${field.id}`, {});
+      // todo: validation
 
       // if we have selected values, ensure they are valid and fully formed
       // if (!isEmpty(selected)) {
@@ -194,24 +196,22 @@ async function checkProvisioning(
       //   });
       // }
 
-      // check if we are missing required provisioning
-      if (provisioning?.required && isEmpty(selected))
-        errors.push({ message: "Is required", provisioning });
+      // check if we are missing required field
+      if (field?.required && isEmpty(selected))
+        errors.push({ message: "Is required", field });
 
-      // check if we values too many values for this provisioning
-      if (!provisioning?.multiple && keys(selected)?.length > 1) {
-        errors.push({ message: "Multiple choice not allowed", provisioning });
-      }
       // ---
-      set(result, provisioning.id, selected);
+      set(result, field.name, selected);
+      // if (selected) set(result, field.name, selected);
+      // else unset(result, field.name);
       return result;
     },
     {}
   );
 
   return new Promise((resolve, reject) => {
-    if (errors?.length) reject({ provisioning, errors });
-    else resolve(provisioning);
+    if (errors?.length) reject({ provision_fields, errors });
+    else resolve(provision_fields);
   });
 }
 

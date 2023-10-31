@@ -79,6 +79,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addItem: "ADD";
+    addSemanticItem: "done.invoke.adding:invocation[0]";
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
     loadItems: "done.invoke.loading:invocation[0]";
@@ -111,6 +112,7 @@ export interface Typegen0 {
     hasNewItems: "";
     hasNoBasket: "ADD";
     hasNoItems: "";
+    hasSemanticReplacement: "done.invoke.adding:invocation[0]";
   };
   eventsCausingServices: {
     addItem: "";

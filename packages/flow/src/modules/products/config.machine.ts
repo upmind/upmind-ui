@@ -5,7 +5,7 @@ import { createMachine, assign, sendParent } from "xstate";
 import services from "./services";
 
 // --utils
-import { useTime } from "../../../utils";
+import { useTime } from "../../utils";
 import {
   useProductAttributesParser,
   useProductConfigParser,
@@ -45,7 +45,7 @@ export default values =>
           terms: null,
           options: null,
           attributes: null,
-          provisioning: null
+          provision_fields: null
         },
         // ---
         error: null
@@ -315,8 +315,8 @@ export default values =>
 
         setProvisioning: assign({
           values: ({ values }, { data }) => {
-            let provisioning = get(data, "provisioning", data); // workaround to allow the same action to be used for different event sources
-            set(values, "provisioning", provisioning);
+            let provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
+            set(values, "provision_fields", provision_fields);
             return values;
           }
         }),
@@ -334,7 +334,7 @@ export default values =>
               terms: useProductTermsParser(data.prices),
               attributes: useProductAttributesParser(data.products_attributes),
               options: useProductOptionsParser(data.products_options),
-              provisioning: useProductProvisioningParser(
+              provision_fields: useProductProvisioningParser(
                 data.products_provisioning
               )
             };

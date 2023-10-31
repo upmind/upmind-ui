@@ -9,9 +9,11 @@ import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
 
 // --- internal
-import services from "./services";
+import services, { SemanticTypes } from "./services";
 import type { BasketContext } from "./types.d";
-import configurationMachine from "./products/config.machine";
+import configurationMachine from "../products/config.machine";
+import { useBrand } from "../brand";
+const { hasModuleEnabled } = useBrand();
 
 // --- utils
 import {
@@ -21,6 +23,7 @@ import {
   forEach,
   get,
   has,
+  filter,
   isEmpty,
   reduce,
   remove,
@@ -137,10 +140,21 @@ export default createMachine(
                 id: "adding",
                 invoke: {
                   src: "addItem",
-                  onDone: {
-                    target: "configuring",
-                    actions: ["replaceItem", "updateBasket"]
-                  }
+                  onDone: [
+                    {
+                      target: "configuring",
+                      actions: [
+                        "addSemanticItem",
+                        "replaceItem",
+                        "updateBasket"
+                      ],
+                      cond: "hasSemanticReplacement"
+                    },
+                    {
+                      target: "configuring",
+                      actions: ["replaceItem", "updateBasket"]
+                    }
+                  ]
                 }
               },
 
@@ -280,9 +294,7 @@ export default createMachine(
         items: ({ items, basket }, { data }) => {
           forEach(basket?.products, product => {
             // TODO: check if the item already exists
-
             // const item = find(items, ["id", product.id]);
-
             const machine = spawnConfiguration(product);
             items.push(machine);
           });
@@ -294,6 +306,44 @@ export default createMachine(
         items: ({ items }, { data }) => {
           const machine = spawnConfiguration(data);
           items.push(machine);
+          return items;
+        }
+      }),
+
+      addSemanticItem: assign({
+        items: ({ items }, { data }) => {
+          if (!hasModuleEnabled("web_hosting")) return false;
+
+          const { basket, itemId, newId } = data;
+          const product = find(basket?.products, ["id", newId]);
+          const item = find(items, ["id", itemId]);
+          debugger;
+
+          const replacements = filter(
+            item.state?.context?.available?.provision_fields,
+            ["semantic_type", SemanticTypes.DOMAIN_NAMES]
+          );
+          debugger;
+
+          forEach(replacements, field => {
+            console.log("Semantic replacement field", field);
+            const value = get(item.state?.context, [
+              "values",
+              "provision_fields",
+              field.name
+            ]);
+
+            // TODO: find a way to get the actual product that relats to this field
+            const machine = spawnConfiguration({
+              productId: "78985742-6489-7012-096c-21e325d0ed36",
+              provision_fields: {
+                [field.name]: value
+              }
+            });
+
+            items.push(machine);
+          });
+
           return items;
         }
       }),
@@ -438,6 +488,18 @@ export default createMachine(
           const isNew = get(state, "context.isNew");
           return isConfigured && !isNew && isDirty;
         });
+      },
+
+      hasSemanticReplacement: ({ items }, { data }) => {
+        if (!hasModuleEnabled("web_hosting")) return false;
+
+        const { itemId } = data;
+        const item = find(items, ["id", itemId]);
+        const replacements = filter(
+          item.state?.context?.available?.provision_fields,
+          ["semantic_type", SemanticTypes.DOMAIN_NAMES]
+        );
+        return !!replacements.length;
       },
 
       hasProducts: ({ basket }) => !!basket?.products?.length
