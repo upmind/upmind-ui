@@ -24,6 +24,8 @@ import {
   mapValues,
   maxBy,
   minBy,
+  omitBy,
+  pick,
   pickBy,
   reduce,
   set,
@@ -420,6 +422,39 @@ async function checkOptions(
   return new Promise((resolve, reject) => {
     if (errors?.length) reject({ options, errors });
     else resolve(options);
+  });
+}
+
+// --------------------------------------------------------
+
+async function calculate({ basket, items }: BasketContext, { data }: any) {
+  const { post, useUrl } = useApi();
+
+  // only include the specific data we need, if its not null
+  // this will keep the config object as small as possible
+  const config = omitBy(
+    pick(data, [
+      [
+        "prices",
+        "account_id",
+        "currency_id",
+        "invoice_id",
+        "currency_code",
+        "returnOnly"
+      ]
+    ]),
+    isNil
+  );
+
+  debugger;
+
+  return await post({
+    url: useUrl("cart/calculate", {}),
+    withAccessToken: true,
+    data: config
+  }).then(({ data }) => {
+    debugger;
+    return data;
   });
 }
 

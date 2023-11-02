@@ -43,64 +43,13 @@
     </header>
 
     <div class="content" v-if="!meta.isLoading">
-      <!-- status -->
-
-      <div v-if="items?.length">
-        <h3>
-          We have <em class="success">{{ items.length }}</em> Product{{
-            items.length > 1 ? "s" : ""
-          }}
-          in the basket
-        </h3>
-
-        <div class="actions">
-          <button
-            class="primary"
-            :disabled="!meta.canProcess"
-            @click.prevent="updateBasket"
-          >
-            Update basket
-          </button>
-
-          <button
-            type="reset"
-            :disabled="meta.isProcessing"
-            @click.prevent="clearBasket"
-          >
-            Clear Basket
-          </button>
-        </div>
-      </div>
-
-      <div v-else>
+      <div v-if="!items?.length">
         <h3>We <em class="error">don't have any</em> Products in the basket</h3>
       </div>
 
-      <!-- <div v-if="meta.needsConfiguring">
-        <h3>
-          We have
-          <em class="warning">{{ items?.length }}</em> item{{
-            items?.length > 1 ? "s" : ""
-          }}
-          that need{{ items?.length == 1 ? "s" : "" }}
-          configuring before
-          {{ items?.length > 1 ? "they" : "it" }}
-          can be added to the basket
-        </h3>
-      </div> -->
-
-      <div v-if="meta.hasErrors" class="panel bg-error">
-        <h3>We experienced an error updating the basket</h3>
-        <code>
-          <pre>{{ errors }}</pre>
-        </code>
-      </div>
-
-      <!-- cards -->
-      <hr />
-
-      <ul class="cards">
-        <!-- <li v-for="product in products" :key="product.id">
+      <section class="basket">
+        <ul class="cards">
+          <!-- <li v-for="product in products" :key="product.id">
           <section class="card success">
             <h4 class="title">{{ product.product_name }}</h4>
             <h5 class="subtitle">{{ product.description }}</h5>
@@ -115,30 +64,71 @@
             </dl>
           </section>
         </li> -->
-        <li v-for="item in items" :key="item.id">
-          <ProductConfig
-            :item="item"
-            :id="item.id"
-            :processing="meta.isProcessing"
-            @remove="removeItem"
-            @update:term="updateTerm"
-            @update:quantity="updateQuantity"
-            @update:attributes="updateAttributes"
-            @update:options="updateOptions"
-          >
-            <template #actions="{ isConfigured, isNew, isDirty }">
-              <button
-                v-if="isConfigured && (isNew || isDirty)"
-                class="primary"
-                :disabled="meta.isProcessing"
-                @click.prevent="updateItem(item.id)"
-              >
-                {{ isNew ? "Add" : "Update" }}
-              </button>
-            </template>
-          </ProductConfig>
-        </li>
-      </ul>
+          <li v-for="item in items" :key="item.id">
+            <ProductConfig
+              :item="item"
+              :id="item.id"
+              :processing="meta.isProcessing"
+              @remove="removeItem"
+              @update:term="updateTerm"
+              @update:quantity="updateQuantity"
+              @update:attributes="updateAttributes"
+              @update:options="updateOptions"
+            >
+              <template #actions="{ isConfigured, isNew, isDirty }">
+                <button
+                  v-if="isConfigured && (isNew || isDirty)"
+                  class="primary"
+                  :disabled="meta.isProcessing"
+                  @click.prevent="updateItem(item.id)"
+                >
+                  {{ isNew ? "Add" : "Update" }}
+                </button>
+              </template>
+            </ProductConfig>
+          </li>
+        </ul>
+
+        <aside class="basket-summary" v-if="items?.length">
+          <h3 class="title">
+            <em class="success">{{ items.length }}</em> Product{{
+              items.length > 1 ? "s" : ""
+            }}
+            in the basket
+          </h3>
+
+          <dl class="totals">
+            <dt><h2>Total</h2></dt>
+            <dd>{{ basket?.unpaid_amount_formatted }}</dd>
+          </dl>
+
+          <div class="actions">
+            <button
+              type="reset"
+              :disabled="meta.isProcessing"
+              @click.prevent="clearBasket"
+            >
+              Clear Basket
+            </button>
+
+            <button
+              class="primary"
+              v-if="meta.canProcess"
+              :disabled="meta.isProcessing"
+              @click.prevent="updateBasket"
+            >
+              Update basket
+            </button>
+          </div>
+        </aside>
+      </section>
+
+      <div v-if="meta.hasErrors" class="panel bg-error">
+        <h3>We experienced an error updating the basket</h3>
+        <code>
+          <pre>{{ errors }}</pre>
+        </code>
+      </div>
     </div>
 
     <div class="content" v-else>
@@ -251,11 +241,17 @@ hr {
     display: none;
   }
 }
+
+.basket {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(320px, 1fr);
+  grid-gap: 1em;
+  margin: 1em 0;
+}
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
   grid-gap: 1em;
-  margin: 1em 0;
 }
 
 .card {
@@ -309,6 +305,70 @@ hr {
     dd {
       font-weight: normal;
       text-align: right;
+    }
+  }
+}
+
+.basket-summary {
+  align-items: flex-end;
+  align-self: flex-start;
+  background-color: var(--upm-c-primary);
+  border-radius: 0.25em;
+  border: 1px solid var(--color-border);
+  color: var(--upm-c-black);
+  color: var(--upm-c-white);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1em 2em;
+  position: sticky;
+  text-align: right;
+  top: 0;
+  transition: all 200ms linear;
+
+  .title {
+    margin-top: 2em;
+
+    em {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 1.5em;
+    }
+  }
+  .totals {
+    font-weight: 800;
+    margin: 3em 0;
+
+    dt {
+      border-bottom: 1px solid var(--upm-c-white);
+      display: block;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.5em;
+      text-transform: uppercase;
+      width: 100%;
+    }
+    dd {
+      font-size: 2em;
+    }
+  }
+  .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    width: 100%;
+    > button {
+      padding: 1em 0.5em !important;
+      margin: 0 !important;
+      flex: 1 100%;
+      justify-content: center;
+      &.primary {
+        font-weight: 600;
+        background-color: var(--upm-c-secondary) !important;
+        color: var(--upm-c-primary) !important;
+        &:hover {
+          background-color: var(--upm-c-secondary-hard) !important;
+        }
+      }
     }
   }
 }

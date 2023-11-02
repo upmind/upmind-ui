@@ -47,6 +47,12 @@ export default values =>
           attributes: null,
           provision_fields: null
         },
+
+        // ---
+        // the generated summary of the configuration,
+        // including the totals formatted for display
+        summary: null,
+
         // ---
         error: null
       },
