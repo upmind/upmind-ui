@@ -11,6 +11,7 @@ const { authSubscription, getHistory, isAuthenticated, service } = useSession();
 // --- utils
 import { useBasketParser } from "./utils";
 import {
+  compact,
   differenceBy,
   filter,
   find,
@@ -19,9 +20,10 @@ import {
   get,
   has,
   isEmpty,
+  map,
+  pick,
   reduce,
-  set,
-  map
+  set
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -73,42 +75,6 @@ async function check(_context: BasketContext, _event: any) {
   })
     .then(useBasketParser)
     .then(getProvisioningFieldsValues);
-}
-
-async function getProvisioningFieldsValues(basket: any) {
-  const { get, useUrl } = useApi();
-
-  // bail if we have no basket, or if we have a basket with products
-  if (!basket || !basket?.products?.length) return Promise.resolve(basket);
-
-  const { id: basketId, products } = basket;
-
-  const provisioningPromises = [];
-
-  // this will get all our provisioning fields for each product that has them,
-  // and update the baskets relevant products with the values
-  forEach(products, async product => {
-    const { id, provision_provider_id } = product;
-    if (provision_provider_id) {
-      // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
-      const promise = get({
-        url: useUrl(
-          `orders/${basketId}/products/${id}/provision_fields/values`
-        ),
-        useCache: false,
-        withAccessToken: true
-      }).then(({ data }) => {
-        // update the product with the provisioning fields
-        set(product, "provision_fields", data);
-        return data;
-      });
-
-      provisioningPromises.push(promise);
-    }
-  });
-
-  // return the 'updated' basket once all the provisioning fields have been fetched
-  return Promise.all(provisioningPromises).then(() => basket);
 }
 
 // this generates an empty basket!
@@ -301,6 +267,42 @@ async function removeItem({ basket, bin }: BasketContext, { data }: any) {
     url: useUrl(`/orders/${basket.id}/products/${item.id}`),
     withAccessToken: true
   }).then(({ data }) => ({ basket: data, itemId: item.id, queue }));
+}
+
+async function getProvisioningFieldsValues(basket: any) {
+  const { get, useUrl } = useApi();
+
+  // bail if we have no basket, or if we have a basket with products
+  if (!basket || !basket?.products?.length) return Promise.resolve(basket);
+
+  const { id: basketId, products } = basket;
+
+  const provisioningPromises = [];
+
+  // this will get all our provisioning fields for each product that has them,
+  // and update the baskets relevant products with the values
+  forEach(products, async product => {
+    const { id, provision_provider_id } = product;
+    if (provision_provider_id) {
+      // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+      const promise = get({
+        url: useUrl(
+          `orders/${basketId}/products/${id}/provision_fields/values`
+        ),
+        useCache: false,
+        withAccessToken: true
+      }).then(({ data }) => {
+        // update the product with the provisioning fields
+        set(product, "provision_fields", data);
+        return data;
+      });
+
+      provisioningPromises.push(promise);
+    }
+  });
+
+  // return the 'updated' basket once all the provisioning fields have been fetched
+  return Promise.all(provisioningPromises).then(() => basket);
 }
 
 // --------------------------------------------------------

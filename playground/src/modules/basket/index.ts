@@ -1,5 +1,5 @@
 // --- external
-import { computed, toRef } from "vue";
+import { computed, toRef, watch } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -126,9 +126,15 @@ export const useBasketItem = item => {
     isConfigured: state.value.matches("configured")
   }));
 
+  // keep our model in sync with the machine,
+  // typically this is only needed when the machine is updated/refreshed
+  watch(state, (newVal, oldVal) => {
+    if (newVal.context.values !== model.value) {
+      model.value = newVal.context.values;
+    }
+  });
+
   const totalAmount = computed(() => {
-    // TODO: calculate the pricess of options and attributes, etc
-    // get this from the machine
     const term = find(available.value.terms, [
       "billing_cycle_months",
       model.value.term

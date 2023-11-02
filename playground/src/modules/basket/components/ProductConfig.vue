@@ -420,14 +420,21 @@ export default defineComponent({
       font-weight: normal;
       text-align: right;
     }
+  }
 
-    fieldset {
-      justify-content: flex-end;
+  fieldset {
+    justify-content: flex-end;
 
-      &.quantity-increment {
-        input {
-          text-align: center;
-        }
+    &.quantity-increment {
+      padding: 0 0.5em;
+      input {
+        text-align: center;
+        color: currentColor !important;
+        border-color: currentColor !important;
+      }
+      > button {
+        background-color: var(--upm-c-black-semi);
+        color: currentColor;
       }
     }
   }

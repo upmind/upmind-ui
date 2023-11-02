@@ -1,13 +1,15 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --upm-c-white: #ffffff;
+  --upm-c-white-hard: hsla(0, 0%, 95%, 0.75);
   --upm-c-white-soft: hsla(0, 0%, 95%, 0.333);
   --upm-c-white-mute: hsla(0, 0%, 95%, 1);
 
   --upm-c-black: #181818;
   --upm-c-black-soft: #3a3a3a;
   --upm-c-black-mute: #4a4a4a;
-  --upm-c-black-semi: rgba(0, 0, 0, 0.03);
+  --upm-c-black-semi: rgba(0, 0, 0, 0.15);
+  --upm-c-black-semi-light: rgba(0, 0, 0, 0.03);
 
   --upm-c-indigo: #2c3e50;
 
@@ -18,7 +20,12 @@
   --upm-c-primary-soft: hsla(210, 29%, 39%, 1);
   --upm-c-primary-muted: hsla(210, 29%, 29%, 0.333);
 
-  --upm-c-success: hsla(hsla(154, 48%, 49%, 1));
+  --upm-c-secondary: hsla(36, 100%, 65%, 1);
+  --upm-c-secondary-hard: hsla(36, 100%, 55%, 1);
+  --upm-c-secondary-soft: hsla(36, 100%, 79%, 1);
+  --upm-c-secondary-muted: hsla(36, 100%, 65%, 0.333);
+
+  --upm-c-success: hsla(154, 48%, 49%, 1);
   --upm-c-success-muted: hsla(154, 100%, 95%, 0.333);
 
   --upm-c-error: hsla(6, 100%, 75%, 1);
@@ -43,7 +50,7 @@
   --upm-c-text-light-1: var(--upm-c-indigo);
   --upm-c-text-light-2: rgba(60, 60, 60, 0.66);
   --upm-c-text-dark-1: var(--upm-c-white);
-  --upm-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  --upm-c-text-dark-2: rgba(235, 235, 235, 1);
 }
 
 /* semantic color variables for this project */
@@ -55,7 +62,8 @@
   --color-border: var(--upm-c-divider-light-2);
   --color-border-hover: var(--upm-c-divider-light-1);
 
-  --shadow: 0 0 0.125em 0.0625em rgba(0, 0, 0, 0.1);
+  --shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
   --shadow-hover: 0 0 0.25em 0.125em rgba(0, 0, 0, 0.1);
 
   --overlay: rgba(255, 255, 255, 0.667);
