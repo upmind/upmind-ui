@@ -323,7 +323,7 @@ hr {
   padding: 1em 2em;
   position: sticky;
   text-align: right;
-  top: 0;
+  top: 5.5em; // illusion with the sticky header
   transition: all 200ms linear;
 
   .title {
