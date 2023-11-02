@@ -232,7 +232,7 @@ async function updateItemProvisioningFields({
     (result, item, index) => {
       // If we are editing a single item, then we can get the product from the item
       // If we are adding a single item,
-      // or we have done a bulk update, which replaces ALL the basket products, with new ids
+      // or we have done a bulk update, which replaces ALL the items with new ids
       // so then we can get the product from the newItems at the same index
       let product = find(basket.products, ["id", item.id]);
       product ??= get(newItems, index);
