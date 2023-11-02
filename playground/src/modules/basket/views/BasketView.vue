@@ -356,6 +356,7 @@ hr {
     flex-wrap: nowrap;
     justify-content: space-between;
     width: 100%;
+    margin: 0 !important;
     > button {
       padding: 1em 0.5em !important;
       margin: 0 !important;
