@@ -25,6 +25,29 @@ a {
 .info {
   color: var(--upm-c-info);
 }
+// ---
+.bg-primary {
+  background-color: var(--upm-c-primary-muted);
+  color: var(--upm-c-primary);
+  border-color: var(--upm-c-primary);
+}
+.bg-error {
+  background-color: var(--upm-c-error-muted);
+  color: var(--upm-c-error);
+}
+.bg-warning {
+  background-color: var(--upm-c-warning-muted);
+  color: var(--upm-c-warning);
+  border-color: var(--upm-c-warning);
+}
+.bg-success {
+  background-color: var(--upm-c-success-muted);
+  color: var(--upm-c-success);
+}
+.bg-info {
+  background-color: var(--upm-c-info-muted);
+  color: var(--upm-c-info);
+}
 
 #app {
   font-weight: normal;
@@ -118,7 +141,7 @@ a {
       transition: all 200ms linear;
 
       &:not(:disabled):hover {
-        background: hsla(160, 100%, 20%, 1);
+        background: var(--upm-c-primary-soft);
         transition: all 200ms linear;
       }
     }
@@ -235,6 +258,19 @@ a {
       padding: 0.5em 1em;
     }
 
+    .panel {
+      font-size: 0.875rem;
+      letter-spacing: 0.025em;
+      border: 1px solid var(--color-border);
+      border-radius: 0.25em;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      overflow: auto;
+      max-width: 74vw;
+    }
     .debug {
       font-size: 0.875rem;
       letter-spacing: 0.025em;

@@ -73,11 +73,11 @@
               @change="selectAttribute(attribute, value.id, $event)"
               :checked="isSelectedAttribute(attribute.id, value.id)"
               :required="attribute.required"
-              :id="value.id"
+              :id="`${uuid}-${value.id}`"
               :value="value.id"
             />
 
-            <label :for="value.id">{{ value.name }}</label>
+            <label :for="`${uuid}-${value.id}`">{{ value.name }}</label>
 
             <template v-if="model.attributes?.[attribute.id]?.[value.id]">
               <fieldset
@@ -136,11 +136,11 @@
               @change="selectOption(option, value.id, $event)"
               :checked="isSelectedOption(option.id, value.id)"
               :required="option.required"
-              :id="value.id"
+              :id="`${uuid}-${value.id}`"
               :value="value.id"
             />
 
-            <label :for="value.id">
+            <label :for="`${uuid}-${value.id}`">
               {{ value.name }}
             </label>
 
@@ -193,7 +193,7 @@
             :name="`provision_fields[${field.id}]`"
             :value="getProvisioningField(field.name)"
             :required="field.required"
-            @blur="setProvisioningField(field.name, $event.target.value)"
+            @input="setProvisioningField(field.name, $event.target.value)"
             :id="field.id"
           >
             <option v-for="option in field.options" v-bind="option"></option>
@@ -205,7 +205,7 @@
             :value="getProvisioningField(field.name)"
             :required="field.required"
             :id="field.id"
-            @blur="setProvisioningField(field.name, $event.target.value)"
+            @input="setProvisioningField(field.name, $event.target.value)"
           ></textarea>
 
           <input
@@ -215,7 +215,7 @@
             :value="getProvisioningField(field.name)"
             :required="field.required"
             :id="field.id"
-            @blur="setProvisioningField(field.name, $event.target.value)"
+            @input="setProvisioningField(field.name, $event.target.value)"
           />
         </fieldset>
       </template>
@@ -249,6 +249,10 @@
     </dl>
 
     <footer>
+      <div class="actions">
+        <slot name="actions" v-bind="meta"> </slot>
+      </div>
+
       <Debug
         title="Product Config"
         :state="state.value"
@@ -264,7 +268,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, computed } from "vue";
+import { defineComponent, toRef, computed, getCurrentInstance } from "vue";
 import { useBasketItem } from "..";
 import Debug from "@/components/Debug.vue";
 import { get, find } from "lodash-es";
@@ -303,7 +307,8 @@ export default defineComponent({
     // const
     return {
       remove,
-      ...basketItem
+      ...basketItem,
+      uuid: getCurrentInstance().uid
     };
   },
   computed: {

@@ -4,13 +4,13 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.adding:invocation[0]": {
-      type: "done.invoke.adding:invocation[0]";
+    "done.invoke.authCallback": {
+      type: "done.invoke.authCallback";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.authCallback": {
-      type: "done.invoke.authCallback";
+    "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]": {
+      type: "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -43,6 +43,10 @@ export interface Typegen0 {
       type: "error.platform.authCallback";
       data: unknown;
     };
+    "error.platform.basketManager.shopping.items.processing.everything:invocation[0]": {
+      type: "error.platform.basketManager.shopping.items.processing.everything:invocation[0]";
+      data: unknown;
+    };
     "error.platform.claiming:invocation[0]": {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
@@ -51,16 +55,27 @@ export interface Typegen0 {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
+    "error.platform.removing:invocation[0]": {
+      type: "error.platform.removing:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.updating:invocation[0]": {
+      type: "error.platform.updating:invocation[0]";
+      data: unknown;
+    };
+    "xstate.after(error)#basketManager.shopping.items.processing.error": {
+      type: "xstate.after(error)#basketManager.shopping.items.processing.error";
+    };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    addItem: "done.invoke.adding:invocation[0]";
     authSubscription: "done.invoke.authCallback";
     check: "done.invoke.loading:invocation[0]";
     claim: "done.invoke.claiming:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
+    update: "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]";
     updateItem: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
@@ -68,24 +83,25 @@ export interface Typegen0 {
     delays: never;
     guards: never;
     services:
-      | "addItem"
       | "authSubscription"
       | "check"
       | "claim"
       | "generate"
       | "isAuthenticated"
       | "removeItem"
+      | "update"
       | "updateItem";
   };
   eventsCausingActions: {
     addItem: "ADD";
-    addSemanticItem: "done.invoke.adding:invocation[0]";
+    binAllItems: "CLEAR";
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
     loadItems: "done.invoke.loading:invocation[0]";
-    refreshItem: "done.invoke.updating:invocation[0]";
+    refreshItems:
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.updating:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
-    replaceItem: "done.invoke.adding:invocation[0]";
     sendToItem:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
@@ -96,26 +112,32 @@ export interface Typegen0 {
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
     setError:
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.loading:invocation[0]";
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.removing:invocation[0]"
+      | "error.platform.updating:invocation[0]";
     updateBasket:
-      | "done.invoke.adding:invocation[0]"
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    error:
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "error.platform.removing:invocation[0]"
+      | "error.platform.updating:invocation[0]";
+  };
   eventsCausingGuards: {
     allConfigured: "";
     hasBinnedItems: "";
     hasDirtyItems: "";
-    hasItems: "";
     hasNewItems: "";
     hasNoBasket: "ADD";
     hasNoItems: "";
-    hasSemanticReplacement: "done.invoke.adding:invocation[0]";
+    someConfiguring: "";
   };
   eventsCausingServices: {
-    addItem: "";
     authSubscription: "xstate.init";
     check: "SESSION" | "UNAUTHENTICATED";
     claim: "AUTHENTICATED";
@@ -124,8 +146,9 @@ export interface Typegen0 {
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
-    removeItem: "";
-    updateItem: "";
+    removeItem: "" | "REMOVE";
+    update: "CLEAR" | "REMOVE" | "UPDATE";
+    updateItem: "" | "UPDATE";
   };
   matchesStates:
     | "checkout"
@@ -144,12 +167,15 @@ export interface Typegen0 {
     | "shopping.client.checking"
     | "shopping.client.unauthenticated"
     | "shopping.items"
-    | "shopping.items.adding"
     | "shopping.items.configured"
     | "shopping.items.configuring"
     | "shopping.items.empty"
-    | "shopping.items.removing"
-    | "shopping.items.updating"
+    | "shopping.items.processing"
+    | "shopping.items.processing.error"
+    | "shopping.items.processing.everything"
+    | "shopping.items.processing.queue"
+    | "shopping.items.processing.removing"
+    | "shopping.items.processing.updating"
     | "subscribing"
     | {
         checkout?: "additional" | "billing" | "payment" | "shipping";
@@ -159,12 +185,18 @@ export interface Typegen0 {
           | {
               client?: "authenticated" | "checking" | "unauthenticated";
               items?:
-                | "adding"
                 | "configured"
                 | "configuring"
                 | "empty"
-                | "removing"
-                | "updating";
+                | "processing"
+                | {
+                    processing?:
+                      | "error"
+                      | "everything"
+                      | "queue"
+                      | "removing"
+                      | "updating";
+                  };
             };
       };
   tags: never;

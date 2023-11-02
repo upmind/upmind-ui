@@ -11,15 +11,17 @@ const { authSubscription, getHistory, isAuthenticated, service } = useSession();
 // --- utils
 import { useBasketParser } from "./utils";
 import {
-  isEmpty,
-  first,
-  get,
-  set,
-  find,
+  differenceBy,
   filter,
-  has,
+  find,
+  first,
   forEach,
-  differenceBy
+  get,
+  has,
+  isEmpty,
+  reduce,
+  set,
+  map
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -75,7 +77,12 @@ async function check(_context: BasketContext, _event: any) {
 
 async function getProvisioningFieldsValues(basket: any) {
   const { get, useUrl } = useApi();
+
+  // bail if we have no basket, or if we have a basket with products
+  if (!basket || !basket?.products?.length) return Promise.resolve(basket);
+
   const { id: basketId, products } = basket;
+
   const provisioningPromises = [];
 
   // this will get all our provisioning fields for each product that has them,
@@ -141,126 +148,159 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
+async function update({ basket, items }: BasketContext, _event: any) {
+  const { put, useUrl } = useApi();
+
+  const validItems = filter(items, item => item.state.matches("configured"));
+  const productConfigs = map(validItems, item => item.state.context.config);
+  // get returns a promise so we can pass it directly back to the machine
+  return put({
+    url: useUrl(`/orders/${basket.id}`),
+    data: {
+      products: productConfigs
+    },
+    withAccessToken: true
+  })
+    .then(useBasketParser)
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems, queue: false };
+    })
+    .then(updateItemProvisioningFields);
+}
+
 // --- Basket Item Methods
 
 // this function effectively processes the items 1 at a time
 // to achieve this we simply take the 1st  item and process it
 // and then return the  new basket AND the internal id/machine of the item that was processed
 
-async function addItem({ basket, items }, event: any) {
+async function updateItem({ basket, items }, { data }: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-  const item = first(
-    filter(items, ({ state }) => {
-      const isConfigured = state.matches("configured");
-      const isNew = get(state, "context.isNew");
-      return isConfigured && isNew;
-    })
-  );
+  let item;
+  const queue = !data?.itemId; // by default we will try process all items iteratively
+  // if we are explicitly given an item id, we will only process that item
+  // and not the whole queue
+  if (!queue) {
+    item = find(items, ["id", data.itemId]);
+  } else {
+    item = first(
+      filter(items, ({ state }) => {
+        const isConfigured = state.matches("configured");
+        const isNew = get(state, "context.isNew");
+        const isDirty = get(state, "context.isDirty");
+        return isConfigured && (isNew || isDirty);
+      })
+    );
+  }
 
   if (!item) return Promise.reject("No item to add to basket");
 
-  const config = item.state.context.config;
+  const isNew = get(item.state, "context.isNew");
+  const config = get(item.state, "context.config");
 
-  const { post, useUrl } = useApi();
-  return post({
-    url: useUrl(`/orders/${basket.id}/products`),
+  const { put, post, useUrl } = useApi();
+  const action = isNew ? post : put;
+  const suffix = isNew ? "" : `/${item.id}`;
+  return action({
+    url: useUrl(`/orders/${basket.id}/products${suffix}`),
     data: config,
     withAccessToken: true
   })
     .then(useBasketParser)
     .then(basket => {
       const newItems = differenceBy(basket.products, items, "id");
-
-      // should only be 1 new item, but lets warn if there is more
-      if (newItems.length > 1) {
-        console.warn(
-          `More than 1 new item was added to the basket, this is unexpected`,
-          { newItems }
-        );
-      }
-      // ge the id of the new item
-      const { id } = first(newItems);
-      item.newId = id;
-      return { basket, item, id }; // override the id of the new item that was added
+      return { basket, items: [item], newItems, queue };
     })
-    .then(updateItemProvisioningFields)
-    .then(basket => ({ basket, itemId: item.id, newId: item.newId }))
-    .catch(error => ({ error, itemId: item.id }));
+    .then(updateItemProvisioningFields);
 }
 
-async function updateItem({ basket, items }, _event: any) {
-  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
+async function updateItemProvisioningFields({
+  basket,
+  items,
+  newItems,
+  queue
+}) {
+  const { put, useUrl } = useApi();
 
-  const item = first(
-    filter(items, ({ state }) => {
-      const isConfigured = state.matches("configured");
-      const isDirty = get(state, "context.isDirty");
-      const isNew = get(state, "context.isNew");
-      return isConfigured && !isNew & isDirty;
-    })
+  // bail if we have no basket, or if we have a basket without products
+  if (!basket?.products?.length)
+    return Promise.resolve({ basket, items, newItems, queue });
+  const promises = reduce(
+    items,
+    (result, item, index) => {
+      // If we are editing a single item, then we can get the product from the item
+      // If we are adding a single item,
+      // or we have done a bulk update, which replaces ALL the basket products, with new ids
+      // so then we can get the product from the newItems at the same index
+      let product = find(basket.products, ["id", item.id]);
+      product ??= get(newItems, index);
+
+      const hasProvisioning = !!get(item.state.context, [
+        "available",
+        "product",
+        "provision_blueprint_id"
+      ]);
+      // if the product has no provisioning fields, we dont need to make a request
+      if (!product || !hasProvisioning) return result;
+
+      const provision_field_values =
+        item.state.context.config.provision_field_values;
+
+      const promise = put({
+        url: useUrl(
+          `/orders/${basket.id}/products/${product.id}/provision_fields/values`
+        ),
+        data: { provision_field_values },
+        withAccessToken: true
+      }).then(({ data }) => {
+        // update the product with the provisioning fields, before returning the basket
+        set(product, ["provision_fields"], data);
+      });
+
+      result.push(promise);
+      return result;
+    },
+    []
   );
 
-  if (!item) return Promise.reject("No item to add to basket");
-
-  const config = item.state.context.config;
-
-  const { put, useUrl } = useApi();
-
-  return put({
-    url: useUrl(`/orders/${basket.id}/products/${item.id}`),
-    data: config,
-    withAccessToken: true
-  })
-    .then(useBasketParser)
-    .then(basket => ({ basket, item, id: item.id }))
-    .then(updateItemProvisioningFields)
-    .then(basket => ({ basket, itemId: item.id }))
-    .catch(error => ({ error, itemId: item.id }));
+  return Promise.all(promises)
+    .then(() => ({ basket, items, newItems, queue }))
+    .catch(err => {
+      // we dont need to throw this error, as it is not critical
+      console.error("updateItemProvisioningFields", err, {
+        basket,
+        items,
+        newItems,
+        queue
+      });
+    });
 }
 
-async function updateItemProvisioningFields({ basket, item, id }) {
-  const { put, useUrl } = useApi();
-
-  const product = find(basket.products, ["id", id]);
-  const provision_field_values =
-    item.state.context.config.provision_field_values;
-
-  const hasProvisioning = !!get(item.state.context, [
-    "available",
-    "product",
-    "provision_blueprint_id"
-  ]);
-
-  // if the product has no provisioning fields, we dont need to make a request
-  if (!hasProvisioning) return Promise.resolve(basket);
-
-  return put({
-    url: useUrl(`/orders/${basket.id}/products/${id}/provision_fields/values`),
-    data: { provision_field_values },
-    withAccessToken: true
-  }).then(({ data }) => {
-    // update the product with the provisioning fields, before returning the basket
-    set(product, ["provision_fields"], data);
-    return basket;
-  });
-}
-
-async function removeItem({ basket, bin }: BasketContext, _event: any) {
+async function removeItem({ basket, bin }: BasketContext, { data }: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-  const item = first(bin);
+  let item;
+  const queue = !data?.itemId; // by default we will try process all items iteratively
+
+  // if we are explicitly given an item id, we will only process that item
+  // and not the whole queue
+  if (!queue) {
+    item = find(bin, ["id", data.itemId]);
+  } else {
+    item = first(bin);
+  }
+
   const isNew = get(item.state, "context.isNew");
 
-  if (isNew) return Promise.resolve({ itemId: item.id }); // we dont need to make a request
+  if (isNew) return Promise.resolve({ itemId: item.id, queue }); // we dont need to make a request
 
   const { del, useUrl } = useApi();
   return del({
     url: useUrl(`/orders/${basket.id}/products/${item.id}`),
     withAccessToken: true
-  })
-    .then(({ data }) => ({ basket: data, itemId: item.id }))
-    .catch(error => ({ error, itemId: item.id }));
+  }).then(({ data }) => ({ basket: data, itemId: item.id, queue }));
 }
 
 // --------------------------------------------------------
@@ -286,9 +326,8 @@ export default <Object>{
   check,
   generate,
   claim,
-  getProvisioningFieldsValues,
+  update,
   // ---
-  addItem,
   updateItem,
   removeItem,
   // ---
