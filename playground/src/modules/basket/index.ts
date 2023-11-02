@@ -12,6 +12,7 @@ import {
   get,
   set,
   some,
+  every,
   unset,
   add,
   subtract,
@@ -32,6 +33,9 @@ export const useBasket = () => {
   // --------------------------------------------------------
 
   return {
+    updateBasket: () => send({ type: "UPDATE" }),
+    clearBasket: () => send({ type: "CLEAR" }),
+
     addProduct: ({ productId, quantity, term, attributes, options }) => {
       // const { productId, quantity, term, attributes, options } = unref(model);
       send({
@@ -40,8 +44,12 @@ export const useBasket = () => {
       });
     },
 
-    removeProduct: ({ itemId }) => {
+    removeItem: ({ itemId }) => {
       send({ type: "REMOVE", data: { itemId } });
+    },
+
+    updateItem: itemId => {
+      send({ type: "UPDATE", data: { itemId } });
     },
 
     updateTerm: ({ itemId, term }) =>
@@ -72,12 +80,16 @@ export const useBasket = () => {
       return {
         isLoading: ["loading"].some(state.value.matches),
         isAvailable: ["shopping"].some(state.value.matches),
-        isAdding: ["shopping.items.adding"].some(state.value.matches),
-        isRemoving: ["shopping.items.removing"].some(state.value.matches),
-        isUpdating: ["shopping.items.updating"].some(state.value.matches),
+        isProcessing: ["shopping.items.processing"].some(state.value.matches),
+        canProcess: some(
+          state.value?.context?.items,
+          (item, index) =>
+            item.state.matches("configured") &&
+            (item.state.context.isNew || item.state.context.isDirty)
+        ),
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
         isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
-        hasErrors: ["error"].some(state.value.matches)
+        hasErrors: ["shopping.items.processing.error"].some(state.value.matches)
       };
     }),
     //  ---
@@ -107,7 +119,8 @@ export const useBasketItem = item => {
   const errors = computed(() => state.value.context.errors);
   const meta = computed(() => ({
     isLoading: state.value.matches("loading"),
-    isNew: !model.value?.id,
+    isNew: state.value.context.isNew,
+    isDirty: state.value.context.isDirty,
     hasErrors: state.value.matches("error"),
     isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured")

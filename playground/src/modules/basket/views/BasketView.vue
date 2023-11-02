@@ -24,14 +24,14 @@
 
               <button
                 type="submit"
-                :disabled="meta.isUpdating || !model.productId"
+                :disabled="meta.isProcessing || !model.productId"
               >
                 add to basket
               </button>
 
               <button
                 type="reset"
-                :disabled="meta.isUpdating || !model.productId"
+                :disabled="meta.isProcessing || !model.productId"
                 @click.prevent="model.productId = null"
               >
                 cancel
@@ -52,6 +52,24 @@
           }}
           in the basket
         </h3>
+
+        <div class="actions">
+          <button
+            class="primary"
+            :disabled="!meta.canProcess"
+            @click.prevent="updateBasket"
+          >
+            Update basket
+          </button>
+
+          <button
+            type="reset"
+            :disabled="meta.isProcessing"
+            @click.prevent="clearBasket"
+          >
+            Clear Basket
+          </button>
+        </div>
       </div>
 
       <div v-else>
@@ -71,17 +89,11 @@
         </h3>
       </div> -->
 
-      <div v-if="meta.hasErrors">
-        <h3>
-          We have
-          <em class="warning">{{ errors?.length }}</em> error{{
-            errors?.length > 1 ? "s" : ""
-          }}
-          that need{{ errors?.length == 1 ? "s" : "" }}
-          configuring before
-          {{ errors?.length > 1 ? "they" : "it" }}
-          in the basket
-        </h3>
+      <div v-if="meta.hasErrors" class="panel bg-error">
+        <h3>We experienced an error updating the basket</h3>
+        <code>
+          <pre>{{ errors }}</pre>
+        </code>
       </div>
 
       <!-- cards -->
@@ -107,13 +119,24 @@
           <ProductConfig
             :item="item"
             :id="item.id"
-            :processing="meta.isUpdating || meta.isAdding || meta.isRemoving"
-            @remove="removeProduct"
+            :processing="meta.isProcessing"
+            @remove="removeItem"
             @update:term="updateTerm"
             @update:quantity="updateQuantity"
             @update:attributes="updateAttributes"
             @update:options="updateOptions"
-          ></ProductConfig>
+          >
+            <template #actions="{ isConfigured, isNew, isDirty }">
+              <button
+                v-if="isConfigured && (isNew || isDirty)"
+                class="primary"
+                :disabled="meta.isProcessing"
+                @click.prevent="updateItem(item.id)"
+              >
+                {{ isNew ? "Add" : "Update" }}
+              </button>
+            </template>
+          </ProductConfig>
         </li>
       </ul>
     </div>
@@ -146,8 +169,11 @@ const {
   basket,
   errors,
   meta,
+  updateBasket,
+  clearBasket,
+  updateItem,
   addProduct,
-  removeProduct,
+  removeItem,
   updateTerm,
   updateQuantity,
   updateAttributes,

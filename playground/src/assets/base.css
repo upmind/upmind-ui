@@ -13,11 +13,13 @@
 
   /* ------------------------------------------------------------------------ */
 
-  --upm-c-primary: hsla(160, 100%, 37%, 1);
-  --upm-c-primary-muted: hsla(160, 100%, 37%, 0.2);
+  --upm-c-primary: hsla(210, 29%, 29%, 1);
+  --upm-c-primary-hard: hsla(210, 29%, 19%, 1);
+  --upm-c-primary-soft: hsla(210, 29%, 39%, 1);
+  --upm-c-primary-muted: hsla(210, 29%, 29%, 0.333);
 
-  --upm-c-success: hsla(150, 100%, 75%, 1);
-  --upm-c-success-muted: hsla(150, 100%, 95%, 0.333);
+  --upm-c-success: hsla(hsla(154, 48%, 49%, 1));
+  --upm-c-success-muted: hsla(154, 100%, 95%, 0.333);
 
   --upm-c-error: hsla(6, 100%, 75%, 1);
   --upm-c-error-muted: hsla(6, 100%, 95%, 0.333);

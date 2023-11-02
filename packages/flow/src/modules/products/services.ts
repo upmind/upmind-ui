@@ -86,7 +86,6 @@ async function calculateBillingTerm(
 
 async function getProduct({ values }: ProductConfigContext, _event: any) {
   const { productId } = values;
-
   if (!productId) return Promise.reject("No Product ID provided");
 
   const { get, useUrl } = useApi();
