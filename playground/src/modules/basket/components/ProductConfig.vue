@@ -223,28 +223,33 @@
 
     <!-- summary -->
     <dl class="summary" v-if="!meta.isLoading && !processing">
-      <dt>Quantity:</dt>
-      <dd>
-        <fieldset
-          v-if="available.product?.canChangeQuantity"
-          class="quantity-increment"
-        >
-          <button class="prepend" @click.prevent="incrementQuantity">+</button>
+      <template v-if="available.product?.canChangeQuantity">
+        <dt>Quantity:</dt>
+        <dd>
+          <fieldset
+            v-if="available.product?.canChangeQuantity"
+            class="quantity-increment"
+          >
+            <button class="prepend" @click.prevent="incrementQuantity">
+              +
+            </button>
 
-          <input
-            type="number"
-            v-model="model.quantity"
-            min="1"
-            max="10"
-            readonly
-            @change="updateQuantity"
-          />
+            <input
+              type="number"
+              v-model="model.quantity"
+              min="1"
+              max="10"
+              readonly
+              @change="updateQuantity"
+            />
 
-          <button class="append" @click.prevent="decrementQuantity">-</button>
-        </fieldset>
-        <span v-else>{{ model.quantity }}</span>
-      </dd>
-      <dt>Price:</dt>
+            <button class="append" @click.prevent="decrementQuantity">-</button>
+          </fieldset>
+          <!-- <span v-else>{{ model.quantity }}</span> -->
+        </dd>
+      </template>
+
+      <dt>Item Total:</dt>
       <dd v-if="meta.isCalculating">calculating...</dd>
       <dd v-else-if="meta.isConfiguring">waiting...</dd>
       <dd v-else="">{{ totalFormatted }}</dd>
