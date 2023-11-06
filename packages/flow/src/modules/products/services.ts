@@ -473,7 +473,7 @@ async function calculate(
   prices.attributes = reduce(
     values.attributes,
     (result, attribute, id) => {
-      result += sumBy(objectValues(attribute), "total");
+      result += sumBy(objectValues(attribute), "total") || 0;
       return result;
     },
     0
@@ -483,7 +483,7 @@ async function calculate(
   prices.options = reduce(
     values.options,
     (result, option, id) => {
-      result += sumBy(objectValues(option), "total");
+      result += sumBy(objectValues(option), "total") || 0;
       return result;
     },
     0
@@ -495,8 +495,8 @@ async function calculate(
 
   // ---
   // now calculate the total price, by summing the prices object
-  const total = sum(objectValues(prices));
-
+  const total = sum(objectValues(prices)) || 0;
+  debugger;
   // then compare it to the existing summary total to see if we need to update it
   // if they are the same, then we can just return the existing summary
   if (summary?.total === total) return Promise.resolve(summary);
