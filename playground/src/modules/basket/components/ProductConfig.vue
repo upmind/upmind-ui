@@ -1,276 +1,336 @@
 <template>
-  <form class="card" :class="color">
-    <header>
-      <div class="actions floating">
-        <button
-          :disabled="meta.isLoading || processing"
-          type="reset"
-          @click.prevent="remove"
-        >
-          remove
-        </button>
-      </div>
+  <form class="card bg-base-100 shadow-xl" :class="color">
+    <div class="card-body">
+      <header>
+        <div class="card-actions justify-end floating">
+          <button
+            class="btn btn-ghost btn-square btn-sm"
+            :disabled="meta.isLoading || processing"
+            type="reset"
+            @click.prevent="remove"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
 
-      <h6 class="meta">{{ status }}</h6>
-      <h4 class="title" v-if="available?.product?.name">
-        {{ available.product.name }}
-      </h4>
-      <h5 class="subtitle" v-if="available?.product?.description">
-        {{ available.product.description }}
-      </h5>
-    </header>
-
-    <!-- terms -->
-    <ul class="terms">
-      <li
-        v-for="term in available.terms"
-        :key="term.billing_cycle_months"
-        class="term"
-        :class="{
-          selected: isSelectedTerm(term),
-          disabled: meta.isLoading || processing
-        }"
-        @click.prevent="
-          !meta.isLoading && !processing ? updateTerm(term) : null
-        "
-      >
-        <input
-          :key="term.billing_cycle_months"
-          type="checkbox"
-          :value="term"
-          disabled
-          :checked="isSelectedTerm(term)"
-        />
-        <h4 class="title" v-if="term?.billing_cycle_name">
-          {{ term.billing_cycle_name }}
+        <h6 class="meta">{{ status }}</h6>
+        <h4 class="card-title" v-if="available?.product?.name">
+          {{ available.product.name }}
         </h4>
-        <h5 class="price">
-          {{ !term?.price ? "Free" : term?.price_formatted }}
+        <h5 class="subtitle" v-if="available?.product?.description">
+          {{ available.product.description }}
         </h5>
-        <h6 class="savings" v-if="term.saving">
-          {{ term.saving_formatted }}
-        </h6>
-        <!-- {{ term }} -->
-      </li>
-    </ul>
+      </header>
 
-    <!-- attributes -->
-    <dl class="attributes">
-      <template v-for="attribute in available.attributes" :key="attribute.id">
-        <dt class="attribute">
-          <h4 class="subtitle">
+      <!-- terms -->
+      <ul
+        class="terms list-none stats stats-vertical xl:stats-horizontal shadow bg-stone-100 text-neutral"
+      >
+        <li
+          v-for="term in available.terms"
+          :key="term.billing_cycle_months"
+          class="term stat cursor-pointer"
+          :class="{
+            selected: isSelectedTerm(term),
+            disabled: meta.isLoading || processing
+          }"
+          @click.prevent="
+            !meta.isLoading && !processing ? updateTerm(term) : null
+          "
+        >
+          <div class="stat-figure text-secondary">
+            <!-- <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              class="inline-block w-8 h-8 stroke-current"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg> -->
+
+            <input
+              :key="term.billing_cycle_months"
+              type="checkbox"
+              class="checkbox checkbox-primary"
+              :value="term"
+              :checked="isSelectedTerm(term)"
+              disabled
+            />
+          </div>
+          <div class="stat-title">{{ term.billing_cycle_name }}</div>
+          <div class="stat-value">
+            {{ !term?.price ? "Free" : term?.price_formatted }}
+          </div>
+          <div class="stat-desc" v-if="term.saving">
+            {{ term.saving_formatted }} Saving
+          </div>
+        </li>
+      </ul>
+
+      <!-- attributes -->
+      <section class="attributes my-4" v-if="available.attributes?.length">
+        <template v-for="attribute in available.attributes" :key="attribute.id">
+          <h4 class="text-neutral">
             {{ attribute.name }}
           </h4>
-        </dt>
-        <dd v-for="value in attribute.values">
-          <fieldset
-            v-if="model.attributes"
-            :disabled="meta.isLoading || processing"
-          >
-            <input
-              :type="attribute.multiple ? 'checkbox' : 'radio'"
-              :name="`attributes[${attribute.id}]`"
-              @change="selectAttribute(attribute, value.id, $event)"
-              :checked="isSelectedAttribute(attribute.id, value.id)"
-              :required="attribute.required"
-              :id="`${uuid}-${value.id}`"
-              :value="value.id"
-            />
 
-            <label :for="`${uuid}-${value.id}`">{{ value.name }}</label>
-
-            <template v-if="model.attributes?.[attribute.id]?.[value.id]">
+          <ul class="menu bg-neutral-content rounded-md">
+            <li v-for="value in attribute.values">
               <fieldset
-                v-if="value.canChangeQuantity"
-                class="quantity-increment"
+                class="form-control"
+                v-if="model.attributes"
+                :disabled="meta.isLoading || processing"
               >
-                <button
-                  class="prepend"
-                  @click.prevent="incrementAttribute(attribute.id, value)"
+                <label
+                  class="label cursor-pointer"
+                  :for="`${uuid}-${value.id}`"
                 >
-                  +
-                </button>
+                  <input
+                    :type="attribute.multiple ? 'checkbox' : 'radio'"
+                    :class="attribute.multiple ? 'checkbox' : 'radio'"
+                    :name="`attributes[${attribute.id}]`"
+                    @change="selectAttribute(attribute, value.id, $event)"
+                    :checked="isSelectedAttribute(attribute.id, value.id)"
+                    :required="attribute.required"
+                    :id="`${uuid}-${value.id}`"
+                    :value="value.id"
+                  />
 
-                <input
-                  type="number"
-                  v-model="
-                    model.attributes[attribute.id][value.id].unit_quantity
-                  "
-                  :min="value.min_order_quantity"
-                  :max="value.max_order_quantity"
-                  :step="value.min_order_quantity || 1"
-                  readonly
-                />
+                  <span class="label-text ml-2">{{ value.name }}</span>
+                </label>
 
-                <button
-                  class="append"
-                  @click.prevent="decrementAttribute(attribute.id, value)"
-                >
-                  -
-                </button>
+                <template v-if="model.attributes?.[attribute.id]?.[value.id]">
+                  <fieldset
+                    class="form-control quantity-increment"
+                    v-if="value.canChangeQuantity"
+                  >
+                    <button
+                      class="btn prepend"
+                      @click.prevent="incrementAttribute(attribute.id, value)"
+                    >
+                      +
+                    </button>
+
+                    <input
+                      type="number"
+                      class="input"
+                      v-model="
+                        model.attributes[attribute.id][value.id].unit_quantity
+                      "
+                      :min="value.min_order_quantity"
+                      :max="value.max_order_quantity"
+                      :step="value.min_order_quantity || 1"
+                      readonly
+                    />
+
+                    <button
+                      class="btn append"
+                      @click.prevent="decrementAttribute(attribute.id, value)"
+                    >
+                      -
+                    </button>
+                  </fieldset>
+                </template>
+
+                <strong>{{ value?.price?.price_formatted }}</strong>
               </fieldset>
-            </template>
+            </li>
+          </ul>
+        </template>
+      </section>
 
-            <strong>{{ value?.price?.price_formatted }}</strong>
-          </fieldset>
-        </dd>
-      </template>
-    </dl>
-
-    <!-- options -->
-    <dl class="options">
-      <template v-for="option in available.options" :key="option.id">
-        <dt class="option">
-          <h4 class="subtitle">
+      <!-- options -->
+      <section class="options" v-if="available.options?.length">
+        <div class="my-4" v-for="option in available.options" :key="option.id">
+          <h4 class="text-neutral">
             {{ option.name }}
           </h4>
-        </dt>
-        <dd v-for="value in option.values">
-          <fieldset
-            v-if="model.options"
-            :disabled="meta.isLoading || processing"
-          >
-            <input
-              :type="option.multiple ? 'checkbox' : 'radio'"
-              :name="`options[${option.id}]`"
-              @change="selectOption(option, value.id, $event)"
-              :checked="isSelectedOption(option.id, value.id)"
-              :required="option.required"
-              :id="`${uuid}-${value.id}`"
-              :value="value.id"
-            />
 
-            <label :for="`${uuid}-${value.id}`">
-              {{ value.name }}
-            </label>
-
-            <template v-if="model.options?.[option.id]?.[value.id]">
-              <fieldset
-                v-if="value.canChangeQuantity"
-                class="quantity-increment"
+          <ul class="menu bg-stone-100 rounded-md">
+            <li class="" v-for="value in option.values">
+              <div
+                class="grid grid-cols-3"
+                v-if="model.options"
+                :disabled="meta.isLoading || processing"
               >
-                <button
-                  class="prepend"
-                  @click.prevent="incrementOption(option.id, value)"
+                <label
+                  class="label cursor-pointer col-span-1 justify-start"
+                  :for="`${uuid}-${value.id}`"
                 >
-                  +
-                </button>
+                  <input
+                    :type="option.multiple ? 'checkbox' : 'radio'"
+                    :class="option.multiple ? 'checkbox' : 'radio'"
+                    :name="`options[${option.id}]`"
+                    @change="selectOption(option, value.id, $event)"
+                    :checked="isSelectedOption(option.id, value.id)"
+                    :required="option.required"
+                    :id="`${uuid}-${value.id}`"
+                    :value="value.id"
+                  />
 
-                <input
-                  type="number"
-                  v-model="model.options[option.id][value.id].unit_quantity"
-                  :min="value.min_order_quantity"
-                  :max="value.max_order_quantity"
-                  :step="value.min_order_quantity || 1"
-                  readonly
-                />
+                  <span class="ml-2"> {{ value.name }}</span>
+                </label>
 
-                <button
-                  class="append"
-                  @click.prevent="decrementOption(option.id, value)"
-                >
-                  -
-                </button>
-              </fieldset>
-            </template>
+                <div class="col-span-2 justify-end text-right">
+                  <template v-if="model.options?.[option.id]?.[value.id]">
+                    <fieldset
+                      v-if="value.canChangeQuantity"
+                      class="quantity-increment form-control"
+                    >
+                      <button
+                        class="btn prepend"
+                        @click.prevent="incrementOption(option.id, value)"
+                      >
+                        +
+                      </button>
 
-            <strong>{{ value?.price?.price_formatted }}</strong>
-          </fieldset>
-        </dd>
-      </template>
-    </dl>
+                      <input
+                        class="input"
+                        type="number"
+                        v-model="
+                          model.options[option.id][value.id].unit_quantity
+                        "
+                        :min="value.min_order_quantity"
+                        :max="value.max_order_quantity"
+                        :step="value.min_order_quantity || 1"
+                        readonly
+                      />
 
-    <!-- provisioning -->
-    <dl class="provisioning">
-      <template v-for="field in available.provision_fields" :key="field.id">
-        <fieldset
-          :disabled="meta.isLoading || processing"
-          v-if="field.defer_mode != 'hidden'"
-        >
-          <label :for="field.id">{{ field.field_label }}</label>
-          <select
-            v-if="field.field_type == 'select'"
-            :name="`provision_fields[${field.id}]`"
-            :value="getProvisioningField(field.name)"
-            :required="field.required"
-            @input="setProvisioningField(field.name, $event.target.value)"
-            :id="field.id"
-          >
-            <option v-for="option in field.options" v-bind="option"></option>
-          </select>
+                      <button
+                        class="btn append"
+                        @click.prevent="decrementOption(option.id, value)"
+                      >
+                        -
+                      </button>
+                    </fieldset>
+                  </template>
 
-          <textarea
-            v-else-if="field.field_type == 'textarea'"
-            :name="`provision_fields[${field.id}]`"
-            :value="getProvisioningField(field.name)"
-            :required="field.required"
-            :id="field.id"
-            @input="setProvisioningField(field.name, $event.target.value)"
-          ></textarea>
+                  <strong>{{ value?.price?.price_formatted }}</strong>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
 
-          <input
-            v-else
-            :type="field.field_type.replace('input_', '')"
-            :name="`provision_fields[${field.id}]`"
-            :value="getProvisioningField(field.name)"
-            :required="field.required"
-            :id="field.id"
-            @input="setProvisioningField(field.name, $event.target.value)"
-          />
-        </fieldset>
-      </template>
-    </dl>
-
-    <!-- summary -->
-    <dl class="summary" v-if="!meta.isLoading && !processing">
-      <template v-if="available.product?.canChangeQuantity">
-        <dt>Quantity:</dt>
-        <dd>
+      <!-- provisioning -->
+      <dl class="provisioning">
+        <template v-for="field in available.provision_fields" :key="field.id">
           <fieldset
-            v-if="available.product?.canChangeQuantity"
-            class="quantity-increment"
+            class="form-control"
+            :disabled="meta.isLoading || processing"
+            v-if="field.defer_mode != 'hidden'"
           >
-            <button class="prepend" @click.prevent="incrementQuantity">
-              +
-            </button>
+            <label class="label" :for="field.id">
+              <span class="label-text"> {{ field.field_label }}</span>
+            </label>
+            <select
+              class="select select-bordered w-full max-w-xs"
+              v-if="field.field_type == 'select'"
+              :name="`provision_fields[${field.id}]`"
+              :value="getProvisioningField(field.name)"
+              :required="field.required"
+              @input="setProvisioningField(field.name, $event.target.value)"
+              :id="field.id"
+            >
+              <option v-for="option in field.options" v-bind="option"></option>
+            </select>
+
+            <textarea
+              v-else-if="field.field_type == 'textarea'"
+              class="textarea textarea-bordered w-full max-w-xs"
+              :name="`provision_fields[${field.id}]`"
+              :value="getProvisioningField(field.name)"
+              :required="field.required"
+              :id="field.id"
+              @input="setProvisioningField(field.name, $event.target.value)"
+            ></textarea>
 
             <input
-              type="number"
-              v-model="model.quantity"
-              min="1"
-              max="10"
-              readonly
-              @change="updateQuantity"
+              v-else
+              class="input input-bordered w-full max-w-xs"
+              :type="field.field_type.replace('input_', '')"
+              :name="`provision_fields[${field.id}]`"
+              :value="getProvisioningField(field.name)"
+              :required="field.required"
+              :id="field.id"
+              @input="setProvisioningField(field.name, $event.target.value)"
             />
-
-            <button class="append" @click.prevent="decrementQuantity">-</button>
           </fieldset>
-          <!-- <span v-else>{{ model.quantity }}</span> -->
-        </dd>
-      </template>
+        </template>
+      </dl>
 
-      <dt>Item Total:</dt>
-      <dd v-if="meta.isCalculating">calculating...</dd>
-      <dd v-else-if="meta.isConfiguring">waiting...</dd>
-      <dd v-else="">{{ totalFormatted }}</dd>
-    </dl>
+      <!-- summary -->
+      <dl class="summary" v-if="!meta.isLoading && !processing">
+        <template v-if="available.product?.canChangeQuantity">
+          <dt>Quantity:</dt>
+          <dd>
+            <fieldset
+              v-if="available.product?.canChangeQuantity"
+              class="form-control quantity-increment"
+            >
+              <button class="btn prepend" @click.prevent="incrementQuantity">
+                +
+              </button>
 
-    <footer>
-      <div class="actions">
-        <slot name="actions" v-bind="meta"> </slot>
-      </div>
+              <input
+                type="number"
+                v-model="model.quantity"
+                min="1"
+                max="10"
+                readonly
+                @change="updateQuantity"
+              />
 
-      <Debug
-        title="Product Config"
-        :state="state.value"
-        :model="model"
-        :context="available"
-        :errors="errors"
-        :meta="meta"
-      ></Debug>
+              <button class="btn append" @click.prevent="decrementQuantity">
+                -
+              </button>
+            </fieldset>
+            <!-- <span v-else>{{ model.quantity }}</span> -->
+          </dd>
+        </template>
 
-      <div class="overlay" v-if="processing">Updating...</div>
-    </footer>
+        <dt>Item Total:</dt>
+        <dd v-if="meta.isCalculating">calculating...</dd>
+        <dd v-else-if="meta.isConfiguring">waiting...</dd>
+        <dd v-else="">{{ totalFormatted }}</dd>
+      </dl>
+
+      <footer>
+        <div class="card-actions">
+          <slot name="actions" v-bind="meta"> </slot>
+        </div>
+
+        <Debug
+          title="Product Config"
+          :state="state.value"
+          :model="model"
+          :context="available"
+          :errors="errors"
+          :meta="meta"
+        ></Debug>
+
+        <div class="overlay" v-if="processing">Updating...</div>
+      </footer>
+    </div>
   </form>
 </template>
 
@@ -347,182 +407,3 @@ export default defineComponent({
   methods: {}
 });
 </script>
-
-<style scoped lang="scss">
-.card {
-  color: var(--upm-c-black);
-  background-color: var(--upm-c-white-soft);
-  padding: 1em;
-  border: 1px solid var(--color-border);
-  border-radius: 0.25em;
-  transition: all 200ms linear;
-  position: relative;
-  max-width: none !important;
-
-  &.warning {
-    background-color: var(--upm-c-warning-muted);
-    color: var(--upm-c-black);
-  }
-  &.error {
-    background-color: var(--upm-c-error-muted);
-    color: var(--upm-c-black);
-  }
-  &.success {
-    background-color: var(--upm-c-success-muted);
-    color: var(--upm-c-black);
-  }
-  &.info {
-    background-color: var(--upm-c-info-muted);
-    color: var(--upm-c-black);
-  }
-
-  &.added {
-    background-color: var(--upm-c-white-soft);
-    color: var(--upm-c-black);
-  }
-
-  // &:hover {
-  //   box-shadow: 0 0 0.5em 0.25em rgba(0, 0, 0, 0.1);
-  // }
-
-  .actions {
-    &.floating {
-      margin: 0 !important;
-      position: absolute;
-      top: 0;
-      right: 0;
-
-      button,
-      button[type="reset"] {
-        font-size: 0.667em !important;
-      }
-    }
-  }
-  .title {
-    font-size: 1.25em;
-    font-weight: bold;
-  }
-  .subtitle {
-    font-size: 1em;
-    font-style: italic;
-  }
-
-  .meta {
-    font-weight: 600;
-    font-size: 0.5em;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-  .summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 0.5em;
-    margin-top: 1em;
-    font-size: 1.125em;
-    border-top: 1px solid var(--color-border);
-    padding-top: 1em;
-
-    dt {
-      font-weight: bold;
-    }
-    dd {
-      font-weight: normal;
-      text-align: right;
-    }
-  }
-
-  fieldset {
-    justify-content: flex-end;
-
-    &.quantity-increment {
-      padding: 0 0.5em;
-      input {
-        text-align: center;
-        color: currentColor !important;
-        border-color: currentColor !important;
-      }
-      > button {
-        background-color: var(--upm-c-black-semi);
-        color: currentColor;
-      }
-    }
-  }
-
-  label {
-    display: flex !important;
-    justify-content: space-between;
-    flex-grow: 1;
-  }
-}
-
-.terms {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-  grid-gap: 0.5em;
-  margin: 1em 0;
-}
-
-.term {
-  color: var(--upm-c-black);
-  background-color: var(--upm-c-white);
-  border: 1px solid var(--color-border);
-  border-radius: 0.25em;
-  transition: all 200ms linear;
-  text-align: center;
-  position: relative;
-  cursor: pointer;
-
-  &.selected,
-  &:hover {
-    background-color: var(--upm-c-info-muted);
-    color: var(--upm-c-black);
-    border-color: var(--upm-c-info);
-    box-shadow: var(--shadow-hover);
-  }
-
-  &.disabled {
-    cursor: default;
-    background-color: var(--upm-c-disabled-muted);
-    color: var(--upm-c-black);
-    border-color: var(--upm-c-disabled);
-    box-shadow: none;
-  }
-
-  input[type="checkbox"] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(25%, -25%);
-  }
-
-  .title {
-    background-color: var(--upm-c-white);
-    font-size: 0.875em;
-    padding: 0.5em 0.125em;
-    border-bottom: 1px solid var(--color-border);
-    font-weight: 600;
-  }
-  .price {
-    font-weight: 600;
-    font-size: 1.25em;
-    padding: 1em 0.125em;
-  }
-}
-
-.overlay {
-  // font-weight: 800;
-  align-items: center;
-  background-color: var(--overlay);
-  bottom: 0;
-  color: var(--overlay-text);
-  display: flex;
-  font-size: 0.873em;
-  justify-content: center;
-  left: 0;
-  position: absolute;
-  right: 0;
-  text-transform: uppercase;
-  top: 0;
-  z-index: 1;
-}
-</style>

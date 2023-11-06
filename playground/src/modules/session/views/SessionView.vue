@@ -1,7 +1,7 @@
 <template>
   <section class="brand">
-    <header class="toolbar">
-      <h2 class="title">
+    <header class="navbar bg-gray-100 rounded-md shadow-md sticky top-0 z-10">
+      <h2 class="title m-0">
         Session is a
         {{
           meta.isAuthenticated
@@ -198,15 +198,3 @@ const model = ref({
 
 // ---
 </script>
-
-<style scoped lang="scss">
-.brand {
-  .context {
-    margin-top: 1em;
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--upm-c-white-mute);
-      padding-bottom: 1em;
-    }
-  }
-}
-</style>

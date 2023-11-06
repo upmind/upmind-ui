@@ -1,7 +1,7 @@
 <template>
   <section class="requests">
-    <header class="toolbar">
-      <h2 class="title">
+    <header class="navbar bg-gray-100 rounded-md shadow-md sticky top-0 z-10">
+      <h2 class="title m-0">
         Requests <span v-if="meta.isActive">({{ count }})</span>
       </h2>
       <div class="actions">

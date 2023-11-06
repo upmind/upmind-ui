@@ -1,13 +1,19 @@
 <template>
-  <section class="brand">
-    <header class="toolbar">
-      <h2 class="title">Basket</h2>
+  <section class="basket">
+    <header class="navbar bg-gray-100 rounded-md shadow-md sticky top-0 z-10">
+      <div class="flex-1 px-4">
+        <h2 class="title m-0">Basket</h2>
+      </div>
 
-      <div class="actions">
+      <div class="actions flex-none gap-2">
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
-              <select v-model="model.productId" placeholder="Select product">
+              <select
+                class="select select-bordered w-24 md:w-auto"
+                v-model="model.productId"
+                placeholder="Select product"
+              >
                 <component
                   v-for="(item, index) in productCatalogue"
                   :key="`item-${index}`"
@@ -21,50 +27,44 @@
                   ></option>
                 </component>
               </select>
-
-              <button
-                type="submit"
-                :disabled="meta.isProcessing || !model.productId"
-              >
-                add to basket
-              </button>
-
-              <button
-                type="reset"
-                :disabled="meta.isProcessing || !model.productId"
-                @click.prevent="model.productId = null"
-              >
-                cancel
-              </button>
             </fieldset>
           </form>
+          <button
+            class="btn btn-primary"
+            type="submit"
+            :disabled="meta.isProcessing || !model.productId"
+            @click.prevent="addProduct(model)"
+          >
+            add to basket
+          </button>
+
+          <button
+            class="btn btn-ghost"
+            type="reset"
+            :disabled="meta.isProcessing || !model.productId"
+            @click.prevent="model.productId = null"
+          >
+            cancel
+          </button>
         </slot>
       </div>
     </header>
 
     <div class="content" v-if="!meta.isLoading">
+      <!-- <ul class="steps">
+        <li class="step step-primary" data-content="?">Configure</li>
+        <li class="step" data-content="★">Auth</li>
+        <li class="step" data-content="$">Checkout</li>
+        <li class="step" data-content="✓">Complete</li>
+      </ul> -->
+
       <div v-if="!items?.length">
         <h3>We <em class="error">don't have any</em> Products in the basket</h3>
       </div>
 
-      <section class="basket">
-        <ul class="cards">
-          <!-- <li v-for="product in products" :key="product.id">
-          <section class="card success">
-            <h4 class="title">{{ product.product_name }}</h4>
-            <h5 class="subtitle">{{ product.description }}</h5>
-
-            <dl class="summary">
-              <dt>Quantity:</dt>
-              <dd>{{ product.quantity }}</dd>
-              <dt>Price:</dt>
-              <dd>{{ product.configuration_total_amount_formatted }}</dd>
-              <dt>Billing Cycle:</dt>
-              <dd>{{ product.billing_cycle_months }}</dd>
-            </dl>
-          </section>
-        </li> -->
-          <li v-for="item in items" :key="item.id">
+      <section class="basket grid grid-cols-7 gap-4 py-4">
+        <div class="cards col-span-5 list-none">
+          <div v-for="item in items" :key="item.id">
             <ProductConfig
               :item="item"
               :id="item.id"
@@ -86,10 +86,14 @@
                 </button>
               </template>
             </ProductConfig>
-          </li>
-        </ul>
+          </div>
+        </div>
 
-        <aside class="basket-summary" v-if="items?.length">
+        <aside
+          class="prose col-span-2 basket-summary rounded-md self-start p-4 text-right sticky top-20"
+          data-theme="dark"
+          v-if="items?.length"
+        >
           <h3 class="title">
             <em class="success">{{ items.length }}</em> Product{{
               items.length > 1 ? "s" : ""
@@ -104,6 +108,7 @@
 
           <div class="actions">
             <button
+              class="btn btn-ghost btn-block"
               type="reset"
               :disabled="meta.isProcessing"
               @click.prevent="clearBasket"
@@ -112,7 +117,7 @@
             </button>
 
             <button
-              class="secondary"
+              class="btn btn-secondary btn-block"
               v-if="meta.canProcess"
               :disabled="meta.isProcessing"
               @click.prevent="updateBasket"
@@ -228,141 +233,3 @@ const model = ref({
   quantity: 1
 });
 </script>
-
-<style scoped lang="scss">
-hr {
-  margin: 2rem 0;
-  border: none;
-  border-top: 1px solid var(--color-border);
-}
-
-.content > div:first-of-type {
-  hr {
-    display: none;
-  }
-}
-
-.basket {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(320px, 1fr);
-  grid-gap: 1em;
-  margin: 1em 0;
-}
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-  grid-gap: 1em;
-}
-
-.card {
-  color: var(--upm-c-black);
-  background-color: var(--upm-c-white-soft);
-  padding: 1em;
-  border: 1px solid var(--color-border);
-  border-radius: 0.25em;
-  transition: all 200ms linear;
-
-  &.info {
-    background-color: var(--upm-c-info-muted);
-    color: var(--upm-c-black);
-  }
-  &.warning {
-    background-color: var(--upm-c-warning-muted);
-    color: var(--upm-c-black);
-  }
-  &.error {
-    background-color: var(--upm-c-error-muted);
-    color: var(--upm-c-black);
-  }
-  &.success {
-    background-color: var(--upm-c-success-muted);
-    color: var(--upm-c-black);
-  }
-
-  // &:hover {
-  //   box-shadow: 0 0 0.5em 0.25em rgba(0, 0, 0, 0.1);
-  // }
-
-  .title {
-    font-size: 1.25em;
-    font-weight: bold;
-  }
-  .subtitle {
-    font-size: 1em;
-    font-style: italic;
-  }
-
-  .summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 0.5em;
-    margin-top: 1em;
-    font-size: 0.875em;
-
-    dt {
-      font-weight: bold;
-    }
-    dd {
-      font-weight: normal;
-      text-align: right;
-    }
-  }
-}
-
-.basket-summary {
-  align-items: flex-end;
-  align-self: flex-start;
-  background-color: var(--upm-c-primary);
-  border-radius: 0.25em;
-  border: 1px solid var(--color-border);
-  color: var(--upm-c-black);
-  color: var(--upm-c-white);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 1em 2em;
-  position: sticky;
-  text-align: right;
-  top: 5.5em; // illusion with the sticky header
-  transition: all 200ms linear;
-
-  .title {
-    margin-top: 2em;
-
-    em {
-      font-style: normal;
-      font-weight: bold;
-      font-size: 1.5em;
-    }
-  }
-  .totals {
-    font-weight: 800;
-    margin: 3em 0;
-
-    dt {
-      border-bottom: 1px solid var(--upm-c-white);
-      display: block;
-      margin-bottom: 0.5em;
-      padding-bottom: 0.5em;
-      text-transform: uppercase;
-      width: 100%;
-    }
-    dd {
-      font-size: 2em;
-    }
-  }
-  .actions {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    width: 100%;
-    margin: 0 !important;
-    > button {
-      padding: 1em 0.5em !important;
-      margin: 0 !important;
-      flex: 1 100%;
-      justify-content: center;
-    }
-  }
-}
-</style>

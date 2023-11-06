@@ -1,23 +1,50 @@
 <template>
-  <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="@/assets/logo.svg"
-      width="125"
-      height="125"
-    />
+  <div id="app" data-theme="light" class="grid grid-cols-5 gap-4">
+    <header class="flex flex-col items-center justify-start bg-gray-100">
+      <img
+        alt="Vue logo"
+        class="logo my-8"
+        src="@/assets/logo.svg"
+        width="125"
+        height="125"
+      />
+      <div class="drawer lg:drawer-open">
+        <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
 
-    <nav class="vertical">
-      <router-link v-for="route in routes" :key="route.path" :to="route.path">
-        {{ upperFirst(route.name) }}
-      </router-link>
-    </nav>
-  </header>
+        <div class="drawer-content flex flex-col items-center justify-center">
+          <!-- Page content here -->
+          <label
+            for="my-drawer-2"
+            class="btn btn-square drawer-button lg:hidden"
+          >
+            <Bars4Icon></Bars4Icon>
+          </label>
+        </div>
 
-  <main>
-    <router-view class="view" />
-  </main>
+        <nav class="drawer-side">
+          <!-- <label
+            for="my-drawer-2"
+            aria-label="close sidebar"
+            class="drawer-overlay"
+          ></label> -->
+          <ul
+            class="menu sticky top-0 bg-gray-100 top-0 p-4 w-60 max-w-full text-base-content"
+          >
+            <!-- Sidebar content here -->
+            <li v-for="route in routes" :key="route.path">
+              <router-link :to="route.path">
+                {{ upperFirst(route.name) }}
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="prose max-w-none col-span-4 p-4">
+      <router-view class="view" />
+    </main>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -25,82 +52,8 @@ import { ref } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import { upperFirst } from "lodash-es";
 
+import { Bars4Icon } from "@heroicons/vue/24/solid";
+
 const router = useRouter();
 const routes = ref(router.options.routes);
 </script>
-
-<style scoped lang="scss">
-main {
-  width: 100%;
-  height: 100%;
-}
-
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  text-align: center;
-  margin-top: 1em;
-  padding: 1rem;
-
-  a {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-left: 1px solid var(--color-border);
-
-    &.router-link-exact-active {
-      color: var(--color-text);
-
-      &:hover {
-        background-color: transparent;
-      }
-    }
-  }
-
-  a:first-of-type {
-    border: 0;
-  }
-
-  @media (min-width: 1024px) {
-    &.vertical {
-      display: flex;
-      flex-direction: column;
-    }
-
-    a {
-      border-left: none;
-      border-top: 1px solid var(--color-border);
-    }
-  }
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 1em 0;
-    // padding-right: calc(var(--section-gap) / 2);
-    align-self: flex-start;
-    justify-content: center;
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  nav {
-    text-align: left;
-  }
-  .view {
-    // border-left: 1px solid var(--color-border);
-  }
-}
-</style>
