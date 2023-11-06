@@ -1,7 +1,7 @@
 <template>
   <section class="toggle">
-    <header class="toolbar">
-      <h2 class="title">Toggle Machine</h2>
+    <header class="navbar bg-gray-100 rounded-md shadow-md sticky top-0 z-10">
+      <h2 class="title m-0">Toggle Machine</h2>
 
       <div class="actions">
         <slot name="actions"></slot>
@@ -17,15 +17,3 @@
 <script setup lang="ts">
 import UpmToggle from "../components/Toggle.vue";
 </script>
-
-<style scoped lang="scss">
-.toggle {
-  .values {
-    margin-top: 1em;
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--upm-c-white-mute);
-      padding-bottom: 1em;
-    }
-  }
-}
-</style>

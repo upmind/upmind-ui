@@ -132,31 +132,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped lang="scss">
-.request {
-  &:not(:first-child) {
-    margin-top: 1em;
-  }
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--upm-c-white-mute);
-    padding-bottom: 1em;
-  }
-
-  // ---
-  &.error {
-    color: red;
-  }
-  &.warning {
-    color: orange;
-  }
-  // ---
-  .url {
-    word-break: break-all;
-  }
-  .status {
-    color: gray;
-    display: block;
-  }
-}
-</style>

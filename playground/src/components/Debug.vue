@@ -2,7 +2,7 @@
   <details
     ref="debugbar"
     v-if="isDebugging"
-    class="debug"
+    class="debug p-4 rounded-md bg-opacity-30 bg-stone-400 prose-neutral prose-sm"
     :open="isOpen"
     @toggle="({ target }) => (isOpen = target.open)"
   >
@@ -85,9 +85,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped lang="scss">
-details {
-  margin-top: 1em;
-}
-</style>
