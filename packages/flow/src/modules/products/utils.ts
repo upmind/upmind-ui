@@ -4,15 +4,18 @@ const { getBillingCycle } = useBrand();
 
 // --- utils
 import {
+  find,
   get,
   isEmpty,
   isNil,
   map,
+  mapValues,
   omit,
   orderBy,
   pick,
   reduce,
   set,
+  some,
   values
 } from "lodash-es";
 // --------------------------------------------------------
@@ -22,6 +25,13 @@ import {
 const translateName = item => item?.name_translated || item.name;
 
 // --------------------------------------------------------
+export const useHasPriceOverride = (values, available) => {
+  return some(values, (value, key) => {
+    const { price_override = false } = find(available, ["id", key]);
+    // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
+    return !isEmpty(value) && !!price_override;
+  });
+};
 
 export const useQuantityParser = (quantity: number, data: any) => {
   // Check the data is available
@@ -59,7 +69,7 @@ export const useProductParser = (data: any) => {
   return product;
 };
 
-export const useProductTermsParser = (data: any) => {
+export const useTermsParser = (data: any) => {
   // 1. sort the terms by billing_cycle_months
   let terms = orderBy(data, "billing_cycle_months");
   getBillingCycle;
@@ -97,7 +107,7 @@ export const useProductTermsParser = (data: any) => {
   });
 };
 
-export const useProductAttributesParser = (data: any) => {
+export const useAttributesParser = (data: any) => {
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
   // When getting the attributes from the API, we get a flat list of attributes
@@ -145,7 +155,7 @@ export const useProductAttributesParser = (data: any) => {
   return values(attributes);
 };
 
-export const useProductOptionsParser = (data: any) => {
+export const useOptionsParser = (data: any) => {
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
   // When getting the attributes from the API, we get a flat list of attributes
@@ -220,16 +230,79 @@ export const useProductOptionsParser = (data: any) => {
   return values(options);
 };
 
-export const useProductProvisioningParser = (data: any) => {
+export const useProvisioningParser = (data: any) => {
   // TODO: pick only the properties we need
   return data;
+};
+
+export const useTotalParser = (data: any) => {
+  // "cost_currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+  // "base_price_currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+  // "cost_currency_code": "USD",
+  // "base_currency_code": "USD",
+
+  // "tax_amount": 0,
+  // "total_amount": 0,
+  // "total_discount_amount": 0,
+  // "net_global_discount_amount": 0,
+  // "net_product_discount_amount": 0,
+  // "cost_formatted": "$0.00",
+  // "base_price_formatted": "$1,500.00",
+  // "selling_price_formatted": "$0.00",
+  // "selling_price_converted": 0,
+  // "net_selling_price_formatted": "$0.00",
+  // "net_unit_selling_price_formatted": "$0.00",
+  // "net_product_discount_amount_formatted": "$0.00",
+  // "net_global_discount_amount_formatted": "$0.00",
+  // "total_discount_amount_formatted": "$0.00",
+  // "net_amount_formatted": "$0.00",
+  // "tax_amount_formatted": "$0.00",
+  // "tax_amount_converted": "$0.00",
+  // "total_amount_formatted": "$0.00",
+  // "total_amount_converted": 0,
+  // "configuration_selling_price_formatted": "$3,000.00",
+  // "configuration_total_amount_formatted": "$3,000.00",
+  // "configuration_total_amount_converted": 3000,
+  // "configuration_net_selling_price_formatted": "$3,000.00",
+  // "configuration_net_amount_formatted": "$3,000.00",
+  // "configuration_net_amount_converted": 3000,
+  // "configuration_selling_price_discount_converted": 0,
+  // "configuration_selling_price_discount_formatted": "$0.00",
+  // "configuration_total_discount_amount_formatted": "$0.00",
+  // "configuration_total_discount_amount_converted": 0,
+  // "configuration_net_amount_discount_formatted": "$0.00",
+  // "configuration_net_amount_discount_converted": 0,
+  // "configuration_net_selling_price_discount_formatted": "$0.00",
+  // "configuration_selling_price_discounted_converted": 3000,
+  // "configuration_selling_price_discounted_formatted": "$3,000.00",
+  // "configuration_total_discounted_amount_formatted": "$3,000.00",
+  // "configuration_total_discounted_amount_converted": 3000,
+  // "configuration_net_amount_discounted_formatted": "$3,000.00",
+  // "configuration_net_amount_discounted_converted": 3000,
+  // "configuration_net_selling_price_discounted_formatted": "$3,000.00",
+  // "partial_amount_to_credit_formatted": "$0.00",
+  // "partial_amount_to_credit_converted": 0,
+  // "partial_amount_credited_formatted": "$0.00",
+  // "partial_amount_credited_converted": 0,
+  // "invoice_create_datetime": null,
+  // "invoice_total_amount": 3000,
+  // "invoice_total_amount_converted": 3000,
+  // "invoice_total_amount_formatted": "$3,000.00",
+  return {
+    currencyId: data?.cost_currency_id || data?.currencyId,
+    total: data?.invoice_total_amount || data?.total,
+    totalFormatted:
+      data?.invoice_total_amount_formatted ||
+      data?.total_formatted ||
+      data?.totalFormatted
+  };
 };
 
 // --------------------------------------------------------
 //  Setting Values for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
-export const useProductValuesParser = (data: any) => {
+export const useValuesParser = (data: any) => {
   // handle new product values
   const values = pick(data, [
     "quantity",
@@ -252,7 +325,7 @@ export const useProductValuesParser = (data: any) => {
       values,
       "provision_fields",
       useAddProvisioningParser(data.provision_fields)
-    ); // TODO:
+    );
   }
 
   // ---
@@ -314,13 +387,16 @@ export const useProductConfigParser = (data: any) => {
   const config = {
     product_id: data?.productId,
     quantity: data?.quantity,
-    billing_cycle_months: data?.term,
+    billing_cycle_months: data?.term?.billing_cycle_months,
     // ---
     attributes: reduce(
       data?.attributes,
       (result, attribute) => {
         if (attribute) {
-          result.push(...values(attribute));
+          const selected = values(
+            mapValues(attribute, choice => omit(choice, ["price", "total"]))
+          );
+          result.push(...selected);
         }
         return result;
       },
@@ -330,7 +406,10 @@ export const useProductConfigParser = (data: any) => {
       data?.options,
       (result, option) => {
         if (option) {
-          result.push(...values(option));
+          const selected = values(
+            mapValues(option, choice => omit(choice, ["price", "total"]))
+          );
+          result.push(...selected);
         }
         return result;
       },

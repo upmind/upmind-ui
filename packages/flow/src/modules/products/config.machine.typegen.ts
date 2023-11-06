@@ -8,6 +8,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.productConfigurator.calculating:invocation[0]": {
+      type: "done.invoke.productConfigurator.calculating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]": {
       type: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
       data: unknown;
@@ -34,6 +39,10 @@ export interface Typegen0 {
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.load": { type: "error.platform.load"; data: unknown };
+    "error.platform.productConfigurator.calculating:invocation[0]": {
+      type: "error.platform.productConfigurator.calculating:invocation[0]";
+      data: unknown;
+    };
     "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]": {
       type: "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
       data: unknown;
@@ -57,6 +66,7 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
+    calculate: "done.invoke.productConfigurator.calculating:invocation[0]";
     checkAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
     checkOptions: "done.invoke.productConfigurator.configuring.options.checking:invocation[0]";
     checkProvisioning: "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]";
@@ -69,6 +79,7 @@ export interface Typegen0 {
     delays: never;
     guards: never;
     services:
+      | "calculate"
       | "checkAttributes"
       | "checkOptions"
       | "checkProvisioning"
@@ -77,14 +88,14 @@ export interface Typegen0 {
       | "getProduct";
   };
   eventsCausingActions: {
-    sendConfig: "done.state.configuring";
+    sendConfig: "done.invoke.productConfigurator.calculating:invocation[0]";
     setAttributes:
       | "UPDATE.ATTRIBUTES"
       | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
     setClean: "REFRESH";
-    setConfig: "done.state.configuring";
+    setConfig: "done.invoke.productConfigurator.calculating:invocation[0]";
     setDirty:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
@@ -93,6 +104,7 @@ export interface Typegen0 {
       | "UPDATE.TERM";
     setError:
       | "error.platform.load"
+      | "error.platform.productConfigurator.calculating:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]"
@@ -109,6 +121,7 @@ export interface Typegen0 {
     setQuantity:
       | "UPDATE.QUANTITY"
       | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
+    setSummary: "done.invoke.productConfigurator.calculating:invocation[0]";
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
@@ -117,6 +130,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
+    calculate: "done.state.configuring";
     checkAttributes:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
@@ -155,6 +169,7 @@ export interface Typegen0 {
     getProduct: "REFRESH" | "xstate.init";
   };
   matchesStates:
+    | "calculating"
     | "complete"
     | "configured"
     | "configuring"

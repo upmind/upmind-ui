@@ -7,13 +7,14 @@ import services from "./services";
 // --utils
 import { useTime } from "../../utils";
 import {
-  useProductAttributesParser,
+  useAttributesParser,
   useProductConfigParser,
-  useProductOptionsParser,
-  useProductProvisioningParser,
+  useOptionsParser,
+  useProvisioningParser,
   useProductParser,
-  useProductTermsParser,
-  useProductValuesParser
+  useTermsParser,
+  useValuesParser,
+  useTotalParser
 } from "./utils";
 
 import { get, set, map, toNumber, find } from "lodash-es";
@@ -31,7 +32,7 @@ export default values =>
         // the model use dto generate our coonfig,
         // but with better structure / more detail to make ut easier for any ui to consume,
         // and keep the generated config separate & clean
-        values: useProductValuesParser(values),
+        values: useValuesParser(values),
 
         // we mark the config with flags to help us determine what to do with it
         // once we have finished configuring it
@@ -51,7 +52,7 @@ export default values =>
         // ---
         // the generated summary of the configuration,
         // including the totals formatted for display
-        summary: null,
+        summary: useTotalParser(values),
 
         // ---
         error: null
@@ -63,14 +64,7 @@ export default values =>
           invoke: {
             id: "load",
             src: "getProduct",
-            onDone: [
-              // {
-              //   target: "configured",
-              //   actions: ["setAvailable"],
-              //   cond: ({ values }) => !!values?.id
-              // },
-              { target: "configuring", actions: ["setAvailable"] }
-            ],
+            onDone: [{ target: "configuring", actions: ["setAvailable"] }],
             onError: { target: "#error", actions: ["setError"] }
           }
         },
@@ -201,7 +195,15 @@ export default values =>
             }
           },
 
-          onDone: { target: "configured" }
+          onDone: { target: "calculating" }
+        },
+
+        calculating: {
+          invoke: {
+            src: "calculate",
+            onDone: { target: "configured", actions: ["setSummary"] },
+            onError: { target: "error", actions: ["setError"] }
+          }
         },
 
         // this is our state where we are all good and can add/update this configuration to the basket
@@ -213,7 +215,6 @@ export default values =>
               actions: ["setValues", "setClean"]
             },
             // ---
-
             "UPDATE.QUANTITY": {
               target: "configuring.quantity.checking",
               actions: ["setQuantity", "setDirty"]
@@ -255,7 +256,8 @@ export default values =>
     {
       actions: {
         setValues: assign({
-          values: ({ values }, { data }) => useProductValuesParser(data)
+          values: ({ values }, { data }) => useValuesParser(data),
+          summary: ({ summary }, { data }) => useTotalParser(data)
         }),
 
         // ---
@@ -270,6 +272,9 @@ export default values =>
         })),
 
         // ---
+        setSummary: assign({
+          summary: ({ summary, values }, { data }) => useTotalParser(data)
+        }),
 
         setQuantity: assign({
           values: ({ values }, { data }) => {
@@ -292,7 +297,7 @@ export default values =>
               option.values = map(option.values, value => {
                 value.price = find(value.prices, [
                   "billing_cycle_months",
-                  term
+                  term?.billing_cycle_months
                 ]);
                 return value;
               });
@@ -337,10 +342,10 @@ export default values =>
           available: (_context, { data }) => {
             return {
               product: useProductParser(data),
-              terms: useProductTermsParser(data.prices),
-              attributes: useProductAttributesParser(data.products_attributes),
-              options: useProductOptionsParser(data.products_options),
-              provision_fields: useProductProvisioningParser(
+              terms: useTermsParser(data.prices),
+              attributes: useAttributesParser(data.products_attributes),
+              options: useOptionsParser(data.products_options),
+              provision_fields: useProvisioningParser(
                 data.products_provisioning
               )
             };

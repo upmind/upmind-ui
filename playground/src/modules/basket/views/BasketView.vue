@@ -78,11 +78,11 @@
               <template #actions="{ isConfigured, isNew, isDirty }">
                 <button
                   v-if="isConfigured && (isNew || isDirty)"
-                  class="primary"
+                  class="secondary"
                   :disabled="meta.isProcessing"
                   @click.prevent="updateItem(item.id)"
                 >
-                  {{ isNew ? "Add" : "Update" }}
+                  Update Item
                 </button>
               </template>
             </ProductConfig>
@@ -112,7 +112,7 @@
             </button>
 
             <button
-              class="primary"
+              class="secondary"
               v-if="meta.canProcess"
               :disabled="meta.isProcessing"
               @click.prevent="updateBasket"
@@ -362,14 +362,6 @@ hr {
       margin: 0 !important;
       flex: 1 100%;
       justify-content: center;
-      &.primary {
-        font-weight: 600;
-        background-color: var(--upm-c-secondary) !important;
-        color: var(--upm-c-primary) !important;
-        &:hover {
-          background-color: var(--upm-c-secondary-hard) !important;
-        }
-      }
     }
   }
 }
