@@ -123,8 +123,13 @@ export const useBasketItem = item => {
     isDirty: state.value.context.isDirty,
     hasErrors: state.value.matches("error"),
     isConfiguring: state.value.matches("configuring"),
-    isConfigured: state.value.matches("configured")
+    isConfigured: state.value.matches("configured"),
+    isCalculating: state.value.matches("calculating")
   }));
+
+  const totalFormatted = computed(() =>
+    get(state.value.context, "summary.totalFormatted", null)
+  );
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
@@ -132,17 +137,6 @@ export const useBasketItem = item => {
     if (newVal.context.values !== model.value) {
       model.value = newVal.context.values;
     }
-  });
-
-  const totalAmount = computed(() => {
-    const term = find(available.value.terms, [
-      "billing_cycle_months",
-      model.value.term
-    ]);
-
-    const price = get(term, "price", available.value?.product?.price || 0);
-
-    return model.value.quantity * price || 0;
   });
 
   // --- QUANTITY
@@ -186,7 +180,10 @@ export const useBasketItem = item => {
   // --- TERMS
 
   function isSelectedTerm(term) {
-    const value = isEqual(term.billing_cycle_months, model.value?.term);
+    const value = isEqual(
+      term.billing_cycle_months,
+      model.value?.term?.billing_cycle_months
+    );
     return value;
   }
 
@@ -360,7 +357,7 @@ export const useBasketItem = item => {
     model,
     meta,
     // ---
-    totalAmount,
+    totalFormatted,
     // ---
     updateQuantity,
     incrementQuantity,

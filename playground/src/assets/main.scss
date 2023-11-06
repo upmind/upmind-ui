@@ -14,6 +14,9 @@ a {
 .primary {
   color: var(--upm-c-primary);
 }
+.secondary {
+  color: var(--upm-c-secondary);
+}
 .error {
   color: var(--upm-c-error);
 }
@@ -31,6 +34,11 @@ a {
   background-color: var(--upm-c-primary-muted);
   color: var(--upm-c-primary);
   border-color: var(--upm-c-primary);
+}
+.bg-secondary {
+  background-color: var(--upm-c-secondary-muted);
+  color: var(--upm-c-secondary);
+  border-color: var(--upm-c-secondary);
 }
 .bg-error {
   background-color: var(--upm-c-error-muted);
@@ -95,6 +103,17 @@ button.primary {
 
   &:not(:disabled):hover {
     background: var(--upm-c-primary);
+    transition: all 200ms linear;
+  }
+}
+button.secondary {
+  background: var(--upm-c-secondary);
+  background-color: var(--upm-c-secondary);
+  color: var(--upm-c-primary);
+  transition: all 200ms linear;
+
+  &:not(:disabled):hover {
+    background: var(--upm-c-secondary-hard);
     transition: all 200ms linear;
   }
 }

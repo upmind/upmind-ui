@@ -245,7 +245,9 @@
         <span v-else>{{ model.quantity }}</span>
       </dd>
       <dt>Price:</dt>
-      <dd>{{ totalAmount }}</dd>
+      <dd v-if="meta.isCalculating">calculating...</dd>
+      <dd v-else-if="meta.isConfiguring">waiting...</dd>
+      <dd v-else="">{{ totalFormatted }}</dd>
     </dl>
 
     <footer>
@@ -411,7 +413,9 @@ export default defineComponent({
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 0.5em;
     margin-top: 1em;
-    font-size: 0.875em;
+    font-size: 1.125em;
+    border-top: 1px solid var(--color-border);
+    padding-top: 1em;
 
     dt {
       font-weight: bold;

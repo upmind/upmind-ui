@@ -5,11 +5,11 @@ import { useApi } from "../api";
 import { useBrand, BrandConfigKeys } from "../brand";
 const { getConfig } = useBrand();
 
-import type { IProductConfig, ProductConfigContext } from "./types";
+import type { ProductConfigContext } from "./types";
 
 // --- utils
 import { useTime } from "../../utils";
-import { useQuantityParser } from "./utils";
+import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
   defaultsDeep,
@@ -24,13 +24,14 @@ import {
   mapValues,
   maxBy,
   minBy,
-  omitBy,
   pick,
   pickBy,
   reduce,
   set,
   some,
-  unset
+  sum,
+  sumBy,
+  values as objectValues
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -269,7 +270,8 @@ async function checkTerm(
   }
 
   // now just return the billing_cycle_months, if we have one
-  term = get(term, "billing_cycle_months", null);
+  // term = get(term, "billing_cycle_months", null);
+  term = pick(term, ["billing_cycle_months", "price"]);
 
   return new Promise((resolve, reject) => {
     if (!isNil(term)) resolve(term);
@@ -321,7 +323,7 @@ async function checkAttributes(
 
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
-            billing_cycle_months: values?.term,
+            billing_cycle_months: values?.term?.billing_cycle_months,
             unit_quantity: 1
           });
 
@@ -331,6 +333,11 @@ async function checkAttributes(
             product
           );
 
+          value.price = find(product.prices, [
+            "billing_cycle_months",
+            value.billing_cycle_months
+          ]);
+          value.total = value.unit_quantity * value.price?.price;
           return value;
         });
       }
@@ -390,7 +397,7 @@ async function checkOptions(
 
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
-            billing_cycle_months: values?.term,
+            billing_cycle_months: values?.term?.billing_cycle_months,
             unit_quantity: 1
           });
 
@@ -399,6 +406,12 @@ async function checkOptions(
             value?.unit_quantity,
             product
           );
+
+          value.price = find(product.prices, [
+            "billing_cycle_months",
+            value.billing_cycle_months
+          ]);
+          value.total = value.unit_quantity * value.price?.price;
 
           return value;
         });
@@ -426,36 +439,83 @@ async function checkOptions(
 }
 
 // --------------------------------------------------------
-
-async function calculate({ basket, items }: BasketContext, { data }: any) {
+// This is a relatively expensive operation,
+// ineffect we are calculating the price of the item based on its configuration
+// We use the values that have been selected alongside the available data
+// and based on the combination of those values, we calculate the price
+// The really tricky bit is the fact that options can have price overrides,
+// so its not always as simple as just adding up the prices of the selected options
+// If we do have price overrides, we then just reset the term price to 0
+// thats WHY we have an object of prices, so we can easily remove the term price
+// and then just sum the rest of the prices values
+async function calculate(
+  { available, values, summary }: BasketContext,
+  _event: any
+) {
   const { post, useUrl } = useApi();
 
-  // only include the specific data we need, if its not null
-  // this will keep the config object as small as possible
-  const config = omitBy(
-    pick(data, [
-      [
-        "prices",
-        "account_id",
-        "currency_id",
-        "invoice_id",
-        "currency_code",
-        "returnOnly"
-      ]
-    ]),
-    isNil
+  // ---
+  let prices = {
+    term: 0,
+    attributes: 0,
+    options: 0
+  };
+
+  // ---
+  const term = find(available.terms, [
+    "billing_cycle_months",
+    values.term?.billing_cycle_months
+  ]);
+  prices.term =
+    values.quantity * get(term, "price", available?.product?.price || 0);
+
+  //  ---
+  prices.attributes = reduce(
+    values.attributes,
+    (result, attribute, id) => {
+      result += sumBy(objectValues(attribute), "total");
+      return result;
+    },
+    0
   );
 
-  debugger;
+  // ---
+  prices.options = reduce(
+    values.options,
+    (result, option, id) => {
+      result += sumBy(objectValues(option), "total");
+      return result;
+    },
+    0
+  );
+
+  // ---
+  // if we have any selected options that have a price override, then remove the initial term price
+  if (useHasPriceOverride(values.options, available.options)) prices.term = 0;
+
+  // ---
+  // now calculate the total price, by summing the prices object
+  const total = sum(objectValues(prices));
+
+  // then compare it to the existing summary total to see if we need to update it
+  // if they are the same, then we can just return the existing summary
+  if (summary?.total === total) return Promise.resolve(summary);
+
+  // Otherwise  send the request to format the new total
+  const config = {
+    currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+    prices: [total]
+    // "account_id",
+    // "invoice_id",
+    // "currency_code",
+    // returnOnly: true
+  };
 
   return await post({
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: config
-  }).then(({ data }) => {
-    debugger;
-    return data;
-  });
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------
@@ -468,5 +528,7 @@ export default <Object>{
   checkTerm,
   checkAttributes,
   checkOptions,
-  checkProvisioning
+  checkProvisioning,
+  // ---
+  calculate
 };
