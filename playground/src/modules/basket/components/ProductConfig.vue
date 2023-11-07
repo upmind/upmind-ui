@@ -1,43 +1,43 @@
 <template>
-  <form class="card bg-base-100 shadow-xl" :class="color">
-    <div class="card-body">
-      <header>
-        <div class="card-actions justify-end floating">
+  <form
+    class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
+  >
+    <header class="">
+      <div class="navbar text-sm px-4 relative" :class="color">
+        <div class="flex-1 text-sm font-semibold">
+          <span class="card-meta">{{ status }}</span>
+        </div>
+
+        <div class="flex-none">
+          <progress
+            v-if="meta.isLoading"
+            class="progress progress-secondary w-20"
+          ></progress>
+
           <button
-            class="btn btn-ghost btn-square btn-sm"
-            :disabled="meta.isLoading || processing"
+            v-else
+            class="btn btn-ghost btn-square btn-xs"
+            :disabled="processing"
             type="reset"
             @click.prevent="remove"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <XMarkIcon></XMarkIcon>
           </button>
         </div>
+      </div>
 
-        <h6 class="meta">{{ status }}</h6>
-        <h4 class="card-title" v-if="available?.product?.name">
-          {{ available.product.name }}
-        </h4>
-        <h5 class="subtitle" v-if="available?.product?.description">
-          {{ available.product.description }}
-        </h5>
-      </header>
+      <h4 class="card-title px-4" v-if="available?.product?.name">
+        {{ available.product.name }}
+      </h4>
+      <h5 class="card-subtitle px-4" v-if="available?.product?.description">
+        {{ available.product.description }}
+      </h5>
+    </header>
 
+    <div class="card-body" v-if="!meta.isLoading">
       <!-- terms -->
       <ul
-        class="terms list-none stats stats-vertical xl:stats-horizontal shadow bg-stone-100 text-neutral"
+        class="terms list-none mt-4 stats stats-vertical border border-base-300 bg-base-200 bg-opacity-30"
       >
         <li
           v-for="term in available.terms"
@@ -52,27 +52,12 @@
           "
         >
           <div class="stat-figure text-secondary">
-            <!-- <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              class="inline-block w-8 h-8 stroke-current"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg> -->
-
             <input
               :key="term.billing_cycle_months"
               type="checkbox"
-              class="checkbox checkbox-primary"
+              class="checkbox checkbox-secondary pointer-events-none"
               :value="term"
               :checked="isSelectedTerm(term)"
-              disabled
             />
           </div>
           <div class="stat-title">{{ term.billing_cycle_name }}</div>
@@ -86,16 +71,22 @@
       </ul>
 
       <!-- attributes -->
-      <section class="attributes my-4" v-if="available.attributes?.length">
-        <template v-for="attribute in available.attributes" :key="attribute.id">
-          <h4 class="text-neutral">
+      <section class="attributes mt-4" v-if="available.attributes?.length">
+        <div
+          class="mt-4"
+          v-for="attribute in available.attributes"
+          :key="attribute.id"
+        >
+          <h4 class="">
             {{ attribute.name }}
           </h4>
 
-          <ul class="menu bg-neutral-content rounded-md">
-            <li v-for="value in attribute.values">
+          <ul
+            class="menu border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+          >
+            <li class="" v-for="value in attribute.values">
               <fieldset
-                class="form-control"
+                class="flex items-center justify-between"
                 v-if="model.attributes"
                 :disabled="meta.isLoading || processing"
               >
@@ -114,24 +105,27 @@
                     :value="value.id"
                   />
 
-                  <span class="label-text ml-2">{{ value.name }}</span>
+                  <span class="ml-2"> {{ value.name }}</span>
                 </label>
 
-                <template v-if="model.attributes?.[attribute.id]?.[value.id]">
+                <div class="flex justify-end items-center">
                   <fieldset
-                    class="form-control quantity-increment"
-                    v-if="value.canChangeQuantity"
+                    v-if="
+                      value.canChangeQuantity &&
+                      model.attributes?.[attribute.id]?.[value.id]
+                    "
+                    class="quantity-increment join mx-4"
                   >
                     <button
-                      class="btn prepend"
+                      class="btn btn-square btn-sm join-item"
                       @click.prevent="incrementAttribute(attribute.id, value)"
                     >
                       +
                     </button>
 
                     <input
+                      class="input input-sm join-item text-center max-w-[5em]"
                       type="number"
-                      class="input"
                       v-model="
                         model.attributes[attribute.id][value.id].unit_quantity
                       "
@@ -142,37 +136,39 @@
                     />
 
                     <button
-                      class="btn append"
+                      class="btn btn-square btn-sm join-item"
                       @click.prevent="decrementAttribute(attribute.id, value)"
                     >
                       -
                     </button>
                   </fieldset>
-                </template>
 
-                <strong>{{ value?.price?.price_formatted }}</strong>
+                  <strong>{{ value?.price?.price_formatted }}</strong>
+                </div>
               </fieldset>
             </li>
           </ul>
-        </template>
+        </div>
       </section>
 
       <!-- options -->
       <section class="options" v-if="available.options?.length">
-        <div class="my-4" v-for="option in available.options" :key="option.id">
-          <h4 class="text-neutral">
+        <div class="mt-4" v-for="option in available.options" :key="option.id">
+          <h4 class="">
             {{ option.name }}
           </h4>
 
-          <ul class="menu bg-stone-100 rounded-md">
+          <ul
+            class="menu border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+          >
             <li class="" v-for="value in option.values">
-              <div
-                class="grid grid-cols-3"
+              <fieldset
+                class="flex items-center justify-between"
                 v-if="model.options"
                 :disabled="meta.isLoading || processing"
               >
                 <label
-                  class="label cursor-pointer col-span-1 justify-start"
+                  class="label cursor-pointer"
                   :for="`${uuid}-${value.id}`"
                 >
                   <input
@@ -189,149 +185,144 @@
                   <span class="ml-2"> {{ value.name }}</span>
                 </label>
 
-                <div class="col-span-2 justify-end text-right">
-                  <template v-if="model.options?.[option.id]?.[value.id]">
-                    <fieldset
-                      v-if="value.canChangeQuantity"
-                      class="quantity-increment form-control"
+                <div class="flex justify-end items-center">
+                  <fieldset
+                    v-if="
+                      value.canChangeQuantity &&
+                      model.options?.[option.id]?.[value.id]
+                    "
+                    class="quantity-increment join mx-4"
+                  >
+                    <button
+                      class="btn btn-square btn-sm join-item"
+                      @click.prevent="incrementOption(option.id, value)"
                     >
-                      <button
-                        class="btn prepend"
-                        @click.prevent="incrementOption(option.id, value)"
-                      >
-                        +
-                      </button>
+                      +
+                    </button>
 
-                      <input
-                        class="input"
-                        type="number"
-                        v-model="
-                          model.options[option.id][value.id].unit_quantity
-                        "
-                        :min="value.min_order_quantity"
-                        :max="value.max_order_quantity"
-                        :step="value.min_order_quantity || 1"
-                        readonly
-                      />
+                    <input
+                      class="input input-sm join-item text-center"
+                      type="number"
+                      v-model="model.options[option.id][value.id].unit_quantity"
+                      :min="value.min_order_quantity"
+                      :max="value.max_order_quantity"
+                      :step="value.min_order_quantity || 1"
+                      readonly
+                    />
 
-                      <button
-                        class="btn append"
-                        @click.prevent="decrementOption(option.id, value)"
-                      >
-                        -
-                      </button>
-                    </fieldset>
-                  </template>
+                    <button
+                      class="btn btn-square btn-sm join-item"
+                      @click.prevent="decrementOption(option.id, value)"
+                    >
+                      -
+                    </button>
+                  </fieldset>
 
                   <strong>{{ value?.price?.price_formatted }}</strong>
                 </div>
-              </div>
+              </fieldset>
             </li>
           </ul>
         </div>
       </section>
 
       <!-- provisioning -->
-      <dl class="provisioning">
-        <template v-for="field in available.provision_fields" :key="field.id">
-          <fieldset
-            class="form-control"
-            :disabled="meta.isLoading || processing"
-            v-if="field.defer_mode != 'hidden'"
-          >
-            <label class="label" :for="field.id">
-              <span class="label-text"> {{ field.field_label }}</span>
-            </label>
-            <select
-              class="select select-bordered w-full max-w-xs"
-              v-if="field.field_type == 'select'"
-              :name="`provision_fields[${field.id}]`"
-              :value="getProvisioningField(field.name)"
-              :required="field.required"
-              @input="setProvisioningField(field.name, $event.target.value)"
-              :id="field.id"
-            >
-              <option v-for="option in field.options" v-bind="option"></option>
-            </select>
+      <section class="provisioning" v-if="available.provision_fields?.length">
+        <h4 class="">Additioal Information</h4>
+        <ul
+          class="menu border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+        >
+          <template v-for="field in available.provision_fields" :key="field.id">
+            <li v-if="field.defer_mode != 'hidden'">
+              <fieldset
+                class="form-control"
+                :disabled="meta.isLoading || processing"
+              >
+                <label class="label" :for="field.id">
+                  <span class="label-text"> {{ field.field_label }}</span>
+                </label>
+                <select
+                  class="select select-bordered w-full max-w-xs"
+                  v-if="field.field_type == 'select'"
+                  :name="`provision_fields[${field.id}]`"
+                  :value="getProvisioningField(field.name)"
+                  :required="field.required"
+                  @input="setProvisioningField(field.name, $event.target.value)"
+                  :id="field.id"
+                >
+                  <option
+                    v-for="option in field.options"
+                    v-bind="option"
+                  ></option>
+                </select>
 
-            <textarea
-              v-else-if="field.field_type == 'textarea'"
-              class="textarea textarea-bordered w-full max-w-xs"
-              :name="`provision_fields[${field.id}]`"
-              :value="getProvisioningField(field.name)"
-              :required="field.required"
-              :id="field.id"
-              @input="setProvisioningField(field.name, $event.target.value)"
-            ></textarea>
+                <textarea
+                  v-else-if="field.field_type == 'textarea'"
+                  class="textarea textarea-bordered w-full max-w-xs"
+                  :name="`provision_fields[${field.id}]`"
+                  :value="getProvisioningField(field.name)"
+                  :required="field.required"
+                  :id="field.id"
+                  @input="setProvisioningField(field.name, $event.target.value)"
+                ></textarea>
 
-            <input
-              v-else
-              class="input input-bordered w-full max-w-xs"
-              :type="field.field_type.replace('input_', '')"
-              :name="`provision_fields[${field.id}]`"
-              :value="getProvisioningField(field.name)"
-              :required="field.required"
-              :id="field.id"
-              @input="setProvisioningField(field.name, $event.target.value)"
-            />
-          </fieldset>
-        </template>
-      </dl>
-
-      <!-- summary -->
-      <dl class="summary" v-if="!meta.isLoading && !processing">
-        <template v-if="available.product?.canChangeQuantity">
-          <dt>Quantity:</dt>
-          <dd>
-            <fieldset
-              v-if="available.product?.canChangeQuantity"
-              class="form-control quantity-increment"
-            >
-              <button class="btn prepend" @click.prevent="incrementQuantity">
-                +
-              </button>
-
-              <input
-                type="number"
-                v-model="model.quantity"
-                min="1"
-                max="10"
-                readonly
-                @change="updateQuantity"
-              />
-
-              <button class="btn append" @click.prevent="decrementQuantity">
-                -
-              </button>
-            </fieldset>
-            <!-- <span v-else>{{ model.quantity }}</span> -->
-          </dd>
-        </template>
-
-        <dt>Item Total:</dt>
-        <dd v-if="meta.isCalculating">calculating...</dd>
-        <dd v-else-if="meta.isConfiguring">waiting...</dd>
-        <dd v-else="">{{ totalFormatted }}</dd>
-      </dl>
-
-      <footer>
-        <div class="card-actions">
-          <slot name="actions" v-bind="meta"> </slot>
-        </div>
-
-        <Debug
-          title="Product Config"
-          :state="state.value"
-          :model="model"
-          :context="available"
-          :errors="errors"
-          :meta="meta"
-        ></Debug>
-
-        <div class="overlay" v-if="processing">Updating...</div>
-      </footer>
+                <input
+                  v-else
+                  class="input input-bordered w-full max-w-xs"
+                  :type="field.field_type.replace('input_', '')"
+                  :name="`provision_fields[${field.id}]`"
+                  :value="getProvisioningField(field.name)"
+                  :required="field.required"
+                  :id="field.id"
+                  @input="setProvisioningField(field.name, $event.target.value)"
+                />
+              </fieldset>
+            </li>
+          </template>
+        </ul>
+      </section>
     </div>
+
+    <footer
+      v-if="!meta.isLoading"
+      class="items-center justify-between p-4 bg-base-200"
+    >
+      <aside
+        class="summary flex-1 items-center justify-center text-center grid-flow-col"
+      >
+        <strong class="uppercase text-secondary" v-if="processing">
+          Updating...
+        </strong>
+        <strong class="uppercase text-secondary" v-else-if="meta.isCalculating">
+          Calculating...
+        </strong>
+        <strong class="uppercase text-secondary" v-else-if="meta.isConfiguring">
+          Pending...
+        </strong>
+        <template v-else>
+          <span class="uppercase">Item Total: </span>
+          <strong class="text-secondary text-xl ml-2">{{
+            totalFormatted
+          }}</strong>
+        </template>
+      </aside>
+
+      <div class="justify-end card-actions">
+        <slot name="actions" v-bind="meta"> </slot>
+      </div>
+    </footer>
   </form>
+
+  <Debug
+    v-if="debugging"
+    title="Product Config"
+    :state="state.value"
+    :model="model"
+    :context="available"
+    :errors="errors"
+    :meta="meta"
+    class="mt-2"
+  ></Debug>
 </template>
 
 <script lang="ts">
@@ -339,11 +330,13 @@ import { defineComponent, toRef, computed, getCurrentInstance } from "vue";
 import { useBasketItem } from "..";
 import Debug from "@/components/Debug.vue";
 import { get, find } from "lodash-es";
+import { XMarkIcon } from "@heroicons/vue/24/solid";
 
 export default defineComponent({
   name: "ProductConfig",
   components: {
-    Debug
+    Debug,
+    XMarkIcon
   },
   emits: [
     "remove",
@@ -365,6 +358,10 @@ export default defineComponent({
     processing: {
       type: Boolean,
       default: false
+    },
+    debugging: {
+      type: Boolean,
+      default: false
     }
   },
   setup: (props, { emit }) => {
@@ -381,11 +378,15 @@ export default defineComponent({
   computed: {
     color() {
       return {
-        added: !this.meta.isNew,
-        info: this.meta.isNew,
-        warning: this.meta.isConfiguring,
-        error: this.meta.hasErrors,
-        success: this.meta.isConfigured && !this?.model?.id
+        // "bg-base": !this.meta.isNew,
+        "text-base": this.meta.isConfigured,
+        "bg-base-200": this.meta.isConfigured,
+        // ---
+        "bg-info": this.meta.isNew && this.meta.isConfiguring,
+        "bg-warning": this.meta.isConfiguring,
+        "bg-error": this.meta.hasErrors,
+        "bg-success":
+          this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
       };
     },
     status() {
@@ -399,6 +400,8 @@ export default defineComponent({
         if (this.meta.hasErrors) values.push("Errors");
         if (this.meta.isConfiguring) values.push("Configuring");
         if (this.meta.isConfigured) values.push("Configured");
+        if (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty))
+          values.push("Needs Updating");
       }
 
       return values.join(" · ");

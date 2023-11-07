@@ -1,6 +1,8 @@
 <template>
   <section class="brand">
-    <header class="navbar bg-gray-100 rounded-md shadow-md sticky top-0 z-10">
+    <header
+      class="navbar bg-base-100 rounded-md shadow-md sticky top-0 z-10 px-4"
+    >
       <h2 class="title m-0">
         Brand is {{ meta.isLoading ? "loading" : "ready" }}
       </h2>

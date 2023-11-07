@@ -2,7 +2,7 @@
   <details
     ref="debugbar"
     v-if="isDebugging"
-    class="debug p-4 rounded-md bg-opacity-30 bg-stone-400 prose-neutral prose-sm"
+    class="debug p-4 rounded-xl prose-sm border border-base-300 bg-base-200"
     :open="isOpen"
     @toggle="({ target }) => (isOpen = target.open)"
   >
@@ -15,35 +15,35 @@
       <details v-if="state" :open="open?.state">
         <summary>State</summary>
         <code>
-          <pre> {{ state }}</pre>
+          <pre class="my-0"> {{ state }}</pre>
         </code>
       </details>
 
       <details v-if="meta" :open="open?.meta">
         <summary>Meta</summary>
         <code>
-          <pre> {{ meta }}</pre>
+          <pre class="my-0"> {{ meta }}</pre>
         </code>
       </details>
 
       <details v-if="model" :open="open?.model">
         <summary>Model</summary>
         <code>
-          <pre> {{ model }}</pre>
+          <pre class="my-0"> {{ model }}</pre>
         </code>
       </details>
 
       <details v-if="context" :open="open?.context">
         <summary>Context</summary>
         <code>
-          <pre> {{ context }}</pre>
+          <pre class="my-0"> {{ context }}</pre>
         </code>
       </details>
 
       <details v-if="errors" :open="open?.errors">
         <summary>Errors</summary>
         <code>
-          <pre> {{ errors }}</pre>
+          <pre class="my-0"> {{ errors }}</pre>
         </code>
       </details>
     </div>
