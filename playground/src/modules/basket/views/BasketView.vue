@@ -33,12 +33,12 @@
         </h2>
       </div>
 
-      <div class="actions flex-none gap-2">
+      <div class="actions flex-none join">
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
               <select
-                class="select select-bordered w-24 md:w-auto"
+                class="select select-bordered w-24 md:w-auto join-item"
                 v-model="model.productId"
                 placeholder="Select product"
               >
@@ -57,23 +57,30 @@
               </select>
             </fieldset>
           </form>
+
           <button
-            class="btn btn-primary"
+            class="btn btn-primary join-item"
             type="submit"
             :disabled="meta.isProcessing || !model.productId"
             @click.prevent="addProduct(model)"
           >
-            add to basket
+            <!-- <div class="indicator"> -->
+            <!-- <span class="indicator-item"> -->
+            <!-- </span> -->
+
+            <SquaresPlusIcon class="h-6 w-6" />
+            <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
+            <!-- </div> -->
           </button>
 
-          <button
-            class="btn btn-ghost"
+          <!-- <button
+            class="btn btn-ghost join-item"
             type="reset"
             :disabled="meta.isProcessing || !model.productId"
             @click.prevent="model.productId = null"
           >
             cancel
-          </button>
+          </button> -->
         </slot>
       </div>
     </header>
@@ -186,6 +193,8 @@ import { ref } from "vue";
 import { useBasket } from "..";
 import ProductConfig from "../components/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
+import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
+
 const {
   state,
   basket,
