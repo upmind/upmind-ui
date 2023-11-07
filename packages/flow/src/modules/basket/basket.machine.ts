@@ -249,7 +249,7 @@ export default createMachine(
               ],
               CLEAR: {
                 target: "items.processing",
-                actions: ["binAllItems"]
+                actions: ["removeAllItems"]
               }, // bath process ALL items
               // ---
               "UPDATE.QUANTITY": { actions: ["sendToItem"] },
@@ -407,24 +407,22 @@ export default createMachine(
           return bin;
         }
       }),
-      binAllItems: assign({
-        bin: ({ items, bin }, { data }) => {
-          return items;
-        },
-        items: ({ items, bin }, { data }) => {
+      removeAllItems: assign({
+        items: ({ items, bin }, _event) => {
+          forEach(items, item => item.stop());
           return [];
         }
       }),
 
       removeItem: assign({
-        items: ({ items }, { type, data }, other) => {
+        items: ({ items }, { type, data }, _event) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(items, ["id", itemId]);
           if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return items;
         },
-        bin: ({ bin }, { data }, other) => {
+        bin: ({ bin }, { data }, _event) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(bin, ["id", itemId]);
@@ -434,7 +432,7 @@ export default createMachine(
       }),
 
       refreshItem: assign({
-        items: ({ items }, { data }, other) => {
+        items: ({ items }, { data }, _event) => {
           const itemId = first(data?.items)?.id;
           const index = findIndex(items, ["id", itemId]);
           const item = get(items, index);
@@ -469,7 +467,7 @@ export default createMachine(
       }),
 
       refreshItems: assign({
-        items: ({ items }, { type, data }, other) => {
+        items: ({ items }, { type, data }, _event) => {
           forEach(data?.items, (item, index) => {
             const itemId = item.id;
             const product = find(data?.basket?.products, ["id", itemId]);

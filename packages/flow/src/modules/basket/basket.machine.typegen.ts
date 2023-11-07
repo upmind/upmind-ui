@@ -94,13 +94,13 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addItem: "ADD";
-    binAllItems: "CLEAR";
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
     loadItems: "done.invoke.loading:invocation[0]";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.updating:invocation[0]";
+    removeAllItems: "CLEAR";
     removeItem: "done.invoke.removing:invocation[0]";
     sendToItem:
       | "UPDATE.ATTRIBUTES"

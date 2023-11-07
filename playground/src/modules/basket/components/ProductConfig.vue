@@ -383,23 +383,32 @@ export default defineComponent({
         "bg-base-200": this.meta.isConfigured,
         // ---
         "bg-info": this.meta.isNew && this.meta.isConfiguring,
+        "bg-info": this.meta.isNew && this.meta.isConfiguring,
+        // ---
         "bg-warning": this.meta.isConfiguring,
+        "text-warning-content": this.meta.isConfiguring,
+        // ---
         "bg-error": this.meta.hasErrors,
+        "text-error-content": this.meta.hasErrors,
+        // ---
         "bg-success":
+          this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty),
+        "text-success-content":
           this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
       };
     },
     status() {
       const values = [];
       // if (this.id) values.push(`ID: ${this.id}`);
-      if (this.meta.isLoading) values.push("Loading");
-      if (this.meta.isNew) values.push("New");
-      if (!this.meta.isNew) values.push("Added");
+      if (this.meta.isLoading) values.push("Is Loading");
+      if (this.meta.isNew) values.push("Is New");
+      if (!this.meta.isNew) values.push("In Basket");
 
       if (!this.meta.isLoading) {
-        if (this.meta.hasErrors) values.push("Errors");
-        if (this.meta.isConfiguring) values.push("Configuring");
-        if (this.meta.isConfigured) values.push("Configured");
+        if (this.meta.hasErrors) values.push("Has Errors");
+        if (this.meta.isConfiguring) values.push("Needs Configuring");
+        if (this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty)
+          values.push("Is Configured");
         if (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty))
           values.push("Needs Updating");
       }
