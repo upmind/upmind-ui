@@ -1,8 +1,36 @@
 <template>
   <section class="basket">
-    <header class="navbar bg-gray-100 rounded-md shadow-md sticky top-0 z-10">
-      <div class="flex-1 px-4">
-        <h2 class="title m-0">Basket</h2>
+    <header
+      class="navbar bg-base-100 rounded-md shadow-md sticky top-0 z-10 px-4"
+    >
+      <div class="flex-1">
+        <h2 class="title m-0">
+          Basket
+
+          <span v-if="meta.isProcessing">
+            is <span class="text-primary">Processing</span>
+          </span>
+
+          <span v-else-if="!meta.hasProducts">
+            is <span class="text-primary">Empty</span>
+          </span>
+
+          <span v-else-if="meta.needsUpdating">
+            needs <span class="text-primary">Updating</span>
+          </span>
+
+          <span v-else-if="meta.isConfigured">
+            is <span class="text-primary">Ready</span>
+          </span>
+
+          <span v-if="meta.isConfigured && meta.needsAuth"
+            >, but needs <span class="text-primary">Auth</span>
+          </span>
+
+          <span v-if="meta.isReadyForCheckout">
+            is <span class="text-primary">Ready for Checkout</span>
+          </span>
+        </h2>
       </div>
 
       <div class="actions flex-none gap-2">
@@ -58,12 +86,8 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <div v-if="!items?.length">
-        <h3>We <em class="error">don't have any</em> Products in the basket</h3>
-      </div>
-
       <section class="basket grid grid-cols-7 gap-4 py-4">
-        <div class="cards col-span-5 list-none">
+        <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
           <div v-for="item in items" :key="item.id">
             <ProductConfig
               :item="item"
@@ -78,7 +102,7 @@
               <template #actions="{ isConfigured, isNew, isDirty }">
                 <button
                   v-if="isConfigured && (isNew || isDirty)"
-                  class="secondary"
+                  class="btn btn-secondary btn-sm btn-block mt-4"
                   :disabled="meta.isProcessing"
                   @click.prevent="updateItem(item.id)"
                 >
@@ -90,21 +114,23 @@
         </div>
 
         <aside
-          class="prose col-span-2 basket-summary rounded-md self-start p-4 text-right sticky top-20"
-          data-theme="dark"
+          class="bg-base-200 border border-base-300 col-span-2 basket-summary rounded-md self-start p-4 text-center sticky top-20"
           v-if="items?.length"
         >
-          <h3 class="title">
-            <em class="success">{{ items.length }}</em> Product{{
-              items.length > 1 ? "s" : ""
-            }}
+          <h4>
+            <strong class="text-primary text-xl px-2">{{
+              items.length
+            }}</strong>
+            Product{{ items.length > 1 ? "s" : "" }}
             in the basket
-          </h3>
+          </h4>
 
-          <dl class="totals">
-            <dt><h2>Total</h2></dt>
-            <dd>{{ basket?.unpaid_amount_formatted }}</dd>
-          </dl>
+          <div class="totals">
+            <h3>Total</h3>
+            <h1 class="text-primary">
+              {{ basket?.unpaid_amount_formatted }}
+            </h1>
+          </div>
 
           <div class="actions">
             <button
@@ -117,7 +143,7 @@
             </button>
 
             <button
-              class="btn btn-secondary btn-block"
+              class="btn btn-primary btn-block"
               v-if="meta.canProcess"
               :disabled="meta.isProcessing"
               @click.prevent="updateBasket"
@@ -128,7 +154,7 @@
         </aside>
       </section>
 
-      <div v-if="meta.hasErrors" class="panel bg-error">
+      <div v-if="meta.hasErrors" class="panel bg-error p-4 rounded-xl">
         <h3>We experienced an error updating the basket</h3>
         <code>
           <pre>{{ errors }}</pre>
@@ -137,7 +163,7 @@
     </div>
 
     <div class="content" v-else>
-      <h3>Loading...</h3>
+      <progress class="progress progress-primary w-56"></progress>
     </div>
 
     <footer>

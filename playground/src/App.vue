@@ -1,6 +1,6 @@
 <template>
-  <div id="app" data-theme="light" class="grid grid-cols-5 gap-4">
-    <header class="flex flex-col items-center justify-start bg-gray-100">
+  <div id="app" data-theme="light" class="grid grid-cols-6 gap-4">
+    <header class="flex flex-col items-center justify-start bg-base-200">
       <img
         alt="Vue logo"
         class="logo my-8"
@@ -27,9 +27,7 @@
             aria-label="close sidebar"
             class="drawer-overlay"
           ></label> -->
-          <ul
-            class="menu sticky top-0 bg-gray-100 top-0 p-4 w-60 max-w-full text-base-content"
-          >
+          <ul class="menu sticky top-0 bg-base-200 top-0 p-4 text-base-content">
             <!-- Sidebar content here -->
             <li v-for="route in routes" :key="route.path">
               <router-link :to="route.path">
@@ -41,7 +39,7 @@
       </div>
     </header>
 
-    <main class="prose max-w-none col-span-4 p-4">
+    <main class="prose max-w-none col-span-5 p-4">
       <router-view class="view" />
     </main>
   </div>

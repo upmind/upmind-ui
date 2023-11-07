@@ -79,7 +79,6 @@ export const useBasket = () => {
     meta: computed(() => {
       return {
         isLoading: ["loading"].some(state.value.matches),
-        isAvailable: ["shopping"].some(state.value.matches),
         isProcessing: ["shopping.items.processing"].some(state.value.matches),
         canProcess: some(
           state.value?.context?.items,
@@ -87,8 +86,16 @@ export const useBasket = () => {
             item.state.matches("configured") &&
             (item.state.context.isNew || item.state.context.isDirty)
         ),
+        // ---
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
-        isReadyForCheckout: ["readyForCheckout"].some(state.value.matches),
+        isAvailable: ["shopping"].some(state.value.matches),
+        isConfigured: ["shopping.items.configured"].some(state.value.matches),
+        // ---
+        needsAuth: ["shopping.client.unauthenticated"].some(
+          state.value.matches
+        ),
+        needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
+        isReadyForCheckout: ["checkout"].some(state.value.matches),
         hasErrors: ["shopping.items.processing.error"].some(state.value.matches)
       };
     }),
