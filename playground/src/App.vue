@@ -1,6 +1,8 @@
 <template>
-  <div id="app" data-theme="cupcake" class="grid grid-cols-6 gap-4">
-    <header class="flex flex-col items-center justify-start bg-base-200">
+  <div data-theme="cupcake" class="grid grid-cols-6 gap-4 min-h-screen">
+    <header
+      class="flex flex-col items-center justify-start bg-base-200 text-base-content"
+    >
       <img
         alt="Vue logo"
         class="logo my-8"
@@ -8,35 +10,18 @@
         width="125"
         height="125"
       />
-      <div class="drawer lg:drawer-open">
-        <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+      <!-- <label for="my-drawer-2" class="btn btn-square drawer-button lg:hidden">
+        <Bars4Icon></Bars4Icon>
+      </label> -->
 
-        <div class="drawer-content flex flex-col items-center justify-center">
-          <!-- Page content here -->
-          <label
-            for="my-drawer-2"
-            class="btn btn-square drawer-button lg:hidden"
-          >
-            <Bars4Icon></Bars4Icon>
-          </label>
-        </div>
-
-        <nav class="drawer-side">
-          <!-- <label
-            for="my-drawer-2"
-            aria-label="close sidebar"
-            class="drawer-overlay"
-          ></label> -->
-          <ul class="menu sticky top-0 bg-base-200 top-0 p-4 text-base-content">
-            <!-- Sidebar content here -->
-            <li v-for="route in routes" :key="route.path">
-              <router-link :to="route.path">
-                {{ upperFirst(route.name) }}
-              </router-link>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <ul class="menu max-w-xs w-full sticky top-0">
+        <!-- Sidebar content here -->
+        <li v-for="route in routes" :key="route.path">
+          <router-link :to="route.path" active-class="active">
+            {{ upperFirst(route.name) }}
+          </router-link>
+        </li>
+      </ul>
     </header>
 
     <main class="prose max-w-none col-span-5 p-4">
@@ -49,8 +34,6 @@
 import { ref } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import { upperFirst } from "lodash-es";
-
-import { Bars4Icon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
 const routes = ref(router.options.routes);
