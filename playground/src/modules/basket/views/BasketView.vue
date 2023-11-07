@@ -1,7 +1,7 @@
 <template>
   <section class="basket">
     <header
-      class="navbar bg-base-100 rounded-md shadow-md sticky top-0 z-10 px-4"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 px-4 rounded-full"
     >
       <div class="flex-1">
         <h2 class="title m-0">
@@ -86,7 +86,7 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <section class="basket grid grid-cols-7 gap-4 py-4">
+      <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
           <div v-for="item in items" :key="item.id">
             <ProductConfig
@@ -114,20 +114,19 @@
         </div>
 
         <aside
-          class="bg-base-200 border border-base-300 col-span-2 basket-summary rounded-md self-start p-4 text-center sticky top-20"
+          class="bg-primary text-primary-content border border-base-300 col-span-2 basket-summary rounded-md self-start p-4 text-center sticky top-20"
           v-if="items?.length"
         >
-          <h4>
-            <strong class="text-primary text-xl px-2">{{
-              items.length
-            }}</strong>
+          <h4 class="text-primary-content">
+            <strong class="text-xl px-2">{{ items.length }}</strong>
             Product{{ items.length > 1 ? "s" : "" }}
             in the basket
           </h4>
 
           <div class="totals">
-            <h3>Total</h3>
-            <h1 class="text-primary">
+            <div class="divider mt-8 uppercase">Total</div>
+
+            <h1 class="text-primary-content">
               {{ basket?.unpaid_amount_formatted }}
             </h1>
           </div>
@@ -143,7 +142,7 @@
             </button>
 
             <button
-              class="btn btn-primary btn-block"
+              class="btn btn-block mt-2"
               v-if="meta.canProcess"
               :disabled="meta.isProcessing"
               @click.prevent="updateBasket"
@@ -168,6 +167,7 @@
 
     <footer>
       <Debug
+        :debugging="debugging"
         :open="{ state: true }"
         title="Basket"
         :state="state"
@@ -175,6 +175,7 @@
         :context="{ items, basket }"
         :errors="errors"
         :meta="meta"
+        class=""
       ></Debug>
     </footer>
   </section>
@@ -253,6 +254,8 @@ const productCatalogue = [
     ]
   }
 ];
+
+const debugging = ref(true);
 
 const model = ref({
   productId: null,

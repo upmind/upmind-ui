@@ -1,53 +1,82 @@
 <template>
-  <details
-    ref="debugbar"
+  <div
+    refcollapse="debugbar"
     v-if="isDebugging"
-    class="debug p-4 rounded-xl prose-sm border border-base-300 bg-base-200"
-    :open="isOpen"
+    data-theme="dark"
+    class="prose max-w-none collapse collapse-arrow debug prose-sm border bg-base-100"
     @toggle="({ target }) => (isOpen = target.open)"
   >
-    <summary>
+    <input type="checkbox" name="debug" :checked="isOpen" />
+    <span class="collapse-title uppercase m-0">
       <span>{{ isOpen ? "DEBUGGING" : "DEBUG" }}: </span>
       <strong>{{ title?.toUpperCase() }}</strong>
-    </summary>
+    </span>
 
-    <div>
-      <details v-if="state" :open="open?.state">
-        <summary>State</summary>
-        <code>
-          <pre class="my-0"> {{ state }}</pre>
-        </code>
-      </details>
+    <div class="collapse-content">
+      <div class="join join-vertical w-full">
+        <div
+          class="collapse collapse-plus join-item border border-base-200"
+          v-if="state"
+        >
+          <input type="checkbox" name="debug-state" :checked="open?.state" />
 
-      <details v-if="meta" :open="open?.meta">
-        <summary>Meta</summary>
-        <code>
-          <pre class="my-0"> {{ meta }}</pre>
-        </code>
-      </details>
+          <strong class="collapse-title uppercase">State</strong>
+          <code class="collapse-content">
+            <pre class="my-0"> {{ state }}</pre>
+          </code>
+        </div>
 
-      <details v-if="model" :open="open?.model">
-        <summary>Model</summary>
-        <code>
-          <pre class="my-0"> {{ model }}</pre>
-        </code>
-      </details>
+        <div
+          class="collapse collapse-plus join-item border border-base-200"
+          v-if="meta"
+        >
+          <input type="checkbox" name="debug-meta" :checked="open?.meta" />
 
-      <details v-if="context" :open="open?.context">
-        <summary>Context</summary>
-        <code>
-          <pre class="my-0"> {{ context }}</pre>
-        </code>
-      </details>
+          <strong class="collapse-title uppercase">Meta</strong>
+          <code class="collapse-content">
+            <pre class="my-0"> {{ meta }}</pre>
+          </code>
+        </div>
 
-      <details v-if="errors" :open="open?.errors">
-        <summary>Errors</summary>
-        <code>
-          <pre class="my-0"> {{ errors }}</pre>
-        </code>
-      </details>
+        <div
+          class="collapse collapse-plus join-item border border-base-200"
+          v-if="model"
+        >
+          <input type="checkbox" name="debug-model" :checked="open?.model" />
+
+          <strong class="collapse-title uppercase">Model</strong>
+          <code class="collapse-content">
+            <pre class="my-0"> {{ model }}</pre>
+          </code>
+        </div>
+
+        <div
+          class="collapse collapse-plus join-item border border-base-200"
+          v-if="context"
+        >
+          <input
+            type="checkbox"
+            name="debug-context"
+            :checked="open?.context"
+          />
+
+          <strong class="collapse-title uppercase">Context</strong>
+          <code class="collapse-content">
+            <pre class="my-0"> {{ context }}</pre>
+          </code>
+        </div>
+
+        <div class="collapse collapse-plus" v-if="errors">
+          <input type="checkbox" name="debug-errors" :checked="open?.errors" />
+
+          <strong class="collapse-title uppercase">Errors</strong>
+          <code class="collapse-content">
+            <pre class="my-0"> {{ errors }}</pre>
+          </code>
+        </div>
+      </div>
     </div>
-  </details>
+  </div>
 </template>
 
 <script lang="ts">
@@ -59,7 +88,7 @@ export default defineComponent({
   inheritAttrs: true,
   customOptions: {},
   props: {
-    disable: { type: Boolean, default: false },
+    debugging: { type: Boolean, default: true },
     title: String,
     context: Object,
     model: Object,
@@ -80,7 +109,7 @@ export default defineComponent({
   },
   computed: {
     isDebugging(): boolean {
-      return !this.disable && import.meta.env.DEV;
+      return this.debugging && import.meta.env.DEV;
     }
   }
 });

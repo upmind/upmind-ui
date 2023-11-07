@@ -1,5 +1,5 @@
 <template>
-  <div id="app" data-theme="light" class="grid grid-cols-6 gap-4">
+  <div id="app" data-theme="cupcake" class="grid grid-cols-6 gap-4">
     <header class="flex flex-col items-center justify-start bg-base-200">
       <img
         alt="Vue logo"
