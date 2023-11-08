@@ -3,7 +3,7 @@
     refcollapse="debugbar"
     v-if="isDebugging"
     data-theme="dark"
-    class="prose max-w-none collapse collapse-arrow debug prose-sm border bg-base-100"
+    class="prose max-w-none collapse collapse-arrow debug prose-sm border bg-base-100 mt-4"
     @toggle="({ target }) => (isOpen = target.open)"
   >
     <input type="checkbox" name="debug" :checked="isOpen" />

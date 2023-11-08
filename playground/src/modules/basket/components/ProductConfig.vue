@@ -11,7 +11,7 @@
         <div class="flex-none">
           <progress
             v-if="meta.isLoading"
-            class="progress progress-secondary w-20"
+            class="progress progress-secondary w-12"
           ></progress>
 
           <button

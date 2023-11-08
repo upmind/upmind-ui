@@ -1,17 +1,13 @@
 <template>
-  <section class="basket">
+  <section class="basket w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 px-4 rounded-full"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-full"
     >
       <div class="flex-1">
         <h2 class="title m-0">
           Basket
 
-          <span v-if="meta.isProcessing">
-            is <span class="text-primary">Processing</span>
-          </span>
-
-          <span v-else-if="!meta.hasProducts">
+          <span v-if="!meta.hasProducts">
             is <span class="text-primary">Empty</span>
           </span>
 
@@ -33,7 +29,11 @@
         </h2>
       </div>
 
-      <div class="actions flex-none join">
+      <div class="flex-1" v-if="meta.isLoading || meta.isProcessing">
+        <progress class="progress progress-primary w-1/2"></progress>
+      </div>
+
+      <div class="actions flex-none join justify-end">
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
@@ -166,10 +166,6 @@
           <pre>{{ errors }}</pre>
         </code>
       </div>
-    </div>
-
-    <div class="content" v-else>
-      <progress class="progress progress-primary w-56"></progress>
     </div>
 
     <footer>

@@ -1,30 +1,37 @@
 <template>
-  <div class="toggles">
-    <button
-      type="button"
-      @click="toggle"
-      :class="['toggle', { processing: !isDisabled && isProcessing }]"
-      :title="isInactive ? 'Click to activate' : 'Active! Click to deactivate'"
-      :disabled="isProcessing || isDisabled"
-    >
-      <toggle-off-icon v-if="isInactive" />
-      <toggle-on-icon v-else />
-    </button>
+  <div class="toggles flex flex-wrap items-center justify-start py-4">
+    <fieldset class="form-control">
+      <label class="label cursor-pointer uppercase indicator">
+        <input
+          type="checkbox"
+          class="toggle toggle-success pointer-events-none"
+          :disabled="isDisabled"
+          :checked="!isInactive"
+          @input="toggle"
+        />
+        <strong
+          v-if="!!count"
+          class="indicator-item badge badge-sm badge-neutral"
+          :class="{
+            'badge-error': isDisabled
+          }"
+          >{{ count }}</strong
+        >
+      </label>
+    </fieldset>
 
     <button
       type="reset"
-      :class="['toggle', { processing: isProcessing }]"
+      class="btn btn-square btn-xs mx-1"
       title="Reset the toggle"
       @click="reset"
-      :disabled="isProcessing"
-      v-show="isDisabled"
+      v-if="isDisabled"
     >
-      <refresh-icon />
+      <ArrowPathIcon class="w-5 h-5" />
     </button>
 
-    <div class="status debug">
-      <div><slot></slot></div>
-      Active : <strong>{{ count }}</strong> times
+    <div class="status debug flex-1 ml-1 text-xs text-neutral">
+      <em><slot></slot></em>
     </div>
   </div>
 </template>
@@ -32,13 +39,11 @@
 <script>
 import { defineComponent } from "vue";
 import { useToggle } from "../composables/useToggle";
-import RefreshIcon from "@/components/icons/IconRefresh.vue";
-import ToggleOffIcon from "@/components/icons/IconToggleOff.vue";
-import ToggleOnIcon from "@/components/icons/IconToggleOn.vue";
+import { ArrowPathIcon } from "@heroicons/vue/24/solid";
 
 export default defineComponent({
   name: "UpmToggle",
-  components: { ToggleOnIcon, ToggleOffIcon, RefreshIcon },
+  components: { ArrowPathIcon },
   inheritAttrs: true,
   customOptions: {},
   props: {
