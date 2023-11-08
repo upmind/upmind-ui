@@ -22,9 +22,24 @@
       <upm-toggle></upm-toggle>
       <upm-toggle use-global>Global Instance</upm-toggle>
     </div>
+
+    <footer>
+      <Debug
+        title="Global Toggle"
+        :state="state"
+        :context="context"
+        :errors="errors"
+        :meta="meta"
+      ></Debug>
+    </footer>
   </section>
 </template>
 
 <script setup lang="ts">
+import { useToggle } from "../";
+import Debug from "@/components/Debug.vue";
 import UpmToggle from "../components/Toggle.vue";
+
+const { state, context, meta, errors } = useToggle({ useGlobal: true });
 </script>
+../useToggle ..
