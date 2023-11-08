@@ -1,7 +1,7 @@
 <template>
   <section class="session w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-full"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
     >
       <div class="flex-1">
         <h2 class="title m-0">

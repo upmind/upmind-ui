@@ -1,7 +1,7 @@
 <template>
   <section class="basket w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-full"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
     >
       <div class="flex-1">
         <h2 class="title m-0">
@@ -105,6 +105,7 @@
               @update:quantity="updateQuantity"
               @update:attributes="updateAttributes"
               @update:options="updateOptions"
+              @update:provisioning="updateProvisioning"
             >
               <template #actions="{ isConfigured, isNew, isDirty }">
                 <button
@@ -120,42 +121,132 @@
           </div>
         </div>
 
-        <aside
-          class="bg-primary text-primary-content border border-base-300 col-span-2 basket-summary rounded-md self-start p-4 text-center sticky top-20"
-          v-if="items?.length"
-        >
-          <h4 class="text-primary-content">
-            <strong class="text-xl px-2">{{ items.length }}</strong>
-            Product{{ items.length > 1 ? "s" : "" }}
-            in the basket
-          </h4>
+        <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
+          <!-- Summary -->
+          <div
+            class="basket-summary bg-primary-content text-base-content border border-base-300 rounded-xl px-4 text-center"
+          >
+            <div>
+              <h2 class="mt-6 text-base-content">
+                <span class="text-primary">{{ items.length }}</span> Product{{
+                  items.length > 1 ? "s" : ""
+                }}
+              </h2>
+            </div>
 
-          <div class="totals">
-            <div class="divider mt-8 uppercase">Total</div>
+            <div class="totals">
+              <!-- Promotions -->
+              <div v-if="meta.hasPromotions">
+                <div class="divider mt-4 uppercase text-xs">Discount</div>
+                <h2 class="text-primary mt-0">
+                  - {{ basket?.total_discount_amount_formatted }}
+                </h2>
+              </div>
 
-            <h1 class="text-primary-content">
-              {{ basket?.unpaid_amount_formatted }}
-            </h1>
+              <!-- Subtotal -->
+              <div>
+                <div class="divider mt-4 uppercase text-xs">SubTotal</div>
+                <h2 class="text-primary mt-0">$0.00</h2>
+              </div>
+
+              <!-- Taxes -->
+              <div>
+                <div class="divider mt-4 uppercase text-xs">Taxes</div>
+                <h2 class="text-primary mt-0">$0.00</h2>
+              </div>
+
+              <!-- Total -->
+              <div>
+                <div class="divider mt-4 uppercase">Total</div>
+                <h1 class="text-primary">
+                  {{ basket?.unpaid_amount_formatted }}
+                </h1>
+              </div>
+            </div>
           </div>
 
-          <div class="actions">
+          <!-- Actions -->
+          <div class="actions p-4">
             <button
-              class="btn btn-ghost btn-block"
-              type="reset"
-              :disabled="meta.isProcessing"
-              @click.prevent="clearBasket"
-            >
-              Clear Basket
-            </button>
-
-            <button
-              class="btn btn-block mt-2"
+              class="btn btn-block btn-primary mb-2"
               v-if="meta.canProcess"
               :disabled="meta.isProcessing"
               @click.prevent="updateBasket"
             >
               Update basket
             </button>
+
+            <button
+              class="btn btn-link btn-block btn-xs"
+              type="reset"
+              :disabled="meta.isProcessing"
+              @click.prevent="clearBasket"
+            >
+              Clear Basket
+            </button>
+          </div>
+
+          <!-- Promotions -->
+          <div class="promotions px-4">
+            <h4 class="divider">Discounts</h4>
+
+            <form class="join mt-2">
+              <fieldset class="form-control">
+                <input
+                  type="text"
+                  id="code"
+                  placeholder="Discount Code?"
+                  v-model="modelPromotions.code"
+                  class="input input-accent input-bordered w-full max-w-xs join-item"
+                />
+                <label class="label sr-only" for="code">
+                  <span class="label-text">Discount Code</span>
+                </label>
+              </fieldset>
+
+              <div class="actions">
+                <button
+                  class="btn btn-accent join-item"
+                  type="reset"
+                  :disabled="meta.isProcessing"
+                  @click.prevent="
+                    !modelPromotions.code?.length
+                      ? null
+                      : addPromotion(modelPromotions)
+                  "
+                >
+                  Apply
+                </button>
+              </div>
+            </form>
+
+            <ul class="my-4 p-0 list-none">
+              <li
+                class="border border-accent flex items-center rounded-lg p-2"
+                v-for="promotion in promotions"
+                :key="promotion.promotion.code"
+              >
+                <ReceiptPercentIcon class="w-6 h-6 text-accent" />
+
+                <span class="spacer flex-1 mx-2">
+                  {{ promotion.promotion.code }}
+                </span>
+
+                <strong
+                  class="bg-base-300 rounded-lg flex items-center py-1 px-2"
+                  v-if="promotion?.promotion?.amount_formatted"
+                >
+                  {{ promotion.promotion.amount_formatted }}
+                </strong>
+
+                <button
+                  class="btn btn-square btn-ghost btn-sm"
+                  title="Click to Remove Discount"
+                >
+                  <XMarkIcon class="w-5 h-5" />
+                </button>
+              </li>
+            </ul>
           </div>
         </aside>
       </section>
@@ -171,11 +262,10 @@
     <footer>
       <Debug
         :debugging="debugging"
-        :open="{ state: true }"
         title="Basket"
         :state="state"
-        :model="model"
-        :context="{ items, basket }"
+        :model="{ model, promotions: modelPromotions }"
+        :context="{ promotions, items, basket }"
         :errors="errors"
         :meta="meta"
         class=""
@@ -189,13 +279,20 @@ import { ref } from "vue";
 import { useBasket } from "..";
 import ProductConfig from "../components/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
-import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
+import {
+  SquaresPlusIcon,
+  XMarkIcon,
+  ReceiptPercentIcon
+} from "@heroicons/vue/24/outline";
 
 const {
   state,
   basket,
   errors,
   meta,
+  items,
+  promotions,
+  // ---
   updateBasket,
   clearBasket,
   updateItem,
@@ -206,7 +303,7 @@ const {
   updateAttributes,
   updateOptions,
   updateProvisioning,
-  items
+  addPromotion
 } = useBasket();
 
 const productCatalogue = [
@@ -265,5 +362,9 @@ const debugging = ref(true);
 const model = ref({
   productId: null,
   quantity: 1
+});
+
+const modelPromotions = ref({
+  code: null
 });
 </script>

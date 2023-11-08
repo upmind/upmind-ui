@@ -1,9 +1,3 @@
-// TODO: make the basket transfer/dump on session change
-//  on auth it should take the current  gues tbasket and transfer it to the new client
-//  on unauth it should dump the current basket and wait for a new one to be created
-//  also try get away from autogenerating the basket immediately...wait for a product or something
-// might make the transfer/dumping of the basket easier
-
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
@@ -12,8 +6,6 @@ const { sendTo } = actions;
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import configurationMachine from "../products/config.machine";
-import { useBrand } from "../brand";
-const { hasModuleEnabled } = useBrand();
 
 // --- utils
 import { useTime } from "../../utils";
@@ -24,16 +16,12 @@ import {
   findIndex,
   forEach,
   get,
-  has,
   first,
-  filter,
   isEmpty,
-  reduce,
   remove,
   some,
   trimStart,
-  uniqueId,
-  difference
+  uniqueId
 } from "lodash-es";
 
 import { useBasketParser } from "./utils";
@@ -51,6 +39,7 @@ function spawnConfiguration(values) {
 
 export default createMachine(
   {
+    /** @xstate-layout N4IgpgJg5mDOIC5QCMCGsDWYAuBZVAdqjAE4B0sArsrAMYkCWyDBUAxAMoCiHHAkgHkAcgG0ADAF1EoAA4B7WA2wM5BaSAAeiAEwB2XQGYyATgMGxYgGwBGAKy6ALGIO6ANCACeic9qPGxABxi1rrWDuZixpYAvtHuaJg4+ESkZAA2cqgQLOwQqmBkLABuclhkCVh4hMRg5BlZOQjFcrSoyqriEp3q8ortakiaiLba7l4IBtYG2mTONsbaDgFRAXax8eiVyTV1mdmsbLUkcuQyaW0AZicAtuWbSdWp9ftQTQQlrf2d3YO9SioDUBaCZTBwmIJRFy2Bz2fRjHTGfxkSwjMJmawWALrEAVB4pWpkWjnBjXHJsPIEArNMq4qr48hE1AkxrNT4A76SHoKf6qdTAxYOMGWSzaazGAIGEXhMLwhDaSwBMgBXSRYy2AKWMy2WwGWzY2nbVKM5kHI4nMhnS43O6JOk7QnE0msN4fNrsyQ-WTc-p8nS6cVkPQ6jEhUJ2WW+CWzCWC+xS9W6fX3O2pGCUkhug4UqnvUoFA2PAlp2qZ16st0dD2c37egG+hAjWWrMjTbQLTULXTzAxJ22GotgdOlw4kY6nc7YK4kW4F+lkYsZ5TO8tfKtSGt9OuDfkBeyB4UGDVTbTaWzGWXWAJg8K2ZyIqx6BxhXtbQvkWAACzkMhkZOzFGwNp82Tft3y-H8ck9EA-h9bcdBhIURTFCUpUmBwIxFWwyAxK9tACPQpmMQwXzxe1P2-X8DgAVSEABBKiABUAAkuCEBi+AAYVohiuAAESgmCtyBeDoWRJDxUlRY0IjXddDIEYDFMJ8dXlPU4hxEC3wocDKKgQpsDAa5YDYWjeP46svU3Xk4LlQVENFCTUJlTxEBCIwz01MRbDsFFlWMEiUwJciINYfTDOM0z+OsddLJ5QEhgQaw7D8XRfEMVsDCfAIL2sU9ZlS+VRVPZxrBidTZzInScjCoy2AAJS4XABAANS4ATa2s4TEoWCMpjk1L-TbQxHBRHtys0udgt0mrjKogAFXjuLaizoI6+LgTFUYXMSyxwnksVxTVfCwlMALQO0ijqqUcK2HmxaeJEaKuSs9bXJ67aTzMWYxEKsQ7N8bQzq0qaroM2qOIAGS4Wi6val7602iM8JmfDVmhJx5X0IHJqq0Lrtqu6lrIABFKjaLYvgGIATThuKEbsLCVUcaYr3FJ9LAvH7jDIf1dHsMJL3lBxscqy68bB2aFqJni6twWnYK6pLHBbPRtFVHVFOCWUlPkk8AiCMMHCiMqNj7YHcb0-HJfurgyAEOb2OEDh5aEhKkpsFtdqiVUg0yjDUv2pZVlKtU1RF1IQfFm7CZ4shuIYuq+AAIUYngXc6t2wkVXCxUUyY+ZhCNYUDJwxT+kV8OI8azZxsXLYl26pdjua6pavh+GEPghAAcXT17ErCMQTG89VVbRfCIyWawTBRI2iNsSwrHDoKLZmshDJkbAPDYPuEacOTVklTUrwcNXsu20rJmRPDc7++VLC7ZewLrteN63neno3OmbKG2YUTEf08xdzGHCBePC3NhREV0MdEq6on4XRCvXcKhJVAXAYFASgjADi7xsoPA+UwDwnzPheEYWFDpEVzoVMaptXy10QWvWgqD0GYLJI9GKq14a4OWFhJ8XZDyhBcGqCMACUa6lyl5TKmUl7V1oaLehVsLTHFoHARQoUwBFFqB4bAH4-z5EKLmGkE05HTQUTIJRKjqrqM0dolkuY2SVi6CtQSGcNr7yVAQ4+gpiEX39FhFC0D-CLy8sqeBkckFGUUS0CxaiNEkC0To00o5zSWknNaCqEdV6mPMbAVRekrFxJscuOxFYCAcnYc4-uGJTCBkjPhGwu5UYXiIkYUuSVMoKkiAqUJmSJaROUTk6qlAZAQGHP+akwEa7GNBsgsxUSBmhSGSMpcZZimrkceUta9YzzXifLskBikojoR8ZqEw0w+YohsC4Z8MjSIZJflkuZuSyCLNGXo8ZNpZF3Pkb02Z-SnkvOWS6FoJTvif1igrN2bjD6EK8YEC8D9LAmCWB5BegjAY3MCs-b5Mzsn-OGcOM044rTTg+bcle9yfm4sGfiwFK53TrOet-RWkQjCfX1vKS8o9z7jEvM2XKfDJT+B+vYbpFKcWPOqiQQycgii6MpPokohjJlfJMZSiVoUpXXBlbY10aycFdTPDMCw-9oRhF2hzD6d8eb2EmCA7yhF0U0LJVi1V4q-mSulbKrMbyDETM+eS7FETfnRL0pq7VRTdX0rYYyiFriAHuKPoeWF3K3oe2hPrTsCYH6isDbAPpIayBhq9ewQlFoJxThnEYlV0yg1Uo1Z6nVwK9VOM2bgllNTDx1M5Y0y1KJkSODPNMBwNgukYvOmEtewb5l6QAI6UDAPOneLbOEGoWN9E1uzzUXnZUqNWOpUrmHRDm11tb1WzvnYu6NX9Y3DDXca28prh3DqaXhbCTgQEAO8jCEYx6a15qnU8udC6wA720BsldCVDXrofZu59H1SrT12tqJKIDHBWETGO82YrT3utCkBy9BhwNMshSEBNMLT5wstUEMg4QVS7lPLeMwGGnWYoQSe-9da8lJJIGwDQsBAIGTIKgC4BkSAAApCUAEo2DpIDex-N0717cf1ZC+N0LPEUZTd1MIPNFgLyIm2YIV5f1RwiYwggaCMFSogEuojN6JjxqsLeQByFtkGAvFCtsypnNmpASZ8JebzOWcwZAD+dnXYbW4TRkIx8BG+OEXoQOoQVTHlKibDSyq5PVVmVq-oEUzJkBbgIJqjtRDLuIxtPQsoB3RYM8sFwP0QmYbodNHLcg8v1Uai1W2RWSuCDK+FlxrkqvbQXkPZUeEVSKW8ra-zkTcsAjzW-beKngQgMVG0hwqUjbQK224Ub+sanKjDCqWM6XZMuuy8cBbqg81ZBeOSH1iq-XOrY1duQN2CB3YgC8IF9jSlrhjRF4YyweaZUFGqd9D9bBNh+iXD9LLMoMbm21vLQmftklLSkitpLWMTtR4t9Hv26UONWyD7mhg7KQ86XzarkQTB8wWElbUuph0o+u+1wnRa5U5me7j8dq8Ce3cLQ2iNTao3lfs+qCn4OjbQhpzD0beVT6BI5ZlWE7OPuc+F9zxJY4y3EsrZly7oUhdfZF1q4tf2QWA+vcDhsoPKcQ-l1EWn20bD9WFafRSdg8JYma1M03HO0eoFoMoDRtmgdDYQOt7CoJttESvHCUbp8TCBC26eJYhgfpzaJAwQc2ATKMRYhTLiPFzKDf7gKeyyFJLSiOeMRYpHLCmFCCrtv52q1ZdCnngvhIPxgFoBgHnCq8z86w-Q3vBBsD98H8PsX-2ylR-7rqLCbZT67TVvyxE7mPq7iwh2fw6aXD31z2kfP0-Z9D8x9xg3qSSUXbez38-ffaAD+vwvm3DK7fR9X4GEBQsW+egO+EYxgdgLYXYSUXMiw8Cb+c+cglAhe-4-GQE4+c4cBQ+CB2AZOcoBcNGwofCKED6RcAcywMIyoGaUosB7+GAWBt0dExerE7EZefEOBQY14BBx8koxBH0o0swxsLeGIDksQ6kBAcgEAcA6gF2y+9YAAtCELKLIYihYCoaoSoQdKEtQHQIwMwKwDIT-HZGJA5ChFJM5OMBEEPMKNvreMKEbMLAHk8HsDkPoV1G2MKDRkRP4L4GqH9GYQiIdiKK3g0rqGYLAY6M4T-lXpqGCLCCMA-L4LqLuBGIeNPFYH9HzLlCeBrg4QOEOMsi4QlJjEPNqE+IeA-E+PKCQhAsqLtDeOqDYHoP5gUcCJMLKLqEPNApMH9AsPRmpCxgLthvAJEXvA3sNnDu0mqHhPnIiHNgosts0W9FtDyt5IqNqBXAqHPMsJ3sbk-gFighZswlglAAsYlHzEYOkYiBKJlMdsIiKGJP4GIvrAqMxhlv6ibnsQBhEeCvbk+BApeHtr5CMIKCQmeLMDCAsEjm4VjDke8ZOpxuvLEvEl8RwhVogP4IqHtqYEENqKiFpiEN5MiH5B2MOoev5DCbsXCWes8jSsiRUvWH5NGGYF5DqMApqPCsOp7NwltnYFMMZuSROg8rhqGqLsccMTZAyYEEySzqybvo3gAgfKEAeD7lPPYf0RPvJp8XhhemACccOnJPUgCeqECaMd1K+pELySiDycfLMWqkKUpmOCcblFGOYEeJlGKDCKeE0lMC2AsMEGeGEL4M4DacgkFocZACcaKLeLptcQ+oKgvMInuHRqYGAXhEsLqJrp9kMd8dHv6LKOEBtmkZMNME6aEBmdrubvMWKV1AbLMKiDCJMFvtqLKNCFhPYBvl5MNPoNYGWSHhjnoVWQlJJDzKfIsJCA-JfCaQVNhKlIiFMMagqI6q8a9vjsHlziKScZlBAmqGYNDmEBjM2S4NfJckGMdtcmqS1u9pmfaScCcTWV5KKPWeIgzLKOai2BvhqKOczi8Y-iuVriHmHgwBoo6aCP-peD9KVP6Cys2cqD6YYByo1hKGfhftgCcbmR9HzP1NwqEDUZKKVEha-jQbSa2orCNo3leFhElN4alOmtAn0UuXjqvFPjPpQEQIgQPtPgwJ8OGQOcCGNkqOOYYNCJAtMKATpn9KvrtPoA0fhZfqgGxQXpxUBBACcXxRqMlqzsJUsToLuOcYvLEWKOqBqNQfAYgRGdqJYWYFtoEOlPoIro3sOoqIIksDeEjtQvRedBgbQYgeUAwGkOfv2dmVEblMOUENZeZX7LwTpptD5BiC4NccZZgd5Z+AwIghGYvKyuKMlJMEIf7DMAuRYIsHzCMOKAlV5TPjIKgB4NcAXmlXDp0Q0kzC6SaQxozD9OYM0rnERKVVgUTnFKgGkGZQGJqJlHRjZW7o3oYNPCEP8frFttMHRY-oShucATRgAkRB0v-A-JPH9DRnzELE4KsNArAR9mcDgDqTxdpQqDRoeHMCNTCNYCQUPJMKQoiJnhqGNLEEAA */
     tsTypes: {} as import("./basket.machine.typegen").Typegen0,
     id: "basketManager",
     predictableActionArguments: true,
@@ -265,6 +254,57 @@ export default createMachine(
               // }
             }
           },
+          promotions: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: {
+                  target: "active",
+                  cond: "hasPromotions"
+                },
+                type: "final"
+              },
+              adding: {
+                invoke: {
+                  src: "addPromotion",
+                  onDone: {
+                    target: "active",
+                    actions: ["setBasket"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
+              },
+              removing: {
+                invoke: {
+                  src: "removePromotion",
+                  onDone: {
+                    target: "empty",
+                    actions: ["setBasket"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
+              },
+              error: {},
+              active: {
+                always: {
+                  target: "empty",
+                  cond: "hasNoPromotions"
+                },
+                type: "final"
+              }
+            },
+            on: {
+              "ADD.PROMOTION": { target: "promotions.adding" },
+              "REMOVE.PROMOTION": { target: "promotions.removing" }
+            }
+          },
+
           client: {
             initial: "checking",
             states: {
@@ -362,42 +402,42 @@ export default createMachine(
         }
       }),
 
-      addAncillaryItems: assign({
-        items: ({ items }, { data }) => {
-          // if (!hasModuleEnabled("web_hosting")) return false;
+      // addAncillaryItems: assign({
+      //   items: ({ items }, { data }) => {
+      //     // if (!hasModuleEnabled("web_hosting")) return false;
 
-          // const { basket, itemId, newId } = data;
-          // const product = find(basket?.products, ["id", newId]);
-          // const item = find(items, ["id", itemId]);
+      //     // const { basket, itemId, newId } = data;
+      //     // const product = find(basket?.products, ["id", newId]);
+      //     // const item = find(items, ["id", itemId]);
 
-          // const replacements = filter(
-          //   item.state?.context?.available?.provision_fields,
-          //   ["semantic_type", SemanticTypes.DOMAIN_NAMES]
-          // );
+      //     // const replacements = filter(
+      //     //   item.state?.context?.available?.provision_fields,
+      //     //   ["semantic_type", SemanticTypes.DOMAIN_NAMES]
+      //     // );
 
-          // forEach(replacements, field => {
-          //   console.log("Semantic replacement field", field);
-          //   const value = get(item.state?.context, [
-          //     "values",
-          //     "provision_fields",
-          //     field.name
-          //   ]);
+      //     // forEach(replacements, field => {
+      //     //   console.log("Semantic replacement field", field);
+      //     //   const value = get(item.state?.context, [
+      //     //     "values",
+      //     //     "provision_fields",
+      //     //     field.name
+      //     //   ]);
 
-          //   // TODO: find a way to get the actual product that relats to this field
-          //   const machine = spawnConfiguration({
-          //     productId: "78985742-6489-7012-096c-21e325d0ed36",
-          //     provision_fields: {
-          //       [field.name]: value
-          //     }
-          //   });
+      //     //   // TODO: find a way to get the actual product that relats to this field
+      //     //   const machine = spawnConfiguration({
+      //     //     productId: "78985742-6489-7012-096c-21e325d0ed36",
+      //     //     provision_fields: {
+      //     //       [field.name]: value
+      //     //     }
+      //     //   });
 
-          //   items.push(machine);
-          // });
+      //     //   items.push(machine);
+      //     // });
 
-          // TODO:
-          return items;
-        }
-      }),
+      //     // TODO:
+      //     return items;
+      //   }
+      // }),
 
       binItem: assign({
         bin: ({ items, bin }, { data }) => {
@@ -407,6 +447,7 @@ export default createMachine(
           return bin;
         }
       }),
+
       removeAllItems: assign({
         items: ({ items, bin }, _event) => {
           forEach(items, item => item.stop());
@@ -428,41 +469,6 @@ export default createMachine(
           const removed = remove(bin, ["id", itemId]);
           if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
-        }
-      }),
-
-      refreshItem: assign({
-        items: ({ items }, { data }, _event) => {
-          const itemId = first(data?.items)?.id;
-          const index = findIndex(items, ["id", itemId]);
-          const item = get(items, index);
-
-          const newValues = find(data?.basket?.products, ["id", itemId]);
-
-          if (item) item.send({ type: "REFRESH", data: newValues });
-
-          // spawn the item(s) that are missing form the updated basket
-          // changing quantity can result in, but we will be safe and handle multiple
-          // const newItems = reduce(
-          //   data?.basket?.products,
-          //   (result, product) => {
-          //     const isNew = !some(items, ["id", product.id]);
-
-          //     if (isNew) {
-          //       const machine = spawnConfiguration(product);
-          //       result.push(machine);
-          //     }
-          //     return result;
-          //   },
-          //   []
-          // );
-
-          // now add any new item(s)  the items array,
-          // at the same index so that we dont have any ui jank
-          // if (newItems.length) items.splice(index, 0, ...newItems);
-          // if (newItems.length) items.push(...newItems);
-
-          return items;
         }
       }),
 
@@ -525,6 +531,7 @@ export default createMachine(
       }),
 
       // ---
+
       sendToItem: sendTo(
         (_context, { data: { itemId } }) => itemId,
         (_context, { type, data }) => ({ type, data })
@@ -541,10 +548,13 @@ export default createMachine(
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
-      // --- Configuration Guards
-      hasItems: ({ items }) => !isEmpty(items),
+      // --- Promotion gaurds
 
-      hasNoItems: ({ items }) => isEmpty(items),
+      hasNoPromotions: ({ basket }) => isEmpty(basket?.promotions),
+
+      hasPromotions: ({ basket }) => !isEmpty(basket?.promotions),
+
+      // --- Configuration Guards
 
       allConfigured: ({ items, bin }) => {
         const allConfigured = every(
@@ -556,6 +566,7 @@ export default createMachine(
         );
         return items?.length && allConfigured; //&& !bin?.length;
       },
+
       someConfiguring: ({ items }) =>
         some(
           items,
@@ -566,6 +577,11 @@ export default createMachine(
         ),
 
       // --- Item Guards
+
+      hasItems: ({ items }) => !isEmpty(items),
+
+      hasNoItems: ({ items }) => isEmpty(items),
+
       hasNewItems: ({ items }) => {
         const value = some(items, ({ id, state }) => {
           const isConfigured = state.matches("configured");
