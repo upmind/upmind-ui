@@ -135,6 +135,39 @@ async function update({ basket, items }: BasketContext, _event: any) {
     .then(updateItemProvisioningFields);
 }
 
+// --- Basket Promotions Methods
+
+async function addPromotion({ basket }, { data }: any) {
+  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
+
+  const promocode = get(data, "code");
+
+  if (!promocode) return Promise.reject("No Promotion to add to basket");
+
+  const { post, useUrl } = useApi();
+
+  return post({
+    url: useUrl(`/orders/${basket.id}/promotions`),
+    data: { promocode },
+    withAccessToken: true
+  }).then(useBasketParser);
+}
+
+async function removePromotion({ basket }, { data }: any) {
+  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
+
+  const promocode = get(data, "code", data);
+
+  if (!promocode) return Promise.reject("No Promotion to remove to basket");
+
+  const { del, useUrl } = useApi();
+
+  return del({
+    url: useUrl(`/orders/${basket.id}/promotions/${promocode}`),
+    withAccessToken: true
+  }).then(useBasketParser);
+}
+
 // --- Basket Item Methods
 
 // this function effectively processes the items 1 at a time
@@ -329,6 +362,9 @@ export default <Object>{
   generate,
   claim,
   update,
+  // ---
+  addPromotion,
+  removePromotion,
   // ---
   updateItem,
   removeItem,

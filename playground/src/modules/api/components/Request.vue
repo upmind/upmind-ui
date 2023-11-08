@@ -27,9 +27,18 @@
     </div>
 
     <code class="collapse-content">
-      <code class="block p-2 break-all">{{ request.url }}</code>
-
-      <pre class="m-0">{{ request.response }}</pre>
+      <div class="mockup-code">
+        <pre class="text-neutral-content" data-prefix="REQ > ">{{
+          request.url
+        }}</pre>
+        <pre
+          data-prefix="RES > "
+          :class="{
+            'text-success': request.response.status == 200,
+            'text-error': request.response.status != 200
+          }"
+        ><code>{{ request.response }}</code></pre>
+      </div>
     </code>
   </div>
 </template>

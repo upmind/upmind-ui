@@ -1,5 +1,5 @@
 <template>
-  <div data-theme="cupcake" class="grid grid-cols-6 gap-4 min-h-screen">
+  <div data-theme="light" class="grid grid-cols-6 gap-4 min-h-screen">
     <header
       class="flex flex-col items-center justify-start bg-base-200 text-base-content"
     >

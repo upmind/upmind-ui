@@ -36,6 +36,14 @@ export const useBasket = () => {
     updateBasket: () => send({ type: "UPDATE" }),
     clearBasket: () => send({ type: "CLEAR" }),
 
+    addPromotion: ({ code }) => {
+      send({ type: "ADD.PROMOTION", data: { code } });
+    },
+
+    removePromotion: ({ promotionId }) => {
+      send({ type: "REMOVE.PROMOTION", data: { promotionId } });
+    },
+
     addProduct: ({ productId, quantity, term, attributes, options }) => {
       // const { productId, quantity, term, attributes, options } = unref(model);
       send({
@@ -79,7 +87,11 @@ export const useBasket = () => {
     meta: computed(() => {
       return {
         isLoading: ["loading"].some(state.value.matches),
-        isProcessing: ["shopping.items.processing"].some(state.value.matches),
+        isProcessing: [
+          "shopping.items.processing",
+          "shopping.promotions.adding",
+          "shopping.promotions.removing"
+        ].some(state.value.matches),
         canProcess: some(
           state.value?.context?.items,
           (item, index) =>
@@ -88,6 +100,7 @@ export const useBasket = () => {
         ),
         // ---
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
+        hasPromotions: ["shopping.promotions.active"].some(state.value.matches),
         isAvailable: ["shopping"].some(state.value.matches),
         isConfigured: ["shopping.items.configured"].some(state.value.matches),
         // ---
@@ -101,8 +114,6 @@ export const useBasket = () => {
     }),
     //  ---
     basket: computed(() => state.value.context.basket),
-    // ---
-
     items: computed(
       () =>
         map(state.value.context.items, item => ({
@@ -114,8 +125,8 @@ export const useBasket = () => {
       //   ...item.getSnapshot()
       // }))
     ),
-
-    products: computed(() => state.value.context.basket?.products || [])
+    products: computed(() => state.value.context.basket?.products || []),
+    promotions: computed(() => state.value.context.basket?.promotions || [])
   };
 };
 
