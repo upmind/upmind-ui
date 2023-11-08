@@ -1,22 +1,36 @@
 <template>
   <div
-    class="request"
+    class="request collapse collapse-plus border border-base-300"
     :class="{ error: request.hasErrors, warning: request.hasNoContent }"
   >
-    <h4 class="url">{{ request.url }}</h4>
-    <code class="status">{{ request.state }}</code>
-    <small class="status" v-if="request.isCached || request.isStale">{{
-      expiresIn
-    }}</small>
+    <input type="checkbox" name="request" />
 
-    <details>
-      <summary>Response</summary>
-      <div>
-        <code>
-          <pre>{{ request.response }}</pre>
-        </code>
+    <div class="collapse-title">
+      <h4 class="m-0">{{ request.id }}</h4>
+
+      <em
+        class="status block text-sm"
+        v-if="request.isCached || request.isStale"
+      >
+        {{ expiresIn }}
+      </em>
+
+      <div v-for="(value, key) in request.state" :key="key" class="mt-2 -mx-1">
+        <button class="btn btn-neutral btn-xs status">
+          {{ key }}
+
+          <span class="status badge badge-sm">
+            {{ value }}
+          </span>
+        </button>
       </div>
-    </details>
+    </div>
+
+    <code class="collapse-content">
+      <code class="block p-2 break-all">{{ request.url }}</code>
+
+      <pre class="m-0">{{ request.response }}</pre>
+    </code>
   </div>
 </template>
 
@@ -85,7 +99,9 @@ export default defineComponent({
     const request = ref();
 
     machine.onTransition(state => {
+      debugger;
       request.value = {
+        id: machine.id,
         url: state.context.url,
         state: state.value,
         maxAge: state.context.maxAge,

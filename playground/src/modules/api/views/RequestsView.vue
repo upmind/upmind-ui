@@ -1,19 +1,29 @@
 <template>
-  <section class="requests">
+  <section class="requests w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 px-4 rounded-full"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-full"
     >
-      <h2 class="title m-0">
-        Requests <span v-if="meta.isActive">({{ count }})</span>
-      </h2>
-      <div class="actions">
+      <div class="flex-1">
+        <h2 class="title m-0">
+          <span v-if="meta.isActive" class="text-primary">{{ count }}</span>
+          Requests
+
+          <span v-if="meta.isActive">
+            are <span class="text-primary">Active</span>
+          </span>
+        </h2>
+      </div>
+
+      <div class="actions flex-none join">
         <slot name="actions">
-          <button @click="processRequests">Process dummy requests</button>
+          <button class="btn btn-ghost" @click="processRequests">
+            Add dummy requests
+          </button>
         </slot>
       </div>
     </header>
 
-    <div class="content">
+    <div class="grid grid-cols-1 gap-4 my-8">
       <upm-request
         v-for="(request, hash) in requests"
         :key="hash"
