@@ -29,7 +29,7 @@
             Login
           </button>
           <button
-            class="btn btn-secondary join-item"
+            class="btn btn-primary btn-outline join-item"
             @click="showRegister"
             v-if="!meta.isClient"
           >
@@ -235,7 +235,7 @@
 
         <div class="card-actions mt-8 justify-between">
           <button
-            class="btn btn-secondary"
+            class="btn btn-primary"
             type="submit"
             :disabled="meta.isProcessing"
           >
