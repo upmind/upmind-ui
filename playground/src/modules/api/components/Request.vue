@@ -99,7 +99,6 @@ export default defineComponent({
     const request = ref();
 
     machine.onTransition(state => {
-      debugger;
       request.value = {
         id: machine.id,
         url: state.context.url,

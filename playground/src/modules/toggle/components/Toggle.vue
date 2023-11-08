@@ -1,34 +1,41 @@
 <template>
   <div class="toggles flex flex-wrap items-center justify-start py-4">
-    <fieldset class="form-control">
+    <fieldset
+      class="form-control"
+      v-if="!meta.isDisabled || !meta.isProcessing"
+    >
       <label class="label cursor-pointer uppercase indicator">
         <input
           type="checkbox"
           class="toggle toggle-success pointer-events-none"
-          :disabled="isDisabled"
-          :checked="!isInactive"
+          :disabled="meta.isDisabled"
+          :checked="!meta.isInactive"
           @input="toggle"
         />
-        <strong
+
+        <button
           v-if="!!count"
+          @click="reset"
+          :disabled="meta.isProcessing"
+          type="reset"
           class="indicator-item badge badge-sm badge-neutral"
           :class="{
-            'badge-error': isDisabled
+            'badge-error': meta.isDisabled
           }"
-          >{{ count }}</strong
+          :title="meta.isDisabled ? 'Click to Reset' : ''"
         >
+          <span>{{ count }}</span>
+          <span v-if="meta.isDisabled">
+            <ArrowPathIcon class="w-3 h-3 ml-1"
+          /></span>
+        </button>
       </label>
     </fieldset>
 
-    <button
-      type="reset"
-      class="btn btn-square btn-xs mx-1"
-      title="Reset the toggle"
-      @click="reset"
-      v-if="isDisabled"
-    >
-      <ArrowPathIcon class="w-5 h-5" />
-    </button>
+    <progress
+      v-if="meta.isDisabled && meta.isProcessing"
+      class="progress progress-neutral w-12"
+    ></progress>
 
     <div class="status debug flex-1 ml-1 text-xs text-neutral">
       <em><slot></slot></em>
@@ -38,7 +45,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { useToggle } from "../composables/useToggle";
+import { useToggle } from "../";
 import { ArrowPathIcon } from "@heroicons/vue/24/solid";
 
 export default defineComponent({
@@ -56,29 +63,19 @@ export default defineComponent({
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { attrs }) {
-    const toggle = useToggle(props);
+    const toggler = useToggle(props);
 
-    const { send, isInactive, isDisabled, isProcessing, count } = toggle;
+    const { send, meta, count, toggle, reset } = toggler;
 
     return {
-      send,
+      toggle,
+      reset,
       count,
-      isInactive,
-      isDisabled,
-      isProcessing
+      meta
     };
   },
 
-  computed: {},
-
-  methods: {
-    reset() {
-      this.send("RESET");
-    },
-
-    toggle() {
-      this.send("TOGGLE");
-    }
-  }
+  computed: {}
 });
 </script>
+../useToggle
