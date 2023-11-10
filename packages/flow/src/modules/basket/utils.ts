@@ -90,3 +90,16 @@ export const useBasketParser = (data: any) => {
   //   // token_type: toString(data?.token_type)
   // };
 };
+
+// ---
+
+export const useSummaryParser = (data?: any) => {
+  console.log("useSummaryParser", { basket: data });
+  const summary = {
+    discount: data?.net_discount_amount_formatted, // total_discount_amount
+    subtotal: data?.net_amount_formatted || "", // total_amount
+    taxes: data?.tax_amount_formatted, // tax_amount
+    total: data?.unpaid_amount_formatted || "" // unpaid_amount
+  };
+  return summary;
+};

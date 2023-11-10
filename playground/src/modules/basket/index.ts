@@ -40,8 +40,8 @@ export const useBasket = () => {
       send({ type: "ADD.PROMOTION", data: { code } });
     },
 
-    removePromotion: ({ promotionId }) => {
-      send({ type: "REMOVE.PROMOTION", data: { promotionId } });
+    removePromotion: ({ id }) => {
+      send({ type: "REMOVE.PROMOTION", data: { id } });
     },
 
     addProduct: ({ productId, quantity, term, attributes, options }) => {
@@ -100,7 +100,10 @@ export const useBasket = () => {
         ),
         // ---
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
-        hasPromotions: ["shopping.promotions.active"].some(state.value.matches),
+        hasPromotions:
+          ["shopping.promotions.active"].some(state.value.matches) ||
+          !!state.value?.context?.basket?.total_discount_amount,
+        hasTaxes: !!state.value?.context?.basket?.taxes?.length, // TODO: check config for taxes
         isAvailable: ["shopping"].some(state.value.matches),
         isConfigured: ["shopping.items.configured"].some(state.value.matches),
         // ---
@@ -114,6 +117,7 @@ export const useBasket = () => {
     }),
     //  ---
     basket: computed(() => state.value.context.basket),
+    summary: computed(() => state.value.context.summary),
     items: computed(
       () =>
         map(state.value.context.items, item => ({
@@ -145,9 +149,7 @@ export const useBasketItem = item => {
     isCalculating: state.value.matches("calculating")
   }));
 
-  const totalFormatted = computed(() =>
-    get(state.value.context, "summary.totalFormatted", null)
-  );
+  const summary = computed(() => state.value.context.summary);
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
@@ -174,7 +176,7 @@ export const useBasketItem = item => {
     const qty = get(model.value, "quantity", 0);
     set(
       model.value,
-      "unit_quantity",
+      "quantity",
       add(qty, available.value.product?.unit_quantity || 1)
     );
     // emit the event
@@ -188,7 +190,7 @@ export const useBasketItem = item => {
     const qty = get(model.value, "quantity", 0);
     set(
       model.value,
-      "unit_quantity",
+      "quantity",
       subtract(qty, available.value.product?.unit_quantity || 1)
     );
     // emit the event
@@ -374,8 +376,7 @@ export const useBasketItem = item => {
     errors,
     model,
     meta,
-    // ---
-    totalFormatted,
+    summary,
     // ---
     updateQuantity,
     incrementQuantity,

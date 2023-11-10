@@ -4,8 +4,24 @@
   >
     <header class="">
       <div class="navbar text-sm px-4 relative" :class="color">
-        <div class="flex-1 text-sm font-semibold">
-          <span class="card-meta">{{ status }}</span>
+        <div class="flex-1 flex flex-wrap items-center gap-2 overflow-x-hidden">
+          <span
+            class="rounded badge badge-info"
+            v-if="available?.product?.hasFreeTrial"
+          >
+            free trail
+          </span>
+
+          <span
+            class="rounded badge badge-error text-base-100"
+            v-if="available?.product?.isOnPromotion"
+          >
+            On Promotion
+          </span>
+
+          <span class="rounded badge badge-ghost" v-for="value in status">
+            {{ value }}
+          </span>
         </div>
 
         <div class="flex-none">
@@ -37,7 +53,7 @@
     <div class="card-body" v-if="!meta.isLoading">
       <!-- terms -->
       <ul
-        class="terms list-none mt-4 stats stats-vertical border border-base-300 bg-base-200 bg-opacity-30"
+        class="terms list-none p-0 mt-4 stats stats-vertical border border-base-300 bg-base-200 bg-opacity-30"
       >
         <li
           v-for="term in available.terms"
@@ -68,6 +84,44 @@
             {{ term.saving_formatted }} Saving
           </div>
         </li>
+
+        <!-- quantity -->
+        <li class="px-4 pt-2" v-if="available.product?.canChangeQuantity">
+          <fieldset
+            :disabled="meta.isLoading || processing"
+            class="flex w-full"
+          >
+            <label class="label text-start w-full" :for="quantity">
+              <span class="label-text">Quantity</span>
+            </label>
+
+            <div class="quantity-increment join">
+              <button
+                class="btn btn-square btn-sm join-item"
+                @click.prevent="incrementQuantity"
+              >
+                +
+              </button>
+
+              <input
+                class="input input-sm join-item text-center max-w-[5em]"
+                type="number"
+                v-model="model.quantity"
+                :min="available.product?.min_order_quantity"
+                :max="available.product?.max_order_quantity"
+                :step="available.product?.unit_quantity || 1"
+                readonly
+              />
+
+              <button
+                class="btn btn-square btn-sm join-item"
+                @click.prevent="decrementQuantity()"
+              >
+                -
+              </button>
+            </div>
+          </fieldset>
+        </li>
       </ul>
 
       <!-- attributes -->
@@ -82,9 +136,9 @@
           </h4>
 
           <ul
-            class="menu border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+            class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
           >
-            <li class="" v-for="value in attribute.values">
+            <li class="p-0" v-for="value in attribute.values">
               <fieldset
                 class="flex items-center justify-between"
                 v-if="model.attributes"
@@ -159,9 +213,9 @@
           </h4>
 
           <ul
-            class="menu border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+            class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
           >
-            <li class="" v-for="value in option.values">
+            <li class="p-0" v-for="value in option.values">
               <fieldset
                 class="flex items-center justify-between"
                 v-if="model.options"
@@ -228,19 +282,20 @@
 
       <!-- provisioning -->
       <section class="provisioning" v-if="available.provision_fields?.length">
-        <h4 class="">Additioal Information</h4>
+        <h4 class="">Additional Information</h4>
         <ul
-          class="menu border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+          class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
         >
           <template v-for="field in available.provision_fields" :key="field.id">
-            <li v-if="field.defer_mode != 'hidden'">
+            <li class="p-0" v-if="field.defer_mode != 'hidden' || true">
               <fieldset
-                class="form-control"
+                class="flex flex-col"
                 :disabled="meta.isLoading || processing"
               >
-                <label class="label" :for="field.id">
-                  <span class="label-text"> {{ field.field_label }}</span>
+                <label class="label text-start w-full" :for="field.id">
+                  <span class="label-text">{{ field.field_label }}</span>
                 </label>
+
                 <select
                   class="select select-bordered w-full max-w-xs"
                   v-if="field.field_type == 'select'"
@@ -300,9 +355,14 @@
           Pending...
         </strong>
         <template v-else>
+          <span class="uppercase">Discount: </span>
+          <strong class="text-secondary text-xl ml-2">{{
+            summary?.discountFormatted
+          }}</strong>
+
           <span class="uppercase">Item Total: </span>
           <strong class="text-secondary text-xl ml-2">{{
-            totalFormatted
+            summary.totalFormatted
           }}</strong>
         </template>
       </aside>
@@ -372,18 +432,18 @@ export default defineComponent({
     return {
       remove,
       ...basketItem,
-      uuid: getCurrentInstance().uid
+      uuid: getCurrentInstance()?.uid
     };
   },
   computed: {
     color() {
       return {
         // "bg-base": !this.meta.isNew,
-        "text-base": this.meta.isConfigured,
-        "bg-base-200": this.meta.isConfigured,
+        "bg-base-300": this.meta.isConfigured,
+        "text-base-content": this.meta.isConfigured,
         // ---
         "bg-info": this.meta.isNew && this.meta.isConfiguring,
-        "bg-info": this.meta.isNew && this.meta.isConfiguring,
+        "text-info-content": this.meta.isNew && this.meta.isConfiguring,
         // ---
         "bg-warning": this.meta.isConfiguring,
         "text-warning-content": this.meta.isConfiguring,
@@ -401,7 +461,7 @@ export default defineComponent({
       const values = [];
       // if (this.id) values.push(`ID: ${this.id}`);
       if (this.meta.isLoading) values.push("Is Loading");
-      if (this.meta.isNew) values.push("Is New");
+      if (this.meta.isNew) values.push("Pending");
       if (!this.meta.isNew) values.push("In Basket");
 
       if (!this.meta.isLoading) {
@@ -413,7 +473,8 @@ export default defineComponent({
           values.push("Needs Updating");
       }
 
-      return values.join(" · ");
+      return values;
+      // return values.join(" · ");
     }
   },
   methods: {}

@@ -14,7 +14,7 @@ import {
   useProductParser,
   useTermsParser,
   useValuesParser,
-  useTotalParser
+  useSummaryParser
 } from "./utils";
 
 import { get, set, map, toNumber, find } from "lodash-es";
@@ -52,7 +52,7 @@ export default values =>
         // ---
         // the generated summary of the configuration,
         // including the totals formatted for display
-        summary: useTotalParser(values),
+        summary: useSummaryParser(values),
 
         // ---
         error: null
@@ -257,7 +257,7 @@ export default values =>
       actions: {
         setValues: assign({
           values: ({ values }, { data }) => useValuesParser(data),
-          summary: ({ summary }, { data }) => useTotalParser(data)
+          summary: ({ summary }, { data }) => useSummaryParser(data)
         }),
 
         // ---
@@ -273,7 +273,7 @@ export default values =>
 
         // ---
         setSummary: assign({
-          summary: ({ summary, values }, { data }) => useTotalParser(data)
+          summary: ({ summary, values }, { data }) => useSummaryParser(data)
         }),
 
         setQuantity: assign({

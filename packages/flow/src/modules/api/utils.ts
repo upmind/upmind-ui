@@ -1,5 +1,18 @@
 import { sha1 } from "object-hash";
-import { omit, startsWith, filter } from "lodash-es";
+import {
+  omit,
+  startsWith,
+  filter,
+  isObject,
+  camelCase,
+  isArray,
+  map,
+  mapValues,
+  mapKeys,
+  reduce,
+  set,
+  isPlainObject
+} from "lodash-es";
 
 // --------------------------------------------------------
 // utils
@@ -30,3 +43,35 @@ export function generateHash(
 
   return `${hash}-${existing.length}`;
 }
+
+export function ensureCamelCaseKeys(response) {
+  if (isArray(response)) return map(response, ensureCamelCaseKeys);
+
+  if (!isObject(response)) return response;
+
+  // now we know we definitely have an object
+  return reduce(
+    response,
+    (result, value, key) => {
+      value = ensureCamelCaseKeys(value);
+      set(result, camelCase(key), value);
+      return result;
+    },
+    {}
+  );
+}
+
+// export function ensureCamelCaseKeys(response) {
+//   return mapKeysDeep(response, camelCase);
+// }
+
+// function mapKeysDeep(obj, fn): any {
+//   if (isPlainObject(obj)) {
+//     const objWithTransformedKeys = mapKeys(obj, (_, key) => fn(key));
+//     return mapValues(objWithTransformedKeys, value => mapKeysDeep(value, fn));
+//   } else if (isArray(obj)) {
+//     return map(obj, value => mapKeysDeep(value, fn));
+//   } else {
+//     return obj;
+//   }
+// }
