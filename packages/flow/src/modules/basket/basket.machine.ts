@@ -9,6 +9,8 @@ import configurationMachine from "../products/config.machine";
 
 // --- utils
 import { useTime } from "../../utils";
+import { useBasketParser, useSummaryParser } from "./utils";
+
 import {
   differenceBy,
   every,
@@ -23,8 +25,6 @@ import {
   trimStart,
   uniqueId
 } from "lodash-es";
-
-import { useBasketParser } from "./utils";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
@@ -46,8 +46,14 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket: null,
+      // ---
       items: [],
       bin: [],
+      // ---
+      // the generated summary of ALL the items,
+      // including the totals formatted for display
+      summary: null,
+      // ---
       error: null
     } as BasketContext,
     states: {
@@ -365,18 +371,24 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
-        basket: (context, { data }) => data
+        basket: (context, { data }) => data,
+        summary: (context, { data }) => useSummaryParser(data)
       }),
 
       updateBasket: assign({
         basket: (context, { data }) => {
           const value = get(data, "basket", context.basket);
           return useBasketParser(value);
+        },
+        summary: (context, { data }) => {
+          const value = get(data, "basket", context.basket);
+          return useSummaryParser(value);
         }
       }),
 
       clearBasket: assign({
-        basket: {}
+        basket: {},
+        summary: useSummaryParser()
       }),
 
       // --- Configuring Items Actions

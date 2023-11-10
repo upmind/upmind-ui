@@ -138,28 +138,26 @@
               <!-- Promotions -->
               <div v-if="meta.hasPromotions">
                 <div class="divider mt-4 uppercase text-xs">Discount</div>
-                <h2 class="text-primary mt-0">
-                  - {{ basket?.total_discount_amount_formatted }}
-                </h2>
+                <h2 class="text-primary mt-0">{{ summary?.discount }}</h2>
               </div>
 
               <!-- Subtotal -->
               <div>
                 <div class="divider mt-4 uppercase text-xs">SubTotal</div>
-                <h2 class="text-primary mt-0">$0.00</h2>
+                <h2 class="text-primary mt-0">{{ summary.subtotal }}</h2>
               </div>
 
               <!-- Taxes -->
-              <div>
+              <div v-if="meta.hasTaxes">
                 <div class="divider mt-4 uppercase text-xs">Taxes</div>
-                <h2 class="text-primary mt-0">$0.00</h2>
+                <h2 class="text-primary mt-0">{{ summary.taxes }}</h2>
               </div>
 
               <!-- Total -->
               <div>
                 <div class="divider mt-4 uppercase">Total</div>
                 <h1 class="text-primary">
-                  {{ basket?.unpaid_amount_formatted }}
+                  {{ summary?.total }}
                 </h1>
               </div>
             </div>
@@ -222,18 +220,19 @@
 
             <ul class="my-4 p-0 list-none">
               <li
-                class="border border-accent flex items-center rounded-lg p-2"
+                class="border flex items-center rounded-lg p-2"
+                :class="{ 'border-accent': !meta.isProcessing }"
                 v-for="promotion in promotions"
                 :key="promotion.promotion.code"
               >
-                <ReceiptPercentIcon class="w-6 h-6 text-accent" />
+                <!-- <ReceiptPercentIcon class="w-6 h-6" /> -->
 
                 <span class="spacer flex-1 mx-2">
                   {{ promotion.promotion.code }}
                 </span>
 
                 <strong
-                  class="bg-base-300 rounded-lg flex items-center py-1 px-2"
+                  class="bg-base-300 rounded-lg flex items-center py-1 px-2 mx-1"
                   v-if="promotion?.promotion?.amount_formatted"
                 >
                   {{ promotion.promotion.amount_formatted }}
@@ -242,6 +241,8 @@
                 <button
                   class="btn btn-square btn-ghost btn-sm"
                   title="Click to Remove Discount"
+                  @click.prevent="removePromotion(promotion)"
+                  :disabled="meta.isProcessing"
                 >
                   <XMarkIcon class="w-5 h-5" />
                 </button>
@@ -288,6 +289,7 @@ import {
 const {
   state,
   basket,
+  summary,
   errors,
   meta,
   items,
@@ -303,7 +305,8 @@ const {
   updateAttributes,
   updateOptions,
   updateProvisioning,
-  addPromotion
+  addPromotion,
+  removePromotion
 } = useBasket();
 
 const productCatalogue = [

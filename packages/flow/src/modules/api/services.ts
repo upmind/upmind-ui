@@ -8,6 +8,7 @@ const { getSnapshot, service: sessionService } = useSession();
 import type { RequestContext } from "./types.d";
 
 // --- utils
+import { ensureCamelCaseKeys } from "./utils";
 import { includes, get, set } from "lodash-es";
 
 // --------------------------------------------------------
@@ -41,17 +42,29 @@ async function doFetch({ url, init }: RequestContext) {
   // Digest response data (JSON)
   // maybe instead of catching error, we can check if 204 and return null
   // this catchall seems more robust though
-  const data = await response.json().catch(error => {
-    console.warn("doFetch response.json error", error);
-    return {
-      data: null
-    };
-  });
+  const data = await response
+    .json()
+    .then(data => {
+      // TODO: transform our responses to ensure we have a consistent data object
+      // always in camelCase
+      // const safeData = ensureCamelCaseKeys({ ...data });
+      // console.log("api response", "ensureCamelCaseKeys", { data, safeData });
+      // return safeData;
+
+      return data;
+    })
+    .catch(error => {
+      console.warn("doFetch response.json error", error);
+      return {
+        data: null
+      };
+    });
 
   return new Promise((resolve, reject) => {
     // Unpack response object
     const { ok, status } = response;
 
+    // add status to data object
     set(data, "status", status); // ensure the correct status code
 
     if (!ok) {

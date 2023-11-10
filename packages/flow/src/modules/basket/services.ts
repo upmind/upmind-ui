@@ -156,14 +156,14 @@ async function addPromotion({ basket }, { data }: any) {
 async function removePromotion({ basket }, { data }: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-  const promocode = get(data, "code", data);
+  const id = get(data, "id", data);
 
-  if (!promocode) return Promise.reject("No Promotion to remove to basket");
+  if (!id) return Promise.reject("No Promotion provided to remove from basket");
 
   const { del, useUrl } = useApi();
 
   return del({
-    url: useUrl(`/orders/${basket.id}/promotions/${promocode}`),
+    url: useUrl(`/orders/${basket.id}/promotions/${id}`),
     withAccessToken: true
   }).then(useBasketParser);
 }

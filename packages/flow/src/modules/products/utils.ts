@@ -1,7 +1,7 @@
 // ---internal
 import { useBrand } from "../brand";
 const { getBillingCycle } = useBrand();
-
+import { TrialEndActionTypes, PromotionDisplayTypes } from "./services";
 // --- utils
 import {
   find,
@@ -58,13 +58,42 @@ export const useQuantityParser = (quantity: number, data: any) => {
 };
 
 export const useProductParser = (data: any) => {
-  // TODO: pick only the properties we need
-  const product = omit(data, [
-    "prices",
-    "products_attributes",
-    "products_options"
+  // Pick only the properties we need
+  const product = pick(data, [
+    "id",
+    "name",
+    "description",
+    "short_description",
+    // ---
+    "image",
+    "images",
+    // ---
+    "display_price",
+    // ---
+    "unit_quantity",
+    "min_order_quantity",
+    "max_order_quantity"
   ]);
-  product.canChangeQuantity = data.product_type == 2;
+
+  // --------------------------------------------------------
+  // then add some syntactic sugar / computed properties
+
+  product.canChangeQuantity = data.order_type == 2;
+
+  product.hasFreeTrial =
+    data.trial_supported &&
+    data.trial_end_action &&
+    data.trial_force &&
+    [TrialEndActionTypes.CANCEL].includes(data.trial_end_action);
+
+  product.hasSavings = some(
+    data.prices,
+    ({ price, discountedPrice }) => ((price - discountedPrice) / price) * 100
+  );
+
+  product.hasMixedPromotions = some(data.prices, "mixed_promotions");
+
+  product.isOnPromotion = product.hasSavings || product.hasMixedPromotions;
 
   return product;
 };
@@ -73,11 +102,9 @@ export const useTermsParser = (data: any) => {
   // 1. sort the terms by billing_cycle_months
   let terms = orderBy(data, "billing_cycle_months");
   getBillingCycle;
-  // 2. Parse the terms with
-  //  - a limited number of properties
-  //  - and some syntactic sugar
+
   return map(terms, rawTerm => {
-    // --- Limit the properties
+    // Pick only the properties we need
     const term = pick(rawTerm, [
       "billing_cycle_months",
       "mixed_promotions",
@@ -90,10 +117,23 @@ export const useTermsParser = (data: any) => {
       "price_formatted"
     ]);
 
+    // --------------------------------------------------------
+    // Ensure the name is set
+
     term.billing_cycle_name = getBillingCycle(rawTerm.billing_cycle_months)
       ?.name;
 
+    // --------------------------------------------------------
+    // then add some syntactic sugar / computed properties
+
+    //  product.hasSavings = some(
+    //    data.prices,
+    //    ({ price, discountedPrice }) =>
+    //      ((price - discountedPrice) / price) * 100
+    //  );
+
     // --- Coupon Syntax Sugar
+
     term.coupons = map(rawTerm.promotions, promo => `'${promo.code}'`);
 
     // --- Savings Syntax Sugar - When promotion has been applied
@@ -235,7 +275,9 @@ export const useProvisioningParser = (data: any) => {
   return data;
 };
 
-export const useTotalParser = (data: any) => {
+// ---
+
+export const useSummaryParser = (data: any) => {
   // "cost_currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
   // "base_price_currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
   // "cost_currency_code": "USD",
@@ -288,8 +330,15 @@ export const useTotalParser = (data: any) => {
   // "invoice_total_amount": 3000,
   // "invoice_total_amount_converted": 3000,
   // "invoice_total_amount_formatted": "$3,000.00",
+  debugger;
+
   return {
     currencyId: data?.cost_currency_id || data?.currencyId,
+
+    discount: data?.configuration_total_discounted_amount_converted || 0,
+    discountFormatted:
+      data?.configuration_total_discounted_amount_formatted || "$0.00",
+
     total: data?.invoice_total_amount || data?.total,
     totalFormatted:
       data?.invoice_total_amount_formatted ||
