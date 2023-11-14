@@ -14,7 +14,7 @@
           </span>
 
           <span
-            class="rounded badge badge-secondary text-base-100"
+            class="rounded badge badge-accent text-base-100"
             v-if="available?.product?.isOnPromotion"
           >
             On Promotion
@@ -100,7 +100,9 @@
             <span class="line-through text-sm mt-2 block">
               {{ !term?.price ? "Free" : term?.price_formatted }}
             </span>
-            {{ term.price_discounted_formatted }}
+            <span class="text-accent">{{
+              term.price_discounted_formatted
+            }}</span>
           </div>
           <div class="stat-value" v-else>
             {{ !term?.price ? "Free" : term?.price_formatted }}
@@ -249,7 +251,7 @@
                       }}
                     </span>
 
-                    <strong>{{
+                    <strong class="text-accent">{{
                       value?.price.price_discounted_formatted
                     }}</strong>
                   </span>
@@ -347,7 +349,7 @@
                           : value?.price?.price_formatted
                       }}
                     </span>
-                    <strong>{{
+                    <strong class="text-accent">{{
                       value?.price.price_discounted_formatted
                     }}</strong>
                   </span>
@@ -447,7 +449,7 @@
             <!-- <span class="text-sm ml-2 block">
               - {{ summary.discountFormatted }}</span
             > -->
-            <strong class="text-secondary text-xl ml-2 block">{{
+            <strong class="text-accent text-xl ml-2 block">{{
               summary?.totalFormatted
             }}</strong>
           </span>
@@ -546,11 +548,11 @@ export default defineComponent({
         // "border-warning": this.meta.isConfiguring,
         // "text-warning-content": this.meta.isConfiguring,
         // ---
-        "border-error": this.meta.hasErrors,
+        "border-error": this.meta.hasErrors
         // "text-error-content": this.meta.hasErrors,
         // ---
-        "border-success":
-          this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
+        // "border-success":
+        //   this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
         // "text-success-content":
         //   this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
       };
@@ -568,7 +570,7 @@ export default defineComponent({
         if (this.meta.isConfiguring)
           values.push({ color: "primary", label: "Needs Configuring" });
         if (this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty)
-          values.push({ color: "success", label: "Is Configured" });
+          values.push({ color: "secondary", label: "Is Configured" });
         if (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty))
           values.push({ color: "primary", label: "Pending" });
       }
