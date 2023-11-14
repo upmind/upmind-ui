@@ -20,7 +20,7 @@ import {
 import { get, set, map, toNumber, find } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default values =>
+export default (values, promotions) =>
   createMachine(
     {
       tsTypes: {} as import("./config.machine.typegen").Typegen0,
@@ -54,6 +54,8 @@ export default values =>
         // including the totals formatted for display
         summary: useSummaryParser(values),
 
+        // use any applied promotions when fetching the product to get the correct prices
+        promotions,
         // ---
         error: null
       },
@@ -200,7 +202,7 @@ export default values =>
 
         calculating: {
           invoke: {
-            src: "calculate",
+            src: "calculateSummary",
             onDone: { target: "configured", actions: ["setSummary"] },
             onError: { target: "error", actions: ["setError"] }
           }
@@ -256,8 +258,9 @@ export default values =>
     {
       actions: {
         setValues: assign({
-          values: ({ values }, { data }) => useValuesParser(data),
-          summary: ({ summary }, { data }) => useSummaryParser(data)
+          promotions: ({ values }, { data }) => data?.promotions || [],
+          values: ({ values }, { data }) => useValuesParser(data?.product),
+          summary: ({ summary }, { data }) => useSummaryParser(data?.product)
         }),
 
         // ---
@@ -273,7 +276,7 @@ export default values =>
 
         // ---
         setSummary: assign({
-          summary: ({ summary, values }, { data }) => useSummaryParser(data)
+          summary: (_context, { data }) => data
         }),
 
         setQuantity: assign({

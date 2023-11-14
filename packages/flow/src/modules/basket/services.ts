@@ -61,7 +61,7 @@ async function check(_context: BasketContext, _event: any) {
         "products.product.products_options",
         "products.product.products_options.category",
         "products.product.products_options.prices",
-        // "products.product.provision_field_values",
+        "products.product.provision_field_values",
         "products.tags",
         "promotions",
         "status",
@@ -137,7 +137,7 @@ async function update({ basket, items }: BasketContext, _event: any) {
 
 // --- Basket Promotions Methods
 
-async function addPromotion({ basket }, { data }: any) {
+async function addPromotion({ basket, items }, { data }: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const promocode = get(data, "code");
@@ -150,10 +150,15 @@ async function addPromotion({ basket }, { data }: any) {
     url: useUrl(`/orders/${basket.id}/promotions`),
     data: { promocode },
     withAccessToken: true
-  }).then(useBasketParser);
+  })
+    .then(useBasketParser)
+    .then(getProvisioningFieldsValues)
+    .then(basket => {
+      return { basket, items, newItems: basket.products, queue: false };
+    });
 }
 
-async function removePromotion({ basket }, { data }: any) {
+async function removePromotion({ basket, items }, { data }: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const id = get(data, "id", data);
@@ -165,7 +170,12 @@ async function removePromotion({ basket }, { data }: any) {
   return del({
     url: useUrl(`/orders/${basket.id}/promotions/${id}`),
     withAccessToken: true
-  }).then(useBasketParser);
+  })
+    .then(useBasketParser)
+    .then(getProvisioningFieldsValues)
+    .then(basket => {
+      return { basket, items, newItems: basket.products, queue: false };
+    });
 }
 
 // --- Basket Item Methods
@@ -226,6 +236,7 @@ async function updateItemProvisioningFields({
   // bail if we have no basket, or if we have a basket without products
   if (!basket?.products?.length)
     return Promise.resolve({ basket, items, newItems, queue });
+
   const promises = reduce(
     items,
     (result, item, index) => {
@@ -233,6 +244,7 @@ async function updateItemProvisioningFields({
       // If we are adding a single item,
       // or we have done a bulk update, which replaces ALL the items with new ids
       // so then we can get the product from the newItems at the same index
+
       let product = find(basket.products, ["id", item.id]);
       product ??= get(newItems, index);
 
@@ -241,6 +253,7 @@ async function updateItemProvisioningFields({
         "product",
         "provision_blueprint_id"
       ]);
+
       // if the product has no provisioning fields, we dont need to make a request
       if (!product || !hasProvisioning) return result;
 

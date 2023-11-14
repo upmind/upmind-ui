@@ -72,7 +72,9 @@ export const useProductParser = (data: any) => {
     // ---
     "unit_quantity",
     "min_order_quantity",
-    "max_order_quantity"
+    "max_order_quantity",
+    // ---
+    "provision_blueprint_id"
   ]);
 
   // --------------------------------------------------------
@@ -86,13 +88,8 @@ export const useProductParser = (data: any) => {
     data.trial_force &&
     [TrialEndActionTypes.CANCEL].includes(data.trial_end_action);
 
-  product.hasSavings = some(
-    data.prices,
-    ({ price, discountedPrice }) => ((price - discountedPrice) / price) * 100
-  );
-
+  product.hasSavings = some(data.prices, "price_discounted");
   product.hasMixedPromotions = some(data.prices, "mixed_promotions");
-
   product.isOnPromotion = product.hasSavings || product.hasMixedPromotions;
 
   return product;
@@ -278,73 +275,23 @@ export const useProvisioningParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data: any) => {
-  // "cost_currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
-  // "base_price_currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
-  // "cost_currency_code": "USD",
-  // "base_currency_code": "USD",
-
-  // "tax_amount": 0,
-  // "total_amount": 0,
-  // "total_discount_amount": 0,
-  // "net_global_discount_amount": 0,
-  // "net_product_discount_amount": 0,
-  // "cost_formatted": "$0.00",
-  // "base_price_formatted": "$1,500.00",
-  // "selling_price_formatted": "$0.00",
-  // "selling_price_converted": 0,
-  // "net_selling_price_formatted": "$0.00",
-  // "net_unit_selling_price_formatted": "$0.00",
-  // "net_product_discount_amount_formatted": "$0.00",
-  // "net_global_discount_amount_formatted": "$0.00",
-  // "total_discount_amount_formatted": "$0.00",
-  // "net_amount_formatted": "$0.00",
-  // "tax_amount_formatted": "$0.00",
-  // "tax_amount_converted": "$0.00",
-  // "total_amount_formatted": "$0.00",
-  // "total_amount_converted": 0,
-  // "configuration_selling_price_formatted": "$3,000.00",
-  // "configuration_total_amount_formatted": "$3,000.00",
-  // "configuration_total_amount_converted": 3000,
-  // "configuration_net_selling_price_formatted": "$3,000.00",
-  // "configuration_net_amount_formatted": "$3,000.00",
-  // "configuration_net_amount_converted": 3000,
-  // "configuration_selling_price_discount_converted": 0,
-  // "configuration_selling_price_discount_formatted": "$0.00",
-  // "configuration_total_discount_amount_formatted": "$0.00",
-  // "configuration_total_discount_amount_converted": 0,
-  // "configuration_net_amount_discount_formatted": "$0.00",
-  // "configuration_net_amount_discount_converted": 0,
-  // "configuration_net_selling_price_discount_formatted": "$0.00",
-  // "configuration_selling_price_discounted_converted": 3000,
-  // "configuration_selling_price_discounted_formatted": "$3,000.00",
-  // "configuration_total_discounted_amount_formatted": "$3,000.00",
-  // "configuration_total_discounted_amount_converted": 3000,
-  // "configuration_net_amount_discounted_formatted": "$3,000.00",
-  // "configuration_net_amount_discounted_converted": 3000,
-  // "configuration_net_selling_price_discounted_formatted": "$3,000.00",
-  // "partial_amount_to_credit_formatted": "$0.00",
-  // "partial_amount_to_credit_converted": 0,
-  // "partial_amount_credited_formatted": "$0.00",
-  // "partial_amount_credited_converted": 0,
-  // "invoice_create_datetime": null,
-  // "invoice_total_amount": 3000,
-  // "invoice_total_amount_converted": 3000,
-  // "invoice_total_amount_formatted": "$3,000.00",
-  debugger;
-
-  return {
+  const summary = {
     currencyId: data?.cost_currency_id || data?.currencyId,
 
-    discount: data?.configuration_total_discounted_amount_converted || 0,
-    discountFormatted:
-      data?.configuration_total_discounted_amount_formatted || "$0.00",
+    discount: data?.configuration_total_discount_amount_converted,
+    discountFormatted: data?.configuration_total_discount_amount_formatted,
 
-    total: data?.invoice_total_amount || data?.total,
+    subtotal: data?.configuration_total_amount_converted,
+    subtotalFormatted: data?.configuration_total_amount_formatted,
+
+    total: data?.invoice_total_amount,
     totalFormatted:
-      data?.invoice_total_amount_formatted ||
-      data?.total_formatted ||
-      data?.totalFormatted
+      data?.invoice_total_amount_formatted || data?.total_formatted
   };
+
+  console.log("useProductSummaryParser", { summary, data });
+
+  return summary;
 };
 
 // --------------------------------------------------------

@@ -28,8 +28,8 @@ import {
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnConfiguration(values) {
-  return spawn(configurationMachine(values), {
+function spawnConfiguration(values, promotions = []) {
+  return spawn(configurationMachine(values, promotions), {
     name: values?.id || uniqueId("basket_item_"),
     sync: true
   });
@@ -275,7 +275,7 @@ export default createMachine(
                   src: "addPromotion",
                   onDone: {
                     target: "active",
-                    actions: ["setBasket"]
+                    actions: ["refreshItems", "updateBasket"]
                   },
                   onError: {
                     target: "error",
@@ -288,7 +288,7 @@ export default createMachine(
                   src: "removePromotion",
                   onDone: {
                     target: "empty",
-                    actions: ["setBasket"]
+                    actions: ["refreshItems", "updateBasket"]
                   },
                   onError: {
                     target: "error",
@@ -396,10 +396,12 @@ export default createMachine(
       loadItems: assign({
         items: ({ items, basket }, { data }) => {
           const products = data?.products || basket?.products || [];
+          const promotions = data?.promotions || basket?.promotions || [];
           forEach(products, product => {
             // TODO: check if the item already exists
             // const item = find(items, ["id", product.id]);
-            const machine = spawnConfiguration(product);
+
+            const machine = spawnConfiguration(product, promotions);
             items.push(machine);
           });
           return items;
@@ -407,8 +409,8 @@ export default createMachine(
       }),
 
       addItem: assign({
-        items: ({ items }, { data }) => {
-          const machine = spawnConfiguration(data);
+        items: ({ items, basket }, { data }) => {
+          const machine = spawnConfiguration(data, basket?.promotions);
           items.push(machine);
           return items;
         }
@@ -440,7 +442,7 @@ export default createMachine(
       //     //     productId: "78985742-6489-7012-096c-21e325d0ed36",
       //     //     provision_fields: {
       //     //       [field.name]: value
-      //     //     }
+      //     //     },basket?.promotions
       //     //   });
 
       //     //   items.push(machine);
@@ -485,7 +487,7 @@ export default createMachine(
       }),
 
       refreshItems: assign({
-        items: ({ items }, { type, data }, _event) => {
+        items: ({ items, basket }, { data }) => {
           forEach(data?.items, (item, index) => {
             const itemId = item.id;
             const product = find(data?.basket?.products, ["id", itemId]);
@@ -501,7 +503,7 @@ export default createMachine(
               if (item) item.stop(); // ensure the machine is stopped
               const product = find(data?.basket?.products, ["id", newId]);
               if (product) {
-                const machine = spawnConfiguration(product);
+                const machine = spawnConfiguration(product, basket?.promotions);
                 // now put the item(s) back into the items array,
                 // at the same index so that we dont have any ui jank
                 items.splice(currentIndex, 1, machine);
@@ -517,7 +519,12 @@ export default createMachine(
               }
             } else {
               const product = find(data?.basket?.products, ["id", itemId]);
-              item.send({ type: "REFRESH", data: product });
+              const promotions = data?.basket?.promotions || [];
+
+              item.send({
+                type: "REFRESH",
+                data: { product, promotions }
+              });
             }
           });
 
@@ -525,7 +532,7 @@ export default createMachine(
           // NB: do some housekeeping and ensure that we dont have any missing items
           const missing = differenceBy(data?.basket?.products, items, "id");
           forEach(missing, product => {
-            const machine = spawnConfiguration(product);
+            const machine = spawnConfiguration(product, basket?.promotions);
             items.push(machine);
           });
 
