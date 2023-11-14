@@ -66,7 +66,7 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    calculate: "done.invoke.productConfigurator.calculating:invocation[0]";
+    calculateSummary: "done.invoke.productConfigurator.calculating:invocation[0]";
     checkAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
     checkOptions: "done.invoke.productConfigurator.configuring.options.checking:invocation[0]";
     checkProvisioning: "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]";
@@ -79,7 +79,7 @@ export interface Typegen0 {
     delays: never;
     guards: never;
     services:
-      | "calculate"
+      | "calculateSummary"
       | "checkAttributes"
       | "checkOptions"
       | "checkProvisioning"
@@ -130,7 +130,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    calculate: "done.state.configuring";
+    calculateSummary: "done.state.configuring";
     checkAttributes:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"

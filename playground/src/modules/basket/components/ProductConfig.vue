@@ -1,9 +1,10 @@
 <template>
   <form
     class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
+    :class="color"
   >
     <header class="">
-      <div class="navbar text-sm px-4 relative" :class="color">
+      <div class="navbar px-4 relative">
         <div class="flex-1 flex flex-wrap items-center gap-2 overflow-x-hidden">
           <span
             class="rounded badge badge-info"
@@ -13,15 +14,22 @@
           </span>
 
           <span
-            class="rounded badge badge-error text-base-100"
+            class="rounded badge badge-secondary text-base-100"
             v-if="available?.product?.isOnPromotion"
           >
             On Promotion
           </span>
 
-          <span class="rounded badge badge-ghost" v-for="value in status">
-            {{ value }}
+          <span
+            :class="['rounded', 'badge', 'badge-outline', `badge-${color}`]"
+            v-for="({ color, label }, index) in status"
+            :key="`status-${index}`"
+          >
+            {{ label }}
           </span>
+          <!-- <span :class="['rounded', 'badge', 'badge-sm', 'badge-warning']"
+            >temp</span
+          > -->
         </div>
 
         <div class="flex-none">
@@ -42,7 +50,7 @@
         </div>
       </div>
 
-      <h4 class="card-title px-4" v-if="available?.product?.name">
+      <h4 class="card-title px-4 my-0" v-if="available?.product?.name">
         {{ available.product.name }}
       </h4>
       <h5 class="card-subtitle px-4" v-if="available?.product?.description">
@@ -76,12 +84,43 @@
               :checked="isSelectedTerm(term)"
             />
           </div>
-          <div class="stat-title">{{ term.billing_cycle_name }}</div>
-          <div class="stat-value">
+
+          <div class="stat-title">
+            {{ term.billing_cycle_name }}
+            <span
+              v-if="term.saving"
+              class="badge badge-outline badge-secondary badge-sm mx-2"
+            >
+              Save {{ term.saving_formatted }}
+            </span>
+          </div>
+
+          <!-- price -->
+          <div class="stat-value" v-if="term?.price_discounted">
+            <span class="line-through text-sm mt-2 block">
+              {{ !term?.price ? "Free" : term?.price_formatted }}
+            </span>
+            {{ term.price_discounted_formatted }}
+          </div>
+          <div class="stat-value" v-else>
             {{ !term?.price ? "Free" : term?.price_formatted }}
           </div>
-          <div class="stat-desc" v-if="term.saving">
-            {{ term.saving_formatted }} Saving
+
+          <!-- promo/monthly -->
+          <div
+            class="stat-desc"
+            v-if="term?.monthly_price_from && term.billing_cycle_months > 1"
+          >
+            <span
+              class="text-sm"
+              v-if="term?.monthly_price_from_discounted_formatted"
+            >
+              {{ term.monthly_price_from_discounted_formatted }}
+            </span>
+            <span class="text-sm" v-else>
+              {{ term.monthly_price_from_formatted }}
+            </span>
+            per Month
           </div>
         </li>
 
@@ -91,7 +130,7 @@
             :disabled="meta.isLoading || processing"
             class="flex w-full"
           >
-            <label class="label text-start w-full" :for="quantity">
+            <label class="label text-start w-full" for="quantity">
               <span class="label-text">Quantity</span>
             </label>
 
@@ -197,7 +236,31 @@
                     </button>
                   </fieldset>
 
-                  <strong>{{ value?.price?.price_formatted }}</strong>
+                  <!-- price -->
+                  <span
+                    v-if="value?.price?.price_discounted"
+                    class="text-right"
+                  >
+                    <span class="line-through text-xs block">
+                      {{
+                        !value?.price?.price
+                          ? "Free"
+                          : value?.price?.price_formatted
+                      }}
+                    </span>
+
+                    <strong>{{
+                      value?.price.price_discounted_formatted
+                    }}</strong>
+                  </span>
+
+                  <strong class="text-right" v-else>
+                    {{
+                      !value?.price?.price
+                        ? "Free"
+                        : value?.price?.price_formatted
+                    }}
+                  </strong>
                 </div>
               </fieldset>
             </li>
@@ -272,7 +335,30 @@
                     </button>
                   </fieldset>
 
-                  <strong>{{ value?.price?.price_formatted }}</strong>
+                  <!-- price -->
+                  <span
+                    v-if="value?.price?.price_discounted"
+                    class="text-right"
+                  >
+                    <span class="line-through text-xs block">
+                      {{
+                        !value?.price?.price
+                          ? "Free"
+                          : value?.price?.price_formatted
+                      }}
+                    </span>
+                    <strong>{{
+                      value?.price.price_discounted_formatted
+                    }}</strong>
+                  </span>
+
+                  <strong class="text-right" v-else>
+                    {{
+                      !value?.price?.price
+                        ? "Free"
+                        : value?.price?.price_formatted
+                    }}
+                  </strong>
                 </div>
               </fieldset>
             </li>
@@ -287,7 +373,7 @@
           class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
         >
           <template v-for="field in available.provision_fields" :key="field.id">
-            <li class="p-0" v-if="field.defer_mode != 'hidden' || true">
+            <li class="p-0" v-if="field.defer_mode != 'hidden'">
               <fieldset
                 class="flex flex-col"
                 :disabled="meta.isLoading || processing"
@@ -345,25 +431,33 @@
       <aside
         class="summary flex-1 items-center justify-center text-center grid-flow-col"
       >
-        <strong class="uppercase text-secondary" v-if="processing">
-          Updating...
-        </strong>
-        <strong class="uppercase text-secondary" v-else-if="meta.isCalculating">
+        <strong class="uppercase" v-if="processing"> Updating... </strong>
+        <strong class="uppercase" v-else-if="meta.isCalculating">
           Calculating...
         </strong>
-        <strong class="uppercase text-secondary" v-else-if="meta.isConfiguring">
+        <strong class="uppercase" v-else-if="meta.isConfiguring">
           Pending...
         </strong>
-        <template v-else>
-          <span class="uppercase">Discount: </span>
-          <strong class="text-secondary text-xl ml-2">{{
-            summary?.discountFormatted
-          }}</strong>
-
+        <template v-else-if="!!summary?.discount">
           <span class="uppercase">Item Total: </span>
-          <strong class="text-secondary text-xl ml-2">{{
-            summary.totalFormatted
-          }}</strong>
+          <span class="inline-block align-center text-right">
+            <span class="line-through text-sm ml-2 block">{{
+              summary.subtotalFormatted
+            }}</span>
+            <!-- <span class="text-sm ml-2 block">
+              - {{ summary.discountFormatted }}</span
+            > -->
+            <strong class="text-secondary text-xl ml-2 block">{{
+              summary?.totalFormatted
+            }}</strong>
+          </span>
+        </template>
+        <template v-else>
+          <span class="uppercase">Item Total: </span>
+
+          <strong class="text-secondary text-xl ml-2">
+            {{ summary?.totalFormatted }}
+          </strong>
         </template>
       </aside>
 
@@ -439,38 +533,44 @@ export default defineComponent({
     color() {
       return {
         // "bg-base": !this.meta.isNew,
-        "bg-base-300": this.meta.isConfigured,
-        "text-base-content": this.meta.isConfigured,
+        "border-base-300": this.meta.isConfigured,
+        // "text-base-content": this.meta.isConfigured,
         // ---
-        "bg-info": this.meta.isNew && this.meta.isConfiguring,
-        "text-info-content": this.meta.isNew && this.meta.isConfiguring,
+        "border-info": this.meta.isNew && this.meta.isConfiguring,
+        // "text-info-content": this.meta.isNew && this.meta.isConfiguring,
         // ---
-        "bg-warning": this.meta.isConfiguring,
-        "text-warning-content": this.meta.isConfiguring,
+        "border-primary":
+          this.meta.isConfiguring ||
+          (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)),
+
+        // "border-warning": this.meta.isConfiguring,
+        // "text-warning-content": this.meta.isConfiguring,
         // ---
-        "bg-error": this.meta.hasErrors,
-        "text-error-content": this.meta.hasErrors,
+        "border-error": this.meta.hasErrors,
+        // "text-error-content": this.meta.hasErrors,
         // ---
-        "bg-success":
-          this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty),
-        "text-success-content":
+        "border-success":
           this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
+        // "text-success-content":
+        //   this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
       };
     },
     status() {
       const values = [];
-      // if (this.id) values.push(`ID: ${this.id}`);
-      if (this.meta.isLoading) values.push("Is Loading");
-      if (this.meta.isNew) values.push("Pending");
-      if (!this.meta.isNew) values.push("In Basket");
 
-      if (!this.meta.isLoading) {
-        if (this.meta.hasErrors) values.push("Has Errors");
-        if (this.meta.isConfiguring) values.push("Needs Configuring");
+      if (this.processing) values.push({ color: "", label: "Updating..." });
+
+      if (!this.meta.isLoading && !this.processing) {
+        if (this.meta.isCalculating)
+          values.push({ color: "", label: "Calculating..." });
+        if (this.meta.hasErrors)
+          values.push({ color: "error", label: "Has Errors" });
+        if (this.meta.isConfiguring)
+          values.push({ color: "primary", label: "Needs Configuring" });
         if (this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty)
-          values.push("Is Configured");
+          values.push({ color: "success", label: "Is Configured" });
         if (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty))
-          values.push("Needs Updating");
+          values.push({ color: "primary", label: "Pending" });
       }
 
       return values;

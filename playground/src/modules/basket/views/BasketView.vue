@@ -110,7 +110,7 @@
               <template #actions="{ isConfigured, isNew, isDirty }">
                 <button
                   v-if="isConfigured && (isNew || isDirty)"
-                  class="btn btn-secondary btn-sm btn-block mt-4"
+                  class="btn btn-primary btn-sm btn-block mt-4"
                   :disabled="meta.isProcessing"
                   @click.prevent="updateItem(item.id)"
                 >

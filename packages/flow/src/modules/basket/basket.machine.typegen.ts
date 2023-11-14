@@ -121,6 +121,8 @@ export interface Typegen0 {
     loadItems: "done.invoke.loading:invocation[0]";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
+      | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
     removeAllItems: "CLEAR";
     removeItem: "done.invoke.removing:invocation[0]";
@@ -131,8 +133,6 @@ export interface Typegen0 {
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM";
     setBasket:
-      | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
-      | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
     setError:
@@ -145,6 +145,8 @@ export interface Typegen0 {
       | "error.platform.updating:invocation[0]";
     updateBasket:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
+      | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
   };

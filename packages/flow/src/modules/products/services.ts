@@ -21,6 +21,7 @@ import {
   isNumber,
   isObject,
   keys,
+  map,
   mapValues,
   maxBy,
   minBy,
@@ -98,14 +99,17 @@ async function calculateBillingTerm(
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function getProduct({ values }: ProductConfigContext, _event: any) {
+async function getProduct(
+  { values, promotions }: ProductConfigContext,
+  _event: any
+) {
   const { productId } = values;
   if (!productId) return Promise.reject("No Product ID provided");
 
   const { get, useUrl } = useApi();
   const productPromise = get({
     url: useUrl(`basket/products/${productId}`, {
-      // promotions: "": TODO:,
+      promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [
         "image",
@@ -113,8 +117,11 @@ async function getProduct({ values }: ProductConfigContext, _event: any) {
         "prices",
         "products_attributes",
         "products_options",
-        "products_options.prices"
+        "products_options.prices",
+        "provision_field_values"
+
         // "provision_blueprint"
+
         // "allowed_migrations",
         // "allowed_migrations.migration_product",
         // "category.top_category.top_category.top_category.top_category",
@@ -348,7 +355,12 @@ async function checkAttributes(
             "billing_cycle_months",
             value.billing_cycle_months
           ]);
-          value.total = value.unit_quantity * value.price?.price;
+
+          value.total = value.unit_quantity * (value.price?.price || 0);
+
+          value.total_discounted =
+            value.unit_quantity * (value.price?.price_discounted || 0);
+
           return value;
         });
       }
@@ -422,7 +434,11 @@ async function checkOptions(
             "billing_cycle_months",
             value.billing_cycle_months
           ]);
-          value.total = value.unit_quantity * value.price?.price;
+
+          value.total = value.unit_quantity * (value.price?.price || 0);
+
+          value.total_discounted =
+            value.unit_quantity * (value.price?.price_discounted || 0);
 
           return value;
         });
@@ -459,74 +475,110 @@ async function checkOptions(
 // If we do have price overrides, we then just reset the term price to 0
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
-async function calculate(
+async function calculateSummary(
   { available, values, summary }: BasketContext,
   _event: any
 ) {
   const { post, useUrl } = useApi();
-
   // ---
   let prices = {
-    term: 0,
-    attributes: 0,
-    options: 0
+    term: { subtotal: 0, total: 0, discount: 0 },
+    attributes: { subtotal: 0, total: 0, discount: 0 },
+    options: { subtotal: 0, total: 0, discount: 0 }
   };
-
   // ---
-  const term = find(available.terms, [
-    "billing_cycle_months",
-    values.term?.billing_cycle_months
-  ]);
-  prices.term =
-    values.quantity * get(term, "price", available?.product?.price || 0);
-
+  // only calculate the term price if we dont have any price overrides
+  if (!useHasPriceOverride(values.options, available.options)) {
+    const term = find(available.terms, [
+      "billing_cycle_months",
+      values.term?.billing_cycle_months
+    ]);
+    const subtotal = values.quantity * term?.price || 0;
+    const total = values.quantity * term?.price_discounted || 0;
+    const discount = total ? subtotal - total : 0;
+    prices.term.discount += discount;
+    prices.term.subtotal += discount ? subtotal : 0;
+    prices.term.total += discount ? total : subtotal; // cater for no discount
+  }
   //  ---
   prices.attributes = reduce(
     values.attributes,
     (result, attribute, id) => {
-      result += sumBy(objectValues(attribute), "total") || 0;
+      const subtotal = sumBy(objectValues(attribute), "total") || 0;
+      const total = sumBy(objectValues(attribute), "total_discounted") || 0;
+      const discount = subtotal - total;
+      result.discount += discount;
+      result.subtotal += discount ? subtotal : 0;
+      result.total += discount ? total : subtotal; // cater for no discount
       return result;
     },
-    0
+    { subtotal: 0, total: 0, discount: 0 }
   );
-
   // ---
   prices.options = reduce(
     values.options,
     (result, option, id) => {
-      result += sumBy(objectValues(option), "total") || 0;
+      const subtotal = sumBy(objectValues(option), "total") || 0;
+      const total = sumBy(objectValues(option), "total_discounted") || 0;
+      const discount = total ? subtotal - total : 0;
+      result.discount += discount;
+      result.subtotal += discount ? subtotal : 0;
+      result.total += discount ? total : subtotal; // cater for no discount
       return result;
     },
-    0
+    { subtotal: 0, total: 0, discount: 0 }
   );
 
   // ---
-  // if we have any selected options that have a price override, then remove the initial term price
-  if (useHasPriceOverride(values.options, available.options)) prices.term = 0;
-
-  // ---
-  // now calculate the total price, by summing the prices object
-  const total = sum(objectValues(prices)) || 0;
-
-  // then compare it to the existing summary total to see if we need to update it
-  // if they are the same, then we can just return the existing summary
-  if (summary?.total === total) return Promise.resolve(summary);
-
-  // Otherwise  send the request to format the new total
-  const config = {
-    currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
-    prices: [total]
-    // "account_id",
-    // "invoice_id",
-    // "currency_code",
-    // returnOnly: true
-  };
-
-  return await post({
+  const subtotalPromise = await post({
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
-    data: config
+    data: {
+      currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+      prices: [
+        prices.term.subtotal,
+        prices.attributes.subtotal,
+        prices.options.subtotal
+      ]
+    }
   }).then(({ data }) => data);
+
+  const discountPromise = await post({
+    url: useUrl("cart/calculate", {}),
+    withAccessToken: true,
+    data: {
+      currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+      prices: [
+        prices.term.discount,
+        prices.attributes.discount,
+        prices.options.discount
+      ]
+    }
+  }).then(({ data }) => data);
+
+  const totalPromise = await post({
+    url: useUrl("cart/calculate", {}),
+    withAccessToken: true,
+    data: {
+      currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+      prices: [prices.term.total, prices.attributes.total, prices.options.total]
+    }
+  }).then(({ data }) => data);
+
+  return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
+    ([subtotal, discount, total]) => {
+      const newSummary = {
+        currencyId: summary?.currencyId,
+        subtotal: subtotal?.total,
+        subtotalFormatted: subtotal?.total_formatted,
+        discount: discount?.total,
+        discountFormatted: discount?.total_formatted,
+        total: total?.total,
+        totalFormatted: total?.total_formatted
+      };
+      return newSummary;
+    }
+  );
 }
 
 // --------------------------------------------------------
@@ -541,5 +593,5 @@ export default <Object>{
   checkOptions,
   checkProvisioning,
   // ---
-  calculate
+  calculateSummary
 };
