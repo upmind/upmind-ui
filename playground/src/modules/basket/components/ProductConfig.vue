@@ -89,7 +89,7 @@
             {{ term.billing_cycle_name }}
             <span
               v-if="term.saving"
-              class="badge badge-outline badge-secondary badge-sm mx-2"
+              class="badge badge-outline badge-accent badge-sm mx-2"
             >
               Save {{ term.saving_formatted }}
             </span>
