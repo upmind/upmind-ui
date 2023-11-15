@@ -27,8 +27,8 @@ import {
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnConfiguration(values, currencyId, promotions = []) {
-  return spawn(configurationMachine(values, currencyId, promotions), {
+function spawnConfiguration(values, currency_id, promotions = []) {
+  return spawn(configurationMachine(values, currency_id, promotions), {
     name: values?.id || uniqueId("basket_item_"),
     sync: true
   });
@@ -456,7 +456,7 @@ export default createMachine(
 
       //     //   // TODO: find a way to get the actual product that relats to this field
       //     //   const machine = spawnConfiguration({
-      //     //     productId: "78985742-6489-7012-096c-21e325d0ed36",
+      //     //     product_id: "78985742-6489-7012-096c-21e325d0ed36",
       //     //     provision_fields: {
       //     //       [field.name]: value
       //     //     },basket?.promotions
@@ -541,10 +541,11 @@ export default createMachine(
             } else {
               const product = find(data?.basket?.products, ["id", itemId]);
               const promotions = data?.basket?.promotions || [];
+              const currency_id = data?.basket?.currency_id;
 
               item.send({
                 type: "REFRESH",
-                data: { product, promotions }
+                data: { product, currency_id, promotions }
               });
             }
           });
@@ -561,13 +562,22 @@ export default createMachine(
             items.push(machine);
           });
 
-          // TODO: MAYBE we should stop any machines that are no longer in the basket
-          // but that would prob impact and items that are still being configured
-          // const dangling = differenceBy(items, data?.basket?.products, "id");
-          // forEach(dangling, (item, currentIndex) => {
-          //   item.stop();
-          //   items.splice(currentIndex, 1);
-          // });
+          // We need to refresh any machines that are not yet in the basket
+          // but that are still being configured.
+          // eg: weve added a product and it may be configuring or configured,
+          // but weve not updated the basket yet
+          // and perhaps weve changed currency or added a promotion
+          // we need to ensure all the items are up to date
+          const dangling = differenceBy(items, data?.basket?.products, "id");
+          forEach(dangling, (item, currentIndex) => {
+            const product = item.state.context.config;
+            const promotions = data?.basket?.promotions || [];
+            const currency_id = data?.basket?.currency_id;
+            item.send({
+              type: "REFRESH",
+              data: { product, currency_id, promotions }
+            });
+          });
 
           // ---
           return items;

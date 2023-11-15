@@ -95,7 +95,16 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
     setClean: "REFRESH";
-    setConfig: "done.invoke.productConfigurator.calculating:invocation[0]";
+    setConfig:
+      | "UPDATE.TERM"
+      | "done.invoke.productConfigurator.calculating:invocation[0]"
+      | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
+      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]"
+      | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]";
     setDirty:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"

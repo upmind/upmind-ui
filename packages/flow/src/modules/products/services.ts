@@ -101,16 +101,16 @@ async function calculateBillingTerm(
 // this will process the request and return a promise
 
 async function getProduct(
-  { values, currencyId, promotions }: ProductConfigContext,
+  { values, currency_id, promotions }: ProductConfigContext,
   _event: any
 ) {
-  const { productId } = values;
-  if (!productId) return Promise.reject("No Product ID provided");
+  const { product_id } = values;
+  if (!product_id) return Promise.reject("No Product ID provided");
 
   const { get, useUrl } = useApi();
   const productPromise = get({
-    url: useUrl(`basket/products/${productId}`, {
-      currency_id: currencyId,
+    url: useUrl(`basket/products/${product_id}`, {
+      currency_id: currency_id,
       promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [
@@ -159,11 +159,11 @@ async function getProvisioningFields(
   _event: any
 ) {
   const { get, useUrl } = useApi();
-  const { productId } = values;
+  const { product_id } = values;
 
   // we dont cache provision_fields fields, as they can change with diferent options/attributes being selected
   return get({
-    url: useUrl(`basket/products/${productId}/provision_fields`),
+    url: useUrl(`basket/products/${product_id}/provision_fields`),
     useCache: false,
     withAccessToken: true
   }).then(({ data }) => data);
@@ -478,7 +478,7 @@ async function checkOptions(
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
 async function calculateSummary(
-  { available, values, summary }: BasketContext,
+  { available, values, summary, currency_id }: BasketContext,
   _event: any
 ) {
   const { post, useUrl } = useApi();
@@ -536,7 +536,7 @@ async function calculateSummary(
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
-      currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+      currency_id: currency_id, //TODo fall back to the basket currency or thhe brand currency
       prices: [
         prices.term.subtotal,
         prices.attributes.subtotal,
@@ -549,7 +549,7 @@ async function calculateSummary(
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
-      currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+      currency_id: currency_id, //TODo fall back to the basket currency or thhe brand currency
       prices: [
         prices.term.discount,
         prices.attributes.discount,
@@ -562,7 +562,7 @@ async function calculateSummary(
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
-      currency_id: summary.currencyId || "e47d7382-4850-7931-56c8-1e642d59e063", //TODo fall back to the basket currency or thhe brand currency
+      currency_id: currency_id, //TODo fall back to the basket currency or thhe brand currency
       prices: [prices.term.total, prices.attributes.total, prices.options.total]
     }
   }).then(({ data }) => data);
@@ -570,7 +570,7 @@ async function calculateSummary(
   return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
     ([subtotal, discount, total]) => {
       const newSummary = {
-        currencyId: summary?.currencyId,
+        currency_id: summary?.currency_id,
         subtotal: subtotal?.total,
         subtotalFormatted: subtotal?.total_formatted,
         discount: discount?.total,

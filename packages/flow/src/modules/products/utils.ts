@@ -277,8 +277,6 @@ export const useProvisioningParser = (data: any) => {
 
 export const useSummaryParser = (data: any) => {
   const summary = {
-    currencyId: data?.cost_currency_id || data?.currencyId,
-
     discount: data?.configuration_total_discount_amount_converted,
     discountFormatted: data?.configuration_total_discount_amount_formatted,
 
@@ -303,19 +301,18 @@ export const useValuesParser = (data: any) => {
   // handle new product values
   let values = pick(data, [
     "quantity",
-    "productId",
+    "product_id",
     "term",
     "attributes",
     "options",
     "provision_fields"
   ]);
-
   // ---
   // handle existing products that have been added to the basket
   if (data?.id) {
     set(values, "id", data.id);
     set(values, "term", data.billing_cycle_months);
-    set(values, "productId", data.product_id);
+    set(values, "product_id", data.product_id);
     set(values, "attributes", useAddedAttributesParser(data.attributes));
     set(values, "options", useAddedOptionsParser(data.options)); // TODO:
     set(
@@ -382,7 +379,7 @@ const useAddProvisioningParser = (data: any) => {
 export const useProductConfigParser = (data: any) => {
   // strip out any falsy values
   const config = {
-    product_id: data?.productId,
+    product_id: data?.product_id,
     quantity: data?.quantity,
     billing_cycle_months: data?.term?.billing_cycle_months,
     // ---
