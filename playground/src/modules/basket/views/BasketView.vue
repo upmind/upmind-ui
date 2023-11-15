@@ -34,6 +34,15 @@
       </div>
 
       <div class="actions flex-none join justify-end">
+        <CurrencySwitcher
+          v-if="currency"
+          :model-value="currency"
+          :currencies="currencies"
+          :processing="meta.isLoading || meta.isProcessing"
+          @update:modelValue="updateCurrency"
+          class="mx-4"
+        >
+        </CurrencySwitcher>
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
@@ -278,13 +287,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useBasket } from "..";
+import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ProductConfig from "@/modules/product/views/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
-import {
-  SquaresPlusIcon,
-  XMarkIcon,
-  ReceiptPercentIcon
-} from "@heroicons/vue/24/outline";
+import { SquaresPlusIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const {
   state,
@@ -294,8 +300,11 @@ const {
   meta,
   items,
   promotions,
+  currency,
+  currencies,
   // ---
   updateBasket,
+  updateCurrency,
   clearBasket,
   updateItem,
   addProduct,

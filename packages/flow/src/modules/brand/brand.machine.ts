@@ -19,8 +19,6 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "processing",
     context: {
-      currencies: null,
-      billingCycles: null,
       modules: null,
       keys: {
         // start with these defaults
@@ -229,84 +227,6 @@ export default createMachine(
 
         // Modules
         // /org/modules?lang=en
-      },
-      // TODO: move to SYSTEM machine
-      currencies: {
-        initial: "loading",
-        states: {
-          loading: {
-            invoke: {
-              src: "fetchCurrencies",
-              onDone: {
-                target: "complete",
-                actions: ["setCurrencies"]
-              },
-              onError: {
-                target: "error",
-                actions: assign({
-                  error: ({ error }: BrandContext, { data }: BrandEvent) => {
-                    set(error, "currencies", data || "Unknown error");
-                    return error;
-                  }
-                })
-              }
-            }
-          },
-          complete: {},
-          error: {
-            on: {
-              RETRY: {
-                target: "loading",
-                actions: assign({
-                  error: ({ error }: BrandContext) => {
-                    unset(error, "currencies");
-                    return error;
-                  }
-                })
-              }
-            }
-          }
-        }
-
-        // Currencies
-        // /currencies?limit=0&lang=en
-      },
-      billingCycles: {
-        initial: "loading",
-        states: {
-          loading: {
-            invoke: {
-              src: "fetchBillingCycles",
-              onDone: {
-                target: "complete",
-                actions: ["setBillingCycles"]
-              },
-              onError: {
-                target: "error",
-                actions: assign({
-                  error: ({ error }: BrandContext, { data }: BrandEvent) => {
-                    set(error, "billingCycles", data || "Unknown error");
-                    return error;
-                  }
-                })
-              }
-            }
-          },
-          complete: {},
-          error: {
-            on: {
-              RETRY: {
-                target: "loading",
-                actions: assign({
-                  error: ({ error }: BrandContext) => {
-                    unset(error, "billingCycles");
-                    return error;
-                  }
-                })
-              }
-            }
-          }
-        }
       }
     }
   },
@@ -334,14 +254,8 @@ export default createMachine(
 
       setModules: assign({
         modules: (_context: BrandContext, { data }: BrandEvent) => data
-      }),
-
-      setCurrencies: assign({
-        currencies: (_context: BrandContext, { data }: BrandEvent) => data
-      }),
-      setBillingCycles: assign({
-        billingCycles: (_context: BrandContext, { data }: BrandEvent) => data
       })
+
       // ---
     },
     guards: {},

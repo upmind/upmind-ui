@@ -11,7 +11,6 @@ const { authSubscription, getHistory, isAuthenticated, service } = useSession();
 // --- utils
 import { useBasketParser } from "./utils";
 import {
-  compact,
   differenceBy,
   filter,
   find,
@@ -21,7 +20,6 @@ import {
   has,
   isEmpty,
   map,
-  pick,
   reduce,
   set
 } from "lodash-es";
@@ -124,6 +122,27 @@ async function update({ basket, items }: BasketContext, _event: any) {
     url: useUrl(`/orders/${basket.id}`),
     data: {
       products: productConfigs
+    },
+    withAccessToken: true
+  })
+    .then(useBasketParser)
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems, queue: false };
+    })
+    .then(updateItemProvisioningFields);
+}
+
+async function setCurrency({ basket, items }: BasketContext, { data }: any) {
+  const { put, useUrl } = useApi();
+
+  const validItems = filter(items, item => item.state.matches("configured"));
+
+  // get returns a promise so we can pass it directly back to the machine
+  return put({
+    url: useUrl(`/orders/${basket.id}/currency`),
+    data: {
+      currency_code: data?.code || data?.id
     },
     withAccessToken: true
   })
@@ -363,8 +382,6 @@ async function convertToInvoice(context: BasketContext, _event: any) {}
 
 async function setBasket(context: BasketContext, _event: any) {}
 
-async function setCurrency(context: BasketContext, _event: any) {}
-
 async function setPriceList(context: BasketContext, _event: any) {}
 
 // --------------------------------------------------------
@@ -375,6 +392,8 @@ export default <Object>{
   generate,
   claim,
   update,
+  // ---
+  setCurrency,
   // ---
   addPromotion,
   removePromotion,

@@ -20,7 +20,7 @@ import {
 import { get, set, map, toNumber, find } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default (values, promotions) =>
+export default (values, currencyId, promotions) =>
   createMachine(
     {
       tsTypes: {} as import("./config.machine.typegen").Typegen0,
@@ -56,6 +56,7 @@ export default (values, promotions) =>
 
         // use any applied promotions when fetching the product to get the correct prices
         promotions,
+        currencyId,
         // ---
         error: null
       },
@@ -258,6 +259,8 @@ export default (values, promotions) =>
     {
       actions: {
         setValues: assign({
+          currencyId: ({ currencyId }, { data }) =>
+            data?.currencyId || currencyId,
           promotions: ({ values }, { data }) => data?.promotions || [],
           values: ({ values }, { data }) => useValuesParser(data?.product),
           summary: ({ summary }, { data }) => useSummaryParser(data?.product)

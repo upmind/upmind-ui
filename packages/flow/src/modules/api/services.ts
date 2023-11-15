@@ -3,7 +3,6 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession } from "../session";
-const { getSnapshot, service: sessionService } = useSession();
 
 import type { RequestContext } from "./types.d";
 
@@ -76,6 +75,8 @@ async function doFetch({ url, init }: RequestContext) {
 }
 
 async function refreshToken(_context: RequestContext, _event: any) {
+  const { getSnapshot, service: sessionService } = useSession();
+
   // start by getting the current service and state
   // kick off the auth process
   sessionService.send("REFRESH");

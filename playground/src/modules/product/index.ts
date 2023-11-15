@@ -206,7 +206,6 @@ export const useProductConfig = item => {
   }
 
   function incrementOption(optionId, value) {
-    debugger;
     // sanity check
     if (!value?.canChangeQuantity) return;
 

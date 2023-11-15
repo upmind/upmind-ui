@@ -3,7 +3,6 @@
 // --- internal
 import { useApi } from "../api";
 import { useBrand, BrandConfigKeys } from "../brand";
-const { getConfig } = useBrand();
 
 import type { ProductConfigContext } from "./types";
 
@@ -65,6 +64,8 @@ async function calculateBillingTerm(
 ) {
   // because we have multiple options, we need to select one base don the following strategy:
 
+  const { getConfig } = useBrand();
+
   let term;
 
   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
@@ -100,7 +101,7 @@ async function calculateBillingTerm(
 // this will process the request and return a promise
 
 async function getProduct(
-  { values, promotions }: ProductConfigContext,
+  { values, currencyId, promotions }: ProductConfigContext,
   _event: any
 ) {
   const { productId } = values;
@@ -109,6 +110,7 @@ async function getProduct(
   const { get, useUrl } = useApi();
   const productPromise = get({
     url: useUrl(`basket/products/${productId}`, {
+      currency_id: currencyId,
       promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [

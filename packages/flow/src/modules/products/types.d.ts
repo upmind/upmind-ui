@@ -49,6 +49,7 @@ export interface IProductConfig {
   }[];
   product_id: IProduct["id"];
   promotions?: { promocode: string }[];
+  currencyId: IProductPrice["currency_id"];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
   start_trial?: boolean;
 }

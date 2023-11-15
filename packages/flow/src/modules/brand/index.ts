@@ -51,14 +51,6 @@ export const useBrand = () => {
       return pick(state.context, keys);
     },
     // ---
-    // syntax sugar
-    getCurrencies: () => state.context.currencies,
-    getCurrency: code => find(state.context.currencies, ["code", code]),
-
-    getBillingCycles: () => state.context.billingCycles,
-    getBillingCycle: months =>
-      find(state.context.billingCycles, ["months", months]),
-    // ---
     hasModuleEnabled
   };
 };

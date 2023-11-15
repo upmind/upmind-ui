@@ -18,7 +18,6 @@ import {
   findIndex,
   forEach,
   get,
-  first,
   isEmpty,
   remove,
   some,
@@ -28,8 +27,8 @@ import {
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnConfiguration(values, promotions = []) {
-  return spawn(configurationMachine(values, promotions), {
+function spawnConfiguration(values, currencyId, promotions = []) {
+  return spawn(configurationMachine(values, currencyId, promotions), {
     name: values?.id || uniqueId("basket_item_"),
     sync: true
   });
@@ -143,10 +142,18 @@ export default createMachine(
                         target: "#configuring",
                         actions: ["refreshItems", "updateBasket"]
                       },
-                      onError: {
-                        target: "error",
-                        actions: ["setError"]
-                      }
+                      onError: { target: "error", actions: ["setError"] }
+                    }
+                  },
+
+                  currency: {
+                    invoke: {
+                      src: "setCurrency",
+                      onDone: {
+                        target: "#configuring",
+                        actions: ["refreshItems", "updateBasket"]
+                      },
+                      onError: { target: "error", actions: ["setError"] }
                     }
                   },
 
@@ -242,6 +249,9 @@ export default createMachine(
                 },
                 { target: ["items.processing"] } // queue process ALL items
               ],
+              "UPDATE.CURRENCY": {
+                target: "items.processing.currency"
+              },
               CLEAR: {
                 target: "items.processing",
                 actions: ["removeAllItems"]
@@ -310,7 +320,6 @@ export default createMachine(
               "REMOVE.PROMOTION": { target: "promotions.removing" }
             }
           },
-
           client: {
             initial: "checking",
             states: {
@@ -401,7 +410,11 @@ export default createMachine(
             // TODO: check if the item already exists
             // const item = find(items, ["id", product.id]);
 
-            const machine = spawnConfiguration(product, promotions);
+            const machine = spawnConfiguration(
+              product,
+              basket.currency_id,
+              promotions
+            );
             items.push(machine);
           });
           return items;
@@ -410,7 +423,11 @@ export default createMachine(
 
       addItem: assign({
         items: ({ items, basket }, { data }) => {
-          const machine = spawnConfiguration(data, basket?.promotions);
+          const machine = spawnConfiguration(
+            data,
+            basket.currency_id,
+            basket?.promotions
+          );
           items.push(machine);
           return items;
         }
@@ -503,7 +520,11 @@ export default createMachine(
               if (item) item.stop(); // ensure the machine is stopped
               const product = find(data?.basket?.products, ["id", newId]);
               if (product) {
-                const machine = spawnConfiguration(product, basket?.promotions);
+                const machine = spawnConfiguration(
+                  product,
+                  basket.currency_id,
+                  basket?.promotions
+                );
                 // now put the item(s) back into the items array,
                 // at the same index so that we dont have any ui jank
                 items.splice(currentIndex, 1, machine);
@@ -532,7 +553,11 @@ export default createMachine(
           // NB: do some housekeeping and ensure that we dont have any missing items
           const missing = differenceBy(data?.basket?.products, items, "id");
           forEach(missing, product => {
-            const machine = spawnConfiguration(product, basket?.promotions);
+            const machine = spawnConfiguration(
+              product,
+              basket.currency_id,
+              basket?.promotions
+            );
             items.push(machine);
           });
 

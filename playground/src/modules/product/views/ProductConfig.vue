@@ -66,7 +66,7 @@
         :terms="availableTerms"
         :quantity="model?.quantity"
         :model-value="model?.term?.billing_cycle_months"
-        @update="updateTerm"
+        @update:modelValue="updateTerm"
         @update:quantity:increment="incrementQuantity"
         @update:quantity:decrement="decrementQuantity"
       ></ConfigTerms>
@@ -76,7 +76,7 @@
         :processing="meta.isLoading || processing || meta.isCalculating"
         :attributes="available.attributes"
         :model-value="model.attributes"
-        @update="selectAttribute"
+        @update:modelValue="selectAttribute"
         @update:quantity:increment="incrementAttribute"
         @update:quantity:decrement="decrementAttribute"
       ></ConfigAttributes>
@@ -86,17 +86,17 @@
         :processing="meta.isLoading || processing || meta.isCalculating"
         :options="available.options"
         :model-value="model.options"
-        @update="selectOption"
+        @update:modelValue="selectOption"
         @update:quantity:increment="incrementOption"
         @update:quantity:decrement="decrementOption"
       ></ConfigOptions>
 
       <ConfigProvisioning
-        v-if="model?.options"
+        v-if="model?.provision_fields"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :fields="available.provision_fields"
         :model-value="model.provision_fields"
-        @update="setProvisioningField"
+        @update:modelValue="setProvisioningField"
       ></ConfigProvisioning>
     </form>
 
