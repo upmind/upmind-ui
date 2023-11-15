@@ -278,7 +278,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useBasket } from "..";
-import ProductConfig from "../components/ProductConfig.vue";
+import ProductConfig from "@/modules/product/views/ProductConfig.vue";
 import Debug from "@/components/Debug.vue";
 import {
   SquaresPlusIcon,
