@@ -27,9 +27,9 @@
     :open="open"
     @toggle="doToggle($event.target.open)"
   >
-    <summary class="btn">
+    <summary class="btn btn-ghost text-primary">
       <span>
-        <strong class="badge mr-1">
+        <strong class="badge badge-primary mr-1">
           {{ modelValue?.prefix || modelValue?.suffix }}
         </strong>
         {{ modelValue?.code }}
