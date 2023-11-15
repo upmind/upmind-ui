@@ -4,6 +4,7 @@ const { getBillingCycle } = useBrand();
 import { TrialEndActionTypes, PromotionDisplayTypes } from "./services";
 // --- utils
 import {
+  defaultsDeep,
   find,
   get,
   isEmpty,
@@ -300,7 +301,7 @@ export const useSummaryParser = (data: any) => {
 
 export const useValuesParser = (data: any) => {
   // handle new product values
-  const values = pick(data, [
+  let values = pick(data, [
     "quantity",
     "productId",
     "term",
