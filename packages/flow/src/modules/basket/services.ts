@@ -21,6 +21,7 @@ import {
   isEmpty,
   map,
   reduce,
+  reject,
   set
 } from "lodash-es";
 
@@ -40,7 +41,7 @@ async function check(_context: BasketContext, _event: any) {
   const { get, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
-  return await get({
+  return get({
     url: useUrl("orders/current", {
       with: [
         "account.brand.image",
@@ -103,7 +104,7 @@ async function claim({ basket }: BasketContext, _event: any) {
   // this will return an array of the users baskets, ordered by most recent
   // but the response basket does not contain the products, so we need to
   // request the basket by id to get the products?
-  return await patch({
+  return patch({
     url: useUrl("orders/claim"),
     withAccessToken: true,
     data: {
@@ -134,24 +135,60 @@ async function update({ basket, items }: BasketContext, _event: any) {
 }
 
 async function setCurrency({ basket, items }: BasketContext, { data }: any) {
-  const { put, useUrl } = useApi();
+  const { put, get, useUrl } = useApi();
 
-  const validItems = filter(items, item => item.state.matches("configured"));
+  const validItems = reject(items, item => item.state.context.isNew);
 
   // get returns a promise so we can pass it directly back to the machine
-  return put({
-    url: useUrl(`/orders/${basket.id}/currency`),
-    data: {
-      currency_code: data?.code || data?.id
-    },
-    withAccessToken: true
-  })
-    .then(useBasketParser)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems, queue: false };
+  return (
+    put({
+      url: useUrl(`/orders/${basket.id}/currency`),
+      data: {
+        currency_code: data?.code || data?.id
+      },
+      withAccessToken: true
     })
-    .then(updateItemProvisioningFields);
+      // now we have to refresh our basket as the we dont have all our data
+      .then(({ data }) => {
+        return get({
+          url: useUrl(`orders/${data.id}`, {
+            with: [
+              "account.brand.image",
+              "account.pricelist",
+              "brand.image",
+              "client.image",
+              "contract",
+              "currency",
+              "custom_fields.field",
+              "payments",
+              "products.product.image",
+              "products.product.images",
+              "products.product.prices",
+              "products.product.products_attributes",
+              "products.product.products_attributes.category",
+              "products.product.products_options",
+              "products.product.products_options.category",
+              "products.product.products_options.prices",
+              "products.product.provision_field_values",
+              "products.tags",
+              "promotions",
+              "status",
+              "taxes",
+              "taxes.tax_tag_data",
+              `products.product.category${".top_category".repeat(4)}`
+            ].join()
+          }),
+          withAccessToken: true,
+          useCache: false
+        });
+      })
+      .then(useBasketParser)
+      .then(basket => {
+        const newItems = differenceBy(basket.products, validItems, "id");
+        return { basket, items: validItems, newItems, queue: false };
+      })
+      .then(updateItemProvisioningFields)
+  );
 }
 
 // --- Basket Promotions Methods
@@ -163,6 +200,8 @@ async function addPromotion({ basket, items }, { data }: any) {
 
   if (!promocode) return Promise.reject("No Promotion to add to basket");
 
+  const validItems = reject(items, item => item.state.context.isNew);
+
   const { post, useUrl } = useApi();
 
   return post({
@@ -173,7 +212,8 @@ async function addPromotion({ basket, items }, { data }: any) {
     .then(useBasketParser)
     .then(getProvisioningFieldsValues)
     .then(basket => {
-      return { basket, items, newItems: basket.products, queue: false };
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems, queue: false };
     });
 }
 

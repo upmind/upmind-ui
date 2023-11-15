@@ -48,7 +48,7 @@
             <fieldset>
               <select
                 class="select select-bordered w-24 md:w-auto join-item"
-                v-model="model.productId"
+                v-model="model.product_id"
                 placeholder="Select product"
               >
                 <component
@@ -70,7 +70,7 @@
           <button
             class="btn btn-primary join-item"
             type="submit"
-            :disabled="meta.isProcessing || !model.productId"
+            :disabled="meta.isProcessing || !model.product_id"
             @click.prevent="addProduct(model)"
           >
             <!-- <div class="indicator"> -->
@@ -85,8 +85,8 @@
           <!-- <button
             class="btn btn-ghost join-item"
             type="reset"
-            :disabled="meta.isProcessing || !model.productId"
-            @click.prevent="model.productId = null"
+            :disabled="meta.isProcessing || !model.product_id"
+            @click.prevent="model.product_id = null"
           >
             cancel
           </button> -->
@@ -165,7 +165,7 @@
               <!-- Total -->
               <div>
                 <div class="divider mt-4 uppercase">Total</div>
-                <h1 class="text-primary">
+                <h1 class="text-primary text-3xl">
                   {{ summary?.total }}
                 </h1>
               </div>
@@ -372,7 +372,7 @@ const productCatalogue = [
 const debugging = ref(true);
 
 const model = ref({
-  productId: null,
+  product_id: null,
   quantity: 1
 });
 

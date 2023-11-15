@@ -38,11 +38,11 @@ export const useBasket = () => {
       send({ type: "REMOVE.PROMOTION", data: { id } });
     },
 
-    addProduct: ({ productId, quantity, term, attributes, options }) => {
-      // const { productId, quantity, term, attributes, options } = unref(model);
+    addProduct: ({ product_id, quantity, term, attributes, options }) => {
+      // const { product_id, quantity, term, attributes, options } = unref(model);
       send({
         type: "ADD",
-        data: { productId, quantity, term, attributes, options }
+        data: { product_id, quantity, term, attributes, options }
       });
     },
 

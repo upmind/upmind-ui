@@ -21,7 +21,7 @@ export interface ProductConfigContext {
 export interface IProductValues {
   id?: string; // this is only when it exists in the basket
   // ---
-  productId: IProduct["id"];
+  product_id: IProduct["id"];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
   // ---
   term: IProductTerm;
@@ -49,7 +49,7 @@ export interface IProductConfig {
   }[];
   product_id: IProduct["id"];
   promotions?: { promocode: string }[];
-  currencyId: IProductPrice["currency_id"];
+  currency_id: IProductPrice["currency_id"];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
   start_trial?: boolean;
 }

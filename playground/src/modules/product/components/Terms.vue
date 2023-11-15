@@ -66,6 +66,7 @@
       <!-- quantity -->
       <li class="px-4 pt-2" v-if="product?.canChangeQuantity">
         <Quantity
+          label="Quantity"
           :processing="processing"
           :min="product?.min_order_quantity"
           :max="product?.max_order_quantity"

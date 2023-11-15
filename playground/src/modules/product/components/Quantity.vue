@@ -1,7 +1,7 @@
 <template>
   <fieldset :disabled="processing" class="flex w-full">
-    <label class="label text-start w-full" for="quantity">
-      <span class="label-text">Quantity</span>
+    <label class="label text-start w-full" for="quantity" v-if="label">
+      <span class="label-text">{{ label }}</span>
     </label>
 
     <div class="join">
@@ -49,6 +49,10 @@ export default defineComponent({
     processing: {
       type: Boolean,
       default: false
+    },
+    label: {
+      type: String,
+      default: ""
     },
     min: {
       type: Number,

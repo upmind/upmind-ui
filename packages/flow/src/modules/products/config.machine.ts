@@ -20,7 +20,7 @@ import {
 import { get, set, map, toNumber, find } from "lodash-es";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default (values, currencyId, promotions) =>
+export default (values, currency_id, promotions) =>
   createMachine(
     {
       tsTypes: {} as import("./config.machine.typegen").Typegen0,
@@ -56,7 +56,7 @@ export default (values, currencyId, promotions) =>
 
         // use any applied promotions when fetching the product to get the correct prices
         promotions,
-        currencyId,
+        currency_id,
         // ---
         error: null
       },
@@ -83,7 +83,10 @@ export default (values, currencyId, promotions) =>
                 checking: {
                   invoke: {
                     src: "checkQuantity",
-                    onDone: { target: "valid", actions: ["setQuantity"] },
+                    onDone: {
+                      target: "valid",
+                      actions: ["setQuantity", "setConfig"]
+                    },
                     onError: { target: "invalid", actions: ["setError"] }
                   }
                 },
@@ -117,7 +120,7 @@ export default (values, currencyId, promotions) =>
               on: {
                 "UPDATE.TERM": {
                   target: "term.checking",
-                  actions: ["setTerm"]
+                  actions: ["setTerm", "setConfig"]
                 }
               }
             },
@@ -127,10 +130,13 @@ export default (values, currencyId, promotions) =>
                 checking: {
                   invoke: {
                     src: "checkAttributes",
-                    onDone: { target: "valid", actions: ["setAttributes"] },
+                    onDone: {
+                      target: "valid",
+                      actions: ["setAttributes", "setConfig"]
+                    },
                     onError: {
                       target: "invalid",
-                      actions: ["setAttributes", "setError"]
+                      actions: ["setAttributes", "setConfig", "setError"]
                     }
                   }
                 },
@@ -152,10 +158,13 @@ export default (values, currencyId, promotions) =>
                 checking: {
                   invoke: {
                     src: "checkOptions",
-                    onDone: { target: "valid", actions: ["setOptions"] },
+                    onDone: {
+                      target: "valid",
+                      actions: ["setOptions", "setConfig"]
+                    },
                     onError: {
                       target: "invalid",
-                      actions: ["setOptions", "setError"]
+                      actions: ["setOptions", "setConfig", "setError"]
                     }
                   }
                 },
@@ -177,10 +186,13 @@ export default (values, currencyId, promotions) =>
                 checking: {
                   invoke: {
                     src: "checkProvisioning",
-                    onDone: { target: "valid", actions: ["setProvisioning"] },
+                    onDone: {
+                      target: "valid",
+                      actions: ["setProvisioning", "setConfig"]
+                    },
                     onError: {
                       target: "invalid",
-                      actions: ["setProvisioning", "setError"]
+                      actions: ["setProvisioning", "setConfig", "setError"]
                     }
                   }
                 },
@@ -197,7 +209,12 @@ export default (values, currencyId, promotions) =>
               }
             }
           },
-
+          on: {
+            REFRESH: {
+              target: "loading",
+              actions: ["setValues", "setClean"]
+            }
+          },
           onDone: { target: "calculating" }
         },
 
@@ -259,8 +276,8 @@ export default (values, currencyId, promotions) =>
     {
       actions: {
         setValues: assign({
-          currencyId: ({ currencyId }, { data }) =>
-            data?.currencyId || currencyId,
+          currency_id: ({ currency_id }, { data }) =>
+            data?.currency_id || currency_id,
           promotions: ({ values }, { data }) => data?.promotions || [],
           values: ({ values }, { data }) => useValuesParser(data?.product),
           summary: ({ summary }, { data }) => useSummaryParser(data?.product)
