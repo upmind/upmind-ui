@@ -1,5 +1,5 @@
 <template>
-  <form
+  <section
     class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
     :class="color"
   >
@@ -58,7 +58,7 @@
       </h5>
     </header>
 
-    <div class="card-body" v-if="!meta.isLoading">
+    <form class="card-body" v-if="!meta.isLoading">
       <ConfigTerms
         v-if="model?.term"
         :processing="meta.isLoading || processing || meta.isCalculating"
@@ -98,7 +98,7 @@
         :model-value="model.provision_fields"
         @update="setProvisioningField"
       ></ConfigProvisioning>
-    </div>
+    </form>
 
     <footer
       v-if="!meta.isLoading"
@@ -141,7 +141,7 @@
         <slot name="actions" v-bind="meta"> </slot>
       </div>
     </footer>
-  </form>
+  </section>
 
   <Debug
     v-if="debugging"
