@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBasket as useUpmindBasket } from "@upmind/flow";
+import { useBasket as useUpmindBasket, useBrand } from "@upmind/flow";
 
 // --- utils
 import { map, some } from "lodash-es";
@@ -14,16 +14,21 @@ import { map, some } from "lodash-es";
 
 export const useBasket = () => {
   const { service } = useUpmindBasket();
-
+  const { service: brandService } = useBrand();
   // --------------------------------------------------------
   // we need this for reactive state
   const { state, send } = useActor(service);
+  const { state: brandState } = useActor(brandService);
 
   // --------------------------------------------------------
 
   return {
     updateBasket: () => send({ type: "UPDATE" }),
+
     clearBasket: () => send({ type: "CLEAR" }),
+
+    updateCurrency: currency =>
+      send({ type: "UPDATE.CURRENCY", data: currency }),
 
     addPromotion: ({ code }) => {
       send({ type: "ADD.PROMOTION", data: { code } });
@@ -105,8 +110,8 @@ export const useBasket = () => {
       };
     }),
     //  ---
-    basket: computed(() => state.value.context.basket),
-    summary: computed(() => state.value.context.summary),
+    basket: computed(() => state.value.context?.basket),
+    summary: computed(() => state.value.context?.summary),
     items: computed(
       () =>
         map(state.value.context.items, item => ({
@@ -118,7 +123,10 @@ export const useBasket = () => {
       //   ...item.getSnapshot()
       // }))
     ),
-    products: computed(() => state.value.context.basket?.products || []),
-    promotions: computed(() => state.value.context.basket?.promotions || [])
+    products: computed(() => state.value.context?.basket?.products || []),
+    promotions: computed(() => state.value.context?.basket?.promotions || []),
+    taxes: computed(() => state.value.context?.basket?.taxes || []),
+    currency: computed(() => state.value.context?.basket?.currency),
+    currencies: computed(() => brandState.value.context?.currencies || [])
   };
 };

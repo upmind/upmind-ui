@@ -19,7 +19,9 @@
               :class="option.multiple ? 'checkbox' : 'radio'"
               :name="`options[${option.id}]`"
               @change="
-                !processing ? $emit('update', option, value.id, $event) : null
+                !processing
+                  ? $emit('update:modelValue', option, value.id, $event)
+                  : null
               "
               :checked="isSelected(option.id, value.id)"
               :required="option.required"
@@ -85,7 +87,11 @@ export default defineComponent({
   },
   inheritAttrs: true,
   customOptions: {},
-  emits: ["update", "update:quantity:increment", "update:quantity:decrement"],
+  emits: [
+    "update:modelValue",
+    "update:quantity:increment",
+    "update:quantity:decrement"
+  ],
   props: {
     processing: {
       type: Boolean,

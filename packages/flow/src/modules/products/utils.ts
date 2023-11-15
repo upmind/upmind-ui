@@ -1,10 +1,8 @@
 // ---internal
-import { useBrand } from "../brand";
-const { getBillingCycle } = useBrand();
-import { TrialEndActionTypes, PromotionDisplayTypes } from "./services";
+import { useSystem } from "../system";
+import { TrialEndActionTypes } from "./services";
 // --- utils
 import {
-  defaultsDeep,
   find,
   get,
   isEmpty,
@@ -97,6 +95,8 @@ export const useProductParser = (data: any) => {
 };
 
 export const useTermsParser = (data: any) => {
+  const { getBillingCycle } = useSystem();
+
   // 1. sort the terms by billing_cycle_months
   let terms = orderBy(data, "billing_cycle_months");
   getBillingCycle;

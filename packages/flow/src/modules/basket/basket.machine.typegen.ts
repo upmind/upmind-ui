@@ -9,6 +9,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]": {
+      type: "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]": {
       type: "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]";
       data: unknown;
@@ -53,6 +58,10 @@ export interface Typegen0 {
       type: "error.platform.authCallback";
       data: unknown;
     };
+    "error.platform.basketManager.shopping.items.processing.currency:invocation[0]": {
+      type: "error.platform.basketManager.shopping.items.processing.currency:invocation[0]";
+      data: unknown;
+    };
     "error.platform.basketManager.shopping.items.processing.everything:invocation[0]": {
       type: "error.platform.basketManager.shopping.items.processing.everything:invocation[0]";
       data: unknown;
@@ -95,6 +104,7 @@ export interface Typegen0 {
     isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     removePromotion: "done.invoke.basketManager.shopping.promotions.removing:invocation[0]";
+    setCurrency: "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]";
     update: "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]";
     updateItem: "done.invoke.updating:invocation[0]";
   };
@@ -111,6 +121,7 @@ export interface Typegen0 {
       | "isAuthenticated"
       | "removeItem"
       | "removePromotion"
+      | "setCurrency"
       | "update"
       | "updateItem";
   };
@@ -120,6 +131,7 @@ export interface Typegen0 {
     clearBasket: "UNAUTHENTICATED";
     loadItems: "done.invoke.loading:invocation[0]";
     refreshItems:
+      | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
@@ -136,6 +148,7 @@ export interface Typegen0 {
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
     setError:
+      | "error.platform.basketManager.shopping.items.processing.currency:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.basketManager.shopping.promotions.adding:invocation[0]"
       | "error.platform.basketManager.shopping.promotions.removing:invocation[0]"
@@ -144,6 +157,7 @@ export interface Typegen0 {
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     updateBasket:
+      | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
@@ -152,6 +166,7 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {
     error:
+      | "error.platform.basketManager.shopping.items.processing.currency:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
@@ -179,7 +194,8 @@ export interface Typegen0 {
       | "done.invoke.loading:invocation[0]";
     removeItem: "" | "REMOVE";
     removePromotion: "REMOVE.PROMOTION";
-    update: "CLEAR" | "REMOVE" | "UPDATE";
+    setCurrency: "UPDATE.CURRENCY";
+    update: "CLEAR" | "REMOVE" | "UPDATE" | "UPDATE.CURRENCY";
     updateItem: "" | "UPDATE";
   };
   matchesStates:
@@ -203,6 +219,7 @@ export interface Typegen0 {
     | "shopping.items.configuring"
     | "shopping.items.empty"
     | "shopping.items.processing"
+    | "shopping.items.processing.currency"
     | "shopping.items.processing.error"
     | "shopping.items.processing.everything"
     | "shopping.items.processing.queue"
@@ -230,6 +247,7 @@ export interface Typegen0 {
                 | "processing"
                 | {
                     processing?:
+                      | "currency"
                       | "error"
                       | "everything"
                       | "queue"

@@ -10,7 +10,6 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types.d";
 
 import { useSession } from "../session";
-const { getToken } = useSession();
 
 // --- utils
 import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
@@ -75,6 +74,8 @@ export const useApi = () => {
 
     // safe guard
     init ??= {};
+
+    const { getToken } = useSession();
 
     // Enforce Method (default to GET)
     set(init, "method", get(init, "method", "GET"));

@@ -83,7 +83,7 @@ export default defineComponent({
     }
 
     const doUpdate = debounce(
-      (field, value) => emit("update", field, value),
+      (field, value) => emit("update:modelValue", field, value),
       500
     );
 

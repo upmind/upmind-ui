@@ -20,7 +20,7 @@
               :name="`attributes[${attribute.id}]`"
               @change="
                 !processing
-                  ? $emit('update', attribute, value.id, $event)
+                  ? $emit('update:modelValue', attribute, value.id, $event)
                   : null
               "
               :checked="isSelected(attribute.id, value.id)"
@@ -88,7 +88,11 @@ export default defineComponent({
   },
   inheritAttrs: true,
   customOptions: {},
-  emits: ["update", "update:quantity:increment", "update:quantity:decrement"],
+  emits: [
+    "update:modelValue",
+    "update:quantity:increment",
+    "update:quantity:decrement"
+  ],
   props: {
     processing: {
       type: Boolean,

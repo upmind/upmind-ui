@@ -12,7 +12,7 @@
           disabled: processing
         }"
         :data-selected="isSelected(term)"
-        @click.prevent="!processing ? $emit('update', term) : null"
+        @click.prevent="!processing ? $emit('update:modelValue', term) : null"
       >
         <div class="stat-figure text-secondary">
           <input
@@ -93,7 +93,7 @@ export default defineComponent({
   inheritAttrs: true,
   customOptions: {},
   emits: [
-    "update",
+    "update:modelValue",
     "update:quantity",
     "update:quantity:increment",
     "update:quantity:decrement"

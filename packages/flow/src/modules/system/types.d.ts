@@ -4,8 +4,9 @@
 // --------------------------------------------------------
 // Contexts
 
-export interface BrandContext {
-  // TODO: add all the other types
+export interface SystemContext {
+  currencies: Array<any> | null;
+  billingCycles: Array<any> | null;
   // ---
   error?: RequestError;
 }
@@ -13,7 +14,7 @@ export interface BrandContext {
 // --------------------------------------------------------
 // Events
 
-export interface BrandEvent {
+export interface SystemEvent {
   type: string;
   data: any;
   error?: RequestError;
