@@ -89,7 +89,7 @@
             {{ term.billing_cycle_name }}
             <span
               v-if="term.saving"
-              class="badge badge-outline badge-accent badge-sm mx-2"
+              class="rounded badge badge-accent text-base-100 badge-sm mx-2"
             >
               Save {{ term.saving_formatted }}
             </span>
@@ -129,7 +129,7 @@
         <!-- quantity -->
         <li class="px-4 pt-2" v-if="available.product?.canChangeQuantity">
           <fieldset
-            :disabled="meta.isLoading || processing"
+            :disabled="meta.isLoading || processing || meta.isCalculating"
             class="flex w-full"
           >
             <label class="label text-start w-full" for="quantity">
@@ -183,7 +183,7 @@
               <fieldset
                 class="flex items-center justify-between"
                 v-if="model.attributes"
-                :disabled="meta.isLoading || processing"
+                :disabled="meta.isLoading || processing || meta.isCalculating"
               >
                 <label
                   class="label cursor-pointer"
@@ -284,7 +284,7 @@
               <fieldset
                 class="flex items-center justify-between"
                 v-if="model.options"
-                :disabled="meta.isLoading || processing"
+                :disabled="meta.isLoading || processing || meta.isCalculating"
               >
                 <label
                   class="label cursor-pointer"
@@ -378,7 +378,7 @@
             <li class="p-0" v-if="field.defer_mode != 'hidden'">
               <fieldset
                 class="flex flex-col"
-                :disabled="meta.isLoading || processing"
+                :disabled="meta.isLoading || processing || meta.isCalculating"
               >
                 <label class="label text-start w-full" :for="field.id">
                   <span class="label-text">{{ field.field_label }}</span>
@@ -428,7 +428,7 @@
 
     <footer
       v-if="!meta.isLoading"
-      class="items-center justify-between p-4 bg-base-200"
+      class="items-center justify-between p-4 border-t"
     >
       <aside
         class="summary flex-1 items-center justify-center text-center grid-flow-col"
@@ -534,27 +534,14 @@ export default defineComponent({
   computed: {
     color() {
       return {
-        // "bg-base": !this.meta.isNew,
-        "border-base-300": this.meta.isConfigured,
-        // "text-base-content": this.meta.isConfigured,
-        // ---
-        "border-info": this.meta.isNew && this.meta.isConfiguring,
-        // "text-info-content": this.meta.isNew && this.meta.isConfiguring,
-        // ---
-        "border-primary":
+        "border-secondary-content":
+          this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty,
+
+        "border-primary-content":
           this.meta.isConfiguring ||
           (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)),
 
-        // "border-warning": this.meta.isConfiguring,
-        // "text-warning-content": this.meta.isConfiguring,
-        // ---
         "border-error": this.meta.hasErrors
-        // "text-error-content": this.meta.hasErrors,
-        // ---
-        // "border-success":
-        //   this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
-        // "text-success-content":
-        //   this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)
       };
     },
     status() {
