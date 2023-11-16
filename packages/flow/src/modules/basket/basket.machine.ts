@@ -412,7 +412,7 @@ export default createMachine(
 
             const machine = spawnConfiguration(
               product,
-              basket.currency_id,
+              basket?.currency_id,
               promotions
             );
             items.push(machine);
@@ -425,7 +425,7 @@ export default createMachine(
         items: ({ items, basket }, { data }) => {
           const machine = spawnConfiguration(
             data,
-            basket.currency_id,
+            basket?.currency_id,
             basket?.promotions
           );
           items.push(machine);
@@ -522,7 +522,7 @@ export default createMachine(
               if (product) {
                 const machine = spawnConfiguration(
                   product,
-                  basket.currency_id,
+                  basket?.currency_id,
                   basket?.promotions
                 );
                 // now put the item(s) back into the items array,
@@ -556,7 +556,7 @@ export default createMachine(
           forEach(missing, product => {
             const machine = spawnConfiguration(
               product,
-              basket.currency_id,
+              basket?.currency_id,
               basket?.promotions
             );
             items.push(machine);

@@ -110,7 +110,7 @@ async function getProduct(
   const { get, useUrl } = useApi();
   const productPromise = get({
     url: useUrl(`basket/products/${product_id}`, {
-      currency_id: currency_id,
+      currency_id,
       promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [
@@ -536,7 +536,7 @@ async function calculateSummary(
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
-      currency_id: currency_id, //TODo fall back to the basket currency or thhe brand currency
+      currency_id,
       prices: [
         prices.term.subtotal,
         prices.attributes.subtotal,
@@ -549,7 +549,7 @@ async function calculateSummary(
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
-      currency_id: currency_id, //TODo fall back to the basket currency or thhe brand currency
+      currency_id,
       prices: [
         prices.term.discount,
         prices.attributes.discount,
@@ -562,7 +562,7 @@ async function calculateSummary(
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
-      currency_id: currency_id, //TODo fall back to the basket currency or thhe brand currency
+      currency_id,
       prices: [prices.term.total, prices.attributes.total, prices.options.total]
     }
   }).then(({ data }) => data);

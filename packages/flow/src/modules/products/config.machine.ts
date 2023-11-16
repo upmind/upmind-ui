@@ -18,10 +18,15 @@ import {
 } from "./utils";
 
 import { get, set, map, toNumber, find } from "lodash-es";
+
+import { useBrand } from "../brand";
+
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default (values, currency_id, promotions) =>
-  createMachine(
+export default (values, currency_id, promotions) => {
+  const { validateCurrency } = useBrand();
+
+  return createMachine(
     {
       tsTypes: {} as import("./config.machine.typegen").Typegen0,
       id: "productConfigurator",
@@ -56,7 +61,7 @@ export default (values, currency_id, promotions) =>
 
         // use any applied promotions when fetching the product to get the correct prices
         promotions,
-        currency_id,
+        currency_id: validateCurrency(currency_id),
         // ---
         error: null
       },
@@ -388,3 +393,4 @@ export default (values, currency_id, promotions) =>
       }
     }
   );
+};
