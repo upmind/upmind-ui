@@ -5,6 +5,9 @@
 // Contexts
 
 export interface ProductConfigContext {
+  currency_id;
+  promotions;
+  // ---
   available: {
     product: IProduct;
     terms: array;

@@ -8,7 +8,7 @@ import { BrandConfigKeys } from "./services";
 export { BrandConfigKeys } from "./services";
 
 // --- utils
-import { pick, isArray, find, some } from "lodash-es";
+import { pick, isArray, find, some, first } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the brand machine
@@ -51,6 +51,26 @@ export const useBrand = () => {
       return pick(state.context, keys);
     },
     // ---
-    hasModuleEnabled
+    hasModuleEnabled,
+    validateCurrency: (currency_id: string) => {
+      // if we dont have any currencies, then just return the given currency
+      if (!state?.context?.currencies?.length) return currency_id;
+
+      // otherwise we need to validate the given currency
+      // and possibly fallback to the default/first available currency
+      const defaultCurrency =
+        find(state?.context?.currencies, ["id", state?.context?.currency_id]) ||
+        first(state?.context?.currencies);
+
+      // if we dont have a given currency, then we return the default currency
+      if (!currency_id) return defaultCurrency?.id;
+
+      // if the given currency is not one of the available currencies, then we return the default currency
+      if (!some(state?.context?.currencies, ["id", currency_id]))
+        return defaultCurrency?.id;
+
+      // othrwise we clearly have a valid currency and we return it
+      return currency_id;
+    }
   };
 };
