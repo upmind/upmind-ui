@@ -1,139 +1,122 @@
 <template>
   <section>
-    <header class="navbar">
-      <v-progress-circular v-if="loading" indeterminate :width="2" :size="40" />
+    <header
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
+    >
+      <div class="flex-1">
+        <h2 class="title m-0">Form</h2>
+      </div>
 
-      <span
-        v-else-if="errors?.length"
-        class="badge badge-error elevation-2"
-        @click="showErrors = !showErrors"
-      >
-        {{ errors.length }}
-      </span>
+      <div class="actions flex-none join">
+        <slot name="actions">
+          <button
+            v-if="errors?.length"
+            class="badge badge-error elevation-2"
+            @click="showErrors = !showErrors"
+          >
+            {{ errors.length }}
+          </button>
+        </slot>
+      </div>
     </header>
 
-    <v-expand-transition>
-      <v-alert
-        v-if="errors?.length"
-        v-model="showErrors"
-        density="compact"
-        type="error"
-        title="Issues need resolving before you can save"
-        variant="tonal"
-        icon="mdi-alert-circle-outline"
-        closable
-        :rounded="0"
-      >
-        <ul>
-          <li v-for="(error, i) in errors" :key="i">
-            {{ trim(error.instancePath, "/") }} {{ error.message }}
-            <!-- <code>
-                <pre>{{ error }}</pre>
-              </code> -->
-          </li>
-        </ul>
-      </v-alert>
-    </v-expand-transition>
-
-    <v-card
-      class="align-center pa-4 mb-4"
-      :disabled="loading"
-      variant="flat"
-      max-width="1024"
+    <!-- <v-expand-transition> -->
+    <div v-if="errors?.length && showErrors" class="">
+      <code>
+        <pre class="bg-base-100 text-error-content border border-error m-0">{{
+          errors
+        }}</pre>
+      </code>
+    </div>
+    <!-- <v-alert
+      v-if="errors?.length"
+      v-model="showErrors"
+      density="compact"
+      type="error"
+      title="Issues need resolving before you can save"
+      variant="tonal"
+      icon="mdi-alert-circle-outline"
+      closable
+      :rounded="0"
     >
-      <v-form v-if="model">
-        <json-forms
-          :key="timestamp"
-          :ajv="ajv"
-          :data="model"
-          :schema="schema"
-          :uischema="uischema"
-          :renderers="renderers"
-          @change="onChange"
-        />
-      </v-form>
-    </v-card>
+      <ul>
+        <li v-for="(error, i) in errors" :key="i">
+          {{ trim(error.instancePath, "/") }} {{ error.message }}
+        </li>
+      </ul>
+    </v-alert> -->
+    <!-- </v-expand-transition> -->
 
-    <!-- actions -->
-    <footer>
-      <v-toolbar-items>
-        <v-btn
-          type="submit"
-          variant="flat"
-          append-icon="mdi-check"
-          :disabled="!isValid || loading"
-          :loading="loading"
-          :color="$attrs.color"
-          @click="doSubmit"
-        >
-          Save
-        </v-btn>
+    <form
+      class="card align-center p-4 my-4 w-ful max-w-screen-lg"
+      :disabled="processing"
+      @submit.prevent="doSubmit"
+    >
+      <json-forms
+        :ajv="ajv"
+        :data="model"
+        :schema="schema"
+        :uischema="uischema"
+        :renderers="renderers"
+        @change="onChange"
+        class="card-content"
+      />
 
-        <v-btn :disabled="loading" variant="plain" @click="doReject">
-          Cancel
-        </v-btn>
-      </v-toolbar-items>
+      <!-- actions -->
+      <footer>
+        <div class="card-actions">
+          <button
+            type="submit"
+            class="btn btn-accent"
+            :disabled="!isValid || processing"
+          >
+            Save
+          </button>
 
-      <Debug></Debug>
-    </footer>
+          <button
+            :disabled="processing"
+            class="btn btn-ghost"
+            @click="doReject"
+          >
+            Cancel
+          </button>
+        </div>
+      </footer>
+    </form>
 
     <!-- debug -->
+    <Debug
+      title="Form"
+      :open="{ state: true }"
+      :state="model"
+      :errors="errors"
+      :context="{ schema, uischema }"
+    ></Debug>
   </section>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, toRef, ref } from "vue";
+
 import Debug from "@/components/Debug.vue";
-import { JsonForms } from "@jsonforms/vue";
+import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue";
 import { createAjv } from "@jsonforms/core";
-import { extendedVuetifyRenderers } from "@jsonforms/vue-vuetify";
-import {
-  get,
-  trim,
-  isNil,
-  isEmpty,
-  isEqual,
-  upperCase,
-  defaultsDeep
-} from "lodash-es";
+
+import { defaultStyles, mergeStyles, daisyRenderers } from "../renderers/daisy";
+
+import { trim, isEmpty, isEqual } from "lodash-es";
 
 export default defineComponent({
   name: "JsonForm",
   components: {
-    JsonForms
+    JsonForms,
+    Debug
   },
   inheritAttrs: false,
   props: {
-    title: {
-      type: String
-    },
-    singular: {
-      type: String,
-      required: true
-    },
-    plural: {
-      type: String,
-      default: () => `${singular}s`,
-      required: true
-    },
-    icon: {
-      type: [String, Boolean],
-      default: "mdi-database"
-    },
-    collection: {
-      type: String,
-      required: true
-    },
-    collectionKey: {
-      type: String,
-      required: true
-    },
     schema: {
       type: Object,
       required: true
-    },
-    showBack: {
-      type: Boolean,
-      default: true
     },
     uischema: {
       type: Object,
@@ -143,114 +126,77 @@ export default defineComponent({
       type: Object,
       default: () => ({})
     },
-    transaction: {
-      type: String
-    },
     // ---
-    isNew: {
-      type: Boolean,
-      default: null
-    },
     debug: {
       type: Boolean,
       default: false
     },
-    loading: {
+    processing: {
       type: Boolean,
       default: false
     }
   },
   emits: ["reject", "resolve", "update:modelValue"],
   customOptions: {},
-  setup() {
+  setup(props) {
     // -------
-    // permissions
     const ajv = createAjv({ useDefaults: true });
+
+    // mergeStyles combines all classes from both styles definitions into one
+    const tailwindStyles = mergeStyles(defaultStyles, {
+      control: {},
+      verticalLayout: {}
+    });
+
+    console.log("tailwindStyles", { tailwindStyles });
 
     // -------
     return {
       trim,
-      ajv,
       // -------
-      renderers: Object.freeze([...extendedVuetifyRenderers])
+      ajv,
+      renderers: Object.freeze([...daisyRenderers]),
+      tailwindStyles
     };
   },
-  data() {
-    return {
-      model: this.initModel(),
-      errors: null,
-      showErrors: false,
-      timestamp: Date.now()
-    };
-  },
+  data: () => ({
+    model: {},
+    errors: [],
+    showErrors: false
+  }),
   computed: {
     isValid() {
       return !this.errors?.length;
-    },
-    safeIsNew() {
-      return isNil(this.isNew)
-        ? !get(this.modelValue, this.collectionKey)
-        : this.isNew;
-    }
-  },
-  watch: {
-    modelValue: {
-      handler(value) {
-        this.model = useModelParser(toRaw(value), this.schema) || {};
-      },
-      deep: true
     }
   },
 
   methods: {
-    initModel() {
-      // This will take the modelValue and enure it matches the schema
-      // this will set the internal model, used  by the form component
-      let model = toRaw(unref(this.modelValue));
-      if (isNil(this.isNew) ? !get(model, this.collectionKey) : this.isNew) {
-        // build the model to ensure we have all the fields based on the schema
-        const baseModel = useModelBuilder(this.schema.properties);
-        model = defaultsDeep(model, baseModel);
-      }
-
-      // always parse the model to ensure it matches the schema and does not have any extra fields
-      model = useModelParser(model, this.schema);
-      return model;
-    },
-
-    onChange({ data, errors }) {
+    onChange({ data, errors }: JsonFormsChangeEvent) {
       this.errors = errors;
+      this.model = data;
+
+      // finally check if the data has actually changed and emit the update event
+      // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
       const rawData = JSON.parse(JSON.stringify(data));
       const rawModel = JSON.parse(JSON.stringify(this.model));
       if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
-        this.model = rawData;
         this.$emit("update:modelValue", this.model);
       }
     },
 
     doSubmit() {
-      this.$emit("resolve", {
-        collection: this.collection,
-        collectionKey: this.collectionKey,
-        value: this.model,
-        transaction: this.transaction || "save",
-        options: {
-          success: upperCase(this.transaction || "saved")
-        },
-        window: `${this.collection}-listings`
-      });
+      this.$emit("resolve", this.model);
     },
 
     doReject() {
-      this.$emit("reject", {
-        collection: this.collection,
-        collectionKey: this.collectionKey,
-        refresh: true,
-        window: `${this.collection}-listings`
-      });
+      this.$emit("reject");
       this.model = {};
-      this.timestamp = Date.now(); // forces re-render
     }
+  },
+  provide() {
+    return {
+      styles: this.tailwindStyles
+    };
   }
 });
 </script>

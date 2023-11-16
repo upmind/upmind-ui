@@ -1,0 +1,107 @@
+<template>
+  <div v-if="visible" :id="id" :class="styles.control.root">
+    <!-- label -->
+    <label
+      :for="id + '-input'"
+      :class="[
+        styles.control.label.root,
+        errors ? styles.control.error.label : null
+      ]"
+    >
+      <span :class="styles.control.label.text">{{ computedLabel }}</span>
+    </label>
+
+    <!-- wrapper -->
+    <div
+      :class="[
+        styles.control.wrapper,
+        errors ? styles.control.error.wrapper : null
+      ]"
+    >
+      <slot></slot>
+    </div>
+
+    <!-- errors -->
+    <div v-if="errors" :class="styles.control.error.text">
+      {{ errors }}
+    </div>
+
+    <!-- help/description -->
+    <div v-else-if="showDescription" :class="styles.control.description">
+      {{ description }}
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
+import { defineComponent, PropType } from "vue";
+import { Styles } from "../styles";
+import { Options } from "../util";
+
+export default defineComponent({
+  name: "ControlWrapper",
+  props: {
+    id: {
+      required: true,
+      type: String
+    },
+    description: {
+      required: false as const,
+      type: String,
+      default: undefined
+    },
+    errors: {
+      required: false as const,
+      type: String,
+      default: undefined
+    },
+    label: {
+      required: false as const,
+      type: String,
+      default: undefined
+    },
+    appliedOptions: {
+      required: false as const,
+      type: Object as PropType<Options>,
+      default: undefined
+    },
+    visible: {
+      required: false as const,
+      type: Boolean,
+      default: true
+    },
+    required: {
+      required: false as const,
+      type: Boolean,
+      default: false
+    },
+    isFocused: {
+      required: false as const,
+      type: Boolean,
+      default: false
+    },
+    styles: {
+      required: true,
+      type: Object as PropType<Styles>
+    }
+  },
+  computed: {
+    showDescription(): boolean {
+      return !isDescriptionHidden(
+        this.visible,
+        this.description,
+        this.isFocused,
+        !!this.appliedOptions?.showUnfocusedDescription
+      );
+    },
+    computedLabel(): string {
+      return computeLabel(
+        this.label,
+        this.required,
+        !!this.appliedOptions?.hideRequiredAsterisk
+      );
+    }
+  }
+});
+</script>

@@ -12,25 +12,132 @@
       </div>
     </header>
 
-    <p>This render a JSON form that is generated from a JSON schema.</p>
+    <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <JsonForm class="my-4" />
+    <JsonForm
+      :schema="schema"
+      :uischema="uischema"
+      class="my-4"
+      @reject="doReject"
+      @resolve="doResolve"
+      debug
+    />
 
-    <footer>
-      <!-- <Debug
-        title="Form"
-        :state="state"
-        :context="context"
-        :errors="errors"
-        :meta="meta"
-      ></Debug> -->
-    </footer>
+    <footer></footer>
   </section>
 </template>
 
 <script setup lang="ts">
-// import { useForm } from "..";
+import { ref } from "vue";
+import { useDate } from "../";
 import JsonForm from "../components/Form.vue";
 
-// const { state, context, meta, errors } = useForm({ useGlobal: true });
+const schema = {
+  required: ["name", "rating", "dueDate"],
+  properties: {
+    name: {
+      type: "string",
+      minLength: 1,
+      description: "The task's name"
+    },
+
+    description: {
+      title: "Short Description",
+      type: "string"
+    },
+
+    note: {
+      title: "Long Description/Details",
+      type: "string"
+    },
+
+    done: {
+      type: "boolean"
+    },
+
+    dueDate: {
+      type: "string",
+      format: "date",
+      description: "The task's due date",
+      max: useDate(),
+      default: useDate()
+    },
+
+    rating: {
+      type: "integer",
+      maximum: 5
+    },
+
+    recurrence: {
+      type: "string",
+      enum: ["Never", "Daily", "Weekly", "Monthly"]
+    },
+
+    recurrenceInterval: {
+      type: "integer",
+      description: "Days until recurrence"
+    }
+  }
+};
+
+const uischema = {
+  type: "HorizontalLayout",
+  elements: [
+    {
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/name"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/description"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/note",
+          options: {
+            multi: true
+          }
+        },
+        {
+          type: "Control",
+          scope: "#/properties/done"
+        }
+      ]
+    },
+    {
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/dueDate"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/rating"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/recurrence"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/recurrenceInterval"
+        }
+      ]
+    }
+  ]
+};
+
+function doReject() {
+  console.log("doReject");
+}
+
+function doResolve(value) {
+  console.log("doResolve", value);
+}
+
+const model = ref({});
 </script>
