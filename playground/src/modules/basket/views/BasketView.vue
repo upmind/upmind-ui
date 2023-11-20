@@ -34,7 +34,7 @@
       </div>
 
       <div class="actions flex-none join justify-end">
-        <CurrencySwitcher
+        <currency-switcher
           v-if="currency"
           :model-value="currency"
           :currencies="currencies"
@@ -42,7 +42,7 @@
           @update:modelValue="updateCurrency"
           class="mx-4"
         >
-        </CurrencySwitcher>
+        </currency-switcher>
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
@@ -77,7 +77,7 @@
             <!-- <span class="indicator-item"> -->
             <!-- </span> -->
 
-            <SquaresPlusIcon class="h-6 w-6" />
+            <squares-plus-icon class="h-6 w-6" />
             <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
             <!-- </div> -->
           </button>
@@ -105,7 +105,7 @@
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
           <div v-for="item in items" :key="item.id">
-            <ProductConfig
+            <product-config
               :item="item"
               :id="item.id"
               :processing="meta.isProcessing"
@@ -126,7 +126,7 @@
                   Update Item
                 </button>
               </template>
-            </ProductConfig>
+            </product-config>
           </div>
         </div>
 
@@ -253,7 +253,7 @@
                   @click.prevent="removePromotion(promotion)"
                   :disabled="meta.isProcessing"
                 >
-                  <XMarkIcon class="w-5 h-5" />
+                  <x-mark-icon class="w-5 h-5" />
                 </button>
               </li>
             </ul>
@@ -270,7 +270,7 @@
     </div>
 
     <footer>
-      <Debug
+      <debug
         :debugging="debugging"
         title="Basket"
         :state="state"
@@ -279,7 +279,7 @@
         :errors="errors"
         :meta="meta"
         class=""
-      ></Debug>
+      ></debug>
     </footer>
   </section>
 </template>

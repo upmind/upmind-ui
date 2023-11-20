@@ -14,7 +14,7 @@
 
     <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <JsonForm
+    <json-form
       :schema="schema"
       :uischema="null"
       @reject="doReject"
@@ -43,12 +43,14 @@ const schema = {
 
     description: {
       title: "Short Description",
-      type: "string"
+      type: "string",
+      maxLength: 100
     },
 
     note: {
       title: "Long Description/Details",
-      type: "string"
+      type: "string",
+      maxLength: 280
     },
 
     rating: {
@@ -63,7 +65,7 @@ const schema = {
       type: "string",
       format: "date",
       description: "The task's due date",
-      max: useDate(),
+      formatMaximum: useDate(),
       default: useDate()
     },
 

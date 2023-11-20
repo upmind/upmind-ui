@@ -34,8 +34,8 @@
         </strong>
         {{ modelValue?.code }}
       </span>
-      <ChevronUpIcon v-if="open" class="w-4 h-4" />
-      <ChevronDownIcon v-else class="h-4 w-4" />
+      <chevron-up-icon v-if="open" class="w-4 h-4" />
+      <chevron-down-icon v-else class="h-4 w-4" />
     </summary>
     <ul
       tabindex="0"

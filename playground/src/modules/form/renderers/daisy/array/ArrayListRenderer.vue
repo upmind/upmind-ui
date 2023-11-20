@@ -43,20 +43,23 @@
 </template>
 
 <script lang="ts">
+import type {
+  JsonFormsRendererRegistryEntry,
+  ControlElement} from "@jsonforms/core";
 import {
   composePaths,
   createDefaultValue,
-  JsonFormsRendererRegistryEntry,
   rankWith,
-  ControlElement,
   schemaTypeIs
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
+import type {
+  RendererProps
+} from "@jsonforms/vue";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsArrayControl,
-  RendererProps
+  useJsonFormsArrayControl
 } from "@jsonforms/vue";
 import { useDaisyArrayControl } from "../util";
 import ArrayListElement from "./ArrayListElement.vue";

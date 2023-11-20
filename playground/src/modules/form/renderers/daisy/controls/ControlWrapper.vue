@@ -35,9 +35,10 @@
 
 <script lang="ts">
 import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
-import { defineComponent, PropType } from "vue";
-import { Styles } from "../styles";
-import { Options } from "../util";
+import type { PropType } from "vue";
+import { defineComponent } from "vue";
+import type { Styles } from "../styles";
+import type { Options } from "../util";
 
 export default defineComponent({
   name: "ControlWrapper",

@@ -31,17 +31,20 @@
 </template>
 
 <script lang="ts">
-import {
+import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry,
+  JsonFormsRendererRegistryEntry} from "@jsonforms/core";
+import {
   rankWith,
   isOneOfEnumControl
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
+import type {
+  RendererProps
+} from "@jsonforms/vue";
 import {
   rendererProps,
-  useJsonFormsOneOfEnumControl,
-  RendererProps
+  useJsonFormsOneOfEnumControl
 } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";

@@ -32,12 +32,12 @@
     </div>
 
     <footer>
-      <Debug
+      <debug
         title="Requests"
         :state="state"
         :errors="errors"
         :meta="meta"
-      ></Debug>
+      ></debug>
     </footer>
   </section>
 </template>

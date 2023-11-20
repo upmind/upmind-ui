@@ -4,7 +4,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import brandMachine from "./brand.machine";
-import { BrandConfigKeys } from "./services";
+import type { BrandConfigKeys } from "./services";
 export { BrandConfigKeys } from "./services";
 
 // --- utils

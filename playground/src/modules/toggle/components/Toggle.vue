@@ -26,7 +26,7 @@
         >
           <span>{{ count }}</span>
           <span v-if="meta.isDisabled">
-            <ArrowPathIcon class="w-3 h-3 ml-1"
+            <arrow-path-icon class="w-3 h-3 ml-1"
           /></span>
         </button>
       </label>

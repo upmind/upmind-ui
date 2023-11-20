@@ -6,7 +6,7 @@
       class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
     >
       <template v-for="field in fields" :key="field.id">
-        <li class="p-0" v-if="field.defer_mode != 'hidden'">
+        <li class="p-0" v-if="!field.defer != 'hidden'">
           <fieldset class="flex flex-col" :disabled="processing">
             <label class="label text-start w-full" :for="field.id">
               <span class="label-text">{{ field.field_label }}</span>

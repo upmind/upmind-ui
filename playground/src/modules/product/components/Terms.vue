@@ -65,7 +65,7 @@
 
       <!-- quantity -->
       <li class="px-4 pt-2" v-if="product?.canChangeQuantity">
-        <Quantity
+        <quantity
           label="Quantity"
           :processing="processing"
           :min="product?.min_order_quantity"
@@ -74,7 +74,7 @@
           :model-value="quantity"
           @update:increment="$emit('update:quantity:increment', $event)"
           @update:decrement="$emit('update:quantity:decrement', $event)"
-        ></Quantity>
+        ></quantity>
       </li>
     </ul>
   </section>

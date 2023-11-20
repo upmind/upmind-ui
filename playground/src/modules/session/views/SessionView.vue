@@ -249,13 +249,13 @@
     </div>
 
     <footer>
-      <Debug
+      <debug
         title="Session"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
         :context="context"
         :errors="errors"
         :meta="meta"
-      ></Debug>
+      ></debug>
     </footer>
   </section>
 </template>
