@@ -16,7 +16,7 @@
 
     <JsonForm
       :schema="schema"
-      :uischema="uischema"
+      :uischema="null"
       class="my-4"
       @reject="doReject"
       @resolve="doResolve"

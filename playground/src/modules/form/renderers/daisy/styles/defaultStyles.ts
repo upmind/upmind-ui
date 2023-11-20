@@ -2,7 +2,7 @@ import type { Styles } from "./styles";
 
 export const defaultStyles: Styles = {
   control: {
-    root: "form-control w-full",
+    root: "form-control w-full max-w-sm",
     inline: "justify-start gap-2",
     label: {
       root: "label",
