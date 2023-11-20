@@ -66,8 +66,7 @@ export default defineComponent({
       required: true
     },
     uischema: {
-      type: Object,
-      required: true
+      type: Object
     },
     modelValue: {
       type: Object,
