@@ -5,7 +5,7 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import type { BasketContext } from "./types.d";
-import configurationMachine from "../products/config.machine";
+import configurationMachine from "../product/config.machine";
 
 // --- utils
 import { useTime } from "../../utils";
