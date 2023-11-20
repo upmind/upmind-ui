@@ -38,6 +38,7 @@ const schema = {
     name: {
       type: "string",
       minLength: 1,
+      title: "Task",
       description: "The task's name"
     },
 
@@ -51,8 +52,12 @@ const schema = {
       type: "string"
     },
 
-    done: {
-      type: "boolean"
+    rating: {
+      type: "integer",
+      maximum: 5,
+      minimum: 1,
+      title: "Rate the difficulty",
+      description: "The difficulty is measured between 1 (easy) and 5 (hard)"
     },
 
     dueDate: {
@@ -63,11 +68,6 @@ const schema = {
       default: useDate()
     },
 
-    rating: {
-      type: "integer",
-      maximum: 5
-    },
-
     recurrence: {
       type: "string",
       enum: ["Never", "Daily", "Weekly", "Monthly"]
@@ -76,6 +76,10 @@ const schema = {
     recurrenceInterval: {
       type: "integer",
       description: "Days until recurrence"
+    },
+
+    done: {
+      type: "boolean"
     }
   }
 };
@@ -88,22 +92,63 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/name"
-        },
-        {
-          type: "Control",
-          scope: "#/properties/description"
-        },
-        {
-          type: "Control",
-          scope: "#/properties/note",
+          scope: "#/properties/name",
           options: {
-            multi: true
+            placeholder: "What needs to be done?",
+            focus: true
+          }
+        },
+
+        {
+          type: "Control",
+          scope: "#/properties/rating",
+          options: {
+            // showUnfocusedDescription: true,
+            styles: {
+              control: {
+                rating: {
+                  item: "mask-star-2",
+                  item1: "bg-green-400",
+                  item2: "bg-lime-400",
+                  item3: "bg-yellow-400",
+                  item4: "bg-orange-400",
+                  item5: "bg-red-400"
+                }
+              }
+            }
+          }
+        },
+
+        {
+          type: "Control",
+          scope: "#/properties/dueDate"
+        },
+
+        {
+          type: "Control",
+          scope: "#/properties/recurrence"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/recurrenceInterval",
+          options: {
+            styles: {
+              control: {
+                input: "input input-bordered w-auto"
+              }
+            }
           }
         },
         {
           type: "Control",
-          scope: "#/properties/done"
+          scope: "#/properties/done",
+          options: {
+            styles: {
+              control: {
+                checkbox: "checkbox checkbox-primary"
+              }
+            }
+          }
         }
       ]
     },
@@ -112,19 +157,19 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/dueDate"
+          scope: "#/properties/description",
+          options: {
+            multi: true,
+            rows: 5
+          }
         },
         {
           type: "Control",
-          scope: "#/properties/rating"
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrence"
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval"
+          scope: "#/properties/note",
+          options: {
+            multi: true,
+            rows: 10
+          }
         }
       ]
     }

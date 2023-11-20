@@ -9,9 +9,9 @@ import { inspect } from "@xstate/inspect";
 
 if (process.env.NODE_ENV == "development") {
   inspect({
+    // url: "https://stately.ai/registry/editor/inspect",
     // url: "https://statecharts.io/inspect",
-    url: "https://stately.ai/viz?inspect", // (default)
-    // url: "https://stately.ai/registry/editor?inspect",
+    // url: "https://stately.ai/viz?inspect", // (default)
     iframe: false
   });
 }

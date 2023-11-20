@@ -1,98 +1,45 @@
 <template>
-  <section>
-    <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
-    >
-      <div class="flex-1">
-        <h2 class="title m-0">Form</h2>
+  <form
+    class="card align-center p-4 my-4 w-ful max-w-screen-lg"
+    :disabled="processing"
+    @submit.prevent="doSubmit"
+  >
+    <json-forms
+      :ajv="ajv"
+      :data="model"
+      :schema="schema"
+      :uischema="uischema"
+      :renderers="renderers"
+      @change="onChange"
+      class="card-content"
+    />
+
+    <!-- actions -->
+    <footer>
+      <div class="card-actions mt-8">
+        <button
+          type="submit"
+          class="btn btn-accent"
+          :disabled="!isValid || processing"
+        >
+          Save
+        </button>
+
+        <button :disabled="processing" class="btn btn-ghost" @click="doReject">
+          Cancel
+        </button>
       </div>
+    </footer>
+  </form>
 
-      <div class="actions flex-none join">
-        <slot name="actions">
-          <button
-            v-if="errors?.length"
-            class="badge badge-error elevation-2"
-            @click="showErrors = !showErrors"
-          >
-            {{ errors.length }}
-          </button>
-        </slot>
-      </div>
-    </header>
-
-    <!-- <v-expand-transition> -->
-    <div v-if="errors?.length && showErrors" class="">
-      <code>
-        <pre class="bg-base-100 text-error-content border border-error m-0">{{
-          errors
-        }}</pre>
-      </code>
-    </div>
-    <!-- <v-alert
-      v-if="errors?.length"
-      v-model="showErrors"
-      density="compact"
-      type="error"
-      title="Issues need resolving before you can save"
-      variant="tonal"
-      icon="mdi-alert-circle-outline"
-      closable
-      :rounded="0"
-    >
-      <ul>
-        <li v-for="(error, i) in errors" :key="i">
-          {{ trim(error.instancePath, "/") }} {{ error.message }}
-        </li>
-      </ul>
-    </v-alert> -->
-    <!-- </v-expand-transition> -->
-
-    <form
-      class="card align-center p-4 my-4 w-ful max-w-screen-lg"
-      :disabled="processing"
-      @submit.prevent="doSubmit"
-    >
-      <json-forms
-        :ajv="ajv"
-        :data="model"
-        :schema="schema"
-        :uischema="uischema"
-        :renderers="renderers"
-        @change="onChange"
-        class="card-content"
-      />
-
-      <!-- actions -->
-      <footer>
-        <div class="card-actions">
-          <button
-            type="submit"
-            class="btn btn-accent"
-            :disabled="!isValid || processing"
-          >
-            Save
-          </button>
-
-          <button
-            :disabled="processing"
-            class="btn btn-ghost"
-            @click="doReject"
-          >
-            Cancel
-          </button>
-        </div>
-      </footer>
-    </form>
-
-    <!-- debug -->
-    <Debug
-      title="Form"
-      :open="{ state: true }"
-      :state="model"
-      :errors="errors"
-      :context="{ schema, uischema }"
-    ></Debug>
-  </section>
+  <!-- debug -->
+  <Debug
+    title="Form"
+    :open="{ state: true }"
+    :state="model"
+    :errors="errors"
+    :context="{ schema, uischema }"
+  ></Debug>
 </template>
 
 <script lang="ts">

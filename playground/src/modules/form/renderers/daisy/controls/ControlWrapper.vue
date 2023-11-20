@@ -21,14 +21,14 @@
       <slot></slot>
     </div>
 
+    <!-- help/description -->
+    <div v-if="showDescription" :class="styles.control.description">
+      {{ description }}
+    </div>
+
     <!-- errors -->
     <div v-if="errors" :class="styles.control.error.text">
       {{ errors }}
-    </div>
-
-    <!-- help/description -->
-    <div v-else-if="showDescription" :class="styles.control.description">
-      {{ description }}
     </div>
   </div>
 </template>

@@ -16,6 +16,7 @@
       :value="control.data"
       :disabled="!control.enabled"
       :autofocus="appliedOptions.focus"
+      :cols="appliedOptions.cols"
       :placeholder="appliedOptions.placeholder"
       @change="onChange"
       @focus="isFocused = true"
