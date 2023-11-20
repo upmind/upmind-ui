@@ -17,7 +17,6 @@
     <JsonForm
       :schema="schema"
       :uischema="null"
-      class="my-4"
       @reject="doReject"
       @resolve="doResolve"
       debug
@@ -70,7 +69,7 @@ const schema = {
 
     recurrence: {
       type: "string",
-      enum: ["Never", "Daily", "Weekly", "Monthly"]
+      enum: ["Daily", "Weekly", "Monthly"]
     },
 
     recurrenceInterval: {
@@ -136,6 +135,13 @@ const uischema = {
               control: {
                 input: "input input-bordered w-auto"
               }
+            }
+          },
+          rule: {
+            effect: "SHOW",
+            condition: {
+              scope: "#/properties/recurrence",
+              schema: { type: "string", not: { const: null } }
             }
           }
         },
