@@ -9,6 +9,7 @@ export { default as DateControlRenderer } from "./DateControlRenderer.vue";
 export { default as DateTimeControlRenderer } from "./DateTimeControlRenderer.vue";
 export { default as TimeControlRenderer } from "./TimeControlRenderer.vue";
 export { default as BooleanControlRenderer } from "./BooleanControlRenderer.vue";
+export { default as RatingControlRenderer } from "./RatingControlRenderer.vue";
 
 import { entry as stringControlRendererEntry } from "./StringControlRenderer.vue";
 import { entry as multiStringControlRendererEntry } from "./MultiStringControlRenderer.vue";
@@ -20,6 +21,7 @@ import { entry as dateControlRendererEntry } from "./DateControlRenderer.vue";
 import { entry as dateTimeControlRendererEntry } from "./DateTimeControlRenderer.vue";
 import { entry as timeControlRendererEntry } from "./TimeControlRenderer.vue";
 import { entry as booleanControlRendererEntry } from "./BooleanControlRenderer.vue";
+import { entry as ratingControlRendererEntry } from "./RatingControlRenderer.vue";
 
 export const controlRenderers = [
   stringControlRendererEntry,
@@ -31,5 +33,6 @@ export const controlRenderers = [
   dateControlRendererEntry,
   dateTimeControlRendererEntry,
   timeControlRendererEntry,
-  booleanControlRendererEntry
+  booleanControlRendererEntry,
+  ratingControlRendererEntry
 ];

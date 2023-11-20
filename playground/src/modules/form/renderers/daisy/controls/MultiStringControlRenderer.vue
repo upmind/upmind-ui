@@ -15,6 +15,7 @@
       :disabled="!control.enabled"
       :autofocus="appliedOptions.focus"
       :placeholder="appliedOptions.placeholder"
+      :rows="appliedOptions.rows"
       @change="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"

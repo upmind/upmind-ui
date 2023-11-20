@@ -12,10 +12,19 @@ export const defaultStyles: Styles = {
     checkbox: "checkbox",
     radio: "radio",
     select: "select select-bordered w-full",
+    rating: {
+      wrapper: "gap-2",
+      item: "mask-star",
+      item1: "mask-star",
+      item2: "mask-star",
+      item3: "mask-star",
+      item4: "mask-star",
+      item5: "mask-star"
+    },
     textarea: "textarea textarea-bordered w-full",
     wrapper: "wrapper",
     option: "option",
-    description: "description text-sm text-base-content mt-2",
+    description: "description text-xs mt-2",
     error: {
       text: "text-error",
       label: "text-error",

@@ -16,10 +16,30 @@ export interface Styles {
   control: {
     root?: string;
     wrapper?: string;
-    label?: string;
+    inline?: string;
+    label: {
+      root?: string;
+      text?: string;
+    };
     description?: string;
-    error?: string;
+    error: {
+      text?: string;
+      label?: string;
+      input?: string;
+      wrapper?: string;
+    };
     input?: string;
+    checkbox?: string;
+    radio?: string;
+    rating: {
+      wrapper?: string;
+      item?: string;
+      item1?: string;
+      item2?: string;
+      item3?: string;
+      item4?: string;
+      item5?: string;
+    };
     textarea?: string;
     select?: string;
     option?: string;
