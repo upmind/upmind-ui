@@ -33,19 +33,12 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry} from "@jsonforms/core";
-import {
-  rankWith,
-  isEnumControl
+  JsonFormsRendererRegistryEntry
 } from "@jsonforms/core";
+import { rankWith, isEnumControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
-import type {
-  RendererProps
-} from "@jsonforms/vue";
-import {
-  rendererProps,
-  useJsonFormsEnumControl
-} from "@jsonforms/vue";
+import type { RendererProps } from "@jsonforms/vue";
+import { rendererProps, useJsonFormsEnumControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 
