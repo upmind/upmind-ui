@@ -26,19 +26,12 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry} from "@jsonforms/core";
-import {
-  rankWith,
-  isTimeControl
+  JsonFormsRendererRegistryEntry
 } from "@jsonforms/core";
+import { rankWith, isTimeControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
-import type {
-  RendererProps
-} from "@jsonforms/vue";
-import {
-  rendererProps,
-  useJsonFormsControl
-} from "@jsonforms/vue";
+import type { RendererProps } from "@jsonforms/vue";
+import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 

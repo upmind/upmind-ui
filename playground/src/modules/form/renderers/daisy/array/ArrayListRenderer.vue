@@ -45,7 +45,8 @@
 <script lang="ts">
 import type {
   JsonFormsRendererRegistryEntry,
-  ControlElement} from "@jsonforms/core";
+  ControlElement
+} from "@jsonforms/core";
 import {
   composePaths,
   createDefaultValue,
@@ -53,9 +54,7 @@ import {
   schemaTypeIs
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
-import type {
-  RendererProps
-} from "@jsonforms/vue";
+import type { RendererProps } from "@jsonforms/vue";
 import {
   DispatchRenderer,
   rendererProps,
