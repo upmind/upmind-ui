@@ -6,16 +6,18 @@
 </template>
 
 <script lang="ts">
-import {
+import type {
   JsonFormsRendererRegistryEntry,
-  LabelElement,
+  LabelElement} from "@jsonforms/core";
+import {
   rankWith,
   uiTypeIs
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
+import type {
+  RendererProps} from "@jsonforms/vue";
 import {
   rendererProps,
-  RendererProps,
   useJsonFormsLabel
 } from "@jsonforms/vue";
 import { useDaisyLabel } from "../util";

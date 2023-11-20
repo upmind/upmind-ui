@@ -33,8 +33,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { classes, Styles } from "../styles";
+import type { PropType } from "vue";
+import { defineComponent } from "vue";
+import type { Styles } from "../styles";
+import { classes } from "../styles";
 
 const listItem = defineComponent({
   name: "ArrayListElement",

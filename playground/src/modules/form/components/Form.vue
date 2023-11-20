@@ -33,20 +33,21 @@
   </form>
 
   <!-- debug -->
-  <Debug
+  <debug
     title="Form"
     :open="{ state: true }"
     :state="model"
     :errors="errors"
     :context="{ schema, uischema }"
-  ></Debug>
+  ></debug>
 </template>
 
 <script lang="ts">
 import { defineComponent, toRef, ref } from "vue";
 
 import Debug from "@/components/Debug.vue";
-import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue";
+import type { JsonFormsChangeEvent } from "@jsonforms/vue";
+import { JsonForms } from "@jsonforms/vue";
 import { createAjv } from "@jsonforms/core";
 
 import { defaultStyles, mergeStyles, daisyRenderers } from "../renderers/daisy";

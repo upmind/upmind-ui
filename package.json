@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@formkit/vue": "^1.3.0",
+    "ajv-keywords": "^5.1.0",
     "typescript": "^5.0.2"
   },
   "workspaces": [

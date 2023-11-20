@@ -15,13 +15,13 @@
     </header>
 
     <footer>
-      <Debug
+      <debug
         title="Brand"
         :state="state"
         :context="context"
         :errors="errors"
         :meta="meta"
-      ></Debug>
+      ></debug>
     </footer>
   </section>
 </template>

@@ -33,7 +33,7 @@
           </label>
 
           <div class="flex justify-end items-center">
-            <Quantity
+            <quantity
               v-if="
                 value.canChangeQuantity && modelValue?.[option.id]?.[value.id]
               "
@@ -48,7 +48,7 @@
               @update:decrement="
                 $emit('update:quantity:decrement', option.id, value, $event)
               "
-            ></Quantity>
+            ></quantity>
 
             <!-- price -->
             <span v-if="value?.price?.price_discounted" class="text-right">

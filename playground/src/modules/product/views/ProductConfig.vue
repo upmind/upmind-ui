@@ -45,7 +45,7 @@
             type="reset"
             @click.prevent="remove"
           >
-            <XMarkIcon></XMarkIcon>
+            <x-mark-icon></x-mark-icon>
           </button>
         </div>
       </div>
@@ -59,7 +59,7 @@
     </header>
 
     <form class="card-body" v-if="!meta.isLoading">
-      <ConfigTerms
+      <config-terms
         v-if="model?.term"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :product="availableProduct"
@@ -69,9 +69,9 @@
         @update:modelValue="updateTerm"
         @update:quantity:increment="incrementQuantity"
         @update:quantity:decrement="decrementQuantity"
-      ></ConfigTerms>
+      ></config-terms>
 
-      <ConfigAttributes
+      <config-attributes
         v-if="model?.attributes"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :attributes="available.attributes"
@@ -79,9 +79,9 @@
         @update:modelValue="selectAttribute"
         @update:quantity:increment="incrementAttribute"
         @update:quantity:decrement="decrementAttribute"
-      ></ConfigAttributes>
+      ></config-attributes>
 
-      <ConfigOptions
+      <config-options
         v-if="model?.options"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :options="available.options"
@@ -89,15 +89,15 @@
         @update:modelValue="selectOption"
         @update:quantity:increment="incrementOption"
         @update:quantity:decrement="decrementOption"
-      ></ConfigOptions>
+      ></config-options>
 
-      <ConfigProvisioning
+      <config-provisioning
         v-if="model?.provision_fields"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :fields="available.provision_fields"
         :model-value="model.provision_fields"
         @update:modelValue="setProvisioningField"
-      ></ConfigProvisioning>
+      ></config-provisioning>
     </form>
 
     <footer
@@ -143,7 +143,7 @@
     </footer>
   </section>
 
-  <Debug
+  <debug
     v-if="debugging"
     title="Product Config"
     :state="state.value"
@@ -152,7 +152,7 @@
     :errors="errors"
     :meta="meta"
     class="mt-2"
-  ></Debug>
+  ></debug>
 </template>
 
 <script lang="ts">

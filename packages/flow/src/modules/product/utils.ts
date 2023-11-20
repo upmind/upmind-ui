@@ -4,12 +4,14 @@ import { TrialEndActionTypes } from "./services";
 // --- utils
 import {
   find,
+  forEach,
   get,
   isEmpty,
   isNil,
   map,
   mapValues,
   omit,
+  omitBy,
   orderBy,
   pick,
   reduce,
@@ -98,7 +100,7 @@ export const useTermsParser = (data: any) => {
   const { getBillingCycle } = useSystem();
 
   // 1. sort the terms by billing_cycle_months
-  let terms = orderBy(data, "billing_cycle_months");
+  const terms = orderBy(data, "billing_cycle_months");
   getBillingCycle;
 
   return map(terms, rawTerm => {
@@ -154,7 +156,7 @@ export const useAttributesParser = (data: any) => {
   // so to do this we have to do the following:
 
   // 0. sort the data by attached_order for further lookups
-  let sorted = orderBy(data, "attached_order");
+  const sorted = orderBy(data, "attached_order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
@@ -202,7 +204,7 @@ export const useOptionsParser = (data: any) => {
   // so to do this we have to do the following:
 
   // 0. sort the data by attached_order for further lookups
-  let sorted = orderBy(data, "attached_order");
+  const sorted = orderBy(data, "attached_order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
@@ -269,7 +271,74 @@ export const useOptionsParser = (data: any) => {
 };
 
 export const useProvisioningParser = (data: any) => {
-  // TODO: pick only the properties we need
+  // TODO: convert our provisioning fields to JSON Schema
+  const required = [];
+  const properties = [];
+
+  forEach(data, field => {
+    if (field.required) required.push(field.name);
+
+    let type = "string";
+    let format = field?.semantic_type;
+
+    // lets map our field types...
+    switch (field.type) {
+      case "input_number":
+        type = "number";
+        break;
+      case "input-checkbox":
+        type = "boolean";
+        break;
+      case "input_date":
+        type = "string";
+        format = "date";
+        break;
+      case "input_datetime":
+        type = "string";
+        format = "date-time";
+        break;
+      case "input_email":
+        type = "string";
+        format = "email";
+        break;
+      case "input_url":
+        type = "string";
+        format = "uri";
+        break;
+      case "input_phone":
+        type = "string";
+        format = "phone";
+        break;
+      case "input_ip":
+        type = "string";
+        format = "ipv4";
+        break;
+      case "input_ipv6":
+        type = "string";
+        format = "ipv6";
+        break;
+
+      default:
+        type = "string";
+        break;
+    }
+
+    const schema = {
+      name: field.name,
+      type,
+      format,
+      description: field.description,
+      default: field.default,
+      enum: field.options?.length ? field.options : undefined,
+      // ---
+      defer: field.defer_mode
+    };
+
+    properties.push(omitBy(schema, isNil));
+  });
+
+  console.log("useProvisioningParser", { properties, required, data });
+
   return data;
 };
 
@@ -299,7 +368,7 @@ export const useSummaryParser = (data: any) => {
 
 export const useValuesParser = (data: any) => {
   // handle new product values
-  let values = pick(data, [
+  const values = pick(data, [
     "quantity",
     "product_id",
     "term",

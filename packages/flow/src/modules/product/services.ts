@@ -184,7 +184,7 @@ async function checkProvisioning(
     available.provision_fields,
     (result, field, index) => {
       // try get any selected values for this provision_fields,
-      let selected = get(values, `provision_fields.${field.name}`, null);
+      const selected = get(values, `provision_fields.${field.name}`, null);
 
       // todo: validation
 
@@ -483,7 +483,7 @@ async function calculateSummary(
 ) {
   const { post, useUrl } = useApi();
   // ---
-  let prices = {
+  const prices = {
     term: { subtotal: 0, total: 0, discount: 0 },
     attributes: { subtotal: 0, total: 0, discount: 0 },
     options: { subtotal: 0, total: 0, discount: 0 }

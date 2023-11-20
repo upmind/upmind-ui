@@ -346,7 +346,7 @@ export default (values, currency_id, promotions) => {
 
         setOptions: assign({
           values: ({ values }, { data }) => {
-            let options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
+            const options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
             set(values, "options", options);
             return values;
           }
@@ -354,7 +354,7 @@ export default (values, currency_id, promotions) => {
 
         setProvisioning: assign({
           values: ({ values }, { data }) => {
-            let provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
+            const provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
             set(values, "provision_fields", provision_fields);
             return values;
           }
