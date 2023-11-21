@@ -262,7 +262,7 @@ export default createMachine(
   {
     actions: {
       setCustomFields: assign({
-        customFields: (context, { data: { data } }) => data
+        customFields: (context, { data }) => data
       }),
       setModel: assign({
         model: (context, { data }) => data
