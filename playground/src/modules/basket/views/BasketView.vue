@@ -194,70 +194,12 @@
           </div>
 
           <!-- Promotions -->
-          <div class="promotions px-4">
-            <h4 class="divider">Discounts</h4>
-
-            <form class="join mt-2">
-              <fieldset class="form-control">
-                <input
-                  type="text"
-                  id="code"
-                  placeholder="Discount Code?"
-                  v-model="modelPromotions.code"
-                  class="input input-accent input-bordered w-full max-w-xs join-item"
-                />
-                <label class="label sr-only" for="code">
-                  <span class="label-text">Discount Code</span>
-                </label>
-              </fieldset>
-
-              <div class="actions">
-                <button
-                  class="btn btn-accent join-item"
-                  type="reset"
-                  :disabled="meta.isProcessing"
-                  @click.prevent="
-                    !modelPromotions.code?.length
-                      ? null
-                      : addPromotion(modelPromotions)
-                  "
-                >
-                  Apply
-                </button>
-              </div>
-            </form>
-
-            <ul class="my-4 p-0 list-none">
-              <li
-                class="border flex items-center rounded-lg p-2"
-                :class="{ 'border-accent': !meta.isProcessing }"
-                v-for="promotion in promotions"
-                :key="promotion.promotion.code"
-              >
-                <!-- <ReceiptPercentIcon class="w-6 h-6" /> -->
-
-                <span class="spacer flex-1 mx-2">
-                  {{ promotion.promotion.code }}
-                </span>
-
-                <strong
-                  class="bg-base-300 rounded-lg flex items-center py-1 px-2 mx-1"
-                  v-if="promotion?.promotion?.amount_formatted"
-                >
-                  {{ promotion.promotion.amount_formatted }}
-                </strong>
-
-                <button
-                  class="btn btn-square btn-ghost btn-sm"
-                  title="Click to Remove Discount"
-                  @click.prevent="removePromotion(promotion)"
-                  :disabled="meta.isProcessing"
-                >
-                  <x-mark-icon class="w-5 h-5" />
-                </button>
-              </li>
-            </ul>
-          </div>
+          <promotions-config
+            :promotions="promotions"
+            :processing="meta.isProcessing"
+            @resolve="addPromotion"
+            @reject="removePromotion"
+          ></promotions-config>
         </aside>
       </section>
 
@@ -274,7 +216,7 @@
         :debugging="debugging"
         title="Basket"
         :state="state"
-        :model="{ model, promotions: modelPromotions }"
+        :model="{ model }"
         :context="{ promotions, items, basket }"
         :errors="errors"
         :meta="meta"
@@ -289,6 +231,7 @@ import { ref } from "vue";
 import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ProductConfig from "@/modules/product/views/ProductConfig.vue";
+import PromotionsConfig from "../components/Promotions.vue";
 import Debug from "@/components/Debug.vue";
 import { SquaresPlusIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
@@ -374,9 +317,5 @@ const debugging = ref(true);
 const model = ref({
   product_id: null,
   quantity: 1
-});
-
-const modelPromotions = ref({
-  code: null
 });
 </script>
