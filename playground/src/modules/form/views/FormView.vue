@@ -16,7 +16,7 @@
 
     <form-generator
       :schema="schema"
-      :uischema="null"
+      :uischema="uischema"
       @reject="doReject"
       @resolve="doResolve"
       debug
@@ -27,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useDate } from "../";
 import FormGenerator from "../components/FormGenerator.vue";
 
@@ -191,6 +190,4 @@ function doReject() {
 function doResolve(value) {
   console.log("doResolve", value);
 }
-
-const model = ref({});
 </script>

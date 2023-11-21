@@ -7,7 +7,7 @@
     <ul
       class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
     >
-      <li class="p-0" v-for="value in attribute.values">
+      <li class="p-0" v-for="value in attribute.values" :key="value.id">
         <fieldset
           class="flex items-center justify-between"
           v-if="modelValue"

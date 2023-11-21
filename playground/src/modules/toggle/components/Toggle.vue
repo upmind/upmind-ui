@@ -65,7 +65,7 @@ export default defineComponent({
   setup(props, { attrs }) {
     const toggler = useToggle(props);
 
-    const { send, meta, count, toggle, reset } = toggler;
+    const { meta, count, toggle, reset } = toggler;
 
     return {
       toggle,

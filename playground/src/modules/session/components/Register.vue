@@ -4,6 +4,7 @@
     :processing="processing"
     :schema="schema"
     :uischema="uischema"
+    :additional-errors="additionalErrors"
     @reject="$emit('reject')"
     @resolve="$emit('resolve', $event)"
     class="card-body"
@@ -28,6 +29,7 @@ import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
 import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
+import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "RegisterForm",
@@ -53,6 +55,12 @@ export default defineComponent({
     },
     modelValue: {
       type: Object
+    },
+    additionalErrors: {
+      type: Array as PropType<
+        ErrorObject<string, Record<string, any>, unknown>[]
+      >,
+      default: () => []
     }
   },
   computed: {}

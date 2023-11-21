@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, unref } from "vue";
+import { computed, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -138,6 +138,7 @@ export const useSession = () => {
     client,
     clientSchema: computed(() => client.value?.context?.schema),
     clientUischema: computed(() => client.value?.context?.uischema),
+    clientErrors: computed(() => client.value?.context?.error),
     // ---
     showLogin,
     showRegister,

@@ -8,8 +8,9 @@ import type { ClientContext } from "./types.d";
 import { responseCodes } from "../../api/types.d";
 
 // --- utils
+import { useTime } from "../../../utils";
 import { useTokenParser } from "../utils";
-
+import { forEach } from "lodash-es";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -125,10 +126,9 @@ export default createMachine(
                 invoke: {
                   src: "getSchemas",
                   onDone: { target: "idle", actions: ["setSchemas"] },
-                  onError: { target: "#error", actions: ["setError"] }
+                  onError: { target: "error", actions: ["setError"] }
                 }
               },
-
               idle: {
                 on: {
                   REGISTER: { target: "checking", actions: ["setModel"] }
@@ -141,7 +141,7 @@ export default createMachine(
                     { target: "challenging", cond: "requiresReCaptcha" },
                     { target: "registering" }
                   ],
-                  onError: { target: "#error", actions: ["setError"] }
+                  onError: { target: "error", actions: ["setError"] }
                 }
               },
               challenging: {
@@ -163,15 +163,18 @@ export default createMachine(
                 invoke: {
                   src: "register",
                   onDone: { target: "authenticating", actions: ["setToken"] },
-                  onError: { target: "#error", actions: ["setError"] }
+                  onError: { target: "error", actions: ["setError"] }
                 }
               },
               authenticating: {
                 invoke: {
                   src: "authenticate",
                   onDone: { target: "#authenticated", actions: ["setToken"] },
-                  onError: { target: "#error", actions: ["setError"] }
+                  onError: { target: "error", actions: ["setError"] }
                 }
+              },
+              error: {
+                after: { error: "idle" } // automatically move to stale after max age
               }
             }
           }
@@ -285,7 +288,29 @@ export default createMachine(
       }),
       // ---
       setError: assign({
-        error: (context, { data }) => data || "Unknown error"
+        error: (context, { data: { error } }) => {
+          if ((error.code = 422)) {
+            debugger;
+            const errors = [];
+            forEach(error.data, (value, key) => {
+              debugger;
+              const newError = {
+                instancePath: `/${key}`, // AJV style path to the property in the schema
+                message: value.toString(),
+                // --- optional
+                schemaPath: "",
+                keyword: "",
+                params: {}
+              };
+              debugger;
+              errors.push(newError);
+            });
+
+            return errors;
+          }
+
+          return data?.error || "Unknown error";
+        }
       }),
 
       clearError: assign({ error: null })
@@ -299,7 +324,9 @@ export default createMachine(
         context?.error?.status === responseCodes.Unauthorized
     },
 
-    delays: {},
+    delays: {
+      error: () => useTime().SECOND * 3 // this allows us to read the error before continuing
+    },
     services
   }
 );
