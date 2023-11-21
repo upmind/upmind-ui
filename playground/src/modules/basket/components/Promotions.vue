@@ -7,15 +7,16 @@
       :schema="schema"
       :uischema="uischema"
       @resolve="doResolve"
+      :processing="processing"
       mode="ValidateAndHide"
     >
       <template #actions="{ isValid }">
         <button
           type="submit"
-          class="btn btn-accent btn-block"
+          class="btn btn-block btn-link text-accent btn-xs"
           :disabled="!isValid || processing"
         >
-          Apply
+          Apply Discount Code
         </button>
       </template>
     </form-generator>
@@ -46,7 +47,7 @@
       </div>
     </form> -->
 
-    <ul class="my-4 p-0 list-none">
+    <ul class="my-4 p-0 list-none" v-if="hasPromotions">
       <li
         class="bg-accent bg-opacity-25 flex items-center rounded-lg text-xs"
         :class="{ 'border-accent': !processing }"
@@ -103,31 +104,22 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
-    const baseModel = {
-      code: ""
-    };
-
-    const model = ref(baseModel);
-
     const doReject = value => {
       emit("reject", value);
-      model.value = baseModel;
     };
 
     const doResolve = value => {
       emit("resolve", value);
-      model.value = baseModel;
     };
 
     return {
       doReject,
-      doResolve,
-      model
+      doResolve
     };
   },
   computed: {
     hasPromotions() {
-      return !isEmpty(this.promotions?.length);
+      return !isEmpty(this.promotions);
     },
 
     schema() {
