@@ -11,28 +11,34 @@
       :schema="schema"
       :uischema="uischema"
       :renderers="renderers"
+      :validationMode="mode"
       @change="onChange"
       class="card-content"
     />
 
     <!-- actions -->
     <footer v-if="!noActions">
-      <div class="card-actions mt-8">
+      <div class="card-actions mt-4">
         <slot
           name="actions"
           v-bind="{ isValid, doReject, doResolve: doSubmit }"
-        ></slot>
-        <button
-          type="submit"
-          class="btn btn-accent"
-          :disabled="!isValid || processing"
         >
-          Save
-        </button>
+          <button
+            type="submit"
+            class="btn btn-accent"
+            :disabled="!isValid || processing"
+          >
+            Save
+          </button>
 
-        <button :disabled="processing" class="btn btn-ghost" @click="doReject">
-          Cancel
-        </button>
+          <button
+            :disabled="processing"
+            class="btn btn-ghost"
+            @click="doReject"
+          >
+            Cancel
+          </button>
+        </slot>
       </div>
     </footer>
   </form>
@@ -56,6 +62,7 @@ import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
 import {
   createAjv,
+  type ValidationMode,
   type JsonSchema,
   type UISchemaElement
 } from "@jsonforms/core";
@@ -94,6 +101,11 @@ export default defineComponent({
     processing: {
       type: Boolean,
       default: false
+    },
+    mode: {
+      required: false,
+      type: String as PropType<ValidationMode>,
+      default: "ValidateAndShow" // ||  "ValidateAndHide" || "NoValidation"
     }
   },
   watch: {
