@@ -1,4 +1,9 @@
 // --------------------------------------------------------
+// global
+
+import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
+
+// --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
@@ -6,10 +11,12 @@
 
 export interface ClientContext {
   token: Token;
-  model: ClientModel;
   error?: RequestError;
   refresh?: boolean;
-  customFields?: Array<Object>;
+  // ---
+  model: ClientModel;
+  schema?: JsonSchema;
+  uischema?: UISchemaElement;
 }
 
 export interface ClientModel {

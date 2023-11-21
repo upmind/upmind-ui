@@ -136,9 +136,8 @@ export const useSession = () => {
     guest,
     // --- Client
     client,
-    registerFormCustomFields: computed(
-      () => client.value?.context?.customFields
-    ),
+    clientSchema: computed(() => client.value?.context?.schema),
+    clientUischema: computed(() => client.value?.context?.uischema),
     // ---
     showLogin,
     showRegister,
