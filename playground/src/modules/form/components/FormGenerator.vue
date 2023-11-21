@@ -17,6 +17,7 @@
       :uischema="uischema"
       :renderers="renderers"
       :validationMode="safeMode"
+      :additionalErrors="additionalErrors"
       @change="onChange"
       class="card-content"
     />
@@ -72,6 +73,8 @@ import {
   type UISchemaElement
 } from "@jsonforms/core";
 
+import type { ErrorObject } from "ajv";
+
 import { defaultStyles, mergeStyles, daisyRenderers } from "../renderers/daisy";
 
 import { trim, isEmpty, isEqual } from "lodash-es";
@@ -119,6 +122,12 @@ export default defineComponent({
     styles: {
       type: Object,
       default: () => ({})
+    },
+    additionalErrors: {
+      type: Array as PropType<
+        ErrorObject<string, Record<string, any>, unknown>[]
+      >,
+      default: () => []
     }
   },
   watch: {

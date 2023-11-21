@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { isEmpty } from "lodash-es";

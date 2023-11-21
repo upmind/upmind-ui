@@ -88,7 +88,7 @@ export const useBasket = () => {
         ].some(state.value.matches),
         canProcess: some(
           state.value?.context?.items,
-          (item, index) =>
+          item =>
             item.state.matches("configured") &&
             (item.state.context.isNew || item.state.context.isDirty)
         ),

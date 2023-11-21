@@ -1,4 +1,4 @@
-import { forEach, set, omitBy, isNil, map } from "lodash-es";
+import { forEach, set, omitBy, isNil, map, some } from "lodash-es";
 
 const translate = (item, field) => {
   const translated = item[`${field}_translated`];
@@ -7,6 +7,8 @@ const translate = (item, field) => {
 };
 
 export const useSchemaParser = (data: any) => {
+  const hasRequired = some(data, field => field.required);
+  const required = [];
   const schema = {
     type: "object",
     required: ["firstname", "password"],
@@ -35,6 +37,7 @@ export const useSchemaParser = (data: any) => {
   if (data?.length) {
     const required: string[] = [];
     const properties = {};
+
     forEach(data, field => {
       if (field.required) required.push(field.code);
 
@@ -101,6 +104,8 @@ export const useSchemaParser = (data: any) => {
         )
       );
     });
+
+    if (required.length) schema.required.push("custom_fields");
 
     set(schema, "properties.custom_fields", {
       type: "object",

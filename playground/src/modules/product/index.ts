@@ -8,9 +8,7 @@ import {
   add,
   get,
   isEqual,
-  isNil,
   omitBy,
-  reduce,
   set,
   some,
   subtract,
@@ -55,7 +53,7 @@ export const useProductConfig = item => {
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
-  watch(state, (newVal, oldVal) => {
+  watch(state, newVal => {
     if (newVal.context.values !== model.value) {
       model.value = newVal.context.values;
     }

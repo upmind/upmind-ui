@@ -80,6 +80,7 @@
         :uischema="clientUischema"
         :processing="meta.isProcessing"
         :loading="meta.isLoadingRegisterForm"
+        :additionalErrors="clientErrors"
         @resolve="register"
         @reject="cancel"
       >
@@ -99,7 +100,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useSession } from "../";
 import Debug from "@/components/Debug.vue";
 import AuthForm from "../components/Auth.vue";
@@ -117,6 +117,7 @@ const {
   // ---
   clientSchema,
   clientUischema,
+  clientErrors,
   // ---
   showLogin,
   showRegister,
@@ -124,18 +125,8 @@ const {
   verify2fa,
   register,
   logout,
-  cancel,
-  getUser
+  cancel
 } = useSession();
-
-const model = ref({
-  firstname: "Test",
-  lastname: "user 3",
-  email: "user+3@test.com",
-  password: "Passw0rd",
-  token: null,
-  custom_fields: {}
-});
 
 // ---
 </script>

@@ -90,6 +90,9 @@ export interface Typegen0 {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
+    "xstate.after(error)#client.unauthenticated.register.error": {
+      type: "xstate.after(error)#client.unauthenticated.register.error";
+    };
     "xstate.init": { type: "xstate.init" };
     "xstate.stop": { type: "xstate.stop" };
   };
@@ -153,7 +156,13 @@ export interface Typegen0 {
       | "done.invoke.client.unauthenticated.register.registering:invocation[0]"
       | "done.invoke.loading:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    error:
+      | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
+      | "error.platform.client.unauthenticated.register.checking:invocation[0]"
+      | "error.platform.client.unauthenticated.register.loading:invocation[0]"
+      | "error.platform.client.unauthenticated.register.registering:invocation[0]";
+  };
   eventsCausingGuards: {
     isRefreshing:
       | ""
@@ -202,6 +211,7 @@ export interface Typegen0 {
     | "unauthenticated.register.authenticating"
     | "unauthenticated.register.challenging"
     | "unauthenticated.register.checking"
+    | "unauthenticated.register.error"
     | "unauthenticated.register.idle"
     | "unauthenticated.register.loading"
     | "unauthenticated.register.registering"
@@ -218,6 +228,7 @@ export interface Typegen0 {
                 | "authenticating"
                 | "challenging"
                 | "checking"
+                | "error"
                 | "idle"
                 | "loading"
                 | "registering"
