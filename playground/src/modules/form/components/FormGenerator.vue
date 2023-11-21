@@ -15,8 +15,12 @@
     />
 
     <!-- actions -->
-    <footer>
+    <footer v-if="!noActions">
       <div class="card-actions mt-8">
+        <slot
+          name="actions"
+          v-bind="{ isValid, doReject, doResolve: doSubmit }"
+        ></slot>
         <button
           type="submit"
           class="btn btn-accent"
@@ -43,19 +47,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, ref } from "vue";
+import { defineComponent, toRaw, type PropType } from "vue";
 
 import Debug from "@/components/Debug.vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
-import { createAjv } from "@jsonforms/core";
+import {
+  createAjv,
+  type JsonSchema,
+  type UISchemaElement
+} from "@jsonforms/core";
 
 import { defaultStyles, mergeStyles, daisyRenderers } from "../renderers/daisy";
 
 import { trim, isEmpty, isEqual } from "lodash-es";
 
 export default defineComponent({
-  name: "JsonForm",
+  name: "FormGenerator",
   components: {
     JsonForms,
     Debug
@@ -63,17 +71,20 @@ export default defineComponent({
   inheritAttrs: false,
   props: {
     schema: {
-      type: Object,
+      type: Object as PropType<JsonSchema>,
       required: true
     },
     uischema: {
-      type: Object
+      type: Object as PropType<UISchemaElement>
     },
     modelValue: {
-      type: Object,
-      default: () => ({})
+      type: Object
     },
     // ---
+    noActions: {
+      type: Boolean,
+      default: false
+    },
     debug: {
       type: Boolean,
       default: false
@@ -81,6 +92,14 @@ export default defineComponent({
     processing: {
       type: Boolean,
       default: false
+    }
+  },
+  watch: {
+    modelValue: {
+      handler(value) {
+        this.model = toRaw(value);
+      },
+      deep: true
     }
   },
   emits: ["reject", "resolve", "update:modelValue"],
@@ -120,13 +139,13 @@ export default defineComponent({
   methods: {
     onChange({ data, errors }: JsonFormsChangeEvent) {
       this.errors = errors;
-      this.model = data;
 
       // finally check if the data has actually changed and emit the update event
       // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
       const rawData = JSON.parse(JSON.stringify(data));
       const rawModel = JSON.parse(JSON.stringify(this.model));
       if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
+        this.model = data;
         this.$emit("update:modelValue", this.model);
       }
     },

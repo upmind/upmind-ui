@@ -14,7 +14,7 @@
 
     <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <json-form
+    <form-generator
       :schema="schema"
       :uischema="null"
       @reject="doReject"
@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useDate } from "../";
-import JsonForm from "../components/Form.vue";
+import FormGenerator from "../components/FormGenerator.vue";
 
 const schema = {
   required: ["name", "rating", "dueDate"],

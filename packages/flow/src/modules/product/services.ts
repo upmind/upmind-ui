@@ -174,58 +174,20 @@ async function checkProvisioning(
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
-  if (!available?.provision_fields?.length) {
+  if (isEmpty(available?.provision_fields?.properties)) {
     return Promise.resolve([]);
   }
 
   const errors = [];
-
   const provision_fields = reduce(
-    available.provision_fields,
-    (result, field, index) => {
-      // try get any selected values for this provision_fields,
-      const selected = get(values, `provision_fields.${field.name}`, null);
+    available.provision_fields.properties,
+    (result, field, key) => {
+      const selected = get(values, `provision_fields.${key}`, null);
 
-      // todo: validation
-
-      // if we have selected values, ensure they are valid and fully formed
-      // if (!isEmpty(selected)) {
-      //   // only include valid values, stripping out any invalid ones, if we have any
-      //   selected = pickBy(selected, (_value, id) =>
-      //     some(field.values, ["id", id])
-      //   );
-
-      //   // then parse each selected value, and ensure it has all its required attributes
-      //   // and that it has valid values for each of those attributes
-      //   selected = mapValues(selected, (value, id) => {
-      //     // ensure we have an object
-      //     if (!isObject(value)) value = { product_id: id };
-      //     const product = find(field.values, ["id", value.product_id]);
-
-      //     //  ensure we have the required attributes
-      //     value = defaultsDeep(value, {
-      //       billing_cycle_months: values?.term,
-      //       unit_quantity: 1
-      //     });
-
-      //     // ensure we have a valid unit_quantity
-      //     value.unit_quantity = useQuantityParser(
-      //       value?.unit_quantity,
-      //       product
-      //     );
-
-      //     return value;
-      //   });
-      // }
-
-      // check if we are missing required field
-      if (field?.required && isEmpty(selected))
-        errors.push({ message: "Is required", field });
+      // todo: validation via ajv
 
       // ---
-      set(result, field.name, selected);
-      // if (selected) set(result, field.name, selected);
-      // else unset(result, field.name);
+      set(result, key, selected);
       return result;
     },
     {}

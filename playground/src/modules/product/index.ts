@@ -4,7 +4,18 @@ import { computed, toRef, watch } from "vue";
 // --- internal
 
 // --- utils
-import { isEqual, get, set, some, unset, add, subtract } from "lodash-es";
+import {
+  add,
+  get,
+  isEqual,
+  isNil,
+  omitBy,
+  reduce,
+  set,
+  some,
+  subtract,
+  unset
+} from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -241,8 +252,17 @@ export const useProductConfig = item => {
   }
 
   // --- PROVISIONING
-  function setProvisioningField(name, value) {
-    set(model.value.provision_fields, name, value);
+  function getProvisioningFields(showDeferred = false) {
+    const schema = availableFields.value;
+    if (showDeferred) return schema;
+    schema.properties = omitBy(schema?.properties, property => {
+      return property?.defer == "hidden";
+    });
+    return schema;
+  }
+
+  function setProvisioningFields(value) {
+    set(model.value, "provision_fields", value);
     // emit the event
     updateProvisioning();
   }
@@ -295,7 +315,8 @@ export const useProductConfig = item => {
     incrementOption,
     decrementOption,
     // ---
-    setProvisioningField,
+    getProvisioningFields,
+    setProvisioningFields,
     updateProvisioning,
     getProvisioningField
   };
