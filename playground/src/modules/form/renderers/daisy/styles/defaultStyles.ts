@@ -42,7 +42,7 @@ export const defaultStyles: Styles = {
   },
   group: {
     root: "group",
-    label: "group-label",
+    label: "group-label divider ",
     item: "group-item"
   },
   arrayList: {

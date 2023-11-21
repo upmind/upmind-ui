@@ -233,7 +233,7 @@ import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ProductConfig from "@/modules/product/views/ProductConfig.vue";
 import PromotionsConfig from "../components/Promotions.vue";
 import Debug from "@/components/Debug.vue";
-import { SquaresPlusIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
 const {
   state,

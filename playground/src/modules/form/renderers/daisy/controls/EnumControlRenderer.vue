@@ -13,7 +13,7 @@
       ]"
       :value="control.data"
       :disabled="!control.enabled"
-      :autofocus="appliedOptions.focus"
+      :autocomplete="appliedOptions.autocomplete"
       @change="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"

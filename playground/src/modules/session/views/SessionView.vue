@@ -60,192 +60,29 @@
       class="card card-compact card-bordered border-base-300 rounded-xl bg-base-200 shadow-sm overflow-hidden my-8 w-96 max-w-full"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
-      <form
-        @submit.prevent="login(model)"
+      <auth-form
         v-if="meta.showLoginForm && !meta.show2fa"
-        class="card-body"
-      >
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="email">
-            <span class="label-text">Your Email</span></label
-          >
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="email"
-            type="email"
-            v-model="model.email"
-            autocomplete="email"
-            :disabled="meta.isProcessing"
-            required
-            placeholder="name@email.com"
-          />
-        </fieldset>
+        :processing="meta.isProcessing"
+        @resolve="login"
+        @reject="cancel"
+      ></auth-form>
 
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="password">
-            <span class="label-text">Your Password</span></label
-          >
-
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="password"
-            type="password"
-            v-model="model.password"
-            autocomplete="current-password"
-            :disabled="meta.isProcessing"
-            placeholder="Use a strong password or passphrase"
-            required
-          />
-        </fieldset>
-
-        <div class="card-actions mt-8 justify-between">
-          <button
-            class="btn btn-primary"
-            type="submit"
-            :disabled="meta.isProcessing"
-          >
-            login
-          </button>
-          <button class="btn btn-ghost" type="reset" @click.prevent="cancel">
-            cancel
-          </button>
-        </div>
-      </form>
-
-      <form
-        @submit.prevent="verify2fa(model.token)"
+      <twofa-form
         v-if="meta.show2fa"
-        class="card-body"
-      >
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="token">
-            <span class="label-text">Your 2fa Code</span>
-          </label>
+        :processing="meta.isProcessing"
+        @resolve="verify2fa"
+        @reject="cancel"
+      ></twofa-form>
 
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="token"
-            type="text"
-            step="1"
-            min="0"
-            max="999999"
-            mask="### ###"
-            autocomplete="off"
-            v-model="model.token"
-            :disabled="meta.isProcessing"
-            required
-          />
-        </fieldset>
-
-        <div class="card-actions mt-8 justify-between">
-          <button
-            class="btn btn-primary"
-            type="submit"
-            :disabled="meta.isProcessing"
-          >
-            verify
-          </button>
-          <button class="btn btn-ghost" type="reset" @click.prevent="cancel">
-            cancel
-          </button>
-        </div>
-      </form>
-
-      <form
-        @submit.prevent="register(model)"
+      <register-form
         v-if="meta.showRegisterForm"
-        class="card-body"
+        :additional-fields="registerFormCustomFields"
+        :processing="meta.isProcessing"
+        :loading="meta.isLoadingRegisterForm"
+        @resolve="register"
+        @reject="cancel"
       >
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="firstname">
-            <span class="label-text">Your First name</span>
-          </label>
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="firstname"
-            v-model="model.firstname"
-            autocomplete="given-name"
-            :disabled="meta.isProcessing"
-            required
-          />
-        </fieldset>
-
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="lastname">
-            <span class="label-text">Your Last Name</span>
-          </label>
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="lastname"
-            v-model="model.lastname"
-            autocomplete="family-name"
-            :disabled="meta.isProcessing"
-            required
-          />
-        </fieldset>
-
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="firstname">
-            <span class="label-text">Your Email</span>
-          </label>
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="email"
-            type="email"
-            v-model="model.email"
-            autocomplete="email"
-            :disabled="meta.isProcessing"
-            required
-          />
-        </fieldset>
-
-        <fieldset class="form-control w-full max-w-xs">
-          <label class="label" for="firstname">
-            <span class="label-text">Your Password</span>
-          </label>
-          <input
-            class="input input-bordered w-full max-w-xs"
-            name="password"
-            type="password"
-            v-model="model.password"
-            autocomplete="current-password"
-            :disabled="meta.isProcessing"
-            required
-          />
-        </fieldset>
-
-        <fieldset
-          class="form-control w-full max-w-xs"
-          v-for="field in registerFormCustomFields"
-          :key="field.code"
-        >
-          <label class="label" :for="field.code">
-            <span class="label-text">{{ field.name_translated }}</span>
-          </label>
-          <input
-            class="input input-bordered w-full max-w-xs"
-            :name="field.code"
-            :type="field.display_type?.toLowerCase() || 'text'"
-            v-model="model.custom_fields[field.code]"
-            autocomplete="current-password"
-            :disabled="meta.isProcessing"
-            :required="field.required"
-          />
-        </fieldset>
-
-        <div class="card-actions mt-8 justify-between">
-          <button
-            class="btn btn-primary"
-            type="submit"
-            :disabled="meta.isProcessing"
-          >
-            continue
-          </button>
-          <button class="btn btn-ghost" type="reset" @click.prevent="cancel">
-            cancel
-          </button>
-        </div>
-      </form>
+      </register-form>
     </div>
 
     <footer>
@@ -264,6 +101,9 @@
 import { ref } from "vue";
 import { useSession } from "../";
 import Debug from "@/components/Debug.vue";
+import AuthForm from "../components/Auth.vue";
+import TwofaForm from "../components/2fa.vue";
+import RegisterForm from "../components/Register.vue";
 
 const {
   state,

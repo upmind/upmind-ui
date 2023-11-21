@@ -99,15 +99,15 @@ export const useSession = () => {
     // ---
     meta: computed(() => ({
       isLoading: ["starting"].some(state.value.matches),
-      isProcessing: !client.value?.state
-        ? false
-        : ![
-            "unauthenticated.idle",
-            "unauthenticated.login.idle",
-            "unauthenticated.login.challenging",
-            "unauthenticated.register.idle",
-            "unauthenticated.register.challenging"
-          ].some(client.value?.matches),
+      isProcessing:
+        client.value?.matches &&
+        ![
+          "unauthenticated.idle",
+          "unauthenticated.login.idle",
+          "unauthenticated.login.challenging",
+          "unauthenticated.register.idle",
+          "unauthenticated.register.challenging"
+        ].some(client.value.matches),
 
       hasErrors: ["starting.status.error"].some(state.value.matches),
       // ---
@@ -119,8 +119,18 @@ export const useSession = () => {
         "unauthenticated.register.challenging"
       ),
       showLoginForm: client.value?.matches("unauthenticated.login"),
-      show2fa: client.value?.matches("unauthenticated.login.challenging"),
-      showRegisterForm: client.value?.matches("unauthenticated.register")
+      // show2fa: client.value?.matches("unauthenticated.login.challenging"),
+
+      show2fa:
+        client.value?.matches &&
+        [
+          "unauthenticated.login.challenging",
+          "unauthenticated.login.verifying"
+        ].some(client.value.matches),
+      showRegisterForm: client.value?.matches("unauthenticated.register"),
+      isLoadingRegisterForm: client.value?.matches(
+        "unauthenticated.register.loading"
+      )
     })),
     // --- Guest
     guest,

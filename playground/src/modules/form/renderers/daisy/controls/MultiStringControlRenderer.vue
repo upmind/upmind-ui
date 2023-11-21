@@ -13,7 +13,7 @@
       ]"
       :value="control.data"
       :disabled="!control.enabled"
-      :autofocus="appliedOptions.focus"
+      :autocomplete="appliedOptions.autocomplete"
       :placeholder="appliedOptions.placeholder"
       :rows="appliedOptions.rows"
       @change="onChange"

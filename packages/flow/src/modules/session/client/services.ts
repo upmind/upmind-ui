@@ -4,6 +4,7 @@ import type { ClientContext } from "./types.d";
 import { GrantTypes } from "../types.d";
 
 // --- utils
+import { useCustomFieldsParser } from "./utils";
 import { get, omit } from "lodash-es";
 
 // --------------------------------------------------------
@@ -59,7 +60,7 @@ async function getCustomFields(_context: ClientContext, { data }: any) {
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields")
-  });
+  }).then(({ data }) => useCustomFieldsParser(data));
 }
 
 async function checkForReCaptcha(_context: ClientContext, { data }: any) {
