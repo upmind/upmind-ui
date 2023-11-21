@@ -1,6 +1,7 @@
 <template>
   <form
-    class="card align-center p-4 my-4 w-ful max-w-screen-lg"
+    class="card align-center w-full max-w-screen-lg"
+    v-bind="$attrs"
     :disabled="processing"
     @submit.prevent="doSubmit"
   >
@@ -38,6 +39,7 @@
 
   <!-- debug -->
   <debug
+    v-if="debugging"
     title="Form"
     :open="{ state: true }"
     :state="model"
@@ -68,7 +70,7 @@ export default defineComponent({
     JsonForms,
     Debug
   },
-  inheritAttrs: false,
+  inheritAttrs: true,
   props: {
     schema: {
       type: Object as PropType<JsonSchema>,
@@ -85,7 +87,7 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    debug: {
+    debugging: {
       type: Boolean,
       default: false
     },

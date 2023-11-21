@@ -2,17 +2,14 @@
   <section class="provisioning" v-if="hasFields">
     <h4 class="">Additional Information</h4>
 
-    <div
+    <form-generator
       class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
-    >
-      <form-generator
-        :schema="fields"
-        :model-value="modelValue"
-        @update:modelValue="doUpdate"
-        debug
-        no-actions
-      />
-    </div>
+      :schema="fields"
+      :model-value="modelValue"
+      @update:modelValue="doUpdate"
+      debug
+      no-actions
+    />
   </section>
 </template>
 
