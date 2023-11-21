@@ -100,7 +100,7 @@ export interface Typegen0 {
     check: "done.invoke.loading:invocation[0]";
     checkForReCaptcha: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
     dumpToken: "done.invoke.client.authenticated.clearing:invocation[0]";
-    getCustomFields: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
+    getSchemas: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
     persistToken: "done.invoke.client.authenticated.persisting:invocation[0]";
     refreshToken: "done.invoke.client.authenticated.refreshing:invocation[0]";
     register: "done.invoke.client.unauthenticated.register.registering:invocation[0]";
@@ -116,7 +116,7 @@ export interface Typegen0 {
       | "check"
       | "checkForReCaptcha"
       | "dumpToken"
-      | "getCustomFields"
+      | "getSchemas"
       | "persistToken"
       | "refreshToken"
       | "register"
@@ -135,7 +135,6 @@ export interface Typegen0 {
     setChallengeToken:
       | "done.invoke.client.unauthenticated.login.verifying:invocation[0]"
       | "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
-    setCustomFields: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
     setError:
       | "error.platform.client.authenticated.refreshing:invocation[0]"
       | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
@@ -146,6 +145,7 @@ export interface Typegen0 {
       | "error.platform.client.unauthenticated.register.registering:invocation[0]"
       | "error.platform.client.unauthenticated.register.verifying:invocation[0]";
     setModel: "AUTHENTICATE" | "REGISTER";
+    setSchemas: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
     setToken:
       | "done.invoke.client.authenticated.refreshing:invocation[0]"
       | "done.invoke.client.unauthenticated.login.authenticating:invocation[0]"
@@ -171,7 +171,7 @@ export interface Typegen0 {
       | "xstate.init";
     checkForReCaptcha: "REGISTER";
     dumpToken: "error.platform.client.authenticated.refreshing:invocation[0]";
-    getCustomFields: "REGISTER";
+    getSchemas: "REGISTER";
     persistToken:
       | ""
       | "done.invoke.client.authenticated.refreshing:invocation[0]";

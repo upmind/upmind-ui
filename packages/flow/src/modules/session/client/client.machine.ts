@@ -19,7 +19,6 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      customFields: {},
       token: {
         access_token: null,
         created_at: null,
@@ -34,6 +33,9 @@ export default createMachine(
         actor_type: null
       },
       model: {},
+      schema: {},
+      uischema: {},
+      // ---
       refresh: false,
       // ---
       error: null
@@ -121,11 +123,12 @@ export default createMachine(
             states: {
               loading: {
                 invoke: {
-                  src: "getCustomFields",
-                  onDone: { target: "idle", actions: ["setCustomFields"] },
+                  src: "getSchemas",
+                  onDone: { target: "idle", actions: ["setSchemas"] },
                   onError: { target: "#error", actions: ["setError"] }
                 }
               },
+
               idle: {
                 on: {
                   REGISTER: { target: "checking", actions: ["setModel"] }
@@ -261,9 +264,11 @@ export default createMachine(
   },
   {
     actions: {
-      setCustomFields: assign({
-        customFields: (context, { data }) => data
+      setSchemas: assign({
+        schema: (context, { data }) => data.schema,
+        uischema: (context, { data }) => data.uischema
       }),
+
       setModel: assign({
         model: (context, { data }) => data
       }),

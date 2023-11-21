@@ -5,19 +5,24 @@
     :disabled="processing"
     @submit.prevent="doSubmit"
   >
+    <div class="m-2" v-if="loading">
+      <progress class="progress progress-primary w-full"></progress>
+    </div>
+
     <json-forms
+      v-if="!loading"
       :ajv="ajv"
       :data="model"
       :schema="schema"
       :uischema="uischema"
       :renderers="renderers"
-      :validationMode="mode"
+      :validationMode="safeMode"
       @change="onChange"
       class="card-content"
     />
 
     <!-- actions -->
-    <footer v-if="!noActions">
+    <footer v-if="!noActions || loading">
       <div class="card-actions mt-4">
         <slot
           name="actions"
@@ -98,6 +103,10 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
+    loading: {
+      type: Boolean,
+      default: false
+    },
     processing: {
       type: Boolean,
       default: false
@@ -106,6 +115,10 @@ export default defineComponent({
       required: false,
       type: String as PropType<ValidationMode>,
       default: "ValidateAndShow" // ||  "ValidateAndHide" || "NoValidation"
+    },
+    styles: {
+      type: Object,
+      default: () => ({})
     }
   },
   watch: {
@@ -123,12 +136,7 @@ export default defineComponent({
     const ajv = createAjv({ useDefaults: true });
 
     // mergeStyles combines all classes from both styles definitions into one
-    const tailwindStyles = mergeStyles(defaultStyles, {
-      control: {},
-      verticalLayout: {}
-    });
-
-    console.log("tailwindStyles", { tailwindStyles });
+    const formStyles = mergeStyles(defaultStyles, props.styles);
 
     // -------
     return {
@@ -136,7 +144,7 @@ export default defineComponent({
       // -------
       ajv,
       renderers: Object.freeze([...daisyRenderers]),
-      tailwindStyles
+      formStyles
     };
   },
   data: () => ({
@@ -147,6 +155,12 @@ export default defineComponent({
   computed: {
     isValid() {
       return !this.errors?.length;
+    },
+    safeMode() {
+      // only show errors if we have some data,, prevents ugly errors on first load
+      return isEmpty(this.model)
+        ? "ValidateAndHide"
+        : this.mode || "ValidateAndShow";
     }
   },
 
@@ -175,7 +189,7 @@ export default defineComponent({
   },
   provide() {
     return {
-      styles: this.tailwindStyles
+      styles: this.formStyles
     };
   }
 });

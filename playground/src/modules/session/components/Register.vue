@@ -1,17 +1,12 @@
 <template>
-  <div class="m-2" v-if="loading || processing">
-    <progress class="progress progress-primary w-full"></progress>
-  </div>
-
   <form-generator
-    v-else-if="!loading"
-    class="card-body"
+    :loading="loading"
+    :processing="processing"
     :schema="schema"
     :uischema="uischema"
-    @resolve="$emit('resolve', $event)"
     @reject="$emit('reject')"
-    :processing="processing"
-    mode="ValidateAndHide"
+    @resolve="$emit('resolve', $event)"
+    class="card-body"
   >
     <template #actions="{ isValid, doReject }">
       <button
@@ -32,8 +27,7 @@
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
-import { type JsonSchema } from "@jsonforms/core";
-import { mapValues, values, isEmpty } from "lodash-es";
+import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
 
 export default defineComponent({
   name: "RegisterForm",
@@ -50,107 +44,17 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    additionalFields: {
+    schema: {
       type: Object as PropType<JsonSchema>,
-      default: () => {}
+      required: true
+    },
+    uischema: {
+      type: Object as PropType<UISchemaElement>
+    },
+    modelValue: {
+      type: Object
     }
   },
-  computed: {
-    schema() {
-      const schema = {
-        type: "object",
-        required: ["firstname", "password"],
-        properties: {
-          firstname: {
-            type: "string",
-            title: "Your first name"
-          },
-          lastname: {
-            type: "string",
-            title: "Your last name"
-          },
-          email: {
-            type: "string",
-            title: "Your email address",
-            format: "email"
-          },
-          password: {
-            type: "string",
-            title: "Your password",
-            minLength: 8
-          }
-        }
-      };
-
-      if (!isEmpty(this.additionalFields?.properties)) {
-        schema.properties.custom_fields = this.additionalFields;
-      }
-      return schema;
-    },
-
-    uischema() {
-      const schema = {
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/firstname",
-            options: {
-              focus: true,
-              autocomplete: "given-name",
-              placeholder: "Jay,Jane,John,... "
-            }
-          },
-          {
-            type: "Control",
-            scope: "#/properties/lastname",
-            options: {
-              focus: true,
-              autocomplete: "family-name",
-              placeholder: "Doe, Smith, ..."
-            }
-          },
-          {
-            type: "Control",
-            scope: "#/properties/email",
-            options: {
-              focus: true,
-              autocomplete: "email",
-              placeholder: "name@email.com"
-            }
-          },
-          {
-            type: "Control",
-            scope: "#/properties/password",
-            options: {
-              type: "password",
-              autocomplete: "current-password",
-              placeholder: "Use a strong password or passphrase"
-            }
-          }
-        ]
-      };
-
-      if (this.parsedAdditionalFields.length) {
-        const additionalFields = {
-          type: "Group",
-          label: "Additional Fields",
-          elements: this.parsedAdditionalFields
-        };
-
-        schema.elements.push(additionalFields);
-      }
-      return schema;
-    },
-
-    parsedAdditionalFields() {
-      return values(
-        mapValues(this.additionalFields?.properties, (value, key) => ({
-          type: "Control",
-          scope: `#/properties/custom_fields/properties/${key}`
-        }))
-      );
-    }
-  }
+  computed: {}
 });
 </script>

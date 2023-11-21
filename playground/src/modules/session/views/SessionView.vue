@@ -76,7 +76,8 @@
 
       <register-form
         v-if="meta.showRegisterForm"
-        :additional-fields="registerFormCustomFields"
+        :schema="clientSchema"
+        :uischema="clientUischema"
         :processing="meta.isProcessing"
         :loading="meta.isLoadingRegisterForm"
         @resolve="register"
@@ -114,7 +115,8 @@ const {
   client,
   guest,
   // ---
-  registerFormCustomFields,
+  clientSchema,
+  clientUischema,
   // ---
   showLogin,
   showRegister,
