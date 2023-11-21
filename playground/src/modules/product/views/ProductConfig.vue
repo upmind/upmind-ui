@@ -92,6 +92,7 @@
       ></config-options>
 
       <config-provisioning
+        class=""
         v-if="model?.provision_fields"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :fields="getProvisioningFields()"
