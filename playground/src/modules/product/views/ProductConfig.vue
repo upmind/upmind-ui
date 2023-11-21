@@ -94,9 +94,9 @@
       <config-provisioning
         v-if="model?.provision_fields"
         :processing="meta.isLoading || processing || meta.isCalculating"
-        :fields="available.provision_fields"
+        :fields="getProvisioningFields()"
         :model-value="model.provision_fields"
-        @update:modelValue="setProvisioningField"
+        @update:modelValue="setProvisioningFields"
       ></config-provisioning>
     </form>
 

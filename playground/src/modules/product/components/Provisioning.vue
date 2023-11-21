@@ -1,63 +1,30 @@
 <template>
-  <section class="provisioning" v-if="fields?.length">
+  <section class="provisioning" v-if="hasFields">
     <h4 class="">Additional Information</h4>
 
-    <ul
+    <div
       class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
     >
-      <template v-for="field in fields" :key="field.id">
-        <li class="p-0" v-if="!field.defer != 'hidden'">
-          <fieldset class="flex flex-col" :disabled="processing">
-            <label class="label text-start w-full" :for="field.id">
-              <span class="label-text">{{ field.field_label }}</span>
-            </label>
-
-            <select
-              class="select select-bordered w-full max-w-xs"
-              v-if="field.field_type == 'select'"
-              :name="`fields[${field.id}]`"
-              :value="getValue(field.name)"
-              :required="field.required"
-              @input="doUpdate(field.name, $event.target.value)"
-              :id="field.id"
-            >
-              <option v-for="option in field.options" v-bind="option"></option>
-            </select>
-
-            <textarea
-              v-else-if="field.field_type == 'textarea'"
-              class="textarea textarea-bordered w-full max-w-xs"
-              :name="`fields[${field.id}]`"
-              :value="getValue(field.name)"
-              :required="field.required"
-              :id="field.id"
-              @input="doUpdate(field.name, $event.target.value)"
-            ></textarea>
-
-            <input
-              v-else
-              class="input input-bordered w-full max-w-xs"
-              :type="field.field_type.replace('input_', '')"
-              :name="`fields[${field.id}]`"
-              :value="getValue(field.name)"
-              :required="field.required"
-              :id="field.id"
-              @input="doUpdate(field.name, $event.target.value)"
-            />
-          </fieldset>
-        </li>
-      </template>
-    </ul>
+      <form-generator
+        :schema="fields"
+        :model-value="modelValue"
+        @update:modelValue="doUpdate"
+        debug
+        no-actions
+      />
+    </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
-import { get, debounce } from "lodash-es";
+import { defineComponent, type PropType } from "vue";
+import FormGenerator from "../../form/components/FormGenerator.vue";
+import { type JsonSchema } from "@jsonforms/core";
+import { get, isEmpty } from "lodash-es";
 
 export default defineComponent({
   name: "ProductConfigProvisioning",
-  components: {},
+  components: { FormGenerator },
   inheritAttrs: true,
   customOptions: {},
   props: {
@@ -66,8 +33,7 @@ export default defineComponent({
       default: false
     },
     fields: {
-      type: Array,
-      default: () => [],
+      type: Object as PropType<JsonSchema>,
       required: true
     },
     modelValue: {
@@ -82,16 +48,17 @@ export default defineComponent({
       return value;
     }
 
-    const doUpdate = debounce(
-      (field, value) => emit("update:modelValue", field, value),
-      500
-    );
+    const doUpdate = value => emit("update:modelValue", value);
 
     return {
       getValue,
       doUpdate
     };
   },
-  computed: {}
+  computed: {
+    hasFields() {
+      return !isEmpty(this.fields?.properties);
+    }
+  }
 });
 </script>

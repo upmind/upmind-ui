@@ -271,10 +271,8 @@ export const useOptionsParser = (data: any) => {
 };
 
 export const useProvisioningParser = (data: any) => {
-  // TODO: convert our provisioning fields to JSON Schema
-  const required = [];
-  const properties = [];
-
+  const required: string[] = [];
+  const properties = {};
   forEach(data, field => {
     if (field.required) required.push(field.name);
 
@@ -324,22 +322,26 @@ export const useProvisioningParser = (data: any) => {
     }
 
     const schema = {
-      name: field.name,
       type,
       format,
       description: field.description,
       default: field.default,
       enum: field.options?.length ? field.options : undefined,
       // ---
-      defer: field.defer_mode
+      defer: field?.deferrable ? field?.defer_mode : undefined
     };
 
-    properties.push(omitBy(schema, isNil));
+    set(properties, field.name, omitBy(schema, isNil));
   });
 
   console.log("useProvisioningParser", { properties, required, data });
 
-  return data;
+  // return a fully formed json schema
+  return {
+    type: "object",
+    properties,
+    required
+  };
 };
 
 // ---
