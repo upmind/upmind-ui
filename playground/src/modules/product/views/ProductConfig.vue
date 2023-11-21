@@ -60,7 +60,7 @@
 
     <form class="card-body" v-if="!meta.isLoading">
       <config-terms
-        v-if="model?.term"
+        v-if="!isNil(model?.term?.billing_cycle_months)"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :product="availableProduct"
         :terms="availableTerms"
@@ -164,8 +164,8 @@ import ConfigTerms from "../components/Terms.vue";
 import ConfigAttributes from "../components/Attributes.vue";
 import ConfigOptions from "../components/Options.vue";
 import ConfigProvisioning from "../components/Provisioning.vue";
-
 import { XMarkIcon } from "@heroicons/vue/24/solid";
+import { isNil } from "lodash-es";
 
 export default defineComponent({
   name: "ProductConfig",
@@ -209,6 +209,7 @@ export default defineComponent({
 
     // const
     return {
+      isNil,
       remove,
       ...productConfig,
       uuid: getCurrentInstance()?.uid

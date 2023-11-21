@@ -21,32 +21,6 @@
       </template>
     </form-generator>
 
-    <!-- <form class="join mt-2">
-      <fieldset class="form-control">
-        <input
-          type="text"
-          id="code"
-          placeholder="Discount Code?"
-          v-model="model.code"
-          class="input input-accent input-bordered w-full max-w-xs join-item"
-        />
-        <label class="label sr-only" for="code">
-          <span class="label-text">Discount Code</span>
-        </label>
-      </fieldset>
-
-      <div class="actions">
-        <button
-          class="btn btn-accent join-item"
-          type="reset"
-          :disabled="processing"
-          @click.prevent="!model.code?.length ? null : doResolve(model)"
-        >
-          Apply
-        </button>
-      </div>
-    </form> -->
-
     <ul class="my-4 p-0 list-none" v-if="hasPromotions">
       <li
         class="bg-accent bg-opacity-25 flex items-center rounded-lg text-xs"
