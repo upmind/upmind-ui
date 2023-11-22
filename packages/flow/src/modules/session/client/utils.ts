@@ -176,19 +176,25 @@ export const useUischemaParser = (data: any) => {
   return schema;
 };
 
-export const useValidationParser = (data: any) => {
-  const errors = [];
-  forEach(data, (value, key) => {
-    const newError = {
-      instancePath: `/${key}`, // AJV style path to the property in the schema
-      message: value.toString(),
-      // --- optional
-      schemaPath: "",
-      keyword: "",
-      params: {}
-    };
-    errors.push(newError);
-  });
+export const useValidationParser = (error: any) => {
+  if (error?.data) {
+    error.message = "Validation error";
 
-  return errors;
+    const errors = [];
+    forEach(error.data, (value, key) => {
+      const newError = {
+        instancePath: `/${key}`, // AJV style path to the property in the schema
+        message: value.toString(),
+        // --- optional
+        schemaPath: "",
+        keyword: "",
+        params: {}
+      };
+      errors.push(newError);
+    });
+
+    error.data = errors;
+  }
+
+  return error;
 };

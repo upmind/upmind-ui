@@ -295,8 +295,7 @@ export default createMachine(
           if ((error.code = 422)) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            error.message = "Validation error";
-            error.data = useValidationParser(error?.data);
+            return useValidationParser(error);
           }
 
           return error || "Unknown error";
