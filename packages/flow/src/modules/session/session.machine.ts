@@ -209,6 +209,9 @@ export default createMachine(
         entry: ["clearToken", "clearUser"],
         type: "final"
       }
+    },
+    on: {
+      "CLEAR.ERRORS": { actions: ["clearError"] }
     }
   },
   {

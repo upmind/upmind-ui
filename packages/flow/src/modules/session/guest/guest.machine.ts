@@ -66,7 +66,10 @@ export default createMachine(
                 target: "#authenticated",
                 actions: ["setToken"]
               },
-              onError: { target: "#error", actions: ["setError"] }
+              onError: {
+                target: "#error",
+                actions: ["setError", "escalateError"]
+              }
             }
           }
         }
@@ -96,9 +99,9 @@ export default createMachine(
                 {
                   target: "clearing",
                   cond: "isUnauthorized",
-                  actions: ["setError"]
+                  actions: ["setError", "escalateError"]
                 },
-                { target: "#error", actions: ["setError"] }
+                { target: "#error", actions: ["setError", "escalateError"] }
               ]
             }
           },
@@ -131,7 +134,6 @@ export default createMachine(
 
       // Handle errors
       error: {
-        entry: escalate(({ error }, _event) => error),
         id: "error"
       },
 
@@ -155,6 +157,7 @@ export default createMachine(
       setError: assign({
         error: (context, { data }) => data || "Unknown error"
       }),
+      escalateError: escalate(({ error }) => error),
 
       clearError: assign({ error: null })
     },

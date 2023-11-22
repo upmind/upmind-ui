@@ -63,6 +63,9 @@ export interface Typegen0 {
       | "done.invoke.clearing:invocation[0]"
       | "error.platform.loading:invocation[0]"
       | "xstate.stop";
+    escalateError:
+      | "error.platform.generating:invocation[0]"
+      | "error.platform.refreshing:invocation[0]";
     setError:
       | "error.platform.generating:invocation[0]"
       | "error.platform.refreshing:invocation[0]";
