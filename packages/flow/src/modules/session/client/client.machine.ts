@@ -10,7 +10,19 @@ import { responseCodes } from "../../api/types.d";
 // --- utils
 import { useTime } from "../../../utils";
 import { useTokenParser } from "../utils";
-import { useValidationParser } from "./utils";
+import {
+  useValidationParser,
+  useRegisterSchemaParser,
+  useRegisterUischemaParser,
+  useRegisterModelParser,
+  useLoginSchemaParser,
+  useLoginUischemaParser,
+  useLoginModelParser,
+  use2faSchemaParser,
+  use2faUischemaParser,
+  use2faModelParser
+} from "./utils";
+
 // --------------------------------------------------------
 
 export default createMachine(
@@ -33,6 +45,7 @@ export default createMachine(
         actor_id: null,
         actor_type: null
       },
+      customFields: [],
       model: {},
       schema: {},
       uischema: {},
@@ -73,8 +86,20 @@ export default createMachine(
           // --- Start the login flow
           // in essence show a login form and await an event to authenticate
           login: {
-            initial: "idle",
+            initial: "loading",
             states: {
+              loading: {
+                always: {
+                  target: "idle",
+                  actions: ["clearError", "setLoginSchemas"]
+                }
+                // after: {
+                //   wait: {
+                //     target: "idle",
+                //     actions: ["clearError", "setLoginSchemas"]
+                //   }
+                // }
+              },
               // loading: {} // loading state not required?
               idle: {
                 on: {
@@ -90,7 +115,7 @@ export default createMachine(
                   onDone: [
                     {
                       target: "challenging",
-                      actions: ["set2faToken"],
+                      actions: ["set2faToken", "set2faSchemas"],
                       cond: "requires2fa"
                     },
                     { target: "#authenticated", actions: ["setToken"] }
@@ -133,8 +158,11 @@ export default createMachine(
             states: {
               loading: {
                 invoke: {
-                  src: "getSchemas",
-                  onDone: { target: "idle", actions: ["setSchemas"] },
+                  src: "getCustomFields",
+                  onDone: {
+                    target: "idle",
+                    actions: ["setCustomFields", "setRegisterSchemas"]
+                  },
                   onError: {
                     target: "error",
                     actions: ["setError", "escalateError"]
@@ -290,9 +318,26 @@ export default createMachine(
   },
   {
     actions: {
-      setSchemas: assign({
-        schema: (context, { data }) => data.schema,
-        uischema: (context, { data }) => data.uischema
+      setCustomFields: assign({
+        customFields: (context, { data }) => data
+      }),
+
+      setRegisterSchemas: assign({
+        schema: ({ customFields }) => useRegisterSchemaParser(customFields),
+        uischema: ({ customFields }) => useRegisterUischemaParser(customFields),
+        model: ({ customFields }) => useRegisterModelParser(customFields)
+      }),
+
+      setLoginSchemas: assign({
+        schema: context => useLoginSchemaParser(),
+        uischema: context => useLoginUischemaParser(),
+        model: context => useLoginModelParser()
+      }),
+
+      set2faSchemas: assign({
+        schema: context => use2faSchemaParser(),
+        uischema: context => use2faUischemaParser(),
+        model: context => use2faModelParser()
       }),
 
       setModel: assign({
@@ -335,7 +380,8 @@ export default createMachine(
     },
 
     delays: {
-      error: () => useTime().SECOND * 3 // this allows us to read the error before continuing
+      error: () => useTime().SECOND * 3, // this allows us to read the error before continuing
+      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
     },
     services
   }

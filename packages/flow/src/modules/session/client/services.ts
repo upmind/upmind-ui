@@ -4,7 +4,6 @@ import type { ClientContext } from "./types.d";
 import { GrantTypes } from "../types.d";
 
 // --- utils
-import { useSchemaParser, useUischemaParser } from "./utils";
 import { get, omit } from "lodash-es";
 
 // --------------------------------------------------------
@@ -55,15 +54,12 @@ async function verify2fa(context: ClientContext, { data }: any) {
 
 // --- REGISTER
 
-async function getSchemas(_context: ClientContext, { data }: any) {
+async function getCustomFields(_context: ClientContext, { data }: any) {
   const { get, useUrl } = useApi();
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields")
-  }).then(({ data }) => ({
-    schema: useSchemaParser(data),
-    uischema: useUischemaParser(data)
-  }));
+  }).then(({ data }) => data);
 }
 
 async function checkForReCaptcha(_context: ClientContext, { data }: any) {
@@ -137,7 +133,7 @@ export default <Object>{
   verify2fa,
   authenticate,
   // ---
-  getSchemas,
+  getCustomFields,
   checkForReCaptcha,
   verifyReCaptcha,
   register,

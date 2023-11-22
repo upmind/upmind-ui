@@ -6,11 +6,10 @@ const translate = (item, field) => {
   return item[field];
 };
 
-export const useSchemaParser = (data: any) => {
-  const hasRequired = some(data, field => field.required);
-  const required = [];
+export const useRegisterSchemaParser = (data: any) => {
   const schema = {
     type: "object",
+    title: "Register",
     required: ["firstname", "lastname", "email", "password"],
     properties: {
       firstname: {
@@ -114,11 +113,10 @@ export const useSchemaParser = (data: any) => {
     });
   }
 
-  console.log("useSchemaParser", { schema, data });
   return schema;
 };
 
-export const useUischemaParser = (data: any) => {
+export const useRegisterUischemaParser = (data: any) => {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -172,9 +170,120 @@ export const useUischemaParser = (data: any) => {
     schema.elements.push(group);
   }
 
-  console.log("useUischemaParser", { schema, data });
   return schema;
 };
+
+export const useRegisterModelParser = (data: any) => {
+  const model = {
+    firstname: null,
+    lastname: null,
+    email: null,
+    password: null,
+    custom_fields: {}
+  };
+
+  if (data?.length) {
+    forEach(data, field => {
+      set(model, `custom_fields.${field.code}`, field?.default || null);
+    });
+  }
+
+  return model;
+};
+// ---
+
+export const useLoginSchemaParser = () => {
+  return {
+    type: "object",
+    title: "Login",
+    required: ["email", "password"],
+    properties: {
+      email: {
+        type: "string",
+        format: "email",
+        title: "Your email address"
+      },
+      password: {
+        type: "string",
+        format: "password",
+        title: "Your password"
+      }
+    }
+  };
+};
+
+export const useLoginUischemaParser = () => {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/email",
+        options: {
+          autocomplete: "email",
+          placeholder: "name@email.com"
+        }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/password",
+        options: {
+          type: "password",
+          autocomplete: "current-password",
+          placeholder: "password or passphrase"
+        }
+      }
+    ]
+  };
+};
+
+export const useLoginModelParser = () => {
+  return {
+    email: null,
+    password: null
+  };
+};
+// ---
+
+export const use2faSchemaParser = () => {
+  return {
+    type: "object",
+    title: "Verify 2FA",
+    required: ["token"],
+    properties: {
+      token: {
+        type: "string",
+        pattern: "\\d{6}",
+        title: "Your 2fa code"
+      }
+    }
+  };
+};
+
+export const use2faUischemaParser = () => {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/token",
+        options: {
+          autocomplete: "off",
+          placeholder: "123 456"
+          // mask: "### ###"
+        }
+      }
+    ]
+  };
+};
+
+export const use2faModelParser = () => {
+  return {
+    token: null
+  };
+};
+
+// ---
 
 export const useValidationParser = (error: any) => {
   if (error?.data) {

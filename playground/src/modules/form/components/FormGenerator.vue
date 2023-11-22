@@ -61,9 +61,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRaw, type PropType } from "vue";
+import { defineComponent, toRaw, unref, type PropType } from "vue";
 
 import Debug from "@/components/Debug.vue";
+
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
 import {
@@ -77,7 +78,31 @@ import type { ErrorObject } from "ajv";
 
 import { defaultStyles, mergeStyles, daisyRenderers } from "../renderers/daisy";
 
-import { trim, isEmpty, isEqual } from "lodash-es";
+import { trim, isEmpty, isEqual, isObject, isArray } from "lodash-es";
+
+// a custom isEmpty that can handle deeply nested objects
+function isDeepEmpty(value: any): boolean {
+  if (isEmpty(value)) {
+    return true;
+  }
+  if (isObject(value)) {
+    for (const item of Object.values(value)) {
+      // if item is not undefined and is a primitive, return false
+      // otherwise dig deeper
+      if (
+        (item !== undefined && typeof item !== "object") ||
+        !isDeepEmpty(item)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+  if (isArray(value)) {
+    return value.every(item => isDeepEmpty(item));
+  }
+  return isEmpty(value);
+}
 
 export default defineComponent({
   name: "FormGenerator",
@@ -133,8 +158,9 @@ export default defineComponent({
   watch: {
     modelValue: {
       handler(value) {
-        this.model = toRaw(value);
+        this.model = toRaw(unref(value));
       },
+      immediate: true,
       deep: true
     }
   },
@@ -167,7 +193,7 @@ export default defineComponent({
     },
     safeMode() {
       // only show errors if we have some data,, prevents ugly errors on first load
-      return isEmpty(this.model)
+      return isDeepEmpty(this.model)
         ? "ValidateAndHide"
         : this.mode || "ValidateAndShow";
     }
