@@ -9,7 +9,6 @@
       :additional-errors="additionalErrors"
       :processing="processing"
       @resolve="doResolve"
-      mode="ValidateAndHide"
     >
       <template #actions="{ isValid }">
         <button

@@ -95,7 +95,10 @@ export default createMachine(
                     },
                     { target: "#authenticated", actions: ["setToken"] }
                   ],
-                  onError: { target: "error", actions: ["setError"] }
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               challenging: {
@@ -111,11 +114,13 @@ export default createMachine(
                     target: "#authenticated",
                     actions: ["setChallengeToken"]
                   },
-                  onError: { target: "challenging", actions: ["setError"] }
+                  onError: {
+                    target: "challenging",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               error: {
-                entry: escalate(({ error }, _event) => error),
                 after: { error: "idle" } // automatically move to stale after max age
               }
             }
@@ -130,7 +135,10 @@ export default createMachine(
                 invoke: {
                   src: "getSchemas",
                   onDone: { target: "idle", actions: ["setSchemas"] },
-                  onError: { target: "error", actions: ["setError"] }
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               idle: {
@@ -145,7 +153,10 @@ export default createMachine(
                     { target: "challenging", cond: "requiresReCaptcha" },
                     { target: "registering" }
                   ],
-                  onError: { target: "error", actions: ["setError"] }
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               challenging: {
@@ -160,25 +171,33 @@ export default createMachine(
                     target: "registering",
                     actions: ["setChallengeToken"]
                   },
-                  onError: { target: "challenging", actions: ["setError"] }
+                  onError: {
+                    target: "challenging",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               registering: {
                 invoke: {
                   src: "register",
                   onDone: { target: "authenticating", actions: ["setToken"] },
-                  onError: { target: "error", actions: ["setError"] }
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               authenticating: {
                 invoke: {
                   src: "authenticate",
                   onDone: { target: "#authenticated", actions: ["setToken"] },
-                  onError: { target: "error", actions: ["setError"] }
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "escalateError"]
+                  }
                 }
               },
               error: {
-                entry: escalate(({ error }, _event) => error),
                 after: { error: "idle" } // automatically move to stale after max age
               }
             }
@@ -217,9 +236,9 @@ export default createMachine(
                 {
                   target: "clearing",
                   cond: "isUnauthorized",
-                  actions: ["setError"]
+                  actions: ["setError", "escalateError"]
                 },
-                { target: "#error", actions: ["setError"] }
+                { target: "#error", actions: ["setError", "escalateError"] }
               ]
             }
           },
@@ -258,7 +277,6 @@ export default createMachine(
 
       // Handle errors
       error: {
-        entry: escalate(({ error }, _event) => error),
         id: "error"
       },
 
@@ -303,6 +321,7 @@ export default createMachine(
           return error || "Unknown error";
         }
       }),
+      escalateError: escalate(({ error }) => error),
 
       clearError: assign({ error: null })
     },

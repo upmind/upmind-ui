@@ -137,6 +137,15 @@ export interface Typegen0 {
       | "done.invoke.client.authenticated.clearing:invocation[0]"
       | "error.platform.loading:invocation[0]"
       | "xstate.stop";
+    escalateError:
+      | "error.platform.client.authenticated.refreshing:invocation[0]"
+      | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
+      | "error.platform.client.unauthenticated.login.verifying:invocation[0]"
+      | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
+      | "error.platform.client.unauthenticated.register.checking:invocation[0]"
+      | "error.platform.client.unauthenticated.register.loading:invocation[0]"
+      | "error.platform.client.unauthenticated.register.registering:invocation[0]"
+      | "error.platform.client.unauthenticated.register.verifying:invocation[0]";
     set2faToken: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
     setChallengeToken:
       | "done.invoke.client.unauthenticated.login.verifying:invocation[0]"

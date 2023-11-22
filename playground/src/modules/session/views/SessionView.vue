@@ -62,11 +62,19 @@
     >
       <div
         role="alert"
-        class="alert alert-error rounded-none sticky top-0 z-10 shadow-xl"
+        class="alert alert-error rounded-none shadow-xl"
         v-if="meta.hasErrors"
       >
         <shield-exclamation-icon class="h-8 w-8" />
-        <span>{{ errors.message }}</span>
+        <div>
+          <span>{{ errors.message }}</span>
+        </div>
+        <button
+          class="btn btn-sm btn-square btn-ghost"
+          @click.prevent="clearErrors"
+        >
+          <x-mark-icon class="h-8 w-8" />
+        </button>
       </div>
 
       <auth-form
@@ -116,7 +124,7 @@ import Debug from "@/components/Debug.vue";
 import AuthForm from "../components/Auth.vue";
 import TwofaForm from "../components/2fa.vue";
 import RegisterForm from "../components/Register.vue";
-import { ShieldExclamationIcon } from "@heroicons/vue/24/outline";
+import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const {
   state,
@@ -130,6 +138,7 @@ const {
   clientSchema,
   clientUischema,
   // ---
+  clearErrors,
   showLogin,
   showRegister,
   login,

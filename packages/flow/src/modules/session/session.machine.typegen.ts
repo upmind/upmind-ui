@@ -69,7 +69,12 @@ export interface Typegen0 {
     services: "check" | "dumpTokens" | "getUser";
   };
   eventsCausingActions: {
-    clearError: "CANCEL" | "LOGIN" | "REGISTER" | "done.state.starting";
+    clearError:
+      | "CANCEL"
+      | "CLEAR.ERRORS"
+      | "LOGIN"
+      | "REGISTER"
+      | "done.state.starting";
     clearRefresh: "done.state.starting";
     clearToken: "done.invoke.clearing:invocation[0]";
     clearUser: "done.invoke.clearing:invocation[0]";

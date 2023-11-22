@@ -55,7 +55,10 @@ export default (request: RequestParams) =>
           invoke: {
             src: "refreshToken",
             onDone: { actions: ["setAuthHeader"], target: "#processing" },
-            onError: { target: "#error", actions: ["setError"] }
+            onError: {
+              target: "#error",
+              actions: ["setError"]
+            }
           }
         },
 
@@ -221,6 +224,8 @@ export default (request: RequestParams) =>
         setError: assign({
           error: (context, { data }) => data || "Unknown error"
         }),
+
+        // escalateError: escalate(_context, ({ data }) => data),
 
         clearError: assign({ error: null }),
 

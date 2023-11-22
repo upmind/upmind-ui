@@ -31,6 +31,12 @@ export const useSession = () => {
 
   // --------------------------------------------------------
 
+  function clearErrors() {
+    send({
+      type: "CLEAR.ERRORS"
+    });
+  }
+
   function cancel() {
     send({
       type: "CANCEL"
@@ -139,14 +145,15 @@ export const useSession = () => {
     clientSchema: computed(() => client.value?.context?.schema),
     clientUischema: computed(() => client.value?.context?.uischema),
     // ---
+    cancel,
+    clearErrors,
+    getUser,
+    login,
+    logout,
+    register,
     showLogin,
     showRegister,
-    login,
     verify2fa,
-    register,
-    verifyReCaptcha,
-    logout,
-    cancel,
-    getUser
+    verifyReCaptcha
   };
 };

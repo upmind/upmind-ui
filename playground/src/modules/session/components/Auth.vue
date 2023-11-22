@@ -7,7 +7,6 @@
     @resolve="$emit('resolve', $event)"
     @reject="$emit('reject')"
     :processing="processing"
-    mode="ValidateAndHide"
   >
     <template #actions="{ isValid, doReject }">
       <button

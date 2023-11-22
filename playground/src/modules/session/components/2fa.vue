@@ -7,7 +7,6 @@
     @reject="$emit('reject')"
     @resolve="$emit('resolve', $event?.token)"
     :processing="processing"
-    mode="ValidateAndHide"
   >
     <template #actions="{ isValid, doReject }">
       <button
@@ -57,9 +56,8 @@ export default defineComponent({
         properties: {
           token: {
             type: "string",
-            title: "Your 2fa code",
-            minimum: 0,
-            maximum: 999999
+            pattern: "\\d{6}",
+            title: "Your 2fa code"
           }
         }
       };
@@ -73,8 +71,8 @@ export default defineComponent({
             scope: "#/properties/token",
             options: {
               autocomplete: "off",
-              placeholder: "123 456",
-              mask: "### ###"
+              placeholder: "123 456"
+              // mask: "### ###"
             }
           }
         ]
