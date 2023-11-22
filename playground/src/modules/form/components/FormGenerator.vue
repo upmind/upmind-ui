@@ -158,7 +158,7 @@ export default defineComponent({
   watch: {
     modelValue: {
       handler(value) {
-        this.model = toRaw(unref(value));
+        this.model = toRaw(unref(value)) || {};
       },
       immediate: true,
       deep: true
@@ -203,6 +203,8 @@ export default defineComponent({
     onChange({ data, errors }: JsonFormsChangeEvent) {
       this.errors = errors;
 
+      data ??= {};
+      this.model ??= {};
       // finally check if the data has actually changed and emit the update event
       // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
       const rawData = JSON.parse(JSON.stringify(data));

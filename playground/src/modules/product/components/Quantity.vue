@@ -17,7 +17,7 @@
       <input
         class="input input-sm join-item text-center max-w-[5em]"
         type="number"
-        :model-value="modelValue"
+        :value="modelValue"
         :min="min"
         :max="max"
         :step="step"

@@ -271,6 +271,7 @@ async function updateItem({ basket, items }, { data }: any) {
   const { put, post, useUrl } = useApi();
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${item.id}`;
+
   return action({
     url: useUrl(`/orders/${basket.id}/products${suffix}`),
     data: config,
@@ -281,7 +282,12 @@ async function updateItem({ basket, items }, { data }: any) {
       const newItems = differenceBy(basket.products, items, "id");
       return { basket, items: [item], newItems, queue };
     })
-    .then(updateItemProvisioningFields);
+    .then(updateItemProvisioningFields)
+    .catch(error => {
+      // NB we must add the item to the error, so we can forward it to the item machine
+      error.item = item;
+      throw error;
+    });
 }
 
 async function updateItemProvisioningFields({
@@ -336,17 +342,17 @@ async function updateItemProvisioningFields({
     []
   );
 
-  return Promise.all(promises)
-    .then(() => ({ basket, items, newItems, queue }))
-    .catch(err => {
-      // we dont need to throw this error, as it is not critical
-      console.error("updateItemProvisioningFields", err, {
-        basket,
-        items,
-        newItems,
-        queue
-      });
-    });
+  return Promise.all(promises).then(() => ({ basket, items, newItems, queue }));
+  // .catch(err => {
+  //   // we dont need to throw this error, as it is not critical
+  //   console.error("updateItemProvisioningFields", err, {
+  //     basket,
+  //     items,
+  //     newItems,
+  //     queue
+  //   });
+
+  // });
 }
 
 async function removeItem({ basket, bin }: BasketContext, { data }: any) {

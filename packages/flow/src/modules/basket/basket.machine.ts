@@ -5,7 +5,7 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import type { BasketContext } from "./types.d";
-import configurationMachine from "../product/config.machine";
+import configurationMachine from "../product/product.machine";
 
 // --- utils
 import { useTime } from "../../utils";
@@ -146,7 +146,7 @@ export default createMachine(
                         target: "#configuring",
                         actions: ["refreshItems", "updateBasket"]
                       },
-                      onError: { target: "error", actions: ["setError"] }
+                      onError: { target: "#configuring", actions: ["setError"] }
                     }
                   },
 
@@ -178,7 +178,7 @@ export default createMachine(
                       ],
 
                       onError: {
-                        target: "error",
+                        target: "#configuring",
                         actions: ["setError"]
                       }
                     }
@@ -200,7 +200,7 @@ export default createMachine(
                         }
                       ],
                       onError: {
-                        target: "error",
+                        target: "#configuring",
                         actions: ["setError"]
                       }
                     }
@@ -599,14 +599,23 @@ export default createMachine(
       // ---
 
       setError: assign({
-        error: (context, { data: { error } }) => {
-          if ((error.code = 422)) {
+        error: (context, { data }) => {
+          const { item, error } = data;
+
+          // if we are supplied a machine, we must forward/send the error to it
+          if (item) {
+            item.send({ type: "ERROR", data });
+            return;
+          }
+
+          debugger;
+          if (error.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(error);
           }
 
-          return error || "Unknown error";
+          return error;
         }
       }),
 

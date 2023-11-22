@@ -334,8 +334,6 @@ export const useProvisioningParser = (data: any) => {
     set(properties, field.name, omitBy(schema, isNil));
   });
 
-  console.log("useProvisioningParser", { properties, required, data });
-
   // return a fully formed json schema
   return {
     type: "object",
@@ -358,8 +356,6 @@ export const useSummaryParser = (data: any) => {
     totalFormatted:
       data?.invoice_total_amount_formatted || data?.total_formatted
   };
-
-  console.log("useProductSummaryParser", { summary, data });
 
   return summary;
 };
@@ -490,4 +486,32 @@ export const useProductConfigParser = (data: any) => {
   if (data?.id) set(config, "id", data.id);
 
   return config;
+};
+
+export const useValidationParser = (error: any) => {
+  if (error?.data) {
+    error.message = "Validation error";
+
+    const errors = [];
+    forEach(error.data, (value, key) => {
+      // because we have a specific schema for provision_fields, we dont need the prefix of the path
+      const instancePath = key.replace("provision_field_values.", "");
+      // handle any nested properties correctly, JSOn schema would have them withing properties
+      instancePath.replace(".", "/properties/");
+
+      const newError = {
+        instancePath: `/${instancePath}`, // AJV style path to the property in the schema
+        message: value.toString(), // in case the message is an array
+        // --- optional
+        schemaPath: "",
+        keyword: "",
+        params: {}
+      };
+      errors.push(newError);
+    });
+
+    error.data = errors;
+  }
+
+  return error;
 };

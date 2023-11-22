@@ -34,19 +34,16 @@ export const useSession = () => {
 
     // Valid session
     if (["client", "guest"].some(state.matches)) {
-      // console.log("authCallback", "SESSION");
       callback({ type: "SESSION" });
     }
 
     // Authenticated if client ( eventually +admin +actor)
     if (["client"].some(state.matches)) {
-      // console.log("authCallback", "VAID");
       callback({ type: "AUTHENTICATED" });
     }
 
     // Unauthenticated if guest
     else if (["guest"].some(state.matches)) {
-      // console.log("authCallback", "INVALID");
       callback({ type: "UNAUTHENTICATED" });
     }
   };

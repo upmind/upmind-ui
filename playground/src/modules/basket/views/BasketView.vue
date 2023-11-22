@@ -113,7 +113,7 @@
             We experienced an error updating the basket
           </h3>
 
-          <span>{{ errors.message }}</span>
+          <span v-if="errors?.message">{{ errors.message }}</span>
         </div>
         <button
           class="btn btn-sm btn-square btn-ghost"
@@ -126,7 +126,7 @@
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
           <div v-for="item in items" :key="item.id">
-            <product-config
+            <config-product
               :item="item"
               :id="item.id"
               :processing="meta.isProcessing"
@@ -147,7 +147,7 @@
                   Update Item
                 </button>
               </template>
-            </product-config>
+            </config-product>
           </div>
         </div>
 
@@ -246,7 +246,7 @@
 import { ref } from "vue";
 import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
-import ProductConfig from "@/modules/product/views/ProductConfig.vue";
+import ConfigProduct from "@/modules/product/views/Product.vue";
 import PromotionsConfig from "../components/Promotions.vue";
 import Debug from "@/components/Debug.vue";
 import {

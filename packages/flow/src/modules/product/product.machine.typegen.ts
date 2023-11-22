@@ -88,6 +88,15 @@ export interface Typegen0 {
       | "getProduct";
   };
   eventsCausingActions: {
+    clearError: "CLEAR.ERRORS";
+    escalateError:
+      | "error.platform.load"
+      | "error.platform.productConfigurator.calculating:invocation[0]"
+      | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     sendConfig: "done.invoke.productConfigurator.calculating:invocation[0]";
     setAttributes:
       | "UPDATE.ATTRIBUTES"
@@ -112,6 +121,7 @@ export interface Typegen0 {
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM";
     setError:
+      | "ERROR"
       | "error.platform.load"
       | "error.platform.productConfigurator.calculating:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
@@ -175,7 +185,7 @@ export interface Typegen0 {
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
       | "done.invoke.load";
-    getProduct: "REFRESH" | "xstate.init";
+    getProduct: "ERROR" | "REFRESH" | "xstate.init";
   };
   matchesStates:
     | "calculating"

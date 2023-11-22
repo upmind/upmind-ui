@@ -3,6 +3,23 @@
     class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
     :class="color"
   >
+    <div
+      role="alert"
+      class="alert alert-error rounded-none shadow-xl"
+      v-if="meta.hasErrors"
+    >
+      <shield-exclamation-icon class="h-8 w-8" />
+      <div>
+        <span>{{ errors.message }}</span>
+      </div>
+      <button
+        class="btn btn-sm btn-square btn-ghost"
+        @click.prevent="clearErrors"
+      >
+        <x-mark-icon class="h-8 w-8" />
+      </button>
+    </div>
+
     <header class="">
       <div class="navbar px-4 relative">
         <div class="flex-1 flex flex-wrap items-center gap-2 overflow-x-hidden">
@@ -96,6 +113,7 @@
         v-if="model?.provision_fields"
         :processing="meta.isLoading || processing || meta.isCalculating"
         :fields="getProvisioningFields()"
+        :additionalErrors="errors?.data"
         :model-value="model.provision_fields"
         @update:modelValue="setProvisioningFields"
       ></config-provisioning>
@@ -164,18 +182,19 @@ import ConfigTerms from "../components/Terms.vue";
 import ConfigAttributes from "../components/Attributes.vue";
 import ConfigOptions from "../components/Options.vue";
 import ConfigProvisioning from "../components/Provisioning.vue";
-import { XMarkIcon } from "@heroicons/vue/24/solid";
+import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { isNil } from "lodash-es";
 
 export default defineComponent({
-  name: "ProductConfig",
+  name: "ConfigProduct",
   components: {
     ConfigTerms,
     ConfigAttributes,
     ConfigOptions,
     ConfigProvisioning,
     Debug,
-    XMarkIcon
+    XMarkIcon,
+    ShieldExclamationIcon
   },
   emits: [
     "remove",

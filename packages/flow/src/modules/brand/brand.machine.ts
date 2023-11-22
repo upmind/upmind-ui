@@ -81,7 +81,7 @@ export default createMachine(
                 target: "error",
                 actions: assign({
                   error: ({ error }: BrandContext, { data }: BrandEvent) => {
-                    set(error, "organisation", data || "Unknown error");
+                    set(error, "organisation", data);
                     return error;
                   }
                 })
@@ -118,7 +118,7 @@ export default createMachine(
                 target: "error",
                 actions: assign({
                   error: ({ error }: BrandContext, { data }: BrandEvent) => {
-                    set(error, "config", data || "Unknown error");
+                    set(error, "config", data);
                     return error;
                   }
                 })
@@ -162,7 +162,7 @@ export default createMachine(
                 target: "error",
                 actions: assign({
                   error: ({ error }: BrandContext, { data }: BrandEvent) => {
-                    set(error, "settings", data || "Unknown error");
+                    set(error, "settings", data);
                     return error;
                   }
                 })
@@ -202,7 +202,7 @@ export default createMachine(
                 target: "error",
                 actions: assign({
                   error: ({ error }: BrandContext, { data }: BrandEvent) => {
-                    set(error, "modules", data || "Unknown error");
+                    set(error, "modules", data);
                     return error;
                   }
                 })

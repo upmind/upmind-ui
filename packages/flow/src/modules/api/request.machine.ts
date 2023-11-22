@@ -222,7 +222,7 @@ export default (request: RequestParams) =>
         })),
 
         setError: assign({
-          error: (context, { data }) => data || "Unknown error"
+          error: (context, { data }) => data
         }),
 
         // escalateError: escalate(_context, ({ data }) => data),

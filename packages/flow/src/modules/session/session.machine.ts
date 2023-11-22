@@ -234,7 +234,7 @@ export default createMachine(
       clearUser: assign({ user: {} }),
       // ---
       setError: assign({
-        error: (context, { data }) => data || "Unknown error"
+        error: (context, { data }) => data
       }),
       clearError: assign({ error: null })
     },

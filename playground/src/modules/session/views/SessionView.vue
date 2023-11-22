@@ -128,10 +128,6 @@
 import { useSession } from "../";
 import Debug from "@/components/Debug.vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
-
-// import AuthForm from "../components/Auth.vue";
-// import TwofaForm from "../components/2fa.vue";
-// import RegisterForm from "../components/Register.vue";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const {
