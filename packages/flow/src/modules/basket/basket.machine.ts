@@ -9,7 +9,11 @@ import configurationMachine from "../product/config.machine";
 
 // --- utils
 import { useTime } from "../../utils";
-import { useBasketParser, useSummaryParser } from "./utils";
+import {
+  useBasketParser,
+  useSummaryParser,
+  useValidationParser
+} from "./utils";
 
 import {
   differenceBy,
@@ -594,7 +598,15 @@ export default createMachine(
       // ---
 
       setError: assign({
-        error: (context, { data }) => data.error || "Unknown error"
+        error: (context, { data: { error } }) => {
+          if ((error.code = 422)) {
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            return useValidationParser(error);
+          }
+
+          return error || "Unknown error";
+        }
       }),
 
       clearError: assign({ error: null })

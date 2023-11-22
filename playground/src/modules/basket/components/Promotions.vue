@@ -6,8 +6,9 @@
       class="mt-2"
       :schema="schema"
       :uischema="uischema"
-      @resolve="doResolve"
+      :additional-errors="additionalErrors"
       :processing="processing"
+      @resolve="doResolve"
       mode="ValidateAndHide"
     >
       <template #actions="{ isValid }">
@@ -55,10 +56,12 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { isEmpty } from "lodash-es";
+import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "ConfigPromotions",
@@ -74,6 +77,12 @@ export default defineComponent({
     promotions: {
       type: Array,
       required: true
+    },
+    additionalErrors: {
+      type: Array as PropType<
+        ErrorObject<string, Record<string, any>, unknown>[]
+      >,
+      default: () => []
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -99,9 +108,9 @@ export default defineComponent({
     schema() {
       return {
         type: "object",
-        required: ["code"],
+        required: ["promocode"],
         properties: {
-          code: {
+          promocode: {
             type: "string",
             title: "Discount Code"
           }
@@ -115,7 +124,7 @@ export default defineComponent({
         elements: [
           {
             type: "Control",
-            scope: "#/properties/code",
+            scope: "#/properties/promocode",
             options: {
               placeholder: "eg: 9VT9TVXV, BF-fixed-10",
               styles: {

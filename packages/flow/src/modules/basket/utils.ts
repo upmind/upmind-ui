@@ -1,5 +1,5 @@
 // --- utils
-import { first, get, isArray } from "lodash-es";
+import { first, get, isArray, forEach } from "lodash-es";
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
@@ -102,4 +102,27 @@ export const useSummaryParser = (data?: any) => {
     total: data?.unpaid_amount_formatted || "" // unpaid_amount
   };
   return summary;
+};
+
+export const useValidationParser = (error: any) => {
+  if (error?.data) {
+    error.message = "Validation error";
+
+    const errors = [];
+    forEach(error.data, (value, key) => {
+      const newError = {
+        instancePath: `/${key}`, // AJV style path to the property in the schema
+        message: value.toString(),
+        // --- optional
+        schemaPath: "",
+        keyword: "",
+        params: {}
+      };
+      errors.push(newError);
+    });
+
+    error.data = errors;
+  }
+
+  return error;
 };

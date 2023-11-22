@@ -30,8 +30,8 @@ export const useBasket = () => {
     updateCurrency: currency =>
       send({ type: "UPDATE.CURRENCY", data: currency }),
 
-    addPromotion: ({ code }) => {
-      send({ type: "ADD.PROMOTION", data: { code } });
+    addPromotion: ({ promocode }) => {
+      send({ type: "ADD.PROMOTION", data: { promocode } });
     },
 
     removePromotion: ({ id }) => {
@@ -106,7 +106,11 @@ export const useBasket = () => {
         ),
         needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
         isReadyForCheckout: ["checkout"].some(state.value.matches),
-        hasErrors: ["shopping.items.processing.error"].some(state.value.matches)
+        hasErrors: [
+          "shopping.items.processing.error",
+          "shopping.promotions.error",
+          "shopping.client.error"
+        ].some(state.value.matches)
       };
     }),
     //  ---
