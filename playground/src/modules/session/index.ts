@@ -31,15 +31,64 @@ export const useSession = () => {
 
   // --------------------------------------------------------
 
+  const context = computed(() => state.value.context);
+  const errors = computed(() => state.value.context?.error);
+  //const messages= computed(() => state.value.context?.messages);
+  // ---
+  const meta = computed(() => ({
+    isLoading: ["starting"].some(state.value.matches),
+    isProcessing:
+      client.value?.matches &&
+      ![
+        "unauthenticated.idle",
+        "unauthenticated.login.idle",
+        "unauthenticated.login.challenging",
+        "unauthenticated.register.idle",
+        "unauthenticated.register.challenging"
+      ].some(client.value.matches),
+
+    hasErrors: !isEmpty(state.value?.context?.error),
+    // ---
+    isGuest: ["guest", "starting.guest"].some(state.value.matches),
+    isClient: ["client", "starting.client"].some(state.value.matches),
+    isAuthenticated: ["client"].some(state.value.matches),
+    // ---
+    showReCaptcha: client.value?.matches(
+      "unauthenticated.register.challenging"
+    ),
+    showLoginForm: client.value?.matches("unauthenticated.login"),
+    // show2fa: client.value?.matches("unauthenticated.login.challenging"),
+
+    show2fa:
+      client.value?.matches &&
+      [
+        "unauthenticated.login.challenging",
+        "unauthenticated.login.verifying"
+      ].some(client.value.matches),
+    showRegisterForm: client.value?.matches("unauthenticated.register"),
+    isFormLoading:
+      client.value?.matches &&
+      [
+        "unauthenticated.login.loading",
+        "unauthenticated.register.loading"
+      ].some(client.value.matches)
+  }));
+
+  // --- Client
+  const model = computed(() => client.value?.context?.model || {});
+  const schema = computed(() => client.value?.context?.schema || {});
+  const uischema = computed(() => client.value?.context?.uischema || null);
+  // --------------------------------------------------------
+
   function clearErrors() {
     send({
       type: "CLEAR.ERRORS"
     });
   }
 
-  function cancel() {
+  function getUser() {
     send({
-      type: "CANCEL"
+      type: "SELF"
     });
   }
 
@@ -55,6 +104,7 @@ export const useSession = () => {
     });
   }
 
+  // ---
   function login(model) {
     send({
       type: "AUTHENTICATE",
@@ -62,7 +112,7 @@ export const useSession = () => {
     });
   }
 
-  function verify2fa(token) {
+  function verify2fa({ token }) {
     send({
       type: "VERIFY",
       data: unref(token)
@@ -89,63 +139,39 @@ export const useSession = () => {
     });
   }
 
-  function getUser() {
+  // ---
+
+  function resolve(model) {
+    if (meta.value.showLoginForm && !meta.value.show2fa) login(model);
+    if (meta.value.show2fa) verify2fa(model);
+    if (meta.value.showRegisterForm) register(model);
+  }
+
+  function reject() {
     send({
-      type: "SELF"
+      type: "CANCEL"
     });
   }
+
   // --------------------------------------------------------
 
   return {
-    send,
     state: computed(() => state.value.value),
-    context: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.error),
-    //messages: computed(() => state.value.context?.messages),
+    context,
+    errors,
+    //messages,
     // ---
-    meta: computed(() => ({
-      isLoading: ["starting"].some(state.value.matches),
-      isProcessing:
-        client.value?.matches &&
-        ![
-          "unauthenticated.idle",
-          "unauthenticated.login.idle",
-          "unauthenticated.login.challenging",
-          "unauthenticated.register.idle",
-          "unauthenticated.register.challenging"
-        ].some(client.value.matches),
-
-      hasErrors: !isEmpty(state.value?.context?.error),
-      // ---
-      isGuest: ["guest", "starting.guest"].some(state.value.matches),
-      isClient: ["client", "starting.client"].some(state.value.matches),
-      isAuthenticated: ["client"].some(state.value.matches),
-      // ---
-      showReCaptcha: client.value?.matches(
-        "unauthenticated.register.challenging"
-      ),
-      showLoginForm: client.value?.matches("unauthenticated.login"),
-      // show2fa: client.value?.matches("unauthenticated.login.challenging"),
-
-      show2fa:
-        client.value?.matches &&
-        [
-          "unauthenticated.login.challenging",
-          "unauthenticated.login.verifying"
-        ].some(client.value.matches),
-      showRegisterForm: client.value?.matches("unauthenticated.register"),
-      isLoadingRegisterForm: client.value?.matches(
-        "unauthenticated.register.loading"
-      )
-    })),
+    meta,
     // --- Guest
     guest,
     // --- Client
     client,
-    clientSchema: computed(() => client.value?.context?.schema),
-    clientUischema: computed(() => client.value?.context?.uischema),
+    model,
+    schema,
+    uischema,
     // ---
-    cancel,
+    reject,
+    resolve,
     clearErrors,
     getUser,
     login,

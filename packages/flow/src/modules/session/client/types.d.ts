@@ -14,6 +14,7 @@ export interface ClientContext {
   error?: RequestError;
   refresh?: boolean;
   // ---
+  customFields: Array;
   model: ClientModel;
   schema?: JsonSchema;
   uischema?: UISchemaElement;

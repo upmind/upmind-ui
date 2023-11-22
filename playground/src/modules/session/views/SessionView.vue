@@ -47,7 +47,7 @@
           <button
             class="btn btn-ghost join-item"
             type="reset"
-            @click.prevent="cancel"
+            @click.prevent="reject"
             v-if="client"
           >
             cancel
@@ -57,7 +57,7 @@
     </header>
 
     <div
-      class="card card-compact card-bordered border-base-300 rounded-xl bg-base-200 shadow-sm overflow-hidden my-8 w-96 max-w-full"
+      class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 shadow-sm overflow-hidden my-8 w-96 max-w-full"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
       <div
@@ -77,33 +77,39 @@
         </button>
       </div>
 
-      <auth-form
-        v-if="meta.showLoginForm && !meta.show2fa"
-        :processing="meta.isProcessing"
-        @resolve="login"
-        @reject="cancel"
-        :additionalErrors="errors?.data"
-      ></auth-form>
+      <div class="card-body">
+        <h3 class="card-title m-0 justify-center" v-if="schema?.title">
+          {{ schema.title }}
+        </h3>
 
-      <twofa-form
-        v-if="meta.show2fa"
-        :processing="meta.isProcessing"
-        @resolve="verify2fa"
-        @reject="cancel"
-        :additionalErrors="errors?.data"
-      ></twofa-form>
-
-      <register-form
-        v-if="meta.showRegisterForm"
-        :schema="clientSchema"
-        :uischema="clientUischema"
-        :processing="meta.isProcessing"
-        :loading="meta.isLoadingRegisterForm"
-        :additionalErrors="errors?.data"
-        @resolve="register"
-        @reject="cancel"
-      >
-      </register-form>
+        <form-generator
+          :loading="meta.isFormLoading"
+          :processing="meta.isProcessing"
+          :model-value="model"
+          :schema="schema"
+          :uischema="uischema"
+          :additional-errors="errors?.data"
+          @reject="reject"
+          @resolve="resolve"
+        >
+          <template #actions="{ isValid, doReject }">
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="!isValid || meta.isProcessing"
+            >
+              Continue
+            </button>
+            <button
+              class="btn btn-ghost"
+              type="reset"
+              @click.prevent="doReject"
+            >
+              Cancel
+            </button>
+          </template>
+        </form-generator>
+      </div>
     </div>
 
     <footer>
@@ -121,9 +127,11 @@
 <script setup lang="ts">
 import { useSession } from "../";
 import Debug from "@/components/Debug.vue";
-import AuthForm from "../components/Auth.vue";
-import TwofaForm from "../components/2fa.vue";
-import RegisterForm from "../components/Register.vue";
+import FormGenerator from "../../form/components/FormGenerator.vue";
+
+// import AuthForm from "../components/Auth.vue";
+// import TwofaForm from "../components/2fa.vue";
+// import RegisterForm from "../components/Register.vue";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const {
@@ -135,17 +143,16 @@ const {
   client,
   guest,
   // ---
-  clientSchema,
-  clientUischema,
+  schema,
+  uischema,
+  model,
   // ---
   clearErrors,
   showLogin,
   showRegister,
-  login,
-  verify2fa,
-  register,
   logout,
-  cancel
+  resolve,
+  reject
 } = useSession();
 
 // ---
