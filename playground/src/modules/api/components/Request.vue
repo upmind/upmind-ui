@@ -8,37 +8,40 @@
     <div class="collapse-title">
       <h4 class="m-0">{{ request.id }}</h4>
 
-      <em
-        class="status block text-sm"
-        v-if="request.isCached || request.isStale"
-      >
-        {{ expiresIn }}
-      </em>
-
-      <div v-for="(value, key) in request.state" :key="key" class="mt-2 -mx-1">
-        <button class="btn btn-neutral btn-xs status">
+      <div class="flex items-center gap-2 mt-2">
+        <button
+          class="btn btn-neutral btn-outline btn-xs status"
+          v-for="(value, key) in request.state"
+          :key="key"
+        >
           {{ key }}
 
-          <span class="status badge badge-sm">
+          <span class="status badge badge-neutral badge-sm">
             {{ value }}
           </span>
         </button>
+        <code
+          class="status block text-xs ml-auto font-thin"
+          v-if="request.isCached || request.isStale"
+        >
+          {{ expiresIn }}
+        </code>
       </div>
     </div>
 
-    <code class="collapse-content">
-      <div class="mockup-code">
-        <pre class="text-neutral-content" data-prefix="REQ > ">{{
-          request.url
-        }}</pre>
-        <pre
-          data-prefix="RES > "
-          :class="{
-            'text-success': request.response.status == 200,
-            'text-error': request.response.status != 200
-          }"
-        ><code>{{ request.response }}</code></pre>
-      </div>
+    <code class="mockup-code collapse-content min-w-full rounded-none">
+      <pre data-prefix="REQ > ">
+          <div>{{ request.url }}</div>
+        </pre>
+      <pre
+        data-prefix="RES > "
+        :class="{
+          'text-success': request.response.status == 200,
+          'text-error': request.response.status != 200
+        }"
+      >
+       <div>{{ request.response }}</div>
+        </pre>
     </code>
   </div>
 </template>
