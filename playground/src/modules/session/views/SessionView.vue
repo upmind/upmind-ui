@@ -62,7 +62,7 @@
     >
       <div
         role="alert"
-        class="alert alert-error rounded-none"
+        class="alert alert-error rounded-none sticky top-0 z-10 shadow-xl"
         v-if="meta.hasErrors"
       >
         <shield-exclamation-icon class="h-8 w-8" />

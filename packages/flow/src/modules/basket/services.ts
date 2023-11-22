@@ -196,7 +196,7 @@ async function setCurrency({ basket, items }: BasketContext, { data }: any) {
 async function addPromotion({ basket, items }, { data }: any) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-  const promocode = get(data, "code");
+  const promocode = get(data, "promocode");
 
   if (!promocode) return Promise.reject("No Promotion to add to basket");
 

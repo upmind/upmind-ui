@@ -3,6 +3,7 @@
     class="card-body"
     :schema="schema"
     :uischema="uischema"
+    :additional-errors="additionalErrors"
     @reject="$emit('reject')"
     @resolve="$emit('resolve', $event?.token)"
     :processing="processing"
@@ -24,8 +25,10 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
+import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "2faForm",
@@ -37,6 +40,12 @@ export default defineComponent({
     processing: {
       type: Boolean,
       default: false
+    },
+    additionalErrors: {
+      type: Array as PropType<
+        ErrorObject<string, Record<string, any>, unknown>[]
+      >,
+      default: () => []
     }
   },
 

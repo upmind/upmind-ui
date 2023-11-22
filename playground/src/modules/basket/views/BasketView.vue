@@ -102,6 +102,21 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
+      <div
+        role="alert"
+        class="alert alert-error my-4 sticky top-0 z-10 shadow-xl"
+        v-if="meta.hasErrors"
+      >
+        <shield-exclamation-icon class="h-8 w-8" />
+        <div>
+          <h3 class="m-0 text-inherit">
+            We experienced an error updating the basket
+          </h3>
+
+          <span>{{ errors.message }}</span>
+        </div>
+      </div>
+
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
           <div v-for="item in items" :key="item.id">
@@ -133,42 +148,43 @@
         <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
           <!-- Summary -->
           <div
-            class="basket-summary bg-primary-content text-base-content border border-base-300 rounded-xl px-4 text-center"
+            class="basket-summary bg-primary-content text-primary border border-base-300 rounded-xl px-4 text-center"
           >
+            <!-- Items -->
             <div>
-              <h2 class="mt-6 text-base-content">
-                <span class="text-primary">{{ items.length }}</span> Product{{
-                  items.length > 1 ? "s" : ""
-                }}
+              <div class="divider mt-4 uppercase text-xs">
+                Product{{ items.length > 1 ? "s" : "" }}
+              </div>
+
+              <h2 class="text-primary mt-0">{{ items.length }}</h2>
+            </div>
+
+            <!-- Promotions -->
+            <div v-if="meta.hasPromotions">
+              <div class="divider mt-4 uppercase text-xs">Discount</div>
+              <h2 class="text-primary mt-0">{{ summary?.discount }}</h2>
+            </div>
+
+            <!-- Subtotal -->
+            <div>
+              <div class="divider mt-4 uppercase text-xs">SubTotal</div>
+              <h2 class="text-primary-focus mt-0">
+                {{ summary.subtotal }}
               </h2>
             </div>
 
-            <div class="totals">
-              <!-- Promotions -->
-              <div v-if="meta.hasPromotions">
-                <div class="divider mt-4 uppercase text-xs">Discount</div>
-                <h2 class="text-primary mt-0">{{ summary?.discount }}</h2>
-              </div>
+            <!-- Taxes -->
+            <div v-if="meta.hasTaxes">
+              <div class="divider mt-4 uppercase text-xs">Taxes</div>
+              <h2 class="text-primary-focus mt-0">{{ summary.taxes }}</h2>
+            </div>
 
-              <!-- Subtotal -->
-              <div>
-                <div class="divider mt-4 uppercase text-xs">SubTotal</div>
-                <h2 class="text-primary mt-0">{{ summary.subtotal }}</h2>
-              </div>
-
-              <!-- Taxes -->
-              <div v-if="meta.hasTaxes">
-                <div class="divider mt-4 uppercase text-xs">Taxes</div>
-                <h2 class="text-primary mt-0">{{ summary.taxes }}</h2>
-              </div>
-
-              <!-- Total -->
-              <div>
-                <div class="divider mt-4 uppercase">Total</div>
-                <h1 class="text-primary text-3xl">
-                  {{ summary?.total }}
-                </h1>
-              </div>
+            <!-- Total -->
+            <div>
+              <div class="divider mt-4 uppercase">Total</div>
+              <h1 class="text-primary-focus text-3xl">
+                {{ summary?.total }}
+              </h1>
             </div>
           </div>
 
@@ -197,18 +213,12 @@
           <promotions-config
             :promotions="promotions"
             :processing="meta.isProcessing"
+            :additionalErrors="errors?.data"
             @resolve="addPromotion"
             @reject="removePromotion"
           ></promotions-config>
         </aside>
       </section>
-
-      <div v-if="meta.hasErrors" class="panel bg-error p-4 rounded-xl">
-        <h3>We experienced an error updating the basket</h3>
-        <code>
-          <pre>{{ errors }}</pre>
-        </code>
-      </div>
     </div>
 
     <footer>
@@ -233,7 +243,10 @@ import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ProductConfig from "@/modules/product/views/ProductConfig.vue";
 import PromotionsConfig from "../components/Promotions.vue";
 import Debug from "@/components/Debug.vue";
-import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
+import {
+  SquaresPlusIcon,
+  ShieldExclamationIcon
+} from "@heroicons/vue/24/outline";
 
 const {
   state,
