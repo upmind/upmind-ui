@@ -10,7 +10,7 @@ import { responseCodes } from "../../api/types.d";
 // --- utils
 import { useTime } from "../../../utils";
 import { useTokenParser } from "../utils";
-import { forEach } from "lodash-es";
+import { useValidationParser } from "./utils";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -95,7 +95,7 @@ export default createMachine(
                     },
                     { target: "#authenticated", actions: ["setToken"] }
                   ],
-                  onError: { target: "#error", actions: ["setError"] }
+                  onError: { target: "error", actions: ["setError"] }
                 }
               },
               challenging: {
@@ -113,6 +113,9 @@ export default createMachine(
                   },
                   onError: { target: "challenging", actions: ["setError"] }
                 }
+              },
+              error: {
+                after: { error: "idle" } // automatically move to stale after max age
               }
             }
           },
@@ -290,26 +293,13 @@ export default createMachine(
       setError: assign({
         error: (context, { data: { error } }) => {
           if ((error.code = 422)) {
-            debugger;
-            const errors = [];
-            forEach(error.data, (value, key) => {
-              debugger;
-              const newError = {
-                instancePath: `/${key}`, // AJV style path to the property in the schema
-                message: value.toString(),
-                // --- optional
-                schemaPath: "",
-                keyword: "",
-                params: {}
-              };
-              debugger;
-              errors.push(newError);
-            });
-
-            return errors;
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            error.message = "Validation error";
+            error.data = useValidationParser(error?.data);
           }
 
-          return data?.error || "Unknown error";
+          return error || "Unknown error";
         }
       }),
 

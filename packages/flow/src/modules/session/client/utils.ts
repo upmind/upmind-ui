@@ -11,7 +11,7 @@ export const useSchemaParser = (data: any) => {
   const required = [];
   const schema = {
     type: "object",
-    required: ["firstname", "password"],
+    required: ["firstname", "lastname", "email", "password"],
     properties: {
       firstname: {
         type: "string",
@@ -174,4 +174,21 @@ export const useUischemaParser = (data: any) => {
 
   console.log("useUischemaParser", { schema, data });
   return schema;
+};
+
+export const useValidationParser = (data: any) => {
+  const errors = [];
+  forEach(data, (value, key) => {
+    const newError = {
+      instancePath: `/${key}`, // AJV style path to the property in the schema
+      message: value.toString(),
+      // --- optional
+      schemaPath: "",
+      keyword: "",
+      params: {}
+    };
+    errors.push(newError);
+  });
+
+  return errors;
 };

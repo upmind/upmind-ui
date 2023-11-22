@@ -90,6 +90,9 @@ export interface Typegen0 {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
+    "xstate.after(error)#client.unauthenticated.login.error": {
+      type: "xstate.after(error)#client.unauthenticated.login.error";
+    };
     "xstate.after(error)#client.unauthenticated.register.error": {
       type: "xstate.after(error)#client.unauthenticated.register.error";
     };
@@ -158,6 +161,7 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {
     error:
+      | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
       | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
       | "error.platform.client.unauthenticated.register.checking:invocation[0]"
       | "error.platform.client.unauthenticated.register.loading:invocation[0]"
@@ -205,6 +209,7 @@ export interface Typegen0 {
     | "unauthenticated.login"
     | "unauthenticated.login.authenticating"
     | "unauthenticated.login.challenging"
+    | "unauthenticated.login.error"
     | "unauthenticated.login.idle"
     | "unauthenticated.login.verifying"
     | "unauthenticated.register"
@@ -223,7 +228,12 @@ export interface Typegen0 {
           | "login"
           | "register"
           | {
-              login?: "authenticating" | "challenging" | "idle" | "verifying";
+              login?:
+                | "authenticating"
+                | "challenging"
+                | "error"
+                | "idle"
+                | "verifying";
               register?:
                 | "authenticating"
                 | "challenging"
