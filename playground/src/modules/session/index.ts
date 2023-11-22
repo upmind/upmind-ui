@@ -109,8 +109,7 @@ export const useSession = () => {
           "unauthenticated.register.challenging"
         ].some(client.value.matches),
 
-      hasErrors: ["starting.status.error"].some(state.value.matches),
-      hasClientErrors: !isEmpty(client.value?.context?.error),
+      hasErrors: !isEmpty(state.value?.context?.error),
       // ---
       isGuest: ["guest", "starting.guest"].some(state.value.matches),
       isClient: ["client", "starting.client"].some(state.value.matches),
@@ -139,7 +138,6 @@ export const useSession = () => {
     client,
     clientSchema: computed(() => client.value?.context?.schema),
     clientUischema: computed(() => client.value?.context?.uischema),
-    clientErrors: computed(() => client.value?.context?.error),
     // ---
     showLogin,
     showRegister,

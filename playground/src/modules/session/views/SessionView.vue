@@ -63,10 +63,10 @@
       <div
         role="alert"
         class="alert alert-error rounded-none"
-        v-if="meta.hasClientErrors"
+        v-if="meta.hasErrors"
       >
         <shield-exclamation-icon class="h-8 w-8" />
-        <span>{{ clientErrors.message }}</span>
+        <span>{{ errors.message }}</span>
       </div>
 
       <auth-form
@@ -74,7 +74,7 @@
         :processing="meta.isProcessing"
         @resolve="login"
         @reject="cancel"
-        :additionalErrors="clientErrors?.data"
+        :additionalErrors="errors?.data"
       ></auth-form>
 
       <twofa-form
@@ -82,7 +82,7 @@
         :processing="meta.isProcessing"
         @resolve="verify2fa"
         @reject="cancel"
-        :additionalErrors="clientErrors?.data"
+        :additionalErrors="errors?.data"
       ></twofa-form>
 
       <register-form
@@ -91,7 +91,7 @@
         :uischema="clientUischema"
         :processing="meta.isProcessing"
         :loading="meta.isLoadingRegisterForm"
-        :additionalErrors="clientErrors?.data"
+        :additionalErrors="errors?.data"
         @resolve="register"
         @reject="cancel"
       >
@@ -103,7 +103,7 @@
         title="Session"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
         :context="context"
-        :errors="{ errors, clientErrors }"
+        :errors="errors"
         :meta="meta"
       ></debug>
     </footer>
@@ -129,7 +129,6 @@ const {
   // ---
   clientSchema,
   clientUischema,
-  clientErrors,
   // ---
   showLogin,
   showRegister,
