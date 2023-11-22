@@ -3,26 +3,9 @@
     class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
     :class="color"
   >
-    <div
-      role="alert"
-      class="alert alert-error rounded-none shadow-xl"
-      v-if="meta.hasErrors"
-    >
-      <shield-exclamation-icon class="h-8 w-8" />
-      <div>
-        <span>{{ errors.message }}</span>
-      </div>
-      <button
-        class="btn btn-sm btn-square btn-ghost"
-        @click.prevent="clearErrors"
-      >
-        <x-mark-icon class="h-8 w-8" />
-      </button>
-    </div>
-
     <header class="">
       <div class="navbar px-4 relative">
-        <div class="flex-1 flex flex-wrap items-center gap-2 overflow-x-hidden">
+        <div class="flex-1 flex flex-wrap overflow-x-hidden gap-2">
           <span
             class="rounded badge badge-info"
             v-if="available?.product?.hasFreeTrial"
@@ -37,16 +20,20 @@
             On Promotion
           </span>
 
-          <span
-            :class="['rounded', 'badge', 'badge-outline', `badge-${color}`]"
-            v-for="({ color, label }, index) in status"
-            :key="`status-${index}`"
-          >
-            {{ label }}
-          </span>
-          <!-- <span :class="['rounded', 'badge', 'badge-sm', 'badge-warning']"
-            >temp</span
-          > -->
+          <template v-if="isDev">
+            <span
+              class="rounded badge badge-outline"
+              :class="[`badge-${color}`]"
+              v-for="({ color, label }, index) in status"
+              :key="`status-${index}`"
+            >
+              {{ label }}
+            </span>
+          </template>
+
+          <h4 class="card-title my-0 w-full" v-if="available?.product?.name">
+            {{ available.product.name }}
+          </h4>
         </div>
 
         <div class="flex-none">
@@ -67,9 +54,6 @@
         </div>
       </div>
 
-      <h4 class="card-title px-4 my-0" v-if="available?.product?.name">
-        {{ available.product.name }}
-      </h4>
       <h5 class="card-subtitle px-4" v-if="available?.product?.description">
         {{ available.product.description }}
       </h5>
@@ -235,6 +219,9 @@ export default defineComponent({
     };
   },
   computed: {
+    isDev(): boolean {
+      return (this.debugging && import.meta.env.DEV) || true;
+    },
     color() {
       return {
         "border-secondary-content":

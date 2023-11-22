@@ -63,6 +63,7 @@ export interface Typegen0 {
       type: "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
       data: unknown;
     };
+    "xstate.after(error)#error": { type: "xstate.after(error)#error" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -88,6 +89,7 @@ export interface Typegen0 {
       | "getProduct";
   };
   eventsCausingActions: {
+    clearCalculating: "done.invoke.productConfigurator.calculating:invocation[0]";
     clearError: "CLEAR.ERRORS";
     escalateError:
       | "error.platform.load"
@@ -97,12 +99,15 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
-    sendConfig: "done.invoke.productConfigurator.calculating:invocation[0]";
+    sendConfig:
+      | "done.invoke.productConfigurator.calculating:invocation[0]"
+      | "done.state.configuring";
     setAttributes:
       | "UPDATE.ATTRIBUTES"
       | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
+    setCalculating: "UPDATE.OPTIONS" | "UPDATE.QUANTITY" | "UPDATE.TERM";
     setClean: "REFRESH";
     setConfig:
       | "UPDATE.TERM"
@@ -111,6 +116,7 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]"
+      | "done.state.configuring"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]";
@@ -146,8 +152,15 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
     setValues: "REFRESH";
   };
-  eventsCausingDelays: {};
-  eventsCausingGuards: {};
+  eventsCausingDelays: {
+    error:
+      | "ERROR"
+      | "error.platform.load"
+      | "error.platform.productConfigurator.calculating:invocation[0]";
+  };
+  eventsCausingGuards: {
+    needsRecalculating: "done.state.configuring";
+  };
   eventsCausingServices: {
     calculateSummary: "done.state.configuring";
     checkAttributes:
@@ -156,35 +169,40 @@ export interface Typegen0 {
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "xstate.after(error)#error";
     checkOptions:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "xstate.after(error)#error";
     checkProvisioning:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "xstate.after(error)#error";
     checkQuantity:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "xstate.after(error)#error";
     checkTerm:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "xstate.after(error)#error";
     getProduct: "ERROR" | "REFRESH" | "xstate.init";
   };
   matchesStates:

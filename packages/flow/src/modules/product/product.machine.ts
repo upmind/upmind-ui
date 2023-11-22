@@ -27,7 +27,6 @@ import { useBrand } from "../brand";
 // as this is a sub machine, we need to be initialised with a product
 export default (values, currency_id, promotions) => {
   const { validateCurrency } = useBrand();
-
   return createMachine(
     {
       tsTypes: {} as import("./product.machine.typegen").Typegen0,
@@ -45,6 +44,7 @@ export default (values, currency_id, promotions) => {
         // once we have finished configuring it
         isNew: !values?.id,
         isDirty: false,
+        needsCalculating: !values?.invoice_total_amount, //if we have been given totals, the nwe dont need to calculate
 
         // ---
         // the various lookups that we are using in our configuation
@@ -111,7 +111,7 @@ export default (values, currency_id, promotions) => {
               on: {
                 "UPDATE.QUANTITY": {
                   target: "quantity.checking",
-                  actions: ["setQuantity"]
+                  actions: ["setQuantity", "setCalculating"]
                 }
               }
             },
@@ -136,7 +136,7 @@ export default (values, currency_id, promotions) => {
               on: {
                 "UPDATE.TERM": {
                   target: "term.checking",
-                  actions: ["setTerm", "setConfig"]
+                  actions: ["setTerm", "setConfig", "setCalculating"]
                 }
               }
             },
@@ -202,7 +202,7 @@ export default (values, currency_id, promotions) => {
               on: {
                 "UPDATE.OPTIONS": {
                   target: "options.checking",
-                  actions: ["setOptions"]
+                  actions: ["setOptions", "setCalculating"]
                 }
               }
             },
@@ -246,13 +246,19 @@ export default (values, currency_id, promotions) => {
               actions: ["setValues", "setClean"]
             }
           },
-          onDone: { target: "calculating" }
+          onDone: [
+            { target: "calculating", cond: "needsRecalculating" },
+            { target: "configured" }
+          ]
         },
 
         calculating: {
           invoke: {
             src: "calculateSummary",
-            onDone: { target: "configured", actions: ["setSummary"] },
+            onDone: {
+              target: "configured",
+              actions: ["setSummary", "clearCalculating"]
+            },
             onError: { target: "error", actions: ["setError", "escalateError"] }
           }
         },
@@ -268,11 +274,11 @@ export default (values, currency_id, promotions) => {
             // ---
             "UPDATE.QUANTITY": {
               target: "configuring.quantity.checking",
-              actions: ["setQuantity", "setDirty"]
+              actions: ["setQuantity", "setDirty", "setCalculating"]
             },
             "UPDATE.TERM": {
               target: "configuring.term.checking",
-              actions: ["setTerm", "setDirty"]
+              actions: ["setTerm", "setDirty", "setCalculating"]
             },
             "UPDATE.ATTRIBUTES": {
               target: "configuring.attributes.checking",
@@ -280,7 +286,7 @@ export default (values, currency_id, promotions) => {
             },
             "UPDATE.OPTIONS": {
               target: "configuring.options.checking",
-              actions: ["setOptions", "setDirty"]
+              actions: ["setOptions", "setDirty", "setCalculating"]
             },
             "UPDATE.PROVISIONING": {
               target: "configuring.provisioning.checking",
@@ -291,7 +297,10 @@ export default (values, currency_id, promotions) => {
 
         // Handle errors
         error: {
-          id: "error"
+          id: "error",
+          after: {
+            error: "#configuring"
+          }
         },
 
         // Handle completion, stop the machine and prevent further products
@@ -392,8 +401,21 @@ export default (values, currency_id, promotions) => {
 
         // ---
 
+        setCalculating: assign({
+          needsCalculating: ({ needsCalculating }, { data }) => {
+            // TODO: a more comprehensive check to see if values have actually changed.
+            // For now we will always set this to true, as we need to recalculate the summary
+            return true;
+          }
+        }),
+
+        clearCalculating: assign({ needsCalculating: false }),
         setDirty: assign({ isDirty: true }),
-        setClean: assign({ isDirty: false }),
+        setClean: assign({
+          isDirty: false,
+          needsCalculating: false,
+          error: null
+        }),
 
         // ---
         setAvailable: assign({
@@ -429,8 +451,11 @@ export default (values, currency_id, promotions) => {
         clearError: assign({ error: null })
       },
       services,
-      guards: {},
+      guards: {
+        needsRecalculating: ({ needsCalculating }) => needsCalculating
+      },
       delays: {
+        error: () => useTime().SECOND * 3, // this allows us to read the error before continuing
         wait: () => useTime().MILLISECOND * 100 // this allows us to wait for an imperceptible amount of time before continuing
       }
     }

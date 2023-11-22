@@ -282,12 +282,7 @@ async function updateItem({ basket, items }, { data }: any) {
       const newItems = differenceBy(basket.products, items, "id");
       return { basket, items: [item], newItems, queue };
     })
-    .then(updateItemProvisioningFields)
-    .catch(error => {
-      // NB we must add the item to the error, so we can forward it to the item machine
-      error.item = item;
-      throw error;
-    });
+    .then(updateItemProvisioningFields);
 }
 
 async function updateItemProvisioningFields({
@@ -342,17 +337,18 @@ async function updateItemProvisioningFields({
     []
   );
 
-  return Promise.all(promises).then(() => ({ basket, items, newItems, queue }));
-  // .catch(err => {
-  //   // we dont need to throw this error, as it is not critical
-  //   console.error("updateItemProvisioningFields", err, {
-  //     basket,
-  //     items,
-  //     newItems,
-  //     queue
-  //   });
+  return Promise.all(promises)
+    .then(() => ({ basket, items, newItems, queue }))
+    .catch(error => {
+      // pass the basket, items, newItems and queue to the error
+      // as we may stll need to process them despite the error
+      error.basket = basket;
+      error.items = items;
+      error.newItems = newItems;
+      error.queue = queue;
 
-  // });
+      throw error;
+    });
 }
 
 async function removeItem({ basket, bin }: BasketContext, { data }: any) {

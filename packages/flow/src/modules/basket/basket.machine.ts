@@ -1,6 +1,7 @@
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import services from "./services";
@@ -146,7 +147,10 @@ export default createMachine(
                         target: "#configuring",
                         actions: ["refreshItems", "updateBasket"]
                       },
-                      onError: { target: "#configuring", actions: ["setError"] }
+                      onError: {
+                        target: "#configuring",
+                        actions: ["refreshItems", "updateBasket", "setError"]
+                      }
                     }
                   },
 
@@ -176,10 +180,9 @@ export default createMachine(
                           actions: ["refreshItems", "updateBasket"]
                         }
                       ],
-
                       onError: {
                         target: "#configuring",
-                        actions: ["setError"]
+                        actions: ["refreshItems", "updateBasket", "setError"]
                       }
                     }
                   },
@@ -201,7 +204,7 @@ export default createMachine(
                       ],
                       onError: {
                         target: "#configuring",
-                        actions: ["setError"]
+                        actions: ["refreshItems", "updateBasket", "setError"]
                       }
                     }
                   },
@@ -386,7 +389,8 @@ export default createMachine(
     actions: {
       setBasket: assign({
         basket: (context, { data }) => data,
-        summary: (context, { data }) => useSummaryParser(data)
+        summary: (context, { data }) => useSummaryParser(data),
+        error: null
       }),
 
       updateBasket: assign({
@@ -397,12 +401,14 @@ export default createMachine(
         summary: (context, { data }) => {
           const value = get(data, "basket", context.basket);
           return useSummaryParser(value);
-        }
+        },
+        error: null
       }),
 
       clearBasket: assign({
         basket: {},
-        summary: useSummaryParser()
+        summary: useSummaryParser(),
+        error: null
       }),
 
       // --- Configuring Items Actions
@@ -423,7 +429,8 @@ export default createMachine(
             items.push(machine);
           });
           return items;
-        }
+        },
+        error: null
       }),
 
       addItem: assign({
@@ -435,7 +442,8 @@ export default createMachine(
           );
           items.push(machine);
           return items;
-        }
+        },
+        error: null
       }),
 
       // addAncillaryItems: assign({
@@ -481,14 +489,16 @@ export default createMachine(
           const removed = remove(items, ["id", itemId]);
           if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
-        }
+        },
+        error: null
       }),
 
       removeAllItems: assign({
         items: ({ items, bin }, _event) => {
           forEach(items, item => item.stop());
           return [];
-        }
+        },
+        error: null
       }),
 
       removeItem: assign({
@@ -505,7 +515,8 @@ export default createMachine(
           const removed = remove(bin, ["id", itemId]);
           if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
-        }
+        },
+        error: null
       }),
 
       refreshItems: assign({
@@ -586,7 +597,8 @@ export default createMachine(
 
           // ---
           return items;
-        }
+        },
+        error: null
       }),
 
       // ---
@@ -600,16 +612,25 @@ export default createMachine(
 
       setError: assign({
         error: (context, { data }) => {
-          const { item, error } = data;
+          const { items, newItems, error } = data;
 
           // if we are supplied a machine, we must forward/send the error to it
-          if (item) {
-            item.send({ type: "ERROR", data });
-            return;
-          }
+          if (items || newItems) {
+            forEach(items.concat(newItems), item => {
+              const found = find(context.items, ["id", item.id]);
+              if (found) {
+                waitFor(found, state =>
+                  ["configured", "error"].some(state.matches)
+                ).then(() => {
+                  found.send({ type: "ERROR", data: { error: data.error } });
+                });
+              }
+            });
 
-          debugger;
-          if (error.code == 422) {
+            if (error.code == 422) {
+              error.message = "Validation error";
+            }
+          } else if (error.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(error);
