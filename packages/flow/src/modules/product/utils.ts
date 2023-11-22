@@ -345,6 +345,7 @@ export const useProvisioningParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data: any) => {
+  console.log("useSummaryParser", data);
   const summary = {
     discount: data?.configuration_total_discount_amount_converted,
     discountFormatted: data?.configuration_total_discount_amount_formatted,
@@ -352,9 +353,9 @@ export const useSummaryParser = (data: any) => {
     subtotal: data?.configuration_total_amount_converted,
     subtotalFormatted: data?.configuration_total_amount_formatted,
 
-    total: data?.invoice_total_amount,
-    totalFormatted:
-      data?.invoice_total_amount_formatted || data?.total_formatted
+    // TODO: use the correc ttotals when discoutns are applied!
+    total: data?.configuration_selling_price_discounted_converted,
+    totalFormatted: data?.configuration_net_selling_price_formatted
   };
 
   return summary;
@@ -493,10 +494,11 @@ export const useValidationParser = (error: any) => {
     error.message = "Validation error";
 
     const errors = [];
+
     forEach(error.data, (value, key) => {
       // because we have a specific schema for provision_fields, we dont need the prefix of the path
       const instancePath = key.replace("provision_field_values.", "");
-      // handle any nested properties correctly, JSOn schema would have them withing properties
+      // handle any nested properties correctly, JSON schema would have them withing properties
       instancePath.replace(".", "/properties/");
 
       const newError = {

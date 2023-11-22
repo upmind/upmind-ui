@@ -136,7 +136,10 @@ export interface Typegen0 {
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
-      | "done.invoke.updating:invocation[0]";
+      | "done.invoke.updating:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "error.platform.removing:invocation[0]"
+      | "error.platform.updating:invocation[0]";
     removeAllItems: "CLEAR";
     removeItem: "done.invoke.removing:invocation[0]";
     sendToItem:
@@ -163,7 +166,10 @@ export interface Typegen0 {
       | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
       | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
-      | "done.invoke.updating:invocation[0]";
+      | "done.invoke.updating:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "error.platform.removing:invocation[0]"
+      | "error.platform.updating:invocation[0]";
   };
   eventsCausingDelays: {
     error: "error.platform.basketManager.shopping.items.processing.currency:invocation[0]";

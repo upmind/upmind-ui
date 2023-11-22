@@ -1,12 +1,15 @@
 // --------------------------------------------------------
 // ENUMS
 
+import type { A } from "vitest/dist/reporters-cb94c88b.js";
+
 // --------------------------------------------------------
 // Contexts
 
 export interface BasketContext {
   basket: Basket | null;
   items: Array;
+  bin: Array;
   error?: RequestError;
 }
 

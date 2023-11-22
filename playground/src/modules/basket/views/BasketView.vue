@@ -125,30 +125,31 @@
 
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
-          <div v-for="item in items" :key="item.id">
-            <config-product
-              :item="item"
-              :id="item.id"
-              :processing="meta.isProcessing"
-              @remove="removeItem"
-              @update:term="updateTerm"
-              @update:quantity="updateQuantity"
-              @update:attributes="updateAttributes"
-              @update:options="updateOptions"
-              @update:provisioning="updateProvisioning"
-            >
-              <template #actions="{ isConfigured, isNew, isDirty }">
-                <button
-                  v-if="isConfigured && (isNew || isDirty)"
-                  class="btn btn-primary btn-sm btn-block mt-4"
-                  :disabled="meta.isProcessing"
-                  @click.prevent="updateItem(item.id)"
-                >
-                  Update Item
-                </button>
-              </template>
-            </config-product>
-          </div>
+          <config-product
+            v-for="item in items"
+            :key="item.id"
+            :item="item"
+            :id="item.id"
+            :processing="meta.isProcessing"
+            @remove="removeItem"
+            @update:term="updateTerm"
+            @update:quantity="updateQuantity"
+            @update:attributes="updateAttributes"
+            @update:options="updateOptions"
+            @update:provisioning="updateProvisioning"
+            :debugging="debugging"
+          >
+            <template #actions="{ isConfigured, isNew, isDirty }">
+              <button
+                v-if="isConfigured && (isNew || isDirty)"
+                class="btn btn-primary btn-sm btn-block mt-4"
+                :disabled="meta.isProcessing"
+                @click.prevent="updateItem(item.id)"
+              >
+                Update Item
+              </button>
+            </template>
+          </config-product>
         </div>
 
         <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
@@ -333,7 +334,7 @@ const productCatalogue = [
   }
 ];
 
-const debugging = ref(true);
+const debugging = ref(false);
 
 const model = ref({
   product_id: null,
