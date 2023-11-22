@@ -27,6 +27,8 @@ export const useBasket = () => {
 
     clearBasket: () => send({ type: "CLEAR" }),
 
+    clearErrors: () => send({ type: "CLEAR.ERRORS" }),
+
     updateCurrency: currency =>
       send({ type: "UPDATE.CURRENCY", data: currency }),
 

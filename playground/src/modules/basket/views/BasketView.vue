@@ -115,6 +115,12 @@
 
           <span>{{ errors.message }}</span>
         </div>
+        <button
+          class="btn btn-sm btn-square btn-ghost"
+          @click.prevent="clearErrors"
+        >
+          <x-mark-icon class="h-8 w-8" />
+        </button>
       </div>
 
       <section class="basket grid grid-cols-7 gap-8 py-4">
@@ -245,7 +251,8 @@ import PromotionsConfig from "../components/Promotions.vue";
 import Debug from "@/components/Debug.vue";
 import {
   SquaresPlusIcon,
-  ShieldExclamationIcon
+  ShieldExclamationIcon,
+  XMarkIcon
 } from "@heroicons/vue/24/outline";
 
 const {
@@ -259,19 +266,20 @@ const {
   currency,
   currencies,
   // ---
+  addProduct,
+  addPromotion,
+  clearBasket,
+  clearErrors,
+  removeItem,
+  removePromotion,
+  updateAttributes,
   updateBasket,
   updateCurrency,
-  clearBasket,
   updateItem,
-  addProduct,
-  removeItem,
-  updateTerm,
-  updateQuantity,
-  updateAttributes,
   updateOptions,
   updateProvisioning,
-  addPromotion,
-  removePromotion
+  updateQuantity,
+  updateTerm
 } = useBasket();
 
 const productCatalogue = [

@@ -129,6 +129,7 @@ export interface Typegen0 {
     addItem: "ADD";
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
+    clearError: "CLEAR.ERRORS";
     loadItems: "done.invoke.loading:invocation[0]";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
@@ -189,6 +190,7 @@ export interface Typegen0 {
     claim: "AUTHENTICATED";
     generate: "ADD";
     isAuthenticated:
+      | "CLEAR.ERRORS"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
