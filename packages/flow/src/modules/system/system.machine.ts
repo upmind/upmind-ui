@@ -40,7 +40,7 @@ export default createMachine(
                 target: "error",
                 actions: assign({
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
-                    set(error, "currencies", data || "Unknown error");
+                    set(error, "currencies", data);
                     return error;
                   }
                 })
@@ -80,7 +80,7 @@ export default createMachine(
                 target: "error",
                 actions: assign({
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
-                    set(error, "billingCycles", data || "Unknown error");
+                    set(error, "billingCycles", data);
                     return error;
                   }
                 })

@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, actions } from "xstate";
+const { escalate, sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -14,7 +15,8 @@ import {
   useProductParser,
   useTermsParser,
   useValuesParser,
-  useSummaryParser
+  useSummaryParser,
+  useValidationParser
 } from "./utils";
 
 import { get, set, map, toNumber, find } from "lodash-es";
@@ -28,7 +30,7 @@ export default (values, currency_id, promotions) => {
 
   return createMachine(
     {
-      tsTypes: {} as import("./config.machine.typegen").Typegen0,
+      tsTypes: {} as import("./product.machine.typegen").Typegen0,
       id: "productConfigurator",
       predictableActionArguments: true,
       initial: "loading",
@@ -73,7 +75,10 @@ export default (values, currency_id, promotions) => {
             id: "load",
             src: "getProduct",
             onDone: [{ target: "configuring", actions: ["setAvailable"] }],
-            onError: { target: "#error", actions: ["setError"] }
+            onError: {
+              target: "#error",
+              actions: ["setError", "escalateError"]
+            }
           }
         },
 
@@ -92,7 +97,10 @@ export default (values, currency_id, promotions) => {
                       target: "valid",
                       actions: ["setQuantity", "setConfig"]
                     },
-                    onError: { target: "invalid", actions: ["setError"] }
+                    onError: {
+                      target: "invalid",
+                      actions: ["setError", "escalateError"]
+                    }
                   }
                 },
                 invalid: {},
@@ -114,7 +122,10 @@ export default (values, currency_id, promotions) => {
                   invoke: {
                     src: "checkTerm",
                     onDone: { target: "valid", actions: ["setTerm"] },
-                    onError: { target: "invalid", actions: ["setError"] }
+                    onError: {
+                      target: "invalid",
+                      actions: ["setError", "escalateError"]
+                    }
                   }
                 },
                 invalid: {},
@@ -141,7 +152,12 @@ export default (values, currency_id, promotions) => {
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setAttributes", "setConfig", "setError"]
+                      actions: [
+                        "setAttributes",
+                        "setConfig",
+                        "setError",
+                        "escalateError"
+                      ]
                     }
                   }
                 },
@@ -169,7 +185,12 @@ export default (values, currency_id, promotions) => {
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setOptions", "setConfig", "setError"]
+                      actions: [
+                        "setOptions",
+                        "setConfig",
+                        "setError",
+                        "escalateError"
+                      ]
                     }
                   }
                 },
@@ -197,7 +218,12 @@ export default (values, currency_id, promotions) => {
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setProvisioning", "setConfig", "setError"]
+                      actions: [
+                        "setProvisioning",
+                        "setConfig",
+                        "setError",
+                        "escalateError"
+                      ]
                     }
                   }
                 },
@@ -227,7 +253,7 @@ export default (values, currency_id, promotions) => {
           invoke: {
             src: "calculateSummary",
             onDone: { target: "configured", actions: ["setSummary"] },
-            onError: { target: "error", actions: ["setError"] }
+            onError: { target: "error", actions: ["setError", "escalateError"] }
           }
         },
 
@@ -276,6 +302,10 @@ export default (values, currency_id, promotions) => {
           type: "final",
           data: ({ values }, _event) => useProductConfigParser(values)
         }
+      },
+      on: {
+        ERROR: { target: "#error", actions: ["setError"] },
+        "CLEAR.ERRORS": { actions: ["clearError"] }
       }
     },
     {
@@ -381,9 +411,21 @@ export default (values, currency_id, promotions) => {
         }),
 
         // ---
+
         setError: assign({
-          error: (context, { data }) => data?.errors || data || "Unknown error"
+          error: (context, { data: { error } }) => {
+            if (error?.code == 422) {
+              // lets parse/override our error message and data
+              // this is to generate valid json schema validation errors
+              return useValidationParser(error);
+            }
+
+            return error;
+          }
         }),
+
+        escalateError: escalate(({ error }) => error),
+
         clearError: assign({ error: null })
       },
       services,

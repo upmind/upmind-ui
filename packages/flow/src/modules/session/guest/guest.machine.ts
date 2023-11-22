@@ -155,7 +155,7 @@ export default createMachine(
       }),
       // ---
       setError: assign({
-        error: (context, { data }) => data || "Unknown error"
+        error: (context, { data }) => data
       }),
       escalateError: escalate(({ error }) => error),
 

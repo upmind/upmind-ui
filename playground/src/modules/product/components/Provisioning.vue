@@ -6,8 +6,8 @@
       class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
       :schema="fields"
       :model-value="modelValue"
+      :additional-errors="additionalErrors"
       @update:modelValue="doUpdate"
-      debug
       no-actions
     />
   </section>
@@ -18,6 +18,7 @@ import { defineComponent, type PropType } from "vue";
 import FormGenerator from "../../form/components/FormGenerator.vue";
 import { type JsonSchema } from "@jsonforms/core";
 import { get, isEmpty } from "lodash-es";
+import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "ProductConfigProvisioning",
@@ -36,6 +37,12 @@ export default defineComponent({
     modelValue: {
       type: Object,
       required: true
+    },
+    additionalErrors: {
+      type: Array as PropType<
+        ErrorObject<string, Record<string, any>, unknown>[]
+      >,
+      default: () => []
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

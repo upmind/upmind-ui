@@ -7,6 +7,7 @@ import { computed, toRef, watch } from "vue";
 import {
   add,
   get,
+  isEmpty,
   isEqual,
   omitBy,
   set,
@@ -38,12 +39,12 @@ export const useProductConfig = item => {
     () => state.value.context.available.provision_fields
   );
   // ---
-  const errors = computed(() => state.value.context.errors);
+  const errors = computed(() => state.value.context.error);
   const meta = computed(() => ({
     isLoading: state.value.matches("loading"),
     isNew: state.value.context.isNew,
     isDirty: state.value.context.isDirty,
-    hasErrors: state.value.matches("error"),
+    hasErrors: state.value.matches("error") || !isEmpty(errors.value),
     isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
     isCalculating: state.value.matches("calculating")
@@ -58,6 +59,14 @@ export const useProductConfig = item => {
       model.value = newVal.context.values;
     }
   });
+
+  // --------------------------------------------------------
+
+  const clearErrors = () => {
+    send({
+      type: "CLEAR.ERRORS"
+    });
+  };
 
   // --- QUANTITY
   const updateQuantity = (value?: number) =>
@@ -299,6 +308,8 @@ export const useProductConfig = item => {
     model,
     meta,
     summary,
+    // ---
+    clearErrors,
     // ---
     updateQuantity,
     incrementQuantity,

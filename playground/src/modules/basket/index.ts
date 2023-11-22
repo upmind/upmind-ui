@@ -108,11 +108,12 @@ export const useBasket = () => {
         ),
         needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
         isReadyForCheckout: ["checkout"].some(state.value.matches),
-        hasErrors: [
-          "shopping.items.processing.error",
-          "shopping.promotions.error",
-          "shopping.client.error"
-        ].some(state.value.matches)
+        hasErrors:
+          [
+            "shopping.items.processing.error",
+            "shopping.promotions.error",
+            "shopping.client.error"
+          ].some(state.value.matches) || !!state.value.context?.error
       };
     }),
     //  ---
