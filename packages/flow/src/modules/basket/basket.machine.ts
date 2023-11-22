@@ -345,7 +345,8 @@ export default createMachine(
           }
         },
         on: {
-          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
+          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
+          "CLEAR.ERRORS": { target: "#shopping", actions: ["clearError"] }
         },
         onDone: {
           target: "checkout"
