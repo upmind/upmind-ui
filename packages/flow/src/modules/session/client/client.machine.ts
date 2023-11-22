@@ -115,6 +115,7 @@ export default createMachine(
                 }
               },
               error: {
+                entry: escalate(({ error }, _event) => error),
                 after: { error: "idle" } // automatically move to stale after max age
               }
             }
@@ -177,6 +178,7 @@ export default createMachine(
                 }
               },
               error: {
+                entry: escalate(({ error }, _event) => error),
                 after: { error: "idle" } // automatically move to stale after max age
               }
             }
