@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 import { useSession as useUpmindSession } from "@upmind/flow";
 
 // --- utils
-
+import { isEmpty } from "lodash-es";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
@@ -110,6 +110,7 @@ export const useSession = () => {
         ].some(client.value.matches),
 
       hasErrors: ["starting.status.error"].some(state.value.matches),
+      hasClientErrors: !isEmpty(client.value?.context?.error),
       // ---
       isGuest: ["guest", "starting.guest"].some(state.value.matches),
       isClient: ["client", "starting.client"].some(state.value.matches),

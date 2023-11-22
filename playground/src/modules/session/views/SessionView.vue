@@ -60,11 +60,21 @@
       class="card card-compact card-bordered border-base-300 rounded-xl bg-base-200 shadow-sm overflow-hidden my-8 w-96 max-w-full"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
+      <div
+        role="alert"
+        class="alert alert-error rounded-none"
+        v-if="meta.hasClientErrors"
+      >
+        <shield-exclamation-icon class="h-8 w-8" />
+        <span>{{ clientErrors.message }}</span>
+      </div>
+
       <auth-form
         v-if="meta.showLoginForm && !meta.show2fa"
         :processing="meta.isProcessing"
         @resolve="login"
         @reject="cancel"
+        :additionalErrors="clientErrors?.data"
       ></auth-form>
 
       <twofa-form
@@ -72,6 +82,7 @@
         :processing="meta.isProcessing"
         @resolve="verify2fa"
         @reject="cancel"
+        :additionalErrors="clientErrors?.data"
       ></twofa-form>
 
       <register-form
@@ -80,7 +91,7 @@
         :uischema="clientUischema"
         :processing="meta.isProcessing"
         :loading="meta.isLoadingRegisterForm"
-        :additionalErrors="clientErrors"
+        :additionalErrors="clientErrors?.data"
         @resolve="register"
         @reject="cancel"
       >
@@ -92,7 +103,7 @@
         title="Session"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
         :context="context"
-        :errors="errors"
+        :errors="{ errors, clientErrors }"
         :meta="meta"
       ></debug>
     </footer>
@@ -105,6 +116,7 @@ import Debug from "@/components/Debug.vue";
 import AuthForm from "../components/Auth.vue";
 import TwofaForm from "../components/2fa.vue";
 import RegisterForm from "../components/Register.vue";
+import { ShieldExclamationIcon } from "@heroicons/vue/24/outline";
 
 const {
   state,
