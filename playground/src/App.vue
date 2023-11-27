@@ -3,9 +3,9 @@
     <header
       class="flex flex-col items-center justify-start bg-base-200 text-base-content"
     >
-      <div class="avatar placeholder">
-        <div class="w-28 h-28 my-4">
-          <logo-icon></logo-icon>
+      <div class="avatar my-4">
+        <div class="w-28 h-28">
+          <logo-icon class="w-full h-full"></logo-icon>
         </div>
       </div>
 
