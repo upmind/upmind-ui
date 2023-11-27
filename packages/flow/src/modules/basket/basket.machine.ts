@@ -352,7 +352,8 @@ export default createMachine(
           "CLEAR.ERRORS": { target: "#shopping", actions: ["clearError"] }
         },
         onDone: {
-          target: "checkout"
+          // we are now ready for Checkout
+          // target: "checkout"
         }
       },
 
@@ -521,25 +522,37 @@ export default createMachine(
 
       refreshItems: assign({
         items: ({ items, basket }, { data }) => {
+          const promotions = data?.basket?.promotions || [];
+          const currency_id = data?.basket?.currency_id;
+
           forEach(data?.items, (item, index) => {
             const itemId = item.id;
+            const newId = get(data?.newItems, [index, "id"]);
             const product = find(data?.basket?.products, ["id", itemId]);
-            const isReplaced = !product;
-            // Check if the item still exists in the basket
-            // if not, we need to replace it with a new machine
-            // and stop the old one
-            // NB: its safe to assume that the items array is in the same order as the newItems
-            // so we can use the index to match the items
-            if (isReplaced) {
-              const newId = get(data?.newItems, [index, "id"]);
-              const currentIndex = findIndex(items, ["id", itemId]);
+
+            // Check if the item still Exists in the basket
+            if (product) {
+              // Exists..
+              // we need to refresh it
+              item.send({
+                type: "REFRESH",
+                data: { product, currency_id, promotions }
+              });
+            }
+            // if not, we need to check if its been Replaced
+            else if (newId) {
+              // Replaced...
+              // we need to replace it with a new machine and stop the old one
+              // NB: its safe to assume that the items array is in the same order as the newItems
+              // so we can use the index to match the items
               if (item) item.stop(); // ensure the machine is stopped
-              const product = find(data?.basket?.products, ["id", newId]);
-              if (product) {
+              const currentIndex = findIndex(items, ["id", itemId]);
+              const newProduct = find(data?.basket?.products, ["id", newId]);
+              if (newProduct) {
                 const machine = spawnConfiguration(
-                  product,
-                  basket?.currency_id,
-                  basket?.promotions
+                  newProduct,
+                  currency_id,
+                  promotions
                 );
                 // now put the item(s) back into the items array,
                 // at the same index so that we dont have any ui jank
@@ -554,15 +567,6 @@ export default createMachine(
                 );
                 items.splice(currentIndex, 1);
               }
-            } else {
-              const product = find(data?.basket?.products, ["id", itemId]);
-              const promotions = data?.basket?.promotions || [];
-              const currency_id = data?.basket?.currency_id;
-
-              item.send({
-                type: "REFRESH",
-                data: { product, currency_id, promotions }
-              });
             }
           });
 
@@ -572,8 +576,8 @@ export default createMachine(
           forEach(missing, product => {
             const machine = spawnConfiguration(
               product,
-              basket?.currency_id,
-              basket?.promotions
+              currency_id,
+              promotions
             );
             items.push(machine);
           });
@@ -584,16 +588,19 @@ export default createMachine(
           // but weve not updated the basket yet
           // and perhaps weve changed currency or added a promotion
           // we need to ensure all the items are up to date
-          const dangling = differenceBy(items, data?.basket?.products, "id");
-          forEach(dangling, (item, currentIndex) => {
-            const product = item.state.context.config;
-            const promotions = data?.basket?.promotions || [];
-            const currency_id = data?.basket?.currency_id;
-            item.send({
-              type: "REFRESH",
-              data: { product, currency_id, promotions }
-            });
-          });
+          // const dangling = differenceBy(
+          //   items,
+          //   [...data?.basket?.products, ...data.newItems],
+          //   "id"
+          // );
+          // forEach(dangling, (item, index) => {
+          //   debugger;
+          //   const product = item.state.context.config;
+          //   item.send({
+          //     type: "REFRESH",
+          //     data: { product, currency_id, promotions }
+          //   });
+          // });
 
           // ---
           return items;

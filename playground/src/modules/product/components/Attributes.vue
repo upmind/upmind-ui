@@ -64,7 +64,7 @@
               }}</strong>
             </span>
 
-            <strong class="text-right" v-else>
+            <strong class="text-right" v-else-if="value?.price?.price">
               {{
                 !value?.price?.price ? "Free" : value?.price?.price_formatted
               }}

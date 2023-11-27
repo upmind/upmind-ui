@@ -6,7 +6,7 @@ import { useApi } from "../api";
 import type { BasketContext } from "./types.d";
 import { useSession } from "../session";
 import type { Token } from "../session/types.d";
-const { authSubscription, getHistory, isAuthenticated, service } = useSession();
+const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
 import { useBasketParser } from "./utils";
@@ -20,6 +20,7 @@ import {
   has,
   isEmpty,
   map,
+  merge,
   reduce,
   reject,
   set
@@ -131,7 +132,18 @@ async function update({ basket, items }: BasketContext, _event: any) {
       const newItems = differenceBy(basket.products, validItems, "id");
       return { basket, items: validItems, newItems, queue: false };
     })
-    .then(updateItemProvisioningFields);
+    .then(updateItemProvisioningFields)
+    .catch(error => {
+      // pass the basket, items, newItems and queue to the error
+      // as we may stll need to process them despite the error
+      // if they have not already been set by a previous error
+      // we will set them here with the current basket, items, NO newItems and queue
+      const newItems = differenceBy(basket.products, validItems, "id");
+      const response = { basket, items: validItems, newItems, queue: false };
+
+      merge(error, response);
+      throw error;
+    });
 }
 
 async function setCurrency({ basket, items }: BasketContext, { data }: any) {
@@ -280,9 +292,20 @@ async function updateItem({ basket, items }, { data }: any) {
     .then(useBasketParser)
     .then(basket => {
       const newItems = differenceBy(basket.products, items, "id");
-      return { basket, items: [item], newItems, queue };
+      const response = { basket, items: [item], newItems, queue };
+      return response;
     })
-    .then(updateItemProvisioningFields);
+    .then(updateItemProvisioningFields)
+    .catch(error => {
+      // pass the basket, items, newItems and queue to the error
+      // as we may stll need to process them despite the error
+      // if they have not already been set by a previous error
+      // we will set them here with the current basket, items, NO newItems and queue
+      const newItems = differenceBy(basket.products, items, "id");
+      const response = { basket, items: [item], newItems, queue };
+      merge(error, response);
+      throw error;
+    });
 }
 
 async function updateItemProvisioningFields({

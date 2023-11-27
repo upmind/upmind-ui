@@ -152,12 +152,7 @@ export default (values, currency_id, promotions) => {
                     },
                     onError: {
                       target: "invalid",
-                      actions: [
-                        "setAttributes",
-                        "setConfig",
-                        "setError",
-                        "escalateError"
-                      ]
+                      actions: ["setAttributes", "setConfig", "setError"]
                     }
                   }
                 },
@@ -185,12 +180,7 @@ export default (values, currency_id, promotions) => {
                     },
                     onError: {
                       target: "invalid",
-                      actions: [
-                        "setOptions",
-                        "setConfig",
-                        "setError",
-                        "escalateError"
-                      ]
+                      actions: ["setOptions", "setConfig", "setError"]
                     }
                   }
                 },
@@ -218,12 +208,7 @@ export default (values, currency_id, promotions) => {
                     },
                     onError: {
                       target: "invalid",
-                      actions: [
-                        "setProvisioning",
-                        "setConfig",
-                        "setError",
-                        "escalateError"
-                      ]
+                      actions: ["setProvisioning", "setConfig", "setError"]
                     }
                   }
                 },

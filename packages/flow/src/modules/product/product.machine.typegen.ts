@@ -94,9 +94,6 @@ export interface Typegen0 {
     escalateError:
       | "error.platform.load"
       | "error.platform.productConfigurator.calculating:invocation[0]"
-      | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     sendConfig:
