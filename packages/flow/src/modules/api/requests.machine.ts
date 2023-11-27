@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, actions, spawn } from "xstate";
-const { sendTo } = actions;
+import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import requestMachine from "./request.machine";

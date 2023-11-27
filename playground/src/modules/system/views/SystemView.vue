@@ -15,20 +15,20 @@
     </header>
 
     <footer>
-      <debug
+      <upm-debug
         title="System"
         :state="state"
         :context="context"
         :errors="errors"
         :meta="meta"
-      ></debug>
+      />
     </footer>
   </section>
 </template>
 
 <script setup lang="ts">
 import { useSystem } from "..";
-import Debug from "@/components/Debug.vue";
+import { UpmDebug } from "@upmind/components";
 
 const { state, context, meta, errors } = useSystem();
 </script>

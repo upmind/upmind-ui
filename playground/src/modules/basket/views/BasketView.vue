@@ -229,7 +229,7 @@
     </div>
 
     <footer>
-      <debug
+      <upm-debug
         :debugging="debugging"
         title="Basket"
         :state="state"
@@ -238,7 +238,7 @@
         :errors="errors"
         :meta="meta"
         class=""
-      ></debug>
+      />
     </footer>
   </section>
 </template>
@@ -249,7 +249,7 @@ import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ConfigProduct from "@/modules/product/views/Product.vue";
 import PromotionsConfig from "../components/Promotions.vue";
-import Debug from "@/components/Debug.vue";
+import { UpmDebug } from "@upmind/components";
 import {
   SquaresPlusIcon,
   ShieldExclamationIcon,

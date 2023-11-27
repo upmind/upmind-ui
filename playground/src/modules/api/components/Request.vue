@@ -11,12 +11,12 @@
       <div class="flex items-center gap-2 mt-2">
         <button
           class="btn btn-neutral btn-outline btn-xs status"
-          v-for="(value, key) in request.state"
+          v-for="(value, key) in safeStates"
           :key="key"
         >
           {{ key }}
 
-          <span class="status badge badge-neutral badge-sm">
+          <span class="status badge badge-neutral badge-sm" v-if="value">
             {{ value }}
           </span>
         </button>
@@ -34,6 +34,7 @@
           <div>{{ request.url }}</div>
         </pre>
       <pre
+        v-if="request?.response"
         data-prefix="RES > "
         :class="{
           'text-success': request.response.status == 200,
@@ -48,7 +49,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, ref, onMounted } from "vue";
-import { get } from "lodash-es";
+import { get, isArray, isString } from "lodash-es";
 
 function calculateRelativeTime(
   timestamp: EpochTimeStamp,
@@ -143,6 +144,13 @@ export default defineComponent({
     };
   },
   computed: {
+    safeStates() {
+      if (isString(this.request.state)) {
+        return { [this.request.state]: null };
+      }
+
+      return this.request.state;
+    },
     expiresIn() {
       if (!this.request?.completed || !this.request.maxAge) {
         return "";

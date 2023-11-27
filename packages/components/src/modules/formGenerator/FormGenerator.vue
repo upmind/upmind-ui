@@ -63,7 +63,7 @@
 <script lang="ts">
 import { defineComponent, toRaw, unref, type PropType } from "vue";
 
-import Debug from "@/components/Debug.vue";
+import Debug from "../debug/Debug.vue";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
@@ -76,7 +76,7 @@ import {
 
 import type { ErrorObject } from "ajv";
 
-import { defaultStyles, mergeStyles, daisyRenderers } from "../renderers/daisy";
+import { defaultStyles, mergeStyles, daisyRenderers } from "./renderers/daisy";
 
 import { trim, isEmpty, isEqual, isObject, isArray } from "lodash-es";
 

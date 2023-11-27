@@ -14,7 +14,7 @@
 
     <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <form-generator
+    <upm-form-generator
       :schema="schema"
       :uischema="uischema"
       @reject="doReject"
@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { useDate } from "../";
-import FormGenerator from "../components/FormGenerator.vue";
+import { UpmFormGenerator } from "@upmind/components";
 
 const schema = {
   required: ["name", "rating", "dueDate"],

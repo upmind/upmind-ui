@@ -2,7 +2,7 @@
   <section class="provisioning" v-if="hasFields">
     <h4 class="">Additional Information</h4>
 
-    <form-generator
+    <upm-form-generator
       class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
       :schema="fields"
       :model-value="modelValue"
@@ -15,14 +15,14 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import FormGenerator from "../../form/components/FormGenerator.vue";
+import { UpmFormGenerator } from "@upmind/components";
 import { type JsonSchema } from "@jsonforms/core";
 import { get, isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "ProductConfigProvisioning",
-  components: { FormGenerator },
+  components: { UpmFormGenerator },
   inheritAttrs: true,
   customOptions: {},
   props: {

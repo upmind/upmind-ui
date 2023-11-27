@@ -15,20 +15,20 @@
     </header>
 
     <footer>
-      <debug
+      <upm-debug
         title="Brand"
         :state="state"
         :context="context"
         :errors="errors"
         :meta="meta"
-      ></debug>
+      />
     </footer>
   </section>
 </template>
 
 <script setup lang="ts">
 import { useBrand } from "../";
-import Debug from "@/components/Debug.vue";
+import { UpmDebug } from "@upmind/components";
 
 const { state, context, meta, errors } = useBrand();
 </script>
