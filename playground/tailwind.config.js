@@ -1,13 +1,9 @@
 /* global require, module*/
-const path = require("path");
 
 module.exports = {
   content: [
     "./src/**/*.{vue,js,ts}",
-    path.join(
-      path.dirname(require.resolve("@upmind/components")),
-      "/**/*.{vue,js,ts}"
-    )
+    "../packages/components/src/**/*.{vue,js,ts}"
   ],
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
