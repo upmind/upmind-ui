@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import WelcomeItem from "./WelcomeItem.vue";
-import DocumentationIcon from "./icons/IconDocumentation.vue";
-import ToolingIcon from "./icons/IconTooling.vue";
-import EcosystemIcon from "./icons/IconEcosystem.vue";
-import CommunityIcon from "./icons/IconCommunity.vue";
-import SupportIcon from "./icons/IconSupport.vue";
-import StateMachineIcon from "./icons/IconStateMachine.vue";
+import DocumentationIcon from "@/assets/icons/IconDocumentation.svg";
+import ToolingIcon from "@/assets/icons/IconTooling.svg";
+import EcosystemIcon from "@/assets/icons/IconEcosystem.svg";
+import CommunityIcon from "@/assets/icons/IconCommunity.svg";
+import SupportIcon from "@/assets/icons/IconSupport.svg";
+import StateMachineIcon from "@/assets/icons/IconStateMachine.svg";
 import { test as testFlow } from "@upmind/flow";
 </script>
 
