@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import machineServices, { FetchMethods } from "./services";

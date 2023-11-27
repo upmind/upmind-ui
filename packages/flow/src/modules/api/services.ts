@@ -7,7 +7,6 @@ import { useSession } from "../session";
 import type { RequestContext } from "./types.d";
 
 // --- utils
-import { ensureCamelCaseKeys } from "./utils";
 import { includes, get, set } from "lodash-es";
 
 // --------------------------------------------------------

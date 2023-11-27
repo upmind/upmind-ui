@@ -1,5 +1,5 @@
 {
-  "name": "@upmind/playground",
+  "name": "@np/playground",
   "private": true,
   "version": "0.0.0",
   "description": "",
@@ -17,8 +17,8 @@
     "@heroicons/vue": "^2.0.13",
     "@jsonforms/core": "3.1.0",
     "@jsonforms/vue": "3.1.0",
-    "@jsonforms/vue-vanilla": "3.1.0",
     "@upmind/flow": "^0.0.0",
+    "@upmind/components": "^0.0.0",
     "@vueuse/core": "^10.6.1",
     "@xstate/inspect": "^0.8.0",
     "@xstate/vue": "^2.0.0",
@@ -26,8 +26,7 @@
     "lodash-es": "^4.17.21",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.4",
-    "xstate": "^4.38.2"
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.3.3",

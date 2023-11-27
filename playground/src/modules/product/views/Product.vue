@@ -146,7 +146,7 @@
     </footer>
   </section>
 
-  <debug
+  <upm-debug
     v-if="debugging"
     title="Product Config"
     :state="state.value"
@@ -155,18 +155,18 @@
     :errors="errors"
     :meta="meta"
     class="mt-2"
-  ></debug>
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance } from "vue";
 import { useProductConfig } from "..";
-import Debug from "@/components/Debug.vue";
+import { UpmDebug } from "@upmind/components";
 import ConfigTerms from "../components/Terms.vue";
 import ConfigAttributes from "../components/Attributes.vue";
 import ConfigOptions from "../components/Options.vue";
 import ConfigProvisioning from "../components/Provisioning.vue";
-import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { isNil } from "lodash-es";
 
 export default defineComponent({
@@ -176,9 +176,8 @@ export default defineComponent({
     ConfigAttributes,
     ConfigOptions,
     ConfigProvisioning,
-    Debug,
-    XMarkIcon,
-    ShieldExclamationIcon
+    UpmDebug,
+    XMarkIcon
   },
   emits: [
     "remove",

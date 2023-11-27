@@ -82,7 +82,7 @@
           {{ schema.title }}
         </h3>
 
-        <form-generator
+        <upm-form-generator
           :loading="meta.isFormLoading"
           :processing="meta.isProcessing"
           :model-value="model"
@@ -108,26 +108,26 @@
               Cancel
             </button>
           </template>
-        </form-generator>
+        </upm-form-generator>
       </div>
     </div>
 
     <footer>
-      <debug
+      <upm-debug
         title="Session"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
         :context="context"
         :errors="errors"
         :meta="meta"
-      ></debug>
+      />
     </footer>
   </section>
 </template>
 
 <script setup lang="ts">
 import { useSession } from "../";
-import Debug from "@/components/Debug.vue";
-import FormGenerator from "../../form/components/FormGenerator.vue";
+import { UpmDebug } from "@upmind/components";
+import { UpmFormGenerator } from "@upmind/components";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const {

@@ -2,7 +2,7 @@
   <div class="promotions px-4">
     <h4 class="divider">Discounts</h4>
 
-    <form-generator
+    <upm-form-generator
       class="mt-2"
       :schema="schema"
       :uischema="uischema"
@@ -19,7 +19,7 @@
           Apply Discount Code
         </button>
       </template>
-    </form-generator>
+    </upm-form-generator>
 
     <ul class="my-4 p-0 list-none" v-if="hasPromotions">
       <li
@@ -57,14 +57,14 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import FormGenerator from "../../form/components/FormGenerator.vue";
+import { UpmFormGenerator } from "@upmind/components";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "ConfigPromotions",
-  components: { FormGenerator, XMarkIcon },
+  components: { UpmFormGenerator, XMarkIcon },
   inheritAttrs: true,
   customOptions: {},
   emits: ["reject", "resolve"],

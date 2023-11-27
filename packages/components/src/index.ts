@@ -1,2 +1,3 @@
 import "@upmind/flow";
-console.log("Hello from Components!");
+
+export * from "./modules";

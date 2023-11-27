@@ -24,20 +24,20 @@
     </div>
 
     <footer>
-      <debug
+      <upm-debug
         title="Global Toggle"
         :state="state"
         :context="context"
         :errors="errors"
         :meta="meta"
-      ></debug>
+      />
     </footer>
   </section>
 </template>
 
 <script setup lang="ts">
 import { useToggle } from "../";
-import Debug from "@/components/Debug.vue";
+import { UpmDebug } from "@upmind/components";
 import UpmToggle from "../components/Toggle.vue";
 
 const { state, context, meta, errors } = useToggle({ useGlobal: true });
