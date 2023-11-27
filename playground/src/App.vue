@@ -3,13 +3,12 @@
     <header
       class="flex flex-col items-center justify-start bg-base-200 text-base-content"
     >
-      <img
-        alt="Vue logo"
-        class="logo my-8"
-        src="@/assets/logo.svg"
-        width="125"
-        height="125"
-      />
+      <div class="avatar placeholder">
+        <div class="w-28 h-28 my-4">
+          <logo-icon></logo-icon>
+        </div>
+      </div>
+
       <!-- <label for="my-drawer-2" class="btn btn-square drawer-button lg:hidden">
         <Bars4Icon></Bars4Icon>
       </label> -->
@@ -34,6 +33,7 @@
 import { ref } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import { upperFirst } from "lodash-es";
+import LogoIcon from "@/assets/logo.svg";
 
 const router = useRouter();
 const routes = ref(router.options.routes);
