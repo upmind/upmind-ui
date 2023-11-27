@@ -42,7 +42,7 @@
     "@vue/test-utils": "^2.4.1",
     "@vue/tsconfig": "^0.4.0",
     "autoprefixer": "^10",
-    "daisyui": "^3",
+    "daisyui": "^4",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
     "jsdom": "^22.1.0",

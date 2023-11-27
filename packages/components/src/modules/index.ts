@@ -1,3 +1,3 @@
 export * from "./debug";
 export * from "./formGenerator";
-// export * from "./dac";
+export * from "./dac";
