@@ -31,7 +31,7 @@ import { useDate } from "../";
 import { UpmFormGenerator } from "@upmind/components";
 
 const schema = {
-  required: ["name", "rating", "dueDate", "sld"],
+  required: ["name", "rating", "dueDate", "domain"],
   properties: {
     name: {
       type: "string",
@@ -60,7 +60,7 @@ const schema = {
       description: "The difficulty is measured between 1 (easy) and 5 (hard)"
     },
 
-    sld: {
+    domain: {
       type: "string",
       format: "domain_name",
       title: "Add A domain....",
@@ -99,7 +99,7 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/sld",
+          scope: "#/properties/domain",
           options: {
             placeholder: "google.com"
           }

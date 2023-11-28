@@ -5,6 +5,8 @@
 - [ ] make DAC slot only, with results available as an array of objects
 - [ ] add dropdown component of dac results that can be used within the DAC component
 - [ ] change form dac control to be a domain control
+  - [ ] add default classes to the domain control
+  - [ ] test options/class overrides
   - [ ] ask type based on 3 options:
     - [ ] new domain > render dac component
     - [ ] owned domain > render dropdown list
