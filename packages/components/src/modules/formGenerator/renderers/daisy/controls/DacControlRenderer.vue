@@ -74,7 +74,7 @@ export default controlRenderer;
  */
 export const isDomainControl = and(
   uiTypeIs("Control"),
-  or(formatIs("domain_name"))
+  or(formatIs("domain_name"), scopeEndsWith("domain"))
 );
 
 export const entry: JsonFormsRendererRegistryEntry = {
