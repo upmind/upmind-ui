@@ -1,41 +1,65 @@
 <template>
-  <div class="ml-auto mr-auto min-w-[20rem] max-w-4xl">
-    <fieldset class="form-control">
-      <label for="domain-search" class="form sr-only">
-        <span class="label-text">search for domain</span>
-      </label>
-
+  <div class="ml-auto mr-auto min-w-[20rem] max-w-4xl group" ref="control">
+    <!-- search field -->
+    <fieldset
+      class="form-control"
+      :disabled="disabled"
+      :id="id"
+      @blur="doBlur"
+      @focus="doFocus"
+    >
       <div
-        :class="`input-${safeTheme}`"
-        class="input input-bordered join items-center px-0"
+        :class="[`input-${safeTheme}`, { 'input-error': hasError }]"
+        class="input input-bordered join items-center px-0 overflow-hidden"
       >
-        <magnifying-glass-icon class="w-8 h-8 join-item mx-2" />
-
-        <input
-          ref="input"
-          id="domain-search"
-          class="flex-1 rounded-none px-2 h-full"
-          placeholder="Find your domain"
-          v-model="domain"
-          type="text"
+        <!-- icon -->
+        <magnifying-glass-icon
+          class="w-5 h-5 join-item mx-2"
+          v-if="!model || hasFocus"
         />
 
+        <!-- selected -->
+        <span v-if="model && !hasFocusWithin" class="group mx-2">
+          <span class="flex flex-nowrap place-items-center mx-2">
+            {{ model }}
+          </span>
+        </span>
+
+        <!-- input -->
+        <input
+          :autocomplete="autocomplete"
+          :placeholder="model ? '' : placeholder"
+          @blur="doBlur"
+          @focus="doFocus"
+          class="flex-1 px-2 h-full"
+          id="domain-search"
+          ref="input"
+          type="text"
+          v-model="domain"
+        />
+
+        <!-- reset -->
         <button
-          v-if="meta.hasValue"
+          v-if="
+            !!model?.length ||
+            (meta.hasValue && clearable && !meta.isProcessing)
+          "
           type="reset"
-          class="btn btn-ghost btn-square join-item"
+          class="btn btn-ghost btn-square join-item invisible group-hover:visible"
           tabindex="-1"
-          @click="resetModel(input)"
-          :disabled="meta.isProcessing"
+          @click="resetInput"
         >
-          <backspace-icon class="w-8 h-8" />
+          <backspace-icon class="w-5 h-5" />
         </button>
 
+        <!-- submit -->
         <button
           :class="`btn-${safeTheme}`"
-          class="btn join-item"
           :disabled="meta.isProcessing || !meta.hasValue"
           @click="doSearch"
+          class="btn join-item"
+          tabindex="-1"
+          v-if="!model?.length || hasFocus"
         >
           <span class="loading loading-spinner" v-if="meta.isProcessing"></span>
 
@@ -44,12 +68,17 @@
       </div>
     </fieldset>
 
+    <!-- results -->
     <div
-      class="results flex flex-col items-center justify-center"
+      class="results flex flex-col items-center justify-center relative"
       v-if="meta.hasResults || (meta.hasValue && meta.isProcessing)"
     >
-      <slot name="results" v-bind="{ results }">
-        <ul role="list" class="menu rounded-box border w-full mt-2">
+      <slot name="results" v-bind="{ results }" v-if="isOpen">
+        <ul
+          tabindex="1"
+          role="list"
+          class="menu rounded-box flex-col flex-nowrap bg-base-100 border w-full mt-2 absolute top-0 left-0 right-0 z-10 shadow-sm min-h-[13em] max-h-[13em] overflow-y-auto"
+        >
           <li class="place-self-center" v-if="meta.isProcessing">
             <span
               :class="`text-${safeTheme}`"
@@ -66,17 +95,13 @@
           >
             <label class="w-full">
               <input
-                :type="multiple ? 'checkbox' : 'radio'"
+                type="radio"
                 name="dac-domain"
-                :class="
-                  multiple
-                    ? ['checkbox', `checkbox-${safeTheme}`]
-                    : ['radio', `radio-${safeTheme}`]
-                "
+                :class="['radio', `radio-${safeTheme}`]"
                 :checked="isChecked(item.domain)"
                 :disabled="!item.is_available"
                 :value="item.domain"
-                @change="updateModel"
+                @input="updateModel"
               />
 
               {{ item.domain }}
@@ -108,14 +133,15 @@
 <script lang="ts">
 // --- external
 import { defineComponent, ref } from "vue";
-import { MagnifyingGlassIcon, NoSymbolIcon } from "@heroicons/vue/20/solid";
-import { BackspaceIcon, CheckCircleIcon } from "@heroicons/vue/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
+import { BackspaceIcon } from "@heroicons/vue/24/outline";
+import { onClickOutside, useFocus, useFocusWithin } from "@vueuse/core";
 
 // --- internal
 import { useDac } from "./composables";
 
 // --- utils
-import { compact, isArray, some, filter } from "lodash-es";
+import { some, debounce } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
@@ -123,11 +149,9 @@ export default defineComponent({
   name: "UpmDac",
   components: {
     MagnifyingGlassIcon,
-    CheckCircleIcon,
-    BackspaceIcon,
-    NoSymbolIcon
+    BackspaceIcon
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
     coupons: {
       type: Array,
@@ -150,27 +174,35 @@ export default defineComponent({
       default: null
     },
     modelValue: {
-      type: [String, Array]
+      type: String
     },
-    multiple: {
+
+    theme: {
+      type: String
+    },
+
+    clearable: {
+      type: Boolean,
+      default: true
+    },
+    id: {
+      type: String
+    },
+
+    disabled: {
       type: Boolean,
       default: false
     },
-    theme: {
-      type: String
+    autocomplete: {
+      type: String,
+      default: "off"
+    },
+    placeholder: {
+      type: String,
+      default: ""
     }
   },
   setup(props) {
-    const input = ref<InstanceType<typeof HTMLInputElement>>();
-    const model = ref();
-    if (props.multiple) {
-      model.value = compact(
-        isArray(props.modelValue) ? props.modelValue : [props.modelValue]
-      );
-    } else {
-      model.value = props.modelValue || null;
-    }
-
     const {
       meta,
       domain,
@@ -181,10 +213,28 @@ export default defineComponent({
       loadMore
     } = useDac(props);
 
+    const input = ref<InstanceType<typeof HTMLInputElement>>();
+    const control = ref<InstanceType<typeof HTMLDivElement>>();
+
+    const isOpen = ref(false);
+    const model = ref(props.modelValue || null);
+
+    const { focused: hasFocusWithin } = useFocusWithin(control);
+    const { focused: hasFocus } = useFocus(input);
+
+    onClickOutside(control, () => {
+      domain.value = "";
+      isOpen.value = false;
+    });
+
     return {
       // --- Refs
+      isOpen,
+      hasFocus,
+      hasFocusWithin,
       model,
       input,
+      control,
       // --- Data
       domain,
       meta,
@@ -196,59 +246,61 @@ export default defineComponent({
     };
   },
   watch: {
-    multiple(value) {
-      this.model = value ? [] : null;
-      this.$emit("update:modelValue", this.model);
+    results(value) {
+      this.isOpen =
+        this.hasFocusWithin && (!!value?.length || this.meta.isProcessing);
+    },
+    hasFocusWithin(value) {
+      if (!value) {
+        this.isOpen = false;
+        this.domain = "";
+      }
     }
   },
   methods: {
-    resetModel(input: InstanceType<typeof HTMLInputElement>) {
-      this.reset(input);
-      this.model = this.multiple ? [] : null;
+    resetInput(event: Event) {
+      this.reset(this.input);
+      this.model = null;
       this.$emit("update:modelValue", this.model);
+      this.$emit("change", event);
+      this.isOpen = false;
     },
 
     updateModel(event: Event) {
+      this.$emit("change", event);
+      // ---
       const target = event.target as HTMLInputElement;
       const value = target.value;
 
-      if (this.multiple) {
-        if (target.checked) {
-          this.model.push(value);
-        } else {
-          this.model = this.model.filter((item: string) => item !== value);
-        }
-        this.model = compact(this.model);
-      } else {
-        this.model = value;
-      }
-
-      this.validate();
+      this.validate(value);
 
       this.$emit("update:modelValue", this.model);
+      this.$emit("change", event);
+
+      this.domain = "";
+      this.isOpen = false;
     },
 
-    validate() {
-      const value = this.model;
-
-      if (isArray(value) && value.length) {
-        this.model = filter(value, item =>
-          some(this.results, { domain: item })
-        );
-      } else {
-        this.model = some(this.results, { domain: value }) ? value : null;
-      }
+    validate(value: string) {
+      this.model = some(this.results, { domain: value }) ? value : null;
     },
 
     isChecked(value: string) {
-      if (this.multiple) {
-        return this.model.includes(value);
-      }
-
       return this.model === value;
+    },
+
+    doFocus(event: Event) {
+      this.$emit("focus", event);
+    },
+
+    doBlur(event: Event) {
+      this.$emit("blur", event);
     }
   },
   computed: {
+    hasError() {
+      return !this.hasFocusWithin && this.$attrs.class.includes("error");
+    },
     safeTheme() {
       return this.theme || "neutral";
     }

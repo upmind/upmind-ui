@@ -21,6 +21,7 @@ export const defaultStyles: Styles = {
       item4: "mask-star",
       item5: "mask-star"
     },
+    dac: {},
     textarea: "textarea textarea-bordered w-full",
     wrapper: "wrapper",
     option: "option",

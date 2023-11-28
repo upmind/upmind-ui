@@ -12,8 +12,7 @@
       </div>
     </header>
 
-    <upm-dac class="my-8 max-w-md" v-model="model" multiple theme="" />
-    <upm-dac class="my-8 max-w-md" v-model="model" theme="" />
+    <upm-dac class="my-8" v-model="model" theme="neutral" />
 
     <footer>
       <upm-debug

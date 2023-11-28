@@ -54,6 +54,7 @@ export function useDac({
   }));
 
   const sanitised = computed(() => {
+    debugger;
     const value = domain.value
       .replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
       .toLowerCase();
