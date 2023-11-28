@@ -12,12 +12,22 @@
       </div>
     </header>
 
-    <upm-dac />
+    <upm-dac class="my-8 max-w-md" v-model="model" multiple theme="" />
+    <upm-dac class="my-8 max-w-md" v-model="model" theme="" />
 
-    <footer></footer>
+    <footer>
+      <upm-debug
+        title="Dac"
+        :context="{ model }"
+        :open="{ context: true }"
+      ></upm-debug>
+    </footer>
   </section>
 </template>
 
 <script setup lang="ts">
-import { UpmDac } from "@upmind/components";
+import { ref } from "vue";
+import { UpmDac, UpmDebug } from "@upmind/components";
+
+const model = ref("pewpew");
 </script>

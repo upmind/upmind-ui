@@ -8,7 +8,7 @@ import { useApi } from "@upmind/flow";
 // --- utils
 import { parseResults } from "../utils";
 
-import { omitBy, isEmpty } from "lodash-es";
+import { omitBy, isEmpty, isArray, first } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 
@@ -16,12 +16,14 @@ export function useDac({
   coupons = [],
   currencyCode,
   limit = 10,
-  orderConfigUrl = ""
+  orderConfigUrl = "",
+  modelValue = ""
 }: {
   coupons?: string[];
   currencyCode?: string;
   limit: number;
   orderConfigUrl: string;
+  modelValue: string | Array<string>;
 }) {
   // --- Flow
 
@@ -31,9 +33,10 @@ export function useDac({
   // --- Composables
 
   // --- Data
+  modelValue = isArray(modelValue) ? first(modelValue) : modelValue;
 
   const controller = ref(null as null | AbortController);
-  const domain = ref("");
+  const domain = ref(modelValue || "");
   const hasError = ref(false);
   const isProcessing = ref(false);
   const results = ref([] as any[]);
@@ -113,7 +116,7 @@ export function useDac({
     const params = omitBy(
       {
         sld,
-        with: ["prices", "options", "options.prices", "attributes"].join(),
+        // with: ["prices", "options", "options.prices", "attributes"].join(),
         limit: limit?.toString(),
         offset: offset?.toString(),
         currency_code: currencyCode,
@@ -123,7 +126,8 @@ export function useDac({
       isEmpty
     );
     const response = await get({
-      url: useUrl("modules/web_hosting/domains/search", params)
+      url: useUrl("modules/web_hosting/domains/search", params),
+      useCache: true
     }).catch(error => {
       console.error("useDac", "search", error);
       // useErrorHandler(error, () => (hasError.value = true));
@@ -133,7 +137,12 @@ export function useDac({
     resultsTotal.value = response.total;
 
     // --- Push new data to results array
-    results.value = parseResults(sld, response.data, results.value);
+    results.value = parseResults(
+      sld,
+      response.data,
+      results.value,
+      orderConfigUrl
+    );
 
     // } catch (e) {
     // useErrorHandler(e, () => (hasError.value = true));
