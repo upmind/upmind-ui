@@ -50,20 +50,20 @@
   </form>
 
   <!-- debug -->
-  <debug
+  <upm-debug
     v-if="debugging"
     title="Form"
     :open="{ state: true }"
     :state="model"
     :errors="errors"
     :context="{ schema, uischema }"
-  ></debug>
+  ></upm-debug>
 </template>
 
 <script lang="ts">
 import { defineComponent, toRaw, unref, type PropType } from "vue";
 
-import Debug from "../debug/Debug.vue";
+import UpmDebug from "../debug/Debug.vue";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
@@ -108,7 +108,7 @@ export default defineComponent({
   name: "FormGenerator",
   components: {
     JsonForms,
-    Debug
+    UpmDebug
   },
   inheritAttrs: true,
   props: {

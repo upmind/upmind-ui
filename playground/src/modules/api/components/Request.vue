@@ -93,8 +93,8 @@ function calculateRelativeTime(
   return expiresIn == 0
     ? "Expires now"
     : isExpired
-    ? `Expired ${formattedString} ago`
-    : `Expires in ${formattedString}`;
+      ? `Expired ${formattedString} ago`
+      : `Expires in ${formattedString}`;
 }
 
 export default defineComponent({

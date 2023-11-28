@@ -16,4 +16,5 @@ export interface IDomainProductMapped {
   price_formatted: IProductPrice["price_formatted"];
   sld: string;
   tld: IDomainProduct["tld"];
+  order_url?: URL | null;
 }

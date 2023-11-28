@@ -83,14 +83,14 @@
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
-  name: "Debug",
+  name: "UpmDebug",
   components: {},
   inheritAttrs: true,
   customOptions: {},
   props: {
     debugging: { type: Boolean, default: true },
     title: String,
-    context: Object,
+    context: [Object, String, Array],
     model: Object,
     state: [Object, String],
     open: Object,
