@@ -19,7 +19,7 @@
       :uischema="uischema"
       @reject="doReject"
       @resolve="doResolve"
-      debug
+      debugging
     />
 
     <footer></footer>
@@ -31,7 +31,7 @@ import { useDate } from "../";
 import { UpmFormGenerator } from "@upmind/components";
 
 const schema = {
-  required: ["name", "rating", "dueDate"],
+  required: ["name", "rating", "dueDate", "sld"],
   properties: {
     name: {
       type: "string",
@@ -58,6 +58,13 @@ const schema = {
       minimum: 1,
       title: "Rate the difficulty",
       description: "The difficulty is measured between 1 (easy) and 5 (hard)"
+    },
+
+    sld: {
+      type: "string",
+      format: "domain_name",
+      title: "Add A domain....",
+      description: ""
     },
 
     dueDate: {
@@ -90,6 +97,13 @@ const uischema = {
     {
       type: "VerticalLayout",
       elements: [
+        {
+          type: "Control",
+          scope: "#/properties/sld",
+          options: {
+            placeholder: "google.com"
+          }
+        },
         {
           type: "Control",
           scope: "#/properties/name",

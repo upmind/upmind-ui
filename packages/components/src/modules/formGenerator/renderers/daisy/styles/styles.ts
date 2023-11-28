@@ -40,6 +40,7 @@ export interface Styles {
       item4?: string;
       item5?: string;
     };
+    dac: {};
     textarea?: string;
     select?: string;
     option?: string;
