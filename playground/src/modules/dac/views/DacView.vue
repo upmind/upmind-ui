@@ -12,7 +12,16 @@
       </div>
     </header>
 
-    <upm-dac class="my-8" v-model="model" theme="neutral" />
+    <upm-dac class="my-8" v-model="model" compact>
+      <template #results="{ results, meta, isOpen, update }">
+        <upm-dac-results-dropdown
+          :results="results"
+          :processing="meta.isProcessing"
+          :open="isOpen"
+          @change="update"
+        />
+      </template>
+    </upm-dac>
 
     <footer>
       <upm-debug
@@ -26,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { UpmDac, UpmDebug } from "@upmind/components";
+import { UpmDac, UpmDacResultsDropdown, UpmDebug } from "@upmind/components";
 
-const model = ref("pewpew");
+const model = ref("pewpew.com");
 </script>
