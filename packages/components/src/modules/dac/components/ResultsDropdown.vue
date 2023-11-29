@@ -2,12 +2,12 @@
   <ul
     tabindex="1"
     role="list"
-    class="menu rounded-box flex-col flex-nowrap bg-base-100 border w-full mt-2 absolute top-0 left-0 right-0 z-10 shadow-sm min-h-[13em] max-h-[13em] overflow-y-auto"
+    class="menu rounded-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full mt-2 absolute top-0 left-0 right-0 z-10 shadow-sm min-h-[13em] max-h-[13em] overflow-y-auto"
     v-show="open"
     v-if="results.length || processing"
   >
     <li class="place-self-center" v-if="processing">
-      <span class="loading loading-dots"></span>
+      <span class="loading loading-dots text-primary"></span>
     </li>
 
     <li
@@ -21,7 +21,7 @@
         <input
           type="radio"
           name="dac-domain"
-          :class="['radio']"
+          class="radio radio-primary"
           :checked="isChecked(item.domain)"
           :disabled="!item.is_available"
           :value="item.domain"
@@ -30,8 +30,16 @@
 
         {{ item.domain }}
 
-        <span class="badge badge-xs" v-if="item.is_available"></span>
-        <span class="badge badge-xs badge-ghost" v-else></span>
+        <span
+          class="badge badge-xs badge-primary"
+          v-if="item.is_available"
+          title="Available"
+        ></span>
+        <span
+          class="badge badge-xs badge-primary opacity-20"
+          title="Not Available"
+          v-else
+        ></span>
       </label>
     </li>
   </ul>

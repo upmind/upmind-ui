@@ -1,90 +1,91 @@
 <template>
-  <div class="ml-auto mr-auto min-w-[20rem] max-w-4xl" ref="control">
+  <fieldset
+    class="form-control group"
+    :disabled="disabled"
+    :id="id"
+    ref="control"
+    tabindex="0"
+    @blur="doBlur"
+    @focus="doFocus"
+  >
     <!-- search field -->
-    <fieldset class="form-control group" :disabled="disabled" :id="id">
-      <div
-        :class="[
-          `input-${safeTheme}`,
-          { 'input-error': hasError },
-          compact ? 'p-0' : 'input-lg '
-        ]"
-        class="input input-bordered group-focus-within:input-primary overflow-hidden"
-        tabindex="0"
-        @blur="doBlur"
-        @focus="doFocus"
-      >
-        <div class="join h-full w-full items-center relative">
-          <!-- selected -->
-          <span
-            v-if="model"
-            :class="[compact ? 'px-4' : '']"
-            class="flex flex-nowrap place-items-center group-focus-within:hidden absolute left-0"
-          >
-            {{ model }}
-          </span>
 
-          <!-- icon -->
-          <magnifying-glass-icon
-            :class="[
-              compact ? 'w-5 h-5 mx-2' : 'w-7 h-7',
-              !model ? '' : 'invisible'
-            ]"
-            class="join-item text-inherit group-focus-within:text-primary group-focus-within:visible"
-          />
+    <div
+      :class="[
+        `input-${safeTheme}`,
+        { 'input-error': hasError },
+        compact ? 'p-0' : 'input-lg '
+      ]"
+      class="input input-bordered group-focus-within:input-primary overflow-hidden"
+    >
+      <div class="join h-full w-full items-center relative">
+        <!-- selected -->
+        <span
+          v-if="model"
+          :class="[compact ? 'px-4' : '']"
+          class="flex flex-nowrap place-items-center group-focus-within:hidden absolute left-0"
+        >
+          {{ model }}
+        </span>
 
-          <!-- input -->
-          <input
-            :autocomplete="autocomplete"
-            :placeholder="model ? '' : placeholder"
-            @blur="doBlur"
-            @focus="doFocus"
-            class="flex-1 px-2 h-full invisible group-focus-within:visible"
-            id="domain-search"
-            ref="input"
-            type="text"
-            v-model="domain"
-          />
+        <!-- icon -->
+        <magnifying-glass-icon
+          :class="[
+            compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ',
+            !model ? '' : 'invisible'
+          ]"
+          class="join-item text-inherit group-focus-within:text-primary group-focus-within:visible"
+        />
 
-          <!-- reset -->
-          <button
-            v-if="clearable && !!domain?.length"
-            type="reset"
-            :class="[compact ? 'join-item btn-square' : '']"
-            class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible group-focus-within:visible"
-            tabindex="-1"
-            @click="resetInput"
-          >
-            <backspace-icon :class="compact ? 'w-5 h-5' : 'w-7 h-7'" />
-          </button>
+        <!-- input -->
+        <input
+          :autocomplete="autocomplete"
+          :placeholder="model ? '' : placeholder"
+          @blur="doBlur"
+          @focus="doFocus"
+          :class="[
+            compact ? 'ml-2 px-2' : 'mx-6 px-4',
+            !model ? '' : 'invisible'
+          ]"
+          class="flex-1 bg-transparent h-full group-focus-within:visible"
+          id="domain-search"
+          ref="input"
+          type="text"
+          v-model="domain"
+        />
 
-          <!-- submit -->
-          <button
-            @click="doSearch"
-            :class="[compact ? 'join-item' : '', !model ? '' : 'invisible']"
-            class="btn btn-primary opacity-50 group-focus-within:opacity-100 group-focus-within:visible"
-            tabindex="-1"
-          >
-            <span
-              class="loading loading-spinner"
-              v-if="meta.isProcessing"
-            ></span>
+        <!-- reset -->
+        <button
+          v-if="clearable && !!domain?.length"
+          type="reset"
+          :class="[compact ? 'join-item btn-square' : '']"
+          class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible group-focus-within:visible"
+          tabindex="-1"
+          @click="resetInput"
+        >
+          <backspace-icon :class="compact ? 'w-5 h-5' : 'w-7 h-7'" />
+        </button>
 
-            <span v-else>Search</span>
-          </button>
-        </div>
+        <!-- submit -->
+        <button
+          @click="doSearch"
+          :class="[compact ? 'join-item' : '', !model ? '' : 'invisible']"
+          class="btn btn-primary opacity-50 group-focus-within:opacity-100 group-focus-within:visible"
+          tabindex="-1"
+        >
+          <span class="loading loading-spinner" v-if="meta.isProcessing"></span>
+
+          <span v-else>Search</span>
+        </button>
       </div>
-    </fieldset>
+    </div>
 
     <!-- results -->
     <div
       class="results flex flex-col items-center justify-center relative"
       v-if="!meta.isEmpty || meta.isProcessing"
     >
-      <slot name="results" v-bind="{ results, meta, isOpen, update }">
-        <code>
-          <pre>{{ { meta, results } }}</pre>
-        </code>
-      </slot>
+      <slot name="results" v-bind="{ results, meta, isOpen, update }"> </slot>
 
       <template v-if="meta.hasMore">
         <button
@@ -96,7 +97,7 @@
         </button>
       </template>
     </div>
-  </div>
+  </fieldset>
 </template>
 
 <script lang="ts">
@@ -143,10 +144,6 @@ export default defineComponent({
       default: null
     },
     modelValue: {
-      type: String
-    },
-
-    theme: {
       type: String
     },
 
