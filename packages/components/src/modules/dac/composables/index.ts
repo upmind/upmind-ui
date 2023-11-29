@@ -16,14 +16,12 @@ export function useDac({
   coupons = [],
   currencyCode,
   limit = 10,
-  orderConfigUrl = "",
-  modelValue = ""
+  orderConfigUrl = ""
 }: {
   coupons?: string[];
   currencyCode?: string;
   limit: number;
   orderConfigUrl: string;
-  modelValue: string | Array<string>;
 }) {
   // --- Flow
 
@@ -33,10 +31,9 @@ export function useDac({
   // --- Composables
 
   // --- Data
-  modelValue = isArray(modelValue) ? first(modelValue) : modelValue;
 
   const controller = ref(null as null | AbortController);
-  const domain = ref(modelValue || "");
+  const domain = ref("");
   const hasError = ref(false);
   const isProcessing = ref(false);
   const results = ref([] as any[]);
@@ -47,14 +44,11 @@ export function useDac({
 
   const meta = computed(() => ({
     isProcessing: isProcessing.value,
-    hasValue: !!domain.value,
-    hasResults: !!results.value.length,
     isEmpty: !results.value.length && !isProcessing.value && !hasError.value,
     hasMore: !!results.value.length && results.value.length < resultsTotal.value
   }));
 
   const sanitised = computed(() => {
-    debugger;
     const value = domain.value
       .replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
       .toLowerCase();

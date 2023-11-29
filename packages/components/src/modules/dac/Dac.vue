@@ -1,120 +1,89 @@
 <template>
-  <div class="ml-auto mr-auto min-w-[20rem] max-w-4xl group" ref="control">
+  <div class="ml-auto mr-auto min-w-[20rem] max-w-4xl" ref="control">
     <!-- search field -->
-    <fieldset
-      class="form-control"
-      :disabled="disabled"
-      :id="id"
-      @blur="doBlur"
-      @focus="doFocus"
-    >
+    <fieldset class="form-control group" :disabled="disabled" :id="id">
       <div
-        :class="[`input-${safeTheme}`, { 'input-error': hasError }]"
-        class="input input-bordered join items-center px-0 overflow-hidden"
+        :class="[
+          `input-${safeTheme}`,
+          { 'input-error': hasError },
+          compact ? 'p-0' : 'input-lg '
+        ]"
+        class="input input-primary border-inherit border-opacity-50 group-focus-within:border-opacity-100 overflow-hidden"
+        tabindex="0"
+        @blur="doBlur"
+        @focus="doFocus"
       >
-        <!-- icon -->
-        <magnifying-glass-icon
-          class="w-5 h-5 join-item mx-2"
-          v-if="!model || hasFocus"
-        />
-
-        <!-- selected -->
-        <span v-if="model && !hasFocusWithin" class="group mx-2">
-          <span class="flex flex-nowrap place-items-center mx-2">
+        <div class="join h-full w-full items-center">
+          <!-- selected -->
+          <span
+            v-if="model"
+            :class="[compact ? 'px-4' : '']"
+            class="flex flex-nowrap place-items-center group-focus-within:hidden"
+          >
             {{ model }}
           </span>
-        </span>
 
-        <!-- input -->
-        <input
-          :autocomplete="autocomplete"
-          :placeholder="model ? '' : placeholder"
-          @blur="doBlur"
-          @focus="doFocus"
-          class="flex-1 px-2 h-full"
-          id="domain-search"
-          ref="input"
-          type="text"
-          v-model="domain"
-        />
+          <!-- icon -->
+          <magnifying-glass-icon
+            :class="[
+              compact ? 'w-5 h-5 mx-2' : 'w-7 h-7',
+              !model ? '' : 'invisible'
+            ]"
+            class="join-item text-inherit group-focus-within:text-primary group-focus-within:visible"
+          />
 
-        <!-- reset -->
-        <button
-          v-if="
-            !!model?.length ||
-            (meta.hasValue && clearable && !meta.isProcessing)
-          "
-          type="reset"
-          class="btn btn-ghost btn-square join-item invisible group-hover:visible"
-          tabindex="-1"
-          @click="resetInput"
-        >
-          <backspace-icon class="w-5 h-5" />
-        </button>
+          <!-- input -->
+          <input
+            :autocomplete="autocomplete"
+            :placeholder="model ? '' : placeholder"
+            @blur="doBlur"
+            @focus="doFocus"
+            class="flex-1 px-2 h-full invisible group-focus-within:visible"
+            id="domain-search"
+            ref="input"
+            type="text"
+            v-model="domain"
+          />
 
-        <!-- submit -->
-        <button
-          :class="`btn-${safeTheme}`"
-          :disabled="meta.isProcessing || !meta.hasValue"
-          @click="doSearch"
-          class="btn join-item"
-          tabindex="-1"
-          v-if="!model?.length || hasFocus"
-        >
-          <span class="loading loading-spinner" v-if="meta.isProcessing"></span>
+          <!-- reset -->
+          <button
+            v-if="clearable && !!domain?.length"
+            type="reset"
+            :class="[compact ? 'join-item btn-square' : '']"
+            class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible group-focus-within:visible"
+            tabindex="-1"
+            @click="resetInput"
+          >
+            <backspace-icon :class="compact ? 'w-5 h-5' : 'w-7 h-7'" />
+          </button>
 
-          <span v-else>Search</span>
-        </button>
+          <!-- submit -->
+          <button
+            @click="doSearch"
+            :class="[compact ? 'join-item' : '', !model ? '' : 'invisible']"
+            class="btn btn-primary opacity-50 group-focus-within:opacity-100 group-focus-within:visible"
+            tabindex="-1"
+          >
+            <span
+              class="loading loading-spinner"
+              v-if="meta.isProcessing"
+            ></span>
+
+            <span v-else>Search</span>
+          </button>
+        </div>
       </div>
     </fieldset>
 
     <!-- results -->
     <div
       class="results flex flex-col items-center justify-center relative"
-      v-if="meta.hasResults || (meta.hasValue && meta.isProcessing)"
+      v-if="!meta.isEmpty || meta.isProcessing"
     >
-      <slot name="results" v-bind="{ results }" v-if="isOpen">
-        <ul
-          tabindex="1"
-          role="list"
-          class="menu rounded-box flex-col flex-nowrap bg-base-100 border w-full mt-2 absolute top-0 left-0 right-0 z-10 shadow-sm min-h-[13em] max-h-[13em] overflow-y-auto"
-        >
-          <li class="place-self-center" v-if="meta.isProcessing">
-            <span
-              :class="`text-${safeTheme}`"
-              class="loading loading-dots"
-            ></span>
-          </li>
-
-          <li
-            role="listitem"
-            v-for="item in results"
-            :key="item?.domain"
-            :class="[{ disabled: !item.is_available }]"
-            class="p-0"
-          >
-            <label class="w-full">
-              <input
-                type="radio"
-                name="dac-domain"
-                :class="['radio', `radio-${safeTheme}`]"
-                :checked="isChecked(item.domain)"
-                :disabled="!item.is_available"
-                :value="item.domain"
-                @input="updateModel"
-              />
-
-              {{ item.domain }}
-
-              <span
-                :class="`badge-${safeTheme}`"
-                class="badge badge-xs"
-                v-if="item.is_available"
-              ></span>
-              <span class="badge badge-xs badge-ghost" v-else></span>
-            </label>
-          </li>
-        </ul>
+      <slot name="results" v-bind="{ results, meta, isOpen, update }">
+        <code>
+          <pre>{{ { meta, results } }}</pre>
+        </code>
       </slot>
 
       <template v-if="meta.hasMore">
@@ -195,11 +164,15 @@ export default defineComponent({
     },
     autocomplete: {
       type: String,
-      default: "off"
+      default: ""
     },
     placeholder: {
       type: String,
       default: ""
+    },
+    compact: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props) {
@@ -217,13 +190,13 @@ export default defineComponent({
     const control = ref<InstanceType<typeof HTMLDivElement>>();
 
     const isOpen = ref(false);
-    const model = ref(props.modelValue || null);
+    const model = ref(props.modelValue || "");
+    domain.value = model.value;
 
     const { focused: hasFocusWithin } = useFocusWithin(control);
     const { focused: hasFocus } = useFocus(input);
 
     onClickOutside(control, () => {
-      domain.value = "";
       isOpen.value = false;
     });
 
@@ -251,22 +224,23 @@ export default defineComponent({
         this.hasFocusWithin && (!!value?.length || this.meta.isProcessing);
     },
     hasFocusWithin(value) {
+      this.isOpen = value && (!!this.results?.length || this.meta.isProcessing);
       if (!value) {
         this.isOpen = false;
-        this.domain = "";
       }
     }
   },
   methods: {
     resetInput(event: Event) {
       this.reset(this.input);
-      this.model = null;
+      this.domain = "";
+      this.model = "";
       this.$emit("update:modelValue", this.model);
       this.$emit("change", event);
       this.isOpen = false;
     },
 
-    updateModel(event: Event) {
+    update(event: Event) {
       this.$emit("change", event);
       // ---
       const target = event.target as HTMLInputElement;
@@ -277,12 +251,12 @@ export default defineComponent({
       this.$emit("update:modelValue", this.model);
       this.$emit("change", event);
 
-      this.domain = "";
       this.isOpen = false;
     },
 
     validate(value: string) {
-      this.model = some(this.results, { domain: value }) ? value : null;
+      this.model = some(this.results, { domain: value }) ? value : "";
+      this.domain = this.model;
     },
 
     isChecked(value: string) {
