@@ -18,7 +18,17 @@
       @change="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"
-    />
+      compact
+    >
+      <template #results="{ results, meta, isOpen, update }">
+        <upm-dac-results-dropdown
+          :results="results"
+          :processing="meta.isProcessing"
+          :open="isOpen"
+          @change="update"
+        />
+      </template>
+    </upm-dac>
   </control-wrapper>
 </template>
 
@@ -52,6 +62,9 @@ const controlRenderer = defineComponent({
     ControlWrapper,
     UpmDac: defineAsyncComponent(() =>
       import("@upmind/components").then(m => m.UpmDac)
+    ),
+    UpmDacResultsDropdown: defineAsyncComponent(() =>
+      import("@upmind/components").then(m => m.UpmDacResultsDropdown)
     )
   },
   props: {

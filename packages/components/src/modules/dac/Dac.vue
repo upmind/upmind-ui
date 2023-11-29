@@ -8,17 +8,17 @@
           { 'input-error': hasError },
           compact ? 'p-0' : 'input-lg '
         ]"
-        class="input input-primary border-inherit border-opacity-50 group-focus-within:border-opacity-100 overflow-hidden"
+        class="input input-bordered group-focus-within:input-primary overflow-hidden"
         tabindex="0"
         @blur="doBlur"
         @focus="doFocus"
       >
-        <div class="join h-full w-full items-center">
+        <div class="join h-full w-full items-center relative">
           <!-- selected -->
           <span
             v-if="model"
             :class="[compact ? 'px-4' : '']"
-            class="flex flex-nowrap place-items-center group-focus-within:hidden"
+            class="flex flex-nowrap place-items-center group-focus-within:hidden absolute left-0"
           >
             {{ model }}
           </span>
