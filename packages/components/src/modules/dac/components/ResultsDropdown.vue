@@ -2,7 +2,7 @@
   <ul
     tabindex="1"
     role="list"
-    class="menu rounded-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full mt-2 absolute top-0 left-0 right-0 z-10 shadow-sm min-h-[13em] max-h-[13em] overflow-y-auto"
+    class="menu rounded-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full mt-2 absolute top-0 left-0 right-0 z-auto shadow-md min-h-[13em] max-h-[13em] overflow-y-auto"
     v-show="open"
     v-if="results.length || processing"
   >

@@ -1,7 +1,7 @@
 <template>
   <section class="dac w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 px-4 rounded-xl"
     >
       <div class="flex-1">
         <h2 class="title m-0">Dac Demo</h2>
@@ -10,7 +10,7 @@
       <div class="actions flex-none join">
         <slot name="actions">
           <select
-            class="select select-bordered w-24 md:w-auto join-item"
+            class="select select-primary select-bordered w-24 md:w-auto join-item"
             v-model="activeTheme"
             placeholder="Select Theme"
           >
@@ -21,6 +21,10 @@
               :label="capitalize(item)"
             ></option>
           </select>
+          <span role="button" class="btn btn-square btn-primary join-item">
+            <swatch-icon class="h-6 w-6" />
+          </span>
+
           <!-- <div class="dropdown dropdown-end">
             <button tabindex="0" role="button" class="btn btn-primary">
               Select Theme
@@ -45,19 +49,19 @@
     </header>
 
     <div
-      class="hero min-h-full py-32 bg-base-200 rounded-box my-4"
+      class="hero min-h-full py-44 bg-base-200 rounded-box my-4 relative z-10"
       :data-theme="activeTheme"
     >
       <div class="hero-content">
         <div class="max-w-xl">
           <h1 class="text-5xl font-bold text-primary">Choose a domain...</h1>
-          <p class="py-6">
+          <p>
             Thank you for choosing our hosting! We include a free 1 year .com,
             .org, or .net domain name*. The discount will be applied at
             checkout.
           </p>
           <upm-dac
-            class="my-8 min-w-[20rem] max-w-4xl mx-auto"
+            class="min-w-[20rem] max-w-4xl mx-auto"
             v-model="model"
             placeholder="Find your pefect domain &hellip;"
           >
@@ -88,6 +92,7 @@
 import { ref } from "vue";
 import { UpmDac, UpmDacResultsDropdown, UpmDebug } from "@upmind/components";
 import { capitalize } from "lodash-es";
+import { SwatchIcon } from "@heroicons/vue/24/outline";
 
 const model = ref("");
 const activeTheme = ref("default");
