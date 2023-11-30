@@ -1,7 +1,7 @@
 <template>
   <!-- <ul class="menu menu-horizontal my-0" ref="target">
     <li class="m-0 p-0">
-      <details :open="open" @toggle="doToggle($event.target.open)">
+      <details :open="open" @toggle="doToggle($event.currentTarget.open)">
         <summary class="">
           {{ modelValue }}</summary>
         <ul class="shadow bg-base-100 rounded-box w-52">
@@ -25,7 +25,7 @@
     :class="{ 'dropdown-open': force || open, disabled: processing }"
     :disabled="processing"
     :open="open"
-    @toggle="doToggle($event.target.open)"
+    @toggle="doToggle($event.currentTarget.open)"
   >
     <summary class="btn btn-ghost text-primary">
       <span>

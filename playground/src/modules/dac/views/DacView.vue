@@ -66,11 +66,10 @@
             placeholder="Find your pefect domain &hellip;"
           >
             <template #results="{ results, meta, update, value }">
-              <upm-dac-results-dropdown
+              <upm-dac-results-list
                 :model-value="value"
                 :results="results"
                 :processing="meta.isProcessing"
-                :open="meta.isActive"
                 @change="update"
               />
             </template>
@@ -91,7 +90,12 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { UpmDac, UpmDacResultsDropdown, UpmDebug } from "@upmind/components";
+import {
+  UpmDac,
+  UpmDacResultsDropdown,
+  UpmDacResultsList,
+  UpmDebug
+} from "@upmind/components";
 import { capitalize } from "lodash-es";
 import { SwatchIcon } from "@heroicons/vue/24/outline";
 

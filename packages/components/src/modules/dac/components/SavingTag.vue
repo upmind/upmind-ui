@@ -1,15 +1,23 @@
 <template>
-  <I18n
+  <span
     v-if="!!percentage"
     path="save_x_percent"
     class="bg-primary/10 text-primary border-primary text-tiny shrink-0 rounded-md border px-1.5 py-0.5 text-center font-medium uppercase"
-    :values="{ percentage }"
-  />
+  >
+    Save ${{ percentage }}%
+  </span>
 </template>
 
-<script setup lang="ts">
-import { useI18n } from "@src/composables/i18n";
-const { I18n } = useI18n();
+<script lang="ts">
+import { defineComponent } from "vue";
 
-withDefaults(defineProps<{ percentage?: number }>(), { percentage: 0 });
+export default defineComponent({
+  name: "UpmDacResultsDropdown",
+  props: {
+    percentage: {
+      type: Number,
+      default: 0
+    }
+  }
+});
 </script>

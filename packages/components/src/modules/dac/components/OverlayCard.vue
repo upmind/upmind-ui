@@ -8,7 +8,7 @@
       <!-- Icon -->
       <p class="text-auto-25 inline-block h-10 w-10">
         <slot name="icon">
-          <InformationCircleIcon />
+          <information-circle-icon />
         </slot>
       </p>
       <!-- Title -->
@@ -21,6 +21,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent } from "vue";
 import { InformationCircleIcon } from "@heroicons/vue/24/outline";
+
+export default defineComponent({
+  name: "UpmDacResultsDropdown",
+  components: { InformationCircleIcon }
+});
 </script>
