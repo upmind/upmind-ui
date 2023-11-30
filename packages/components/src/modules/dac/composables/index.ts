@@ -1,6 +1,5 @@
 // --- external
 import { computed, ref, watch } from "vue";
-import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useApi } from "@upmind/flow";
@@ -8,7 +7,7 @@ import { useApi } from "@upmind/flow";
 // --- utils
 import { parseResults } from "../utils";
 
-import { omitBy, isEmpty, isArray, first } from "lodash-es";
+import { omitBy, isEmpty, delay } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 
@@ -16,7 +15,8 @@ export function useDac({
   coupons = [],
   currencyCode,
   limit = 10,
-  orderConfigUrl = ""
+  orderConfigUrl = "",
+  modelValue = ""
 }: {
   coupons?: string[];
   currencyCode?: string;
@@ -25,27 +25,32 @@ export function useDac({
 }) {
   // --- Flow
 
-  const { get, service, useUrl } = useApi();
-  const { state, send } = useActor(service);
+  const { get, useUrl } = useApi();
 
   // --- Composables
+  const controller = ref(null as null | AbortController);
 
   // --- Data
-
-  const controller = ref(null as null | AbortController);
-  const domain = ref("");
-  const hasError = ref(false);
-  const isProcessing = ref(false);
+  const domain = ref(modelValue as string);
+  const model = ref(modelValue as string);
   const results = ref([] as any[]);
   const resultsTotal = ref(0);
-  const timeout = ref(null as null | NodeJS.Timeout);
+
+  // --- State
+  const active = ref(false);
+  const errors = ref(null as any);
+  const processing = ref(false);
+  let timer = null as number | null;
 
   // --- Computed
 
   const meta = computed(() => ({
-    isProcessing: isProcessing.value,
-    isEmpty: !results.value.length && !isProcessing.value && !hasError.value,
-    hasMore: !!results.value.length && results.value.length < resultsTotal.value
+    isProcessing: processing.value,
+    isEmpty: !results.value.length && !processing.value && !errors.value,
+    hasErrors: !!errors.value,
+    hasMore:
+      !!results.value.length && results.value.length < resultsTotal.value,
+    isActive: active.value
   }));
 
   const sanitised = computed(() => {
@@ -62,27 +67,29 @@ export function useDac({
 
   // --- Watchers
 
-  watch(sanitised, ({ value }) => debounceSearch(value), { immediate: true });
+  watch(sanitised, ({ sld }) => debounceSearch(sld), { immediate: true });
 
   // --- Methods
 
-  function resetSearch() {
-    if (controller.value) controller.value.abort();
-    if (timeout.value) clearTimeout(timeout.value);
-    hasError.value = false;
+  function resetSearch(clearErrors: boolean = true) {
+    controller.value?.abort();
+    controller.value = null;
+    if (timer) clearTimeout(timer);
+    if (clearErrors) errors.value = false;
   }
 
-  function doSearch(delay: number = 0): void {
+  function doSearch(wait: number = 0): void {
     resetSearch();
-    timeout.value = setTimeout(() => {
+    // delay resetting the results, so we can show the loading state
+    timer = delay(() => {
       resetResults();
       search(sanitised.value.sld, sanitised.value.tld);
-    }, delay);
+    }, wait);
   }
 
   function debounceSearch(query: string) {
     if (!query) return Promise.all([resetSearch(), resetResults()]);
-    doSearch(300);
+    doSearch(100);
   }
 
   function resetResults(): void {
@@ -92,6 +99,7 @@ export function useDac({
 
   function reset(target?: HTMLInputElement): void {
     domain.value = "";
+    resetSearch();
     if (target) target.focus();
   }
 
@@ -101,17 +109,20 @@ export function useDac({
 
   // ---
 
-  async function search(sld: string, tld: string, offset?: number) {
+  function search(sld: string, tld: string, offset?: number) {
     if (!sld.length) return;
-
-    isProcessing.value = true;
     controller.value = new AbortController();
+
+    processing.value = true;
 
     // --- Build the request, and Fetch the search results
     const params = omitBy(
       {
         sld,
-        // with: ["prices", "options", "options.prices", "attributes"].join(),
+        with:
+          orderConfigUrl || currencyCode
+            ? [("prices", "options", "options.prices", "attributes")].join()
+            : [],
         limit: limit?.toString(),
         offset: offset?.toString(),
         currency_code: currencyCode,
@@ -120,30 +131,33 @@ export function useDac({
       },
       isEmpty
     );
-    const response = await get({
+
+    get({
       url: useUrl("modules/web_hosting/domains/search", params),
+      init: { signal: controller.value.signal },
       useCache: true
-    }).catch(error => {
-      console.error("useDac", "search", error);
-      // useErrorHandler(error, () => (hasError.value = true));
-    });
+    })
+      .then(response => {
+        // --- Update response total
+        resultsTotal.value = response.total;
 
-    // --- Update response total
-    resultsTotal.value = response.total;
-
-    // --- Push new data to results array
-    results.value = parseResults(
-      sld,
-      response.data,
-      results.value,
-      orderConfigUrl
-    );
-
-    // } catch (e) {
-    // useErrorHandler(e, () => (hasError.value = true));
-    // } finally {
-    isProcessing.value = false;
-    // }
+        // --- Push new data to results array
+        results.value = parseResults(
+          sld,
+          response.data,
+          results.value,
+          orderConfigUrl
+        );
+      })
+      .catch(error => {
+        console.error("useDac", "search", error);
+        errors.value = error;
+        // useErrorHandler(error, () => (errors.value = error));
+      })
+      .finally(() => {
+        processing.value = false;
+        resetSearch(false);
+      });
   }
 
   // ---
@@ -151,6 +165,8 @@ export function useDac({
   return {
     // --- Data
     domain,
+    active,
+    model,
     // --- Computed
     meta,
     results,

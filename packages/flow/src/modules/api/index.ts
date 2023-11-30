@@ -19,7 +19,7 @@ import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
 // and a global object to store state
 
 let state = null;
-const service = interpret(requestsMachine, { devTools: false }).onTransition(
+const service = interpret(requestsMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -91,7 +91,7 @@ export const useApi = () => {
     }
 
     const queue = keys(state?.context?.requests);
-    const hash = generateHash(url, init, queue);
+    const hash = generateHash(url, init, useCache, queue);
 
     // first we trigger the request
     service.send({
@@ -103,21 +103,21 @@ export const useApi = () => {
     const request = get(state?.context?.requests, hash);
 
     if (request) {
-      // then we await the state of the request to be processed/cached
-      await waitFor(request, state =>
-        ["processed", "error"].some(state.matches)
-      );
-
       // finally ...
       return new Promise((resolve, reject) => {
-        if (request.state.matches("processed")) {
-          // if the request was processed, we return the response
-          const response = get(request, "state.context.response");
-          resolve(response);
-        } else if (request.state.matches("error")) {
-          const error = get(request, "state.context.error");
-          reject(error);
-        }
+        // then we await the state of the request to be processed/cached
+        waitFor(request, state =>
+          ["processed", "error"].some(state.matches)
+        ).then(() => {
+          if (request.state.matches("processed")) {
+            // if the request was processed, we return the response
+            const response = get(request, "state.context.response");
+            resolve(response);
+          } else if (request.state.matches("error")) {
+            const error = get(request, "state.context.error");
+            reject(error);
+          }
+        });
       });
     }
 

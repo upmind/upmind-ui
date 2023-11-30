@@ -80,35 +80,21 @@ export default defineComponent({
   },
   watch: {},
   methods: {
-    resetInput(event: Event) {
-      this.reset(this.input);
-      this.model = null;
-      this.$emit("update:modelValue", this.model);
-      this.$emit("change", event);
-      this.isOpen = false;
-    },
-
     updateModel(event: Event) {
       this.$emit("change", event);
       // ---
       const target = event.target as HTMLInputElement;
-      const value = target.value;
+      const value = this.validate(target.value);
 
-      this.validate(value);
-
-      this.$emit("update:modelValue", this.model);
-      this.$emit("change", event);
-
-      this.domain = "";
-      this.isOpen = false;
+      this.$emit("update:modelValue", value);
     },
 
     validate(value: string) {
-      this.model = some(this.results, { domain: value }) ? value : null;
+      return some(this.results, { domain: value }) ? value : null;
     },
 
     isChecked(value: string) {
-      return this.model === value;
+      return this.modelValue === value;
     }
   }
 });
