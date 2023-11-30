@@ -119,14 +119,11 @@ export function useDac({
     const params = omitBy(
       {
         sld,
-        with:
-          orderConfigUrl || currencyCode
-            ? [("prices", "options", "options.prices", "attributes")].join()
-            : [],
+        with: ["prices", "options", "options.prices", "attributes"].join(),
         limit: limit?.toString(),
         offset: offset?.toString(),
         currency_code: currencyCode,
-        tld,
+        // tld,
         promotions: coupons?.join()
       },
       isEmpty

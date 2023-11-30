@@ -56,7 +56,6 @@ import { some } from "lodash-es";
 
 export default defineComponent({
   name: "UpmDacResultsDropdown",
-  components: {},
   emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
     results: {
@@ -75,15 +74,12 @@ export default defineComponent({
       default: false
     }
   },
-  setup(props) {
-    return {};
-  },
-  watch: {},
+
   methods: {
     updateModel(event: Event) {
       this.$emit("change", event);
       // ---
-      const target = event.target as HTMLInputElement;
+      const target = event.currentTarget as HTMLInputElement;
       const value = this.validate(target.value);
 
       this.$emit("update:modelValue", value);
@@ -99,4 +95,3 @@ export default defineComponent({
   }
 });
 </script>
-./composables

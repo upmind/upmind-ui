@@ -32,12 +32,10 @@ const doCancellableFetch =
 
     // 1: listen for the incoming `CANCEL` event that we forwarded
     receive(({ type }) => {
-      debugger;
       if (requestPromise && type === "CANCEL") {
         // 2: Perform the 'clean up' or 'tear down'
         requestPromise.cancel();
         // 3: Now let the machine know we're finished
-        debugger;
         send({ type: "CANCELLED" });
       }
     });

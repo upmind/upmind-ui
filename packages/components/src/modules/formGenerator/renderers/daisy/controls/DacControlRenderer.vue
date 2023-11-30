@@ -20,11 +20,11 @@
       @blur="isFocused = false"
       compact
     >
-      <template #results="{ results, meta, isOpen, update }">
+      <template #results="{ results, meta, update }">
         <upm-dac-results-dropdown
           :results="results"
           :processing="meta.isProcessing"
-          :open="isOpen"
+          :open="meta.isActive"
           @change="update"
         />
       </template>

@@ -1,6 +1,6 @@
 <template>
   <fieldset
-    class="form-control group"
+    class="form-control group/dac"
     :disabled="disabled"
     :id="id"
     ref="control"
@@ -12,14 +12,14 @@
 
     <div
       :class="[{ 'input-error': hasErrors }, compact ? 'p-0' : 'input-lg ']"
-      class="input input-bordered group-focus-within:input-primary overflow-hidden"
+      class="input input-bordered group-focus-within/dac:input-primary overflow-hidden"
     >
       <div class="join h-full w-full items-center relative">
         <!-- selected -->
         <span
           v-if="model"
           :class="[compact ? 'px-4' : '']"
-          class="flex flex-nowrap place-items-center group-focus-within:hidden absolute left-0"
+          class="flex flex-nowrap place-items-center group-focus-within/dac:hidden absolute left-0"
         >
           {{ model }}
         </span>
@@ -30,7 +30,7 @@
             compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ',
             !model ? '' : 'invisible'
           ]"
-          class="join-item text-inherit group-focus-within:text-primary group-focus-within:visible"
+          class="join-item text-inherit group-focus-within/dac:text-primary group-focus-within/dac:visible"
         />
 
         <!-- input -->
@@ -43,7 +43,7 @@
             compact ? 'ml-2 px-2' : 'mx-6 px-4',
             !model ? '' : 'invisible'
           ]"
-          class="flex-1 bg-transparent h-full group-focus-within:visible"
+          class="flex-1 bg-transparent h-full group-focus-within/dac:visible"
           id="domain-search"
           ref="input"
           type="text"
@@ -55,7 +55,7 @@
           v-if="clearable && !!domain?.length"
           type="reset"
           :class="[compact ? 'join-item btn-square' : '']"
-          class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible group-focus-within:visible"
+          class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible group-focus-within/dac:visible"
           tabindex="-1"
           @click="resetInput"
         >
@@ -66,7 +66,7 @@
         <button
           @click="doSearch"
           :class="[compact ? 'join-item' : '', !model ? '' : 'invisible']"
-          class="btn btn-primary opacity-50 group-focus-within:opacity-100 group-focus-within:visible"
+          class="btn btn-primary opacity-50 group-focus-within/dac:opacity-100 group-focus-within/dac:visible"
           tabindex="-1"
         >
           <span class="loading loading-spinner" v-if="meta.isProcessing"></span>
@@ -231,7 +231,7 @@ export default defineComponent({
     update(event: Event) {
       this.$emit("change", event);
       // ---
-      const target = event.target as HTMLInputElement;
+      const target = event.currentTarget as HTMLInputElement;
       const value = target.value;
 
       this.validate(value);
