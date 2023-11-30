@@ -89,7 +89,7 @@ export function useDac({
 
   function debounceSearch(query: string) {
     if (!query) return Promise.all([resetSearch(), resetResults()]);
-    doSearch(100);
+    doSearch(300);
   }
 
   function resetResults(): void {
