@@ -1,5 +1,6 @@
 // --- external
 import { createMachine, assign, spawn } from "xstate";
+import { pure } from "xstate/lib/actions";
 
 // --- internal
 import requestMachine from "./request.machine";
@@ -32,15 +33,9 @@ export default createMachine(
       processing: {
         always: [{ target: "empty", cond: "hasNoRequests" }],
         on: {
-          // REFRESH: {
-          //   actions: ["forward"]
-          // },
-          // RETRY: {
-          //   actions: ["forward"]
-          // },
-          // CANCEL: {
-          //   actions: ["forward"]
-          // }
+          CANCEL: {
+            actions: ["cancel"]
+          }
         }
       },
       complete: {
@@ -66,10 +61,10 @@ export default createMachine(
           { requests }: RequestsContext,
           { data: { hash, url, init, useCache, maxAge } }: RequestsEvents
         ) => {
-          hash ??= generateHash(url, init, keys(requests));
+          hash ??= generateHash(url, init, useCache, keys(requests));
 
           // check if we already have a request with the same hash
-          const request = !useCache && get(requests, hash);
+          const request = useCache && get(requests, hash);
 
           // if we dont then spawn a new request machine
           // and send the request to it
@@ -123,6 +118,18 @@ export default createMachine(
           }
 
           return requests;
+        }
+      }),
+
+      cancel: pure(({ requests }, { data: { hash } }) => {
+        if (hash) {
+          // try find any requests with the same hash
+          const request = get(requests, hash);
+
+          // if it exists, forward the event to the referenced machine
+          if (request?.send) {
+            request.send("CANCEL");
+          }
         }
       })
     },

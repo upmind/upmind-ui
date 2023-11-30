@@ -4,11 +4,6 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.cancel": {
-      type: "done.invoke.cancel";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.process": {
       type: "done.invoke.process";
       data: unknown;
@@ -19,7 +14,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.cancel": { type: "error.platform.cancel"; data: unknown };
     "error.platform.process": { type: "error.platform.process"; data: unknown };
     "error.platform.request.authorizing:invocation[0]": {
       type: "error.platform.request.authorizing:invocation[0]";
@@ -34,7 +28,6 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    cancelRequest: "done.invoke.cancel";
     doFetch: "done.invoke.process";
     refreshToken: "done.invoke.request.authorizing:invocation[0]";
   };
@@ -42,7 +35,7 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services: "cancelRequest" | "doFetch" | "refreshToken";
+    services: "doFetch" | "refreshToken";
   };
   eventsCausingActions: {
     clearError:
@@ -66,13 +59,12 @@ export interface Typegen0 {
       | "xstate.after(wait)#request.processed.cancelled";
     setAuthHeader: "done.invoke.request.authorizing:invocation[0]";
     setError:
-      | "error.platform.cancel"
       | "error.platform.process"
       | "error.platform.request.authorizing:invocation[0]";
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
-    wait: "" | "done.invoke.cancel";
+    wait: "" | "CANCELLED";
   };
   eventsCausingGuards: {
     canAuthorize: "error.platform.process";
@@ -85,7 +77,6 @@ export interface Typegen0 {
     isUnauthorized: "";
   };
   eventsCausingServices: {
-    cancelRequest: "CANCEL";
     doFetch:
       | ""
       | "REFRESH"
@@ -96,7 +87,6 @@ export interface Typegen0 {
   matchesStates:
     | "authorizing"
     | "available"
-    | "cancelling"
     | "complete"
     | "error"
     | "error.conflict"

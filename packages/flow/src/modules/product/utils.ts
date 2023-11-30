@@ -279,7 +279,6 @@ export const useProvisioningParser = (data: any) => {
     let type = "string";
     let format = field?.semantic_type;
 
-    debugger;
     // lets map our field types...
     switch (field.type) {
       case "input_number":

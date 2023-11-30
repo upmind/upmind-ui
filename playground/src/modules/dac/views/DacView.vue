@@ -53,23 +53,24 @@
       :data-theme="activeTheme"
     >
       <div class="hero-content">
-        <div class="max-w-xl">
+        <div class="max-w-3xl">
           <h1 class="text-5xl font-bold text-primary">Choose a domain...</h1>
           <p>
             Thank you for choosing our hosting! We include a free 1 year .com,
-            .org, or .net domain name*. The discount will be applied at
-            checkout.
+            .org, or .net domain name*. <br />
+            <small> The discount will be applied at checkout. </small>
           </p>
           <upm-dac
             class="min-w-[20rem] max-w-4xl mx-auto"
             v-model="model"
             placeholder="Find your pefect domain &hellip;"
           >
-            <template #results="{ results, meta, isOpen, update }">
+            <template #results="{ results, meta, update, value }">
               <upm-dac-results-dropdown
+                :model-value="value"
                 :results="results"
                 :processing="meta.isProcessing"
-                :open="isOpen"
+                :open="meta.isActive"
                 @change="update"
               />
             </template>
@@ -127,5 +128,5 @@ const themes = [
   "night",
   "coffee",
   "winter"
-];
+].sort();
 </script>

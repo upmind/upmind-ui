@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+const { sendParent, forwardTo } = actions;
 
 // --- internal
 import machineServices, { FetchMethods } from "./services";
@@ -79,17 +79,8 @@ export default (request: RequestParams) =>
             ]
           },
           on: {
-            CANCEL: { target: "cancelling" }
-          }
-        },
-
-        // Cancel the request through our service
-        cancelling: {
-          invoke: {
-            id: "cancel",
-            src: "cancelRequest",
-            onDone: { target: "processed.cancelled", actions: [] },
-            onError: { target: "error", actions: ["setError"] }
+            CANCEL: { actions: [forwardTo("process")] },
+            CANCELLED: { target: "processed.cancelled" }
           }
         },
 

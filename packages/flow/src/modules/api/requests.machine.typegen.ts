@@ -15,6 +15,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
+    cancel: "CANCEL";
     remove: "REMOVE";
   };
   eventsCausingDelays: {};

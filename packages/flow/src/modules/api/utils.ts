@@ -33,13 +33,14 @@ export function addMeta(obj: Object, prop: PropertyKey, value: any) {
 export function generateHash(
   url: URL,
   init: RequestInit,
+  useCache?: boolean | null,
   queue?: Array<string> // this is to prevent duplicate requests
 ) {
   const hash = sha1({ ...omit(init, ["signal"]), url: url.toString() });
 
   const existing = filter(queue, item => startsWith(item, hash));
 
-  if (!existing?.length) return hash;
+  if (useCache || !existing?.length) return hash;
 
   return `${hash}-${existing.length}`;
 }

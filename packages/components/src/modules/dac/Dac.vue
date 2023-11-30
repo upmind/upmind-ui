@@ -11,11 +11,7 @@
     <!-- search field -->
 
     <div
-      :class="[
-        `input-${safeTheme}`,
-        { 'input-error': hasError },
-        compact ? 'p-0' : 'input-lg '
-      ]"
+      :class="[{ 'input-error': hasErrors }, compact ? 'p-0' : 'input-lg ']"
       class="input input-bordered group-focus-within:input-primary overflow-hidden"
     >
       <div class="join h-full w-full items-center relative">
@@ -85,7 +81,8 @@
       class="results flex flex-col items-center justify-center relative"
       v-if="!meta.isEmpty || meta.isProcessing"
     >
-      <slot name="results" v-bind="{ results, meta, isOpen, update }"> </slot>
+      <slot name="results" v-bind="{ results, meta, update, value: model }">
+      </slot>
 
       <template v-if="meta.hasMore">
         <button
@@ -105,13 +102,13 @@
 import { defineComponent, ref } from "vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 import { BackspaceIcon } from "@heroicons/vue/24/outline";
-import { onClickOutside, useFocus, useFocusWithin } from "@vueuse/core";
+import { onClickOutside, useFocusWithin } from "@vueuse/core";
 
 // --- internal
 import { useDac } from "./composables";
 
 // --- utils
-import { some, debounce } from "lodash-es";
+import { some } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
@@ -176,32 +173,27 @@ export default defineComponent({
     const {
       meta,
       domain,
+      model,
       results,
+      active,
       // --- Methods
       reset,
       doSearch,
       loadMore
     } = useDac(props);
 
+    // --- DOM observers
+
     const input = ref<InstanceType<typeof HTMLInputElement>>();
     const control = ref<InstanceType<typeof HTMLDivElement>>();
+    const { focused } = useFocusWithin(control);
+    onClickOutside(control, () => (active.value = false));
 
-    const isOpen = ref(false);
-    const model = ref(props.modelValue || "");
-    domain.value = model.value;
-
-    const { focused: hasFocusWithin } = useFocusWithin(control);
-    const { focused: hasFocus } = useFocus(input);
-
-    onClickOutside(control, () => {
-      isOpen.value = false;
-    });
-
+    // -----------------------------------------------------------------------
     return {
       // --- Refs
-      isOpen,
-      hasFocus,
-      hasFocusWithin,
+      focused,
+      active,
       model,
       input,
       control,
@@ -217,13 +209,12 @@ export default defineComponent({
   },
   watch: {
     results(value) {
-      this.isOpen =
-        this.hasFocusWithin && (!!value?.length || this.meta.isProcessing);
+      this.active = this.focused && (!!value?.length || this.meta.isProcessing);
     },
-    hasFocusWithin(value) {
-      this.isOpen = value && (!!this.results?.length || this.meta.isProcessing);
+    focused(value) {
+      this.active = value && (!!this.results?.length || this.meta.isProcessing);
       if (!value) {
-        this.isOpen = false;
+        this.active = false;
       }
     }
   },
@@ -234,7 +225,7 @@ export default defineComponent({
       this.model = "";
       this.$emit("update:modelValue", this.model);
       this.$emit("change", event);
-      this.isOpen = false;
+      this.active = false;
     },
 
     update(event: Event) {
@@ -248,7 +239,7 @@ export default defineComponent({
       this.$emit("update:modelValue", this.model);
       this.$emit("change", event);
 
-      this.isOpen = false;
+      this.active = false;
     },
 
     validate(value: string) {
@@ -269,11 +260,11 @@ export default defineComponent({
     }
   },
   computed: {
-    hasError() {
-      return !this.hasFocusWithin && this.$attrs.class.includes("error");
-    },
-    safeTheme() {
-      return this.theme || "neutral";
+    hasErrors() {
+      return (
+        this.meta.hasErrors ||
+        (!this.focused && this.$attrs.class.includes("error"))
+      );
     }
   }
 });
