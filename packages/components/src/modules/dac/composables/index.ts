@@ -156,7 +156,6 @@ export function useDac({
       })
       .finally(() => {
         processing.value = false;
-        resetSearch(false);
       });
   }
 
