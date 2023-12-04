@@ -104,7 +104,7 @@ import { BackspaceIcon } from "@heroicons/vue/24/outline";
 import { onClickOutside, useFocusWithin } from "@vueuse/core";
 
 // --- internal
-import { useDac } from "./composables";
+import { useDac } from "../composables";
 
 // --- utils
 import { some } from "lodash-es";
@@ -112,7 +112,7 @@ import { some } from "lodash-es";
 // ---------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDac",
+  name: "UpmDacDomainNew",
   components: {
     MagnifyingGlassIcon,
     BackspaceIcon

@@ -63,12 +63,13 @@
 <script lang="ts">
 import { defineComponent, toRaw, unref, type PropType } from "vue";
 
+import { useValidation } from "./utils";
+
 import UpmDebug from "../debug/Debug.vue";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
 import {
-  createAjv,
   type ValidationMode,
   type JsonSchema,
   type UISchemaElement
@@ -168,7 +169,8 @@ export default defineComponent({
   customOptions: {},
   setup(props) {
     // -------
-    const ajv = createAjv({ useDefaults: true });
+
+    const { ajv } = useValidation();
 
     // mergeStyles combines all classes from both styles definitions into one
     const formStyles = mergeStyles(defaultStyles, props.styles);
