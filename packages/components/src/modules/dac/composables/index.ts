@@ -7,7 +7,19 @@ import { useApi } from "@upmind/flow";
 // --- utils
 import { parseResults } from "../utils";
 
-import { omitBy, isEmpty, delay } from "lodash-es";
+import {
+  compact,
+  delay,
+  filter,
+  find,
+  first,
+  includes,
+  isEmpty,
+  omitBy,
+  some,
+  uniq,
+  without
+} from "lodash-es";
 
 // ----------------------------------------------------------------------------
 
@@ -16,12 +28,15 @@ export function useDac({
   currencyCode,
   limit = 10,
   orderConfigUrl = "",
-  modelValue = ""
+  modelValue = "",
+  multiple = false
 }: {
   coupons?: string[];
   currencyCode?: string;
   limit: number;
   orderConfigUrl: string;
+  modelValue: string | Array<string>;
+  multiple: boolean;
 }) {
   // --- Flow
 
@@ -31,8 +46,10 @@ export function useDac({
   const controller = ref(null as null | AbortController);
 
   // --- Data
-  const domain = ref(modelValue as string);
-  const model = ref(modelValue as string);
+  const domain = ref(
+    (multiple ? first(modelValue || []) : modelValue || "") as string
+  );
+  const model = ref(modelValue as string | string[]);
   const results = ref([] as any[]);
   const resultsTotal = ref(0);
 
@@ -55,13 +72,13 @@ export function useDac({
 
   const sanitised = computed(() => {
     const value = domain.value
-      .replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
-      .toLowerCase();
+      ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
+      ?.toLowerCase();
 
     return {
       value,
-      tld: domain.value.match(/(?:^[^\.]+)(\..{2,})/i)?.[1] || "",
-      sld: domain.value.split(".")?.[0] || ""
+      tld: domain.value?.match(/(?:^[^\.]+)(\..{2,})/i)?.[1] || "",
+      sld: domain.value?.split(".")?.[0] || ""
     };
   });
 
@@ -69,7 +86,45 @@ export function useDac({
 
   watch(sanitised, ({ sld }) => debounceSearch(sld), { immediate: true });
 
+  // this will alutomatically select any exact matches on our domain search
+  watch(results, value => {
+    if (find(value, ["domain", domain.value])) {
+      if (multiple) {
+        model.value = compact(uniq([...model.value, domain.value]));
+      } else {
+        model.value = domain.value;
+      }
+    }
+  });
   // --- Methods
+
+  function update(value: string | string[]) {
+    if (!value.length) {
+      model.value = multiple ? [] : "";
+    } else {
+      // handle toggling of values
+      if (multiple) {
+        if (!includes(model.value, value)) {
+          value = [...model.value, value];
+        } else {
+          value = without(model.value, value);
+        }
+      } else {
+        value = model.value !== value ? value : "";
+      }
+
+      model.value = multiple
+        ? compact(
+            uniq(filter(value, domain => some(results.value, { domain })))
+          )
+        : some(results.value, { domain: value })
+          ? value
+          : "";
+    }
+
+    // now update the domain to match the model, or the first value in the model if multiple
+    domain.value = multiple ? first(model.value) : model.value;
+  }
 
   function resetSearch(clearErrors: boolean = true) {
     controller.value?.abort();
@@ -104,7 +159,11 @@ export function useDac({
   }
 
   function loadMore() {
-    return search(sanitisedSld.value, sanitisedTld.value, results.value.length);
+    return search(
+      sanitised.value.sld,
+      sanitised.value.tld,
+      results.value.length
+    );
   }
 
   // ---
@@ -169,6 +228,7 @@ export function useDac({
     resultsTotal,
     sanitised,
     // --- Methods
+    update,
     reset,
     doSearch,
     loadMore

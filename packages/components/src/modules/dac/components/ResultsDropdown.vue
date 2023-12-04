@@ -19,10 +19,12 @@
     >
       <label class="w-full">
         <input
-          type="radio"
+          :type="multiple ? 'checkbox' : 'radio'"
           name="dac-domain"
-          class="radio radio-primary"
-          :checked="isChecked(item.domain)"
+          :class="
+            multiple ? 'checkbox checkbox-primary' : 'radio radio-primary'
+          "
+          :checked="isSelected(item.domain)"
           :disabled="!item.is_available"
           :value="item.domain"
           @input="updateModel"
@@ -50,22 +52,26 @@
 import { defineComponent } from "vue";
 
 // --- utils
-import { some } from "lodash-es";
+import { includes } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmDacResultsDropdown",
-  emits: ["update:modelValue", "change", "focus", "blur"],
+  emits: ["change", "focus", "blur"],
   props: {
     results: {
       type: Array,
       default: () => []
     },
     modelValue: {
-      type: String
+      type: [String, Array<String>]
     },
     processing: {
+      type: Boolean,
+      default: false
+    },
+    multiple: {
       type: Boolean,
       default: false
     },
@@ -78,19 +84,12 @@ export default defineComponent({
   methods: {
     updateModel(event: Event) {
       this.$emit("change", event);
-      // ---
-      const target = event.currentTarget as HTMLInputElement;
-      const value = this.validate(target.value);
-
-      this.$emit("update:modelValue", value);
     },
 
-    validate(value: string) {
-      return some(this.results, { domain: value }) ? value : null;
-    },
-
-    isChecked(value: string) {
-      return this.modelValue === value;
+    isSelected(value: string) {
+      return this.multiple
+        ? includes(this.modelValue, value)
+        : this.modelValue === value;
     }
   }
 });

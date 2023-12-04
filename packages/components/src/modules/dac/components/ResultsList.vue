@@ -3,6 +3,7 @@
     tabindex="1"
     role="list"
     class="rounded-box bg-base-100 base-content border border-base-300 divide-lm-contrast/10 dark:divide-dm-contrast/10 divide-y mt-6 w-full p-0 m-0 overflow-hidden"
+    v-show="open"
   >
     <li
       v-if="processing"
@@ -11,12 +12,14 @@
       <span class="loading loading-dots text-primary"></span>
     </li>
 
-    <template v-for="item in results" :key="item?.domain">
+    <template v-for="(item, index) in results" :key="item?.domain">
       <slot name="item" v-bind="{ item }">
         <upm-card
           v-bind="item"
           :model-value="modelValue"
+          :multiple="multiple"
           @change="updateModel"
+          :tabindex="index"
         />
       </slot>
     </template>
@@ -40,29 +43,32 @@ export default defineComponent({
   components: {
     UpmCard
   },
-  emits: ["update:modelValue", "change"],
+  emits: ["change"],
   props: {
     results: {
       type: Array,
       default: () => []
     },
     modelValue: {
-      type: String
+      type: [String, Array<String>]
+    },
+    multiple: {
+      type: Boolean,
+      default: false
     },
     processing: {
       type: Boolean,
       default: false
+    },
+    open: {
+      type: Boolean,
+      default: true
     }
   },
 
   methods: {
     updateModel(event: Event) {
       this.$emit("change", event);
-      // ---
-      const target = event.currentTarget as HTMLInputElement;
-      const value = this.validate(target?.value);
-
-      this.$emit("update:modelValue", value);
     },
 
     validate(value: string) {

@@ -3,13 +3,12 @@
     class="group/dac-baket-card items-center gap-x-4 gap-y-1 m-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6"
     :class="{
       'dark:hover:bg-dm-contrast/5 hover:bg-lm-contrast/2': is_available,
-      'cursor-pointer': is_available,
       'bg-primary text-primary-text': isSelected
     }"
     @click="select"
   >
     <!-- this is to mimic a form input behaviour + events -->
-    <input ref="input" type="hidden" @input="updateModel" />
+    <input ref="input" type="hidden" @change="updateModel" />
 
     <div class="hidden sm:block">
       <check-circle-icon
@@ -118,6 +117,7 @@
         :class="{ 'btn-active': isSelected }"
         :value="domain"
         @click="updateModel"
+        tabindex="-1"
       >
         <shopping-cart-icon class="h-4 w-4 xl:hidden" />
 
@@ -145,11 +145,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type Ref } from "vue";
+import { defineComponent, ref } from "vue";
 import UpmMarkdown from "./Markdown.vue";
 import SavingTag from "./SavingTag.vue";
 import { CheckCircleIcon } from "@heroicons/vue/24/outline";
 import { ArrowsRightLeftIcon, ShoppingCartIcon } from "@heroicons/vue/20/solid";
+
+import { includes } from "lodash-es";
 
 export default defineComponent({
   name: "UpmDacBasketCard",
@@ -160,10 +162,14 @@ export default defineComponent({
     ArrowsRightLeftIcon,
     ShoppingCartIcon
   },
-  emits: ["update:modelValue", "change"],
+  emits: ["change"],
   props: {
     modelValue: {
-      type: String
+      type: [String, Array<String>]
+    },
+    multiple: {
+      type: Boolean,
+      default: false
     },
     billing_cycle_years: {
       type: Number,
@@ -207,7 +213,8 @@ export default defineComponent({
     }
   },
   setup() {
-    const input: Ref<HTMLInputElement | null> = ref(null);
+    const input = ref<InstanceType<typeof HTMLInputElement>>();
+
     return {
       input
     };
@@ -215,7 +222,9 @@ export default defineComponent({
 
   computed: {
     isSelected() {
-      return this.modelValue === this.domain;
+      return this.multiple
+        ? includes(this.modelValue, this.domain)
+        : this.modelValue === this.domain;
     }
   },
   methods: {
@@ -230,10 +239,6 @@ export default defineComponent({
 
     updateModel(event: Event) {
       this.$emit("change", event);
-      // ---
-      const target = event.currentTarget as HTMLButtonElement;
-      const value = target?.value;
-      this.$emit("update:modelValue", value);
     }
   }
 });

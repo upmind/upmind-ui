@@ -15,13 +15,16 @@
       :disabled="!control.enabled"
       :autocomplete="appliedOptions.autocomplete"
       :placeholder="appliedOptions.placeholder"
+      :multiple="appliedOptions.multiple"
       @change="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"
       compact
     >
-      <template #results="{ results, meta, update }">
+      <template #results="{ results, meta, update, value, multiple }">
         <upm-dac-results-dropdown
+          :model-value="value"
+          :multiple="multiple"
           :results="results"
           :processing="meta.isProcessing"
           :open="meta.isActive"
@@ -73,7 +76,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     return useDaisyControl(
       useJsonFormsControl(props),
-      target => target.value || undefined
+      target => target?.value || undefined
     );
   }
 });

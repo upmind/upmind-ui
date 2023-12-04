@@ -61,7 +61,7 @@ const schema = {
     },
 
     domain: {
-      type: "string",
+      type: ["string", "array"],
       format: "domain_name",
       title: "Add A domain....",
       description: ""
@@ -101,7 +101,8 @@ const uischema = {
           type: "Control",
           scope: "#/properties/domain",
           options: {
-            placeholder: "google.com"
+            placeholder: "pewpew.com",
+            multiple: true
           }
         },
         {
