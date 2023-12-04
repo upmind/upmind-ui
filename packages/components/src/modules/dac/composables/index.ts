@@ -195,12 +195,14 @@ export function useDac({
     })
       .then(response => {
         // --- Update response total
-        resultsTotal.value = response.total;
+        if (!response?.total) debugger;
+
+        resultsTotal.value = response?.total || 0;
 
         // --- Push new data to results array
         results.value = parseResults(
           sld,
-          response.data,
+          response?.data || [],
           results.value,
           orderConfigUrl
         );
