@@ -63,10 +63,12 @@
           <upm-dac
             class="min-w-[20rem] max-w-4xl mx-auto"
             v-model="model"
+            :multiple="multiple"
             placeholder="Find your pefect domain &hellip;"
           >
-            <template #results="{ results, meta, update, value }">
+            <template #results="{ results, meta, update, value, multiple }">
               <upm-dac-results-list
+                :multiple="multiple"
                 :model-value="value"
                 :results="results"
                 :processing="meta.isProcessing"
@@ -99,7 +101,11 @@ import {
 import { capitalize } from "lodash-es";
 import { SwatchIcon } from "@heroicons/vue/24/outline";
 
-const model = ref("pewpew.com");
+const multiple = ref(true);
+
+// const model = ref(["pewpew.com", "pewpew.net"]);
+// const model = multiple.value ? ref(["pewpew.com", "pewpew.net"]) : "pewpew.com";
+const model = ref(multiple.value ? [] : "");
 const activeTheme = ref("default");
 const themes = [
   "default",

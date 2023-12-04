@@ -15,19 +15,36 @@
     >
       <div class="join h-full w-full items-center relative">
         <!-- selected -->
-        <span
-          v-if="model"
-          :class="[compact ? 'px-4' : '']"
-          class="flex flex-nowrap place-items-center group-focus-within/dac:hidden absolute left-0"
+        <div
+          v-if="model?.length"
+          class="absolute left-0 w-full flex place-items-center group-focus-within/dac:hidden"
+          :class="[compact ? 'gap-1 mx-2' : 'gap-2']"
         >
-          {{ model }}
-        </span>
+          <template v-if="multiple">
+            <button
+              v-for="value in model"
+              :key="value"
+              class="btn"
+              :class="[compact ? 'btn-xs' : '']"
+              @click.prevent="removeValue(value)"
+            >
+              {{ value }}
+              <backspace-icon class="w-5 h-5 ml-1" />
+            </button>
+          </template>
+          <span v-else>
+            <button @click.prevent="removeValue()" class="btn">
+              {{ model }}
+              <backspace-icon class="w-5 h-5 ml-1" />
+            </button>
+          </span>
+        </div>
 
         <!-- icon -->
         <magnifying-glass-icon
           :class="[
             compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ',
-            !model ? '' : 'invisible'
+            !model?.length ? '' : 'invisible'
           ]"
           class="join-item text-inherit group-focus-within/dac:text-primary group-focus-within/dac:visible"
         />
@@ -35,12 +52,12 @@
         <!-- input -->
         <input
           :autocomplete="autocomplete"
-          :placeholder="model ? '' : placeholder"
+          :placeholder="model?.length ? '' : placeholder"
           @blur="doBlur"
           @focus="doFocus"
           :class="[
             compact ? 'ml-2 px-2' : 'mx-6 px-4',
-            !model ? '' : 'invisible'
+            !model?.length ? '' : 'invisible'
           ]"
           class="flex-1 bg-transparent h-full group-focus-within/dac:visible"
           id="domain-search"
@@ -64,7 +81,10 @@
         <!-- submit -->
         <button
           @click="doSearch"
-          :class="[compact ? 'join-item' : '', !model ? '' : 'invisible']"
+          :class="[
+            compact ? 'join-item' : '',
+            !model?.length ? '' : 'invisible'
+          ]"
           class="btn btn-primary opacity-50 group-focus-within/dac:opacity-100 group-focus-within/dac:visible"
           tabindex="-1"
         >
@@ -77,10 +97,13 @@
 
     <!-- results -->
     <div
-      class="results flex flex-col items-center justify-center relative"
+      class="results flex flex-col items-center justify-center relative z-10"
       v-if="!meta.isEmpty || meta.isProcessing"
     >
-      <slot name="results" v-bind="{ results, meta, update, value: model }">
+      <slot
+        name="results"
+        v-bind="{ results, meta, update: updateModel, value: model, multiple }"
+      >
       </slot>
 
       <template v-if="meta.hasMore">
@@ -107,7 +130,15 @@ import { onClickOutside, useFocusWithin } from "@vueuse/core";
 import { useDac } from "./composables";
 
 // --- utils
-import { some } from "lodash-es";
+import {
+  first,
+  filter,
+  includes,
+  without,
+  some,
+  compact,
+  uniq
+} from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
@@ -140,9 +171,12 @@ export default defineComponent({
       default: null
     },
     modelValue: {
-      type: String
+      type: [String, Array<String>]
     },
-
+    multiple: {
+      type: Boolean,
+      default: false
+    },
     clearable: {
       type: Boolean,
       default: true
@@ -169,44 +203,33 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {
-      meta,
-      domain,
-      model,
-      results,
-      active,
-      // --- Methods
-      reset,
-      doSearch,
-      loadMore
-    } = useDac(props);
+    const dac = useDac(props);
 
     // --- DOM observers
-
     const input = ref<InstanceType<typeof HTMLInputElement>>();
     const control = ref<InstanceType<typeof HTMLDivElement>>();
     const { focused } = useFocusWithin(control);
-    onClickOutside(control, () => (active.value = false));
+
+    onClickOutside(control, () => (dac.active.value = false));
 
     // -----------------------------------------------------------------------
     return {
+      ...dac,
       // --- Refs
       focused,
-      active,
-      model,
       input,
-      control,
-      // --- Data
-      domain,
-      meta,
-      results,
-      // --- Methods
-      reset,
-      doSearch,
-      loadMore
+      control
     };
   },
   watch: {
+    model(value, oldValue) {
+      // weve got a new value, that is not the same as the old value
+      // so we need to emit the change
+      if (oldValue !== value) {
+        this.$emit("update:modelValue", value);
+        this.$emit("change", { currentTarget: { value } });
+      }
+    },
     results(value) {
       this.active = this.focused && (!!value?.length || this.meta.isProcessing);
     },
@@ -218,36 +241,21 @@ export default defineComponent({
     }
   },
   methods: {
-    resetInput(event: Event) {
+    resetInput() {
       this.reset(this.input);
       this.domain = "";
-      this.model = "";
-      this.$emit("update:modelValue", this.model);
-      this.$emit("change", event);
+      this.model = this.multiple ? [] : "";
       this.active = false;
     },
 
-    update(event: Event) {
-      this.$emit("change", event);
+    updateModel({ currentTarget }: Event) {
       // ---
-      const target = event.currentTarget as HTMLInputElement;
-      const value = target.value;
-
-      this.validate(value);
-
-      this.$emit("update:modelValue", this.model);
-      this.$emit("change", event);
-
-      this.active = false;
-    },
-
-    validate(value: string) {
-      this.model = some(this.results, { domain: value }) ? value : "";
-      this.domain = this.model;
+      let value: string | string[] = currentTarget?.value;
+      this.update(value);
     },
 
     isChecked(value: string) {
-      return this.model === value;
+      return this.multiple ? includes(this.model, value) : this.model === value;
     },
 
     doFocus(event: Event) {
@@ -256,13 +264,17 @@ export default defineComponent({
 
     doBlur(event: Event) {
       this.$emit("blur", event);
+    },
+
+    removeValue(value: string) {
+      this.model = this.multiple ? without(this.model, value) : "";
     }
   },
   computed: {
     hasErrors() {
       return (
         this.meta.hasErrors ||
-        (!this.focused && this.$attrs.class.includes("error"))
+        (!this.focused && includes(this.$attrs?.class, "error"))
       );
     }
   }
