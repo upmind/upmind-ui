@@ -4,7 +4,7 @@
     :class="{
       'dark:hover:bg-dm-contrast/5 hover:bg-lm-contrast/2': is_available,
       'cursor-pointer': is_available,
-      'bg-primary bg-opacity-5': isSelected
+      'bg-primary text-primary-text': isSelected
     }"
     @click="select"
   >
@@ -12,7 +12,14 @@
     <input ref="input" type="hidden" @input="updateModel" />
 
     <div class="hidden sm:block">
-      <check-circle-icon v-if="is_available" class="text-primary h-7 w-7" />
+      <check-circle-icon
+        v-if="is_available"
+        class="h-7 w-7"
+        :class="{
+          'text-primary-content': isSelected,
+          'text-primary': !isSelected
+        }"
+      />
       <arrows-right-left-icon v-else class="text-auto-25 h-7 w-7" />
     </div>
 
@@ -21,7 +28,8 @@
       <span
         class="block text-sm uppercase leading-4"
         :class="{
-          'text-primary': is_available,
+          'text-primary-content': is_available && isSelected,
+          'text-primary': is_available && !isSelected,
           'text-auto-50': !is_available
         }"
       >
@@ -37,14 +45,24 @@
               is_available
           }"
         >
-          <span class="font-light opacity-80">{{ sld }}</span>
+          <span
+            class="font-light opacity-80"
+            :class="{
+              'text-base-content': !isSelected,
+              'text-primary-content': isSelected
+            }"
+            >{{ sld }}</span
+          >
 
           <strong
-            class="text-base-content"
             :class="{
               'font-semibold': true,
+              'text-base-content': !isSelected,
+              'text-primary-content': isSelected,
               'group-hover/dac-baket-card:text-primary transition-colors':
-                is_available
+                is_available && !isSelected,
+              'group-hover/dac-baket-card:text-primary-content transition-colors':
+                is_available && isSelected
             }"
             >{{ tld }}</strong
           >
@@ -63,12 +81,21 @@
             <span
               path="price_by_n_years"
               class="text-auto-50 mr-auto shrink-0 text-sm"
+              :class="{
+                'text-base-content': !isSelected,
+                'text-primary-content': isSelected
+              }"
               :count="billing_cycle_years"
             >
               <!-- <template #price> -->
-              <span class="text-auto text-lg font-semibold sm:text-xl">{{
-                price_discounted_formatted || price_formatted
-              }}</span>
+              <span
+                class="text-auto text-lg font-semibold sm:text-xl"
+                :class="{
+                  'text-base-content': !isSelected,
+                  'text-primary-content': isSelected
+                }"
+                >{{ price_discounted_formatted || price_formatted }}</span
+              >
               <!-- </template> -->
             </span>
           </template>
@@ -87,12 +114,14 @@
       <button
         as="anchor"
         :href="order_url"
-        class="btn btn-primary btn-outline"
+        class="btn btn-outline btn-primary"
+        :class="{ 'btn-active': isSelected }"
         :value="domain"
         @click="updateModel"
       >
         <shopping-cart-icon class="h-4 w-4 xl:hidden" />
-        Add to Basket
+
+        <span v-if="!isSelected">Add</span><span v-else>Added</span> to Basket
       </button>
     </template>
 
@@ -116,7 +145,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, type Ref } from "vue";
 import UpmMarkdown from "./Markdown.vue";
 import SavingTag from "./SavingTag.vue";
 import { CheckCircleIcon } from "@heroicons/vue/24/outline";
@@ -178,7 +207,7 @@ export default defineComponent({
     }
   },
   setup() {
-    const input = ref(null);
+    const input: Ref<HTMLInputElement | null> = ref(null);
     return {
       input
     };
@@ -191,10 +220,12 @@ export default defineComponent({
   },
   methods: {
     select() {
+      if (!this?.input) return; // safety check
+
       // we use a radio to be able to emit a valid input event
       // so that any parent/form can listen to it
       this.input.value = this.domain;
-      this.input.dispatchEvent(new Event("input"));
+      this.input?.dispatchEvent(new Event("input"));
     },
 
     updateModel(event: Event) {

@@ -99,7 +99,7 @@ import {
 import { capitalize } from "lodash-es";
 import { SwatchIcon } from "@heroicons/vue/24/outline";
 
-const model = ref("");
+const model = ref("pewpew.com");
 const activeTheme = ref("default");
 const themes = [
   "default",
