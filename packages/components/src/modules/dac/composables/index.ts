@@ -195,7 +195,6 @@ export function useDac({
     })
       .then(response => {
         // --- Update response total
-        if (!response?.total) debugger;
 
         resultsTotal.value = response?.total || 0;
 

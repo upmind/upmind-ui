@@ -1,14 +1,61 @@
 // --- external
 
 // --- internal
+import { useApi } from "../api";
 
 // --- utils
+import { parseDomain, parseAvailable } from "./utils";
+import { isEmpty, omitBy } from "lodash-es";
 
 // --- types
+import type { DomainContext } from "./types";
 
 // --------------------------------------------------------
+
+function search({
+  coupons,
+  currency,
+  limit,
+  controller,
+  available,
+  search,
+  offset
+}: DomainContext) {
+  const { get, useUrl } = useApi();
+
+  if (!search?.length) return Promise.reject("No domain provided");
+
+  const { sld, tld } = parseDomain(search);
+
+  // --- Build the request, and Fetch the search results
+  const params = omitBy(
+    {
+      sld,
+      with: ["prices", "options", "options.prices", "attributes"].join(),
+      limit: limit?.toString(),
+      offset: offset?.toString(),
+      currency_code: currency,
+      // tld,
+      promotions: coupons?.join()
+    },
+    isEmpty
+  );
+
+  return get({
+    url: useUrl("modules/web_hosting/domains/search", params),
+    init: { signal: controller?.signal },
+    useCache: true
+  }).then(({ data, total }) => {
+    return {
+      available: parseAvailable(sld, data, available),
+      total: total || 0
+    };
+  });
+}
 
 // --------------------------------------------------------
 // EXPORTS
 
-export default {};
+export default {
+  search
+};
