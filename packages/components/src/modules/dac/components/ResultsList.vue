@@ -3,7 +3,7 @@
     tabindex="1"
     role="list"
     class="rounded-box bg-base-100 base-content border border-base-300 divide-lm-contrast/10 dark:divide-dm-contrast/10 divide-y mt-6 w-full p-0 m-0 overflow-hidden"
-    v-show="open"
+    v-show="open && (results.length || processing)"
   >
     <li
       v-if="processing"

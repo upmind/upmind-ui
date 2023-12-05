@@ -102,7 +102,7 @@ const uischema = {
           scope: "#/properties/domain",
           options: {
             placeholder: "pewpew.com",
-            multiple: true
+            multiple: false
           }
         },
         {

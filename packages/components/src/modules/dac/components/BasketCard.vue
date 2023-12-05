@@ -130,7 +130,7 @@
         class="text-auto-50 grow basis-72 text-xs"
         :values="{ percentage: percentage_saving }"
       >
-        <template v-if="order_url">
+        <template>
           Do you own this domain? Transfer it to us by
           <a :href="order_url" class="underline"> Clicking here </a>.
         </template>

@@ -2,7 +2,7 @@
 import { interpret } from "xstate";
 
 // --- internal
-import domainsMachine from "./domains.machine";
+import domainMachine from "./domain.machine";
 
 // --- utils
 // import { set, get } from "lodash-es";
@@ -15,13 +15,13 @@ import domainsMachine from "./domains.machine";
 
 let state = null;
 
-const service = interpret(domainsMachine, { devTools: true }).onTransition(
+const service = interpret(domainMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 
 // --------------------------------------------------------
 
-export const usedomain = () => {
+export const useDomain = () => {
   // --------------------------------------------------------
   // methods
 

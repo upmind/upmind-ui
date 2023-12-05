@@ -1,7 +1,7 @@
 import { test, describe, it, expect } from "vitest";
 import { Machine } from "xstate";
 import { createModel } from "@xstate/test";
-import domainsMachine from "../domains.machine";
+import domainsMachine from "../domain.machine";
 
 const domainsModel = createModel(domainsMachine).withEvents({
   ADD_PRODUCT: {

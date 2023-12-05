@@ -107,36 +107,5 @@ const multiple = ref(true);
 // const model = multiple.value ? ref(["pewpew.com", "pewpew.net"]) : "pewpew.com";
 const model = ref(multiple.value ? [] : "");
 const activeTheme = ref("default");
-const themes = [
-  "default",
-  "light",
-  "dark",
-  "cupcake",
-  "bumblebee",
-  "emerald",
-  "corporate",
-  "synthwave",
-  "retro",
-  "cyberpunk",
-  "valentine",
-  "halloween",
-  "garden",
-  "forest",
-  "aqua",
-  "lofi",
-  "pastel",
-  "fantasy",
-  "wireframe",
-  "black",
-  "luxury",
-  "dracula",
-  "cmyk",
-  "autumn",
-  "business",
-  "acid",
-  "lemonade",
-  "night",
-  "coffee",
-  "winter"
-].sort();
+const themes = import.meta.env.VITE_THEMES.split(",");
 </script>
