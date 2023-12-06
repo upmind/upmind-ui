@@ -5,7 +5,7 @@ import { useApi } from "../api";
 
 // --- utils
 import { parseDomain, parseAvailable } from "./utils";
-import { isEmpty, omitBy } from "lodash-es";
+import { isEmpty, omitBy, map } from "lodash-es";
 
 // --- types
 import type { DomainContext } from "./types";
@@ -53,9 +53,25 @@ function search({
   });
 }
 
+function getClientDomains({ controller }: DomainContext) {
+  const { get, useUrl } = useApi();
+
+  return get({
+    url: useUrl("modules/web_hosting/domains/client_domains"),
+    init: { signal: controller?.signal },
+    useCache: true,
+    withAccessToken: true
+  }).then(({ data, total }) => {
+    return {
+      available: map(data, ({ domain_name }) => parseDomain(domain_name)),
+      total: total || 0
+    };
+  });
+}
 // --------------------------------------------------------
 // EXPORTS
 
 export default {
-  search
+  search,
+  getClientDomains
 };

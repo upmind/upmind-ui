@@ -97,6 +97,6 @@ export const useDomain = (forceType?: string) => {
     add,
     remove,
     toggle,
-    isSelected: (value: string) => state.value.matches(`available.${value}`)
+    isSelected: (value: string) => [`active.${value}`].some(state.value.matches)
   };
 };

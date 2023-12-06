@@ -121,9 +121,9 @@
               @update:modelValue="({ currentTarget: { value } }) => add(value)"
               placeholder="Enter your Domain &hellip;"
               :autofocus="meta.showExisting"
-              autocomplete="url"
+              autocomplete="off"
+              :suggestions="available"
               :icon="null"
-              action="Use"
               :error="
                 meta?.hasErrors
                   ? 'Please enter a valid domain, eg: google.com'
@@ -131,8 +131,10 @@
               "
             />
 
+            <!-- available  -->
+
             <upm-dac-results-list
-              .v-if="meta.showRegister || meta.showTransfer"
+              v-if="meta.showRegister || meta.showTransfer"
               :multiple="true"
               :model-value="selected"
               :results="available"

@@ -11,6 +11,11 @@ import type { IDomainProduct } from "./types";
 
 export function parseDomain(domain: string) {
   domain = unref(domain);
+
+  if (!domain) {
+    return;
+  }
+
   const value = domain
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
     ?.toLowerCase();

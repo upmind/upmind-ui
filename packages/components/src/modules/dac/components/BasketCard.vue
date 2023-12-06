@@ -19,7 +19,14 @@
           'text-primary': !isSelected
         }"
       />
-      <arrows-right-left-icon v-else class="text-auto-25 h-7 w-7" />
+      <arrows-right-left-icon
+        v-else
+        class="h-7 w-7"
+        :class="{
+          'text-primary-content': isSelected,
+          'text-primary': !isSelected
+        }"
+      />
     </div>
 
     <div class="max-w-full grow-[99]">
@@ -27,12 +34,12 @@
       <span
         class="block text-sm uppercase leading-4"
         :class="{
-          'text-primary-content': is_available && isSelected,
+          'text-primary-content': isSelected,
           'text-primary': is_available && !isSelected,
           'text-auto-50': !is_available
         }"
       >
-        {{ is_available ? "Available" : "Unavailable" }}
+        {{ is_available ? "Available" : "Transfer" }}
       </span>
 
       <div class="gap-x-8 overflow-hidden sm:flex sm:items-center">
@@ -41,7 +48,7 @@
           class="text-rtl text-auto grow truncate text-xl sm:text-2xl"
           :class="{
             'transition-transform sm:group-hover/dac-baket-card:translate-x-2':
-              is_available
+              is_available && !isSelected
           }"
         >
           <span
@@ -109,38 +116,53 @@
       </template>
     </div>
 
-    <template v-if="is_available">
-      <button
-        as="anchor"
-        :href="order_url"
-        class="btn btn-outline btn-primary"
-        :class="{ 'btn-active': isSelected }"
-        :value="domain"
-        @click="updateModel"
-        tabindex="-1"
-      >
-        <shopping-cart-icon class="h-4 w-4 xl:hidden" />
+    <button
+      v-if="is_available || isSelected"
+      as="anchor"
+      :href="order_url"
+      class="btn btn-outline btn-primary"
+      :class="{ 'btn-active': isSelected }"
+      :value="domain"
+      @click="updateModel"
+      tabindex="-1"
+    >
+      <shopping-cart-icon class="h-4 w-4 xl:hidden" />
 
-        <span v-if="!isSelected">Add</span><span v-else>Added</span> to Basket
-      </button>
-    </template>
+      <span v-if="!isSelected">Add</span><span v-else>Added</span> to Basket
+    </button>
 
-    <template v-else>
-      <p
-        class="text-auto-50 grow basis-72 text-xs"
-        :values="{ percentage: percentage_saving }"
-      >
-        <template>
-          Do you own this domain? Transfer it to us by
-          <a :href="order_url" class="underline"> Clicking here </a>.
-        </template>
+    <div
+      v-else
+      class="text-auto-50 grow basis-72 text-xs m-0"
+      :class="{ 'text-primary-content': isSelected }"
+    >
+      <p class="m-0" :values="{ percentage: percentage_saving }">
+        Do you own this domain?
 
-        Our <strong>{{ tld.toUpperCase() }}</strong> renewal prices start from
-        only
-        <strong>{{ price_discounted_formatted || price_formatted }}</strong>
+        <button
+          as="anchor"
+          :href="order_url"
+          class="btn btn-xs btn-link"
+          :value="domain"
+          @click="updateModel"
+          tabindex="-1"
+        >
+          <shopping-cart-icon class="h-4 w-4 xl:hidden" />
+
+          Transfer it to us
+        </button>
+      </p>
+
+      <p class="m-0">
+        Our
+        <strong class="text-inherit">{{ tld.toUpperCase() }}</strong> renewal
+        prices start from only
+        <strong class="text-inherit">{{
+          price_discounted_formatted || price_formatted
+        }}</strong>
         / {{ billing_cycle_years > 1 ? "years" : "year" }}.
       </p>
-    </template>
+    </div>
   </li>
 </template>
 
