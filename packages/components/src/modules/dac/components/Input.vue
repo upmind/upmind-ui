@@ -1,7 +1,10 @@
 <template>
   <div
-    :class="[{ 'input-error': error }, compact ? 'p-0' : 'input-lg ']"
-    class="input input-bordered overflow-hidden focus-within:input-primary group/dac-input"
+    class="input input-bordered overflow-hidden group/dac-input"
+    :class="[
+      !!error ? 'input-error ' : 'focus-within:input-primary',
+      compact ? 'p-0' : 'input-lg '
+    ]"
   >
     <div class="join h-full w-full items-center relative">
       <!-- icon -->
@@ -55,6 +58,7 @@
       </button>
     </div>
   </div>
+  <div v-if="!!error" class="text-sm text-error py-1 px-2">{{ error }}</div>
 </template>
 
 <script lang="ts">
@@ -106,8 +110,7 @@ export default defineComponent({
       default: false
     },
     error: {
-      type: Boolean,
-      default: false
+      type: String
     },
     autofocus: {
       type: Boolean,
@@ -122,12 +125,9 @@ export default defineComponent({
     let iconComponent = ref(null as any);
 
     watchEffect(async () => {
-      debugger;
       if (props.icon) {
-        debugger;
         iconComponent.value = await import(`@heroicons/vue/20/solid`).then(
           icons => {
-            debugger;
             return get(icons, props.icon);
           }
         );

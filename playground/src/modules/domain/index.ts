@@ -11,8 +11,8 @@ import { map, some } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useDomain = () => {
-  const Domain = useUpmindDomain();
+export const useDomain = (forceType?: string) => {
+  const Domain = useUpmindDomain(forceType);
   const { state, send } = useActor(Domain.service);
 
   // --------------------------------------------------------
@@ -73,9 +73,16 @@ export const useDomain = () => {
         "active.transfer.processing",
         "active.existing.processing"
       ].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
+
+      hasErrors: [
+        "error",
+        "active.register.error",
+        "active.transfer.error",
+        "active.existing.error"
+      ].some(state.value.matches),
+
       // ---
-      showChoices: ["idle"].some(state.value.matches),
+      showChoices: !!state.value.context.choices,
       showRegister: state.value.matches("active.register"),
       showTransfer: state.value.matches("active.transfer"),
       showExisting: state.value.matches("active.existing"),

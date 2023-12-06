@@ -3,11 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.domainManager.active.existing.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.active.existing.processing.searching:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
+    "": { type: "" };
     "done.invoke.domainManager.active.register.processing.searching:invocation[0]": {
       type: "done.invoke.domainManager.active.register.processing.searching:invocation[0]";
       data: unknown;
@@ -17,10 +13,6 @@ export interface Typegen0 {
       type: "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.domainManager.active.existing.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.active.existing.processing.searching:invocation[0]";
-      data: unknown;
     };
     "error.platform.domainManager.active.register.processing.searching:invocation[0]": {
       type: "error.platform.domainManager.active.register.processing.searching:invocation[0]";
@@ -44,7 +36,6 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     search:
-      | "done.invoke.domainManager.active.existing.processing.searching:invocation[0]"
       | "done.invoke.domainManager.active.register.processing.searching:invocation[0]"
       | "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
   };
@@ -59,30 +50,26 @@ export interface Typegen0 {
     addExisting: "ADD";
     cancelController: "ADD" | "SEARCH";
     clearAvailable:
-      | "xstate.after(wait)#domainManager.active.existing.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
     clearError:
-      | "xstate.after(wait)#domainManager.active.existing.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
     newController:
-      | "xstate.after(wait)#domainManager.active.existing.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
     remove: "REMOVE";
     setAvailable:
-      | "done.invoke.domainManager.active.existing.processing.searching:invocation[0]"
       | "done.invoke.domainManager.active.register.processing.searching:invocation[0]"
       | "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
     setError:
-      | "error.platform.domainManager.active.existing.processing.searching:invocation[0]"
       | "error.platform.domainManager.active.register.processing.searching:invocation[0]"
       | "error.platform.domainManager.active.transfer.processing.searching:invocation[0]";
     setSearch: "SEARCH";
     setType: "CHOOSE";
   };
   eventsCausingDelays: {
+    error: "CHOOSE";
     wait: "ADD" | "SEARCH";
   };
   eventsCausingGuards: {
@@ -91,15 +78,16 @@ export interface Typegen0 {
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
     isExistingDomain: "CHOOSE";
+    isForced: "" | "CHOOSE";
+    isInvalidType: "CHOOSE";
     isNotCancelled:
-      | "error.platform.domainManager.active.existing.processing.searching:invocation[0]"
       | "error.platform.domainManager.active.register.processing.searching:invocation[0]"
       | "error.platform.domainManager.active.transfer.processing.searching:invocation[0]";
-    isValidSearch: "ADD" | "SEARCH";
+    isValidDomain: "ADD";
+    isValidSearch: "SEARCH";
   };
   eventsCausingServices: {
     search:
-      | "xstate.after(wait)#domainManager.active.existing.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
   };
@@ -111,7 +99,7 @@ export interface Typegen0 {
     | "active.existing.idle"
     | "active.existing.processing"
     | "active.existing.processing.cancelling"
-    | "active.existing.processing.searching"
+    | "active.loading"
     | "active.register"
     | "active.register.available"
     | "active.register.error"
@@ -132,6 +120,7 @@ export interface Typegen0 {
     | {
         active?:
           | "existing"
+          | "loading"
           | "register"
           | "transfer"
           | {
@@ -140,7 +129,7 @@ export interface Typegen0 {
                 | "error"
                 | "idle"
                 | "processing"
-                | { processing?: "cancelling" | "searching" };
+                | { processing?: "cancelling" };
               register?:
                 | "available"
                 | "error"

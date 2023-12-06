@@ -52,7 +52,7 @@ export interface DomainContext {
   // ---
   search?: string | null;
   currency?: string;
-  coupons?: Array<string>;
+  promotions?: Array<string>;
   limit: number;
   offset?: number;
   controller?: AbortController | null;
