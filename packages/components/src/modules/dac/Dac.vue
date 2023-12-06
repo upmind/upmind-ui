@@ -151,8 +151,8 @@ export default defineComponent({
   },
   emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
-    coupons: {
-      type: Array,
+    promotions: {
+      type: Array<String>,
       default: () => []
     },
     currencyCode: {
@@ -204,7 +204,22 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const dac = useDac(props);
+    const {
+      promotions,
+      currencyCode,
+      limit,
+      orderConfigUrl,
+      modelValue,
+      multiple
+    } = props;
+    const dac = useDac({
+      promotions,
+      currencyCode,
+      limit,
+      orderConfigUrl,
+      modelValue,
+      multiple
+    });
 
     // --- DOM observers
     const input = ref<InstanceType<typeof HTMLInputElement>>();
@@ -267,7 +282,7 @@ export default defineComponent({
       this.$emit("blur", event);
     },
 
-    removeValue(value: string) {
+    removeValue(value?: string) {
       this.model = this.multiple ? without(this.model, value) : "";
     }
   },
