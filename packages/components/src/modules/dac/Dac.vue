@@ -18,7 +18,7 @@
         <div
           v-if="model?.length"
           class="absolute left-0 w-full flex place-items-center group-focus-within/dac:hidden"
-          :class="[compact ? 'gap-1 mx-2' : 'gap-2']"
+          :class="[compact ? 'gap-1' : 'gap-2', multiple ? 'mx-2' : '']"
         >
           <template v-if="multiple">
             <button
@@ -104,6 +104,14 @@
         name="results"
         v-bind="{ results, meta, update: updateModel, value: model, multiple }"
       >
+        <upm-dac-results
+          :model-value="model"
+          :multiple="multiple"
+          :results="results"
+          :processing="meta.isProcessing"
+          :open="meta.isActive"
+          @change="updateModel"
+        />
       </slot>
 
       <template v-if="meta.hasMore">
@@ -125,26 +133,19 @@ import { defineComponent, ref } from "vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 import { BackspaceIcon } from "@heroicons/vue/24/outline";
 import { onClickOutside, useFocusWithin } from "@vueuse/core";
-
 // --- internal
+import UpmDacResults from "./components/Results.vue";
 import { useDac } from "./composables";
 
 // --- utils
-import {
-  first,
-  filter,
-  includes,
-  without,
-  some,
-  compact,
-  uniq
-} from "lodash-es";
+import { includes, without, compact } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmDac",
   components: {
+    UpmDacResults,
     MagnifyingGlassIcon,
     BackspaceIcon
   },
