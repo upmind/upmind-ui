@@ -20,18 +20,7 @@
       @focus="isFocused = true"
       @blur="isFocused = false"
       compact
-    >
-      <template #results="{ results, meta, update, value, multiple }">
-        <upm-dac-results-dropdown
-          :model-value="value"
-          :multiple="multiple"
-          :results="results"
-          :processing="meta.isProcessing"
-          :open="meta.isActive"
-          @change="update"
-        />
-      </template>
-    </upm-dac>
+    />
   </control-wrapper>
 </template>
 

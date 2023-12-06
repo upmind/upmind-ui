@@ -52,30 +52,19 @@
       class="hero min-h-full py-44 bg-base-200 rounded-box my-4 relative z-10"
       :data-theme="activeTheme"
     >
-      <div class="hero-content">
-        <div class="max-w-3xl">
-          <h1 class="text-5xl font-bold text-primary">Choose a domain...</h1>
-          <p>
-            Thank you for choosing our hosting! We include a free 1 year .com,
-            .org, or .net domain name*. <br />
-            <small> The discount will be applied at checkout. </small>
-          </p>
+      <div class="hero-content w-full">
+        <div class="max-w-xl w-full">
+          <h1 class="text-5xl font-bold text-primary">
+            Choose <template v-if="multiple">Domain(s)</template
+            ><template v-else>a Domain</template>&hellip;
+          </h1>
+
           <upm-dac
-            class="min-w-[20rem] max-w-4xl mx-auto"
+            class="min-w-[20rem] max-w-4xl"
             v-model="model"
             :multiple="multiple"
             placeholder="Find your pefect domain &hellip;"
-          >
-            <template #results="{ results, meta, update, value, multiple }">
-              <upm-dac-results-list
-                :multiple="multiple"
-                :model-value="value"
-                :results="results"
-                :processing="meta.isProcessing"
-                @change="update"
-              />
-            </template>
-          </upm-dac>
+          />
         </div>
       </div>
     </div>
@@ -92,12 +81,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import {
-  UpmDac,
-  UpmDacResultsDropdown,
-  UpmDacResultsList,
-  UpmDebug
-} from "@upmind/components";
+import { UpmDac, UpmDebug } from "@upmind/components";
 import { capitalize } from "lodash-es";
 import { SwatchIcon } from "@heroicons/vue/24/outline";
 
