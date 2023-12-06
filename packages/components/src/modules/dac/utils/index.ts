@@ -101,9 +101,9 @@ function constructOrderUrl(
     url.searchParams.set("pfields[sld]", sld);
     if (domain.sub_product_id)
       url.searchParams.set("sub_pids", domain.sub_product_id);
-    // --- Add `coupons` parameter for applied promotions
+    // --- Add `promotions` parameter for applied promotions
     const codes = map(term?.promotions, "code");
-    if (codes.length) url.searchParams.set("coupons", codes.join());
+    if (codes.length) url.searchParams.set("promotions", codes.join());
 
     return url;
   }

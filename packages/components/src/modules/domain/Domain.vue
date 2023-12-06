@@ -126,7 +126,7 @@ export default defineComponent({
       validator: (value: string) =>
         ["register", "transfer", "existing"].includes(value)
     },
-    coupons: {
+    promotions: {
       type: Array,
       default: () => []
     },

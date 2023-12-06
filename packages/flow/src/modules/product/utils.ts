@@ -134,7 +134,7 @@ export const useTermsParser = (data: any) => {
 
     // --- Coupon Syntax Sugar
 
-    term.coupons = map(rawTerm.promotions, promo => `'${promo.code}'`);
+    term.promotions = map(rawTerm.promotions, promo => `'${promo.code}'`);
 
     // --- Savings Syntax Sugar - When promotion has been applied
     term.saving = !isNil(term.price_discounted)
