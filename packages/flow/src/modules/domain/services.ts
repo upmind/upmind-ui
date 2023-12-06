@@ -13,7 +13,7 @@ import type { DomainContext } from "./types";
 // --------------------------------------------------------
 
 function search({
-  coupons,
+  promotions,
   currency,
   limit,
   controller,
@@ -36,7 +36,7 @@ function search({
       offset: offset?.toString(),
       currency_code: currency,
       // tld,
-      promotions: coupons?.join()
+      promotions: promotions?.join()
     },
     isEmpty
   );

@@ -28,21 +28,25 @@
       </div>
     </header>
 
-    <p>
-      This will render a Domain Manager, which is effectively a Basket Helper,
-      that will add/remove/sync basket items based on criteria.
-    </p>
+    <div class="content">
+      <p>
+        This will render a Domain Manager, which is effectively a Basket Helper,
+        that will add/remove/sync basket items based on criteria.
+      </p>
 
-    <p>
-      The Domain manager will also allow users to <em>add a New Domain DAC</em>,
-      transfer an <em>Existing Domain DAC (internally)</em> or transfer an
-      <em>Existing Domain Text field (externally)</em>.
-    </p>
-    <p>
-      Basket Helper Criteria =
-      <code>service_identifier == 'domain' ( Product )</code> +
-      <code>sld ( Provisioning Field )</code>
-    </p>
+      <p>
+        The Domain manager will also allow users to
+        <em>add a New Domain DAC</em>, transfer an
+        <em>Existing Domain DAC (internally)</em> or transfer an
+        <em>Existing Domain Text field (externally)</em>.
+      </p>
+
+      <p>
+        Basket Helper Criteria =
+        <code>service_identifier == 'domain' ( Product )</code> +
+        <code>sld ( Provisioning Field )</code>
+      </p>
+    </div>
 
     <!--  -->
 
@@ -59,7 +63,7 @@
             <small> The discount will be applied at checkout. </small>
           </p>
 
-          <template v-if="meta.showChoices || true">
+          <template v-if="meta.showChoices">
             <ul
               tabindex="1"
               role="list"
@@ -88,21 +92,25 @@
           </template>
 
           <div class="min-w-[20rem] max-w-4xl mx-auto">
-            <upm-dac-search
+            <upm-dac-input
               v-if="meta.showRegister"
               @update:modelValue="
                 ({ currentTarget: { value } }) => search(value)
               "
+              icon="MagnifyingGlassIcon"
+              action="Search"
               placeholder="Find your pefect domain &hellip;"
               :autofocus="meta.showRegister"
               autocomplete="url"
             />
 
-            <upm-dac-search
+            <upm-dac-input
               v-if="meta.showTransfer"
               @update:modelValue="
                 ({ currentTarget: { value } }) => search(value)
               "
+              icon="MagnifyingGlassIcon"
+              action="Find"
               placeholder="Search for the domain to Transfer &hellip;"
               :autofocus="meta.showTransfer"
               autocomplete="url"
@@ -115,7 +123,12 @@
               :autofocus="meta.showExisting"
               autocomplete="url"
               :icon="null"
-              :action="null"
+              action="Use"
+              :error="
+                meta?.hasErrors
+                  ? 'Please enter a valid domain, eg: google.com'
+                  : null
+              "
             />
 
             <upm-dac-results-list
@@ -131,6 +144,8 @@
       </div>
     </div>
 
+    <!--  -->
+
     <footer>
       <upm-debug
         :open="{ state: true }"
@@ -138,7 +153,7 @@
         title="Basket"
         :state="state"
         :model="values"
-        :context="{ available }"
+        :context="{ choices, available }"
         :errors="errors"
         :meta="meta"
       />
@@ -150,12 +165,7 @@
 import { ref } from "vue";
 import { useDomain } from "../";
 
-import {
-  UpmDacResultsList,
-  UpmDacSearch,
-  UpmDacInput,
-  UpmDebug
-} from "@upmind/components";
+import { UpmDacResultsList, UpmDacInput, UpmDebug } from "@upmind/components";
 
 import { capitalize } from "lodash-es";
 import { SwatchIcon } from "@heroicons/vue/24/outline";
@@ -173,7 +183,7 @@ const {
   add,
   choose,
   isSelected
-} = useDomain("register");
+} = useDomain();
 
 const debugging = ref(true);
 const activeTheme = ref("default");
