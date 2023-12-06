@@ -51,7 +51,7 @@ export interface DomainContext {
   total: number;
   // ---
   search?: string | null;
-  currency?: string;
+  currency?: string | null;
   promotions?: Array<string>;
   limit: number;
   offset?: number;

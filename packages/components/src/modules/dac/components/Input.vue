@@ -1,64 +1,97 @@
 <template>
-  <div
-    class="input input-bordered overflow-hidden group/dac-input"
-    :class="[
-      !!error ? 'input-error ' : 'focus-within:input-primary',
-      compact ? 'p-0' : 'input-lg '
-    ]"
-  >
-    <div class="join h-full w-full items-center relative">
-      <!-- icon -->
+  <div class="relative group/dac-input join join-vertical w-full">
+    <!-- input -->
+    <div
+      class="input input-bordered overflow-hidden"
+      :class="[
+        !!error ? 'input-error ' : 'focus-within/dac-input:input-primary',
+        compact ? 'p-0' : 'input-lg ',
+        filteredSuggestions?.length && model?.length ? 'join-item' : ''
+      ]"
+    >
+      <div class="join h-full w-full items-center relative">
+        <!-- icon -->
 
-      <component
-        v-if="hasIcon"
-        :is="iconComponent"
-        :class="[compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ']"
-        class="join-item text-inherit group-focus-within/dac-input:text-primary"
-      />
+        <component
+          v-if="hasIcon"
+          :is="iconComponent"
+          :class="[compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ']"
+          class="join-item text-inherit group-focus-within/dac-input:text-primary"
+        />
 
-      <!-- input -->
-      <input
-        ref="input"
-        @blur="doBlur"
-        @focus="doFocus"
-        @input="doUpdate"
-        :autocomplete="autocomplete"
-        :class="[compact ? 'ml-2 px-2' : 'mr-6 px-4', { 'ml-6': hasIcon }]"
-        :model-value="modelValue"
-        :placeholder="placeholder"
-        :autofocus="autofocus"
-        class="flex-1 bg-transparent h-full"
-        id="domain-search"
-        type="text"
-      />
+        <!-- input -->
+        <input
+          ref="input"
+          @blur="doBlur"
+          @focus="doFocus"
+          @input="doUpdate"
+          :autocomplete="autocomplete"
+          :class="[compact ? 'ml-2 px-2' : 'mr-6 px-4', { 'ml-6': hasIcon }]"
+          v-model="model"
+          :placeholder="placeholder"
+          class="flex-1 bg-transparent h-full"
+          id="domain-search"
+          type="text"
+        />
 
-      <!-- reset -->
-      <button
-        v-if="clearable && !!modelValue?.length"
-        type="reset"
-        :class="[compact ? 'join-item btn-square' : '']"
-        class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible"
-        tabindex="-1"
-        @click="doReset"
-      >
-        <backspace-icon :class="compact ? 'w-5 h-5' : 'w-7 h-7'" />
-      </button>
+        <!-- reset -->
+        <button
+          v-if="clearable && !!model?.length"
+          type="reset"
+          :class="[compact ? 'join-item btn-square' : '']"
+          class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible"
+          tabindex="-1"
+          @click="doReset"
+        >
+          <backspace-icon :class="compact ? 'w-5 h-5' : 'w-7 h-7'" />
+        </button>
 
-      <!-- submit -->
-      <button
-        v-if="action"
-        @click="doSearch"
-        :class="[compact ? 'join-item' : '']"
-        class="btn btn-primary opacity-50 group-focus-within/dac-input:opacity-100"
-        tabindex="-1"
-      >
-        <span class="loading loading-spinner" v-if="processing"></span>
+        <!-- submit -->
+        <button
+          v-if="action"
+          @click="doClick"
+          :class="[compact ? 'join-item' : '']"
+          class="btn btn-primary opacity-50 group-focus-within/dac-input:opacity-100"
+          tabindex="-1"
+        >
+          <span class="loading loading-spinner" v-if="processing"></span>
 
-        <span v-else>{{ action }}</span>
-      </button>
+          <span v-else>{{ action }}</span>
+        </button>
+      </div>
     </div>
+    <!-- errors -->
+    <div
+      v-if="!!error && !filteredSuggestions?.length"
+      class="text-sm text-error py-1 px-2"
+    >
+      {{ error }}
+    </div>
+
+    <!-- suggestions -->
+    <ul
+      tabindex="1"
+      role="list"
+      class="menu rounded-b-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full mt-0 absolute top-full left-0 right-0 z-auto shadow-md max-h-[13em] overflow-y-auto join-item"
+      v-if="filteredSuggestions?.length && model?.length"
+    >
+      <li class="place-self-center" v-if="processing">
+        <span class="loading loading-dots text-primary"></span>
+      </li>
+
+      <li
+        role="listitem"
+        v-for="{ domain, highlight } in filteredSuggestions"
+        :key="domain"
+        class="p-0"
+        @click="doSuggestion(domain)"
+      >
+        <label class="w-full">
+          <span v-html="highlight"></span>
+        </label>
+      </li>
+    </ul>
   </div>
-  <div v-if="!!error" class="text-sm text-error py-1 px-2">{{ error }}</div>
 </template>
 
 <script lang="ts">
@@ -68,7 +101,7 @@ import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 import { BackspaceIcon } from "@heroicons/vue/24/outline";
 
 // --- utils
-import { isArray, get } from "lodash-es";
+import { isArray, get, filter, includes, map } from "lodash-es";
 
 export default defineComponent({
   name: "UpmSearch",
@@ -81,13 +114,16 @@ export default defineComponent({
     modelValue: {
       type: [String, Array<String>]
     },
+    suggestions: {
+      type: Array,
+      default: () => []
+    },
     processing: {
       type: Boolean,
       default: false
     },
     action: {
-      type: String,
-      default: "Search"
+      type: String
     },
     icon: {
       type: String,
@@ -122,9 +158,12 @@ export default defineComponent({
   }),
 
   setup(props) {
+    let model = ref(props.modelValue);
     let iconComponent = ref(null as any);
 
     watchEffect(async () => {
+      model.value = props.modelValue;
+
       if (props.icon) {
         iconComponent.value = await import(`@heroicons/vue/20/solid`).then(
           icons => {
@@ -135,22 +174,51 @@ export default defineComponent({
     });
 
     return {
+      model,
       iconComponent
     };
   },
   computed: {
+    filteredSuggestions() {
+      return map(
+        filter(
+          this.suggestions,
+          (item: any) =>
+            includes(item.domain, this.model) && item.domain !== this.model
+        ),
+        item => {
+          return {
+            domain: item.domain,
+            highlight: item.domain.replace(
+              this.model,
+              "<strong class='text-inherit underline underline-offset-4 decoration-primary'>$&</strong>"
+            )
+          };
+        }
+      );
+    },
     isMutiple() {
-      return isArray(this.modelValue);
+      return isArray(this.model);
     },
     hasIcon() {
       return !!this.iconComponent;
     }
   },
   methods: {
-    doSearch(event: Event) {
+    doSuggestion(value: string) {
+      this.model = value;
+
+      this.$emit("update:modelValue", {
+        currentTarget: { value: this.model }
+      });
+
+      this.setFocus();
+    },
+
+    doClick(event: Event) {
       // resend the model value to the parent to trigger the search
       this.$emit("click", {
-        currentTarget: { value: this.modelValue }
+        currentTarget: { value: this.model }
       });
     },
 
@@ -168,10 +236,14 @@ export default defineComponent({
 
     doBlur(event: Event) {
       this.$emit("blur", event);
+    },
+
+    setFocus() {
+      this.$refs?.input?.focus();
     }
   },
   mounted() {
-    if (this.autofocus) this.$refs.input.focus();
+    if (this.autofocus) this.setFocus();
   }
 });
 </script>

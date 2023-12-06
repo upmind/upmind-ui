@@ -3,14 +3,14 @@ import { interpret } from "xstate";
 
 // --- internal
 import domainMachine from "./domain.machine";
-import type { DomainTypes } from "./types";
+import { DomainTypes } from "./types.d";
 
 // --- utils
-// import { set, get } from "lodash-es";
+import { has } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useDomain = (forceType?: DomainTypes) => {
+export const useDomain = (type?: DomainTypes) => {
   // --------------------------------------------------------
   // create a new instance of the domain machine
   // NB dont automatically start the machine as in order for the inspector to work
@@ -18,9 +18,32 @@ export const useDomain = (forceType?: DomainTypes) => {
 
   let state = null;
 
-  const service = interpret(domainMachine(forceType), {
+  // safetycheck to ensure forcedType is valid
+  type = type && has(DomainTypes, type) ? type : null;
+
+  const context = {
+    choices: type ? null : DomainTypes,
+    type,
+    values: [],
+    available: [],
+    total: 0,
+    // ---
+    search: null,
+    currency: null,
+    promotions: [],
+    limit: 10,
+    offset: 0,
+    controller: null,
+    // ---
+    error: null
+  };
+
+  const service = interpret(domainMachine.withContext(context), {
+    context,
     devTools: true
-  }).onTransition(newState => (state = newState));
+  })
+    .onTransition(newState => (state = newState))
+    .start();
 
   // --------------------------------------------------------
   // methods
@@ -28,7 +51,7 @@ export const useDomain = (forceType?: DomainTypes) => {
   // --------------------------------------------------------
 
   return {
-    service: service.start(), // allow for interpreting the machine + inspecting it
+    service, // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => state
   };
