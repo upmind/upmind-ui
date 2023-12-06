@@ -7,7 +7,7 @@ import services from "./services";
 
 // --- utils
 import { useTime } from "../../utils";
-import { isEmpty, isObject, reject, find, some, has } from "lodash-es";
+import { isEmpty, isObject, reject, find, some, has, map } from "lodash-es";
 
 // --- types
 import { DomainTypes } from "./types.d";
@@ -342,7 +342,7 @@ export default createMachine(
           }
 
           // check in case...
-          if (domain) domain.is_primary = !values.length;
+          if (domain) domain.is_primary = values.length == 1;
 
           return values;
         }
@@ -370,8 +370,13 @@ export default createMachine(
       }),
 
       remove: assign({
-        values: ({ values }: DomainContext, { data }: RemoveEvent) =>
-          reject(values, ["domain", data])
+        values: ({ values }: DomainContext, { data }: RemoveEvent) => {
+          const newValues = reject(values, ["domain", data]);
+          if (newValues?.length && !some(newValues, "is_primary")) {
+            newValues[0].is_primary = true;
+          }
+          return newValues;
+        }
       }),
 
       clear: assign({

@@ -1,6 +1,6 @@
 <template>
   <li
-    class="group/dac-baket-card items-center gap-x-4 gap-y-1 m-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6"
+    class="group/domain-baket-card items-center gap-x-4 gap-y-1 m-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6"
     :class="{
       'dark:hover:bg-dm-contrast/5 hover:bg-lm-contrast/2': is_available,
       'bg-primary text-primary-text': isSelected
@@ -47,7 +47,7 @@
         <span
           class="text-rtl text-auto grow truncate text-xl sm:text-2xl"
           :class="{
-            'transition-transform sm:group-hover/dac-baket-card:translate-x-2':
+            'transition-transform sm:group-hover/domain-baket-card:translate-x-2':
               is_available && !isSelected
           }"
         >
@@ -65,9 +65,9 @@
               'font-semibold': true,
               'text-base-content': !isSelected,
               'text-primary-content': isSelected,
-              'group-hover/dac-baket-card:text-primary transition-colors':
+              'group-hover/domain-baket-card:text-primary transition-colors':
                 is_available && !isSelected,
-              'group-hover/dac-baket-card:text-primary-content transition-colors':
+              'group-hover/domain-baket-card:text-primary-content transition-colors':
                 is_available && isSelected
             }"
             >{{ tld }}</strong
@@ -177,7 +177,7 @@ import { ArrowsRightLeftIcon, ShoppingCartIcon } from "@heroicons/vue/20/solid";
 import { includes } from "lodash-es";
 
 export default defineComponent({
-  name: "UpmDacBasketCard",
+  name: "UpmDomainBasketCard",
   components: {
     UpmMarkdown,
     SavingTag,
