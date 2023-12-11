@@ -1,7 +1,7 @@
 <template>
   <section class="hero min-h-screen py-12 items-center bg-base-200 rounded-box">
     <div class="hero-content">
-      <div class="max-w-3xl">
+      <div class="w-full max-w-5xl">
         <header>
           <h1 class="text-5xl font-bold text-primary">
             <template v-if="!meta.hasPrimary">Choose a domain&hellip;</template>
@@ -22,9 +22,20 @@
 
         <!--  choices -->
 
-        <div class="flex-1" v-if="meta.isLoading">
-          <progress class="progress progress-primary w-1/2"></progress>
-        </div>
+        <ul
+          v-if="meta.isLoading"
+          role="list"
+          class="menu rounded-box border border-base-300 bg-primary-content text-primary w-full my-12"
+        >
+          <li
+            class="min-h-[10rem] place-content-center mt-0 p-4 sm:flex sm:flex-wrap sm:pl-6 z-10"
+          >
+            <span class="text-lg text-center">
+              <span class="block">Updating the basket</span>
+              <progress class="progress progress-primary"></progress>
+            </span>
+          </li>
+        </ul>
 
         <upm-domain-choices
           v-else-if="meta.showChoices"
@@ -35,7 +46,7 @@
 
         <!-- selections -->
 
-        <div class="min-w-[20rem] max-w-4xl mx-auto">
+        <div>
           <upm-domain-input
             v-if="meta.showRegister"
             @update:modelValue="({ currentTarget: { value } }) => search(value)"
@@ -77,7 +88,7 @@
             :model-value="selected"
             :results="available"
             :processing="meta.isSearching"
-            :syncing="meta.isProcessing"
+            :syncing="meta.isSyncing"
             @change="({ currentTarget: { value } }) => toggle(value)"
           />
         </div>

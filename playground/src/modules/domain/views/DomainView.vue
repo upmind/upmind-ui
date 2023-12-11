@@ -51,10 +51,7 @@
 
             <span class="spacer"></span>
 
-            <button
-              class="btn btn-lg btn-primary"
-              :disabled="!meta.showContinue"
-            >
+            <button class="btn btn btn-primary" :disabled="!meta.showContinue">
               Continue to checkout
               <chevron-right-icon class="h-6 w-6" />
             </button>

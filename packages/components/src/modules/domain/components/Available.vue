@@ -2,7 +2,7 @@
   <ul
     tabindex="1"
     role="list"
-    class="rounded-box bg-base-100 base-content border border-base-300 divide-lm-contrast/10 dark:divide-dm-contrast/10 divide-y mt-6 w-full p-0 m-0 overflow-hidden"
+    class="relative rounded-box bg-base-100 base-content border border-base-300 divide-lm-contrast/10 dark:divide-dm-contrast/10 divide-y mt-6 w-full p-0 m-0 overflow-hidden"
     v-show="open && (results.length || processing)"
   >
     <li
@@ -10,6 +10,16 @@
       class="justify-center gap-x-4 gap-y-1 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6"
     >
       <span class="loading loading-dots text-primary"></span>
+    </li>
+
+    <li
+      v-else-if="syncing"
+      class="absolute top-0 left-0 w-full h-full bg-primary-content text-primary place-content-center gap-x-4 gap-y-1 mt-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6 z-10"
+    >
+      <span class="text-lg text-center">
+        <span class="block">Updating the basket</span>
+        <progress class="progress progress-primary"></progress>
+      </span>
     </li>
 
     <template v-for="(item, index) in results" :key="item?.domain">
