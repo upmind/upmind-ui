@@ -78,10 +78,13 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
       isLoading: state.value.matches("loading"),
       isProcessing: [
         "register.processing",
-        "register.syncing",
         "transfer.processing",
+        "existing.processing"
+      ].some(state.value.matches),
+
+      isSyncing: [
+        "register.syncing",
         "transfer.syncing",
-        "existing.processing",
         "existing.syncing"
       ].some(state.value.matches),
 
