@@ -16,7 +16,7 @@ export interface IDomainProduct {
   sld: string;
   tld: string;
   // --- Options for New/Internal domains
-  id: string;
+  product_id: string;
   billing_cycle_years: number;
   is_available: boolean;
   is_discounted: boolean;

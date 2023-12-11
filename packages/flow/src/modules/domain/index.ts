@@ -7,10 +7,11 @@ import { DomainTypes } from "./types.d";
 
 // --- utils
 import { has } from "lodash-es";
+import { useBasketHelper } from "..";
 
 // --------------------------------------------------------
 
-export const useDomain = (type?: DomainTypes) => {
+export const useDomain = (sync?: boolean, type?: DomainTypes) => {
   // --------------------------------------------------------
   // create a new instance of the domain machine
   // NB dont automatically start the machine as in order for the inspector to work
@@ -19,11 +20,13 @@ export const useDomain = (type?: DomainTypes) => {
   let state = null;
 
   // safetycheck to ensure forcedType is valid
-  type = type && has(DomainTypes, type) ? type : null;
+  type = has(DomainTypes, type) ? type : null;
 
   const context = {
-    choices: type ? null : DomainTypes,
     type,
+    sync,
+    // ---
+    choices: type ? null : DomainTypes,
     values: [],
     available: [],
     total: 0,
@@ -39,15 +42,57 @@ export const useDomain = (type?: DomainTypes) => {
   };
 
   const service = interpret(domainMachine.withContext(context), {
-    context,
     devTools: true
   })
     .onTransition(newState => (state = newState))
     .start();
 
   // --------------------------------------------------------
-  // methods
+  // sync the basket with the domain machine
 
+  if (sync) {
+    const itemBuilder = basketItem => {
+      return {
+        product_id: basketItem.product_id,
+        quantity: basketItem.quantity,
+        tld: basketItem?.name,
+        sld: basketItem?.provision_fields?.sld,
+        term: {
+          billing_cycle_months:
+            basketItem?.billing_cycle_months ||
+            basketItem?.term?.billing_cycle_months ||
+            basketItem?.term
+        }
+      };
+    };
+
+    const basketItemBuilder = item => {
+      return {
+        product_id: item.product_id,
+        quantity: 1,
+        term: {
+          billing_cycle_months: item.billing_cycle_months
+        },
+        provision_fields: {
+          sld: item.sld
+        }
+      };
+    };
+
+    const conditionsBuilder = item => ({
+      product_id: item.product_id,
+      "provision_fields.sld": item.sld
+    });
+
+    useBasketHelper(
+      service,
+      ["register.valid", "transfer.valid"],
+      "values",
+      conditionsBuilder,
+      basketItemBuilder,
+      itemBuilder
+    );
+  }
   // --------------------------------------------------------
 
   return {

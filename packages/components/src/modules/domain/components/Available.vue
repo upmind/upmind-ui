@@ -16,6 +16,8 @@
       <slot name="item" v-bind="{ item }">
         <upm-card
           v-bind="item"
+          :processing="processing"
+          :syncing="syncing"
           :model-value="modelValue"
           :multiple="multiple"
           @change="updateModel"
@@ -53,6 +55,10 @@ export default defineComponent({
       type: [String, Array<String>]
     },
     multiple: {
+      type: Boolean,
+      default: false
+    },
+    syncing: {
       type: Boolean,
       default: false
     },

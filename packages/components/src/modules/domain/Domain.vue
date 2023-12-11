@@ -22,8 +22,12 @@
 
         <!--  choices -->
 
+        <div class="flex-1" v-if="meta.isLoading">
+          <progress class="progress progress-primary w-1/2"></progress>
+        </div>
+
         <upm-domain-choices
-          v-if="meta.showChoices"
+          v-else-if="meta.showChoices"
           :choices="choices"
           :model-value="selectedType"
           @update:modelValue="({ currentTarget: { value } }) => choose(value)"
@@ -72,14 +76,13 @@
             :multiple="true"
             :model-value="selected"
             :results="available"
-            :processing="meta.isProcessing"
+            :processing="meta.isSearching"
+            :syncing="meta.isProcessing"
             @change="({ currentTarget: { value } }) => toggle(value)"
           />
         </div>
 
-        <template v-if="meta.showContinue">
-          <slot name="actions" v-bind="{ meta, primaryDomain, values }"> </slot>
-        </template>
+        <slot name="actions" v-bind="{ meta, primaryDomain, values }"> </slot>
       </div>
     </div>
   </section>
@@ -121,6 +124,9 @@ export default defineComponent({
     UpmDebug
   },
   props: {
+    syncBasket: {
+      type: Boolean
+    },
     type: {
       type: String,
       validator: (value: string) =>
@@ -149,7 +155,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    return useDomain(props.type);
+    return useDomain(props.syncBasket, props.type);
   }
 });
 </script>

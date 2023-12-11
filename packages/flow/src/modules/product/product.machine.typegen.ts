@@ -93,7 +93,6 @@ export interface Typegen0 {
     clearError: "CLEAR.ERRORS";
     escalateError:
       | "error.platform.load"
-      | "error.platform.productConfigurator.calculating:invocation[0]"
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     sendConfig:

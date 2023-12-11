@@ -112,11 +112,9 @@ export default createMachine(
 
           // if it exists, stop the referenced machine
           // and remove it from our list of requests
-          if (request) {
-            request.stop();
-            unset(requests, hash);
-          }
+          if (request && !request?.state?.done) request.stop();
 
+          unset(requests, hash);
           return requests;
         }
       }),

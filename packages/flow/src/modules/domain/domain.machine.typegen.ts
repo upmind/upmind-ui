@@ -4,50 +4,50 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.domainManager.active.existing.loading:invocation[0]": {
-      type: "done.invoke.domainManager.active.existing.loading:invocation[0]";
+    "done.invoke.domainManager.existing.loading:invocation[0]": {
+      type: "done.invoke.domainManager.existing.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.domainManager.active.register.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.active.register.processing.searching:invocation[0]";
+    "done.invoke.domainManager.register.processing.searching:invocation[0]": {
+      type: "done.invoke.domainManager.register.processing.searching:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
+    "done.invoke.domainManager.transfer.processing.searching:invocation[0]": {
+      type: "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.domainManager.active.existing.loading:invocation[0]": {
-      type: "error.platform.domainManager.active.existing.loading:invocation[0]";
+    "error.platform.domainManager.existing.loading:invocation[0]": {
+      type: "error.platform.domainManager.existing.loading:invocation[0]";
       data: unknown;
     };
-    "error.platform.domainManager.active.register.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.active.register.processing.searching:invocation[0]";
+    "error.platform.domainManager.register.processing.searching:invocation[0]": {
+      type: "error.platform.domainManager.register.processing.searching:invocation[0]";
       data: unknown;
     };
-    "error.platform.domainManager.active.transfer.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.active.transfer.processing.searching:invocation[0]";
+    "error.platform.domainManager.transfer.processing.searching:invocation[0]": {
+      type: "error.platform.domainManager.transfer.processing.searching:invocation[0]";
       data: unknown;
     };
     "xstate.after(error)#error": { type: "xstate.after(error)#error" };
-    "xstate.after(wait)#domainManager.active.existing.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.active.existing.processing.cancelling";
+    "xstate.after(wait)#domainManager.existing.processing.cancelling": {
+      type: "xstate.after(wait)#domainManager.existing.processing.cancelling";
     };
-    "xstate.after(wait)#domainManager.active.register.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.active.register.processing.cancelling";
+    "xstate.after(wait)#domainManager.register.processing.cancelling": {
+      type: "xstate.after(wait)#domainManager.register.processing.cancelling";
     };
-    "xstate.after(wait)#domainManager.active.transfer.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
+    "xstate.after(wait)#domainManager.transfer.processing.cancelling": {
+      type: "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    getClientDomains: "done.invoke.domainManager.active.existing.loading:invocation[0]";
+    getClientDomains: "done.invoke.domainManager.existing.loading:invocation[0]";
     search:
-      | "done.invoke.domainManager.active.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
+      | "done.invoke.domainManager.register.processing.searching:invocation[0]"
+      | "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -56,39 +56,42 @@ export interface Typegen0 {
     services: "getClientDomains" | "search";
   };
   eventsCausingActions: {
-    add:
-      | "ADD"
-      | "done.invoke.domainManager.active.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
+    add: "ADD";
     addExisting: "ADD";
-    cancelController: "" | "ADD" | "CHOOSE" | "SEARCH";
-    clear: "" | "CHOOSE";
+    cancelController: "" | "ADD" | "CHOOSE" | "REFRESH" | "SEARCH" | "SYNC";
     clearAvailable:
       | ""
       | "CHOOSE"
-      | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
+      | "REFRESH"
+      | "SYNC"
+      | "xstate.after(wait)#domainManager.register.processing.cancelling"
+      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     clearError:
       | ""
       | "CHOOSE"
-      | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
+      | "REFRESH"
+      | "SYNC"
+      | "xstate.after(wait)#domainManager.register.processing.cancelling"
+      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     newController:
       | ""
       | "CHOOSE"
-      | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
+      | "REFRESH"
+      | "SYNC"
+      | "xstate.after(wait)#domainManager.register.processing.cancelling"
+      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     remove: "REMOVE";
     setAvailable:
-      | "done.invoke.domainManager.active.existing.loading:invocation[0]"
-      | "done.invoke.domainManager.active.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.active.transfer.processing.searching:invocation[0]";
+      | "done.invoke.domainManager.existing.loading:invocation[0]"
+      | "done.invoke.domainManager.register.processing.searching:invocation[0]"
+      | "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
     setError:
-      | "error.platform.domainManager.active.existing.loading:invocation[0]"
-      | "error.platform.domainManager.active.register.processing.searching:invocation[0]"
-      | "error.platform.domainManager.active.transfer.processing.searching:invocation[0]";
+      | "error.platform.domainManager.existing.loading:invocation[0]"
+      | "error.platform.domainManager.register.processing.searching:invocation[0]"
+      | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
     setSearch: "SEARCH";
     setType: "CHOOSE";
+    sync: "SYNC";
   };
   eventsCausingDelays: {
     error: "CHOOSE";
@@ -104,76 +107,76 @@ export interface Typegen0 {
     isForced: "CHOOSE";
     isInvalidType: "CHOOSE";
     isNotCancelled:
-      | "error.platform.domainManager.active.existing.loading:invocation[0]"
-      | "error.platform.domainManager.active.register.processing.searching:invocation[0]"
-      | "error.platform.domainManager.active.transfer.processing.searching:invocation[0]";
+      | "error.platform.domainManager.existing.loading:invocation[0]"
+      | "error.platform.domainManager.register.processing.searching:invocation[0]"
+      | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
     isValidDomain: "ADD";
     isValidSearch: "SEARCH";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "CHOOSE";
+    getClientDomains: "" | "CHOOSE" | "REFRESH" | "SYNC";
     search:
-      | "xstate.after(wait)#domainManager.active.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.active.transfer.processing.cancelling";
+      | "xstate.after(wait)#domainManager.register.processing.cancelling"
+      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
   };
   matchesStates:
-    | "active"
-    | "active.existing"
-    | "active.existing.available"
-    | "active.existing.error"
-    | "active.existing.idle"
-    | "active.existing.loading"
-    | "active.existing.processing"
-    | "active.existing.processing.cancelling"
-    | "active.existing.valid"
-    | "active.register"
-    | "active.register.available"
-    | "active.register.error"
-    | "active.register.idle"
-    | "active.register.processing"
-    | "active.register.processing.cancelling"
-    | "active.register.processing.searching"
-    | "active.register.valid"
-    | "active.transfer"
-    | "active.transfer.available"
-    | "active.transfer.error"
-    | "active.transfer.idle"
-    | "active.transfer.processing"
-    | "active.transfer.processing.cancelling"
-    | "active.transfer.processing.searching"
-    | "active.transfer.valid"
     | "complete"
     | "error"
+    | "existing"
+    | "existing.available"
+    | "existing.error"
+    | "existing.idle"
+    | "existing.loading"
+    | "existing.processing"
+    | "existing.processing.cancelling"
+    | "existing.syncing"
+    | "existing.valid"
     | "idle"
+    | "loading"
+    | "register"
+    | "register.available"
+    | "register.error"
+    | "register.idle"
+    | "register.processing"
+    | "register.processing.cancelling"
+    | "register.processing.searching"
+    | "register.syncing"
+    | "register.valid"
+    | "transfer"
+    | "transfer.available"
+    | "transfer.error"
+    | "transfer.idle"
+    | "transfer.processing"
+    | "transfer.processing.cancelling"
+    | "transfer.processing.searching"
+    | "transfer.syncing"
+    | "transfer.valid"
     | {
-        active?:
-          | "existing"
-          | "register"
-          | "transfer"
-          | {
-              existing?:
-                | "available"
-                | "error"
-                | "idle"
-                | "loading"
-                | "processing"
-                | "valid"
-                | { processing?: "cancelling" };
-              register?:
-                | "available"
-                | "error"
-                | "idle"
-                | "processing"
-                | "valid"
-                | { processing?: "cancelling" | "searching" };
-              transfer?:
-                | "available"
-                | "error"
-                | "idle"
-                | "processing"
-                | "valid"
-                | { processing?: "cancelling" | "searching" };
-            };
+        existing?:
+          | "available"
+          | "error"
+          | "idle"
+          | "loading"
+          | "processing"
+          | "syncing"
+          | "valid"
+          | { processing?: "cancelling" };
+        register?:
+          | "available"
+          | "error"
+          | "idle"
+          | "processing"
+          | "syncing"
+          | "valid"
+          | { processing?: "cancelling" | "searching" };
+        transfer?:
+          | "available"
+          | "error"
+          | "idle"
+          | "processing"
+          | "syncing"
+          | "valid"
+          | { processing?: "cancelling" | "searching" };
       };
   tags: never;
 }

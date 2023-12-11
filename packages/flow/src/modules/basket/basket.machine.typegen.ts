@@ -130,7 +130,9 @@ export interface Typegen0 {
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
     clearError: "CLEAR.ERRORS";
+    clearQueue: "UPDATE";
     loadItems: "done.invoke.loading:invocation[0]";
+    queueItem: "UPDATE";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
@@ -141,6 +143,7 @@ export interface Typegen0 {
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     removeAllItems: "CLEAR";
+    removeFromQueue: "done.invoke.updating:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     sendToItem:
       | "UPDATE.ATTRIBUTES"
@@ -176,13 +179,12 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     allConfigured: "";
-    hasBinnedItems: "";
-    hasDirtyItems: "";
-    hasNewItems: "";
     hasNoBasket: "ADD";
+    hasNoItem: "UPDATE";
     hasNoItems: "";
     hasNoPromotions: "";
     hasPromotions: "";
+    isNotQueued: "UPDATE";
     someConfiguring: "";
   };
   eventsCausingServices: {
@@ -196,11 +198,11 @@ export interface Typegen0 {
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.loading:invocation[0]";
-    removeItem: "" | "REMOVE";
+    removeItem: "REMOVE";
     removePromotion: "REMOVE.PROMOTION";
     setCurrency: "UPDATE.CURRENCY";
     update: "CLEAR" | "REMOVE" | "UPDATE" | "UPDATE.CURRENCY";
-    updateItem: "" | "UPDATE";
+    updateItem: "UPDATE";
   };
   matchesStates:
     | "checkout"
@@ -226,7 +228,6 @@ export interface Typegen0 {
     | "shopping.items.processing.currency"
     | "shopping.items.processing.error"
     | "shopping.items.processing.everything"
-    | "shopping.items.processing.queue"
     | "shopping.items.processing.removing"
     | "shopping.items.processing.updating"
     | "shopping.promotions"
@@ -254,7 +255,6 @@ export interface Typegen0 {
                       | "currency"
                       | "error"
                       | "everything"
-                      | "queue"
                       | "removing"
                       | "updating";
                   };

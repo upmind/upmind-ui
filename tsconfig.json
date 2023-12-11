@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "alwaysStrict": true,
     "strictNullChecks": true,
+    "skipLibCheck": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
