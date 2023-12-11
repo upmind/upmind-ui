@@ -345,7 +345,7 @@ export const useProvisioningParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data: any) => {
-  console.log("useSummaryParser", data);
+  // console.log("useSummaryParser", data);
   const summary = {
     discount: data?.configuration_total_discount_amount_converted,
     discountFormatted: data?.configuration_total_discount_amount_formatted,

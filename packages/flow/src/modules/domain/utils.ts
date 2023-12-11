@@ -32,45 +32,8 @@ export function parseAvailable(
   results = [] as IDomainProduct[],
   available = [] as IDomainProduct[]
 ): IDomainProduct[] {
-  const { removeTrailingZeroes } = useMoney();
   // map the available to a new array
-  const newAvailable = map(results, item => {
-    const result = {
-      id: item.id,
-      domain: [sld, item.tld].join(""),
-      sld,
-      tld: item.tld,
-      is_available: item.domain_available
-    };
-
-    if (item?.prices?.length) {
-      const term = first(orderBy(item.prices, "billing_cycle_months", "asc"));
-
-      result.billing_cycle_years = Math.round(term.billing_cycle_months / 12);
-      result.is_discounted = !!term.price_discounted_formatted;
-      result.price_formatted = removeTrailingZeroes(term.price_formatted);
-      result.price_discounted_formatted = removeTrailingZeroes(
-        term.price_discounted_formatted
-      );
-
-      result.percentage_saving = !result.is_discounted
-        ? 0
-        : Math.floor(
-            ((term.price - (term.price_discounted || 0)) / term.price) * 100
-          );
-
-      //   result.billing_summary = $tc(
-      //   //   result.is_discounted ? "billing_summary_discounted" : "billing_summary",
-      //   //   result.billing_cycle_years,
-      //   //   {
-      //   //     oldPrice: result.price_formatted,
-      //   //     newPrice: result.price_discounted_formatted
-      //   //   }
-      //   // ),
-    }
-
-    return result;
-  });
+  const newAvailable = map(results, item => parseDomainItem({ ...item, sld }));
 
   // then add the new available to any existing available
   available.push(...newAvailable);
@@ -79,4 +42,44 @@ export function parseAvailable(
   available = compact(uniqBy(available, "domain"));
 
   return available;
+}
+
+export function parseDomainItem(item) {
+  const { removeTrailingZeroes } = useMoney();
+  const result = {
+    product_id: item.product_id,
+    tld: item?.tld,
+    sld: item?.sld,
+    domain: [item.sld, item.tld].join("").toLowerCase(),
+    is_available: item?.domain_available
+  };
+
+  if (item?.prices?.length) {
+    const term = first(orderBy(item.prices, "billing_cycle_months", "asc"));
+
+    result.billing_cycle_months = term.billing_cycle_months;
+    result.billing_cycle_years = Math.round(term.billing_cycle_months / 12);
+    result.is_discounted = !!term.price_discounted_formatted;
+    result.price_formatted = removeTrailingZeroes(term.price_formatted);
+    result.price_discounted_formatted = removeTrailingZeroes(
+      term.price_discounted_formatted
+    );
+
+    result.percentage_saving = !result.is_discounted
+      ? 0
+      : Math.floor(
+          ((term.price - (term.price_discounted || 0)) / term.price) * 100
+        );
+
+    //   result.billing_summary = $tc(
+    //   //   result.is_discounted ? "billing_summary_discounted" : "billing_summary",
+    //   //   result.billing_cycle_years,
+    //   //   {
+    //   //     oldPrice: result.price_formatted,
+    //   //     newPrice: result.price_discounted_formatted
+    //   //   }
+    //   // ),
+  }
+
+  return result;
 }

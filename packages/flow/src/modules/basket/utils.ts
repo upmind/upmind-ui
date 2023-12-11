@@ -94,7 +94,7 @@ export const useBasketParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data?: any) => {
-  console.log("useBasketSummaryParser", { basket: data });
+  // console.log("useBasketSummaryParser", { basket: data });
   const summary = {
     discount: data?.net_discount_amount_formatted, // total_discount_amount
     subtotal: data?.net_amount_formatted || "", // total_amount

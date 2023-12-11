@@ -119,17 +119,22 @@
     <button
       v-if="is_available || isSelected"
       as="anchor"
-      :href="order_url"
-      class="btn btn-outline btn-primary"
       :class="{ 'btn-active': isSelected }"
+      :disabled="processing || syncing"
+      :href="order_url"
       :value="domain"
       @click="updateModel"
+      class="btn btn-outline btn-primary"
       tabindex="-1"
     >
       <shopping-cart-icon class="h-4 w-4 xl:hidden" />
 
-      <template v-if="!isSelected">Add</template
-      ><template v-else>Added</template> to Basket
+      <template v-if="!isSelected">Add</template>
+      <template v-else-if="isSelected && syncing">
+        <span v-if="syncing" class="loading loading-xs"></span>
+        Addding
+      </template>
+      <template v-else>Added</template> to Basket
     </button>
 
     <div
@@ -187,6 +192,8 @@ export default defineComponent({
   },
   emits: ["change"],
   props: {
+    processing: Boolean,
+    syncing: Boolean,
     modelValue: {
       type: [String, Array<String>]
     },

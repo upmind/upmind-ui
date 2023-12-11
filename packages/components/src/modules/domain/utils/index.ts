@@ -6,11 +6,7 @@ import { useMoney } from "../../../utils";
 import { map, orderBy, uniqBy, first } from "lodash-es";
 
 // --- types
-import type {
-  IDomainProduct,
-  IProductPrice,
-  IDomainProductMapped
-} from "../types";
+import type { IDomainProduct, IDomainProductMapped } from "../types";
 // ----------------------------------------------------------------------------
 
 export function parseDomain(domain: string) {
@@ -37,7 +33,7 @@ export function parseResults(
   // map the results to a new array
   const newResults = map(domains, domain => {
     const result = {
-      pid: domain.id,
+      pid: domain.pid,
       domain: [sld, domain.tld].join(""),
       sld,
       tld: domain.tld,
@@ -71,8 +67,6 @@ export function parseResults(
       //   // ),
     }
 
-    console.log("parseDomain", { domain, result });
-
     return result;
   });
 
@@ -85,27 +79,4 @@ export function parseResults(
   results = uniqBy(results, "domain");
 
   return results;
-}
-
-function constructOrderUrl(
-  sld: string,
-  domain: IDomainProduct,
-  term: IProductPrice,
-  orderConfigUrl: string
-) {
-  if (orderConfigUrl) {
-    const url = new URL(orderConfigUrl);
-    url.searchParams.set("pid", domain.id);
-    url.searchParams.set("bcm", term.billing_cycle_months.toString());
-    url.searchParams.set("currency", term.currency_code);
-    url.searchParams.set("pfields[sld]", sld);
-    if (domain.sub_product_id)
-      url.searchParams.set("sub_pids", domain.sub_product_id);
-    // --- Add `promotions` parameter for applied promotions
-    const codes = map(term?.promotions, "code");
-    if (codes.length) url.searchParams.set("promotions", codes.join());
-
-    return url;
-  }
-  return null;
 }

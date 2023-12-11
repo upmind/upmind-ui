@@ -7,13 +7,16 @@ import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
 import { map, some, find } from "lodash-es";
+
+// --- types
+
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useDomain = (forceType?: string) => {
-  const Domain = useUpmindDomain(forceType);
-  const { state, send } = useActor(Domain.service);
+export const useDomain = (syncBasket?: boolean, forceType?: string) => {
+  const domain = useUpmindDomain(syncBasket, forceType);
+  const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------
 
@@ -72,29 +75,38 @@ export const useDomain = (forceType?: string) => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
+      isLoading: state.value.matches("loading"),
       isProcessing: [
-        "active.register.processing",
-        "active.transfer.processing",
-        "active.existing.processing"
+        "register.processing",
+        "register.syncing",
+        "transfer.processing",
+        "transfer.syncing",
+        "existing.processing",
+        "existing.syncing"
+      ].some(state.value.matches),
+
+      isSearching: [
+        "register.processing.searching",
+        "transfer.processing.searching",
+        "existing.processing.idle"
       ].some(state.value.matches),
 
       hasErrors: [
         "error",
-        "active.register.error",
-        "active.transfer.error",
-        "active.existing.error"
+        "register.error",
+        "transfer.error",
+        "existing.error"
       ].some(state.value.matches),
 
       // ---
-      showChoices: !!state.value.context.choices,
-      showRegister: state.value.matches("active.register"),
-      showTransfer: state.value.matches("active.transfer"),
-      showExisting: state.value.matches("active.existing"),
-      showContinue: [
-        "active.register.valid",
-        "active.transfer.valid",
-        "active.existing.valid"
-      ].some(state.value.matches),
+      showChoices:
+        !state.value.matches("loading") && !!state.value.context.choices,
+      showRegister: state.value.matches("register"),
+      showTransfer: state.value.matches("transfer"),
+      showExisting: state.value.matches("existing"),
+      showContinue: ["register.valid", "transfer.valid", "existing.valid"].some(
+        state.value.matches
+      ),
 
       // ---
       hasPrimary: some(state.value.context?.values, "is_primary"),
@@ -109,6 +121,6 @@ export const useDomain = (forceType?: string) => {
     add,
     remove,
     toggle,
-    isSelected: (value: string) => [`active.${value}`].some(state.value.matches)
+    isSelected: (value: string) => state.value.matches(value)
   };
 };

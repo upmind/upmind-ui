@@ -23,7 +23,7 @@
     </header>
 
     <div :data-theme="activeTheme">
-      <upm-domain :debugging="debugging">
+      <upm-domain sync-basket :debugging="debugging">
         <template #actions="{ meta, primaryDomain, values }">
           <hr />
 
@@ -33,7 +33,7 @@
               role="alert"
               class="alert border-primary indicator"
             >
-              <check-circle-icon class="h-10 w-10 text-primary" />
+              <check-circle-icon class="h-6 w-6 text-primary" />
               <span>
                 <strong class="text-xl text-inherit text-primary">
                   {{ primaryDomain?.domain }}
@@ -49,7 +49,12 @@
               </span>
             </div>
 
-            <button class="btn btn-primary">
+            <span class="spacer"></span>
+
+            <button
+              class="btn btn-lg btn-primary"
+              :disabled="!meta.showContinue"
+            >
               Continue to checkout
               <chevron-right-icon class="h-6 w-6" />
             </button>

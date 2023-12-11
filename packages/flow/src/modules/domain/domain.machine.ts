@@ -7,12 +7,12 @@ import services from "./services";
 
 // --- utils
 import { useTime } from "../../utils";
-import { isEmpty, isObject, reject, find, some, has, map } from "lodash-es";
+import { isEmpty, reject, find, some, has, map } from "lodash-es";
 
 // --- types
 import { DomainTypes } from "./types.d";
 import type { DomainContext, AddEvent, RemoveEvent } from "./types.d";
-import { parseDomain } from "./utils";
+import { parseDomain, parseDomainItem } from "./utils";
 
 // --------------------------------------------------------
 
@@ -22,10 +22,11 @@ export default createMachine(
     tsTypes: {} as import("./domain.machine.typegen").Typegen0,
     id: "domainManager",
     predictableActionArguments: true,
-    initial: "idle",
+    initial: "loading",
     context: {
       choices: DomainTypes,
       type: null,
+      sync: null,
       values: [],
       available: [],
       total: 0,
@@ -40,236 +41,240 @@ export default createMachine(
       error: null
     } as DomainContext,
     states: {
+      loading: {
+        always: {
+          target: "idle",
+          cond: ({ sync }) => !sync
+        },
+        on: {
+          SYNC: { actions: ["sync"] }
+        }
+      },
+
       // our initial state depends on if the machine has been forced to a type,
-      // if we do then go to that types active state, otherwise stay idle
+      // if we do then go to that types state, otherwise stay idle
       idle: {
         id: "idle",
         always: [
           {
-            target: "active.register",
-            cond: ({ type }) => type === "register"
+            target: "register",
+            cond: ({ type, sync }) => !sync && type === "register"
           },
           {
-            target: "active.transfer",
-            cond: ({ type }) => type === "transfer"
+            target: "transfer",
+            cond: ({ type, sync }) => !sync && type === "transfer"
           },
           {
-            target: "active.existing",
-            cond: ({ type }) => type === "existing"
+            target: "existing",
+            cond: ({ type, sync }) => !sync && type === "existing"
           }
         ]
       },
 
-      // we have  a type set, so we can start the active state
-      active: {
+      register: {
+        id: "register",
+        initial: "idle",
         states: {
-          register: {
-            id: "register",
-            initial: "idle",
-            states: {
-              idle: {
-                entry: [
-                  "cancelController",
-                  "clearAvailable",
-                  "clearError",
-                  "clear"
-                ]
-              },
-              // cancel any existing search via the controller then wait before starting a new search & controller
-              processing: {
-                id: "processing",
-                initial: "cancelling",
-                states: {
-                  cancelling: {
-                    entry: "cancelController",
-                    after: { wait: "searching" }
-                  },
-                  searching: {
-                    entry: ["clearAvailable", "clearError", "newController"],
-                    invoke: {
-                      src: "search",
-                      onDone: {
-                        target: "#register.available",
-                        actions: ["setAvailable", "add"]
-                      },
-                      onError: [
-                        {
-                          target: "#register.error",
-                          actions: ["setError"],
-                          cond: "isNotCancelled"
-                        }
-                      ]
-                    }
-                  }
-                }
-              },
-              available: {
-                always: {
-                  target: "valid",
-                  cond: "hasValues"
-                }
-              },
-              valid: {
-                type: "final",
-                always: {
-                  target: "available",
-                  cond: "hasNoValues"
-                }
-              },
-              error: {}
-            },
-            on: {
-              SEARCH: {
-                target: ".processing",
-                actions: ["setSearch"],
-                cond: "isValidSearch"
-              }
-            }
+          idle: {
+            entry: ["cancelController", "clearAvailable", "clearError"]
           },
-          transfer: {
-            id: "transfer",
-            initial: "idle",
+          // cancel any existing search via the controller then wait before starting a new search & controller
+          processing: {
+            id: "processing",
+            initial: "cancelling",
             states: {
-              idle: {
-                entry: [
-                  "cancelController",
-                  "clearAvailable",
-                  "clearError",
-                  "clear"
-                ]
+              cancelling: {
+                entry: "cancelController",
+                after: { wait: "searching" }
               },
-              // cancel any existing search via the controller then wait before starting a new search & controller
-              processing: {
-                id: "processing",
-                initial: "cancelling",
-                states: {
-                  cancelling: {
-                    entry: "cancelController",
-                    after: { wait: "searching" }
-                  },
-                  searching: {
-                    entry: ["clearAvailable", "clearError", "newController"],
-                    invoke: {
-                      src: "search",
-                      onDone: {
-                        target: "#transfer.available",
-                        actions: ["setAvailable", "add"]
-                      },
-                      onError: [
-                        {
-                          target: "#transfer.error",
-                          actions: ["setError"],
-                          cond: "isNotCancelled"
-                        }
-                      ]
-                    }
-                  }
-                }
-              },
-              available: {
-                always: {
-                  target: "valid",
-                  cond: "hasValues"
-                }
-              },
-              valid: {
-                type: "final",
-                always: {
-                  target: "available",
-                  cond: "hasNoValues"
-                }
-              },
-              error: {}
-            },
-            on: {
-              SEARCH: {
-                target: ".processing",
-                actions: ["setSearch"],
-                cond: "isValidSearch"
-              }
-            }
-          },
-          existing: {
-            id: "existing",
-            initial: "loading",
-            states: {
-              loading: {
-                entry: [
-                  "cancelController",
-                  "clearAvailable",
-                  "clearError",
-                  "newController",
-                  "clear"
-                ],
+              searching: {
+                entry: ["clearAvailable", "clearError", "newController"],
                 invoke: {
-                  src: "getClientDomains",
+                  src: "search",
                   onDone: {
-                    target: "#existing.idle",
+                    target: "#register.available",
                     actions: ["setAvailable"]
                   },
                   onError: [
                     {
-                      target: "#existing.error",
+                      target: "#register.error",
                       actions: ["setError"],
                       cond: "isNotCancelled"
                     }
                   ]
                 }
-              },
-              idle: {},
-              // cancel any existing search via the controller then wait before starting a new search & controller
-              processing: {
-                id: "processing",
-                initial: "cancelling",
-                states: {
-                  cancelling: {
-                    entry: "cancelController",
-                    after: { wait: "#existing.available" }
-                  }
-                }
-              },
-              available: {
-                always: {
-                  target: "valid",
-                  cond: "hasValues"
-                }
-              },
-              valid: {
-                type: "final",
-                always: {
-                  target: "available",
-                  cond: "hasNoValues"
-                }
-              },
-              error: {}
-            },
-            on: {
-              ADD: [
-                {
-                  target: ".processing",
-                  actions: ["addExisting"],
-                  cond: "isValidDomain"
-                },
-
-                {
-                  target: ".error",
-                  meta: {
-                    message: "Invalid domain name"
-                  }
-                }
-              ]
+              }
             }
-          }
+          },
+          available: {
+            always: {
+              target: "valid",
+              cond: "hasValues"
+            }
+          },
+          valid: {
+            type: "final",
+            always: {
+              target: "available",
+              cond: "hasNoValues"
+            }
+          },
+          syncing: {},
+          error: {}
         },
         on: {
           ADD: {
             actions: ["add"],
             cond: "hasAvailable"
           },
-          REMOVE: {
-            actions: ["remove"],
-            cond: "hasValues"
-          }
+
+          SEARCH: {
+            target: ".processing",
+            actions: ["setSearch"],
+            cond: "isValidSearch"
+          },
+          SYNC: { target: "#register.syncing" },
+          REFRESH: { target: "#register.available" }
+        }
+      },
+
+      transfer: {
+        id: "transfer",
+        initial: "idle",
+        states: {
+          idle: {
+            entry: ["cancelController", "clearAvailable", "clearError"]
+          },
+          // cancel any existing search via the controller then wait before starting a new search & controller
+          processing: {
+            id: "processing",
+            initial: "cancelling",
+            states: {
+              cancelling: {
+                entry: "cancelController",
+                after: { wait: "searching" }
+              },
+              searching: {
+                entry: ["clearAvailable", "clearError", "newController"],
+                invoke: {
+                  src: "search",
+                  onDone: {
+                    target: "#transfer.available",
+                    actions: ["setAvailable"]
+                  },
+                  onError: [
+                    {
+                      target: "#transfer.error",
+                      actions: ["setError"],
+                      cond: "isNotCancelled"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          available: {
+            always: {
+              target: "valid",
+              cond: "hasValues"
+            }
+          },
+          valid: {
+            type: "final",
+            always: {
+              target: "available",
+              cond: "hasNoValues"
+            }
+          },
+          syncing: {},
+          error: {}
+        },
+        on: {
+          ADD: {
+            actions: ["add"],
+            cond: "hasAvailable"
+          },
+          SEARCH: {
+            target: ".processing",
+            actions: ["setSearch"],
+            cond: "isValidSearch"
+          },
+          SYNC: { target: "#transfer.syncing" },
+          REFRESH: { target: "#transfer.available" }
+        }
+      },
+
+      existing: {
+        id: "existing",
+        initial: "loading",
+        states: {
+          loading: {
+            entry: [
+              "cancelController",
+              "clearAvailable",
+              "clearError",
+              "newController"
+            ],
+            invoke: {
+              src: "getClientDomains",
+              onDone: {
+                target: "#existing.idle",
+                actions: ["setAvailable"]
+              },
+              onError: [
+                {
+                  target: "#existing.error",
+                  actions: ["setError"],
+                  cond: "isNotCancelled"
+                }
+              ]
+            }
+          },
+          idle: {},
+          // cancel any existing search via the controller then wait before starting a new search & controller
+          processing: {
+            id: "processing",
+            initial: "cancelling",
+            states: {
+              cancelling: {
+                entry: "cancelController",
+                after: { wait: "#existing.available" }
+              }
+            }
+          },
+          available: {
+            always: {
+              target: "valid",
+              cond: "hasValues"
+            }
+          },
+          valid: {
+            type: "final",
+            always: {
+              target: "available",
+              cond: "hasNoValues"
+            }
+          },
+          syncing: {},
+          error: {}
+        },
+        on: {
+          ADD: [
+            {
+              target: ".processing",
+              actions: ["addExisting"],
+              cond: "isValidDomain"
+            },
+
+            {
+              target: ".error",
+              meta: {
+                message: "Invalid domain name"
+              }
+            }
+          ],
+          SYNC: { target: "#existing.syncing" },
+          REFRESH: { target: "#existing.available" }
         }
       },
 
@@ -283,27 +288,31 @@ export default createMachine(
       }
     },
     on: {
+      REMOVE: {
+        actions: ["remove"],
+        cond: "hasValues"
+      },
       CHOOSE: [
         {
           target: "error",
           cond: "isInvalidType"
         },
         {
-          target: "active",
+          // do nothing
           cond: "isForced"
         },
         {
-          target: "active.register",
+          target: "register",
           actions: ["setType"],
           cond: "isDomainRegister"
         },
         {
-          target: "active.transfer",
+          target: "transfer",
           actions: ["setType"],
           cond: "isDomainTransfer"
         },
         {
-          target: "active.existing",
+          target: "existing",
           actions: ["setType"],
           cond: "isExistingDomain"
         }
@@ -320,17 +329,18 @@ export default createMachine(
         type: (_context, { data }) => data
       }),
 
-      add: assign({
-        values: (
-          { values, available, search }: DomainContext,
-          { data }: AddEvent
-        ) => {
-          // if we are adding from a search then use the search value instead of data,
-          // because it MAY be a full domain and an exact match to an available domain
-          if (isObject(data)) {
-            data = search;
-          }
+      sync: assign({
+        values: ({ values }, { data }) =>
+          map(data, (item, index) => {
+            const domain = parseDomainItem(item);
+            domain.is_primary = !index;
+            return domain;
+          }),
+        sync: false
+      }),
 
+      add: assign({
+        values: ({ values, available }: DomainContext, { data }: AddEvent) => {
           // check if we already have the domain
           let domain = find(values, ["domain", data.toLowerCase()]);
 
@@ -379,12 +389,6 @@ export default createMachine(
         }
       }),
 
-      clear: assign({
-        values: () => {
-          return [];
-        }
-      }),
-
       cancelController: assign({
         controller: ({ controller }) => {
           if (controller?.signal && !controller.signal?.aborted) {
@@ -428,6 +432,8 @@ export default createMachine(
 
     guards: {
       isForced: ({ choices }) => isEmpty(choices),
+
+      // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
       isInvalidType: (_context, { data }) => {
         return !has(DomainTypes, data);

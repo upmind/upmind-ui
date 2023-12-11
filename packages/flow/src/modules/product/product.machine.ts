@@ -49,7 +49,7 @@ export default (values, currency_id, promotions) => {
         // ---
         // the various lookups that we are using in our configuation
         available: {
-          product: null,
+          product: values?.product || null,
           terms: null,
           options: null,
           attributes: null,
@@ -244,7 +244,7 @@ export default (values, currency_id, promotions) => {
               target: "configured",
               actions: ["setSummary", "clearCalculating"]
             },
-            onError: { target: "error", actions: ["setError", "escalateError"] }
+            onError: { target: "error", actions: ["setError"] }
           }
         },
 

@@ -71,8 +71,6 @@ export function parseResults(
       //   // ),
     }
 
-    console.log("parseDomain", { domain, result });
-
     return result;
   });
 
