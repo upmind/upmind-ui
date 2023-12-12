@@ -357,7 +357,7 @@ export default createMachine(
       // ---
       setError: assign({
         error: (context, { data: { error } }) => {
-          if (error.code == 422) {
+          if (error?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(error);

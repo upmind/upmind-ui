@@ -488,7 +488,14 @@ export default createMachine(
 
       queueItem: assign({
         queue: ({ items, queue }, { data }) => {
-          const itemId = data?.itemId;
+          // bail if we dont have an itemId
+          if (!data?.itemId) {
+            debugger;
+            console.warn("queueItem", "no itemId", data);
+            return queue;
+          }
+          // ---
+          const itemId = data.itemId;
           const found = find(items, ["id", itemId]);
           if (found) queue.push(found); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return queue;
@@ -625,7 +632,6 @@ export default createMachine(
           //   "id"
           // );
           // forEach(dangling, (item, index) => {
-          //   debugger;
           //   const product = item.state.context.config;
           //   item.send({
           //     type: "REFRESH",
@@ -663,10 +669,10 @@ export default createMachine(
               }
             });
 
-            if (error.code == 422) {
+            if (error?.code == 422) {
               error.message = "Validation error";
             }
-          } else if (error.code == 422) {
+          } else if (error?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(error);
@@ -710,8 +716,9 @@ export default createMachine(
         ),
 
       // --- Item Guards
-      isNotQueued: ({ queue }, { data }) =>
-        !!data?.itemId && !some(queue, ["id", data.itemId]),
+      isNotQueued: ({ queue }, { data }) => {
+        return !!data?.itemId && !some(queue, ["id", data.itemId]);
+      },
 
       hasNoItem: ({ items }, { data }) => isEmpty(data) || !data?.itemId,
 
