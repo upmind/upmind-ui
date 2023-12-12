@@ -26,7 +26,7 @@
       <upm-domain sync-basket :debugging="debugging">
         <template #actions="{ meta, primaryDomain, values }">
           <div
-            class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12"
+            class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12 border min-h-[5rem]"
             :class="
               meta.isSyncing
                 ? 'bg-gray-200 border-gray-200'
@@ -35,15 +35,15 @@
           >
             <div
               v-if="meta.hasPrimary"
-              class="alert bg-transparent border-none indicator min-h-[5rem] flex-grow justify-center"
+              class="alert bg-transparent border-none indicator flex-grow justify-center"
               :disabled="meta.isSyncing"
             >
               <template v-if="meta.isSyncing">
-                <span class="loading loading-dots loading-xs"></span>
+                <span class="loading loading-dots loading-xs opacity-50"></span>
               </template>
 
               <template v-else>
-                <check-circle-icon class="h-6 w-6 text-primary" />
+                <check-circle-icon class="h-10 w-10 text-primary" />
                 <span>
                   <strong class="text-xl text-inherit text-primary">
                     {{ primaryDomain?.domain }}
