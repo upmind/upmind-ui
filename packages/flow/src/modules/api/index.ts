@@ -104,9 +104,17 @@ export const useApi = () => {
 
     if (request) {
       // finally ... await the response
-      return waitFor(request, state => state.matches("processed")).then(() =>
-        get(request, "state.context.response")
-      );
+      return waitFor(request, state => state.matches("processed"))
+        .then(() => get(request, "state.context.response"))
+        .catch(error => {
+          console.error(
+            "api request",
+            "timeout",
+            { hash, url, init, useCache, maxAge },
+            error
+          );
+          throw error;
+        });
     }
 
     // TODO:

@@ -86,7 +86,6 @@ export const useBasketHelper = (
   // TODO: check if there is a valid actor and that it is started
   const { findItem, itemExists, service, getItemsSnapshot } = useBasket();
   const newItems = [];
-  const danglingItems = [];
   const processingItems = {};
 
   // wait for our basket to be ready, then sync basket items with the actor...
@@ -128,12 +127,16 @@ export const useBasketHelper = (
       if (!exists(items, mapping)) {
         // add the basket item to the list of dangling items, if it is not already there
         // this will then be processed when the basket is ready
-        if (!includes(danglingItems, basketItem.id)) {
+        debugger;
+        if (!get(processingItems, basketItem.id)) {
+          debugger;
+
           // let the actor know we are syncing so we dont do anyhting else
           actor.send({ type: "SYNC" });
-          // add the item to the basket and get the corresponding machine
+
+          // send the command and set the item to be processed
           service.send({ type: "REMOVE", data: { itemId: basketItem.id } });
-          danglingItems.push(basketItem.id);
+          set(processingItems, basketItem.id, basketItem);
         }
       }
     });
@@ -153,7 +156,7 @@ export const useBasketHelper = (
         newItems.push(mapping);
       } else {
         // TODO: upate the item id the values have changed
-        set(processingItems, basketItem.id, basketItem);
+        // set(processingItems, basketItem.id, basketItem);
         // let the actor know we are syncing so we dont do anyhting else
         // actor.send({ type: "SYNC" });
       }
@@ -162,46 +165,28 @@ export const useBasketHelper = (
 
   // Finally watch the basket so we can update the newItems items
   service.onTransition(newState => {
-    // 1st remove any dangling items fom the basket
-    forEach(danglingItems, itemId => {
-      if (!some(newState.context.items, { id: itemId })) {
-        waitFor(service, state =>
-          state.matches("shopping.items.processed")
-        ).then(() => {
-          actor.send({ type: "REFRESH" });
-          remove(danglingItems, itemId);
-        });
-      }
-    });
-
-    if (!newItems.length) return;
-
-    // 2nd update any new items to the basket
+    // trigger new items to be process once they are ready/configured
     forEach(newItems, mapping => {
       const basketItem = findItem(mapping);
-      if (basketItem) {
+      if (basketItem?.state?.matches("configured")) {
+        service.send({
+          type: "UPDATE",
+          data: { itemId: basketItem.id }
+        });
         set(processingItems, basketItem.id, basketItem);
         remove(newItems, mapping);
       }
     });
 
-    forEach(processingItems, basketItem => {
-      // now wait for basket item to be ready, before we send the update message to the basket
-      waitFor(basketItem, state => ["configured"].some(state.matches)).then(
-        () => {
-          service.send({
-            type: "UPDATE",
-            data: { itemId: basketItem.id }
-          });
-
-          waitFor(service, state =>
-            state.matches("shopping.items.processed")
-          ).then(() => {
-            actor.send({ type: "REFRESH" });
-          });
-          unset(processingItems, basketItem);
-        }
-      );
-    });
+    // finally cleanup and refresh any items that have been updated
+    if (newState.matches("shopping.items.processed")) {
+      debugger;
+      forEach(processingItems, (basketItem, id) => {
+        debugger;
+        // now wait for basket item to be ready, before we send the update message to the basket
+        actor.send({ type: "REFRESH" });
+        unset(processingItems, id);
+      });
+    }
   });
 };

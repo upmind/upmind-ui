@@ -141,9 +141,8 @@ async function update({ basket, items }: BasketContext, _event: any) {
       // if they have not already been set by a previous error
       // we will set them here with the current basket, items, NO newItems
       const newItems = differenceBy(basket.products, validItems, "id");
-      const response = { basket, items: validItems, newItems };
 
-      merge(err, response);
+      merge(err, { basket, items: validItems, newItems });
       error = err;
     });
 
@@ -270,7 +269,8 @@ async function updateItem({ basket, items, queue }, { data }: any) {
 
   const item = find(queue, ["id", data.itemId]);
 
-  if (!item) return Promise.reject("No item to add to basket");
+  if (!item)
+    return Promise.reject(`No such item in the queue : ${data.itemid}`);
 
   const isNew = get(item.state, "context.isNew");
   const config = get(item.state, "context.config");
@@ -281,7 +281,7 @@ async function updateItem({ basket, items, queue }, { data }: any) {
 
   let error;
 
-  const resposne = await action({
+  const response = await action({
     url: useUrl(`/orders/${basket.id}/products${suffix}`),
     data: config,
     withAccessToken: true
@@ -289,8 +289,7 @@ async function updateItem({ basket, items, queue }, { data }: any) {
     .then(useBasketParser)
     .then(basket => {
       const newItems = differenceBy(basket.products, items, "id");
-      const response = { basket, items: [item], newItems };
-      return response;
+      return { basket, items: [item], newItems };
     })
     .then(updateItemProvisioningFields)
     .catch(err => {
@@ -299,13 +298,13 @@ async function updateItem({ basket, items, queue }, { data }: any) {
       // if they have not already been set by a previous error
       // we will set them here with the current basket, items, NO newItems
       const newItems = differenceBy(basket.products, items, "id");
-      const response = { basket, items: [item], newItems };
-      merge(err, response);
+      merge(err, { basket, items: [item], newItems });
       error = err;
     });
 
   return new Promise((resolve, reject) => {
     if (error) {
+      debugger;
       reject(error);
     } else {
       resolve(response);
@@ -375,6 +374,7 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
 
   return new Promise((resolve, reject) => {
     if (error) {
+      debugger;
       reject(error);
     } else {
       resolve(response);

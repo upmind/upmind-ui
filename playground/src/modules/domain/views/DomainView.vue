@@ -25,31 +25,42 @@
     <div :data-theme="activeTheme">
       <upm-domain sync-basket :debugging="debugging">
         <template #actions="{ meta, primaryDomain, values }">
-          <hr />
-
-          <div class="actions flex items-center justify-between gap-4">
+          <div
+            class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12"
+            :class="
+              meta.isSyncing
+                ? 'bg-gray-200 border-gray-200'
+                : 'bg-primary-content border-primary '
+            "
+          >
             <div
               v-if="meta.hasPrimary"
-              role="alert"
-              class="alert border-primary indicator"
+              class="alert bg-transparent border-none indicator min-h-[5rem] flex-grow justify-center"
+              :disabled="meta.isSyncing"
             >
-              <check-circle-icon class="h-6 w-6 text-primary" />
-              <span>
-                <strong class="text-xl text-inherit text-primary">
-                  {{ primaryDomain?.domain }}
-                </strong>
-                has been linked to your hosting.
+              <template v-if="meta.isSyncing">
+                <span class="loading loading-dots loading-xs"></span>
+              </template>
 
-                <strong
-                  v-if="meta.hasAdditional"
-                  class="indicator-item indicator-center indicator-bottom badge badge-ghost text-primary"
-                >
-                  +{{ values.length - 1 }} Additional Domains
-                </strong>
-              </span>
+              <template v-else>
+                <check-circle-icon class="h-6 w-6 text-primary" />
+                <span>
+                  <strong class="text-xl text-inherit text-primary">
+                    {{ primaryDomain?.domain }}
+                  </strong>
+                  has been linked to your hosting.
+
+                  <strong
+                    v-if="meta.hasAdditional"
+                    class="indicator-item indicator-center indicator-bottom badge badge-primary"
+                  >
+                    +{{ values.length - 1 }} Additional Domains
+                  </strong>
+                </span>
+              </template>
             </div>
 
-            <span class="spacer"></span>
+            <span class="spacer" v-else></span>
 
             <button class="btn btn btn-primary" :disabled="!meta.showContinue">
               Continue to checkout
