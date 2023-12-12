@@ -81,6 +81,7 @@
                 ? 'Please enter a valid domain, eg: google.com'
                 : null
             "
+            :model-value="primaryDomain?.domain"
           />
 
           <upm-domain-available
@@ -94,7 +95,12 @@
           />
         </div>
 
-        <slot name="actions" v-bind="{ meta, primaryDomain, values }"> </slot>
+        <slot
+          name="actions"
+          v-bind="{ meta, primaryDomain, values }"
+          v-if="!meta.isLoading"
+        >
+        </slot>
       </div>
     </div>
   </section>

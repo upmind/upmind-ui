@@ -7,7 +7,7 @@ import services from "./services";
 
 // --- utils
 import { useTime } from "../../utils";
-import { isEmpty, reject, find, some, has, map } from "lodash-es";
+import { isEmpty, reject, find, some, has, map, omit } from "lodash-es";
 
 // --- types
 import { DomainTypes } from "./types.d";
@@ -42,10 +42,16 @@ export default createMachine(
     } as DomainContext,
     states: {
       loading: {
-        always: {
-          target: "idle",
-          cond: ({ sync }) => !sync
-        },
+        always: [
+          {
+            target: "basket",
+            cond: ({ sync, values }) => !sync && !!values.length
+          },
+          {
+            target: "idle",
+            cond: ({ sync }) => !sync
+          }
+        ],
         on: {
           SYNC: { actions: ["sync"] }
         }
@@ -293,6 +299,38 @@ export default createMachine(
         }
       },
 
+      basket: {
+        id: "basket",
+        initial: "loading",
+        states: {
+          loading: {
+            always: [
+              {
+                target: "#idle",
+                cond: "hasNoValues"
+              },
+              {
+                target: "valid"
+              }
+            ]
+          },
+          valid: {
+            type: "final",
+            always: {
+              target: "#idle",
+              cond: "hasNoValues"
+            }
+          }
+        },
+        on: {
+          REMOVE: {
+            target: "#idle",
+            actions: ["remove"],
+            cond: "hasValues"
+          }
+        }
+      },
+
       error: {
         id: "error",
         after: { error: "idle" }
@@ -347,7 +385,12 @@ export default createMachine(
             domain.is_primary = !index;
             return domain;
           }),
-        sync: false
+        sync: false,
+        choices: ({ choices }, { data }) => {
+          if (!data?.length) return omit(choices, "basket");
+          return choices;
+        },
+        type: ({ type }, { data }) => (type || data.length ? "basket" : null)
       }),
 
       add: assign({

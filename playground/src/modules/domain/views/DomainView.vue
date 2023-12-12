@@ -28,18 +28,24 @@
           <div
             class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12 border min-h-[5rem]"
             :class="
-              meta.isSyncing
-                ? 'bg-gray-200 border-gray-200'
+              meta.isSyncing || !meta.hasValues
+                ? 'bg-gray-200 border-gray-200 '
                 : 'bg-primary-content border-primary '
             "
           >
             <div
-              v-if="meta.hasPrimary"
               class="alert bg-transparent border-none indicator flex-grow justify-center"
-              :disabled="meta.isSyncing"
             >
               <template v-if="meta.isSyncing">
                 <span class="loading loading-dots loading-xs opacity-50"></span>
+              </template>
+
+              <template v-else-if="!meta.hasValues">
+                <exclamation-triangle-icon class="h-10 w-10 text-gray-400" />
+
+                <span class="text-gray-400"
+                  >No domain has been linked to your hosting.</span
+                >
               </template>
 
               <template v-else>
@@ -59,8 +65,6 @@
                 </span>
               </template>
             </div>
-
-            <span class="spacer" v-else></span>
 
             <button class="btn btn btn-primary" :disabled="!meta.showContinue">
               Continue to checkout
@@ -83,7 +87,8 @@ import { UpmDomain } from "@upmind/components";
 import {
   SwatchIcon,
   CheckCircleIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ExclamationTriangleIcon
 } from "@heroicons/vue/24/outline";
 
 import { capitalize } from "lodash-es";
