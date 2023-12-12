@@ -6,7 +6,17 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import { forEach, get, set, unset, every, find, some, remove } from "lodash-es";
+import {
+  forEach,
+  get,
+  set,
+  unset,
+  every,
+  find,
+  some,
+  remove,
+  includes
+} from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -20,12 +30,21 @@ const service = interpret(basketMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 
-const itemExists = (items = [], conditions) => {
-  return some(items, basketItem =>
-    every(
-      conditions,
-      (value, key) => get(basketItem, `state.context.values.${key}`) == value
-    )
+const exists = (items = [], mapping, context = null) => {
+  context = context ? `${context}.` : "";
+  return some(items, item =>
+    every(mapping, (value, key) => {
+      const itemValue = get(item, `${context}${key}`, get(item, key));
+      const matches = itemValue == value;
+      // console.log("exists", {
+      //   item,
+      //   key: `${context}${key}`,
+      //   itemValue,
+      //   value,
+      //   matches
+      // });
+      return matches;
+    })
   );
 };
 // --------------------------------------------------------
@@ -34,10 +53,10 @@ export const useBasket = () => {
   // --------------------------------------------------------
   // methods
 
-  const findItem = conditions =>
+  const findItem = mapping =>
     find(state?.context?.items, basketItem =>
       every(
-        conditions,
+        mapping,
         (value, key) => get(basketItem, `state.context.values.${key}`) == value
       )
     );
@@ -50,7 +69,8 @@ export const useBasket = () => {
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items || [],
     findItem,
-    itemExists: conditions => itemExists(conditions, state?.context?.items)
+    itemExists: mapping =>
+      exists(state?.context?.items, mapping, "state.context.values")
   };
 };
 
@@ -58,16 +78,18 @@ export const useBasketHelper = (
   actor,
   states,
   context,
-  conditionsBuilder,
+  basketItemMapper,
   basketItemBuilder,
+  itemMapper,
   itemBuilder
 ) => {
   // TODO: check if there is a valid actor and that it is started
   const { findItem, itemExists, service, getItemsSnapshot } = useBasket();
   const newItems = [];
+  const danglingItems = [];
   const processingItems = {};
 
-  // wait for our basket to be ready, then sync any matching items to the actor...
+  // wait for our basket to be ready, then sync basket items with the actor...
   waitFor(service, state => ["shopping"].some(state.matches)).then(() => {
     const items = get(actor, `state.context.${context}`, []);
     const basketItems = getItemsSnapshot();
@@ -75,9 +97,9 @@ export const useBasketHelper = (
     // find any items that are in the basket but not in the actor
     const missing = [];
     forEach(basketItems, basketItem => {
-      const conditions = conditionsBuilder(basketItem);
+      const mapping = basketItemMapper(basketItem.state.context.values);
 
-      if (!itemExists(items, conditions)) {
+      if (!exists(items, mapping)) {
         const data = itemBuilder({
           ...basketItem.state.context.values,
           ...basketItem.state.context.available.product
@@ -85,7 +107,7 @@ export const useBasketHelper = (
         missing.push(data);
       }
     });
-    // and sync them to the actor
+
     actor.send({ type: "SYNC", data: missing });
   });
 
@@ -94,21 +116,41 @@ export const useBasketHelper = (
     // bail if the state is not one of the states we are interested in
     if (!states.some(newState.matches)) return;
 
-    const items = get(newState.context, context, []);
+    const items = get(newState, `context.${context}`, []);
+    const basketItems = getItemsSnapshot();
 
+    // first, handle items not in the domain machine, ie dangling items
+    forEach(basketItems, basketItem => {
+      if (!basketItem) return;
+
+      const mapping = itemMapper(basketItem?.state?.context?.values);
+
+      if (!exists(items, mapping)) {
+        // add the basket item to the list of dangling items, if it is not already there
+        // this will then be processed when the basket is ready
+        if (!includes(danglingItems, basketItem.id)) {
+          // let the actor know we are syncing so we dont do anyhting else
+          actor.send({ type: "SYNC" });
+          // add the item to the basket and get the corresponding machine
+          service.send({ type: "REMOVE", data: { itemId: basketItem.id } });
+          danglingItems.push(basketItem.id);
+        }
+      }
+    });
+
+    // handle items not in/out of date with the basket, ie new/updated items
     forEach(items, item => {
       const data = basketItemBuilder(item);
-      const conditions = conditionsBuilder(item);
-      console.log("basket helper item", { data, conditions });
+      const mapping = basketItemMapper(item);
 
-      const basketItem = findItem(conditions);
+      const basketItem = findItem(mapping);
 
       if (!basketItem) {
         // let the actor know we are syncing so we dont do anyhting else
         actor.send({ type: "SYNC" });
         // add the item to the basket and get the corresponding machine
         service.send({ type: "ADD", data });
-        newItems.push(conditions);
+        newItems.push(mapping);
       } else {
         // TODO: upate the item id the values have changed
         set(processingItems, basketItem.id, basketItem);
@@ -118,15 +160,28 @@ export const useBasketHelper = (
     });
   });
 
-  // watch the basket so we can update the newItems items
+  // Finally watch the basket so we can update the newItems items
   service.onTransition(newState => {
+    // 1st remove any dangling items fom the basket
+    forEach(danglingItems, itemId => {
+      if (!some(newState.context.items, { id: itemId })) {
+        waitFor(service, state =>
+          state.matches("shopping.items.processed")
+        ).then(() => {
+          actor.send({ type: "REFRESH" });
+          remove(danglingItems, itemId);
+        });
+      }
+    });
+
     if (!newItems.length) return;
 
-    forEach(newItems, conditions => {
-      const basketItem = findItem(conditions);
+    // 2nd update any new items to the basket
+    forEach(newItems, mapping => {
+      const basketItem = findItem(mapping);
       if (basketItem) {
         set(processingItems, basketItem.id, basketItem);
-        remove(newItems, conditions);
+        remove(newItems, mapping);
       }
     });
 
@@ -140,7 +195,7 @@ export const useBasketHelper = (
           });
 
           waitFor(service, state =>
-            state.matches("shopping.items.configured")
+            state.matches("shopping.items.processed")
           ).then(() => {
             actor.send({ type: "REFRESH" });
           });

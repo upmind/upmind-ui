@@ -153,11 +153,11 @@ export default createMachine(
                     invoke: {
                       src: "update",
                       onDone: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket"]
                       },
                       onError: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket", "setError"]
                       }
                     }
@@ -167,7 +167,7 @@ export default createMachine(
                     invoke: {
                       src: "setCurrency",
                       onDone: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket"]
                       },
                       onError: { target: "error", actions: ["setError"] }
@@ -179,7 +179,7 @@ export default createMachine(
                     invoke: {
                       src: "updateItem",
                       onDone: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: [
                           "removeFromQueue",
                           "refreshItems",
@@ -198,11 +198,11 @@ export default createMachine(
                     invoke: {
                       src: "removeItem",
                       onDone: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["removeItem", "updateBasket"]
                       },
                       onError: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket", "setError"]
                       }
                     }
@@ -210,9 +210,16 @@ export default createMachine(
 
                   error: {
                     after: {
-                      error: "#configuring"
+                      error: "#processed"
                     }
                   }
+                }
+              },
+
+              processed: {
+                id: "processed",
+                after: {
+                  wait: "#configuring"
                 }
               },
 
@@ -511,7 +518,7 @@ export default createMachine(
 
       removeAllItems: assign({
         items: ({ items, bin }, _event) => {
-          forEach(items, item => item.stop());
+          forEach(items, item => !item?.state?.done && item?.stop());
           return [];
         },
         bin: [],
@@ -524,14 +531,14 @@ export default createMachine(
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(items, ["id", itemId]);
-          removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return items;
         },
         bin: ({ bin }, { data }, _event) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(bin, ["id", itemId]);
-          removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
         },
         queue: ({ queue }, { data }, _event) => {
@@ -569,7 +576,7 @@ export default createMachine(
               // we need to replace it with a new machine and stop the old one
               // NB: its safe to assume that the items array is in the same order as the newItems
               // so we can use the index to match the items
-              if (item && !item.state.done) item.stop(); // ensure the machine is stopped
+              if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
               const currentIndex = findIndex(items, ["id", itemId]);
               const newProduct = find(data?.basket?.products, ["id", newId]);
               if (newProduct) {

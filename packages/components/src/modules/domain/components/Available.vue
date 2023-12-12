@@ -14,7 +14,7 @@
 
     <li
       v-else-if="syncing"
-      class="absolute top-0 left-0 w-full h-full bg-primary-content text-primary place-content-center gap-x-4 gap-y-1 mt-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6 z-10"
+      class="absolute top-0 left-0 w-full h-full bg-primary-content bg-opacity-95 text-primary place-content-center gap-x-4 gap-y-1 mt-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6 z-10"
     >
       <span class="text-lg text-center">
         <span class="block">Updating the basket</span>
