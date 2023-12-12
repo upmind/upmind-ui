@@ -114,6 +114,7 @@ export interface Typegen0 {
     hasAvailable: "ADD";
     hasNoValues: "";
     hasValues: "" | "REMOVE";
+    isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
     isExistingDomain: "CHOOSE";

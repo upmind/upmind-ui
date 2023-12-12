@@ -73,6 +73,10 @@ export default createMachine(
           {
             target: "existing",
             cond: ({ type, sync }) => !sync && type === "existing"
+          },
+          {
+            target: "basket",
+            cond: ({ type, sync }) => !sync && type === "basket"
           }
         ]
       },
@@ -364,6 +368,11 @@ export default createMachine(
           target: "existing",
           actions: ["setType"],
           cond: "isExistingDomain"
+        },
+        {
+          target: "basket",
+          actions: ["setType"],
+          cond: "isBasket"
         }
       ],
 
@@ -523,7 +532,9 @@ export default createMachine(
         data === "existing",
 
       isDomainRegister: (_context, { data }: { data: string }) =>
-        data === "register"
+        data === "register",
+
+      isBasket: (_context, { data }: { data: string }) => data === "basket"
     },
 
     delays: {
