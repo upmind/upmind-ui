@@ -18,7 +18,8 @@
     >
       <span class="text-lg text-center">
         <span class="block">Updating the basket</span>
-        <progress class="progress progress-primary"></progress>
+        <!-- <progress class="progress progress-primary"></progress> -->
+        <span class="loading loading-dots"></span>
       </span>
     </li>
 
