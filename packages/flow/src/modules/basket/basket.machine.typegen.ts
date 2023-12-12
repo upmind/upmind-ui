@@ -93,6 +93,7 @@ export interface Typegen0 {
     "xstate.after(error)#basketManager.shopping.items.processing.error": {
       type: "xstate.after(error)#basketManager.shopping.items.processing.error";
     };
+    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -176,6 +177,14 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {
     error: "error.platform.basketManager.shopping.items.processing.currency:invocation[0]";
+    wait:
+      | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.removing:invocation[0]"
+      | "done.invoke.updating:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "error.platform.removing:invocation[0]"
+      | "xstate.after(error)#basketManager.shopping.items.processing.error";
   };
   eventsCausingGuards: {
     allConfigured: "";
@@ -224,6 +233,7 @@ export interface Typegen0 {
     | "shopping.items.configured"
     | "shopping.items.configuring"
     | "shopping.items.empty"
+    | "shopping.items.processed"
     | "shopping.items.processing"
     | "shopping.items.processing.currency"
     | "shopping.items.processing.error"
@@ -249,6 +259,7 @@ export interface Typegen0 {
                 | "configured"
                 | "configuring"
                 | "empty"
+                | "processed"
                 | "processing"
                 | {
                     processing?:

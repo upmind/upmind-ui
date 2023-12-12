@@ -124,10 +124,15 @@ export default createMachine(
         },
         on: {
           ADD: {
+            target: "#register.valid",
             actions: ["add"],
             cond: "hasAvailable"
           },
-
+          REMOVE: {
+            target: "#register.available",
+            actions: ["remove"],
+            cond: "hasValues"
+          },
           SEARCH: {
             target: ".processing",
             actions: ["setSearch"],
@@ -191,8 +196,14 @@ export default createMachine(
         },
         on: {
           ADD: {
+            target: "#transfer.valid",
             actions: ["add"],
             cond: "hasAvailable"
+          },
+          REMOVE: {
+            target: "#transfer.available",
+            actions: ["remove"],
+            cond: "hasValues"
           },
           SEARCH: {
             target: ".processing",
@@ -261,18 +272,22 @@ export default createMachine(
         on: {
           ADD: [
             {
-              target: ".processing",
+              target: "#existing.valid",
               actions: ["addExisting"],
               cond: "isValidDomain"
             },
-
             {
-              target: ".error",
+              target: "#existing.error",
               meta: {
                 message: "Invalid domain name"
               }
             }
           ],
+          REMOVE: {
+            target: "#existing.available",
+            actions: ["remove"],
+            cond: "hasValues"
+          },
           SYNC: { target: "#existing.syncing" },
           REFRESH: { target: "#existing.available" }
         }
@@ -288,10 +303,6 @@ export default createMachine(
       }
     },
     on: {
-      REMOVE: {
-        actions: ["remove"],
-        cond: "hasValues"
-      },
       CHOOSE: [
         {
           target: "error",

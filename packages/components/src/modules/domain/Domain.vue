@@ -25,13 +25,13 @@
         <ul
           v-if="meta.isLoading"
           role="list"
-          class="menu rounded-box border border-base-300 bg-primary-content text-primary w-full my-12"
+          class="relative rounded-box min-h-[10rem] bg-base-100 base-content border border-base-300 divide-lm-contrast/10 dark:divide-dm-contrast/10 divide-y mt-12 w-full p-0 m-0 overflow-hidden"
         >
           <li
-            class="min-h-[10rem] place-content-center mt-0 p-4 sm:flex sm:flex-wrap sm:pl-6 z-10"
+            class="absolute top-0 left-0 w-full h-full bg-primary-content text-primary place-content-center gap-x-4 gap-y-1 mt-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6 z-10"
           >
             <span class="text-lg text-center">
-              <span class="block">Updating the basket</span>
+              <span class="block">Loading the basket</span>
               <progress class="progress progress-primary"></progress>
             </span>
           </li>

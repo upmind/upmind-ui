@@ -66,6 +66,11 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       };
     };
 
+    const itemMapper = item => ({
+      product_id: item.product_id,
+      sld: item?.sld || item?.provision_fields?.sld
+    });
+
     const basketItemBuilder = item => {
       return {
         product_id: item.product_id,
@@ -79,17 +84,25 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       };
     };
 
-    const conditionsBuilder = item => ({
+    const basketItemMapper = item => ({
       product_id: item.product_id,
-      "provision_fields.sld": item.sld
+      "provision_fields.sld": item?.sld || item?.provision_fields?.sld
     });
 
     useBasketHelper(
       service,
-      ["register.valid", "transfer.valid"],
+      [
+        "register.valid",
+        "transfer.valid",
+        "register.available",
+        "transfer.available"
+      ],
       "values",
-      conditionsBuilder,
+      // ---
+      basketItemMapper,
       basketItemBuilder,
+      // ---
+      itemMapper,
       itemBuilder
     );
   }

@@ -58,25 +58,38 @@ export interface Typegen0 {
   eventsCausingActions: {
     add: "ADD";
     addExisting: "ADD";
-    cancelController: "" | "ADD" | "CHOOSE" | "REFRESH" | "SEARCH" | "SYNC";
-    clearAvailable:
+    cancelController:
       | ""
+      | "ADD"
       | "CHOOSE"
       | "REFRESH"
+      | "REMOVE"
+      | "SEARCH"
+      | "SYNC";
+    clearAvailable:
+      | ""
+      | "ADD"
+      | "CHOOSE"
+      | "REFRESH"
+      | "REMOVE"
       | "SYNC"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     clearError:
       | ""
+      | "ADD"
       | "CHOOSE"
       | "REFRESH"
+      | "REMOVE"
       | "SYNC"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     newController:
       | ""
+      | "ADD"
       | "CHOOSE"
       | "REFRESH"
+      | "REMOVE"
       | "SYNC"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
@@ -95,7 +108,7 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {
     error: "CHOOSE";
-    wait: "ADD" | "SEARCH";
+    wait: "SEARCH";
   };
   eventsCausingGuards: {
     hasAvailable: "ADD";
@@ -114,7 +127,7 @@ export interface Typegen0 {
     isValidSearch: "SEARCH";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "CHOOSE" | "REFRESH" | "SYNC";
+    getClientDomains: "" | "ADD" | "CHOOSE" | "REFRESH" | "REMOVE" | "SYNC";
     search:
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
