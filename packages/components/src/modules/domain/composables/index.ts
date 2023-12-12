@@ -76,6 +76,7 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
     // ---
     meta: computed(() => ({
       isLoading: state.value.matches("loading"),
+
       isProcessing: [
         "register.processing",
         "transfer.processing",
@@ -107,11 +108,18 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
       showRegister: state.value.matches("register"),
       showTransfer: state.value.matches("transfer"),
       showExisting: state.value.matches("existing"),
-      showContinue: ["register.valid", "transfer.valid", "existing.valid"].some(
-        state.value.matches
-      ),
+      showBasket: state.value.matches("basket"),
+      showContinue:
+        [
+          "register.valid",
+          "transfer.valid",
+          "existing.valid",
+          "basket.valid"
+        ].some(state.value.matches) &&
+        some(state.value.context?.values, "is_primary"),
 
       // ---
+      hasValues: !!state.value.context?.values?.length,
       hasPrimary: some(state.value.context?.values, "is_primary"),
       hasAdditional: state.value.context?.values?.length > 1,
       hasMore:

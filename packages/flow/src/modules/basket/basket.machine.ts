@@ -490,7 +490,6 @@ export default createMachine(
         queue: ({ items, queue }, { data }) => {
           // bail if we dont have an itemId
           if (!data?.itemId) {
-            debugger;
             console.warn("queueItem", "no itemId", data);
             return queue;
           }

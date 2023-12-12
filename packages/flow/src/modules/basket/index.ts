@@ -127,10 +127,7 @@ export const useBasketHelper = (
       if (!exists(items, mapping)) {
         // add the basket item to the list of dangling items, if it is not already there
         // this will then be processed when the basket is ready
-        debugger;
         if (!get(processingItems, basketItem.id)) {
-          debugger;
-
           // let the actor know we are syncing so we dont do anyhting else
           actor.send({ type: "SYNC" });
 
@@ -179,11 +176,9 @@ export const useBasketHelper = (
     });
 
     // finally cleanup and refresh any items that have been updated
+    // once the basket has been processed
     if (newState.matches("shopping.items.processed")) {
-      debugger;
       forEach(processingItems, (basketItem, id) => {
-        debugger;
-        // now wait for basket item to be ready, before we send the update message to the basket
         actor.send({ type: "REFRESH" });
         unset(processingItems, id);
       });

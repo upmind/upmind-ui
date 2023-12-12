@@ -133,6 +133,9 @@ export interface Typegen0 {
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
   };
   matchesStates:
+    | "basket"
+    | "basket.loading"
+    | "basket.valid"
     | "complete"
     | "error"
     | "existing"
@@ -165,6 +168,7 @@ export interface Typegen0 {
     | "transfer.syncing"
     | "transfer.valid"
     | {
+        basket?: "loading" | "valid";
         existing?:
           | "available"
           | "error"

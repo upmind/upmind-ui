@@ -304,7 +304,6 @@ async function updateItem({ basket, items, queue }, { data }: any) {
 
   return new Promise((resolve, reject) => {
     if (error) {
-      debugger;
       reject(error);
     } else {
       resolve(response);
@@ -374,7 +373,6 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
 
   return new Promise((resolve, reject) => {
     if (error) {
-      debugger;
       reject(error);
     } else {
       resolve(response);
