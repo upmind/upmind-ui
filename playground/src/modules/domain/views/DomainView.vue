@@ -66,10 +66,14 @@
               </template>
             </div>
 
-            <button class="btn btn btn-primary" :disabled="!meta.showContinue">
+            <router-link
+              v-if="meta.showContinue"
+              to="/basket"
+              class="btn btn-primary"
+            >
               Continue to checkout
               <chevron-right-icon class="h-6 w-6" />
-            </button>
+            </router-link>
           </div>
         </template>
       </upm-domain>
