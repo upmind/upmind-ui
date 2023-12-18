@@ -1,5 +1,5 @@
 <template>
-  <div class="item">
+  <div class="item flex relative items-start p-4">
     <div class="avatar placeholder">
       <div
         class="bg-neutral text-neutral-content rounded-full w-12 h-12 self-start mt-6"
@@ -9,29 +9,14 @@
       </div>
     </div>
 
-    <div class="divider divider-vertical"></div>
-
-    <div class="details">
-      <h3>
+    <div class="details flex-1 ml-6 my-4">
+      <h3 class="m-0 text-inherit">
         <slot name="heading"></slot>
       </h3>
-      <h4 class="green">
+      <p>
         <slot name="subheading"></slot>
-      </h4>
+      </p>
       <slot></slot>
     </div>
   </div>
 </template>
-
-<style scoped>
-.item {
-  margin-top: 2rem;
-  display: flex;
-  position: relative;
-}
-
-.details {
-  flex: 1;
-  margin-left: 1rem;
-}
-</style>

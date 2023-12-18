@@ -59,7 +59,7 @@
       </h5>
     </header>
 
-    <form class="card-body" v-if="!meta.isLoading">
+    <form class="card-body" v-if="!meta.isLoading" :data-theme="activeTheme">
       <config-terms
         v-if="!isNil(model?.term?.billing_cycle_months)"
         :processing="meta.isLoading || processing || meta.isCalculating"
@@ -159,7 +159,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance } from "vue";
+import { defineComponent, getCurrentInstance, inject } from "vue";
 import { useProductConfig } from "..";
 import { UpmDebug } from "@upmind/components";
 import ConfigTerms from "../components/Terms.vue";
@@ -179,6 +179,7 @@ export default defineComponent({
     UpmDebug,
     XMarkIcon
   },
+  inject: ["activeTheme"],
   emits: [
     "remove",
     "update:term",

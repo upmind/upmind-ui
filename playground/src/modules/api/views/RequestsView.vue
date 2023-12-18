@@ -23,7 +23,10 @@
       </div>
     </header>
 
-    <div class="grid grid-cols-1 gap-4 my-8">
+    <div
+      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
+      :data-theme="activeTheme"
+    >
       <upm-request
         v-for="(request, hash) in requests"
         :key="hash"
@@ -43,11 +46,14 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from "vue";
 import { delay, forEach } from "lodash-es";
 import UpmRequest from "../components/Request.vue";
 import { UpmDebug } from "@upmind/components";
 import { useApi } from "..";
 const { state, errors, count, meta, requests, get, useTime } = useApi();
+
+const activeTheme = inject("activeTheme");
 
 const dummyRequests = [
   // --- request 1

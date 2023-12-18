@@ -1,12 +1,12 @@
 <template>
   <div
-    class="request collapse collapse-plus border border-base-300"
+    class="request collapse collapse-plus border border-opacity-50 border-neutral-300 rounded-box mb-2"
     :class="{ error: request.hasErrors, warning: request.hasNoContent }"
   >
     <input type="checkbox" name="request" />
 
     <div class="collapse-title">
-      <h4 class="m-0">{{ request.id }}</h4>
+      <h4 class="m-0 text-inherit">{{ request.id }}</h4>
 
       <div class="flex items-center gap-2 mt-2">
         <button
@@ -49,7 +49,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, ref, onMounted } from "vue";
-import { get, isArray, isString } from "lodash-es";
+import { get, isString } from "lodash-es";
 
 function calculateRelativeTime(
   timestamp: EpochTimeStamp,
