@@ -327,9 +327,9 @@ export default createMachine(
           }
         },
         on: {
-          REMOVE: {
+          SELECT: {
             target: "#idle",
-            actions: ["remove"],
+            actions: ["setPrimary"],
             cond: "hasValues"
           }
         }
@@ -481,6 +481,17 @@ export default createMachine(
       clearAvailable: assign({
         available: (_context, { data }) => {
           return [];
+        }
+      }),
+
+      setPrimary: assign({
+        values: ({ values }, { data }) => {
+          const primary = find(values, ["domain", data]);
+
+          return map(values, value => {
+            value.is_primary = value === primary;
+            return value;
+          });
         }
       }),
 
