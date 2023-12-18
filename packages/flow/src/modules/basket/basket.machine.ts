@@ -1,7 +1,6 @@
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import services from "./services";
@@ -25,6 +24,7 @@ import {
   get,
   isEmpty,
   remove,
+  reject,
   some,
   trimStart,
   uniqueId
@@ -33,10 +33,18 @@ import {
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
 function spawnConfiguration(values, currency_id, promotions = []) {
-  return spawn(configurationMachine(values, currency_id, promotions), {
-    name: values?.id || uniqueId("basket_item_"),
-    sync: true
-  });
+  try {
+    return spawn(configurationMachine(values, currency_id, promotions), {
+      name: values?.id || uniqueId("basket_item_"),
+      sync: true
+    });
+  } catch (err) {
+    console.error("Basket", "spawnConfiguration", {
+      values,
+      currency_id,
+      promotions
+    });
+  }
 }
 
 // --------------------------------------------------------
@@ -53,6 +61,7 @@ export default createMachine(
       // ---
       items: [],
       bin: [],
+      queue: [],
       // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
@@ -144,11 +153,11 @@ export default createMachine(
                     invoke: {
                       src: "update",
                       onDone: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket"]
                       },
                       onError: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket", "setError"]
                       }
                     }
@@ -158,7 +167,7 @@ export default createMachine(
                     invoke: {
                       src: "setCurrency",
                       onDone: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket"]
                       },
                       onError: { target: "error", actions: ["setError"] }
@@ -169,17 +178,14 @@ export default createMachine(
                     id: "updating",
                     invoke: {
                       src: "updateItem",
-                      onDone: [
-                        {
-                          target: "queue",
-                          actions: ["refreshItems", "updateBasket"],
-                          cond: (_context, { data }) => !!data?.queue
-                        },
-                        {
-                          target: "#configuring",
-                          actions: ["refreshItems", "updateBasket"]
-                        }
-                      ],
+                      onDone: {
+                        target: "#processed",
+                        actions: [
+                          "removeFromQueue",
+                          "refreshItems",
+                          "updateBasket"
+                        ]
+                      },
                       onError: {
                         target: "#configuring",
                         actions: ["refreshItems", "updateBasket", "setError"]
@@ -191,38 +197,29 @@ export default createMachine(
                     id: "removing",
                     invoke: {
                       src: "removeItem",
-                      onDone: [
-                        {
-                          target: "queue",
-                          actions: ["removeItem", "updateBasket"],
-                          cond: (_context, { data }) => !!data?.queue
-                        },
-                        {
-                          target: "#configuring",
-                          actions: ["removeItem", "updateBasket"]
-                        }
-                      ],
+                      onDone: {
+                        target: "#processed",
+                        actions: ["removeItem", "updateBasket"]
+                      },
                       onError: {
-                        target: "#configuring",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket", "setError"]
                       }
                     }
                   },
 
-                  queue: {
-                    always: [
-                      { target: "updating", cond: "hasNewItems" },
-                      { target: "updating", cond: "hasDirtyItems" },
-                      { target: "removing", cond: "hasBinnedItems" },
-                      { target: "#configuring" }
-                    ]
-                  },
-
                   error: {
                     after: {
-                      error: "#configuring"
+                      error: "#processed"
                     }
                   }
+                }
+              },
+
+              processed: {
+                id: "processed",
+                after: {
+                  wait: "#configuring"
                 }
               },
 
@@ -251,10 +248,15 @@ export default createMachine(
               },
               UPDATE: [
                 {
-                  target: ["items.processing.updating"],
-                  cond: (_context, { data }) => !!data?.itemId
-                },
-                { target: ["items.processing"] } // queue process ALL items
+                  target: "items.processing.everything",
+                  actions: ["clearQueue"],
+                  cond: "hasNoItem"
+                }, // update everything
+                {
+                  target: "items.processing.updating",
+                  actions: ["queueItem"],
+                  cond: "isNotQueued"
+                }
               ],
               "UPDATE.CURRENCY": {
                 target: "items.processing.currency"
@@ -484,6 +486,27 @@ export default createMachine(
       //   }
       // }),
 
+      queueItem: assign({
+        queue: ({ items, queue }, { data }) => {
+          // bail if we dont have an itemId
+          if (!data?.itemId) {
+            console.warn("queueItem", "no itemId", data);
+            return queue;
+          }
+          // ---
+          const itemId = data.itemId;
+          const found = find(items, ["id", itemId]);
+          if (found) queue.push(found); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          return queue;
+        },
+        error: null
+      }),
+
+      removeFromQueue: assign({
+        queue: ({ queue }, { data }) => reject(queue, ["id", data.id]),
+        error: null
+      }),
+
       binItem: assign({
         bin: ({ items, bin }, { data }) => {
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
@@ -494,11 +517,18 @@ export default createMachine(
         error: null
       }),
 
+      clearQueue: assign({
+        bin: [],
+        queue: []
+      }),
+
       removeAllItems: assign({
         items: ({ items, bin }, _event) => {
-          forEach(items, item => item.stop());
+          forEach(items, item => !item?.state?.done && item?.stop());
           return [];
         },
+        bin: [],
+        queue: [],
         error: null
       }),
 
@@ -507,16 +537,23 @@ export default createMachine(
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(items, ["id", itemId]);
-          if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return items;
         },
         bin: ({ bin }, { data }, _event) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(bin, ["id", itemId]);
-          if (removed) removed.forEach(item => item.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
         },
+        queue: ({ queue }, { data }, _event) => {
+          // me may be given a name, but if not we can determine it from the event type
+          const itemId = data?.itemId;
+          remove(queue, ["id", itemId]);
+          return queue;
+        },
+
         error: null
       }),
 
@@ -545,7 +582,7 @@ export default createMachine(
               // we need to replace it with a new machine and stop the old one
               // NB: its safe to assume that the items array is in the same order as the newItems
               // so we can use the index to match the items
-              if (item) item.stop(); // ensure the machine is stopped
+              if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
               const currentIndex = findIndex(items, ["id", itemId]);
               const newProduct = find(data?.basket?.products, ["id", newId]);
               if (newProduct) {
@@ -594,7 +631,6 @@ export default createMachine(
           //   "id"
           // );
           // forEach(dangling, (item, index) => {
-          //   debugger;
           //   const product = item.state.context.config;
           //   item.send({
           //     type: "REFRESH",
@@ -605,6 +641,8 @@ export default createMachine(
           // ---
           return items;
         },
+        bin: [],
+        queue: [],
         error: null
       }),
 
@@ -626,18 +664,14 @@ export default createMachine(
             forEach(items.concat(newItems), item => {
               const found = find(context.items, ["id", item.id]);
               if (found) {
-                waitFor(found, state =>
-                  ["configured", "error"].some(state.matches)
-                ).then(() => {
-                  found.send({ type: "ERROR", data: { error: data.error } });
-                });
+                found.send({ type: "ERROR", data: { error: data.error } });
               }
             });
 
-            if (error.code == 422) {
+            if (error?.code == 422) {
               error.message = "Validation error";
             }
-          } else if (error.code == 422) {
+          } else if (error?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(error);
@@ -681,6 +715,11 @@ export default createMachine(
         ),
 
       // --- Item Guards
+      isNotQueued: ({ queue }, { data }) => {
+        return !!data?.itemId && !some(queue, ["id", data.itemId]);
+      },
+
+      hasNoItem: ({ items }, { data }) => isEmpty(data) || !data?.itemId,
 
       hasItems: ({ items }) => !isEmpty(items),
 

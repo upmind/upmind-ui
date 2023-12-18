@@ -15,7 +15,7 @@ import sessionMachine from "./session.machine";
 
 let state = null;
 
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
+const service = interpret(sessionMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
@@ -88,7 +88,7 @@ export const useSession = () => {
         if (authenticated) {
           return resolve(true);
         } else {
-          return reject();
+          return reject(false);
         }
       });
     }

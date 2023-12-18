@@ -107,6 +107,14 @@
         name="results"
         v-bind="{ results, meta, update: updateModel, value: model, multiple }"
       >
+        <upm-dac-results
+          :model-value="model"
+          :multiple="multiple"
+          :results="results"
+          :processing="meta.isProcessing"
+          :open="meta.isActive"
+          @change="updateModel"
+        />
       </slot>
 
       <template v-if="meta.hasMore">
@@ -128,33 +136,26 @@ import { defineComponent, ref } from "vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 import { BackspaceIcon } from "@heroicons/vue/24/outline";
 import { onClickOutside, useFocusWithin } from "@vueuse/core";
-
 // --- internal
+import UpmDacResults from "./components/Results.vue";
 import { useDac } from "./composables";
 
 // --- utils
-import {
-  first,
-  filter,
-  includes,
-  without,
-  some,
-  compact,
-  uniq
-} from "lodash-es";
+import { includes, without, compact } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmDac",
   components: {
+    UpmDacResults,
     MagnifyingGlassIcon,
     BackspaceIcon
   },
   emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
-    coupons: {
-      type: Array,
+    promotions: {
+      type: Array<String>,
       default: () => []
     },
     currencyCode: {
@@ -206,7 +207,22 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const dac = useDac(props);
+    const {
+      promotions,
+      currencyCode,
+      limit,
+      orderConfigUrl,
+      modelValue,
+      multiple
+    } = props;
+    const dac = useDac({
+      promotions,
+      currencyCode,
+      limit,
+      orderConfigUrl,
+      modelValue,
+      multiple
+    });
 
     // --- DOM observers
     const input = ref<InstanceType<typeof HTMLInputElement>>();
@@ -269,7 +285,7 @@ export default defineComponent({
       this.$emit("blur", event);
     },
 
-    removeValue(value: string) {
+    removeValue(value?: string) {
       this.model = this.multiple ? without(this.model, value) : "";
     }
   },
