@@ -7,7 +7,7 @@
     </header>
 
     <div :data-theme="activeTheme">
-      <upm-domain sync-basket :debugging="debugging">
+      <upm-domain sync-basket :debugging="debugging" :parent="parent">
         <template #actions="{ meta, primaryDomain, values }">
           <div
             class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12 border min-h-[5rem]"
@@ -78,4 +78,5 @@ import {
 
 const debugging = ref(true);
 const activeTheme = inject("activeTheme");
+const parent = "d0367942-4d0e-7102-7e2a-3153698d582e";
 </script>

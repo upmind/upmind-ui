@@ -179,11 +179,14 @@ export default defineComponent({
     debugging: {
       type: Boolean,
       default: false
+    },
+    parent: {
+      type: String
     }
   },
 
   setup(props) {
-    return useDomain(props.syncBasket, props.type);
+    return useDomain(props.syncBasket, props.type, props.parent);
   }
 });
 </script>

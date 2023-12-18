@@ -3,7 +3,7 @@
   <ul
     tabindex="1"
     role="list"
-    class="menu rounded-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full min-h-[13em] max-h-[13em] overflow-y-auto m-0"
+    class="menu rounded-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full max-h-[13em] overflow-y-auto m-0"
     v-if="domains.length || processing"
   >
     <li class="place-self-center" v-if="processing">
