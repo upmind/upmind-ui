@@ -10,6 +10,7 @@ export interface BasketContext {
   basket: Basket | null;
   items: Array;
   bin: Array;
+  queue: Array;
   error?: RequestError;
 }
 

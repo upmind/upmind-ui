@@ -24,14 +24,14 @@ import {
 // ----------------------------------------------------------------------------
 
 export function useDac({
-  coupons = [],
+  promotions = [],
   currencyCode,
   limit = 10,
   orderConfigUrl = "",
   modelValue = "",
   multiple = false
 }: {
-  coupons?: string[];
+  promotions?: string[];
   currencyCode?: string;
   limit: number;
   orderConfigUrl: string;
@@ -183,7 +183,7 @@ export function useDac({
         offset: offset?.toString(),
         currency_code: currencyCode,
         // tld,
-        promotions: coupons?.join()
+        promotions: promotions?.join()
       },
       isEmpty
     );
@@ -195,7 +195,6 @@ export function useDac({
     })
       .then(response => {
         // --- Update response total
-        if (!response?.total) debugger;
 
         resultsTotal.value = response?.total || 0;
 

@@ -26,7 +26,7 @@ import { defineComponent } from "vue";
 import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
-  name: "UpmDacResultsDropdown",
+  name: "UpmDomainResultsDropdown",
   components: { InformationCircleIcon }
 });
 </script>

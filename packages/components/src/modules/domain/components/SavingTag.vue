@@ -12,7 +12,7 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "UpmDacResultsDropdown",
+  name: "UpmDomainResultsDropdown",
   props: {
     percentage: {
       type: Number,
