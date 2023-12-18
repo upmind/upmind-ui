@@ -14,21 +14,26 @@
 
     <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <upm-form-generator
-      :schema="schema"
-      :uischema="uischema"
-      @reject="doReject"
-      @resolve="doResolve"
-      debugging
-    />
+    <div :data-theme="activeTheme" class="bg-base-200 rounded-box p-4">
+      <upm-form-generator
+        :schema="schema"
+        :uischema="uischema"
+        @reject="doReject"
+        @resolve="doResolve"
+        debugging
+      />
+    </div>
 
     <footer></footer>
   </section>
 </template>
 
 <script setup lang="ts">
+import { inject } from "vue";
 import { useDate } from "../";
 import { UpmFormGenerator } from "@upmind/components";
+
+const activeTheme = inject("activeTheme");
 
 const schema = {
   required: ["name", "rating", "dueDate", "domain"],

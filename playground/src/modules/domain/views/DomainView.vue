@@ -3,23 +3,7 @@
     <header class="navbar absolute left-0 right-0 top-0 z-10 pl-4 rounded-xl">
       <div class="flex-1"></div>
 
-      <div class="actions flex-none join">
-        <select
-          class="select select-bordered w-24 md:w-auto join-item"
-          v-model="activeTheme"
-          placeholder="Select Theme"
-        >
-          <option
-            v-for="(item, index) in themes"
-            :key="`item-${index}`"
-            :value="item"
-            :label="capitalize(item)"
-          ></option>
-        </select>
-        <span role="button" class="btn btn-square join-item">
-          <swatch-icon class="h-6 w-6" />
-        </span>
-      </div>
+      <div class="actions flex-none join"></div>
     </header>
 
     <div :data-theme="activeTheme">
@@ -82,20 +66,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 import { UpmDomain } from "@upmind/components";
 
 import {
-  SwatchIcon,
   CheckCircleIcon,
   ChevronRightIcon,
   ExclamationTriangleIcon
 } from "@heroicons/vue/24/outline";
 
-import { capitalize } from "lodash-es";
-
 const debugging = ref(true);
-const activeTheme = ref("default");
-const themes = import.meta.env.VITE_THEMES.split(",");
+const activeTheme = inject("activeTheme");
 </script>

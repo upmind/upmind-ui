@@ -94,7 +94,11 @@
       </div>
     </header>
 
-    <div class="content" v-if="!meta.isLoading">
+    <div
+      class="content px-4 rounded-box my-4"
+      v-if="!meta.isLoading"
+      :data-theme="activeTheme"
+    >
       <!-- <ul class="steps">
         <li class="step step-primary" data-content="?">Configure</li>
         <li class="step" data-content="★">Auth</li>
@@ -244,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ConfigProduct from "@/modules/product/views/Product.vue";
@@ -255,6 +259,8 @@ import {
   ShieldExclamationIcon,
   XMarkIcon
 } from "@heroicons/vue/24/outline";
+
+const activeTheme = inject("activeTheme");
 
 const {
   state,

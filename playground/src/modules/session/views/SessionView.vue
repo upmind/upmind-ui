@@ -59,6 +59,7 @@
     <div
       class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 shadow-sm overflow-hidden my-8 w-96 max-w-full"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
+      :data-theme="activeTheme"
     >
       <div
         role="alert"
@@ -125,10 +126,13 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from "vue";
 import { useSession } from "../";
 import { UpmDebug } from "@upmind/components";
 import { UpmFormGenerator } from "@upmind/components";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+
+const activeTheme = inject("activeTheme");
 
 const {
   state,

@@ -8,43 +8,7 @@
       </div>
 
       <div class="actions flex-none join">
-        <slot name="actions">
-          <select
-            class="select select-primary select-bordered w-24 md:w-auto join-item"
-            v-model="activeTheme"
-            placeholder="Select Theme"
-          >
-            <option
-              v-for="(item, index) in themes"
-              :key="`item-${index}`"
-              :value="item"
-              :label="capitalize(item)"
-            ></option>
-          </select>
-          <span role="button" class="btn btn-square btn-primary join-item">
-            <swatch-icon class="h-6 w-6" />
-          </span>
-
-          <!-- <div class="dropdown dropdown-end">
-            <button tabindex="0" role="button" class="btn btn-primary">
-              Select Theme
-            </button>
-            <ul
-              class="dropdown-content menu w-56 items-end bg-base-100 flex-col flex-nowrap rounded-box z-10 shadow-sm min-h-[13em] max-h-[13em] overflow-y-auto"
-            >
-              <li v-for="theme in themes" :key="theme" class="w-full">
-                <input
-                  type="radio"
-                  name="theme-dropdown"
-                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-                  :aria-label="theme"
-                  :value="theme"
-                  v-model="activeTheme"
-                />
-              </li>
-            </ul>
-          </div> -->
-        </slot>
+        <slot name="actions"> </slot>
       </div>
     </header>
 
@@ -80,16 +44,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { inject, ref } from "vue";
 import { UpmDac, UpmDebug } from "@upmind/components";
-import { capitalize } from "lodash-es";
-import { SwatchIcon } from "@heroicons/vue/24/outline";
 
 const multiple = ref(true);
 
 // const model = ref(["pewpew.com", "pewpew.net"]);
 // const model = multiple.value ? ref(["pewpew.com", "pewpew.net"]) : "pewpew.com";
 const model = ref(multiple.value ? [] : "");
-const activeTheme = ref("default");
-const themes = import.meta.env.VITE_THEMES.split(",");
+const activeTheme = inject("activeTheme");
 </script>
