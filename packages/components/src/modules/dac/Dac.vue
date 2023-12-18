@@ -18,7 +18,10 @@
         <div
           v-if="model?.length"
           class="absolute left-0 w-full flex place-items-center group-focus-within/dac:hidden"
-          :class="[compact ? 'gap-1' : 'gap-2', multiple ? 'mx-2' : '']"
+          :class="[
+            compact ? 'gap-1' : 'gap-2',
+            multiple && compact ? 'mx-2' : ''
+          ]"
         >
           <template v-if="multiple">
             <button
