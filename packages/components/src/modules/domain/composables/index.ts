@@ -58,6 +58,13 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
       data: value
     });
   };
+
+  const setPrimaryDomain = (value: string) => {
+    send({
+      type: "SELECT",
+      data: value
+    });
+  };
   // --------------------------------------------------------
 
   return {
@@ -117,7 +124,6 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
           "basket.valid"
         ].some(state.value.matches) &&
         some(state.value.context?.values, "is_primary"),
-
       // ---
       hasValues: !!state.value.context?.values?.length,
       hasPrimary: some(state.value.context?.values, "is_primary"),
@@ -132,6 +138,7 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
     add,
     remove,
     toggle,
+    setPrimaryDomain,
     isSelected: (value: string) => state.value.matches(value)
   };
 };

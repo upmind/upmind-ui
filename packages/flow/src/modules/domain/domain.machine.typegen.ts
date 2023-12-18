@@ -102,6 +102,7 @@ export interface Typegen0 {
       | "error.platform.domainManager.existing.loading:invocation[0]"
       | "error.platform.domainManager.register.processing.searching:invocation[0]"
       | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
+    setPrimary: "SELECT";
     setSearch: "SEARCH";
     setType: "CHOOSE";
     sync: "SYNC";
@@ -113,7 +114,7 @@ export interface Typegen0 {
   eventsCausingGuards: {
     hasAvailable: "ADD";
     hasNoValues: "";
-    hasValues: "" | "REMOVE";
+    hasValues: "" | "REMOVE" | "SELECT";
     isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";

@@ -93,6 +93,14 @@
             :syncing="meta.isSyncing"
             @change="({ currentTarget: { value } }) => toggle(value)"
           />
+
+          <upm-domain-select
+            v-if="meta.showBasket"
+            :model-value="primaryDomain?.domain"
+            :domains="values"
+            :processing="meta.isProcessing"
+            @change="({ currentTarget: { value } }) => setPrimaryDomain(value)"
+          />
         </div>
 
         <slot
@@ -126,6 +134,7 @@ import { useDomain } from "./composables";
 import UpmDomainAvailable from "./components/Available.vue";
 import UpmDomainInput from "./components/Input.vue";
 import UpmDomainChoices from "./components/Choices.vue";
+import UpmDomainSelect from "./components/Select.vue";
 import UpmDebug from "../debug/Debug.vue";
 
 // --- utils
@@ -139,6 +148,7 @@ export default defineComponent({
     UpmDomainAvailable,
     UpmDomainInput,
     UpmDomainChoices,
+    UpmDomainSelect,
     UpmDebug
   },
   props: {
