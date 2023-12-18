@@ -19,7 +19,7 @@ import {
   useValidationParser
 } from "./utils";
 
-import { get, set, map, toNumber, find } from "lodash-es";
+import { get, set, map, toNumber, find, merge, isEqual } from "lodash-es";
 
 import { useBrand } from "../brand";
 
@@ -74,11 +74,17 @@ export default (values, currency_id, promotions) => {
           invoke: {
             id: "load",
             src: "getProduct",
-            onDone: [{ target: "configuring", actions: ["setAvailable"] }],
+            onDone: [{ target: "processed", actions: ["setAvailable"] }],
             onError: {
               target: "#error",
               actions: ["setError", "escalateError"]
             }
+          }
+        },
+
+        processed: {
+          after: {
+            wait: "configuring"
           }
         },
 
@@ -229,7 +235,18 @@ export default (values, currency_id, promotions) => {
             REFRESH: {
               target: "loading",
               actions: ["setValues", "setClean"]
-            }
+            },
+            UPDATE: {
+              target: "processed",
+              actions: ["setValues", "setDirty", "setCalculating"]
+            },
+            PUT: [
+              {
+                target: "processed",
+                actions: ["mergeValues", "setDirty", "setCalculating"],
+                cond: "hasChanged"
+              }
+            ]
           },
           onDone: [
             { target: "calculating", cond: "needsRecalculating" },
@@ -257,6 +274,18 @@ export default (values, currency_id, promotions) => {
               actions: ["setValues", "setClean"]
             },
             // ---
+            UPDATE: {
+              target: "processed",
+              actions: ["setValues", "setDirty", "setCalculating"]
+            },
+            PUT: [
+              {
+                target: "processed",
+                actions: ["mergeValues", "setDirty", "setCalculating"],
+                cond: "hasChanged"
+              }
+            ],
+
             "UPDATE.QUANTITY": {
               target: "configuring.quantity.checking",
               actions: ["setQuantity", "setDirty", "setCalculating"]
@@ -307,9 +336,18 @@ export default (values, currency_id, promotions) => {
         setValues: assign({
           currency_id: ({ currency_id }, { data }) =>
             data?.currency_id || currency_id,
-          promotions: ({ values }, { data }) => data?.promotions || [],
-          values: ({ values }, { data }) => useValuesParser(data?.product),
-          summary: ({ summary }, { data }) => useSummaryParser(data?.product)
+          promotions: ({ promotions }, { data }) =>
+            data?.promotions || promotions || [],
+          values: (_context, { data }) => useValuesParser(data?.product),
+          summary: (_context, { data }) => useSummaryParser(data?.product)
+        }),
+
+        mergeValues: assign({
+          values: ({ values }, { data }) => {
+            const newValues = merge({}, values, useValuesParser(data));
+            debugger;
+            return newValues;
+          }
         }),
 
         // ---
@@ -437,7 +475,11 @@ export default (values, currency_id, promotions) => {
       },
       services,
       guards: {
-        needsRecalculating: ({ needsCalculating }) => needsCalculating
+        needsRecalculating: ({ needsCalculating }) => needsCalculating,
+        hasChanged: ({ values }, { data }) => {
+          const newValues = merge({}, values, useValuesParser(data));
+          return !isEqual(newValues, values);
+        }
       },
       delays: {
         error: () => useTime().SECOND * 3, // this allows us to read the error before continuing

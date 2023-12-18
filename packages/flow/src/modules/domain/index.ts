@@ -6,16 +6,18 @@ import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types.d";
 
 // --- utils
-import { has } from "lodash-es";
+import { has, find, get, set } from "lodash-es";
 import { useBasketHelper } from "..";
 
 // --------------------------------------------------------
 
-export const useDomain = (sync?: boolean, type?: DomainTypes) => {
+export const useDomain = (
+  sync?: boolean,
+  type?: DomainTypes,
+  parent?: string
+) => {
   // --------------------------------------------------------
   // create a new instance of the domain machine
-  // NB dont automatically start the machine as in order for the inspector to work
-  // it needs to be started after the inspect service is created, so we only start it when we need it
 
   let state = null;
 
@@ -51,6 +53,28 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
   // sync the basket with the domain machine
 
   if (sync) {
+    let parentBuilder = null;
+    let parentMapper = null;
+
+    if (parent) {
+      parentBuilder = items => {
+        const primaryDomain = find(items, "is_primary");
+        const config = {
+          provision_fields: {
+            domain: primaryDomain?.domain
+          }
+        };
+
+        return config;
+      };
+
+      parentMapper = () => ({
+        id: parent
+      });
+    }
+
+    // ---
+
     const itemBuilder = basketItem => {
       return {
         product_id: basketItem.product_id,
@@ -71,6 +95,8 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       sld: item?.sld || item?.provision_fields?.sld
     });
 
+    // ---
+
     const basketItemBuilder = item => {
       return {
         product_id: item.product_id,
@@ -89,13 +115,17 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       "provision_fields.sld": item?.sld || item?.provision_fields?.sld
     });
 
+    // ---
+
     useBasketHelper(
       service,
       [
         "register.valid",
         "transfer.valid",
         "register.available",
-        "transfer.available"
+        "transfer.available",
+        "basket.valid",
+        "basket.available"
       ],
       "values",
       // ---
@@ -103,7 +133,10 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       basketItemBuilder,
       // ---
       itemMapper,
-      itemBuilder
+      itemBuilder,
+      // ---
+      parentMapper,
+      parentBuilder
     );
   }
   // --------------------------------------------------------

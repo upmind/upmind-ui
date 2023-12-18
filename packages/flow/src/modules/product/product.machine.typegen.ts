@@ -64,6 +64,9 @@ export interface Typegen0 {
       data: unknown;
     };
     "xstate.after(error)#error": { type: "xstate.after(error)#error" };
+    "xstate.after(wait)#productConfigurator.processed": {
+      type: "xstate.after(wait)#productConfigurator.processed";
+    };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -95,6 +98,7 @@ export interface Typegen0 {
       | "error.platform.load"
       | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+    mergeValues: "PUT";
     sendConfig:
       | "done.invoke.productConfigurator.calculating:invocation[0]"
       | "done.state.configuring";
@@ -103,7 +107,12 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
-    setCalculating: "UPDATE.OPTIONS" | "UPDATE.QUANTITY" | "UPDATE.TERM";
+    setCalculating:
+      | "PUT"
+      | "UPDATE"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.QUANTITY"
+      | "UPDATE.TERM";
     setClean: "REFRESH";
     setConfig:
       | "UPDATE.TERM"
@@ -117,6 +126,8 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]";
     setDirty:
+      | "PUT"
+      | "UPDATE"
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
@@ -146,15 +157,17 @@ export interface Typegen0 {
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
-    setValues: "REFRESH";
+    setValues: "REFRESH" | "UPDATE";
   };
   eventsCausingDelays: {
     error:
       | "ERROR"
       | "error.platform.load"
       | "error.platform.productConfigurator.calculating:invocation[0]";
+    wait: "PUT" | "UPDATE" | "done.invoke.load";
   };
   eventsCausingGuards: {
+    hasChanged: "PUT";
     needsRecalculating: "done.state.configuring";
   };
   eventsCausingServices: {
@@ -165,40 +178,40 @@ export interface Typegen0 {
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load"
-      | "xstate.after(error)#error";
+      | "xstate.after(error)#error"
+      | "xstate.after(wait)#productConfigurator.processed";
     checkOptions:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load"
-      | "xstate.after(error)#error";
+      | "xstate.after(error)#error"
+      | "xstate.after(wait)#productConfigurator.processed";
     checkProvisioning:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load"
-      | "xstate.after(error)#error";
+      | "xstate.after(error)#error"
+      | "xstate.after(wait)#productConfigurator.processed";
     checkQuantity:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load"
-      | "xstate.after(error)#error";
+      | "xstate.after(error)#error"
+      | "xstate.after(wait)#productConfigurator.processed";
     checkTerm:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load"
-      | "xstate.after(error)#error";
+      | "xstate.after(error)#error"
+      | "xstate.after(wait)#productConfigurator.processed";
     getProduct: "ERROR" | "REFRESH" | "xstate.init";
   };
   matchesStates:
@@ -228,6 +241,7 @@ export interface Typegen0 {
     | "configuring.term.valid"
     | "error"
     | "loading"
+    | "processed"
     | {
         configuring?:
           | "attributes"
