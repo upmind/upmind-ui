@@ -38,7 +38,6 @@ async function generateToken(_context: GuestContext, _event: any) {
 async function refreshToken(context: GuestContext, _event: any) {
   const { post, useUrl } = useApi();
   const refresh_token = get(context, "token.refresh_token", "");
-
   return post({
     url: useUrl("access_token", {}, "oauth"),
     data: {
