@@ -358,7 +358,7 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
     []
   );
 
-  const error = null;
+  let error = null;
   const response = await Promise.all(promises)
     .then(() => ({ basket, items, newItems }))
     .catch(err => {
