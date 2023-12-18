@@ -6,17 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import {
-  forEach,
-  get,
-  set,
-  unset,
-  every,
-  find,
-  some,
-  remove,
-  includes
-} from "lodash-es";
+import { forEach, get, set, unset, every, find, some, remove } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine

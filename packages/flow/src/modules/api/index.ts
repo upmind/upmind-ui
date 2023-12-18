@@ -104,17 +104,28 @@ export const useApi = () => {
 
     if (request) {
       // finally ... await the response
-      return waitFor(request, state => state.matches("processed"))
-        .then(() => get(request, "state.context.response"))
-        .catch(error => {
-          console.error(
-            "api request",
-            "timeout",
-            { hash, url, init, useCache, maxAge },
-            error
-          );
-          throw error;
-        });
+      return new Promise((resolve, reject) => {
+        return waitFor(request, state =>
+          ["processed", "error"].some(state.matches)
+        )
+          .then(() => {
+            if (request.state.matches("processed")) {
+              return resolve(get(request, "state.context.response"));
+            } else {
+              return reject(get(request, "state.context.error"));
+            }
+          })
+          .catch(error => {
+            console.error(
+              "api request",
+              "timeout",
+              { hash, url, init, useCache, maxAge },
+              error
+            );
+            // throw error;
+            return reject(error);
+          });
+      });
     }
 
     // TODO:

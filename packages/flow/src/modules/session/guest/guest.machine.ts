@@ -163,8 +163,9 @@ export default createMachine(
     },
     guards: {
       isRefreshing: context => !!context.refresh,
-      isUnauthorized: (_context, { data }) =>
-        data?.status === responseCodes.Unauthorized
+      isUnauthorized: (_context, { data }) => {
+        return data?.status === responseCodes.Unauthorized;
+      }
     },
 
     delays: {},
