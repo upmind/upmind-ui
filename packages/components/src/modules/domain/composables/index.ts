@@ -97,7 +97,8 @@ export const useDomain = (
       isSyncing: [
         "register.syncing",
         "transfer.syncing",
-        "existing.syncing"
+        "existing.syncing",
+        "basket.syncing"
       ].some(state.value.matches),
 
       isSearching: [

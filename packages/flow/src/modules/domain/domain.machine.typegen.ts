@@ -137,6 +137,7 @@ export interface Typegen0 {
   matchesStates:
     | "basket"
     | "basket.loading"
+    | "basket.syncing"
     | "basket.valid"
     | "complete"
     | "error"
@@ -170,7 +171,7 @@ export interface Typegen0 {
     | "transfer.syncing"
     | "transfer.valid"
     | {
-        basket?: "loading" | "valid";
+        basket?: "loading" | "syncing" | "valid";
         existing?:
           | "available"
           | "error"

@@ -99,6 +99,7 @@
             :model-value="primaryDomain?.domain"
             :domains="values"
             :processing="meta.isProcessing"
+            :syncing="meta.isSyncing"
             @change="({ currentTarget: { value } }) => setPrimaryDomain(value)"
           />
         </div>

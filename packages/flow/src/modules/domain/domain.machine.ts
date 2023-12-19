@@ -318,6 +318,7 @@ export default createMachine(
               }
             ]
           },
+          syncing: {},
           valid: {
             type: "final",
             always: {
@@ -331,7 +332,9 @@ export default createMachine(
             target: "#idle",
             actions: ["setPrimary"],
             cond: "hasValues"
-          }
+          },
+          SYNC: { target: "#basket.syncing" },
+          REFRESH: { target: "#basket.valid" }
         }
       },
 
@@ -391,7 +394,7 @@ export default createMachine(
         values: ({ values }, { data }) =>
           map(data, (item, index) => {
             const domain = parseDomainItem(item);
-            domain.is_primary = !index;
+            // domain.is_primary = !index;
             return domain;
           }),
         sync: false,
