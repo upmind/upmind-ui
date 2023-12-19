@@ -182,7 +182,7 @@ export default defineComponent({
       default: false
     },
     parent: {
-      type: String
+      type: Object
     }
   },
 
