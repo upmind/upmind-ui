@@ -11,7 +11,9 @@ import {
   find,
   forEach,
   get,
+  includes,
   isEmpty,
+  matches,
   pickBy,
   remove,
   set,
@@ -126,7 +128,7 @@ export const useBasketHelper = (
     const items = get(newState, `context.${context}`, []);
     const basketItems = getItemsSnapshot();
 
-    // first, handle items not in the domain machine, ie dangling items
+    //  handle items not in the actor, ie dangling items
     forEach(basketItems, basketItem => {
       if (!basketItem) return;
 
@@ -148,40 +150,41 @@ export const useBasketHelper = (
       }
     });
 
-    // handle items not in/out of date with the basket, ie new/updated items
+    // handle items not in the basket, ie new items
     forEach(items, item => {
       const product = basketItemBuilder(item);
       const mapping = basketItemMapper(item);
 
       const basketItem = findItem(mapping);
 
-      if (!basketItem) {
+      if (!basketItem && !includes(dirtyItems, mapping)) {
         // let the actor know we are syncing so we dont do anyhting else
         actor.send({ type: "SYNC" });
         // add the item to the basket
         service.send({ type: "ADD", data: product });
         dirtyItems.push(mapping);
-      } else {
-        // let the actor know we are syncing so we dont do anyhting else
-        // actor.send({ type: "SYNC" });
-        // update the item to the basket
-        // service.send({ type: "UPDATE", data: { product } });
-        // dirtyItems.push(mapping);
       }
+
+      // else {
+      // let the actor know we are syncing so we dont do anyhting else
+      // actor.send({ type: "SYNC" });
+      // update the item to the basket
+      // service.send({ type: "UPDATE", data: { product } });
+      // dirtyItems.push(mapping);
+      // }
     });
 
-    // handle syncing the parent item
+    // handle syncing the parent item's config with the actor
     if (parentMapper && parentBuilder) {
       const product = parentBuilder(items);
       const mapping = parentMapper();
       const basketItem = findItem(mapping);
-
-      debugger;
-      if (
-        basketItem &&
-        ["configured", "configuring"].some(basketItem.state.matches)
-      ) {
+      const values = get(basketItem, "state.context.values");
+      const isDirty = !isEmpty(product) && !some([values], matches(product));
+      if (isDirty && !includes(dirtyItems, mapping)) {
         debugger;
+        // let the actor know we are syncing so we dont do anyhting else
+        actor.send({ type: "SYNC" });
         // update the basket item  with the new parent values
         basketItem.send({ type: "PUT", data: product });
         dirtyItems.push(mapping);

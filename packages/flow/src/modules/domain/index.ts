@@ -50,31 +50,9 @@ export const useDomain = (
     .start();
 
   // --------------------------------------------------------
-  // sync the basket with the domain machine
+  // sync the basket with the domain machine and any parent machines
 
   if (sync) {
-    let parentBuilder = null;
-    let parentMapper = null;
-
-    if (parent) {
-      parentBuilder = items => {
-        const primaryDomain = find(items, "is_primary");
-        const config = {
-          provision_fields: {
-            domain: primaryDomain?.domain
-          }
-        };
-
-        return config;
-      };
-
-      parentMapper = () => ({
-        id: parent
-      });
-    }
-
-    // ---
-
     const itemBuilder = basketItem => {
       return {
         product_id: basketItem.product_id,
@@ -114,6 +92,28 @@ export const useDomain = (
       product_id: item.product_id,
       "provision_fields.sld": item?.sld || item?.provision_fields?.sld
     });
+
+    // ---
+
+    let parentBuilder = null;
+    let parentMapper = null;
+
+    if (parent) {
+      parentBuilder = items => {
+        const primaryDomain = find(items, "is_primary");
+        const config = !!primaryDomain?.domain && {
+          provision_fields: {
+            domain: primaryDomain.domain
+          }
+        };
+
+        return config;
+      };
+
+      parentMapper = () => ({
+        id: parent
+      });
+    }
 
     // ---
 
