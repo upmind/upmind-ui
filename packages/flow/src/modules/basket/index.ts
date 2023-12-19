@@ -186,6 +186,7 @@ export const useBasketHelper = (
         // let the actor know we are syncing so we dont do anyhting else
         actor.send({ type: "SYNC" });
         // update the basket item  with the new parent values
+        debugger;
         basketItem.send({ type: "PUT", data: product });
         dirtyItems.push(mapping);
       }

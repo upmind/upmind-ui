@@ -14,7 +14,7 @@ import { useBasketHelper } from "..";
 export const useDomain = (
   sync?: boolean,
   type?: DomainTypes,
-  parent?: string
+  parent?: Object // machine representing the parent context
 ) => {
   // --------------------------------------------------------
   // create a new instance of the domain machine
@@ -111,7 +111,7 @@ export const useDomain = (
       };
 
       parentMapper = () => ({
-        id: parent
+        id: parent.id
       });
     }
 

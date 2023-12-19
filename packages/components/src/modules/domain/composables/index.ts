@@ -17,7 +17,7 @@ import { map, some, find } from "lodash-es";
 export const useDomain = (
   syncBasket?: boolean,
   forceType?: string,
-  parent: string
+  parent: Object // machine representing the parent context
 ) => {
   const domain = useUpmindDomain(syncBasket, forceType, parent);
   const { state, send } = useActor(domain.service);
