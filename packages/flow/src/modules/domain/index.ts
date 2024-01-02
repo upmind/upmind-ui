@@ -6,8 +6,9 @@ import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types.d";
 
 // --- utils
-import { has, find, get, set } from "lodash-es";
 import { useBasketHelper } from "..";
+import { parseDomain } from "./utils";
+import { has, find } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -24,12 +25,23 @@ export const useDomain = (
   // safetycheck to ensure forcedType is valid
   type = has(DomainTypes, type) ? type : null;
 
+  const values = [];
+
+  // if we have a parent...make sure we set the primaryDomain!
+  if (parent?.state.value.context?.values?.provision_fields?.domain) {
+    const domain = parseDomain(
+      parent.state.value.context.values.provision_fields.domain
+    );
+    domain.is_primary = true;
+    values.push(domain);
+  }
+
   const context = {
     type,
     sync,
     // ---
     choices: type ? null : DomainTypes,
-    values: [],
+    values,
     available: [],
     total: 0,
     // ---
@@ -76,6 +88,8 @@ export const useDomain = (
     // ---
 
     const basketItemBuilder = item => {
+      if (!item?.product_id) return null;
+
       return {
         product_id: item.product_id,
         quantity: 1,
@@ -99,16 +113,18 @@ export const useDomain = (
     let parentMapper = null;
 
     if (parent) {
+      // ---
       parentBuilder = items => {
-        const primaryDomain = find(items, [
-          "domain",
-          parent?.state.value.context?.values?.provision_fields?.domain
-        ]);
-
         let config = null;
-        if (primaryDomain) {
-          primaryDomain.is_primary = true;
+        const primaryDomain = find(state?.context?.values, "is_primary");
 
+        if (primaryDomain) {
+          // ensure the domain is set as primary
+          if (!primaryDomain.is_primary) {
+            service.send({ type: "SELECT", data: primaryDomain.domain });
+          }
+
+          //finally, build the config for the parent machine with the primary domain
           config = {
             provision_fields: {
               domain: primaryDomain.domain
@@ -130,11 +146,12 @@ export const useDomain = (
       service,
       [
         "register.valid",
+        // ---
         "transfer.valid",
-        "register.available",
-        "transfer.available",
-        "basket.valid",
-        "basket.available"
+        // ---
+        "existing.valid",
+        // ---
+        "basket.valid"
       ],
       "values",
       // ---

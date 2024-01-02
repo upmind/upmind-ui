@@ -70,7 +70,7 @@
 
           <upm-domain-input
             v-if="meta.showExisting"
-            @update:modelValue="({ currentTarget: { value } }) => add(value)"
+            @blur="({ currentTarget: { value } }) => add(value)"
             placeholder="Enter your Domain &hellip;"
             :autofocus="meta.showExisting"
             autocomplete="off"

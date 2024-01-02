@@ -4,7 +4,7 @@
     tabindex="1"
     role="list"
     class="relative menu rounded-box flex-col flex-nowrap bg-base-100 border border-base-300 w-full mt-6 m-0 min-h-[13em] overflow-y-auto"
-    v-if="domains.length || processing"
+    v-if="validDomains.length || processing"
   >
     <li
       v-if="processing"
@@ -27,7 +27,7 @@
     <template v-else>
       <li
         role="listitem"
-        v-for="item in domains"
+        v-for="item in validDomains"
         :key="item?.domain"
         class="p-0"
       >
@@ -53,7 +53,7 @@
 import { defineComponent } from "vue";
 
 // --- utils
-
+import { filter } from "lodash-es";
 // ---------------------------------------------------------------------------
 
 export default defineComponent({
@@ -77,6 +77,11 @@ export default defineComponent({
     }
   },
 
+  computed: {
+    validDomains() {
+      return filter(this.domains, "product_id");
+    }
+  },
   methods: {
     updateModel(event: Event) {
       this.$emit("change", event);
