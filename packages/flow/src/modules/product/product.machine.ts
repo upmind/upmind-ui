@@ -345,7 +345,6 @@ export default (values, currency_id, promotions) => {
         mergeValues: assign({
           values: ({ values }, { data }) => {
             const newValues = merge({}, values, useValuesParser(data));
-            debugger;
             return newValues;
           }
         }),
