@@ -100,12 +100,21 @@ export const useDomain = (
 
     if (parent) {
       parentBuilder = items => {
-        const primaryDomain = find(items, "is_primary");
-        const config = !!primaryDomain?.domain && {
-          provision_fields: {
-            domain: primaryDomain.domain
-          }
-        };
+        const primaryDomain = find(items, [
+          "domain",
+          parent?.state.value.context?.values?.provision_fields?.domain
+        ]);
+
+        let config = null;
+        if (primaryDomain) {
+          primaryDomain.is_primary = true;
+
+          config = {
+            provision_fields: {
+              domain: primaryDomain.domain
+            }
+          };
+        }
 
         return config;
       };

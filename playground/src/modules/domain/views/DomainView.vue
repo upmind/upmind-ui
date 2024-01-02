@@ -6,43 +6,88 @@
       <div class="actions flex-none join"></div>
     </header>
 
-    <div :data-theme="activeTheme">
-      <template v-if="!availableParents?.length">
-        <h3>Web Hosting</h3>
-        <div class="stats shadow w-full">
+    <div :data-theme="activeTheme" class="p-8 rounded-box">
+      <div class="gap-4 items-center text-center">
+        <h3 class="text-base-content flex-none m-0">Web Hosting</h3>
+        <ul class="steps w-full flex-1">
+          <li :data-content="parent ? '✓' : '?'" class="step step-primary">
+            Choose a plan
+          </li>
+          <li
+            class="step"
+            :data-content="
+              !!parent?.state?.value?.context?.values?.provision_fields?.domain
+                ? '✓'
+                : '+'
+            "
+            :class="
+              !!parent?.state?.value?.context?.values?.provision_fields?.domain
+                ? 'step-primary'
+                : ''
+            "
+          >
+            Add a domain
+          </li>
+        </ul>
+      </div>
+
+      <div v-if="!availableParents?.length" class="my-8">
+        <h4 class="text-base-content text-center">
+          Select from one of our Plans
+        </h4>
+
+        <div class="stats w-full bg-base-300">
           <div
-            class="stat place-items-center bg-opacity-10"
-            :class="`bg-${product.variant}`"
-            v-for="product in parentProducts"
+            class="stat place-items-center"
+            v-for="product in products"
             :key="product.value"
           >
-            <div class="stat-title">{{ product.label }}</div>
-            <div class="stat-desc">{{ product.prefix }}</div>
+            <div class="stat-title text-inherit">{{ product.label }}</div>
+            <div class="stat-desc text-inherit">{{ product.prefix }}</div>
             <div class="stat-value" :class="`text-${product.variant}`">
               {{ product.price }}
             </div>
-            <div class="stat-desc">{{ product.suffix }}</div>
+            <div class="stat-desc text-inherit">{{ product.suffix }}</div>
             <div class="stat-actions">
               <button
                 class="btn btn-sm"
                 :class="`btn-${product.variant}`"
-                @click="addProduct({ product_id: product.value, quantity: 1 })"
+                @click="add(product.value)"
               >
                 Add to basket
               </button>
             </div>
           </div>
         </div>
-      </template>
-      <template></template>
+      </div>
+
+      <div
+        v-else-if="availableParents.length && !parent"
+        class="flex flex-col gap-8 items-center my-8 justify-center"
+      >
+        <h4 class="text-base-content m-0">Select from your basket</h4>
+
+        <div class="join">
+          <input
+            v-for="product in availableParents"
+            @input="select(product.state.value.context.values.product_id)"
+            :key="product.id"
+            class="join-item btn btn-primary"
+            type="radio"
+            name="product"
+            :aria-label="`${
+              product.state.value.context.available.product.name
+            } (${
+              product.state.value.context.values?.provision_fields?.domain ||
+              'No Domain'
+            })`"
+            :value="product.state.value.context.values.product_id"
+          />
+        </div>
+      </div>
 
       <!--  -->
-      <upm-domain
-        sync-basket
-        :debugging="debugging"
-        :parent="parent"
-        v-if="parent"
-      >
+      <upm-domain sync-basket :debugging="debugging" :parent="parent" v-else>
         <template #actions="{ meta, primaryDomain, values }">
           <div
             class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12 border min-h-[5rem]"
@@ -112,7 +157,7 @@ import {
   ExclamationTriangleIcon
 } from "@heroicons/vue/24/outline";
 
-import { filter, map, includes, first } from "lodash-es";
+import { filter, map, includes, first, find } from "lodash-es";
 
 // ---------------------------------------------------------------------------
 const { items, addProduct } = useBasket();
@@ -120,8 +165,9 @@ const { items, addProduct } = useBasket();
 // ---------------------------------------------------------------------------
 const debugging = ref(true);
 const activeTheme = inject("activeTheme");
+
 // ---------------------------------------------------------------------------
-const parentProducts = [
+const products = [
   {
     label: "Starter Hosting",
     value: "5d085e69-d562-3719-7d6f-218e940d4237",
@@ -136,22 +182,42 @@ const parentProducts = [
     price: "$10",
     prefix: "starting from",
     suffix: "per month",
-    variant: "secondary"
+    variant: "primary"
   }
 ];
 
-const parentProductIds = computed(() => map(parentProducts, "value"));
+const validProducts = computed(() => map(products, "value"));
+
 const availableParents = computed(() => {
   return filter(items.value, item => {
     const found = includes(
-      parentProductIds.value,
+      validProducts.value,
       item.state.value.context.values.product_id
     );
     return found;
   });
 });
 
-const parent = ref(
-  availableParents.value?.length == 1 ? first(availableParents.value) : null
+const selected = ref(
+  availableParents.value?.length == 1
+    ? first(availableParents.value)?.state.value.context.values.product_id
+    : null
 );
+
+const parent = computed(() => {
+  return find(items.value, [
+    "state.value.context.values.product_id",
+    selected.value
+  ]);
+});
+
+// ---
+function select(product: String) {
+  selected.value = product;
+}
+
+function add(product: String) {
+  select(product);
+  addProduct({ product_id: product, quantity: 1 });
+}
 </script>
