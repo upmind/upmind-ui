@@ -23,6 +23,7 @@ import {
   forEach,
   get,
   isEmpty,
+  omit,
   remove,
   reject,
   some,
@@ -32,10 +33,10 @@ import {
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
-function spawnConfiguration(values, currency_id, promotions = []) {
+function spawnConfiguration(id, values, currency_id, promotions = []) {
   try {
     return spawn(configurationMachine(values, currency_id, promotions), {
-      name: values?.id || uniqueId("basket_item_"),
+      name: id,
       sync: true
     });
   } catch (err) {
@@ -425,6 +426,7 @@ export default createMachine(
             // const item = find(items, ["id", product.id]);
 
             const machine = spawnConfiguration(
+              product.id,
               product,
               basket?.currency_id,
               promotions
@@ -439,7 +441,8 @@ export default createMachine(
       addItem: assign({
         items: ({ items, basket }, { data }) => {
           const machine = spawnConfiguration(
-            data,
+            data?.id || uniqueId("item_"),
+            omit(data, "id"),
             basket?.currency_id,
             basket?.promotions
           );
@@ -587,6 +590,7 @@ export default createMachine(
               const newProduct = find(data?.basket?.products, ["id", newId]);
               if (newProduct) {
                 const machine = spawnConfiguration(
+                  newId,
                   newProduct,
                   currency_id,
                   promotions
@@ -612,6 +616,7 @@ export default createMachine(
           const missing = differenceBy(data?.basket?.products, items, "id");
           forEach(missing, product => {
             const machine = spawnConfiguration(
+              product.id,
               product,
               currency_id,
               promotions

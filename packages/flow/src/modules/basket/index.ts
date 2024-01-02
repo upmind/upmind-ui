@@ -136,7 +136,6 @@ export const useBasketHelper = (
       const isValid = isEmpty(pickBy(mapping, isEmpty));
 
       if (isValid && !exists(items, mapping)) {
-        debugger;
         // add the basket item to the list of dangling items, if it is not already there
         // this will then be processed when the basket is ready
         if (!get(processingItems, basketItem.id)) {
@@ -157,7 +156,7 @@ export const useBasketHelper = (
 
       const basketItem = findItem(mapping);
 
-      if (!basketItem && !includes(dirtyItems, mapping)) {
+      if (product && !basketItem && !includes(dirtyItems, mapping)) {
         // let the actor know we are syncing so we dont do anyhting else
         actor.send({ type: "SYNC" });
         // add the item to the basket
@@ -179,16 +178,18 @@ export const useBasketHelper = (
       const product = parentBuilder(items);
       const mapping = parentMapper();
       const basketItem = findItem(mapping);
-      const values = get(basketItem, "state.context.values");
-      const isDirty = !isEmpty(product) && !some([values], matches(product));
-      if (isDirty && !includes(dirtyItems, mapping)) {
-        debugger;
-        // let the actor know we are syncing so we dont do anyhting else
-        actor.send({ type: "SYNC" });
-        // update the basket item  with the new parent values
-        debugger;
-        basketItem.send({ type: "PUT", data: product });
-        dirtyItems.push(mapping);
+      if (basketItem) {
+        const values = get(basketItem, "state.context.values");
+        const isDirty = !isEmpty(product) && !some([values], matches(product));
+        if (isDirty && !includes(dirtyItems, mapping)) {
+          debugger;
+          // let the actor know we are syncing so we dont do anyhting else
+          actor.send({ type: "SYNC" });
+          // update the basket item  with the new parent values
+          debugger;
+          basketItem.send({ type: "PUT", data: product });
+          dirtyItems.push(mapping);
+        }
       }
     }
   });

@@ -40,11 +40,11 @@ export const useBasket = () => {
       send({ type: "REMOVE.PROMOTION", data: { id } });
     },
 
-    addProduct: ({ product_id, quantity, term, attributes, options }) => {
+    addProduct: ({ id, product_id, quantity, term, attributes, options }) => {
       // const { product_id, quantity, term, attributes, options } = unref(model);
       send({
         type: "ADD",
-        data: { product_id, quantity, term, attributes, options }
+        data: { id, product_id, quantity, term, attributes, options }
       });
     },
 
