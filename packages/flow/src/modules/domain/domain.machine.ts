@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, send } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -50,6 +50,7 @@ export default createMachine(
     } as DomainContext,
     states: {
       loading: {
+        entry: ["checkChoices"],
         always: [
           {
             target: "#existing.valid",
@@ -409,6 +410,12 @@ export default createMachine(
   },
   {
     actions: {
+      checkChoices: assign({
+        choices: ({ choices, sync }) => {
+          if (!sync) return omit(choices, "basket");
+          return choices;
+        }
+      }),
       setType: assign({
         type: (_context, { data }) => data
       }),
@@ -595,8 +602,6 @@ export default createMachine(
           values,
           item => item.is_primary && !item.product_id
         );
-        debugger;
-
         return !sync && primary;
       },
 
