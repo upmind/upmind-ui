@@ -58,6 +58,7 @@ export default createMachine(
           },
           {
             target: "basket",
+            actions: assign({ type: () => "basket" }),
             cond: ({ sync, values }) => !sync && !!values.length
           },
           {
@@ -589,14 +590,14 @@ export default createMachine(
       isExistingDomain: (_context, { data }: { data: string }) =>
         data === "existing",
 
-      isExistingPrimaryDomain: ({ values }) => {
+      isExistingPrimaryDomain: ({ sync, values }) => {
         const primary = some(
           values,
           item => item.is_primary && !item.product_id
         );
         debugger;
 
-        return primary;
+        return !sync && primary;
       },
 
       isDomainRegister: (_context, { data }: { data: string }) =>
