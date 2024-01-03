@@ -1,13 +1,21 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { escalate } = actions;
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
 
 // --- utils
 import { useTime } from "../../utils";
-import { isEmpty, reject, find, some, has, map, omit } from "lodash-es";
+import {
+  isEmpty,
+  reject,
+  find,
+  some,
+  has,
+  map,
+  omit,
+  unionBy
+} from "lodash-es";
 
 // --- types
 import { DomainTypes } from "./types.d";
@@ -42,9 +50,16 @@ export default createMachine(
     } as DomainContext,
     states: {
       loading: {
+        entry: ["checkChoices"],
         always: [
           {
+            target: "#existing.valid",
+            actions: assign({ type: () => "existing" }),
+            cond: "isExistingPrimaryDomain"
+          },
+          {
             target: "basket",
+            actions: assign({ type: () => "basket" }),
             cond: ({ sync, values }) => !sync && !!values.length
           },
           {
@@ -70,9 +85,10 @@ export default createMachine(
             target: "transfer",
             cond: ({ type, sync }) => !sync && type === "transfer"
           },
+
           {
             target: "existing",
-            cond: ({ type, sync }) => !sync && type === "existing"
+            cond: ({ type, sync, values }) => !sync && type === "existing"
           },
           {
             target: "basket",
@@ -313,11 +329,18 @@ export default createMachine(
                 target: "#idle",
                 cond: "hasNoValues"
               },
+
               {
                 target: "valid"
               }
             ]
           },
+          updating: {
+            after: {
+              wait: "loading"
+            }
+          },
+          syncing: {},
           valid: {
             type: "final",
             always: {
@@ -327,11 +350,15 @@ export default createMachine(
           }
         },
         on: {
-          SELECT: {
-            target: "#idle",
-            actions: ["setPrimary"],
-            cond: "hasValues"
-          }
+          SELECT: [
+            {
+              target: "#basket.updating",
+              actions: ["setPrimary"],
+              cond: "hasValues"
+            }
+          ],
+          SYNC: { target: "#basket.syncing" },
+          REFRESH: { target: "#basket.valid" }
         }
       },
 
@@ -383,23 +410,41 @@ export default createMachine(
   },
   {
     actions: {
+      checkChoices: assign({
+        choices: ({ choices, sync }) => {
+          if (!sync) return omit(choices, "basket");
+          return choices;
+        }
+      }),
       setType: assign({
         type: (_context, { data }) => data
       }),
 
       sync: assign({
-        values: ({ values }, { data }) =>
-          map(data, (item, index) => {
-            const domain = parseDomainItem(item);
-            domain.is_primary = !index;
-            return domain;
-          }),
+        values: ({ values }, { data }) => {
+          // merge the values and data, preserving any existing properties in values
+          const domains = unionBy(
+            map(data, item => {
+              let domain = parseDomainItem(item);
+              // merge any existing values with the new data
+              const exists = find(values, ["domain", domain.domain]);
+              if (exists) {
+                domain = Object.assign({}, exists, domain);
+              }
+              return domain;
+            }),
+            values, // this will include any values NOT in data
+            "domain"
+          );
+
+          return domains;
+        },
         sync: false,
         choices: ({ choices }, { data }) => {
           if (!data?.length) return omit(choices, "basket");
           return choices;
-        },
-        type: ({ type }, { data }) => (type || data.length ? "basket" : null)
+        }
+        // type: ({ type }, { data }) => (type || data.length ? "basket" : null)
       }),
 
       add: assign({
@@ -415,7 +460,7 @@ export default createMachine(
           }
 
           // check in case...
-          if (domain) domain.is_primary = values.length == 1;
+          if (domain) domain.is_primary = !some(values, "is_primary");
 
           return values;
         }
@@ -487,7 +532,6 @@ export default createMachine(
       setPrimary: assign({
         values: ({ values }, { data }) => {
           const primary = find(values, ["domain", data]);
-
           return map(values, value => {
             value.is_primary = value === primary;
             return value;
@@ -495,11 +539,22 @@ export default createMachine(
         }
       }),
 
+      import: assign({
+        values: ({ values }, { data }) => {
+          const domain = parseDomain(data);
+          values.push(domain);
+
+          return map(values, value => {
+            value.is_primary = value === domain;
+            return value;
+          });
+        },
+        type: () => "existing"
+      }),
+
       setError: assign({
         error: (_context, { data }) => data
       }),
-
-      escalateError: escalate(({ error }) => error),
 
       clearError: assign({ error: null })
     },
@@ -541,6 +596,14 @@ export default createMachine(
 
       isExistingDomain: (_context, { data }: { data: string }) =>
         data === "existing",
+
+      isExistingPrimaryDomain: ({ sync, values }) => {
+        const primary = some(
+          values,
+          item => item.is_primary && !item.product_id
+        );
+        return !sync && primary;
+      },
 
       isDomainRegister: (_context, { data }: { data: string }) =>
         data === "register",

@@ -78,6 +78,7 @@ export const useProductParser = (data: any) => {
     "provision_blueprint_id"
   ]);
 
+  console.log("useProductParser", data);
   // --------------------------------------------------------
   // then add some syntactic sugar / computed properties
 

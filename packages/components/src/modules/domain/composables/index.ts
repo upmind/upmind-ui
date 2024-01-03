@@ -14,8 +14,12 @@ import { map, some, find } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useDomain = (syncBasket?: boolean, forceType?: string) => {
-  const domain = useUpmindDomain(syncBasket, forceType);
+export const useDomain = (
+  syncBasket?: boolean,
+  forceType?: string,
+  parent: Object // machine representing the parent context
+) => {
+  const domain = useUpmindDomain(syncBasket, forceType, parent);
   const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------
@@ -65,6 +69,7 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
       data: value
     });
   };
+
   // --------------------------------------------------------
 
   return {
@@ -93,7 +98,8 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
       isSyncing: [
         "register.syncing",
         "transfer.syncing",
-        "existing.syncing"
+        "existing.syncing",
+        "basket.syncing"
       ].some(state.value.matches),
 
       isSearching: [
@@ -139,6 +145,7 @@ export const useDomain = (syncBasket?: boolean, forceType?: string) => {
     remove,
     toggle,
     setPrimaryDomain,
-    isSelected: (value: string) => state.value.matches(value)
+    isSelected: (value: string) => state.value.matches(value),
+    destroy: domain.destroy
   };
 };
