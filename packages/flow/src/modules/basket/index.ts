@@ -182,11 +182,9 @@ export const useBasketHelper = (
         const values = get(basketItem, "state.context.values");
         const isDirty = !isEmpty(product) && !some([values], matches(product));
         if (isDirty && !includes(dirtyItems, mapping)) {
-          debugger;
           // let the actor know we are syncing so we dont do anyhting else
           actor.send({ type: "SYNC" });
           // update the basket item  with the new parent values
-          debugger;
           basketItem.send({ type: "PUT", data: product });
           dirtyItems.push(mapping);
         }
