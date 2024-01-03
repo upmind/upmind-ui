@@ -32,6 +32,9 @@ export interface Typegen0 {
       data: unknown;
     };
     "xstate.after(error)#error": { type: "xstate.after(error)#error" };
+    "xstate.after(wait)#domainManager.basket.updating": {
+      type: "xstate.after(wait)#domainManager.basket.updating";
+    };
     "xstate.after(wait)#domainManager.existing.processing.cancelling": {
       type: "xstate.after(wait)#domainManager.existing.processing.cancelling";
     };
@@ -66,6 +69,7 @@ export interface Typegen0 {
       | "REMOVE"
       | "SEARCH"
       | "SYNC";
+    checkChoices: "CHOOSE" | "STOP" | "xstate.init";
     clearAvailable:
       | ""
       | "ADD"
@@ -109,7 +113,7 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {
     error: "CHOOSE";
-    wait: "SEARCH";
+    wait: "SEARCH" | "SELECT";
   };
   eventsCausingGuards: {
     hasAvailable: "ADD";
@@ -119,6 +123,7 @@ export interface Typegen0 {
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
     isExistingDomain: "CHOOSE";
+    isExistingPrimaryDomain: "";
     isForced: "CHOOSE";
     isInvalidType: "CHOOSE";
     isNotCancelled:
@@ -137,6 +142,8 @@ export interface Typegen0 {
   matchesStates:
     | "basket"
     | "basket.loading"
+    | "basket.syncing"
+    | "basket.updating"
     | "basket.valid"
     | "complete"
     | "error"
@@ -170,7 +177,7 @@ export interface Typegen0 {
     | "transfer.syncing"
     | "transfer.valid"
     | {
-        basket?: "loading" | "valid";
+        basket?: "loading" | "syncing" | "updating" | "valid";
         existing?:
           | "available"
           | "error"

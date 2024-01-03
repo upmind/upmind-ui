@@ -47,9 +47,9 @@
         <magnifying-glass-icon
           :class="[
             compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ',
-            !model?.length ? '' : 'invisible'
+            !model?.length ? '' : 'invisible w-0'
           ]"
-          class="join-item text-inherit group-focus-within/dac:text-primary group-focus-within/dac:visible"
+          class="join-item text-inherit group-focus-within/dac:text-primary group-focus-within/dac:visible group-focus-within/dac:w-auto"
         />
 
         <!-- input -->
@@ -60,9 +60,9 @@
           @focus="doFocus"
           :class="[
             compact ? 'ml-2 px-2' : 'mx-6 px-4',
-            !model?.length ? '' : 'invisible'
+            !model?.length ? '' : 'invisible w-0'
           ]"
-          class="flex-1 bg-transparent h-full group-focus-within/dac:visible"
+          class="flex-1 bg-transparent h-full group-focus-within/dac:visible group-focus-within/dac:w-auto"
           id="domain-search"
           ref="input"
           type="text"
@@ -74,7 +74,7 @@
           v-if="clearable && !!domain?.length"
           type="reset"
           :class="[compact ? 'join-item btn-square' : '']"
-          class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible group-focus-within/dac:visible"
+          class="btn btn-link text-inherit opacity-50 hover:opacity-100 invisible w-0 group-focus-within/dac:visible group-focus-within/dac:w-auto"
           tabindex="-1"
           @click="resetInput"
         >
@@ -86,9 +86,9 @@
           @click="doSearch"
           :class="[
             compact ? 'join-item' : '',
-            !model?.length ? '' : 'invisible'
+            !model?.length ? '' : 'invisible w-0'
           ]"
-          class="btn btn-primary opacity-50 group-focus-within/dac:opacity-100 group-focus-within/dac:visible"
+          class="btn btn-primary opacity-50 group-focus-within/dac:opacity-100 group-focus-within/dac:visible group-focus-within/dac:w-auto"
           tabindex="-1"
         >
           <span class="loading loading-spinner" v-if="meta.isProcessing"></span>

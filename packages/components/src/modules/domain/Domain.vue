@@ -3,21 +3,7 @@
     <div class="hero-content">
       <div class="w-full max-w-5xl">
         <header>
-          <h1 class="text-5xl font-bold text-primary">
-            <template v-if="!meta.hasPrimary">Choose a domain&hellip;</template>
-            <template v-else>
-              Congrats!
-              <span class="text-2xl font-bold text-primary m-0">
-                You have selected your domain&hellip;
-              </span></template
-            >
-          </h1>
-
-          <p>
-            Thank you for choosing our hosting! We include a free 1 year .com,
-            .org, or .net domain name*. <br />
-            <small> The discount will be applied at checkout. </small>
-          </p>
+          <slot name="header" v-bind="{ meta, primaryDomain, values }"></slot>
         </header>
 
         <!--  choices -->
@@ -70,7 +56,7 @@
 
           <upm-domain-input
             v-if="meta.showExisting"
-            @update:modelValue="({ currentTarget: { value } }) => add(value)"
+            @blur="({ currentTarget: { value } }) => add(value)"
             placeholder="Enter your Domain &hellip;"
             :autofocus="meta.showExisting"
             autocomplete="off"
@@ -99,6 +85,7 @@
             :model-value="primaryDomain?.domain"
             :domains="values"
             :processing="meta.isProcessing"
+            :syncing="meta.isSyncing"
             @change="({ currentTarget: { value } }) => setPrimaryDomain(value)"
           />
         </div>
@@ -179,11 +166,18 @@ export default defineComponent({
     debugging: {
       type: Boolean,
       default: false
+    },
+    parent: {
+      type: Object
     }
   },
 
   setup(props) {
-    return useDomain(props.syncBasket, props.type);
+    return useDomain(props.syncBasket, props.type, props.parent);
+  },
+
+  beforeUnmount() {
+    this.destroy();
   }
 });
 </script>

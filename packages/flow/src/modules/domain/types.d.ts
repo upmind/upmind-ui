@@ -47,6 +47,7 @@ interface IDomainSearch {
 export interface DomainContext {
   choices: Object<DomainTypes>;
   type: DomainTypes | null;
+  sync?: boolean | null;
   values: Array<IDomainProduct | IDomain>;
   available: Array<IDomainProduct>;
   total: number;

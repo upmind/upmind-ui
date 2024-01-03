@@ -6,28 +6,42 @@ import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types.d";
 
 // --- utils
-import { has } from "lodash-es";
 import { useBasketHelper } from "..";
+import { parseDomain } from "./utils";
+import { has, find } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useDomain = (sync?: boolean, type?: DomainTypes) => {
+export const useDomain = (
+  sync?: boolean,
+  type?: DomainTypes,
+  parent?: Object // machine representing the parent context
+) => {
   // --------------------------------------------------------
   // create a new instance of the domain machine
-  // NB dont automatically start the machine as in order for the inspector to work
-  // it needs to be started after the inspect service is created, so we only start it when we need it
 
   let state = null;
 
   // safetycheck to ensure forcedType is valid
   type = has(DomainTypes, type) ? type : null;
 
+  const values = [];
+
+  // if we have a parent...make sure we set the primaryDomain!
+  if (parent?.state.value.context?.values?.provision_fields?.domain) {
+    const domain = parseDomain(
+      parent.state.value.context.values.provision_fields.domain
+    );
+    domain.is_primary = true;
+    values.push(domain);
+  }
+
   const context = {
     type,
     sync,
     // ---
     choices: type ? null : DomainTypes,
-    values: [],
+    values,
     available: [],
     total: 0,
     // ---
@@ -48,7 +62,7 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
     .start();
 
   // --------------------------------------------------------
-  // sync the basket with the domain machine
+  // sync the basket with the domain machine and any parent machines
 
   if (sync) {
     const itemBuilder = basketItem => {
@@ -71,7 +85,11 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       sld: item?.sld || item?.provision_fields?.sld
     });
 
+    // ---
+
     const basketItemBuilder = item => {
+      if (!item?.product_id) return null;
+
       return {
         product_id: item.product_id,
         quantity: 1,
@@ -89,13 +107,51 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       "provision_fields.sld": item?.sld || item?.provision_fields?.sld
     });
 
+    // ---
+
+    let parentBuilder = null;
+    let parentMapper = null;
+
+    if (parent) {
+      // ---
+      parentBuilder = items => {
+        let config = null;
+        const primaryDomain = find(state?.context?.values, "is_primary");
+
+        if (primaryDomain) {
+          // ensure the domain is set as primary
+          if (!primaryDomain.is_primary) {
+            service.send({ type: "SELECT", data: primaryDomain.domain });
+          }
+
+          //finally, build the config for the parent machine with the primary domain
+          config = {
+            provision_fields: {
+              domain: primaryDomain.domain
+            }
+          };
+        }
+
+        return config;
+      };
+
+      parentMapper = () => ({
+        id: parent.id
+      });
+    }
+
+    // ---
+
     useBasketHelper(
       service,
       [
         "register.valid",
+        // ---
         "transfer.valid",
-        "register.available",
-        "transfer.available"
+        // ---
+        "existing.valid",
+        // ---
+        "basket.valid"
       ],
       "values",
       // ---
@@ -103,7 +159,10 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
       basketItemBuilder,
       // ---
       itemMapper,
-      itemBuilder
+      itemBuilder,
+      // ---
+      parentMapper,
+      parentBuilder
     );
   }
   // --------------------------------------------------------
@@ -111,6 +170,7 @@ export const useDomain = (sync?: boolean, type?: DomainTypes) => {
   return {
     service, // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state
+    getSnapshot: () => state,
+    destroy: () => service.stop()
   };
 };
