@@ -8,7 +8,7 @@
       :additional-errors="additionalErrors"
       :processing="processing"
       no-actions
-      @resolve="doResolve"
+      @update:modelValue="doResolve"
     >
     </upm-form-generator>
   </div>

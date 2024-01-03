@@ -6,14 +6,17 @@ const { sendTo } = actions;
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import configurationMachine from "../product/product.machine";
-import fieldsMachine from "./fields.machine";
 
 // --- utils
 import { useTime } from "../../utils";
 import {
   useBasketParser,
   useSummaryParser,
-  useValidationParser
+  useValidationParser,
+  useFieldsSchemaParser,
+  useFieldsUischemaParser,
+  useFieldsModelParser,
+  useBasketFieldsModelParser
 } from "./utils";
 
 import {
@@ -25,8 +28,8 @@ import {
   get,
   isEmpty,
   omit,
-  remove,
   reject,
+  remove,
   some,
   trimStart,
   uniqueId
@@ -64,7 +67,12 @@ export default createMachine(
       items: [],
       bin: [],
       queue: [],
-      fields: [],
+      // ---
+      custom_fields: [],
+      fieldsSchema: {},
+      fieldsUischema: {},
+      fieldsModel: {},
+
       // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
@@ -352,19 +360,69 @@ export default createMachine(
             }
           },
 
-          fields: {
-            invoke: {
-              id: "fields",
-              src: fieldsMachine,
-              autoForward: true,
-              onDone: {
-                actions: ["setFields"]
+          custom_fields: {
+            initial: "loading",
+            states: {
+              loading: {
+                invoke: {
+                  src: "getCustomFields",
+                  onDone: {
+                    target: "idle",
+                    actions: ["setFields", "setFieldsSchemas"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
               },
-              onError: { actions: ["setError"] }
+
+              idle: {
+                always: [
+                  {
+                    target: "complete",
+                    cond: "hasNoFields"
+                  }
+                ]
+              },
+
+              checking: {
+                entry: ["clearError"],
+                invoke: {
+                  src: "validateFields",
+                  onDone: {
+                    target: "valid"
+                  },
+                  onError: {
+                    target: "invalid",
+                    actions: ["setError"]
+                  }
+                }
+              },
+
+              valid: {},
+
+              invalid: {},
+
+              // Handle errors
+              error: {
+                id: "error"
+              },
+
+              // Handle completion, stop the machine and prevent further requests
+              complete: {
+                id: "complete",
+                type: "final"
+              }
             },
             on: {
               "UPDATE.FIELDS": {
-                actions: ["setFields"]
+                target: "custom_fields.checking",
+                actions: ["setFieldsModel"]
+              },
+              "CLEAR.FIELDS": {
+                target: "custom_fields.idle",
+                actions: ["clearFieldsModel"]
               }
             }
           }
@@ -412,6 +470,8 @@ export default createMachine(
       setBasket: assign({
         basket: (context, { data }) => data,
         summary: (context, { data }) => useSummaryParser(data),
+        fieldsModel: ({ fieldsModel }, { data }) =>
+          useBasketFieldsModelParser(data, fieldsModel),
         error: null
       }),
 
@@ -641,8 +701,25 @@ export default createMachine(
 
       // ---
 
+      setFieldsSchemas: assign({
+        fieldsSchema: ({ custom_fields }) =>
+          useFieldsSchemaParser(custom_fields),
+        fieldsUischema: ({ custom_fields }) =>
+          useFieldsUischemaParser(custom_fields),
+        fieldsModel: ({ custom_fields, fieldsModel }) =>
+          useFieldsModelParser(custom_fields, fieldsModel)
+      }),
+
+      setFieldsModel: assign({
+        fieldsModel: (context, { data }) => data
+      }),
+
+      clearFieldsModel: assign({
+        fieldsModel: {}
+      }),
+
       setFields: assign({
-        fields: (_context, { data }) => data
+        custom_fields: (_context, { data }) => data
       }),
 
       // ---
@@ -738,20 +815,11 @@ export default createMachine(
         });
       },
 
-      hasAncillaryItems: ({ items }, { data }) => {
-        // if (!hasModuleEnabled("web_hosting")) return false;
+      hasProducts: ({ basket }) => !!basket?.products?.length,
 
-        // const { itemId } = data;
-        // const item = find(items, ["id", itemId]);
-        // const replacements = filter(
-        //   item.state?.context?.available?.provision_fields,
-        //   ["semantic_type", SemanticTypes.DOMAIN_NAMES]
-        // );
-        // return !!replacements.length;
-        return false;
-      },
+      hasFieldValues: ({ fieldsModel }) => !isEmpty(fieldsModel),
 
-      hasProducts: ({ basket }) => !!basket?.products?.length
+      hasNoFields: ({ custom_fields }) => isEmpty(custom_fields)
     },
 
     delays: {

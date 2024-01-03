@@ -229,19 +229,20 @@
             @reject="removePromotion"
           ></promotions-config>
         </aside>
+      </section>
 
-        <footer>
-          <!-- Basket fields -->
-          <basket-fields
-            :schema="schema"
-            :uischema="uischema"
-            :model-value="fields"
-            :processing="meta.isProcessing"
-            :additionalErrors="errors?.data"
-            @resolve="updateFields"
-            @reject="clearFields"
-          ></basket-fields>
-        </footer>
+      <section class="basket-fields" v-if="meta.hasFields">
+        <div class="divider"></div>
+
+        <basket-fields
+          :schema="fieldsSchema"
+          :uischema="fieldsUischema"
+          :model-value="fieldsModel"
+          :processing="meta.isProcessing"
+          :additionalErrors="errors?.data"
+          @resolve="updateFields"
+          @reject="clearFields"
+        ></basket-fields>
       </section>
     </div>
 
@@ -286,7 +287,9 @@ const {
   promotions,
   currency,
   currencies,
-  fields,
+  fieldsModel,
+  fieldsSchema,
+  fieldsUischema,
   // ---
   addProduct,
   addPromotion,

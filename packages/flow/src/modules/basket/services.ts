@@ -3,12 +3,13 @@
 // --- internal
 import { useApi } from "../api";
 
-import type { BasketContext, FieldsContext } from "./types.d";
+import type { BasketContext } from "./types.d";
 import { useSession } from "../session";
 import type { Token } from "../session/types.d";
 const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
+import { useValidation } from "../../utils";
 import { useBasketParser } from "./utils";
 import {
   differenceBy,
@@ -114,7 +115,10 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function update({ basket, items }: BasketContext, _event: any) {
+async function update(
+  { basket, items, fieldsModel }: BasketContext,
+  _event: any
+) {
   const { put, useUrl } = useApi();
 
   const validItems = filter(items, item => item.state.matches("configured"));
@@ -125,7 +129,8 @@ async function update({ basket, items }: BasketContext, _event: any) {
   const response = await put({
     url: useUrl(`/orders/${basket.id}`),
     data: {
-      products: productConfigs
+      products: productConfigs,
+      ...fieldsModel
     },
     withAccessToken: true
   })
@@ -435,7 +440,7 @@ async function getProvisioningFieldsValues(basket: any) {
 // --------------------------------------------------------
 // --- Basket Field Methods
 
-async function getCustomFields(_context: FieldsContext, { data }: any) {
+async function getCustomFields(_context: BasketContext, { data }: any) {
   const { get, useUrl } = useApi();
   return get({
     // url: useUrl("basket_fields", { brand_id: null }),
@@ -443,9 +448,21 @@ async function getCustomFields(_context: FieldsContext, { data }: any) {
   }).then(({ data }) => data);
 }
 
-async function validateFields(_context: FieldsContext, { data }: any) {
-  // not implemented so pass through
-  return Promise.resolve(data);
+async function validateFields(
+  { fieldsSchema, fieldsModel }: BasketContext,
+  _event: any
+) {
+  const { validate } = useValidation();
+
+  return new Promise((resolve, reject) => {
+    const errors = validate(fieldsSchema, fieldsModel);
+    debugger;
+    if (errors.length) {
+      reject(errors);
+    } else {
+      resolve(fieldsModel);
+    }
+  });
 }
 // --------------------------------------------------------
 

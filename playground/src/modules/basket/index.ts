@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 import { useBasket as useUpmindBasket, useBrand } from "@upmind/flow";
 
 // --- utils
-import { map, some } from "lodash-es";
+import { isEmpty, map, some } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -32,7 +32,7 @@ export const useBasket = () => {
     clearFields: () => send({ type: "CLEAR.FIELDS" }),
 
     updateFields: values => {
-      send({ type: "INPUT", data: values });
+      send({ type: "UPDATE.FIELDS", data: values });
     },
 
     updateCurrency: currency =>
@@ -94,12 +94,14 @@ export const useBasket = () => {
           "shopping.promotions.adding",
           "shopping.promotions.removing"
         ].some(state.value.matches),
-        canProcess: some(
-          state.value?.context?.items,
-          item =>
-            item.state.matches("configured") &&
-            (item.state.context.isNew || item.state.context.isDirty)
-        ),
+        canProcess:
+          ["shopping.custom_fields.valid"].some(state.value.matches) ||
+          some(
+            state.value?.context?.items,
+            item =>
+              item.state.matches("configured") &&
+              (item.state.context.isNew || item.state.context.isDirty)
+          ),
         // ---
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
         hasPromotions:
@@ -114,6 +116,10 @@ export const useBasket = () => {
         ),
         needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
         isReadyForCheckout: ["checkout"].some(state.value.matches),
+        hasFields: ![
+          "shopping.custom_fields.loading",
+          "shopping.custom_fields.complete"
+        ].some(state.value.matches),
         hasErrors:
           [
             "shopping.items.processing.error",
@@ -141,6 +147,8 @@ export const useBasket = () => {
     taxes: computed(() => state.value.context?.basket?.taxes || []),
     currency: computed(() => state.value.context?.basket?.currency),
     currencies: computed(() => brandState.value.context?.currencies || []),
-    fields: computed(() => state.value.context?.fields)
+    fieldsModel: computed(() => state.value.context?.fieldsModel),
+    fieldsSchema: computed(() => state.value.context?.fieldsSchema),
+    fieldsUischema: computed(() => state.value.context?.fieldsUischema)
   };
 };
