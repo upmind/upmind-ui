@@ -453,7 +453,7 @@ export default createMachine(
           }
 
           // check in case...
-          if (domain) domain.is_primary = values.length == 1;
+          if (domain) domain.is_primary = !some(values, "is_primary");
 
           return values;
         }
