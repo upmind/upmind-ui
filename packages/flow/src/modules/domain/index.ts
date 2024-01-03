@@ -170,6 +170,7 @@ export const useDomain = (
   return {
     service, // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state
+    getSnapshot: () => state,
+    destroy: () => service.stop()
   };
 };
