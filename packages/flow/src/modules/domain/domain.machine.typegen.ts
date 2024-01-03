@@ -69,6 +69,7 @@ export interface Typegen0 {
       | "REMOVE"
       | "SEARCH"
       | "SYNC";
+    checkChoices: "CHOOSE" | "STOP" | "xstate.init";
     clearAvailable:
       | ""
       | "ADD"
