@@ -188,6 +188,10 @@ export default defineComponent({
 
   setup(props) {
     return useDomain(props.syncBasket, props.type, props.parent);
+  },
+
+  beforeUnmount() {
+    this.destroy();
   }
 });
 </script>

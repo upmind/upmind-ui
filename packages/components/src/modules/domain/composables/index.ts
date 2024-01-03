@@ -69,6 +69,7 @@ export const useDomain = (
       data: value
     });
   };
+
   // --------------------------------------------------------
 
   return {
@@ -144,6 +145,7 @@ export const useDomain = (
     remove,
     toggle,
     setPrimaryDomain,
-    isSelected: (value: string) => state.value.matches(value)
+    isSelected: (value: string) => state.value.matches(value),
+    destroy: domain.destroy
   };
 };
