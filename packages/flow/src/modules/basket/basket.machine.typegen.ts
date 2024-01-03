@@ -34,6 +34,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.fields": {
+      type: "done.invoke.fields";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.generating:invocation[0]": {
       type: "done.invoke.generating:invocation[0]";
       data: unknown;
@@ -78,6 +83,7 @@ export interface Typegen0 {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
+    "error.platform.fields": { type: "error.platform.fields"; data: unknown };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
@@ -161,9 +167,11 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.promotions.adding:invocation[0]"
       | "error.platform.basketManager.shopping.promotions.removing:invocation[0]"
       | "error.platform.claiming:invocation[0]"
+      | "error.platform.fields"
       | "error.platform.loading:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
+    setFields: "UPDATE.FIELDS" | "done.invoke.fields";
     updateBasket:
       | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
@@ -201,6 +209,11 @@ export interface Typegen0 {
     authSubscription: "xstate.init";
     check: "SESSION" | "UNAUTHENTICATED";
     claim: "AUTHENTICATED";
+    fields:
+      | "CLEAR.ERRORS"
+      | "done.invoke.claiming:invocation[0]"
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.loading:invocation[0]";
     generate: "ADD";
     isAuthenticated:
       | "CLEAR.ERRORS"
@@ -215,7 +228,6 @@ export interface Typegen0 {
   };
   matchesStates:
     | "checkout"
-    | "checkout.additional"
     | "checkout.billing"
     | "checkout.payment"
     | "checkout.shipping"
@@ -229,6 +241,7 @@ export interface Typegen0 {
     | "shopping.client.authenticated"
     | "shopping.client.checking"
     | "shopping.client.unauthenticated"
+    | "shopping.fields"
     | "shopping.items"
     | "shopping.items.configured"
     | "shopping.items.configuring"
@@ -248,9 +261,10 @@ export interface Typegen0 {
     | "shopping.promotions.removing"
     | "subscribing"
     | {
-        checkout?: "additional" | "billing" | "payment" | "shipping";
+        checkout?: "billing" | "payment" | "shipping";
         shopping?:
           | "client"
+          | "fields"
           | "items"
           | "promotions"
           | {

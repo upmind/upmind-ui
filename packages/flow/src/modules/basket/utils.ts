@@ -1,5 +1,23 @@
 // --- utils
-import { first, get, isArray, forEach } from "lodash-es";
+import {
+  first,
+  forEach,
+  get,
+  isArray,
+  isNil,
+  map,
+  omitBy,
+  set
+} from "lodash-es";
+
+// --------------------------------------------------------
+
+const translate = (item, field) => {
+  const translated = item[`${field}_translated`];
+  if (translated) return translated;
+  return item[field];
+};
+
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
@@ -104,6 +122,8 @@ export const useSummaryParser = (data?: any) => {
   return summary;
 };
 
+// --------------------------------------------------------
+
 export const useValidationParser = (error: any) => {
   if (error?.data) {
     error.message = "Validation error";
@@ -125,4 +145,121 @@ export const useValidationParser = (error: any) => {
   }
 
   return error;
+};
+
+// --------------------------------------------------------
+// Fields
+
+export const useFieldsSchemaParser = (data: any) => {
+  const schema = {
+    type: "object",
+    title: "Fields",
+    required: [],
+    properties: {}
+  };
+
+  if (data?.length) {
+    const required: string[] = [];
+    const properties = {};
+
+    forEach(data, field => {
+      if (field.required) required.push(field.code);
+
+      let type = "string";
+      let format = null;
+
+      // lets map our field types...
+      switch (field.type_code) {
+        case "input_number":
+          type = "number";
+          break;
+        case "input-checkbox":
+          type = "boolean";
+          break;
+        case "input_date":
+          type = "string";
+          format = "date";
+          break;
+        case "input_datetime":
+          type = "string";
+          format = "date-time";
+          break;
+        case "input_email":
+          type = "string";
+          format = "email";
+          break;
+        case "input_url":
+          type = "string";
+          format = "uri";
+          break;
+        case "input_phone":
+          type = "string";
+          format = "phone";
+          break;
+        case "input_ip":
+          type = "string";
+          format = "ipv4";
+          break;
+        case "input_ipv6":
+          type = "string";
+          format = "ipv6";
+          break;
+
+        default:
+          type = "string";
+          break;
+      }
+
+      // then we set our property based on the field code
+      set(
+        properties,
+        field.code,
+        omitBy(
+          {
+            type,
+            format,
+            title: translate(field, "name"),
+            description: translate(field, "description"),
+            default: field.default,
+            const: field.const,
+            enum: field.options?.length ? field.options : undefined
+          },
+          isNil
+        )
+      );
+    });
+
+    set(schema, "properties", properties);
+    set(schema, "required", required);
+  }
+
+  return schema;
+};
+
+export const useFieldsUischemaParser = (data: any) => {
+  const schema = {
+    type: "VerticalLayout",
+    elements: []
+  };
+
+  if (data?.length) {
+    schema.elements = map(data, field => ({
+      type: "Control",
+      scope: `#/properties/${field.code}`
+    }));
+  }
+
+  return schema;
+};
+
+export const useFieldsModelParser = (data: any) => {
+  const model = {};
+
+  if (data?.length) {
+    forEach(data, field => {
+      set(model, field.code, field?.default || null);
+    });
+  }
+
+  return model;
 };
