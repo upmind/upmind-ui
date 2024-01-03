@@ -165,7 +165,7 @@ export default defineComponent({
       deep: true
     }
   },
-  emits: ["reject", "resolve", "update:modelValue"],
+  emits: ["reject", "resolve", "update:modelValue", "valid"],
   customOptions: {},
   setup(props) {
     // -------
@@ -211,10 +211,13 @@ export default defineComponent({
       // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
       const rawData = JSON.parse(JSON.stringify(data));
       const rawModel = JSON.parse(JSON.stringify(this.model));
+
       if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
         this.model = data;
         this.$emit("update:modelValue", this.model);
       }
+
+      this.$emit("valid", !this.errors?.length);
     },
 
     doSubmit() {

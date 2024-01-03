@@ -1,5 +1,6 @@
 // --- utils
 import {
+  defaultsDeep,
   first,
   forEach,
   get,
@@ -7,6 +8,7 @@ import {
   isNil,
   map,
   omitBy,
+  reduce,
   set
 } from "lodash-es";
 
@@ -155,7 +157,12 @@ export const useFieldsSchemaParser = (data: any) => {
     type: "object",
     title: "Fields",
     required: [],
-    properties: {}
+    properties: {
+      notes: {
+        type: "string",
+        title: "Order Notes"
+      }
+    }
   };
 
   if (data?.length) {
@@ -174,6 +181,7 @@ export const useFieldsSchemaParser = (data: any) => {
           type = "number";
           break;
         case "input-checkbox":
+        case "tick_box":
           type = "boolean";
           break;
         case "input_date":
@@ -229,8 +237,13 @@ export const useFieldsSchemaParser = (data: any) => {
       );
     });
 
-    set(schema, "properties", properties);
-    set(schema, "required", required);
+    if (required.length) schema.required.push("custom_fields");
+
+    set(schema, "properties.custom_fields", {
+      type: "object",
+      properties,
+      required
+    });
   }
 
   return schema;
@@ -239,27 +252,68 @@ export const useFieldsSchemaParser = (data: any) => {
 export const useFieldsUischemaParser = (data: any) => {
   const schema = {
     type: "VerticalLayout",
-    elements: []
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/notes",
+        options: {
+          multi: true,
+          focus: true,
+          autocomplete: "off",
+          placeholder: "Add notes here..."
+        }
+      }
+    ]
   };
 
   if (data?.length) {
-    schema.elements = map(data, field => ({
-      type: "Control",
-      scope: `#/properties/${field.code}`
-    }));
+    const group = {
+      type: "Group",
+      elements: map(data, field => ({
+        type: "Control",
+        scope: `#/properties/custom_fields/properties/${field.code}`
+      }))
+    };
+
+    schema.elements.push(group);
   }
 
   return schema;
 };
 
-export const useFieldsModelParser = (data: any) => {
-  const model = {};
+export const useFieldsModelParser = (data: any, values: any) => {
+  const model = defaultsDeep(values, {
+    notes: values?.notes,
+    custom_fields: {}
+  });
 
   if (data?.length) {
     forEach(data, field => {
-      set(model, field.code, field?.default || null);
+      const value = get(model, `custom_fields.${field.code}`, field?.value);
+      set(
+        model,
+        `custom_fields.${field.code}`,
+        value || field?.default || null
+      );
     });
   }
 
   return model;
+};
+
+export const useBasketFieldsModelParser = (data: any, defaults: any) => {
+  const notes = get(data, "notes", get(defaults, "notes"));
+  const custom_fields = reduce(
+    get(data, "custom_fields"),
+    (result, { field, value }) => {
+      set(result, field.code, value);
+      return result;
+    },
+    get(defaults, "custom_fields", {})
+  );
+
+  return {
+    notes,
+    custom_fields
+  };
 };

@@ -49,6 +49,7 @@ export const useRegisterSchemaParser = (data: any) => {
           type = "number";
           break;
         case "input-checkbox":
+        case "tick_box":
           type = "boolean";
           break;
         case "input_date":
