@@ -3,7 +3,7 @@
 // --- internal
 import { useApi } from "../api";
 
-import type { BasketContext } from "./types.d";
+import type { BasketContext, FieldsContext } from "./types.d";
 import { useSession } from "../session";
 import type { Token } from "../session/types.d";
 const { authSubscription, getHistory, isAuthenticated } = useSession();
@@ -433,6 +433,21 @@ async function getProvisioningFieldsValues(basket: any) {
 }
 
 // --------------------------------------------------------
+// --- Basket Field Methods
+
+async function getCustomFields(_context: FieldsContext, { data }: any) {
+  const { get, useUrl } = useApi();
+  return get({
+    // url: useUrl("basket_fields", { brand_id: null }),
+    url: useUrl("basket_fields")
+  }).then(({ data }) => data);
+}
+
+async function validateFields(_context: FieldsContext, { data }: any) {
+  // not implemented so pass through
+  return Promise.resolve(data);
+}
+// --------------------------------------------------------
 
 async function hideWarnings(context: BasketContext, _event: any) {}
 
@@ -464,5 +479,8 @@ export default <Object>{
   removeItem,
   // ---
   authSubscription,
-  isAuthenticated
+  isAuthenticated,
+  // ---
+  getCustomFields,
+  validateFields
 };

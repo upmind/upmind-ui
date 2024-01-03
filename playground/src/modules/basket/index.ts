@@ -29,6 +29,12 @@ export const useBasket = () => {
 
     clearErrors: () => send({ type: "CLEAR.ERRORS" }),
 
+    clearFields: () => send({ type: "CLEAR.FIELDS" }),
+
+    updateFields: values => {
+      send({ type: "INPUT", data: values });
+    },
+
     updateCurrency: currency =>
       send({ type: "UPDATE.CURRENCY", data: currency }),
 
@@ -134,6 +140,7 @@ export const useBasket = () => {
     promotions: computed(() => state.value.context?.basket?.promotions || []),
     taxes: computed(() => state.value.context?.basket?.taxes || []),
     currency: computed(() => state.value.context?.basket?.currency),
-    currencies: computed(() => brandState.value.context?.currencies || [])
+    currencies: computed(() => brandState.value.context?.currencies || []),
+    fields: computed(() => state.value.context?.fields)
   };
 };

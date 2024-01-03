@@ -6,6 +6,7 @@ const { sendTo } = actions;
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import configurationMachine from "../product/product.machine";
+import fieldsMachine from "./fields.machine";
 
 // --- utils
 import { useTime } from "../../utils";
@@ -63,6 +64,7 @@ export default createMachine(
       items: [],
       bin: [],
       queue: [],
+      fields: [],
       // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
@@ -348,6 +350,23 @@ export default createMachine(
             on: {
               AUTHENTICATED: { target: "#claiming" }
             }
+          },
+
+          fields: {
+            invoke: {
+              id: "fields",
+              src: fieldsMachine,
+              autoForward: true,
+              onDone: {
+                actions: ["setFields"]
+              },
+              onError: { actions: ["setError"] }
+            },
+            on: {
+              "UPDATE.FIELDS": {
+                actions: ["setFields"]
+              }
+            }
           }
         },
         on: {
@@ -368,8 +387,7 @@ export default createMachine(
         states: {
           billing: {},
           shipping: {},
-          payment: {},
-          additional: {}
+          payment: {}
         },
         on: {
           UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
@@ -451,43 +469,6 @@ export default createMachine(
         },
         error: null
       }),
-
-      // addAncillaryItems: assign({
-      //   items: ({ items }, { data }) => {
-      //     // if (!hasModuleEnabled("web_hosting")) return false;
-
-      //     // const { basket, itemId, newId } = data;
-      //     // const product = find(basket?.products, ["id", newId]);
-      //     // const item = find(items, ["id", itemId]);
-
-      //     // const replacements = filter(
-      //     //   item.state?.context?.available?.provision_fields,
-      //     //   ["semantic_type", SemanticTypes.DOMAIN_NAMES]
-      //     // );
-
-      //     // forEach(replacements, field => {
-      //     //   console.log("Semantic replacement field", field);
-      //     //   const value = get(item.state?.context, [
-      //     //     "values",
-      //     //     "provision_fields",
-      //     //     field.name
-      //     //   ]);
-
-      //     //   // TODO: find a way to get the actual product that relats to this field
-      //     //   const machine = spawnConfiguration({
-      //     //     product_id: "78985742-6489-7012-096c-21e325d0ed36",
-      //     //     provision_fields: {
-      //     //       [field.name]: value
-      //     //     },basket?.promotions
-      //     //   });
-
-      //     //   items.push(machine);
-      //     // });
-
-      //     // TODO:
-      //     return items;
-      //   }
-      // }),
 
       queueItem: assign({
         queue: ({ items, queue }, { data }) => {
@@ -657,6 +638,12 @@ export default createMachine(
         (_context, { data: { itemId } }) => itemId,
         (_context, { type, data }) => ({ type, data })
       ),
+
+      // ---
+
+      setFields: assign({
+        fields: (_context, { data }) => data
+      }),
 
       // ---
 

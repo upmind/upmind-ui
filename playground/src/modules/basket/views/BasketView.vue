@@ -229,6 +229,19 @@
             @reject="removePromotion"
           ></promotions-config>
         </aside>
+
+        <footer>
+          <!-- Basket fields -->
+          <basket-fields
+            :schema="schema"
+            :uischema="uischema"
+            :model-value="fields"
+            :processing="meta.isProcessing"
+            :additionalErrors="errors?.data"
+            @resolve="updateFields"
+            @reject="clearFields"
+          ></basket-fields>
+        </footer>
       </section>
     </div>
 
@@ -253,6 +266,7 @@ import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import ConfigProduct from "@/modules/product/views/Product.vue";
 import PromotionsConfig from "../components/Promotions.vue";
+import BasketFields from "../components/Fields.vue";
 import { UpmDebug } from "@upmind/components";
 import {
   SquaresPlusIcon,
@@ -272,6 +286,7 @@ const {
   promotions,
   currency,
   currencies,
+  fields,
   // ---
   addProduct,
   addPromotion,
@@ -286,7 +301,9 @@ const {
   updateOptions,
   updateProvisioning,
   updateQuantity,
-  updateTerm
+  updateTerm,
+  clearFields,
+  updateFields
 } = useBasket();
 
 const productCatalogue = [
