@@ -4,6 +4,7 @@ import {
   first,
   forEach,
   get,
+  includes,
   isArray,
   isNil,
   map,
@@ -174,44 +175,66 @@ export const useFieldsSchemaParser = (data: any) => {
 
       let type = "string";
       let format = null;
+      const contentMediaType = null;
+      const contentEncoding = null;
 
       // lets map our field types...
       switch (field.type_code) {
         case "input_number":
+        case "number":
           type = "number";
           break;
+
         case "input-checkbox":
         case "tick_box":
           type = "boolean";
           break;
+
         case "input_date":
-          type = "string";
-          format = "date";
-          break;
         case "input_datetime":
+        case "date":
           type = "string";
           format = "date-time";
           break;
+
         case "input_email":
+        case "email":
           type = "string";
           format = "email";
           break;
+
         case "input_url":
           type = "string";
           format = "uri";
           break;
+
         case "input_phone":
           type = "string";
           format = "phone";
           break;
+
         case "input_ip":
           type = "string";
           format = "ipv4";
           break;
+
         case "input_ipv6":
           type = "string";
           format = "ipv6";
           break;
+
+        case "input_password":
+        case "password":
+          type = "string";
+          format = "password";
+          break;
+
+        // case "input_file":
+        // case "image":
+        //   type = "string";
+        //   contentMediaType = "image";
+        //   contentEncoding = "base64";
+        //   break;
 
         default:
           type = "string";
@@ -226,11 +249,19 @@ export const useFieldsSchemaParser = (data: any) => {
           {
             type,
             format,
+            contentMediaType,
+            contentEncoding,
             title: translate(field, "name"),
             description: translate(field, "description"),
             default: field.default,
             const: field.const,
-            enum: field.options?.length ? field.options : undefined
+            enum: !field.options?.length ? undefined : field.options,
+            oneOf: !field.values?.length
+              ? undefined
+              : map(translate(field, "values"), item => ({
+                  const: item.value,
+                  title: item.label
+                }))
           },
           isNil
         )
@@ -269,10 +300,60 @@ export const useFieldsUischemaParser = (data: any) => {
   if (data?.length) {
     const group = {
       type: "Group",
-      elements: map(data, field => ({
-        type: "Control",
-        scope: `#/properties/custom_fields/properties/${field.code}`
-      }))
+      elements: map(data, field => {
+        let type = null;
+        let multi = false;
+
+        // lets map our field types...
+        switch (field.type_code) {
+          case "textarea":
+          case "text_area":
+            multi = true;
+            break;
+
+          case "input_number":
+          case "number":
+            type = "number";
+            break;
+
+          case "input_date":
+          case "date":
+            type = "date";
+            break;
+
+          case "input_datetime":
+          case "datetime":
+            type = "datetime-local";
+            break;
+
+          case "input_email":
+          case "email":
+            type = "email";
+            break;
+
+          case "input_password":
+          case "password":
+            type = "password";
+            break;
+
+          case "input_file":
+          case "image":
+            type = "file";
+            break;
+        }
+
+        return {
+          type: "Control",
+          scope: `#/properties/custom_fields/properties/${field.code}`,
+          options: {
+            label: translate(field, "name"),
+            description: translate(field, "description"),
+            placeholder: translate(field, "placeholder"),
+            multi,
+            type
+          }
+        };
+      })
     };
 
     schema.elements.push(group);

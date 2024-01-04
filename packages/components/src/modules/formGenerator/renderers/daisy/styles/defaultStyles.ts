@@ -9,6 +9,8 @@ export const defaultStyles: Styles = {
       text: "label-text"
     },
     input: "input input-bordered w-full",
+    file: "file-input input-bordered w-full",
+    password: "input input-bordered w-full ",
     checkbox: "checkbox",
     radio: "radio",
     select: "select select-bordered w-full",
@@ -23,7 +25,7 @@ export const defaultStyles: Styles = {
     },
     dac: {},
     textarea: "textarea textarea-bordered w-full",
-    wrapper: "wrapper",
+    wrapper: "wrapper relative",
     option: "option",
     description: "description text-xs mt-2",
     error: {
