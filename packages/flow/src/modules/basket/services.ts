@@ -456,7 +456,6 @@ async function validateFields(
 
   return new Promise((resolve, reject) => {
     const errors = validate(fieldsSchema, fieldsModel);
-    debugger;
     if (errors.length) {
       reject(errors);
     } else {

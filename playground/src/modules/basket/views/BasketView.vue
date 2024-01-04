@@ -231,7 +231,10 @@
         </aside>
       </section>
 
-      <section class="basket-fields" v-if="meta.hasFields">
+      <section
+        class="basket-fields pb-8"
+        v-if="meta.hasFields && items?.length"
+      >
         <div class="divider"></div>
 
         <basket-fields

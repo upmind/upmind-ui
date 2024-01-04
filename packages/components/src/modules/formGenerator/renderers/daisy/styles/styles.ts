@@ -29,6 +29,7 @@ export interface Styles {
       wrapper?: string;
     };
     input?: string;
+    file?: string;
     checkbox?: string;
     radio?: string;
     rating: {
