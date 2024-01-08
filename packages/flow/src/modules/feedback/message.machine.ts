@@ -19,8 +19,11 @@ export default (message: Message) =>
       initial: "available",
       context: {
         hash: message?.hash,
+        created: Date.now(),
         // ---
-        message: message?.message,
+        title: message?.title,
+        subtitle: message?.subtitle,
+        copy: message?.copy,
         display: message?.display,
         type: message?.type,
         // ---
@@ -69,8 +72,7 @@ export default (message: Message) =>
         }))
       },
       guards: {
-        hasMessage: ({ hash, message, display, type }) =>
-          !!hash && !!message && !!display && !!type,
+        hasMessage: ({ hash, display, type }) => !!hash && !!display && !!type,
         hasMaxAge: ({ maxAge }) => !!maxAge
       },
       delays: {

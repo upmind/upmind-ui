@@ -59,10 +59,29 @@ export default createMachine(
         messages: (
           { messages }: MessagesContext,
           {
-            data: { id, message, display, type, delay, maxAge }
+            data: {
+              id,
+              display,
+              type,
+              title,
+              subtitle,
+              copy,
+              icon,
+              delay,
+              maxAge
+            }
           }: MessagesEvents
         ) => {
-          id ??= generateHash(message, display, type, delay, maxAge);
+          id ??= generateHash({
+            display,
+            type,
+            title,
+            subtitle,
+            copy,
+            icon,
+            delay,
+            maxAge
+          });
 
           // check if we already have a feedback with the same id
           const exists = get(messages, id);
@@ -74,7 +93,10 @@ export default createMachine(
             const machine = spawn(
               messageMachine({
                 hash: id,
-                message,
+                title,
+                subtitle,
+                copy,
+                icon,
                 display,
                 type,
                 delay,

@@ -3,21 +3,16 @@ import { sha1 } from "object-hash";
 
 // --- utils
 import { useTime } from "../../utils";
-import { defaultsDeep } from "lodash-es";
+import { defaultsDeep, omit } from "lodash-es";
 
 // --- types
+import type { Message } from "./types.d";
 import { messageDisplays, messageTypes } from "./types.d";
 
 // --------------------------------------------------------
 
-export function generateHash(
-  message: string,
-  display?: messageDisplays,
-  type?: messageTypes,
-  delay?: number,
-  maxAge?: number
-) {
-  const hash = sha1({ message, display, type, delay, maxAge });
+export function generateHash(message: Message) {
+  const hash = sha1(omit(message, "hash"));
   return hash;
 }
 

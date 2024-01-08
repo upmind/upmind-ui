@@ -50,52 +50,7 @@
 <script lang="ts">
 import { defineComponent, inject, ref, onMounted } from "vue";
 import { get, isString } from "lodash-es";
-
-function calculateRelativeTime(
-  timestamp: EpochTimeStamp,
-  maxAge: number,
-  currentTime: EpochTimeStamp
-) {
-  const expiresIn = timestamp + maxAge - currentTime;
-  const isExpired = expiresIn <= 0;
-
-  const seconds = Math.floor(Math.abs(expiresIn) / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  const remainingSeconds = seconds % 60;
-  const remainingMinutes = minutes % 60;
-
-  let formattedString = "";
-
-  if (hours > 0) {
-    formattedString += `${hours} hour${hours > 1 ? "s" : ""}`;
-    if (remainingMinutes > 0 || remainingSeconds > 0) {
-      formattedString += " and ";
-    }
-  }
-
-  if (remainingMinutes > 0) {
-    formattedString += `${remainingMinutes} minute${
-      remainingMinutes > 1 ? "s" : ""
-    }`;
-    if (remainingSeconds > 0) {
-      formattedString += " and ";
-    }
-  }
-
-  if (remainingSeconds > 0) {
-    formattedString += `${remainingSeconds} second${
-      remainingSeconds > 1 ? "s" : ""
-    }`;
-  }
-
-  return expiresIn == 0
-    ? "Expires now"
-    : isExpired
-      ? `Expired ${formattedString} ago`
-      : `Expires in ${formattedString}`;
-}
+import { utils } from "@upmind/flow";
 
 export default defineComponent({
   name: "UpmRequest",
@@ -158,7 +113,7 @@ export default defineComponent({
       // const expiresIn =
       //   this.request.completed + this.request.maxAge - this.timestamp;
 
-      return calculateRelativeTime(
+      return utils.useRelativeTime(
         this.request.completed,
         this.request.maxAge,
         this.timestamp

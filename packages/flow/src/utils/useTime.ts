@@ -25,3 +25,51 @@ export function useTime() {
     }
   };
 }
+
+export function useRelativeTime(
+  timestamp: EpochTimeStamp,
+  maxAge: number,
+  currentTime: EpochTimeStamp
+) {
+  const expiryTime = timestamp + maxAge;
+  const expiresIn = expiryTime - currentTime;
+
+  const seconds = Math.floor(Math.abs(expiresIn) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  const remainingSeconds = seconds % 60;
+  const remainingMinutes = minutes % 60;
+
+  const isExpired = !seconds && !minutes && !hours;
+
+  let formattedString = "";
+
+  if (hours > 0) {
+    formattedString += `${hours} hour${hours > 1 ? "s" : ""}`;
+    if (remainingMinutes > 0 || remainingSeconds > 0) {
+      formattedString += " and ";
+    }
+  }
+
+  if (remainingMinutes > 0) {
+    formattedString += `${remainingMinutes} minute${
+      remainingMinutes > 1 ? "s" : ""
+    }`;
+    if (remainingSeconds > 0) {
+      formattedString += " and ";
+    }
+  }
+
+  if (remainingSeconds > 0) {
+    formattedString += `${remainingSeconds} second${
+      remainingSeconds > 1 ? "s" : ""
+    }`;
+  }
+
+  return seconds == 0
+    ? "Expires now"
+    : isExpired
+      ? `Expired ${formattedString} ago`
+      : `Expires in ${formattedString}`;
+}

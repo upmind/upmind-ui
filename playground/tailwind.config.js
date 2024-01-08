@@ -38,5 +38,14 @@ module.exports = {
       "coffee",
       "winter"
     ]
-  }
+  },
+  safelist: [
+    "text-3xl",
+    "lg:text-4xl",
+    { pattern: /bg-(primary|secondary|accent|info|success|error|warning)/ },
+    {
+      pattern:
+        /text-(primary|secondary|accent|info|success|error|warning)-content/
+    }
+  ]
 };
