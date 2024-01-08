@@ -27,19 +27,16 @@
     <p v-if="message.copy">{{ message.copy }}</p>
 
     <div class="flex items-center gap-2 mt-2">
-      <strong
-        class="status block text-xs ml-auto text-inherit"
+      <em
+        class="text-xs ml-auto font-mono text-inherit"
         v-if="message.maxAge && meta.isActive"
       >
-        Expires {{ expiresIn }}
-      </strong>
+        {{ hidesIn }}
+      </em>
 
-      <strong
-        class="status block text-xs ml-auto text-inherit"
-        v-if="meta.isPending"
-      >
-        Displays {{ showsIn }}
-      </strong>
+      <em class="text-xs ml-auto font-mono text-inherit" v-if="meta.isPending">
+        {{ showsIn }}
+      </em>
     </div>
   </div>
 </template>
@@ -50,6 +47,7 @@ import { defineComponent, ref, onMounted, computed } from "vue";
 import type { StateMachine } from "xstate";
 import { utils } from "@upmind/flow";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { endsWith, startsWith } from "lodash-es";
 
 export default defineComponent({
   name: "UpmMessage",
@@ -89,22 +87,33 @@ export default defineComponent({
     };
   },
   computed: {
-    expiresIn() {
+    hidesIn() {
       if (!this.message.maxAge) {
         return "";
       }
 
-      return utils.useRelativeTime(
-        this.message.created + this.message.maxAge,
+      const time = utils.useRelativeTime(
+        this.message.scheduled + this.message.maxAge,
         this.timestamp
       );
+
+      if (endsWith(time, " ago")) return `Hidden ${time}`;
+      else if (startsWith(time, "in ")) return `Hides ${time}`;
+      else return `Hiding`;
     },
     showsIn() {
       if (!this.message.delay) {
         return "";
       }
 
-      return utils.useRelativeTime(this.message.scheduled, this.timestamp);
+      const time = utils.useRelativeTime(
+        this.message.scheduled,
+        this.timestamp
+      );
+
+      if (endsWith(time, " ago")) return `Showed ${time}`;
+      else if (startsWith(time, "in ")) return `Shows ${time}`;
+      else return `Showing `;
     }
   }
 });

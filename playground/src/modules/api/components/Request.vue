@@ -20,12 +20,12 @@
             {{ value }}
           </span>
         </button>
-        <code
-          class="status block text-xs ml-auto font-thin"
+        <em
+          class="text-xs ml-auto font-mono text-inherit"
           v-if="request.isCached || request.isStale"
         >
           {{ expiresIn }}
-        </code>
+        </em>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, ref, onMounted } from "vue";
-import { get, isString } from "lodash-es";
+import { endsWith, get, isString, startsWith } from "lodash-es";
 import { utils } from "@upmind/flow";
 
 export default defineComponent({
@@ -112,11 +112,14 @@ export default defineComponent({
       }
       // const expiresIn =
       //   this.request.completed + this.request.maxAge - this.timestamp;
-
-      return utils.useRelativeTime(
+      const time = utils.useRelativeTime(
         this.request.completed + this.request.maxAge,
         this.timestamp
       );
+
+      if (endsWith(time, " ago")) return `Expired ${time}`;
+      else if (startsWith(time, "in ")) return `Expires ${time}`;
+      else return `Expires ${time} `;
     }
   }
 });
