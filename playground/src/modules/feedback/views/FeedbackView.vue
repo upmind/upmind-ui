@@ -91,14 +91,16 @@ function getRandomDisplay() {
 function processMessages() {
   const dummyMessages = Array(random(1, 10));
   forEach(dummyMessages, () => {
+    const maxAge = getRandomMaxAge();
     const message = {
       title: faker.lorem.lines(1),
       subtitle: faker.lorem.lines(2),
       copy: faker.lorem.paragraph(),
       delay: getRandomDelay(),
-      maxAge: getRandomMaxAge(),
+      maxAge,
       type: getRandomType(),
-      display: getRandomDisplay()
+      display: getRandomDisplay(),
+      dismissable: maxAge ? random(0, 1) === 1 : true
     };
     add(message);
   });
