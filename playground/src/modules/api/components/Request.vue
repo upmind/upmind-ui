@@ -114,8 +114,7 @@ export default defineComponent({
       //   this.request.completed + this.request.maxAge - this.timestamp;
 
       return utils.useRelativeTime(
-        this.request.completed,
-        this.request.maxAge,
+        this.request.completed + this.request.maxAge,
         this.timestamp
       );
     }

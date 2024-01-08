@@ -3,7 +3,7 @@ import { sha1 } from "object-hash";
 
 // --- utils
 import { useTime } from "../../utils";
-import { defaultsDeep, omit } from "lodash-es";
+import { defaultsDeep, omit, unset } from "lodash-es";
 
 // --- types
 import type { Message } from "./types.d";
@@ -20,10 +20,17 @@ export const useMessageParser = (data: Object) => {
   const defaultMessage = {
     display: messageDisplays.TOAST,
     type: messageTypes.NEUTRAL,
-    message: null,
+    title: null,
+    subtitle: null,
+    copy: null,
+    icon: null,
     delay: 0,
-    maxAge: useTime().SECOND * 3
+    maxAge: useTime().SECOND * 3,
+    dismissable: true
   };
   // todo pars einto a message format
-  return defaultsDeep(data, defaultMessage);
+  const message = defaultsDeep(data, defaultMessage);
+  unset(message, "id");
+
+  return message;
 };

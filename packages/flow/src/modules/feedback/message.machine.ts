@@ -6,6 +6,7 @@ import type { Message } from "./types.d";
 import { useTime } from "../../utils";
 
 // --utils
+
 // --------------------------------------------------------
 
 // as this is a sub machine, we need to be initialised with a message
@@ -16,10 +17,12 @@ export default (message: Message) =>
       tsTypes: {} as import("./message.machine.typegen").Typegen0,
       id: "message",
       predictableActionArguments: true,
-      initial: "available",
+      initial: "pending",
       context: {
         hash: message?.hash,
         created: Date.now(),
+        scheduled: Date.now() + (message?.delay || 0),
+
         // ---
         title: message?.title,
         subtitle: message?.subtitle,
@@ -27,6 +30,7 @@ export default (message: Message) =>
         display: message?.display,
         type: message?.type,
         // ---
+        dismissable: message?.dismissable,
         delay: message?.delay,
         maxAge: message?.maxAge
       },
@@ -35,11 +39,13 @@ export default (message: Message) =>
         // If we have context > message, we can skip to active
         // otherwise we will await a message
         // individual message events are defined to allow for more granular control
-        available: {
-          always: {
-            target: "active",
-            cond: "hasMessage"
-          }
+        pending: {
+          after: [
+            {
+              delay: "delay",
+              target: "active"
+            }
+          ]
         },
 
         active: {
@@ -72,10 +78,16 @@ export default (message: Message) =>
         }))
       },
       guards: {
-        hasMessage: ({ hash, display, type }) => !!hash && !!display && !!type,
+        isActive: ({ scheduled, created, delay }) => {
+          const current = Date.now();
+          const isFuture = scheduled > current;
+          debugger;
+          return !isFuture;
+        },
         hasMaxAge: ({ maxAge }) => !!maxAge
       },
       delays: {
+        delay: ({ delay }) => delay, // this allows us to override the max age in the context
         maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
         wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
       }

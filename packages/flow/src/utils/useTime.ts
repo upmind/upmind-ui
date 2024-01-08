@@ -28,11 +28,9 @@ export function useTime() {
 
 export function useRelativeTime(
   timestamp: EpochTimeStamp,
-  maxAge: number,
   currentTime: EpochTimeStamp
 ) {
-  const expiryTime = timestamp + maxAge;
-  const expiresIn = expiryTime - currentTime;
+  const expiresIn = timestamp - currentTime;
 
   const seconds = Math.floor(Math.abs(expiresIn) / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -68,8 +66,8 @@ export function useRelativeTime(
   }
 
   return seconds == 0
-    ? "Expires now"
+    ? "now"
     : isExpired
-      ? `Expired ${formattedString} ago`
-      : `Expires in ${formattedString}`;
+      ? `${formattedString} ago`
+      : `in ${formattedString}`;
 }

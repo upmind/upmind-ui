@@ -1,15 +1,27 @@
 <template>
   <div
     class="message border border-opacity-50 border-neutral-300 rounded-box mb-2 p-4"
-    :class="[`bg-${message.type}`, `text-${message.type}-content`]"
+    :class="[
+      { 'opacity-30': meta.isPending },
+      `bg-${message.type}`,
+      `text-${message.type}-content`
+    ]"
   >
-    <div class="title">
+    <div class="title relative pr-4">
       <h3 class="text-inherit mt-0" v-if="message.title">
         {{ message.title }}
       </h3>
       <h4 class="text-inherit" v-if="message.subtitle">
         {{ message.subtitle }}
       </h4>
+      <button
+        @click="dismiss(message.hash)"
+        class="btn btn-xs btn-ghost btn-circle absolute top-0 right-0"
+        v-if="meta.isActive && message.dismissable"
+      >
+        <x-mark-icon class="w-fit h-fit"></x-mark-icon>
+        <span class="sr-only">Dismiss the message</span>
+      </button>
     </div>
 
     <p v-if="message.copy">{{ message.copy }}</p>
@@ -17,9 +29,16 @@
     <div class="flex items-center gap-2 mt-2">
       <strong
         class="status block text-xs ml-auto text-inherit"
-        v-if="message.maxAge"
+        v-if="message.maxAge && meta.isActive"
       >
-        {{ expiresIn }}
+        Expires {{ expiresIn }}
+      </strong>
+
+      <strong
+        class="status block text-xs ml-auto text-inherit"
+        v-if="meta.isPending"
+      >
+        Displays {{ showsIn }}
       </strong>
     </div>
   </div>
@@ -27,13 +46,16 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, computed } from "vue";
 import type { StateMachine } from "xstate";
-import { isString } from "lodash-es";
 import { utils } from "@upmind/flow";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
   name: "UpmMessage",
+  components: {
+    XMarkIcon
+  },
   props: {
     machine: {
       type: Object as PropType<StateMachine<any, any, any, any>>,
@@ -42,26 +64,16 @@ export default defineComponent({
   },
   setup(props) {
     const timestamp = ref(Date.now());
-    const message = ref();
+    const state = ref();
 
-    props.machine.onTransition(state => {
-      message.value = {
-        hash: props.machine.id,
-        created: state.context.created,
-        type: state.context.type,
-        display: state.context.display,
-        dismissable: state.context.dismissable,
-        title: state.context.title,
-        subtitle: state.context.subtitle,
-        copy: state.context.copy,
-        icon: state.context.icon,
-        maxAge: state.context.maxAge,
-        // ---
-        state: state.value,
-        // ---
-        isActive: state.matches("active")
-      };
-    });
+    props.machine.onTransition(newState => (state.value = newState));
+
+    const message = computed(() => state.value.context);
+
+    const meta = computed(() => ({
+      isActive: state.value.matches("active"),
+      isPending: state.value.matches("pending")
+    }));
 
     onMounted(() => {
       setInterval(() => {
@@ -71,29 +83,28 @@ export default defineComponent({
 
     return {
       message,
-      timestamp
+      meta,
+      timestamp,
+      dismiss: id => props.machine.send({ type: "DISMISS", data: { id } })
     };
   },
   computed: {
-    safeStates() {
-      if (isString(this.message.state)) {
-        return { [this.message.state]: null };
-      }
-
-      return this.message.state;
-    },
     expiresIn() {
-      if (!this.message?.created || !this.message.maxAge) {
+      if (!this.message.maxAge) {
         return "";
       }
-      // const expiresIn =
-      //   this.message.completed + this.message.maxAge - this.timestamp;
 
       return utils.useRelativeTime(
-        this.message.created,
-        this.message.maxAge,
+        this.message.created + this.message.maxAge,
         this.timestamp
       );
+    },
+    showsIn() {
+      if (!this.message.delay) {
+        return "";
+      }
+
+      return utils.useRelativeTime(this.message.scheduled, this.timestamp);
     }
   }
 });
