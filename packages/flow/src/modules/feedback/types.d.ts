@@ -20,12 +20,18 @@ export enum messageTypes {
 }
 
 interface Message {
-  hash: string;
+  hash?: string;
+  display: messageDisplays;
+  type: messageTypes;
+  // ---
+  title?: string;
+  subtitle?: string;
+  copy?: string;
+  icon?: string;
+  // ---
+  created?: EpochTimeStamp;
   delay?: number; // Time (ms) to delay showing the alert.
   maxAge?: number; // Time (ms) before alert is auto dismissed. Pass `0` to persist alert.
-  message: string;
-  display?: messageDisplays;
-  type?: messageTypes;
 }
 
 export interface MessageError {
@@ -51,5 +57,5 @@ export interface MessageEvent {
 
 export type MessagesEvents = {
   display: "ADD" | "REMOVE";
-  data: any;
+  data: Message;
 };
