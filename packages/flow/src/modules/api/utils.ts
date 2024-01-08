@@ -1,4 +1,7 @@
+// --- global
 import { sha1 } from "object-hash";
+
+// --- utils
 import {
   omit,
   startsWith,
@@ -7,15 +10,11 @@ import {
   camelCase,
   isArray,
   map,
-  mapValues,
-  mapKeys,
   reduce,
-  set,
-  isPlainObject
+  set
 } from "lodash-es";
 
 // --------------------------------------------------------
-// utils
 
 export function getMaxAge(seconds = 60) {
   const now = new Date();
