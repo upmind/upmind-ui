@@ -6,7 +6,7 @@ import messageMachine from "./message.machine";
 import type { MessagesContext, MessagesEvents } from "./types.d";
 
 // --- utils
-import { generateHash } from "./utils";
+import { generateHash, useMessageParser } from "./utils";
 import { isEmpty, set, get, unset } from "lodash-es";
 
 // --------------------------------------------------------
@@ -56,32 +56,11 @@ export default createMachine(
   {
     actions: {
       add: assign({
-        messages: (
-          { messages }: MessagesContext,
-          {
-            data: {
-              id,
-              display,
-              type,
-              title,
-              subtitle,
-              copy,
-              icon,
-              delay,
-              maxAge
-            }
-          }: MessagesEvents
-        ) => {
-          id ??= generateHash({
-            display,
-            type,
-            title,
-            subtitle,
-            copy,
-            icon,
-            delay,
-            maxAge
-          });
+        messages: ({ messages }: MessagesContext, { data }: MessagesEvents) => {
+          const id = data?.id || generateHash(data);
+
+          // ensure we set the hash based on the id provided or generated
+          set(data, "hash", id);
 
           // check if we already have a feedback with the same id
           const exists = get(messages, id);
@@ -90,23 +69,10 @@ export default createMachine(
           // and send the messages to it
           if (!exists) {
             // spawn an actor for the new messages
-            const machine = spawn(
-              messageMachine({
-                hash: id,
-                title,
-                subtitle,
-                copy,
-                icon,
-                display,
-                type,
-                delay,
-                maxAge
-              }),
-              {
-                name: id,
-                sync: true
-              }
-            );
+            const machine = spawn(messageMachine(useMessageParser(data)), {
+              name: id,
+              sync: true
+            });
 
             // for now well just add the new machine to our list
             set(messages, id, machine);

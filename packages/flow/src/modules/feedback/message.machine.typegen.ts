@@ -3,7 +3,6 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "": { type: "" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {};
@@ -17,10 +16,8 @@ export interface Typegen0 {
     sendClearMessage: "DISMISS";
   };
   eventsCausingDelays: {};
-  eventsCausingGuards: {
-    hasMessage: "";
-  };
+  eventsCausingGuards: {};
   eventsCausingServices: {};
-  matchesStates: "active" | "available" | "complete";
+  matchesStates: "active" | "complete" | "pending";
   tags: never;
 }

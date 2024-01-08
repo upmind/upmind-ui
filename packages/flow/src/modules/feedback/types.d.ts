@@ -32,6 +32,7 @@ interface Message {
   created?: EpochTimeStamp;
   delay?: number; // Time (ms) to delay showing the alert.
   maxAge?: number; // Time (ms) before alert is auto dismissed. Pass `0` to persist alert.
+  dismissable?: boolean;
 }
 
 export interface MessageError {
