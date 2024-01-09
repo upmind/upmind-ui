@@ -97,7 +97,7 @@ export const useMessage = item => {
 
   const meta = computed(() => ({
     isActive: state.value.matches("active"),
-    isPending: state.value.matches("pending")
+    isScheduled: state.value.matches("pending")
   }));
 
   // --------------------------------------------------------
