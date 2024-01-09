@@ -64,6 +64,7 @@ export default createMachine(
 
           // check if we already have a feedback with the same id
           const message = find(messages, ["id", id]);
+          debugger;
 
           // if we dont then spawn a new messages machine
           // and send the messages to it
