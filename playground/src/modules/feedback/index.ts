@@ -40,12 +40,7 @@ export const useFeedback = () => {
         },
         []
       ),
-      [
-        function ({ state }) {
-          debugger;
-          return state.value.context.scheduled;
-        }
-      ]
+      ["state.value.context.scheduled"]
     )
   );
 
@@ -64,12 +59,7 @@ export const useFeedback = () => {
         },
         []
       ),
-      [
-        function ({ state }) {
-          debugger;
-          return state.value.context.scheduled;
-        }
-      ]
+      ["state.value.context.scheduled"]
     )
   );
 
