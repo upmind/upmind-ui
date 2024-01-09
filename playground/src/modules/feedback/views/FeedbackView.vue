@@ -145,7 +145,7 @@ const scheduledCount = computed(
 
 function getRandomDelay() {
   const shouldDelay = random(0, 1);
-  return !shouldDelay ? useTime().IMMIDIATE : useTime().SECOND * random(0, 10);
+  return !shouldDelay ? useTime().IMMIDIATE : useTime().SECOND * random(1, 10);
 }
 
 function getRandomMaxAge() {
