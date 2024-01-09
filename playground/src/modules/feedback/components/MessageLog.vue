@@ -1,17 +1,5 @@
 <template>
-  <div
-    class="message flex flex-col rounded-box shadow-lg px-4 relative"
-    :class="[
-      { 'opacity-30': !meta.isActive },
-      // { 'opacity-80': meta.isActive },
-      // `border-${message.type}`,
-      `bg-${message.type}`,
-      `text-${message.type}-content`
-    ]"
-    v-if="meta.isActive || (scheduled && meta.isScheduled)"
-  >
-    <!-- <span class="whitespace-normal text-xs">{{ message.hash }}</span> -->
-
+  <div class="message flex flex-col border rounded-box bg-base-100 px-4">
     <h3 class="text-inherit wrap whitespace-normal" v-if="message.title">
       {{ message.title }}
     </h3>
@@ -22,29 +10,24 @@
 
     <p class="whitespace-normal" v-if="message.copy">{{ message.copy }}</p>
 
-    <button
-      @click="dismiss(message.hash)"
-      class="btn btn-xs btn-ghost btn-circle absolute top-1 right-1"
-      v-if="meta.isActive && !message.maxAge"
+    <div
+      class="flex gap-4 text-xs font-mono text-inherit whitespace-normal mb-4 uppercase"
     >
-      <x-mark-icon class="w-4 h-4"></x-mark-icon>
-      <span class="sr-only">Dismiss the message</span>
-    </button>
+      <!-- <span class="badge  badge-outline">{{ message.hash }}</span> -->
+      <span class="badge badge-outline" :class="`badge-${message.type}`">{{
+        message.type
+      }}</span>
+      <span class="badge badge-outline">{{ message.display }}</span>
 
-    <div class="flex items-center gap-2 mb-2" v-if="debugging">
-      <em
-        class="text-xs ml-auto font-mono text-inherit"
+      <span class="badge badge-outline" v-if="meta.isActive">showing</span>
+      <span
+        class="badge badge-outline"
         v-if="message.maxAge && meta.isActive"
+        >{{ hidesIn }}</span
       >
-        {{ hidesIn }}
-      </em>
-
-      <em
-        class="text-xs ml-auto font-mono text-inherit"
-        v-if="meta.isScheduled"
-      >
-        {{ showsIn }}
-      </em>
+      <span class="badge badge-outline" v-if="meta.isScheduled">{{
+        showsIn
+      }}</span>
     </div>
 
     <upm-debug
@@ -63,24 +46,19 @@ import { useMessage } from "..";
 
 import { utils } from "@upmind/flow";
 import { UpmDebug } from "@upmind/components";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { endsWith, startsWith } from "lodash-es";
 
 export default defineComponent({
   name: "UpmMessage",
   components: {
-    UpmDebug,
-    XMarkIcon
+    UpmDebug
   },
   props: {
     item: {
       type: Object, // xstate actor
       required: true
     },
-    scheduled: {
-      type: Boolean,
-      default: false
-    },
+
     debugging: {
       type: Boolean,
       default: false

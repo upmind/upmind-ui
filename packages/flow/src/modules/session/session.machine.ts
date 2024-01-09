@@ -7,8 +7,8 @@ import services from "./services";
 import type { SessionContext } from "./types.d";
 import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
-// import { useFeedback } from "../feedback";
-// const { addError, addSuccess } = useFeedback();
+import { useFeedback } from "../feedback";
+const { addError, addSuccess } = useFeedback();
 
 // --- utils
 import { useTokenParser } from "./utils";
@@ -237,8 +237,7 @@ export default createMachine(
       // ---
       setError: assign({
         error: (context, { data }) => {
-          debugger;
-          // addError(data.message);
+          addError(data.message);
           return data;
         }
       }),

@@ -3,7 +3,7 @@
     <header
       class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
     >
-      <div class="flex-none gap-2">
+      <div class="flex-none gap-2" :data-thtme="activeTheme">
         <h2 class="title m-0">
           <span v-if="meta.isProcessing" class="text-primary">{{
             activeCount
@@ -36,23 +36,6 @@
       <div class="actions flex-none join ml-auto gap-4 items-center">
         <slot name="actions">
           <button
-            class="btn btn-circle btn-sm"
-            @click="showScheduled = !showScheduled"
-            v-if="hasScheduled"
-          >
-            <eye-slash-icon
-              class="w-6 h-6"
-              v-if="showScheduled"
-            ></eye-slash-icon>
-
-            <eye-icon class="w-6 h-6" v-else></eye-icon>
-
-            <span class="sr-only"
-              >{{ showScheduled ? "Hide" : "Show" }} scheduled</span
-            >
-          </button>
-
-          <button
             class="btn btn-outline btn-sm"
             @click="processMessages"
             :disabled="meta.isProcessing"
@@ -68,29 +51,11 @@
       :data-theme="activeTheme"
     >
       <upm-message
-        v-for="notification in notifications"
-        :key="notification.id"
-        :item="notification"
-        :scheduled="showScheduled"
+        v-for="message in messages"
+        :key="message.id"
+        :item="message"
       />
-
-      <aside
-        class="toast toast-top toast-end z-10 grid grid-cols-1 gap-4 mt-24 max-h-[85vh] overflow-auto"
-      >
-        <upm-message
-          v-for="toast in toasts"
-          :key="toast.id"
-          :item="toast"
-          class="max-w-sm"
-          :scheduled="showScheduled"
-        ></upm-message>
-      </aside>
-
-      <h4 class="text-inherit m-0 p-4" v-if="meta.isEmpty">
-        No Active Messages to Display
-      </h4>
     </div>
-
     <footer>
       <upm-debug
         title="Feedback"
@@ -106,18 +71,14 @@
 import { inject, ref, computed, onMounted } from "vue";
 import { useFeedback } from "..";
 import { UpmDebug } from "@upmind/components";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
+import UpmMessage from "../components/MessageLog.vue";
 
-import UpmMessage from "../components/Message.vue";
 import { forEach, random, nth, some, filter } from "lodash-es";
 import { faker } from "@faker-js/faker";
 
 const activeTheme = inject("activeTheme");
 
-const showScheduled = ref(false);
-
-const { state, messages, toasts, notifications, meta, useTime, add } =
-  useFeedback();
+const { state, messages, meta, useTime, add } = useFeedback();
 
 // ---
 const timestamp = ref(Date.now());
@@ -163,8 +124,6 @@ function getRandomType() {
 function getRandomDisplay() {
   return nth(["toast", "notification"], random(0, 1));
 }
-
-// ---
 
 function processMessages() {
   const dummyMessages = Array(random(1, 10));
