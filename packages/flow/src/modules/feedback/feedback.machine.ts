@@ -7,24 +7,7 @@ import type { MessagesContext, MessagesEvents } from "./types.d";
 
 // --- utils
 import { generateHash, useMessageParser } from "./utils";
-import {
-  differenceBy,
-  every,
-  filter,
-  find,
-  findIndex,
-  forEach,
-  get,
-  isEmpty,
-  omit,
-  reject,
-  remove,
-  set,
-  some,
-  trimStart,
-  uniqueId,
-  unset
-} from "lodash-es";
+import { find, isEmpty, remove, set } from "lodash-es";
 
 // --------------------------------------------------------
 

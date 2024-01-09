@@ -8,10 +8,11 @@
           <span v-if="meta.isProcessing" class="text-primary">{{
             activeCount
           }}</span>
-          Messages
+          Message{{ activeCount == 1 ? "" : "s" }}
 
           <span v-if="meta.isProcessing">
-            are <span class="text-primary">Active</span>
+            {{ activeCount == 1 ? "is" : "are" }}
+            <span class="text-primary">Active</span>
           </span>
 
           <span v-if="hasScheduled">
@@ -19,7 +20,8 @@
             <span v-if="meta.isProcessing" class="text-secondary">{{
               scheduledCount
             }}</span>
-            &nbsp;<span class="text-secondary">Scheduled</span>
+            {{ scheduledCount == 1 ? "is" : "are" }}
+            <span class="text-secondary">Scheduled</span>
           </span>
         </h2>
 
