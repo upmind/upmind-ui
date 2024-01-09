@@ -55,6 +55,10 @@ module.exports = {
     {
       pattern:
         /text-(primary|secondary|accent|info|success|error|warning|neutral)-content/
+    },
+    {
+      pattern:
+        /badge-(primary|secondary|accent|info|success|error|warning|neutral)/
     }
   ]
 };

@@ -47,7 +47,7 @@ export const useFeedback = () => {
   ) {
     return add({
       type: messageTypes.ERROR,
-      message: message,
+      copy: message,
       display,
       delay,
       maxAge
@@ -62,7 +62,7 @@ export const useFeedback = () => {
   ) {
     return add({
       type: messageTypes.SUCCESS,
-      message: message,
+      copy: message,
       display,
       delay,
       maxAge
