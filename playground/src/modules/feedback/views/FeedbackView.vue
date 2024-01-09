@@ -17,7 +17,7 @@
         </span>
       </div>
 
-      <div class="actions flex-none join ml-auto">
+      <div class="actions flex-none join ml-auto gap-4 items-center">
         <slot name="actions">
           <button
             class="btn btn-ghost"
@@ -25,6 +25,19 @@
             :disabled="meta.isProcessing"
           >
             Add dummy messages
+          </button>
+          <button
+            class="btn btn-circle btn-sm"
+            @click="showScheduled = !showScheduled"
+            v-if="hasScheduled"
+          >
+            <eye-icon class="w-6 h-6" v-if="showScheduled"></eye-icon>
+
+            <eye-slash-icon class="w-6 h-6" v-else></eye-slash-icon>
+
+            <span class="sr-only"
+              >{{ showScheduled ? "Hide" : "Show" }} scheduled</span
+            >
           </button>
         </slot>
       </div>
@@ -35,7 +48,7 @@
         v-for="notification in notifications"
         :key="notification.id"
         :item="notification"
-        pending
+        :scheduled="showScheduled"
       />
 
       <aside
@@ -46,7 +59,7 @@
           :key="toast.id"
           :item="toast"
           class="max-w-sm"
-          pending
+          :scheduled="showScheduled"
         ></upm-message>
       </aside>
 
@@ -67,18 +80,32 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
+import { inject, ref, computed, onMounted } from "vue";
 import { useFeedback } from "..";
 import { UpmDebug } from "@upmind/components";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
+
 import UpmMessage from "../components/Message.vue";
-import { forEach, random, nth } from "lodash-es";
+import { forEach, random, nth, some } from "lodash-es";
 import { faker } from "@faker-js/faker";
+import { timeStamp } from "console";
 
 const activeTheme = inject("activeTheme");
+
+const showScheduled = ref(false);
 
 const { state, messages, toasts, notifications, meta, useTime, add } =
   useFeedback();
 
+// ---
+const timestamp = ref(Date.now());
+
+const hasScheduled = computed(() =>
+  some(
+    messages.value,
+    ({ state }) => state.value.context.scheduled > timestamp.value
+  )
+);
 // ---
 
 function getRandomDelay() {
@@ -123,4 +150,10 @@ function processMessages() {
 }
 
 // ---
+
+onMounted(() => {
+  setInterval(() => {
+    timestamp.value = Date.now();
+  }, 500);
+});
 </script>

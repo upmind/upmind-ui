@@ -8,7 +8,7 @@
       `bg-${message.type}`,
       `text-${message.type}-content`
     ]"
-    v-if="meta.isActive || (pending && meta.isPending)"
+    v-if="meta.isActive || (scheduled && meta.isScheduled)"
   >
     <!-- <span class="whitespace-normal text-xs">{{ message.hash }}</span> -->
 
@@ -39,7 +39,10 @@
         {{ hidesIn }}
       </em>
 
-      <em class="text-xs ml-auto font-mono text-inherit" v-if="meta.isPending">
+      <em
+        class="text-xs ml-auto font-mono text-inherit"
+        v-if="meta.isScheduled"
+      >
         {{ showsIn }}
       </em>
     </div>
@@ -74,7 +77,7 @@ export default defineComponent({
       type: Object, // xstate actor
       required: true
     },
-    pending: {
+    scheduled: {
       type: Boolean,
       default: false
     },
