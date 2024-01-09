@@ -30,7 +30,6 @@ export default (message: Message) =>
         display: message?.display,
         type: message?.type,
         // ---
-        dismissable: message?.dismissable,
         delay: message?.delay,
         maxAge: message?.maxAge
       },

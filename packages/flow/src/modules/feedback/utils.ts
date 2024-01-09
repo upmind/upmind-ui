@@ -30,8 +30,7 @@ export const useMessageParser = (data: Object) => {
     copy: null,
     icon: null,
     delay: 0,
-    maxAge: useTime().SECOND * 3,
-    dismissable: true
+    maxAge: useTime().SECOND * 3
   };
   // todo pars einto a message format
   const message = defaultsDeep(data, defaultMessage);
