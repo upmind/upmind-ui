@@ -72,16 +72,17 @@ export default (message: Message) =>
     },
     {
       actions: {
-        sendClearMessage: sendParent(({ hash }) => ({
-          type: "REMOVE",
-          data: { id: hash }
-        }))
+        sendClearMessage: sendParent(({ hash }) => {
+          return {
+            type: "REMOVE",
+            data: { id: hash }
+          };
+        })
       },
       guards: {
         isActive: ({ scheduled, created, delay }) => {
           const current = Date.now();
           const isFuture = scheduled > current;
-          debugger;
           return !isFuture;
         },
         hasMaxAge: ({ maxAge }) => !!maxAge

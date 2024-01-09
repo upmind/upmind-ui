@@ -1,30 +1,33 @@
 <template>
   <div
-    class="message border border-opacity-50 border-neutral-300 rounded-box mb-2 p-4"
+    class="message flex flex-col rounded-box shadow-md mb-2 p-6 relative"
     :class="[
       { 'opacity-30': meta.isPending },
+      // `border-${message.type}`,
       `bg-${message.type}`,
       `text-${message.type}-content`
     ]"
+    v-if="meta.isActive || (pending && meta.isPending)"
   >
-    <div class="title relative pr-4">
-      <h3 class="text-inherit mt-0" v-if="message.title">
-        {{ message.title }}
-      </h3>
-      <h4 class="text-inherit" v-if="message.subtitle">
-        {{ message.subtitle }}
-      </h4>
-      <button
-        @click="dismiss(message.hash)"
-        class="btn btn-xs btn-ghost btn-circle absolute top-0 right-0"
-        v-if="meta.isActive && message.dismissable"
-      >
-        <x-mark-icon class="w-fit h-fit"></x-mark-icon>
-        <span class="sr-only">Dismiss the message</span>
-      </button>
-    </div>
+    <span class="whitespace-normal text-xs">{{ message.hash }}</span>
 
-    <p v-if="message.copy">{{ message.copy }}</p>
+    <h3 class="text-inherit mt-0 wrap whitespace-normal" v-if="message.title">
+      {{ message.title }}
+    </h3>
+    <h4 class="text-inherit whitespace-normal" v-if="message.subtitle">
+      {{ message.subtitle }}
+    </h4>
+
+    <p class="whitespace-normal" v-if="message.copy">{{ message.copy }}</p>
+
+    <button
+      @click="dismiss(message.hash)"
+      class="btn btn-xs btn-ghost btn-circle absolute top-2 right-2"
+      v-if="meta.isActive"
+    >
+      <x-mark-icon class="w-fit h-fit"></x-mark-icon>
+      <span class="sr-only">Dismiss the message</span>
+    </button>
 
     <div class="flex items-center gap-2 mt-2">
       <em
@@ -38,40 +41,50 @@
         {{ showsIn }}
       </em>
     </div>
+
+    <upm-debug
+      v-if="debugging"
+      title="Message"
+      :state="state.value"
+      :context="message"
+      :meta="meta"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
-import { defineComponent, ref, onMounted, computed } from "vue";
-import type { StateMachine } from "xstate";
+import { defineComponent, ref, onMounted } from "vue";
+import { useMessage } from "..";
+
 import { utils } from "@upmind/flow";
+import { UpmDebug } from "@upmind/components";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { endsWith, startsWith } from "lodash-es";
 
 export default defineComponent({
   name: "UpmMessage",
   components: {
+    UpmDebug,
     XMarkIcon
   },
   props: {
-    machine: {
-      type: Object as PropType<StateMachine<any, any, any, any>>,
+    item: {
+      type: Object, // xstate actor
       required: true
+    },
+    pending: {
+      type: Boolean,
+      default: false
+    },
+    debugging: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props) {
     const timestamp = ref(Date.now());
-    const state = ref();
 
-    props.machine.onTransition(newState => (state.value = newState));
-
-    const message = computed(() => state.value.context);
-
-    const meta = computed(() => ({
-      isActive: state.value.matches("active"),
-      isPending: state.value.matches("pending")
-    }));
+    const { state, message, meta, dismiss } = useMessage(props.item);
 
     onMounted(() => {
       setInterval(() => {
@@ -80,10 +93,11 @@ export default defineComponent({
     });
 
     return {
+      state,
       message,
       meta,
-      timestamp,
-      dismiss: id => props.machine.send({ type: "DISMISS", data: { id } })
+      dismiss,
+      timestamp
     };
   },
   computed: {

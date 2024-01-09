@@ -44,7 +44,7 @@ export interface MessageError {
 // Context
 
 export interface MessagesContext {
-  messages: Record<string, StateMachine>;
+  messages: Array[StateMachine];
 }
 
 // --------------------------------------------------------

@@ -129,7 +129,7 @@
 
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
-          <config-product
+          <upm-product
             v-for="item in items"
             :key="item.id"
             :item="item"
@@ -153,7 +153,7 @@
                 Update Item
               </button>
             </template>
-          </config-product>
+          </upm-product>
         </div>
 
         <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
@@ -221,13 +221,13 @@
           </div>
 
           <!-- Promotions -->
-          <promotions-config
+          <upm-promotions
             :promotions="promotions"
             :processing="meta.isProcessing"
             :additionalErrors="errors?.data"
             @resolve="addPromotion"
             @reject="removePromotion"
-          ></promotions-config>
+          ></upm-promotions>
         </aside>
       </section>
 
@@ -268,8 +268,8 @@
 import { ref, inject } from "vue";
 import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
-import ConfigProduct from "@/modules/product/views/Product.vue";
-import PromotionsConfig from "../components/Promotions.vue";
+import UpmProduct from "@/modules/product/views/Product.vue";
+import UpmPromotions from "../components/Promotions.vue";
 import BasketFields from "../components/Fields.vue";
 import { UpmDebug } from "@upmind/components";
 import {

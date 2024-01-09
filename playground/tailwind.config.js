@@ -40,12 +40,21 @@ module.exports = {
     ]
   },
   safelist: [
-    "text-3xl",
-    "lg:text-4xl",
-    { pattern: /bg-(primary|secondary|accent|info|success|error|warning)/ },
     {
       pattern:
-        /text-(primary|secondary|accent|info|success|error|warning)-content/
+        /border-(primary|secondary|accent|info|success|error|warning|neutral)/
+    },
+    {
+      pattern:
+        /bg-(primary|secondary|accent|info|success|error|warning|neutral)/
+    },
+    {
+      pattern:
+        /text-(primary|secondary|accent|info|success|error|warning|neutral)/
+    },
+    {
+      pattern:
+        /text-(primary|secondary|accent|info|success|error|warning|neutral)-content/
     }
   ]
 };

@@ -3,11 +3,21 @@
     <header
       class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
     >
-      <div class="flex-1">
+      <div class="flex-none gap-2">
         <h2 class="title m-0">Feedback</h2>
+        <span class="badge badge-primary">
+          {{ messages.length }}
+        </span>
+
+        <span class="badge badge-secondary">
+          {{ notifications.length }}
+        </span>
+        <span class="badge badge-accent">
+          {{ toasts.length }}
+        </span>
       </div>
 
-      <div class="actions flex-none join">
+      <div class="actions flex-none join ml-auto">
         <slot name="actions">
           <button
             class="btn btn-ghost"
@@ -23,21 +33,27 @@
     <div
       class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
       :data-theme="activeTheme"
-      v-if="!meta.isEmpty"
     >
       <upm-message
-        v-for="(message, hash) in messages"
-        :key="hash"
-        :machine="message"
-      ></upm-message>
-    </div>
+        v-for="notification in notifications"
+        :key="notification.id"
+        :item="notification"
+        pending
+      />
 
-    <div
-      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
-      :data-theme="activeTheme"
-      v-else
-    >
-      <h4 class="text-inherit m-0">No Active Messages to Display</h4>
+      <aside class="toast toast-top toast-end z-10">
+        <upm-message
+          v-for="toast in toasts"
+          :key="toast.id"
+          :item="toast"
+          class="max-w-sm"
+          pending
+        ></upm-message>
+      </aside>
+
+      <h4 class="text-inherit m-0" v-if="meta.isEmpty">
+        No Active Messages to Display
+      </h4>
     </div>
 
     <footer>
@@ -61,7 +77,8 @@ import { faker } from "@faker-js/faker";
 
 const activeTheme = inject("activeTheme");
 
-const { state, messages, meta, useTime, add } = useFeedback();
+const { state, messages, toasts, notifications, meta, useTime, add } =
+  useFeedback();
 
 // ---
 

@@ -7,7 +7,24 @@ import type { MessagesContext, MessagesEvents } from "./types.d";
 
 // --- utils
 import { generateHash, useMessageParser } from "./utils";
-import { isEmpty, set, get, unset } from "lodash-es";
+import {
+  differenceBy,
+  every,
+  filter,
+  find,
+  findIndex,
+  forEach,
+  get,
+  isEmpty,
+  omit,
+  reject,
+  remove,
+  set,
+  some,
+  trimStart,
+  uniqueId,
+  unset
+} from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -19,7 +36,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "empty",
     context: {
-      messages: {}
+      messages: []
     },
     states: {
       // our initial state depends on if the machine has any message
@@ -63,11 +80,11 @@ export default createMachine(
           set(data, "hash", id);
 
           // check if we already have a feedback with the same id
-          const exists = get(messages, id);
+          const message = find(messages, ["id", id]);
 
           // if we dont then spawn a new messages machine
           // and send the messages to it
-          if (!exists) {
+          if (!message) {
             // spawn an actor for the new messages
             const machine = spawn(messageMachine(useMessageParser(data)), {
               name: id,
@@ -75,7 +92,7 @@ export default createMachine(
             });
 
             // for now well just add the new machine to our list
-            set(messages, id, machine);
+            messages.push(machine);
           }
 
           return messages;
@@ -88,13 +105,19 @@ export default createMachine(
           { data: { id } }: MessagesEvents
         ) => {
           // try find any messages with the same id
-          const message = get(messages, id);
+          debugger;
+          const message = find(messages, ["id", id]);
+          debugger;
 
           // if it exists, stop the referenced machine
           // and remove it from our list of message
-          if (message && !message?.state?.done) message.stop();
+          if (message && !message?.state?.done) {
+            debugger;
+            message.stop();
+          }
 
-          unset(messages, id);
+          debugger;
+          remove(messages, ["id", id]);
           return messages;
         }
       }),
@@ -105,14 +128,14 @@ export default createMachine(
           { data: { id } }: MessagesEvents
         ) => {
           // try find any messages with the same id
-          const message = get(messages, id);
+          const message = find(messages, ["id", id]);
 
           // if it exists, stop the referenced machine
           // and remove it from our list of message
           if (message && !message?.state?.done) {
             message.send("DISMISS");
           } else {
-            unset(messages, id);
+            remove(messages, ["id", id]);
           }
 
           return messages;
