@@ -4,40 +4,58 @@
       class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
     >
       <div class="flex-none gap-2">
-        <h2 class="title m-0">Feedback</h2>
-        <span class="badge badge-primary">
-          {{ messages.length }}
-        </span>
+        <h2 class="title m-0">
+          <span v-if="meta.isProcessing" class="text-primary">{{
+            activeCount
+          }}</span>
+          Messages
 
-        <span class="badge badge-secondary">
+          <span v-if="meta.isProcessing">
+            are <span class="text-primary">Active</span>
+          </span>
+
+          <span v-if="hasScheduled">
+            , and
+            <span v-if="meta.isProcessing" class="text-secondary">{{
+              scheduledCount
+            }}</span>
+            &nbsp;<span class="text-secondary">Scheduled</span>
+          </span>
+        </h2>
+
+        <!-- <span class="badge badge-secondary">
           {{ notifications.length }}
         </span>
         <span class="badge badge-accent">
           {{ toasts.length }}
-        </span>
+        </span> -->
       </div>
 
       <div class="actions flex-none join ml-auto gap-4 items-center">
         <slot name="actions">
           <button
-            class="btn btn-ghost"
-            @click="processMessages"
-            :disabled="meta.isProcessing"
-          >
-            Add dummy messages
-          </button>
-          <button
             class="btn btn-circle btn-sm"
             @click="showScheduled = !showScheduled"
             v-if="hasScheduled"
           >
-            <eye-icon class="w-6 h-6" v-if="showScheduled"></eye-icon>
+            <eye-slash-icon
+              class="w-6 h-6"
+              v-if="showScheduled"
+            ></eye-slash-icon>
 
-            <eye-slash-icon class="w-6 h-6" v-else></eye-slash-icon>
+            <eye-icon class="w-6 h-6" v-else></eye-icon>
 
             <span class="sr-only"
               >{{ showScheduled ? "Hide" : "Show" }} scheduled</span
             >
+          </button>
+
+          <button
+            class="btn btn-outline btn-sm"
+            @click="processMessages"
+            :disabled="meta.isProcessing"
+          >
+            Add Random Messages
           </button>
         </slot>
       </div>
@@ -86,9 +104,8 @@ import { UpmDebug } from "@upmind/components";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
 
 import UpmMessage from "../components/Message.vue";
-import { forEach, random, nth, some } from "lodash-es";
+import { forEach, random, nth, some, filter } from "lodash-es";
 import { faker } from "@faker-js/faker";
-import { timeStamp } from "console";
 
 const activeTheme = inject("activeTheme");
 
@@ -105,6 +122,19 @@ const hasScheduled = computed(() =>
     messages.value,
     ({ state }) => state.value.context.scheduled > timestamp.value
   )
+);
+
+const activeCount = computed(
+  () =>
+    filter(messages.value, ({ state }) => state.value.matches("active"))?.length
+);
+
+const scheduledCount = computed(
+  () =>
+    filter(
+      messages.value,
+      ({ state }) => state.value.context.scheduled > timestamp.value
+    )?.length
 );
 // ---
 
