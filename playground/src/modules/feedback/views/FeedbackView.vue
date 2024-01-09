@@ -30,10 +30,7 @@
       </div>
     </header>
 
-    <div
-      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
-      :data-theme="activeTheme"
-    >
+    <div class="grid grid-cols-1 gap-4 my-8" :data-theme="activeTheme">
       <upm-message
         v-for="notification in notifications"
         :key="notification.id"
@@ -41,7 +38,9 @@
         pending
       />
 
-      <aside class="toast toast-top toast-end z-10">
+      <aside
+        class="toast toast-top toast-end z-10 grid grid-cols-1 gap-4 mt-24 max-h-[85vh] overflow-auto"
+      >
         <upm-message
           v-for="toast in toasts"
           :key="toast.id"
@@ -51,7 +50,7 @@
         ></upm-message>
       </aside>
 
-      <h4 class="text-inherit m-0" v-if="meta.isEmpty">
+      <h4 class="text-inherit m-0 p-4" v-if="meta.isEmpty">
         No Active Messages to Display
       </h4>
     </div>
@@ -110,8 +109,8 @@ function processMessages() {
   forEach(dummyMessages, () => {
     const maxAge = getRandomMaxAge();
     const message = {
-      title: faker.lorem.lines(1),
-      subtitle: faker.lorem.lines(2),
+      title: random(0, 1) === 1 ? faker.lorem.lines(1) : null,
+      subtitle: random(0, 1) === 1 ? faker.lorem.lines(2) : null,
       copy: faker.lorem.paragraph(),
       delay: getRandomDelay(),
       maxAge,
