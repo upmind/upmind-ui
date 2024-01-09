@@ -4,7 +4,8 @@ import type { StateMachine } from "xstate";
 // ENUMS
 export enum messageDisplays {
   TOAST = "toast",
-  NOTIFICATION = "notification"
+  NOTIFICATION = "notification",
+  SNACKBAR = "snackbar"
   // CONSOLE = "console"
 }
 
@@ -30,9 +31,9 @@ interface Message {
   icon?: string;
   // ---
   created?: EpochTimeStamp;
+  scheduled?: EpochTimeStamp;
   delay?: number; // Time (ms) to delay showing the alert.
   maxAge?: number; // Time (ms) before alert is auto dismissed. Pass `0` to persist alert.
-  dismissable?: boolean;
 }
 
 export interface MessageError {
