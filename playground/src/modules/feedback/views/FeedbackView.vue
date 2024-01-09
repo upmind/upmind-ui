@@ -63,7 +63,10 @@
       </div>
     </header>
 
-    <div class="grid grid-cols-1 gap-4 my-8" :data-theme="activeTheme">
+    <div
+      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
+      :data-theme="activeTheme"
+    >
       <upm-message
         v-for="notification in notifications"
         :key="notification.id"
