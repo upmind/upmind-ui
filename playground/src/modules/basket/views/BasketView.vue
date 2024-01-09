@@ -163,7 +163,7 @@
           >
             <!-- Items -->
             <div>
-              <div class="divider mt-4 uppercase text-xs">
+              <div class="divider mt-4 uppercase text-xs opacity-75">
                 Product{{ items.length > 1 ? "s" : "" }}
               </div>
 
@@ -178,22 +178,24 @@
 
             <!-- Subtotal -->
             <div>
-              <div class="divider mt-4 uppercase text-xs">SubTotal</div>
-              <h2 class="text-primary-focus mt-0">
+              <div class="divider mt-4 uppercase text-xs opacity-75">
+                SubTotal
+              </div>
+              <h2 class="text-inherit mt-0">
                 {{ summary.subtotal }}
               </h2>
             </div>
 
             <!-- Taxes -->
             <div v-if="meta.hasTaxes">
-              <div class="divider mt-4 uppercase text-xs">Taxes</div>
-              <h2 class="text-primary-focus mt-0">{{ summary.taxes }}</h2>
+              <div class="divider mt-4 uppercase text-xs opacity-75">Taxes</div>
+              <h2 class="text-inherit mt-0">{{ summary.taxes }}</h2>
             </div>
 
             <!-- Total -->
             <div>
-              <div class="divider mt-4 uppercase">Total</div>
-              <h1 class="text-primary-focus text-3xl">
+              <div class="divider mt-4 uppercase opacity-75">Total</div>
+              <h1 class="text-inherit text-3xl">
                 {{ summary?.total }}
               </h1>
             </div>
