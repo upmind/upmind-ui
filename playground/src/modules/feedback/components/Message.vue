@@ -1,19 +1,21 @@
 <template>
   <div
-    class="message flex flex-col rounded-box shadow-md mb-2 p-6 relative"
+    class="message flex flex-col rounded-box shadow-lg px-4 relative"
     :class="[
-      { 'opacity-30': meta.isPending },
+      { 'opacity-30': !meta.isActive },
+      // { 'opacity-80': meta.isActive },
       // `border-${message.type}`,
       `bg-${message.type}`,
       `text-${message.type}-content`
     ]"
     v-if="meta.isActive || (pending && meta.isPending)"
   >
-    <span class="whitespace-normal text-xs">{{ message.hash }}</span>
+    <!-- <span class="whitespace-normal text-xs">{{ message.hash }}</span> -->
 
-    <h3 class="text-inherit mt-0 wrap whitespace-normal" v-if="message.title">
+    <h3 class="text-inherit wrap whitespace-normal" v-if="message.title">
       {{ message.title }}
     </h3>
+
     <h4 class="text-inherit whitespace-normal" v-if="message.subtitle">
       {{ message.subtitle }}
     </h4>
@@ -22,14 +24,14 @@
 
     <button
       @click="dismiss(message.hash)"
-      class="btn btn-xs btn-ghost btn-circle absolute top-2 right-2"
+      class="btn btn-xs btn-ghost btn-circle absolute top-1 right-1"
       v-if="meta.isActive"
     >
-      <x-mark-icon class="w-fit h-fit"></x-mark-icon>
+      <x-mark-icon class="w-4 h-4"></x-mark-icon>
       <span class="sr-only">Dismiss the message</span>
     </button>
 
-    <div class="flex items-center gap-2 mt-2">
+    <div class="flex items-center gap-2 mb-2">
       <em
         class="text-xs ml-auto font-mono text-inherit"
         v-if="message.maxAge && meta.isActive"
