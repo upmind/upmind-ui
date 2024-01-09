@@ -187,7 +187,8 @@ export default defineComponent({
   data: () => ({
     model: {},
     errors: [],
-    showErrors: false
+    showErrors: false,
+    isDirty: false
   }),
   computed: {
     isValid() {
@@ -195,7 +196,7 @@ export default defineComponent({
     },
     safeMode() {
       // only show errors if we have some data,, prevents ugly errors on first load
-      return isDeepEmpty(this.model)
+      return isDeepEmpty(this.model) || !this.isDirty
         ? "ValidateAndHide"
         : this.mode || "ValidateAndShow";
     }
@@ -215,6 +216,7 @@ export default defineComponent({
       if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
         this.model = data;
         this.$emit("update:modelValue", this.model);
+        this.isDirty = true;
       }
 
       this.$emit("valid", !this.errors?.length);

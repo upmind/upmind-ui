@@ -171,9 +171,7 @@ export const useFieldsSchemaParser = (data: any) => {
     const properties = {};
 
     forEach(data, field => {
-      if (field.required) required.push(field.code);
-
-      let type = "string";
+      let type = ["string"];
       let format = null;
       const contentMediaType = null;
       const contentEncoding = null;
@@ -182,63 +180,70 @@ export const useFieldsSchemaParser = (data: any) => {
       switch (field.type_code) {
         case "input_number":
         case "number":
-          type = "number";
+          type = ["number"];
           break;
 
         case "input-checkbox":
         case "tick_box":
-          type = "boolean";
+          type = ["boolean"];
           break;
 
         case "input_date":
         case "input_datetime":
         case "date":
-          type = "string";
+          type = ["string"];
           format = "date-time";
           break;
 
         case "input_email":
         case "email":
-          type = "string";
+          type = ["string"];
           format = "email";
           break;
 
         case "input_url":
-          type = "string";
+          type = ["string"];
           format = "uri";
           break;
 
         case "input_phone":
-          type = "string";
+          type = ["string"];
           format = "phone";
           break;
 
         case "input_ip":
-          type = "string";
+          type = ["string"];
           format = "ipv4";
           break;
 
         case "input_ipv6":
-          type = "string";
+          type = ["string"];
           format = "ipv6";
           break;
 
         case "input_password":
         case "password":
-          type = "string";
+          type = ["string"];
           format = "password";
           break;
 
         // case "input_file":
         // case "image":
-        //   type = "string";
+        //   type = ["string"];
         //   contentMediaType = "image";
         //   contentEncoding = "base64";
         //   break;
 
         default:
-          type = "string";
+          type = ["string"];
           break;
+      }
+
+      // required fields
+      if (field.required) {
+        required.push(field.code);
+      } else {
+        type.push("null");
       }
 
       // then we set our property based on the field code
@@ -371,11 +376,7 @@ export const useFieldsModelParser = (data: any, values: any) => {
   if (data?.length) {
     forEach(data, field => {
       const value = get(model, `custom_fields.${field.code}`, field?.value);
-      set(
-        model,
-        `custom_fields.${field.code}`,
-        value || field?.default || null
-      );
+      set(model, `custom_fields.${field.code}`, value || field?.default);
     });
   }
 
