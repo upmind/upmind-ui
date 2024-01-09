@@ -1,5 +1,5 @@
 // --- external
-import { computed, toRef } from "vue";
+import { computed, toRef, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -81,7 +81,7 @@ export const useFeedback = () => {
     // ---
     meta,
     // ---
-    add,
+    add: data => add(unref(data)),
     addError,
     addSuccess,
     dismiss,
