@@ -150,7 +150,7 @@ function getRandomDelay() {
 
 function getRandomMaxAge() {
   const shouldExpire = random(0, 1);
-  return !shouldExpire ? useTime().IMMIDIATE : useTime().SECOND * random(0, 30);
+  return !shouldExpire ? useTime().IMMIDIATE : useTime().SECOND * random(3, 30);
 }
 
 function getRandomType() {
