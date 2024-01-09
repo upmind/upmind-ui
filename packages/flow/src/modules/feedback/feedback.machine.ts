@@ -105,18 +105,12 @@ export default createMachine(
           { data: { id } }: MessagesEvents
         ) => {
           // try find any messages with the same id
-          debugger;
           const message = find(messages, ["id", id]);
-          debugger;
 
           // if it exists, stop the referenced machine
           // and remove it from our list of message
-          if (message && !message?.state?.done) {
-            debugger;
-            message.stop();
-          }
+          if (message && !message?.state?.done) message.stop();
 
-          debugger;
           remove(messages, ["id", id]);
           return messages;
         }
