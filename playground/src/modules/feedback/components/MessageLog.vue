@@ -10,24 +10,28 @@
 
     <p class="whitespace-normal" v-if="message.copy">{{ message.copy }}</p>
 
-    <div
-      class="flex gap-4 text-xs font-mono text-inherit whitespace-normal mb-4 uppercase"
-    >
-      <!-- <span class="badge  badge-outline">{{ message.hash }}</span> -->
-      <span class="badge badge-outline" :class="`badge-${message.type}`">{{
+    <div class="flex text-xs mb-4 uppercase join font-mono">
+      <!-- <span class="join-item badge  badge-ghost badge-sm">{{ message.hash }}</span> -->
+      <span class="join-item badge badge-sm" :class="`badge-${message.type}`">{{
         message.type
       }}</span>
-      <span class="badge badge-outline">{{ message.display }}</span>
+      <span class="join-item badge badge-ghost badge-sm">{{
+        message.display
+      }}</span>
 
-      <span class="badge badge-outline" v-if="meta.isActive">showing</span>
+      <span class="join-item badge badge-ghost badge-sm" v-if="meta.isActive"
+        >showing</span
+      >
       <span
-        class="badge badge-outline"
+        class="join-item badge badge-ghost badge-sm"
         v-if="message.maxAge && meta.isActive"
         >{{ hidesIn }}</span
       >
-      <span class="badge badge-outline" v-if="meta.isScheduled">{{
-        showsIn
-      }}</span>
+      <span
+        class="join-item badge badge-ghost badge-sm"
+        v-if="meta.isScheduled"
+        >{{ showsIn }}</span
+      >
     </div>
 
     <upm-debug
