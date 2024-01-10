@@ -543,6 +543,7 @@ export default createMachine(
             basket?.currency_id,
             basket?.promotions
           );
+
           items.push(machine);
           return items;
         },

@@ -381,10 +381,16 @@ async function checkOptions(
           // ensure we have an object
           if (!isObject(value)) value = { product_id: id };
           const product = find(option.values, ["id", value.product_id]);
-
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
-            billing_cycle_months: values?.term?.billing_cycle_months,
+            billing_cycle_months: some(product.prices, price => {
+              return (
+                price.billing_cycle_months ===
+                values?.term?.billing_cycle_months
+              );
+            })
+              ? values?.term?.billing_cycle_months
+              : first(product.prices)?.billing_cycle_months || 0,
             unit_quantity: 1
           });
 

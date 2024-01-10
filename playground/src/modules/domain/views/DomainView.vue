@@ -3,23 +3,7 @@
     <header class="navbar absolute left-0 right-0 top-0 z-10 pl-4 rounded-xl">
       <div class="flex-1"></div>
 
-      <div class="actions flex-none join">
-        <select
-          class="select select-bordered w-24 md:w-auto join-item"
-          v-model="activeTheme"
-          placeholder="Select Theme"
-        >
-          <option
-            v-for="(item, index) in themes"
-            :key="`item-${index}`"
-            :value="item"
-            :label="capitalize(item)"
-          ></option>
-        </select>
-        <span role="button" class="btn btn-square join-item">
-          <swatch-icon class="h-6 w-6" />
-        </span>
-      </div>
+      <div class="actions flex-none join"></div>
     </header>
 
     <div :data-theme="activeTheme">
