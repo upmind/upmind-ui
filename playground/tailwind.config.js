@@ -59,6 +59,10 @@ module.exports = {
     {
       pattern:
         /badge-(primary|secondary|accent|info|success|error|warning|neutral)/
+    },
+    {
+      pattern:
+        /alert-(primary|secondary|accent|info|success|error|warning|neutral)/
     }
   ]
 };

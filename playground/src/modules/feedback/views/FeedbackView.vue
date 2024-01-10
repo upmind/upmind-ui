@@ -131,8 +131,8 @@ function processMessages() {
     const maxAge = getRandomMaxAge();
     const message = {
       title: random(0, 1) === 1 ? faker.lorem.lines(1) : null,
-      subtitle: random(0, 1) === 1 ? faker.lorem.lines(2) : null,
       copy: faker.lorem.paragraph(),
+      data: random(0, 1) === 1 ? faker.lorem.paragraphs(random(1, 3)) : null,
       delay: getRandomDelay(),
       maxAge,
       type: getRandomType(),

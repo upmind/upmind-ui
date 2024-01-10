@@ -26,9 +26,8 @@ interface Message {
   type: messageTypes;
   // ---
   title?: string;
-  subtitle?: string;
   copy?: string;
-  icon?: string;
+  data?: any;
   // ---
   created?: EpochTimeStamp;
   scheduled?: EpochTimeStamp;

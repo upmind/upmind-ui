@@ -3,7 +3,8 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-
+import { useFeedback } from "../feedback";
+const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useTime } from "../../utils";
 import {
@@ -552,8 +553,21 @@ export default createMachine(
         type: () => "existing"
       }),
 
+      // ---
+      setSuccess: (context, { data }) => {
+        addSuccess("Successfully set Domain");
+      },
+
       setError: assign({
-        error: (_context, { data }) => data
+        error: (context, { data }) => {
+          addError({
+            title: data?.title || "We experienced an error getting domains",
+            copy: data?.message,
+            data: data?.data
+          });
+
+          return data;
+        }
       }),
 
       clearError: assign({ error: null })

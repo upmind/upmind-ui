@@ -6,7 +6,7 @@ import feedbackMachine from "./feedback.machine";
 
 // --- utils
 import { useTime } from "../../utils";
-import { get } from "lodash-es";
+import { get, isString } from "lodash-es";
 
 // --- types
 import { messageTypes } from "./types.d";
@@ -40,14 +40,19 @@ export const useFeedback = () => {
   // --- syntactic sugar
 
   function addError(
-    message: string,
-    display: messageDisplays = messageDisplays.TOAST,
-    delay: number = 0,
-    maxAge: number = useTime().SECOND * 6
+    message: string | Object,
+    display?: messageDisplays = messageDisplays.TOAST,
+    delay?: number = 0,
+    maxAge?: number = useTime().SECOND * 6
   ) {
+    if (!message) return; // bail if no message
+
     return add({
       type: messageTypes.ERROR,
-      copy: message,
+      title: message?.title,
+      subtitle: message?.subtitle,
+      copy: message?.copy || message,
+      data: message?.data,
       display,
       delay,
       maxAge
@@ -55,14 +60,19 @@ export const useFeedback = () => {
   }
 
   function addSuccess(
-    message: string,
+    message: string | Object,
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
-    maxAge: number = useTime().SECOND * 3
+    maxAge: number = useTime().SECOND * 6
   ) {
+    if (!message) return; // bail if no message
+
     return add({
       type: messageTypes.SUCCESS,
-      copy: message,
+      title: message?.title,
+      subtitle: message?.subtitle,
+      copy: message?.copy || message,
+      data: message?.data,
       display,
       delay,
       maxAge

@@ -505,7 +505,7 @@ async function calculateSummary(
         prices.options.subtotal
       ]
     }
-  }).then(({ data }) => data);
+  }).then(response => response?.data);
 
   const discountPromise = await post({
     url: useUrl("cart/calculate", {}),
@@ -518,7 +518,7 @@ async function calculateSummary(
         prices.options.discount
       ]
     }
-  }).then(({ data }) => data);
+  }).then(response => response?.data);
 
   const totalPromise = await post({
     url: useUrl("cart/calculate", {}),
@@ -527,7 +527,7 @@ async function calculateSummary(
       currency_id,
       prices: [prices.term.total, prices.attributes.total, prices.options.total]
     }
-  }).then(({ data }) => data);
+  }).then(response => response?.data);
 
   return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
     ([subtotal, discount, total]) => {

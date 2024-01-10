@@ -28,12 +28,12 @@ async function doFetch({ url, init }: RequestContext) {
   // safety check, not sure we need this as our machine implementation is pretty strict
 
   if (!includes(FetchMethods, init?.method)) {
-    Promise.reject(`Invalid method: ${init?.method}`);
+    return Promise.reject(`Invalid method: ${init?.method}`);
   }
 
   // do the fetch
   const response = await fetch(url.toString(), init).catch(error => {
-    Promise.reject(error);
+    return Promise.reject(error);
   });
 
   const { ok, status } = response;

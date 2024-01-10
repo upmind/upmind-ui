@@ -199,6 +199,14 @@ export interface Typegen0 {
     setFields: "done.invoke.basketManager.shopping.custom_fields.loading:invocation[0]";
     setFieldsModel: "SET.FIELDS";
     setFieldsSchemas: "done.invoke.basketManager.shopping.custom_fields.loading:invocation[0]";
+    setSuccess:
+      | "done.invoke.basketManager.shopping.custom_fields.processing:invocation[0]"
+      | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.basketManager.shopping.promotions.adding:invocation[0]"
+      | "done.invoke.basketManager.shopping.promotions.removing:invocation[0]"
+      | "done.invoke.removing:invocation[0]"
+      | "done.invoke.updating:invocation[0]";
     updateBasket:
       | "done.invoke.basketManager.shopping.custom_fields.processing:invocation[0]"
       | "done.invoke.basketManager.shopping.items.processing.currency:invocation[0]"

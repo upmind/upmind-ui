@@ -86,9 +86,9 @@ export const useSession = () => {
       return new Promise((resolve, reject) => {
         const authenticated = ["client"].some(state.matches);
         if (authenticated) {
-          return resolve(true);
+          resolve(true);
         } else {
-          return reject(false);
+          reject(false);
         }
       });
     }

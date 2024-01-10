@@ -4,11 +4,11 @@
       {{ message.title }}
     </h3>
 
-    <h4 class="text-inherit whitespace-normal" v-if="message.subtitle">
-      {{ message.subtitle }}
-    </h4>
-
     <p class="whitespace-normal" v-if="message.copy">{{ message.copy }}</p>
+
+    <p class="whitespace-normal text-xs mt-0" v-if="message.data">
+      {{ message.data }}
+    </p>
 
     <div class="flex text-xs mb-4 uppercase join font-mono">
       <!-- <span class="join-item badge  badge-ghost badge-sm">{{ message.hash }}</span> -->
