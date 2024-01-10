@@ -4,7 +4,6 @@ const { escalate, sendParent } = actions;
 
 // --- internal
 import services from "./services";
-import { useFeedback } from "../feedback";
 
 // --utils
 import { useTime } from "../../utils";
