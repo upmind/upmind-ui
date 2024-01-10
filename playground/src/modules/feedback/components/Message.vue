@@ -1,24 +1,31 @@
 <template>
   <div
     role="alert"
-    class="alert shadow-lg"
-    :class="[{ 'opacity-30': !meta.isActive }, `alert-${message.type}`]"
+    class="alert flex shadow-lg border-white border-opacity-20"
+    :class="[{ 'opacity-30': !meta.isActive }, `message-${message.type}`]"
     v-if="meta.isActive || (scheduled && meta.isScheduled)"
   >
-    <exclamation-circle-icon class="h-10 w-10" v-if="message.type == 'error'" />
+    <span class="icon self-start">
+      <exclamation-circle-icon
+        class="h-10 w-10"
+        v-if="message.type == 'error'"
+      />
 
-    <check-circle-icon class="h-10 w-10" v-if="message.type == 'success'" />
+      <check-circle-icon class="h-10 w-10" v-if="message.type == 'success'" />
 
-    <exclamation-triangle-icon
-      class="h-8 w-8"
-      v-if="message.type == 'warning'"
-    />
+      <exclamation-triangle-icon
+        class="h-8 w-8"
+        v-if="message.type == 'warning'"
+      />
 
-    <information-circle-icon class="h-10 w-10" v-if="message.type == 'info'" />
-
+      <information-circle-icon
+        class="h-10 w-10"
+        v-if="message.type == 'info'"
+      />
+    </span>
     <!--  -->
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 w-full">
       <h4 class="text-inherit wrap whitespace-normal m-0" v-if="message.title">
         {{ message.title }}
       </h4>
@@ -32,11 +39,11 @@
       </p>
     </div>
 
-    <div class="actions text-right">
+    <div class="actions text-right self-start">
       <button
         @click.prevent="dismiss(message.hash)"
         class="btn btn-xs btn-ghost btn-circle"
-        v-if="meta.isActive && !message.maxAge"
+        v-if="meta.isActive"
       >
         <x-mark-icon class="w-fit h-fit"></x-mark-icon>
         <span class="sr-only">Dismiss the message</span>
@@ -166,3 +173,45 @@ export default defineComponent({
   }
 });
 </script>
+
+<style lang="scss" scoped>
+.message-error {
+  @apply bg-error;
+  @apply text-error-content;
+}
+
+.message-success {
+  @apply bg-success;
+  @apply text-success-content;
+}
+
+.message-warning {
+  @apply bg-warning;
+  @apply text-warning-content;
+}
+
+.message-info {
+  @apply bg-info;
+  @apply text-info-content;
+}
+
+.message-primary {
+  @apply bg-primary;
+  @apply text-primary-content;
+}
+
+.message-secondary {
+  @apply bg-secondary;
+  @apply text-secondary-content;
+}
+
+.message-accent {
+  @apply bg-accent;
+  @apply text-accent-content;
+}
+
+.message-neutral {
+  @apply bg-neutral;
+  @apply text-neutral-content;
+}
+</style>
