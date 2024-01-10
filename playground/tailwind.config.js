@@ -42,27 +42,7 @@ module.exports = {
   safelist: [
     {
       pattern:
-        /border-(primary|secondary|accent|info|success|error|warning|neutral)/
-    },
-    {
-      pattern:
-        /bg-(primary|secondary|accent|info|success|error|warning|neutral)/
-    },
-    {
-      pattern:
-        /text-(primary|secondary|accent|info|success|error|warning|neutral)/
-    },
-    {
-      pattern:
-        /text-(primary|secondary|accent|info|success|error|warning|neutral)-content/
-    },
-    {
-      pattern:
         /badge-(primary|secondary|accent|info|success|error|warning|neutral)/
-    },
-    {
-      pattern:
-        /alert-(primary|secondary|accent|info|success|error|warning|neutral)/
     }
   ]
 };
