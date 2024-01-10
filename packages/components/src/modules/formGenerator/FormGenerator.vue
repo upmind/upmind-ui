@@ -2,15 +2,15 @@
   <form
     class="card align-center w-full max-w-screen-lg"
     v-bind="$attrs"
-    :disabled="processing"
+    :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <div class="m-2" v-if="loading">
+    <div class="m-2" v-if="meta.isLoading">
       <progress class="progress progress-primary w-full"></progress>
     </div>
 
     <json-forms
-      v-if="!loading"
+      v-if="!meta.isLoading"
       :ajv="ajv"
       :data="model"
       :schema="schema"
@@ -23,22 +23,19 @@
     />
 
     <!-- actions -->
-    <footer v-if="!noActions || loading">
+    <footer v-if="!noActions || meta.isLoading">
       <div class="card-actions mt-4">
-        <slot
-          name="actions"
-          v-bind="{ isValid, doReject, doResolve: doSubmit }"
-        >
+        <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
           <button
             type="submit"
             class="btn btn-accent"
-            :disabled="!isValid || processing"
+            :disabled="!meta.isValid || meta.isProcessing"
           >
             Save
           </button>
 
           <button
-            :disabled="processing"
+            :disabled="meta.isProcessing"
             class="btn btn-ghost"
             @click="doReject"
           >
@@ -187,13 +184,18 @@ export default defineComponent({
   data: () => ({
     model: {},
     errors: [],
-    showErrors: false,
     isDirty: false
   }),
   computed: {
-    isValid() {
-      return !this.errors?.length;
+    meta() {
+      return {
+        isLoading: this.loading,
+        isProcessing: this.processing,
+        isDirty: this.isDirty,
+        isValid: !this.errors?.length
+      };
     },
+
     safeMode() {
       // only show errors if we have some data,, prevents ugly errors on first load
       return isDeepEmpty(this.model) || !this.isDirty
@@ -224,11 +226,13 @@ export default defineComponent({
 
     doSubmit() {
       this.$emit("resolve", this.model);
+      this.isDirty = false;
     },
 
     doReject() {
       this.$emit("reject");
       this.model = {};
+      this.isDirty = false;
     }
   },
   provide() {

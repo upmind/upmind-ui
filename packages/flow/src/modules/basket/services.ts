@@ -160,6 +160,17 @@ async function update(
   });
 }
 
+async function setFields({ basket, fieldsModel }: BasketContext, _event: any) {
+  const { put, useUrl } = useApi();
+
+  // get returns a promise so we can pass it directly back to the machine
+  return put({
+    url: useUrl(`/orders/${basket.id}`),
+    data: fieldsModel,
+    withAccessToken: true
+  }).then(useBasketParser);
+}
+
 async function setCurrency({ basket, items }: BasketContext, { data }: any) {
   const { put, get, useUrl } = useApi();
 
@@ -486,6 +497,7 @@ export default <Object>{
   claim,
   update,
   // ---
+  setFields,
   setCurrency,
   // ---
   addPromotion,
