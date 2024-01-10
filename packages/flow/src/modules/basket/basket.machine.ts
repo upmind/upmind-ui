@@ -6,8 +6,11 @@ const { sendTo } = actions;
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import configurationMachine from "../product/product.machine";
+import { useFeedback } from "../feedback";
+const { addError, addSuccess } = useFeedback();
 
 // --- utils
+
 import { useTime } from "../../utils";
 import {
   useBasketParser,
@@ -165,7 +168,7 @@ export default createMachine(
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"]
+                        actions: ["refreshItems", "updateBasket", "setSuccess"]
                       },
                       onError: {
                         target: "#processed",
@@ -179,7 +182,7 @@ export default createMachine(
                       src: "setCurrency",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"]
+                        actions: ["refreshItems", "updateBasket", "setSuccess"]
                       },
                       onError: { target: "error", actions: ["setError"] }
                     }
@@ -194,7 +197,8 @@ export default createMachine(
                         actions: [
                           "removeFromQueue",
                           "refreshItems",
-                          "updateBasket"
+                          "updateBasket",
+                          "setSuccess"
                         ]
                       },
                       onError: {
@@ -210,7 +214,7 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["removeItem", "updateBasket"]
+                        actions: ["removeItem", "updateBasket", "setSuccess"]
                       },
                       onError: {
                         target: "#processed",
@@ -306,7 +310,7 @@ export default createMachine(
                   src: "addPromotion",
                   onDone: {
                     target: "active",
-                    actions: ["refreshItems", "updateBasket"]
+                    actions: ["refreshItems", "updateBasket", "setSuccess"]
                   },
                   onError: {
                     target: "error",
@@ -319,7 +323,7 @@ export default createMachine(
                   src: "removePromotion",
                   onDone: {
                     target: "empty",
-                    actions: ["refreshItems", "updateBasket"]
+                    actions: ["refreshItems", "updateBasket", "setSuccess"]
                   },
                   onError: {
                     target: "error",
@@ -416,7 +420,7 @@ export default createMachine(
                   src: "setFields",
                   onDone: {
                     target: "valid",
-                    actions: ["updateBasket"]
+                    actions: ["updateBasket", "setSuccess"]
                   },
                   onError: { target: "error", actions: ["setError"] }
                 }
@@ -738,10 +742,20 @@ export default createMachine(
       }),
 
       // ---
+      setSuccess: (context, { data }) => {
+        addSuccess("Successfully updated the basket");
+      },
 
       setError: assign({
         error: (context, { data }) => {
-          const { items, newItems, error } = data;
+          let { items, newItems, error } = data;
+
+          addError({
+            title:
+              error?.title || "We experienced an error updating the basket",
+            copy: error?.message,
+            data: error?.data
+          });
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
@@ -758,8 +772,10 @@ export default createMachine(
           } else if (error?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            return useValidationParser(error);
+            error = useValidationParser(error);
           }
+
+          // addError(error?.message);
 
           return error;
         }

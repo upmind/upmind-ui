@@ -106,27 +106,6 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <div
-        role="alert"
-        class="alert alert-error my-4 sticky top-0 z-10 shadow-xl"
-        v-if="meta.hasErrors"
-      >
-        <shield-exclamation-icon class="h-8 w-8" />
-        <div>
-          <h3 class="m-0 text-inherit">
-            We experienced an error updating the basket
-          </h3>
-
-          <span v-if="errors?.message">{{ errors.message }}</span>
-        </div>
-        <button
-          class="btn btn-sm btn-square btn-ghost"
-          @click.prevent="clearErrors"
-        >
-          <x-mark-icon class="h-8 w-8" />
-        </button>
-      </div>
-
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
           <upm-product

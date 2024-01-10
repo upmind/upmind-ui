@@ -90,7 +90,7 @@ export default createMachine(
               },
               onDone: {
                 target: "#client",
-                actions: ["setHistory", "setToken"]
+                actions: ["setHistory", "setToken", "setSuccess"]
               },
               onError: { actions: ["setError"] }
             }
@@ -235,12 +235,22 @@ export default createMachine(
       setUser: assign({ user: (context, { data }) => data }),
       clearUser: assign({ user: {} }),
       // ---
+      setSuccess: (context, { data }) => {
+        addSuccess("Successfully logged in");
+      },
+
       setError: assign({
         error: (context, { data }) => {
-          addError(data.message);
+          addError({
+            title: data?.title || "We experienced an error",
+            copy: data?.message,
+            data: data?.data
+          });
+
           return data;
         }
       }),
+
       clearError: assign({ error: null })
     },
     guards: {

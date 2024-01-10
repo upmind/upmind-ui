@@ -25,8 +25,8 @@ export default (message: Message) =>
 
         // ---
         title: message?.title,
-        subtitle: message?.subtitle,
         copy: message?.copy,
+        data: message?.data,
         display: message?.display,
         type: message?.type,
         // ---
@@ -84,7 +84,7 @@ export default (message: Message) =>
           const isFuture = scheduled > current;
           return !isFuture;
         },
-        hasMaxAge: ({ maxAge }) => !!maxAge
+        hasMaxAge: ({ maxAge }) => maxAge
       },
       delays: {
         delay: ({ delay }) => delay, // this allows us to override the max age in the context

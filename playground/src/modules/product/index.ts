@@ -260,16 +260,22 @@ export const useProductConfig = item => {
 
   // --- PROVISIONING
   function getProvisioningFields(showOptional = true, showHidden = false) {
-    const schema = availableFields.value;
+    const schema = availableFields.value || {
+      type: "object"
+    };
 
     // weere showing all fields, so return the schema
     if (showHidden && showOptional) return schema;
 
-    schema.properties = omitBy(
-      schema?.properties,
-      property =>
-        (!showHidden && property?.defer == "hidden") ||
-        (!showOptional && property?.defer == "optional")
+    set(
+      schema,
+      "properties",
+      omitBy(
+        schema?.properties,
+        property =>
+          (!showHidden && property?.defer == "hidden") ||
+          (!showOptional && property?.defer == "optional")
+      )
     );
     return schema;
   }

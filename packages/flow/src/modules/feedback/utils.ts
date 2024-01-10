@@ -17,7 +17,6 @@ export function generateHash(message: Message) {
     isEmpty
   );
   const hash = sha1(cleaned);
-  console.log("Feedback", "generateHash", cleaned, hash);
   return hash;
 }
 
@@ -26,11 +25,10 @@ export const useMessageParser = (data: Object) => {
     display: messageDisplays.TOAST,
     type: messageTypes.NEUTRAL,
     title: null,
-    subtitle: null,
     copy: null,
-    icon: null,
+    data: null,
     delay: 0,
-    maxAge: useTime().SECOND * 3
+    maxAge: 0 //useTime().SECOND * 3
   };
   // todo pars einto a message format
   const message = defaultsDeep(data, defaultMessage);

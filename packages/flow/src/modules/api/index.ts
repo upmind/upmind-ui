@@ -105,14 +105,12 @@ export const useApi = () => {
     if (request) {
       // finally ... await the response
       return new Promise((resolve, reject) => {
-        return waitFor(request, state =>
-          ["processed", "error"].some(state.matches)
-        )
+        waitFor(request, state => ["processed", "error"].some(state.matches))
           .then(() => {
             if (request.state.matches("processed")) {
-              return resolve(get(request, "state.context.response"));
+              resolve(get(request, "state.context.response"));
             } else {
-              return reject(get(request, "state.context.error"));
+              reject(get(request, "state.context.error"));
             }
           })
           .catch(error => {
@@ -123,13 +121,13 @@ export const useApi = () => {
               error
             );
             // throw error;
-            return reject(error);
+            reject(error);
           });
       });
     }
 
     // TODO:
-    throw new Error("Request not found");
+    return Promise.reject("Request not found");
   }
 
   // --------------------------------------------------------

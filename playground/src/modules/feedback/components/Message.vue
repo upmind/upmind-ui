@@ -1,59 +1,78 @@
 <template>
   <div
-    class="message flex flex-col rounded-box shadow-lg px-4 relative"
-    :class="[
-      { 'opacity-30': !meta.isActive },
-      // { 'opacity-80': meta.isActive },
-      // `border-${message.type}`,
-      `bg-${message.type}`,
-      `text-${message.type}-content`
-    ]"
+    role="alert"
+    class="alert shadow-lg"
+    :class="[{ 'opacity-30': !meta.isActive }, `alert-${message.type}`]"
     v-if="meta.isActive || (scheduled && meta.isScheduled)"
   >
-    <!-- <span class="whitespace-normal text-xs">{{ message.hash }}</span> -->
+    <exclamation-circle-icon class="h-10 w-10" v-if="message.type == 'error'" />
 
-    <h3 class="text-inherit wrap whitespace-normal" v-if="message.title">
-      {{ message.title }}
-    </h3>
+    <check-circle-icon class="h-10 w-10" v-if="message.type == 'success'" />
 
-    <h4 class="text-inherit whitespace-normal" v-if="message.subtitle">
-      {{ message.subtitle }}
-    </h4>
+    <exclamation-triangle-icon
+      class="h-8 w-8"
+      v-if="message.type == 'warning'"
+    />
 
-    <p class="whitespace-normal" v-if="message.copy">{{ message.copy }}</p>
+    <information-circle-icon class="h-10 w-10" v-if="message.type == 'info'" />
 
-    <button
-      @click="dismiss(message.hash)"
-      class="btn btn-xs btn-ghost btn-circle absolute top-1 right-1"
-      v-if="meta.isActive && !message.maxAge"
-    >
-      <x-mark-icon class="w-4 h-4"></x-mark-icon>
-      <span class="sr-only">Dismiss the message</span>
-    </button>
+    <!--  -->
 
-    <div class="flex items-center gap-2 mb-2" v-if="debugging">
-      <em
-        class="text-xs ml-auto font-mono text-inherit"
-        v-if="message.maxAge && meta.isActive"
-      >
-        {{ hidesIn }}
-      </em>
+    <div class="flex flex-col gap-2">
+      <h4 class="text-inherit wrap whitespace-normal m-0" v-if="message.title">
+        {{ message.title }}
+      </h4>
 
-      <em
-        class="text-xs ml-auto font-mono text-inherit"
-        v-if="meta.isScheduled"
-      >
-        {{ showsIn }}
-      </em>
+      <p class="whitespace-normal m-0" v-if="message.copy">
+        {{ message.copy }}
+      </p>
+
+      <p class="whitespace-normal text-xs m-0" v-if="message.data">
+        {{ message.data }}
+      </p>
     </div>
 
-    <upm-debug
-      v-if="debugging"
-      title="Message"
-      :state="state.value"
-      :context="message"
-      :meta="meta"
-    />
+    <div class="actions text-right">
+      <button
+        @click.prevent="dismiss(message.hash)"
+        class="btn btn-xs btn-ghost btn-circle"
+        v-if="meta.isActive && !message.maxAge"
+      >
+        <x-mark-icon class="w-fit h-fit"></x-mark-icon>
+        <span class="sr-only">Dismiss the message</span>
+      </button>
+
+      <div class="flex items-center gap-2 mb-2" v-if="debugging">
+        <em
+          class="text-xs ml-auto font-mono text-inherit"
+          v-if="!message.maxAge && meta.isActive"
+        >
+          Persistent
+        </em>
+
+        <em
+          class="text-xs ml-auto font-mono text-inherit"
+          v-if="message.maxAge && meta.isActive"
+        >
+          {{ hidesIn }}
+        </em>
+
+        <em
+          class="text-xs ml-auto font-mono text-inherit"
+          v-if="meta.isScheduled"
+        >
+          {{ showsIn }}
+        </em>
+      </div>
+
+      <upm-debug
+        v-if="debugging"
+        title="Message"
+        :state="state.value"
+        :context="message"
+        :meta="meta"
+      />
+    </div>
   </div>
 </template>
 
@@ -63,14 +82,24 @@ import { useMessage } from "..";
 
 import { utils } from "@upmind/flow";
 import { UpmDebug } from "@upmind/components";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+import {
+  XMarkIcon,
+  ExclamationCircleIcon,
+  InformationCircleIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon
+} from "@heroicons/vue/24/outline";
 import { endsWith, startsWith } from "lodash-es";
 
 export default defineComponent({
   name: "UpmMessage",
   components: {
     UpmDebug,
-    XMarkIcon
+    XMarkIcon,
+    ExclamationCircleIcon,
+    InformationCircleIcon,
+    ExclamationTriangleIcon,
+    CheckCircleIcon
   },
   props: {
     item: {
