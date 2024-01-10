@@ -21,3 +21,26 @@ export const useValidation = () => {
     }
   };
 };
+
+export const useValidationParser = (error: any) => {
+  if (error?.data) {
+    error.message = "Validation error";
+
+    const errors = [];
+    forEach(error.data, (value, key) => {
+      const newError = {
+        instancePath: `/${key}`, // AJV style path to the property in the schema
+        message: value.toString(),
+        // --- optional
+        schemaPath: "",
+        keyword: "",
+        params: {}
+      };
+      errors.push(newError);
+    });
+
+    error.data = errors;
+  }
+
+  return error;
+};

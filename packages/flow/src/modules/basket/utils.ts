@@ -1,25 +1,13 @@
 // --- utils
 import {
-  defaultsDeep,
-  first,
-  forEach,
-  get,
-  includes,
-  isArray,
-  isNil,
-  map,
-  omitBy,
-  reduce,
-  set
-} from "lodash-es";
+  useFieldsSchemaParser,
+  useFieldsUischemaParser,
+  useFieldsModelParser
+} from "../../utils";
 
-// --------------------------------------------------------
+export { useValidationParser } from "../../utils";
 
-const translate = (item, field) => {
-  const translated = item[`${field}_translated`];
-  if (translated) return translated;
-  return item[field];
-};
+import { first, get, isArray, reduce, set } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -126,34 +114,9 @@ export const useSummaryParser = (data?: any) => {
 };
 
 // --------------------------------------------------------
-
-export const useValidationParser = (error: any) => {
-  if (error?.data) {
-    error.message = "Validation error";
-
-    const errors = [];
-    forEach(error.data, (value, key) => {
-      const newError = {
-        instancePath: `/${key}`, // AJV style path to the property in the schema
-        message: value.toString(),
-        // --- optional
-        schemaPath: "",
-        keyword: "",
-        params: {}
-      };
-      errors.push(newError);
-    });
-
-    error.data = errors;
-  }
-
-  return error;
-};
-
-// --------------------------------------------------------
 // Fields
 
-export const useFieldsSchemaParser = (data: any) => {
+export const useCustomFieldsSchemaParser = (data: any) => {
   const schema = {
     type: "object",
     title: "Fields",
@@ -162,130 +125,15 @@ export const useFieldsSchemaParser = (data: any) => {
       notes: {
         type: "string",
         title: "Order Notes"
-      }
+      },
+      custom_fields: useFieldsSchemaParser(data)
     }
   };
-
-  if (data?.length) {
-    const required: string[] = [];
-    const properties = {};
-
-    forEach(data, field => {
-      let type = ["string"];
-      let format = null;
-      const contentMediaType = null;
-      const contentEncoding = null;
-
-      // lets map our field types...
-      switch (field.type_code) {
-        case "input_number":
-        case "number":
-          type = ["number"];
-          break;
-
-        case "input-checkbox":
-        case "tick_box":
-          type = ["boolean"];
-          break;
-
-        case "input_date":
-        case "input_datetime":
-        case "date":
-          type = ["string"];
-          format = "date-time";
-          break;
-
-        case "input_email":
-        case "email":
-          type = ["string"];
-          format = "email";
-          break;
-
-        case "input_url":
-          type = ["string"];
-          format = "uri";
-          break;
-
-        case "input_phone":
-          type = ["string"];
-          format = "phone";
-          break;
-
-        case "input_ip":
-          type = ["string"];
-          format = "ipv4";
-          break;
-
-        case "input_ipv6":
-          type = ["string"];
-          format = "ipv6";
-          break;
-
-        case "input_password":
-        case "password":
-          type = ["string"];
-          format = "password";
-          break;
-
-        // case "input_file":
-        // case "image":
-        //   type = ["string"];
-        //   contentMediaType = "image";
-        //   contentEncoding = "base64";
-        //   break;
-
-        default:
-          type = ["string"];
-          break;
-      }
-
-      // required fields
-      if (field.required) {
-        required.push(field.code);
-      } else {
-        type.push("null");
-      }
-
-      // then we set our property based on the field code
-      set(
-        properties,
-        field.code,
-        omitBy(
-          {
-            type,
-            format,
-            contentMediaType,
-            contentEncoding,
-            title: translate(field, "name"),
-            description: translate(field, "description"),
-            default: field.default,
-            const: field.const,
-            enum: !field.options?.length ? undefined : field.options,
-            oneOf: !field.values?.length
-              ? undefined
-              : map(translate(field, "values"), item => ({
-                  const: item.value,
-                  title: item.label
-                }))
-          },
-          isNil
-        )
-      );
-    });
-
-    if (required.length) schema.required.push("custom_fields");
-
-    set(schema, "properties.custom_fields", {
-      type: "object",
-      properties,
-      required
-    });
-  }
 
   return schema;
 };
 
-export const useFieldsUischemaParser = (data: any) => {
+export const useCustomFieldsUischemaParser = (data: any) => {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -298,87 +146,19 @@ export const useFieldsUischemaParser = (data: any) => {
           autocomplete: "off",
           placeholder: "Add notes here..."
         }
-      }
+      },
+      useFieldsUischemaParser(data)
     ]
   };
-
-  if (data?.length) {
-    const group = {
-      type: "Group",
-      elements: map(data, field => {
-        let type = null;
-        let multi = false;
-
-        // lets map our field types...
-        switch (field.type_code) {
-          case "textarea":
-          case "text_area":
-            multi = true;
-            break;
-
-          case "input_number":
-          case "number":
-            type = "number";
-            break;
-
-          case "input_date":
-          case "date":
-            type = "date";
-            break;
-
-          case "input_datetime":
-          case "datetime":
-            type = "datetime-local";
-            break;
-
-          case "input_email":
-          case "email":
-            type = "email";
-            break;
-
-          case "input_password":
-          case "password":
-            type = "password";
-            break;
-
-          case "input_file":
-          case "image":
-            type = "file";
-            break;
-        }
-
-        return {
-          type: "Control",
-          scope: `#/properties/custom_fields/properties/${field.code}`,
-          options: {
-            label: translate(field, "name"),
-            description: translate(field, "description"),
-            placeholder: translate(field, "placeholder"),
-            multi,
-            type
-          }
-        };
-      })
-    };
-
-    schema.elements.push(group);
-  }
 
   return schema;
 };
 
-export const useFieldsModelParser = (data: any, values: any) => {
-  const model = defaultsDeep(values, {
+export const useCustomFieldsModelParser = (data: any, values: any) => {
+  const model = {
     notes: values?.notes,
-    custom_fields: {}
-  });
-
-  if (data?.length) {
-    forEach(data, field => {
-      const value = get(model, `custom_fields.${field.code}`, field?.value);
-      set(model, `custom_fields.${field.code}`, value || field?.default);
-    });
-  }
+    custom_fields: useFieldsModelParser(data, get(values, "custom_fields", {}))
+  };
 
   return model;
 };

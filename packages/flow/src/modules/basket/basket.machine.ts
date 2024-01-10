@@ -13,9 +13,9 @@ import {
   useBasketParser,
   useSummaryParser,
   useValidationParser,
-  useFieldsSchemaParser,
-  useFieldsUischemaParser,
-  useFieldsModelParser,
+  useCustomFieldsSchemaParser,
+  useCustomFieldsUischemaParser,
+  useCustomFieldsModelParser,
   useBasketFieldsModelParser
 } from "./utils";
 
@@ -703,11 +703,11 @@ export default createMachine(
 
       setFieldsSchemas: assign({
         fieldsSchema: ({ custom_fields }) =>
-          useFieldsSchemaParser(custom_fields),
+          useCustomFieldsSchemaParser(custom_fields),
         fieldsUischema: ({ custom_fields }) =>
-          useFieldsUischemaParser(custom_fields),
+          useCustomFieldsUischemaParser(custom_fields),
         fieldsModel: ({ custom_fields, fieldsModel }) =>
-          useFieldsModelParser(custom_fields, fieldsModel)
+          useCustomFieldsModelParser(custom_fields, fieldsModel)
       }),
 
       setFieldsModel: assign({
