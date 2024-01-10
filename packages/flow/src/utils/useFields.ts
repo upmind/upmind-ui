@@ -1,0 +1,202 @@
+//--- utils
+import { useTranslateField } from "./useTranslation";
+import { defaultsDeep, forEach, get, isNil, map, omitBy, set } from "lodash-es";
+
+// --------------------------------------------------------
+
+export const useFieldsSchemaParser = (data: any) => {
+  const schema = {
+    type: "object",
+    title: "Fields",
+    required: [],
+    properties: {}
+  };
+
+  if (data?.length) {
+    const required: string[] = [];
+    const properties = {};
+
+    forEach(data, field => {
+      let type = ["string"];
+      let format = null;
+      const contentMediaType = null;
+      const contentEncoding = null;
+
+      // lets map our field types...
+      switch (field.type_code) {
+        case "input_number":
+        case "number":
+          type = ["number"];
+          break;
+
+        case "input-checkbox":
+        case "tick_box":
+          type = ["boolean"];
+          break;
+
+        case "input_date":
+        case "input_datetime":
+        case "date":
+          type = ["string"];
+          format = "date-time";
+          break;
+
+        case "input_email":
+        case "email":
+          type = ["string"];
+          format = "email";
+          break;
+
+        case "input_url":
+          type = ["string"];
+          format = "uri";
+          break;
+
+        case "input_phone":
+          type = ["string"];
+          format = "phone";
+          break;
+
+        case "input_ip":
+          type = ["string"];
+          format = "ipv4";
+          break;
+
+        case "input_ipv6":
+          type = ["string"];
+          format = "ipv6";
+          break;
+
+        case "input_password":
+        case "password":
+          type = ["string"];
+          format = "password";
+          break;
+
+        // case "input_file":
+        // case "image":
+        //   type = ["string"];
+        //   contentMediaType = "image";
+        //   contentEncoding = "base64";
+        //   break;
+
+        default:
+          type = ["string"];
+          break;
+      }
+
+      // required fields
+      if (field.required) {
+        required.push(field.code);
+      } else {
+        type.push("null");
+      }
+
+      // then we set our property based on the field code
+      set(
+        properties,
+        field.code,
+        omitBy(
+          {
+            type,
+            format,
+            contentMediaType,
+            contentEncoding,
+            title: useTranslateField(field, "name"),
+            description: useTranslateField(field, "description"),
+            default: field.default,
+            const: field.const,
+            enum: !field.options?.length ? undefined : field.options,
+            oneOf: !field.values?.length
+              ? undefined
+              : map(useTranslateField(field, "values"), item => ({
+                  const: item.value,
+                  title: item.label
+                }))
+          },
+          isNil
+        )
+      );
+    });
+
+    set(schema, "required", required);
+    set(schema, "properties", properties);
+  }
+
+  return schema;
+};
+
+export const useFieldsUischemaParser = (data: any) => {
+  const schema = {
+    type: "VerticalLayout",
+    elements: map(data, field => {
+      let type = null;
+      let multi = false;
+
+      // lets map our field types...
+      switch (field.type_code) {
+        case "textarea":
+        case "text_area":
+          multi = true;
+          break;
+
+        case "input_number":
+        case "number":
+          type = "number";
+          break;
+
+        case "input_date":
+        case "date":
+          type = "date";
+          break;
+
+        case "input_datetime":
+        case "datetime":
+          type = "datetime-local";
+          break;
+
+        case "input_email":
+        case "email":
+          type = "email";
+          break;
+
+        case "input_password":
+        case "password":
+          type = "password";
+          break;
+
+        case "input_file":
+        case "image":
+          type = "file";
+          break;
+      }
+
+      return {
+        type: "Control",
+        scope: `#/properties/custom_fields/properties/${field.code}`,
+        options: {
+          label: useTranslateField(field, "name"),
+          description: useTranslateField(field, "description"),
+          placeholder: useTranslateField(field, "placeholder"),
+          multi,
+          type
+        }
+      };
+    })
+  };
+
+  return schema;
+};
+
+export const useFieldsModelParser = (data: any, values: any = {}) => {
+  const model = defaultsDeep(values, {});
+
+  if (data?.length) {
+    forEach(data, field => {
+      const value = get(model, `${field.code}`, field?.value);
+      set(model, field.code, value || field?.default);
+    });
+  }
+
+  return model;
+};
