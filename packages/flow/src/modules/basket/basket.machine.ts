@@ -272,6 +272,7 @@ export default createMachine(
               "UPDATE.CURRENCY": {
                 target: "items.processing.currency"
               },
+
               CLEAR: {
                 target: "items.processing",
                 actions: ["removeAllItems"]
@@ -340,6 +341,7 @@ export default createMachine(
               "REMOVE.PROMOTION": { target: "promotions.removing" }
             }
           },
+
           client: {
             initial: "checking",
             states: {
@@ -409,6 +411,16 @@ export default createMachine(
                 id: "error"
               },
 
+              processing: {
+                invoke: {
+                  src: "setFields",
+                  onDone: {
+                    target: "valid",
+                    actions: ["updateBasket"]
+                  },
+                  onError: { target: "error", actions: ["setError"] }
+                }
+              },
               // Handle completion, stop the machine and prevent further requests
               complete: {
                 id: "complete",
@@ -417,12 +429,15 @@ export default createMachine(
             },
             on: {
               "UPDATE.FIELDS": {
-                target: "custom_fields.checking",
-                actions: ["setFieldsModel"]
+                target: "custom_fields.processing"
               },
               "CLEAR.FIELDS": {
                 target: "custom_fields.idle",
                 actions: ["clearFieldsModel"]
+              },
+              "SET.FIELDS": {
+                target: "custom_fields.checking",
+                actions: ["setFieldsModel"]
               }
             }
           }

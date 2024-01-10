@@ -246,6 +246,7 @@
           :processing="meta.isProcessing"
           :additionalErrors="errors?.data"
           @resolve="updateFields"
+          @update:modelValue="setFields"
           @reject="clearFields"
         ></basket-fields>
       </section>
@@ -267,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, onBeforeUnmount } from "vue";
 import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
@@ -311,6 +312,7 @@ const {
   updateQuantity,
   updateTerm,
   clearFields,
+  setFields,
   updateFields
 } = useBasket();
 
@@ -370,5 +372,10 @@ const debugging = ref(false);
 const model = ref({
   product_id: null,
   quantity: 1
+});
+
+// make sure we update any basket fields if we navigate away from the basket
+onBeforeUnmount(() => {
+  updateFields();
 });
 </script>

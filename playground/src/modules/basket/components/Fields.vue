@@ -7,9 +7,18 @@
       :model-value="modelValue"
       :additional-errors="additionalErrors"
       :processing="processing"
-      no-actions
-      @update:modelValue="doResolve"
+      @update:modelValue="doUpdate"
+      @resolve="doResolve"
     >
+      <template #actions="{ meta }">
+        <button
+          type="submit"
+          class="btn btn-sm btn-link"
+          :disabled="!meta.isDirty || !meta.isValid || meta.isProcessing"
+        >
+          Update fields
+        </button>
+      </template>
     </upm-form-generator>
   </div>
 </template>
@@ -26,7 +35,7 @@ export default defineComponent({
   components: { UpmFormGenerator },
   inheritAttrs: true,
   customOptions: {},
-  emits: ["reject", "resolve"],
+  emits: ["reject", "resolve", "update:modelValue"],
   props: {
     processing: {
       type: Boolean,
@@ -62,6 +71,9 @@ export default defineComponent({
     },
     doResolve(value) {
       this.$emit("resolve", value);
+    },
+    doUpdate(value) {
+      this.$emit("update:modelValue", value);
     }
   }
 });

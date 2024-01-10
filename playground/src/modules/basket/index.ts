@@ -31,8 +31,12 @@ export const useBasket = () => {
 
     clearFields: () => send({ type: "CLEAR.FIELDS" }),
 
-    updateFields: values => {
-      send({ type: "UPDATE.FIELDS", data: values });
+    setFields: values => {
+      send({ type: "SET.FIELDS", data: values });
+    },
+
+    updateFields: () => {
+      send({ type: "UPDATE.FIELDS" });
     },
 
     updateCurrency: currency =>
@@ -91,6 +95,7 @@ export const useBasket = () => {
         isLoading: ["loading"].some(state.value.matches),
         isProcessing: [
           "shopping.items.processing",
+          "shopping.custom_fields.processing",
           "shopping.promotions.adding",
           "shopping.promotions.removing"
         ].some(state.value.matches),

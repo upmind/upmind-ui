@@ -93,11 +93,11 @@
           @reject="reject"
           @resolve="resolve"
         >
-          <template #actions="{ isValid, doReject }">
+          <template #actions="{ meta: formMeta, doReject }">
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="!isValid || meta.isProcessing"
+              :disabled="!formMeta.isValid || formMeta.isProcessing"
             >
               Continue
             </button>
