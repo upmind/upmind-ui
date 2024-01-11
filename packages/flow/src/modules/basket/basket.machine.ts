@@ -103,7 +103,10 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: { target: "#shopping", actions: ["setBasket", "loadItems"] },
-          onError: { target: "error", actions: ["setError"] }
+          onError: {
+            target: "error",
+            actions: ["setError", "setErrorFeedback"]
+          }
         }
       },
 
@@ -115,7 +118,10 @@ export default createMachine(
           onDone: {
             target: "#shopping"
           },
-          onError: { target: "#error", actions: ["setError"] }
+          onError: {
+            target: "#error",
+            actions: ["setError", "setErrorFeedback"]
+          }
         }
       },
 
@@ -172,7 +178,12 @@ export default createMachine(
                       },
                       onError: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setError"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setErrorFeedback"
+                        ]
                       }
                     }
                   },
@@ -184,7 +195,10 @@ export default createMachine(
                         target: "#processed",
                         actions: ["refreshItems", "updateBasket", "setSuccess"]
                       },
-                      onError: { target: "error", actions: ["setError"] }
+                      onError: {
+                        target: "error",
+                        actions: ["setError", "setErrorFeedback"]
+                      }
                     }
                   },
 
@@ -203,7 +217,12 @@ export default createMachine(
                       },
                       onError: {
                         target: "#configuring",
-                        actions: ["refreshItems", "updateBasket", "setError"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setErrorFeedback"
+                        ]
                       }
                     }
                   },
@@ -218,7 +237,12 @@ export default createMachine(
                       },
                       onError: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setError"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setErrorFeedback"
+                        ]
                       }
                     }
                   },
@@ -314,7 +338,7 @@ export default createMachine(
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError"]
+                    actions: ["setError", "setErrorFeedback"]
                   }
                 }
               },
@@ -327,7 +351,7 @@ export default createMachine(
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError"]
+                    actions: ["setError", "setErrorFeedback"]
                   }
                 }
               },
@@ -422,7 +446,10 @@ export default createMachine(
                     target: "valid",
                     actions: ["updateBasket", "setSuccess"]
                   },
-                  onError: { target: "error", actions: ["setError"] }
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setErrorFeedback"]
+                  }
                 }
               },
               // Handle completion, stop the machine and prevent further requests
@@ -747,16 +774,17 @@ export default createMachine(
         addSuccess("Successfully updated the basket");
       },
 
+      setErrorFeedback: ({ error }, _event) => {
+        addError({
+          title: error?.title || "We experienced an error updating the basket",
+          copy: error?.message,
+          data: error?.data
+        });
+      },
+
       setError: assign({
         error: (context, { data }) => {
           let { items, newItems, error } = data;
-
-          addError({
-            title:
-              error?.title || "We experienced an error updating the basket",
-            copy: error?.message,
-            data: error?.data
-          });
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
