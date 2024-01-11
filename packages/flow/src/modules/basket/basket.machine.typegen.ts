@@ -196,6 +196,16 @@ export interface Typegen0 {
       | "error.platform.loading:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
+    setErrorFeedback:
+      | "error.platform.basketManager.shopping.custom_fields.processing:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.currency:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "error.platform.basketManager.shopping.promotions.adding:invocation[0]"
+      | "error.platform.basketManager.shopping.promotions.removing:invocation[0]"
+      | "error.platform.claiming:invocation[0]"
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.removing:invocation[0]"
+      | "error.platform.updating:invocation[0]";
     setFields: "done.invoke.basketManager.shopping.custom_fields.loading:invocation[0]";
     setFieldsModel: "SET.FIELDS";
     setFieldsSchemas: "done.invoke.basketManager.shopping.custom_fields.loading:invocation[0]";

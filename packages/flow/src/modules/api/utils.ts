@@ -35,7 +35,15 @@ export function generateHash(
   useCache?: boolean | null,
   queue?: Array<string> // this is to prevent duplicate requests
 ) {
-  const hash = sha1({ ...omit(init, ["signal"]), url: url.toString() });
+  const values = omit(init, ["signal"]);
+  // handle form data
+  if (values.body instanceof FormData) {
+    values.body = values.body.toString();
+  }
+  // add the url to the hash
+  values.url = url.toString();
+
+  const hash = sha1(values);
 
   const existing = filter(queue, item => startsWith(item, hash));
 
@@ -75,3 +83,11 @@ export function ensureCamelCaseKeys(response) {
 //     return obj;
 //   }
 // }
+
+export function parseData(data: any) {
+  if (data instanceof FormData) return data;
+
+  if (isObject(data)) return JSON.stringify(data);
+
+  return data;
+}

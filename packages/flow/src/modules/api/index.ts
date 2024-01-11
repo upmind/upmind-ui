@@ -12,7 +12,8 @@ import type { RequestParams } from "./types.d";
 import { useSession } from "../session";
 
 // --- utils
-import { set, get, trimStart, forIn, keys, isString } from "lodash-es";
+import { parseData } from "./utils";
+import { set, get, unset, trimStart, forIn, keys, isString } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -81,7 +82,12 @@ export const useApi = () => {
     set(init, "method", get(init, "method", "GET"));
 
     // Enforce Content Type header
-    set(init, "headers.Content-Type", "application/json");
+    if (init.body instanceof FormData) {
+      // do not set header content type
+      unset(init, "headers.Content-Type");
+    } else {
+      set(init, "headers.Content-Type", "application/json");
+    }
 
     // Enforce Authorization header, if required
     // also allow us to pass a custom token, for eg 2fa
@@ -177,7 +183,7 @@ export const useApi = () => {
 
     // Enforce method, header, parse body
     set(init, "method", "POST");
-    set(init, "body", JSON.stringify(data));
+    set(init, "body", parseData(data));
 
     return request({ url, init, withAccessToken });
   }
