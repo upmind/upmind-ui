@@ -7,8 +7,9 @@ import {
 
 export { useValidationParser } from "../../utils";
 
-import { first, get, isArray, reduce, set } from "lodash-es";
+import { first, get, isArray, reduce, set, map } from "lodash-es";
 
+// --- types
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
@@ -147,7 +148,18 @@ export const useCustomFieldsUischemaParser = (data: any) => {
           placeholder: "Add notes here..."
         }
       },
-      useFieldsUischemaParser(data)
+      useFieldsUischemaParser(
+        map(data, field => {
+          if (["input_file", "image"].includes(field.type_code)) {
+            field.options ??= {};
+            field.options.fieldTypeId = field?.id;
+            field.options.fieldType = "client_custom_field";
+            field.options.fileTypes = [];
+          }
+
+          return field;
+        })
+      )
     ]
   };
 

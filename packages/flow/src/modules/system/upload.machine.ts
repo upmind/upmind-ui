@@ -9,7 +9,8 @@ import type { UploadContext, UploadEvent } from "./types.d";
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
-import { compact } from "lodash-es";
+
+// --- types
 
 const base = import.meta.env.VITE_API_URL;
 
@@ -22,7 +23,9 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "idle",
     context: {
-      fieldName: null,
+      fileTypeId: null,
+      fileType: null,
+      isDefault: false,
 
       // ---
       fileTypes: [],
@@ -43,7 +46,6 @@ export default createMachine(
       response: null,
       file: null,
       src: null,
-      hash: null,
 
       // ---
       error: null
@@ -137,7 +139,6 @@ export default createMachine(
     actions: {
       clear: assign({
         file: null,
-        hash: null,
         src: null,
         progress: 0
       }),

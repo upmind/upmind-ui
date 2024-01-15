@@ -43,11 +43,20 @@ export const useSystem = () => {
 // system uplaods is NOT a global insance, and is always instantiated as a new machine
 // this is because we need to be able to have multiple uploads happening at once
 // and we need to be able to start and stop them individually
-export const useSystemUpload = () => {
+export const useSystemUpload = (
+  fileType?: ImageObjectTypes,
+  fileTypeId?: string,
+  isDefault?: boolean
+) => {
   let state = null;
 
-  // const service = interpret(uploadMachine.withContext(context), {
-  const service = interpret(uploadMachine, {
+  const context = {
+    fileType,
+    fileTypeId,
+    isDefault
+  };
+
+  const service = interpret(uploadMachine.withContext(context), {
     devTools: true
   })
     .onTransition(newState => (state = newState))

@@ -6,13 +6,13 @@
     :applied-options="appliedOptions"
   >
     <input
-      v-if="!meta.hasFile"
+      ref="input"
       :id="control.id + '-input'"
       :class="[
         styles.control.file,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
+        { hidden: meta.hasFile || meta.isProcessing }
       ]"
-      :value="control.data"
       :disabled="!control.enabled"
       :autocomplete="appliedOptions.autocomplete"
       :placeholder="appliedOptions.placeholder"
@@ -23,34 +23,46 @@
     />
 
     <aside
-      class="relative mt-2 max-w-xs max-h-xs bg-neutral text-neutral-content"
+      class="card sm:card-side bg-base-100 border rounded-btn"
+      v-if="meta.hasFile || meta.isProcessing"
     >
-      <div class="absolute top-0 left-0 right-0 inline-flex p-2 justify-end">
-        <span v-if="meta.isProcessing" class="loading loading-dots"></span>
+      <figure
+        class="relative m-0 sm:w-1/2 md:w-1/3 aspect-square bg-neutral-100"
+      >
+        <img
+          v-if="src"
+          :src="src"
+          alt="uploaded image thumbnail "
+          class="aspect-square w-full"
+        />
+        <span
+          v-if="meta.isProcessing"
+          class="loading loading-dots absolute"
+        ></span>
+      </figure>
+      <div class="card-body p-4">
+        <h4 class="card-title m-0 text-base">{{ control.data }}</h4>
 
-        <!-- <check-circle-icon v-if="meta.isComplete" class="h-8 w-8" /> -->
-
-        <button
-          class="btn btn-circle btn-ghost btn-sm hover:bg-neutral-focus"
-          @click="remove"
-          v-if="meta.isComplete"
-        >
-          <x-mark-icon class="w-fit h-fit" />
-          <span class="sr-only">Remove image</span>
-        </button>
+        <div class="card-actions justify-between mt-auto">
+          <button class="btn btn-ghost btn-sm" @click.prevent="onOpen">
+            Change
+          </button>
+          <button
+            class="btn btn-circle btn-ghost btn-sm"
+            @click.prevent="onRemove"
+            v-if="meta.isComplete"
+          >
+            <trash-icon class="w-6 h-6" />
+            <span class="sr-only">Remove image</span>
+          </button>
+        </div>
       </div>
-
-      <img
-        v-if="src"
-        :src="src"
-        alt="uploaded image thumbnail"
-        class="w-fit h-fit m-0"
-      />
     </aside>
   </control-wrapper>
 </template>
 
 <script lang="ts">
+import { ref } from "vue";
 import type {
   ControlElement,
   JsonFormsRendererRegistryEntry
@@ -71,15 +83,14 @@ import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
-import { CheckCircleIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { TrashIcon } from "@heroicons/vue/24/outline";
 import { useUpload } from "../../../composables";
 
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",
   components: {
     ControlWrapper,
-    CheckCircleIcon,
-    XMarkIcon
+    TrashIcon
   },
   props: {
     ...rendererProps<ControlElement>()
@@ -88,39 +99,49 @@ const controlRenderer = defineComponent({
     return {};
   },
   setup(props: RendererProps<ControlElement>) {
-    const {
-      file,
-      fileTypes,
-      src,
-      errors,
-      meta,
-      add,
-      remove,
-      getImage,
-      destroy
-    } = useUpload();
+    const input = ref();
+    // create an instance of the input control
+    const inputControl = useDaisyControl(useJsonFormsControl(props), target => {
+      return file?.value || target?.value || undefined;
+    });
 
-    if (props.data && !meta.hasFile) {
-      getImage(props.data);
-    }
+    const { file, src, errors, meta, add, remove, getImageByHash, destroy } =
+      useUpload(inputControl.appliedOptions.value);
 
     onBeforeUnmount(() => {
       destroy();
     });
 
-    const inputControl = useDaisyControl(useJsonFormsControl(props), onChange);
+    // check if the control has a file and if it does, we need to get the file from the server
+    if (inputControl.control.value?.data)
+      getImageByHash(inputControl.control.value?.data);
 
-    function onChange(target: Event) {
-      add(target.files[0]);
-      return target.value || undefined;
+    async function onChange(target: Event) {
+      // uplod the file to the server
+      const file = target.currentTarget.files[0];
+      await add(file);
+      // forward the event to the input control that will trigger the update
+      return inputControl.onChange(target);
     }
 
+    function onRemove(target: Event) {
+      remove();
+      return inputControl.onChange(target);
+    }
+
+    function onOpen() {
+      input.value.click();
+    }
     return {
+      input,
       meta,
       file,
       errors,
       src,
-      ...inputControl
+      ...inputControl,
+      onChange,
+      onRemove,
+      onOpen
     };
   }
 });

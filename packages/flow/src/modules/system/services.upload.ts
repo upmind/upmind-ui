@@ -1,48 +1,49 @@
 // --- internal
 import { useApi } from "../api";
+import { useBrand, BrandConfigKeys } from "../brand";
 
 // --- utils
-import { compact } from "lodash-es";
+import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
 import type { ImageEvent } from "./types.d";
-import { ImageObjectTypes } from "./types.d";
+import { ImageObjectTypes, ImageUploadTypes } from "./types.d";
 
 // --------------------------------------------------------
 // HELPERS
 
 const filePath = (
-  imageType?: ImageObjectTypes = ImageObjectTypes.CLIENT_CUSTOM_FIELD,
-  objectId?: string = "73de7864-2de5-3971-4ef2-1208469530d0",
+  fileType?: ImageObjectTypes,
+  fileTypeId?: string,
   isDefault?: boolean
 ) => {
   let path;
 
-  switch (imageType) {
+  switch (fileType) {
     case ImageObjectTypes.CLIENT:
-      path = `clients/${objectId}/images`;
+      path = `clients/${fileTypeId}/images`;
       break;
     case ImageObjectTypes.USER:
-      path = `users/${objectId}/images`;
+      path = `users/${fileTypeId}/images`;
       break;
     case ImageObjectTypes.PRODUCT:
-      path = `products/${objectId}/images`;
+      path = `products/${fileTypeId}/images`;
       break;
     case ImageObjectTypes.PRODUCT_CATEGORY:
-      path = `products_categories/${objectId}/images`;
+      path = `products_categories/${fileTypeId}/images`;
       break;
     case ImageObjectTypes.BRAND:
-      path = `brands/${objectId}/images`;
+      path = `brands/${fileTypeId}/images`;
       break;
     case ImageObjectTypes.BRAND_FAVICON:
-      path = `brands/${objectId}/images/favicon`;
+      path = `brands/${fileTypeId}/images/favicon`;
       break;
     case ImageObjectTypes.BRAND_EMAIL_LOGO:
-      path = `brands/${objectId}/images/email_logo`;
+      path = `brands/${fileTypeId}/images/email_logo`;
       break;
     case ImageObjectTypes.CLIENT_CUSTOM_FIELD:
-      path = objectId
-        ? `clients/fields/${objectId}/image`
+      path = fileTypeId
+        ? `clients/fields/${fileTypeId}/image`
         : `clients/fields/images`;
       break;
     default:
@@ -57,19 +58,20 @@ const filePath = (
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function getImage(_context: any, { data }: ImageEvent) {
-  if (!data?.typeId || data?.hash)
-    return Promise.reject("No file type or hash provided");
+async function getImage(
+  { fileType, fileTypeId, isDefault }: any,
+  { data }: ImageEvent
+) {
+  // if we have a hash, we can skip the request
+  if (data?.hash) {
+    return Promise.resolve({ value: data.hash });
+  }
+
+  if (!fileTypeId) return Promise.reject("No file type or hash provided");
 
   const { get, useUrl, useTime } = useApi();
 
-  let path = null;
-
-  if (data?.hash) {
-    path = `${filePath()}/${data?.hash}`;
-  } else {
-    path = filePath(data?.imageType, data?.typeId, !!data?.isDefault);
-  }
+  const path = filePath(fileType, fileTypeId, isDefault);
 
   return get({
     url: useUrl(path, {
@@ -81,13 +83,22 @@ async function getImage(_context: any, { data }: ImageEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function check({ fileTypes }: any, { data }: any) {
+async function check(_context: any, { data }: any) {
   let isValid = true;
   let error = null;
 
-  if (fileTypes.length && !fileTypes.includes(data.type)) {
+  const { getConfig } = useBrand();
+  const fileTypes = await getConfig(
+    BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES
+  ).then(
+    response =>
+      get(response, BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES) ||
+      ImageUploadTypes
+  );
+
+  if (!isEmpty(fileTypes) && !includes(fileTypes, data.type)) {
     isValid = false;
-    error = "Invalid file type";
+    error = "Invalid file fileType";
   }
 
   // if (file.size > 1000000) {
@@ -119,12 +130,14 @@ async function check({ fileTypes }: any, { data }: any) {
   });
 }
 
-async function upload({ request }: any, _event: any) {
+async function upload(
+  { fileType, fileTypeId, isDefault, request }: any,
+  _event: any
+) {
   const { post, useUrl } = useApi();
-
+  const path = filePath(fileType, fileTypeId, isDefault);
   return post({
-    url: useUrl(filePath()),
-    // url: useUrl(filePath(file?.imageType, file?.typeId, !!file?.isDefault)),
+    url: useUrl(path),
     data: request,
     withAccessToken: true
   }).then(({ data }: any) => data);
