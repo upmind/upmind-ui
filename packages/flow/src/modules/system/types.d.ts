@@ -13,6 +13,14 @@ export enum ImageObjectTypes {
   CLIENT_CUSTOM_FIELD = "client_custom_field"
 }
 
+export const ImageUploadTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+  "image/bmp",
+  "image/svg+xml"
+];
 // --------------------------------------------------------
 // private
 
@@ -26,8 +34,8 @@ export interface ImageHashEvent {
 }
 
 export interface ImageTypeEvent {
-  typeId: string;
-  imageType: ImageObjectTypes;
+  fileType: ImageObjectTypes;
+  fileTypeId: string;
   isDefault: boolean;
 }
 // --------------------------------------------------------
@@ -41,7 +49,9 @@ export interface SystemContext {
 }
 
 export interface UploadContext {
-  fieldName: string | null;
+  fileType?: ImageObjectTypes | null;
+  fileTypeId?: string | null;
+  isDefault?: boolean;
 
   // ---
   fileTypes: [];
@@ -56,7 +66,6 @@ export interface UploadContext {
   response?: Object | null;
   file?: Object | null;
   src?: string | null;
-  hash?: string | null;
 
   // ---
   error?: RequestError;
@@ -66,19 +75,19 @@ export interface UploadContext {
 // Events
 
 export interface SystemEvent {
-  type: string;
+  fileType: string;
   data: any;
   error?: RequestError;
 }
 
 export interface UploadEvent {
-  type: string;
+  fileType: string;
   data: any;
   error?: RequestError;
 }
 
 export interface ImageEvent {
-  type: string;
+  fileType: string;
   data: Object<ImageTypeEvent | ImageHashEvent>;
   error?: RequestError;
 }

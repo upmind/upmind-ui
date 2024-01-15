@@ -1,6 +1,6 @@
 //--- utils
 import { useTranslateField } from "./useTranslation";
-import { defaultsDeep, forEach, get, isNil, map, omitBy, set } from "lodash-es";
+import { forEach, get, isNil, map, omitBy, set } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -73,12 +73,12 @@ export const useFieldsSchemaParser = (data: any) => {
           format = "password";
           break;
 
-        // case "input_file":
-        // case "image":
-        //   type = ["string"];
-        //   contentMediaType = "image";
-        //   contentEncoding = "base64";
-        //   break;
+          // case "input_file":
+          // case "image":
+          //   type = ["string"];
+          //   contentMediaType = "image";
+          //   contentEncoding = "base64";
+          break;
 
         default:
           type = ["string"];
@@ -132,6 +132,7 @@ export const useFieldsUischemaParser = (data: any) => {
     elements: map(data, field => {
       let type = null;
       let multi = false;
+      const options = field?.options || {};
 
       // lets map our field types...
       switch (field.type_code) {
@@ -179,7 +180,8 @@ export const useFieldsUischemaParser = (data: any) => {
           description: useTranslateField(field, "description"),
           placeholder: useTranslateField(field, "placeholder"),
           multi,
-          type
+          type,
+          ...options
         }
       };
     })
@@ -189,12 +191,16 @@ export const useFieldsUischemaParser = (data: any) => {
 };
 
 export const useFieldsModelParser = (data: any, values: any = {}) => {
-  const model = defaultsDeep(values, {});
+  const model = values || {};
 
   if (data?.length) {
     forEach(data, field => {
-      const value = get(model, `${field.code}`, field?.value);
-      set(model, field.code, value || field?.default);
+      const value = get(
+        model,
+        `${field.code}`,
+        field?.value || field?.default || null
+      );
+      set(model, field.code, value);
     });
   }
 

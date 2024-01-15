@@ -10,7 +10,7 @@ const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
 import { useValidation } from "../../utils";
-import { useBasketParser } from "./utils";
+import { useBasketParser, useCustomFieldsModelParser } from "./utils";
 import {
   differenceBy,
   filter,
@@ -160,13 +160,19 @@ async function update(
   });
 }
 
-async function setFields({ basket, fieldsModel }: BasketContext, _event: any) {
+async function setFields(
+  { basket, custom_fields, fieldsModel }: BasketContext,
+  _event: any
+) {
   const { put, useUrl } = useApi();
 
+  // rebuild the model with ALL custo mfields present, including nullish values
+  const data = useCustomFieldsModelParser(custom_fields, fieldsModel);
+  debugger;
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basket.id}`),
-    data: fieldsModel,
+    data,
     withAccessToken: true
   }).then(useBasketParser);
 }

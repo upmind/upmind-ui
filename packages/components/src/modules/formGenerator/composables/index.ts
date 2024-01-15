@@ -4,6 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+// import type { ImageObjectTypes } from "@upmind/flow";
 import { useSystemUpload } from "@upmind/flow";
 
 // --- utils
@@ -15,8 +16,8 @@ import { get, isEmpty } from "lodash-es";
 // a composable that provides a simple interface to the uploads machine
 //  with some state helpers
 
-export const useUpload = () => {
-  const upload = useSystemUpload();
+export const useUpload = ({ fieldType, fieldTypeId, isDefault }) => {
+  const upload = useSystemUpload(fieldType, fieldTypeId, isDefault);
   const { state, send } = useActor(upload.service);
 
   // --------------------------------------------------------
@@ -47,23 +48,24 @@ export const useUpload = () => {
     });
   };
 
-  const remove = (value: string) => {
+  const remove = () => {
     send({
-      type: "REMOVE",
-      data: value
+      type: "REMOVE"
     });
   };
 
-  const getImage = (imageType, typeId, isDefault) =>
+  const getImage = (type, typeId, isDefault) =>
     send({
       type: "LOAD",
       data: {
-        imageType,
+        type,
         typeId,
         isDefault
       }
     });
-  const getImageByHash = hash => send({ type: "LOAD", data: { hash } });
+  const getImageByHash = hash => {
+    send({ type: "LOAD", data: { hash } });
+  };
 
   // --------------------------------------------------------
 
@@ -71,8 +73,6 @@ export const useUpload = () => {
     state: computed(() => state.value.value),
     // ---
     file: computed(() => state.value.context.file),
-    fileTypes: computed(() => state.value.context.fileTypes),
-    hash: computed(() => state.value.context.hash),
     src: computed(() => state.value.context.src),
     errors: computed(() => state.value.context?.error),
     //messages: computed(() => state.value.context?.messages),

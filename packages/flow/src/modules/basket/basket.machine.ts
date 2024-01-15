@@ -319,6 +319,7 @@ export default createMachine(
               // }
             }
           },
+
           promotions: {
             initial: "empty",
             states: {
@@ -758,7 +759,8 @@ export default createMachine(
       }),
 
       setFieldsModel: assign({
-        fieldsModel: (context, { data }) => data
+        fieldsModel: ({ custom_fields }, { data }) =>
+          useCustomFieldsModelParser(custom_fields, data)
       }),
 
       clearFieldsModel: assign({
