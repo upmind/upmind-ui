@@ -1,6 +1,6 @@
 <template>
   <section class="option mt-4" v-for="option in options" :key="option.id">
-    <h4 class="">
+    <h4 class="text-inherit">
       {{ option.name }}
     </h4>
 
@@ -63,7 +63,7 @@
               }}</strong>
             </span>
 
-            <strong class="text-right" v-else>
+            <strong class="text-right text-inherit" v-else>
               {{
                 !value?.price?.price ? "Free" : value?.price?.price_formatted
               }}

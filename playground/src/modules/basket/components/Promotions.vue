@@ -29,7 +29,7 @@
       </div>
 
       <li
-        class="bg-base-300 bg-opacity-25 text-base-content flex items-center justify-between rounded-btn p-2 text-xs"
+        class="border border-accent bg-accent bg-opacity-10 text-base-content flex items-center justify-between rounded-btn p-2 text-xs"
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
       >

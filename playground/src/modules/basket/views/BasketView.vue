@@ -141,7 +141,7 @@
       <section class="account col-span-5 order-2" v-if="meta.needsAuth">
         <div class="divider uppercase text-xs">Account</div>
 
-        <upm-auth class="my-8"></upm-auth>
+        <upm-auth class="my-8 p-0"></upm-auth>
       </section>
 
       <section class="billing col-span-5 order-2" v-if="!meta.needsAuth">
@@ -150,7 +150,7 @@
 
       <section
         class="fields col-span-5 order-2"
-        v-if="meta.hasFields && items?.length && !meta.needsAuth"
+        v-if="meta.hasFields && !meta.needsAuth"
       >
         <div class="divider uppercase text-xs">Order fields</div>
 
@@ -168,7 +168,6 @@
 
       <aside
         class="summary col-span-2 row-span-4 flex flex-col gap-8 order-1 self-start sticky top-20"
-        v-if="items?.length"
       >
         <!-- Promotions -->
         <upm-promotions
