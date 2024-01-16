@@ -1,56 +1,52 @@
 // --- internal
-import { useApi } from "../api";
-import { useBrand, BrandConfigKeys } from "../brand";
+import { useApi } from "../../api";
+import { useBrand, BrandConfigKeys } from "../../brand";
 
 // --- utils
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
-import type { ImageEvent } from "./types.d";
-import { ImageObjectTypes, ImageUploadTypes } from "./types.d";
+import type { ImageEvent, UploadContext } from "../types.d";
+import { ImageObjectTypes, ImageUploadTypes } from "../types.d";
 
 // --------------------------------------------------------
 // HELPERS
 
-const filePath = (
-  fileType?: ImageObjectTypes,
-  fileTypeId?: string,
-  isDefault?: boolean
-) => {
+const fieldPath = field => {
   let path;
 
-  switch (fileType) {
+  switch (field.field_type) {
     case ImageObjectTypes.CLIENT:
-      path = `clients/${fileTypeId}/images`;
+      path = `clients/${field.field_id}/images`;
       break;
     case ImageObjectTypes.USER:
-      path = `users/${fileTypeId}/images`;
+      path = `users/${field.field_id}/images`;
       break;
     case ImageObjectTypes.PRODUCT:
-      path = `products/${fileTypeId}/images`;
+      path = `products/${field.field_id}/images`;
       break;
     case ImageObjectTypes.PRODUCT_CATEGORY:
-      path = `products_categories/${fileTypeId}/images`;
+      path = `products_categories/${field.field_id}/images`;
       break;
     case ImageObjectTypes.BRAND:
-      path = `brands/${fileTypeId}/images`;
+      path = `brands/${field.field_id}/images`;
       break;
     case ImageObjectTypes.BRAND_FAVICON:
-      path = `brands/${fileTypeId}/images/favicon`;
+      path = `brands/${field.field_id}/images/favicon`;
       break;
     case ImageObjectTypes.BRAND_EMAIL_LOGO:
-      path = `brands/${fileTypeId}/images/email_logo`;
+      path = `brands/${field.field_id}/images/email_logo`;
       break;
     case ImageObjectTypes.CLIENT_CUSTOM_FIELD:
-      path = fileTypeId
-        ? `clients/fields/${fileTypeId}/image`
+      path = field.field_id
+        ? `clients/fields/${field.field_id}/image`
         : `clients/fields/images`;
       break;
     default:
       path = "images";
       break;
   }
-  const append = isDefault ? "default" : "";
+  const append = field.field_is_default ? "default" : "";
   return compact([path, append]).join("/");
 };
 
@@ -58,26 +54,24 @@ const filePath = (
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function getImage(
-  { fileType, fileTypeId, isDefault }: any,
-  { data }: ImageEvent
-) {
+async function getImage({ field }: UploadContext, { data }: ImageEvent) {
   // if we have a hash, we can skip the request
   if (data?.hash) {
-    return Promise.resolve({ value: data.hash });
+    return Promise.resolve({ ...field, value: data.hash });
   }
 
-  if (!fileTypeId) return Promise.reject("No file type or hash provided");
+  if (!field?.field_type && !data.hash)
+    return Promise.reject("No field type or hash provided");
 
   const { get, useUrl, useTime } = useApi();
 
-  const path = filePath(fileType, fileTypeId, isDefault);
+  const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
+
+  debugger;
 
   return get({
-    url: useUrl(path, {
-      // with_staged_imports: 1
-      // ...data.params
-    }),
+    url: useUrl(path),
+    // withAccessToken: true,
     useCache: true,
     maxAge: useTime()?.DAY
   }).then(({ data }: any) => data);
@@ -130,12 +124,9 @@ async function check(_context: any, { data }: any) {
   });
 }
 
-async function upload(
-  { fileType, fileTypeId, isDefault, request }: any,
-  _event: any
-) {
+async function upload({ field, request }: any, _event: any) {
   const { post, useUrl } = useApi();
-  const path = filePath(fileType, fileTypeId, isDefault);
+  const path = fieldPath(field);
   return post({
     url: useUrl(path),
     data: request,

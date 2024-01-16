@@ -34,9 +34,11 @@ export interface ImageHashEvent {
 }
 
 export interface ImageTypeEvent {
-  fileType: ImageObjectTypes;
-  fileTypeId: string;
-  isDefault: boolean;
+  field: {
+    field_type: ImageObjectTypes;
+    field_id: string;
+    field_is_default: boolean;
+  };
 }
 // --------------------------------------------------------
 // Contexts
@@ -49,9 +51,7 @@ export interface SystemContext {
 }
 
 export interface UploadContext {
-  fileType?: ImageObjectTypes | null;
-  fileTypeId?: string | null;
-  isDefault?: boolean;
+  field: Object;
 
   // ---
   fileTypes: [];

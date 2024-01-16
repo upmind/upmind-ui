@@ -47,7 +47,7 @@ export interface Typegen0 {
     services: "check" | "getImage" | "upload";
   };
   eventsCausingActions: {
-    clear: "REMOVE";
+    clear: "ADD" | "REMOVE";
     clearError:
       | "ADD"
       | "LOAD"

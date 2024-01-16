@@ -27,7 +27,7 @@
       v-if="meta.hasFile || meta.isProcessing"
     >
       <figure
-        class="relative m-0 sm:w-1/2 md:w-1/3 aspect-square bg-neutral-100"
+        class="relative m-0 sm:w-1/2 md:w-1/4 aspect-square bg-neutral-100"
       >
         <img
           v-if="src"
@@ -41,7 +41,13 @@
         ></span>
       </figure>
       <div class="card-body p-4">
-        <h4 class="card-title m-0 text-base">{{ control.data }}</h4>
+        <h4 class="card-title m-0 text-base">{{ file }}</h4>
+
+        <span v-if="meta.isProcessing">Uploading...</span>
+        <use-time-ago v-else-if="created" v-slot="{ timeAgo }" :time="created">
+          Uploaded {{ timeAgo }}
+        </use-time-ago>
+        <span v-else-if="meta.isProcessing">Uploaded</span>
 
         <div class="card-actions justify-between mt-auto">
           <button class="btn btn-ghost btn-sm" @click.prevent="onOpen">
@@ -85,10 +91,11 @@ import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 import { TrashIcon } from "@heroicons/vue/24/outline";
 import { useUpload } from "../../../composables";
-
+import { UseTimeAgo } from "@vueuse/components";
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",
   components: {
+    UseTimeAgo,
     ControlWrapper,
     TrashIcon
   },
@@ -102,11 +109,20 @@ const controlRenderer = defineComponent({
     const input = ref();
     // create an instance of the input control
     const inputControl = useDaisyControl(useJsonFormsControl(props), target => {
-      return file?.value || target?.value || undefined;
+      return file.value || target?.value || undefined;
     });
 
-    const { file, src, errors, meta, add, remove, getImageByHash, destroy } =
-      useUpload(inputControl.appliedOptions.value);
+    const {
+      created,
+      file,
+      src,
+      errors,
+      meta,
+      add,
+      remove,
+      getImageByHash,
+      destroy
+    } = useUpload(inputControl.appliedOptions.value?.field);
 
     onBeforeUnmount(() => {
       destroy();
@@ -121,21 +137,24 @@ const controlRenderer = defineComponent({
       const file = target.currentTarget.files[0];
       await add(file);
       // forward the event to the input control that will trigger the update
-      return inputControl.onChange(target);
+      inputControl.onChange(target);
     }
 
     function onRemove(target: Event) {
       remove();
-      return inputControl.onChange(target);
+      input.value.value = "";
+      inputControl.onChange(target);
     }
 
-    function onOpen() {
+    function onOpen(target) {
       input.value.click();
     }
+
     return {
       input,
       meta,
       file,
+      created,
       errors,
       src,
       ...inputControl,

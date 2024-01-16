@@ -7,7 +7,7 @@ import {
 
 export { useValidationParser } from "../../utils";
 
-import { first, get, isArray, reduce, set, map } from "lodash-es";
+import { first, get, isArray, reduce, set, map, pick } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -152,9 +152,12 @@ export const useCustomFieldsUischemaParser = (data: any) => {
         map(data, field => {
           if (["input_file", "image"].includes(field.type_code)) {
             field.options ??= {};
-            field.options.fieldTypeId = field?.id;
-            field.options.fieldType = "client_custom_field";
-            field.options.fileTypes = [];
+
+            field.options.field = {
+              field_id: field?.id,
+              field_type: "client_custom_field",
+              field_is_default: false
+            };
           }
 
           return field;

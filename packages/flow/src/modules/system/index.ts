@@ -3,7 +3,7 @@ import { interpret } from "xstate";
 
 // --- internal
 import systemMachine from "./system.machine";
-import uploadMachine from "./upload.machine";
+import uploadMachine from "./upload/upload.machine";
 
 // --- utils
 import { find } from "lodash-es";
@@ -43,17 +43,11 @@ export const useSystem = () => {
 // system uplaods is NOT a global insance, and is always instantiated as a new machine
 // this is because we need to be able to have multiple uploads happening at once
 // and we need to be able to start and stop them individually
-export const useSystemUpload = (
-  fileType?: ImageObjectTypes,
-  fileTypeId?: string,
-  isDefault?: boolean
-) => {
+export const useSystemUpload = (field?: Object) => {
   let state = null;
 
   const context = {
-    fileType,
-    fileTypeId,
-    isDefault
+    field
   };
 
   const service = interpret(uploadMachine.withContext(context), {

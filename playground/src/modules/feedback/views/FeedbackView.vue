@@ -68,11 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, computed, onMounted } from "vue";
+import { inject, computed } from "vue";
 import { useFeedback } from "..";
 import { UpmDebug } from "@upmind/components";
 import UpmMessage from "../components/MessageLog.vue";
-
+import { useTimestamp } from "@vueuse/core";
 import { forEach, random, nth, some, filter } from "lodash-es";
 import { faker } from "@faker-js/faker";
 
@@ -81,7 +81,7 @@ const activeTheme = inject("activeTheme");
 const { state, messages, meta, useTime, add } = useFeedback();
 
 // ---
-const timestamp = ref(Date.now());
+const timestamp = useTimestamp();
 
 const hasScheduled = computed(() =>
   some(
@@ -141,12 +141,4 @@ function processMessages() {
     add(message);
   });
 }
-
-// ---
-
-onMounted(() => {
-  setInterval(() => {
-    timestamp.value = Date.now();
-  }, 500);
-});
 </script>
