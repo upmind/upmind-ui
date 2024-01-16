@@ -109,7 +109,9 @@
       <section
         class="items col-span-5 order-0 grid grid-cols-2 gap-4 items-start"
       >
-        <div class="col-span-2 divider uppercase text-xs">Basket Items</div>
+        <div class="col-span-2 divider uppercase text-xs opacity-50">
+          Basket Items
+        </div>
 
         <upm-product
           v-for="item in items"
@@ -139,20 +141,20 @@
       </section>
 
       <section class="account col-span-5 order-2" v-if="meta.needsAuth">
-        <div class="divider uppercase text-xs">Account</div>
+        <div class="divider uppercase text-xs opacity-50">Account</div>
 
         <upm-auth class="my-8 p-0"></upm-auth>
       </section>
 
       <section class="billing col-span-5 order-2" v-if="!meta.needsAuth">
-        <div class="divider uppercase text-xs">Billing Details</div>
+        <div class="divider uppercase text-xs opacity-50">Billing Details</div>
       </section>
 
       <section
         class="fields col-span-5 order-2"
         v-if="meta.hasFields && !meta.needsAuth"
       >
-        <div class="divider uppercase text-xs">Order fields</div>
+        <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
         <upm-basket-fields
           :schema="fieldsSchema"
@@ -185,7 +187,7 @@
           <h3 class="text-inherit text-xl">Order Summary</h3>
           <!-- Items -->
           <div>
-            <div class="divider uppercase text-xs opacity-75">
+            <div class="divider uppercase text-xs opacity-50">
               Product{{ items.length > 1 ? "s" : "" }}
             </div>
 
@@ -194,13 +196,13 @@
 
           <!-- Promotions -->
           <div v-if="meta.hasPromotions">
-            <div class="divider uppercase text-xs">Discount</div>
+            <div class="divider uppercase text-xs opacity-50">Discount</div>
             <h4 class="text-inherit mt-0">{{ summary?.discount }}</h4>
           </div>
 
           <!-- Subtotal -->
           <div>
-            <div class="divider uppercase text-xs opacity-75">SubTotal</div>
+            <div class="divider uppercase text-xs opacity-50">SubTotal</div>
             <h4 class="text-inherit mt-0">
               {{ summary.subtotal }}
             </h4>
@@ -208,13 +210,13 @@
 
           <!-- Taxes -->
           <div v-if="meta.hasTaxes">
-            <div class="divider uppercase text-xs opacity-75">Taxes</div>
+            <div class="divider uppercase text-xs opacity-50">Taxes</div>
             <h4 class="text-inherit mt-0">{{ summary.taxes }}</h4>
           </div>
 
           <!-- Total -->
           <div>
-            <div class="divider text-xs uppercase opacity-75">Total</div>
+            <div class="divider text-xs uppercase opacity-50">Total</div>
             <h3 class="text-inherit mt-0 text-3xl">
               {{ summary?.total }}
             </h3>
