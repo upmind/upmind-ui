@@ -1,9 +1,11 @@
 <template>
-  <div class="promotions px-4">
-    <h4 class="divider uppercase text-xs">Discounts</h4>
+  <div
+    class="promotions flex flex-col gap-4 text-accent border border-accent rounded-box px-4 text-center"
+  >
+    <!-- <h4 class="divider uppercase text-xs">Discounts</h4> -->
+    <h3 class="text-inherit text-xl">Discounts</h3>
 
     <upm-form-generator
-      class="mt-2"
       :schema="schema"
       :uischema="uischema"
       :additional-errors="additionalErrors"
@@ -13,41 +15,38 @@
       <template #actions="{ meta }">
         <button
           type="submit"
-          class="btn btn-block btn-link text-accent btn-xs"
+          class="btn btn-outline btn-sm mx-auto"
           :disabled="!meta.isValid || meta.isProcessing"
         >
-          Apply Discount Code
+          Apply
         </button>
       </template>
     </upm-form-generator>
 
-    <ul class="my-4 p-0 list-none" v-if="hasPromotions">
+    <ul class="flex flex-col p-0 list-none text-left" v-if="hasPromotions">
+      <div class="divider text-xs uppercase text-base-content mt-0">
+        Active Discounts
+      </div>
+
       <li
-        class="bg-accent bg-opacity-25 flex items-center rounded-lg text-xs"
-        :class="{ 'border-accent': !processing }"
+        class="bg-base-300 bg-opacity-25 text-base-content flex items-center justify-between rounded-btn p-2 text-xs"
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
       >
         <!-- <ReceiptPercentIcon class="w-6 h-6" /> -->
 
-        <span class="spacer flex-1 mx-2">
+        <span class="spacer mx-1 text-sm flex gap-2 items-center">
+          <tag-icon class="w-6 h-6" />
           {{ promotion.promotion.code }}
         </span>
 
-        <strong
-          class="bg-accent bg-opacity-50 rounded-lg flex items-center py-1 px-2 mx-1"
-          v-if="promotion?.promotion?.amount_formatted"
-        >
-          {{ promotion.promotion.amount_formatted }}
-        </strong>
-
         <button
-          class="btn btn-square btn-ghost btn-sm"
+          class="btn btn-circle btn-ghost btn-xs"
           title="Click to Remove Discount"
           @click.prevent="doReject(promotion)"
           :disabled="processing"
         >
-          <x-mark-icon class="w-5 h-5" />
+          <x-mark-icon class="w-fit h-fit" />
         </button>
       </li>
     </ul>
@@ -58,13 +57,13 @@
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import { UpmFormGenerator } from "@upmind/components";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { XMarkIcon, TagIcon } from "@heroicons/vue/24/outline";
 import { isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "ConfigPromotions",
-  components: { UpmFormGenerator, XMarkIcon },
+  components: { UpmFormGenerator, XMarkIcon, TagIcon },
   inheritAttrs: true,
   customOptions: {},
   emits: ["reject", "resolve"],
