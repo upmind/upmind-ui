@@ -27,13 +27,13 @@
       v-if="meta.hasFile || meta.isProcessing"
     >
       <figure
-        class="relative m-0 sm:w-1/2 md:w-1/4 aspect-square bg-neutral-100"
+        class="relative m-0 sm:w-1/2 md:w-36 aspect-square bg-neutral-100"
       >
         <img
           v-if="src"
           :src="src"
           alt="uploaded image thumbnail "
-          class="aspect-square w-full"
+          class="aspect-square w-full h-full"
         />
         <span
           v-if="meta.isProcessing"
