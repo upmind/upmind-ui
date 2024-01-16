@@ -3,7 +3,7 @@
     <h4 class="">Additional Information</h4>
 
     <upm-form-generator
-      class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+      class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-box"
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"

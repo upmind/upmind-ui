@@ -1,6 +1,6 @@
 <template>
   <section
-    class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
+    class="card card-compact card-bordered border-base-300 rounded-box bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
     :class="color"
   >
     <header class="">

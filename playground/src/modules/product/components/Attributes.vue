@@ -5,7 +5,7 @@
     </h4>
 
     <ul
-      class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+      class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-box"
     >
       <li class="p-0" v-for="value in attribute.values" :key="value.id">
         <fieldset

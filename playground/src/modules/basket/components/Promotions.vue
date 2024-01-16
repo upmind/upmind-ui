@@ -1,9 +1,9 @@
 <template>
   <div
-    class="promotions flex flex-col gap-4 text-accent border border-accent rounded-box px-4 text-center"
+    class="promotions flex flex-col gap-4 text-accent border border-accent rounded-box p-4 text-center"
   >
     <!-- <h4 class="divider uppercase text-xs">Discounts</h4> -->
-    <h3 class="text-inherit text-xl">Discounts</h3>
+    <h3 class="text-inherit text-xl mt-2">Discounts</h3>
 
     <upm-form-generator
       :schema="schema"
