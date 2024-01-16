@@ -1,21 +1,21 @@
 <template>
   <div>
     <div v-if="!meta.isAuthenticated">
-      <div class="stats shadow-md border w-full overflow-visible">
+      <div class="stats border w-full">
         <div
           class="stat bg-primary bg-opacity-5 indicator"
           @click.prevent="showRegister"
         >
           <span
             v-if="meta.showRegisterForm"
-            class="indicator-item bg-primary text-primary-content aspect-square rounded-full p-1"
+            class="indicator-item bg-primary text-primary-content aspect-square rounded-full p-1 m-4"
           >
             <check-icon class="w-5 h-5" />
           </span>
 
-          <div class="stat-figure text-primary flex self-start">
-            <plus-icon class="w-8 h-8 -mr-4" />
-            <user-icon class="w-16 h-16" />
+          <div class="stat-figure text-primary flex">
+            <plus-icon class="w-10 h-10 -mr-7" />
+            <user-icon class="w-24 h-24" />
           </div>
           <div class="stat-value text-xl text-primary whitespace-normal">
             New Customer
@@ -34,14 +34,14 @@
         >
           <span
             v-if="meta.showLoginForm"
-            class="indicator-item bg-secondary text-secondary-content aspect-square rounded-full p-1"
+            class="indicator-item bg-secondary text-secondary-content aspect-square rounded-full p-1 m-4"
           >
             <check-icon class="w-5 h-5" />
           </span>
 
-          <div class="stat-figure text-secondary flex self-start">
-            <check-icon class="w-8 h-8 -mr-4" />
-            <user-icon class="w-16 h-16" />
+          <div class="stat-figure text-secondary flex">
+            <check-icon class="w-10 h-10 -mr-7" />
+            <user-icon class="w-24 h-24" />
           </div>
           <div class="stat-value text-xl text-secondary whitespace-normal">
             Existing Customer

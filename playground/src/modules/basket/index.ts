@@ -108,6 +108,7 @@ export const useBasket = () => {
               (item.state.context.isNew || item.state.context.isDirty)
           ),
         // ---
+
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
         hasPromotions:
           ["shopping.promotions.active"].some(state.value.matches) ||

@@ -21,20 +21,6 @@
 
       <div class="actions flex-none join">
         <slot name="actions">
-          <button
-            class="btn btn-primary join-item"
-            @click="showLogin"
-            v-if="!meta.isClient"
-          >
-            Login
-          </button>
-          <button
-            class="btn btn-primary btn-outline join-item"
-            @click="showRegister"
-            v-if="!meta.isClient"
-          >
-            Register
-          </button>
           <!-- <button @click="getUser" v-if="meta.isAuthenticated">get user</button> -->
           <button
             class="btn btn-ghost join-item"
@@ -56,45 +42,7 @@
       </div>
     </header>
 
-    <div
-      class="card card-compact card-bordered border-base-300 rounded-box bg-base-100 shadow-sm overflow-hidden my-8 w-96 max-w-full"
-      v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
-      :data-theme="activeTheme"
-    >
-      <div class="card-body">
-        <h3 class="card-title m-0 justify-center" v-if="schema?.title">
-          {{ schema.title }}
-        </h3>
-
-        <upm-form-generator
-          :loading="meta.isFormLoading"
-          :processing="meta.isProcessing"
-          :model-value="model"
-          :schema="schema"
-          :uischema="uischema"
-          :additional-errors="errors?.data"
-          @reject="reject"
-          @resolve="resolve"
-        >
-          <template #actions="{ meta: formMeta, doReject }">
-            <button
-              class="btn btn-primary"
-              type="submit"
-              :disabled="!formMeta.isValid || formMeta.isProcessing"
-            >
-              Continue
-            </button>
-            <button
-              class="btn btn-ghost"
-              type="reset"
-              @click.prevent="doReject"
-            >
-              Cancel
-            </button>
-          </template>
-        </upm-form-generator>
-      </div>
-    </div>
+    <upm-auth class="my-8"></upm-auth>
 
     <footer>
       <upm-debug
@@ -112,6 +60,7 @@
 import { inject } from "vue";
 import { useSession } from "../";
 import { UpmDebug } from "@upmind/components";
+import UpmAuth from "../components/Auth.vue";
 import { UpmFormGenerator } from "@upmind/components";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
