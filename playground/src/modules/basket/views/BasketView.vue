@@ -95,7 +95,7 @@
     </header>
 
     <div
-      class="content px-4 rounded-box my-4"
+      class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box"
       v-if="!meta.isLoading"
       :data-theme="activeTheme"
     >
@@ -106,117 +106,49 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <section class="basket grid grid-cols-7 gap-8 py-4">
-        <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
-          <upm-product
-            v-for="item in items"
-            :key="item.id"
-            :item="item"
-            :id="item.id"
-            :processing="meta.isProcessing"
-            @remove="removeItem"
-            @update:term="updateTerm"
-            @update:quantity="updateQuantity"
-            @update:attributes="updateAttributes"
-            @update:options="updateOptions"
-            @update:provisioning="updateProvisioning"
-            :debugging="debugging"
-          >
-            <template #actions="{ isConfigured, isNew, isDirty }">
-              <button
-                v-if="isConfigured && (isNew || isDirty)"
-                class="btn btn-primary btn-sm btn-block mt-4"
-                :disabled="meta.isProcessing"
-                @click.prevent="updateItem(item.id)"
-              >
-                Update Item
-              </button>
-            </template>
-          </upm-product>
-        </div>
+      <section class="basket-items col-span-5 order-0 grid grid-cols-2 gap-4">
+        <div class="col-span-2 divider uppercase text-xs">Basket Items</div>
 
-        <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
-          <!-- Summary -->
-          <div
-            class="basket-summary bg-primary-content text-primary border border-base-300 rounded-xl px-4 text-center"
-          >
-            <!-- Items -->
-            <div>
-              <div class="divider mt-4 uppercase text-xs opacity-75">
-                Product{{ items.length > 1 ? "s" : "" }}
-              </div>
-
-              <h2 class="text-primary mt-0">{{ items.length }}</h2>
-            </div>
-
-            <!-- Promotions -->
-            <div v-if="meta.hasPromotions">
-              <div class="divider mt-4 uppercase text-xs">Discount</div>
-              <h2 class="text-primary mt-0">{{ summary?.discount }}</h2>
-            </div>
-
-            <!-- Subtotal -->
-            <div>
-              <div class="divider mt-4 uppercase text-xs opacity-75">
-                SubTotal
-              </div>
-              <h2 class="text-inherit mt-0">
-                {{ summary.subtotal }}
-              </h2>
-            </div>
-
-            <!-- Taxes -->
-            <div v-if="meta.hasTaxes">
-              <div class="divider mt-4 uppercase text-xs opacity-75">Taxes</div>
-              <h2 class="text-inherit mt-0">{{ summary.taxes }}</h2>
-            </div>
-
-            <!-- Total -->
-            <div>
-              <div class="divider mt-4 uppercase opacity-75">Total</div>
-              <h1 class="text-inherit text-3xl">
-                {{ summary?.total }}
-              </h1>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="actions p-4">
+        <upm-product
+          v-for="item in items"
+          :key="item.id"
+          :item="item"
+          :id="item.id"
+          :processing="meta.isProcessing"
+          @remove="removeItem"
+          @update:term="updateTerm"
+          @update:quantity="updateQuantity"
+          @update:attributes="updateAttributes"
+          @update:options="updateOptions"
+          @update:provisioning="updateProvisioning"
+          :debugging="debugging"
+        >
+          <template #actions="{ isConfigured, isNew, isDirty }">
             <button
-              class="btn btn-block btn-primary mb-2"
-              v-if="meta.canProcess"
+              v-if="isConfigured && (isNew || isDirty)"
+              class="btn btn-primary btn-sm btn-block mt-4"
               :disabled="meta.isProcessing"
-              @click.prevent="updateBasket"
+              @click.prevent="updateItem(item.id)"
             >
-              Update basket
+              Update Item
             </button>
+          </template>
+        </upm-product>
+      </section>
 
-            <button
-              class="btn btn-link btn-block btn-xs"
-              type="reset"
-              :disabled="meta.isProcessing"
-              @click.prevent="clearBasket"
-            >
-              Clear Basket
-            </button>
-          </div>
+      <section class="billing col-span-5 order-2" v-if="meta.needsAuth">
+        <div class="divider uppercase text-xs">Account</div>
+      </section>
 
-          <!-- Promotions -->
-          <upm-promotions
-            :promotions="promotions"
-            :processing="meta.isProcessing"
-            :additionalErrors="errors?.data"
-            @resolve="addPromotion"
-            @reject="removePromotion"
-          ></upm-promotions>
-        </aside>
+      <section class="billing col-span-5 order-2" v-if="!meta.needsAuth">
+        <div class="divider uppercase text-xs">Billing Details</div>
       </section>
 
       <section
-        class="basket-fields pb-8"
-        v-if="meta.hasFields && items?.length"
+        class="basket-fields col-span-5 order-2"
+        v-if="meta.hasFields && items?.length && !meta.needsAuth"
       >
-        <div class="divider"></div>
+        <div class="divider uppercase text-xs">Order fields</div>
 
         <basket-fields
           :schema="fieldsSchema"
@@ -229,6 +161,84 @@
           @reject="clearFields"
         ></basket-fields>
       </section>
+
+      <aside
+        class="col-span-2 order-1 self-start sticky top-20"
+        v-if="items?.length"
+      >
+        <!-- Summary -->
+        <div
+          class="basket-summary flex flex-col bg-primary-content text-primary border border-base-300 rounded-xl px-4 text-center"
+        >
+          <h3 class="text-inherit mt-4 text-xl">Order Summary</h3>
+          <!-- Items -->
+          <div>
+            <div class="divider uppercase text-xs opacity-75">
+              Product{{ items.length > 1 ? "s" : "" }}
+            </div>
+
+            <h4 class="text-inherit mt-0">{{ items.length }}</h4>
+          </div>
+
+          <!-- Promotions -->
+          <div v-if="meta.hasPromotions">
+            <div class="divider uppercase text-xs">Discount</div>
+            <h4 class="text-inherit mt-0">{{ summary?.discount }}</h4>
+          </div>
+
+          <!-- Subtotal -->
+          <div>
+            <div class="divider uppercase text-xs opacity-75">SubTotal</div>
+            <h4 class="text-inherit mt-0">
+              {{ summary.subtotal }}
+            </h4>
+          </div>
+
+          <!-- Taxes -->
+          <div v-if="meta.hasTaxes">
+            <div class="divider uppercase text-xs opacity-75">Taxes</div>
+            <h4 class="text-inherit mt-0">{{ summary.taxes }}</h4>
+          </div>
+
+          <!-- Total -->
+          <div>
+            <div class="divider text-xs uppercase opacity-75">Total</div>
+            <h3 class="text-inherit mt-0 text-3xl">
+              {{ summary?.total }}
+            </h3>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions p-4">
+          <button
+            class="btn btn-block btn-primary mb-2"
+            v-if="meta.canProcess"
+            :disabled="meta.isProcessing"
+            @click.prevent="updateBasket"
+          >
+            Update basket
+          </button>
+
+          <button
+            class="btn btn-link btn-block btn-xs"
+            type="reset"
+            :disabled="meta.isProcessing"
+            @click.prevent="clearBasket"
+          >
+            Clear Basket
+          </button>
+        </div>
+
+        <!-- Promotions -->
+        <upm-promotions
+          :promotions="promotions"
+          :processing="meta.isProcessing"
+          :additionalErrors="errors?.data"
+          @resolve="addPromotion"
+          @reject="removePromotion"
+        ></upm-promotions>
+      </aside>
     </div>
 
     <footer>

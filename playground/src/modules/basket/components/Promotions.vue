@@ -1,6 +1,6 @@
 <template>
   <div class="promotions px-4">
-    <h4 class="divider">Discounts</h4>
+    <h4 class="divider uppercase text-xs">Discounts</h4>
 
     <upm-form-generator
       class="mt-2"
