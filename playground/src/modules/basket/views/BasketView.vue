@@ -96,7 +96,7 @@
 
     <div
       class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
-      v-if="!meta.isLoading"
+      v-if="!meta.isLoading && meta.hasProducts"
       :data-theme="activeTheme"
     >
       <!-- <ul class="steps">
@@ -106,7 +106,9 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <section class="items col-span-5 order-0 grid grid-cols-2 gap-4">
+      <section
+        class="items col-span-5 order-0 grid grid-cols-2 gap-4 items-start"
+      >
         <div class="col-span-2 divider uppercase text-xs">Basket Items</div>
 
         <upm-product
@@ -165,7 +167,7 @@
       </section>
 
       <aside
-        class="summary col-span-2 flex flex-col gap-8 order-1 self-start sticky top-20"
+        class="summary col-span-2 row-span-4 flex flex-col gap-8 order-1 self-start sticky top-20"
         v-if="items?.length"
       >
         <!-- Promotions -->
