@@ -42,7 +42,7 @@
       </div>
     </header>
 
-    <upm-auth class="my-8"></upm-auth>
+    <upm-auth class="my-8 p-8 rounded-box" :data-theme="activeTheme"></upm-auth>
 
     <footer>
       <upm-debug

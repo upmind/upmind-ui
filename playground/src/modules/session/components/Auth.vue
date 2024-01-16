@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="auth">
     <div v-if="!meta.isAuthenticated">
       <div class="stats border w-full">
         <div
-          class="stat bg-primary bg-opacity-5 indicator"
+          class="stat bg-primary bg-opacity-10 indicator"
           @click.prevent="showRegister"
         >
           <span
@@ -14,8 +14,8 @@
           </span>
 
           <div class="stat-figure text-primary flex">
-            <plus-icon class="w-10 h-10 -mr-7" />
-            <user-icon class="w-24 h-24" />
+            <plus-icon class="w-8 h-8 -mr-4" />
+            <user-icon class="w-16 h-16" />
           </div>
           <div class="stat-value text-xl text-primary whitespace-normal">
             New Customer
@@ -29,7 +29,7 @@
         </div>
 
         <div
-          class="stat bg-secondary bg-opacity-5 indicator"
+          class="stat bg-secondary bg-opacity-10 indicator"
           @click.prevent="showLogin"
         >
           <span
@@ -40,8 +40,8 @@
           </span>
 
           <div class="stat-figure text-secondary flex">
-            <check-icon class="w-10 h-10 -mr-7" />
-            <user-icon class="w-24 h-24" />
+            <check-icon class="w-8 h-8 -mr-4" />
+            <user-icon class="w-16 h-16" />
           </div>
           <div class="stat-value text-xl text-secondary whitespace-normal">
             Existing Customer
@@ -67,7 +67,11 @@
     </div>
 
     <div
-      class="card card-bordered my-8"
+      class="card card-bordered bg-opacity-10 my-8"
+      :class="{
+        'bg-primary': meta.showRegisterForm,
+        'bg-secondary': meta.showLoginForm
+      }"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
       <div class="card-body">

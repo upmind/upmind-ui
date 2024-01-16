@@ -1,6 +1,6 @@
 <template>
   <section class="mt-4" v-for="attribute in attributes" :key="attribute.id">
-    <h4 class="">
+    <h4 class="text-inherit">
       {{ attribute.name }}
     </h4>
 
@@ -64,7 +64,10 @@
               }}</strong>
             </span>
 
-            <strong class="text-right" v-else-if="value?.price?.price">
+            <strong
+              class="text-right text-inherit"
+              v-else-if="value?.price?.price"
+            >
               {{
                 !value?.price?.price ? "Free" : value?.price?.price_formatted
               }}
