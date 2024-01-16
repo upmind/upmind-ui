@@ -61,23 +61,6 @@
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
       :data-theme="activeTheme"
     >
-      <div
-        role="alert"
-        class="alert alert-error rounded-none shadow-xl"
-        v-if="meta.hasErrors"
-      >
-        <shield-exclamation-icon class="h-8 w-8" />
-        <div>
-          <span>{{ errors.message }}</span>
-        </div>
-        <button
-          class="btn btn-sm btn-square btn-ghost"
-          @click.prevent="clearErrors"
-        >
-          <x-mark-icon class="h-8 w-8" />
-        </button>
-      </div>
-
       <div class="card-body">
         <h3 class="card-title m-0 justify-center" v-if="schema?.title">
           {{ schema.title }}
@@ -93,11 +76,11 @@
           @reject="reject"
           @resolve="resolve"
         >
-          <template #actions="{ isValid, doReject }">
+          <template #actions="{ meta: formMeta, doReject }">
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="!isValid || meta.isProcessing"
+              :disabled="!formMeta.isValid || formMeta.isProcessing"
             >
               Continue
             </button>

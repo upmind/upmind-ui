@@ -8,7 +8,7 @@ import { DomainTypes } from "./types.d";
 // --- utils
 import { useBasketHelper } from "..";
 import { parseDomain } from "./utils";
-import { has, find } from "lodash-es";
+import { has, find, isNil } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -68,6 +68,7 @@ export const useDomain = (
     const itemBuilder = basketItem => {
       return {
         product_id: basketItem.product_id,
+        options: basketItem.options,
         quantity: basketItem.quantity,
         tld: basketItem?.name,
         sld: basketItem?.provision_fields?.sld,
@@ -89,13 +90,13 @@ export const useDomain = (
 
     const basketItemBuilder = item => {
       if (!item?.product_id) return null;
-
       return {
         product_id: item.product_id,
         quantity: 1,
         term: {
           billing_cycle_months: item.billing_cycle_months
         },
+        options: item.options,
         provision_fields: {
           sld: item.sld
         }

@@ -1,6 +1,5 @@
 // --- external
 import { createMachine, assign, spawn } from "xstate";
-import { pure } from "xstate/lib/actions";
 
 // --- internal
 import requestMachine from "./request.machine";
@@ -112,22 +111,37 @@ export default createMachine(
 
           // if it exists, stop the referenced machine
           // and remove it from our list of requests
-          if (request && !request?.state?.done) request.stop();
+          if (request) {
+            if (request.state.matches("processing")) {
+              request.send("CANCELLED");
+            }
+            if (!request?.state?.done) {
+              request.stop();
+            }
+          }
 
           unset(requests, hash);
           return requests;
         }
       }),
 
-      cancel: pure(({ requests }, { data: { hash } }) => {
-        if (hash) {
+      cancel: assign({
+        requests: (
+          { requests }: RequestsContext,
+          { data: { hash } }: RequestsEvents
+        ) => {
           // try find any requests with the same hash
           const request = get(requests, hash);
 
-          // if it exists, forward the event to the referenced machine
-          if (request?.send) {
+          // if it exists, stop the referenced machine
+          // and remove it from our list of requests
+          if (request && !request?.state?.done) {
             request.send("CANCEL");
+          } else {
+            unset(requests, hash);
           }
+
+          return requests;
         }
       })
     },

@@ -1,5 +1,15 @@
 // --- utils
-import { first, get, isArray, forEach } from "lodash-es";
+import {
+  useFieldsSchemaParser,
+  useFieldsUischemaParser,
+  useFieldsModelParser
+} from "../../utils";
+
+export { useValidationParser } from "../../utils";
+
+import { first, get, isArray, reduce, set, map, pick } from "lodash-es";
+
+// --- types
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
@@ -104,25 +114,83 @@ export const useSummaryParser = (data?: any) => {
   return summary;
 };
 
-export const useValidationParser = (error: any) => {
-  if (error?.data) {
-    error.message = "Validation error";
+// --------------------------------------------------------
+// Fields
 
-    const errors = [];
-    forEach(error.data, (value, key) => {
-      const newError = {
-        instancePath: `/${key}`, // AJV style path to the property in the schema
-        message: value.toString(),
-        // --- optional
-        schemaPath: "",
-        keyword: "",
-        params: {}
-      };
-      errors.push(newError);
-    });
+export const useCustomFieldsSchemaParser = (data: any) => {
+  const schema = {
+    type: "object",
+    title: "Fields",
+    required: [],
+    properties: {
+      notes: {
+        type: "string",
+        title: "Order Notes"
+      },
+      custom_fields: useFieldsSchemaParser(data)
+    }
+  };
 
-    error.data = errors;
-  }
+  return schema;
+};
 
-  return error;
+export const useCustomFieldsUischemaParser = (data: any) => {
+  const schema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/notes",
+        options: {
+          multi: true,
+          focus: true,
+          autocomplete: "off",
+          placeholder: "Add notes here..."
+        }
+      },
+      useFieldsUischemaParser(
+        map(data, field => {
+          if (["input_file", "image"].includes(field.type_code)) {
+            field.options ??= {};
+
+            field.options.field = {
+              field_id: field?.id,
+              field_type: "client_custom_field",
+              field_is_default: false
+            };
+          }
+
+          return field;
+        })
+      )
+    ]
+  };
+
+  return schema;
+};
+
+export const useCustomFieldsModelParser = (data: any, values: any) => {
+  const model = {
+    notes: values?.notes,
+    custom_fields: useFieldsModelParser(data, get(values, "custom_fields", {}))
+  };
+
+  return model;
+};
+
+export const useBasketFieldsModelParser = (data: any, defaults: any) => {
+  const notes = get(data, "notes", get(defaults, "notes"));
+  const custom_fields = reduce(
+    get(data, "custom_fields"),
+    (result, { field, value }) => {
+      set(result, field.code, value);
+      return result;
+    },
+    get(defaults, "custom_fields", {})
+  );
+
+  return {
+    notes,
+    custom_fields
+  };
 };

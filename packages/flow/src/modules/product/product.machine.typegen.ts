@@ -39,10 +39,6 @@ export interface Typegen0 {
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.load": { type: "error.platform.load"; data: unknown };
-    "error.platform.productConfigurator.calculating:invocation[0]": {
-      type: "error.platform.productConfigurator.calculating:invocation[0]";
-      data: unknown;
-    };
     "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]": {
       type: "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
       data: unknown;
@@ -136,7 +132,6 @@ export interface Typegen0 {
     setError:
       | "ERROR"
       | "error.platform.load"
-      | "error.platform.productConfigurator.calculating:invocation[0]"
       | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]"
@@ -160,10 +155,7 @@ export interface Typegen0 {
     setValues: "REFRESH" | "UPDATE";
   };
   eventsCausingDelays: {
-    error:
-      | "ERROR"
-      | "error.platform.load"
-      | "error.platform.productConfigurator.calculating:invocation[0]";
+    error: "ERROR" | "error.platform.load";
     wait: "PUT" | "UPDATE" | "done.invoke.load";
   };
   eventsCausingGuards: {

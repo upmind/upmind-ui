@@ -3,7 +3,7 @@ import { unref } from "vue";
 
 // --- utils
 import { useMoney } from "../../utils";
-import { map, orderBy, uniqBy, first, compact } from "lodash-es";
+import { map, orderBy, uniqBy, first, compact, reduce, set } from "lodash-es";
 
 // --- types
 import type { IDomainProduct } from "./types";
@@ -48,6 +48,9 @@ export function parseDomainItem(item) {
   const { removeTrailingZeroes } = useMoney();
   const result = {
     product_id: item.product_id,
+    options: !item?.domain_available
+      ? useAddedOptionsParser(item?.options)
+      : {},
     tld: item?.tld,
     sld: item?.sld,
     domain: [item.sld, item.tld].join("").toLowerCase(),
@@ -83,3 +86,22 @@ export function parseDomainItem(item) {
 
   return result;
 }
+
+// ---
+
+const useAddedOptionsParser = (data: any) => {
+  const options = reduce(
+    data,
+    (result, option) => {
+      set(result, [option.category_id, option.id], {
+        product_id: option.id,
+        unit_quantity: option.unit_quantity || 1,
+        billing_cycle_months: option.billing_cycle_months,
+        order_type: option.order_type
+      });
+      return result;
+    },
+    {}
+  );
+  return options;
+};

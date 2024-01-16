@@ -16,7 +16,7 @@
 
       <div class="actions flex-none join">
         <slot name="actions">
-          <button class="btn btn-ghost" @click="processRequests">
+          <button class="btn btn-outline btn-sm" @click="processRequests">
             Add dummy requests
           </button>
         </slot>

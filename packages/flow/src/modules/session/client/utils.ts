@@ -1,10 +1,13 @@
-import { forEach, set, omitBy, isNil, map, some } from "lodash-es";
+// --- utils
+import {
+  useFieldsSchemaParser,
+  useFieldsUischemaParser,
+  useFieldsModelParser
+} from "../../../utils";
 
-const translate = (item, field) => {
-  const translated = item[`${field}_translated`];
-  if (translated) return translated;
-  return item[field];
-};
+export { useValidationParser } from "../../../utils";
+
+// --------------------------------------------------------
 
 export const useRegisterSchemaParser = (data: any) => {
   const schema = {
@@ -29,89 +32,10 @@ export const useRegisterSchemaParser = (data: any) => {
         type: "string",
         title: "Your password",
         minLength: 8
-      }
+      },
+      custom_fields: useFieldsSchemaParser(data)
     }
   };
-
-  if (data?.length) {
-    const required: string[] = [];
-    const properties = {};
-
-    forEach(data, field => {
-      if (field.required) required.push(field.code);
-
-      let type = "string";
-      let format = null;
-
-      // lets map our field types...
-      switch (field.type_code) {
-        case "input_number":
-          type = "number";
-          break;
-        case "input-checkbox":
-          type = "boolean";
-          break;
-        case "input_date":
-          type = "string";
-          format = "date";
-          break;
-        case "input_datetime":
-          type = "string";
-          format = "date-time";
-          break;
-        case "input_email":
-          type = "string";
-          format = "email";
-          break;
-        case "input_url":
-          type = "string";
-          format = "uri";
-          break;
-        case "input_phone":
-          type = "string";
-          format = "phone";
-          break;
-        case "input_ip":
-          type = "string";
-          format = "ipv4";
-          break;
-        case "input_ipv6":
-          type = "string";
-          format = "ipv6";
-          break;
-
-        default:
-          type = "string";
-          break;
-      }
-
-      // then we set our property based on the field code
-      set(
-        properties,
-        field.code,
-        omitBy(
-          {
-            type,
-            format,
-            title: translate(field, "name"),
-            description: translate(field, "description"),
-            default: field.default,
-            const: field.const,
-            enum: field.options?.length ? field.options : undefined
-          },
-          isNil
-        )
-      );
-    });
-
-    if (required.length) schema.required.push("custom_fields");
-
-    set(schema, "properties.custom_fields", {
-      type: "object",
-      properties,
-      required
-    });
-  }
 
   return schema;
 };
@@ -153,22 +77,10 @@ export const useRegisterUischemaParser = (data: any) => {
           autocomplete: "current-password",
           placeholder: "Use a strong password or passphrase"
         }
-      }
+      },
+      useFieldsUischemaParser(data)
     ]
   };
-
-  if (data?.length) {
-    const group = {
-      type: "Group",
-      label: "Additional Fields",
-      elements: map(data, field => ({
-        type: "Control",
-        scope: `#/properties/custom_fields/properties/${field.code}`
-      }))
-    };
-
-    schema.elements.push(group);
-  }
 
   return schema;
 };
@@ -179,14 +91,8 @@ export const useRegisterModelParser = (data: any) => {
     lastname: null,
     email: null,
     password: null,
-    custom_fields: {}
+    custom_fields: useFieldsModelParser(data)
   };
-
-  if (data?.length) {
-    forEach(data, field => {
-      set(model, `custom_fields.${field.code}`, field?.default || null);
-    });
-  }
 
   return model;
 };
@@ -281,29 +187,4 @@ export const use2faModelParser = () => {
   return {
     token: null
   };
-};
-
-// ---
-
-export const useValidationParser = (error: any) => {
-  if (error?.data) {
-    error.message = "Validation error";
-
-    const errors = [];
-    forEach(error.data, (value, key) => {
-      const newError = {
-        instancePath: `/${key}`, // AJV style path to the property in the schema
-        message: value.toString(),
-        // --- optional
-        schemaPath: "",
-        keyword: "",
-        params: {}
-      };
-      errors.push(newError);
-    });
-
-    error.data = errors;
-  }
-
-  return error;
 };

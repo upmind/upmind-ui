@@ -7,6 +7,8 @@ import services from "./services";
 import type { SessionContext } from "./types.d";
 import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
+import { useFeedback } from "../feedback";
+const { addError, addSuccess } = useFeedback();
 
 // --- utils
 import { useTokenParser } from "./utils";
@@ -88,7 +90,7 @@ export default createMachine(
               },
               onDone: {
                 target: "#client",
-                actions: ["setHistory", "setToken"]
+                actions: ["setHistory", "setToken", "setSuccess"]
               },
               onError: { actions: ["setError"] }
             }
@@ -233,9 +235,22 @@ export default createMachine(
       setUser: assign({ user: (context, { data }) => data }),
       clearUser: assign({ user: {} }),
       // ---
+      setSuccess: (context, { data }) => {
+        addSuccess("Successfully logged in");
+      },
+
       setError: assign({
-        error: (context, { data }) => data
+        error: (context, { data }) => {
+          addError({
+            title: data?.title || "We experienced an error",
+            copy: data?.message,
+            data: data?.data
+          });
+
+          return data;
+        }
       }),
+
       clearError: assign({ error: null })
     },
     guards: {

@@ -6,13 +6,20 @@ const { sendTo } = actions;
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import configurationMachine from "../product/product.machine";
+import { useFeedback } from "../feedback";
+const { addError, addSuccess } = useFeedback();
 
 // --- utils
+
 import { useTime } from "../../utils";
 import {
   useBasketParser,
   useSummaryParser,
-  useValidationParser
+  useValidationParser,
+  useCustomFieldsSchemaParser,
+  useCustomFieldsUischemaParser,
+  useCustomFieldsModelParser,
+  useBasketFieldsModelParser
 } from "./utils";
 
 import {
@@ -24,8 +31,8 @@ import {
   get,
   isEmpty,
   omit,
-  remove,
   reject,
+  remove,
   some,
   trimStart,
   uniqueId
@@ -64,6 +71,12 @@ export default createMachine(
       bin: [],
       queue: [],
       // ---
+      custom_fields: [],
+      fieldsSchema: {},
+      fieldsUischema: {},
+      fieldsModel: {},
+
+      // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
       summary: null,
@@ -90,7 +103,10 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: { target: "#shopping", actions: ["setBasket", "loadItems"] },
-          onError: { target: "error", actions: ["setError"] }
+          onError: {
+            target: "error",
+            actions: ["setError", "setErrorFeedback"]
+          }
         }
       },
 
@@ -102,7 +118,10 @@ export default createMachine(
           onDone: {
             target: "#shopping"
           },
-          onError: { target: "#error", actions: ["setError"] }
+          onError: {
+            target: "#error",
+            actions: ["setError", "setErrorFeedback"]
+          }
         }
       },
 
@@ -155,11 +174,16 @@ export default createMachine(
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"]
+                        actions: ["refreshItems", "updateBasket", "setSuccess"]
                       },
                       onError: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setError"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setErrorFeedback"
+                        ]
                       }
                     }
                   },
@@ -169,9 +193,12 @@ export default createMachine(
                       src: "setCurrency",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"]
+                        actions: ["refreshItems", "updateBasket", "setSuccess"]
                       },
-                      onError: { target: "error", actions: ["setError"] }
+                      onError: {
+                        target: "error",
+                        actions: ["setError", "setErrorFeedback"]
+                      }
                     }
                   },
 
@@ -184,12 +211,18 @@ export default createMachine(
                         actions: [
                           "removeFromQueue",
                           "refreshItems",
-                          "updateBasket"
+                          "updateBasket",
+                          "setSuccess"
                         ]
                       },
                       onError: {
                         target: "#configuring",
-                        actions: ["refreshItems", "updateBasket", "setError"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setErrorFeedback"
+                        ]
                       }
                     }
                   },
@@ -200,11 +233,16 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["removeItem", "updateBasket"]
+                        actions: ["removeItem", "updateBasket", "setSuccess"]
                       },
                       onError: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setError"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setErrorFeedback"
+                        ]
                       }
                     }
                   },
@@ -262,6 +300,7 @@ export default createMachine(
               "UPDATE.CURRENCY": {
                 target: "items.processing.currency"
               },
+
               CLEAR: {
                 target: "items.processing",
                 actions: ["removeAllItems"]
@@ -280,6 +319,7 @@ export default createMachine(
               // }
             }
           },
+
           promotions: {
             initial: "empty",
             states: {
@@ -295,11 +335,11 @@ export default createMachine(
                   src: "addPromotion",
                   onDone: {
                     target: "active",
-                    actions: ["refreshItems", "updateBasket"]
+                    actions: ["refreshItems", "updateBasket", "setSuccess"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError"]
+                    actions: ["setError", "setErrorFeedback"]
                   }
                 }
               },
@@ -308,11 +348,11 @@ export default createMachine(
                   src: "removePromotion",
                   onDone: {
                     target: "empty",
-                    actions: ["refreshItems", "updateBasket"]
+                    actions: ["refreshItems", "updateBasket", "setSuccess"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError"]
+                    actions: ["setError", "setErrorFeedback"]
                   }
                 }
               },
@@ -330,6 +370,7 @@ export default createMachine(
               "REMOVE.PROMOTION": { target: "promotions.removing" }
             }
           },
+
           client: {
             initial: "checking",
             states: {
@@ -347,6 +388,89 @@ export default createMachine(
             },
             on: {
               AUTHENTICATED: { target: "#claiming" }
+            }
+          },
+
+          custom_fields: {
+            initial: "loading",
+            states: {
+              loading: {
+                invoke: {
+                  src: "getCustomFields",
+                  onDone: {
+                    target: "idle",
+                    actions: ["setFields", "setFieldsSchemas"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
+              },
+
+              idle: {
+                always: [
+                  {
+                    target: "complete",
+                    cond: "hasNoFields"
+                  }
+                ]
+              },
+
+              checking: {
+                entry: ["clearError"],
+                invoke: {
+                  src: "validateFields",
+                  onDone: {
+                    target: "valid"
+                  },
+                  onError: {
+                    target: "invalid",
+                    actions: ["setError"]
+                  }
+                }
+              },
+
+              valid: {},
+
+              invalid: {},
+
+              // Handle errors
+              error: {
+                id: "error"
+              },
+
+              processing: {
+                invoke: {
+                  src: "setFields",
+                  onDone: {
+                    target: "valid",
+                    actions: ["updateBasket", "setSuccess"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setErrorFeedback"]
+                  }
+                }
+              },
+              // Handle completion, stop the machine and prevent further requests
+              complete: {
+                id: "complete",
+                type: "final"
+              }
+            },
+            on: {
+              "UPDATE.FIELDS": {
+                target: "custom_fields.processing"
+              },
+              "CLEAR.FIELDS": {
+                target: "custom_fields.idle",
+                actions: ["clearFieldsModel"]
+              },
+              "SET.FIELDS": {
+                target: "custom_fields.checking",
+                actions: ["setFieldsModel"]
+              }
             }
           }
         },
@@ -368,8 +492,7 @@ export default createMachine(
         states: {
           billing: {},
           shipping: {},
-          payment: {},
-          additional: {}
+          payment: {}
         },
         on: {
           UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
@@ -394,6 +517,8 @@ export default createMachine(
       setBasket: assign({
         basket: (context, { data }) => data,
         summary: (context, { data }) => useSummaryParser(data),
+        fieldsModel: ({ fieldsModel }, { data }) =>
+          useBasketFieldsModelParser(data, fieldsModel),
         error: null
       }),
 
@@ -446,48 +571,12 @@ export default createMachine(
             basket?.currency_id,
             basket?.promotions
           );
+
           items.push(machine);
           return items;
         },
         error: null
       }),
-
-      // addAncillaryItems: assign({
-      //   items: ({ items }, { data }) => {
-      //     // if (!hasModuleEnabled("web_hosting")) return false;
-
-      //     // const { basket, itemId, newId } = data;
-      //     // const product = find(basket?.products, ["id", newId]);
-      //     // const item = find(items, ["id", itemId]);
-
-      //     // const replacements = filter(
-      //     //   item.state?.context?.available?.provision_fields,
-      //     //   ["semantic_type", SemanticTypes.DOMAIN_NAMES]
-      //     // );
-
-      //     // forEach(replacements, field => {
-      //     //   console.log("Semantic replacement field", field);
-      //     //   const value = get(item.state?.context, [
-      //     //     "values",
-      //     //     "provision_fields",
-      //     //     field.name
-      //     //   ]);
-
-      //     //   // TODO: find a way to get the actual product that relats to this field
-      //     //   const machine = spawnConfiguration({
-      //     //     product_id: "78985742-6489-7012-096c-21e325d0ed36",
-      //     //     provision_fields: {
-      //     //       [field.name]: value
-      //     //     },basket?.promotions
-      //     //   });
-
-      //     //   items.push(machine);
-      //     // });
-
-      //     // TODO:
-      //     return items;
-      //   }
-      // }),
 
       queueItem: assign({
         queue: ({ items, queue }, { data }) => {
@@ -660,9 +749,44 @@ export default createMachine(
 
       // ---
 
+      setFieldsSchemas: assign({
+        fieldsSchema: ({ custom_fields }) =>
+          useCustomFieldsSchemaParser(custom_fields),
+        fieldsUischema: ({ custom_fields }) =>
+          useCustomFieldsUischemaParser(custom_fields),
+        fieldsModel: ({ custom_fields, fieldsModel }) =>
+          useCustomFieldsModelParser(custom_fields, fieldsModel)
+      }),
+
+      setFieldsModel: assign({
+        fieldsModel: ({ custom_fields }, { data }) =>
+          useCustomFieldsModelParser(custom_fields, data)
+      }),
+
+      clearFieldsModel: assign({
+        fieldsModel: {}
+      }),
+
+      setFields: assign({
+        custom_fields: (_context, { data }) => data
+      }),
+
+      // ---
+      setSuccess: (context, { data }) => {
+        addSuccess("Successfully updated the basket");
+      },
+
+      setErrorFeedback: ({ error }, _event) => {
+        addError({
+          title: error?.title || "We experienced an error updating the basket",
+          copy: error?.message,
+          data: error?.data
+        });
+      },
+
       setError: assign({
         error: (context, { data }) => {
-          const { items, newItems, error } = data;
+          let { items, newItems, error } = data;
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
@@ -679,8 +803,10 @@ export default createMachine(
           } else if (error?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            return useValidationParser(error);
+            error = useValidationParser(error);
           }
+
+          // addError(error?.message);
 
           return error;
         }
@@ -751,20 +877,11 @@ export default createMachine(
         });
       },
 
-      hasAncillaryItems: ({ items }, { data }) => {
-        // if (!hasModuleEnabled("web_hosting")) return false;
+      hasProducts: ({ basket }) => !!basket?.products?.length,
 
-        // const { itemId } = data;
-        // const item = find(items, ["id", itemId]);
-        // const replacements = filter(
-        //   item.state?.context?.available?.provision_fields,
-        //   ["semantic_type", SemanticTypes.DOMAIN_NAMES]
-        // );
-        // return !!replacements.length;
-        return false;
-      },
+      hasFieldValues: ({ fieldsModel }) => !isEmpty(fieldsModel),
 
-      hasProducts: ({ basket }) => !!basket?.products?.length
+      hasNoFields: ({ custom_fields }) => isEmpty(custom_fields)
     },
 
     delays: {
