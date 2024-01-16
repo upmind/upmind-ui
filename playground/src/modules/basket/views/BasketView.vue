@@ -95,7 +95,7 @@
     </header>
 
     <div
-      class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box"
+      class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
       v-if="!meta.isLoading"
       :data-theme="activeTheme"
     >
@@ -106,7 +106,7 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <section class="basket-items col-span-5 order-0 grid grid-cols-2 gap-4">
+      <section class="items col-span-5 order-0 grid grid-cols-2 gap-4">
         <div class="col-span-2 divider uppercase text-xs">Basket Items</div>
 
         <upm-product
@@ -136,8 +136,10 @@
         </upm-product>
       </section>
 
-      <section class="billing col-span-5 order-2" v-if="meta.needsAuth">
+      <section class="account col-span-5 order-2" v-if="meta.needsAuth">
         <div class="divider uppercase text-xs">Account</div>
+
+        <upm-auth class="my-8"></upm-auth>
       </section>
 
       <section class="billing col-span-5 order-2" v-if="!meta.needsAuth">
@@ -145,12 +147,12 @@
       </section>
 
       <section
-        class="basket-fields col-span-5 order-2"
+        class="fields col-span-5 order-2"
         v-if="meta.hasFields && items?.length && !meta.needsAuth"
       >
         <div class="divider uppercase text-xs">Order fields</div>
 
-        <basket-fields
+        <upm-basket-fields
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           :model-value="fieldsModel"
@@ -159,11 +161,11 @@
           @resolve="updateFields"
           @update:modelValue="setFields"
           @reject="clearFields"
-        ></basket-fields>
+        ></upm-basket-fields>
       </section>
 
       <aside
-        class="col-span-2 flex flex-col gap-8 order-1 self-start sticky top-20"
+        class="summary col-span-2 flex flex-col gap-8 order-1 self-start sticky top-20"
         v-if="items?.length"
       >
         <!-- Promotions -->
@@ -276,7 +278,9 @@ import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
-import BasketFields from "../components/Fields.vue";
+import UpmBasketFields from "../components/Fields.vue";
+import UpmAuth from "../../session/components/Auth.vue";
+
 import { UpmDebug } from "@upmind/components";
 import {
   SquaresPlusIcon,

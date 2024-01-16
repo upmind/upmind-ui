@@ -6,7 +6,7 @@
     @submit.prevent="doSubmit"
   >
     <div class="m-2" v-if="meta.isLoading">
-      <progress class="progress progress-primary w-full"></progress>
+      <progress class="progress w-full"></progress>
     </div>
 
     <json-forms

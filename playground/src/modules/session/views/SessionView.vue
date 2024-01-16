@@ -1,7 +1,7 @@
 <template>
   <section class="session w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
     >
       <div class="flex-1">
         <h2 class="title m-0">
@@ -57,7 +57,7 @@
     </header>
 
     <div
-      class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 shadow-sm overflow-hidden my-8 w-96 max-w-full"
+      class="card card-compact card-bordered border-base-300 rounded-box bg-base-100 shadow-sm overflow-hidden my-8 w-96 max-w-full"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
       :data-theme="activeTheme"
     >

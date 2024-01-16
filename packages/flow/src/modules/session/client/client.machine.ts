@@ -76,16 +76,12 @@ export default createMachine(
 
         initial: "idle",
         states: {
-          idle: {
-            on: {
-              LOGIN: { target: "login" },
-              REGISTER: { target: "register" }
-            }
-          },
+          idle: {},
 
           // --- Start the login flow
           // in essence show a login form and await an event to authenticate
           login: {
+            id: "login",
             initial: "loading",
             states: {
               loading: {
@@ -154,6 +150,7 @@ export default createMachine(
           // --- Start the create flow
           // in essence show a register form, possibly with custom fields, and await an event to register
           register: {
+            id: "register",
             initial: "loading",
             states: {
               loading: {
@@ -237,6 +234,10 @@ export default createMachine(
           // confirm: {}, // when we require user to confirm their email
           // recover: {},  // when we require user to recover their password
           // reset: {}, // when we user is in the process of reset their password
+        },
+        on: {
+          LOGIN: { target: "#login" },
+          REGISTER: { target: "#register" }
         }
       },
 
