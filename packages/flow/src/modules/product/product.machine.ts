@@ -260,8 +260,8 @@ export default (values, currency_id, promotions) => {
             onDone: {
               target: "configured",
               actions: ["setSummary", "clearCalculating"]
-            },
-            onError: { target: "error", actions: ["setError"] }
+            }
+            // onError: { target: "error", actions: ["setError"] }
           }
         },
 
@@ -457,18 +457,24 @@ export default (values, currency_id, promotions) => {
         // ---
 
         setError: assign({
-          error: (context, { data: { error } }) => {
+          error: (context, { data }) => {
+            let error = data?.error;
             if (error?.code == 422) {
               // lets parse/override our error message and data
               // this is to generate valid json schema validation errors
-              return useValidationParser(error);
+              error = useValidationParser(error);
             }
 
             return error;
           }
         }),
 
-        escalateError: escalate(({ error }) => error),
+        escalateError: escalate(({ error }) => {
+          if (error) {
+            error.title = "We experienced an error configuring the product";
+          }
+          return error;
+        }),
 
         clearError: assign({ error: null })
       },

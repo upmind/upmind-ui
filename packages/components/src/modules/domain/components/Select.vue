@@ -1,5 +1,5 @@
 <template>
-  <h3>Select Domain to be used</h3>
+  <h3 class="text-inherit">Select Domain to be used</h3>
   <ul
     tabindex="1"
     role="list"

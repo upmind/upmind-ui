@@ -64,6 +64,7 @@
     </header>
 
     <main class="prose max-w-none col-span-5 p-4">
+      <upm-feedback :data-theme="activeTheme" />
       <router-view class="view" />
     </main>
   </div>
@@ -75,7 +76,7 @@ import { RouterView, useRouter } from "vue-router";
 import { upperFirst } from "lodash-es";
 import LogoIcon from "@/assets/logo.svg";
 import { SwatchIcon } from "@heroicons/vue/24/outline";
-
+import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
 import { capitalize } from "lodash-es";
 
 const router = useRouter();

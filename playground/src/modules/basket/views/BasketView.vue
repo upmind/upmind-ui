@@ -106,30 +106,9 @@
         <li class="step" data-content="✓">Complete</li>
       </ul> -->
 
-      <div
-        role="alert"
-        class="alert alert-error my-4 sticky top-0 z-10 shadow-xl"
-        v-if="meta.hasErrors"
-      >
-        <shield-exclamation-icon class="h-8 w-8" />
-        <div>
-          <h3 class="m-0 text-inherit">
-            We experienced an error updating the basket
-          </h3>
-
-          <span v-if="errors?.message">{{ errors.message }}</span>
-        </div>
-        <button
-          class="btn btn-sm btn-square btn-ghost"
-          @click.prevent="clearErrors"
-        >
-          <x-mark-icon class="h-8 w-8" />
-        </button>
-      </div>
-
       <section class="basket grid grid-cols-7 gap-8 py-4">
         <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
-          <config-product
+          <upm-product
             v-for="item in items"
             :key="item.id"
             :item="item"
@@ -153,7 +132,7 @@
                 Update Item
               </button>
             </template>
-          </config-product>
+          </upm-product>
         </div>
 
         <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
@@ -163,7 +142,7 @@
           >
             <!-- Items -->
             <div>
-              <div class="divider mt-4 uppercase text-xs">
+              <div class="divider mt-4 uppercase text-xs opacity-75">
                 Product{{ items.length > 1 ? "s" : "" }}
               </div>
 
@@ -178,22 +157,24 @@
 
             <!-- Subtotal -->
             <div>
-              <div class="divider mt-4 uppercase text-xs">SubTotal</div>
-              <h2 class="text-primary-focus mt-0">
+              <div class="divider mt-4 uppercase text-xs opacity-75">
+                SubTotal
+              </div>
+              <h2 class="text-inherit mt-0">
                 {{ summary.subtotal }}
               </h2>
             </div>
 
             <!-- Taxes -->
             <div v-if="meta.hasTaxes">
-              <div class="divider mt-4 uppercase text-xs">Taxes</div>
-              <h2 class="text-primary-focus mt-0">{{ summary.taxes }}</h2>
+              <div class="divider mt-4 uppercase text-xs opacity-75">Taxes</div>
+              <h2 class="text-inherit mt-0">{{ summary.taxes }}</h2>
             </div>
 
             <!-- Total -->
             <div>
-              <div class="divider mt-4 uppercase">Total</div>
-              <h1 class="text-primary-focus text-3xl">
+              <div class="divider mt-4 uppercase opacity-75">Total</div>
+              <h1 class="text-inherit text-3xl">
                 {{ summary?.total }}
               </h1>
             </div>
@@ -221,14 +202,32 @@
           </div>
 
           <!-- Promotions -->
-          <promotions-config
+          <upm-promotions
             :promotions="promotions"
             :processing="meta.isProcessing"
             :additionalErrors="errors?.data"
             @resolve="addPromotion"
             @reject="removePromotion"
-          ></promotions-config>
+          ></upm-promotions>
         </aside>
+      </section>
+
+      <section
+        class="basket-fields pb-8"
+        v-if="meta.hasFields && items?.length"
+      >
+        <div class="divider"></div>
+
+        <basket-fields
+          :schema="fieldsSchema"
+          :uischema="fieldsUischema"
+          :model-value="fieldsModel"
+          :processing="meta.isProcessing"
+          :additionalErrors="errors?.data"
+          @resolve="updateFields"
+          @update:modelValue="setFields"
+          @reject="clearFields"
+        ></basket-fields>
       </section>
     </div>
 
@@ -248,11 +247,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, onBeforeUnmount } from "vue";
 import { useBasket } from "..";
 import CurrencySwitcher from "../components/CurrencySwitcher.vue";
-import ConfigProduct from "@/modules/product/views/Product.vue";
-import PromotionsConfig from "../components/Promotions.vue";
+import UpmProduct from "@/modules/product/views/Product.vue";
+import UpmPromotions from "../components/Promotions.vue";
+import BasketFields from "../components/Fields.vue";
 import { UpmDebug } from "@upmind/components";
 import {
   SquaresPlusIcon,
@@ -272,6 +272,9 @@ const {
   promotions,
   currency,
   currencies,
+  fieldsModel,
+  fieldsSchema,
+  fieldsUischema,
   // ---
   addProduct,
   addPromotion,
@@ -286,7 +289,10 @@ const {
   updateOptions,
   updateProvisioning,
   updateQuantity,
-  updateTerm
+  updateTerm,
+  clearFields,
+  setFields,
+  updateFields
 } = useBasket();
 
 const productCatalogue = [
@@ -345,5 +351,10 @@ const debugging = ref(false);
 const model = ref({
   product_id: null,
   quantity: 1
+});
+
+// make sure we update any basket fields if we navigate away from the basket
+onBeforeUnmount(() => {
+  updateFields();
 });
 </script>

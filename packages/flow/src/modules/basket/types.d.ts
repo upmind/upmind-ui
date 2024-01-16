@@ -11,6 +11,10 @@ export interface BasketContext {
   items: Array;
   bin: Array;
   queue: Array;
+  custom_fields: Array;
+  fieldsModel: Object;
+  fieldsSchema?: JsonSchema;
+  fieldsUischema?: UISchemaElement;
   error?: RequestError;
 }
 
@@ -91,5 +95,10 @@ export interface Basket {
 
 export interface BasketEvents {
   type: "CHECK" | "REFRESH";
+  payload?: any;
+}
+
+export interface FieldsEvents {
+  type: "INPUT" | "RESET";
   payload?: any;
 }

@@ -2,15 +2,15 @@
   <form
     class="card align-center w-full max-w-screen-lg"
     v-bind="$attrs"
-    :disabled="processing"
+    :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <div class="m-2" v-if="loading">
+    <div class="m-2" v-if="meta.isLoading">
       <progress class="progress progress-primary w-full"></progress>
     </div>
 
     <json-forms
-      v-if="!loading"
+      v-if="!meta.isLoading"
       :ajv="ajv"
       :data="model"
       :schema="schema"
@@ -23,22 +23,19 @@
     />
 
     <!-- actions -->
-    <footer v-if="!noActions || loading">
+    <footer v-if="!noActions || meta.isLoading">
       <div class="card-actions mt-4">
-        <slot
-          name="actions"
-          v-bind="{ isValid, doReject, doResolve: doSubmit }"
-        >
+        <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
           <button
             type="submit"
             class="btn btn-accent"
-            :disabled="!isValid || processing"
+            :disabled="!meta.isValid || meta.isProcessing"
           >
             Save
           </button>
 
           <button
-            :disabled="processing"
+            :disabled="meta.isProcessing"
             class="btn btn-ghost"
             @click="doReject"
           >
@@ -165,7 +162,7 @@ export default defineComponent({
       deep: true
     }
   },
-  emits: ["reject", "resolve", "update:modelValue"],
+  emits: ["reject", "resolve", "update:modelValue", "valid"],
   customOptions: {},
   setup(props) {
     // -------
@@ -187,15 +184,21 @@ export default defineComponent({
   data: () => ({
     model: {},
     errors: [],
-    showErrors: false
+    isDirty: false
   }),
   computed: {
-    isValid() {
-      return !this.errors?.length;
+    meta() {
+      return {
+        isLoading: this.loading,
+        isProcessing: this.processing,
+        isDirty: this.isDirty,
+        isValid: !this.errors?.length
+      };
     },
+
     safeMode() {
       // only show errors if we have some data,, prevents ugly errors on first load
-      return isDeepEmpty(this.model)
+      return isDeepEmpty(this.model) || !this.isDirty
         ? "ValidateAndHide"
         : this.mode || "ValidateAndShow";
     }
@@ -211,19 +214,25 @@ export default defineComponent({
       // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
       const rawData = JSON.parse(JSON.stringify(data));
       const rawModel = JSON.parse(JSON.stringify(this.model));
+
       if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
         this.model = data;
         this.$emit("update:modelValue", this.model);
+        this.isDirty = true;
       }
+
+      this.$emit("valid", !this.errors?.length);
     },
 
     doSubmit() {
       this.$emit("resolve", this.model);
+      this.isDirty = false;
     },
 
     doReject() {
       this.$emit("reject");
       this.model = {};
+      this.isDirty = false;
     }
   },
   provide() {

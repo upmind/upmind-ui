@@ -7,19 +7,37 @@
   >
     <input
       :id="control.id + '-input'"
-      type="datetime-local"
       :class="[
         styles.control.input,
         controlWrapper.errors ? styles.control.error.input : null
       ]"
-      :value="dataTime"
+      :value="control.data"
       :disabled="!control.enabled"
       :autocomplete="appliedOptions.autocomplete"
       :placeholder="appliedOptions.placeholder"
+      :type="unmask ? 'input' : 'password'"
       @change="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"
     />
+    <span class="absolute top-0 right-1" v-if="control.data">
+      <button
+        class="btn btn-link text-inherit btn-square"
+        @click="unmask = true"
+        v-if="!unmask"
+      >
+        <eye-icon class="w-5 h-5" />
+        <span class="sr-only">Show password value</span>
+      </button>
+      <button
+        class="btn btn-link text-inherit btn-square"
+        @click="unmask = false"
+        v-else
+      >
+        <eye-slash-icon class="w-5 h-5" />
+        <span class="sr-only">Hide password value</span>
+      </button>
+    </span>
   </control-wrapper>
 </template>
 
@@ -28,41 +46,56 @@ import type {
   ControlElement,
   JsonFormsRendererRegistryEntry
 } from "@jsonforms/core";
-import { rankWith, isDateTimeControl } from "@jsonforms/core";
+
+import {
+  rankWith,
+  isStringControl,
+  uiTypeIs,
+  formatIs,
+  // scopeEndsWith,
+  and,
+  or
+} from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 
-const toISOString = (inputDateTime: string) => {
-  return inputDateTime === "" ? undefined : inputDateTime + ":00.000Z";
-};
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
 
 const controlRenderer = defineComponent({
-  name: "DatetimeControlRenderer",
+  name: "StringControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
+    EyeIcon,
+    EyeSlashIcon
   },
   props: {
     ...rendererProps<ControlElement>()
   },
-  setup(props: RendererProps<ControlElement>) {
-    return useDaisyControl(useJsonFormsControl(props), target =>
-      toISOString(target.value)
-    );
+  data() {
+    return {
+      unmask: false
+    };
   },
-  computed: {
-    dataTime(): string {
-      return (this.control.data ?? "").substr(0, 16);
-    }
+  setup(props: RendererProps<ControlElement>) {
+    return useDaisyControl(
+      useJsonFormsControl(props),
+      target => target.value || undefined
+    );
   }
 });
 
 export default controlRenderer;
 
+export const isPasswordControl = and(
+  uiTypeIs("Control"),
+  or(formatIs("password"))
+);
+
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, isDateTimeControl)
+  tester: rankWith(2, and(isStringControl, isPasswordControl))
 };
 </script>

@@ -21,9 +21,9 @@ async function check(context: SessionContext, _event: any) {
 
   return new Promise((resolve, reject) => {
     if (token) {
-      return resolve(JSON.parse(token));
+      resolve(JSON.parse(token));
     } else {
-      return reject();
+      reject(null);
     }
   });
 }

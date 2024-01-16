@@ -381,10 +381,16 @@ async function checkOptions(
           // ensure we have an object
           if (!isObject(value)) value = { product_id: id };
           const product = find(option.values, ["id", value.product_id]);
-
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
-            billing_cycle_months: values?.term?.billing_cycle_months,
+            billing_cycle_months: some(product.prices, price => {
+              return (
+                price.billing_cycle_months ===
+                values?.term?.billing_cycle_months
+              );
+            })
+              ? values?.term?.billing_cycle_months
+              : first(product.prices)?.billing_cycle_months || 0,
             unit_quantity: 1
           });
 
@@ -505,7 +511,7 @@ async function calculateSummary(
         prices.options.subtotal
       ]
     }
-  }).then(({ data }) => data);
+  }).then(response => response?.data);
 
   const discountPromise = await post({
     url: useUrl("cart/calculate", {}),
@@ -518,7 +524,7 @@ async function calculateSummary(
         prices.options.discount
       ]
     }
-  }).then(({ data }) => data);
+  }).then(response => response?.data);
 
   const totalPromise = await post({
     url: useUrl("cart/calculate", {}),
@@ -527,7 +533,7 @@ async function calculateSummary(
       currency_id,
       prices: [prices.term.total, prices.attributes.total, prices.options.total]
     }
-  }).then(({ data }) => data);
+  }).then(response => response?.data);
 
   return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
     ([subtotal, discount, total]) => {

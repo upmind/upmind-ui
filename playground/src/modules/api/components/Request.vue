@@ -20,12 +20,12 @@
             {{ value }}
           </span>
         </button>
-        <code
-          class="status block text-xs ml-auto font-thin"
+        <em
+          class="text-xs ml-auto font-mono text-inherit"
           v-if="request.isCached || request.isStale"
         >
           {{ expiresIn }}
-        </code>
+        </em>
       </div>
     </div>
 
@@ -48,54 +48,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, onMounted } from "vue";
-import { get, isString } from "lodash-es";
-
-function calculateRelativeTime(
-  timestamp: EpochTimeStamp,
-  maxAge: number,
-  currentTime: EpochTimeStamp
-) {
-  const expiresIn = timestamp + maxAge - currentTime;
-  const isExpired = expiresIn <= 0;
-
-  const seconds = Math.floor(Math.abs(expiresIn) / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  const remainingSeconds = seconds % 60;
-  const remainingMinutes = minutes % 60;
-
-  let formattedString = "";
-
-  if (hours > 0) {
-    formattedString += `${hours} hour${hours > 1 ? "s" : ""}`;
-    if (remainingMinutes > 0 || remainingSeconds > 0) {
-      formattedString += " and ";
-    }
-  }
-
-  if (remainingMinutes > 0) {
-    formattedString += `${remainingMinutes} minute${
-      remainingMinutes > 1 ? "s" : ""
-    }`;
-    if (remainingSeconds > 0) {
-      formattedString += " and ";
-    }
-  }
-
-  if (remainingSeconds > 0) {
-    formattedString += `${remainingSeconds} second${
-      remainingSeconds > 1 ? "s" : ""
-    }`;
-  }
-
-  return expiresIn == 0
-    ? "Expires now"
-    : isExpired
-      ? `Expired ${formattedString} ago`
-      : `Expires in ${formattedString}`;
-}
+import { defineComponent, inject, ref } from "vue";
+import { endsWith, get, isString, startsWith } from "lodash-es";
+import { utils } from "@upmind/flow";
+import { useTimestamp } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmRequest",
@@ -108,7 +64,7 @@ export default defineComponent({
   setup(props) {
     const { requests } = inject("upmind");
     const machine = get(requests.value, props.hash);
-    const timestamp = ref(Date.now());
+    const timestamp = useTimestamp();
     const request = ref();
 
     machine.onTransition(state => {
@@ -132,12 +88,6 @@ export default defineComponent({
       };
     });
 
-    onMounted(() => {
-      setInterval(() => {
-        timestamp.value = Date.now();
-      }, 500);
-    });
-
     return {
       request,
       timestamp
@@ -157,12 +107,14 @@ export default defineComponent({
       }
       // const expiresIn =
       //   this.request.completed + this.request.maxAge - this.timestamp;
-
-      return calculateRelativeTime(
-        this.request.completed,
-        this.request.maxAge,
+      const time = utils.useRelativeTime(
+        this.request.completed + this.request.maxAge,
         this.timestamp
       );
+
+      if (endsWith(time, " ago")) return `Expired ${time}`;
+      else if (startsWith(time, "in ")) return `Expires ${time}`;
+      else return `Expires ${time} `;
     }
   }
 });

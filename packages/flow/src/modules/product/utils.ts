@@ -376,6 +376,7 @@ export const useValuesParser = (data: any) => {
     "options",
     "provision_fields"
   ]);
+
   // ---
   // handle existing products that have been added to the basket
   if (data?.id) {

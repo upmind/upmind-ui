@@ -38,5 +38,11 @@ module.exports = {
       "coffee",
       "winter"
     ]
-  }
+  },
+  safelist: [
+    {
+      pattern:
+        /badge-(primary|secondary|accent|info|success|error|warning|neutral)/
+    }
+  ]
 };

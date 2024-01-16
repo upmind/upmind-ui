@@ -10,11 +10,11 @@
       :processing="processing"
       @resolve="doResolve"
     >
-      <template #actions="{ isValid }">
+      <template #actions="{ meta }">
         <button
           type="submit"
           class="btn btn-block btn-link text-accent btn-xs"
-          :disabled="!isValid || processing"
+          :disabled="!meta.isValid || meta.isProcessing"
         >
           Apply Discount Code
         </button>
