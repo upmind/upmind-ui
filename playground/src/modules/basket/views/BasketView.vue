@@ -1,7 +1,7 @@
 <template>
   <section class="basket w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
     >
       <div class="flex-1">
         <h2 class="title m-0">
@@ -163,14 +163,23 @@
       </section>
 
       <aside
-        class="col-span-2 order-1 self-start sticky top-20"
+        class="col-span-2 flex flex-col gap-8 order-1 self-start sticky top-20"
         v-if="items?.length"
       >
+        <!-- Promotions -->
+        <upm-promotions
+          :promotions="promotions"
+          :processing="meta.isProcessing"
+          :additionalErrors="errors?.data"
+          @resolve="addPromotion"
+          @reject="removePromotion"
+        ></upm-promotions>
+
         <!-- Summary -->
         <div
-          class="basket-summary flex flex-col bg-primary-content text-primary border border-base-300 rounded-xl px-4 text-center"
+          class="basket-summary flex flex-col bg-primary-content text-primary border border-base-300 rounded-box px-4 text-center"
         >
-          <h3 class="text-inherit mt-4 text-xl">Order Summary</h3>
+          <h3 class="text-inherit text-xl">Order Summary</h3>
           <!-- Items -->
           <div>
             <div class="divider uppercase text-xs opacity-75">
@@ -210,9 +219,9 @@
         </div>
 
         <!-- Actions -->
-        <div class="actions p-4">
+        <div class="actions flex flex-col gap-8 relative">
           <button
-            class="btn btn-block btn-primary mb-2"
+            class="btn btn-block btn-primary btn-outline"
             v-if="meta.canProcess"
             :disabled="meta.isProcessing"
             @click.prevent="updateBasket"
@@ -221,23 +230,28 @@
           </button>
 
           <button
-            class="btn btn-link btn-block btn-xs"
-            type="reset"
-            :disabled="meta.isProcessing"
-            @click.prevent="clearBasket"
+            class="btn btn-lg btn-block btn-primary"
+            :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           >
-            Clear Basket
+            Place order and pay
           </button>
-        </div>
 
-        <!-- Promotions -->
-        <upm-promotions
-          :promotions="promotions"
-          :processing="meta.isProcessing"
-          :additionalErrors="errors?.data"
-          @resolve="addPromotion"
-          @reject="removePromotion"
-        ></upm-promotions>
+          <div class="flex flex-wrap justify-between">
+            <router-link to="/" class="btn btn-link btn-xs">
+              <arrow-uturn-left-icon class="w-5 h-5"></arrow-uturn-left-icon>
+              Continue shopping
+            </router-link>
+
+            <button
+              class="btn btn-link btn-xs"
+              type="reset"
+              :disabled="meta.isProcessing"
+              @click.prevent="clearBasket"
+            >
+              <trash-icon class="w-5 h-5"></trash-icon> Clear Basket
+            </button>
+          </div>
+        </div>
       </aside>
     </div>
 
@@ -266,8 +280,8 @@ import BasketFields from "../components/Fields.vue";
 import { UpmDebug } from "@upmind/components";
 import {
   SquaresPlusIcon,
-  ShieldExclamationIcon,
-  XMarkIcon
+  ArrowUturnLeftIcon,
+  TrashIcon
 } from "@heroicons/vue/24/outline";
 
 const activeTheme = inject("activeTheme");
