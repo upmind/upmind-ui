@@ -165,10 +165,9 @@ async function setFields(
   _event: any
 ) {
   const { put, useUrl } = useApi();
-
   // rebuild the model with ALL custo mfields present, including nullish values
   const data = useCustomFieldsModelParser(custom_fields, fieldsModel);
-  debugger;
+
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basket.id}`),

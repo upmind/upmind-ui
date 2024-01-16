@@ -24,9 +24,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent } from "vue";
 import { useFeedback } from "..";
 import UpmMessage from "../components/Message.vue";
+import { useTimestamp } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmFeedback",
@@ -44,16 +45,10 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const timestamp = ref(Date.now());
+    const timestamp = useTimestamp();
 
     const { state, messages, toasts, notifications, meta, useTime, add } =
       useFeedback();
-
-    onMounted(() => {
-      setInterval(() => {
-        timestamp.value = Date.now();
-      }, 500);
-    });
 
     return {
       state,

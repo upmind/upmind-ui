@@ -84,11 +84,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent } from "vue";
 import { useMessage } from "..";
 
 import { utils } from "@upmind/flow";
 import { UpmDebug } from "@upmind/components";
+import { useTimestamp } from "@vueuse/core";
+
 import {
   XMarkIcon,
   ExclamationCircleIcon,
@@ -123,15 +125,9 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const timestamp = ref(Date.now());
+    const timestamp = useTimestamp();
 
     const { state, message, meta, dismiss } = useMessage(props.item);
-
-    onMounted(() => {
-      setInterval(() => {
-        timestamp.value = Date.now();
-      }, 500);
-    });
 
     return {
       state,

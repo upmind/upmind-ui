@@ -30,6 +30,10 @@ export function useRelativeTime(
   timestamp: EpochTimeStamp,
   currentTime: EpochTimeStamp
 ) {
+  if (timestamp == null || currentTime == null) {
+    return null;
+  }
+
   const expiresIn = timestamp - currentTime;
 
   const seconds = Math.floor(Math.abs(expiresIn) / 1000);

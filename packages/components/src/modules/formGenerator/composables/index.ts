@@ -16,8 +16,8 @@ import { get, isEmpty } from "lodash-es";
 // a composable that provides a simple interface to the uploads machine
 //  with some state helpers
 
-export const useUpload = ({ fieldType, fieldTypeId, isDefault }) => {
-  const upload = useSystemUpload(fieldType, fieldTypeId, isDefault);
+export const useUpload = field => {
+  const upload = useSystemUpload(field);
   const { state, send } = useActor(upload.service);
 
   // --------------------------------------------------------
@@ -63,6 +63,7 @@ export const useUpload = ({ fieldType, fieldTypeId, isDefault }) => {
         isDefault
       }
     });
+
   const getImageByHash = hash => {
     send({ type: "LOAD", data: { hash } });
   };
@@ -73,6 +74,14 @@ export const useUpload = ({ fieldType, fieldTypeId, isDefault }) => {
     state: computed(() => state.value.value),
     // ---
     file: computed(() => state.value.context.file),
+    // created_ago: useTimeAgo(new Date(state.value.context?.response?.created_at)),
+
+    created: computed(() =>
+      state.value.context?.response?.created_at
+        ? new Date(`${state.value.context.response.created_at} Z`)
+        : null
+    ),
+
     src: computed(() => state.value.context.src),
     errors: computed(() => state.value.context?.error),
     //messages: computed(() => state.value.context?.messages),

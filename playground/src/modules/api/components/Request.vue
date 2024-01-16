@@ -48,9 +48,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, onMounted } from "vue";
+import { defineComponent, inject, ref } from "vue";
 import { endsWith, get, isString, startsWith } from "lodash-es";
 import { utils } from "@upmind/flow";
+import { useTimestamp } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmRequest",
@@ -63,7 +64,7 @@ export default defineComponent({
   setup(props) {
     const { requests } = inject("upmind");
     const machine = get(requests.value, props.hash);
-    const timestamp = ref(Date.now());
+    const timestamp = useTimestamp();
     const request = ref();
 
     machine.onTransition(state => {
@@ -85,12 +86,6 @@ export default defineComponent({
         hasNoContent: state.matches("processed.empty"),
         hasErrors: state.matches("error")
       };
-    });
-
-    onMounted(() => {
-      setInterval(() => {
-        timestamp.value = Date.now();
-      }, 500);
     });
 
     return {
