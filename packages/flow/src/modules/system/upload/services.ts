@@ -65,13 +65,14 @@ async function getImage({ field }: UploadContext, { data }: ImageEvent) {
 
   const { get, useUrl, useTime } = useApi();
 
-  const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
+  // const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
+  const path = `images/${data.hash}`;
 
   debugger;
 
   return get({
     url: useUrl(path),
-    // withAccessToken: true,
+    withAccessToken: true,
     useCache: true,
     maxAge: useTime()?.DAY
   }).then(({ data }: any) => data);

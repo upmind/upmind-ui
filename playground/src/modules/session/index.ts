@@ -74,6 +74,8 @@ export const useSession = () => {
       ].some(client.value.matches)
   }));
 
+  const user = computed(() => state.value?.context?.user || null);
+
   // --- Client
   const model = computed(() => client.value?.context?.model || {});
   const schema = computed(() => client.value?.context?.schema || {});
@@ -169,6 +171,8 @@ export const useSession = () => {
     model,
     schema,
     uischema,
+    // ---
+    user,
     // ---
     reject,
     resolve,

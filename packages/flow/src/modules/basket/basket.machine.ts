@@ -398,7 +398,7 @@ export default createMachine(
                 invoke: {
                   src: "getCustomFields",
                   onDone: {
-                    target: "idle",
+                    target: "complete",
                     actions: ["setFields", "setFieldsSchemas"]
                   },
                   onError: {
@@ -409,12 +409,7 @@ export default createMachine(
               },
 
               idle: {
-                always: [
-                  {
-                    target: "complete",
-                    cond: "hasNoFields"
-                  }
-                ]
+                always: []
               },
 
               checking: {
@@ -444,7 +439,7 @@ export default createMachine(
                 invoke: {
                   src: "setFields",
                   onDone: {
-                    target: "valid",
+                    target: "complete",
                     actions: ["updateBasket", "setSuccess"]
                   },
                   onError: {
@@ -456,20 +451,27 @@ export default createMachine(
               // Handle completion, stop the machine and prevent further requests
               complete: {
                 id: "complete",
-                type: "final"
+                type: "final",
+                always: {
+                  target: "idle",
+                  cond: "hasNoFields"
+                }
               }
             },
             on: {
               "UPDATE.FIELDS": {
-                target: "custom_fields.processing"
+                target: "custom_fields.processing",
+                cond: "hasFields"
               },
               "CLEAR.FIELDS": {
                 target: "custom_fields.idle",
-                actions: ["clearFieldsModel"]
+                actions: ["clearFieldsModel"],
+                cond: "hasFields"
               },
               "SET.FIELDS": {
                 target: "custom_fields.checking",
-                actions: ["setFieldsModel"]
+                actions: ["setFieldsModel"],
+                cond: "hasFields"
               }
             }
           }
@@ -881,7 +883,11 @@ export default createMachine(
 
       hasFieldValues: ({ fieldsModel }) => !isEmpty(fieldsModel),
 
-      hasNoFields: ({ custom_fields }) => isEmpty(custom_fields)
+      hasNoFields: ({ basket, custom_fields }) =>
+        isEmpty(basket) || isEmpty(custom_fields),
+
+      hasFields: ({ basket, custom_fields }) =>
+        !isEmpty(basket) && !isEmpty(custom_fields)
     },
 
     delays: {

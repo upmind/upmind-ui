@@ -114,18 +114,25 @@ export const useBasket = () => {
           ["shopping.promotions.active"].some(state.value.matches) ||
           !!state.value?.context?.basket?.total_discount_amount,
         hasTaxes: !!state.value?.context?.basket?.taxes?.length, // TODO: check config for taxes
+
+        // ---
         isAvailable: ["shopping"].some(state.value.matches),
         isConfigured: ["shopping.items.configured"].some(state.value.matches),
-        // ---
+        hasBillingAddress: ["billing.configured"].some(state.value.matches),
+        hasPaymentMethod: ["payment.configured"].some(state.value.matches),
         needsAuth: ["shopping.client.unauthenticated"].some(
           state.value.matches
         ),
-        needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
+        hasFields: ["shopping.custom_fields.complete"].some(
+          state.value.matches
+        ),
+        needsFields: !["shopping.custom_fields.complete"].some(
+          state.value.matches
+        ),
+
+        // ---
         isReadyForCheckout: ["checkout"].some(state.value.matches),
-        hasFields: ![
-          "shopping.custom_fields.loading",
-          "shopping.custom_fields.complete"
-        ].some(state.value.matches),
+        needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
         hasErrors:
           [
             "shopping.items.processing.error",

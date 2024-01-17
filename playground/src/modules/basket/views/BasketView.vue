@@ -94,22 +94,76 @@
       </div>
     </header>
 
+    <!-- breadcrumbs -->
+    <div
+      class="steps steps-horizontal w-full navbar bg-base-100 shadow-md sticky top-0 rounded-box mt-4 p-4 z-50 text-base-content"
+      v-if="meta.hasProducts && !meta.isLoading"
+    >
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.isConfigured ? 'step-primary' : ''"
+        :data-content="meta.isConfigured ? '✓' : '?'"
+        :to="{ hash: '#items' }"
+      >
+        Basket Items
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.hasFields ? 'step-primary' : ''"
+        :data-content="meta.hasFields ? '✓' : '?'"
+        :to="{ hash: '#fields' }"
+      >
+        Order Fields
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="!meta.needsAuth ? 'step-primary' : ''"
+        :data-content="!meta.needsAuth ? '✓' : '?'"
+        :to="{ hash: '#account' }"
+      >
+        Account
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.hasBillingAddress ? 'step-primary' : ''"
+        :data-content="meta.hasBillingAddress ? '✓' : '?'"
+        :to="{ hash: '#billing' }"
+      >
+        Billing Details
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.hasPaymentMethod ? 'step-primary' : ''"
+        :data-content="meta.hasPaymentMethod ? '✓' : '?'"
+        :to="{ hash: '#payment' }"
+      >
+        Payment
+      </router-link>
+
+      <div
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.isReadyForCheckout ? 'step-primary' : ''"
+        :data-content="meta.isReadyForCheckout ? '✓' : '?'"
+      >
+        Complete
+      </div>
+    </div>
+
     <div
       class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
       v-if="!meta.isLoading && meta.hasProducts"
       :data-theme="activeTheme"
     >
-      <!-- <ul class="steps">
-        <li class="step step-primary" data-content="?">Configure</li>
-        <li class="step" data-content="★">Auth</li>
-        <li class="step" data-content="$">Checkout</li>
-        <li class="step" data-content="✓">Complete</li>
-      </ul> -->
-
+      <!-- items -->
       <section
+        id="items"
         class="items col-span-5 order-0 grid grid-cols-2 gap-4 items-start"
       >
-        <div class="col-span-2 divider uppercase text-xs opacity-50">
+        <div class="col-span-full divider uppercase text-xs opacity-50">
           Basket Items
         </div>
 
@@ -140,19 +194,13 @@
         </upm-product>
       </section>
 
-      <section class="account col-span-5 order-2" v-if="meta.needsAuth">
-        <div class="divider uppercase text-xs opacity-50">Account</div>
-
-        <upm-auth class="my-8 p-0"></upm-auth>
-      </section>
-
-      <section class="billing col-span-5 order-2" v-if="!meta.needsAuth">
-        <div class="divider uppercase text-xs opacity-50">Billing Details</div>
-      </section>
-
+      <!-- fields -->
       <section
+        id="fields"
         class="fields col-span-5 order-2"
-        v-if="meta.hasFields && !meta.needsAuth"
+        :class="{ disabled: meta.needsAuth }"
+        :disabled="meta.needsAuth"
+        v-if="meta.needsFields || meta.hasFields"
       >
         <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
@@ -168,8 +216,39 @@
         ></upm-basket-fields>
       </section>
 
+      <!-- account -->
+      <section id="account" class="account col-span-5 order-2">
+        <div class="divider uppercase text-xs opacity-50">Account</div>
+
+        <upm-auth class="my-8 p-0" v-if="meta.needsAuth"></upm-auth>
+
+        <upm-profile class="my-8 p-0" v-else></upm-profile>
+      </section>
+
+      <!-- billing -->
+      <section
+        id="billing"
+        class="billing col-span-5 order-2"
+        :class="{ disabled: meta.needsAuth }"
+        :disabled="meta.needsAuth"
+      >
+        <div class="divider uppercase text-xs opacity-50">Billing Details</div>
+      </section>
+
+      <!-- payment -->
+      <section
+        id="payment"
+        class="payment col-span-5 order-2"
+        :class="{ disabled: meta.needsAuth }"
+        :disabled="meta.needsAuth"
+      >
+        <div class="divider uppercase text-xs opacity-50">Payment Methods</div>
+      </section>
+
+      <!-- summary -->
       <aside
-        class="summary col-span-2 row-span-4 flex flex-col gap-8 order-1 self-start sticky top-20"
+        id="summary"
+        class="summary col-span-2 row-span-10 flex flex-col gap-8 order-1 self-start sticky top-32"
       >
         <!-- Promotions -->
         <upm-promotions
@@ -283,6 +362,7 @@ import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
+import UpmProfile from "../../session/components/Profile.vue";
 
 import { UpmDebug } from "@upmind/components";
 import {
@@ -290,6 +370,9 @@ import {
   ArrowUturnLeftIcon,
   TrashIcon
 } from "@heroicons/vue/24/outline";
+
+import type { UseScrollReturn } from "@vueuse/core";
+import { vScroll } from "@vueuse/components";
 
 const activeTheme = inject("activeTheme");
 
@@ -388,4 +471,8 @@ const model = ref({
 onBeforeUnmount(() => {
   updateFields();
 });
+
+function onScroll(state: UseScrollReturn) {
+  console.log(state); // {x, y, isScrolling, arrivedState, directions}
+}
 </script>
