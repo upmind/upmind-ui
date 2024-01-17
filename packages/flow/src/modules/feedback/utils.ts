@@ -28,7 +28,7 @@ export const useMessageParser = (data: Object) => {
     copy: null,
     data: null,
     delay: 0,
-    maxAge: 0 //useTime().SECOND * 3
+    maxAge: 0
   };
   // todo pars einto a message format
   const message = defaultsDeep(data, defaultMessage);

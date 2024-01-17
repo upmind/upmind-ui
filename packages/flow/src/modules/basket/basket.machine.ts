@@ -72,9 +72,9 @@ export default createMachine(
       queue: [],
       // ---
       custom_fields: [],
-      fieldsSchema: {},
-      fieldsUischema: {},
-      fieldsModel: {},
+      fieldsSchema: undefined,
+      fieldsUischema: undefined,
+      fieldsModel: undefined,
 
       // ---
       // the generated summary of ALL the items,
@@ -891,8 +891,8 @@ export default createMachine(
     },
 
     delays: {
-      error: () => useTime().SECOND * 3, // this allows us to read the error before continuing
-      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT
     },
     services
   }

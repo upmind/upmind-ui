@@ -262,7 +262,8 @@ export default createMachine(
     },
 
     delays: {
-      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT
     },
     services
   }

@@ -6,8 +6,8 @@ import { useBrand, BrandConfigKeys } from "../../brand";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
-import type { ImageEvent, UploadContext } from "../types.d";
-import { ImageObjectTypes, ImageUploadTypes } from "../types.d";
+import type { UploadEvent, UploadContext } from "./types.d";
+import { ImageObjectTypes, ImageUploadTypes } from "./types.d";
 
 // --------------------------------------------------------
 // HELPERS
@@ -54,7 +54,7 @@ const fieldPath = field => {
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function getImage({ field }: UploadContext, { data }: ImageEvent) {
+async function getImage({ field }: UploadContext, { data }: UploadEvent) {
   // if we have a hash, we can skip the request
   if (data?.hash) {
     return Promise.resolve({ ...field, value: data.hash });
