@@ -89,7 +89,8 @@ export default (message: Message) =>
       delays: {
         delay: ({ delay }) => delay, // this allows us to override the max age in the context
         maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
-        wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+        error: () => useTime().ERROR,
+        wait: () => useTime().WAIT
       }
     }
   );
