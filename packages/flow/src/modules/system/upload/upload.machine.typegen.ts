@@ -47,7 +47,7 @@ export interface Typegen0 {
     services: "check" | "getImage" | "upload";
   };
   eventsCausingActions: {
-    clear: "ADD" | "REMOVE";
+    clear: "REMOVE";
     clearError:
       | "ADD"
       | "LOAD"
@@ -58,7 +58,7 @@ export interface Typegen0 {
       | "error.platform.uploadManager.loading:invocation[0]"
       | "error.platform.uploadManager.processing:invocation[0]";
     setProgress: "PROGRESS";
-    setRequest: "done.invoke.uploadManager.checking:invocation[0]";
+    setRequest: "ADD";
     setResponse:
       | "done.invoke.uploadManager.loading:invocation[0]"
       | "done.invoke.uploadManager.processing:invocation[0]";

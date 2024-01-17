@@ -64,7 +64,8 @@ export interface UploadContext {
   progress: number;
   request?: Object | null;
   response?: Object | null;
-  file?: Object | null;
+  file?: string | null;
+  name?: string | null;
   src?: string | null;
 
   // ---
