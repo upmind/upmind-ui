@@ -74,6 +74,7 @@ export const useUpload = field => {
     state: computed(() => state.value.value),
     // ---
     file: computed(() => state.value.context.file),
+    name: computed(() => state.value.context.name),
     // created_ago: useTimeAgo(new Date(state.value.context?.response?.created_at)),
 
     created: computed(() =>
