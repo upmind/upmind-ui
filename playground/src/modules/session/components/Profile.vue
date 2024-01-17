@@ -18,7 +18,7 @@
             >You're currently logged in as</span
           >
           <h4 class="mt-2 mb-0">{{ user.fullname }}</h4>
-          <h5 class="m-0 text-sm font-mono">{{ user.email }}</h5>
+          <h5 class="m-0 text-sm italic">{{ user.email }}</h5>
         </div>
         <div class="card-actions justify-end mt-auto">
           <router-link to="/" class="btn btn-ghost btn-sm">
