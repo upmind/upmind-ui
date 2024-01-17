@@ -61,7 +61,7 @@ async function getUser(context: SessionContext, event: any) {
       ].join()
     }),
     withAccessToken: true
-  });
+  }).then(({ data }) => data?.actor);
 
   // const self = await dispatch(
   //   "api/call",

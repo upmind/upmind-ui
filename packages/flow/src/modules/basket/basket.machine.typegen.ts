@@ -242,6 +242,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     allConfigured: "";
+    hasFields: "CLEAR.FIELDS" | "SET.FIELDS" | "UPDATE.FIELDS";
     hasNoBasket: "ADD";
     hasNoFields: "";
     hasNoItem: "UPDATE";

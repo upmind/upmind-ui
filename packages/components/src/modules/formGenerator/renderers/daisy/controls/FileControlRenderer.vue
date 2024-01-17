@@ -49,7 +49,7 @@
         </use-time-ago>
         <span v-else-if="meta.isProcessing">Uploaded</span>
 
-        <div class="card-actions justify-between mt-auto">
+        <div class="card-actions justify-end mt-auto">
           <button class="btn btn-ghost btn-sm" @click.prevent="onOpen">
             Change
           </button>

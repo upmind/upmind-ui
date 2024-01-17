@@ -42,7 +42,17 @@
       </div>
     </header>
 
-    <upm-auth class="my-8 p-8 rounded-box" :data-theme="activeTheme"></upm-auth>
+    <upm-auth
+      v-if="meta.isGuest"
+      class="my-8 p-8 rounded-box"
+      :data-theme="activeTheme"
+    ></upm-auth>
+
+    <upm-profile
+      v-else
+      class="my-8 p-8 rounded-box"
+      :data-theme="activeTheme"
+    ></upm-profile>
 
     <footer>
       <upm-debug
@@ -61,6 +71,7 @@ import { inject } from "vue";
 import { useSession } from "../";
 import { UpmDebug } from "@upmind/components";
 import UpmAuth from "../components/Auth.vue";
+import UpmProfile from "../components/Profile.vue";
 import { UpmFormGenerator } from "@upmind/components";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 

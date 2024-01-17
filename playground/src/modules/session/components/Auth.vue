@@ -134,17 +134,6 @@ export default defineComponent({
     debugging: {
       type: Boolean,
       default: false
-    },
-    processing: {
-      type: Boolean,
-      default: false
-    },
-
-    additionalErrors: {
-      type: Array as PropType<
-        ErrorObject<string, Record<string, any>, unknown>[]
-      >,
-      default: () => []
     }
   },
   setup(props) {
