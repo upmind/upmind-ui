@@ -10,9 +10,73 @@
       </div>
 
       <div class="actions flex-none join">
-        <slot name="actions"> </slot>
+        <slot name="actions">
+          <select
+            class="select select-bordered w-24 md:w-auto join-item"
+            v-model="selected"
+            placeholder="Select Option"
+          >
+            <option></option>
+            <option
+              v-for="(values, key) in items"
+              :key="`item-${key}`"
+              :value="key"
+              :label="startCase(key)"
+            ></option>
+          </select>
+
+          <button
+            class="btn btn-primary join-item"
+            type="submit"
+            :disabled="meta.isLoading || meta.isComplete || !selected"
+            @click.prevent="fetch(selected, items[selected])"
+          >
+            <!-- <div class="indicator"> -->
+            <!-- <span class="indicator-item"> -->
+            <!-- </span> -->
+
+            <folder-arrow-down-icon class="h-6 w-6" />
+            <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
+            <!-- </div> -->
+          </button>
+        </slot>
       </div>
     </header>
+
+    <div
+      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
+      :data-theme="activeTheme"
+    >
+      <template v-for="(values, key) in responses" :key="key">
+        <div
+          class="collapse collapse-plus border border-opacity-50 border-neutral-300 rounded-box mb-2"
+          :class="{ 'border-success': values }"
+        >
+          <input type="checkbox" name="request" />
+
+          <div class="collapse-title">
+            <h4 class="m-0 text-inherit flex gap-2 items-center">
+              <span class="badge badge-success" v-if="values">{{
+                values?.length || Object.values(values)?.length
+              }}</span>
+
+              <span class="badge badge-neutral badge-outline" v-else> ? </span>
+
+              <span>{{ startCase(key) }}</span>
+            </h4>
+          </div>
+
+          <code
+            class="mockup-code collapse-content min-w-full rounded-none"
+            v-if="values"
+          >
+            <pre>
+               <div>{{ values }}</div>
+            </pre>
+          </code>
+        </div>
+      </template>
+    </div>
 
     <footer>
       <upm-debug
@@ -27,8 +91,24 @@
 </template>
 
 <script setup lang="ts">
+import { ref, inject } from "vue";
 import { useSystem } from "..";
 import { UpmDebug } from "@upmind/components";
+import { FolderArrowDownIcon } from "@heroicons/vue/24/outline";
+import { startCase } from "lodash-es";
 
-const { state, context, meta, errors } = useSystem();
+const activeTheme = inject("activeTheme");
+
+const selected = ref();
+
+const items = {
+  // "currencies": {},
+  // "billingCycles": {},
+  countries: {},
+  regions: {},
+  languages: {},
+  statuses: {},
+  departments: {}
+};
+const { state, context, meta, errors, fetch, responses } = useSystem();
 </script>

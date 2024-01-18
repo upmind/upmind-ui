@@ -7,7 +7,7 @@ import type { SystemContext, SystemEvent } from "./types.d";
 
 // --- utils
 import { useTime } from "../../utils";
-import { set, unset } from "lodash-es";
+import { set, unset, keys, includes, every } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -20,12 +20,25 @@ export default createMachine(
     context: {
       currencies: null,
       billingCycles: null,
+      countries: null,
+      regions: null,
+      languages: null,
+      statuses: null,
+      departments: null,
+
+      // --- admin only endpoints
+
+      // systemIPAddresses: null,
+      // taxBusinessTypes: null,
+
       // ---
       error: {}
     } as SystemContext,
 
     type: "parallel",
     states: {
+      // --- obligatory: we need these to be loaded before we can do anything else
+
       currencies: {
         initial: "loading",
         states: {
@@ -47,7 +60,7 @@ export default createMachine(
               }
             }
           },
-          complete: {},
+          complete: { type: "final" },
           error: {
             on: {
               RETRY: {
@@ -66,6 +79,7 @@ export default createMachine(
         // Currencies
         // /currencies?limit=0&lang=en
       },
+
       billingCycles: {
         initial: "loading",
         states: {
@@ -87,7 +101,7 @@ export default createMachine(
               }
             }
           },
-          complete: {},
+          complete: { type: "final" },
           error: {
             on: {
               RETRY: {
@@ -102,7 +116,319 @@ export default createMachine(
             }
           }
         }
+      },
+
+      // --- ad hoc: these can be loaded at any time as needed
+
+      countries: {
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              "COUNTRIES.GET": "loading"
+            }
+          },
+          loading: {
+            invoke: {
+              src: "fetchCountries",
+              onDone: {
+                target: "complete",
+                actions: ["setCountries"]
+              },
+              onError: {
+                target: "error",
+                actions: assign({
+                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                    set(error, "countries", data);
+                    return error;
+                  }
+                })
+              }
+            }
+          },
+          complete: { type: "final" },
+          error: {
+            on: {
+              RETRY: {
+                target: "loading",
+                actions: assign({
+                  error: ({ error }: SystemContext) => {
+                    unset(error, "countries");
+                    return error;
+                  }
+                })
+              }
+            }
+          }
+        }
+      },
+
+      regions: {
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              "REGIONS.GET": "loading"
+            }
+          },
+          loading: {
+            invoke: {
+              src: "fetchRegions",
+              onDone: [
+                {
+                  target: "complete",
+                  actions: ["setRegions"],
+                  cond: "allRegionsLoaded"
+                },
+                {
+                  target: "idle",
+                  actions: ["setRegions"]
+                }
+              ],
+              onError: {
+                target: "error",
+                actions: assign({
+                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                    set(error, "regions", data);
+                    return error;
+                  }
+                })
+              }
+            }
+          },
+          complete: { type: "final" },
+          error: {
+            on: {
+              RETRY: {
+                target: "loading",
+                actions: assign({
+                  error: ({ error }: SystemContext) => {
+                    unset(error, "regions");
+                    return error;
+                  }
+                })
+              }
+            }
+          }
+        }
+      },
+
+      languages: {
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              "LANGUAGES.GET": "loading"
+            }
+          },
+          loading: {
+            invoke: {
+              src: "fetchLanguages",
+              onDone: {
+                target: "complete",
+                actions: ["setLanguages"]
+              },
+              onError: {
+                target: "error",
+                actions: assign({
+                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                    set(error, "languages", data);
+                    return error;
+                  }
+                })
+              }
+            }
+          },
+          complete: { type: "final" },
+          error: {
+            on: {
+              RETRY: {
+                target: "loading",
+                actions: assign({
+                  error: ({ error }: SystemContext) => {
+                    unset(error, "languages");
+                    return error;
+                  }
+                })
+              }
+            }
+          }
+        }
+      },
+
+      statuses: {
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              "STATUSES.GET": "loading"
+            }
+          },
+          loading: {
+            invoke: {
+              src: "fetchStatuses",
+              onDone: {
+                target: "complete",
+                actions: ["setStatuses"]
+              },
+              onError: {
+                target: "error",
+                actions: assign({
+                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                    set(error, "statuses", data);
+                    return error;
+                  }
+                })
+              }
+            }
+          },
+          complete: { type: "final" },
+          error: {
+            on: {
+              RETRY: {
+                target: "loading",
+                actions: assign({
+                  error: ({ error }: SystemContext) => {
+                    unset(error, "statuses");
+                    return error;
+                  }
+                })
+              }
+            }
+          }
+        }
+      },
+
+      departments: {
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              "DEPARTMENTS.GET": "loading"
+            }
+          },
+          loading: {
+            invoke: {
+              src: "fetchDepartments",
+              onDone: {
+                target: "complete",
+                actions: ["setDepartments"]
+              },
+              onError: {
+                target: "error",
+                actions: assign({
+                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                    set(error, "departments", data);
+                    return error;
+                  }
+                })
+              }
+            }
+          },
+          complete: { type: "final" },
+          error: {
+            on: {
+              RETRY: {
+                target: "loading",
+                actions: assign({
+                  error: ({ error }: SystemContext) => {
+                    unset(error, "departments");
+                    return error;
+                  }
+                })
+              }
+            }
+          }
+        }
       }
+
+      // --- admin only endpoints
+
+      // systemIPAddresses: {
+      //   initial: "idle",
+      //   states: {
+      //     idle: {
+      //      on: {
+      //        "SYSTEMIPADDRESSES.GET": "loading"
+      //      }
+      //    },
+      //     loading: {
+      //       invoke: {
+      //         src: "fetchSystemIPAddresses",
+      //         onDone: {
+      //           target: "complete",
+      //           actions: ["setSystemIPAddresses"]
+      //         },
+      //         onError: {
+      //           target: "error",
+      //           actions: assign({
+      //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
+      //               set(error, "systemIPAddresses", data);
+      //               return error;
+      //             }
+      //           })
+      //         }
+      //       }
+      //     },
+      //     complete: { type: "final" },
+      //     error: {
+      //       on: {
+      //         RETRY: {
+      //           target: "loading",
+      //           actions: assign({
+      //             error: ({ error }: SystemContext) => {
+      //               unset(error, "systemIPAddresses");
+      //               return error;
+      //             }
+      //           })
+      //         }
+      //       }
+      //     }
+      //   }
+      // },
+
+      // taxBusinessTypes: {
+      //   initial: "idle",
+      //   states: {
+      //     idle: {
+      //      on: {
+      //        "TAXBUSINESSTYPES.GET": "loading"
+      //      }
+      // },
+      //     loading: {
+      //       invoke: {
+      //         src: "fetchTaxBusinessTypes",
+      //         onDone: {
+      //           target: "complete",
+      //           actions: ["setTaxBusinessTypes"]
+      //         },
+      //         onError: {
+      //           target: "error",
+      //           actions: assign({
+      //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
+      //               set(error, "taxBusinessTypes", data);
+      //               return error;
+      //             }
+      //           })
+      //         }
+      //       }
+      //     },
+      //     complete: { type: "final" },
+      //     error: {
+      //       on: {
+      //         RETRY: {
+      //           target: "loading",
+      //           actions: assign({
+      //             error: ({ error }: SystemContext) => {
+      //               unset(error, "taxBusinessTypes");
+      //               return error;
+      //             }
+      //           })
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
     }
   },
   {
@@ -112,10 +438,52 @@ export default createMachine(
       }),
       setBillingCycles: assign({
         billingCycles: (_context: SystemContext, { data }: SystemEvent) => data
+      }),
+      setCountries: assign({
+        countries: (_context: SystemContext, { data }: SystemEvent) => data
+      }),
+      setRegions: assign({
+        regions: ({ regions }: SystemContext, { data }: SystemEvent) => {
+          regions ??= {}; // ensure we have a regions object
+          set(regions, data.key, data.values);
+          return regions;
+        }
+      }),
+      setLanguages: assign({
+        languages: (_context: SystemContext, { data }: SystemEvent) => data
+      }),
+      setStatuses: assign({
+        statuses: (_context: SystemContext, { data }: SystemEvent) => data
+      }),
+      setDepartments: assign({
+        departments: (_context: SystemContext, { data }: SystemEvent) => data
       })
+
+      // --- admin only endpoints
+
+      // setSystemIPAddresses: assign({
+      //   systemIPAddresses: (_context: SystemContext, { data }: SystemEvent) =>
+      //     data
+      // }),
+      // setTaxBusinessTypes: assign({
+      //   taxBusinessTypes: (_context: SystemContext, { data }: SystemEvent) =>
+      //     data
+      // })
+
       // ---
     },
-    guards: {},
+    guards: {
+      allRegionsLoaded: (
+        { countries, regions }: SystemContext,
+        { data }: SystemEvent
+      ) => {
+        const existing = keys(regions);
+        return (
+          existing.length == countries?.length &&
+          every(countries, ({ code }) => includes(existing, code))
+        );
+      }
+    },
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT

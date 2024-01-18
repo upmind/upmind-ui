@@ -45,10 +45,9 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
         oneOf: !regions?.length
           ? undefined
           : map(regions, item => {
-              debugger;
               return {
-                const: item.value,
-                title: item.label
+                const: item.id,
+                title: item.name
               };
             })
       },
@@ -65,10 +64,9 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
         oneOf: !countries?.length
           ? undefined
           : map(countries, item => {
-              debugger;
               return {
-                const: item.value,
-                title: item.label
+                const: item.id,
+                title: item.name
               };
             })
       },
@@ -91,10 +89,9 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
         oneOf: !types?.length
           ? undefined
           : map(types, item => {
-              debugger;
               return {
-                const: item.value,
-                title: item.label
+                const: item.id,
+                title: item.name
               };
             })
       }

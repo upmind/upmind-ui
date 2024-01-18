@@ -2,14 +2,15 @@
 import { interpret } from "xstate";
 
 // --- internal
+export * from "./upload";
+export * from "./place";
 import systemMachine from "./system.machine";
-import uploadMachine from "./upload/upload.machine";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, values } from "lodash-es";
+import type { ICountry } from "./types";
 
 // --- types
-import type { ImageObjectTypes } from "./types.d";
 
 // --------------------------------------------------------
 // create a global instance of the system machine
@@ -19,7 +20,7 @@ import type { ImageObjectTypes } from "./types.d";
 
 let state = null;
 
-const service = interpret(systemMachine, { devTools: false }).onTransition(
+const service = interpret(systemMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -28,38 +29,43 @@ export const useSystem = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+
     getSnapshot: () => state,
 
     // ---
+
     getCurrencies: () => state.context.currencies,
     getCurrency: code => find(state.context.currencies, ["code", code]),
     // ---
+
     getBillingCycles: () => state.context.billingCycles,
     getBillingCycle: months =>
-      find(state.context.billingCycles, ["months", months])
-  };
-};
-
-// system uplaods is NOT a global insance, and is always instantiated as a new machine
-// this is because we need to be able to have multiple uploads happening at once
-// and we need to be able to start and stop them individually
-export const useSystemUpload = (field?: Object) => {
-  let state = null;
-
-  const context = {
-    field
-  };
-
-  const service = interpret(uploadMachine.withContext(context), {
-    devTools: true
-  })
-    .onTransition(newState => (state = newState))
-    .start();
-
-  return {
-    service: service.start(), // allow for interpreting the machine + inspecting it
+      find(state.context.billingCycles, ["months", months]),
     // ---
-    getSnapshot: () => state,
-    destroy: () => service.stop()
+
+    fetchCountries: () => service.send({ type: "COUNTRIES.GET" }),
+    getCountries: () => state.context.countries,
+    getCountry: code => find(state.context.countries, ["code", code]),
+    // ---
+
+    fetchRegions: (country: ICountry) =>
+      service.send({ type: "REGIONS.GET", data: country }),
+    getRegions: () => state.context.regions,
+    getRegion: code => find(values(state.context.regions), ["code", code]),
+    // ---
+
+    fetchLanguages: () => service.send({ type: "LANGUAGES.GET" }),
+    getLanguages: () => state.context.languages,
+    getLanguage: code => find(state.context.languages, ["code", code]),
+    // ---
+
+    fetchStatuses: () => service.send({ type: "STATUSES.GET" }),
+    getStatuses: () => state.context.statuses,
+    getStatus: code => find(state.context.statuses, ["code", code]),
+    // ---
+
+    fetchDepartments: () => service.send({ type: "DEPARTMENTS.GET" }),
+    getDepartments: () => state.context.departments,
+    getDepartment: code => find(state.context.departments, ["code", code])
   };
 };

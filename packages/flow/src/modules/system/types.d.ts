@@ -1,15 +1,107 @@
+export type { RequestError, RequestResponse } from "../api/types.d";
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
-// private
+// Interfaces
+
+export interface IBillingCycle {
+  id: string;
+  months: number;
+  name: string;
+  recurring: number;
+}
+
+export interface IBillingTermField {
+  id: number;
+  label: string;
+}
+
+export interface IBillingTermsOption {
+  value: number | string;
+  label: string;
+}
+
+export interface ICountry {
+  code: string;
+  created_at: string;
+  eea: number;
+  id: string;
+  name: string;
+  phone_code: string;
+  updated_at: number;
+}
+
+export interface ICurrency {
+  id: string;
+  code: string;
+  name: string;
+  prefix: string;
+  suffix: string;
+  base: boolean;
+  created_at: string;
+  decimals: boolean;
+  manual: number;
+  updated_at: string;
+}
+
+export interface ILanguage {
+  code: string;
+  created_at: string;
+  id: string;
+  language: string;
+  updated_at: string;
+}
+
+export interface IRegion {
+  id: string;
+  country_id: ICountry["id"];
+  code: string;
+  name: string;
+}
+
+export interface IStatus {
+  code: string;
+  created_at: string;
+  deleted_at: null | string;
+  id: string;
+  name: string;
+  object_type: UpmindObjectTypes;
+  updated_at: string;
+}
+
+export interface IStatuses {
+  ticket: IStatus[] | null;
+  invoice: IStatus[] | null;
+}
+
+export interface ITicketDepartment {
+  brand: IBrand;
+  brand_id: IBrand["id"];
+  brand_ticket_departments: ITicketDepartment;
+  code: string;
+  default: boolean;
+  id: string;
+  is_public: boolean;
+  name: string;
+  name_translated?: string;
+  translations: ITranslation[];
+  username: string | null;
+}
 
 // --------------------------------------------------------
 // Contexts
 
 export interface SystemContext {
-  currencies: Array<any> | null;
-  billingCycles: Array<any> | null;
+  currencies: ICurrency[] | null;
+  billingCycles: IBillingCycle[] | null;
+  countries: ICountry[] | null;
+  regions: Record<string, IRegion> | null;
+  languages: ILanguage[] | null;
+  statuses: IStatuses | null;
+  departments: ITicketDepartment[] | null;
+  systemIPAddresses: string[] | null;
+  taxBusinessTypes: ITaxBusinessType[] | null;
   // ---
   error?: RequestError;
 }
@@ -18,7 +110,7 @@ export interface SystemContext {
 // Events
 
 export interface SystemEvent {
-  fileType: string;
+  type: string;
   data: any;
   error?: RequestError;
 }
