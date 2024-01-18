@@ -36,7 +36,7 @@ interface IAddress {
 // Contexts
 
 export interface PlaceContext {
-  countrie?: ICountry[];
+  country?: ICountry[];
   regions?: IRegion[];
   types?: IPlaceType[];
   // ---

@@ -49,7 +49,7 @@ export default (values, currency_id, promotions) => {
         // ---
         // the various lookups that we are using in our configuation
         available: {
-          product: values?.product || null,
+          product: values?.product,
           terms: null,
           options: null,
           attributes: null,

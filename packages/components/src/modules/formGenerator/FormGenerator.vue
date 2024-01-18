@@ -1,12 +1,17 @@
 <template>
   <form
-    class="card align-center w-full max-w-screen-lg"
+    class="card align-center w-full relative min-h-[3em]"
     v-bind="$attrs"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <div class="m-2" v-if="meta.isLoading">
-      <progress class="progress w-full"></progress>
+    <div
+      class="absolute top-0 bottom-0 left-0 right-0 bg-base-100 opacity-50 flex justify-center items-start z-10 p-4"
+      v-if="meta.isLoading || meta.isProcessing"
+    >
+      <span class="loading loading-dots"></span>
+
+      <!-- <progress class="progress w-full "></progress> -->
     </div>
 
     <json-forms
@@ -23,8 +28,8 @@
     />
 
     <!-- actions -->
-    <footer v-if="!noActions || meta.isLoading">
-      <div class="card-actions mt-4">
+    <footer v-if="!noActions && !meta.isLoading">
+      <div class="card-actions mt-8 mb-4">
         <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
           <button
             type="submit"
@@ -111,8 +116,7 @@ export default defineComponent({
   inheritAttrs: true,
   props: {
     schema: {
-      type: Object as PropType<JsonSchema>,
-      required: true
+      type: Object as PropType<JsonSchema>
     },
     uischema: {
       type: Object as PropType<UISchemaElement>

@@ -66,52 +66,47 @@
       </button>
     </div>
 
-    <div
-      class="card card-bordered bg-opacity-10 my-8"
+    <upm-form-generator
+      :loading="meta.isFormLoading"
+      :processing="meta.isProcessing"
+      :model-value="model"
+      :schema="schema"
+      :uischema="uischema"
+      :additional-errors="errors?.data"
+      @reject="reject"
+      @resolve="resolve"
+      class="bg-opacity-10 my-8 p-4"
       :class="{
         'bg-primary': meta.showRegisterForm,
         'bg-secondary': meta.showLoginForm
       }"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
-      <div class="card-body">
-        <upm-form-generator
-          :loading="meta.isFormLoading"
-          :processing="meta.isProcessing"
-          :model-value="model"
-          :schema="schema"
-          :uischema="uischema"
-          :additional-errors="errors?.data"
-          @reject="reject"
-          @resolve="resolve"
+      <template #actions="{ meta: formMeta, doReject }">
+        <button
+          class="btn"
+          :class="[
+            { 'btn-primary': meta.showRegisterForm },
+            { 'btn-secondary': meta.showLoginForm }
+          ]"
+          type="submit"
+          :disabled="!formMeta.isValid || formMeta.isProcessing"
         >
-          <template #actions="{ meta: formMeta, doReject }">
-            <button
-              class="btn"
-              :class="[
-                { 'btn-primary': meta.showRegisterForm },
-                { 'btn-secondary': meta.showLoginForm }
-              ]"
-              type="submit"
-              :disabled="!formMeta.isValid || formMeta.isProcessing"
-            >
-              <span v-if="meta.showLoginForm">Log into my account</span>
-              <span v-else-if="meta.showRegisterForm">Create my account</span>
-              <span v-else>Continue</span>
-            </button>
-          </template>
-        </upm-form-generator>
-      </div>
-    </div>
+          <span v-if="meta.showLoginForm">Log into my account</span>
+          <span v-else-if="meta.showRegisterForm">Create my account</span>
+          <span v-else>Continue</span>
+        </button>
+      </template>
+    </upm-form-generator>
 
-    <upm-debug
+    <!-- <upm-debug
       v-if="debugging"
       title="Session"
       :state="{ session: state, guest: guest?.value, client: client?.value }"
       :context="context"
       :errors="errors"
       :meta="meta"
-    />
+    /> -->
   </div>
 </template>
 

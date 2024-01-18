@@ -43,14 +43,14 @@
     </header>
 
     <upm-auth
-      v-if="meta.isGuest"
-      class="my-8 p-8 rounded-box"
+      v-if="!meta.isAuthenticated"
+      class="my-8 rounded-box"
       :data-theme="activeTheme"
     ></upm-auth>
 
     <upm-profile
       v-else
-      class="my-8 p-8 rounded-box"
+      class="my-8 rounded-box"
       :data-theme="activeTheme"
     ></upm-profile>
 

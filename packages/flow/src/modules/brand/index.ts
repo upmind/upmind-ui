@@ -71,6 +71,8 @@ export const useBrand = () => {
 
       // othrwise we clearly have a valid currency and we return it
       return currency_id;
-    }
+    },
+    getCurrency: () => state?.context?.currency_id,
+    getCountry: () => state?.context?.country_id
   };
 };

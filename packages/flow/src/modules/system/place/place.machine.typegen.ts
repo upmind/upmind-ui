@@ -3,8 +3,18 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.placeManager.loading:invocation[0]": {
-      type: "done.invoke.placeManager.loading:invocation[0]";
+    "done.invoke.placeManager.checking:invocation[0]": {
+      type: "done.invoke.placeManager.checking:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.placeManager.loading.constants:invocation[0]": {
+      type: "done.invoke.placeManager.loading.constants:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.placeManager.loading.place:invocation[0]": {
+      type: "done.invoke.placeManager.loading.place:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -22,8 +32,12 @@ export interface Typegen0 {
       type: "error.platform.placeManager.checking:invocation[0]";
       data: unknown;
     };
-    "error.platform.placeManager.loading:invocation[0]": {
-      type: "error.platform.placeManager.loading:invocation[0]";
+    "error.platform.placeManager.loading.constants:invocation[0]": {
+      type: "error.platform.placeManager.loading.constants:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.placeManager.loading.place:invocation[0]": {
+      type: "error.platform.placeManager.loading.place:invocation[0]";
       data: unknown;
     };
     "error.platform.placeManager.processing:invocation[0]": {
@@ -40,7 +54,8 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    getPlace: "done.invoke.placeManager.loading:invocation[0]";
+    load: "done.invoke.placeManager.loading.place:invocation[0]";
+    loadConstants: "done.invoke.placeManager.loading.constants:invocation[0]";
     search: "done.invoke.placeManager.searching:invocation[0]";
     update: "done.invoke.placeManager.processing:invocation[0]";
     validate: "done.invoke.placeManager.checking:invocation[0]";
@@ -49,7 +64,7 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services: "getPlace" | "search" | "update" | "validate";
+    services: "load" | "loadConstants" | "search" | "update" | "validate";
   };
   eventsCausingActions: {
     clearError:
@@ -61,26 +76,33 @@ export interface Typegen0 {
       | "done.invoke.placeManager.searching:invocation[0]"
       | "xstate.init";
     clearModel: "CLEAR";
+    refresh:
+      | "done.invoke.placeManager.checking:invocation[0]"
+      | "error.platform.placeManager.checking:invocation[0]";
+    setConstants: "done.invoke.placeManager.loading.constants:invocation[0]";
     setError:
       | "error.platform.placeManager.checking:invocation[0]"
-      | "error.platform.placeManager.loading:invocation[0]"
+      | "error.platform.placeManager.loading.constants:invocation[0]"
+      | "error.platform.placeManager.loading.place:invocation[0]"
       | "error.platform.placeManager.processing:invocation[0]"
       | "error.platform.placeManager.searching:invocation[0]";
     setModel:
-      | "SET"
-      | "done.invoke.placeManager.loading:invocation[0]"
+      | "done.invoke.placeManager.loading.place:invocation[0]"
       | "done.invoke.placeManager.processing:invocation[0]";
     setSchemas:
-      | "done.invoke.placeManager.loading:invocation[0]"
+      | "done.invoke.placeManager.checking:invocation[0]"
+      | "done.invoke.placeManager.loading.place:invocation[0]"
       | "done.invoke.placeManager.processing:invocation[0]"
-      | "done.invoke.placeManager.searching:invocation[0]";
+      | "done.invoke.placeManager.searching:invocation[0]"
+      | "error.platform.placeManager.checking:invocation[0]";
   };
   eventsCausingDelays: {
     wait: "done.invoke.placeManager.processing:invocation[0]";
   };
   eventsCausingGuards: {};
   eventsCausingServices: {
-    getPlace: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
+    load: "done.invoke.placeManager.loading.constants:invocation[0]";
+    loadConstants: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
     search: "SEARCH";
     update: "RETRY" | "UPDATE";
     validate: "SET" | "done.invoke.placeManager.searching:invocation[0]";
@@ -92,9 +114,12 @@ export interface Typegen0 {
     | "idle"
     | "invalid"
     | "loading"
+    | "loading.constants"
+    | "loading.place"
     | "processed"
     | "processing"
     | "searching"
-    | "valid";
+    | "valid"
+    | { loading?: "constants" | "place" };
   tags: never;
 }

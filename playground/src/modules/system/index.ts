@@ -3,10 +3,13 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useSystem as useUpmindSystem } from "@upmind/flow";
+import {
+  useSystem as useUpmindSystem,
+  useSystemPlaces as useUpmindSystemPlaces
+} from "@upmind/flow";
 
 // --- utils
-import { omit, sample, keys, get, isEmpty } from "lodash-es";
+import { omit, sample, get, isEmpty, filter, has } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -18,8 +21,17 @@ export const useSystem = () => {
 
   // --------------------------------------------------------
 
-  const getRandomCountry = () => {
-    const countries = get(state.value.context, "countries", {});
+  const getRandomCountry = (unique?: bool) => {
+    const regions = get(state.value.context, "regions", {});
+    if (isEmpty(regions)) return; // lets se eif our fallback works
+
+    // otherwise we can just return a random country
+    let countries = get(state.value.context, "countries", {});
+
+    if (unique) {
+      // lets only return countries that have NOT yet got regions
+      countries = filter(countries, country => !has(regions, country.code));
+    }
 
     if (isEmpty(countries)) return;
 
@@ -117,5 +129,41 @@ export const useSystem = () => {
 
       return values;
     }
+  };
+};
+
+export const useSystemPlace = () => {
+  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
+
+  const place = useUpmindSystemPlaces();
+  const { state, send } = useActor(place.service);
+
+  // --------------------------------------------------------
+
+  return {
+    state: computed(() => state.value.value),
+    context: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
+    // ---
+    meta: computed(() => ({
+      isLoading: ["loading"].some(state.value.matches),
+      hasErrors: ["error"].some(state.value.matches),
+      isSearching: ["searching"].some(state.value.matches),
+      isProcessing: ["checking", "processing"].some(state.value.matches),
+      isValid: ["valid"].some(state.value.matches),
+      isComplete:
+        state.value.done || ["processed", "complete"].some(state.value.matches)
+    })),
+    // ---
+    model: computed(() => state.value?.context?.model),
+    schema: computed(() => state.value?.context?.schema),
+    uischema: computed(() => state.value?.context?.uischema),
+    // ---
+    input: model => send({ type: "SET", data: model }),
+    search: value => send({ type: "SEARCH", data: value }),
+    update: () => send({ type: "UPDATE" }),
+    clear: () => send({ type: "CLEAR" }),
+    destroy: place.destroy
   };
 };

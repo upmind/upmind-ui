@@ -34,20 +34,40 @@ export default createMachine(
     states: {
       loading: {
         entry: ["clearError"],
-        invoke: {
-          src: "getPlace",
-          onDone: {
-            target: "idle",
-            actions: ["setModel", "setSchemas"]
+        initial: "constants",
+        states: {
+          constants: {
+            invoke: {
+              src: "loadConstants",
+              onDone: {
+                target: "place",
+                actions: ["setConstants"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
           },
-          onError: {
-            target: "error",
-            actions: ["setError"]
+          place: {
+            invoke: {
+              src: "load",
+              onDone: {
+                target: "#idle",
+                actions: ["setSchemas", "setModel"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
           }
         }
       },
 
-      idle: {},
+      idle: {
+        id: "idle"
+      },
 
       searching: {
         entry: ["clearError"],
@@ -69,11 +89,12 @@ export default createMachine(
         invoke: {
           src: "validate",
           onDone: {
-            target: "valid"
+            target: "valid",
+            actions: ["refresh", "setSchemas"]
           },
           onError: {
             target: "invalid",
-            actions: ["setError"]
+            actions: ["refresh", "setSchemas", "setError"]
           }
         }
       },
@@ -84,7 +105,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setSchemas"]
+            actions: ["setSchemas", "setModel"]
           },
           onError: {
             target: "error",
@@ -110,6 +131,7 @@ export default createMachine(
       },
 
       error: {
+        id: "error",
         on: {
           RETRY: {
             target: "processing"
@@ -127,13 +149,23 @@ export default createMachine(
         actions: ["clearModel"]
       },
       SET: {
-        target: "checking",
-        actions: ["setModel"]
+        target: "checking"
       }
     }
   },
   {
     actions: {
+      setConstants: assign({
+        countries: (_context: PlaceContext, { data }: PlaceEvent) =>
+          data.countries,
+        regions: (_context: PlaceContext, { data }: PlaceEvent) => data.regions,
+        types: (_context: PlaceContext, { data }: PlaceEvent) => data.types
+      }),
+
+      setRegions: assign({
+        regions: (_context: PlaceContext, { data }: PlaceEvent) => data
+      }),
+
       clearModel: assign({
         model: undefined
       }),
@@ -150,11 +182,16 @@ export default createMachine(
           usePlaceModelParser(schema, data)
       }),
 
+      refresh: assign({
+        regions: (_context: PlaceContext, { data }: PlaceEvent) => data.regions,
+        model: ({ schema }: PlaceContext, { data }: PlaceEvent) =>
+          usePlaceModelParser(schema, data.model)
+      }),
+
       // ---
       setError: assign({
         error: (context, { data }, meta) => {
           console.log("setError", data, meta);
-
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data
@@ -162,7 +199,7 @@ export default createMachine(
             error = useValidationParser(error);
           }
 
-          return error;
+          return error || data;
         }
       }),
 
