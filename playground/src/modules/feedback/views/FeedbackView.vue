@@ -56,6 +56,7 @@
         :item="message"
       />
     </div>
+
     <footer>
       <upm-debug
         title="Feedback"

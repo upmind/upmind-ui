@@ -16,6 +16,16 @@ import type { PlaceEvent, PlaceContext } from "./types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
+async function getEnums({ field }: PlaceContext, _event: PlaceEvent) {
+  const { getConfig } = useBrand();
+
+  const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
+    BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+  ).then(response =>
+    get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
+  );
+}
+
 async function search({ field }: PlaceContext, { data }: PlaceEvent) {
   // if we have a hash, we can skip the request
   if (data?.hash) {
