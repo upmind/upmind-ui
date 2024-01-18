@@ -47,22 +47,23 @@ export const useSystem = () => {
         "statuses.loading",
         "departments.loading"
       ].some(state.value.matches),
-      isReady: [
-        "currencies.complete",
-        "billingCycles.complete",
+      isReady:
+        ["currencies.complete", "billingCycles.complete"].every(
+          state.value.matches
+        ) &&
+        [
+          "countries.idle",
+          "regions.idle",
+          "languages.idle",
+          "statuses.idle",
+          "departments.idle",
 
-        "countries.idle",
-        "regions.idle",
-        "languages.idle",
-        "statuses.idle",
-        "departments.idle",
-
-        "countries.complete",
-        "regions.complete",
-        "languages.complete",
-        "statuses.complete",
-        "departments.complete"
-      ].every(state.value.matches),
+          "countries.complete",
+          "regions.complete",
+          "languages.complete",
+          "statuses.complete",
+          "departments.complete"
+        ].some(state.value.matches),
       isComplete: [
         "currencies.complete",
         "billingCycles.complete",
@@ -86,24 +87,35 @@ export const useSystem = () => {
       ].some(state.value.matches)
     })),
     // ---?
-    fetch: (key: string, value?: any) => {
+    fetch: async (key: string, value?: any) => {
+      let values;
+
       switch (key) {
         case "countries":
-          return system.fetchCountries();
+          values = await system.fetchCountries();
+          break;
 
         case "regions":
+          // regions are different as they require a country object
+          // and we may need to fetch it from the api,
           if (isEmpty(value)) value = getRandomCountry();
-          return system.fetchRegions(value);
+          values = await system.fetchRegions(value);
+          break;
 
         case "languages":
-          return system.fetchLanguages();
+          values = await system.fetchLanguages();
+          break;
 
         case "statuses":
-          return system.fetchStatuses();
+          values = await system.fetchStatuses();
+          break;
 
         case "departments":
-          return system.fetchDepartments();
+          values = await system.fetchDepartments();
+          break;
       }
+
+      return values;
     }
   };
 };
