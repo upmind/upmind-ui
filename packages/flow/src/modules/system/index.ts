@@ -1,5 +1,6 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 export * from "./upload";
@@ -7,7 +8,7 @@ export * from "./place";
 import systemMachine from "./system.machine";
 
 // --- utils
-import { find, values } from "lodash-es";
+import { find, values, isString, get } from "lodash-es";
 import type { ICountry } from "./types";
 
 // --- types
@@ -26,6 +27,78 @@ const service = interpret(systemMachine, { devTools: true }).onTransition(
 // --------------------------------------------------------
 
 export const useSystem = () => {
+  // --- Helpers
+
+  async function fetch(node: string, getValues: Function, data?: any) {
+    // ---
+    // then  check if we have the regions for this country and return them
+    const values = getValues(data);
+
+    if (values) return Promise.resolve(values);
+
+    // ---
+    // if we dont have the regions for this country, then we need to fetch them
+    service.send({
+      type: `${node.toUpperCase()}.GET`,
+      data
+    });
+
+    // finally ... await the response
+    return new Promise((resolve, reject) => {
+      waitFor(service, state =>
+        [`${node}.processed`, `${node}.error`].some(state.matches)
+      )
+        .then(() => {
+          if (state.matches(`${node}.processed`)) {
+            resolve(getValues(data));
+          } else {
+            reject(get(state, `context.error.${node}`));
+          }
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  }
+  // --- Methods
+
+  const getCurrencies = () => state.context.currencies;
+  const getCurrency = value => find(state.context.currencies, ["code", value]);
+  // ---
+
+  const getBillingCycles = () => state.context.billingCycles;
+  const getBillingCycle = value =>
+    find(state.context.billingCycles, ["months", value]);
+  // ---
+
+  const getCountries = () => state.context.countries;
+  const getCountry = (value: string) => {
+    if (value?.length == 2)
+      return find(state.context.countries, ["code", value]);
+    return find(state.context.countries, ["id", value]);
+  };
+  // ---
+
+  const getRegions = value =>
+    get(state.context.regions, isString(value) ? value : value.code);
+
+  const getRegion = value =>
+    find(values(state.context.regions), ["code", code]);
+  // ---
+
+  const getLanguages = () => state.context.languages;
+  const getLanguage = value => find(state.context.languages, ["code", code]);
+  // ---
+
+  const getStatuses = () => state.context.statuses;
+  const getStatus = value => find(state.context.statuses, ["code", code]);
+  // ---
+
+  const getDepartments = () => state.context.departments;
+  const getDepartment = value =>
+    find(state.context.departments, ["code", code]);
+  // --------------------------------------------------------
+
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
@@ -33,39 +106,38 @@ export const useSystem = () => {
     getSnapshot: () => state,
 
     // ---
-
-    getCurrencies: () => state.context.currencies,
-    getCurrency: code => find(state.context.currencies, ["code", code]),
+    getCurrencies,
+    getCurrency,
     // ---
-
-    getBillingCycles: () => state.context.billingCycles,
-    getBillingCycle: months =>
-      find(state.context.billingCycles, ["months", months]),
+    getBillingCycles,
+    getBillingCycle,
     // ---
-
-    fetchCountries: () => service.send({ type: "COUNTRIES.GET" }),
-    getCountries: () => state.context.countries,
-    getCountry: code => find(state.context.countries, ["code", code]),
+    fetchCountries: async () => fetch("countries", getCountries),
+    getCountries,
+    getCountry,
     // ---
+    fetchRegions: async (country: ICountry | string) => {
+      //  ensure we have a country object in order to fetch regions
+      if (isString(country)) country = getCountry(country);
 
-    fetchRegions: (country: ICountry) =>
-      service.send({ type: "REGIONS.GET", data: country }),
-    getRegions: () => state.context.regions,
-    getRegion: code => find(values(state.context.regions), ["code", code]),
+      if (!country)
+        return Promise.reject("Country not found, cannot get regions");
+
+      return fetch("regions", getRegions, country);
+    },
+    getRegions,
+    getRegion,
     // ---
-
-    fetchLanguages: () => service.send({ type: "LANGUAGES.GET" }),
-    getLanguages: () => state.context.languages,
-    getLanguage: code => find(state.context.languages, ["code", code]),
+    fetchLanguages: async () => fetch("languages", getLanguages),
+    getLanguages,
+    getLanguage,
     // ---
-
-    fetchStatuses: () => service.send({ type: "STATUSES.GET" }),
-    getStatuses: () => state.context.statuses,
-    getStatus: code => find(state.context.statuses, ["code", code]),
+    fetchStatuses: async () => fetch("statuses", getStatuses),
+    getStatuses,
+    getStatus,
     // ---
-
-    fetchDepartments: () => service.send({ type: "DEPARTMENTS.GET" }),
-    getDepartments: () => state.context.departments,
-    getDepartment: code => find(state.context.departments, ["code", code])
+    fetchDepartments: async () => fetch("departments", getDepartments),
+    getDepartments,
+    getDepartment
   };
 };

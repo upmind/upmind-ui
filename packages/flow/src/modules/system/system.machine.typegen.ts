@@ -38,6 +38,27 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "xstate.after(wait)#systemManager.billingCycles.processed": {
+      type: "xstate.after(wait)#systemManager.billingCycles.processed";
+    };
+    "xstate.after(wait)#systemManager.countries.processed": {
+      type: "xstate.after(wait)#systemManager.countries.processed";
+    };
+    "xstate.after(wait)#systemManager.currencies.processed": {
+      type: "xstate.after(wait)#systemManager.currencies.processed";
+    };
+    "xstate.after(wait)#systemManager.departments.processed": {
+      type: "xstate.after(wait)#systemManager.departments.processed";
+    };
+    "xstate.after(wait)#systemManager.languages.processed": {
+      type: "xstate.after(wait)#systemManager.languages.processed";
+    };
+    "xstate.after(wait)#systemManager.regions.processed": {
+      type: "xstate.after(wait)#systemManager.regions.processed";
+    };
+    "xstate.after(wait)#systemManager.statuses.processed": {
+      type: "xstate.after(wait)#systemManager.statuses.processed";
+    };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -71,9 +92,18 @@ export interface Typegen0 {
     setRegions: "done.invoke.systemManager.regions.loading:invocation[0]";
     setStatuses: "done.invoke.systemManager.statuses.loading:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    wait:
+      | "done.invoke.systemManager.billingCycles.loading:invocation[0]"
+      | "done.invoke.systemManager.countries.loading:invocation[0]"
+      | "done.invoke.systemManager.currencies.loading:invocation[0]"
+      | "done.invoke.systemManager.departments.loading:invocation[0]"
+      | "done.invoke.systemManager.languages.loading:invocation[0]"
+      | "done.invoke.systemManager.regions.loading:invocation[0]"
+      | "done.invoke.systemManager.statuses.loading:invocation[0]";
+  };
   eventsCausingGuards: {
-    allRegionsLoaded: "done.invoke.systemManager.regions.loading:invocation[0]";
+    allRegionsLoaded: "xstate.after(wait)#systemManager.regions.processed";
   };
   eventsCausingServices: {
     fetchBillingCycles: "RETRY" | "xstate.init";
@@ -89,43 +119,50 @@ export interface Typegen0 {
     | "billingCycles.complete"
     | "billingCycles.error"
     | "billingCycles.loading"
+    | "billingCycles.processed"
     | "countries"
     | "countries.complete"
     | "countries.error"
     | "countries.idle"
     | "countries.loading"
+    | "countries.processed"
     | "currencies"
     | "currencies.complete"
     | "currencies.error"
     | "currencies.loading"
+    | "currencies.processed"
     | "departments"
     | "departments.complete"
     | "departments.error"
     | "departments.idle"
     | "departments.loading"
+    | "departments.processed"
     | "languages"
     | "languages.complete"
     | "languages.error"
     | "languages.idle"
     | "languages.loading"
+    | "languages.processed"
     | "regions"
     | "regions.complete"
     | "regions.error"
     | "regions.idle"
     | "regions.loading"
+    | "regions.processed"
     | "statuses"
     | "statuses.complete"
     | "statuses.error"
     | "statuses.idle"
     | "statuses.loading"
+    | "statuses.processed"
     | {
-        billingCycles?: "complete" | "error" | "loading";
-        countries?: "complete" | "error" | "idle" | "loading";
-        currencies?: "complete" | "error" | "loading";
-        departments?: "complete" | "error" | "idle" | "loading";
-        languages?: "complete" | "error" | "idle" | "loading";
-        regions?: "complete" | "error" | "idle" | "loading";
-        statuses?: "complete" | "error" | "idle" | "loading";
+        billingCycles?: "complete" | "error" | "loading" | "processed";
+        countries?: "complete" | "error" | "idle" | "loading" | "processed";
+        currencies?: "complete" | "error" | "loading" | "processed";
+        departments?: "complete" | "error" | "idle" | "loading" | "processed";
+        languages?: "complete" | "error" | "idle" | "loading" | "processed";
+        regions?: "complete" | "error" | "idle" | "loading" | "processed";
+        statuses?: "complete" | "error" | "idle" | "loading" | "processed";
       };
   tags: never;
 }

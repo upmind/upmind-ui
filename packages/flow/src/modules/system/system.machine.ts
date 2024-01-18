@@ -46,7 +46,7 @@ export default createMachine(
             invoke: {
               src: "fetchCurrencies",
               onDone: {
-                target: "complete",
+                target: "processed",
                 actions: ["setCurrencies"]
               },
               onError: {
@@ -58,6 +58,11 @@ export default createMachine(
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: "complete"
             }
           },
           complete: { type: "final" },
@@ -87,7 +92,7 @@ export default createMachine(
             invoke: {
               src: "fetchBillingCycles",
               onDone: {
-                target: "complete",
+                target: "processed",
                 actions: ["setBillingCycles"]
               },
               onError: {
@@ -99,6 +104,11 @@ export default createMachine(
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: "complete"
             }
           },
           complete: { type: "final" },
@@ -132,7 +142,7 @@ export default createMachine(
             invoke: {
               src: "fetchCountries",
               onDone: {
-                target: "complete",
+                target: "processed",
                 actions: ["setCountries"]
               },
               onError: {
@@ -144,6 +154,11 @@ export default createMachine(
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: "complete"
             }
           },
           complete: { type: "final" },
@@ -174,17 +189,10 @@ export default createMachine(
           loading: {
             invoke: {
               src: "fetchRegions",
-              onDone: [
-                {
-                  target: "complete",
-                  actions: ["setRegions"],
-                  cond: "allRegionsLoaded"
-                },
-                {
-                  target: "idle",
-                  actions: ["setRegions"]
-                }
-              ],
+              onDone: {
+                target: "processed",
+                actions: ["setRegions"]
+              },
               onError: {
                 target: "error",
                 actions: assign({
@@ -194,6 +202,14 @@ export default createMachine(
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: [
+                { target: "complete", cond: "allRegionsLoaded" },
+                { target: "idle" }
+              ]
             }
           },
           complete: { type: "final" },
@@ -225,18 +241,24 @@ export default createMachine(
             invoke: {
               src: "fetchLanguages",
               onDone: {
-                target: "complete",
+                target: "processed",
                 actions: ["setLanguages"]
               },
               onError: {
                 target: "error",
                 actions: assign({
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                    debugger;
                     set(error, "languages", data);
                     return error;
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: "complete"
             }
           },
           complete: { type: "final" },
@@ -268,7 +290,7 @@ export default createMachine(
             invoke: {
               src: "fetchStatuses",
               onDone: {
-                target: "complete",
+                target: "processed",
                 actions: ["setStatuses"]
               },
               onError: {
@@ -280,6 +302,11 @@ export default createMachine(
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: "complete"
             }
           },
           complete: { type: "final" },
@@ -311,7 +338,7 @@ export default createMachine(
             invoke: {
               src: "fetchDepartments",
               onDone: {
-                target: "complete",
+                target: "processed",
                 actions: ["setDepartments"]
               },
               onError: {
@@ -323,6 +350,11 @@ export default createMachine(
                   }
                 })
               }
+            }
+          },
+          processed: {
+            after: {
+              wait: "complete"
             }
           },
           complete: { type: "final" },
@@ -356,7 +388,7 @@ export default createMachine(
       //       invoke: {
       //         src: "fetchSystemIPAddresses",
       //         onDone: {
-      //           target: "complete",
+      //           target: "processed",
       //           actions: ["setSystemIPAddresses"]
       //         },
       //         onError: {
@@ -368,6 +400,11 @@ export default createMachine(
       //             }
       //           })
       //         }
+      //       }
+      //     },
+      //    processed: {
+      //       after: {
+      //         wait: "complete"
       //       }
       //     },
       //     complete: { type: "final" },
@@ -399,7 +436,7 @@ export default createMachine(
       //       invoke: {
       //         src: "fetchTaxBusinessTypes",
       //         onDone: {
-      //           target: "complete",
+      //           target: "processed",
       //           actions: ["setTaxBusinessTypes"]
       //         },
       //         onError: {
@@ -411,6 +448,11 @@ export default createMachine(
       //             }
       //           })
       //         }
+      //       }
+      //     },
+      //    processed: {
+      //       after: {
+      //         wait: "complete"
       //       }
       //     },
       //     complete: { type: "final" },
