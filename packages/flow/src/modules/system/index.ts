@@ -6,9 +6,10 @@ import { waitFor } from "xstate/lib/waitFor";
 export * from "./upload";
 export * from "./place";
 import systemMachine from "./system.machine";
+import { useBrand } from "../brand";
 
 // --- utils
-import { find, values, isString, get } from "lodash-es";
+import { find, values, isString, get, isEmpty } from "lodash-es";
 import type { ICountry } from "./types";
 
 // --- types
@@ -27,6 +28,8 @@ const service = interpret(systemMachine, { devTools: true }).onTransition(
 // --------------------------------------------------------
 
 export const useSystem = () => {
+  const { getCountry: getDefaultCountry } = useBrand();
+
   // --- Helpers
 
   async function fetch(node: string, getValues: Function, data?: any) {
@@ -115,8 +118,15 @@ export const useSystem = () => {
     fetchCountries: async () => fetch("countries", getCountries),
     getCountries,
     getCountry,
+    getDefaultCountry,
     // ---
-    fetchRegions: async (country: ICountry | string) => {
+    fetchRegions: async (country?: ICountry | string) => {
+      // safety check: we cant continue if we dont have the countries, so lets fetch them.
+      if (!getCountries()) await fetch("countries", getCountries);
+
+      // if we are not passed a country, then we need to get the default country
+      if (isEmpty(country)) country = getDefaultCountry();
+
       //  ensure we have a country object in order to fetch regions
       if (isString(country)) country = getCountry(country);
 

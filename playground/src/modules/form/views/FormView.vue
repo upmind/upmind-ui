@@ -14,13 +14,14 @@
 
     <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <div :data-theme="activeTheme" class="bg-base-200 rounded-box p-4">
+    <div :data-theme="activeTheme" class="bg-base-200 rounded-box my-8">
       <upm-form-generator
         :schema="schema"
         :uischema="uischema"
         @reject="doReject"
         @resolve="doResolve"
         debugging
+        class="p-4"
       />
     </div>
 

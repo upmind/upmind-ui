@@ -21,7 +21,7 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
       },
       // ---
       address_1: {
-        type: ["string", "null"],
+        type: "string",
         title: "Address Line 1"
       },
       address_2: {
@@ -30,12 +30,12 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
       },
 
       city: {
-        type: ["string", "null"],
+        type: "string",
         title: "City"
       },
 
       postcode: {
-        type: ["string", "null"],
+        type: "string",
         title: "Postcode"
       },
 
@@ -59,7 +59,7 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
       },
 
       country_id: {
-        type: ["string", "null"],
+        type: "string",
         title: "Country",
         oneOf: !countries?.length
           ? undefined
@@ -131,20 +131,21 @@ export const usePlaceUischema = () => {
       {
         type: "Control",
         scope: "#/properties/address_1",
+        label: "Address", // ensure we  show the title for BOTH address fields
         options: {
           focus: true,
           autocomplete: "address-line1",
-          placeholder: "Address first line...",
-          title: "Address" // ensure we  show the title for BOTH address fields
+          placeholder: "Address first line..."
         }
       },
       {
         type: "Control",
         scope: "#/properties/address_2",
+        label: "", // ensure we DON'T show the title
         options: {
           autocomplete: "address-line2",
           placeholder: "Address second line...",
-          title: "" // ensure we DON'T show the title
+          class: "-mt-8"
         }
       },
 
@@ -203,17 +204,14 @@ export const usePlaceUischema = () => {
 };
 
 export const usePlaceModelParser = (schema: JsonSchema, values: IAddress) => {
-  debugger;
-
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default || null);
+      const value = get(values, key, field?.const || field?.default);
       set(result, key, value);
       return result;
     },
     {}
   );
-  debugger;
   return model as IAddress;
 };
