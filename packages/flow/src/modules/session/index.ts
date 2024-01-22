@@ -81,6 +81,7 @@ export const useSession = () => {
     getSnapshot: () => state,
     getToken: () => state?.context?.token?.access_token,
     getHistory: () => state?.context?.history,
+    getUser: () => state?.context?.user,
     authSubscription,
     isAuthenticated: () => {
       return new Promise((resolve, reject) => {

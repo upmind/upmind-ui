@@ -3,7 +3,7 @@ import { createMachine, assign, actions } from "xstate";
 const { escalate } = actions;
 
 // --- internal
-import services from "./services";
+import services, { AddressTypes } from "./services";
 
 // --- utils
 import { usePlaceSchema, usePlaceUischema, usePlaceModelParser } from "./utils";
@@ -23,12 +23,8 @@ export default createMachine(
     context: {
       countries: undefined,
       regions: undefined,
-      // ---
-      types: [
-        { key: 1, value: "home" },
-        { key: 2, value: "office" },
-        { key: 3, value: "holiday" }
-      ],
+      types: AddressTypes,
+      baseModel: undefined,
       // ---
       schema: undefined,
       uischema: undefined,
@@ -107,7 +103,7 @@ export default createMachine(
       processing: {
         entry: ["clearError"],
         invoke: {
-          src: "update",
+          src: "save",
           onDone: {
             target: "processed",
             actions: ["setSchemas", "setModel"]
@@ -163,7 +159,9 @@ export default createMachine(
       setConstants: assign({
         countries: (_context: PlaceContext, { data }: PlaceEvent) =>
           data.countries,
-        regions: (_context: PlaceContext, { data }: PlaceEvent) => data.regions
+        regions: (_context: PlaceContext, { data }: PlaceEvent) => data.regions,
+        baseModel: (_context: PlaceContext, { data }: PlaceEvent) =>
+          data.baseModel
       }),
 
       setRegions: assign({
@@ -171,7 +169,7 @@ export default createMachine(
       }),
 
       clearModel: assign({
-        model: undefined
+        model: ({ baseModel }: PlaceContext, _event: PlaceEvent) => baseModel
       }),
 
       setSchemas: assign({
