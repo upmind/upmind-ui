@@ -28,7 +28,7 @@ const service = interpret(systemMachine, { devTools: true }).onTransition(
 // --------------------------------------------------------
 
 export const useSystem = () => {
-  const { getCountry: getDefaultCountry } = useBrand();
+  const { getCountry: getDefaultCountry, service: brandService } = useBrand();
 
   // --- Helpers
 
@@ -63,6 +63,7 @@ export const useSystem = () => {
         });
     });
   }
+
   // --- Methods
 
   const getCurrencies = () => state.context.currencies;
@@ -121,11 +122,17 @@ export const useSystem = () => {
     getDefaultCountry,
     // ---
     fetchRegions: async (country?: ICountry | string) => {
-      // safety check: we cant continue if we dont have the countries, so lets fetch them.
-      if (!getCountries()) await fetch("countries", getCountries);
-
       // if we are not passed a country, then we need to get the default country
-      if (isEmpty(country)) country = getDefaultCountry();
+      if (isEmpty(country)) {
+        // ensure we have our brand settings loaded before we try to get the default country
+        if (!["settings.complete"].some(brandService.state.matches)) {
+          await waitFor(brandService, state =>
+            ["settings.complete"].some(state.matches)
+          );
+        }
+
+        country = getDefaultCountry();
+      }
 
       //  ensure we have a country object in order to fetch regions
       if (isString(country)) country = getCountry(country);

@@ -7,7 +7,7 @@ import { useValidation } from "../../../utils";
 
 // --- types
 import type { PlaceEvent, PlaceContext } from "./types";
-import { reject, some } from "lodash-es";
+import { some } from "lodash-es";
 
 // --------------------------------------------------------
 // HELPERS
@@ -51,11 +51,13 @@ async function search({ field }: PlaceContext, { data }: PlaceEvent) {
 }
 
 async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
-  const { fetchCountries, fetchRegions } = useSystem();
+  const { service, fetchCountries, fetchRegions } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
+
   const countries = await fetchCountries();
+
   const regions = await fetchRegions();
 
   return new Promise((resolve, reject) => {
