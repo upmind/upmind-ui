@@ -28,17 +28,14 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
         type: ["string", "null"],
         title: "Address Line 2"
       },
-
       city: {
         type: "string",
         title: "City"
       },
-
       postcode: {
         type: "string",
         title: "Postcode"
       },
-
       region_id: {
         type: ["string", "null"],
         title: "Region",
@@ -85,18 +82,23 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
 
       type: {
         type: ["number", "null"],
-        title: "Reference Type",
+        title: "Address Type",
         oneOf: !types?.length
           ? undefined
           : map(types, item => {
               return {
-                const: item.id,
-                title: item.name
+                const: item.key,
+                title: item.value
               };
             })
       }
     }
   };
+
+  // if (id) {
+  //   schema.required.push("name");
+  //   schema.required.push("type");
+  // }
 
   return schema as JsonSchema;
 };
@@ -108,6 +110,15 @@ export const usePlaceUischema = () => {
       {
         type: "HorizontalLayout",
         elements: [
+          {
+            type: "Control",
+            scope: "#/properties/type",
+            options: {
+              focus: true,
+              autocomplete: "off",
+              placeholder: "Select an address type...s"
+            }
+          },
           {
             type: "Control",
             scope: "#/properties/name",
