@@ -39,6 +39,7 @@ export interface PlaceContext {
   country?: ICountry[];
   regions?: IRegion[];
   types?: IPlaceType[];
+  baseModel?: IAddress;
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;

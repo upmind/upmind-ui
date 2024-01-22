@@ -56,15 +56,15 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     load: "done.invoke.placeManager.loading.place:invocation[0]";
     loadConstants: "done.invoke.placeManager.loading.constants:invocation[0]";
+    save: "done.invoke.placeManager.processing:invocation[0]";
     search: "done.invoke.placeManager.searching:invocation[0]";
-    update: "done.invoke.placeManager.processing:invocation[0]";
     validate: "done.invoke.placeManager.checking:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "load" | "loadConstants" | "search" | "update" | "validate";
+    services: "load" | "loadConstants" | "save" | "search" | "validate";
   };
   eventsCausingActions: {
     clearError:
@@ -103,8 +103,8 @@ export interface Typegen0 {
   eventsCausingServices: {
     load: "done.invoke.placeManager.loading.constants:invocation[0]";
     loadConstants: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
+    save: "RETRY" | "UPDATE";
     search: "SEARCH";
-    update: "RETRY" | "UPDATE";
     validate: "SET" | "done.invoke.placeManager.searching:invocation[0]";
   };
   matchesStates:

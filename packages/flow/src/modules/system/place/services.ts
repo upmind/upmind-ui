@@ -1,16 +1,45 @@
 // --- internal
 import { useApi } from "../../api";
 import { useSystem } from "../";
-
+import { useSession } from "../../session";
 // --- utils
 import { useValidation } from "../../../utils";
 
 // --- types
-import type { PlaceEvent, PlaceContext } from "./types";
-import { some } from "lodash-es";
+import type { PlaceEvent, PlaceContext, IAddress } from "./types";
+import { some, first, defaultsDeep } from "lodash-es";
 
 // --------------------------------------------------------
+// ENUMS
+export const AddressTypes = [
+  { key: 1, value: "home" },
+  { key: 2, value: "office" },
+  { key: 3, value: "holiday" }
+];
+// --------------------------------------------------------
 // HELPERS
+
+async function doAdd(model: IAddress) {
+  const { getUser } = useSession();
+  const client = getUser();
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl(`clients/${client.id}/addresses`),
+    data: model,
+    withAccessToken: true
+  }).then(({ data }: any) => data);
+}
+
+async function doUpdate(model: IAddress) {
+  const { put, useUrl } = useApi();
+  // todo
+
+  return put({
+    url: useUrl(`clients/addresses/${model.id}`),
+    data: model,
+    withAccessToken: true
+  }).then(({ data }: any) => data);
+}
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -51,7 +80,7 @@ async function search({ field }: PlaceContext, { data }: PlaceEvent) {
 }
 
 async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
-  const { service, fetchCountries, fetchRegions } = useSystem();
+  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
@@ -60,16 +89,21 @@ async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
 
   const regions = await fetchRegions();
 
+  const baseModel = {
+    country_id: getDefaultCountry(),
+    type: first(AddressTypes)?.key
+  };
+
   return new Promise((resolve, reject) => {
     if (countries && regions) {
-      resolve({ countries, regions });
+      resolve({ countries, regions, baseModel });
     } else {
       reject("Failed to load countries and regions");
     }
   });
 }
 
-async function load(_context: PlaceContext, { data }: PlaceEvent) {
+async function load({ baseModel }: PlaceContext, { data }: PlaceEvent) {
   // const { get, useUrl, useTime } = useApi();
 
   // if (data.id) {
@@ -82,10 +116,7 @@ async function load(_context: PlaceContext, { data }: PlaceEvent) {
   // }
 
   // for now lets create an empty model with our default country/presets
-  const { getDefaultCountry } = useSystem();
-  const model = {
-    country_id: getDefaultCountry()
-  };
+  const model = defaultsDeep({}, data, baseModel);
 
   return new Promise((resolve, reject) => {
     resolve(model);
@@ -122,18 +153,6 @@ async function validate(
   });
 }
 
-async function update({ request }: any, _event: any) {
-  const { post, useUrl } = useApi();
-  // todo
-  const path = "";
-
-  return post({
-    url: useUrl(path),
-    data: request,
-    withAccessToken: true
-  }).then(({ data }: any) => data);
-}
-
 // --------------------------------------------------------
 // EXPORTS
 
@@ -142,5 +161,5 @@ export default {
   load,
   loadConstants,
   validate,
-  update
+  save: async ({ model }) => (model?.id ? doUpdate(model) : doAdd(model))
 };

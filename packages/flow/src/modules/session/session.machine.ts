@@ -157,7 +157,7 @@ export default createMachine(
 
       client: {
         id: "client",
-        initial: "idle",
+        initial: "processing",
         states: {
           idle: {
             type: "final",

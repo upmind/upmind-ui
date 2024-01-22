@@ -115,7 +115,7 @@ export interface Typegen0 {
       | "REGISTER"
       | "done.invoke.sessionManager.starting.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
-    getUser: "SELF";
+    getUser: "SELF" | "done.invoke.client";
     guest:
       | "done.invoke.sessionManager.starting.check:invocation[0]"
       | "error.platform.sessionManager.starting.check:invocation[0]";
