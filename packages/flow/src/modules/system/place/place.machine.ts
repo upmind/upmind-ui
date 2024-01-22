@@ -23,7 +23,12 @@ export default createMachine(
     context: {
       countries: undefined,
       regions: undefined,
-      types: undefined,
+      // ---
+      types: [
+        { key: 1, value: "home" },
+        { key: 2, value: "office" },
+        { key: 3, value: "holiday" }
+      ],
       // ---
       schema: undefined,
       uischema: undefined,
@@ -145,7 +150,7 @@ export default createMachine(
         target: "processing"
       },
       CLEAR: {
-        target: "idle",
+        target: "loading",
         actions: ["clearModel"]
       },
       SET: {
@@ -158,8 +163,7 @@ export default createMachine(
       setConstants: assign({
         countries: (_context: PlaceContext, { data }: PlaceEvent) =>
           data.countries,
-        regions: (_context: PlaceContext, { data }: PlaceEvent) => data.regions,
-        types: (_context: PlaceContext, { data }: PlaceEvent) => data.types
+        regions: (_context: PlaceContext, { data }: PlaceEvent) => data.regions
       }),
 
       setRegions: assign({
