@@ -357,7 +357,7 @@ function parseValue(addressComponents: any[], fields: string[]) {
   return get(value, "long_name");
 }
 
-export async function useParsePlace(result: any): Promise<IAddress> {
+export async function usePlaceDetailParser(result: any): Promise<IAddress> {
   const address = get(result, "address_components", []);
 
   const address_1 = [

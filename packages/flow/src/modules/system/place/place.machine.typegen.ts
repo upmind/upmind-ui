@@ -18,11 +18,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.placeManager.loading.place.processing:invocation[0]": {
-      type: "done.invoke.placeManager.loading.place.processing:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.placeManager.populating:invocation[0]": {
       type: "done.invoke.placeManager.populating:invocation[0]";
       data: unknown;
@@ -50,10 +45,6 @@ export interface Typegen0 {
       type: "error.platform.placeManager.loading.constants.processing:invocation[0]";
       data: unknown;
     };
-    "error.platform.placeManager.loading.place.processing:invocation[0]": {
-      type: "error.platform.placeManager.loading.place.processing:invocation[0]";
-      data: unknown;
-    };
     "error.platform.placeManager.populating:invocation[0]": {
       type: "error.platform.placeManager.populating:invocation[0]";
       data: unknown;
@@ -73,7 +64,6 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     configureAutocomplete: "done.invoke.placeManager.loading.autocomplete.processing:invocation[0]";
-    load: "done.invoke.placeManager.loading.place.processing:invocation[0]";
     loadConstants: "done.invoke.placeManager.loading.constants.processing:invocation[0]";
     loadPlaceDetails: "done.invoke.placeManager.populating:invocation[0]";
     save: "done.invoke.placeManager.processing:invocation[0]";
@@ -86,7 +76,6 @@ export interface Typegen0 {
     guards: never;
     services:
       | "configureAutocomplete"
-      | "load"
       | "loadConstants"
       | "loadPlaceDetails"
       | "save"
@@ -119,13 +108,11 @@ export interface Typegen0 {
     setError:
       | "error.platform.placeManager.loading.autocomplete.processing:invocation[0]"
       | "error.platform.placeManager.loading.constants.processing:invocation[0]"
-      | "error.platform.placeManager.loading.place.processing:invocation[0]"
       | "error.platform.placeManager.populating:invocation[0]"
       | "error.platform.placeManager.processing:invocation[0]"
       | "error.platform.placeManager.searching:invocation[0]";
     setModel:
       | "SET"
-      | "done.invoke.placeManager.loading.place.processing:invocation[0]"
       | "done.invoke.placeManager.populating:invocation[0]"
       | "done.invoke.placeManager.processing:invocation[0]";
     setSchemas:
@@ -149,7 +136,6 @@ export interface Typegen0 {
       | "SET"
       | "UPDATE"
       | "xstate.init";
-    load: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
     loadConstants: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
     loadPlaceDetails: "SEARCH";
     save: "RETRY" | "UPDATE";
@@ -175,10 +161,6 @@ export interface Typegen0 {
     | "loading.constants.complete"
     | "loading.constants.error"
     | "loading.constants.processing"
-    | "loading.place"
-    | "loading.place.complete"
-    | "loading.place.error"
-    | "loading.place.processing"
     | "populating"
     | "processed"
     | "processing"
@@ -188,11 +170,9 @@ export interface Typegen0 {
         loading?:
           | "autocomplete"
           | "constants"
-          | "place"
           | {
               autocomplete?: "complete" | "error" | "processing";
               constants?: "complete" | "error" | "processing";
-              place?: "complete" | "error" | "processing";
             };
       };
   tags: never;

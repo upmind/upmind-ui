@@ -59,11 +59,22 @@ export interface PlaceContext {
   error?: RequestError;
 }
 
+export interface PlacesContext {
+  items?: IAddress[];
+  selected?: IAddress;
+  error?: RequestError;
+}
 // --------------------------------------------------------
 // Events
 
 export interface PlaceEvent {
   type: string;
+  data: any;
+  error?: RequestError;
+}
+
+export interface PlacesEvents {
+  type: "ADD" | "SELECT" | "REFRESH" | "STOP";
   data: any;
   error?: RequestError;
 }

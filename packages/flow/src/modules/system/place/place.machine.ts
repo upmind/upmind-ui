@@ -67,28 +67,6 @@ export default createMachine(
               }
             }
           },
-          place: {
-            initial: "processing",
-            states: {
-              processing: {
-                invoke: {
-                  src: "load",
-                  onDone: {
-                    target: "complete",
-                    actions: ["setModel"]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError"]
-                  }
-                }
-              },
-              error: {},
-              complete: {
-                type: "final"
-              }
-            }
-          },
           autocomplete: {
             initial: "processing",
             states: {

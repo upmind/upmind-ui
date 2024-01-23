@@ -7,12 +7,18 @@ import { useSystem } from "../";
 import { useSession } from "../../session";
 
 // --- utils
-import { useParsePlace } from "./utils";
+import { usePlaceDetailParser } from "./utils";
 import { useValidation } from "../../../utils";
-import { some, first, defaultsDeep, isEmpty, find, get } from "lodash-es";
+import { some, first, isEmpty, find, get } from "lodash-es";
 
 // --- types
-import type { PlaceEvent, PlaceContext, IAddress } from "./types";
+import type {
+  PlaceEvent,
+  PlaceContext,
+  PlacesEvents,
+  PlacesContext,
+  IAddress
+} from "./types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -22,31 +28,8 @@ export const AddressTypes = [
   { key: 3, value: "holiday" }
 ];
 // --------------------------------------------------------
-// HELPERS
 
 const autocompleteApi = {};
-
-async function doAdd(model: IAddress) {
-  const { getUser } = useSession();
-  const client = getUser();
-  const { post, useUrl } = useApi();
-  return post({
-    url: useUrl(`clients/${client.id}/addresses`),
-    data: model,
-    withAccessToken: true
-  }).then(({ data }: any) => data);
-}
-
-async function doUpdate(model: IAddress) {
-  const { put, useUrl } = useApi();
-  // todo
-
-  return put({
-    url: useUrl(`clients/addresses/${model.id}`),
-    data: model,
-    withAccessToken: true
-  }).then(({ data }: any) => data);
-}
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -61,6 +44,65 @@ async function doUpdate(model: IAddress) {
 //     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
 //   );
 // }
+
+async function load(_context: PlacesContext, _event: PlacesEvents) {
+  const { get, useUrl } = useApi();
+  const { getUser } = useSession();
+  const client = getUser();
+
+  return get({
+    url: useUrl(`clients/${client.id}/addresses`, {
+      with: ["country"].join(),
+      limit: 0
+    }),
+    withAccessToken: true,
+    useCache: true
+  }).then(({ data }: any) => data);
+}
+
+async function add(model: IAddress) {
+  const { getUser } = useSession();
+  const client = getUser();
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl(`clients/${client.id}/addresses`),
+    data: model,
+    withAccessToken: true
+  }).then(({ data }: any) => data);
+}
+
+async function update(model: IAddress) {
+  const { put, useUrl } = useApi();
+  // todo
+
+  return put({
+    url: useUrl(`clients/addresses/${model.id}`),
+    data: model,
+    withAccessToken: true
+  }).then(({ data }: any) => data);
+}
+
+async function setDefault(_context: PlacesContext, { data }: PlacesEvents) {
+  const { put, useUrl } = useApi();
+  // todo
+
+  return put({
+    url: useUrl(`clients/addresses/${data.id}`),
+    data: { default: true },
+    withAccessToken: true
+  }).then(({ data }: any) => data);
+}
+
+async function remove(_context: PlacesContext, { data }: PlacesEvents) {
+  const { del, useUrl } = useApi();
+
+  return del({
+    url: useUrl(`clients/addresses/${data.id}`),
+    withAccessToken: true
+  }).then(({ data }: any) => data);
+}
+
+// --------------------------------------------------------
 
 async function configureAutocomplete(
   _context: PlaceContext,
@@ -134,7 +176,7 @@ async function loadPlaceDetails(_context: PlaceContext, { data }: PlaceEvent) {
         console.log("loadPlaceDetails", "callback", { result, status });
 
         if (status === autocompleteApi.statuses.OK) {
-          useParsePlace(result).then(place => {
+          usePlaceDetailParser(result).then(place => {
             resolve(place);
           });
         } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {
@@ -169,26 +211,6 @@ async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
     } else {
       reject("Failed to load countries and regions");
     }
-  });
-}
-
-async function load({ baseModel }: PlaceContext, { data }: PlaceEvent) {
-  // const { get, useUrl, useTime } = useApi();
-
-  // if (data.id) {
-  // return get({
-  //     url: useUrl(path),
-  //     withAccessToken: true,
-  //     useCache: true,
-  //     maxAge: useTime()?.DAY
-  //   }).then(({ data }: any) => data);
-  // }
-
-  // for now lets create an empty model with our default country/presets
-  const model = defaultsDeep({}, data, baseModel);
-
-  return new Promise((resolve, reject) => {
-    resolve(model);
   });
 }
 
@@ -241,5 +263,7 @@ export default {
   load,
   loadConstants,
   validate,
-  save: async ({ model }) => (model?.id ? doUpdate(model) : doAdd(model))
+  save: async ({ model }) => (model?.id ? update(model) : add(model)),
+  setDefault,
+  remove
 };
