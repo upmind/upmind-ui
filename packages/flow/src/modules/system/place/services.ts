@@ -131,6 +131,8 @@ async function loadPlaceDetails(_context: PlaceContext, { data }: PlaceEvent) {
         autocompleteApi.sessionToken =
           new autocompleteApi.AutocompleteSessionToken();
 
+        console.log("loadPlaceDetails", "callback", { result, status });
+
         if (status === autocompleteApi.statuses.OK) {
           useParsePlace(result).then(place => {
             resolve(place);
