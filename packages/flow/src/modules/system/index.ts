@@ -9,8 +9,9 @@ import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 
 // --- utils
-import { find, values, isString, get, isEmpty } from "lodash-es";
+import { find, values, isString, get, isEmpty, some } from "lodash-es";
 import type { ICountry } from "./types";
+import { isArray } from "xstate/lib/utils";
 
 // --- types
 
@@ -83,11 +84,30 @@ export const useSystem = () => {
   };
   // ---
 
-  const getRegions = value =>
+  const getRegions = (value: string | ICountry) =>
     get(state.context.regions, isString(value) ? value : value.code);
 
-  const getRegion = value =>
-    find(values(state.context.regions), ["code", code]);
+  const getRegion = (
+    values: string | Array<string>,
+    country: string | ICountry
+  ) => {
+    let found;
+
+    const regions = getRegions(country);
+
+    if (!regions?.length) return found;
+
+    if (isArray(values)) {
+      return find(regions, region =>
+        some(values, value => {
+          const name = get(region, "name");
+          return value.toLowerCase() == name?.toLowerCase();
+        })
+      );
+    }
+
+    return find(regions, ["name", values]);
+  };
   // ---
 
   const getLanguages = () => state.context.languages;

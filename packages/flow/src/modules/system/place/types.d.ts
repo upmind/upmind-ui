@@ -43,11 +43,12 @@ export interface PlaceContext {
 
   // ---
   autocomplete?: {
-    places: any;
-    service: any;
-    sessionToken: string;
     schema?: JsonSchema;
     uischema?: UISchemaElement;
+    model?: {
+      search?: string;
+      place?: string;
+    };
     results?: PlaceAutocompleteResult[];
   };
   // ---

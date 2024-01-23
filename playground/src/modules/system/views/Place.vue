@@ -17,15 +17,20 @@
       class="bg-base-200 rounded-box my-8 max-w-screen-lg"
     >
       <upm-form-generator
-        v-if="meta.hasAutocomplete"
+        v-if="meta.hasAutocomplete && !meta.isLoading"
         :loading="meta.isLoading"
         :processing="meta.isSearching"
+        :model-value="autocomplete.model"
         :schema="autocomplete.schema"
         :uischema="autocomplete.uischema"
         @update:modelValue="search"
-        class="p-4"
+        class="px-4 py-8"
         no-actions
       />
+
+      <div class="divider mx-6" v-if="meta.hasAutocomplete && !meta.isLoading">
+        Or enter address manually
+      </div>
 
       <upm-form-generator
         :loading="meta.isLoading"

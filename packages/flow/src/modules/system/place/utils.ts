@@ -1,7 +1,11 @@
+// --- internal
+import { useSystem } from "../";
+
 // --- utils
-import { get, set, map, reduce } from "lodash-es";
+import { some, get, find, includes, set, map, reduce } from "lodash-es";
 
 // --- types
+import type { ICountry } from "../types";
 import type { IAddress, PlaceContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
@@ -41,13 +45,13 @@ export const useAutocompleteSchema = choices => {
 };
 
 export const useAutocompleteUischema = choices => {
-  debugger;
   const schema = {
     type: "VerticalLayout",
     elements: [
       {
         type: "Control",
         scope: "#/properties/search",
+        label: "",
         options: {
           focus: true,
           autocomplete: "street-address",
@@ -322,3 +326,67 @@ export const usePlaceModelParser = (
 
   return model as IAddress;
 };
+
+// --------------------------------------------------------
+
+function parseCountry(addressComponents: any) {
+  const { getCountry } = useSystem();
+
+  const country = find(addressComponents, entry =>
+    includes(entry.types, "country")
+  );
+
+  return getCountry(get(country, "short_name"));
+}
+
+async function parseRegion(
+  regionLevel1: string,
+  regionLevel2: string,
+  country: ICountry
+) {
+  const { fetchRegions, getRegion } = useSystem();
+  await fetchRegions(country);
+  return getRegion([regionLevel1, regionLevel2], country);
+}
+
+function parseValue(addressComponents: any[], fields: string[]) {
+  const value = find(addressComponents, entry =>
+    some(entry.types, type => includes(fields, type))
+  );
+
+  return get(value, "long_name");
+}
+
+export async function useParsePlace(result: any): Promise<IAddress> {
+  const address = get(result, "address_components", []);
+
+  const address_1 = [
+    parseValue(address, ["street_number"]),
+    parseValue(address, ["route"])
+  ];
+
+  const address_2 = parseValue(address, ["sublocality"]);
+
+  const postcode = parseValue(address, ["postal_code"]);
+
+  const city = parseValue(address, ["postal_town", "locality"]);
+
+  const country = parseCountry(address);
+
+  const region = await parseRegion(
+    parseValue(address, ["administrative_area_level_1"]),
+    parseValue(address, ["administrative_area_level_2"]),
+    country
+  );
+
+  const place = {
+    address_1: address_1.join(" "),
+    address_2,
+    postcode,
+    city,
+    country_id: get(country, "id"),
+    region_id: get(region, "id")
+  };
+
+  return place;
+}

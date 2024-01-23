@@ -7,11 +7,12 @@ import { useSystem } from "../";
 import { useSession } from "../../session";
 
 // --- utils
+import { useParsePlace } from "./utils";
 import { useValidation } from "../../../utils";
+import { some, first, defaultsDeep, isEmpty, find, get } from "lodash-es";
 
 // --- types
 import type { PlaceEvent, PlaceContext, IAddress } from "./types";
-import { some, first, defaultsDeep, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -22,6 +23,7 @@ export const AddressTypes = [
 ];
 // --------------------------------------------------------
 // HELPERS
+
 const autocompleteApi = {};
 
 async function doAdd(model: IAddress) {
@@ -77,28 +79,68 @@ async function configureAutocomplete(
 
   autocompleteApi.places = new api.PlacesService(document.createElement("div"));
   autocompleteApi.service = new api.AutocompleteService();
-  autocompleteApi.sessionToken = new api.AutocompleteSessionToken();
+  autocompleteApi.AutocompleteSessionToken = api.AutocompleteSessionToken;
+  autocompleteApi.sessionToken = new autocompleteApi.AutocompleteSessionToken();
+  autocompleteApi.statuses = api.PlacesServiceStatus;
 
   return Promise.resolve(true);
 }
 
 async function search(_context: PlaceContext, { data }: PlaceEvent) {
-  debugger;
-
   return new Promise((resolve, reject) => {
     if (!autocompleteApi?.service)
       return reject("Autocomplete service not configured");
 
     // if we dont have any data, then just return an empty array
-    if (!data?.length) resolve([]);
+    if (!data?.search?.length) resolve([]);
 
     autocompleteApi.service.getPlacePredictions(
       {
-        input: data,
+        input: data?.search,
         sessionToken: autocompleteApi.sessionToken,
         fields: ["address_components"]
       },
-      response => resolve(response)
+      (result, status) => {
+        if (status === autocompleteApi.statuses.OK) {
+          resolve(result);
+        } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {
+          resolve([]);
+        } else {
+          reject(status);
+        }
+      }
+    );
+  });
+}
+
+async function loadPlaceDetails(_context: PlaceContext, { data }: PlaceEvent) {
+  return new Promise((resolve, reject) => {
+    if (!autocompleteApi?.service)
+      reject("Autocomplete service not configured");
+
+    // if we dont have any data, then just return an empty array
+    if (!data?.place?.length) reject(null);
+
+    autocompleteApi.places.getDetails(
+      {
+        placeId: data?.place,
+        sessionToken: autocompleteApi.sessionToken,
+        fields: ["address_components"]
+      },
+      (result, status) => {
+        autocompleteApi.sessionToken =
+          new autocompleteApi.AutocompleteSessionToken();
+
+        if (status === autocompleteApi.statuses.OK) {
+          useParsePlace(result).then(place => {
+            resolve(place);
+          });
+        } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {
+          resolve({});
+        } else {
+          reject(status);
+        }
+      }
     );
   });
 }
@@ -148,41 +190,41 @@ async function load({ baseModel }: PlaceContext, { data }: PlaceEvent) {
   });
 }
 
-async function validate(
-  { schema, model, regions }: PlaceContext,
-  { data }: any
-) {
+async function validate({ schema, model, regions }: PlaceContext, _event: any) {
   // This NOT only validates the model,
-  // but also updates the regions list based on the selected country
+  // but also potentially updates the regions list based on the selected country ( if its changed )
 
   // ---
 
-  // lets check if the country has changed
-  if (
-    !isEmpty(data) &&
-    (model.country_id != data.country_id ||
-      !some(regions, ["country_id", data.country_id]))
-  ) {
-    //  this means we have a mismatch between the country and the regions
+  // NB:only do these checks if we have data
+  if (!isEmpty(model)) {
     const { fetchRegions } = useSystem();
-    regions = await fetchRegions(data.country_id);
-    data.region_id = null;
-  }
-  const { validate } = useValidation();
 
-  // if weve not been given changed data, then just validate the model
-  // by setting the data to the model, we can ensure that the regions list is updated & valid
-  data ??= model;
+    // lets check if the country has changed or the regions dont match
+    // if so, then we need to fetch the regions for the new country
+    if (!some(regions, ["country_id", model.country_id])) {
+      regions = await fetchRegions(model.country_id);
+    }
+
+    // now lets check our regions list to see if we have a match
+    // if so, then we need to update the model with the new region id
+    // otherwise the region_id is reset to null
+    const region = find(regions, ["id", model?.region_id]);
+    model.region_id = get(region, "id", null);
+  }
+  // ---
+  // Now validate the model as per normal
+  const { validate } = useValidation();
 
   // because we are possibly mutating the regions list and the model/data
   // we need to return the updated values as part of the promise
   // regardless of whether the validation passes or fails
   return new Promise((resolve, reject) => {
-    const errors = validate(schema, data);
+    const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors, model: data, regions });
+      reject({ error: errors, model, regions });
     } else {
-      resolve({ model: data, regions });
+      resolve({ model, regions });
     }
   });
 }
@@ -193,6 +235,7 @@ async function validate(
 export default {
   configureAutocomplete,
   search,
+  loadPlaceDetails,
   load,
   loadConstants,
   validate,
