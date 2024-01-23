@@ -30,7 +30,7 @@ async function generateToken(_context: GuestContext, _event: any) {
   const { post, useUrl } = useApi();
 
   return post({
-    url: useUrl("access_token", {}, "oauth"),
+    url: useUrl("access_token", {}, { context: "oauth" }),
     data: { grant_type: GrantTypes.GUEST }
   });
 }
@@ -39,7 +39,7 @@ async function refreshToken(context: GuestContext, _event: any) {
   const { post, useUrl } = useApi();
   const refresh_token = get(context, "token.refresh_token", "");
   return post({
-    url: useUrl("access_token", {}, "oauth"),
+    url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token

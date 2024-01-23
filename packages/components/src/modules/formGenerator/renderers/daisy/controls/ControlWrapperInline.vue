@@ -9,6 +9,7 @@
     >
       <!-- label -->
       <label
+        v-if="computedLabel"
         :for="id + '-input'"
         :class="[
           styles.control.label.root,

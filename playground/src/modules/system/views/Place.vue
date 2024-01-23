@@ -16,14 +16,16 @@
       :data-theme="activeTheme"
       class="bg-base-200 rounded-box my-8 max-w-screen-lg"
     >
-      <!-- todo add a search for places -->
-
-      <!-- <upm-search
-         v-if="!meta.isLoading"
-        :model-value="search"
-        @update:modelValue="search = $event"
-        placeholder="Search for places"
-      /> -->
+      <upm-form-generator
+        v-if="meta.hasAutocomplete"
+        :loading="meta.isLoading"
+        :processing="meta.isSearching"
+        :schema="autocomplete.schema"
+        :uischema="autocomplete.uischema"
+        @update:modelValue="search"
+        class="p-4"
+        no-actions
+      />
 
       <upm-form-generator
         :loading="meta.isLoading"
@@ -52,6 +54,7 @@
 
 <script setup lang="ts">
 import { inject, onBeforeUnmount } from "vue";
+
 import { UpmFormGenerator } from "@upmind/components";
 import { useSystemPlace } from "..";
 import { UpmDebug } from "@upmind/components";
@@ -66,8 +69,9 @@ const {
   model,
   schema,
   uischema,
+  autocomplete,
   input,
-  // search,
+  search,
   update,
   clear,
   destroy

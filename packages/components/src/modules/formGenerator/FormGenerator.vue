@@ -219,7 +219,7 @@ export default defineComponent({
       const rawData = JSON.parse(JSON.stringify(data));
       const rawModel = JSON.parse(JSON.stringify(this.model));
 
-      if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
+      if (!isEqual(rawData, rawModel)) {
         this.model = data;
         this.$emit("update:modelValue", this.model);
         this.isDirty = true;

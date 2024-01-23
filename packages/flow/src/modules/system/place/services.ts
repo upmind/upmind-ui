@@ -1,13 +1,17 @@
+// --- external
+import { Loader } from "@googlemaps/js-api-loader";
+
 // --- internal
 import { useApi } from "../../api";
 import { useSystem } from "../";
 import { useSession } from "../../session";
+
 // --- utils
 import { useValidation } from "../../../utils";
 
 // --- types
 import type { PlaceEvent, PlaceContext, IAddress } from "./types";
-import { some, first, defaultsDeep } from "lodash-es";
+import { some, first, defaultsDeep, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -18,6 +22,7 @@ export const AddressTypes = [
 ];
 // --------------------------------------------------------
 // HELPERS
+const autocompleteApi = {};
 
 async function doAdd(model: IAddress) {
   const { getUser } = useSession();
@@ -55,28 +60,47 @@ async function doUpdate(model: IAddress) {
 //   );
 // }
 
-async function search({ field }: PlaceContext, { data }: PlaceEvent) {
-  // if we have a hash, we can skip the request
-  if (data?.hash) {
-    return Promise.resolve({ ...field, value: data.hash });
-  }
+async function configureAutocomplete(
+  _context: PlaceContext,
+  _event: PlaceEvent
+) {
+  const loader = new Loader({
+    apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
+    version: "weekly"
+  });
 
-  if (!field?.field_type && !data.hash)
-    return Promise.reject("No field type or hash provided");
+  if (!isEmpty(autocompleteApi)) return Promise.resolve(true);
 
-  const { get, useUrl, useTime } = useApi();
+  const api = await loader.importLibrary("places").catch(error => {
+    return Promise.reject(error);
+  });
 
-  // const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
-  const path = `images/${data.hash}`;
+  autocompleteApi.places = new api.PlacesService(document.createElement("div"));
+  autocompleteApi.service = new api.AutocompleteService();
+  autocompleteApi.sessionToken = new api.AutocompleteSessionToken();
 
+  return Promise.resolve(true);
+}
+
+async function search(_context: PlaceContext, { data }: PlaceEvent) {
   debugger;
 
-  return get({
-    url: useUrl(path),
-    withAccessToken: true,
-    useCache: true,
-    maxAge: useTime()?.DAY
-  }).then(({ data }: any) => data);
+  return new Promise((resolve, reject) => {
+    if (!autocompleteApi?.service)
+      return reject("Autocomplete service not configured");
+
+    // if we dont have any data, then just return an empty array
+    if (!data?.length) resolve([]);
+
+    autocompleteApi.service.getPlacePredictions(
+      {
+        input: data,
+        sessionToken: autocompleteApi.sessionToken,
+        fields: ["address_components"]
+      },
+      response => resolve(response)
+    );
+  });
 }
 
 async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
@@ -91,7 +115,8 @@ async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
 
   const baseModel = {
     country_id: getDefaultCountry(),
-    type: first(AddressTypes)?.key
+    type: first(AddressTypes)?.key,
+    name: "default"
   };
 
   return new Promise((resolve, reject) => {
@@ -124,23 +149,32 @@ async function load({ baseModel }: PlaceContext, { data }: PlaceEvent) {
 }
 
 async function validate(
-  { schema, model, countries, regions }: PlaceContext,
+  { schema, model, regions }: PlaceContext,
   { data }: any
 ) {
   // This NOT only validates the model,
   // but also updates the regions list based on the selected country
+
+  // ---
+
+  // lets check if the country has changed
   if (
-    model?.country_id !== data?.country_id ||
-    !some(regions, ["country_id", model.country_id])
+    !isEmpty(data) &&
+    (model.country_id != data.country_id ||
+      !some(regions, ["country_id", data.country_id]))
   ) {
     //  this means we have a mismatch between the country and the regions
     const { fetchRegions } = useSystem();
     regions = await fetchRegions(data.country_id);
-    model.region_id = null;
+    data.region_id = null;
   }
   const { validate } = useValidation();
 
-  // because we are mutating the regions list and the data
+  // if weve not been given changed data, then just validate the model
+  // by setting the data to the model, we can ensure that the regions list is updated & valid
+  data ??= model;
+
+  // because we are possibly mutating the regions list and the model/data
   // we need to return the updated values as part of the promise
   // regardless of whether the validation passes or fails
   return new Promise((resolve, reject) => {
@@ -157,6 +191,7 @@ async function validate(
 // EXPORTS
 
 export default {
+  configureAutocomplete,
   search,
   load,
   loadConstants,

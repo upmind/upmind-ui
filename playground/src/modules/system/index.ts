@@ -152,6 +152,7 @@ export const useSystemPlace = () => {
       isSearching: ["searching"].some(state.value.matches),
       isProcessing: ["checking", "processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
+      hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
@@ -159,9 +160,15 @@ export const useSystemPlace = () => {
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
     uischema: computed(() => state.value?.context?.uischema),
+    autocomplete: computed(() => ({
+      schema: state.value?.context?.autocomplete?.schema,
+      uischema: state.value?.context?.autocomplete?.uischema,
+      results: state.value?.context?.autocomplete?.results
+      // selected: state.value?.context?.autocomplete?.selected
+    })),
     // ---
     input: model => send({ type: "SET", data: model }),
-    search: value => send({ type: "SEARCH", data: value }),
+    search: model => send({ type: "SEARCH", data: model?.search }),
     update: () => send({ type: "UPDATE" }),
     clear: () => send({ type: "CLEAR" }),
     destroy: place.destroy
