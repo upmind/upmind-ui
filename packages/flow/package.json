@@ -25,6 +25,8 @@
     "type-check": "tsc --noEmit -p tsconfig.vitest.json --composite false"
   },
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.3.42",
+    "@googlemaps/js-api-loader": "^1.16.2",
     "@xstate/inspect": "^0.8.0",
     "axios": "^1.6.5",
     "lodash-es": "^4.17.21",

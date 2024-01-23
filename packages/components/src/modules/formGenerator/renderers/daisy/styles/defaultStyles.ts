@@ -10,10 +10,14 @@ export const defaultStyles: Styles = {
     },
     input: "input input-bordered w-full",
     file: "file-input input-bordered w-full",
-    password: "input input-bordered w-full ",
+    password: "input input-bordered w-full",
     checkbox: "checkbox",
     radio: "radio",
     select: "select select-bordered w-full",
+    menu: {
+      wrapper: "menu-wrapper",
+      item: "menu-item"
+    },
     rating: {
       wrapper: "gap-2",
       item: "mask-star",
@@ -37,7 +41,7 @@ export const defaultStyles: Styles = {
   },
   verticalLayout: {
     root: "vertical-layout flex flex-col gap-4 w-full",
-    item: "vertical-layout-item w-full"
+    item: "vertical-layout-item w-full empty:hidden"
   },
   horizontalLayout: {
     root: "horizontal-layout flex flex-wrap gap-4 w-full",

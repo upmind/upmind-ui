@@ -7,7 +7,88 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
+export const useAutocompleteSchema = choices => {
+  const schema = {
+    type: "object",
+    title: "Address Fields",
+    properties: {
+      search: {
+        type: ["string", "null"],
+        title: "Search for an address...",
+        minLength: 3
+      },
+      place: {
+        type: ["string", "null"],
+        title: "Select an address...",
+        oneOf: !choices?.length
+          ? undefined
+          : map(choices, item => {
+              return {
+                const: item.place_id,
+                title: item.description
+              };
+            })
+      }
+    }
+  };
+
+  // if (id) {
+  //   schema.required.push("name");
+  //   schema.required.push("type");
+  // }
+
+  return schema as JsonSchema;
+};
+
+export const useAutocompleteUischema = choices => {
+  debugger;
+  const schema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/search",
+        options: {
+          focus: true,
+          autocomplete: "street-address",
+          placeholder: "Start typing an address..."
+        }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/place",
+        label: "",
+        options: {
+          type: !choices?.length ? "hidden" : undefined,
+          autocomplete: "off",
+          placeholder: "Select an address...",
+          format: "menu",
+          title: "Select an address to use..."
+        },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["search"]
+            }
+          }
+        }
+      }
+    ]
+  };
+
+  return schema as UISchemaElement;
+};
+
+// --------------------------------------------------------
+
+export const usePlaceSchema = ({
+  countries,
+  regions,
+  types,
+  baseModel
+}: PlaceContext) => {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -59,6 +140,7 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
       country_id: {
         type: "string",
         title: "Country",
+        default: baseModel?.country_id,
         oneOf: !countries?.length
           ? undefined
           : map(countries, item => {
@@ -79,13 +161,13 @@ export const usePlaceSchema = ({ countries, regions, types }: PlaceContext) => {
       name: {
         type: ["string", "null"],
         title: "Reference Name",
-        default: "default"
+        default: baseModel?.name
       },
 
       type: {
         type: ["number", "null"],
         title: "Address Type",
-        default: 1,
+        default: baseModel?.type,
         oneOf: !types?.length
           ? undefined
           : map(types, item => {
@@ -219,11 +301,19 @@ export const usePlaceUischema = () => {
   return schema as UISchemaElement;
 };
 
-export const usePlaceModelParser = (schema: JsonSchema, values: IAddress) => {
+export const usePlaceModelParser = (
+  schema: JsonSchema,
+  values: IAddress,
+  baseModel: IAddress
+) => {
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
+      const value = get(
+        values,
+        key,
+        field?.const || field?.default || get(baseModel, key)
+      );
       set(result, key, value);
       return result;
     },

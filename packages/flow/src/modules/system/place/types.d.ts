@@ -40,6 +40,16 @@ export interface PlaceContext {
   regions?: IRegion[];
   types?: IPlaceType[];
   baseModel?: IAddress;
+
+  // ---
+  autocomplete?: {
+    places: any;
+    service: any;
+    sessionToken: string;
+    schema?: JsonSchema;
+    uischema?: UISchemaElement;
+    results?: PlaceAutocompleteResult[];
+  };
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;

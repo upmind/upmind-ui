@@ -6,8 +6,15 @@ const { escalate } = actions;
 import services, { AddressTypes } from "./services";
 
 // --- utils
-import { usePlaceSchema, usePlaceUischema, usePlaceModelParser } from "./utils";
+import {
+  usePlaceSchema,
+  usePlaceUischema,
+  usePlaceModelParser,
+  useAutocompleteSchema,
+  useAutocompleteUischema
+} from "./utils";
 import { useTime, useValidationParser } from "../../../utils";
+import { set } from "lodash-es";
 
 // --- types
 import type { PlaceContext, PlaceEvent } from "./types.d";
@@ -26,6 +33,7 @@ export default createMachine(
       types: AddressTypes,
       baseModel: undefined,
       // ---
+      autocomplete: undefined,
       schema: undefined,
       uischema: undefined,
       model: undefined,
@@ -35,39 +43,79 @@ export default createMachine(
     states: {
       loading: {
         entry: ["clearError"],
-        initial: "constants",
+        type: "parallel",
         states: {
           constants: {
-            invoke: {
-              src: "loadConstants",
-              onDone: {
-                target: "place",
-                actions: ["setConstants"]
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  src: "loadConstants",
+                  onDone: {
+                    target: "complete",
+                    actions: ["setConstants"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
               },
-              onError: {
-                target: "#error",
-                actions: ["setError"]
+              error: {},
+              complete: {
+                type: "final"
               }
             }
           },
           place: {
-            invoke: {
-              src: "load",
-              onDone: {
-                target: "#idle",
-                actions: ["setSchemas", "setModel"]
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  src: "load",
+                  onDone: {
+                    target: "complete",
+                    actions: ["setModel"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
               },
-              onError: {
-                target: "#error",
-                actions: ["setError"]
+              error: {},
+              complete: {
+                type: "final"
+              }
+            }
+          },
+          autocomplete: {
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  src: "configureAutocomplete",
+                  onDone: {
+                    target: "complete",
+                    actions: ["setAutocomplete"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError"]
+                  }
+                }
+              },
+              error: {},
+              complete: {
+                type: "final"
               }
             }
           }
+        },
+        onDone: {
+          target: "checking",
+          actions: "setSchemas"
         }
-      },
-
-      idle: {
-        id: "idle"
       },
 
       searching: {
@@ -76,7 +124,21 @@ export default createMachine(
           src: "search",
           onDone: {
             target: "checking",
-            actions: ["setSchemas"]
+            actions: ["setAutocomplete"]
+          },
+          onError: {
+            actions: ["setError"]
+          }
+        }
+      },
+
+      populating: {
+        entry: ["clearError"],
+        invoke: {
+          src: "loadPlaceDetails",
+          onDone: {
+            target: "checking",
+            actions: ["setModel"]
           },
           onError: {
             target: "error",
@@ -85,7 +147,10 @@ export default createMachine(
         }
       },
 
+      // ---
+
       checking: {
+        id: "checking",
         entry: ["clearError"],
         invoke: {
           src: "validate",
@@ -142,6 +207,7 @@ export default createMachine(
     },
     on: {
       SEARCH: { target: "searching" },
+      POPULATE: { target: "populating" },
       UPDATE: {
         target: "processing"
       },
@@ -150,7 +216,8 @@ export default createMachine(
         actions: ["clearModel"]
       },
       SET: {
-        target: "checking"
+        target: "checking",
+        actions: ["setModel"]
       }
     }
   },
@@ -163,6 +230,18 @@ export default createMachine(
         baseModel: (_context: PlaceContext, { data }: PlaceEvent) =>
           data.baseModel
       }),
+
+      // ---
+
+      setAutocomplete: assign({
+        autocomplete: (_context: PlaceContext, { data }: PlaceEvent) => ({
+          schema: useAutocompleteSchema(data),
+          uischema: useAutocompleteUischema(data),
+          results: data || []
+        })
+      }),
+
+      // ---
 
       setRegions: assign({
         regions: (_context: PlaceContext, { data }: PlaceEvent) => data
@@ -180,8 +259,8 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema }: PlaceContext, { data }: PlaceEvent) =>
-          usePlaceModelParser(schema, data)
+        model: ({ schema }: PlaceContext, { data }: PlaceEvent) => data
+        // usePlaceModelParser(schema, data)
       }),
 
       refresh: assign({
