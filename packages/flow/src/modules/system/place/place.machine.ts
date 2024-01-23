@@ -119,7 +119,6 @@ export default createMachine(
       },
 
       searching: {
-        entry: ["clearError"],
         invoke: {
           src: "search",
           onDone: {
@@ -127,22 +126,22 @@ export default createMachine(
             actions: ["setAutocomplete"]
           },
           onError: {
+            target: "checking",
             actions: ["setError"]
           }
         }
       },
 
       populating: {
-        entry: ["clearError"],
         invoke: {
           src: "loadPlaceDetails",
           onDone: {
             target: "checking",
-            actions: ["setModel"]
+            actions: ["setModel", "clearAutocomplete"]
           },
           onError: {
             target: "error",
-            actions: ["setError"]
+            actions: ["setError", "clearAutocomplete"]
           }
         }
       },
@@ -160,7 +159,7 @@ export default createMachine(
           },
           onError: {
             target: "invalid",
-            actions: ["refresh", "setSchemas", "setError"]
+            actions: ["refresh", "setSchemas"]
           }
         }
       },
@@ -206,8 +205,11 @@ export default createMachine(
       }
     },
     on: {
-      SEARCH: { target: "searching" },
-      POPULATE: { target: "populating" },
+      SEARCH: [
+        { target: "populating", cond: "hasSelectedPlace" },
+        { target: "searching", actions: ["setSearch"], cond: "isValidSearch" }
+      ],
+
       UPDATE: {
         target: "processing"
       },
@@ -233,11 +235,41 @@ export default createMachine(
 
       // ---
 
+      setSearch: assign({
+        autocomplete: (
+          { autocomplete }: PlaceContext,
+          { data }: PlaceEvent
+        ) => {
+          if (!autocomplete) return;
+          // force the model to clear place
+          set(autocomplete, "model", {
+            search: data?.search,
+            place: undefined
+          });
+          return autocomplete;
+        }
+      }),
+
       setAutocomplete: assign({
-        autocomplete: (_context: PlaceContext, { data }: PlaceEvent) => ({
-          schema: useAutocompleteSchema(data),
-          uischema: useAutocompleteUischema(data),
-          results: data || []
+        autocomplete: (
+          { autocomplete }: PlaceContext,
+          { data }: PlaceEvent
+        ) => {
+          return {
+            schema: useAutocompleteSchema(data),
+            uischema: useAutocompleteUischema(data),
+            results: data || [],
+            model: autocomplete?.model || {}
+          };
+        }
+      }),
+
+      clearAutocomplete: assign({
+        autocomplete: (_context: PlaceContext, _event: PlaceEvent) => ({
+          schema: useAutocompleteSchema([]),
+          uischema: useAutocompleteUischema([]),
+          results: [],
+          model: {}
         })
       }),
 
@@ -245,10 +277,6 @@ export default createMachine(
 
       setRegions: assign({
         regions: (_context: PlaceContext, { data }: PlaceEvent) => data
-      }),
-
-      clearModel: assign({
-        model: ({ baseModel }: PlaceContext, _event: PlaceEvent) => baseModel
       }),
 
       setSchemas: assign({
@@ -260,7 +288,10 @@ export default createMachine(
 
       setModel: assign({
         model: ({ schema }: PlaceContext, { data }: PlaceEvent) => data
-        // usePlaceModelParser(schema, data)
+      }),
+
+      clearModel: assign({
+        model: ({ baseModel }: PlaceContext, _event: PlaceEvent) => baseModel
       }),
 
       refresh: assign({
@@ -286,7 +317,14 @@ export default createMachine(
 
       clearError: assign({ error: null })
     },
-    guards: {},
+    guards: {
+      isValidSearch: ({ autocomplete }: PlaceContext, { data }: PlaceEvent) =>
+        data?.search?.length > 2 &&
+        autocomplete?.model?.search !== data?.search,
+
+      hasSelectedPlace: (_context: PlaceContext, { data }: PlaceEvent) =>
+        data?.place
+    },
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT

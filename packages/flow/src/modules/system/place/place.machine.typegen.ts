@@ -94,9 +94,11 @@ export interface Typegen0 {
       | "validate";
   };
   eventsCausingActions: {
+    clearAutocomplete:
+      | "done.invoke.placeManager.populating:invocation[0]"
+      | "error.platform.placeManager.populating:invocation[0]";
     clearError:
       | "CLEAR"
-      | "POPULATE"
       | "RETRY"
       | "SEARCH"
       | "SET"
@@ -104,6 +106,7 @@ export interface Typegen0 {
       | "done.invoke.placeManager.populating:invocation[0]"
       | "done.invoke.placeManager.searching:invocation[0]"
       | "done.state.placeManager.loading"
+      | "error.platform.placeManager.searching:invocation[0]"
       | "xstate.init";
     clearModel: "CLEAR";
     refresh:
@@ -114,7 +117,6 @@ export interface Typegen0 {
       | "done.invoke.placeManager.searching:invocation[0]";
     setConstants: "done.invoke.placeManager.loading.constants.processing:invocation[0]";
     setError:
-      | "error.platform.checking:invocation[0]"
       | "error.platform.placeManager.loading.autocomplete.processing:invocation[0]"
       | "error.platform.placeManager.loading.constants.processing:invocation[0]"
       | "error.platform.placeManager.loading.place.processing:invocation[0]"
@@ -131,35 +133,33 @@ export interface Typegen0 {
       | "done.invoke.placeManager.processing:invocation[0]"
       | "done.state.placeManager.loading"
       | "error.platform.checking:invocation[0]";
+    setSearch: "SEARCH";
   };
   eventsCausingDelays: {
     wait: "done.invoke.placeManager.processing:invocation[0]";
   };
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    hasSelectedPlace: "SEARCH";
+    isValidSearch: "SEARCH";
+  };
   eventsCausingServices: {
     configureAutocomplete:
       | "CLEAR"
-      | "POPULATE"
       | "SEARCH"
       | "SET"
       | "UPDATE"
       | "xstate.init";
-    load: "CLEAR" | "POPULATE" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
-    loadConstants:
-      | "CLEAR"
-      | "POPULATE"
-      | "SEARCH"
-      | "SET"
-      | "UPDATE"
-      | "xstate.init";
-    loadPlaceDetails: "POPULATE";
+    load: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
+    loadConstants: "CLEAR" | "SEARCH" | "SET" | "UPDATE" | "xstate.init";
+    loadPlaceDetails: "SEARCH";
     save: "RETRY" | "UPDATE";
     search: "SEARCH";
     validate:
       | "SET"
       | "done.invoke.placeManager.populating:invocation[0]"
       | "done.invoke.placeManager.searching:invocation[0]"
-      | "done.state.placeManager.loading";
+      | "done.state.placeManager.loading"
+      | "error.platform.placeManager.searching:invocation[0]";
   };
   matchesStates:
     | "checking"

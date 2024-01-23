@@ -31,7 +31,7 @@
         :key="optionElement.value"
       >
         <li class="p-0 m-0">
-          <label>
+          <label :class="{ active: control?.data == optionElement.value }">
             <input
               type="radio"
               name="menu"

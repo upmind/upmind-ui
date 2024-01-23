@@ -17,6 +17,7 @@ export interface Styles {
     root?: string;
     wrapper?: string;
     inline?: string;
+    password?: string;
     label: {
       root?: string;
       text?: string;
@@ -32,6 +33,10 @@ export interface Styles {
     file?: string;
     checkbox?: string;
     radio?: string;
+    menu?: {
+      wrapper?: string;
+      item?: string;
+    };
     rating: {
       wrapper?: string;
       item?: string;
