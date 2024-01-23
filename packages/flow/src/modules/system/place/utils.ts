@@ -365,11 +365,15 @@ export async function useParsePlace(result: any): Promise<IAddress> {
     parseValue(address, ["route"])
   ];
 
-  const address_2 = parseValue(address, ["sublocality"]);
+  const address_2 = [parseValue(address, ["sublocality"])];
 
   const postcode = parseValue(address, ["postal_code"]);
 
-  const city = parseValue(address, ["postal_town", "locality"]);
+  const city = parseValue(address, [
+    "postal_town",
+    "locality",
+    "administrative_area_level_2"
+  ]);
 
   const country = parseCountry(address);
 
