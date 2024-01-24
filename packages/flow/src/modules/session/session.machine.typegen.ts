@@ -96,6 +96,8 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {
     wait:
+      | "error.platform.client"
+      | "error.platform.guest"
       | "error.platform.sessionManager.client.processing:invocation[0]"
       | "error.platform.sessionManager.guest.processing:invocation[0]";
   };
@@ -115,7 +117,7 @@ export interface Typegen0 {
       | "REGISTER"
       | "done.invoke.sessionManager.starting.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
-    getUser: "SELF" | "done.invoke.client";
+    getUser: "SELF";
     guest:
       | "done.invoke.sessionManager.starting.check:invocation[0]"
       | "error.platform.sessionManager.starting.check:invocation[0]";

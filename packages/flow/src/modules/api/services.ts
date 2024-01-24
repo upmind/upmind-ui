@@ -75,22 +75,39 @@ async function doFetch({ url, init }: RequestContext) {
 
 async function refreshToken(_context: RequestContext, _event: any) {
   const { getSnapshot, service: sessionService } = useSession();
+
   // start by getting the current service and state
   // kick off the auth process
+  let state = getSnapshot();
+  console.log("refreshToken", "before send", state);
+
   sessionService.send("REFRESH");
 
+  state = getSnapshot();
+  console.log("refreshToken", "sent", state);
+
   // wait for the service to complete
-  return waitFor(sessionService, newState =>
+  await waitFor(sessionService, newState =>
     ["client.idle", "guest.idle", "client.error", "guest.error"].some(
       newState.matches
     )
-  ).then(() => {
-    const state = getSnapshot();
+  );
+
+  // .catch(error => {
+  //   return Promise.reject(error);
+  // });
+
+  state = getSnapshot();
+  console.log("refreshToken", "after wait", "session", state);
+
+  // return the token or error
+  return new Promise((resolve, reject) => {
+    // get the current state
     if (["client.idle", "guest.idle"].some(state.matches)) {
-      return state.context.token;
+      resolve(state.context.token);
     } else {
       const error = get(state, "context.error");
-      throw error;
+      reject(error);
     }
   });
 }

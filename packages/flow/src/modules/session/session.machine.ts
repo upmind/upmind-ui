@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendTo } = actions;
+const { sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
@@ -77,7 +77,7 @@ export default createMachine(
                 refresh: context => context.refresh
               },
               onDone: { target: "#guest", actions: ["setToken"] },
-              onError: { actions: ["setError"] }
+              onError: { target: "#guest.error", actions: ["setError"] }
             }
           },
           client: {
@@ -92,7 +92,7 @@ export default createMachine(
                 target: "#client",
                 actions: ["setHistory", "setToken", "setSuccess"]
               },
-              onError: { actions: ["setError"] }
+              onError: { target: "#client.error", actions: ["setError"] }
             }
           }
         },
@@ -156,8 +156,9 @@ export default createMachine(
       },
 
       client: {
+        entry: raise("SELF"),
         id: "client",
-        initial: "processing",
+        initial: "idle",
         states: {
           idle: {
             type: "final",

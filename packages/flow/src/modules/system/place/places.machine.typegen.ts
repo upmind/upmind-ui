@@ -16,49 +16,31 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    loadPlaces: "done.invoke.placesManager.loading:invocation[0]";
+    load: "done.invoke.placesManager.loading:invocation[0]";
   };
   missingImplementations: {
-    actions: "clearError" | "setError";
+    actions: never;
     delays: never;
     guards: never;
-    services: "loadPlaces";
+    services: "load";
   };
   eventsCausingActions: {
     add: "ADD";
-    clearError:
-      | "ADD"
-      | "REFRESH"
-      | "REMOVE"
-      | "SELECT"
-      | "STOP"
-      | "xstate.init";
-    clearPlaces:
-      | "ADD"
-      | "REFRESH"
-      | "REMOVE"
-      | "SELECT"
-      | "STOP"
-      | "xstate.init";
+    clearError: "ADD" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
+    clearItems: "ADD" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
     clearSelected: "error.platform.placesManager.loading:invocation[0]";
-    remove: "REMOVE";
     setError: "error.platform.placesManager.loading:invocation[0]";
-    setPlaces: "done.invoke.placesManager.loading:invocation[0]";
+    setItems: "done.invoke.placesManager.loading:invocation[0]";
     setSelected: "SELECT" | "done.invoke.placesManager.loading:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    hasNoPlaces: "";
-    hasPlaces: "";
+    hasItems: "";
+    hasNoItems: "";
+    isSelectable: "SELECT";
   };
   eventsCausingServices: {
-    loadPlaces:
-      | "ADD"
-      | "REFRESH"
-      | "REMOVE"
-      | "SELECT"
-      | "STOP"
-      | "xstate.init";
+    load: "ADD" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
   };
   matchesStates:
     | "available"

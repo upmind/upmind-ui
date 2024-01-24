@@ -88,12 +88,6 @@ export const useSession = () => {
     });
   }
 
-  function getUser() {
-    send({
-      type: "SELF"
-    });
-  }
-
   function showLogin() {
     send({
       type: "LOGIN"
@@ -177,7 +171,6 @@ export const useSession = () => {
     reject,
     resolve,
     clearErrors,
-    getUser,
     login,
     logout,
     register,

@@ -3,13 +3,13 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import placeMachine from "./place.machine";
-import type { PlacesContext, PlacesEvents } from "./types";
+import services from "./services";
 
 // --- utils
-import { find, isEmpty, first, forEach, uniqueId, get } from "lodash-es";
+import { find, first, forEach, get, isEmpty, map, uniqueId } from "lodash-es";
 
 // ---types
-import type { IAddress } from "./types";
+import type { PlacesContext, PlacesEvents, IAddress } from "./types";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
@@ -46,10 +46,17 @@ export default createMachine(
         entry: ["clearError", "clearItems"],
         invoke: {
           src: "load",
-          onDone: {
-            target: "empty",
-            actions: ["setItems", "setSelected"]
-          },
+          onDone: [
+            {
+              target: "empty",
+              actions: ["setItems", "setSelected"],
+              cond: (_context, { data }) => data
+            },
+            {
+              target: "available",
+              actions: ["setItems", "setSelected"]
+            }
+          ],
           onError: {
             target: "error",
             actions: ["setError", "clearSelected"]
@@ -106,21 +113,16 @@ export default createMachine(
       }),
 
       setItems: assign({
-        items: ({ items }: PlacesContext, { data }: PlacesEvents) => {
-          const items = [];
-
-          forEach(data, place => {
+        items: ({ items }: PlacesContext, { data }: PlacesEvents) =>
+          map(data, place => {
             const item = find(items, ["id", place.id]);
             if (!item) {
               const machine = spawnConfiguration(place);
-              items.push(machine);
-            } else {
-              items.push(item);
+              return machine;
             }
-          });
 
-          return items;
-        },
+            return item;
+          }),
         error: null
       }),
 
@@ -136,20 +138,28 @@ export default createMachine(
         selected: (
           { items, selected }: PlacesContext,
           { data }: PlacesEvents
-        ) => {
-          return find(items, ["id", data.id]) || selected || first(items);
-        }
+        ) => find(items, ["id", data]) || selected || first(items)
       }),
 
       clearSelected: assign({
         selected: undefined
-      })
-    },
+      }),
 
+      // ---
+      setError: assign({
+        error: (context, { data }, meta) => {
+          const error = data?.error;
+          return error || data;
+        }
+      }),
+
+      clearError: assign({ error: null })
+    },
     guards: {
-      isSelectable: ({ items }, { data }) => find(items, ["id", data.id]),
+      isSelectable: ({ items }, { data }) => find(items, ["id", data]),
       hasItems: ({ items }) => !isEmpty(items),
       hasNoItems: ({ items }) => isEmpty(items)
-    }
+    },
+    services
   }
 );

@@ -48,16 +48,17 @@ const autocompleteApi = {};
 async function load(_context: PlacesContext, _event: PlacesEvents) {
   const { get, useUrl } = useApi();
   const { getUser } = useSession();
-  const client = getUser();
+
+  const client = await getUser();
 
   return get({
     url: useUrl(`clients/${client.id}/addresses`, {
-      with: ["country"].join(),
+      // with: ["country", "region"].join(),
       limit: 0
     }),
     withAccessToken: true,
     useCache: true
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 async function add(model: IAddress) {
@@ -68,7 +69,7 @@ async function add(model: IAddress) {
     url: useUrl(`clients/${client.id}/addresses`),
     data: model,
     withAccessToken: true
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 async function update(model: IAddress) {
@@ -79,7 +80,7 @@ async function update(model: IAddress) {
     url: useUrl(`clients/addresses/${model.id}`),
     data: model,
     withAccessToken: true
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 async function setDefault(_context: PlacesContext, { data }: PlacesEvents) {
@@ -90,7 +91,7 @@ async function setDefault(_context: PlacesContext, { data }: PlacesEvents) {
     url: useUrl(`clients/addresses/${data.id}`),
     data: { default: true },
     withAccessToken: true
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 async function remove(_context: PlacesContext, { data }: PlacesEvents) {
@@ -99,7 +100,7 @@ async function remove(_context: PlacesContext, { data }: PlacesEvents) {
   return del({
     url: useUrl(`clients/addresses/${data.id}`),
     withAccessToken: true
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------
@@ -189,17 +190,17 @@ async function loadPlaceDetails(_context: PlaceContext, { data }: PlaceEvent) {
   });
 }
 
-async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
+async function loadConstants({ model }: PlaceContext, { data }: PlaceEvent) {
   const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
 
   const countries = await fetchCountries();
-
-  const regions = await fetchRegions();
+  const regions = await fetchRegions(model?.country_id);
 
   const baseModel = {
+    ...model,
     country_id: getDefaultCountry(),
     type: first(AddressTypes)?.key,
     name: "default"
@@ -214,7 +215,7 @@ async function loadConstants(_context: PlaceContext, { data }: PlaceEvent) {
   });
 }
 
-async function validate({ schema, model, regions }: PlaceContext, _event: any) {
+async function validate({ schema, model, regions }: PlaceContext, _event) {
   // This NOT only validates the model,
   // but also potentially updates the regions list based on the selected country ( if its changed )
 

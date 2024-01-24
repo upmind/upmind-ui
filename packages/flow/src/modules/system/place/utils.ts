@@ -2,7 +2,16 @@
 import { useSystem } from "../";
 
 // --- utils
-import { some, get, find, includes, set, map, reduce } from "lodash-es";
+import {
+  some,
+  get,
+  find,
+  includes,
+  set,
+  map,
+  reduce,
+  defaultsDeep
+} from "lodash-es";
 
 // --- types
 import type { ICountry } from "../types";
@@ -324,7 +333,7 @@ export const usePlaceModelParser = (
     {}
   );
 
-  return model as IAddress;
+  return defaultsDeep(model, values) as IAddress;
 };
 
 // --------------------------------------------------------

@@ -1,11 +1,12 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import sessionMachine from "./session.machine";
 
 // --- utils
-// import { set, get } from "lodash-es";
+import { set, get, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the session machine
@@ -81,7 +82,15 @@ export const useSession = () => {
     getSnapshot: () => state,
     getToken: () => state?.context?.token?.access_token,
     getHistory: () => state?.context?.history,
-    getUser: () => state?.context?.user,
+    getUser: async () => {
+      if (state.matches("client.processing")) {
+        await waitFor(service, state =>
+          ["client.idle", "guest.idle"].some(state.matches)
+        ).then(() => {});
+      }
+      console.log("getUser", state.context.user);
+      return state.context.user;
+    },
     authSubscription,
     isAuthenticated: () => {
       return new Promise((resolve, reject) => {
