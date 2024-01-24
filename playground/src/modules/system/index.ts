@@ -211,7 +211,9 @@ export const useSystemPlace = item => {
     clear: () => send({ type: "CLEAR" }),
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "SELECT" })
+    cancel: () => service.send({ type: "SELECT" }),
+    remove: () => service.send({ type: "REMOVE", data: item.id }),
+    setDefault: () => service.send({ type: "DEFAULT", data: item.id })
   };
 };
 

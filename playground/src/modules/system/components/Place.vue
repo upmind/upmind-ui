@@ -53,10 +53,18 @@
             tabindex="0"
             class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
           >
-            <li>
-              <a class="" @click.prevent="edit">Edit address</a>
+            <li><a @click.prevent="setDefault">Set as default address</a></li>
+
+            <li v-if="canCopy">
+              <a @click="copy">
+                <!-- by default, `copied` will be reset in 1.5s -->
+                <span v-if="!copied">Copy to clipboard</span>
+                <span v-else>Copied!</span>
+              </a>
             </li>
-            <li><a class="" @click.prevent="cancel">cancel...</a></li>
+
+            <li><a @click.prevent="edit">Edit address</a></li>
+            <li><a @click.prevent="remove">Delete address</a></li>
           </ul>
         </details>
       </div>
@@ -69,6 +77,7 @@ import { defineComponent, ref } from "vue";
 import { useSystemPlace } from "..";
 import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
+import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmPlace",
@@ -90,6 +99,10 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const { text, isSupported, copy, copied } = useClipboard();
+
+    // ------------------------------------------------
+
     const {
       state,
       context,
@@ -100,8 +113,12 @@ export default defineComponent({
       display,
       edit,
       select,
-      cancel
+      cancel,
+      remove,
+      setDefault
     } = useSystemPlace(props.item);
+
+    // ------------------------------------------------
 
     const target = ref(null);
 
@@ -114,6 +131,10 @@ export default defineComponent({
     function doToggle(value) {
       open.value = value;
     }
+
+    // ---
+
+    // ------------------------------------------------
 
     return {
       target,
@@ -132,10 +153,21 @@ export default defineComponent({
         open.value = false;
         edit();
       },
-      cancel: () => {
+      remove: () => {
         open.value = false;
-        cancel();
-      }
+        remove();
+      },
+      setDefault: () => {
+        open.value = false;
+        setDefault();
+      },
+
+      //  ---
+      copy: () => {
+        copy(display.value);
+      },
+      canCopy: isSupported,
+      copied
     };
   }
 });
