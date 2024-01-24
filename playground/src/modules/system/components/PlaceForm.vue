@@ -1,37 +1,48 @@
 <template>
-  <div class="">
-    <upm-form-generator
-      v-if="meta.hasAutocomplete && !meta.isLoading"
-      :loading="meta.isLoading"
-      :processing="meta.isSearching"
-      :model-value="autocomplete.model"
-      :schema="autocomplete.schema"
-      :uischema="autocomplete.uischema"
-      @update:modelValue="search"
-      class="px-4 py-8"
-      no-actions
-    />
+  <div
+    ref="form"
+    tabindex="0"
+    class="card card-bordered card-compact bg-base-100"
+    :class="[
+      meta.hasErrors ? '  border-error' : '',
+      meta.isComplete ? ' card-bordered border-primary' : ''
+    ]"
+  >
+    <div class="card-body">
+      <h3 class="text-center">{{ model.name }}</h3>
 
-    <div class="divider mx-6" v-if="meta.hasAutocomplete && !meta.isLoading">
-      Or enter address manually
+      <template v-if="meta.hasAutocomplete && !meta.isLoading && meta.isNew">
+        <upm-form-generator
+          :loading="meta.isLoading"
+          :processing="meta.isSearching"
+          :model-value="autocomplete.model"
+          :schema="autocomplete.schema"
+          :uischema="autocomplete.uischema"
+          @update:modelValue="search"
+          class="px-4 py-8"
+          no-actions
+        />
+
+        <div class="divider mx-6">Or enter address manually</div>
+      </template>
+
+      <upm-form-generator
+        :loading="meta.isLoading"
+        :processing="meta.isProcessing"
+        :model-value="model"
+        :schema="schema"
+        :uischema="uischema"
+        @update:modelValue="input"
+        @reject="cancel"
+        @resolve="update"
+        class="p-4"
+      />
     </div>
-
-    <upm-form-generator
-      :loading="meta.isLoading"
-      :processing="meta.isProcessing"
-      :model-value="model"
-      :schema="schema"
-      :uischema="uischema"
-      @update:modelValue="input"
-      @reject="clear"
-      @resolve="update"
-      class="p-4"
-    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { useSystemPlace } from "..";
 import { UpmFormGenerator } from "@upmind/components";
 
@@ -62,10 +73,11 @@ export default defineComponent({
       input,
       search,
       update,
-      clear
+      cancel
     } = useSystemPlace(props.item);
 
     return {
+      form: ref(),
       state,
       context,
       meta,
@@ -77,10 +89,21 @@ export default defineComponent({
       input,
       search,
       update,
-      clear
+      cancel
     };
   },
 
-  computed: {}
+  computed: {},
+  mounted() {
+    this.$nextTick(() => {
+      // this.form.focus();
+      const yOffset = -108;
+      const y =
+        this.form.getBoundingClientRect().top + window.scrollY + yOffset;
+
+      window.scrollTo({ top: y, behavior: "smooth" });
+      // this.form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 });
 </script>

@@ -136,7 +136,7 @@ export const useSystem = () => {
       return find(regions, region =>
         some(values, value => {
           const name = get(region, "name");
-          return value.toLowerCase() == name?.toLowerCase();
+          return value?.toLowerCase() == name?.toLowerCase();
         })
       );
     }

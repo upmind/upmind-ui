@@ -143,6 +143,8 @@ export const useSystem = () => {
 };
 
 export const useSystemPlace = item => {
+  const { service } = useUpmindSystemPlaces();
+
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
 
@@ -166,6 +168,7 @@ export const useSystemPlace = item => {
         state.value.matches
       ),
       isValid: ["valid"].some(state.value.matches),
+      isNew: !state.value.context?.model?.id,
       hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches)
@@ -205,7 +208,10 @@ export const useSystemPlace = item => {
     input: model => send({ type: "SET", data: model }),
     search: model => send({ type: "SEARCH", data: model }),
     update: () => send({ type: "UPDATE" }),
-    clear: () => send({ type: "CLEAR" })
+    clear: () => send({ type: "CLEAR" }),
+    select: () => service.send({ type: "SELECT", data: item.id }),
+    edit: () => service.send({ type: "EDIT", data: item.id }),
+    cancel: () => service.send({ type: "SELECT" })
   };
 };
 
@@ -226,14 +232,7 @@ export const useSystemPlaces = () => {
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-      isSearching: ["searching"].some(state.value.matches),
-      isProcessing: ["populating", "checking", "processing"].some(
-        state.value.matches
-      ),
-      isValid: ["valid"].some(state.value.matches),
-      hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
-      isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches)
+      isEditing: ["editing"].some(state.value.matches)
     })),
     // ---
     items: computed(() =>
@@ -242,8 +241,17 @@ export const useSystemPlaces = () => {
         ...useActor(item)
       }))
     ),
-    selected: computed(() => state.value.context?.selected),
+    selected: computed(() =>
+      state.value.context?.selected
+        ? {
+            id: state.value.context.selected?.id,
+            ...useActor(state.value.context.selected)
+          }
+        : null
+    ),
     // ---
-    select: id => send({ type: "SELECT", data: id })
+    select: id => send({ type: "SELECT", data: id }),
+    edit: id => send({ type: "EDIT", data: id }),
+    add: () => send({ type: "ADD" })
   };
 };

@@ -121,7 +121,8 @@ export default (request: RequestParams) =>
             cached: {
               after: { maxAge: "stale" }, // automatically move to stale after max age
               on: {
-                CANCEL: { target: "#complete" }
+                CANCEL: { target: "#complete" },
+                REFRESH: { target: "#processing" }
               }
             },
             stale: {

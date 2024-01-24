@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate } = actions;
+const { escalate, sendParent } = actions;
 
 // --- internal
 import services, { AddressTypes } from "./services";
@@ -170,6 +170,7 @@ export default createMachine(
       invalid: {},
 
       complete: {
+        entry: sendParent("REFRESH"),
         type: "final"
       },
 

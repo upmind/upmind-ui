@@ -44,6 +44,7 @@ export interface RequestParams {
   data?: any;
   withAccessToken?: boolean;
   hash?: string;
+  refresh?: boolean;
 }
 
 // --------------------------------------------------------
