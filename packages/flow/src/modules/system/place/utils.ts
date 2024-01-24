@@ -367,6 +367,7 @@ function parseValue(addressComponents: any[], fields: string[]) {
 }
 
 export async function usePlaceDetailParser(result: any): Promise<IAddress> {
+  const name = get(result, "name");
   const address = get(result, "address_components", []);
 
   const address_1 = [
@@ -393,8 +394,9 @@ export async function usePlaceDetailParser(result: any): Promise<IAddress> {
   );
 
   const place = {
+    name,
     address_1: address_1.join(" "),
-    address_2,
+    address_2: address_2.join(" "),
     postcode,
     city,
     country_id: get(country, "id"),

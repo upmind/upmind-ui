@@ -80,7 +80,8 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = false,
-    maxAge = null
+    maxAge = null,
+    refresh = false
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -114,7 +115,7 @@ export const useApi = () => {
     // first we trigger the request
     service.send({
       type: "ADD",
-      data: { hash, url, init, useCache, maxAge }
+      data: { hash, url, init, useCache, maxAge, refresh }
     });
 
     // then we get the request from context
@@ -163,7 +164,8 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null
+    maxAge = null,
+    refresh = false
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -174,7 +176,7 @@ export const useApi = () => {
     // Enforce method & header
     set(init, "method", "GET");
 
-    return request({ url, init, withAccessToken, useCache, maxAge });
+    return request({ url, init, withAccessToken, useCache, maxAge, refresh });
   }
 
   /**

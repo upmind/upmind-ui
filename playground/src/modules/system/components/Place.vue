@@ -33,42 +33,46 @@
               class="checkbox"
               :class="{ 'checkbox-primary': selected }"
               :checked="selected"
-              @input="doSelect(item.id)"
+              @input="select"
             />
             <span class="label-text ml-2">Use this address</span>
           </label>
         </div>
 
-        <div class="dropdown dropdown-end">
-          <div
-            tabindex="0"
-            role="button"
-            class="btn btn-sm btn-square btn-ghost"
-          >
+        <details
+          ref="target"
+          class="dropdown dropdown-end"
+          :class="{ 'dropdown-open': open }"
+          :open="open"
+          @toggle="doToggle($event.currentTarget.open)"
+        >
+          <summary role="button" class="btn btn-sm btn-square btn-ghost">
             <ellipsis-vertical-icon class="w-6 h-6" />
-          </div>
+          </summary>
           <ul
             tabindex="0"
             class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
           >
-            <li><a>Item 1</a></li>
-            <li><a>Item 2</a></li>
+            <li>
+              <a class="" @click.prevent="edit">Edit address</a>
+            </li>
+            <li><a class="" @click.prevent="cancel">cancel...</a></li>
           </ul>
-        </div>
+        </details>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { useSystemPlace } from "..";
 import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
+import { onClickOutside } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmPlace",
   components: { MapPinIcon, EllipsisVerticalIcon },
-  emits: ["select"],
   props: {
     item: {
       type: Object, // xstate actor
@@ -86,23 +90,53 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const { state, context, meta, errors, model, title, display } =
-      useSystemPlace(props.item);
-
-    return {
+    const {
       state,
       context,
       meta,
       errors,
       model,
       title,
-      display
-    };
-  },
-  methods: {
-    doSelect(item) {
-      this.$emit("select", item);
+      display,
+      edit,
+      select,
+      cancel
+    } = useSystemPlace(props.item);
+
+    const target = ref(null);
+
+    onClickOutside(target, () => {
+      open.value = false;
+    });
+
+    const open = ref(!!props.force);
+
+    function doToggle(value) {
+      open.value = value;
     }
+
+    return {
+      target,
+      open,
+      doToggle,
+      // ---
+      state,
+      context,
+      meta,
+      errors,
+      model,
+      title,
+      display,
+      select,
+      edit: () => {
+        open.value = false;
+        edit();
+      },
+      cancel: () => {
+        open.value = false;
+        cancel();
+      }
+    };
   }
 });
 </script>

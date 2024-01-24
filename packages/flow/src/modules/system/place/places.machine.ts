@@ -6,7 +6,16 @@ import placeMachine from "./place.machine";
 import services from "./services";
 
 // --- utils
-import { find, first, forEach, get, isEmpty, map, uniqueId } from "lodash-es";
+import {
+  find,
+  first,
+  forEach,
+  get,
+  isEmpty,
+  last,
+  map,
+  uniqueId
+} from "lodash-es";
 
 // ---types
 import type { PlacesContext, PlacesEvents, IAddress } from "./types";
@@ -73,6 +82,7 @@ export default createMachine(
       available: {
         always: [{ target: "empty", cond: "hasNoItems" }]
       },
+      editing: {},
       selected: {},
       error: {},
       complete: {
@@ -91,8 +101,13 @@ export default createMachine(
       },
 
       ADD: {
-        target: "available",
-        actions: ["add"]
+        target: "editing",
+        actions: ["add", "setSelectedNew"]
+      },
+
+      EDIT: {
+        target: "editing",
+        actions: ["setSelected"]
       },
 
       STOP: {
@@ -107,7 +122,6 @@ export default createMachine(
           // spawn an actor for the new items
           const machine = spawnConfiguration(data);
           items.push(machine);
-
           return items;
         }
       }),
@@ -135,14 +149,15 @@ export default createMachine(
       }),
 
       setSelected: assign({
-        selected: (
-          { items, selected }: PlacesContext,
-          { data }: PlacesEvents
-        ) =>
+        selected: ({ items }: PlacesContext, { data }: PlacesEvents) =>
           find(items, ["id", data]) ||
-          selected ||
           find(items, "state.context.model.default") ||
           first(items)
+      }),
+
+      setSelectedNew: assign({
+        selected: ({ items }: PlacesContext, _event: PlacesEvents) =>
+          last(items)
       }),
 
       clearSelected: assign({
@@ -160,7 +175,7 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      isSelectable: ({ items }, { data }) => find(items, ["id", data]),
+      isSelectable: ({ items }, { data }) => true, // todo checkthe model for any reason to not be selectable
       hasItems: ({ items }) => !isEmpty(items),
       hasNoItems: ({ items }) => isEmpty(items)
     },

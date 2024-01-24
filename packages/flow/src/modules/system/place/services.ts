@@ -45,7 +45,7 @@ const autocompleteApi = {};
 //   );
 // }
 
-async function load(_context: PlacesContext, _event: PlacesEvents) {
+async function load(_context: PlacesContext, { data }: PlacesEvents) {
   const { get, useUrl } = useApi();
   const { getUser } = useSession();
 
@@ -57,13 +57,15 @@ async function load(_context: PlacesContext, _event: PlacesEvents) {
       limit: 0
     }),
     withAccessToken: true,
-    useCache: true
+    useCache: true,
+    refresh: true
   }).then(({ data }) => data);
 }
 
 async function add(model: IAddress) {
   const { getUser } = useSession();
-  const client = getUser();
+  const client = await getUser();
+
   const { post, useUrl } = useApi();
   return post({
     url: useUrl(`clients/${client.id}/addresses`),
@@ -73,11 +75,13 @@ async function add(model: IAddress) {
 }
 
 async function update(model: IAddress) {
-  const { put, useUrl } = useApi();
-  // todo
+  const { getUser } = useSession();
+  const client = await getUser();
 
+  //api.staging.upmind.io/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/addresses/47d73824-8507-9315-8e6f-81e642d59e06
+  const { put, useUrl } = useApi();
   return put({
-    url: useUrl(`clients/addresses/${model.id}`),
+    url: useUrl(`clients/${client.id}/addresses/${model.id}`),
     data: model,
     withAccessToken: true
   }).then(({ data }) => data);
@@ -167,8 +171,8 @@ async function loadPlaceDetails(_context: PlaceContext, { data }: PlaceEvent) {
     autocompleteApi.places.getDetails(
       {
         placeId: data?.place,
-        sessionToken: autocompleteApi.sessionToken,
-        fields: ["address_components"]
+        sessionToken: autocompleteApi.sessionToken
+        // fields: ["address_components", "name"]
       },
       (result, status) => {
         autocompleteApi.sessionToken =
@@ -202,8 +206,7 @@ async function loadConstants({ model }: PlaceContext, { data }: PlaceEvent) {
   const baseModel = {
     ...model,
     country_id: getDefaultCountry(),
-    type: first(AddressTypes)?.key,
-    name: "default"
+    type: first(AddressTypes)?.key
   };
 
   return new Promise((resolve, reject) => {

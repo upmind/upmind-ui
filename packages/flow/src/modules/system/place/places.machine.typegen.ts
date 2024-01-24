@@ -26,12 +26,16 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    clearError: "ADD" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
-    clearItems: "ADD" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
+    clearError: "ADD" | "EDIT" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
+    clearItems: "ADD" | "EDIT" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
     clearSelected: "error.platform.placesManager.loading:invocation[0]";
     setError: "error.platform.placesManager.loading:invocation[0]";
     setItems: "done.invoke.placesManager.loading:invocation[0]";
-    setSelected: "SELECT" | "done.invoke.placesManager.loading:invocation[0]";
+    setSelected:
+      | "EDIT"
+      | "SELECT"
+      | "done.invoke.placesManager.loading:invocation[0]";
+    setSelectedNew: "ADD";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
@@ -40,11 +44,12 @@ export interface Typegen0 {
     isSelectable: "SELECT";
   };
   eventsCausingServices: {
-    load: "ADD" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
+    load: "ADD" | "EDIT" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
   };
   matchesStates:
     | "available"
     | "complete"
+    | "editing"
     | "empty"
     | "error"
     | "loading"
