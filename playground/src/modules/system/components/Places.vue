@@ -11,6 +11,8 @@
         :selected="item.id === selected?.id"
         @select="select"
       />
+
+      <!-- <upm-place-form :item="selected" v-if="selected"></upm-place-form> -->
     </div>
     <upm-debug
       v-if="debugging"
@@ -28,12 +30,14 @@
 import { defineComponent } from "vue";
 import { useSystemPlaces } from "..";
 import UpmPlace from "../components/Place.vue";
+import UpmPlaceForm from "../components/Place.vue";
 import { UpmDebug } from "@upmind/components";
 
 export default defineComponent({
   name: "UpmPlaces",
   components: {
     UpmPlace,
+    UpmPlaceForm,
     UpmDebug
   },
   props: {
