@@ -171,8 +171,8 @@ async function loadPlaceDetails(_context: PlaceContext, { data }: PlaceEvent) {
     autocompleteApi.places.getDetails(
       {
         placeId: data?.place,
-        sessionToken: autocompleteApi.sessionToken
-        // fields: ["address_components", "name"]
+        sessionToken: autocompleteApi.sessionToken,
+        fields: ["address_components", "name"]
       },
       (result, status) => {
         autocompleteApi.sessionToken =
