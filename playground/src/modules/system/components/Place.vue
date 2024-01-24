@@ -63,7 +63,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useSystemPlace } from "..";
-import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/outline";
+import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
 
 export default defineComponent({
   name: "UpmPlace",

@@ -173,10 +173,7 @@ export const useSystemPlace = item => {
     // ---
     title: computed(() => {
       // state.value.context?.model
-      return compact([
-        get(state.value.context?.model, "name"),
-        get(state.value.context?.model, "street")
-      ]).join(" ");
+      return compact([get(state.value.context?.model, "name")]).join(" ");
     }),
     display: computed(() => {
       const country = find(state.value.context?.countries, [
@@ -190,7 +187,8 @@ export const useSystemPlace = item => {
       ]);
 
       return compact([
-        get(state.value.context?.model, "name"),
+        get(state.value.context?.model, "address_1"),
+        get(state.value.context?.model, "address_2"),
         get(state.value.context?.model, "street"),
         get(state.value.context?.model, "city"),
         get(state.value.context?.model, "postcode"),

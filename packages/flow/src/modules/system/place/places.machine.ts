@@ -138,7 +138,11 @@ export default createMachine(
         selected: (
           { items, selected }: PlacesContext,
           { data }: PlacesEvents
-        ) => find(items, ["id", data]) || selected || first(items)
+        ) =>
+          find(items, ["id", data]) ||
+          selected ||
+          find(items, "state.context.model.default") ||
+          first(items)
       }),
 
       clearSelected: assign({
