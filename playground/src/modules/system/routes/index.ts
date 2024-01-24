@@ -7,10 +7,10 @@ export default {
       component: () => import("../views/SystemView.vue")
     },
     {
-      path: "/system/place",
-      name: "place",
+      path: "/system/places",
+      name: "places",
       //  is lazy-loaded when the route is visited.
-      component: () => import("../views/Place.vue")
+      component: () => import("../views/PlacesView.vue")
     }
   ]
 };

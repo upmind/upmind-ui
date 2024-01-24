@@ -76,9 +76,6 @@ export default defineComponent({
   },
   setup(props) {
     const session = useSession();
-
-    session.getUser();
-
     return session;
   },
   computed: {},

@@ -240,6 +240,12 @@ export default (request: RequestParams) =>
         canAuthorize: (context, { data }) => {
           const isAuth = includes(context.url.pathname, "oauth");
           const isUnauthorized = data?.status === responseCodes.Unauthorized;
+          console.debug("request", "canAuthorize", {
+            isAuth,
+            isUnauthorized,
+            attempts: context?.attempts,
+            can: !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1
+          });
           return !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1;
         },
         // ---

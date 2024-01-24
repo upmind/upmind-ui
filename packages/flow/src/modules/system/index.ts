@@ -40,6 +40,18 @@ export const useSystem = () => {
 
     if (values) return Promise.resolve(values);
 
+    // Are we already fetching this node?
+    // if we are, then wait for the fetch to complete
+
+    if (state.matches(`${node}.loading`)) {
+      console.log(node, "is busy...waiting", state.value);
+      await waitFor(service, newstate =>
+        [`${node}.idle`, `${node}.complete`].some(state.matches)
+      );
+      console.log(node, "finished, trying again", state.value);
+      return fetch(node, getValues, data);
+    }
+
     // ---
     // if we dont have the regions for this country, then we need to fetch them
     service.send({
@@ -83,6 +95,29 @@ export const useSystem = () => {
     return find(state.context.countries, ["id", value]);
   };
   // ---
+
+  const fetchRegions = async (country?: ICountry | string) => {
+    // if we are not passed a country, then we need to get the default country
+
+    if (isEmpty(country)) {
+      // ensure we have our brand settings loaded before we try to get the default country
+      if (!["settings.complete"].some(brandService.state.matches)) {
+        await waitFor(brandService, state =>
+          ["settings.complete"].some(state.matches)
+        );
+      }
+
+      country = getDefaultCountry();
+    }
+
+    //  ensure we have a country object in order to fetch regions
+    if (isString(country)) country = getCountry(country);
+
+    if (!country)
+      return Promise.reject("Country not found, cannot get regions");
+
+    return fetch("regions", getRegions, country);
+  };
 
   const getRegions = (value: string | ICountry) =>
     get(state.context.regions, isString(value) ? value : value.code);
@@ -141,27 +176,7 @@ export const useSystem = () => {
     getCountry,
     getDefaultCountry,
     // ---
-    fetchRegions: async (country?: ICountry | string) => {
-      // if we are not passed a country, then we need to get the default country
-      if (isEmpty(country)) {
-        // ensure we have our brand settings loaded before we try to get the default country
-        if (!["settings.complete"].some(brandService.state.matches)) {
-          await waitFor(brandService, state =>
-            ["settings.complete"].some(state.matches)
-          );
-        }
-
-        country = getDefaultCountry();
-      }
-
-      //  ensure we have a country object in order to fetch regions
-      if (isString(country)) country = getCountry(country);
-
-      if (!country)
-        return Promise.reject("Country not found, cannot get regions");
-
-      return fetch("regions", getRegions, country);
-    },
+    fetchRegions,
     getRegions,
     getRegion,
     // ---

@@ -57,6 +57,7 @@
     <footer>
       <upm-debug
         title="Session"
+        :open="{ state }"
         :state="{ session: state, guest: guest?.value, client: client?.value }"
         :context="context"
         :errors="errors"

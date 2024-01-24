@@ -9,7 +9,17 @@ import {
 } from "@upmind/flow";
 
 // --- utils
-import { omit, sample, get, isEmpty, filter, has } from "lodash-es";
+import {
+  omit,
+  sample,
+  get,
+  isEmpty,
+  filter,
+  has,
+  map,
+  compact,
+  find
+} from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -132,11 +142,80 @@ export const useSystem = () => {
   };
 };
 
-export const useSystemPlace = () => {
+export const useSystemPlace = item => {
+  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
+  const { state, send } = item;
+
+  // --------------------------------------------------------
+
+  return {
+    state: computed(() => state.value.value),
+    context: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
+    // ---
+    meta: computed(() => ({
+      isLoading: ["loading"].some(state.value.matches),
+      hasErrors: [
+        "error",
+        "loading.constants.error",
+        "loading.autocomplete.error"
+      ].some(state.value.matches),
+      isSearching: ["searching"].some(state.value.matches),
+      isProcessing: ["populating", "checking", "processing"].some(
+        state.value.matches
+      ),
+      isValid: ["valid"].some(state.value.matches),
+      hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
+      isComplete:
+        state.value.done || ["processed", "complete"].some(state.value.matches)
+    })),
+    // ---
+    title: computed(() => {
+      // state.value.context?.model
+      return compact([
+        get(state.value.context?.model, "name"),
+        get(state.value.context?.model, "street")
+      ]).join(" ");
+    }),
+    display: computed(() => {
+      const country = find(state.value.context?.countries, [
+        "id",
+        get(state.value.context?.model, "country_id")
+      ]);
+
+      const region = find(state.value.context?.regions, [
+        "id",
+        get(state.value.context?.model, "region_id")
+      ]);
+
+      return compact([
+        get(state.value.context?.model, "name"),
+        get(state.value.context?.model, "street"),
+        get(state.value.context?.model, "city"),
+        get(state.value.context?.model, "postcode"),
+        get(region, "name"),
+        get(country, "name")
+      ]).join(", ");
+    }),
+    // ---
+    model: computed(() => state.value?.context?.model),
+    schema: computed(() => state.value?.context?.schema),
+    uischema: computed(() => state.value?.context?.uischema),
+    autocomplete: computed(() => state.value?.context?.autocomplete),
+    // ---
+    input: model => send({ type: "SET", data: model }),
+    search: model => send({ type: "SEARCH", data: model }),
+    update: () => send({ type: "UPDATE" }),
+    clear: () => send({ type: "CLEAR" })
+  };
+};
+
+export const useSystemPlaces = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const place = useUpmindSystemPlaces();
-  const { state, send } = useActor(place.service);
+  const { service } = useUpmindSystemPlaces();
+  const { state, send } = useActor(service);
 
   // --------------------------------------------------------
 
@@ -159,15 +238,14 @@ export const useSystemPlace = () => {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
-    model: computed(() => state.value?.context?.model),
-    schema: computed(() => state.value?.context?.schema),
-    uischema: computed(() => state.value?.context?.uischema),
-    autocomplete: computed(() => state.value?.context?.autocomplete),
+    items: computed(() =>
+      map(state.value.context.items, item => ({
+        id: item.id,
+        ...useActor(item)
+      }))
+    ),
+    selected: computed(() => state.value.context?.selected),
     // ---
-    input: model => send({ type: "SET", data: model }),
-    search: model => send({ type: "SEARCH", data: model }),
-    update: () => send({ type: "UPDATE" }),
-    clear: () => send({ type: "CLEAR" }),
-    destroy: place.destroy
+    select: id => send({ type: "SELECT", data: id })
   };
 };
