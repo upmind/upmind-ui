@@ -18,7 +18,7 @@ import {
 } from "lodash-es";
 
 // ---types
-import type { PlacesContext, PlacesEvents, IAddress } from "./types";
+import type { PlacesContext, PlacesEvents, IAddress } from "./types.d";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
@@ -58,12 +58,12 @@ export default createMachine(
           onDone: [
             {
               target: "empty",
-              actions: ["setItems", "setSelected"],
+              actions: ["setItems"],
               cond: (_context, { data }) => data
             },
             {
               target: "available",
-              actions: ["setItems", "setSelected"]
+              actions: ["setItems"]
             }
           ],
           onError: {
@@ -80,7 +80,10 @@ export default createMachine(
         always: [{ target: "available", cond: "hasItems" }]
       },
       available: {
-        always: [{ target: "empty", cond: "hasNoItems" }]
+        always: [
+          { target: "empty", cond: "hasNoItems" },
+          { target: "selected", cond: "hasSelected" }
+        ]
       },
       editing: {},
       selected: {},
@@ -95,7 +98,6 @@ export default createMachine(
       },
 
       SELECT: {
-        target: "selected",
         actions: ["setSelected"],
         cond: "isSelectable"
       },
@@ -149,10 +151,12 @@ export default createMachine(
       }),
 
       setSelected: assign({
-        selected: ({ items }: PlacesContext, { data }: PlacesEvents) =>
+        selected: (
+          { items, selected }: PlacesContext,
+          { data }: PlacesEvents
+        ) =>
           find(items, ["id", data]) ||
-          find(items, "state.context.model.default") ||
-          first(items)
+          find(items, "state.context.model.default")
       }),
 
       setSelectedNew: assign({
@@ -177,7 +181,8 @@ export default createMachine(
     guards: {
       isSelectable: ({ items }, { data }) => true, // todo checkthe model for any reason to not be selectable
       hasItems: ({ items }) => !isEmpty(items),
-      hasNoItems: ({ items }) => isEmpty(items)
+      hasNoItems: ({ items }) => isEmpty(items),
+      hasSelected: ({ selected }) => !!selected?.id
     },
     services
   }

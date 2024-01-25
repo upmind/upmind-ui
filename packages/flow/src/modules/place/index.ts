@@ -16,13 +16,13 @@ import placesMachine from "./places.machine";
 
 let state = null;
 
-const service = interpret(placesMachine, { devTools: true }).onTransition(
+const service = interpret(placesMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
 // --------------------------------------------------------
 
-export const useSystemPlaces = () => {
+export const usePlaces = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

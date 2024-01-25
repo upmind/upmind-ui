@@ -105,7 +105,7 @@ export default createMachine(
           onDone: { target: "#shopping", actions: ["setBasket", "loadItems"] },
           onError: {
             target: "error",
-            actions: ["setError", "setErrorFeedback"]
+            actions: ["setError", "setFeedbackError"]
           }
         }
       },
@@ -120,7 +120,7 @@ export default createMachine(
           },
           onError: {
             target: "#error",
-            actions: ["setError", "setErrorFeedback"]
+            actions: ["setError", "setFeedbackError"]
           }
         }
       },
@@ -174,7 +174,11 @@ export default createMachine(
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setSuccess"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setFeedbackSuccess"
+                        ]
                       },
                       onError: {
                         target: "#processed",
@@ -182,22 +186,8 @@ export default createMachine(
                           "refreshItems",
                           "updateBasket",
                           "setError",
-                          "setErrorFeedback"
+                          "setFeedbackError"
                         ]
-                      }
-                    }
-                  },
-
-                  currency: {
-                    invoke: {
-                      src: "setCurrency",
-                      onDone: {
-                        target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setSuccess"]
-                      },
-                      onError: {
-                        target: "error",
-                        actions: ["setError", "setErrorFeedback"]
                       }
                     }
                   },
@@ -212,7 +202,7 @@ export default createMachine(
                           "removeFromQueue",
                           "refreshItems",
                           "updateBasket",
-                          "setSuccess"
+                          "setFeedbackSuccess"
                         ]
                       },
                       onError: {
@@ -221,7 +211,7 @@ export default createMachine(
                           "refreshItems",
                           "updateBasket",
                           "setError",
-                          "setErrorFeedback"
+                          "setFeedbackError"
                         ]
                       }
                     }
@@ -233,7 +223,11 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["removeItem", "updateBasket", "setSuccess"]
+                        actions: [
+                          "removeItem",
+                          "updateBasket",
+                          "setFeedbackSuccess"
+                        ]
                       },
                       onError: {
                         target: "#processed",
@@ -241,7 +235,7 @@ export default createMachine(
                           "refreshItems",
                           "updateBasket",
                           "setError",
-                          "setErrorFeedback"
+                          "setFeedbackError"
                         ]
                       }
                     }
@@ -297,9 +291,6 @@ export default createMachine(
                   cond: "isNotQueued"
                 }
               ],
-              "UPDATE.CURRENCY": {
-                target: "items.processing.currency"
-              },
 
               CLEAR: {
                 target: "items.processing",
@@ -335,11 +326,15 @@ export default createMachine(
                   src: "addPromotion",
                   onDone: {
                     target: "active",
-                    actions: ["refreshItems", "updateBasket", "setSuccess"]
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setErrorFeedback"]
+                    actions: ["setError", "setFeedbackError"]
                   }
                 }
               },
@@ -348,11 +343,15 @@ export default createMachine(
                   src: "removePromotion",
                   onDone: {
                     target: "empty",
-                    actions: ["refreshItems", "updateBasket", "setSuccess"]
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setErrorFeedback"]
+                    actions: ["setError", "setFeedbackError"]
                   }
                 }
               },
@@ -440,11 +439,11 @@ export default createMachine(
                   src: "setFields",
                   onDone: {
                     target: "complete",
-                    actions: ["updateBasket", "setSuccess"]
+                    actions: ["updateBasket", "setFeedbackSuccess"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setErrorFeedback"]
+                    actions: ["setError", "setFeedbackError"]
                   }
                 }
               },
@@ -474,6 +473,104 @@ export default createMachine(
                 cond: "hasFields"
               }
             }
+          },
+
+          billing: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: {
+                  target: "complete",
+                  cond: "hasBilling"
+                }
+              },
+
+              processing: {
+                invoke: {
+                  src: "setBilling",
+                  onDone: {
+                    target: "complete",
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+
+              // Handle errors
+              error: {},
+
+              // Handle completion, stop the machine and prevent further requests
+              complete: {
+                id: "complete",
+                type: "final",
+                always: {
+                  target: "empty",
+                  cond: "hasNoBilling"
+                }
+              }
+            },
+            on: {
+              "UPDATE.BILLING": {
+                target: "billing.processing",
+                cond: "notSameBilling"
+              }
+            }
+          },
+
+          currency: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: {
+                  target: "complete",
+                  cond: "hasCurrency"
+                }
+              },
+
+              processing: {
+                invoke: {
+                  src: "setCurrency",
+                  onDone: {
+                    target: "complete",
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+
+              // Handle errors
+              error: {},
+
+              // Handle completion, stop the machine and prevent further requests
+              complete: {
+                id: "complete",
+                type: "final",
+                always: {
+                  target: "empty",
+                  cond: "hasNoCurrency"
+                }
+              }
+            },
+            on: {
+              "UPDATE.CURRENCY": {
+                target: "currency.processing",
+                cond: "notSameCurrency"
+              }
+            }
           }
         },
         on: {
@@ -492,7 +589,6 @@ export default createMachine(
       checkout: {
         type: "parallel",
         states: {
-          billing: {},
           shipping: {},
           payment: {}
         },
@@ -774,11 +870,11 @@ export default createMachine(
       }),
 
       // ---
-      setSuccess: (context, { data }) => {
+      setFeedbackSuccess: (context, { data }) => {
         addSuccess("Successfully updated the basket");
       },
 
-      setErrorFeedback: ({ error }, _event) => {
+      setFeedbackError: ({ error }, _event) => {
         addError({
           title: error?.title || "We experienced an error updating the basket",
           copy: error?.message,
@@ -816,6 +912,7 @@ export default createMachine(
 
       clearError: assign({ error: null })
     },
+
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
@@ -887,13 +984,28 @@ export default createMachine(
         isEmpty(basket) || isEmpty(custom_fields),
 
       hasFields: ({ basket, custom_fields }) =>
-        !isEmpty(basket) && !isEmpty(custom_fields)
+        !isEmpty(basket) && !isEmpty(custom_fields),
+
+      hasBilling: ({ basket }) => !!basket?.address_id || !!basket?.company_id,
+      hasNoBilling: ({ basket }) => !basket?.address_id && !basket?.company_id,
+      notSameBilling: ({ basket }, { data }) => {
+        return (
+          basket?.address_id !== data?.address_id ||
+          basket?.company_id !== data?.company_id
+        );
+      },
+
+      hasCurrency: ({ basket }) => !!basket?.currency_id,
+      hasNoCurrency: ({ basket }) => !basket?.currency_id,
+      notSameCurrency: ({ basket }, { data }) =>
+        basket?.currency_id !== data?.currency_id
     },
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT
     },
+
     services
   }
 );

@@ -29,7 +29,9 @@
         :key="selected.id"
       ></upm-place-form>
 
-      <div class="actions flex justify-center items-center">
+      <div
+        class="actions flex justify-center items-center aspect-video h-full max-w-full"
+      >
         <button class="btn btn-block h-full" @click="add">
           <squares-plus-icon class="w-6 h-6" /> Add new
         </button>
@@ -37,7 +39,7 @@
     </template>
     <upm-debug
       v-if="debugging"
-      title="SystemPlaces"
+      title="Places"
       :state="state"
       :context="context"
       :errors="errors"
@@ -48,22 +50,18 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
 import { defineComponent, ref, watch } from "vue";
-import { useSystemPlaces } from "..";
+import { usePlaces } from "..";
 import UpmPlace from "../components/Place.vue";
 import UpmPlaceForm from "../components/PlaceForm.vue";
 import { UpmDebug } from "@upmind/components";
-import { PlusIcon, SquaresPlusIcon } from "@heroicons/vue/24/outline";
+import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
-// ---temp type
-import type { IAddress } from "../../../../../packages/flow/src/modules/system/place/types";
 import { isEqual } from "lodash-es";
 
 export default defineComponent({
   name: "UpmPlaces",
   components: {
-    PlusIcon,
     SquaresPlusIcon,
     UpmPlace,
     UpmPlaceForm,
@@ -72,7 +70,7 @@ export default defineComponent({
   emits: ["update:modelValue"],
   props: {
     modelValue: {
-      type: String as PropType<IAddress["id"]>,
+      type: String,
       default: ""
     },
     debugging: {
@@ -82,7 +80,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { state, context, meta, errors, items, add, select, selected } =
-      useSystemPlaces();
+      usePlaces();
 
     if (props.modelValue) {
       select(props.modelValue);

@@ -2,13 +2,13 @@
 import { Loader } from "@googlemaps/js-api-loader";
 
 // --- internal
-import { useApi } from "../../api";
+import { useApi } from "../api";
 import { useSystem } from "../";
-import { useSession } from "../../session";
+import { useSession } from "../session";
 
 // --- utils
 import { usePlaceDetailParser } from "./utils";
-import { useValidation } from "../../../utils";
+import { useValidation } from "../../utils";
 import { some, first, isEmpty, find, get } from "lodash-es";
 
 // --- types
@@ -16,9 +16,8 @@ import type {
   PlaceEvent,
   PlaceContext,
   PlacesEvents,
-  PlacesContext,
-  IAddress
-} from "./types";
+  PlacesContext
+} from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS

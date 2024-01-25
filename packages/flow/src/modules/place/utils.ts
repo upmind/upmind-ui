@@ -14,7 +14,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ICountry } from "../types";
+import type { ICountry } from "../system/types.d";
 import type { IAddress, PlaceContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 

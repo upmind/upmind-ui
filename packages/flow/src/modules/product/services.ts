@@ -4,7 +4,7 @@
 import { useApi } from "../api";
 import { useBrand, BrandConfigKeys } from "../brand";
 
-import type { ProductConfigContext } from "./types";
+import type { ProductConfigContext } from "./types.d";
 
 // --- utils
 import { useTime } from "../../utils";

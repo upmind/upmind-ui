@@ -4,7 +4,7 @@ const { escalate } = actions;
 
 // --- internal
 import services from "./services";
-import type { UploadContext, UploadEvent } from "../types";
+import type { UploadContext, UploadEvent } from "../types.d";
 
 // --- utils
 import { useTime, useValidationParser } from "../../../utils";

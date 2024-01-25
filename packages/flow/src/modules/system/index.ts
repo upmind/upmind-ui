@@ -4,13 +4,12 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 export * from "./upload";
-export * from "./place";
 import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 
 // --- utils
 import { find, values, isString, get, isEmpty, some } from "lodash-es";
-import type { ICountry } from "./types";
+import type { ICountry } from "./types.d";
 import { isArray } from "xstate/lib/utils";
 
 // --- types

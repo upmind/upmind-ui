@@ -237,6 +237,7 @@
         <upm-places
           v-if="!meta.needsAuth"
           class="my-8 p-0"
+          :model-value="basket?.address_id || basket?.company_id"
           @update:model-value="setBillingDetails"
         />
       </section>
@@ -369,7 +370,7 @@ import UpmPromotions from "../components/Promotions.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
 import UpmProfile from "../../session/components/Profile.vue";
-import UpmPlaces from "../../system/components/Places.vue";
+import UpmPlaces from "../../places/components/Places.vue";
 
 import { UpmDebug } from "@upmind/components";
 import {

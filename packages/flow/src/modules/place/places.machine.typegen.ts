@@ -26,25 +26,23 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    clearError: "ADD" | "EDIT" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
-    clearItems: "ADD" | "EDIT" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
+    clearError: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
+    clearItems: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
     clearSelected: "error.platform.placesManager.loading:invocation[0]";
     setError: "error.platform.placesManager.loading:invocation[0]";
     setItems: "done.invoke.placesManager.loading:invocation[0]";
-    setSelected:
-      | "EDIT"
-      | "SELECT"
-      | "done.invoke.placesManager.loading:invocation[0]";
+    setSelected: "EDIT" | "SELECT";
     setSelectedNew: "ADD";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasItems: "";
     hasNoItems: "";
+    hasSelected: "";
     isSelectable: "SELECT";
   };
   eventsCausingServices: {
-    load: "ADD" | "EDIT" | "REFRESH" | "SELECT" | "STOP" | "xstate.init";
+    load: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
   };
   matchesStates:
     | "available"
