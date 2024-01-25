@@ -18,7 +18,7 @@
 
         <sub
           v-if="meta.isLoading && !meta.hasErrors"
-          class="loading loading-dots loading-xs opacity-25"
+          class="loading loading-dots loading-xs"
         ></sub>
       </p>
 

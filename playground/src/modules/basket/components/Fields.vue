@@ -31,7 +31,7 @@ import { isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";
 
 export default defineComponent({
-  name: "ConfigPromotions",
+  name: "UpmBasketFields",
   components: { UpmFormGenerator },
   inheritAttrs: true,
   customOptions: {},

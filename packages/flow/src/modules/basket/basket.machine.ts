@@ -100,12 +100,26 @@ export default createMachine(
       // instead we will wait for an Action before we generate a basket
       loading: {
         id: "loading",
-        invoke: {
-          src: "check",
-          onDone: { target: "#shopping", actions: ["setBasket", "loadItems"] },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"]
+        initial: "basket",
+        states: {
+          basket: {
+            invoke: {
+              src: "check",
+              onDone: {
+                target: "items",
+                actions: ["setBasket", "loadItems"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          },
+          items: {
+            always: {
+              target: "#shopping",
+              cond: "isNotLoading"
+            }
           }
         }
       },
@@ -141,7 +155,7 @@ export default createMachine(
       // We are now ready to start accepting items into the basket
       // items are effectively products that are not yet added to the basket OR products that are being changed
       // regardles, these items require configuring
-      // once items are configured, we can then add them (back) into the basket,
+      // once items are configured(complete), we can then add them (back) into the basket,
       // NB: this allows us to have multiple products added at once and have a mixed basket
       // once successfully added, they become products and can be updated/removed
       shopping: {
@@ -154,7 +168,7 @@ export default createMachine(
               empty: {
                 always: [
                   { target: "configuring", cond: "someConfiguring" },
-                  { target: "configured", cond: "allConfigured" }
+                  { target: "complete", cond: "allConfigured" }
                 ]
               },
 
@@ -162,7 +176,7 @@ export default createMachine(
                 id: "configuring",
                 always: [
                   { target: "empty", cond: "hasNoItems" },
-                  { target: "configured", cond: "allConfigured" }
+                  { target: "complete", cond: "allConfigured" }
                 ]
               },
 
@@ -256,9 +270,8 @@ export default createMachine(
                 }
               },
 
-              // items are 'configured' only when they have been successfully added to the basket
-              configured: {
-                id: "configured",
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
                 always: [
                   { target: "empty", cond: "hasNoItems" },
                   { target: "configuring", cond: "someConfiguring" }
@@ -407,10 +420,6 @@ export default createMachine(
                 }
               },
 
-              idle: {
-                always: []
-              },
-
               checking: {
                 entry: ["clearError"],
                 invoke: {
@@ -429,10 +438,7 @@ export default createMachine(
 
               invalid: {},
 
-              // Handle errors
-              error: {
-                id: "error"
-              },
+              error: {},
 
               processing: {
                 invoke: {
@@ -449,10 +455,9 @@ export default createMachine(
               },
               // Handle completion, stop the machine and prevent further requests
               complete: {
-                id: "complete",
                 type: "final",
                 always: {
-                  target: "idle",
+                  target: "checking",
                   cond: "hasNoFields"
                 }
               }
@@ -463,7 +468,7 @@ export default createMachine(
                 cond: "hasFields"
               },
               "CLEAR.FIELDS": {
-                target: "custom_fields.idle",
+                target: "custom_fields.checking",
                 actions: ["clearFieldsModel"],
                 cond: "hasFields"
               },
@@ -508,7 +513,6 @@ export default createMachine(
 
               // Handle completion, stop the machine and prevent further requests
               complete: {
-                id: "complete",
                 type: "final",
                 always: {
                   target: "empty",
@@ -557,7 +561,6 @@ export default createMachine(
 
               // Handle completion, stop the machine and prevent further requests
               complete: {
-                id: "complete",
                 type: "final",
                 always: {
                   target: "empty",
@@ -952,6 +955,10 @@ export default createMachine(
       hasNoItem: ({ items }, { data }) => isEmpty(data) || !data?.itemId,
 
       hasItems: ({ items }) => !isEmpty(items),
+
+      isNotLoading: ({ items }) => {
+        return every(items, ({ state }) => !state.matches("loading"));
+      },
 
       hasNoItems: ({ items }) => isEmpty(items),
 
