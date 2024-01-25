@@ -12,23 +12,27 @@
 
     <div class="flex text-xs mb-4 uppercase join font-mono">
       <!-- <span class="join-item badge  badge-ghost badge-sm">{{ message.hash }}</span> -->
-      <span class="join-item badge badge-sm" :class="`badge-${message.type}`">{{
-        message.type
-      }}</span>
-      <span class="join-item badge badge-ghost badge-sm">{{
+      <span
+        class="join-item badge badge-sm rounded"
+        :class="`badge-${message.type}`"
+        >{{ message.type }}</span
+      >
+      <span class="join-item badge badge-ghost badge-sm rounded">{{
         message.display
       }}</span>
 
-      <span class="join-item badge badge-ghost badge-sm" v-if="meta.isActive"
+      <span
+        class="join-item badge badge-ghost badge-sm rounded"
+        v-if="meta.isActive"
         >showing</span
       >
       <span
-        class="join-item badge badge-ghost badge-sm"
+        class="join-item badge badge-ghost badge-sm rounded"
         v-if="message.maxAge && meta.isActive"
         >{{ hidesIn }}</span
       >
       <span
-        class="join-item badge badge-ghost badge-sm"
+        class="join-item badge badge-ghost badge-sm rounded"
         v-if="meta.isScheduled"
         >{{ showsIn }}</span
       >
