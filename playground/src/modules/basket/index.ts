@@ -39,10 +39,11 @@ export const useBasket = () => {
       send({ type: "UPDATE.FIELDS" });
     },
 
-    setBillingDetails: values => {
-      debugger;
-      send({ type: "SET.BILLING", data: values });
-    },
+    setBillingDetails: values =>
+      send({
+        type: "UPDATE.BILLING",
+        data: { address_id: values, company_id: null }
+      }),
 
     updateCurrency: currency =>
       send({ type: "UPDATE.CURRENCY", data: currency }),
@@ -101,6 +102,8 @@ export const useBasket = () => {
         isProcessing: [
           "shopping.items.processing",
           "shopping.custom_fields.processing",
+          "shopping.billing.processing",
+          "shopping.currency.processing",
           "shopping.promotions.adding",
           "shopping.promotions.removing"
         ].some(state.value.matches),

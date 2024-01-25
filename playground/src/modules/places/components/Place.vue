@@ -108,7 +108,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useSystemPlace } from "..";
+import { usePlace } from "..";
 import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
@@ -149,7 +149,7 @@ export default defineComponent({
       select,
       remove,
       setDefault
-    } = useSystemPlace(props.item);
+    } = usePlace(props.item);
 
     // ------------------------------------------------
 

@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useSystemPlace } from "..";
+import { usePlace } from "..";
 import { UpmFormGenerator } from "@upmind/components";
 
 export default defineComponent({
@@ -76,7 +76,7 @@ export default defineComponent({
       search,
       update,
       cancel
-    } = useSystemPlace(props.item);
+    } = usePlace(props.item);
 
     return {
       form: ref(),

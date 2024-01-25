@@ -233,6 +233,65 @@ async function setCurrency({ basket, items }: BasketContext, { data }: any) {
   );
 }
 
+async function setBilling({ basket, items }: BasketContext, { data }: any) {
+  const { put, get, useUrl } = useApi();
+
+  const validItems = reject(items, item => item.state.context.isNew);
+
+  debugger;
+  // get returns a promise so we can pass it directly back to the machine
+  return (
+    put({
+      url: useUrl(`/orders/${basket.id}`),
+      data: {
+        address_id: data?.address_id,
+        company_id: data?.company_id
+      },
+      withAccessToken: true
+    })
+      // now we have to refresh our basket as the we dont have all our data
+      .then(({ data }) => {
+        return get({
+          url: useUrl(`orders/${data.id}`, {
+            with: [
+              "account.brand.image",
+              "account.pricelist",
+              "brand.image",
+              "client.image",
+              "contract",
+              "currency",
+              "custom_fields.field",
+              "payments",
+              "products.product.image",
+              "products.product.images",
+              "products.product.prices",
+              "products.product.products_attributes",
+              "products.product.products_attributes.category",
+              "products.product.products_options",
+              "products.product.products_options.category",
+              "products.product.products_options.prices",
+              "products.product.provision_field_values",
+              "products.tags",
+              "promotions",
+              "status",
+              "taxes",
+              "taxes.tax_tag_data",
+              `products.product.category${".top_category".repeat(4)}`
+            ].join()
+          }),
+          withAccessToken: true,
+          useCache: false
+        });
+      })
+      .then(useBasketParser)
+      .then(basket => {
+        const newItems = differenceBy(basket.products, validItems, "id");
+        return { basket, items: validItems, newItems };
+      })
+      .then(updateItemProvisioningFields)
+  );
+}
+
 // --- Basket Promotions Methods
 
 async function addPromotion({ basket, items }, { data }: any) {
@@ -504,6 +563,7 @@ export default <Object>{
   // ---
   setFields,
   setCurrency,
+  setBilling,
   // ---
   addPromotion,
   removePromotion,

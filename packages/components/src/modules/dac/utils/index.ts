@@ -10,7 +10,7 @@ import type {
   IDomainProduct,
   IProductPrice,
   IDomainProductMapped
-} from "../types";
+} from "../types.d";
 // ----------------------------------------------------------------------------
 
 export function parseDomain(domain: string) {

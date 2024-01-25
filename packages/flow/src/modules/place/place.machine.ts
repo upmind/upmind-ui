@@ -13,7 +13,7 @@ import {
   useAutocompleteSchema,
   useAutocompleteUischema
 } from "./utils";
-import { useTime, useValidationParser } from "../../../utils";
+import { useTime, useValidationParser } from "../../utils";
 import { set } from "lodash-es";
 
 // --- types

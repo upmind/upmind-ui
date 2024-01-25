@@ -6,7 +6,7 @@ import { useMoney } from "../../../utils";
 import { map, orderBy, uniqBy, first } from "lodash-es";
 
 // --- types
-import type { IDomainProduct, IDomainProductMapped } from "../types";
+import type { IDomainProduct, IDomainProductMapped } from "../types.d";
 // ----------------------------------------------------------------------------
 
 export function parseDomain(domain: string) {
