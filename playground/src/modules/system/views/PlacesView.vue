@@ -16,7 +16,7 @@
       :data-theme="activeTheme"
       class="bg-base-200 rounded-box my-8 max-w-screen-lg p-4"
     >
-      <upm-places debugging />
+      <upm-places class="grid-cols-3" />
     </div>
   </section>
 </template>

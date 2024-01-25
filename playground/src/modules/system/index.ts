@@ -216,7 +216,7 @@ export const useSystemPlace = item => {
     // ---
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "SELECT" })
+    cancel: () => service.send({ type: "REFRESH" })
   };
 };
 
