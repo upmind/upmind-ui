@@ -104,7 +104,7 @@ export default defineComponent({
 
       window.scrollTo({ top: y, behavior: "smooth" });
 
-      this.form.focus();
+      // this.form.focus();
     });
   }
 });
