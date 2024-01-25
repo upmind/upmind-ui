@@ -233,6 +233,8 @@
         :disabled="meta.needsAuth"
       >
         <div class="divider uppercase text-xs opacity-50">Billing Details</div>
+
+        <upm-places v-if="!meta.needsAuth" class="my-8 p-0 grid-cols-2" />
       </section>
 
       <!-- payment -->
@@ -363,6 +365,7 @@ import UpmPromotions from "../components/Promotions.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
 import UpmProfile from "../../session/components/Profile.vue";
+import UpmPlaces from "../../system/components/Places.vue";
 
 import { UpmDebug } from "@upmind/components";
 import {
@@ -370,9 +373,6 @@ import {
   ArrowUturnLeftIcon,
   TrashIcon
 } from "@heroicons/vue/24/outline";
-
-import type { UseScrollReturn } from "@vueuse/core";
-import { vScroll } from "@vueuse/components";
 
 const activeTheme = inject("activeTheme");
 
@@ -471,8 +471,4 @@ const model = ref({
 onBeforeUnmount(() => {
   updateFields();
 });
-
-function onScroll(state: UseScrollReturn) {
-  console.log(state); // {x, y, isScrolling, arrivedState, directions}
-}
 </script>
