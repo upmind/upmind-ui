@@ -9,6 +9,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.basketManager.loading.basket:invocation[0]": {
+      type: "done.invoke.basketManager.loading.basket:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.basketManager.shopping.billing.processing:invocation[0]": {
       type: "done.invoke.basketManager.shopping.billing.processing:invocation[0]";
       data: unknown;
@@ -54,11 +59,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.loading:invocation[0]": {
-      type: "done.invoke.loading:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.removing:invocation[0]": {
       type: "done.invoke.removing:invocation[0]";
       data: unknown;
@@ -71,6 +71,10 @@ export interface Typegen0 {
     };
     "error.platform.authCallback": {
       type: "error.platform.authCallback";
+      data: unknown;
+    };
+    "error.platform.basketManager.loading.basket:invocation[0]": {
+      type: "error.platform.basketManager.loading.basket:invocation[0]";
       data: unknown;
     };
     "error.platform.basketManager.shopping.billing.processing:invocation[0]": {
@@ -109,10 +113,6 @@ export interface Typegen0 {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
-    "error.platform.loading:invocation[0]": {
-      type: "error.platform.loading:invocation[0]";
-      data: unknown;
-    };
     "error.platform.removing:invocation[0]": {
       type: "error.platform.removing:invocation[0]";
       data: unknown;
@@ -130,7 +130,7 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     addPromotion: "done.invoke.basketManager.shopping.promotions.adding:invocation[0]";
     authSubscription: "done.invoke.authCallback";
-    check: "done.invoke.loading:invocation[0]";
+    check: "done.invoke.basketManager.loading.basket:invocation[0]";
     claim: "done.invoke.claiming:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     getCustomFields: "done.invoke.basketManager.shopping.custom_fields.loading:invocation[0]";
@@ -169,10 +169,10 @@ export interface Typegen0 {
     addItem: "ADD";
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
-    clearError: "CLEAR.ERRORS" | "SET.FIELDS";
+    clearError: "" | "CLEAR.ERRORS" | "CLEAR.FIELDS" | "SET.FIELDS";
     clearFieldsModel: "CLEAR.FIELDS";
     clearQueue: "UPDATE";
-    loadItems: "done.invoke.loading:invocation[0]";
+    loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     queueItem: "UPDATE";
     refreshItems:
       | "done.invoke.basketManager.shopping.billing.processing:invocation[0]"
@@ -194,9 +194,10 @@ export interface Typegen0 {
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM";
     setBasket:
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]";
+      | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.generating:invocation[0]";
     setError:
+      | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.billing.processing:invocation[0]"
       | "error.platform.basketManager.shopping.currency.processing:invocation[0]"
       | "error.platform.basketManager.shopping.custom_fields.checking:invocation[0]"
@@ -206,10 +207,10 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.promotions.adding:invocation[0]"
       | "error.platform.basketManager.shopping.promotions.removing:invocation[0]"
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.loading:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
+      | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.billing.processing:invocation[0]"
       | "error.platform.basketManager.shopping.currency.processing:invocation[0]"
       | "error.platform.basketManager.shopping.custom_fields.processing:invocation[0]"
@@ -217,7 +218,6 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.promotions.adding:invocation[0]"
       | "error.platform.basketManager.shopping.promotions.removing:invocation[0]"
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.loading:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackSuccess:
@@ -267,6 +267,7 @@ export interface Typegen0 {
     hasNoItems: "";
     hasNoPromotions: "";
     hasPromotions: "";
+    isNotLoading: "";
     isNotQueued: "UPDATE";
     notSameBilling: "UPDATE.BILLING";
     notSameCurrency: "UPDATE.CURRENCY";
@@ -279,18 +280,18 @@ export interface Typegen0 {
     claim: "AUTHENTICATED";
     generate: "ADD";
     getCustomFields:
+      | ""
       | "CLEAR.ERRORS"
       | "CLEAR.FIELDS"
       | "SET.FIELDS"
       | "UPDATE.FIELDS"
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]";
+      | "done.invoke.generating:invocation[0]";
     isAuthenticated:
+      | ""
       | "CLEAR.ERRORS"
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]";
+      | "done.invoke.generating:invocation[0]";
     removeItem: "REMOVE";
     removePromotion: "REMOVE.PROMOTION";
     setBilling: "UPDATE.BILLING";
@@ -298,7 +299,7 @@ export interface Typegen0 {
     setFields: "UPDATE.FIELDS";
     update: "CLEAR" | "REMOVE" | "UPDATE";
     updateItem: "UPDATE";
-    validateFields: "SET.FIELDS";
+    validateFields: "" | "CLEAR.FIELDS" | "SET.FIELDS";
   };
   matchesStates:
     | "checkout"
@@ -309,6 +310,8 @@ export interface Typegen0 {
     | "error"
     | "generating"
     | "loading"
+    | "loading.basket"
+    | "loading.items"
     | "shopping"
     | "shopping.billing"
     | "shopping.billing.complete"
@@ -328,13 +331,12 @@ export interface Typegen0 {
     | "shopping.custom_fields.checking"
     | "shopping.custom_fields.complete"
     | "shopping.custom_fields.error"
-    | "shopping.custom_fields.idle"
     | "shopping.custom_fields.invalid"
     | "shopping.custom_fields.loading"
     | "shopping.custom_fields.processing"
     | "shopping.custom_fields.valid"
     | "shopping.items"
-    | "shopping.items.configured"
+    | "shopping.items.complete"
     | "shopping.items.configuring"
     | "shopping.items.empty"
     | "shopping.items.processed"
@@ -352,6 +354,7 @@ export interface Typegen0 {
     | "subscribing"
     | {
         checkout?: "payment" | "shipping";
+        loading?: "basket" | "items";
         shopping?:
           | "billing"
           | "client"
@@ -367,13 +370,12 @@ export interface Typegen0 {
                 | "checking"
                 | "complete"
                 | "error"
-                | "idle"
                 | "invalid"
                 | "loading"
                 | "processing"
                 | "valid";
               items?:
-                | "configured"
+                | "complete"
                 | "configuring"
                 | "empty"
                 | "processed"

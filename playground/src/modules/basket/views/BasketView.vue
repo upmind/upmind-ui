@@ -34,7 +34,7 @@
       </div>
 
       <div class="actions flex-none join justify-end">
-        <currency-switcher
+        <upm-currency
           v-if="currency"
           :model-value="currency"
           :currencies="currencies"
@@ -42,7 +42,7 @@
           @update:modelValue="updateCurrency"
           class="mx-4"
         >
-        </currency-switcher>
+        </upm-currency>
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
@@ -128,8 +128,8 @@
 
       <router-link
         class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasBillingAddress ? 'step-primary' : ''"
-        :data-content="meta.hasBillingAddress ? '✓' : '?'"
+        :class="meta.hasBilling ? 'step-primary' : ''"
+        :data-content="meta.hasBilling ? '✓' : '?'"
         :to="{ hash: '#billing' }"
       >
         Billing Details
@@ -179,7 +179,6 @@
           @update:attributes="updateAttributes"
           @update:options="updateOptions"
           @update:provisioning="updateProvisioning"
-          :debugging="debugging"
         >
           <template #actions="{ isConfigured, isNew, isDirty }">
             <button
@@ -208,6 +207,7 @@
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           :model-value="fieldsModel"
+          :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :additionalErrors="errors?.data"
           @resolve="updateFields"
@@ -237,6 +237,7 @@
         <upm-places
           v-if="!meta.needsAuth"
           class="my-8 p-0"
+          :processing="meta.isProcessing"
           :model-value="basket?.address_id || basket?.company_id"
           @update:model-value="setBillingDetails"
         />
@@ -260,6 +261,7 @@
         <!-- Promotions -->
         <upm-promotions
           :promotions="promotions"
+          :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :additionalErrors="errors?.data"
           @resolve="addPromotion"
@@ -349,6 +351,7 @@
     <footer>
       <upm-debug
         :debugging="debugging"
+        :open="{ state: true }"
         title="Basket"
         :state="state"
         :model="{ model }"
@@ -364,7 +367,7 @@
 <script setup lang="ts">
 import { ref, inject, onBeforeUnmount } from "vue";
 import { useBasket } from "..";
-import CurrencySwitcher from "../components/CurrencySwitcher.vue";
+import UpmCurrency from "../components/Currency.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
 import UpmBasketFields from "../components/Fields.vue";
@@ -466,7 +469,7 @@ const productCatalogue = [
   }
 ];
 
-const debugging = ref(false);
+const debugging = ref(true);
 
 const model = ref({
   product_id: null,

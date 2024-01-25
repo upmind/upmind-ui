@@ -1,12 +1,13 @@
 <template>
-  <div class="grid gap-4 grid-cols-card">
+  <div class="grid gap-4 grid-cols-card w-full">
     <div
       class="col-span-full text-center"
-      v-if="meta.isLoading || meta.isProcessing"
+      v-if="meta.isLoading || meta.isProcessing || processing"
     >
-      <span class="loading loading-dots opacity-50"></span>
+      <span class="loading loading-dots"></span>
     </div>
-    <template v-else>
+
+    <template v-if="!meta.isLoading">
       <upm-place
         v-for="item in items"
         :key="item.id"
@@ -14,7 +15,7 @@
         :selected="item.id === selected?.id"
         @select="select"
         :class="[
-          meta.isEditing ? 'opacity-50 pointer-events-none' : '',
+          meta.isEditing || processing ? 'opacity-50 pointer-events-none' : '',
           {
             'border-primary': item.id === selected?.id
             // 'col-span-full': item.id === selected?.id && meta.isEditing
@@ -72,6 +73,10 @@ export default defineComponent({
     modelValue: {
       type: String,
       default: ""
+    },
+    processing: {
+      type: Boolean,
+      default: false
     },
     debugging: {
       type: Boolean,

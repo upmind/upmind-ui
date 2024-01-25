@@ -125,18 +125,20 @@ export const useBasket = () => {
 
         // ---
         isAvailable: ["shopping"].some(state.value.matches),
-        isConfigured: ["shopping.items.configured"].some(state.value.matches),
-        hasBillingAddress: ["billing.configured"].some(state.value.matches),
-        hasPaymentMethod: ["payment.configured"].some(state.value.matches),
+        isConfigured: ["shopping.items.complete"].some(state.value.matches),
+        hasBilling: ["shopping.billing.complete"].some(state.value.matches),
+        hasCurrency: ["shopping.currency.complete"].some(state.value.matches),
+        hasPaymentMethod: ["payment.complete"].some(state.value.matches),
         needsAuth: ["shopping.client.unauthenticated"].some(
           state.value.matches
         ),
         hasFields: ["shopping.custom_fields.complete"].some(
           state.value.matches
         ),
-        needsFields: !["shopping.custom_fields.complete"].some(
-          state.value.matches
-        ),
+        needsFields: ![
+          "shopping.custom_fields.loading",
+          "shopping.custom_fields.complete"
+        ].some(state.value.matches),
 
         // ---
         isReadyForCheckout: ["checkout"].some(state.value.matches),

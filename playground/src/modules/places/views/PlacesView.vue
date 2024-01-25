@@ -15,10 +15,7 @@
       </div>
     </header>
 
-    <div
-      :data-theme="activeTheme"
-      class="bg-base-200 rounded-box my-8 max-w-screen-lg p-4"
-    >
+    <div :data-theme="activeTheme" class="bg-base-200 rounded-box my-8 p-4">
       <upm-places class="" @update:model-value="selectedId = $event" />
     </div>
   </section>

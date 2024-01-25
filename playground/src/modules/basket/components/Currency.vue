@@ -64,7 +64,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
 import { onClickOutside } from "@vueuse/core";
 
 export default defineComponent({
-  name: "CurrencySwitcher",
+  name: "UpmBasketCurrency",
   components: { ChevronDownIcon, ChevronUpIcon },
   inheritAttrs: true,
   customOptions: {},

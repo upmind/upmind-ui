@@ -9,6 +9,7 @@
       :schema="schema"
       :uischema="uischema"
       :additional-errors="additionalErrors"
+      :loading="loading"
       :processing="processing"
       @resolve="doResolve"
     >
@@ -62,12 +63,16 @@ import { isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";
 
 export default defineComponent({
-  name: "ConfigPromotions",
+  name: "UpmBasketPromotions",
   components: { UpmFormGenerator, XMarkIcon, TagIcon },
   inheritAttrs: true,
   customOptions: {},
   emits: ["reject", "resolve"],
   props: {
+    loading: {
+      type: Boolean,
+      default: false
+    },
     processing: {
       type: Boolean,
       default: false

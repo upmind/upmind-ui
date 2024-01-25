@@ -6,7 +6,7 @@
     @submit.prevent="doSubmit"
   >
     <div
-      class="absolute top-0 bottom-0 left-0 right-0 bg-base-100 opacity-50 flex justify-center items-start z-10 p-4"
+      class="flex justify-center items-start"
       v-if="meta.isLoading || meta.isProcessing"
     >
       <span class="loading loading-dots"></span>
@@ -25,6 +25,9 @@
       :additionalErrors="additionalErrors"
       @change="onChange"
       class="card-content"
+      :class="{
+        'opacity-50 pointer-events-none': meta.isProcessing
+      }"
     />
 
     <!-- actions -->

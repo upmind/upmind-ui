@@ -238,7 +238,6 @@ async function setBilling({ basket, items }: BasketContext, { data }: any) {
 
   const validItems = reject(items, item => item.state.context.isNew);
 
-  debugger;
   // get returns a promise so we can pass it directly back to the machine
   return (
     put({
