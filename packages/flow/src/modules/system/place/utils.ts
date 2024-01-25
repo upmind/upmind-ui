@@ -212,7 +212,6 @@ export const usePlaceUischema = () => {
             type: "Control",
             scope: "#/properties/type",
             options: {
-              focus: true,
               autocomplete: "off",
               placeholder: "Select an address type...s"
             }

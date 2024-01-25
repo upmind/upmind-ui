@@ -1,9 +1,10 @@
 <template>
   <div
-    class="card card-bordered card-compact bg-base-100"
+    class="card card-bordered card-compact bg-base-100 focus-within:border-neutral"
     :class="[
-      meta.hasErrors ? '  border-error' : '',
-      meta.isComplete ? ' card-bordered border-primary' : ''
+      meta.isProcessing ? 'border-neutral' : '',
+      meta.hasErrors ? 'border-error' : '',
+      meta.isComplete ? 'card-bordered border-primary' : ''
     ]"
   >
     <div class="card-body">
@@ -45,26 +46,59 @@
           :class="{ 'dropdown-open': open }"
           :open="open"
           @toggle="doToggle($event.currentTarget.open)"
+          :disabled="meta.isProcessing"
         >
           <summary role="button" class="btn btn-sm btn-square btn-ghost">
-            <ellipsis-vertical-icon class="w-6 h-6" />
+            <sub
+              v-if="meta.isProcessing"
+              class="loading loading-dots loading-sm"
+            ></sub>
+            <ellipsis-vertical-icon class="w-6 h-6" v-else />
           </summary>
           <ul
             tabindex="0"
             class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
           >
-            <li><a @click.prevent="setDefault">Set as default address</a></li>
+            <li
+              :class="{
+                disabled: meta.isDefault,
+                'opacity-50': meta.isDefault
+              }"
+            >
+              <a
+                @click.prevent="setDefault"
+                class="no-underline"
+                :disabled="meta.isDefault || true"
+                >Set as default address</a
+              >
+            </li>
 
             <li v-if="canCopy">
-              <a @click="copy">
+              <a @click.prevent="copy" class="no-underline">
                 <!-- by default, `copied` will be reset in 1.5s -->
                 <span v-if="!copied">Copy to clipboard</span>
                 <span v-else>Copied!</span>
               </a>
             </li>
 
-            <li><a @click.prevent="edit">Edit address</a></li>
-            <li><a @click.prevent="remove">Delete address</a></li>
+            <li>
+              <a @click.prevent="edit" class="no-underline">Edit address</a>
+            </li>
+
+            <li
+              class="border-t pt-3"
+              :class="{
+                disabled: !meta.canRemove,
+                'opacity-50': !meta.canRemove
+              }"
+            >
+              <a
+                @click.prevent="remove"
+                class="text-error no-underline"
+                :disabled="!meta.canRemove"
+                >Delete address</a
+              >
+            </li>
           </ul>
         </details>
       </div>
@@ -113,7 +147,6 @@ export default defineComponent({
       display,
       edit,
       select,
-      cancel,
       remove,
       setDefault
     } = useSystemPlace(props.item);
