@@ -144,20 +144,64 @@ export default createMachine(
 
       processing: {
         entry: ["clearError"],
-        invoke: {
-          src: "save",
-          onDone: {
-            target: "processed",
-            actions: ["setSchemas", "setModel"]
+        states: {
+          adding: {
+            invoke: {
+              src: "add",
+              onDone: {
+                target: "#processed",
+                actions: ["setSchemas", "setModel"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
           },
-          onError: {
-            target: "error",
-            actions: ["setError"]
+          updating: {
+            invoke: {
+              src: "update",
+              onDone: {
+                target: "#processed",
+                actions: ["setSchemas", "setModel"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
+          },
+          removing: {
+            invoke: {
+              src: "remove",
+              onDone: {
+                target: "#processed",
+                actions: ["setSchemas", "clearModel"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
+          },
+          setting: {
+            invoke: {
+              src: "setDefault",
+              onDone: {
+                target: "#processed",
+                actions: ["setSchemas", "setModel"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
           }
         }
       },
 
       processed: {
+        id: "processed",
         after: {
           wait: {
             target: "complete"
@@ -165,7 +209,19 @@ export default createMachine(
         }
       },
 
-      valid: {},
+      valid: {
+        on: {
+          UPDATE: [
+            {
+              target: "processing.adding",
+              cond: "isNew"
+            },
+            {
+              target: "processing.updating"
+            }
+          ]
+        }
+      },
 
       invalid: {},
 
@@ -188,10 +244,6 @@ export default createMachine(
         { target: "populating", cond: "hasSelectedPlace" },
         { target: "searching", actions: ["setSearch"], cond: "isValidSearch" }
       ],
-
-      UPDATE: {
-        target: "processing"
-      },
       CLEAR: {
         target: "loading",
         actions: ["clearModel"]
@@ -199,6 +251,16 @@ export default createMachine(
       SET: {
         target: "checking",
         actions: ["setModel"]
+      },
+      // ---
+
+      REMOVE: {
+        target: "processing.removing",
+        cond: "canRemove"
+      },
+      DEFAULT: {
+        target: "processing.setting",
+        cond: "isNotDefault"
       }
     }
   },
@@ -301,7 +363,15 @@ export default createMachine(
         autocomplete?.model?.search !== data?.search,
 
       hasSelectedPlace: (_context: PlaceContext, { data }: PlaceEvent) =>
-        data?.place
+        data?.place,
+
+      isNew: ({ model }: PlaceContext, { data }: PlaceEvent) => !model?.id,
+
+      isNotDefault: ({ model }: PlaceContext, { data }: PlaceEvent) =>
+        !!model?.id && !model?.default,
+
+      canRemove: ({ model }: PlaceContext, { data }: PlaceEvent) =>
+        !!model?.id && !!model?.can_delete
     },
     delays: {
       error: () => useTime().ERROR,

@@ -31,6 +31,12 @@ export const AddressTypes = [
 
 const autocompleteApi = {};
 
+async function getClientId() {
+  const { getUser } = useSession();
+  const client = await getUser();
+  return client?.id;
+}
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -47,12 +53,11 @@ const autocompleteApi = {};
 
 async function load(_context: PlacesContext, { data }: PlacesEvents) {
   const { get, useUrl } = useApi();
-  const { getUser } = useSession();
 
-  const client = await getUser();
+  const clientId = await getClientId();
 
   return get({
-    url: useUrl(`clients/${client.id}/addresses`, {
+    url: useUrl(`clients/${clientId}/addresses`, {
       // with: ["country", "region"].join(),
       limit: 0
     }),
@@ -62,47 +67,49 @@ async function load(_context: PlacesContext, { data }: PlacesEvents) {
   }).then(({ data }) => data);
 }
 
-async function add(model: IAddress) {
-  const { getUser } = useSession();
-  const client = await getUser();
-
+async function add({ model }: PlacesContext, _event: PlacesEvents) {
   const { post, useUrl } = useApi();
+
+  const clientId = await getClientId();
+
   return post({
-    url: useUrl(`clients/${client.id}/addresses`),
+    url: useUrl(`clients/${clientId}/addresses`),
     data: model,
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
-async function update(model: IAddress) {
-  const { getUser } = useSession();
-  const client = await getUser();
-
-  //api.staging.upmind.io/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/addresses/47d73824-8507-9315-8e6f-81e642d59e06
+async function update({ model }: PlacesContext, _event: PlacesEvents) {
   const { put, useUrl } = useApi();
+
+  const clientId = await getClientId();
+
   return put({
-    url: useUrl(`clients/${client.id}/addresses/${model.id}`),
+    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     data: model,
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
-async function setDefault(_context: PlacesContext, { data }: PlacesEvents) {
+async function setDefault({ model }: PlacesContext, _event: PlacesEvents) {
   const { put, useUrl } = useApi();
-  // todo
+
+  const clientId = await getClientId();
 
   return put({
-    url: useUrl(`clients/addresses/${data.id}`),
+    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     data: { default: true },
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
-async function remove(_context: PlacesContext, { data }: PlacesEvents) {
+async function remove({ model }: PlacesContext, _event: PlacesEvents) {
   const { del, useUrl } = useApi();
 
+  const clientId = await getClientId();
+
   return del({
-    url: useUrl(`clients/addresses/${data.id}`),
+    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     withAccessToken: true
   }).then(({ data }) => data);
 }
@@ -267,7 +274,8 @@ export default {
   load,
   loadConstants,
   validate,
-  save: async ({ model }) => (model?.id ? update(model) : add(model)),
   setDefault,
+  add,
+  update,
   remove
 };

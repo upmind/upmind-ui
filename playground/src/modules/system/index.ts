@@ -170,6 +170,8 @@ export const useSystemPlace = item => {
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
       hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
+      canRemove: state.value?.context?.model?.can_delete,
+      isDefault: !!state.value?.context?.model?.default,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
@@ -205,15 +207,16 @@ export const useSystemPlace = item => {
     uischema: computed(() => state.value?.context?.uischema),
     autocomplete: computed(() => state.value?.context?.autocomplete),
     // ---
+    clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
     search: model => send({ type: "SEARCH", data: model }),
     update: () => send({ type: "UPDATE" }),
-    clear: () => send({ type: "CLEAR" }),
+    remove: () => send({ type: "REMOVE" }),
+    setDefault: () => send({ type: "DEFAULT" }),
+    // ---
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "SELECT" }),
-    remove: () => service.send({ type: "REMOVE", data: item.id }),
-    setDefault: () => service.send({ type: "DEFAULT", data: item.id })
+    cancel: () => service.send({ type: "SELECT" })
   };
 };
 

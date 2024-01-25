@@ -1,7 +1,7 @@
 <template>
   <div
-    ref="form"
     tabindex="0"
+    ref="form"
     class="card card-bordered card-compact bg-base-100"
     :class="[
       meta.hasErrors ? '  border-error' : '',
@@ -13,6 +13,7 @@
 
       <template v-if="meta.hasAutocomplete && !meta.isLoading && meta.isNew">
         <upm-form-generator
+          tabindex="0"
           :loading="meta.isLoading"
           :processing="meta.isSearching"
           :model-value="autocomplete.model"
@@ -27,6 +28,7 @@
       </template>
 
       <upm-form-generator
+        tabindex="1"
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
         :model-value="model"
@@ -96,13 +98,14 @@ export default defineComponent({
   computed: {},
   mounted() {
     this.$nextTick(() => {
-      // this.form.focus();
       const yOffset = -108;
       const y =
         this.form.getBoundingClientRect().top + window.scrollY + yOffset;
 
       window.scrollTo({ top: y, behavior: "smooth" });
       // this.form.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      this.form.focus();
     });
   }
 });
