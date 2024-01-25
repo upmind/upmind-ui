@@ -161,7 +161,7 @@
       <!-- items -->
       <section
         id="items"
-        class="items col-span-5 order-0 grid grid-cols-2 gap-4 items-start"
+        class="items col-span-5 order-0 grid grid-cols-card gap-4 items-start"
       >
         <div class="col-span-full divider uppercase text-xs opacity-50">
           Basket Items
