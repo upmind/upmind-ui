@@ -86,7 +86,12 @@ export const useSession = () => {
       if (state.matches("client.processing")) {
         await waitFor(service, state =>
           ["client.idle", "guest.idle"].some(state.matches)
-        ).then(() => {});
+        );
+        // .then(() => {
+        //   debugger;
+        //   console.log("getUser", state.context.user);
+        //   return state.context.user;
+        // });
       }
       console.log("getUser", state.context.user);
       return state.context.user;

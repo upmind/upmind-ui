@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.clearing:invocation[0]": {
       type: "done.invoke.clearing:invocation[0]";
       data: unknown;
@@ -46,9 +47,6 @@ export interface Typegen0 {
     "error.platform.sessionManager.starting.check:invocation[0]": {
       type: "error.platform.sessionManager.starting.check:invocation[0]";
       data: unknown;
-    };
-    "xstate.after(wait)#sessionManager.client.error": {
-      type: "xstate.after(wait)#sessionManager.client.error";
     };
     "xstate.after(wait)#sessionManager.guest.error": {
       type: "xstate.after(wait)#sessionManager.guest.error";
@@ -95,13 +93,10 @@ export interface Typegen0 {
       | "done.invoke.sessionManager.guest.processing:invocation[0]";
   };
   eventsCausingDelays: {
-    wait:
-      | "error.platform.client"
-      | "error.platform.guest"
-      | "error.platform.sessionManager.client.processing:invocation[0]"
-      | "error.platform.sessionManager.guest.processing:invocation[0]";
+    wait: "error.platform.sessionManager.guest.processing:invocation[0]";
   };
   eventsCausingGuards: {
+    hasNoUser: "";
     isClientToken: "done.invoke.sessionManager.starting.check:invocation[0]";
   };
   eventsCausingServices: {
@@ -117,7 +112,7 @@ export interface Typegen0 {
       | "REGISTER"
       | "done.invoke.sessionManager.starting.check:invocation[0]";
     dumpTokens: "KILL" | "LOGOUT";
-    getUser: "SELF";
+    getUser: "" | "SELF";
     guest:
       | "done.invoke.sessionManager.starting.check:invocation[0]"
       | "error.platform.sessionManager.starting.check:invocation[0]";

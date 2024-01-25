@@ -1,6 +1,6 @@
 <template>
   <form
-    class="card align-center w-full relative min-h-[3em]"
+    class="card w-full relative min-h-[3em]"
     v-bind="$attrs"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
@@ -31,27 +31,26 @@
     />
 
     <!-- actions -->
-    <footer v-if="!noActions && !meta.isLoading">
-      <div class="card-actions mt-8 mb-4">
-        <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
-          <button
-            type="submit"
-            class="btn btn-accent"
-            :disabled="!meta.isValid || meta.isProcessing"
-          >
-            Save
-          </button>
 
-          <button
-            :disabled="meta.isProcessing"
-            class="btn btn-ghost"
-            @click="doReject"
-          >
-            Cancel
-          </button>
-        </slot>
-      </div>
-    </footer>
+    <div class="card-actions" v-if="!noActions && !meta.isLoading">
+      <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
+        <button
+          type="submit"
+          class="btn btn-accent"
+          :disabled="!meta.isValid || meta.isProcessing"
+        >
+          Save
+        </button>
+
+        <button
+          :disabled="meta.isProcessing"
+          class="btn btn-ghost"
+          @click="doReject"
+        >
+          Cancel
+        </button>
+      </slot>
+    </div>
   </form>
 
   <!-- debug -->

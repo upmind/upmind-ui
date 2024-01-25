@@ -1,7 +1,7 @@
 <template>
   <div class="fields px-4" v-if="hasFields">
     <upm-form-generator
-      class="mt-2"
+      class="mt-2 gap-4"
       :schema="schema"
       :uischema="uischema"
       :model-value="modelValue"
@@ -13,7 +13,7 @@
       <template #actions="{ meta }">
         <button
           type="submit"
-          class="btn btn-sm btn-link"
+          class="btn btn-outline btn-sm btn-primary border-none"
           :disabled="!meta.isDirty || !meta.isValid || meta.isProcessing"
         >
           Update fields

@@ -330,13 +330,16 @@
           </button>
 
           <div class="flex flex-wrap justify-between">
-            <router-link to="/" class="btn btn-link btn-xs">
+            <router-link
+              to="/"
+              class="btn btn-outline btn-xs btn-primary border-none"
+            >
               <arrow-uturn-left-icon class="w-5 h-5"></arrow-uturn-left-icon>
               Continue shopping
             </router-link>
 
             <button
-              class="btn btn-link btn-xs"
+              class="btn btn-outline btn-xs btn-primary border-none"
               type="reset"
               :disabled="meta.isProcessing"
               @click.prevent="clearBasket"
@@ -469,7 +472,7 @@ const productCatalogue = [
   }
 ];
 
-const debugging = ref(true);
+const debugging = ref(false);
 
 const model = ref({
   product_id: null,

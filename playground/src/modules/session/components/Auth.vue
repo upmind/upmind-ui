@@ -75,7 +75,7 @@
       :additional-errors="errors?.data"
       @reject="reject"
       @resolve="resolve"
-      class="bg-opacity-10 my-8 p-4"
+      class="bg-opacity-10 my-8 p-4 gap-8"
       :class="{
         'bg-primary': meta.showRegisterForm,
         'bg-secondary': meta.showLoginForm

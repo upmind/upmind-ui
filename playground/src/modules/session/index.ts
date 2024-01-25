@@ -51,7 +51,7 @@ export const useSession = () => {
     // ---
     isGuest: ["guest", "starting.guest"].some(state.value.matches),
     isClient: ["client", "starting.client"].some(state.value.matches),
-    isAuthenticated: ["client"].some(state.value.matches),
+    isAuthenticated: ["client.idle"].some(state.value.matches),
     // ---
     showReCaptcha: client.value?.matches(
       "unauthenticated.register.challenging"

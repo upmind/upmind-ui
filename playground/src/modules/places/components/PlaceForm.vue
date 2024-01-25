@@ -20,7 +20,7 @@
           :schema="autocomplete.schema"
           :uischema="autocomplete.uischema"
           @update:modelValue="search"
-          class="px-4 py-8"
+          class="px-4 gap-4"
           no-actions
         />
 
@@ -37,7 +37,7 @@
         @update:modelValue="input"
         @reject="cancel"
         @resolve="update"
-        class="p-4"
+        class="p-4 gap-8"
       />
     </div>
   </div>
