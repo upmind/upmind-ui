@@ -21,7 +21,7 @@
         @reject="doReject"
         @resolve="doResolve"
         debugging
-        class="p-4"
+        class="p-4 gap-8"
       />
     </div>
 

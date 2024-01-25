@@ -77,7 +77,7 @@ export default createMachine(
                 refresh: context => context.refresh
               },
               onDone: { target: "#guest", actions: ["setToken"] },
-              onError: { target: "#guest.error", actions: ["setError"] }
+              onError: { actions: ["setError"] }
             }
           },
           client: {
@@ -92,7 +92,7 @@ export default createMachine(
                 target: "#client",
                 actions: ["setHistory", "setToken", "setSuccess"]
               },
-              onError: { target: "#client.error", actions: ["setError"] }
+              onError: { actions: ["setError"] }
             }
           }
         },
@@ -156,15 +156,16 @@ export default createMachine(
       },
 
       client: {
-        entry: raise("SELF"),
         id: "client",
         initial: "idle",
         states: {
           idle: {
-            type: "final",
-            on: {
-              SELF: { target: "processing" }
-            }
+            always: [
+              {
+                cond: "hasNoUser",
+                target: "processing"
+              }
+            ]
           },
           processing: {
             invoke: {
@@ -179,9 +180,8 @@ export default createMachine(
               }
             }
           },
-          error: {
-            after: { wait: "idle" }
-          }
+
+          error: {}
         },
         on: {
           LOGOUT: { target: "#clearing" },
@@ -257,7 +257,8 @@ export default createMachine(
     guards: {
       hasError: ({ error }) => !!error,
       hasNoError: ({ error }) => !error,
-
+      // ---
+      hasNoUser: ({ user }) => !user?.id,
       // ---
       isClientToken: (_context, { data }) => data?.type === "client"
     },

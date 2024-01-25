@@ -3,7 +3,7 @@
     class="promotions flex flex-col gap-4 text-accent border border-accent rounded-box p-4 text-center"
   >
     <!-- <h4 class="divider uppercase text-xs">Discounts</h4> -->
-    <h3 class="text-inherit text-xl mt-2">Discounts</h3>
+    <h3 class="text-inherit text-xl mt-2 mb-0">Discounts</h3>
 
     <upm-form-generator
       :schema="schema"
@@ -12,11 +12,12 @@
       :loading="loading"
       :processing="processing"
       @resolve="doResolve"
+      class="gap-2"
     >
       <template #actions="{ meta }">
         <button
           type="submit"
-          class="btn btn-outline btn-sm mx-auto"
+          class="btn btn-outline btn-sm btn-block btn-accent border-none"
           :disabled="!meta.isValid || meta.isProcessing"
         >
           Apply
@@ -115,7 +116,7 @@ export default defineComponent({
         properties: {
           promocode: {
             type: "string",
-            title: "Discount Code"
+            title: "Promotion Code"
           }
         }
       };
@@ -123,7 +124,7 @@ export default defineComponent({
 
     uischema() {
       return {
-        type: "HorizontalLayout",
+        type: "InlineLayout",
         elements: [
           {
             type: "Control",
