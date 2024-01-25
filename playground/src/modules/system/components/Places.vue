@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-4">
+  <div class="grid gap-4 grid-cols-card">
     <div
       class="col-span-full text-center"
       v-if="meta.isLoading || meta.isProcessing"
@@ -29,10 +29,8 @@
         :key="selected.id"
       ></upm-place-form>
 
-      <div
-        class="actions flex justify-center items-center bg-neutral bg-opacity-5 rounded-box py-16"
-      >
-        <button class="btn btn-ghost" @click="add">
+      <div class="actions flex justify-center items-center">
+        <button class="btn btn-block h-full" @click="add">
           <squares-plus-icon class="w-6 h-6" /> Add new
         </button>
       </div>
@@ -50,12 +48,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import type { PropType } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { useSystemPlaces } from "..";
 import UpmPlace from "../components/Place.vue";
 import UpmPlaceForm from "../components/PlaceForm.vue";
 import { UpmDebug } from "@upmind/components";
 import { PlusIcon, SquaresPlusIcon } from "@heroicons/vue/24/outline";
+
+// ---temp type
+import type { IAddress } from "../../../../../packages/flow/src/modules/system/place/types";
+import { isEqual } from "lodash-es";
 
 export default defineComponent({
   name: "UpmPlaces",
@@ -66,15 +69,29 @@ export default defineComponent({
     UpmPlaceForm,
     UpmDebug
   },
+  emits: ["update:modelValue"],
   props: {
+    modelValue: {
+      type: String as PropType<IAddress["id"]>,
+      default: ""
+    },
     debugging: {
       type: Boolean,
       default: false
     }
   },
-  setup(props) {
+  setup(props, { emit }) {
     const { state, context, meta, errors, items, add, select, selected } =
       useSystemPlaces();
+
+    if (props.modelValue) {
+      select(props.modelValue);
+    }
+
+    watch(selected, (newValue, oldValue) => {
+      if (isEqual(newValue?.id, oldValue?.id)) return;
+      emit("update:modelValue", selected.value?.id);
+    });
 
     return {
       state,
