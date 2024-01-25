@@ -39,6 +39,11 @@ export const useBasket = () => {
       send({ type: "UPDATE.FIELDS" });
     },
 
+    setBillingDetails: values => {
+      debugger;
+      send({ type: "SET.BILLING", data: values });
+    },
+
     updateCurrency: currency =>
       send({ type: "UPDATE.CURRENCY", data: currency }),
 

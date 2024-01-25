@@ -234,7 +234,11 @@
       >
         <div class="divider uppercase text-xs opacity-50">Billing Details</div>
 
-        <upm-places v-if="!meta.needsAuth" class="my-8 p-0 grid-cols-2" />
+        <upm-places
+          v-if="!meta.needsAuth"
+          class="my-8 p-0"
+          @update:model-value="setBillingDetails"
+        />
       </section>
 
       <!-- payment -->
@@ -406,7 +410,8 @@ const {
   updateTerm,
   clearFields,
   setFields,
-  updateFields
+  updateFields,
+  setBillingDetails
 } = useBasket();
 
 const productCatalogue = [

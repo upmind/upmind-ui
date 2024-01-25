@@ -44,5 +44,12 @@ module.exports = {
       pattern:
         /badge-(primary|secondary|accent|info|success|error|warning|neutral)/
     }
-  ]
+  ],
+  theme: {
+    extend: {
+      gridTemplateColumns: {
+        card: "repeat(auto-fill, minmax(320px, 1fr))"
+      }
+    }
+  }
 };
