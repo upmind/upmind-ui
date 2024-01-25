@@ -103,7 +103,6 @@ export default defineComponent({
         this.form.getBoundingClientRect().top + window.scrollY + yOffset;
 
       window.scrollTo({ top: y, behavior: "smooth" });
-      // this.form.scrollIntoView({ behavior: "smooth", block: "start" });
 
       this.form.focus();
     });
