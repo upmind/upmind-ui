@@ -9,14 +9,14 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    basicSsl(),
+    // basicSsl(),
     vue(),
     vueJsx(),
     svgLoader()
   ],
   server: {
     cors: true,
-    https: true,
+    // https: true,
   },
   resolve: {
     alias: {

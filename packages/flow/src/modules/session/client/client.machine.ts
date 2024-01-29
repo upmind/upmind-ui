@@ -278,7 +278,7 @@ export default createMachine(
             invoke: {
               src: "dumpToken",
               onDone: [
-                { target: "#loading", cond: "isRefreshing" },
+                { target: "#unauthenticated.login", cond: "isRefreshing" },
                 { target: "#complete" }
               ]
             },
@@ -376,8 +376,8 @@ export default createMachine(
         data.actor_type == "twofa" && !!data?.second_factor_required,
       requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
       isRefreshing: context => !!context.refresh,
-      isUnauthorized: context =>
-        context?.error?.status === responseCodes.Unauthorized
+      isUnauthorized: (context, { data }) =>
+        data?.status === responseCodes.Unauthorized
     },
 
     delays: {
