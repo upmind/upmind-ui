@@ -30,12 +30,6 @@ export const AddressTypes = [
 
 const autocompleteApi = {};
 
-async function getClientId() {
-  const { getUser } = useSession();
-  const client = await getUser();
-  return client?.id;
-}
-
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -52,8 +46,9 @@ async function getClientId() {
 
 async function load(_context: AddressesContext, { data }: AddressesEvents) {
   const { get, useUrl } = useApi();
+  const { getUserId } = useSession();
 
-  const clientId = await getClientId();
+  const clientId = await getUserId();
 
   return get({
     url: useUrl(`clients/${clientId}/addresses`, {
@@ -68,8 +63,9 @@ async function load(_context: AddressesContext, { data }: AddressesEvents) {
 
 async function add({ model }: AddressesContext, _event: AddressesEvents) {
   const { post, useUrl } = useApi();
+  const { getUserId } = useSession();
 
-  const clientId = await getClientId();
+  const clientId = await getUserId();
 
   return post({
     url: useUrl(`clients/${clientId}/addresses`),
@@ -80,8 +76,9 @@ async function add({ model }: AddressesContext, _event: AddressesEvents) {
 
 async function update({ model }: AddressesContext, _event: AddressesEvents) {
   const { put, useUrl } = useApi();
+  const { getUserId } = useSession();
 
-  const clientId = await getClientId();
+  const clientId = await getUserId();
 
   return put({
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
@@ -95,8 +92,9 @@ async function setDefault(
   _event: AddressesEvents
 ) {
   const { put, useUrl } = useApi();
+  const { getUserId } = useSession();
 
-  const clientId = await getClientId();
+  const clientId = await getUserId();
 
   return put({
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
@@ -107,8 +105,9 @@ async function setDefault(
 
 async function remove({ model }: AddressesContext, _event: AddressesEvents) {
   const { del, useUrl } = useApi();
+  const { getUserId } = useSession();
 
-  const clientId = await getClientId();
+  const clientId = await getUserId();
 
   return del({
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
