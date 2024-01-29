@@ -51,9 +51,16 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>()
   },
   setup(props: RendererProps<ControlElement>) {
-    return useDaisyControl(useJsonFormsOneOfEnumControl(props), target =>
-      target.selectedIndex === 0 ? undefined : target.value
-    );
+    const enumControl = useJsonFormsOneOfEnumControl(props);
+
+    return useDaisyControl(enumControl, target => {
+      if (target.selectedIndex) {
+        const value =
+          enumControl.control.value.options[target.selectedIndex - 1].value;
+        return value;
+      }
+      return undefined;
+    });
   }
 });
 

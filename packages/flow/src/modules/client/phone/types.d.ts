@@ -10,10 +10,12 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 interface IPhone {
   id: string;
   // ---
-  bounced: boolean;
-  bounced_at: string | null;
-  phone: string;
-  type: number;
+  full_phone: string;
+  international_phone: string;
+  phone: string | null;
+  phone_code: string;
+  phone_country_code: string;
+  type: number | null;
   // ---
   default: boolean;
   // --- readonly/system data

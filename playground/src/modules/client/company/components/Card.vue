@@ -40,67 +40,77 @@
           </label>
         </div>
 
-        <details
-          ref="target"
-          class="dropdown dropdown-end"
-          :class="{ 'dropdown-open': open }"
-          :open="open"
-          @toggle="doToggle($event.currentTarget.open)"
-          :disabled="meta.isProcessing"
-        >
-          <summary role="button" class="btn btn-sm btn-square btn-ghost">
-            <sub
-              v-if="meta.isProcessing"
-              class="loading loading-dots loading-sm"
-            ></sub>
-            <ellipsis-vertical-icon class="w-6 h-6" v-else />
-          </summary>
-          <ul
-            tabindex="0"
-            class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
+        <div class="flex items-center">
+          <span
+            role="button"
+            class="btn btn-sm btn-square btn-ghost"
+            v-if="meta.isDefault"
           >
-            <li
-              :class="{
-                disabled: meta.isDefault,
-                'opacity-50': meta.isDefault
-              }"
+            <star-icon class="w-6 h-6 cursor-pointer text-primary" />
+          </span>
+
+          <details
+            ref="target"
+            class="dropdown dropdown-end"
+            :class="{ 'dropdown-open': open }"
+            :open="open"
+            @toggle="doToggle($event.currentTarget.open)"
+            :disabled="meta.isProcessing"
+          >
+            <summary role="button" class="btn btn-sm btn-square btn-ghost">
+              <sub
+                v-if="meta.isProcessing"
+                class="loading loading-dots loading-sm"
+              ></sub>
+              <ellipsis-vertical-icon class="w-6 h-6" v-else />
+            </summary>
+            <ul
+              tabindex="0"
+              class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
             >
-              <a
-                @click.prevent="setDefault"
-                class="no-underline"
-                :disabled="meta.isDefault || true"
-                >Set as default</a
+              <li
+                :class="{
+                  disabled: meta.isDefault,
+                  'opacity-50': meta.isDefault
+                }"
               >
-            </li>
+                <a
+                  @click.prevent="setDefault"
+                  class="no-underline"
+                  :disabled="meta.isDefault"
+                  >Set as default</a
+                >
+              </li>
 
-            <li v-if="canCopy">
-              <a @click.prevent="copy" class="no-underline">
-                <!-- by default, `copied` will be reset in 1.5s -->
-                <span v-if="!copied">Copy to clipboard</span>
-                <span v-else>Copied!</span>
-              </a>
-            </li>
+              <li v-if="canCopy">
+                <a @click.prevent="copy" class="no-underline">
+                  <!-- by default, `copied` will be reset in 1.5s -->
+                  <span v-if="!copied">Copy to clipboard</span>
+                  <span v-else>Copied!</span>
+                </a>
+              </li>
 
-            <li>
-              <a @click.prevent="edit" class="no-underline">Edit</a>
-            </li>
+              <li>
+                <a @click.prevent="edit" class="no-underline">Edit</a>
+              </li>
 
-            <li
-              class="border-t pt-3"
-              :class="{
-                disabled: !meta.canRemove,
-                'opacity-50': !meta.canRemove
-              }"
-            >
-              <a
-                @click.prevent="remove"
-                class="text-error no-underline"
-                :disabled="!meta.canRemove"
-                >Delete
-              </a>
-            </li>
-          </ul>
-        </details>
+              <li
+                class="border-t pt-3"
+                :class="{
+                  disabled: !meta.canRemove,
+                  'opacity-50': !meta.canRemove
+                }"
+              >
+                <a
+                  @click.prevent="remove"
+                  class="text-error no-underline"
+                  :disabled="!meta.canRemove"
+                  >Delete
+                </a>
+              </li>
+            </ul>
+          </details>
+        </div>
       </div>
     </div>
   </div>
@@ -111,15 +121,15 @@ import { defineComponent, ref } from "vue";
 import { useClientCompany } from "..";
 import {
   BuildingOfficeIcon,
-  MapPinIcon,
-  EllipsisVerticalIcon
+  EllipsisVerticalIcon,
+  StarIcon
 } from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmCompany",
-  components: { BuildingOfficeIcon, MapPinIcon, EllipsisVerticalIcon },
+  components: { BuildingOfficeIcon, StarIcon, EllipsisVerticalIcon },
   props: {
     item: {
       type: Object, // xstate actor

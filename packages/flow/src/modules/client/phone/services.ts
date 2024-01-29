@@ -11,6 +11,13 @@ import type { PhoneEvent, PhoneContext } from "./types";
 import type { ClientListingsEvents, ClientListingsContext } from "../types";
 
 // --------------------------------------------------------
+//  ENUMS
+export const PhoneTypes: any[] = [
+  { key: 1, value: "mobile" },
+  { key: 2, value: "home" },
+  { key: 3, value: "office" },
+  { key: 4, value: "personal" }
+];
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -37,24 +44,8 @@ async function load(
 }
 
 async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
-  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
-
-  const phones = fetchCountries();
-  const addresses = fetchRegions();
-
-  return Promise.all([phones, addresses]).then(([phones, addresses]) => {
-    if (phones && addresses && phones) {
-      return {
-        phones,
-        addresses,
-        baseModel: {
-          ...model,
-          address_id: getDefaultCountry(),
-          phone_id: getDefaultCountry()
-        }
-      };
-    }
-  });
+  // we dont have any lookups for emails, so just return null
+  return Promise.resolve(null);
 }
 
 // --------------------------------------------------------

@@ -37,29 +37,8 @@ async function load(
 }
 
 async function loadLookups({ model }: EmailContext, { data }: EmailEvent) {
-  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
-
-  const emails = fetchCountries();
-  const addresses = fetchRegions();
-  const phones = fetchRegions();
-
-  return Promise.all([emails, addresses, phones]).then(
-    ([emails, addresses, phones]) => {
-      if (emails && addresses && phones) {
-        return {
-          emails,
-          addresses,
-          phones,
-          baseModel: {
-            ...model,
-            address_id: getDefaultCountry(),
-            email_id: getDefaultCountry(),
-            phone_id: getDefaultCountry()
-          }
-        };
-      }
-    }
-  );
+  // we dont have any lookups for emails, so just return null
+  return Promise.resolve(null);
 }
 
 // --------------------------------------------------------

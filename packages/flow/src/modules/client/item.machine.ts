@@ -3,6 +3,8 @@ import { createMachine, assign, actions } from "xstate";
 const { escalate, sendParent } = actions;
 
 // --- internal
+import { useFeedback } from "../feedback";
+const { addError, addSuccess } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
@@ -38,7 +40,7 @@ export default createMachine(
           },
           onError: {
             target: "error",
-            actions: ["setError"]
+            actions: ["setError", "setFeedbackError"]
           }
         }
       },
@@ -83,11 +85,11 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"]
+                actions: ["setModel", () => addSuccess("Successfully added")]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -96,11 +98,11 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"]
+                actions: ["setModel", () => addSuccess("Successfully updated")]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -109,11 +111,14 @@ export default createMachine(
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: ["clearModel"]
+                actions: [
+                  "clearModel",
+                  () => addSuccess("Successfully deleted")
+                ]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -122,11 +127,14 @@ export default createMachine(
               src: "setDefault",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"]
+                actions: [
+                  "setModel",
+                  () => addSuccess("Successfully set as default")
+                ]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           }
@@ -213,7 +221,20 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
+
+      setFeedbackError: ({ error }, _event) => {
+        addError({
+          title: error?.title || "We experienced an error with this item",
+          copy: error?.message,
+          data: error?.data
+        });
+      },
+
+      setFeedbackSuccess: (context, { data }, meta) => {
+        debugger;
+        addSuccess("Successfully updated");
+      }
     },
     guards: {
       isNew: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
