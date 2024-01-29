@@ -7,19 +7,19 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 // private
 
-interface IAddress {
+interface ICompany {
   id: string;
   // ---
-  address_1: string | null;
-  address_2: string | null;
-  city: string | null;
-  postcode: string | null;
-  country_id: ICountry["id"];
-  country?: ICountry; // Requires relation
-  region_id?: IRegion["id"] | null;
-  state: string | null;
+  address: IAddress;
+  address_id: IAddress["id"];
+  email: IEmail;
+  email_id: IEmail["id"] | null;
+  phone: IPhone;
+  phone_id: IPhone["id"];
+  reg_number: string | null;
+  vat_number: string | null;
+  vat_percent: string | null;
   // ---
-  type: number | null;
   name: string | null;
   default: boolean;
   // --- readonly/system data
@@ -35,23 +35,7 @@ interface IAddress {
 // --------------------------------------------------------
 // Contexts
 
-export interface PlaceContext {
-  country?: ICountry[];
-  regions?: IRegion[];
-  types?: IPlaceType[];
-  baseModel?: IAddress;
-
-  // ---
-  autocomplete?: {
-    schema?: JsonSchema;
-    uischema?: UISchemaElement;
-    model?: {
-      search?: string;
-      place?: string;
-    };
-    results?: PlaceAutocompleteResult[];
-  };
-  // ---
+export interface CompanyContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IAddress;
@@ -59,7 +43,7 @@ export interface PlaceContext {
   error?: RequestError;
 }
 
-export interface PlacesContext {
+export interface CompaniesContext {
   items?: IAddress[];
   selected?: IAddress;
   error?: RequestError;
@@ -67,13 +51,13 @@ export interface PlacesContext {
 // --------------------------------------------------------
 // Events
 
-export interface PlaceEvent {
-  type: string;
+export interface CompanyEvent {
+  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
   error?: RequestError;
 }
 
-export interface PlacesEvents {
+export interface CompaniesEvents {
   type: "ADD" | "SELECT" | "REFRESH" | "STOP";
   data: any;
   error?: RequestError;

@@ -4,19 +4,19 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.placesManager.loading:invocation[0]": {
-      type: "done.invoke.placesManager.loading:invocation[0]";
+    "done.invoke.companiesManager.loading:invocation[0]": {
+      type: "done.invoke.companiesManager.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.placesManager.loading:invocation[0]": {
-      type: "error.platform.placesManager.loading:invocation[0]";
+    "error.platform.companiesManager.loading:invocation[0]": {
+      type: "error.platform.companiesManager.loading:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    load: "done.invoke.placesManager.loading:invocation[0]";
+    load: "done.invoke.companiesManager.loading:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -28,9 +28,9 @@ export interface Typegen0 {
     add: "ADD";
     clearError: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
     clearItems: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
-    clearSelected: "error.platform.placesManager.loading:invocation[0]";
-    setError: "error.platform.placesManager.loading:invocation[0]";
-    setItems: "done.invoke.placesManager.loading:invocation[0]";
+    clearSelected: "error.platform.companiesManager.loading:invocation[0]";
+    setError: "error.platform.companiesManager.loading:invocation[0]";
+    setItems: "done.invoke.companiesManager.loading:invocation[0]";
     setSelected: "EDIT" | "SELECT";
     setSelectedNew: "ADD";
   };

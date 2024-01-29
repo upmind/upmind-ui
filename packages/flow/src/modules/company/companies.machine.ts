@@ -2,36 +2,27 @@
 import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
-import placeMachine from "./place.machine";
+import companyMachine from "./company.machine";
 import services from "./services";
 
 // --- utils
-import {
-  find,
-  first,
-  forEach,
-  get,
-  isEmpty,
-  last,
-  map,
-  uniqueId
-} from "lodash-es";
+import { find, forEach, get, isEmpty, last, map, uniqueId } from "lodash-es";
 
 // ---types
-import type { PlacesContext, PlacesEvents, IAddress } from "./types.d";
+import type { CompaniesContext, CompaniesEvents, IAddress } from "./types.d";
 
 // --------------------------------------------------------
 // utility function to spawn machines based on the given items
 function spawnConfiguration(model = {} as IAddress) {
-  const name = get(model, "id", uniqueId("place_"));
+  const name = get(model, "id", uniqueId("company_"));
 
   try {
-    return spawn(placeMachine.withContext({ model }), {
+    return spawn(companyMachine.withContext({ model }), {
       name,
       sync: true
     });
   } catch (err) {
-    console.error("Places", "spawnConfiguration", { name, model });
+    console.error("Companies", "spawnConfiguration", { name, model });
   }
 }
 
@@ -40,8 +31,8 @@ function spawnConfiguration(model = {} as IAddress) {
 export default createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5QCcwEcCucAusCyAhgHYEzIDEAggCLUDaADALqKgAOA9rAJbbcdFWIAB6IA7GIB0AZjEAWaXIBM0hmICcS9XICsAGhABPRAEYlAX3MHUmHPmKkwySQQDGfAG5hyAYUoA5HwBRABlGFiQQTh4+ASFRBAA2HUl1aR0dXQkdeTlE9QNjBDl1E0lEk3UxRIYGHRNExWlLa3QsWFxCEjIXd24vcgAlIIAVQYBNcKFo3n5BSITk1PTMnLEcuTyCo0RpdUSZXQYlOuTEgA5pRRaQG3bOhx63T29hvAB5ADUgqciZ2PmoEWKQyeXOYhM6yuDEhhV2MMkamO5xMaiq0iUcksVhARA4EDgQjudi6jmQ0y4sziC0QAFoTHCENpJEp5GI9nJzjp1DoGGkbsSOvZuk5JNwIAAbMAUmJzeKIc5ySRmHSJZRaMRqNViRmYpSSHTnJEZaSQk6GgVtEmPUXPfrSv6UgHyhDVSTnc41HJqpSJE4oxncsrnbQlHmyQ31S22IWknquDgAWzYUuwDvYTrlNOKOp2CBMKINVWSnIYeSUmKx2KAA */
-    tsTypes: {} as import("./places.machine.typegen").Typegen0,
-    id: "placesManager",
+    tsTypes: {} as import("./companies.machine.typegen").Typegen0,
+    id: "companiesManager",
     predictableActionArguments: true,
     initial: "loading",
     context: {
@@ -72,10 +63,10 @@ export default createMachine(
           }
         }
       },
-      // our initial state depends on if the machine has any place
-      // If we have context > place, we can skip to available
-      // otherwise we will await a place
-      // individual place events are defined to allow for more granular control
+      // our initial state depends on if the machine has any company
+      // If we have context > company, we can skip to available
+      // otherwise we will await a company
+      // individual company events are defined to allow for more granular control
       empty: {
         always: [{ target: "available", cond: "hasItems" }]
       },
@@ -120,7 +111,7 @@ export default createMachine(
   {
     actions: {
       add: assign({
-        items: ({ items }: PlacesContext, { data }: PlacesEvents) => {
+        items: ({ items }: CompaniesContext, { data }: CompaniesEvents) => {
           // spawn an actor for the new items
           const machine = spawnConfiguration(data);
           items.push(machine);
@@ -129,11 +120,11 @@ export default createMachine(
       }),
 
       setItems: assign({
-        items: ({ items }: PlacesContext, { data }: PlacesEvents) =>
-          map(data, place => {
-            const item = find(items, ["id", place.id]);
+        items: ({ items }: CompaniesContext, { data }: CompaniesEvents) =>
+          map(data, company => {
+            const item = find(items, ["id", company.id]);
             if (!item) {
-              const machine = spawnConfiguration(place);
+              const machine = spawnConfiguration(company);
               return machine;
             }
 
@@ -152,15 +143,15 @@ export default createMachine(
 
       setSelected: assign({
         selected: (
-          { items, selected }: PlacesContext,
-          { data }: PlacesEvents
+          { items, selected }: CompaniesContext,
+          { data }: CompaniesEvents
         ) =>
           find(items, ["id", data]) ||
           find(items, "state.context.model.default")
       }),
 
       setSelectedNew: assign({
-        selected: ({ items }: PlacesContext, _event: PlacesEvents) =>
+        selected: ({ items }: CompaniesContext, _event: CompaniesEvents) =>
           last(items)
       }),
 

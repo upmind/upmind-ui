@@ -2,7 +2,7 @@
 import { interpret } from "xstate";
 
 // --- internal
-import placesMachine from "./places.machine";
+import companiesMachine from "./companies.machine";
 
 // --- utils
 
@@ -16,13 +16,13 @@ import placesMachine from "./places.machine";
 
 let state = null;
 
-const service = interpret(placesMachine, { devTools: false }).onTransition(
+const service = interpret(companiesMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
 // --------------------------------------------------------
 
-export const usePlaces = () => {
+export const useCompanies = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
