@@ -50,6 +50,30 @@ async function load(_context: CompaniesContext, { data }: CompaniesEvents) {
   }).then(({ data }) => data);
 }
 
+async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
+  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
+
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so theres no worry about performance
+
+  const countries = await fetchCountries();
+  const regions = await fetchRegions(model?.country_id);
+
+  const baseModel = {
+    ...model,
+    country_id: getDefaultCountry(),
+    type: first(AddressTypes)?.key
+  };
+
+  return new Promise((resolve, reject) => {
+    if (countries && regions) {
+      resolve({ countries, regions, baseModel });
+    } else {
+      reject("Failed to load countries and regions");
+    }
+  });
+}
+
 // --------------------------------------------------------
 
 async function add({ model }: CompanyContext, _event: CompanyEvent) {
@@ -129,6 +153,7 @@ async function validate(
 
 export default {
   load,
+  loadLookups,
   validate,
   setDefault,
   add,

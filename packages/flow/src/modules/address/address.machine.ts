@@ -45,15 +45,15 @@ export default createMachine(
         entry: ["clearError"],
         type: "parallel",
         states: {
-          constants: {
+          lookups: {
             initial: "processing",
             states: {
               processing: {
                 invoke: {
-                  src: "loadConstants",
+                  src: "loadLookups",
                   onDone: {
                     target: "complete",
-                    actions: ["setConstants"]
+                    actions: ["setLookups"]
                   },
                   onError: {
                     target: "error",
@@ -112,7 +112,7 @@ export default createMachine(
 
       populating: {
         invoke: {
-          src: "loadAddressDetails",
+          src: "getPlaceDetails",
           onDone: {
             target: "checking",
             actions: ["setModel", "clearAutocomplete"]
@@ -266,7 +266,7 @@ export default createMachine(
   },
   {
     actions: {
-      setConstants: assign({
+      setLookups: assign({
         countries: (_context: AddressContext, { data }: AddressEvent) =>
           data.countries,
         regions: (_context: AddressContext, { data }: AddressEvent) =>

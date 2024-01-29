@@ -61,6 +61,32 @@ async function load(_context: AddressesContext, { data }: AddressesEvents) {
   }).then(({ data }) => data);
 }
 
+async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
+  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
+
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so theres no worry about performance
+
+  const countries = await fetchCountries();
+  const regions = await fetchRegions(model?.country_id);
+
+  const baseModel = {
+    ...model,
+    country_id: getDefaultCountry(),
+    type: first(AddressTypes)?.key
+  };
+
+  return new Promise((resolve, reject) => {
+    if (countries && regions) {
+      resolve({ countries, regions, baseModel });
+    } else {
+      reject("Failed to load countries and regions");
+    }
+  });
+}
+
+// --------------------------------------------------------
+
 async function add({ model }: AddressesContext, _event: AddressesEvents) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -149,7 +175,7 @@ async function search(_context: AddressContext, { data }: AddressEvent) {
     // if we dont have any data, then just return an empty array
     if (!data?.search?.length) resolve([]);
 
-    autocompleteApi.service.getAddressPredictions(
+    autocompleteApi.service.getPlacePredictions(
       {
         input: data?.search,
         sessionToken: autocompleteApi.sessionToken,
@@ -168,7 +194,7 @@ async function search(_context: AddressContext, { data }: AddressEvent) {
   });
 }
 
-async function loadAddressDetails(
+async function getPlaceDetails(
   _context: AddressContext,
   { data }: AddressEvent
 ) {
@@ -189,7 +215,7 @@ async function loadAddressDetails(
         autocompleteApi.sessionToken =
           new autocompleteApi.AutocompleteSessionToken();
 
-        console.log("loadAddressDetails", "callback", { result, status });
+        console.log("getPlaceDetails", "callback", { result, status });
 
         if (status === autocompleteApi.statuses.OK) {
           usePlaceParser(result).then(address => {
@@ -205,32 +231,7 @@ async function loadAddressDetails(
   });
 }
 
-async function loadConstants(
-  { model }: AddressContext,
-  { data }: AddressEvent
-) {
-  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
-
-  // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
-
-  const countries = await fetchCountries();
-  const regions = await fetchRegions(model?.country_id);
-
-  const baseModel = {
-    ...model,
-    country_id: getDefaultCountry(),
-    type: first(AddressTypes)?.key
-  };
-
-  return new Promise((resolve, reject) => {
-    if (countries && regions) {
-      resolve({ countries, regions, baseModel });
-    } else {
-      reject("Failed to load countries and regions");
-    }
-  });
-}
+// --------------------------------------------------------
 
 async function validate({ schema, model, regions }: AddressContext, _event) {
   // This NOT only validates the model,
@@ -277,9 +278,9 @@ async function validate({ schema, model, regions }: AddressContext, _event) {
 export default {
   configureAutocomplete,
   search,
-  loadAddressDetails,
+  getPlaceDetails,
   load,
-  loadConstants,
+  loadLookups,
   validate,
   setDefault,
   add,

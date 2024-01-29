@@ -16,7 +16,7 @@ import addressesMachine from "./addresses.machine";
 
 let state = null;
 
-const service = interpret(addressesMachine, { devTools: false }).onTransition(
+const service = interpret(addressesMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 

@@ -33,7 +33,7 @@ export interface Styles {
     file?: string;
     checkbox?: string;
     radio?: string;
-    menu?: {
+    menu: {
       wrapper?: string;
       item?: string;
     };
