@@ -9,7 +9,7 @@
     ]"
   >
     <div class="card-body">
-      <h3 class="text-center">{{ model.name }}</h3>
+      <h3 class="text-center">{{ model?.name || "New" }}</h3>
 
       <upm-form-generator
         tabindex="1"
@@ -29,11 +29,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientCompany } from "..";
+import { useClientPhone } from "..";
 import { UpmFormGenerator } from "@upmind/components";
 
 export default defineComponent({
-  name: "UpmCompanyForm",
+  name: "UpmPhoneForm",
   components: { UpmFormGenerator },
   props: {
     item: {
@@ -58,7 +58,7 @@ export default defineComponent({
       input,
       update,
       cancel
-    } = useClientCompany(props.item);
+    } = useClientPhone(props.item);
 
     return {
       form: ref(),

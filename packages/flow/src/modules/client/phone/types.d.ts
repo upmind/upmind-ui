@@ -7,19 +7,13 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 // private
 
-interface ICompany {
+interface IPhone {
   id: string;
   // ---
-  name: string | null;
-  address: IAddress;
-  address_id: IAddress["id"];
-  email: IEmail;
-  email_id: IEmail["id"] | null;
-  phone: IPhone;
-  phone_id: IPhone["id"];
-  reg_number: string | null;
-  vat_number: string | null;
-  vat_percent: string | null;
+  bounced: boolean;
+  bounced_at: string | null;
+  phone: string;
+  type: number;
   // ---
   default: boolean;
   // --- readonly/system data
@@ -35,7 +29,7 @@ interface ICompany {
 // --------------------------------------------------------
 // Contexts
 
-export interface CompanyContext {
+export interface PhoneContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IAddress;
@@ -46,7 +40,7 @@ export interface CompanyContext {
 // --------------------------------------------------------
 // Events
 
-export interface CompanyEvent {
+export interface PhoneEvent {
   type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
   error?: RequestError;
