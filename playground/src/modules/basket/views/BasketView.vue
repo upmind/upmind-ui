@@ -376,7 +376,7 @@ import UpmPromotions from "../components/Promotions.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
 import UpmProfile from "../../session/components/Profile.vue";
-import UpmAddresses from "../../addresses/components/Addresses.vue";
+import UpmAddresses from "../../client/address/components/Listings.vue";
 
 import { UpmDebug } from "@upmind/components";
 import {

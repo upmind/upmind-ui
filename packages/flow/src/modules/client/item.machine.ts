@@ -3,21 +3,19 @@ import { createMachine, assign, actions } from "xstate";
 const { escalate, sendParent } = actions;
 
 // --- internal
-import services from "./services";
 
 // --- utils
-import { useSchema, useUischema, useModelParser } from "./utils";
-import { useTime, useValidationParser } from "../../../utils";
+import { useTime, useValidationParser } from "../../utils";
 
 // --- types
-import type { CompanyContext, CompanyEvent } from "./types.d";
+import type { ClientItemContext, ClientItemEvent } from "./types.d";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    tsTypes: {} as import("./company.machine.typegen").Typegen0,
-    id: "companyManager",
+    tsTypes: {} as import("./item.machine.typegen").Typegen0,
+    id: "clientItemManager",
     predictableActionArguments: true,
     initial: "loading",
     context: {
@@ -27,7 +25,7 @@ export default createMachine(
       model: undefined,
       // ---
       error: undefined
-    } as CompanyContext,
+    } as ClientItemContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -186,14 +184,14 @@ export default createMachine(
       }),
 
       setSchemas: assign({
-        schema: (context: CompanyContext, _event: CompanyEvent) =>
+        schema: (context: ClientItemContext, _event: ClientItemEvent) =>
           useSchema(context),
-        uischema: (_context: CompanyContext, _event: CompanyEvent) =>
+        uischema: (_context: ClientItemContext, _event: ClientItemEvent) =>
           useUischema()
       }),
 
       setModel: assign({
-        model: ({ schema }: CompanyContext, { data }: CompanyEvent) =>
+        model: ({ schema }: ClientItemContext, { data }: ClientItemEvent) =>
           useModelParser(schema, data)
       }),
 
@@ -218,18 +216,18 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      isNew: ({ model }: CompanyContext, { data }: CompanyEvent) => !model?.id,
+      isNew: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
+        !model?.id,
 
-      isNotDefault: ({ model }: CompanyContext, { data }: CompanyEvent) =>
+      isNotDefault: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
         !!model?.id && !model?.default,
 
-      canRemove: ({ model }: CompanyContext, { data }: CompanyEvent) =>
+      canRemove: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
         !!model?.id && !!model?.can_delete
     },
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT
-    },
-    services
+    }
   }
 );

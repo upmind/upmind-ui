@@ -5,7 +5,7 @@
     </div>
 
     <template v-if="!meta.isLoading">
-      <upm-address
+      <upm-card
         v-for="item in items"
         :key="item.id"
         :item="item"
@@ -22,12 +22,12 @@
         ]"
       />
 
-      <upm-address-form
+      <upm-form
         class="shadow border border-neutral col-span-full"
         :item="selected"
         v-if="meta.isEditing"
         :key="selected.id"
-      ></upm-address-form>
+      ></upm-form>
 
       <div
         class="actions flex justify-center items-center aspect-video h-full max-w-full"
@@ -53,8 +53,8 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
 import { useClientAddresses } from "..";
-import UpmAddress from "../components/Address.vue";
-import UpmAddressForm from "../components/AddressForm.vue";
+import UpmCard from "./Card.vue";
+import UpmForm from "./Form.vue";
 import { UpmDebug } from "@upmind/components";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
@@ -64,8 +64,8 @@ export default defineComponent({
   name: "UpmAddresses",
   components: {
     SquaresPlusIcon,
-    UpmAddress,
-    UpmAddressForm,
+    UpmCard,
+    UpmForm,
     UpmDebug
   },
   emits: ["update:modelValue"],
@@ -112,4 +112,3 @@ export default defineComponent({
   computed: {}
 });
 </script>
-./Address.vue./AddressForm.vue ./Address.vue./AddressForm.vue

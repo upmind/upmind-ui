@@ -1,0 +1,40 @@
+// --- extrnal
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { I } from "vitest/dist/reporters-5f784f42.js";
+
+// --------------------------------------------------------
+// ENUMS
+
+// --------------------------------------------------------
+// private
+
+// --------------------------------------------------------
+// Contexts
+
+export interface ClientItemContext {
+  schema?: JsonSchema;
+  uischema?: UISchemaElement;
+  model?: IAddress;
+  // ---
+  error?: RequestError;
+}
+
+export interface ClientListingsContext {
+  items?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
+  selected?: IAddress;
+  error?: RequestError;
+}
+// --------------------------------------------------------
+// Events
+
+export interface ClientItemEvent {
+  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
+  data: any;
+  error?: RequestError;
+}
+
+export interface ClientListingsEvents {
+  type: "ADD" | "SELECT" | "REFRESH" | "STOP";
+  data: any;
+  error?: RequestError;
+}

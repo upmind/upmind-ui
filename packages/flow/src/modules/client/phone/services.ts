@@ -1,30 +1,20 @@
 // --- external
 
 // --- internal
-import { useApi, useSystem, useSession } from "../../";
+import { useApi, useSystem, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
 
 // --- types
-import type { CompanyEvent, CompanyContext } from "./types.d";
-import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
+import type { PhoneEvent, PhoneContext } from "./types";
+import type { ClientListingsEvents, ClientListingsContext } from "../types";
 
 // --------------------------------------------------------
 
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
-
-// async function getEnums({ field }: CompanyContext, _event: CompanyEvent) {
-//   const { getConfig } = useBrand();
-
-//   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
-//     BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-//   ).then(response =>
-//     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
-//   );
-// }
 
 async function load(
   _context: ClientListingsContext,
@@ -36,7 +26,7 @@ async function load(
   const clientId = await getUserId();
 
   return get({
-    url: useUrl(`clients/${clientId}/companies`, {
+    url: useUrl(`clients/${clientId}/phones`, {
       // with: [].join(),
       limit: 0
     }),
@@ -46,91 +36,83 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: CompanyContext, { data }: CompanyEvent) {
+async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
   const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
 
-  const emails = fetchCountries();
+  const phones = fetchCountries();
   const addresses = fetchRegions();
-  const phones = fetchRegions();
 
-  return Promise.all([emails, addresses, phones]).then(
-    ([emails, addresses, phones]) => {
-      if (emails && addresses && phones) {
-        return {
-          emails,
-          addresses,
-          phones,
-          baseModel: {
-            ...model,
-            address_id: getDefaultCountry(),
-            email_id: getDefaultCountry(),
-            phone_id: getDefaultCountry()
-          }
-        };
-      }
+  return Promise.all([phones, addresses]).then(([phones, addresses]) => {
+    if (phones && addresses && phones) {
+      return {
+        phones,
+        addresses,
+        baseModel: {
+          ...model,
+          address_id: getDefaultCountry(),
+          phone_id: getDefaultCountry()
+        }
+      };
     }
-  );
+  });
 }
 
 // --------------------------------------------------------
 
-async function add({ model }: CompanyContext, _event: CompanyEvent) {
+async function add({ model }: PhoneContext, _event: PhoneEvent) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
   return post({
-    url: useUrl(`clients/${clientId}/companies`),
+    url: useUrl(`clients/${clientId}/phones`),
     data: model,
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
-async function update({ model }: CompanyContext, _event: CompanyEvent) {
+async function update({ model }: PhoneContext, _event: PhoneEvent) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
   return put({
-    url: useUrl(`clients/${clientId}/companies/${model.id}`),
+    url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: model,
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
-async function setDefault({ model }: CompanyContext, _event: CompanyEvent) {
+async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
   return put({
-    url: useUrl(`clients/${clientId}/companies/${model.id}`),
+    url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: { default: true },
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
-async function remove({ model }: CompanyContext, _event: CompanyEvent) {
+async function remove({ model }: PhoneContext, _event: PhoneEvent) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
   return del({
-    url: useUrl(`clients/${clientId}/companies/${model.id}`),
+    url: useUrl(`clients/${clientId}/phones/${model.id}`),
     withAccessToken: true
   }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------
 
-async function validate(
-  { schema, model }: CompanyContext,
-  _event: CompanyEvent
-) {
+async function validate({ schema, model }: PhoneContext, _event: PhoneEvent) {
   // ---
 
   // Now validate the model as per normal

@@ -9,7 +9,7 @@
   >
     <div class="card-body">
       <h2 class="card-title m-0">
-        <building-office-icon class="w-6 h-6" />
+        <at-symbol-icon class="w-6 h-6" />
         {{ title }}
       </h2>
 
@@ -36,7 +36,7 @@
               :checked="selected"
               @input="select"
             />
-            <span class="label-text ml-2">Use this company</span>
+            <span class="label-text ml-2">Use this email</span>
           </label>
         </div>
 
@@ -69,7 +69,7 @@
                 @click.prevent="setDefault"
                 class="no-underline"
                 :disabled="meta.isDefault || true"
-                >Set as default company</a
+                >Set as default</a
               >
             </li>
 
@@ -82,7 +82,7 @@
             </li>
 
             <li>
-              <a @click.prevent="edit" class="no-underline">Edit company</a>
+              <a @click.prevent="edit" class="no-underline">Edit</a>
             </li>
 
             <li
@@ -96,8 +96,9 @@
                 @click.prevent="remove"
                 class="text-error no-underline"
                 :disabled="!meta.canRemove"
-                >Delete company</a
               >
+                Delete
+              </a>
             </li>
           </ul>
         </details>
@@ -108,18 +109,14 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientCompany } from "..";
-import {
-  BuildingOfficeIcon,
-  MapPinIcon,
-  EllipsisVerticalIcon
-} from "@heroicons/vue/24/solid";
+import { useClientEmail } from "..";
+import { AtSymbolIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
-  name: "UpmCompany",
-  components: { BuildingOfficeIcon, MapPinIcon, EllipsisVerticalIcon },
+  name: "UpmEmail",
+  components: { AtSymbolIcon, EllipsisVerticalIcon },
   props: {
     item: {
       type: Object, // xstate actor
@@ -153,7 +150,7 @@ export default defineComponent({
       select,
       remove,
       setDefault
-    } = useClientCompany(props.item);
+    } = useClientEmail(props.item);
 
     // ------------------------------------------------
 
