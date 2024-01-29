@@ -37,7 +37,7 @@ export const useAutocompleteSchema = choices => {
           ? undefined
           : map(choices, item => {
               return {
-                const: item.address_id,
+                const: item.place_id,
                 title: item.description
               };
             })
@@ -64,7 +64,7 @@ export const useAutocompleteUischema = choices => {
         options: {
           focus: true,
           autocomplete: "street-address",
-          addressholder: "Start typing an address..."
+          placeholder: "Start typing an address..."
         }
       },
       {
@@ -74,7 +74,7 @@ export const useAutocompleteUischema = choices => {
         options: {
           type: !choices?.length ? "hidden" : undefined,
           autocomplete: "off",
-          addressholder: "Select an address...",
+          placeholder: "Select an address...",
           format: "menu",
           title: "Select an address to use..."
         },
@@ -213,7 +213,7 @@ export const useUischema = () => {
             scope: "#/properties/type",
             options: {
               autocomplete: "off",
-              addressholder: "Select an address type..."
+              placeholder: "Select an address type..."
             }
           },
           {
@@ -222,7 +222,7 @@ export const useUischema = () => {
             options: {
               focus: true,
               autocomplete: "off",
-              addressholder: "My home address, etc..."
+              placeholder: "My home address, etc..."
             }
           }
         ],
@@ -245,7 +245,7 @@ export const useUischema = () => {
         options: {
           focus: true,
           autocomplete: "address-line1",
-          addressholder: "Address first line..."
+          placeholder: "Address first line..."
         }
       },
       {
@@ -254,7 +254,7 @@ export const useUischema = () => {
         label: "", // ensure we DON'T show the title
         options: {
           autocomplete: "address-line2",
-          addressholder: "Address second line...",
+          placeholder: "Address second line...",
           class: "-mt-8"
         }
       },
@@ -268,7 +268,7 @@ export const useUischema = () => {
             scope: "#/properties/city",
             options: {
               autocomplete: "address-level2",
-              addressholder: "City..."
+              placeholder: "City..."
             }
           },
           {
@@ -276,7 +276,7 @@ export const useUischema = () => {
             scope: "#/properties/postcode",
             options: {
               autocomplete: "postal-code",
-              addressholder: "Postcode..."
+              placeholder: "Postcode..."
             }
           }
         ]
@@ -287,7 +287,7 @@ export const useUischema = () => {
         scope: "#/properties/region_id",
         options: {
           autocomplete: "address-level1",
-          addressholder: "Please select a Region..."
+          placeholder: "Please select a Region..."
         }
       },
       {
@@ -295,7 +295,7 @@ export const useUischema = () => {
         scope: "#/properties/country_id",
         options: {
           autocomplete: "country",
-          addressholder: "Please select a Country..."
+          placeholder: "Please select a Country..."
         }
       }
       // ---

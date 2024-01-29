@@ -8,8 +8,8 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.addressManager.loading.constants.processing:invocation[0]": {
-      type: "done.invoke.addressManager.loading.constants.processing:invocation[0]";
+    "done.invoke.addressManager.loading.lookups.processing:invocation[0]": {
+      type: "done.invoke.addressManager.loading.lookups.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -52,8 +52,8 @@ export interface Typegen0 {
       type: "error.platform.addressManager.loading.autocomplete.processing:invocation[0]";
       data: unknown;
     };
-    "error.platform.addressManager.loading.constants.processing:invocation[0]": {
-      type: "error.platform.addressManager.loading.constants.processing:invocation[0]";
+    "error.platform.addressManager.loading.lookups.processing:invocation[0]": {
+      type: "error.platform.addressManager.loading.lookups.processing:invocation[0]";
       data: unknown;
     };
     "error.platform.addressManager.populating:invocation[0]": {
@@ -90,8 +90,8 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     add: "done.invoke.addressManager.processing.adding:invocation[0]";
     configureAutocomplete: "done.invoke.addressManager.loading.autocomplete.processing:invocation[0]";
-    loadAddressDetails: "done.invoke.addressManager.populating:invocation[0]";
-    loadConstants: "done.invoke.addressManager.loading.constants.processing:invocation[0]";
+    getPlaceDetails: "done.invoke.addressManager.populating:invocation[0]";
+    loadLookups: "done.invoke.addressManager.loading.lookups.processing:invocation[0]";
     remove: "done.invoke.addressManager.processing.removing:invocation[0]";
     search: "done.invoke.addressManager.searching:invocation[0]";
     setDefault: "done.invoke.addressManager.processing.setting:invocation[0]";
@@ -105,8 +105,8 @@ export interface Typegen0 {
     services:
       | "add"
       | "configureAutocomplete"
-      | "loadAddressDetails"
-      | "loadConstants"
+      | "getPlaceDetails"
+      | "loadLookups"
       | "remove"
       | "search"
       | "setDefault"
@@ -139,16 +139,16 @@ export interface Typegen0 {
     setAutocomplete:
       | "done.invoke.addressManager.loading.autocomplete.processing:invocation[0]"
       | "done.invoke.addressManager.searching:invocation[0]";
-    setConstants: "done.invoke.addressManager.loading.constants.processing:invocation[0]";
     setError:
       | "error.platform.addressManager.loading.autocomplete.processing:invocation[0]"
-      | "error.platform.addressManager.loading.constants.processing:invocation[0]"
+      | "error.platform.addressManager.loading.lookups.processing:invocation[0]"
       | "error.platform.addressManager.populating:invocation[0]"
       | "error.platform.addressManager.processing.adding:invocation[0]"
       | "error.platform.addressManager.processing.removing:invocation[0]"
       | "error.platform.addressManager.processing.setting:invocation[0]"
       | "error.platform.addressManager.processing.updating:invocation[0]"
       | "error.platform.addressManager.searching:invocation[0]";
+    setLookups: "done.invoke.addressManager.loading.lookups.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.addressManager.populating:invocation[0]"
@@ -188,8 +188,8 @@ export interface Typegen0 {
       | "SEARCH"
       | "SET"
       | "xstate.init";
-    loadAddressDetails: "SEARCH";
-    loadConstants:
+    getPlaceDetails: "SEARCH";
+    loadLookups:
       | "CLEAR"
       | "DEFAULT"
       | "REMOVE"
@@ -217,10 +217,10 @@ export interface Typegen0 {
     | "loading.autocomplete.complete"
     | "loading.autocomplete.error"
     | "loading.autocomplete.processing"
-    | "loading.constants"
-    | "loading.constants.complete"
-    | "loading.constants.error"
-    | "loading.constants.processing"
+    | "loading.lookups"
+    | "loading.lookups.complete"
+    | "loading.lookups.error"
+    | "loading.lookups.processing"
     | "populating"
     | "processed"
     | "processing"
@@ -233,10 +233,10 @@ export interface Typegen0 {
     | {
         loading?:
           | "autocomplete"
-          | "constants"
+          | "lookups"
           | {
               autocomplete?: "complete" | "error" | "processing";
-              constants?: "complete" | "error" | "processing";
+              lookups?: "complete" | "error" | "processing";
             };
         processing?: "adding" | "removing" | "setting" | "updating";
       };
