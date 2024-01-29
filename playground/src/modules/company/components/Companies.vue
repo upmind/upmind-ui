@@ -12,7 +12,9 @@
         :selected="item.id === selected?.id"
         @select="select"
         :class="[
-          meta.isEditing || processing ? 'opacity-50 pointer-events-none' : '',
+          meta.isEditing || processing
+            ? 'hidden opacity-50 pointer-events-none'
+            : '',
           {
             'border-primary': item.id === selected?.id
             // 'col-span-full': item.id === selected?.id && meta.isEditing
@@ -29,6 +31,7 @@
 
       <div
         class="actions flex justify-center items-center aspect-video h-full max-w-full"
+        v-if="!meta.isEditing"
       >
         <button class="btn btn-block h-full" @click="add">
           <squares-plus-icon class="w-6 h-6" /> Add new
