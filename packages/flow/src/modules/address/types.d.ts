@@ -68,7 +68,7 @@ export interface AddressesContext {
 // Events
 
 export interface AddressEvent {
-  type: string;
+  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
   error?: RequestError;
 }

@@ -96,7 +96,7 @@ export const useAutocompleteUischema = choices => {
 
 // --------------------------------------------------------
 
-export const useAddressSchema = ({
+export const useSchema = ({
   countries,
   regions,
   types,
@@ -201,7 +201,7 @@ export const useAddressSchema = ({
   return schema as JsonSchema;
 };
 
-export const useAddressUischema = () => {
+export const useUischema = () => {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -313,7 +313,7 @@ export const useAddressUischema = () => {
   return schema as UISchemaElement;
 };
 
-export const useAddressModelParser = (
+export const useModelParser = (
   schema: JsonSchema,
   values: IAddress,
   baseModel: IAddress
@@ -365,7 +365,7 @@ function parseValue(addressComponents: any[], fields: string[]) {
   return get(value, "long_name");
 }
 
-export async function useAddressDetailParser(result: any): Promise<IAddress> {
+export async function usePlaceParser(result: any): Promise<IAddress> {
   const name = get(result, "name");
   const address = get(result, "address_components", []);
 
