@@ -15,7 +15,6 @@ import type { CompaniesContext, CompaniesEvents, IAddress } from "./types.d";
 // utility function to spawn machines based on the given items
 function spawnConfiguration(model = {} as IAddress) {
   const name = get(model, "id", uniqueId("company_"));
-
   try {
     return spawn(companyMachine.withContext({ model }), {
       name,

@@ -16,7 +16,7 @@ import companiesMachine from "./companies.machine";
 
 let state = null;
 
-const service = interpret(companiesMachine, { devTools: false }).onTransition(
+const service = interpret(companiesMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 

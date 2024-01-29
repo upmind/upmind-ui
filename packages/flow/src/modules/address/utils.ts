@@ -213,7 +213,7 @@ export const useUischema = () => {
             scope: "#/properties/type",
             options: {
               autocomplete: "off",
-              addressholder: "Select an address type...s"
+              addressholder: "Select an address type..."
             }
           },
           {
