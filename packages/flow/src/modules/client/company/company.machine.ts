@@ -7,7 +7,7 @@ import services from "./services";
 
 // --- utils
 import { useSchema, useUischema, useModelParser } from "./utils";
-import { useTime, useValidationParser } from "../../utils";
+import { useTime, useValidationParser } from "../../../utils";
 
 // --- types
 import type { CompanyContext, CompanyEvent } from "./types.d";
@@ -19,7 +19,7 @@ export default createMachine(
     tsTypes: {} as import("./company.machine.typegen").Typegen0,
     id: "companyManager",
     predictableActionArguments: true,
-    initial: "checking",
+    initial: "loading",
     context: {
       // ---
       schema: undefined,
@@ -29,16 +29,30 @@ export default createMachine(
       error: undefined
     } as CompanyContext,
     states: {
+      loading: {
+        entry: ["clearError"],
+
+        invoke: {
+          src: "loadLookups",
+          onDone: {
+            target: "checking",
+            actions: ["setLookups", "setSchemas"]
+          },
+          onError: {
+            target: "error",
+            actions: ["setError"]
+          }
+        }
+      },
       // ---
 
       checking: {
-        entry: ["clearError", "setSchemas"],
+        entry: ["clearError"],
         id: "checking",
         invoke: {
           src: "validate",
           onDone: {
-            target: "valid",
-            actions: ["refresh"]
+            target: "valid"
           },
           onError: {
             target: "invalid",
@@ -166,6 +180,11 @@ export default createMachine(
   },
   {
     actions: {
+      setLookups: assign({
+        // countries: (_context: AddressContext, { data }: AddressEvent) =>
+        //   data.countries,
+      }),
+
       setSchemas: assign({
         schema: (context: CompanyContext, _event: CompanyEvent) =>
           useSchema(context),
@@ -174,17 +193,12 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema }: CompanyContext, { data }: CompanyEvent) => data
+        model: ({ schema }: CompanyContext, { data }: CompanyEvent) =>
+          useModelParser(schema, data)
       }),
 
       clearModel: assign({
         model: undefined
-      }),
-
-      refresh: assign({
-        model: ({ schema }: CompanyContext, { data }: CompanyEvent) => {
-          return useModelParser(schema, data);
-        }
       }),
 
       // ---

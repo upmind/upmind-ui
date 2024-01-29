@@ -22,7 +22,7 @@ const service = interpret(addressesMachine, { devTools: true }).onTransition(
 
 // --------------------------------------------------------
 
-export const useAddresses = () => {
+export const useClientAddresses = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

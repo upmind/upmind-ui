@@ -2,13 +2,11 @@
 import { Loader } from "@googlemaps/js-api-loader";
 
 // --- internal
-import { useApi } from "../api";
-import { useSystem } from "..";
-import { useSession } from "../session";
+import { useApi, useSystem, useSession } from "../../";
 
 // --- utils
 import { usePlaceParser } from "./utils";
-import { useValidation } from "../../utils";
+import { useValidation } from "../../../utils";
 import { some, first, isEmpty, find, get } from "lodash-es";
 
 // --- types

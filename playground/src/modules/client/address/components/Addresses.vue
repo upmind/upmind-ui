@@ -5,7 +5,7 @@
     </div>
 
     <template v-if="!meta.isLoading">
-      <upm-company
+      <upm-address
         v-for="item in items"
         :key="item.id"
         :item="item"
@@ -22,12 +22,12 @@
         ]"
       />
 
-      <upm-company-form
-        class="mt-8 shadow border border-neutral col-span-full"
+      <upm-address-form
+        class="shadow border border-neutral col-span-full"
         :item="selected"
         v-if="meta.isEditing"
         :key="selected.id"
-      ></upm-company-form>
+      ></upm-address-form>
 
       <div
         class="actions flex justify-center items-center aspect-video h-full max-w-full"
@@ -40,7 +40,7 @@
     </template>
     <upm-debug
       v-if="debugging"
-      title="Companies"
+      title="Addresses"
       :state="state"
       :context="context"
       :errors="errors"
@@ -52,20 +52,20 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { useCompanies } from "..";
-import UpmCompany from "../components/Company.vue";
-import UpmCompanyForm from "../components/CompanyForm.vue";
+import { useClientAddresses } from "..";
+import UpmAddress from "../components/Address.vue";
+import UpmAddressForm from "../components/AddressForm.vue";
 import { UpmDebug } from "@upmind/components";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
 import { isEqual } from "lodash-es";
 
 export default defineComponent({
-  name: "UpmCompanies",
+  name: "UpmAddresses",
   components: {
     SquaresPlusIcon,
-    UpmCompany,
-    UpmCompanyForm,
+    UpmAddress,
+    UpmAddressForm,
     UpmDebug
   },
   emits: ["update:modelValue"],
@@ -85,7 +85,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { state, context, meta, errors, items, add, select, selected } =
-      useCompanies();
+      useClientAddresses();
 
     if (props.modelValue) {
       select(props.modelValue);
@@ -112,3 +112,4 @@ export default defineComponent({
   computed: {}
 });
 </script>
+./Address.vue./AddressForm.vue ./Address.vue./AddressForm.vue

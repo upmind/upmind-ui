@@ -1,13 +1,11 @@
 // --- external
 
 // --- internal
-import { useApi } from "../api";
-import { useSystem } from "../";
-import { useSession } from "../session";
+import { useApi, useSystem, useSession } from "../../";
 
 // --- utils
-import { useValidation } from "../../utils";
-import { some, isEmpty, find, get } from "lodash-es";
+import { useValidation } from "../../../utils";
+import { some, isEmpty, find, get, first } from "lodash-es";
 
 // --- types
 import type {
@@ -50,28 +48,30 @@ async function load(_context: CompaniesContext, { data }: CompaniesEvents) {
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
+async function loadLookups({ model }: CompanyContext, { data }: CompanyEvent) {
   const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
 
-  // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
+  const emails = fetchCountries();
+  const addresses = fetchRegions();
+  const phones = fetchRegions();
 
-  const countries = await fetchCountries();
-  const regions = await fetchRegions(model?.country_id);
-
-  const baseModel = {
-    ...model,
-    country_id: getDefaultCountry(),
-    type: first(AddressTypes)?.key
-  };
-
-  return new Promise((resolve, reject) => {
-    if (countries && regions) {
-      resolve({ countries, regions, baseModel });
-    } else {
-      reject("Failed to load countries and regions");
+  return Promise.all([emails, addresses, phones]).then(
+    ([emails, addresses, phones]) => {
+      if (emails && addresses && phones) {
+        return {
+          emails,
+          addresses,
+          phones,
+          baseModel: {
+            ...model,
+            address_id: getDefaultCountry(),
+            email_id: getDefaultCountry(),
+            phone_id: getDefaultCountry()
+          }
+        };
+      }
     }
-  });
+  );
 }
 
 // --------------------------------------------------------
