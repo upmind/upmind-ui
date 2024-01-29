@@ -234,7 +234,7 @@
       >
         <div class="divider uppercase text-xs opacity-50">Billing Details</div>
 
-        <upm-places
+        <upm-addresses
           v-if="!meta.needsAuth"
           class="my-8 p-0"
           :processing="meta.isProcessing"
@@ -326,7 +326,7 @@
             class="btn btn-lg btn-block btn-primary"
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           >
-            Place order and pay
+            Address order and pay
           </button>
 
           <div class="flex flex-wrap justify-between">
@@ -376,7 +376,7 @@ import UpmPromotions from "../components/Promotions.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
 import UpmProfile from "../../session/components/Profile.vue";
-import UpmPlaces from "../../places/components/Places.vue";
+import UpmAddresses from "../../addresses/components/Addresses.vue";
 
 import { UpmDebug } from "@upmind/components";
 import {

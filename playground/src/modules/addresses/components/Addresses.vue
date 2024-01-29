@@ -8,7 +8,7 @@
     </div>
 
     <template v-if="!meta.isLoading">
-      <upm-place
+      <upm-address
         v-for="item in items"
         :key="item.id"
         :item="item"
@@ -23,12 +23,12 @@
         ]"
       />
 
-      <upm-place-form
+      <upm-address-form
         class="mt-8 shadow border border-neutral col-span-full"
         :item="selected"
         v-if="meta.isEditing"
         :key="selected.id"
-      ></upm-place-form>
+      ></upm-address-form>
 
       <div
         class="actions flex justify-center items-center aspect-video h-full max-w-full"
@@ -40,7 +40,7 @@
     </template>
     <upm-debug
       v-if="debugging"
-      title="Places"
+      title="Addresses"
       :state="state"
       :context="context"
       :errors="errors"
@@ -52,20 +52,20 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { usePlaces } from "..";
-import UpmPlace from "../components/Place.vue";
-import UpmPlaceForm from "../components/PlaceForm.vue";
+import { useAddresses } from "..";
+import UpmAddress from "../components/Address.vue";
+import UpmAddressForm from "../components/AddressForm.vue";
 import { UpmDebug } from "@upmind/components";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
 import { isEqual } from "lodash-es";
 
 export default defineComponent({
-  name: "UpmPlaces",
+  name: "UpmAddresses",
   components: {
     SquaresPlusIcon,
-    UpmPlace,
-    UpmPlaceForm,
+    UpmAddress,
+    UpmAddressForm,
     UpmDebug
   },
   emits: ["update:modelValue"],
@@ -85,7 +85,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { state, context, meta, errors, items, add, select, selected } =
-      usePlaces();
+      useAddresses();
 
     if (props.modelValue) {
       select(props.modelValue);

@@ -45,11 +45,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { usePlace } from "..";
+import { useAddress } from "..";
 import { UpmFormGenerator } from "@upmind/components";
 
 export default defineComponent({
-  name: "UpmPlaceForm",
+  name: "UpmAddressForm",
   components: { UpmFormGenerator },
   props: {
     item: {
@@ -76,7 +76,7 @@ export default defineComponent({
       search,
       update,
       cancel
-    } = usePlace(props.item);
+    } = useAddress(props.item);
 
     return {
       form: ref(),
