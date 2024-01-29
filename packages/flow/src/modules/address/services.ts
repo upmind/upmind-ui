@@ -7,7 +7,7 @@ import { useSystem } from "..";
 import { useSession } from "../session";
 
 // --- utils
-import { useAddressDetailParser } from "./utils";
+import { usePlaceParser } from "./utils";
 import { useValidation } from "../../utils";
 import { some, first, isEmpty, find, get } from "lodash-es";
 
@@ -192,7 +192,7 @@ async function loadAddressDetails(
         console.log("loadAddressDetails", "callback", { result, status });
 
         if (status === autocompleteApi.statuses.OK) {
-          useAddressDetailParser(result).then(address => {
+          usePlaceParser(result).then(address => {
             resolve(address);
           });
         } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {

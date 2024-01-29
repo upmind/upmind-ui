@@ -7,9 +7,9 @@ import services, { AddressTypes } from "./services";
 
 // --- utils
 import {
-  useAddressSchema,
-  useAddressUischema,
-  useAddressModelParser,
+  useSchema,
+  useUischema,
+  useModelParser,
   useAutocompleteSchema,
   useAutocompleteUischema
 } from "./utils";
@@ -323,9 +323,9 @@ export default createMachine(
 
       setSchemas: assign({
         schema: (context: AddressContext, _event: AddressEvent) =>
-          useAddressSchema(context),
+          useSchema(context),
         uischema: (_context: AddressContext, _event: AddressEvent) =>
-          useAddressUischema()
+          useUischema()
       }),
 
       setModel: assign({
@@ -341,7 +341,7 @@ export default createMachine(
         regions: (_context: AddressContext, { data }: AddressEvent) =>
           data.regions,
         model: ({ schema }: AddressContext, { data }: AddressEvent) =>
-          useAddressModelParser(schema, data.model)
+          useModelParser(schema, data.model)
       }),
 
       // ---
