@@ -23,7 +23,7 @@
       />
 
       <upm-company-form
-        class="mt-8 shadow border border-neutral col-span-full"
+        class="shadow border border-neutral col-span-full"
         :item="selected"
         v-if="meta.isEditing"
         :key="selected.id"
