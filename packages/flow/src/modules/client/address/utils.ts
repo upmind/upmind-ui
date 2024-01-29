@@ -1,5 +1,10 @@
+//  --- external
+import { spawn } from "xstate";
+
 // --- internal
 import { useSystem } from "../..";
+import addressMachine from "./address.machine";
+import services from "./services";
 
 // --- utils
 import {
@@ -10,7 +15,8 @@ import {
   set,
   map,
   reduce,
-  defaultsDeep
+  defaultsDeep,
+  uniqueId
 } from "lodash-es";
 
 // --- types
@@ -404,3 +410,17 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
 
   return value;
 }
+
+// --------------------------------------------------------
+
+export const spawnItem = (model?: IAddress) => {
+  try {
+    const name = get(model, "id", uniqueId("item_"));
+    return spawn(addressMachine.withContext({ model }), {
+      name,
+      sync: true
+    });
+  } catch (err) {
+    console.error("CompanyListings", "spawnItem", { model });
+  }
+};

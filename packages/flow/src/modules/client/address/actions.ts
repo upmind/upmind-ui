@@ -2,11 +2,10 @@
 import { assign } from "xstate";
 
 // --- utils
-import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
+import { spawnItem } from "./utils";
 import { find, map } from "lodash-es";
 
 // --- types
-import type { CompanyContext, CompanyEvent } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
@@ -30,18 +29,5 @@ export const ListingActions = {
         return found;
       }),
     error: null
-  })
-};
-
-export const ItemActions = {
-  setSchemas: assign({
-    schema: (context: CompanyContext, _event: CompanyEvent) =>
-      useSchema(context),
-    uischema: (_context: CompanyContext, _event: CompanyEvent) => useUischema()
-  }),
-
-  setModel: assign({
-    model: ({ schema }: CompanyContext, { data }: CompanyEvent) =>
-      useModelParser(schema, data)
   })
 };
