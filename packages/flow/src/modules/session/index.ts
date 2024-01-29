@@ -74,6 +74,19 @@ export const useSession = () => {
       };
     };
 
+  async function getUser() {
+    if (state.matches("client.processing")) {
+      await waitFor(service, state =>
+        ["client.idle", "guest.idle"].some(state.matches)
+      );
+    }
+    return state.context.user;
+  }
+
+  async function getUserId() {
+    const user = await getUser();
+    return user?.id;
+  }
   // --------------------------------------------------------
 
   return {
@@ -82,20 +95,8 @@ export const useSession = () => {
     getSnapshot: () => state,
     getToken: () => state?.context?.token?.access_token,
     getHistory: () => state?.context?.history,
-    getUser: async () => {
-      if (state.matches("client.processing")) {
-        await waitFor(service, state =>
-          ["client.idle", "guest.idle"].some(state.matches)
-        );
-        // .then(() => {
-        //   debugger;
-        //   console.log("getUser", state.context.user);
-        //   return state.context.user;
-        // });
-      }
-      console.log("getUser", state.context.user);
-      return state.context.user;
-    },
+    getUser,
+    getUserId,
     authSubscription,
     isAuthenticated: () => {
       return new Promise((resolve, reject) => {
