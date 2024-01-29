@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useCompany } from "..";
+import { useClientCompany } from "..";
 import { UpmFormGenerator } from "@upmind/components";
 
 export default defineComponent({
@@ -58,7 +58,7 @@ export default defineComponent({
       input,
       update,
       cancel
-    } = useCompany(props.item);
+    } = useClientCompany(props.item);
 
     return {
       form: ref(),

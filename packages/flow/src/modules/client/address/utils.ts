@@ -1,5 +1,5 @@
 // --- internal
-import { useSystem } from "..";
+import { useSystem } from "../..";
 
 // --- utils
 import {
@@ -14,7 +14,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ICountry } from "../system/types";
+import type { ICountry } from "../../system/types";
 import type { IAddress, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 

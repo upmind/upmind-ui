@@ -3,17 +3,17 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useAddresses as useUpmindAddresses } from "@upmind/flow";
+import { useClientCompanies as useUpmindClientCompanies } from "@upmind/flow";
 
 // --- utils
-import { get, isEmpty, map, compact, find } from "lodash-es";
+import { get, map, compact } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useAddress = item => {
-  const { service } = useUpmindAddresses();
+export const useClientCompany = item => {
+  const { service } = useUpmindClientCompanies();
 
-  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
+  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
   const { state, send } = item;
 
   // --------------------------------------------------------
@@ -26,18 +26,10 @@ export const useAddress = item => {
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
-      hasErrors: [
-        "error",
-        "loading.constants.error",
-        "loading.autocomplete.error"
-      ].some(state.value.matches),
-      isSearching: ["searching"].some(state.value.matches),
-      isProcessing: ["populating", "checking", "processing"].some(
-        state.value.matches
-      ),
+      hasErrors: ["error"].some(state.value.matches),
+      isProcessing: ["checking", "processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
-      hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
       canRemove: state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
       isComplete:
@@ -49,35 +41,18 @@ export const useAddress = item => {
       return compact([get(state.value.context?.model, "name")]).join(" ");
     }),
     display: computed(() => {
-      const country = find(state.value.context?.countries, [
-        "id",
-        get(state.value.context?.model, "country_id")
-      ]);
-
-      const region = find(state.value.context?.regions, [
-        "id",
-        get(state.value.context?.model, "region_id")
-      ]);
-
       return compact([
-        get(state.value.context?.model, "address_1"),
-        get(state.value.context?.model, "address_2"),
-        get(state.value.context?.model, "street"),
-        get(state.value.context?.model, "city"),
-        get(state.value.context?.model, "postcode"),
-        get(region, "name"),
-        get(country, "name")
+        get(state.value.context?.model, "company_1"),
+        get(state.value.context?.model, "company_2")
       ]).join(", ");
     }),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
     uischema: computed(() => state.value?.context?.uischema),
-    autocomplete: computed(() => state.value?.context?.autocomplete),
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
-    search: model => send({ type: "SEARCH", data: model }),
     update: () => send({ type: "UPDATE" }),
     remove: () => send({ type: "REMOVE" }),
     setDefault: () => send({ type: "DEFAULT" }),
@@ -88,10 +63,10 @@ export const useAddress = item => {
   };
 };
 
-export const useAddresses = selected => {
-  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
+export const useClientCompanies = selected => {
+  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
 
-  const { service } = useUpmindAddresses();
+  const { service } = useUpmindClientCompanies();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------

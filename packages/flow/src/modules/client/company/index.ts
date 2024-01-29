@@ -22,7 +22,7 @@ const service = interpret(companiesMachine, { devTools: true }).onTransition(
 
 // --------------------------------------------------------
 
-export const useCompanies = () => {
+export const useClientCompanies = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

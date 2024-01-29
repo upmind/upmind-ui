@@ -3,8 +3,8 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.checking:invocation[0]": {
-      type: "done.invoke.checking:invocation[0]";
+    "done.invoke.companyManager.loading:invocation[0]": {
+      type: "done.invoke.companyManager.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -32,6 +32,10 @@ export interface Typegen0 {
       type: "error.platform.checking:invocation[0]";
       data: unknown;
     };
+    "error.platform.companyManager.loading:invocation[0]": {
+      type: "error.platform.companyManager.loading:invocation[0]";
+      data: unknown;
+    };
     "error.platform.companyManager.processing.adding:invocation[0]": {
       type: "error.platform.companyManager.processing.adding:invocation[0]";
       data: unknown;
@@ -53,6 +57,7 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     add: "done.invoke.companyManager.processing.adding:invocation[0]";
+    loadLookups: "done.invoke.companyManager.loading:invocation[0]";
     remove: "done.invoke.companyManager.processing.removing:invocation[0]";
     setDefault: "done.invoke.companyManager.processing.setting:invocation[0]";
     update: "done.invoke.companyManager.processing.updating:invocation[0]";
@@ -62,7 +67,13 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services: "add" | "remove" | "setDefault" | "update" | "validate";
+    services:
+      | "add"
+      | "loadLookups"
+      | "remove"
+      | "setDefault"
+      | "update"
+      | "validate";
   };
   eventsCausingActions: {
     clearError:
@@ -72,23 +83,25 @@ export interface Typegen0 {
       | "RETRY"
       | "SET"
       | "UPDATE"
+      | "done.invoke.companyManager.loading:invocation[0]"
       | "xstate.init";
     clearModel:
       | "CLEAR"
       | "done.invoke.companyManager.processing.removing:invocation[0]";
-    refresh: "done.invoke.checking:invocation[0]";
     setError:
       | "error.platform.checking:invocation[0]"
+      | "error.platform.companyManager.loading:invocation[0]"
       | "error.platform.companyManager.processing.adding:invocation[0]"
       | "error.platform.companyManager.processing.removing:invocation[0]"
       | "error.platform.companyManager.processing.setting:invocation[0]"
       | "error.platform.companyManager.processing.updating:invocation[0]";
+    setLookups: "done.invoke.companyManager.loading:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.companyManager.processing.adding:invocation[0]"
       | "done.invoke.companyManager.processing.setting:invocation[0]"
       | "done.invoke.companyManager.processing.updating:invocation[0]";
-    setSchemas: "CLEAR" | "DEFAULT" | "REMOVE" | "SET" | "xstate.init";
+    setSchemas: "done.invoke.companyManager.loading:invocation[0]";
   };
   eventsCausingDelays: {
     wait:
@@ -104,16 +117,21 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     add: "UPDATE";
+    loadLookups: "CLEAR" | "DEFAULT" | "REMOVE" | "SET" | "xstate.init";
     remove: "REMOVE";
     setDefault: "DEFAULT";
     update: "UPDATE";
-    validate: "CLEAR" | "DEFAULT" | "REMOVE" | "SET" | "xstate.init";
+    validate:
+      | "CLEAR"
+      | "SET"
+      | "done.invoke.companyManager.loading:invocation[0]";
   };
   matchesStates:
     | "checking"
     | "complete"
     | "error"
     | "invalid"
+    | "loading"
     | "processed"
     | "processing"
     | "processing.adding"
