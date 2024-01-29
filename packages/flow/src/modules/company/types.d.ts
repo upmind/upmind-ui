@@ -10,6 +10,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 interface ICompany {
   id: string;
   // ---
+  name: string | null;
   address: IAddress;
   address_id: IAddress["id"];
   email: IEmail;
@@ -20,7 +21,6 @@ interface ICompany {
   vat_number: string | null;
   vat_percent: string | null;
   // ---
-  name: string | null;
   default: boolean;
   // --- readonly/system data
   can_delete: boolean;

@@ -9,7 +9,7 @@
   >
     <div class="card-body">
       <h2 class="card-title m-0">
-        <map-pin-icon class="w-6 h-6" />
+        <building-office-icon class="w-6 h-6" />
         {{ title }}
       </h2>
 
@@ -109,13 +109,17 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useCompany } from "..";
-import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
+import {
+  BuildingOfficeIcon,
+  MapPinIcon,
+  EllipsisVerticalIcon
+} from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmCompany",
-  components: { MapPinIcon, EllipsisVerticalIcon },
+  components: { BuildingOfficeIcon, MapPinIcon, EllipsisVerticalIcon },
   props: {
     item: {
       type: Object, // xstate actor

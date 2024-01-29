@@ -76,10 +76,9 @@ export interface Typegen0 {
     clearModel:
       | "CLEAR"
       | "done.invoke.companyManager.processing.removing:invocation[0]";
-    refresh:
-      | "done.invoke.checking:invocation[0]"
-      | "error.platform.checking:invocation[0]";
+    refresh: "done.invoke.checking:invocation[0]";
     setError:
+      | "error.platform.checking:invocation[0]"
       | "error.platform.companyManager.processing.adding:invocation[0]"
       | "error.platform.companyManager.processing.removing:invocation[0]"
       | "error.platform.companyManager.processing.setting:invocation[0]"
@@ -89,13 +88,7 @@ export interface Typegen0 {
       | "done.invoke.companyManager.processing.adding:invocation[0]"
       | "done.invoke.companyManager.processing.setting:invocation[0]"
       | "done.invoke.companyManager.processing.updating:invocation[0]";
-    setSchemas:
-      | "done.invoke.checking:invocation[0]"
-      | "done.invoke.companyManager.processing.adding:invocation[0]"
-      | "done.invoke.companyManager.processing.removing:invocation[0]"
-      | "done.invoke.companyManager.processing.setting:invocation[0]"
-      | "done.invoke.companyManager.processing.updating:invocation[0]"
-      | "error.platform.checking:invocation[0]";
+    setSchemas: "CLEAR" | "DEFAULT" | "REMOVE" | "SET" | "xstate.init";
   };
   eventsCausingDelays: {
     wait:

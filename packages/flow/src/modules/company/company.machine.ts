@@ -32,17 +32,17 @@ export default createMachine(
       // ---
 
       checking: {
+        entry: ["clearError", "setSchemas"],
         id: "checking",
-        entry: ["clearError"],
         invoke: {
           src: "validate",
           onDone: {
             target: "valid",
-            actions: ["refresh", "setSchemas"]
+            actions: ["refresh"]
           },
           onError: {
             target: "invalid",
-            actions: ["refresh", "setSchemas"]
+            actions: ["setError"]
           }
         }
       },
@@ -71,7 +71,7 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "setModel"]
+                actions: ["setModel"]
               },
               onError: {
                 target: "#error",
@@ -84,7 +84,7 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "setModel"]
+                actions: ["setModel"]
               },
               onError: {
                 target: "#error",
@@ -97,7 +97,7 @@ export default createMachine(
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "clearModel"]
+                actions: ["clearModel"]
               },
               onError: {
                 target: "#error",
@@ -110,7 +110,7 @@ export default createMachine(
               src: "setDefault",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "setModel"]
+                actions: ["setModel"]
               },
               onError: {
                 target: "#error",
@@ -182,13 +182,14 @@ export default createMachine(
       }),
 
       refresh: assign({
-        model: ({ schema }: CompanyContext, { data }: CompanyEvent) =>
-          useModelParser(schema, data.model)
+        model: ({ schema }: CompanyContext, { data }: CompanyEvent) => {
+          return useModelParser(schema, data);
+        }
       }),
 
       // ---
       setError: assign({
-        error: (context, { data }, meta) => {
+        error: (context, { data }) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data
