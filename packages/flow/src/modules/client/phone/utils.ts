@@ -165,7 +165,6 @@ export const useModelParser = (schema: JsonSchema, values: IPhone) => {
 export const spawnItem = (model?: IPhone) => {
   try {
     const name = get(model, "id", uniqueId("item_"));
-    debugger;
     return spawn(
       itemMachine
         .withConfig({

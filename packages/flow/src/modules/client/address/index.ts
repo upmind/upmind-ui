@@ -2,8 +2,9 @@
 import { interpret } from "xstate";
 
 // --- internal
-import addressesMachine from "./addresses.machine";
-
+import listingsMachine from "../listings.machine";
+import { ListingActions as actions } from "./actions";
+import services from "./services";
 // --- utils
 
 // --- types
@@ -16,9 +17,9 @@ import addressesMachine from "./addresses.machine";
 
 let state = null;
 
-const service = interpret(addressesMachine, { devTools: true }).onTransition(
-  newState => (state = newState)
-);
+const service = interpret(listingsMachine.withConfig({ actions, services }), {
+  devTools: true
+}).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
 
