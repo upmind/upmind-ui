@@ -32,19 +32,14 @@ export const useClientEmail = item => {
       isNew: !state.value.context?.model?.id,
       canRemove: state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
+      isVerified: !!state.value?.context?.model?.verified,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
     title: computed(() => {
       // state.value.context?.model
-      return compact([get(state.value.context?.model, "name")]).join(" ");
-    }),
-    display: computed(() => {
-      return compact([
-        get(state.value.context?.model, "email_1"),
-        get(state.value.context?.model, "email_2")
-      ]).join(", ");
+      return compact([get(state.value.context?.model, "email")]).join(" ");
     }),
     // ---
     model: computed(() => state.value?.context?.model),

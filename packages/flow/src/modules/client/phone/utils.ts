@@ -4,10 +4,10 @@ import { spawn } from "xstate";
 // --- internal
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
-import services from "./services";
+import services, { PhoneTypes } from "./services";
 
 // --- utils
-import { get, set, reduce, defaultsDeep, uniqueId } from "lodash-es";
+import { map, get, set, reduce, defaultsDeep, uniqueId } from "lodash-es";
 
 // --- types
 import type { IPhone } from "./types";
@@ -19,7 +19,7 @@ export const useSchema = () => {
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["name", "address_id", "phone_id"],
+    required: ["phone", "type"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -29,34 +29,21 @@ export const useSchema = () => {
       },
 
       // ---
-      name: {
-        type: "string",
-        title: "Name"
+
+      phone: {
+        type: ["string", "null"],
+        title: "Phone"
       },
 
-      address_id: {
-        type: "string",
-        title: "Address"
-      },
-      phone_id: {
-        type: ["string", "null"],
-        title: "Phone"
-      },
-      phone_id: {
-        type: ["string", "null"],
-        title: "Phone"
-      },
-      reg_number: {
-        type: "string",
-        title: "Registrration number"
-      },
-      vat_number: {
-        type: "string",
-        title: "Registered tax/VAT id"
-      },
-      vat_percent: {
-        type: "string",
-        title: "VAT percent"
+      type: {
+        type: ["number", "null"],
+        title: "Type",
+        oneOf: map(PhoneTypes, ({ value, key }) => {
+          return {
+            const: key,
+            title: value
+          };
+        })
       },
 
       // ---
@@ -82,55 +69,22 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/name",
+        scope: "#/properties/phone",
         options: {
           focus: true,
-          autocomplete: "off",
-          placeholder: "My phone name"
+          autocomplete: "phone",
+          placeholder: "My phone number"
         }
       },
       {
         type: "Control",
-        scope: "#/properties/vat_number",
+        scope: "#/properties/type",
         options: {
           autocomplete: "off",
-          placeholder: "Registered tax/VAT id"
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/reg_number",
-        options: {
-          autocomplete: "off",
-          placeholder: "Registration number"
-        }
-      },
-
-      // ---
-      {
-        type: "Control",
-        scope: "#/properties/address_id",
-        options: {
-          autocomplete: "off",
-          placeholder: "Select an Address..."
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/phone_id",
-        options: {
-          autocomplete: "off",
-          placeholder: "Select an phone..."
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/phone_id",
-        options: {
-          autocomplete: "country",
-          placeholder: "Please select a Phone Number  ..."
+          placeholder: "Select Type"
         }
       }
+
       // ---
       // We dont ever show this field as it is set by an action
       // {
@@ -147,6 +101,7 @@ export const useUischema = () => {
 };
 
 export const useModelParser = (schema: JsonSchema, values: IPhone) => {
+  debugger;
   const model = reduce(
     schema.properties,
     (result, field, key) => {

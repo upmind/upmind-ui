@@ -95,6 +95,12 @@ export interface Typegen0 {
       | "error.platform.clientItemManager.processing.removing:invocation[0]"
       | "error.platform.clientItemManager.processing.setting:invocation[0]"
       | "error.platform.clientItemManager.processing.updating:invocation[0]";
+    setFeedbackError:
+      | "error.platform.clientItemManager.loading:invocation[0]"
+      | "error.platform.clientItemManager.processing.adding:invocation[0]"
+      | "error.platform.clientItemManager.processing.removing:invocation[0]"
+      | "error.platform.clientItemManager.processing.setting:invocation[0]"
+      | "error.platform.clientItemManager.processing.updating:invocation[0]";
     setLookups: "done.invoke.clientItemManager.loading:invocation[0]";
     setModel:
       | "SET"

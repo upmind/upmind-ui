@@ -1,8 +1,30 @@
+// --- external
 import { createAjv } from "@jsonforms/core";
+import { isValidPhoneNumber } from "libphonenumber-js";
+
+// --- internal
+// import { useBrand, useSystem } from "@upmind/flow";
+
+// --- utils
+import { isString } from "lodash-es";
+// ----------------------------------------------------------------------
 
 export const useValidation = () => {
   // us JSON Forms version of AJV as it has formats and other keywords already
   const ajv = createAjv({ useDefaults: true });
+  // const { getCountry: getDefaultCountry } = useBrand();
+  // const {getCountry;}
+
+  ajv.addFormat("phone", {
+    type: ["object", "string"],
+    validate: data => {
+      const phoneNumber = isString(data)
+        ? data
+        : data?.national || data?.number || "";
+      const country = data?.countryCode; // || defaultCountry?.id;
+      return isValidPhoneNumber(phoneNumber, country);
+    }
+  });
 
   ajv.addFormat(
     "domain_name",

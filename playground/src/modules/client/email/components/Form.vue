@@ -9,7 +9,7 @@
     ]"
   >
     <div class="card-body">
-      <h3 class="text-center">{{ model?.name || "New" }}</h3>
+      <h3 class="text-center">Email</h3>
 
       <upm-form-generator
         tabindex="1"

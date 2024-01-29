@@ -19,7 +19,7 @@ export const useSchema = () => {
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["name", "address_id", "email_id"],
+    required: ["email"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -29,34 +29,15 @@ export const useSchema = () => {
       },
 
       // ---
-      name: {
-        type: "string",
-        title: "Name"
+      type: {
+        type: "number",
+        const: 1
       },
 
-      address_id: {
+      email: {
         type: "string",
-        title: "Address"
-      },
-      email_id: {
-        type: ["string", "null"],
+        format: "email",
         title: "Email"
-      },
-      phone_id: {
-        type: ["string", "null"],
-        title: "Phone"
-      },
-      reg_number: {
-        type: "string",
-        title: "Registrration number"
-      },
-      vat_number: {
-        type: "string",
-        title: "Registered tax/VAT id"
-      },
-      vat_percent: {
-        type: "string",
-        title: "VAT percent"
       },
 
       // ---
@@ -68,11 +49,6 @@ export const useSchema = () => {
     }
   };
 
-  // if (id) {
-  //   schema.required.push("name");
-  //   schema.required.push("type");
-  // }
-
   return schema as JsonSchema;
 };
 
@@ -82,55 +58,14 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/name",
+        scope: "#/properties/email",
         options: {
           focus: true,
-          autocomplete: "off",
-          placeholder: "My email name"
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/vat_number",
-        options: {
-          autocomplete: "off",
-          placeholder: "Registered tax/VAT id"
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/reg_number",
-        options: {
-          autocomplete: "off",
-          placeholder: "Registration number"
-        }
-      },
-
-      // ---
-      {
-        type: "Control",
-        scope: "#/properties/address_id",
-        options: {
-          autocomplete: "off",
-          placeholder: "Select an Address..."
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/email_id",
-        options: {
-          autocomplete: "off",
-          placeholder: "Select an email..."
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/phone_id",
-        options: {
-          autocomplete: "country",
-          placeholder: "Please select a Phone Number  ..."
+          autocomplete: "email",
+          placeholder: "name@email.com"
         }
       }
+
       // ---
       // We dont ever show this field as it is set by an action
       // {

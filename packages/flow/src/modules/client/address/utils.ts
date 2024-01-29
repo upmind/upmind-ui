@@ -4,7 +4,7 @@ import { spawn } from "xstate";
 // --- internal
 import { useSystem } from "../..";
 import addressMachine from "./address.machine";
-import services from "./services";
+import services, { AddressTypes } from "./services";
 
 // --- utils
 import {
@@ -187,14 +187,12 @@ export const useSchema = ({
         type: ["number", "null"],
         title: "Address Type",
         default: baseModel?.type,
-        oneOf: !types?.length
-          ? undefined
-          : map(types, item => {
-              return {
-                const: item.key,
-                title: item.value
-              };
-            })
+        oneOf: map(AddressTypes, item => {
+          return {
+            const: item.key,
+            title: item.value
+          };
+        })
       }
     }
   };

@@ -9,13 +9,25 @@
   >
     <div class="card-body">
       <h2 class="card-title m-0">
-        <at-symbol-icon class="w-6 h-6" />
+        <span class="whitespace-nowrap indicator">
+          <envelope-icon class="w-6 h-6" />
+          <shield-check-icon
+            class="w-5 h-5 text-success indicator-item"
+            v-if="meta.isVerified"
+          />
+          <shield-exclamation-icon
+            class="w-5 h-5 text-error indicator-item"
+            v-else
+          />
+          <span class="sr-only"
+            >Email is{{ meta.isVerified ? "verified" : "not verified" }}</span
+          >
+        </span>
+
         {{ title }}
       </h2>
 
       <p class="m-0">
-        {{ display }}
-
         <sub
           v-if="meta.isLoading && !meta.hasErrors"
           class="loading loading-dots loading-xs"
@@ -40,68 +52,78 @@
           </label>
         </div>
 
-        <details
-          ref="target"
-          class="dropdown dropdown-end"
-          :class="{ 'dropdown-open': open }"
-          :open="open"
-          @toggle="doToggle($event.currentTarget.open)"
-          :disabled="meta.isProcessing"
-        >
-          <summary role="button" class="btn btn-sm btn-square btn-ghost">
-            <sub
-              v-if="meta.isProcessing"
-              class="loading loading-dots loading-sm"
-            ></sub>
-            <ellipsis-vertical-icon class="w-6 h-6" v-else />
-          </summary>
-          <ul
-            tabindex="0"
-            class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
+        <div class="flex items-center">
+          <span
+            role="button"
+            class="btn btn-sm btn-square btn-ghost"
+            v-if="meta.isDefault"
           >
-            <li
-              :class="{
-                disabled: meta.isDefault,
-                'opacity-50': meta.isDefault
-              }"
+            <star-icon class="w-6 h-6 cursor-pointer text-primary" />
+          </span>
+
+          <details
+            ref="target"
+            class="dropdown dropdown-end"
+            :class="{ 'dropdown-open': open }"
+            :open="open"
+            @toggle="doToggle($event.currentTarget.open)"
+            :disabled="meta.isProcessing"
+          >
+            <summary role="button" class="btn btn-sm btn-square btn-ghost">
+              <sub
+                v-if="meta.isProcessing"
+                class="loading loading-dots loading-sm"
+              ></sub>
+              <ellipsis-vertical-icon class="w-6 h-6" v-else />
+            </summary>
+            <ul
+              tabindex="0"
+              class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0"
             >
-              <a
-                @click.prevent="setDefault"
-                class="no-underline"
-                :disabled="meta.isDefault || true"
-                >Set as default</a
+              <li
+                :class="{
+                  disabled: meta.isDefault || !meta.isVerified,
+                  'opacity-50': meta.isDefault || !meta.isVerified
+                }"
               >
-            </li>
+                <a
+                  @click.prevent="setDefault"
+                  class="no-underline"
+                  :disabled="meta.isDefault || !meta.isVerified"
+                  >Set as default</a
+                >
+              </li>
 
-            <li v-if="canCopy">
-              <a @click.prevent="copy" class="no-underline">
-                <!-- by default, `copied` will be reset in 1.5s -->
-                <span v-if="!copied">Copy to clipboard</span>
-                <span v-else>Copied!</span>
-              </a>
-            </li>
+              <li v-if="canCopy">
+                <a @click.prevent="copy" class="no-underline">
+                  <!-- by default, `copied` will be reset in 1.5s -->
+                  <span v-if="!copied">Copy to clipboard</span>
+                  <span v-else>Copied!</span>
+                </a>
+              </li>
 
-            <li>
-              <a @click.prevent="edit" class="no-underline">Edit</a>
-            </li>
+              <li>
+                <a @click.prevent="edit" class="no-underline">Edit</a>
+              </li>
 
-            <li
-              class="border-t pt-3"
-              :class="{
-                disabled: !meta.canRemove,
-                'opacity-50': !meta.canRemove
-              }"
-            >
-              <a
-                @click.prevent="remove"
-                class="text-error no-underline"
-                :disabled="!meta.canRemove"
+              <li
+                class="border-t pt-3"
+                :class="{
+                  disabled: !meta.canRemove,
+                  'opacity-50': !meta.canRemove
+                }"
               >
-                Delete
-              </a>
-            </li>
-          </ul>
-        </details>
+                <a
+                  @click.prevent="remove"
+                  class="text-error no-underline"
+                  :disabled="!meta.canRemove"
+                >
+                  Delete
+                </a>
+              </li>
+            </ul>
+          </details>
+        </div>
       </div>
     </div>
   </div>
@@ -110,13 +132,25 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useClientEmail } from "..";
-import { AtSymbolIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
+import {
+  EnvelopeIcon,
+  EllipsisVerticalIcon,
+  StarIcon,
+  ShieldCheckIcon,
+  ShieldExclamationIcon
+} from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmEmail",
-  components: { AtSymbolIcon, EllipsisVerticalIcon },
+  components: {
+    EnvelopeIcon,
+    EllipsisVerticalIcon,
+    StarIcon,
+    ShieldCheckIcon,
+    ShieldExclamationIcon
+  },
   props: {
     item: {
       type: Object, // xstate actor
@@ -145,7 +179,6 @@ export default defineComponent({
       errors,
       model,
       title,
-      display,
       edit,
       select,
       remove,
@@ -181,7 +214,6 @@ export default defineComponent({
       errors,
       model,
       title,
-      display,
       select,
       edit: () => {
         open.value = false;
