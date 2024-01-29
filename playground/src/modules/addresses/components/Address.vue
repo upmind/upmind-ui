@@ -108,13 +108,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { usePlace } from "..";
+import { useAddress } from "..";
 import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
-  name: "UpmPlace",
+  name: "UpmAddress",
   components: { MapPinIcon, EllipsisVerticalIcon },
   props: {
     item: {
@@ -149,7 +149,7 @@ export default defineComponent({
       select,
       remove,
       setDefault
-    } = usePlace(props.item);
+    } = useAddress(props.item);
 
     // ------------------------------------------------
 

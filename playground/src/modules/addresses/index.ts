@@ -3,15 +3,15 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { usePlaces as useUpmindPlaces } from "@upmind/flow";
+import { useAddresses as useUpmindAddresses } from "@upmind/flow";
 
 // --- utils
 import { get, isEmpty, map, compact, find } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const usePlace = item => {
-  const { service } = useUpmindPlaces();
+export const useAddress = item => {
+  const { service } = useUpmindAddresses();
 
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
@@ -88,10 +88,10 @@ export const usePlace = item => {
   };
 };
 
-export const usePlaces = selected => {
+export const useAddresses = selected => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const { service } = useUpmindPlaces();
+  const { service } = useUpmindAddresses();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
