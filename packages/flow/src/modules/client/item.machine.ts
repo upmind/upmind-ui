@@ -36,7 +36,7 @@ export default createMachine(
           src: "loadLookups",
           onDone: {
             target: "checking",
-            actions: ["setLookups", "setSchemas"]
+            actions: ["setContext", "setSchemas"]
           },
           onError: {
             target: "error",
@@ -49,19 +49,34 @@ export default createMachine(
       checking: {
         entry: ["clearError"],
         id: "checking",
-        invoke: {
-          src: "validate",
-          onDone: {
-            target: "valid"
+        initial: "parsing",
+        states: {
+          parsing: {
+            invoke: {
+              src: "parse",
+              onDone: {
+                target: "validating",
+                actions: ["setContext", "setSchemas"]
+              }
+            }
           },
-          onError: {
-            target: "invalid",
-            actions: ["setError"]
+          validating: {
+            invoke: {
+              src: "validate",
+              onDone: {
+                target: "#valid"
+              },
+              onError: {
+                target: "#invalid",
+                actions: ["setError"]
+              }
+            }
           }
         }
       },
 
       valid: {
+        id: "valid",
         on: {
           UPDATE: [
             {
@@ -75,7 +90,9 @@ export default createMachine(
         }
       },
 
-      invalid: {},
+      invalid: {
+        id: "invalid"
+      },
 
       processing: {
         entry: ["clearError"],
@@ -186,21 +203,16 @@ export default createMachine(
   },
   {
     actions: {
-      setLookups: assign({
-        // countries: (_context: AddressContext, { data }: AddressEvent) =>
-        //   data.countries,
-      }),
+      setContext: assign(
+        (_context: ClientItemContext, { data }: ClientItemEvent) => data
+      ),
 
       setSchemas: assign({
-        schema: (context: ClientItemContext, _event: ClientItemEvent) =>
-          useSchema(context),
-        uischema: (_context: ClientItemContext, _event: ClientItemEvent) =>
-          useUischema()
+        //  should be provided withConfig
       }),
 
       setModel: assign({
-        model: ({ schema }: ClientItemContext, { data }: ClientItemEvent) =>
-          useModelParser(schema, data)
+        //  should be provided withConfig
       }),
 
       clearModel: assign({
@@ -231,10 +243,8 @@ export default createMachine(
         });
       },
 
-      setFeedbackSuccess: (context, { data }, meta) => {
-        debugger;
-        addSuccess("Successfully updated");
-      }
+      setFeedbackSuccess: (context, { data }) =>
+        addSuccess("Successfully updated")
     },
     guards: {
       isNew: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>

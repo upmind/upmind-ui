@@ -76,6 +76,7 @@ export default defineComponent({
   },
 
   computed: {},
+
   mounted() {
     this.$nextTick(() => {
       const yOffset = -108;

@@ -10,12 +10,12 @@ import services, { PhoneTypes } from "./services";
 import { map, get, set, reduce, defaultsDeep, uniqueId } from "lodash-es";
 
 // --- types
-import type { IPhone } from "./types";
+import type { IPhone, PhoneContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = () => {
+export const useSchema = ({ country }: PhoneContext) => {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -31,8 +31,30 @@ export const useSchema = () => {
       // ---
 
       phone: {
-        type: ["string", "null"],
-        title: "Phone"
+        type: "object",
+        title: "Phone",
+        isPhoneNumber: country?.code,
+        properties: {
+          number: {
+            type: "string",
+            title: "Phone number ( with dailing code )"
+          },
+
+          nationalNumber: {
+            type: "string",
+            title: "Phone number"
+          },
+
+          countryCallingCode: {
+            type: "string",
+            title: "Country calling code"
+          },
+
+          country: {
+            type: "string",
+            title: "Country"
+          }
+        }
       },
 
       type: {
@@ -51,6 +73,11 @@ export const useSchema = () => {
       default: {
         type: ["boolean", "null"],
         title: "Make this the default phone?"
+      }
+    },
+    errorMessage: {
+      properties: {
+        // phone: "must be a valid phone number"
       }
     }
   };
@@ -101,7 +128,6 @@ export const useUischema = () => {
 };
 
 export const useModelParser = (schema: JsonSchema, values: IPhone) => {
-  debugger;
   const model = reduce(
     schema.properties,
     (result, field, key) => {

@@ -88,7 +88,10 @@ export const useSystem = () => {
   // ---
 
   const getCountries = () => state.context.countries;
-  const getCountry = (value: string) => {
+  const getCountry = (value?: string) => {
+    // if we are not passed a country, then we need to get the default country
+    value ??= getDefaultCountry();
+
     if (value?.length == 2)
       return find(state.context.countries, ["code", value]);
     return find(state.context.countries, ["id", value]);
@@ -173,7 +176,6 @@ export const useSystem = () => {
     fetchCountries: async () => fetch("countries", getCountries),
     getCountries,
     getCountry,
-    getDefaultCountry,
     // ---
     fetchRegions,
     getRegions,

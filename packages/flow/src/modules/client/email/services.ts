@@ -96,6 +96,11 @@ async function remove({ model }: EmailContext, _event: EmailEvent) {
 
 // --------------------------------------------------------
 
+async function parse({ model }: PhoneContext, _event: PhoneEvent) {
+  // ---
+  return Promise.resolve({ model });
+}
+
 async function validate({ schema, model }: EmailContext, _event: EmailEvent) {
   // ---
 
@@ -118,6 +123,7 @@ async function validate({ schema, model }: EmailContext, _event: EmailEvent) {
 export default {
   load,
   loadLookups,
+  parse,
   validate,
   setDefault,
   add,

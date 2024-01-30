@@ -65,10 +65,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRaw, unref, type PropType } from "vue";
+import type { PropType } from "vue";
+import { defineComponent, ref, unref, toRaw } from "vue";
 
-import { useValidation } from "./utils";
-
+import { utils } from "@upmind/flow";
 import UpmDebug from "../debug/Debug.vue";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
@@ -173,7 +173,7 @@ export default defineComponent({
   setup(props) {
     // -------
 
-    const { ajv } = useValidation();
+    const { ajv } = utils.useValidation();
 
     // mergeStyles combines all classes from both styles definitions into one
     const formStyles = mergeStyles(defaultStyles, props.styles);
@@ -192,6 +192,7 @@ export default defineComponent({
     errors: [],
     isDirty: false
   }),
+
   computed: {
     meta() {
       return {

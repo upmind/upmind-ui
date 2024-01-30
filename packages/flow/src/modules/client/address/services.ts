@@ -20,9 +20,9 @@ import type {
 // --------------------------------------------------------
 // ENUMS
 export const AddressTypes = [
-  { key: 1, value: "home" },
-  { key: 2, value: "office" },
-  { key: 3, value: "holiday" }
+  { key: 1, value: "Home" },
+  { key: 2, value: "Office" },
+  { key: 3, value: "Holiday" }
 ];
 // --------------------------------------------------------
 
@@ -60,17 +60,18 @@ async function load(_context: AddressesContext, { data }: AddressesEvents) {
 }
 
 async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
-  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
+  const { fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
 
   const countries = await fetchCountries();
+  const defaultCountry = getCountry();
   const regions = await fetchRegions(model?.country_id);
 
   const baseModel = {
     ...model,
-    country_id: getDefaultCountry(),
+    country_id: defaultCountry?.id,
     type: first(AddressTypes)?.key
   };
 
@@ -230,18 +231,13 @@ async function getPlaceDetails(
 }
 
 // --------------------------------------------------------
+async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
+  // We need to check and potentially update the regions list based on the selected country ( if its changed )
 
-async function validate({ schema, model, regions }: AddressContext, _event) {
-  // This NOT only validates the model,
-  // but also potentially updates the regions list based on the selected country ( if its changed )
+  const { fetchRegions } = useSystem();
 
-  // ---
-
-  // NB:only do these checks if we have data
   if (!isEmpty(model)) {
-    const { fetchRegions } = useSystem();
-
-    // lets check if the country has changed or the regions dont match
+    // lets check if the country has changed, ie: the regions dont match
     // if so, then we need to fetch the regions for the new country
     if (!some(regions, ["country_id", model.country_id])) {
       regions = await fetchRegions(model.country_id);
@@ -251,21 +247,27 @@ async function validate({ schema, model, regions }: AddressContext, _event) {
     // if so, then we need to update the model with the new region id
     // otherwise the region_id is reset to null
     const region = find(regions, ["id", model?.region_id]);
-    model.region_id = get(region, "id", null);
+    model.region_id = get(region, "id", undefined);
   }
+
+  return Promise.resolve({ model, regions });
+}
+
+async function validate(
+  { schema, model }: AddressContext,
+  _event: AddressEvent
+) {
   // ---
+
   // Now validate the model as per normal
   const { validate } = useValidation();
 
-  // because we are possibly mutating the regions list and the model/data
-  // we need to return the updated values as part of the promise
-  // regardless of whether the validation passes or fails
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
-      reject({ error: errors, model, regions });
+      reject({ error: errors });
     } else {
-      resolve({ model, regions });
+      resolve(model);
     }
   });
 }
@@ -280,6 +282,7 @@ export default {
   load,
   loadLookups,
   validate,
+  parse,
   setDefault,
   add,
   update,

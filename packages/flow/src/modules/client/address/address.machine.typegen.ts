@@ -3,6 +3,11 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "done.invoke.addressManager.checking.parsing:invocation[0]": {
+      type: "done.invoke.addressManager.checking.parsing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.addressManager.loading.autocomplete.processing:invocation[0]": {
       type: "done.invoke.addressManager.loading.autocomplete.processing:invocation[0]";
       data: unknown;
@@ -43,10 +48,9 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.checking:invocation[0]": {
-      type: "done.invoke.checking:invocation[0]";
+    "error.platform.addressManager.checking.validating:invocation[0]": {
+      type: "error.platform.addressManager.checking.validating:invocation[0]";
       data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.addressManager.loading.autocomplete.processing:invocation[0]": {
       type: "error.platform.addressManager.loading.autocomplete.processing:invocation[0]";
@@ -80,10 +84,6 @@ export interface Typegen0 {
       type: "error.platform.addressManager.searching:invocation[0]";
       data: unknown;
     };
-    "error.platform.checking:invocation[0]": {
-      type: "error.platform.checking:invocation[0]";
-      data: unknown;
-    };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
@@ -92,11 +92,12 @@ export interface Typegen0 {
     configureAutocomplete: "done.invoke.addressManager.loading.autocomplete.processing:invocation[0]";
     getPlaceDetails: "done.invoke.addressManager.populating:invocation[0]";
     loadLookups: "done.invoke.addressManager.loading.lookups.processing:invocation[0]";
+    parse: "done.invoke.addressManager.checking.parsing:invocation[0]";
     remove: "done.invoke.addressManager.processing.removing:invocation[0]";
     search: "done.invoke.addressManager.searching:invocation[0]";
     setDefault: "done.invoke.addressManager.processing.setting:invocation[0]";
     update: "done.invoke.addressManager.processing.updating:invocation[0]";
-    validate: "done.invoke.checking:invocation[0]";
+    validate: "done.invoke.addressManager.checking.validating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -107,6 +108,7 @@ export interface Typegen0 {
       | "configureAutocomplete"
       | "getPlaceDetails"
       | "loadLookups"
+      | "parse"
       | "remove"
       | "search"
       | "setDefault"
@@ -133,13 +135,14 @@ export interface Typegen0 {
     clearModel:
       | "CLEAR"
       | "done.invoke.addressManager.processing.removing:invocation[0]";
-    refresh:
-      | "done.invoke.checking:invocation[0]"
-      | "error.platform.checking:invocation[0]";
     setAutocomplete:
       | "done.invoke.addressManager.loading.autocomplete.processing:invocation[0]"
       | "done.invoke.addressManager.searching:invocation[0]";
+    setContext:
+      | "done.invoke.addressManager.checking.parsing:invocation[0]"
+      | "done.invoke.addressManager.loading.lookups.processing:invocation[0]";
     setError:
+      | "error.platform.addressManager.checking.validating:invocation[0]"
       | "error.platform.addressManager.loading.autocomplete.processing:invocation[0]"
       | "error.platform.addressManager.loading.lookups.processing:invocation[0]"
       | "error.platform.addressManager.populating:invocation[0]"
@@ -148,7 +151,6 @@ export interface Typegen0 {
       | "error.platform.addressManager.processing.setting:invocation[0]"
       | "error.platform.addressManager.processing.updating:invocation[0]"
       | "error.platform.addressManager.searching:invocation[0]";
-    setLookups: "done.invoke.addressManager.loading.lookups.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.addressManager.populating:invocation[0]"
@@ -156,13 +158,12 @@ export interface Typegen0 {
       | "done.invoke.addressManager.processing.setting:invocation[0]"
       | "done.invoke.addressManager.processing.updating:invocation[0]";
     setSchemas:
+      | "done.invoke.addressManager.checking.parsing:invocation[0]"
       | "done.invoke.addressManager.processing.adding:invocation[0]"
       | "done.invoke.addressManager.processing.removing:invocation[0]"
       | "done.invoke.addressManager.processing.setting:invocation[0]"
       | "done.invoke.addressManager.processing.updating:invocation[0]"
-      | "done.invoke.checking:invocation[0]"
-      | "done.state.addressManager.loading"
-      | "error.platform.checking:invocation[0]";
+      | "done.state.addressManager.loading";
     setSearch: "SEARCH";
   };
   eventsCausingDelays: {
@@ -196,19 +197,22 @@ export interface Typegen0 {
       | "SEARCH"
       | "SET"
       | "xstate.init";
-    remove: "REMOVE";
-    search: "SEARCH";
-    setDefault: "DEFAULT";
-    update: "UPDATE";
-    validate:
+    parse:
       | "SET"
       | "done.invoke.addressManager.populating:invocation[0]"
       | "done.invoke.addressManager.searching:invocation[0]"
       | "done.state.addressManager.loading"
       | "error.platform.addressManager.searching:invocation[0]";
+    remove: "REMOVE";
+    search: "SEARCH";
+    setDefault: "DEFAULT";
+    update: "UPDATE";
+    validate: "done.invoke.addressManager.checking.parsing:invocation[0]";
   };
   matchesStates:
     | "checking"
+    | "checking.parsing"
+    | "checking.validating"
     | "complete"
     | "error"
     | "invalid"
@@ -231,6 +235,7 @@ export interface Typegen0 {
     | "searching"
     | "valid"
     | {
+        checking?: "parsing" | "validating";
         loading?:
           | "autocomplete"
           | "lookups"
