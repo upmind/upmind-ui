@@ -9,25 +9,24 @@
   >
     <div class="card-body">
       <h2 class="card-title m-0">
-        <span class="whitespace-nowrap indicator">
+        <span class="whitespace-nowrap">
           <envelope-icon class="w-6 h-6" />
-          <shield-check-icon
-            class="w-5 h-5 text-success indicator-item"
-            v-if="meta.isVerified"
-          />
-          <shield-exclamation-icon
-            class="w-5 h-5 text-error indicator-item"
-            v-else
-          />
-          <span class="sr-only"
-            >Email is{{ meta.isVerified ? "verified" : "not verified" }}</span
-          >
         </span>
 
         {{ title }}
       </h2>
 
       <p class="m-0">
+        <span class="flex gap-1 items-center">
+          <shield-check-icon
+            class="w-6 h-6 text-success"
+            v-if="meta.isVerified"
+          />
+          <shield-exclamation-icon class="w-6 h-6 text-error" v-else />
+
+          {{ meta.isVerified ? "Verified" : "Not verified" }}
+        </span>
+
         <sub
           v-if="meta.isLoading && !meta.hasErrors"
           class="loading loading-dots loading-xs"

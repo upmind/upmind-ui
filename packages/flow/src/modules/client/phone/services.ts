@@ -6,7 +6,7 @@ import { useApi, useSystem, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { isString } from "lodash-es";
+import { isString, keyBy } from "lodash-es";
 
 // --- types
 import type { PhoneEvent, PhoneContext } from "./types";
@@ -49,7 +49,10 @@ async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
   // we dont have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
   await fetchCountries();
-  return Promise.resolve({ country: getCountry() });
+  return Promise.resolve({
+    types: keyBy(PhoneTypes, "key"),
+    country: getCountry()
+  });
 }
 
 // --------------------------------------------------------
@@ -62,7 +65,12 @@ async function add({ model }: PhoneContext, _event: PhoneEvent) {
 
   return post({
     url: useUrl(`clients/${clientId}/phones`),
-    data: model,
+    data: {
+      phone: model.phone.nationalNumber, // without the country code
+      phone_code: `+${model.phone.countryCallingCode}`,
+      phone_country_code: model.phone.country,
+      type: model.type
+    },
     withAccessToken: true
   }).then(({ data }) => data);
 }
@@ -75,7 +83,12 @@ async function update({ model }: PhoneContext, _event: PhoneEvent) {
 
   return put({
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
-    data: model,
+    data: {
+      phone: model.phone.nationalNumber, // without the country code
+      phone_code: `+${model.phone.countryCallingCode}`,
+      phone_country_code: model.phone.country,
+      type: model.type
+    },
     withAccessToken: true
   }).then(({ data }) => data);
 }
@@ -109,27 +122,26 @@ async function remove({ model }: PhoneContext, _event: PhoneEvent) {
 
 async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
   // ---
-  debugger;
 
   if (!model?.phone) return Promise.resolve({ model, country });
 
-  debugger;
-
   const phonenumber = isString(model.phone)
     ? model?.phone
-    : model?.phone?.nationalNumber;
+    : model?.phone?.number || model?.phone?.nationalNumber || "";
 
-  const countryCode = model?.phone?.country || country?.code;
+  const countryCode =
+    model?.phone?.country || model?.phone_country_code || country?.code;
+  const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
 
-  debugger;
+  // now map the phone number to the model in the correct format with fallbacks
+  model.phone = {
+    number: phone?.number || model.phone?.number,
+    nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
+    countryCallingCode:
+      phone?.countryCallingCode || model.phone?.countryCallingCode,
+    country: phone?.country || model.phone?.country || country?.code
+  };
 
-  const phone = parsePhoneNumber(phonenumber, countryCode);
-
-  if (phone) {
-    model.phone = phone;
-  }
-
-  debugger;
   if (!!model.phone?.country && model.phone.country !== country.code) {
     const { getCountry } = useSystem();
     // we have change countries in the form, so we need to get our new country

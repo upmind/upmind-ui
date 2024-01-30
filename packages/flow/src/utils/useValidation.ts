@@ -23,9 +23,9 @@ export const useValidation = () => {
     type: ["string", "object"],
     schemaType: "string",
     validate: (schema, data) => {
-      const phoneNumber = data?.nationalNumber || data?.number || data;
+      const value = data?.number || data?.nationalNumber || "";
       const country = data?.country || schema;
-      return isValidPhoneNumber(phoneNumber, country);
+      return isValidPhoneNumber(value, country);
     },
     error: {
       message: cxt => `must be a valid ${cxt.schema} phone number`
