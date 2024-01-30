@@ -15,7 +15,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = () => {
+export const useSchema = context => {
   const schema = {
     type: "object",
     title: "Address Fields",

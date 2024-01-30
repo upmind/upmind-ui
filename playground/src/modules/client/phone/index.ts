@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientPhones as useUpmindClientPhones } from "@upmind/flow";
 
 // --- utils
-import { get, map, compact } from "lodash-es";
+import { get, map, compact, isObject } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -38,12 +38,18 @@ export const useClientPhone = item => {
     // ---
     title: computed(() => {
       // state.value.context?.model
-      return compact([get(state.value.context?.model, "name")]).join(" ");
+      const phone = get(state.value.context?.model, "phone");
+
+      if (isObject(phone)) {
+        return get(state.value.context?.model, "phone.number");
+      }
+
+      return get(state.value.context?.model, "phone");
     }),
     display: computed(() => {
       return compact([
-        get(state.value.context?.model, "phone_1"),
-        get(state.value.context?.model, "phone_2")
+        get(state.value.context, "country.code"),
+        get(state.value.context, "country.name")
       ]).join(", ");
     }),
     // ---

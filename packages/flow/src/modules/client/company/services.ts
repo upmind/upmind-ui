@@ -127,6 +127,11 @@ async function remove({ model }: CompanyContext, _event: CompanyEvent) {
 
 // --------------------------------------------------------
 
+async function parse({ model }: PhoneContext, _event: PhoneEvent) {
+  // ---
+  return Promise.resolve({ model });
+}
+
 async function validate(
   { schema, model }: CompanyContext,
   _event: CompanyEvent
@@ -152,6 +157,7 @@ async function validate(
 export default {
   load,
   loadLookups,
+  parse,
   validate,
   setDefault,
   add,

@@ -1,10 +1,12 @@
 // --- external
+import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import { useApi, useSystem, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { isString } from "lodash-es";
 
 // --- types
 import type { PhoneEvent, PhoneContext } from "./types";
@@ -13,10 +15,10 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types";
 // --------------------------------------------------------
 //  ENUMS
 export const PhoneTypes: any[] = [
-  { key: 1, value: "mobile" },
-  { key: 2, value: "home" },
-  { key: 3, value: "office" },
-  { key: 4, value: "personal" }
+  { key: 1, value: "Mobile" },
+  { key: 2, value: "Home" },
+  { key: 3, value: "Office" },
+  { key: 4, value: "Personal" }
 ];
 
 // --------------------------------------------------------
@@ -45,7 +47,9 @@ async function load(
 
 async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
   // we dont have any lookups for emails, so just return null
-  return Promise.resolve(null);
+  const { getCountry, fetchCountries } = useSystem();
+  await fetchCountries();
+  return Promise.resolve({ country: getCountry() });
 }
 
 // --------------------------------------------------------
@@ -103,6 +107,38 @@ async function remove({ model }: PhoneContext, _event: PhoneEvent) {
 
 // --------------------------------------------------------
 
+async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
+  // ---
+  debugger;
+
+  if (!model?.phone) return Promise.resolve({ model, country });
+
+  debugger;
+
+  const phonenumber = isString(model.phone)
+    ? model?.phone
+    : model?.phone?.nationalNumber;
+
+  const countryCode = model?.phone?.country || country?.code;
+
+  debugger;
+
+  const phone = parsePhoneNumber(phonenumber, countryCode);
+
+  if (phone) {
+    model.phone = phone;
+  }
+
+  debugger;
+  if (!!model.phone?.country && model.phone.country !== country.code) {
+    const { getCountry } = useSystem();
+    // we have change countries in the form, so we need to get our new country
+    country = getCountry(model.phone.country);
+  }
+
+  return Promise.resolve({ model, country });
+}
+
 async function validate({ schema, model }: PhoneContext, _event: PhoneEvent) {
   // ---
 
@@ -125,6 +161,7 @@ async function validate({ schema, model }: PhoneContext, _event: PhoneEvent) {
 export default {
   load,
   loadLookups,
+  parse,
   validate,
   setDefault,
   add,

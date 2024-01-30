@@ -53,7 +53,7 @@ export default createMachine(
                   src: "loadLookups",
                   onDone: {
                     target: "complete",
-                    actions: ["setLookups"]
+                    actions: ["setContext"]
                   },
                   onError: {
                     target: "error",
@@ -127,17 +127,30 @@ export default createMachine(
       // ---
 
       checking: {
-        id: "checking",
         entry: ["clearError"],
-        invoke: {
-          src: "validate",
-          onDone: {
-            target: "valid",
-            actions: ["refresh", "setSchemas"]
+        id: "checking",
+        initial: "parsing",
+        states: {
+          parsing: {
+            invoke: {
+              src: "parse",
+              onDone: {
+                target: "validating",
+                actions: ["setContext", "setSchemas"]
+              }
+            }
           },
-          onError: {
-            target: "invalid",
-            actions: ["refresh", "setSchemas"]
+          validating: {
+            invoke: {
+              src: "validate",
+              onDone: {
+                target: "#valid"
+              },
+              onError: {
+                target: "#invalid",
+                actions: ["setError"]
+              }
+            }
           }
         }
       },
@@ -210,6 +223,7 @@ export default createMachine(
       },
 
       valid: {
+        id: "valid",
         on: {
           UPDATE: [
             {
@@ -223,7 +237,9 @@ export default createMachine(
         }
       },
 
-      invalid: {},
+      invalid: {
+        id: "invalid"
+      },
 
       complete: {
         entry: sendParent("REFRESH"),
@@ -266,14 +282,9 @@ export default createMachine(
   },
   {
     actions: {
-      setLookups: assign({
-        countries: (_context: AddressContext, { data }: AddressEvent) =>
-          data.countries,
-        regions: (_context: AddressContext, { data }: AddressEvent) =>
-          data.regions,
-        baseModel: (_context: AddressContext, { data }: AddressEvent) =>
-          data.baseModel
-      }),
+      setContext: assign(
+        (_context: AddressContext, { data }: AddressEvent) => data
+      ),
 
       // ---
 
@@ -335,13 +346,6 @@ export default createMachine(
       clearModel: assign({
         model: ({ baseModel }: AddressContext, _event: AddressEvent) =>
           baseModel
-      }),
-
-      refresh: assign({
-        regions: (_context: AddressContext, { data }: AddressEvent) =>
-          data.regions,
-        model: ({ schema }: AddressContext, { data }: AddressEvent) =>
-          useModelParser(schema, data.model)
       }),
 
       // ---

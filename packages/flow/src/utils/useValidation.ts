@@ -1,14 +1,16 @@
 // --- external
 import { createAjv } from "@jsonforms/core";
-
+import { isValidPhoneNumber } from "libphonenumber-js";
+import ajvErrors from "ajv-errors";
 // --- utils
-import { forEach } from "lodash-es";
+import { forEach, isString } from "lodash-es";
 
 // --------------------------------------------------------
 
 export const useValidation = () => {
   // us JSON Forms version of AJV as it has formats and other keywords already
-  const ajv = createAjv({ useDefaults: true });
+  const ajv = createAjv({ useDefaults: true, allErrors: true });
+  ajvErrors(ajv, { singleError: true });
 
   ajv.addFormat(
     "domain_name",
@@ -16,7 +18,22 @@ export const useValidation = () => {
     /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
   );
 
+  ajv.addKeyword({
+    keyword: "isPhoneNumber",
+    type: ["string", "object"],
+    schemaType: "string",
+    validate: (schema, data) => {
+      const phoneNumber = data?.nationalNumber || data?.number || data;
+      const country = data?.country || schema;
+      return isValidPhoneNumber(phoneNumber, country);
+    },
+    error: {
+      message: cxt => `must be a valid ${cxt.schema} phone number`
+    }
+  });
+
   return {
+    ajv,
     validate: (schema, data) => {
       const validate = ajv.compile(schema);
       const valid = validate(data);
