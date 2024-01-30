@@ -5,54 +5,76 @@
     :is-focused="isFocused"
     :applied-options="appliedOptions"
   >
-    <div class="join w-full">
-      <select
-        :id="control.id + '-input'"
-        :class="[
-          'max-w-fit',
-          'join-item',
-          styles.control.select,
-          controlWrapper.errors ? styles.control.error.select : null
-        ]"
-        :value="control.data?.country"
-        :disabled="!control.enabled"
-        @change="onChangeCountry"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-      >
-        <option
-          v-for="country in countries"
-          :key="country"
-          :value="country.code"
-          :text="country.code"
-        >
-          <!-- <i
-            :class="[
-              'flag-icon',
-              `flag-icon-${$_.toString(country.code).toLowerCase()}`
-            ]"
-          /> -->
-        </option>
-        <option>ZA</option>
-      </select>
+    <input
+      :id="control.id + '-input'"
+      :class="[
+        'pl-12',
+        styles.control.input,
+        controlWrapper.errors ? styles.control.error.input : null
+      ]"
+      :value="control.data?.number"
+      :disabled="!control.enabled"
+      :autocomplete="appliedOptions.autocomplete"
+      :placeholder="appliedOptions.placeholder"
+      type="phone"
+      @change="onChange"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    />
 
-      <input
-        :id="control.id + '-input'"
-        :class="[
-          'join-item',
-          styles.control.input,
-          controlWrapper.errors ? styles.control.error.input : null
-        ]"
-        :value="control.data?.nationalNumber"
-        :disabled="!control.enabled"
-        :autocomplete="appliedOptions.autocomplete"
-        :placeholder="appliedOptions.placeholder"
-        type="phone"
-        @change="onChange"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-      />
-    </div>
+    <details
+      tabindex="-1"
+      ref="target"
+      class="dropdown dropdown-start absolute top-2 left-3"
+      :class="{ 'dropdown-open': open }"
+      :open="open"
+      @toggle="doToggle($event.currentTarget.open)"
+      :disabled="!control.enabled"
+    >
+      <summary role="button" class="btn btn-sm btn-square btn-ghost">
+        <i
+          :class="[
+            'fi',
+            `fi-${control.data?.country?.toLowerCase() || defaultContry.code.toLowerCase()}`
+          ]"
+          class="'w-6', 'h-full'"
+        ></i>
+        <span class="sr-only">{{ control.data?.country }} Dailing code</span>
+      </summary>
+      <ul
+        tabindex="0"
+        class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0 max-h-60 overflow-auto flex-nowrap"
+      >
+        <li v-for="country in countries" :key="country">
+          <a
+            @click="onChangeCountry(country.code, $event)"
+            class="no-underline"
+          >
+            <i
+              :class="['fi', `fi-${country.code.toLowerCase()}`]"
+              class="'w-6', 'h-full'"
+            ></i>
+            {{ country.name }}
+          </a>
+        </li>
+
+        <!-- <li
+            :class="{
+              disabled: meta.isDefault || !meta.isVerified,
+              'opacity-50': meta.isDefault || !meta.isVerified
+            }"
+          >
+            <a
+              @click.prevent="setDefault"
+              class="no-underline"
+              :disabled="meta.isDefault || !meta.isVerified"
+              >Set as default</a
+            >
+          </li> -->
+      </ul>
+    </details>
+
+    <!-- </div> -->
   </control-wrapper>
 </template>
 
@@ -70,7 +92,6 @@ import {
   schemaMatches,
   and
 } from "@jsonforms/core";
-import type { Ref } from "vue";
 import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
@@ -78,7 +99,8 @@ import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 import { useSystem } from "@upmind/flow";
 import { set } from "lodash-es";
-// import "flag-icon-css/css/flag-icon.min.css";
+import "flag-icons/css/flag-icons.min.css";
+import { onClickOutside } from "@vueuse/core";
 
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",
@@ -94,8 +116,9 @@ const controlRenderer = defineComponent({
     };
   },
   setup(props: RendererProps<ControlElement>) {
-    const { getCountries } = useSystem();
+    const { getCountries, getCountry } = useSystem();
     const countries = getCountries();
+    const defaultContry = getCountry();
 
     const inputControl = useDaisyControl(
       useJsonFormsControl(props),
@@ -104,26 +127,47 @@ const controlRenderer = defineComponent({
 
     const phone = { ...inputControl.control.value.data };
 
-    function onChangeCountry(target: Event) {
+    function onChangeCountry(value: string, target: Event) {
       // set the new country
-      set(phone, "country", target.currentTarget.value);
+      set(phone, "country", value);
       // forward the event to the input control that will trigger the update
       inputControl.onChange(target);
     }
 
     function onChange(target: Event) {
       // set the new  number ( without the country dailing code)
-      set(phone, "nationalNumber", target.currentTarget.value);
+      set(phone, "number", target.currentTarget.value);
 
       // forward the event to the input control that will trigger the update
       inputControl.onChange(target);
     }
 
+    // ------------------------------------------------
+
+    const target = ref(null);
+
+    onClickOutside(target, () => {
+      open.value = false;
+    });
+
+    const open = ref(!!props.force);
+
+    function doToggle(value) {
+      open.value = value;
+    }
+
+    // ------------------------------------------------
+
     return {
+      target,
+      open,
+      doToggle,
+      // ---
       ...inputControl,
       onChangeCountry,
       onChange,
-      countries
+      countries,
+      defaultContry
     };
   }
 });

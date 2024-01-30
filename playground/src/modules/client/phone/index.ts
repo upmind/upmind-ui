@@ -44,14 +44,20 @@ export const useClientPhone = item => {
         return get(state.value.context?.model, "phone.number");
       }
 
-      return get(state.value.context?.model, "phone");
+      return compact([
+        get(state.value.context?.model, "international_phone")
+      ]).join("");
     }),
     display: computed(() => {
+      let type = get(state.value.context?.model, "type");
+      type = get(state.value.context?.types, type);
+
       return compact([
-        get(state.value.context, "country.code"),
-        get(state.value.context, "country.name")
-      ]).join(", ");
+        get(state.value.context, "country.name"),
+        type?.value
+      ]).join(" | ");
     }),
+    country: computed(() => state.value.context?.country),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),

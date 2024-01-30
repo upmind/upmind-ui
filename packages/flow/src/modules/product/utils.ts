@@ -121,8 +121,9 @@ export const useTermsParser = (data: any) => {
     // --------------------------------------------------------
     // Ensure the name is set
 
-    term.billing_cycle_name = getBillingCycle(rawTerm.billing_cycle_months)
-      ?.name;
+    term.billing_cycle_name = getBillingCycle(
+      rawTerm.billing_cycle_months
+    )?.name;
 
     // --------------------------------------------------------
     // then add some syntactic sugar / computed properties

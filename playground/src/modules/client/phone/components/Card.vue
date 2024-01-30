@@ -10,10 +10,17 @@
     <div class="card-body">
       <h2 class="card-title m-0">
         <phone-icon class="w-6 h-6" />
+
         {{ title }}
       </h2>
 
       <p class="m-0">
+        <i
+          v-if="country?.code"
+          :class="['fi', `fi-${country.code.toLowerCase()}`]"
+          class="mr-1"
+        ></i>
+
         {{ display }}
 
         <sub
@@ -160,6 +167,7 @@ export default defineComponent({
       model,
       title,
       display,
+      country,
       edit,
       select,
       remove,
@@ -196,6 +204,7 @@ export default defineComponent({
       model,
       title,
       display,
+      country,
       select,
       edit: () => {
         open.value = false;
