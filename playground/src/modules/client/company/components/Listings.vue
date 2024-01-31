@@ -30,7 +30,7 @@
       ></upm-form>
 
       <div
-        class="actions flex justify-center items-center aspect-video h-full max-w-full"
+        class="actions flex justify-center items-center min-h-36 h-full max-w-full"
         v-if="!meta.isEditing"
       >
         <button class="btn btn-block h-full" @click="add">

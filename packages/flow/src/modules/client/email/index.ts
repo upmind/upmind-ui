@@ -7,6 +7,7 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
+import { find } from "lodash-es";
 
 // --- types
 
@@ -28,6 +29,9 @@ export const useClientEmails = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state
+    getSnapshot: () => state,
+    getItems: () => state?.context?.items,
+    getSelected: () => state?.context?.selected,
+    getDefault: () => find(state?.context?.items, "state.context.model.default")
   };
 };

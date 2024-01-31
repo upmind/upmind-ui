@@ -35,7 +35,8 @@ export const ListingActions = {
 export const ItemActions = {
   setSchemas: assign({
     schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
-    uischema: (_context: PhoneContext, _event: PhoneEvent) => useUischema()
+    uischema: (context: PhoneContext, _event: PhoneEvent) =>
+      useUischema(context)
   }),
 
   setModel: assign({

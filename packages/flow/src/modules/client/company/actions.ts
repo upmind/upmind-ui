@@ -37,7 +37,8 @@ export const ItemActions = {
   setSchemas: assign({
     schema: (context: CompanyContext, _event: CompanyEvent) =>
       useSchema(context),
-    uischema: (_context: CompanyContext, _event: CompanyEvent) => useUischema()
+    uischema: (context: CompanyContext, _event: CompanyEvent) =>
+      useUischema(context)
   }),
 
   setModel: assign({

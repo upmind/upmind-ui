@@ -7,7 +7,7 @@ import { ItemActions as actions } from "./actions";
 import services from "./services";
 
 // --- utils
-import { get, set, reduce, defaultsDeep, uniqueId } from "lodash-es";
+import { get, set, reduce, defaultsDeep, uniqueId, map } from "lodash-es";
 
 // --- types
 import type { ICompany } from "./types.d";
@@ -15,7 +15,13 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = context => {
+export const useSchema = ({ addresses, emails, phones, baseModel }) => {
+  const choices = {
+    addresses: addresses().getItems(),
+    emails: emails().getItems(),
+    phones: phones().getItems()
+  };
+
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -36,16 +42,33 @@ export const useSchema = context => {
 
       address_id: {
         type: "string",
-        title: "Address"
+        title: "Address",
+        // isLookup: addresses,
+        default: baseModel.address_id,
+        enum: !choices?.addresses?.length
+          ? undefined
+          : map(choices?.addresses, "id"),
+        lookup: addresses
       },
+
       email_id: {
         type: ["string", "null"],
-        title: "Email"
+        title: "Email",
+        // isLookup: emails,
+        default: baseModel.email_id,
+        enum: !choices?.emails?.length ? undefined : map(choices?.emails, "id"),
+        lookup: emails
       },
+
       phone_id: {
         type: ["string", "null"],
-        title: "Phone"
+        title: "Phone",
+        // isLookup: phones,
+        default: baseModel.phone_id,
+        enum: !choices?.phones?.length ? undefined : map(choices?.phones, "id"),
+        lookup: phones
       },
+
       reg_number: {
         type: "string",
         title: "Registrration number"
@@ -76,7 +99,7 @@ export const useSchema = context => {
   return schema as JsonSchema;
 };
 
-export const useUischema = () => {
+export const useUischema = ({ addresses, emails, phones }) => {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -112,7 +135,8 @@ export const useUischema = () => {
         scope: "#/properties/address_id",
         options: {
           autocomplete: "off",
-          placeholder: "Select an Address..."
+          placeholder: "Select an Address...",
+          lookup: addresses
         }
       },
       {
@@ -120,7 +144,8 @@ export const useUischema = () => {
         scope: "#/properties/email_id",
         options: {
           autocomplete: "off",
-          placeholder: "Select an email..."
+          placeholder: "Select an email...",
+          lookup: emails
         }
       },
       {
@@ -128,7 +153,8 @@ export const useUischema = () => {
         scope: "#/properties/phone_id",
         options: {
           autocomplete: "country",
-          placeholder: "Please select a Phone Number  ..."
+          placeholder: "Please select a Phone Number  ...",
+          lookup: phones
         }
       }
       // ---

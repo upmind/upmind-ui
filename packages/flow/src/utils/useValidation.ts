@@ -1,9 +1,18 @@
 // --- external
+
 import { createAjv } from "@jsonforms/core";
-import { isValidPhoneNumber } from "libphonenumber-js";
+import {
+  isValidPhoneNumber,
+  type CountryCode,
+  type PhoneNumber
+} from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
+
 // --- utils
-import { forEach, isString } from "lodash-es";
+import { forEach, some } from "lodash-es";
+
+// --- types
+import type { EventObject, StateMachine } from "xstate";
 
 // --------------------------------------------------------
 
@@ -22,7 +31,7 @@ export const useValidation = () => {
     keyword: "isPhoneNumber",
     type: ["string", "object"],
     schemaType: "string",
-    validate: (schema, data) => {
+    validate: (schema: CountryCode, data: PhoneNumber) => {
       const value = data?.number || data?.nationalNumber || "";
       const country = data?.country || schema;
       return isValidPhoneNumber(value, country);

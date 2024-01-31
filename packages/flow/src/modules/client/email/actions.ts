@@ -35,7 +35,8 @@ export const ListingActions = {
 export const ItemActions = {
   setSchemas: assign({
     schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
-    uischema: (_context: EmailContext, _event: EmailEvent) => useUischema()
+    uischema: (context: EmailContext, _event: EmailEvent) =>
+      useUischema(context)
   }),
 
   setModel: assign({

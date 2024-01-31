@@ -1,28 +1,13 @@
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- internal
-import itemMachine from "./item.machine";
 
 // --- utils
-import { find, forEach, get, isEmpty, last, map, uniqueId } from "lodash-es";
+import { find, forEach, isEmpty, last } from "lodash-es";
 
 // ---types
 import type { ClientListingsContext, ClientListingsEvents } from "./types.d";
-
-// --------------------------------------------------------
-// utility function to spawn machines based on the given items
-function spawnItem(model = {}) {
-  const name = get(model, "id", uniqueId("item_"));
-  try {
-    return spawn(itemMachine.withContext({ model }), {
-      name,
-      sync: true
-    });
-  } catch (err) {
-    console.error("ClientListings", "spawnItem", { name, model });
-  }
-}
 
 // --------------------------------------------------------
 
@@ -34,7 +19,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      items: [],
+      items: [], // spawned actors
       selected: undefined,
       // ---
       error: undefined
@@ -105,33 +90,14 @@ export default createMachine(
   {
     actions: {
       add: assign({
-        items: (
-          { items }: ClientListingsContext,
-          { data }: ClientListingsEvents
-        ) => {
-          // spawn an actor for the new items
-          const machine = spawnItem(data);
-          items.push(machine);
-          return items;
-        }
+        //  should be provided withConfig
       }),
 
       setItems: assign({
-        items: (
-          { items }: ClientListingsContext,
-          { data }: ClientListingsEvents
-        ) =>
-          map(data, item => {
-            const found = find(items, ["id", item.id]);
-            if (!found) {
-              const machine = spawnItem(item);
-              return machine;
-            }
-
-            return found;
-          }),
-        error: null
+        //  should be provided withConfig
       }),
+
+      // --------------------------------------------
 
       clearItems: assign({
         items: ({ items }, _event) => {

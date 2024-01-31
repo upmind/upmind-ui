@@ -1,7 +1,12 @@
 // --- external
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useApi, useSystem, useSession } from "../../";
+import { useClientAddresses } from "../address";
+import { useClientPhones } from "../phone";
+import { useClientEmails } from "../email";
+
+import { useApi, useSession } from "../../";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -46,30 +51,37 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: CompanyContext, { data }: CompanyEvent) {
-  const { fetchCountries, fetchRegions, getDefaultCountry } = useSystem();
+async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
+  // lets start up/use our dependencies
+  const addresses = useClientAddresses();
+  const phones = useClientPhones();
+  const emails = useClientEmails();
 
-  const emails = fetchCountries();
-  const addresses = fetchRegions();
-  const phones = fetchRegions();
-
-  return Promise.all([emails, addresses, phones]).then(
-    ([emails, addresses, phones]) => {
-      if (emails && addresses && phones) {
-        return {
-          emails,
-          addresses,
-          phones,
-          baseModel: {
-            ...model,
-            address_id: getDefaultCountry(),
-            email_id: getDefaultCountry(),
-            phone_id: getDefaultCountry()
-          }
-        };
-      }
-    }
+  // lets wait for them to be ready and loaded before we continue
+  const addressesReady = waitFor(
+    addresses.service,
+    state => !state.matches("loading")
   );
+  const phonesReady = waitFor(
+    phones.service,
+    state => !state.matches("loading")
+  );
+  const emailsReady = waitFor(
+    emails.service,
+    state => !state.matches("loading")
+  );
+
+  return Promise.all([addressesReady, phonesReady, emailsReady]).then(() => ({
+    emails: useClientEmails,
+    addresses: useClientAddresses,
+    phones: useClientPhones,
+    baseModel: {
+      ...model,
+      address_id: addresses.getDefault()?.id,
+      email_id: emails.getDefault()?.id,
+      phone_id: phones.getDefault()?.id
+    }
+  }));
 }
 
 // --------------------------------------------------------

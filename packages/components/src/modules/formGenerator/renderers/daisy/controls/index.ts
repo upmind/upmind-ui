@@ -4,6 +4,7 @@ export { default as MultiStringControlRenderer } from "./MultiStringControlRende
 export { default as NumberControlRenderer } from "./NumberControlRenderer.vue";
 export { default as IntegerControlRenderer } from "./IntegerControlRenderer.vue";
 export { default as EnumControlRenderer } from "./EnumControlRenderer.vue";
+export { default as LookupEnumControlRenderer } from "./EnumLookupControlRenderer.vue";
 export { default as oneOfEnumControlRenderer } from "./EnumOneOfControlRenderer.vue";
 export { default as oneOfEnumMenuControlRenderer } from "./EnumOneOfMenuControlRenderer.vue";
 export { default as DateControlRenderer } from "./DateControlRenderer.vue";
@@ -20,6 +21,7 @@ import { entry as multiStringControlRendererEntry } from "./MultiStringControlRe
 import { entry as numberControlRendererEntry } from "./NumberControlRenderer.vue";
 import { entry as integerControlRendererEntry } from "./IntegerControlRenderer.vue";
 import { entry as enumControlRendererEntry } from "./EnumControlRenderer.vue";
+import { entry as lookupEnumControlRendererEntry } from "./EnumLookupControlRenderer.vue";
 import { entry as oneOfEnumControlRendererEntry } from "./EnumOneOfControlRenderer.vue";
 import { entry as oneOfEnumMenuControlRendererEntry } from "./EnumOneOfMenuControlRenderer.vue";
 import { entry as dateControlRendererEntry } from "./DateControlRenderer.vue";
@@ -37,6 +39,7 @@ export const controlRenderers = [
   numberControlRendererEntry,
   integerControlRendererEntry,
   enumControlRendererEntry,
+  lookupEnumControlRendererEntry,
   oneOfEnumControlRendererEntry,
   oneOfEnumMenuControlRendererEntry,
   dateControlRendererEntry,
