@@ -12,30 +12,29 @@
     </div>
 
     <template v-if="!meta.isLoading">
-      <ul class="menu menu-xs bg-base-100 w-full rounded-btn m-0 gap-2">
-        <li class="menu-title m-0" v-if="title">
-          {{ title }}
-        </li>
-
-        <upm-item
-          v-for="item in items"
-          :key="item.id"
-          :item="item"
-          :selected="item.id === selected?.id"
-          :disabled="disabled || meta.isEditing || processing"
-          @select="select"
-          @edit="edit"
-          :class="[
-            meta.isEditing || processing
-              ? 'hidden opacity-50 pointer-events-none'
-              : '',
-            {
-              'border-primary': item.id === selected?.id
-              // 'col-span-full': item.id === selected?.id && meta.isEditing
-            }
-          ]"
-        />
-      </ul>
+      <upm-dropdown>
+        <template #trigger>something...</template>
+        <template #items>
+          <upm-item
+            v-for="item in items"
+            :key="item.id"
+            :item="item"
+            :selected="item.id === selected?.id"
+            :disabled="disabled || meta.isEditing || processing"
+            @select="select"
+            @edit="edit"
+            :class="[
+              meta.isEditing || processing
+                ? 'hidden opacity-50 pointer-events-none'
+                : '',
+              {
+                'border-primary': item.id === selected?.id
+                // 'col-span-full': item.id === selected?.id && meta.isEditing
+              }
+            ]"
+          />
+        </template>
+      </upm-dropdown>
 
       <upm-form
         class="shadow border border-neutral col-span-full"
@@ -62,6 +61,7 @@ import { defineComponent, ref, watch } from "vue";
 import { useLookup } from "./composables";
 import UpmItem from "./components/Item.vue";
 import UpmForm from "./components/Form.vue";
+import UpmDropdown from "../../../components/Dropdown.vue";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
 import { isEqual } from "lodash-es";
@@ -71,9 +71,10 @@ export default defineComponent({
   components: {
     SquaresPlusIcon,
     UpmItem,
-    UpmForm
+    UpmForm,
+    UpmDropdown
   },
-  emits: ["update:modelValue", "focus", "blur"],
+  emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
     lookup: {
       type: Function,
@@ -135,6 +136,25 @@ export default defineComponent({
       refresh,
       edit
     };
+  },
+  watch: {
+    selected(value, oldValue) {
+      // weve got a new value, that is not the same as the old value
+      // so we need to emit the change
+      if (oldValue?.id !== value?.id) {
+        this.$emit("update:modelValue", value.id);
+        this.$emit("change", { currentTarget: { value: value.id } });
+      }
+    },
+    results(value) {
+      this.active = this.focused && (!!value?.length || this.meta.isProcessing);
+    },
+    focused(value) {
+      this.active = value && (!!this.results?.length || this.meta.isProcessing);
+      if (!value) {
+        this.active = false;
+      }
+    }
   },
 
   methods: {

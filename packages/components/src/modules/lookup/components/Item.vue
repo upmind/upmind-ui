@@ -13,20 +13,29 @@
         class="checkbox"
         :class="{ 'checkbox-primary': selected }"
         :disabled="disabled"
-        :label="label"
-        :value="item.id"
+        :value="value"
         @input="select"
         type="checkbox"
       />
 
-      <sub
-        v-if="meta.isLoading && !meta.hasErrors"
-        class="loading loading-dots loading-xs"
-      ></sub>
+      <div class="flex flex-wrap px-2">
+        <span class="flex items-center w-full">
+          {{ title || value }}
 
-      <span role="button" class="ml-auto" v-if="meta.isDefault">
-        <star-icon class="w-6 h-6 cursor-pointer text-primary" />
-      </span>
+          <sub
+            v-if="meta.isLoading && !meta.hasErrors"
+            class="loading loading-dots loading-xs"
+          ></sub>
+
+          <span role="button" class="ml-2" v-if="meta.isDefault">
+            <star-icon class="w-4 h-4 cursor-pointer text-primary" />
+          </span>
+        </span>
+
+        <p class="m-0 mt-1 text-xs font-light" v-if="description || true">
+          {{ description }}
+        </p>
+      </div>
     </label>
   </li>
 </template>
