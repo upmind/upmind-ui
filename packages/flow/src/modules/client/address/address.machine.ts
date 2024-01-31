@@ -14,7 +14,7 @@ import {
   useAutocompleteUischema
 } from "./utils";
 import { useTime, useValidationParser } from "../../../utils";
-import { set } from "lodash-es";
+import { set, get, find, compact } from "lodash-es";
 
 // --- types
 import type { AddressContext, AddressEvent } from "./types";
@@ -336,7 +336,24 @@ export default createMachine(
         schema: (context: AddressContext, _event: AddressEvent) =>
           useSchema(context),
         uischema: (context: AddressContext, _event: AddressEvent) =>
-          useUischema(context)
+          useUischema(context),
+        title: ({ model }: AddressContext, _event: AddressEvent) => model?.name,
+        description: (
+          { model, countries, regions }: AddressContext,
+          _event: AddressEvent
+        ) => {
+          const country = find(countries, ["id", get(model, "country_id")]);
+          const region = find(regions, ["id", get(model, "region_id")]);
+          return compact([
+            get(model, "address_1"),
+            get(model, "address_2"),
+            get(model, "street"),
+            get(model, "city"),
+            get(model, "postcode"),
+            get(region, "name"),
+            get(country, "name")
+          ]).join(", ");
+        }
       }),
 
       setModel: assign({

@@ -3,7 +3,7 @@ import { assign } from "xstate";
 
 // --- utils
 import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
-import { find, map } from "lodash-es";
+import { find, map, get, compact, isObject } from "lodash-es";
 
 // --- types
 import type { PhoneContext, PhoneEvent } from "./types";
@@ -36,7 +36,21 @@ export const ItemActions = {
   setSchemas: assign({
     schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
     uischema: (context: PhoneContext, _event: PhoneEvent) =>
-      useUischema(context)
+      useUischema(context),
+    title: ({ model }: PhoneContext, _event: PhoneEvent) => {
+      const phone = get(model, "phone");
+      if (isObject(phone)) return get(model, "phone.number");
+      return get(model, "international_phone");
+    },
+    description: (
+      { model, country, types }: PhoneContext,
+      _event: PhoneEvent
+    ) => {
+      let type = get(model, "type");
+      type = get(types, type);
+
+      return compact([get(country, "name"), type?.value]).join(" | ");
+    }
   }),
 
   setModel: assign({

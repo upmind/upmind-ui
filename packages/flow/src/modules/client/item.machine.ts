@@ -21,6 +21,8 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      title: undefined,
+      description: undefined,
       // ---
       schema: undefined,
       uischema: undefined,

@@ -83,8 +83,11 @@ export function useLookupItem({ item }, { emit }) {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
-    label: computed(() => get(state.value.context, "display")),
     value: computed(() => item.id),
+    title: computed(() => get(state.value.context, "title", item?.title)),
+    description: computed(() =>
+      get(state.value.context, "description", item?.description)
+    ),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),

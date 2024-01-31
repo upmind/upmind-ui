@@ -12,6 +12,9 @@ import type { I } from "vitest/dist/reporters-5f784f42.js";
 // Contexts
 
 export interface ClientItemContext {
+  title?: string;
+  description?: string;
+  // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IAddress;
