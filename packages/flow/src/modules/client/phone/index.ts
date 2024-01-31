@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, type ContextFrom } from "xstate";
 
 // --- internal
 import listingsMachine from "../listings.machine";
@@ -7,6 +7,7 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
+import { find } from "lodash-es";
 
 // --- types
 
@@ -28,6 +29,9 @@ export const useClientPhones = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state
+    getSnapshot: () => state,
+    getItems: () => state?.context?.items,
+    getSelected: () => state?.context?.selected,
+    getDefault: () => find(state?.context?.items, "state.context.model.default")
   };
 };

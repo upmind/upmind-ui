@@ -74,12 +74,12 @@ export const useSchema = ({ country }: PhoneContext) => {
         type: ["boolean", "null"],
         title: "Make this the default phone?"
       }
-    },
-    errorMessage: {
-      properties: {
-        // phone: "must be a valid phone number"
-      }
     }
+    // errorMessage: {
+    //   properties: {
+    //     phone: "must be a valid phone number"
+    //   }
+    // }
   };
 
   // if (id) {

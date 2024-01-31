@@ -14,6 +14,10 @@ export const defaultStyles: Styles = {
     checkbox: "checkbox",
     radio: "radio",
     select: "select select-bordered w-full",
+    lookup: {
+      wrapper: "lookup-wrapper",
+      item: "lookup-item"
+    },
     menu: {
       wrapper: "menu-wrapper",
       item: "menu-item"

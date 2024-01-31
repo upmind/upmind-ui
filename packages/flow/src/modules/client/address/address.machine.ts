@@ -335,8 +335,8 @@ export default createMachine(
       setSchemas: assign({
         schema: (context: AddressContext, _event: AddressEvent) =>
           useSchema(context),
-        uischema: (_context: AddressContext, _event: AddressEvent) =>
-          useUischema()
+        uischema: (context: AddressContext, _event: AddressEvent) =>
+          useUischema(context)
       }),
 
       setModel: assign({
