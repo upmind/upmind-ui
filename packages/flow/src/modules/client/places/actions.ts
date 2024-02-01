@@ -14,11 +14,7 @@ export const actions = {
       data
   }),
   setItems: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
-      map(data, item => {
-        const found = find(raw, ["id", item.id]);
-        return found;
-      }),
+    raw: [],
     error: null
   })
 };
