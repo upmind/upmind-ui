@@ -36,22 +36,22 @@ export const useSchema = ({ country }: PhoneContext) => {
         isPhoneNumber: country?.code,
         properties: {
           number: {
-            type: "string",
+            type: ["string", "null"],
             title: "Phone number ( with dailing code )"
           },
 
           nationalNumber: {
-            type: "string",
+            type: ["string", "null"],
             title: "Phone number"
           },
 
           countryCallingCode: {
-            type: "string",
+            type: ["string", "null"],
             title: "Country calling code"
           },
 
           country: {
-            type: "string",
+            type: ["string", "null"],
             title: "Country"
           }
         }

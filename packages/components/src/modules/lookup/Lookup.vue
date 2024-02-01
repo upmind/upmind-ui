@@ -7,52 +7,58 @@
     @blur="doBlur"
     @focus="doFocus"
   >
-    <div class="col-span-full text-center" v-if="meta.isLoading || processing">
-      <span class="loading loading-dots"></span>
-    </div>
-
-    <template v-if="!meta.isLoading">
-      <upm-dropdown>
-        <template #trigger>something...</template>
-        <template #items>
-          <upm-item
-            v-for="item in items"
-            :key="item.id"
-            :item="item"
-            :selected="item.id === selected?.id"
-            :disabled="disabled || meta.isEditing || processing"
-            @select="select"
-            @edit="edit"
-            :class="[
-              meta.isEditing || processing
-                ? 'hidden opacity-50 pointer-events-none'
-                : '',
-              {
-                'border-primary': item.id === selected?.id
-                // 'col-span-full': item.id === selected?.id && meta.isEditing
-              }
-            ]"
-          />
+    <upm-dropdown
+      class="input input-bordered"
+      v-if="!meta.isEditing"
+      :items="items"
+      :model-value="selected?.id"
+    >
+      <template #trigger>
+        <span
+          class="loading loading-xs loading-dots text-gray-400"
+          v-if="meta.isLoading || processing"
+        ></span>
+        <template v-else>
+          <span v-if="selected"> {{ title || value }}</span>
+          <span v-else class="text-gray-400">{{ placeholder }} </span>
         </template>
-      </upm-dropdown>
+      </template>
 
-      <upm-form
-        class="shadow border border-neutral col-span-full"
-        :item="selected"
-        v-if="meta.isEditing"
-        :key="selected.id"
-        @refresh="refresh"
-      ></upm-form>
+      <template #items="{ items, value }">
+        <upm-item
+          v-for="item in items"
+          :key="item.id"
+          :item="item"
+          :selected="item.id === value"
+          :disabled="disabled || meta.isEditing || processing"
+          @select="select"
+          @edit="edit"
+          :class="[
+            meta.isEditing || processing
+              ? 'hidden opacity-50 pointer-events-none'
+              : '',
+            {
+              'border-primary': item.id === selected?.id
+              // 'col-span-full': item.id === selected?.id && meta.isEditing
+            }
+          ]"
+        />
+      </template>
 
-      <div
-        class="actions flex justify-center items-center min-h-36 h-full max-w-full"
-        v-if="!meta.isEditing"
-      >
-        <button class="btn btn-block h-full" @click="add">
-          <squares-plus-icon class="w-6 h-6" /> Add new
+      <template #append>
+        <button class="btn btn-sm btn-block" @click="add">
+          <plus-icon class="w-4 h-4" /> Add new
         </button>
-      </div>
-    </template>
+      </template>
+    </upm-dropdown>
+
+    <upm-form
+      class="shadow border border-neutral col-span-full mt-2"
+      :item="selected"
+      v-if="meta.isEditing && selected"
+      :key="selected.id"
+      @refresh="refresh"
+    ></upm-form>
   </fieldset>
 </template>
 
@@ -61,15 +67,15 @@ import { defineComponent, ref, watch } from "vue";
 import { useLookup } from "./composables";
 import UpmItem from "./components/Item.vue";
 import UpmForm from "./components/Form.vue";
-import UpmDropdown from "../../../components/Dropdown.vue";
-import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
+import UpmDropdown from "../../components/Dropdown.vue";
+import { PlusIcon } from "@heroicons/vue/24/outline";
 
 import { isEqual } from "lodash-es";
 
 export default defineComponent({
   name: "UpmLookup",
   components: {
-    SquaresPlusIcon,
+    PlusIcon,
     UpmItem,
     UpmForm,
     UpmDropdown
@@ -96,9 +102,10 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    title: {
+
+    placeholder: {
       type: String,
-      default: ""
+      default: "Select an item"
     }
   },
   setup(props, { emit }) {
@@ -112,7 +119,10 @@ export default defineComponent({
       select,
       refresh,
       edit,
-      selected
+      selected,
+      value,
+      title,
+      description
     } = useLookup(props.lookup);
 
     if (props.modelValue) {
@@ -128,6 +138,9 @@ export default defineComponent({
       state,
       items,
       selected,
+      value,
+      title,
+      description,
       meta,
       add,
       context,
@@ -142,8 +155,8 @@ export default defineComponent({
       // weve got a new value, that is not the same as the old value
       // so we need to emit the change
       if (oldValue?.id !== value?.id) {
-        this.$emit("update:modelValue", value.id);
-        this.$emit("change", { currentTarget: { value: value.id } });
+        this.$emit("update:modelValue", value?.id);
+        this.$emit("change", { currentTarget: { value: value?.id } });
       }
     },
     results(value) {

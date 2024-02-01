@@ -40,7 +40,7 @@ const schema = {
   required: ["name", "rating", "dueDate", "domain"],
   properties: {
     name: {
-      type: "string",
+      type: ["string", "null"],
       minLength: 1,
       title: "Task",
       description: "The task's name"
@@ -48,13 +48,13 @@ const schema = {
 
     description: {
       title: "Short Description",
-      type: "string",
+      type: ["string", "null"],
       maxLength: 100
     },
 
     note: {
       title: "Long Description/Details",
-      type: "string",
+      type: ["string", "null"],
       maxLength: 280
     },
 
@@ -67,14 +67,14 @@ const schema = {
     },
 
     domain: {
-      type: ["string", "array"],
+      type: [["string", "array"], "null"],
       format: "domain_name",
       title: "Add A domain....",
       description: ""
     },
 
     dueDate: {
-      type: "string",
+      type: ["string", "null"],
       format: "date",
       description: "The task's due date",
       formatMaximum: useDate(),
@@ -82,7 +82,7 @@ const schema = {
     },
 
     recurrence: {
-      type: "string",
+      type: ["string", "null"],
       enum: ["Daily", "Weekly", "Monthly"]
     },
 
@@ -163,7 +163,7 @@ const uischema = {
             effect: "SHOW",
             condition: {
               scope: "#/properties/recurrence",
-              schema: { type: "string", not: { const: null } }
+              schema: { type: ["string", not: { const: null } , "null"]}
             }
           }
         },

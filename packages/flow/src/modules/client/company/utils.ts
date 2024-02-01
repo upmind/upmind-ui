@@ -36,12 +36,12 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
 
       // ---
       name: {
-        type: "string",
+        type: ["string", "null"],
         title: "Name"
       },
 
       address_id: {
-        type: "string",
+        type: ["string", "null"],
         title: "Address",
         // isLookup: addresses,
         default: baseModel.address_id,
@@ -70,15 +70,15 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
       },
 
       reg_number: {
-        type: "string",
+        type: ["string", "null"],
         title: "Registrration number"
       },
       vat_number: {
-        type: "string",
+        type: ["string", "null"],
         title: "Registered tax/VAT id"
       },
       vat_percent: {
-        type: "string",
+        type: ["string", "null"],
         title: "VAT percent"
       },
 

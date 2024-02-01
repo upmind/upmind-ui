@@ -115,7 +115,7 @@ export default defineComponent({
         required: ["promocode"],
         properties: {
           promocode: {
-            type: "string",
+            type: ["string", "null"],
             title: "Promotion Code"
           }
         }

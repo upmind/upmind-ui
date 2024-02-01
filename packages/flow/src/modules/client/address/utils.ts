@@ -122,7 +122,7 @@ export const useSchema = ({
 
       // ---
       address_1: {
-        type: "string",
+        type: ["string", "null"],
         title: "Address Line 1"
       },
       address_2: {
@@ -130,11 +130,11 @@ export const useSchema = ({
         title: "Address Line 2"
       },
       city: {
-        type: "string",
+        type: ["string", "null"],
         title: "City"
       },
       postcode: {
-        type: "string",
+        type: ["string", "null"],
         title: "Postcode"
       },
       region_id: {
@@ -157,7 +157,7 @@ export const useSchema = ({
       },
 
       country_id: {
-        type: "string",
+        type: ["string", "null"],
         title: "Country",
         default: baseModel?.country_id,
         oneOf: !countries?.length

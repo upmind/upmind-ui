@@ -51,7 +51,10 @@ async function add({ model }: EmailContext, _event: EmailEvent) {
 
   return post({
     url: useUrl(`clients/${clientId}/emails`),
-    data: model,
+    data: {
+      email: model.email,
+      type: model.type
+    },
     withAccessToken: true
   }).then(({ data }) => data);
 }
@@ -64,7 +67,10 @@ async function update({ model }: EmailContext, _event: EmailEvent) {
 
   return put({
     url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    data: model,
+    data: {
+      email: model.email,
+      type: model.type
+    },
     withAccessToken: true
   }).then(({ data }) => data);
 }

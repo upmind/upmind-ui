@@ -151,6 +151,11 @@ export interface Typegen0 {
       | "error.platform.addressManager.processing.setting:invocation[0]"
       | "error.platform.addressManager.processing.updating:invocation[0]"
       | "error.platform.addressManager.searching:invocation[0]";
+    setFeedbackError:
+      | "error.platform.addressManager.processing.adding:invocation[0]"
+      | "error.platform.addressManager.processing.removing:invocation[0]"
+      | "error.platform.addressManager.processing.setting:invocation[0]"
+      | "error.platform.addressManager.processing.updating:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.addressManager.populating:invocation[0]"
@@ -198,6 +203,7 @@ export interface Typegen0 {
       | "SET"
       | "xstate.init";
     parse:
+      | "CLEAR"
       | "SET"
       | "done.invoke.addressManager.populating:invocation[0]"
       | "done.invoke.addressManager.searching:invocation[0]"

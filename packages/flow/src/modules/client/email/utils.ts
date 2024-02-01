@@ -35,7 +35,7 @@ export const useSchema = context => {
       },
 
       email: {
-        type: "string",
+        type: ["string", "null"],
         format: "email",
         title: "Email"
       },

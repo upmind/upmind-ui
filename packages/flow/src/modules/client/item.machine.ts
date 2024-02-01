@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { escalate, sendParent, pure } = actions;
 
 // --- internal
 import { useFeedback } from "../feedback";
@@ -104,7 +104,12 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", () => addSuccess("Successfully added")]
+                actions: [
+                  "setModel",
+                  pure((context, event) => {
+                    addSuccess(`Successfully added ${context.title}`);
+                  })
+                ]
               },
               onError: {
                 target: "#error",
@@ -117,7 +122,12 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", () => addSuccess("Successfully updated")]
+                actions: [
+                  "setModel",
+                  pure((context, event) => {
+                    addSuccess(`Successfully updated ${context.title}`);
+                  })
+                ]
               },
               onError: {
                 target: "#error",
@@ -132,7 +142,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "clearModel",
-                  () => addSuccess("Successfully deleted")
+                  pure((context, event) => {
+                    addSuccess(`Successfully deleted ${context.title}`);
+                  })
                 ]
               },
               onError: {
@@ -148,7 +160,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  () => addSuccess("Successfully set as default")
+                  pure((context, event) => {
+                    addSuccess(`Successfully set ${context.title} as default`);
+                  })
                 ]
               },
               onError: {
@@ -170,7 +184,15 @@ export default createMachine(
       },
 
       complete: {
-        entry: sendParent("REFRESH"),
+        entry: sendParent(
+          ({ model }: ClientItemContext, event: ClientItemEvent) => {
+            debugger;
+            return {
+              data: model?.id,
+              type: "REFRESH"
+            };
+          }
+        ),
         type: "final"
       },
 
@@ -243,10 +265,7 @@ export default createMachine(
           copy: error?.message,
           data: error?.data
         });
-      },
-
-      setFeedbackSuccess: (context, { data }) =>
-        addSuccess("Successfully updated")
+      }
     },
     guards: {
       isNew: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>

@@ -40,6 +40,14 @@ export function useLookup(lookup) {
           }
         : null
     ),
+    value: computed(() => state.value.context?.selected?.id),
+    title: computed(() =>
+      get(state.value.context?.selected, "state.context.title", null)
+    ),
+    description: computed(() =>
+      get(state.value.context?.selected, "state.context.description", null)
+    ),
+
     // ---
     select: async id => {
       if (state.value.matches("loading")) {
@@ -51,10 +59,7 @@ export function useLookup(lookup) {
 
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    refresh: () => {
-      debugger;
-      send({ type: "REFRESH" });
-    }
+    refresh: () => send({ type: "REFRESH" })
   };
 }
 
@@ -101,9 +106,6 @@ export function useLookupItem({ item }, { emit }) {
     // ---
     select: () => emit("select", item.id),
     edit: () => emit("edit", item.id),
-    cancel: () => {
-      debugger;
-      emit("refresh");
-    }
+    cancel: () => emit("refresh")
   };
 }

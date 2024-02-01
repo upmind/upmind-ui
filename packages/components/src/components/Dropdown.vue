@@ -7,18 +7,25 @@
     :open="open"
     @toggle="doToggle($event.currentTarget.open)"
   >
-    <summary class="btn btn-ghost text-primary">
-      <span>
-        <slot name="trigger"></slot>
-      </span>
+    <summary
+      class="w-full flex justify-between items-center"
+      :class="$attrs?.class"
+      role="button"
+    >
+      <slot name="trigger" v-bind="{ open, toggle: doToggle }"></slot>
+
       <chevron-up-icon v-if="open" class="w-4 h-4" />
       <chevron-down-icon v-else class="h-4 w-4" />
     </summary>
     <ul
+      ref="items"
       tabindex="0"
-      class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-btn w-full m-0 gap-2"
+      class="dropdown-content z-[1] menu p-2 shadow-md bg-base-100 rounded-btn w-full m-0 mt-1 gap-2 max-h-64 overflow-auto flex-nowrap"
+      @click="doToggle(false)"
     >
-      <slot name="items"></slot>
+      <slot name="items" v-bind="{ items, value: modelValue }"></slot>
+
+      <slot name="append"></slot>
     </ul>
   </details>
 </template>
@@ -29,9 +36,9 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
 import { onClickOutside } from "@vueuse/core";
 
 export default defineComponent({
-  name: "UpmBasketCurrency",
+  name: "UpmDropdown",
   components: { ChevronDownIcon, ChevronUpIcon },
-  inheritAttrs: true,
+  inheritAttrs: false,
   customOptions: {},
   props: {
     processing: {
@@ -47,8 +54,7 @@ export default defineComponent({
       required: true
     },
     modelValue: {
-      type: Object,
-      required: true
+      type: [String, Object]
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -65,14 +71,9 @@ export default defineComponent({
       open.value = value;
     }
 
-    function doUpdate(value) {
-      emit("update:modelValue", value);
-      open.value = false;
-    }
     return {
       target,
       doToggle,
-      doUpdate,
       open
     };
   },

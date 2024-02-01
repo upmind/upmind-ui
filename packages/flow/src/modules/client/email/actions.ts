@@ -39,7 +39,7 @@ export const ItemActions = {
       useUischema(context),
     title: ({ model }: EmailContext, _event: EmailEvent) => model?.email,
     description: ({ model }: EmailContext, _event: EmailEvent) =>
-      model.verified ? "Verified" : "Not verified"
+      model?.verified ? "Verified" : "Not verified"
   }),
 
   setModel: assign({
