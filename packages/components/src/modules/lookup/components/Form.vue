@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useLookupItem } from "../composables";
+import { useLookupItem } from "../";
 import { UpmFormGenerator } from "@upmind/components";
 
 export default defineComponent({

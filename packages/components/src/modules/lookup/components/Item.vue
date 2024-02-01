@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useLookupItem } from "../composables";
+import { useLookupItem } from "../";
 import { StarIcon } from "@heroicons/vue/24/solid";
 
 export default defineComponent({

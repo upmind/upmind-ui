@@ -67,7 +67,7 @@ const schema = {
     },
 
     domain: {
-      type: [["string", "array"], "null"],
+      type: ["string", "array", "null"],
       format: "domain_name",
       title: "Add A domain....",
       description: ""
@@ -163,7 +163,7 @@ const uischema = {
             effect: "SHOW",
             condition: {
               scope: "#/properties/recurrence",
-              schema: { type: ["string", not: { const: null } , "null"]}
+              schema: { type: "string", not: { const: null } }
             }
           }
         },

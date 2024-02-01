@@ -90,7 +90,7 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 import { TrashIcon } from "@heroicons/vue/24/outline";
-import { useUpload } from "../../../composables";
+import { useUpload } from "../../../";
 import { UseTimeAgo } from "@vueuse/components";
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",

@@ -117,7 +117,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useDomain } from "./composables";
+import { useDomain } from "./";
 import UpmDomainAvailable from "./components/Available.vue";
 import UpmDomainInput from "./components/Input.vue";
 import UpmDomainChoices from "./components/Choices.vue";
