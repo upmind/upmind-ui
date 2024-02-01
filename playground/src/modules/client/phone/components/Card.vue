@@ -21,7 +21,7 @@
           class="mr-1"
         ></i>
 
-        {{ desription }}
+        {{ description }}
 
         <sub
           v-if="meta.isLoading && !meta.hasErrors"
@@ -166,7 +166,7 @@ export default defineComponent({
       errors,
       model,
       title,
-      desription,
+      description,
       country,
       edit,
       select,
@@ -203,7 +203,7 @@ export default defineComponent({
       errors,
       model,
       title,
-      desription,
+      description,
       country,
       select,
       edit: () => {
@@ -221,7 +221,7 @@ export default defineComponent({
 
       //  ---
       copy: () => {
-        copy(desription.value);
+        copy(description.value);
       },
       canCopy: isSupported,
       copied

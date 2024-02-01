@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientPhones as useUpmindClientPhones } from "@upmind/flow";
 
 // --- utils
-import { get, map, compact, isObject } from "lodash-es";
+import { get, map } from "lodash-es";
 
 // --------------------------------------------------------
 
