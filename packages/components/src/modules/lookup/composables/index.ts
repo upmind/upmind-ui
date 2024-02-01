@@ -22,12 +22,13 @@ export function useLookup(lookup) {
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
+      isProcessing: ["processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isEditing: ["editing"].some(state.value.matches)
     })),
     // ---
     items: computed(() =>
-      map(state.value.context.items, item => ({
+      map(state.value.context.filtered, item => ({
         id: item.id,
         ...useActor(item)
       }))
@@ -59,7 +60,8 @@ export function useLookup(lookup) {
 
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    refresh: () => send({ type: "REFRESH" })
+    refresh: () => send({ type: "REFRESH" }),
+    filter: data => send({ type: "FILTER", data })
   };
 }
 

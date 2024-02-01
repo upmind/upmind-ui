@@ -12,16 +12,16 @@
       v-if="!meta.isEditing"
       :items="items"
       :model-value="selected?.id"
+      :processing="meta.isLoading || meta.isProcessing || processing"
     >
-      <template #trigger>
-        <span
-          class="loading loading-xs loading-dots text-gray-400"
-          v-if="meta.isLoading || processing"
-        ></span>
-        <template v-else>
-          <span v-if="selected"> {{ title || value }}</span>
-          <span v-else class="text-gray-400">{{ placeholder }} </span>
-        </template>
+      <template #trigger="{ toggle }">
+        <input
+          @focus="toggle(true)"
+          class="w-full"
+          :placeholder="placeholder"
+          :value="title || value"
+          @input="filter"
+        />
       </template>
 
       <template #items="{ items, value }">
@@ -119,6 +119,7 @@ export default defineComponent({
       select,
       refresh,
       edit,
+      filter,
       selected,
       value,
       title,
@@ -146,6 +147,7 @@ export default defineComponent({
       context,
       errors,
       select,
+      filter,
       refresh,
       edit
     };

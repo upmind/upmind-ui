@@ -327,7 +327,7 @@ export default createMachine(
           // force the model to clear address
           set(autocomplete, "model", {
             search: data?.search,
-            address: undefined
+            place: undefined
           });
           return autocomplete;
         }
@@ -428,7 +428,7 @@ export default createMachine(
         autocomplete?.model?.search !== data?.search,
 
       hasSelectedAddress: (_context: AddressContext, { data }: AddressEvent) =>
-        data?.address,
+        data?.place,
 
       isNew: ({ model }: AddressContext, { data }: AddressEvent) => !model?.id,
 

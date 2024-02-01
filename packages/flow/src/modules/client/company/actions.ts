@@ -13,19 +13,16 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 export const ListingActions = {
   add: assign({
-    items: (
-      { items }: ClientListingsContext,
-      { data }: ClientListingsEvents
-    ) => {
-      const machine = spawnItem(data); // spawn an actor for the new items
-      items.push(machine);
-      return items;
+    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) => {
+      const machine = spawnItem(data); // spawn an actor for the new raw
+      raw.push(machine);
+      return raw;
     }
   }),
   setItems: assign({
-    items: ({ items }: ClientListingsContext, { data }: ClientListingsEvents) =>
+    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
       map(data, item => {
-        const found = find(items, ["id", item.id]);
+        const found = find(raw, ["id", item.id]);
         if (!found) return spawnItem(item);
         return found;
       }),

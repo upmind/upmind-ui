@@ -10,6 +10,7 @@ import { useApi, useSession } from "../../";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { includes, filter } from "lodash-es";
 
 // --- types
 import type { CompanyEvent, CompanyContext } from "./types.d";
@@ -82,6 +83,26 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: phones.getDefault()?.id
     }
   }));
+}
+
+async function filterItems(
+  { raw }: ClientListingsContext,
+  { data }: ClientListingsEvents
+) {
+  if (!data?.length)
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const filteredItems = filter(
+    raw,
+    item =>
+      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
+      includes(
+        item.state.context?.description?.toLowerCase(),
+        data?.toLowerCase()
+      )
+  );
+
+  return Promise.resolve(filteredItems);
 }
 
 // --------------------------------------------------------
@@ -190,5 +211,6 @@ export default {
   setDefault,
   add,
   update,
-  remove
+  remove,
+  filter: filterItems
 };

@@ -91,6 +91,7 @@ export const useClientPhones = selected => {
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
+      isProcessing: ["filtering", "processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isEditing: ["editing"].some(state.value.matches)
     })),
@@ -117,6 +118,7 @@ export const useClientPhones = selected => {
 
       send({ type: "SELECT", data: id });
     },
+    filter: data => send({ type: "FILTER", data }),
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" })
   };

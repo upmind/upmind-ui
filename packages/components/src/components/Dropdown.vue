@@ -12,7 +12,11 @@
       :class="$attrs?.class"
       role="button"
     >
-      <slot name="trigger" v-bind="{ open, toggle: doToggle }"></slot>
+      <span
+        class="loading loading-xs loading-dots text-gray-400"
+        v-if="processing"
+      ></span>
+      <slot v-else name="trigger" v-bind="{ open, toggle: doToggle }"></slot>
 
       <chevron-up-icon v-if="open" class="w-4 h-4" />
       <chevron-down-icon v-else class="h-4 w-4" />
@@ -68,6 +72,7 @@ export default defineComponent({
     const open = ref(!!props.force);
 
     function doToggle(value) {
+      debugger;
       open.value = value;
     }
 

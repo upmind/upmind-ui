@@ -6,7 +6,7 @@ import { useApi, useSystem, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { isString, keyBy } from "lodash-es";
+import { includes, isString, keyBy, filter } from "lodash-es";
 
 // --- types
 import type { PhoneEvent, PhoneContext } from "./types";
@@ -53,6 +53,30 @@ async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
     types: keyBy(PhoneTypes, "key"),
     country: getCountry()
   });
+}
+
+async function filterItems(
+  { raw }: ClientListingsContext,
+  { data }: ClientListingsEvents
+) {
+  if (!data?.length)
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const filteredItems = filter(
+    raw,
+    item =>
+      includes(item.state.context?.title?.toLowerCase(), data.toLowerCase()) ||
+      includes(
+        item.state.context?.description?.toLowerCase(),
+        data.toLowerCase()
+      ) ||
+      includes(
+        item.state.context?.country?.code.toUpperCase(),
+        data.toUpperCase()
+      )
+  );
+
+  return Promise.resolve(filteredItems);
 }
 
 // --------------------------------------------------------
@@ -178,5 +202,6 @@ export default {
   setDefault,
   add,
   update,
-  remove
+  remove,
+  filter: filterItems
 };
