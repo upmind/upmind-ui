@@ -1,0 +1,117 @@
+// --- external
+import { Loader } from "@googlemaps/js-api-loader";
+
+// --- internal
+
+// --- utils
+import { usePlaceParser } from "./utils";
+
+// --- types
+import type { ClientListingsEvents, ClientListingsContext } from "../types";
+
+// --------------------------------------------------------
+//  ENUMS
+
+// --------------------------------------------------------
+// SERVICE METHODS
+// Invoked by machines, providing context and event data
+
+async function load(
+  _context: ClientListingsContext,
+  _event: ClientListingsEvents
+) {
+  const loader = new Loader({
+    apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
+    version: "weekly"
+  });
+
+  const api = await loader.importLibrary("places").catch(error => {
+    return Promise.reject(error);
+  });
+
+  return Promise.resolve({
+    places: new api.PlacesService(document.createElement("div")),
+    service: new api.AutocompleteService(),
+    AutocompleteSessionToken: api.AutocompleteSessionToken,
+    sessionToken: new api.AutocompleteSessionToken(),
+    statuses: api.PlacesServiceStatus
+  });
+}
+
+async function filterItems(
+  { service, sessionToken, statuses }: ClientListingsContext,
+  { data }: ClientListingsEvents
+) {
+  return new Promise((resolve, reject) => {
+    if (!service) return reject("Autocomplete service not configured");
+
+    // if we dont have any data, then just return an empty array
+    if (!data?.length) resolve([]);
+
+    service.getPlacePredictions(
+      {
+        input: data,
+        sessionToken: sessionToken,
+        fields: ["address_components"]
+      },
+      (result, status) => {
+        if (status === statuses.OK) {
+          resolve(result);
+        } else if (status === statuses.ZERO_RESULTS) {
+          resolve([]);
+        } else {
+          reject(status);
+        }
+      }
+    );
+  });
+}
+
+async function parse({
+  places,
+  sessionToken,
+  AutocompleteSessionToken,
+  statuses,
+  service
+}: {
+  data;
+}) {
+  return new Promise((resolve, reject) => {
+    if (!service) reject("Autocomplete service not configured");
+
+    // if we dont have any data, then just return an empty array
+    if (!data?.place?.length) reject(null);
+
+    places.getDetails(
+      {
+        placeId: data?.place,
+        sessionToken: sessionToken,
+        fields: ["address_components", "name"]
+      },
+      (result, status) => {
+        sessionToken = new AutocompleteSessionToken();
+
+        console.log("getPlaceDetails", "callback", { result, status });
+
+        if (status === statuses.OK) {
+          usePlaceParser(result).then(place => {
+            resolve(place);
+          });
+        } else if (status === statuses.ZERO_RESULTS) {
+          resolve({});
+        } else {
+          reject(status);
+        }
+      }
+    );
+  });
+}
+
+// --------------------------------------------------------
+// EXPORTS
+
+export default {
+  load,
+  parse,
+  filter: filterItems
+};

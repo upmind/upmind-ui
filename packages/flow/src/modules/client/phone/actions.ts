@@ -25,16 +25,6 @@ export const ListingActions = {
         if (!found) return spawnItem(item);
         return found;
       }),
-    error: null,
-    filtered: []
-  }),
-  setItems: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
-      map(data, item => {
-        const found = find(raw, ["id", item.id]);
-        if (!found) return spawnItem(item);
-        return found;
-      }),
     error: null
   })
 };

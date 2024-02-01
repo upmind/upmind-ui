@@ -1,11 +1,11 @@
 // --- external
-import { Loader } from "@googlemaps/js-api-loader";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useApi, useSystem, useSession } from "../../";
+import { usePlaces } from "../places";
 
 // --- utils
-import { usePlaceParser } from "./utils";
 import { useValidation } from "../../../utils";
 import { some, first, isEmpty, find, get, includes, filter } from "lodash-es";
 
@@ -25,8 +25,6 @@ export const AddressTypes = [
   { key: 3, value: "Holiday" }
 ];
 // --------------------------------------------------------
-
-const autocompleteApi = {};
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -75,9 +73,22 @@ async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
     type: first(AddressTypes)?.key
   };
 
+  // ---
+  // set up our autocomplete places
+  const places = usePlaces();
+  // lets wait for them to be ready and loaded before we continue
+  await waitFor(places.service, state => !state.matches("loading"));
+
+  // ---
   return new Promise((resolve, reject) => {
     if (countries && regions) {
-      resolve({ countries, regions, baseModel });
+      resolve({
+        countries,
+        regions,
+        baseModel,
+        types: AddressTypes,
+        places: usePlaces
+      });
     } else {
       reject("Failed to load countries and regions");
     }
@@ -161,96 +172,6 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
 }
 
 // --------------------------------------------------------
-
-async function configureAutocomplete(
-  _context: AddressContext,
-  _event: AddressEvent
-) {
-  const loader = new Loader({
-    apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-    version: "weekly"
-  });
-
-  if (!isEmpty(autocompleteApi)) return Promise.resolve(true);
-
-  const api = await loader.importLibrary("places").catch(error => {
-    return Promise.reject(error);
-  });
-
-  autocompleteApi.places = new api.PlacesService(document.createElement("div"));
-  autocompleteApi.service = new api.AutocompleteService();
-  autocompleteApi.AutocompleteSessionToken = api.AutocompleteSessionToken;
-  autocompleteApi.sessionToken = new autocompleteApi.AutocompleteSessionToken();
-  autocompleteApi.statuses = api.PlacesServiceStatus;
-
-  return Promise.resolve(true);
-}
-
-async function search(_context: AddressContext, { data }: AddressEvent) {
-  return new Promise((resolve, reject) => {
-    if (!autocompleteApi?.service)
-      return reject("Autocomplete service not configured");
-
-    // if we dont have any data, then just return an empty array
-    if (!data?.search?.length) resolve([]);
-
-    autocompleteApi.service.getPlacePredictions(
-      {
-        input: data?.search,
-        sessionToken: autocompleteApi.sessionToken,
-        fields: ["address_components"]
-      },
-      (result, status) => {
-        if (status === autocompleteApi.statuses.OK) {
-          resolve(result);
-        } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {
-          resolve([]);
-        } else {
-          reject(status);
-        }
-      }
-    );
-  });
-}
-
-async function getPlaceDetails(
-  _context: AddressContext,
-  { data }: AddressEvent
-) {
-  return new Promise((resolve, reject) => {
-    if (!autocompleteApi?.service)
-      reject("Autocomplete service not configured");
-
-    // if we dont have any data, then just return an empty array
-    if (!data?.place?.length) reject(null);
-
-    autocompleteApi.places.getDetails(
-      {
-        placeId: data?.place,
-        sessionToken: autocompleteApi.sessionToken,
-        fields: ["address_components", "name"]
-      },
-      (result, status) => {
-        autocompleteApi.sessionToken =
-          new autocompleteApi.AutocompleteSessionToken();
-
-        console.log("getPlaceDetails", "callback", { result, status });
-
-        if (status === autocompleteApi.statuses.OK) {
-          usePlaceParser(result).then(place => {
-            resolve(place);
-          });
-        } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {
-          resolve({});
-        } else {
-          reject(status);
-        }
-      }
-    );
-  });
-}
-
-// --------------------------------------------------------
 async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
 
@@ -296,9 +217,6 @@ async function validate(
 // EXPORTS
 
 export default {
-  configureAutocomplete,
-  search,
-  getPlaceDetails,
   load,
   loadLookups,
   validate,
