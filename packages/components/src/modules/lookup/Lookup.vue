@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { useLookup } from "./composables";
+import { useLookup } from "./";
 import UpmItem from "./components/Item.vue";
 import UpmForm from "./components/Form.vue";
 import UpmDropdown from "../../components/Dropdown.vue";
