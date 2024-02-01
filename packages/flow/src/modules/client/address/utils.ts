@@ -36,7 +36,7 @@ export const useAutocompleteSchema = choices => {
         title: "Search for an address...",
         minLength: 3
       },
-      address: {
+      place: {
         type: ["string", "null"],
         title: "Select an address...",
         oneOf: !choices?.length
@@ -75,7 +75,7 @@ export const useAutocompleteUischema = choices => {
       },
       {
         type: "Control",
-        scope: "#/properties/address",
+        scope: "#/properties/place",
         label: "",
         options: {
           type: !choices?.length ? "hidden" : undefined,

@@ -4,7 +4,7 @@ import { createMachine, assign } from "xstate";
 // --- internal
 
 // --- utils
-import { find, forEach, isEmpty, last } from "lodash-es";
+import { find, forEach, isEmpty, last, every } from "lodash-es";
 
 // ---types
 import type { ClientListingsContext, ClientListingsEvents } from "./types.d";
@@ -20,7 +20,8 @@ export default createMachine(
     initial: "loading",
     context: {
       initial: undefined,
-      items: [], // spawned actors
+      raw: [], // spawned actors
+      items: [], // filtered actors
       selected: undefined,
       // ---
       error: undefined
@@ -32,13 +33,13 @@ export default createMachine(
           src: "load",
           onDone: [
             {
-              target: "empty",
-              actions: ["setItems", "setInitial"],
+              target: "processing",
+              actions: ["setItems", "resetFiltered", "setInitial"],
               cond: (_context, { data }) => data
             },
             {
               target: "available",
-              actions: ["setItems"]
+              actions: ["setItems", "resetFiltered"]
             }
           ],
           onError: {
@@ -47,18 +48,51 @@ export default createMachine(
           }
         }
       },
+      processing: {
+        always: [{ target: "available", cond: "isNotProcessing" }]
+      },
       empty: {
         always: [{ target: "available", cond: "hasItems" }]
       },
       available: {
-        always: [
-          { target: "empty", cond: "hasNoItems" },
-          { target: "selected", cond: "hasSelected" }
-        ]
+        always: [{ target: "empty", cond: "hasNoItems" }]
+      },
+      filtering: {
+        invoke: {
+          src: "filter",
+          onDone: {
+            target: "filtered",
+            actions: ["setFiltered"]
+          },
+          onError: {
+            target: "processing",
+            actions: ["resetFiltered"]
+          }
+        }
+      },
+      filtered: {
+        initial: "empty",
+        states: {
+          empty: {
+            always: [
+              {
+                target: "available",
+                cond: "hasFilteredItems"
+              }
+            ]
+          },
+          available: {
+            always: [
+              {
+                target: "empty",
+                cond: "hasNoFilteredItems"
+              }
+            ]
+          }
+        }
       },
       editing: {},
-      selected: {},
-      error: {},
+      error: { id: "error" },
       complete: {
         type: "final"
       }
@@ -74,6 +108,7 @@ export default createMachine(
         cond: "isSelectable"
       },
 
+      FILTER: [{ target: "filtering" }],
       ADD: {
         target: "editing",
         actions: ["add", "setSelectedNew"]
@@ -99,13 +134,22 @@ export default createMachine(
         //  should be provided withConfig
       }),
 
+      resetFiltered: assign({
+        items: ({ raw }, { data }) => raw
+      }),
+
+      setFiltered: assign({
+        items: ({ raw }, { data }) => data
+      }),
+
       // --------------------------------------------
 
       clearItems: assign({
-        items: ({ items }, _event) => {
-          forEach(items, item => !item?.state?.done && item?.stop());
+        raw: ({ raw }, _event) => {
+          forEach(raw, item => !item?.state?.done && item?.stop());
           return [];
-        }
+        },
+        items: []
       }),
 
       setInitial: assign({
@@ -114,28 +158,25 @@ export default createMachine(
           { data }: ClientListingsEvents
         ) => data,
         selected: (
-          { items, initial }: ClientListingsContext,
+          { raw, initial }: ClientListingsContext,
           _event: ClientListingsEvents
         ) =>
-          find(items, ["id", initial]) ||
-          find(items, "state.context.model.default")
+          find(raw, ["id", initial]) || find(raw, "state.context.model.default")
       }),
 
       setSelected: assign({
         initial: undefined,
         selected: (
-          { items }: ClientListingsContext,
+          { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
-        ) =>
-          find(items, ["id", data]) ||
-          find(items, "state.context.model.default")
+        ) => find(raw, ["id", data]) || find(raw, "state.context.model.default")
       }),
 
       setSelectedNew: assign({
         selected: (
-          { items }: ClientListingsContext,
+          { raw }: ClientListingsContext,
           _event: ClientListingsEvents
-        ) => last(items)
+        ) => last(raw)
       }),
 
       clearSelected: assign({
@@ -153,10 +194,14 @@ export default createMachine(
       clearError: assign({ error: null })
     },
     guards: {
-      isSelectable: ({ items }, { data }) => true, // todo checkthe model for any reason to not be selectable
-      hasItems: ({ items }) => !isEmpty(items),
-      hasNoItems: ({ items }) => isEmpty(items),
-      hasSelected: ({ selected }) => !!selected?.id
+      isNotProcessing: ({ raw }) => {
+        return every(raw, ({ state }) => !state.matches("loading"));
+      },
+      isSelectable: ({ raw }, { data }) => true, // todo checkthe model for any reason to not be selectable
+      hasItems: ({ raw }) => !isEmpty(raw),
+      hasNoItems: ({ raw }) => isEmpty(raw),
+      hasFilteredItems: ({ items }) => !isEmpty(items),
+      hasNoFilteredItems: ({ items }) => isEmpty(items)
     }
   }
 );

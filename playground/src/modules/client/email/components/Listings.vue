@@ -5,6 +5,12 @@
     </div>
 
     <template v-if="!meta.isLoading">
+      <input
+        class="input input-bordered col-span-full"
+        @input="filter($event?.currentTarget?.value)"
+        placeholder="Filter by..."
+      />
+
       <upm-card
         v-for="item in items"
         :key="item.id"
@@ -84,8 +90,17 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    const { state, context, meta, errors, items, add, select, selected } =
-      useClientEmails();
+    const {
+      state,
+      context,
+      meta,
+      errors,
+      items,
+      add,
+      select,
+      selected,
+      filter
+    } = useClientEmails();
 
     if (props.modelValue) {
       select(props.modelValue);
@@ -105,6 +120,7 @@ export default defineComponent({
       context,
       errors,
       select,
+      filter,
       editing: ref()
     };
   },

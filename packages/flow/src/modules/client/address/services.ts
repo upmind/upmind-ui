@@ -7,7 +7,7 @@ import { useApi, useSystem, useSession } from "../../";
 // --- utils
 import { usePlaceParser } from "./utils";
 import { useValidation } from "../../../utils";
-import { some, first, isEmpty, find, get } from "lodash-es";
+import { some, first, isEmpty, find, get, includes, filter } from "lodash-es";
 
 // --- types
 import type {
@@ -82,6 +82,26 @@ async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
       reject("Failed to load countries and regions");
     }
   });
+}
+
+async function filterItems(
+  { raw }: ClientListingsContext,
+  { data }: ClientListingsEvents
+) {
+  if (!data?.length)
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const filteredItems = filter(
+    raw,
+    item =>
+      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
+      includes(
+        item.state.context?.description?.toLowerCase(),
+        data?.toLowerCase()
+      )
+  );
+
+  return Promise.resolve(filteredItems);
 }
 
 // --------------------------------------------------------
@@ -202,11 +222,11 @@ async function getPlaceDetails(
       reject("Autocomplete service not configured");
 
     // if we dont have any data, then just return an empty array
-    if (!data?.address?.length) reject(null);
+    if (!data?.place?.length) reject(null);
 
     autocompleteApi.places.getDetails(
       {
-        placeId: data?.address,
+        placeId: data?.place,
         sessionToken: autocompleteApi.sessionToken,
         fields: ["address_components", "name"]
       },
@@ -217,8 +237,8 @@ async function getPlaceDetails(
         console.log("getPlaceDetails", "callback", { result, status });
 
         if (status === autocompleteApi.statuses.OK) {
-          usePlaceParser(result).then(address => {
-            resolve(address);
+          usePlaceParser(result).then(place => {
+            resolve(place);
           });
         } else if (status === autocompleteApi.statuses.ZERO_RESULTS) {
           resolve({});
@@ -286,5 +306,6 @@ export default {
   setDefault,
   add,
   update,
-  remove
+  remove,
+  filter: filterItems
 };

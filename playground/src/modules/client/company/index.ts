@@ -59,7 +59,8 @@ export const useClientCompany = item => {
     // ---
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "REFRESH" })
+    cancel: () => service.send({ type: "REFRESH" }),
+    filter: data => send({ type: "FILTER", data })
   };
 };
 

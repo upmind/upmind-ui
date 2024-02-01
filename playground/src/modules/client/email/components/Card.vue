@@ -24,7 +24,7 @@
           />
           <shield-exclamation-icon class="w-6 h-6 text-error" v-else />
 
-          {{ meta.isVerified ? "Verified" : "Not verified" }}
+          {{ meta.isVerified ? "Verified" : "Unverified" }}
         </span>
 
         <sub

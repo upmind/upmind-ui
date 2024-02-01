@@ -1,10 +1,11 @@
 // --- external
 
 // --- internal
-import { useApi, useSystem, useSession } from "../../";
+import { useApi, useSession } from "../../";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { includes, filter } from "lodash-es";
 
 // --- types
 import type { EmailEvent, EmailContext } from "./types.d";
@@ -41,6 +42,27 @@ async function loadLookups({ model }: EmailContext, { data }: EmailEvent) {
   return Promise.resolve(null);
 }
 
+async function filterItems(
+  { raw }: ClientListingsContext,
+  { data }: ClientListingsEvents
+) {
+  if (!data?.length)
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const filteredItems = filter(
+    raw,
+    item =>
+      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
+      includes(
+        item.state.context?.description?.toLowerCase(),
+        data?.toLowerCase()
+      )
+  );
+
+  debugger;
+
+  return Promise.resolve(filteredItems);
+}
 // --------------------------------------------------------
 
 async function add({ model }: EmailContext, _event: EmailEvent) {
@@ -134,5 +156,6 @@ export default {
   setDefault,
   add,
   update,
-  remove
+  remove,
+  filter: filterItems
 };

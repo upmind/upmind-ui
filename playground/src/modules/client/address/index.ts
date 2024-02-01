@@ -131,6 +131,7 @@ export const useClientAddresses = () => {
       send({ type: "SELECT", data: id });
     },
     edit: id => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" })
+    add: () => send({ type: "ADD" }),
+    filter: data => send({ type: "FILTER", data })
   };
 };

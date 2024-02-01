@@ -4,10 +4,19 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
+    "done.invoke.clientListingsManager.filtering:invocation[0]": {
+      type: "done.invoke.clientListingsManager.filtering:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.clientListingsManager.loading:invocation[0]": {
       type: "done.invoke.clientListingsManager.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "error.platform.clientListingsManager.filtering:invocation[0]": {
+      type: "error.platform.clientListingsManager.filtering:invocation[0]";
+      data: unknown;
     };
     "error.platform.clientListingsManager.loading:invocation[0]": {
       type: "error.platform.clientListingsManager.loading:invocation[0]";
@@ -16,20 +25,25 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
+    filter: "done.invoke.clientListingsManager.filtering:invocation[0]";
     load: "done.invoke.clientListingsManager.loading:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "load";
+    services: "filter" | "load";
   };
   eventsCausingActions: {
     add: "ADD";
-    clearError: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
-    clearItems: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
+    clearError: "ADD" | "EDIT" | "FILTER" | "REFRESH" | "STOP" | "xstate.init";
+    clearItems: "ADD" | "EDIT" | "FILTER" | "REFRESH" | "STOP" | "xstate.init";
     clearSelected: "error.platform.clientListingsManager.loading:invocation[0]";
+    resetFiltered:
+      | "done.invoke.clientListingsManager.loading:invocation[0]"
+      | "error.platform.clientListingsManager.filtering:invocation[0]";
     setError: "error.platform.clientListingsManager.loading:invocation[0]";
+    setFiltered: "done.invoke.clientListingsManager.filtering:invocation[0]";
     setInitial:
       | "REFRESH"
       | "done.invoke.clientListingsManager.loading:invocation[0]";
@@ -39,13 +53,16 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
+    hasFilteredItems: "";
     hasItems: "";
+    hasNoFilteredItems: "";
     hasNoItems: "";
-    hasSelected: "";
+    isNotProcessing: "";
     isSelectable: "SELECT";
   };
   eventsCausingServices: {
-    load: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
+    filter: "FILTER";
+    load: "ADD" | "EDIT" | "FILTER" | "REFRESH" | "STOP" | "xstate.init";
   };
   matchesStates:
     | "available"
@@ -53,7 +70,12 @@ export interface Typegen0 {
     | "editing"
     | "empty"
     | "error"
+    | "filtered"
+    | "filtered.available"
+    | "filtered.empty"
+    | "filtering"
     | "loading"
-    | "selected";
+    | "processing"
+    | { filtered?: "available" | "empty" };
   tags: never;
 }
