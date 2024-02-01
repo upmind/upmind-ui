@@ -44,31 +44,8 @@ export const useClientAddress = item => {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
-    title: computed(() => {
-      // state.value.context?.model
-      return compact([get(state.value.context?.model, "name")]).join(" ");
-    }),
-    display: computed(() => {
-      const country = find(state.value.context?.countries, [
-        "id",
-        get(state.value.context?.model, "country_id")
-      ]);
-
-      const region = find(state.value.context?.regions, [
-        "id",
-        get(state.value.context?.model, "region_id")
-      ]);
-
-      return compact([
-        get(state.value.context?.model, "address_1"),
-        get(state.value.context?.model, "address_2"),
-        get(state.value.context?.model, "street"),
-        get(state.value.context?.model, "city"),
-        get(state.value.context?.model, "postcode"),
-        get(region, "name"),
-        get(country, "name")
-      ]).join(", ");
-    }),
+    title: computed(() => get(state.value.context, "title")),
+    description: computed(() => get(state.value.context, "description")),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),

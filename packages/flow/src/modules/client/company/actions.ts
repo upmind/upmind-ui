@@ -3,7 +3,7 @@ import { assign } from "xstate";
 
 // --- utils
 import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
-import { find, map } from "lodash-es";
+import { find, map, compact, get } from "lodash-es";
 
 // --- types
 import type { CompanyContext, CompanyEvent } from "./types.d";
@@ -35,7 +35,14 @@ export const ItemActions = {
     schema: (context: CompanyContext, _event: CompanyEvent) =>
       useSchema(context),
     uischema: (context: CompanyContext, _event: CompanyEvent) =>
-      useUischema(context)
+      useUischema(context),
+    title: ({ model }: CompanyContext, _event: CompanyEvent) => model?.name,
+    description: ({ model }: CompanyContext, _event: CompanyEvent) => {
+      debugger;
+      return compact([get(model, "reg_number"), get(model, "vat_number")]).join(
+        " | "
+      );
+    }
   }),
 
   setModel: assign({
