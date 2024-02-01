@@ -135,8 +135,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
         scope: "#/properties/address_id",
         options: {
           autocomplete: "off",
-          placeholder: "Select an Address...",
-          lookup: addresses
+          placeholder: "Select an Address..."
         }
       },
       {
@@ -144,8 +143,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
         scope: "#/properties/email_id",
         options: {
           autocomplete: "off",
-          placeholder: "Select an email...",
-          lookup: emails
+          placeholder: "Select an email..."
         }
       },
       {
@@ -154,7 +152,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
         options: {
           autocomplete: "country",
           placeholder: "Please select a Phone Number  ...",
-          lookup: phones
+          noAdd: true
         }
       }
       // ---

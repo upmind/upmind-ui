@@ -7,7 +7,7 @@ import { ListingActions as actions } from "./actions";
 import services from "./services";
 
 // --- utils
-import { find, set } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 

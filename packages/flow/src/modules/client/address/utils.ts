@@ -18,12 +18,14 @@ export const useSchema = ({
   countries,
   regions,
   types,
-  baseModel
-  // places
+  baseModel,
+  places
 }: AddressContext) => {
   const choices = {
-    // places: places().getItems()
+    places: places().getItems()
   };
+
+  console.log("useSchema", { choices });
 
   const schema = {
     type: "object",
@@ -37,16 +39,13 @@ export const useSchema = ({
         readOnly: true
       },
 
-      // place: {
-      //   type: ["string", "null"],
-      //   title: "Address",
-      //   // isLookup: addresses,
-      //   default: baseModel.address_id,
-      //   enum: !choices?.addresses?.length
-      //     ? undefined
-      //     : map(choices?.addresses, "id"),
-      //   lookup: autocomplate
-      // },
+      place: {
+        type: ["string", "null"],
+        title: "Search for Place",
+        // isLookup: places,
+        enum: !choices?.places?.length ? undefined : map(choices?.places, "id"),
+        lookup: places
+      },
 
       // ---
       address_1: {
@@ -169,6 +168,15 @@ export const useUischema = () => {
         }
       },
 
+      // ---
+      {
+        type: "Control",
+        scope: "#/properties/place",
+        options: {
+          autocomplete: "off",
+          placeholder: "Select a place ..."
+        }
+      },
       // ---
       {
         type: "Control",

@@ -46,7 +46,7 @@
         />
       </template>
 
-      <template #append>
+      <template #append v-if="!noAdd">
         <button class="btn btn-sm btn-block" @click="add">
           <plus-icon class="w-4 h-4" /> Add new
         </button>
@@ -107,6 +107,10 @@ export default defineComponent({
     placeholder: {
       type: String,
       default: "Select an item"
+    },
+    noAdd: {
+      type: Boolean,
+      default: true
     }
   },
   setup(props, { emit }) {
