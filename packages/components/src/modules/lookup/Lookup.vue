@@ -16,11 +16,12 @@
     >
       <template #trigger="{ toggle }">
         <input
-          @focus="toggle(true)"
+          ref="trigger"
+          @focus="doOpen(toggle)"
           class="w-full"
           :placeholder="placeholder"
-          :value="title || value"
-          @input="filter"
+          :value="meta.isFiltered ? filters : title || value"
+          @input="filter($event.currentTarget.value)"
         />
       </template>
 
@@ -120,6 +121,7 @@ export default defineComponent({
       refresh,
       edit,
       filter,
+      filters,
       selected,
       value,
       title,
@@ -148,8 +150,11 @@ export default defineComponent({
       errors,
       select,
       filter,
+      filters,
       refresh,
-      edit
+      edit,
+      // ---
+      trigger: ref(null)
     };
   },
   watch: {
@@ -173,6 +178,10 @@ export default defineComponent({
   },
 
   methods: {
+    doOpen(callback) {
+      this.trigger?.select();
+      callback(true);
+    },
     doFocus(event: Event) {
       this.$emit("focus", event);
     },

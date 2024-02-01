@@ -36,14 +36,29 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    clearError: "ADD" | "EDIT" | "FILTER" | "REFRESH" | "STOP" | "xstate.init";
-    clearItems: "ADD" | "EDIT" | "FILTER" | "REFRESH" | "STOP" | "xstate.init";
+    clearError:
+      | "ADD"
+      | "EDIT"
+      | "FILTER"
+      | "REFRESH"
+      | "SELECT"
+      | "STOP"
+      | "xstate.init";
+    clearItems:
+      | "ADD"
+      | "EDIT"
+      | "FILTER"
+      | "REFRESH"
+      | "SELECT"
+      | "STOP"
+      | "xstate.init";
     clearSelected: "error.platform.clientListingsManager.loading:invocation[0]";
     resetFiltered:
       | "done.invoke.clientListingsManager.loading:invocation[0]"
       | "error.platform.clientListingsManager.filtering:invocation[0]";
     setError: "error.platform.clientListingsManager.loading:invocation[0]";
     setFiltered: "done.invoke.clientListingsManager.filtering:invocation[0]";
+    setFilters: "FILTER";
     setInitial:
       | "REFRESH"
       | "done.invoke.clientListingsManager.loading:invocation[0]";
@@ -62,7 +77,14 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     filter: "FILTER";
-    load: "ADD" | "EDIT" | "FILTER" | "REFRESH" | "STOP" | "xstate.init";
+    load:
+      | "ADD"
+      | "EDIT"
+      | "FILTER"
+      | "REFRESH"
+      | "SELECT"
+      | "STOP"
+      | "xstate.init";
   };
   matchesStates:
     | "available"

@@ -37,12 +37,8 @@ export const ItemActions = {
     uischema: (context: CompanyContext, _event: CompanyEvent) =>
       useUischema(context),
     title: ({ model }: CompanyContext, _event: CompanyEvent) => model?.name,
-    description: ({ model }: CompanyContext, _event: CompanyEvent) => {
-      debugger;
-      return compact([get(model, "reg_number"), get(model, "vat_number")]).join(
-        " | "
-      );
-    }
+    description: ({ model }: CompanyContext, _event: CompanyEvent) =>
+      compact([get(model, "reg_number"), get(model, "vat_number")]).join(" | ")
   }),
 
   setModel: assign({
