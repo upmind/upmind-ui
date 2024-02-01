@@ -22,6 +22,7 @@ export default createMachine(
       initial: undefined,
       raw: [], // spawned actors
       items: [], // filtered actors
+      filters: undefined,
       selected: undefined,
       // ---
       error: undefined
@@ -65,7 +66,7 @@ export default createMachine(
             actions: ["setFiltered"]
           },
           onError: {
-            target: "processing",
+            target: "filtered",
             actions: ["resetFiltered"]
           }
         }
@@ -105,10 +106,11 @@ export default createMachine(
 
       SELECT: {
         actions: ["setSelected"],
+        target: "available",
         cond: "isSelectable"
       },
 
-      FILTER: [{ target: "filtering" }],
+      FILTER: [{ target: "filtering", actions: ["setFilters"] }],
       ADD: {
         target: "editing",
         actions: ["add", "setSelectedNew"]
@@ -142,6 +144,9 @@ export default createMachine(
         items: ({ raw }, { data }) => data
       }),
 
+      setFilters: assign({
+        filters: (context, { data }) => data
+      }),
       // --------------------------------------------
 
       clearItems: assign({

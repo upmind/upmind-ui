@@ -24,6 +24,7 @@ export interface ClientItemContext {
 
 export interface ClientListingsContext {
   initial?: string;
+  filters: any;
   items?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
   raw?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
   selected?: IAddress;

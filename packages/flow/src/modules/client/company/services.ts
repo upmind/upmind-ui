@@ -102,7 +102,6 @@ async function filterItems(
       )
   );
 
-  debugger;
   return Promise.resolve(filteredItems);
 }
 

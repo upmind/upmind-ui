@@ -22,7 +22,8 @@ export function useLookup(lookup) {
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
-      isProcessing: ["processing"].some(state.value.matches),
+      isProcessing: ["filtering", "processing"].some(state.value.matches),
+      isFiltered: ["filtered"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isEditing: ["editing"].some(state.value.matches)
     })),
@@ -41,6 +42,7 @@ export function useLookup(lookup) {
           }
         : null
     ),
+    filters: computed(() => state.value.context?.filters),
     value: computed(() => state.value.context?.selected?.id),
     title: computed(() =>
       get(state.value.context?.selected, "state.context.title", null)
