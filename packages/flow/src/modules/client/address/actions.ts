@@ -2,10 +2,12 @@
 import { assign } from "xstate";
 
 // --- utils
-import { spawnItem } from "./utils";
-import { find, map } from "lodash-es";
+import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
+
+import { find, map, get, compact } from "lodash-es";
 
 // --- types
+import type { AddressContext, AddressEvent } from "./types";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
@@ -26,5 +28,37 @@ export const ListingActions = {
         return found;
       }),
     error: null
+  })
+};
+
+export const ItemActions = {
+  setSchemas: assign({
+    schema: (context: AddressContext, _event: AddressEvent) =>
+      useSchema(context),
+    uischema: (context: AddressContext, _event: AddressEvent) =>
+      useUischema(context),
+    title: ({ model }: AddressContext, _event: AddressEvent) =>
+      model?.name || "New Address",
+    description: (
+      { model, countries, regions }: AddressContext,
+      _event: AddressEvent
+    ) => {
+      const country = find(countries, ["id", get(model, "country_id")]);
+      const region = find(regions, ["id", get(model, "region_id")]);
+      return compact([
+        get(model, "address_1"),
+        get(model, "address_2"),
+        get(model, "street"),
+        get(model, "city"),
+        get(model, "postcode"),
+        get(region, "name"),
+        get(country, "name")
+      ]).join(", ");
+    }
+  }),
+
+  setModel: assign({
+    model: ({ schema }: AddressContext, { data }: AddressEvent) =>
+      useModelParser(schema, data)
   })
 };

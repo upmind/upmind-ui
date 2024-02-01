@@ -7,7 +7,7 @@ import { ListingActions as actions } from "./actions";
 import services from "./services";
 
 // --- utils
-import { find, get } from "lodash-es";
+import { find, set } from "lodash-es";
 
 // --- types
 
@@ -26,6 +26,32 @@ const service = interpret(listingsMachine.withConfig({ actions, services }), {
 // --------------------------------------------------------
 
 export const useClientAddresses = () => {
+  return {
+    service: service.start(), // allow for interpreting the machine + inspecting it
+    // ---
+    getSnapshot: () => state,
+    getItems: () => state?.context?.items,
+    getSelected: () => state?.context?.selected,
+    getDefault: () => find(state?.context?.items, "state.context.model.default")
+    //  {
+    // debugger;
+    // return find(state?.context?.items, item => {
+    //   debugger;
+    //   const isDefault = get(
+    //     item?.state,
+    //     "state.context.model.default",
+    //     false
+    //   );
+    //   debugger;
+    //   return isDefault;
+    // });
+
+    // return ;
+    // }
+  };
+};
+
+export const usePlaces = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

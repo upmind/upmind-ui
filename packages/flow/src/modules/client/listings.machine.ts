@@ -209,7 +209,7 @@ export default createMachine(
     },
     guards: {
       isNotProcessing: ({ raw }) => {
-        return every(raw, ({ state }) => !state.matches("loading"));
+        return every(raw, item => !item?.state?.matches("loading"));
       },
       isSelectable: ({ raw }, { data }) => true, // todo checkthe model for any reason to not be selectable
       hasItems: ({ raw }) => !isEmpty(raw),
