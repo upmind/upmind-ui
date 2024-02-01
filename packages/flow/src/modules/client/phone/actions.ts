@@ -55,7 +55,6 @@ export const ItemActions = {
     ) => {
       let type = get(model, "type");
       type = get(types, type);
-
       return compact([get(country, "name"), type?.value]).join(" | ");
     }
   }),
