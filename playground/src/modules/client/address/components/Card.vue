@@ -14,7 +14,7 @@
       </h2>
 
       <p class="m-0">
-        {{ display }}
+        {{ description }}
 
         <sub
           v-if="meta.isLoading && !meta.hasErrors"
@@ -158,7 +158,7 @@ export default defineComponent({
       errors,
       model,
       title,
-      display,
+      description,
       edit,
       select,
       remove,
@@ -194,7 +194,7 @@ export default defineComponent({
       errors,
       model,
       title,
-      display,
+      description,
       select,
       edit: () => {
         open.value = false;
@@ -211,7 +211,7 @@ export default defineComponent({
 
       //  ---
       copy: () => {
-        copy(display.value);
+        copy(description.value);
       },
       canCopy: isSupported,
       copied

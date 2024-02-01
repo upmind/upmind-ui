@@ -36,27 +36,8 @@ export const useClientPhone = item => {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
-    title: computed(() => {
-      // state.value.context?.model
-      const phone = get(state.value.context?.model, "phone");
-
-      if (isObject(phone)) {
-        return get(state.value.context?.model, "phone.number");
-      }
-
-      return compact([
-        get(state.value.context?.model, "international_phone")
-      ]).join("");
-    }),
-    display: computed(() => {
-      let type = get(state.value.context?.model, "type");
-      type = get(state.value.context?.types, type);
-
-      return compact([
-        get(state.value.context, "country.name"),
-        type?.value
-      ]).join(" | ");
-    }),
+    title: computed(() => get(state.value.context, "title")),
+    description: computed(() => get(state.value.context, "description")),
     country: computed(() => state.value.context?.country),
     // ---
     model: computed(() => state.value?.context?.model),

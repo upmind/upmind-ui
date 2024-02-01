@@ -28,7 +28,7 @@ export function useLookup(lookup) {
     })),
     // ---
     items: computed(() =>
-      map(state.value.context.filtered, item => ({
+      map(state.value.context.items, item => ({
         id: item.id,
         ...useActor(item)
       }))

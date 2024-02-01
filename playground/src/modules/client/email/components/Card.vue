@@ -229,7 +229,7 @@ export default defineComponent({
 
       //  ---
       copy: () => {
-        copy(display.value);
+        copy(description.value);
       },
       canCopy: isSupported,
       copied

@@ -36,16 +36,8 @@ export const useClientCompany = item => {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
-    title: computed(() => {
-      // state.value.context?.model
-      return compact([get(state.value.context?.model, "name")]).join(" ");
-    }),
-    display: computed(() => {
-      return compact([
-        get(state.value.context?.model, "company_1"),
-        get(state.value.context?.model, "company_2")
-      ]).join(", ");
-    }),
+    title: computed(() => get(state.value.context, "title")),
+    description: computed(() => get(state.value.context, "description")),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
@@ -59,8 +51,7 @@ export const useClientCompany = item => {
     // ---
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "REFRESH" }),
-    filter: data => send({ type: "FILTER", data })
+    cancel: () => service.send({ type: "REFRESH" })
   };
 };
 
@@ -107,6 +98,7 @@ export const useClientCompanies = selected => {
       send({ type: "SELECT", data: id });
     },
     edit: id => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" })
+    add: () => send({ type: "ADD" }),
+    filter: data => send({ type: "FILTER", data })
   };
 };
