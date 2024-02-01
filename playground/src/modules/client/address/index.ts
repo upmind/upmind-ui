@@ -44,6 +44,7 @@ export const useClientAddress = item => {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
+    filters: computed(() => state.value.context?.filters),
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
     // ---
