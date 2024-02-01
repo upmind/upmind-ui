@@ -269,13 +269,10 @@ export default createMachine(
 
       complete: {
         entry: sendParent(
-          ({ model }: ClientItemContext, event: ClientItemEvent) => {
-            debugger;
-            return {
-              data: model?.id,
-              type: "REFRESH"
-            };
-          }
+          ({ model }: ClientItemContext, event: ClientItemEvent) => ({
+            data: model?.id,
+            type: "REFRESH"
+          })
         ),
         type: "final"
       },
