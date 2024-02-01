@@ -88,7 +88,7 @@ export const useClientAddress = item => {
   };
 };
 
-export const useClientAddresses = selected => {
+export const useClientAddresses = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
   const { service } = useUpmindClientAddresses();

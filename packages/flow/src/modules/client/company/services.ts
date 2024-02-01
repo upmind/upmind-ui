@@ -94,7 +94,15 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
 
   return post({
     url: useUrl(`clients/${clientId}/companies`),
-    data: model,
+    data: {
+      name: model.name,
+      address_id: model.address_id,
+      email_id: model.email_id,
+      phone_id: model.phone_id,
+      reg_number: model.reg_number,
+      vat_number: model.vat_number,
+      vat_percent: model.vat_percent
+    },
     withAccessToken: true
   }).then(({ data }) => data);
 }
@@ -107,7 +115,15 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
 
   return put({
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
-    data: model,
+    data: {
+      name: model.name,
+      address_id: model.address_id,
+      email_id: model.email_id,
+      phone_id: model.phone_id,
+      reg_number: model.reg_number,
+      vat_number: model.vat_number,
+      vat_percent: model.vat_percent
+    },
     withAccessToken: true
   }).then(({ data }) => data);
 }

@@ -19,6 +19,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      initial: undefined,
       items: [], // spawned actors
       selected: undefined,
       // ---
@@ -32,7 +33,7 @@ export default createMachine(
           onDone: [
             {
               target: "empty",
-              actions: ["setItems"],
+              actions: ["setItems", "setInitial"],
               cond: (_context, { data }) => data
             },
             {
@@ -64,7 +65,8 @@ export default createMachine(
     },
     on: {
       REFRESH: {
-        target: ["loading"]
+        target: "loading",
+        actions: ["setInitial"]
       },
 
       SELECT: {
@@ -103,11 +105,24 @@ export default createMachine(
         items: ({ items }, _event) => {
           forEach(items, item => !item?.state?.done && item?.stop());
           return [];
-        },
-        selected: undefined
+        }
+      }),
+
+      setInitial: assign({
+        initial: (
+          _context: ClientListingsContext,
+          { data }: ClientListingsEvents
+        ) => data,
+        selected: (
+          { items, initial }: ClientListingsContext,
+          _event: ClientListingsEvents
+        ) =>
+          find(items, ["id", initial]) ||
+          find(items, "state.context.model.default")
       }),
 
       setSelected: assign({
+        initial: undefined,
         selected: (
           { items }: ClientListingsContext,
           { data }: ClientListingsEvents

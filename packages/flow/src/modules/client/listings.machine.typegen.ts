@@ -30,6 +30,9 @@ export interface Typegen0 {
     clearItems: "ADD" | "EDIT" | "REFRESH" | "STOP" | "xstate.init";
     clearSelected: "error.platform.clientListingsManager.loading:invocation[0]";
     setError: "error.platform.clientListingsManager.loading:invocation[0]";
+    setInitial:
+      | "REFRESH"
+      | "done.invoke.clientListingsManager.loading:invocation[0]";
     setItems: "done.invoke.clientListingsManager.loading:invocation[0]";
     setSelected: "EDIT" | "SELECT";
     setSelectedNew: "ADD";

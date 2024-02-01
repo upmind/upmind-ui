@@ -1,8 +1,10 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { escalate, sendParent, pure } = actions;
 
 // --- internal
+import { useFeedback } from "../../feedback";
+const { addError, addSuccess } = useFeedback();
 import services, { AddressTypes } from "./services";
 
 // --- utils
@@ -163,11 +165,17 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "setModel"]
+                actions: [
+                  "setSchemas",
+                  "setModel",
+                  pure((context, event) => {
+                    addSuccess(`Successfully added ${context.title}`);
+                  })
+                ]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -176,11 +184,17 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "setModel"]
+                actions: [
+                  "setSchemas",
+                  "setModel",
+                  pure((context, event) => {
+                    addSuccess(`Successfully updated ${context.title}`);
+                  })
+                ]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -189,11 +203,17 @@ export default createMachine(
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "clearModel"]
+                actions: [
+                  "setSchemas",
+                  "clearModel",
+                  pure((context, event) => {
+                    addSuccess(`Successfully deleted ${context.title}`);
+                  })
+                ]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -202,11 +222,17 @@ export default createMachine(
               src: "setDefault",
               onDone: {
                 target: "#processed",
-                actions: ["setSchemas", "setModel"]
+                actions: [
+                  "setSchemas",
+                  "setModel",
+                  pure((context, event) => {
+                    addSuccess(`Successfully set ${context.title} as default`);
+                  })
+                ]
               },
               onError: {
                 target: "#error",
-                actions: ["setError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           }
@@ -242,7 +268,15 @@ export default createMachine(
       },
 
       complete: {
-        entry: sendParent("REFRESH"),
+        entry: sendParent(
+          ({ model }: ClientItemContext, event: ClientItemEvent) => {
+            debugger;
+            return {
+              data: model?.id,
+              type: "REFRESH"
+            };
+          }
+        ),
         type: "final"
       },
 
@@ -261,7 +295,7 @@ export default createMachine(
         { target: "searching", actions: ["setSearch"], cond: "isValidSearch" }
       ],
       CLEAR: {
-        target: "loading",
+        target: "checking",
         actions: ["clearModel"]
       },
       SET: {
@@ -269,7 +303,6 @@ export default createMachine(
         actions: ["setModel"]
       },
       // ---
-
       REMOVE: {
         target: "processing.removing",
         cond: "canRemove"
@@ -367,7 +400,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (context, { data }, meta) => {
+        error: (context, { data }) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data
@@ -379,7 +412,15 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
+
+      setFeedbackError: ({ error }, _event) => {
+        addError({
+          title: error?.title || "We experienced an error with this item",
+          copy: error?.message,
+          data: error?.data
+        });
+      }
     },
     guards: {
       isValidSearch: (

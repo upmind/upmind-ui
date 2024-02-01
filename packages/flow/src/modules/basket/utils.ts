@@ -124,7 +124,7 @@ export const useCustomFieldsSchemaParser = (data: any) => {
     required: [],
     properties: {
       notes: {
-        type: "string",
+        type: ["string", "null"],
         title: "Order Notes"
       },
       custom_fields: useFieldsSchemaParser(data)

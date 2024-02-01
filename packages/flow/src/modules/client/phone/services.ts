@@ -27,7 +27,7 @@ export const PhoneTypes: any[] = [
 
 async function load(
   _context: ClientListingsContext,
-  { data }: ClientListingsEvents
+  _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
   const { getUserId } = useSession();
