@@ -9,6 +9,7 @@
         class="input input-bordered col-span-full"
         @input="filter($event?.currentTarget?.value)"
         placeholder="Filter by..."
+        :value="filters"
       />
 
       <upm-card
@@ -99,7 +100,8 @@ export default defineComponent({
       add,
       select,
       selected,
-      filter
+      filter,
+      filters
     } = useClientAddresses();
 
     if (props.modelValue) {
@@ -121,6 +123,7 @@ export default defineComponent({
       errors,
       select,
       filter,
+      filters,
       editing: ref()
     };
   },
