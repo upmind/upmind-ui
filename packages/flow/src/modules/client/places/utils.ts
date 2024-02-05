@@ -4,7 +4,7 @@
 import { useSystem } from "../..";
 
 // --- utils
-import { some, get, find, includes } from "lodash-es";
+import { some, get, find, includes, map } from "lodash-es";
 
 // --- types
 import type { IAddress } from "../address/types";
@@ -41,6 +41,17 @@ function parseValue(addressComponents: any[], fields: string[]) {
 }
 
 // --------------------------------------------------------
+export async function usePredictionsParser(results: any) {
+  return map(results, result => {
+    const value = {
+      id: result.place_id,
+      title: result.description,
+      description: null
+    };
+
+    return value;
+  });
+}
 
 export async function usePlaceParser(result: any): Promise<IAddress> {
   const name = get(result, "name");

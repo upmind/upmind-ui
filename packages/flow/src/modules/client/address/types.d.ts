@@ -10,6 +10,8 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 interface IAddress {
   id: string;
   // ---
+  place?: string | null; // used for place lookup
+  // ---
   address_1: string | null;
   address_2: string | null;
   city: string | null;

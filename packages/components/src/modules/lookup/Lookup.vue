@@ -11,7 +11,7 @@
       class="input input-bordered"
       v-if="!meta.isEditing"
       :items="items"
-      :model-value="selected?.id"
+      :model-value="selected"
       :processing="meta.isLoading || meta.isProcessing || processing"
     >
       <template #trigger="{ toggle }">
@@ -21,7 +21,7 @@
           class="w-full"
           :placeholder="placeholder"
           :value="meta.isFiltered ? filters : title || value"
-          @input="filter($event.currentTarget.value)"
+          @blur="filter($event.currentTarget.value)"
         />
       </template>
 
@@ -32,7 +32,9 @@
           :item="item"
           :selected="item.id === value"
           :disabled="disabled || meta.isEditing || processing"
-          @select="select"
+          :loading="meta.isLoading"
+          :processing="meta.isProcessing"
+          @select="doSelect"
           @edit="edit"
           :class="[
             meta.isEditing || processing
@@ -110,13 +112,11 @@ export default defineComponent({
     },
     noAdd: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   setup(props, { emit }) {
     const {
-      state,
-      context,
       meta,
       errors,
       items,
@@ -142,7 +142,6 @@ export default defineComponent({
     });
 
     return {
-      state,
       items,
       selected,
       value,
@@ -150,7 +149,6 @@ export default defineComponent({
       description,
       meta,
       add,
-      context,
       errors,
       select,
       filter,
@@ -162,14 +160,6 @@ export default defineComponent({
     };
   },
   watch: {
-    selected(value, oldValue) {
-      // weve got a new value, that is not the same as the old value
-      // so we need to emit the change
-      if (oldValue?.id !== value?.id) {
-        this.$emit("update:modelValue", value?.id);
-        this.$emit("change", { currentTarget: { value: value?.id } });
-      }
-    },
     results(value) {
       this.active = this.focused && (!!value?.length || this.meta.isProcessing);
     },
@@ -192,6 +182,12 @@ export default defineComponent({
 
     doBlur(event: Event) {
       this.$emit("blur", event);
+    },
+
+    doSelect(event: Event) {
+      this.$emit("update:modelValue", event?.currentTarget?.value);
+      this.$emit("change", event);
+      this.select(event?.currentTarget?.value);
     }
   }
 });

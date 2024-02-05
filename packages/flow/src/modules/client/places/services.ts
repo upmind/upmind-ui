@@ -4,7 +4,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 // --- internal
 
 // --- utils
-import { usePlaceParser } from "./utils";
+import { usePlaceParser, usePredictionsParser } from "./utils";
 
 // --- types
 import type { ClientListingsEvents, ClientListingsContext } from "../types";
@@ -47,7 +47,6 @@ async function filterItems(
 
     // if we dont have any data, then just return an empty array
     if (!data?.length) resolve([]);
-
     service.getPlacePredictions(
       {
         input: data,
@@ -56,7 +55,7 @@ async function filterItems(
       },
       (result, status) => {
         if (status === statuses.OK) {
-          resolve(result);
+          resolve(usePredictionsParser(result));
         } else if (status === statuses.ZERO_RESULTS) {
           resolve([]);
         } else {
@@ -67,15 +66,16 @@ async function filterItems(
   });
 }
 
-async function parse({
-  places,
-  sessionToken,
-  AutocompleteSessionToken,
-  statuses,
-  service
-}: {
-  data;
-}) {
+async function parse(
+  {
+    places,
+    sessionToken,
+    AutocompleteSessionToken,
+    statuses,
+    service
+  }: ClientListingsContext,
+  { data }: ClientListingsEvents
+) {
   return new Promise((resolve, reject) => {
     if (!service) reject("Autocomplete service not configured");
 

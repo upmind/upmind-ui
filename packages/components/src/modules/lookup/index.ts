@@ -9,9 +9,13 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 
 // --- utils
-import { map, get } from "lodash-es";
+import { map, get, pick } from "lodash-es";
 
 // ----------------------------------------------------------------------------
+
+const maybeActor = item =>
+  item?.state ? { id: item.id, ...item.state.context } : item;
+// --------------------------------------------------------
 
 export function useLookup(lookup) {
   const { service } = lookup();
@@ -33,34 +37,30 @@ export function useLookup(lookup) {
     })),
     // ---
     items: computed(() =>
-      map(state.value.context.items, item => ({
-        id: item.id,
-        ...useActor(item)
-      }))
+      map(state.value.context.items, item =>
+        pick(maybeActor(item), ["id", "title", "description"])
+      )
     ),
-    selected: computed(() =>
-      state.value.context?.selected
-        ? {
-            id: state.value.context.selected?.id,
-            ...useActor(state.value.context.selected)
-          }
-        : null
-    ),
+    selected: computed(() => state.value.context?.selected?.id),
     filters: computed(() => state.value.context?.filters),
-    value: computed(() => state.value.context?.selected?.id),
-    title: computed(() =>
-      get(state.value.context?.selected, "state.context.title", null)
-    ),
-    description: computed(() =>
-      get(state.value.context?.selected, "state.context.description", null)
-    ),
+    value: computed(() => {
+      const selected = maybeActor(state.value.context?.selected);
+      return get(selected, "id", null);
+    }),
+    title: computed(() => {
+      const selected = maybeActor(state.value.context?.selected);
+      return get(selected, "title", null);
+    }),
+    description: computed(() => {
+      const selected = maybeActor(state.value.context?.selected);
+      return get(selected, "description", null);
+    }),
 
     // ---
     select: async id => {
       if (state.value.matches("loading")) {
         await waitFor(service, newstate => !newstate.matches("loading"));
       }
-
       send({ type: "SELECT", data: id });
     },
 
@@ -73,6 +73,7 @@ export function useLookup(lookup) {
 
 export function useLookupItem({ item }, { emit }) {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
+  // TODO: spawn an actor base don the item id!
   const { state, send } = item;
 
   // --------------------------------------------------------
@@ -90,17 +91,13 @@ export function useLookupItem({ item }, { emit }) {
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
       canRemove: state.value?.context?.model?.can_delete,
+      canAdd: !!state.value?.context,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
-    // ---
-    value: computed(() => item.id),
-    title: computed(() => get(state.value.context, "title", item?.title)),
-    description: computed(() =>
-      get(state.value.context, "description", item?.description)
-    ),
+
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),

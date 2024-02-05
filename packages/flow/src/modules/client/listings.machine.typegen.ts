@@ -29,7 +29,7 @@ export interface Typegen0 {
     load: "done.invoke.clientListingsManager.loading:invocation[0]";
   };
   missingImplementations: {
-    actions: never;
+    actions: "clearItems";
     delays: never;
     guards: never;
     services: "filter" | "load";
@@ -52,7 +52,15 @@ export interface Typegen0 {
       | "SELECT"
       | "STOP"
       | "xstate.init";
-    clearSelected: "error.platform.clientListingsManager.loading:invocation[0]";
+    clearSelected:
+      | "ADD"
+      | "EDIT"
+      | "FILTER"
+      | "REFRESH"
+      | "SELECT"
+      | "STOP"
+      | "error.platform.clientListingsManager.loading:invocation[0]"
+      | "xstate.init";
     resetFiltered:
       | "done.invoke.clientListingsManager.loading:invocation[0]"
       | "error.platform.clientListingsManager.filtering:invocation[0]";

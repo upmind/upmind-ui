@@ -29,7 +29,7 @@ export default createMachine(
     },
     states: {
       loading: {
-        entry: ["clearError", "clearItems"],
+        entry: ["clearError", "clearItems", "clearSelected"],
         invoke: {
           src: "load",
           onDone: [
@@ -150,12 +150,17 @@ export default createMachine(
       }),
       // --------------------------------------------
 
-      clearItems: assign({
+      clear: assign({
         raw: ({ raw }, _event) => {
-          forEach(raw, item => !item?.state?.done && item?.stop());
+          forEach(
+            raw,
+            item => !item?.state?.done && item?.stop && item?.stop()
+          );
           return [];
         },
-        items: []
+        items: [],
+        selected: undefined,
+        filters: undefined
       }),
 
       setInitial: assign({

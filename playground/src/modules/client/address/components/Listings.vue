@@ -10,6 +10,7 @@
         @input="filter($event?.currentTarget?.value)"
         placeholder="Filter by..."
         :value="filters"
+        v-if="!meta.isEditing"
       />
 
       <upm-card

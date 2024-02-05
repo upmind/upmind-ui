@@ -7,7 +7,16 @@ import { usePlaces } from "../places";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { some, first, isEmpty, find, get, includes, filter } from "lodash-es";
+import {
+  some,
+  first,
+  isEmpty,
+  find,
+  get,
+  includes,
+  filter,
+  defaultsDeep
+} from "lodash-es";
 
 // --- types
 import type {
@@ -78,6 +87,7 @@ async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
   const places = usePlaces();
   // lets wait for them to be ready and loaded before we continue
   await waitFor(places.service, state => !state.matches("loading"));
+  places.reset();
 
   // ---
   return new Promise((resolve, reject) => {
@@ -178,6 +188,14 @@ async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
   const { fetchRegions } = useSystem();
 
   if (!isEmpty(model)) {
+    // let scheck to see if weve been given a place to lookup
+    // if we have, then get the place details and update the model
+    if (model?.place) {
+      const { getPlaceDetails } = usePlaces();
+      const place = await getPlaceDetails(model.place);
+      model = defaultsDeep(place, model);
+    }
+
     // lets check if the country has changed, ie: the regions dont match
     // if so, then we need to fetch the regions for the new country
     if (!some(regions, ["country_id", model.country_id])) {
