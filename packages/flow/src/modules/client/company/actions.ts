@@ -31,14 +31,28 @@ export const ListingActions = {
 };
 
 export const ItemActions = {
+  setMeta: assign({
+    title: ({ model }: CompanyContext, _event: CompanyEvent) => model?.name,
+    description: (
+      { model, addresses }: CompanyContext,
+      _event: CompanyEvent
+    ) => {
+      let address = null;
+      if (addresses) {
+        const addressService = addresses();
+        address = addressService?.getSelected();
+      }
+      return compact([
+        // get(address, "state.context.title"),
+        get(address, "state.context.description")
+      ]).join(" | ");
+    }
+  }),
   setSchemas: assign({
     schema: (context: CompanyContext, _event: CompanyEvent) =>
       useSchema(context),
     uischema: (context: CompanyContext, _event: CompanyEvent) =>
-      useUischema(context),
-    title: ({ model }: CompanyContext, _event: CompanyEvent) => model?.name,
-    description: ({ model }: CompanyContext, _event: CompanyEvent) =>
-      compact([get(model, "reg_number"), get(model, "vat_number")]).join(" | ")
+      useUischema(context)
   }),
 
   setModel: assign({

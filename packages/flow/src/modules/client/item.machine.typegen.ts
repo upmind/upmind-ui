@@ -111,6 +111,14 @@ export interface Typegen0 {
       | "error.platform.clientItemManager.processing.removing:invocation[0]"
       | "error.platform.clientItemManager.processing.setting:invocation[0]"
       | "error.platform.clientItemManager.processing.updating:invocation[0]";
+    setMeta:
+      | "CLEAR"
+      | "DEFAULT"
+      | "REMOVE"
+      | "SET"
+      | "done.invoke.clientItemManager.checking.parsing:invocation[0]"
+      | "done.invoke.clientItemManager.loading:invocation[0]"
+      | "xstate.init";
     setModel:
       | "SET"
       | "done.invoke.clientItemManager.processing.adding:invocation[0]"

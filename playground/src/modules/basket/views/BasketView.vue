@@ -234,13 +234,48 @@
       >
         <div class="divider uppercase text-xs opacity-50">Billing Details</div>
 
-        <upm-addresses
-          v-if="!meta.needsAuth"
-          class="my-8 p-0"
-          :processing="meta.isProcessing"
-          :model-value="basket?.address_id || basket?.company_id"
-          @update:model-value="setBillingDetails"
-        />
+        <div role="tablist" class="tabs tabs-lg tabs-boxed my-8 bg-transparent">
+          <input
+            type="radio"
+            name="billing_details"
+            role="tab"
+            class="tab"
+            aria-label="My Addresses"
+          />
+          <div
+            role="tabpanel"
+            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
+          >
+            <upm-addresses
+              v-if="!meta.needsAuth"
+              class="p-0"
+              :processing="meta.isProcessing"
+              :model-value="basket?.address_id"
+              @update:model-value="setBillingAddress"
+            />
+          </div>
+
+          <input
+            type="radio"
+            name="billing_details"
+            role="tab"
+            class="tab"
+            aria-label="My Companies"
+            checked
+          />
+          <div
+            role="tabpanel"
+            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
+          >
+            <upm-companies
+              v-if="!meta.needsAuth"
+              class="p-0"
+              :processing="meta.isProcessing"
+              :model-value="basket?.company_id"
+              @update:model-value="setBillingCompany"
+            />
+          </div>
+        </div>
       </section>
 
       <!-- payment -->
@@ -377,6 +412,7 @@ import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
 import UpmProfile from "../../session/components/Profile.vue";
 import UpmAddresses from "../../client/address/components/Listings.vue";
+import UpmCompanies from "../../client/company/components/Listings.vue";
 
 import { UpmDebug } from "@upmind/components";
 import {
@@ -418,7 +454,8 @@ const {
   clearFields,
   setFields,
   updateFields,
-  setBillingDetails
+  setBillingAddress,
+  setBillingCompany
 } = useBasket();
 
 const productCatalogue = [

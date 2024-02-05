@@ -30,10 +30,7 @@ export const ListingActions = {
 };
 
 export const ItemActions = {
-  setSchemas: assign({
-    schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
-    uischema: (context: PhoneContext, _event: PhoneEvent) =>
-      useUischema(context),
+  setMeta: assign({
     title: ({ model }: PhoneContext, _event: PhoneEvent) => {
       const phone = get(model, "phone");
       if (isObject(phone)) return get(model, "phone.number");
@@ -47,6 +44,11 @@ export const ItemActions = {
       type = get(types, type);
       return compact([get(country, "name"), type?.value]).join(" | ");
     }
+  }),
+  setSchemas: assign({
+    schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
+    uischema: (context: PhoneContext, _event: PhoneEvent) =>
+      useUischema(context)
   }),
 
   setModel: assign({
