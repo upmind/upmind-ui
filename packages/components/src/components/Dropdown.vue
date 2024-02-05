@@ -30,6 +30,7 @@
       @click="doToggle(false)"
     >
       <slot name="items" v-bind="{ items, value: modelValue }"></slot>
+      <slot name="empty" v-if="!items?.length">No options available.</slot>
 
       <slot name="append"></slot>
     </ul>
