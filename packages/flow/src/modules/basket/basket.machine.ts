@@ -521,9 +521,13 @@ export default createMachine(
               }
             },
             on: {
-              "UPDATE.BILLING": {
+              "UPDATE.ADDRESS": {
                 target: "billing.processing",
-                cond: "notSameBilling"
+                cond: "notSameAddress"
+              },
+              "UPDATE.COMPANY": {
+                target: "billing.processing",
+                cond: "notSameCompany"
               }
             }
           },
@@ -574,7 +578,9 @@ export default createMachine(
                 cond: "notSameCurrency"
               }
             }
-          }
+          },
+
+          payment_details: {}
         },
         on: {
           UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
@@ -592,7 +598,6 @@ export default createMachine(
       checkout: {
         type: "parallel",
         states: {
-          shipping: {},
           payment: {}
         },
         on: {
@@ -995,11 +1000,11 @@ export default createMachine(
 
       hasBilling: ({ basket }) => !!basket?.address_id || !!basket?.company_id,
       hasNoBilling: ({ basket }) => !basket?.address_id && !basket?.company_id,
-      notSameBilling: ({ basket }, { data }) => {
-        return (
-          basket?.address_id !== data?.address_id ||
-          basket?.company_id !== data?.company_id
-        );
+      notSameCompany: ({ basket }, { data }) => {
+        return basket?.company_id !== data?.company_id;
+      },
+      notSameAddress: ({ basket }, { data }) => {
+        return basket?.address_id !== data?.address_id;
       },
 
       hasCurrency: ({ basket }) => !!basket?.currency_id,

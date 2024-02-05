@@ -241,6 +241,7 @@
             role="tab"
             class="tab"
             aria-label="My Addresses"
+            :checked="!basket?.company_id || false"
           />
           <div
             role="tabpanel"
@@ -261,7 +262,7 @@
             role="tab"
             class="tab"
             aria-label="My Companies"
-            checked
+            :checked="!!basket?.company_id || false"
           />
           <div
             role="tabpanel"
