@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientEmails as useUpmindClientEmails } from "@upmind/flow";
 
 // --- utils
-import { get, map, compact } from "lodash-es";
+import { get, map, compact, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -37,10 +37,8 @@ export const useClientEmail = item => {
         state.value.done || ["processed", "complete"].some(state.value.matches)
     })),
     // ---
-    title: computed(() => {
-      // state.value.context?.model
-      return compact([get(state.value.context?.model, "email")]).join(" ");
-    }),
+    title: computed(() => get(state.value.context, "title")),
+    description: computed(() => get(state.value.context, "description")),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
@@ -102,6 +100,6 @@ export const useClientEmails = selected => {
     },
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    filter: data => send({ type: "FILTER", data })
+    filter: debounce(data => send({ type: "FILTER", data }), 300)
   };
 };

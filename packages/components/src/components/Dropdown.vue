@@ -1,40 +1,48 @@
 <template>
-  <details
+  <div
     ref="target"
     class="dropdown"
     :class="{ 'dropdown-open': force || open, disabled: processing }"
     :disabled="processing"
-    :open="open"
-    @toggle="doToggle($event.currentTarget.open)"
   >
-    <summary
+    <div
       class="w-full flex justify-between items-center"
       :class="$attrs?.class"
       role="button"
+      tabindex="0"
+      @focus="doToggle(true)"
+      @blur="doToggle(false)"
     >
-      <div
-        class="loading loading-xs loading-dots text-gray-400"
-        v-show="processing"
-      ></div>
-      <div v-show="!processing" class="w-full">
-        <slot name="trigger" v-bind="{ open, toggle: doToggle }"></slot>
-      </div>
+      <slot name="trigger" v-bind="{ open, toggle: doToggle }"></slot>
 
       <chevron-up-icon v-if="open" class="w-4 h-4" />
       <chevron-down-icon v-else class="h-4 w-4" />
-    </summary>
+    </div>
+
     <ul
       ref="items"
       tabindex="0"
       class="dropdown-content z-[1] menu p-2 shadow-md bg-base-100 rounded-btn w-full m-0 mt-1 gap-2 max-h-64 overflow-auto flex-nowrap"
-      @click="doToggle(false)"
+      v-if="open || force"
     >
-      <slot name="items" v-bind="{ items, value: modelValue }"></slot>
-      <slot name="empty" v-if="!items?.length">No options available.</slot>
+      <li v-if="processing" class="disabled">
+        <span>
+          <span class="loading loading-sm loading-dots"></span>
+        </span>
+      </li>
+
+      <slot
+        name="items"
+        v-if="!processing && items?.length"
+        v-bind="{ items, value: modelValue, open, toggle: doToggle }"
+      ></slot>
+      <slot name="empty" v-if="!processing && !items?.length"
+        >No options available.</slot
+      >
 
       <slot name="append"></slot>
     </ul>
-  </details>
+  </div>
 </template>
 
 <script lang="ts">

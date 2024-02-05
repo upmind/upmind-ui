@@ -21,10 +21,7 @@
         <span class="flex items-center w-full">
           {{ item?.title || item.id }}
 
-          <sub
-            v-if="loading || processing"
-            class="loading loading-dots loading-xs"
-          ></sub>
+          <sub v-if="loading" class="loading loading-dots loading-xs"></sub>
 
           <span role="button" class="ml-2" v-if="item.default">
             <star-icon class="w-4 h-4 cursor-pointer text-primary" />

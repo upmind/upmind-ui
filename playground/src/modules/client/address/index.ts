@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, isEmpty, map, compact, find } from "lodash-es";
+import { get, isEmpty, map, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -110,6 +110,6 @@ export const useClientAddresses = () => {
     },
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    filter: data => send({ type: "FILTER", data })
+    filter: debounce(data => send({ type: "FILTER", data }), 300)
   };
 };
