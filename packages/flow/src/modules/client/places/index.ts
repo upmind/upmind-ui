@@ -31,6 +31,9 @@ export const usePlaces = () => {
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getSelected: () => state?.context?.selected,
-    getDefault: () => null // we have no default in this machine
+    getDefault: () => null, // we have no default in this machine,
+    getPlaceDetails: id =>
+      services.parse(state?.context, { data: { place: id } }),
+    reset: () => service.send("REFRESH")
   };
 };

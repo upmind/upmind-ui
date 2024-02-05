@@ -25,8 +25,6 @@ export const useSchema = ({
     places: places().getItems()
   };
 
-  console.log("useSchema", { choices });
-
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -174,7 +172,8 @@ export const useUischema = () => {
         scope: "#/properties/place",
         options: {
           autocomplete: "off",
-          placeholder: "Select a place ..."
+          placeholder: "Select a place ...",
+          noAdd: true
         }
       },
       // ---

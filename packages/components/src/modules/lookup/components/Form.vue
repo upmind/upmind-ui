@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="meta.canAdd"
     tabindex="0"
     ref="form"
     class="card card-bordered card-compact bg-base-100"
@@ -23,6 +24,7 @@
       />
     </div>
   </div>
+  <div v-else>Cannot Add item to list</div>
 </template>
 
 <script lang="ts">

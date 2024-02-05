@@ -15,6 +15,7 @@
       :model-value="control.data"
       :disabled="!control.enabled"
       :title="appliedOptions.title"
+      :no-add="appliedOptions.noAdd"
       @change="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"
