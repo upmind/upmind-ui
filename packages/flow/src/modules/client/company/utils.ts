@@ -151,8 +151,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
         scope: "#/properties/phone_id",
         options: {
           autocomplete: "country",
-          placeholder: "Please select a Phone Number  ...",
-          noAdd: true
+          placeholder: "Please select a Phone Number  ..."
         }
       }
       // ---
