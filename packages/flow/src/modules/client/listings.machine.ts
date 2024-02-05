@@ -29,7 +29,7 @@ export default createMachine(
     },
     states: {
       loading: {
-        entry: ["clearError", "clearItems", "clearSelected"],
+        entry: ["clearError", "clearItems"],
         invoke: {
           src: "load",
           onDone: [
@@ -150,7 +150,7 @@ export default createMachine(
       }),
       // --------------------------------------------
 
-      clear: assign({
+      clearItems: assign({
         raw: ({ raw }, _event) => {
           forEach(
             raw,

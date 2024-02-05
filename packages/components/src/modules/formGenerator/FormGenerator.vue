@@ -6,7 +6,7 @@
     @submit.prevent="doSubmit"
   >
     <div
-      class="flex justify-center items-start"
+      class="flex justify-center items-start absolute top-0 left-0 right-0"
       v-if="meta.isLoading || meta.isProcessing"
     >
       <span class="loading loading-dots"></span>
@@ -66,7 +66,7 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import { defineComponent, ref, unref, toRaw } from "vue";
+import { defineComponent, unref, toRaw } from "vue";
 
 import { utils } from "@upmind/flow";
 import UpmDebug from "../debug/Debug.vue";
@@ -83,7 +83,7 @@ import type { ErrorObject } from "ajv";
 
 import { defaultStyles, mergeStyles, daisyRenderers } from "./renderers/daisy";
 
-import { trim, isEmpty, isEqual, isObject, isArray } from "lodash-es";
+import { isEmpty, isEqual, isObject, isArray } from "lodash-es";
 
 // a custom isEmpty that can handle deeply nested objects
 function isDeepEmpty(value: any): boolean {
@@ -180,7 +180,6 @@ export default defineComponent({
 
     // -------
     return {
-      trim,
       // -------
       ajv,
       renderers: Object.freeze([...daisyRenderers]),

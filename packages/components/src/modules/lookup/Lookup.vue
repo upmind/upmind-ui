@@ -20,12 +20,14 @@
           @focus="doOpen(toggle)"
           class="w-full"
           :placeholder="placeholder"
-          :value="meta.isFiltered ? filters : title || value"
-          @blur="filter($event.currentTarget.value)"
+          :value="
+            meta.isFiltered || meta.isProcessing ? filters : title || value
+          "
+          @input="filter($event.currentTarget.value)"
         />
       </template>
 
-      <template #items="{ items, value }">
+      <template #items="{ items, value, toggle }">
         <upm-item
           v-for="item in items"
           :key="item.id"
@@ -34,7 +36,7 @@
           :disabled="disabled || meta.isEditing || processing"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
-          @select="doSelect"
+          @select="doSelect($event, toggle)"
           @edit="edit"
           :class="[
             meta.isEditing || processing
@@ -57,9 +59,9 @@
 
     <upm-form
       class="shadow border border-neutral col-span-full mt-2"
-      :item="selected"
+      :item="selectedActor"
       v-if="meta.isEditing && selected"
-      :key="selected.id"
+      :key="selected"
       @refresh="refresh"
     ></upm-form>
   </fieldset>
@@ -127,6 +129,7 @@ export default defineComponent({
       filter,
       filters,
       selected,
+      selectedActor,
       value,
       title,
       description
@@ -144,6 +147,7 @@ export default defineComponent({
     return {
       items,
       selected,
+      selectedActor,
       value,
       title,
       description,
@@ -184,10 +188,11 @@ export default defineComponent({
       this.$emit("blur", event);
     },
 
-    doSelect(event: Event) {
+    doSelect(event: Event, callback) {
       this.$emit("update:modelValue", event?.currentTarget?.value);
       this.$emit("change", event);
       this.select(event?.currentTarget?.value);
+      if (callback) callback(false);
     }
   }
 });

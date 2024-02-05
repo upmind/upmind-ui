@@ -9,8 +9,6 @@
     ]"
   >
     <div class="card-body">
-      <h3 class="text-center">{{ model?.name }}</h3>
-
       <template v-if="meta.hasAutocomplete && !meta.isLoading && meta.isNew">
         <upm-form-generator
           tabindex="0"

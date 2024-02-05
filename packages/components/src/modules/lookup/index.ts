@@ -9,7 +9,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 
 // --- utils
-import { map, get, pick } from "lodash-es";
+import { map, get, pick, debounce } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 
@@ -42,6 +42,15 @@ export function useLookup(lookup) {
       )
     ),
     selected: computed(() => state.value.context?.selected?.id),
+    selectedActor: computed(() => {
+      if (state.value.context?.selected) {
+        return {
+          id: state.value.context?.selected.id,
+          ...useActor(state.value.context?.selected)
+        };
+      }
+      return null;
+    }),
     filters: computed(() => state.value.context?.filters),
     value: computed(() => {
       const selected = maybeActor(state.value.context?.selected);
@@ -67,13 +76,15 @@ export function useLookup(lookup) {
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
     refresh: () => send({ type: "REFRESH" }),
-    filter: data => send({ type: "FILTER", data })
+
+    filter: debounce(data => send({ type: "FILTER", data }), 600)
+    // filter: data => send({ type: "FILTER", data })
   };
 }
 
 export function useLookupItem({ item }, { emit }) {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
-  // TODO: spawn an actor base don the item id!
+
   const { state, send } = item;
 
   // --------------------------------------------------------
