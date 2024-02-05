@@ -9,7 +9,6 @@
         class="input input-bordered col-span-full"
         @input="filter($event?.currentTarget?.value)"
         placeholder="Filter by..."
-        :value="filters"
         v-if="!meta.isEditing"
       />
 
