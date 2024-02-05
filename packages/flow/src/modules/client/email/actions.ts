@@ -30,13 +30,15 @@ export const ListingActions = {
 };
 
 export const ItemActions = {
-  setSchemas: assign({
-    schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
-    uischema: (context: EmailContext, _event: EmailEvent) =>
-      useUischema(context),
+  setMeta: assign({
     title: ({ model }: EmailContext, _event: EmailEvent) => model?.email,
     description: ({ model }: EmailContext, _event: EmailEvent) =>
       model?.verified ? "Verified" : "Unverified"
+  }),
+  setSchemas: assign({
+    schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
+    uischema: (context: EmailContext, _event: EmailEvent) =>
+      useUischema(context)
   }),
 
   setModel: assign({

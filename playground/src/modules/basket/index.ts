@@ -39,10 +39,16 @@ export const useBasket = () => {
       send({ type: "UPDATE.FIELDS" });
     },
 
-    setBillingDetails: values =>
+    setBillingAddress: value =>
       send({
         type: "UPDATE.BILLING",
-        data: { address_id: values, company_id: null }
+        data: { address_id: value, company_id: null }
+      }),
+
+    setBillingCompany: value =>
+      send({
+        type: "UPDATE.BILLING",
+        data: { address_id: null, company_id: value }
       }),
 
     updateCurrency: currency =>

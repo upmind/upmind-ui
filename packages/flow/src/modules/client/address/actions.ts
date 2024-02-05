@@ -32,11 +32,7 @@ export const ListingActions = {
 };
 
 export const ItemActions = {
-  setSchemas: assign({
-    schema: (context: AddressContext, _event: AddressEvent) =>
-      useSchema(context),
-    uischema: (context: AddressContext, _event: AddressEvent) =>
-      useUischema(context),
+  setMeta: assign({
     title: ({ model }: AddressContext, _event: AddressEvent) =>
       model?.name || "New Address",
     description: (
@@ -55,6 +51,13 @@ export const ItemActions = {
         get(country, "name")
       ]).join(", ");
     }
+  }),
+
+  setSchemas: assign({
+    schema: (context: AddressContext, _event: AddressEvent) =>
+      useSchema(context),
+    uischema: (context: AddressContext, _event: AddressEvent) =>
+      useUischema(context)
   }),
 
   setModel: assign({

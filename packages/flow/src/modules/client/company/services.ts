@@ -61,15 +61,15 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
   // lets wait for them to be ready and loaded before we continue
   const addressesReady = waitFor(
     addresses.service,
-    state => !state.matches("loading")
+    state => !["loading", "processing"].some(state.matches)
   );
   const phonesReady = waitFor(
     phones.service,
-    state => !state.matches("loading")
+    state => !["loading", "processing"].some(state.matches)
   );
   const emailsReady = waitFor(
     emails.service,
-    state => !state.matches("loading")
+    state => !["loading", "processing"].some(state.matches)
   );
 
   return Promise.all([addressesReady, phonesReady, emailsReady]).then(() => ({

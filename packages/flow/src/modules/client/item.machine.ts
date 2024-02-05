@@ -32,13 +32,13 @@ export default createMachine(
     } as ClientItemContext,
     states: {
       loading: {
-        entry: ["clearError"],
+        entry: ["clearError", "setMeta"],
 
         invoke: {
           src: "loadLookups",
           onDone: {
             target: "checking",
-            actions: ["setContext", "setSchemas"]
+            actions: ["setContext", "setSchemas", "setMeta"]
           },
           onError: {
             target: "error",
@@ -58,7 +58,7 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas"]
+                actions: ["setContext", "setSchemas", "setMeta"]
               }
             }
           },
@@ -229,6 +229,10 @@ export default createMachine(
       ),
 
       setSchemas: assign({
+        //  should be provided withConfig
+      }),
+
+      setMeta: assign({
         //  should be provided withConfig
       }),
 
