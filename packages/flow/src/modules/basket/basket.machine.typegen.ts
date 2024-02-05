@@ -269,7 +269,8 @@ export interface Typegen0 {
     hasPromotions: "";
     isNotLoading: "";
     isNotQueued: "UPDATE";
-    notSameBilling: "UPDATE.BILLING";
+    notSameAddress: "UPDATE.ADDRESS";
+    notSameCompany: "UPDATE.COMPANY";
     notSameCurrency: "UPDATE.CURRENCY";
     someConfiguring: "";
   };
@@ -294,7 +295,7 @@ export interface Typegen0 {
       | "done.invoke.generating:invocation[0]";
     removeItem: "REMOVE";
     removePromotion: "REMOVE.PROMOTION";
-    setBilling: "UPDATE.BILLING";
+    setBilling: "UPDATE.ADDRESS" | "UPDATE.COMPANY";
     setCurrency: "UPDATE.CURRENCY";
     setFields: "UPDATE.FIELDS";
     update: "CLEAR" | "REMOVE" | "UPDATE";
@@ -304,7 +305,6 @@ export interface Typegen0 {
   matchesStates:
     | "checkout"
     | "checkout.payment"
-    | "checkout.shipping"
     | "claiming"
     | "complete"
     | "error"
@@ -345,6 +345,7 @@ export interface Typegen0 {
     | "shopping.items.processing.everything"
     | "shopping.items.processing.removing"
     | "shopping.items.processing.updating"
+    | "shopping.payment_details"
     | "shopping.promotions"
     | "shopping.promotions.active"
     | "shopping.promotions.adding"
@@ -353,7 +354,7 @@ export interface Typegen0 {
     | "shopping.promotions.removing"
     | "subscribing"
     | {
-        checkout?: "payment" | "shipping";
+        checkout?: "payment";
         loading?: "basket" | "items";
         shopping?:
           | "billing"
@@ -361,6 +362,7 @@ export interface Typegen0 {
           | "currency"
           | "custom_fields"
           | "items"
+          | "payment_details"
           | "promotions"
           | {
               billing?: "complete" | "empty" | "error" | "processing";

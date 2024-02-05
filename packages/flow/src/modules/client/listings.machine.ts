@@ -171,8 +171,7 @@ export default createMachine(
         selected: (
           { raw, initial }: ClientListingsContext,
           _event: ClientListingsEvents
-        ) =>
-          find(raw, ["id", initial]) || find(raw, "state.context.model.default")
+        ) => find(raw, ["id", initial]) //|| find(raw, "state.context.model.default")
       }),
 
       setSelected: assign({
@@ -182,7 +181,7 @@ export default createMachine(
         selected: (
           { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
-        ) => find(raw, ["id", data]) || find(raw, "state.context.model.default")
+        ) => find(raw, ["id", data]) // || find(raw, "state.context.model.default")
       }),
 
       setSelectedNew: assign({

@@ -5,8 +5,8 @@
     >
       <div class="flex-1 flex gap-4 justify-between">
         <h2 class="title m-0">My Companies</h2>
-        <span class="badge badge-primary" v-if="selectedId">{{
-          selectedId
+        <span class="badge badge-primary" v-if="selected">{{
+          selected.id
         }}</span>
       </div>
 
@@ -16,7 +16,7 @@
     </header>
 
     <div :data-theme="activeTheme" class="bg-base-200 rounded-box my-8 p-4">
-      <upm-listings class="" @update:model-value="selectedId = $event" />
+      <upm-listings class="" @update:model-value="selected = $event" />
     </div>
   </section>
 </template>
@@ -28,5 +28,5 @@ import UpmListings from "../components/Listings.vue";
 
 const activeTheme = inject("activeTheme");
 
-const selectedId = ref(null);
+const selected = ref(null);
 </script>

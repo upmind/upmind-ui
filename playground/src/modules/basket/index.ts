@@ -1,12 +1,12 @@
 // --- external
-import { computed } from "vue";
+import { computed, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useBasket as useUpmindBasket, useBrand } from "@upmind/flow";
 
 // --- utils
-import { isEmpty, map, some } from "lodash-es";
+import { map, some } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -39,17 +39,21 @@ export const useBasket = () => {
       send({ type: "UPDATE.FIELDS" });
     },
 
-    setBillingAddress: value =>
+    setBillingAddress: value => {
       send({
-        type: "UPDATE.BILLING",
-        data: { address_id: value, company_id: null }
-      }),
+        type: "UPDATE.ADDRESS",
+        data: { address_id: value?.id, company_id: null }
+      });
+    },
 
-    setBillingCompany: value =>
+    setBillingCompany: value => {
+      const state = unref(value.state);
+      const address_id = state?.context?.model.address_id;
       send({
-        type: "UPDATE.BILLING",
-        data: { address_id: null, company_id: value }
-      }),
+        type: "UPDATE.COMPANY",
+        data: { address_id, company_id: value.id }
+      });
+    },
 
     updateCurrency: currency =>
       send({ type: "UPDATE.CURRENCY", data: currency }),
