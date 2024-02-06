@@ -106,8 +106,7 @@ export default createMachine(
 
       SELECT: {
         actions: ["setSelected"],
-        target: "available",
-        cond: "isSelectable"
+        target: "available"
       },
 
       FILTER: [{ target: "filtering", actions: ["setFilters"] }],
@@ -215,7 +214,6 @@ export default createMachine(
       isNotProcessing: ({ raw }) => {
         return every(raw, item => !item?.state?.matches("loading"));
       },
-      isSelectable: ({ raw }, { data }) => true, // todo checkthe model for any reason to not be selectable
       hasItems: ({ raw }) => !isEmpty(raw),
       hasNoItems: ({ raw }) => isEmpty(raw),
       hasFilteredItems: ({ items }) => !isEmpty(items),

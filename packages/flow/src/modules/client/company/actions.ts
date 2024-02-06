@@ -40,7 +40,7 @@ export const ItemActions = {
       let address = null;
       if (addresses) {
         const addressService = addresses();
-        address = addressService?.getSelected();
+        address = addressService?.getItem(model.address_id);
       }
       return compact([
         // get(address, "state.context.title"),

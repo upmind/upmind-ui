@@ -32,6 +32,7 @@ export const useClientPhones = () => {
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getSelected: () => state?.context?.selected,
+    getItem: id => find(state?.context?.items, ["id", id]),
     getDefault: () => find(state?.context?.items, "state.context.model.default")
   };
 };
