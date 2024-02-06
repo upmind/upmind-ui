@@ -109,7 +109,7 @@ export default defineComponent({
     watch(selected, (newValue, oldValue) => {
       if (
         !isEqual(newValue?.id, oldValue?.id) &&
-        !isEqual(newValue.id, props.modelValue)
+        !isEqual(newValue?.id, props.modelValue)
       ) {
         emit("update:modelValue", newValue);
       }

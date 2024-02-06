@@ -49,7 +49,7 @@
 
           <div class="stats w-full bg-base-200">
             <div
-              class="stat address-items-center"
+              class="stat place-items-center"
               v-for="product in products"
               :key="product.value"
             >

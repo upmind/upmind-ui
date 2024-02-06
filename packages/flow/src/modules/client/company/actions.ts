@@ -38,7 +38,7 @@ export const ItemActions = {
       _event: CompanyEvent
     ) => {
       let address = null;
-      if (addresses) {
+      if (addresses && model?.address_id) {
         const addressService = addresses();
         address = addressService?.getItem(model.address_id);
       }
