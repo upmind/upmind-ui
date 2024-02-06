@@ -1,8 +1,6 @@
 <template>
   <section class="basket w-full">
-    <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
-    >
+    <header class="navbar bg-base-100 shadow-md relative z-20 pl-4 rounded-box">
       <div class="flex-1">
         <h2 class="title m-0">
           Basket
@@ -96,7 +94,7 @@
 
     <!-- breadcrumbs -->
     <div
-      class="steps steps-horizontal w-full navbar bg-base-100 shadow-md sticky top-0 rounded-box mt-4 p-4 z-50 text-base-content"
+      class="steps steps-horizontal w-full navbar bg-base-100 shadow-md sticky top-0 rounded-box mt-4 p-4 z-10 text-base-content"
       v-if="meta.hasProducts && !meta.isLoading"
     >
       <router-link
