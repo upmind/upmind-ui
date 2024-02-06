@@ -26,7 +26,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@heroicons/vue": "^2.0.13",
+    "@heroicons/vue": "^2.1.1",
     "@jsonforms/core": "3.1.0",
     "@jsonforms/vue": "3.1.0",
     "@upmind/flow": "^0.0.0",
@@ -36,6 +36,7 @@
     "@xstate/vue": "^2.0.0",
     "ajv": "^8.6.1",
     "dompurify": "^3.0.0",
+    "flag-icons": "^7.1.0",
     "lodash-es": "^4.17.21",
     "marked": "^4.2.12",
     "vue": "^3.3.4"

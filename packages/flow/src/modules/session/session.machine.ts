@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendTo } = actions;
+const { sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
@@ -160,10 +160,12 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
-            type: "final",
-            on: {
-              SELF: { target: "processing" }
-            }
+            always: [
+              {
+                cond: "hasNoUser",
+                target: "processing"
+              }
+            ]
           },
           processing: {
             invoke: {
@@ -178,9 +180,8 @@ export default createMachine(
               }
             }
           },
-          error: {
-            after: { wait: "idle" }
-          }
+
+          error: {}
         },
         on: {
           LOGOUT: { target: "#clearing" },
@@ -256,13 +257,15 @@ export default createMachine(
     guards: {
       hasError: ({ error }) => !!error,
       hasNoError: ({ error }) => !error,
-
+      // ---
+      hasNoUser: ({ user }) => !user?.id,
       // ---
       isClientToken: (_context, { data }) => data?.type === "client"
     },
 
     delays: {
-      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT
     },
     services
   }

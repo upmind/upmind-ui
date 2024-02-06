@@ -1,6 +1,6 @@
 <template>
   <section class="forms w-full relative">
-    <header class="navbar absolute left-0 right-0 top-0 z-10 pl-4 rounded-xl">
+    <header class="navbar absolute left-0 right-0 top-0 z-10 pl-4 rounded-box">
       <div class="flex-1"></div>
 
       <div class="actions flex-none join"></div>
@@ -38,7 +38,7 @@
               class="flex p-4 gap-4 bg-transparent border-none indicator flex-grow justify-center items-center"
             >
               <template v-if="meta.isSyncing">
-                <span class="loading loading-dots loading-xs opacity-50"></span>
+                <span class="loading loading-dots loading-xs"></span>
               </template>
 
               <template v-else-if="!meta.hasValues">

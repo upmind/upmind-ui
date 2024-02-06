@@ -40,7 +40,17 @@ const router = createRouter({
     },
     // ---
     ...routes
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    // handle scroll to anchor on same page
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: "smooth",
+        top: 108
+      };
+    }
+  }
 });
 
 // -----------------------------------------------------

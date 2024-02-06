@@ -1,7 +1,8 @@
+// --- extrnal
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+
 // --------------------------------------------------------
 // ENUMS
-
-import type { A } from "vitest/dist/reporters-cb94c88b.js";
 
 // --------------------------------------------------------
 // Contexts
@@ -12,7 +13,7 @@ export interface BasketContext {
   bin: Array;
   queue: Array;
   custom_fields: Array;
-  fieldsModel: Object;
+  fieldsModel?: Object;
   fieldsSchema?: JsonSchema;
   fieldsUischema?: UISchemaElement;
   error?: RequestError;
@@ -95,10 +96,5 @@ export interface Basket {
 
 export interface BasketEvents {
   type: "CHECK" | "REFRESH";
-  payload?: any;
-}
-
-export interface FieldsEvents {
-  type: "INPUT" | "RESET";
   payload?: any;
 }

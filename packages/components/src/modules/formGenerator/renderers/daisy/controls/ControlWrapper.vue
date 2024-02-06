@@ -2,6 +2,7 @@
   <div v-if="visible" :id="id" :class="styles.control.root">
     <!-- label -->
     <label
+      v-if="computedLabel"
       :for="id + '-input'"
       :class="[
         styles.control.label.root,

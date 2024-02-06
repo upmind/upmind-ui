@@ -195,11 +195,7 @@ export const useFieldsModelParser = (data: any, values: any = {}) => {
 
   if (data?.length) {
     forEach(data, field => {
-      const value = get(
-        model,
-        `${field.code}`,
-        field?.value || field?.default || null
-      );
+      const value = get(model, `${field.code}`, field?.value || field?.default);
       set(model, field.code, value);
     });
   }

@@ -1,7 +1,7 @@
 <template>
   <section class="forms w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
     >
       <div class="flex-1">
         <h2 class="title m-0">Form Demo</h2>
@@ -14,13 +14,14 @@
 
     <p>This will render a JSON form that is generated from a JSON schema.</p>
 
-    <div :data-theme="activeTheme" class="bg-base-200 rounded-box p-4">
+    <div :data-theme="activeTheme" class="bg-base-200 rounded-box my-8">
       <upm-form-generator
         :schema="schema"
         :uischema="uischema"
         @reject="doReject"
         @resolve="doResolve"
         debugging
+        class="p-4 gap-8"
       />
     </div>
 
@@ -39,7 +40,7 @@ const schema = {
   required: ["name", "rating", "dueDate", "domain"],
   properties: {
     name: {
-      type: "string",
+      type: ["string", "null"],
       minLength: 1,
       title: "Task",
       description: "The task's name"
@@ -47,13 +48,13 @@ const schema = {
 
     description: {
       title: "Short Description",
-      type: "string",
+      type: ["string", "null"],
       maxLength: 100
     },
 
     note: {
       title: "Long Description/Details",
-      type: "string",
+      type: ["string", "null"],
       maxLength: 280
     },
 
@@ -66,14 +67,14 @@ const schema = {
     },
 
     domain: {
-      type: ["string", "array"],
+      type: ["string", "array", "null"],
       format: "domain_name",
       title: "Add A domain....",
       description: ""
     },
 
     dueDate: {
-      type: "string",
+      type: ["string", "null"],
       format: "date",
       description: "The task's due date",
       formatMaximum: useDate(),
@@ -81,7 +82,7 @@ const schema = {
     },
 
     recurrence: {
-      type: "string",
+      type: ["string", "null"],
       enum: ["Daily", "Weekly", "Monthly"]
     },
 

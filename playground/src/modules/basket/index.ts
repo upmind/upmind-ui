@@ -1,12 +1,12 @@
 // --- external
-import { computed } from "vue";
+import { computed, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useBasket as useUpmindBasket, useBrand } from "@upmind/flow";
 
 // --- utils
-import { isEmpty, map, some } from "lodash-es";
+import { map, some } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -37,6 +37,22 @@ export const useBasket = () => {
 
     updateFields: () => {
       send({ type: "UPDATE.FIELDS" });
+    },
+
+    setBillingAddress: value => {
+      send({
+        type: "UPDATE.ADDRESS",
+        data: { address_id: value?.id, company_id: null }
+      });
+    },
+
+    setBillingCompany: value => {
+      const state = unref(value.state);
+      const address_id = state?.context?.model.address_id;
+      send({
+        type: "UPDATE.COMPANY",
+        data: { address_id, company_id: value.id }
+      });
     },
 
     updateCurrency: currency =>
@@ -96,6 +112,8 @@ export const useBasket = () => {
         isProcessing: [
           "shopping.items.processing",
           "shopping.custom_fields.processing",
+          "shopping.billing.processing",
+          "shopping.currency.processing",
           "shopping.promotions.adding",
           "shopping.promotions.removing"
         ].some(state.value.matches),
@@ -108,23 +126,33 @@ export const useBasket = () => {
               (item.state.context.isNew || item.state.context.isDirty)
           ),
         // ---
+
         hasProducts: !["shopping.items.empty"].some(state.value.matches),
         hasPromotions:
           ["shopping.promotions.active"].some(state.value.matches) ||
           !!state.value?.context?.basket?.total_discount_amount,
         hasTaxes: !!state.value?.context?.basket?.taxes?.length, // TODO: check config for taxes
-        isAvailable: ["shopping"].some(state.value.matches),
-        isConfigured: ["shopping.items.configured"].some(state.value.matches),
+
         // ---
+        isAvailable: ["shopping"].some(state.value.matches),
+        isConfigured: ["shopping.items.complete"].some(state.value.matches),
+        hasBilling: ["shopping.billing.complete"].some(state.value.matches),
+        hasCurrency: ["shopping.currency.complete"].some(state.value.matches),
+        hasPaymentMethod: ["payment.complete"].some(state.value.matches),
         needsAuth: ["shopping.client.unauthenticated"].some(
           state.value.matches
         ),
-        needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
-        isReadyForCheckout: ["checkout"].some(state.value.matches),
-        hasFields: ![
+        hasFields: ["shopping.custom_fields.complete"].some(
+          state.value.matches
+        ),
+        needsFields: ![
           "shopping.custom_fields.loading",
           "shopping.custom_fields.complete"
         ].some(state.value.matches),
+
+        // ---
+        isReadyForCheckout: ["checkout"].some(state.value.matches),
+        needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
         hasErrors:
           [
             "shopping.items.processing.error",

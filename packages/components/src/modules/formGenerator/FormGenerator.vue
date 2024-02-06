@@ -1,12 +1,17 @@
 <template>
   <form
-    class="card align-center w-full max-w-screen-lg"
+    class="card w-full relative min-h-[3em]"
     v-bind="$attrs"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <div class="m-2" v-if="meta.isLoading">
-      <progress class="progress progress-primary w-full"></progress>
+    <div
+      class="flex justify-center items-start absolute top-0 left-0 right-0"
+      v-if="meta.isLoading || meta.isProcessing"
+    >
+      <span class="loading loading-dots"></span>
+
+      <!-- <progress class="progress w-full "></progress> -->
     </div>
 
     <json-forms
@@ -20,30 +25,32 @@
       :additionalErrors="additionalErrors"
       @change="onChange"
       class="card-content"
+      :class="{
+        'opacity-50 pointer-events-none': meta.isProcessing
+      }"
     />
 
     <!-- actions -->
-    <footer v-if="!noActions || meta.isLoading">
-      <div class="card-actions mt-4">
-        <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
-          <button
-            type="submit"
-            class="btn btn-accent"
-            :disabled="!meta.isValid || meta.isProcessing"
-          >
-            Save
-          </button>
 
-          <button
-            :disabled="meta.isProcessing"
-            class="btn btn-ghost"
-            @click="doReject"
-          >
-            Cancel
-          </button>
-        </slot>
-      </div>
-    </footer>
+    <div class="card-actions" v-if="!noActions && !meta.isLoading">
+      <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
+        <button
+          type="submit"
+          class="btn btn-accent"
+          :disabled="!meta.isValid || meta.isProcessing"
+        >
+          Save
+        </button>
+
+        <button
+          :disabled="meta.isProcessing"
+          class="btn btn-ghost"
+          @click="doReject"
+        >
+          Cancel
+        </button>
+      </slot>
+    </div>
   </form>
 
   <!-- debug -->
@@ -58,10 +65,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRaw, unref, type PropType } from "vue";
+import type { PropType } from "vue";
+import { defineComponent, unref, toRaw } from "vue";
 
-import { useValidation } from "./utils";
-
+import { utils } from "@upmind/flow";
 import UpmDebug from "../debug/Debug.vue";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
@@ -76,7 +83,7 @@ import type { ErrorObject } from "ajv";
 
 import { defaultStyles, mergeStyles, daisyRenderers } from "./renderers/daisy";
 
-import { trim, isEmpty, isEqual, isObject, isArray } from "lodash-es";
+import { isEmpty, isEqual, isObject, isArray } from "lodash-es";
 
 // a custom isEmpty that can handle deeply nested objects
 function isDeepEmpty(value: any): boolean {
@@ -111,8 +118,7 @@ export default defineComponent({
   inheritAttrs: true,
   props: {
     schema: {
-      type: Object as PropType<JsonSchema>,
-      required: true
+      type: Object as PropType<JsonSchema>
     },
     uischema: {
       type: Object as PropType<UISchemaElement>
@@ -167,14 +173,13 @@ export default defineComponent({
   setup(props) {
     // -------
 
-    const { ajv } = useValidation();
+    const { ajv } = utils.useValidation();
 
     // mergeStyles combines all classes from both styles definitions into one
     const formStyles = mergeStyles(defaultStyles, props.styles);
 
     // -------
     return {
-      trim,
       // -------
       ajv,
       renderers: Object.freeze([...daisyRenderers]),
@@ -186,6 +191,7 @@ export default defineComponent({
     errors: [],
     isDirty: false
   }),
+
   computed: {
     meta() {
       return {
@@ -215,7 +221,7 @@ export default defineComponent({
       const rawData = JSON.parse(JSON.stringify(data));
       const rawModel = JSON.parse(JSON.stringify(this.model));
 
-      if (!isEmpty(rawData) && !isEqual(rawData, rawModel)) {
+      if (!isEqual(rawData, rawModel)) {
         this.model = data;
         this.$emit("update:modelValue", this.model);
         this.isDirty = true;

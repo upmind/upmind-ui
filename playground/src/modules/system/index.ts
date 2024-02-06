@@ -6,6 +6,7 @@ import { useActor } from "@xstate/vue";
 import { useSystem as useUpmindSystem } from "@upmind/flow";
 
 // --- utils
+import { omit, sample, get, isEmpty, filter, has } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -17,36 +18,113 @@ export const useSystem = () => {
 
   // --------------------------------------------------------
 
+  const getRandomCountry = (unique?: boolean) => {
+    const regions = get(state.value.context, "regions", {});
+    if (isEmpty(regions)) return; // lets se eif our fallback works
+
+    // otherwise we can just return a random country
+    let countries = get(state.value.context, "countries", {});
+
+    if (unique) {
+      // lets only return countries that have NOT yet got regions
+      countries = filter(countries, country => !has(regions, country.code));
+    }
+
+    if (isEmpty(countries)) return;
+
+    const country = sample(countries);
+    return country;
+  };
+
+  // --------------------------------------------------------
+
   return {
     send,
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
     errors: computed(() => state.value.context?.error),
+    responses: computed(() => omit(state.value.context, "error")),
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
       isLoading: [
-        "organisation.loading",
-        "config.loading",
-        "settings.loading",
-        "modules.loading",
-        "currencies.loading"
+        "currencies.loading",
+        "billingCycles.loading",
+        "countries.loading",
+        "regions.loading",
+        "languages.loading",
+        "statuses.loading",
+        "departments.loading"
       ].some(state.value.matches),
-      isReady: [
-        "organisation.complete",
-        "config.complete",
-        "settings.complete",
-        "modules.complete",
-        "currencies.complete"
-      ].every(state.value.matches),
+      isReady:
+        ["currencies.complete", "billingCycles.complete"].every(
+          state.value.matches
+        ) &&
+        [
+          "countries.idle",
+          "regions.idle",
+          "languages.idle",
+          "statuses.idle",
+          "departments.idle",
 
+          "countries.complete",
+          "regions.complete",
+          "languages.complete",
+          "statuses.complete",
+          "departments.complete"
+        ].some(state.value.matches),
+      isComplete: [
+        "currencies.complete",
+        "billingCycles.complete",
+        "countries.complete",
+        "regions.complete",
+        "languages.complete",
+        "statuses.complete",
+        "departments.complete"
+      ].every(state.value.matches),
       hasErrors: [
         "organisation.error",
         "config.error",
         "settings.error",
         "modules.error",
-        "currencies.error"
+        "currencies.error",
+        "countries.error",
+        "regions.error",
+        "languages.error",
+        "statuses.error",
+        "departments.error"
       ].some(state.value.matches)
-    }))
+    })),
+    // ---?
+    fetch: async (key: string, value?: any) => {
+      let values;
+
+      switch (key) {
+        case "countries":
+          values = await system.fetchCountries();
+          break;
+
+        case "regions":
+          // regions are different as they require a country object
+          // and we may need to fetch it from the api,
+          if (isEmpty(value)) value = getRandomCountry();
+          values = await system.fetchRegions(value);
+          break;
+
+        case "languages":
+          values = await system.fetchLanguages();
+          break;
+
+        case "statuses":
+          values = await system.fetchStatuses();
+          break;
+
+        case "departments":
+          values = await system.fetchDepartments();
+          break;
+      }
+
+      return values;
+    }
   };
 };

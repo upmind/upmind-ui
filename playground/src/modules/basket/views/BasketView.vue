@@ -1,7 +1,7 @@
 <template>
   <section class="basket w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-xl"
+      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
     >
       <div class="flex-1">
         <h2 class="title m-0">
@@ -34,7 +34,7 @@
       </div>
 
       <div class="actions flex-none join justify-end">
-        <currency-switcher
+        <upm-currency
           v-if="currency"
           :model-value="currency"
           :currencies="currencies"
@@ -42,7 +42,7 @@
           @update:modelValue="updateCurrency"
           class="mx-4"
         >
-        </currency-switcher>
+        </upm-currency>
         <slot name="actions">
           <form @submit.prevent="addProduct(model)">
             <fieldset>
@@ -94,146 +94,313 @@
       </div>
     </header>
 
+    <!-- breadcrumbs -->
     <div
-      class="content px-4 rounded-box my-4"
-      v-if="!meta.isLoading"
+      class="steps steps-horizontal w-full navbar bg-base-100 shadow-md sticky top-0 rounded-box mt-4 p-4 z-50 text-base-content"
+      v-if="meta.hasProducts && !meta.isLoading"
+    >
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.isConfigured ? 'step-primary' : ''"
+        :data-content="meta.isConfigured ? '✓' : '?'"
+        :to="{ hash: '#items' }"
+      >
+        Basket Items
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.hasFields ? 'step-primary' : ''"
+        :data-content="meta.hasFields ? '✓' : '?'"
+        :to="{ hash: '#fields' }"
+      >
+        Order Fields
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="!meta.needsAuth ? 'step-primary' : ''"
+        :data-content="!meta.needsAuth ? '✓' : '?'"
+        :to="{ hash: '#account' }"
+      >
+        Account
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.hasBilling ? 'step-primary' : ''"
+        :data-content="meta.hasBilling ? '✓' : '?'"
+        :to="{ hash: '#billing' }"
+      >
+        Billing Details
+      </router-link>
+
+      <router-link
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.hasPaymentMethod ? 'step-primary' : ''"
+        :data-content="meta.hasPaymentMethod ? '✓' : '?'"
+        :to="{ hash: '#payment' }"
+      >
+        Payment
+      </router-link>
+
+      <div
+        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
+        :class="meta.isReadyForCheckout ? 'step-primary' : ''"
+        :data-content="meta.isReadyForCheckout ? '✓' : '?'"
+      >
+        Complete
+      </div>
+    </div>
+
+    <div
+      class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
+      v-if="!meta.isLoading && meta.hasProducts"
       :data-theme="activeTheme"
     >
-      <!-- <ul class="steps">
-        <li class="step step-primary" data-content="?">Configure</li>
-        <li class="step" data-content="★">Auth</li>
-        <li class="step" data-content="$">Checkout</li>
-        <li class="step" data-content="✓">Complete</li>
-      </ul> -->
-
-      <section class="basket grid grid-cols-7 gap-8 py-4">
-        <div class="cards col-span-5 list-none grid grid-cols-2 gap-4">
-          <upm-product
-            v-for="item in items"
-            :key="item.id"
-            :item="item"
-            :id="item.id"
-            :processing="meta.isProcessing"
-            @remove="removeItem"
-            @update:term="updateTerm"
-            @update:quantity="updateQuantity"
-            @update:attributes="updateAttributes"
-            @update:options="updateOptions"
-            @update:provisioning="updateProvisioning"
-            :debugging="debugging"
-          >
-            <template #actions="{ isConfigured, isNew, isDirty }">
-              <button
-                v-if="isConfigured && (isNew || isDirty)"
-                class="btn btn-primary btn-sm btn-block mt-4"
-                :disabled="meta.isProcessing"
-                @click.prevent="updateItem(item.id)"
-              >
-                Update Item
-              </button>
-            </template>
-          </upm-product>
+      <!-- items -->
+      <section
+        id="items"
+        class="items col-span-5 order-0 grid grid-cols-card gap-4 items-start"
+      >
+        <div class="col-span-full divider uppercase text-xs opacity-50">
+          Basket Items
         </div>
 
-        <aside class="col-span-2 self-start sticky top-20" v-if="items?.length">
-          <!-- Summary -->
-          <div
-            class="basket-summary bg-primary-content text-primary border border-base-300 rounded-xl px-4 text-center"
-          >
-            <!-- Items -->
-            <div>
-              <div class="divider mt-4 uppercase text-xs opacity-75">
-                Product{{ items.length > 1 ? "s" : "" }}
-              </div>
-
-              <h2 class="text-primary mt-0">{{ items.length }}</h2>
-            </div>
-
-            <!-- Promotions -->
-            <div v-if="meta.hasPromotions">
-              <div class="divider mt-4 uppercase text-xs">Discount</div>
-              <h2 class="text-primary mt-0">{{ summary?.discount }}</h2>
-            </div>
-
-            <!-- Subtotal -->
-            <div>
-              <div class="divider mt-4 uppercase text-xs opacity-75">
-                SubTotal
-              </div>
-              <h2 class="text-inherit mt-0">
-                {{ summary.subtotal }}
-              </h2>
-            </div>
-
-            <!-- Taxes -->
-            <div v-if="meta.hasTaxes">
-              <div class="divider mt-4 uppercase text-xs opacity-75">Taxes</div>
-              <h2 class="text-inherit mt-0">{{ summary.taxes }}</h2>
-            </div>
-
-            <!-- Total -->
-            <div>
-              <div class="divider mt-4 uppercase opacity-75">Total</div>
-              <h1 class="text-inherit text-3xl">
-                {{ summary?.total }}
-              </h1>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="actions p-4">
+        <upm-product
+          v-for="item in items"
+          :key="item.id"
+          :item="item"
+          :id="item.id"
+          :processing="meta.isProcessing"
+          @remove="removeItem"
+          @update:term="updateTerm"
+          @update:quantity="updateQuantity"
+          @update:attributes="updateAttributes"
+          @update:options="updateOptions"
+          @update:provisioning="updateProvisioning"
+        >
+          <template #actions="{ isConfigured, isNew, isDirty }">
             <button
-              class="btn btn-block btn-primary mb-2"
-              v-if="meta.canProcess"
+              v-if="isConfigured && (isNew || isDirty)"
+              class="btn btn-primary btn-sm btn-block mt-4"
               :disabled="meta.isProcessing"
-              @click.prevent="updateBasket"
+              @click.prevent="updateItem(item.id)"
             >
-              Update basket
+              Update Item
             </button>
-
-            <button
-              class="btn btn-link btn-block btn-xs"
-              type="reset"
-              :disabled="meta.isProcessing"
-              @click.prevent="clearBasket"
-            >
-              Clear Basket
-            </button>
-          </div>
-
-          <!-- Promotions -->
-          <upm-promotions
-            :promotions="promotions"
-            :processing="meta.isProcessing"
-            :additionalErrors="errors?.data"
-            @resolve="addPromotion"
-            @reject="removePromotion"
-          ></upm-promotions>
-        </aside>
+          </template>
+        </upm-product>
       </section>
 
+      <!-- fields -->
       <section
-        class="basket-fields pb-8"
-        v-if="meta.hasFields && items?.length"
+        id="fields"
+        class="fields col-span-5 order-2"
+        :class="{ disabled: meta.needsAuth }"
+        :disabled="meta.needsAuth"
+        v-if="meta.needsFields || meta.hasFields"
       >
-        <div class="divider"></div>
+        <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
-        <basket-fields
+        <upm-basket-fields
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           :model-value="fieldsModel"
+          :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :additionalErrors="errors?.data"
           @resolve="updateFields"
           @update:modelValue="setFields"
           @reject="clearFields"
-        ></basket-fields>
+        ></upm-basket-fields>
       </section>
+
+      <!-- account -->
+      <section id="account" class="account col-span-5 order-2">
+        <div class="divider uppercase text-xs opacity-50">Account</div>
+
+        <upm-auth class="my-8 p-0" v-if="meta.needsAuth"></upm-auth>
+
+        <upm-profile class="my-8 p-0" v-else></upm-profile>
+      </section>
+
+      <!-- billing -->
+      <section
+        id="billing"
+        class="billing col-span-5 order-2"
+        :class="{ disabled: meta.needsAuth }"
+        :disabled="meta.needsAuth"
+      >
+        <div class="divider uppercase text-xs opacity-50">Billing Details</div>
+
+        <div role="tablist" class="tabs tabs-lg tabs-lifted my-8">
+          <input
+            type="radio"
+            name="billing_details"
+            role="tab"
+            class="tab"
+            :class="{
+              'text-primary': !basket?.company_id && basket?.address_id
+            }"
+            :aria-label="`My Addresses ${!basket?.company_id && basket?.address_id ? ' ✓ ' : ''}`"
+            :checked="!basket?.company_id && basket?.address_id"
+          />
+          <div
+            role="tabpanel"
+            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
+          >
+            <upm-addresses
+              v-if="!meta.needsAuth"
+              class="p-0"
+              :key="basket?.address_id"
+              :processing="meta.isProcessing"
+              :model-value="!basket?.company_id ? basket?.address_id : null"
+              @update:model-value="setBillingAddress"
+              :checked="!basket?.company_id || false"
+            />
+          </div>
+
+          <input
+            type="radio"
+            name="billing_details"
+            role="tab"
+            class="tab"
+            :class="{
+              'text-primary': !!basket?.company_id
+            }"
+            :aria-label="`My Companies ${!!basket?.company_id ? ' ✓ ' : ''}`"
+            :checked="!!basket?.company_id"
+          />
+
+          <div
+            role="tabpanel"
+            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
+          >
+            <upm-companies
+              v-if="!meta.needsAuth"
+              class="p-0"
+              :key="basket?.company_id"
+              :processing="meta.isProcessing"
+              :model-value="basket?.company_id"
+              @update:model-value="setBillingCompany"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- payment -->
+      <section
+        id="payment"
+        class="payment col-span-5 order-2"
+        :class="{ disabled: meta.needsAuth }"
+        :disabled="meta.needsAuth"
+      >
+        <div class="divider uppercase text-xs opacity-50">Payment Methods</div>
+      </section>
+
+      <!-- summary -->
+      <aside
+        id="summary"
+        class="summary col-span-2 row-span-10 flex flex-col gap-8 order-1 self-start sticky top-32"
+      >
+        <!-- Promotions -->
+        <upm-promotions
+          :promotions="promotions"
+          :loading="meta.isLoading"
+          :processing="meta.isProcessing"
+          :additionalErrors="errors?.data"
+          @resolve="addPromotion"
+          @reject="removePromotion"
+        ></upm-promotions>
+
+        <!-- Summary -->
+        <div
+          class="basket-summary flex flex-col bg-primary-content text-primary border border-base-300 rounded-box px-4 text-center"
+        >
+          <h3 class="text-inherit text-xl">Order Summary</h3>
+          <!-- Items -->
+          <div>
+            <div class="divider uppercase text-xs opacity-50">
+              Product{{ items.length > 1 ? "s" : "" }}
+            </div>
+
+            <h4 class="text-inherit mt-0">{{ items.length }}</h4>
+          </div>
+
+          <!-- Promotions -->
+          <div v-if="meta.hasPromotions">
+            <div class="divider uppercase text-xs opacity-50">Discount</div>
+            <h4 class="text-inherit mt-0">{{ summary?.discount }}</h4>
+          </div>
+
+          <!-- Subtotal -->
+          <div>
+            <div class="divider uppercase text-xs opacity-50">SubTotal</div>
+            <h4 class="text-inherit mt-0">
+              {{ summary.subtotal }}
+            </h4>
+          </div>
+
+          <!-- Taxes -->
+          <div v-if="meta.hasTaxes">
+            <div class="divider uppercase text-xs opacity-50">Taxes</div>
+            <h4 class="text-inherit mt-0">{{ summary.taxes }}</h4>
+          </div>
+
+          <!-- Total -->
+          <div>
+            <div class="divider text-xs uppercase opacity-50">Total</div>
+            <h3 class="text-inherit mt-0 text-3xl">
+              {{ summary?.total }}
+            </h3>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions flex flex-col gap-8 relative">
+          <button
+            class="btn btn-block btn-primary btn-outline"
+            v-if="meta.canProcess"
+            :disabled="meta.isProcessing"
+            @click.prevent="updateBasket"
+          >
+            Update basket
+          </button>
+
+          <button
+            class="btn btn-lg btn-block btn-primary"
+            :disabled="!meta.isReadyForCheckout || meta.isProcessing"
+          >
+            Address order and pay
+          </button>
+
+          <div class="flex flex-wrap justify-between">
+            <router-link
+              to="/"
+              class="btn btn-outline btn-xs btn-primary border-none"
+            >
+              <arrow-uturn-left-icon class="w-5 h-5"></arrow-uturn-left-icon>
+              Continue shopping
+            </router-link>
+
+            <button
+              class="btn btn-outline btn-xs btn-primary border-none"
+              type="reset"
+              :disabled="meta.isProcessing"
+              @click.prevent="clearBasket"
+            >
+              <trash-icon class="w-5 h-5"></trash-icon> Clear Basket
+            </button>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <footer>
       <upm-debug
         :debugging="debugging"
+        :open="{ state: true }"
         title="Basket"
         :state="state"
         :model="{ model }"
@@ -249,15 +416,20 @@
 <script setup lang="ts">
 import { ref, inject, onBeforeUnmount } from "vue";
 import { useBasket } from "..";
-import CurrencySwitcher from "../components/CurrencySwitcher.vue";
+import UpmCurrency from "../components/Currency.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
-import BasketFields from "../components/Fields.vue";
+import UpmBasketFields from "../components/Fields.vue";
+import UpmAuth from "../../session/components/Auth.vue";
+import UpmProfile from "../../session/components/Profile.vue";
+import UpmAddresses from "../../client/address/components/Listings.vue";
+import UpmCompanies from "../../client/company/components/Listings.vue";
+
 import { UpmDebug } from "@upmind/components";
 import {
   SquaresPlusIcon,
-  ShieldExclamationIcon,
-  XMarkIcon
+  ArrowUturnLeftIcon,
+  TrashIcon
 } from "@heroicons/vue/24/outline";
 
 const activeTheme = inject("activeTheme");
@@ -292,7 +464,9 @@ const {
   updateTerm,
   clearFields,
   setFields,
-  updateFields
+  updateFields,
+  setBillingAddress,
+  setBillingCompany
 } = useBasket();
 
 const productCatalogue = [
@@ -358,3 +532,4 @@ onBeforeUnmount(() => {
   updateFields();
 });
 </script>
+../../address/components/Addresses.vue

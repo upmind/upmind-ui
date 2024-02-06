@@ -13,7 +13,16 @@ import { useSession } from "../session";
 
 // --- utils
 import { parseData } from "./utils";
-import { set, get, unset, trimStart, forIn, keys, isString } from "lodash-es";
+import {
+  set,
+  get,
+  unset,
+  trimStart,
+  forIn,
+  keys,
+  isString,
+  defaultsDeep
+} from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the requests machine
@@ -40,15 +49,18 @@ export const useApi = () => {
   const useUrl = (
     path: string | URL["pathname"],
     params: Object = {},
-    prepend = "api"
+    instance?: { base?: string; context?: string }
   ) => {
-    // get base url from env
-    const base = import.meta.env.VITE_API_URL;
+    // ensure our instance has the correct defaults
+    instance = defaultsDeep(instance, {
+      base: import.meta.env.VITE_API_URL,
+      context: "api"
+    });
 
     // clean up path
-    path = [prepend, trimStart(path, "/")].join("/");
+    path = [instance.context, trimStart(path, "/")].join("/");
     // now we can create the url
-    const url = new URL(path, base);
+    const url = new URL(path, instance.base);
     // and add any params
     forIn(params, (value, key) => url.searchParams.set(key, value));
 
@@ -68,7 +80,8 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = false,
-    maxAge = null
+    maxAge = null,
+    refresh = false
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -102,7 +115,7 @@ export const useApi = () => {
     // first we trigger the request
     service.send({
       type: "ADD",
-      data: { hash, url, init, useCache, maxAge }
+      data: { hash, url, init, useCache, maxAge, refresh }
     });
 
     // then we get the request from context
@@ -151,7 +164,8 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null
+    maxAge = null,
+    refresh = false
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -162,7 +176,7 @@ export const useApi = () => {
     // Enforce method & header
     set(init, "method", "GET");
 
-    return request({ url, init, withAccessToken, useCache, maxAge });
+    return request({ url, init, withAccessToken, useCache, maxAge, refresh });
   }
 
   /**
@@ -257,6 +271,32 @@ export const useApi = () => {
     return request({ url, init, withAccessToken });
   }
 
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * @async
+   * @function
+   * @param {RequestParams} params - The request parameters.
+   * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   */
+  async function headRequest({
+    url,
+    init,
+    withAccessToken,
+    useCache = true,
+    maxAge = null
+  }: RequestParams) {
+    // re-enable once we have locales
+    // url?.searchParams?.set("lang", activeLocale.value);
+
+    // safe guard
+    init ??= {};
+
+    // Enforce method & header
+    set(init, "method", "GET");
+    set(init, "mode", "no-cors");
+
+    return request({ url, init, withAccessToken, useCache, maxAge });
+  }
   // --------------------------------------------------------
 
   return {
@@ -271,6 +311,7 @@ export const useApi = () => {
     post: postRequest,
     put: putRequest,
     patch: patchRequest,
-    del: deleteRequest
+    del: deleteRequest,
+    head: headRequest
   };
 };

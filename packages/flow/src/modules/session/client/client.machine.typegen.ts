@@ -130,10 +130,7 @@ export interface Typegen0 {
       | "verifyReCaptcha";
   };
   eventsCausingActions: {
-    clearError:
-      | ""
-      | "done.invoke.client.authenticated.clearing:invocation[0]"
-      | "xstate.init";
+    clearError: "" | "xstate.init";
     clearToken:
       | "done.invoke.client.authenticated.clearing:invocation[0]"
       | "error.platform.loading:invocation[0]"
@@ -192,9 +189,7 @@ export interface Typegen0 {
     authenticate:
       | "AUTHENTICATE"
       | "done.invoke.client.unauthenticated.register.registering:invocation[0]";
-    check:
-      | "done.invoke.client.authenticated.clearing:invocation[0]"
-      | "xstate.init";
+    check: "xstate.init";
     checkForReCaptcha: "REGISTER";
     dumpToken: "error.platform.client.authenticated.refreshing:invocation[0]";
     getCustomFields: "REGISTER";
