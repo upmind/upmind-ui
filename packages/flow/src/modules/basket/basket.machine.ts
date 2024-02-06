@@ -29,10 +29,15 @@ import {
   findIndex,
   forEach,
   get,
+  isNil,
   isEmpty,
+  isEqual,
   omit,
+  reduce,
   reject,
+  omitBy,
   remove,
+  set,
   some,
   trimStart,
   uniqueId
@@ -410,7 +415,7 @@ export default createMachine(
                 invoke: {
                   src: "getCustomFields",
                   onDone: {
-                    target: "complete",
+                    target: "checking",
                     actions: ["setFields", "setFieldsSchemas"]
                   },
                   onError: {
@@ -424,9 +429,15 @@ export default createMachine(
                 entry: ["clearError"],
                 invoke: {
                   src: "validateFields",
-                  onDone: {
-                    target: "valid"
-                  },
+                  onDone: [
+                    {
+                      target: "valid",
+                      cond: "hasDirtyFields"
+                    },
+                    {
+                      target: "complete"
+                    }
+                  ],
                   onError: {
                     target: "invalid",
                     actions: ["setError"]
@@ -434,7 +445,12 @@ export default createMachine(
                 }
               },
 
-              valid: {},
+              valid: {
+                always: {
+                  target: "complete",
+                  cond: "hasNoDirtyFields"
+                }
+              },
 
               invalid: {},
 
@@ -455,11 +471,7 @@ export default createMachine(
               },
               // Handle completion, stop the machine and prevent further requests
               complete: {
-                type: "final",
-                always: {
-                  target: "checking",
-                  cond: "hasNoFields"
-                }
+                type: "final"
               }
             },
             on: {
@@ -582,10 +594,7 @@ export default createMachine(
 
           payment_details: {}
         },
-        on: {
-          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
-          "CLEAR.ERRORS": { target: "#shopping", actions: ["clearError"] }
-        },
+
         onDone: {
           // we are now ready for Checkout
           // target: "checkout"
@@ -600,9 +609,7 @@ export default createMachine(
         states: {
           payment: {}
         },
-        on: {
-          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
-        },
+
         onDone: {
           target: "complete"
         }
@@ -615,6 +622,19 @@ export default createMachine(
 
       complete: {
         type: "final"
+      }
+    },
+    on: {
+      UNAUTHENTICATED: {
+        target: "#loading",
+        actions: [
+          "clearError",
+          "clearBasket",
+          "removeAllItems",
+          "clearQueue",
+          "clearFieldsModel",
+          "clearSchemas"
+        ]
       }
     }
   },
@@ -629,14 +649,8 @@ export default createMachine(
       }),
 
       updateBasket: assign({
-        basket: (context, { data }) => {
-          const value = get(data, "basket", context.basket);
-          return useBasketParser(value);
-        },
-        summary: (context, { data }) => {
-          const value = get(data, "basket", context.basket);
-          return useSummaryParser(value);
-        },
+        basket: (context, { data }) => get(data, "basket", context.basket),
+        summary: (context, { data }) => useSummaryParser(context.basket),
         error: null
       }),
 
@@ -864,6 +878,11 @@ export default createMachine(
           useCustomFieldsModelParser(custom_fields, fieldsModel)
       }),
 
+      clearSchemas: assign({
+        fieldsSchema: undefined,
+        fieldsUischema: undefined
+      }),
+
       setFieldsModel: assign({
         fieldsModel: ({ custom_fields }, { data }) =>
           useCustomFieldsModelParser(custom_fields, data)
@@ -990,10 +1009,50 @@ export default createMachine(
 
       hasProducts: ({ basket }) => !!basket?.products?.length,
 
-      hasFieldValues: ({ fieldsModel }) => !isEmpty(fieldsModel),
+      hasDirtyFields: ({ fieldsModel, basket }) => {
+        const basketFields = reduce(
+          basket?.custom_fields,
+          (result, { field, value }) => {
+            set(result, field.code, value);
+            return result;
+          },
+          {}
+        );
 
-      hasNoFields: ({ basket, custom_fields }) =>
-        isEmpty(basket) || isEmpty(custom_fields),
+        const populatedFields = omitBy(fieldsModel?.custom_fields, isNil);
+        const isDirty = !isEqual(populatedFields, basketFields);
+
+        console.log("hasDirtyFields", {
+          populatedFields,
+          basketFields,
+          basket: basket?.custom_fields,
+          isDirty
+        });
+
+        return isDirty;
+      },
+
+      hasNoDirtyFields: ({ fieldsModel, basket }) => {
+        const basketFields = reduce(
+          basket?.custom_fields,
+          (result, { field, value }) => {
+            set(result, field.code, value);
+            return result;
+          },
+          {}
+        );
+
+        const populatedFields = omitBy(fieldsModel?.custom_fields, isNil);
+        const dirty = !isEqual(populatedFields, basketFields);
+
+        console.log({
+          fieldsModel: populatedFields,
+          basketFields: basketFields,
+          dirty
+        });
+
+        return !dirty;
+      },
 
       hasFields: ({ basket, custom_fields }) =>
         !isEmpty(basket) && !isEmpty(custom_fields),

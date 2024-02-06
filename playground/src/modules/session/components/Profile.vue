@@ -50,14 +50,18 @@ import { defineComponent } from "vue";
 import { useSession } from "../";
 import { UpmDebug } from "@upmind/components";
 import { UpmFormGenerator } from "@upmind/components";
-import { UserCircleIcon } from "@heroicons/vue/24/solid";
+import {
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon
+} from "@heroicons/vue/24/solid";
 
 export default defineComponent({
   name: "Profile",
   components: {
     UpmFormGenerator,
     UpmDebug,
-    UserCircleIcon
+    UserCircleIcon,
+    ArrowRightOnRectangleIcon
   },
   inheritAttrs: true,
   customOptions: {},
