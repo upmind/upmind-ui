@@ -56,7 +56,7 @@ export const useDomain = (
   };
 
   const service = interpret(domainMachine.withContext(context), {
-    devTools: true
+    devTools: false
   })
     .onTransition(newState => (state = newState))
     .start();

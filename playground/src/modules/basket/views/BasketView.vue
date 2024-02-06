@@ -13,15 +13,11 @@
             needs <span class="text-primary">Updating</span>
           </span>
 
-          <span v-else-if="meta.isConfigured">
-            is <span class="text-primary">Ready</span>
+          <span v-else-if="!meta.isReadyForCheckout">
+            is <span class="text-warning">NOT</span> Ready for Checkout
           </span>
 
-          <span v-if="meta.isConfigured && meta.needsAuth"
-            >, but needs <span class="text-primary">Auth</span>
-          </span>
-
-          <span v-if="meta.isReadyForCheckout">
+          <span v-else>
             is <span class="text-primary">Ready for Checkout</span>
           </span>
         </h2>
@@ -99,8 +95,8 @@
     >
       <router-link
         class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.isConfigured ? 'step-primary' : ''"
-        :data-content="meta.isConfigured ? '✓' : '?'"
+        :class="meta.isConfigured ? 'step-primary' : 'step-warning'"
+        :data-content="meta.isConfigured ? '✓' : '!'"
         :to="{ hash: '#items' }"
       >
         Basket Items
@@ -108,8 +104,8 @@
 
       <router-link
         class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasFields ? 'step-primary' : ''"
-        :data-content="meta.hasFields ? '✓' : '?'"
+        :class="meta.hasFields ? 'step-primary' : 'step-warning'"
+        :data-content="meta.hasFields ? '✓' : '!'"
         :to="{ hash: '#fields' }"
       >
         Order Fields
@@ -117,8 +113,8 @@
 
       <router-link
         class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="!meta.needsAuth ? 'step-primary' : ''"
-        :data-content="!meta.needsAuth ? '✓' : '?'"
+        :class="!meta.needsAuth ? 'step-primary' : 'step-warning'"
+        :data-content="!meta.needsAuth ? '✓' : '!'"
         :to="{ hash: '#account' }"
       >
         Account
@@ -126,8 +122,8 @@
 
       <router-link
         class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasBilling ? 'step-primary' : ''"
-        :data-content="meta.hasBilling ? '✓' : '?'"
+        :class="meta.hasBilling ? 'step-primary' : 'step-warning'"
+        :data-content="meta.hasBilling ? '✓' : '!'"
         :to="{ hash: '#billing' }"
       >
         Billing Details
@@ -135,8 +131,8 @@
 
       <router-link
         class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasPaymentMethod ? 'step-primary' : ''"
-        :data-content="meta.hasPaymentMethod ? '✓' : '?'"
+        :class="meta.hasPaymentMethod ? 'step-primary' : 'step-warning'"
+        :data-content="meta.hasPaymentMethod ? '✓' : '!'"
         :to="{ hash: '#payment' }"
       >
         Payment
@@ -232,7 +228,11 @@
       >
         <div class="divider uppercase text-xs opacity-50">Billing Details</div>
 
-        <div role="tablist" class="tabs tabs-lg tabs-lifted my-8">
+        <div
+          role="tablist"
+          class="tabs tabs-lg tabs-lifted my-8"
+          v-if="!meta.needsAuth"
+        >
           <input
             type="radio"
             name="billing_details"
@@ -242,7 +242,7 @@
               'text-primary': !basket?.company_id && basket?.address_id
             }"
             :aria-label="`My Addresses ${!basket?.company_id && basket?.address_id ? ' ✓ ' : ''}`"
-            :checked="!basket?.company_id && basket?.address_id"
+            :checked="!basket?.company_id"
           />
           <div
             role="tabpanel"
@@ -518,7 +518,7 @@ const productCatalogue = [
   }
 ];
 
-const debugging = ref(false);
+const debugging = ref(true);
 
 const model = ref({
   product_id: null,

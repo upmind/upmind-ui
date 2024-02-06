@@ -167,128 +167,62 @@ async function setFields(
   const { put, useUrl } = useApi();
   // rebuild the model with ALL custo mfields present, including nullish values
   const data = useCustomFieldsModelParser(custom_fields, fieldsModel);
+  const validItems = reject(items, item => item.state.context.isNew);
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basket.id}`),
     data,
     withAccessToken: true
-  }).then(useBasketParser);
+  })
+    .then(check)
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems };
+    });
 }
 
 async function setCurrency({ basket, items }: BasketContext, { data }: any) {
-  const { put, get, useUrl } = useApi();
+  const { put, useUrl } = useApi();
 
   const validItems = reject(items, item => item.state.context.isNew);
 
   // get returns a promise so we can pass it directly back to the machine
-  return (
-    put({
-      url: useUrl(`/orders/${basket.id}/currency`),
-      data: {
-        currency_code: data?.code || data?.id
-      },
-      withAccessToken: true
+  return put({
+    url: useUrl(`/orders/${basket.id}/currency`),
+    data: {
+      currency_code: data?.code || data?.id
+    },
+    withAccessToken: true
+  })
+    .then(check)
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems };
     })
-      // now we have to refresh our basket as the we dont have all our data
-      .then(({ data }) => {
-        return get({
-          url: useUrl(`orders/${data.id}`, {
-            with: [
-              "account.brand.image",
-              "account.pricelist",
-              "brand.image",
-              "client.image",
-              "contract",
-              "currency",
-              "custom_fields.field",
-              "payments",
-              "products.product.image",
-              "products.product.images",
-              "products.product.prices",
-              "products.product.products_attributes",
-              "products.product.products_attributes.category",
-              "products.product.products_options",
-              "products.product.products_options.category",
-              "products.product.products_options.prices",
-              "products.product.provision_field_values",
-              "products.tags",
-              "promotions",
-              "status",
-              "taxes",
-              "taxes.tax_tag_data",
-              `products.product.category${".top_category".repeat(4)}`
-            ].join()
-          }),
-          withAccessToken: true,
-          useCache: false
-        });
-      })
-      .then(useBasketParser)
-      .then(basket => {
-        const newItems = differenceBy(basket.products, validItems, "id");
-        return { basket, items: validItems, newItems };
-      })
-      .then(updateItemProvisioningFields)
-  );
+    .then(updateItemProvisioningFields);
 }
 
 async function setBilling({ basket, items }: BasketContext, { data }: any) {
-  const { put, get, useUrl } = useApi();
+  const { put, useUrl } = useApi();
 
   const validItems = reject(items, item => item.state.context.isNew);
 
   // get returns a promise so we can pass it directly back to the machine
-  return (
-    put({
-      url: useUrl(`/orders/${basket.id}`),
-      data: {
-        address_id: data?.address_id,
-        company_id: data?.company_id
-      },
-      withAccessToken: true
+  return put({
+    url: useUrl(`/orders/${basket.id}`),
+    data: {
+      address_id: data?.address_id,
+      company_id: data?.company_id
+    },
+    withAccessToken: true
+  })
+    .then(check)
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems };
     })
-      // now we have to refresh our basket as the we dont have all our data
-      .then(({ data }) => {
-        return get({
-          url: useUrl(`orders/${data.id}`, {
-            with: [
-              "account.brand.image",
-              "account.pricelist",
-              "brand.image",
-              "client.image",
-              "contract",
-              "currency",
-              "custom_fields.field",
-              "payments",
-              "products.product.image",
-              "products.product.images",
-              "products.product.prices",
-              "products.product.products_attributes",
-              "products.product.products_attributes.category",
-              "products.product.products_options",
-              "products.product.products_options.category",
-              "products.product.products_options.prices",
-              "products.product.provision_field_values",
-              "products.tags",
-              "promotions",
-              "status",
-              "taxes",
-              "taxes.tax_tag_data",
-              `products.product.category${".top_category".repeat(4)}`
-            ].join()
-          }),
-          withAccessToken: true,
-          useCache: false
-        });
-      })
-      .then(useBasketParser)
-      .then(basket => {
-        const newItems = differenceBy(basket.products, validItems, "id");
-        return { basket, items: validItems, newItems };
-      })
-      .then(updateItemProvisioningFields)
-  );
+    .then(updateItemProvisioningFields);
 }
 
 // --- Basket Promotions Methods
@@ -309,8 +243,7 @@ async function addPromotion({ basket, items }, { data }: any) {
     data: { promocode },
     withAccessToken: true
   })
-    .then(useBasketParser)
-    .then(getProvisioningFieldsValues)
+    .then(check)
     .then(basket => {
       const newItems = differenceBy(basket.products, validItems, "id");
       return { basket, items: validItems, newItems };
@@ -330,8 +263,7 @@ async function removePromotion({ basket, items }, { data }: any) {
     url: useUrl(`/orders/${basket.id}/promotions/${id}`),
     withAccessToken: true
   })
-    .then(useBasketParser)
-    .then(getProvisioningFieldsValues)
+    .then(check)
     .then(basket => {
       return { basket, items, newItems: basket.products };
     });

@@ -139,9 +139,7 @@ export const useBasket = () => {
         hasBilling: ["shopping.billing.complete"].some(state.value.matches),
         hasCurrency: ["shopping.currency.complete"].some(state.value.matches),
         hasPaymentMethod: ["payment.complete"].some(state.value.matches),
-        needsAuth: ["shopping.client.unauthenticated"].some(
-          state.value.matches
-        ),
+        needsAuth: !["shopping.client.authenticated"].some(state.value.matches),
         hasFields: ["shopping.custom_fields.complete"].some(
           state.value.matches
         ),
@@ -151,8 +149,11 @@ export const useBasket = () => {
         ].some(state.value.matches),
 
         // ---
+        needsUpdating: [
+          "shopping.items.configuring",
+          "shopping.custom_fields.valid"
+        ].some(state.value.matches),
         isReadyForCheckout: ["checkout"].some(state.value.matches),
-        needsUpdating: ["shopping.items.configuring"].some(state.value.matches),
         hasErrors:
           [
             "shopping.items.processing.error",
