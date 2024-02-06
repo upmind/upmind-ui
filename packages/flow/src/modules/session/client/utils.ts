@@ -16,20 +16,20 @@ export const useRegisterSchemaParser = (data: any) => {
     required: ["firstname", "lastname", "email", "password"],
     properties: {
       firstname: {
-        type: "string",
+        type: ["string", "null"],
         title: "Your first name"
       },
       lastname: {
-        type: "string",
+        type: ["string", "null"],
         title: "Your last name"
       },
       email: {
-        type: "string",
+        type: ["string", "null"],
         title: "Your email address",
         format: "email"
       },
       password: {
-        type: "string",
+        type: ["string", "null"],
         title: "Your password",
         minLength: 8
       },
@@ -105,12 +105,12 @@ export const useLoginSchemaParser = () => {
     required: ["email", "password"],
     properties: {
       email: {
-        type: "string",
+        type: ["string", "null"],
         format: "email",
         title: "Your email address"
       },
       password: {
-        type: "string",
+        type: ["string", "null"],
         format: "password",
         title: "Your password"
       }
@@ -158,7 +158,7 @@ export const use2faSchemaParser = () => {
     required: ["token"],
     properties: {
       token: {
-        type: "string",
+        type: ["string", "null"],
         pattern: "\\d{6}",
         title: "Your 2fa code"
       }

@@ -1,6 +1,6 @@
 <template>
   <section
-    class="card card-compact card-bordered border-base-300 rounded-xl bg-base-100 bg-opacity-10 shadow-sm overflow-hidden"
+    class="card card-compact card-bordered border-base-300"
     :class="color"
   >
     <header class="">
@@ -31,7 +31,10 @@
             </span>
           </template>
 
-          <h4 class="card-title my-0 w-full" v-if="available?.product?.name">
+          <h4
+            class="card-title my-0 w-full text-inherit"
+            v-if="available?.product?.name"
+          >
             {{ available.product.name }}
           </h4>
         </div>
@@ -54,7 +57,10 @@
         </div>
       </div>
 
-      <h5 class="card-subtitle px-4" v-if="available?.product?.description">
+      <h5
+        class="card-subtitle px-4 text-inherit"
+        v-if="available?.product?.description"
+      >
         {{ available.product.description }}
       </h5>
     </header>
@@ -224,10 +230,10 @@ export default defineComponent({
     },
     color() {
       return {
-        "border-secondary-content":
+        "border-base-300":
           this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty,
 
-        "border-primary-content":
+        "border-primary":
           this.meta.isConfiguring ||
           (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)),
 

@@ -72,9 +72,9 @@ export default createMachine(
       queue: [],
       // ---
       custom_fields: [],
-      fieldsSchema: {},
-      fieldsUischema: {},
-      fieldsModel: {},
+      fieldsSchema: undefined,
+      fieldsUischema: undefined,
+      fieldsModel: undefined,
 
       // ---
       // the generated summary of ALL the items,
@@ -100,12 +100,26 @@ export default createMachine(
       // instead we will wait for an Action before we generate a basket
       loading: {
         id: "loading",
-        invoke: {
-          src: "check",
-          onDone: { target: "#shopping", actions: ["setBasket", "loadItems"] },
-          onError: {
-            target: "error",
-            actions: ["setError", "setErrorFeedback"]
+        initial: "basket",
+        states: {
+          basket: {
+            invoke: {
+              src: "check",
+              onDone: {
+                target: "items",
+                actions: ["setBasket", "loadItems"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          },
+          items: {
+            always: {
+              target: "#shopping",
+              cond: "isNotLoading"
+            }
           }
         }
       },
@@ -120,7 +134,7 @@ export default createMachine(
           },
           onError: {
             target: "#error",
-            actions: ["setError", "setErrorFeedback"]
+            actions: ["setError", "setFeedbackError"]
           }
         }
       },
@@ -141,7 +155,7 @@ export default createMachine(
       // We are now ready to start accepting items into the basket
       // items are effectively products that are not yet added to the basket OR products that are being changed
       // regardles, these items require configuring
-      // once items are configured, we can then add them (back) into the basket,
+      // once items are configured(complete), we can then add them (back) into the basket,
       // NB: this allows us to have multiple products added at once and have a mixed basket
       // once successfully added, they become products and can be updated/removed
       shopping: {
@@ -154,7 +168,7 @@ export default createMachine(
               empty: {
                 always: [
                   { target: "configuring", cond: "someConfiguring" },
-                  { target: "configured", cond: "allConfigured" }
+                  { target: "complete", cond: "allConfigured" }
                 ]
               },
 
@@ -162,7 +176,7 @@ export default createMachine(
                 id: "configuring",
                 always: [
                   { target: "empty", cond: "hasNoItems" },
-                  { target: "configured", cond: "allConfigured" }
+                  { target: "complete", cond: "allConfigured" }
                 ]
               },
 
@@ -174,7 +188,11 @@ export default createMachine(
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setSuccess"]
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setFeedbackSuccess"
+                        ]
                       },
                       onError: {
                         target: "#processed",
@@ -182,22 +200,8 @@ export default createMachine(
                           "refreshItems",
                           "updateBasket",
                           "setError",
-                          "setErrorFeedback"
+                          "setFeedbackError"
                         ]
-                      }
-                    }
-                  },
-
-                  currency: {
-                    invoke: {
-                      src: "setCurrency",
-                      onDone: {
-                        target: "#processed",
-                        actions: ["refreshItems", "updateBasket", "setSuccess"]
-                      },
-                      onError: {
-                        target: "error",
-                        actions: ["setError", "setErrorFeedback"]
                       }
                     }
                   },
@@ -212,7 +216,7 @@ export default createMachine(
                           "removeFromQueue",
                           "refreshItems",
                           "updateBasket",
-                          "setSuccess"
+                          "setFeedbackSuccess"
                         ]
                       },
                       onError: {
@@ -221,7 +225,7 @@ export default createMachine(
                           "refreshItems",
                           "updateBasket",
                           "setError",
-                          "setErrorFeedback"
+                          "setFeedbackError"
                         ]
                       }
                     }
@@ -233,7 +237,11 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["removeItem", "updateBasket", "setSuccess"]
+                        actions: [
+                          "removeItem",
+                          "updateBasket",
+                          "setFeedbackSuccess"
+                        ]
                       },
                       onError: {
                         target: "#processed",
@@ -241,7 +249,7 @@ export default createMachine(
                           "refreshItems",
                           "updateBasket",
                           "setError",
-                          "setErrorFeedback"
+                          "setFeedbackError"
                         ]
                       }
                     }
@@ -262,9 +270,8 @@ export default createMachine(
                 }
               },
 
-              // items are 'configured' only when they have been successfully added to the basket
-              configured: {
-                id: "configured",
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
                 always: [
                   { target: "empty", cond: "hasNoItems" },
                   { target: "configuring", cond: "someConfiguring" }
@@ -297,9 +304,6 @@ export default createMachine(
                   cond: "isNotQueued"
                 }
               ],
-              "UPDATE.CURRENCY": {
-                target: "items.processing.currency"
-              },
 
               CLEAR: {
                 target: "items.processing",
@@ -335,11 +339,15 @@ export default createMachine(
                   src: "addPromotion",
                   onDone: {
                     target: "active",
-                    actions: ["refreshItems", "updateBasket", "setSuccess"]
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setErrorFeedback"]
+                    actions: ["setError", "setFeedbackError"]
                   }
                 }
               },
@@ -348,11 +356,15 @@ export default createMachine(
                   src: "removePromotion",
                   onDone: {
                     target: "empty",
-                    actions: ["refreshItems", "updateBasket", "setSuccess"]
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setErrorFeedback"]
+                    actions: ["setError", "setFeedbackError"]
                   }
                 }
               },
@@ -398,7 +410,7 @@ export default createMachine(
                 invoke: {
                   src: "getCustomFields",
                   onDone: {
-                    target: "idle",
+                    target: "complete",
                     actions: ["setFields", "setFieldsSchemas"]
                   },
                   onError: {
@@ -406,15 +418,6 @@ export default createMachine(
                     actions: ["setError"]
                   }
                 }
-              },
-
-              idle: {
-                always: [
-                  {
-                    target: "complete",
-                    cond: "hasNoFields"
-                  }
-                ]
               },
 
               checking: {
@@ -435,44 +438,149 @@ export default createMachine(
 
               invalid: {},
 
-              // Handle errors
-              error: {
-                id: "error"
-              },
+              error: {},
 
               processing: {
                 invoke: {
                   src: "setFields",
                   onDone: {
-                    target: "valid",
-                    actions: ["updateBasket", "setSuccess"]
+                    target: "complete",
+                    actions: ["updateBasket", "setFeedbackSuccess"]
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "setErrorFeedback"]
+                    actions: ["setError", "setFeedbackError"]
                   }
                 }
               },
               // Handle completion, stop the machine and prevent further requests
               complete: {
-                id: "complete",
-                type: "final"
+                type: "final",
+                always: {
+                  target: "checking",
+                  cond: "hasNoFields"
+                }
               }
             },
             on: {
               "UPDATE.FIELDS": {
-                target: "custom_fields.processing"
+                target: "custom_fields.processing",
+                cond: "hasFields"
               },
               "CLEAR.FIELDS": {
-                target: "custom_fields.idle",
-                actions: ["clearFieldsModel"]
+                target: "custom_fields.checking",
+                actions: ["clearFieldsModel"],
+                cond: "hasFields"
               },
               "SET.FIELDS": {
                 target: "custom_fields.checking",
-                actions: ["setFieldsModel"]
+                actions: ["setFieldsModel"],
+                cond: "hasFields"
               }
             }
-          }
+          },
+
+          billing: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: {
+                  target: "complete",
+                  cond: "hasBilling"
+                }
+              },
+
+              processing: {
+                invoke: {
+                  src: "setBilling",
+                  onDone: {
+                    target: "complete",
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+
+              // Handle errors
+              error: {},
+
+              // Handle completion, stop the machine and prevent further requests
+              complete: {
+                type: "final",
+                always: {
+                  target: "empty",
+                  cond: "hasNoBilling"
+                }
+              }
+            },
+            on: {
+              "UPDATE.ADDRESS": {
+                target: "billing.processing",
+                cond: "notSameAddress"
+              },
+              "UPDATE.COMPANY": {
+                target: "billing.processing",
+                cond: "notSameCompany"
+              }
+            }
+          },
+
+          currency: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: {
+                  target: "complete",
+                  cond: "hasCurrency"
+                }
+              },
+
+              processing: {
+                invoke: {
+                  src: "setCurrency",
+                  onDone: {
+                    target: "complete",
+                    actions: [
+                      "refreshItems",
+                      "updateBasket",
+                      "setFeedbackSuccess"
+                    ]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+
+              // Handle errors
+              error: {},
+
+              // Handle completion, stop the machine and prevent further requests
+              complete: {
+                type: "final",
+                always: {
+                  target: "empty",
+                  cond: "hasNoCurrency"
+                }
+              }
+            },
+            on: {
+              "UPDATE.CURRENCY": {
+                target: "currency.processing",
+                cond: "notSameCurrency"
+              }
+            }
+          },
+
+          payment_details: {}
         },
         on: {
           UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
@@ -490,8 +598,6 @@ export default createMachine(
       checkout: {
         type: "parallel",
         states: {
-          billing: {},
-          shipping: {},
           payment: {}
         },
         on: {
@@ -772,11 +878,11 @@ export default createMachine(
       }),
 
       // ---
-      setSuccess: (context, { data }) => {
+      setFeedbackSuccess: (context, { data }) => {
         addSuccess("Successfully updated the basket");
       },
 
-      setErrorFeedback: ({ error }, _event) => {
+      setFeedbackError: ({ error }, _event) => {
         addError({
           title: error?.title || "We experienced an error updating the basket",
           copy: error?.message,
@@ -814,6 +920,7 @@ export default createMachine(
 
       clearError: assign({ error: null })
     },
+
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
@@ -854,6 +961,10 @@ export default createMachine(
 
       hasItems: ({ items }) => !isEmpty(items),
 
+      isNotLoading: ({ items }) => {
+        return every(items, ({ state }) => !state.matches("loading"));
+      },
+
       hasNoItems: ({ items }) => isEmpty(items),
 
       hasNewItems: ({ items }) => {
@@ -881,13 +992,32 @@ export default createMachine(
 
       hasFieldValues: ({ fieldsModel }) => !isEmpty(fieldsModel),
 
-      hasNoFields: ({ custom_fields }) => isEmpty(custom_fields)
+      hasNoFields: ({ basket, custom_fields }) =>
+        isEmpty(basket) || isEmpty(custom_fields),
+
+      hasFields: ({ basket, custom_fields }) =>
+        !isEmpty(basket) && !isEmpty(custom_fields),
+
+      hasBilling: ({ basket }) => !!basket?.address_id || !!basket?.company_id,
+      hasNoBilling: ({ basket }) => !basket?.address_id && !basket?.company_id,
+      notSameCompany: ({ basket }, { data }) => {
+        return basket?.company_id !== data?.company_id;
+      },
+      notSameAddress: ({ basket }, { data }) => {
+        return basket?.address_id !== data?.address_id;
+      },
+
+      hasCurrency: ({ basket }) => !!basket?.currency_id,
+      hasNoCurrency: ({ basket }) => !basket?.currency_id,
+      notSameCurrency: ({ basket }, { data }) =>
+        basket?.currency_id !== data?.currency_id
     },
 
     delays: {
-      error: () => useTime().SECOND * 3, // this allows us to read the error before continuing
-      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT
     },
+
     services
   }
 );

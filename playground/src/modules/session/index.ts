@@ -51,7 +51,7 @@ export const useSession = () => {
     // ---
     isGuest: ["guest", "starting.guest"].some(state.value.matches),
     isClient: ["client", "starting.client"].some(state.value.matches),
-    isAuthenticated: ["client"].some(state.value.matches),
+    isAuthenticated: ["client.idle"].some(state.value.matches),
     // ---
     showReCaptcha: client.value?.matches(
       "unauthenticated.register.challenging"
@@ -74,21 +74,17 @@ export const useSession = () => {
       ].some(client.value.matches)
   }));
 
+  const user = computed(() => state.value?.context?.user);
+
   // --- Client
-  const model = computed(() => client.value?.context?.model || {});
-  const schema = computed(() => client.value?.context?.schema || {});
-  const uischema = computed(() => client.value?.context?.uischema || null);
+  const model = computed(() => client.value?.context?.model);
+  const schema = computed(() => client.value?.context?.schema);
+  const uischema = computed(() => client.value?.context?.uischema);
   // --------------------------------------------------------
 
   function clearErrors() {
     send({
       type: "CLEAR.ERRORS"
-    });
-  }
-
-  function getUser() {
-    send({
-      type: "SELF"
     });
   }
 
@@ -170,10 +166,11 @@ export const useSession = () => {
     schema,
     uischema,
     // ---
+    user,
+    // ---
     reject,
     resolve,
     clearErrors,
-    getUser,
     login,
     logout,
     register,

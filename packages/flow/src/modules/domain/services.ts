@@ -8,7 +8,7 @@ import { parseDomain, parseAvailable } from "./utils";
 import { isEmpty, omitBy, map } from "lodash-es";
 
 // --- types
-import type { DomainContext } from "./types";
+import type { DomainContext } from "./types.d";
 
 // --------------------------------------------------------
 

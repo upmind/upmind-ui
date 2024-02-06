@@ -76,16 +76,12 @@ export default createMachine(
 
         initial: "idle",
         states: {
-          idle: {
-            on: {
-              LOGIN: { target: "login" },
-              REGISTER: { target: "register" }
-            }
-          },
+          idle: {},
 
           // --- Start the login flow
           // in essence show a login form and await an event to authenticate
           login: {
+            id: "login",
             initial: "loading",
             states: {
               loading: {
@@ -154,6 +150,7 @@ export default createMachine(
           // --- Start the create flow
           // in essence show a register form, possibly with custom fields, and await an event to register
           register: {
+            id: "register",
             initial: "loading",
             states: {
               loading: {
@@ -237,6 +234,10 @@ export default createMachine(
           // confirm: {}, // when we require user to confirm their email
           // recover: {},  // when we require user to recover their password
           // reset: {}, // when we user is in the process of reset their password
+        },
+        on: {
+          LOGIN: { target: "#login" },
+          REGISTER: { target: "#register" }
         }
       },
 
@@ -277,7 +278,7 @@ export default createMachine(
             invoke: {
               src: "dumpToken",
               onDone: [
-                { target: "#loading", cond: "isRefreshing" },
+                { target: "#unauthenticated.login", cond: "isRefreshing" },
                 { target: "#complete" }
               ]
             },
@@ -375,13 +376,13 @@ export default createMachine(
         data.actor_type == "twofa" && !!data?.second_factor_required,
       requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
       isRefreshing: context => !!context.refresh,
-      isUnauthorized: context =>
-        context?.error?.status === responseCodes.Unauthorized
+      isUnauthorized: (context, { data }) =>
+        data?.status === responseCodes.Unauthorized
     },
 
     delays: {
-      error: () => useTime().SECOND * 3, // this allows us to read the error before continuing
-      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT
     },
     services
   }

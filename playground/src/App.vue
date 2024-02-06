@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-6 gap-4 min-h-screen">
+  <div class="grid grid-cols-6 gap-4 min-h-screen" :data-theme="activeTheme">
     <header
       class="flex flex-col items-center justify-start bg-base-200 text-base-content"
     >

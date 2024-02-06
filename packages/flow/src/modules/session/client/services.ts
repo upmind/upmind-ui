@@ -30,7 +30,7 @@ async function check(context: ClientContext, _event: any) {
 async function authenticate({ model }: ClientContext) {
   const { post, useUrl } = useApi();
   return post({
-    url: useUrl("access_token", {}, "oauth"),
+    url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       username: model.email,
       password: model.password,
@@ -42,7 +42,7 @@ async function authenticate({ model }: ClientContext) {
 async function verify2fa(context: ClientContext, { data }: any) {
   const { post, useUrl } = useApi();
   return post({
-    url: useUrl("access_token", {}, "oauth"),
+    url: useUrl("access_token", {}, { context: "oauth" }),
     withAccessToken: context.token.access_token,
     data: {
       twofa_provider: "google",
@@ -96,7 +96,7 @@ async function refreshToken(context: ClientContext) {
   const { post, useUrl } = useApi();
   const refresh_token = get(context, "token.refresh_token", "");
   return post({
-    url: useUrl("access_token", {}, "oauth"),
+    url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token

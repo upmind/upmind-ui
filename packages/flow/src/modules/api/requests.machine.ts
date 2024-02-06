@@ -58,10 +58,11 @@ export default createMachine(
       add: assign({
         requests: (
           { requests }: RequestsContext,
-          { data: { hash, url, init, useCache, maxAge } }: RequestsEvents
+          {
+            data: { hash, url, init, useCache, maxAge, refresh }
+          }: RequestsEvents
         ) => {
           hash ??= generateHash(url, init, useCache, keys(requests));
-
           // check if we already have a request with the same hash
           const request = useCache && get(requests, hash);
 
@@ -83,7 +84,7 @@ export default createMachine(
 
           // if we already have a request with the same hash
           // we can check if its stale and needs to be refreshed
-          else if (request.state.matches("processed.stale")) {
+          else if (request.state.matches("processed.stale") || refresh) {
             request.send({
               type: "REFRESH"
             });

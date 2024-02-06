@@ -41,7 +41,7 @@
         ></span>
       </figure>
       <div class="card-body p-4">
-        <h4 class="card-title m-0 text-base">{{ file }}</h4>
+        <h4 class="card-title m-0 text-base" v-if="name">{{ name }}</h4>
 
         <span v-if="meta.isProcessing">Uploading...</span>
         <use-time-ago v-else-if="created" v-slot="{ timeAgo }" :time="created">
@@ -49,7 +49,7 @@
         </use-time-ago>
         <span v-else-if="meta.isProcessing">Uploaded</span>
 
-        <div class="card-actions justify-between mt-auto">
+        <div class="card-actions justify-end mt-auto">
           <button class="btn btn-ghost btn-sm" @click.prevent="onOpen">
             Change
           </button>
@@ -90,7 +90,7 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 import { TrashIcon } from "@heroicons/vue/24/outline";
-import { useUpload } from "../../../composables";
+import { useUpload } from "../../../";
 import { UseTimeAgo } from "@vueuse/components";
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",
@@ -115,6 +115,7 @@ const controlRenderer = defineComponent({
     const {
       created,
       file,
+      name,
       src,
       errors,
       meta,
@@ -154,6 +155,7 @@ const controlRenderer = defineComponent({
       input,
       meta,
       file,
+      name,
       created,
       errors,
       src,

@@ -1,72 +1,107 @@
+export type { RequestError, RequestResponse } from "../api/types.d";
 // --------------------------------------------------------
 // ENUMS
 
-export enum ImageObjectTypes {
-  PRODUCT = "product",
-  PRODUCT_CATEGORY = "product_category",
-  USER = "user",
-  BRAND = "brand",
-  BRAND_FAVICON = "favicon",
-  BRAND_EMAIL_LOGO = "brandEmailLogo",
-  CLIENT = "client",
-  ORGANIZATION = "organisation",
-  CLIENT_CUSTOM_FIELD = "client_custom_field"
-}
-
-export const ImageUploadTypes = [
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/bmp",
-  "image/svg+xml"
-];
 // --------------------------------------------------------
-// private
+// Interfaces
 
-interface Dimensions {
-  width: number;
-  height: number;
+export interface IBillingCycle {
+  id: string;
+  months: number;
+  name: string;
+  recurring: number;
 }
 
-export interface ImageHashEvent {
-  hash: string;
+export interface IBillingTermField {
+  id: number;
+  label: string;
 }
 
-export interface ImageTypeEvent {
-  field: {
-    field_type: ImageObjectTypes;
-    field_id: string;
-    field_is_default: boolean;
-  };
+export interface IBillingTermsOption {
+  value: number | string;
+  label: string;
 }
+
+export interface ICountry {
+  code: string;
+  created_at: string;
+  eea: number;
+  id: string;
+  name: string;
+  phone_code: string;
+  updated_at: number;
+}
+
+export interface ICurrency {
+  id: string;
+  code: string;
+  name: string;
+  prefix: string;
+  suffix: string;
+  base: boolean;
+  created_at: string;
+  decimals: boolean;
+  manual: number;
+  updated_at: string;
+}
+
+export interface ILanguage {
+  code: string;
+  created_at: string;
+  id: string;
+  language: string;
+  updated_at: string;
+}
+
+export interface IRegion {
+  id: string;
+  country_id: ICountry["id"];
+  code: string;
+  name: string;
+}
+
+export interface IStatus {
+  code: string;
+  created_at: string;
+  deleted_at: null | string;
+  id: string;
+  name: string;
+  object_type: UpmindObjectTypes;
+  updated_at: string;
+}
+
+export interface IStatuses {
+  ticket: IStatus[] | null;
+  invoice: IStatus[] | null;
+}
+
+export interface ITicketDepartment {
+  brand: IBrand;
+  brand_id: IBrand["id"];
+  brand_ticket_departments: ITicketDepartment;
+  code: string;
+  default: boolean;
+  id: string;
+  is_public: boolean;
+  name: string;
+  name_translated?: string;
+  translations: ITranslation[];
+  username: string | null;
+}
+
 // --------------------------------------------------------
 // Contexts
 
 export interface SystemContext {
-  currencies: Array<any> | null;
-  billingCycles: Array<any> | null;
-  // ---
-  error?: RequestError;
-}
-
-export interface UploadContext {
-  field: Object;
-
-  // ---
-  fileTypes: [];
-  // maxFileSize: number;
-  // minFileSize: number;
-  // minDimensions: Dimensions;
-  // maxDimensions: Dimensions;
-
-  // ---
-  progress: number;
-  request?: Object | null;
-  response?: Object | null;
-  file?: Object | null;
-  src?: string | null;
-
+  currencies: ICurrency[] | null;
+  billingCycles: IBillingCycle[] | null;
+  countries: ICountry[] | null;
+  regions: Record<string, IRegion> | null;
+  languages: ILanguage[] | null;
+  statuses: IStatuses | null;
+  departments: ITicketDepartment[] | null;
+  systemIPAddresses: string[] | null;
+  taxBusinessTypes: ITaxBusinessType[] | null;
   // ---
   error?: RequestError;
 }
@@ -75,19 +110,7 @@ export interface UploadContext {
 // Events
 
 export interface SystemEvent {
-  fileType: string;
+  type: string;
   data: any;
-  error?: RequestError;
-}
-
-export interface UploadEvent {
-  fileType: string;
-  data: any;
-  error?: RequestError;
-}
-
-export interface ImageEvent {
-  fileType: string;
-  data: Object<ImageTypeEvent | ImageHashEvent>;
   error?: RequestError;
 }

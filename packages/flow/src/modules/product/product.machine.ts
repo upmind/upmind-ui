@@ -49,7 +49,7 @@ export default (values, currency_id, promotions) => {
         // ---
         // the various lookups that we are using in our configuation
         available: {
-          product: values?.product || null,
+          product: values?.product,
           terms: null,
           options: null,
           attributes: null,
@@ -487,8 +487,8 @@ export default (values, currency_id, promotions) => {
         }
       },
       delays: {
-        error: () => useTime().SECOND * 3, // this allows us to read the error before continuing
-        wait: () => useTime().MILLISECOND * 100 // this allows us to wait for an imperceptible amount of time before continuing
+        error: () => useTime().ERROR,
+        wait: () => useTime().WAIT
       }
     }
   );

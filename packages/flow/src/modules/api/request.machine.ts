@@ -121,7 +121,8 @@ export default (request: RequestParams) =>
             cached: {
               after: { maxAge: "stale" }, // automatically move to stale after max age
               on: {
-                CANCEL: { target: "#complete" }
+                CANCEL: { target: "#complete" },
+                REFRESH: { target: "#processing" }
               }
             },
             stale: {
@@ -240,6 +241,12 @@ export default (request: RequestParams) =>
         canAuthorize: (context, { data }) => {
           const isAuth = includes(context.url.pathname, "oauth");
           const isUnauthorized = data?.status === responseCodes.Unauthorized;
+          console.debug("request", "canAuthorize", {
+            isAuth,
+            isUnauthorized,
+            attempts: context?.attempts,
+            can: !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1
+          });
           return !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1;
         },
         // ---
@@ -262,7 +269,8 @@ export default (request: RequestParams) =>
       },
       delays: {
         maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
-        wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+        error: () => useTime().ERROR,
+        wait: () => useTime().WAIT
       }
     }
   );

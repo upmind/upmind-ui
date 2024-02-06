@@ -4,11 +4,11 @@ const { escalate } = actions;
 
 // --- internal
 import services from "./services";
-import type { UploadContext, UploadEvent } from "../types";
+import type { UploadContext, UploadEvent } from "../types.d";
 
 // --- utils
 import { useTime, useValidationParser } from "../../../utils";
-import { useFileParser, useFileSrcParser } from "../utils";
+import { useFileParser, useFileSrcParser } from "./utils";
 
 // --- types
 
@@ -42,7 +42,9 @@ export default createMachine(
       progress: 0,
       request: null,
       response: null,
+      // ---
       file: null,
+      name: null,
       src: null,
 
       // ---
@@ -75,8 +77,7 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: {
-            target: "processing",
-            actions: ["setRequest"]
+            target: "processing"
           },
           onError: {
             target: "error",
@@ -132,7 +133,7 @@ export default createMachine(
       }
     },
     on: {
-      ADD: { target: "checking", actions: ["clear"] }
+      ADD: { target: "checking", actions: ["setRequest"] }
     }
   },
   {
@@ -141,6 +142,7 @@ export default createMachine(
         request: null,
         response: null,
         file: null,
+        name: null,
         src: null,
         progress: 0
       }),
@@ -148,7 +150,7 @@ export default createMachine(
       setRequest: assign({
         request: (_context: UploadContext, { data }: UploadEvent) =>
           useFileParser(data),
-        file: (_context: UploadContext, { data }: UploadEvent) => data?.name,
+        name: (_context: UploadContext, { data }: UploadEvent) => data?.name,
         src: (_context: UploadContext, { data }: UploadEvent) =>
           useFileSrcParser(data)
       }),
@@ -156,6 +158,8 @@ export default createMachine(
       setResponse: assign({
         response: ({ _context }: UploadContext, { data }: UploadEvent) => data,
         file: (_context: UploadContext, { data }: UploadEvent) => data.value,
+        name: ({ name }: UploadContext, { data }: UploadEvent) =>
+          data?.name || name,
         src: (_context: UploadContext, { data }: UploadEvent) =>
           `${base}/api/images/${data.value}/download`
       }),
@@ -184,7 +188,8 @@ export default createMachine(
     },
     guards: {},
     delays: {
-      wait: () => useTime().MILLISECOND * 100 // this allows us to wait for a imperceptible amount of time before continuing
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT
     },
     services
   }

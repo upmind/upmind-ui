@@ -1,11 +1,11 @@
 <template>
   <section class="mt-4" v-for="attribute in attributes" :key="attribute.id">
-    <h4 class="">
+    <h4 class="text-inherit">
       {{ attribute.name }}
     </h4>
 
     <ul
-      class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-xl"
+      class="list-none p-4 border border-base-300 bg-base-200 bg-opacity-30 rounded-box"
     >
       <li class="p-0" v-for="value in attribute.values" :key="value.id">
         <fieldset
@@ -64,7 +64,10 @@
               }}</strong>
             </span>
 
-            <strong class="text-right" v-else-if="value?.price?.price">
+            <strong
+              class="text-right text-inherit"
+              v-else-if="value?.price?.price"
+            >
               {{
                 !value?.price?.price ? "Free" : value?.price?.price_formatted
               }}
