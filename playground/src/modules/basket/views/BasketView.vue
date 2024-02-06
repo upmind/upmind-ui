@@ -372,7 +372,7 @@
             class="btn btn-lg btn-block btn-primary"
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           >
-            Address order and pay
+            Place order and pay
           </button>
 
           <div class="flex flex-wrap justify-between">
