@@ -31,6 +31,7 @@ export const useClientEmails = () => {
     // ---
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
+    getItem: id => find(state?.context?.items, ["id", id]),
     getSelected: () => state?.context?.selected,
     getDefault: () => find(state?.context?.items, "state.context.model.default")
   };

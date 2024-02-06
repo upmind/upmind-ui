@@ -234,14 +234,17 @@
       >
         <div class="divider uppercase text-xs opacity-50">Billing Details</div>
 
-        <div role="tablist" class="tabs tabs-lg tabs-boxed my-8 bg-transparent">
+        <div role="tablist" class="tabs tabs-lg tabs-lifted my-8">
           <input
             type="radio"
             name="billing_details"
             role="tab"
             class="tab"
-            aria-label="My Addresses"
-            :checked="!basket?.company_id || false"
+            :class="{
+              'text-primary': !basket?.company_id && basket?.address_id
+            }"
+            :aria-label="`My Addresses ${!basket?.company_id && basket?.address_id ? ' ✓ ' : ''}`"
+            :checked="!basket?.company_id && basket?.address_id"
           />
           <div
             role="tabpanel"
@@ -250,9 +253,11 @@
             <upm-addresses
               v-if="!meta.needsAuth"
               class="p-0"
+              :key="basket?.address_id"
               :processing="meta.isProcessing"
-              :model-value="basket?.address_id"
+              :model-value="!basket?.company_id ? basket?.address_id : null"
               @update:model-value="setBillingAddress"
+              :checked="!basket?.company_id || false"
             />
           </div>
 
@@ -261,9 +266,13 @@
             name="billing_details"
             role="tab"
             class="tab"
-            aria-label="My Companies"
-            :checked="!!basket?.company_id || false"
+            :class="{
+              'text-primary': !!basket?.company_id
+            }"
+            :aria-label="`My Companies ${!!basket?.company_id ? ' ✓ ' : ''}`"
+            :checked="!!basket?.company_id"
           />
+
           <div
             role="tabpanel"
             class="tab-content bg-base-100 border-base-300 rounded-box p-6"
@@ -271,6 +280,7 @@
             <upm-companies
               v-if="!meta.needsAuth"
               class="p-0"
+              :key="basket?.company_id"
               :processing="meta.isProcessing"
               :model-value="basket?.company_id"
               @update:model-value="setBillingCompany"

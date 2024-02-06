@@ -73,7 +73,6 @@ export interface Typegen0 {
     hasNoFilteredItems: "";
     hasNoItems: "";
     isNotProcessing: "";
-    isSelectable: "SELECT";
   };
   eventsCausingServices: {
     filter: "FILTER";

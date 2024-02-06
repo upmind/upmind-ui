@@ -9,7 +9,7 @@
         class="input input-bordered col-span-full"
         @input="filter($event?.currentTarget?.value)"
         placeholder="Filter by..."
-        v-if="!meta.isEditing"
+        v-if="!meta.isEditing && !meta.isLoading && !processing"
       />
 
       <upm-card
@@ -38,7 +38,7 @@
 
       <div
         class="actions flex justify-center items-center min-h-36 h-full max-w-full"
-        v-if="!meta.isEditing"
+        v-if="!meta.isEditing && !meta.isLoading && !processing"
       >
         <button class="btn btn-block h-full" @click="add">
           <squares-plus-icon class="w-6 h-6" /> Add new
@@ -103,16 +103,13 @@ export default defineComponent({
       filter
     } = useClientCompanies();
 
-    if (props.modelValue) {
-      select(props.modelValue);
-    }
+    select(props.modelValue);
 
     watch(selected, (newValue, oldValue) => {
       if (
         !isEqual(newValue?.id, oldValue?.id) &&
         !isEqual(newValue.id, props.modelValue)
       ) {
-        debugger;
         emit("update:modelValue", newValue);
       }
     });
