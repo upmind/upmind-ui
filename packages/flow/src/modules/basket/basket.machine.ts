@@ -6,6 +6,7 @@ const { sendTo } = actions;
 import services from "./services";
 import type { BasketContext } from "./types.d";
 import configurationMachine from "../product/product.machine";
+import paymentDetailsMachine from "../payment/details.machine";
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
@@ -13,7 +14,6 @@ const { addError, addSuccess } = useFeedback();
 
 import { useTime } from "../../utils";
 import {
-  useBasketParser,
   useSummaryParser,
   useValidationParser,
   useCustomFieldsSchemaParser,
@@ -592,7 +592,59 @@ export default createMachine(
             }
           },
 
-          payment_details: {}
+          payment_details: {
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  id: "payment_details",
+                  src: paymentDetailsMachine,
+                  data: {
+                    model: (context, { data }) => data
+                  },
+                  onDone: {
+                    target: "complete"
+                  },
+                  onError: { actions: ["setError"] }
+                }
+              },
+
+              complete: {
+                type: "final"
+              }
+            },
+            on: {
+              REFRESH: { target: "#loading" }
+              // ---
+              // we should not need these as the payment details machine should handle these
+              // "UPDATE.PAYMENT_DETAILS": {
+              //   target: "payment_details.processing",
+              //   actions: [
+              //     sendTo("payment_details", (_context, { data }) => ({
+              //       type: "UPDATE",
+              //       data,
+              //       delay: 0
+              //     }))
+              //   ]
+              // },
+              // "CLEAR.PAYMENT_DETAILS": {
+              //   target: "payment_details.processing",
+              //   actions: [
+              //     sendTo("payment_details", { type: "CLEAR", delay: 0 })
+              //   ]
+              // },
+              // "SET.PAYMENT_DETAILS": {
+              //   target: "payment_details.processing",
+              //   actions: [
+              //     sendTo("payment_details", (_context, { data }) => ({
+              //       type: "SET",
+              //       data,
+              //       delay: 0
+              //     }))
+              //   ]
+              // }
+            }
+          }
         },
 
         onDone: {

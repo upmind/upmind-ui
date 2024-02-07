@@ -122,7 +122,7 @@ async function remove({ model }: EmailContext, _event: EmailEvent) {
 
 // --------------------------------------------------------
 
-async function parse({ model }: PhoneContext, _event: PhoneEvent) {
+async function parse({ model }: EmailContext, _event: EmailEvent) {
   // ---
   return Promise.resolve({ model });
 }
