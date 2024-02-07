@@ -99,7 +99,7 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ addresses, emails, phones }) => {
+export const useUischema = () => {
   const schema = {
     type: "VerticalLayout",
     elements: [

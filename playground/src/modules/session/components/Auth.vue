@@ -82,7 +82,7 @@
       }"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
-      <template #actions="{ meta: formMeta, doReject }">
+      <template #actions="{ meta: formMeta }">
         <button
           class="btn"
           :class="[
@@ -99,23 +99,23 @@
       </template>
     </upm-form-generator>
 
-    <!-- <upm-debug
+    <upm-debug
       v-if="debugging"
       title="Session"
       :state="{ session: state, guest: guest?.value, client: client?.value }"
       :context="context"
       :errors="errors"
       :meta="meta"
-    /> -->
+    />
   </div>
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import { UpmDebug, useSession } from "@upmind/vue";
-import { UpmFormGenerator } from "@upmind/vue";
-import type { ErrorObject } from "ajv";
+import { useSession } from "@upmind/vue";
+import { UpmDebug } from "@upmind/ui";
+
+import { UpmFormGenerator } from "@upmind/ui";
 import { UserIcon, PlusIcon, CheckIcon } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
@@ -130,7 +130,7 @@ export default defineComponent({
       default: false
     }
   },
-  setup(props) {
+  setup() {
     return useSession();
   },
   computed: {},

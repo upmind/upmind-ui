@@ -1,7 +1,5 @@
 // --------------------------------------------------------
 
-export { default as UpmLookup } from "./Lookup.vue";
-
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";

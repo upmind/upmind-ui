@@ -24,15 +24,10 @@ import {
   findIndex,
   forEach,
   get,
-  isNil,
   isEmpty,
-  isEqual,
   omit,
-  reduce,
   reject,
-  omitBy,
   remove,
-  set,
   some,
   trimStart,
   uniqueId
@@ -736,7 +731,7 @@ export default createMachine(
       }),
 
       removeAllItems: assign({
-        items: ({ items, bin }, _event) => {
+        items: ({ items }, _event) => {
           forEach(items, item => !item?.state?.done && item?.stop());
           return [];
         },
@@ -771,7 +766,7 @@ export default createMachine(
       }),
 
       refreshItems: assign({
-        items: ({ items, basket }, { data }) => {
+        items: ({ items }, { data }) => {
           const promotions = data?.basket?.promotions || [];
           const currency_id = data?.basket?.currency_id;
 
@@ -869,7 +864,7 @@ export default createMachine(
       ),
 
       // ---
-      setFeedbackSuccess: (context, { data }) => {
+      setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated the basket");
       },
 
@@ -883,7 +878,8 @@ export default createMachine(
 
       setError: assign({
         error: (context, { data }) => {
-          let { items, newItems, error } = data;
+          const { items, newItems } = data;
+          let { error } = data;
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
@@ -923,7 +919,7 @@ export default createMachine(
 
       // --- Configuration Guards
 
-      allConfigured: ({ items, bin }) => {
+      allConfigured: ({ items }) => {
         const allConfigured = every(
           items,
           ({ state }) =>
@@ -948,7 +944,7 @@ export default createMachine(
         return !!data?.itemId && !some(queue, ["id", data.itemId]);
       },
 
-      hasNoItem: ({ items }, { data }) => isEmpty(data) || !data?.itemId,
+      hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
       hasItems: ({ items }) => !isEmpty(items),
 
@@ -959,7 +955,7 @@ export default createMachine(
       hasNoItems: ({ items }) => isEmpty(items),
 
       hasNewItems: ({ items }) => {
-        const value = some(items, ({ id, state }) => {
+        const value = some(items, ({ state }) => {
           const isConfigured = state.matches("configured");
           const isNew = get(state, "context.isNew");
           return isConfigured && isNew;

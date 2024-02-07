@@ -8,7 +8,7 @@ import { DomainTypes } from "./types.d";
 // --- utils
 import { useBasketHelper } from "..";
 import { parseDomain } from "./utils";
-import { has, find, isNil } from "lodash-es";
+import { has, find } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -115,7 +115,7 @@ export const useDomain = (
 
     if (parent) {
       // ---
-      parentBuilder = items => {
+      parentBuilder = () => {
         let config = null;
         const primaryDomain = find(state?.context?.values, "is_primary");
 

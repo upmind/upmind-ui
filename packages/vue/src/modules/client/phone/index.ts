@@ -56,7 +56,7 @@ export const useClientPhone = item => {
   };
 };
 
-export const useClientPhones = selected => {
+export const useClientPhones = () => {
   // this will change to be a manager of ALL phones, for now its a single instance (add/update)
 
   const { service } = useUpmindClientPhones();

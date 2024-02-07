@@ -4,6 +4,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useSystem as useUpmindSystem } from "@upmind/flow";
+export * from "./upload";
 
 // --- utils
 import { omit, sample, get, isEmpty, filter, has } from "lodash-es";

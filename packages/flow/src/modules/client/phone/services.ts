@@ -45,7 +45,7 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
+async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
   // we dont have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
   await fetchCountries();

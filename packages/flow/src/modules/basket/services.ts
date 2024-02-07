@@ -418,15 +418,7 @@ async function getProvisioningFieldsValues(basket: any) {
 
 // --------------------------------------------------------
 
-async function convertToInvoice(context: BasketContext, _event: any) {}
-
-// --------------------------------------------------------
-// --- Syntax sugar to Update Basket
-// --------------------------------------------------------
-
-async function setBasket(context: BasketContext, _event: any) {}
-
-async function setPriceList(context: BasketContext, _event: any) {}
+// async function convertToInvoice(context: BasketContext, _event: any) {}
 
 // --------------------------------------------------------
 // EXPORTS

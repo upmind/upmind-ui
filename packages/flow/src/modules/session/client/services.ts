@@ -11,7 +11,7 @@ import { get, omit } from "lodash-es";
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(context: ClientContext, _event: any) {
+async function check(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
   // and we need to check the token
   const token = get(localStorage, `client/auth/token`);
@@ -54,7 +54,7 @@ async function verify2fa(context: ClientContext, { data }: any) {
 
 // --- REGISTER
 
-async function getCustomFields(_context: ClientContext, { data }: any) {
+async function getCustomFields(_context: ClientContext, _event: any) {
   const { get, useUrl } = useApi();
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
@@ -118,7 +118,7 @@ async function persistToken(context: ClientContext, _event: any) {
   return Promise.resolve(); // we dont need to return anything
 }
 
-async function dumpToken(context: ClientContext, _event: any) {
+async function dumpToken(_context: ClientContext, _event: any) {
   localStorage.removeItem(`client/auth/token`);
 
   return Promise.resolve(); // we dont need to return anything

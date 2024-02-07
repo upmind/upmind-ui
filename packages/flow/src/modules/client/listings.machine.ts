@@ -136,16 +136,16 @@ export default createMachine(
       }),
 
       resetFiltered: assign({
-        items: ({ raw }, { data }) => raw,
+        items: ({ raw }, _event) => raw,
         filters: undefined
       }),
 
       setFiltered: assign({
-        items: ({ raw }, { data }) => data
+        items: (_context, { data }) => data
       }),
 
       setFilters: assign({
-        filters: (context, { data }) => data
+        filters: (_context, { data }) => data
       }),
       // --------------------------------------------
 
@@ -176,7 +176,7 @@ export default createMachine(
       setSelected: assign({
         initial: undefined,
         filters: undefined,
-        items: ({ raw }, { data }) => raw,
+        items: ({ raw }, _event) => raw,
         selected: (
           { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
@@ -186,7 +186,7 @@ export default createMachine(
       setSelectedNew: assign({
         initial: undefined,
         filters: undefined,
-        items: ({ raw }, { data }) => raw,
+        items: ({ raw }, _event) => raw,
         selected: (
           { raw }: ClientListingsContext,
           _event: ClientListingsEvents
@@ -196,13 +196,13 @@ export default createMachine(
       clearSelected: assign({
         initial: undefined,
         filters: undefined,
-        items: ({ raw }, { data }) => raw,
+        items: ({ raw }, _event) => raw,
         selected: undefined
       }),
 
       // ---
       setError: assign({
-        error: (context, { data }, meta) => {
+        error: (_context, { data }) => {
           const error = data?.error;
           return error || data;
         }

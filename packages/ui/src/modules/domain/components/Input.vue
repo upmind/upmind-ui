@@ -215,7 +215,7 @@ export default defineComponent({
       this.setFocus();
     },
 
-    doClick(event: Event) {
+    doClick(_event: Event) {
       // resend the model value to the parent to trigger the search
       this.$emit("click", {
         currentTarget: { value: this.model }

@@ -70,7 +70,8 @@
 
 <script setup lang="ts">
 import { inject, computed } from "vue";
-import { UpmDebug, useFeedback } from "@upmind/vue";
+import { useFeedback } from "@upmind/vue";
+import { UpmDebug } from "@upmind/ui";
 import UpmMessage from "../components/MessageLog.vue";
 import { useTimestamp } from "@vueuse/core";
 import { forEach, random, nth, some, filter } from "lodash-es";

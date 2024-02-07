@@ -85,16 +85,13 @@
 <script setup lang="ts">
 import { ref, inject } from "vue";
 
-import { UpmDomain } from "@upmind/vue";
+import { UpmDomain } from "@upmind/ui";
 
 import {
-  SwatchIcon,
   CheckCircleIcon,
   ChevronRightIcon,
   ExclamationTriangleIcon
 } from "@heroicons/vue/24/outline";
-
-import { capitalize } from "lodash-es";
 
 const debugging = ref(true);
 const activeTheme = inject("activeTheme");

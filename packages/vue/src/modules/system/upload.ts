@@ -1,5 +1,3 @@
-export { default as UpmFormGenerator } from "./FormGenerator.vue";
-
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";

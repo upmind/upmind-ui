@@ -92,7 +92,7 @@ export const useBasketHelper = (
   parentBuilder
 ) => {
   // TODO: check if there is a valid actor and that it is started
-  const { findItem, itemExists, service, getItemsSnapshot } = useBasket();
+  const { findItem, service, getItemsSnapshot } = useBasket();
   const dirtyItems = [];
   const processingItems = {};
 

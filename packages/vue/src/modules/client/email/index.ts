@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientEmails as useUpmindClientEmails } from "@upmind/flow";
 
 // --- utils
-import { get, map, compact, debounce } from "lodash-es";
+import { get, map, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -56,7 +56,7 @@ export const useClientEmail = item => {
   };
 };
 
-export const useClientEmails = selected => {
+export const useClientEmails = () => {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
 
   const { service } = useUpmindClientEmails();

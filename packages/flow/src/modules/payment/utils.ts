@@ -11,7 +11,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = (context: PaymentDetailsContext) => {
+export const useSchema = (_context: PaymentDetailsContext) => {
   const schema = {
     type: "object",
     title: "Payment Details Fields",
@@ -22,7 +22,7 @@ export const useSchema = (context: PaymentDetailsContext) => {
   return schema as JsonSchema;
 };
 
-export const useUischema = (context: PaymentDetailsContext) => {
+export const useUischema = (_context: PaymentDetailsContext) => {
   const schema = {
     type: "VerticalLayout",
     elements: []

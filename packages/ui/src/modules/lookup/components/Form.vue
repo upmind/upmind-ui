@@ -29,8 +29,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useLookupItem } from "../";
-import { UpmFormGenerator } from "@upmind/vue";
+import { useLookupItem } from "@upmind/vue";
+import { UpmFormGenerator } from "@upmind/ui";
 
 export default defineComponent({
   name: "UpmLookupForm",
@@ -77,3 +77,4 @@ export default defineComponent({
   }
 });
 </script>
+..

@@ -147,7 +147,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const { text, isSupported, copy, copied } = useClipboard();
+    const { isSupported, copy, copied } = useClipboard();
 
     // ------------------------------------------------
 

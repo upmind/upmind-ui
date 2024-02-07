@@ -19,7 +19,7 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 async function load(
   _context: ClientListingsContext,
-  { data }: ClientListingsEvents
+  _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -37,7 +37,7 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: EmailContext, { data }: EmailEvent) {
+async function loadLookups(_context: EmailContext, _event: EmailEvent) {
   // we dont have any lookups for emails, so just return null
   return Promise.resolve(null);
 }

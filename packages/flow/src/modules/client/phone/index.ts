@@ -1,5 +1,5 @@
 // --- external
-import { interpret, type ContextFrom } from "xstate";
+import { interpret } from "xstate";
 
 // --- internal
 import listingsMachine from "../listings.machine";

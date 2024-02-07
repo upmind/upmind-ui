@@ -69,7 +69,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { useLookup } from "./";
+import { useLookup } from "@upmind/vue";
 import UpmItem from "./components/Item.vue";
 import UpmForm from "./components/Form.vue";
 import UpmDropdown from "../../components/Dropdown.vue";
@@ -197,3 +197,4 @@ export default defineComponent({
   }
 });
 </script>
+.

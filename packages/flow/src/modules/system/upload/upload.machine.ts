@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { escalate } = actions;
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
