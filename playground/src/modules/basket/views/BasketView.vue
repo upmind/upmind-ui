@@ -1,82 +1,55 @@
 <template>
   <section class="basket w-full">
-    <header class="navbar bg-base-100 shadow-md relative z-20 pl-4 rounded-box">
-      <div class="flex-1">
-        <h2 class="title m-0">
-          Basket
-
-          <span v-if="!meta.hasProducts">
-            is <span class="text-primary">Empty</span>
-          </span>
-
-          <span v-else-if="meta.needsUpdating">
-            needs <span class="text-primary">Updating</span>
-          </span>
-
-          <span v-else-if="!meta.isReadyForCheckout">
-            is <span class="text-warning">NOT</span> Ready for Checkout
-          </span>
-
-          <span v-else>
-            is <span class="text-primary">Ready for Checkout</span>
-          </span>
-        </h2>
-      </div>
-
-      <div class="flex-1" v-if="meta.isLoading || meta.isProcessing">
-        <progress class="progress progress-primary w-1/2"></progress>
-      </div>
-
-      <div class="actions flex-none join justify-end">
-        <upm-currency
-          v-if="currency"
-          :model-value="currency"
-          :currencies="currencies"
-          :processing="meta.isLoading || meta.isProcessing"
-          @update:modelValue="updateCurrency"
-          class="mx-4"
-        >
-        </upm-currency>
-        <slot name="actions">
-          <form @submit.prevent="addProduct(model)">
-            <fieldset>
-              <select
-                class="select select-bordered w-24 md:w-auto join-item"
-                v-model="model.product_id"
-                placeholder="Select product"
+    <div class="actions flex flex-none join justify-end relative z-20">
+      <upm-currency
+        v-if="currency"
+        :model-value="currency"
+        :currencies="currencies"
+        :processing="meta.isLoading || meta.isProcessing"
+        @update:modelValue="updateCurrency"
+        class="mx-4"
+      >
+      </upm-currency>
+      <slot name="actions">
+        <form @submit.prevent="addProduct(model)">
+          <fieldset>
+            <select
+              class="select select-sm select-bordered w-24 md:w-auto join-item"
+              v-model="model.product_id"
+              placeholder="Select product"
+            >
+              <component
+                v-for="(item, index) in productCatalogue"
+                :key="`item-${index}`"
+                :is="item.type || 'option'"
+                v-bind="item"
               >
-                <component
-                  v-for="(item, index) in productCatalogue"
-                  :key="`item-${index}`"
-                  :is="item.type || 'option'"
-                  v-bind="item"
-                >
-                  <option
-                    v-for="(subitem, subindex) in item?.options"
-                    :key="`item-${index}-${subindex}`"
-                    v-bind="subitem"
-                  ></option>
-                </component>
-              </select>
-            </fieldset>
-          </form>
+                <option
+                  v-for="(subitem, subindex) in item?.options"
+                  :key="`item-${index}-${subindex}`"
+                  v-bind="subitem"
+                ></option>
+              </component>
+            </select>
+          </fieldset>
+        </form>
 
-          <button
-            class="btn btn-primary join-item"
-            type="submit"
-            :disabled="meta.isProcessing || !model.product_id"
-            @click.prevent="addProduct(model)"
-          >
-            <!-- <div class="indicator"> -->
-            <!-- <span class="indicator-item"> -->
-            <!-- </span> -->
+        <button
+          class="btn btn-sm btn-primary join-item"
+          type="submit"
+          :disabled="meta.isProcessing || !model.product_id"
+          @click.prevent="addProduct(model)"
+        >
+          <!-- <div class="indicator"> -->
+          <!-- <span class="indicator-item"> -->
+          <!-- </span> -->
 
-            <squares-plus-icon class="h-6 w-6" />
-            <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
-            <!-- </div> -->
-          </button>
+          <squares-plus-icon class="h-6 w-6" />
+          <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
+          <!-- </div> -->
+        </button>
 
-          <!-- <button
+        <!-- <button
             class="btn btn-ghost join-item"
             type="reset"
             :disabled="meta.isProcessing || !model.product_id"
@@ -84,68 +57,99 @@
           >
             cancel
           </button> -->
-        </slot>
+      </slot>
+    </div>
+    <header
+      class="bg-base-100 text-base-content shadow-md rounded-box sticky top-0 z-10"
+    >
+      <div class="navbar relative z-20 pl-4">
+        <h2 class="flex-1 title m-0 flex gap-1 justify-center">
+          Basket
+
+          <template v-if="!meta.isLoading">
+            <span v-if="!meta.hasProducts">
+              is <span class="text-primary">Empty</span>
+            </span>
+
+            <span v-else-if="meta.needsUpdating">
+              needs <span class="text-primary">Updating</span>
+            </span>
+
+            <span v-else-if="!meta.isReadyForCheckout">
+              is <span class="text-warning">NOT</span> Ready for Checkout
+            </span>
+
+            <span v-else>
+              is <span class="text-primary">Ready for Checkout</span>
+            </span>
+          </template>
+
+          <span
+            v-if="meta.isLoading || meta.isProcessing"
+            class="loading loading-dots text-primary mx-2"
+          ></span>
+        </h2>
+      </div>
+
+      <!-- breadcrumbs -->
+      <div
+        class="steps steps-horizontal w-full my-4 text-xs"
+        v-if="meta.hasProducts && !meta.isLoading"
+      >
+        <router-link
+          class="step m-0 p-0 text-inherit no-underline uppercase"
+          :class="meta.isConfigured ? 'step-primary' : 'step-warning'"
+          :data-content="meta.isConfigured ? '✓' : '!'"
+          :to="{ hash: '#items' }"
+        >
+          Basket Items
+        </router-link>
+
+        <router-link
+          class="step m-0 p-0 text-inherit no-underline uppercase"
+          :class="meta.hasFields ? 'step-primary' : 'step-warning'"
+          :data-content="meta.hasFields ? '✓' : '!'"
+          :to="{ hash: '#fields' }"
+        >
+          Order Fields
+        </router-link>
+
+        <router-link
+          class="step m-0 p-0 text-inherit no-underline uppercase"
+          :class="!meta.needsAuth ? 'step-primary' : 'step-warning'"
+          :data-content="!meta.needsAuth ? '✓' : '!'"
+          :to="{ hash: '#account' }"
+        >
+          Account
+        </router-link>
+
+        <router-link
+          class="step m-0 p-0 text-inherit no-underline uppercase"
+          :class="meta.hasBilling ? 'step-primary' : 'step-warning'"
+          :data-content="meta.hasBilling ? '✓' : '!'"
+          :to="{ hash: '#billing' }"
+        >
+          Billing Details
+        </router-link>
+
+        <router-link
+          class="step m-0 p-0 text-inherit no-underline uppercase"
+          :class="meta.hasPaymentMethod ? 'step-primary' : 'step-warning'"
+          :data-content="meta.hasPaymentMethod ? '✓' : '!'"
+          :to="{ hash: '#payment' }"
+        >
+          Payment
+        </router-link>
+
+        <div
+          class="step m-0 p-0 text-inherit no-underline uppercase"
+          :class="meta.isReadyForCheckout ? 'step-primary' : ''"
+          :data-content="meta.isReadyForCheckout ? '✓' : '?'"
+        >
+          Complete
+        </div>
       </div>
     </header>
-
-    <!-- breadcrumbs -->
-    <div
-      class="steps steps-horizontal w-full navbar bg-base-100 shadow-md sticky top-0 rounded-box mt-4 p-4 z-10 text-base-content"
-      v-if="meta.hasProducts && !meta.isLoading"
-    >
-      <router-link
-        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.isConfigured ? 'step-primary' : 'step-warning'"
-        :data-content="meta.isConfigured ? '✓' : '!'"
-        :to="{ hash: '#items' }"
-      >
-        Basket Items
-      </router-link>
-
-      <router-link
-        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasFields ? 'step-primary' : 'step-warning'"
-        :data-content="meta.hasFields ? '✓' : '!'"
-        :to="{ hash: '#fields' }"
-      >
-        Order Fields
-      </router-link>
-
-      <router-link
-        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="!meta.needsAuth ? 'step-primary' : 'step-warning'"
-        :data-content="!meta.needsAuth ? '✓' : '!'"
-        :to="{ hash: '#account' }"
-      >
-        Account
-      </router-link>
-
-      <router-link
-        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasBilling ? 'step-primary' : 'step-warning'"
-        :data-content="meta.hasBilling ? '✓' : '!'"
-        :to="{ hash: '#billing' }"
-      >
-        Billing Details
-      </router-link>
-
-      <router-link
-        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.hasPaymentMethod ? 'step-primary' : 'step-warning'"
-        :data-content="meta.hasPaymentMethod ? '✓' : '!'"
-        :to="{ hash: '#payment' }"
-      >
-        Payment
-      </router-link>
-
-      <div
-        class="step m-0 p-0 text-xs text-inherit no-underline uppercase"
-        :class="meta.isReadyForCheckout ? 'step-primary' : ''"
-        :data-content="meta.isReadyForCheckout ? '✓' : '?'"
-      >
-        Complete
-      </div>
-    </div>
 
     <div
       class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
@@ -336,14 +340,14 @@
           <div>
             <div class="divider uppercase text-xs opacity-50">SubTotal</div>
             <h4 class="text-inherit mt-0">
-              {{ summary.subtotal }}
+              {{ summary?.subtotal }}
             </h4>
           </div>
 
           <!-- Taxes -->
           <div v-if="meta.hasTaxes">
             <div class="divider uppercase text-xs opacity-50">Taxes</div>
-            <h4 class="text-inherit mt-0">{{ summary.taxes }}</h4>
+            <h4 class="text-inherit mt-0">{{ summary?.taxes }}</h4>
           </div>
 
           <!-- Total -->

@@ -127,10 +127,10 @@
           <span class="uppercase">Item Total: </span>
           <span class="inline-block align-center text-right">
             <span class="line-through text-sm ml-2 block">{{
-              summary.subtotalFormatted
+              summary?.subtotalFormatted
             }}</span>
             <!-- <span class="text-sm ml-2 block">
-              - {{ summary.discountFormatted }}</span
+              - {{ summary?.discountFormatted }}</span
             > -->
             <strong class="text-accent text-xl ml-2 block">{{
               summary?.totalFormatted

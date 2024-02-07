@@ -471,8 +471,6 @@ async function validateFields(
 }
 // --------------------------------------------------------
 
-async function hideWarnings(context: BasketContext, _event: any) {}
-
 async function convertToInvoice(context: BasketContext, _event: any) {}
 
 // --------------------------------------------------------
