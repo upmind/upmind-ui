@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useFeedback } from "..";
+import { useFeedback } from "@upmind/vue";
 import UpmMessage from "../components/Message.vue";
 import { useTimestamp } from "@vueuse/core";
 

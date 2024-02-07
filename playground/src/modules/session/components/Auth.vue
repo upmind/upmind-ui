@@ -113,9 +113,8 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import { useSession } from "../";
-import { UpmDebug } from "@upmind/components";
-import { UpmFormGenerator } from "@upmind/components";
+import { UpmDebug, useSession } from "@upmind/vue";
+import { UpmFormGenerator } from "@upmind/vue";
 import type { ErrorObject } from "ajv";
 import { UserIcon, PlusIcon, CheckIcon } from "@heroicons/vue/24/outline";
 

@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { ref, inject } from "vue";
 import { useSystem } from "..";
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug } from "@upmind/vue";
 import { FolderArrowDownIcon } from "@heroicons/vue/24/outline";
 import { startCase } from "lodash-es";
 

@@ -1,7 +1,5 @@
 import type { App, Plugin } from "vue";
-import { useApi } from "@/modules/api";
-import { useBrand } from "@/modules/brand";
-import { useSession } from "@/modules/session";
+import { useApi, useBrand, useSession } from "@upmind/vue";
 import { useSystem } from "@/modules/system";
 
 declare module "@vue/runtime-core" {

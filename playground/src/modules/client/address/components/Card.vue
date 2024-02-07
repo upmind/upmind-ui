@@ -118,7 +118,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientAddress } from "..";
+import { useClientAddress } from "@upmind/vue";
 import {
   MapPinIcon,
   EllipsisVerticalIcon,

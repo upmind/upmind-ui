@@ -184,8 +184,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue";
 
-import { UpmDomain } from "@upmind/components";
-import { useBasket } from "../../basket";
+import { UpmDomain, useBasket } from "@upmind/vue";
 
 import {
   PlusCircleIcon,

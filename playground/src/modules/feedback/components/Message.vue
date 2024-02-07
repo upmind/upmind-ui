@@ -85,10 +85,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useMessage } from "..";
 
 import { utils } from "@upmind/flow";
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug, useMessage } from "@upmind/vue";
 import { useTimestamp } from "@vueuse/core";
 
 import {

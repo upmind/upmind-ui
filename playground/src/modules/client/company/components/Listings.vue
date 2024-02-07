@@ -59,10 +59,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { useClientCompanies } from "..";
 import UpmCard from "./Card.vue";
 import UpmForm from "./Form.vue";
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug, useClientCompanies } from "@upmind/vue";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
 import { isEqual } from "lodash-es";

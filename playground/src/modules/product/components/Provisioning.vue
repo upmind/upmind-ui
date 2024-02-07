@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import { UpmFormGenerator } from "@upmind/components";
+import { UpmFormGenerator } from "@upmind/vue";
 import { type JsonSchema } from "@jsonforms/core";
 import { get, isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";

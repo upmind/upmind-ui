@@ -201,7 +201,7 @@
       >
         <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
-        <upm-basket-fields
+        <!-- <upm-basket-fields
           :schema="fieldsSchema"
           :uischema="fieldsUischema"
           :model-value="fieldsModel"
@@ -211,7 +211,7 @@
           @resolve="updateFields"
           @update:modelValue="setFields"
           @reject="clearFields"
-        ></upm-basket-fields>
+        ></upm-basket-fields> -->
       </section>
 
       <!-- account -->
@@ -417,7 +417,7 @@
 
 <script setup lang="ts">
 import { ref, inject, onBeforeUnmount } from "vue";
-import { useBasket } from "..";
+import { useBasket } from "@upmind/vue";
 import UpmCurrency from "../components/Currency.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
@@ -427,7 +427,7 @@ import UpmProfile from "../../session/components/Profile.vue";
 import UpmAddresses from "../../client/address/components/Listings.vue";
 import UpmCompanies from "../../client/company/components/Listings.vue";
 
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug } from "@upmind/vue";
 import {
   SquaresPlusIcon,
   ArrowUturnLeftIcon,
@@ -534,4 +534,3 @@ onBeforeUnmount(() => {
   updateFields();
 });
 </script>
-../../address/components/Addresses.vue
