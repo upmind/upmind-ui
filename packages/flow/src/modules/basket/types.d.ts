@@ -8,15 +8,12 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // Contexts
 
 export interface BasketContext {
-  basket: Basket | null;
-  items: Array;
-  bin: Array;
-  queue: Array;
-  custom_fields: Array;
-  fieldsModel?: Object;
-  fieldsSchema?: JsonSchema;
-  fieldsUischema?: UISchemaElement;
+  basket?: Basket;
+  items?: Array;
+  bin?: Array;
+  queue?: Array;
   error?: RequestError;
+  summary?: Object;
 }
 
 export interface Basket {
@@ -96,5 +93,6 @@ export interface Basket {
 
 export interface BasketEvents {
   type: "CHECK" | "REFRESH";
-  payload?: any;
+  data?: IBasket;
+  error?: RequestError;
 }

@@ -7,6 +7,19 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 // private
 
+export interface IWalletBalance {
+  offline: { [key: string]: IWalletCurrencyBalance };
+  online: { [key: string]: IWalletCurrencyBalance };
+  total: { [key: string]: IWalletCurrencyBalance };
+}
+
+export interface IWalletCurrencyBalance {
+  amount: number;
+  amount_formatted: string;
+  amount_converted: number;
+  amount_converted_formatted: string;
+}
+
 export interface IGateway {
   allow_manual_store: boolean;
   card_types: ICardType[];
@@ -80,7 +93,10 @@ export interface IPaymentDetail {
 
 export interface PaymentDetailsContext {
   // ---
-  fields: Array;
+  gateways?: Array<IGateway>;
+  payment_details?: Array<IPaymentDetail>;
+  balance?: IWalletBalance;
+
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IPaymentDetail;
@@ -93,6 +109,6 @@ export interface PaymentDetailsContext {
 
 export interface PaymentDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data: any;
+  data?: IPaymentDetail;
   error?: RequestError;
 }

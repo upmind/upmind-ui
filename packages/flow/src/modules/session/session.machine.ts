@@ -237,7 +237,7 @@ export default createMachine(
       clearUser: assign({ user: {} }),
       // ---
       setSuccess: (context, { data }) => {
-        addSuccess("Successfully logged in");
+        // addSuccess("Successfully logged in");
       },
 
       setError: assign({
