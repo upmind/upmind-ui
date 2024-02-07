@@ -186,8 +186,8 @@ export default createMachine(
       complete: {
         entry: sendParent(
           ({ model }: ClientItemContext, event: ClientItemEvent) => ({
-            data: model?.id,
-            type: "REFRESH"
+            type: "REFRESH",
+            data: model?.id
           })
         ),
         type: "final"

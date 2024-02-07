@@ -118,6 +118,10 @@ export interface Typegen0 {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
+    "error.platform.payment_details": {
+      type: "error.platform.payment_details";
+      data: unknown;
+    };
     "error.platform.removing:invocation[0]": {
       type: "error.platform.removing:invocation[0]";
       data: unknown;
@@ -217,6 +221,7 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.promotions.adding:invocation[0]"
       | "error.platform.basketManager.shopping.promotions.removing:invocation[0]"
       | "error.platform.claiming:invocation[0]"
+      | "error.platform.payment_details"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
@@ -288,7 +293,7 @@ export interface Typegen0 {
   eventsCausingServices: {
     addPromotion: "ADD.PROMOTION";
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
-    check: "SESSION" | "UNAUTHENTICATED";
+    check: "REFRESH" | "SESSION" | "UNAUTHENTICATED";
     claim: "AUTHENTICATED";
     generate: "ADD";
     getCustomFields:
@@ -299,6 +304,10 @@ export interface Typegen0 {
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     isAuthenticated:
+      | ""
+      | "done.invoke.claiming:invocation[0]"
+      | "done.invoke.generating:invocation[0]";
+    payment_details:
       | ""
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
@@ -358,6 +367,8 @@ export interface Typegen0 {
     | "shopping.items.processing.removing"
     | "shopping.items.processing.updating"
     | "shopping.payment_details"
+    | "shopping.payment_details.complete"
+    | "shopping.payment_details.processing"
     | "shopping.promotions"
     | "shopping.promotions.active"
     | "shopping.promotions.adding"
@@ -401,6 +412,7 @@ export interface Typegen0 {
                       | "removing"
                       | "updating";
                   };
+              payment_details?: "complete" | "processing";
               promotions?: "active" | "adding" | "empty" | "error" | "removing";
             };
       };
