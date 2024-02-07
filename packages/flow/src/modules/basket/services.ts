@@ -9,8 +9,7 @@ import type { Token } from "../session/types.d";
 const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
-import { useValidation } from "../../utils";
-import { useBasketParser, useCustomFieldsModelParser } from "./utils";
+import { useBasketParser } from "./utils";
 import {
   differenceBy,
   filter,
@@ -115,10 +114,7 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function update(
-  { basket, items, fieldsModel }: BasketContext,
-  _event: any
-) {
+async function update({ basket, items }: BasketContext, _event: any) {
   const { put, useUrl } = useApi();
 
   const validItems = filter(items, item => item.state.matches("configured"));
@@ -129,8 +125,7 @@ async function update(
   const response = await put({
     url: useUrl(`/orders/${basket.id}`),
     data: {
-      products: productConfigs,
-      ...fieldsModel
+      products: productConfigs
     },
     withAccessToken: true
   })
@@ -158,28 +153,6 @@ async function update(
       resolve(response);
     }
   });
-}
-
-async function setFields(
-  { basket, custom_fields, fieldsModel }: BasketContext,
-  _event: any
-) {
-  const { put, useUrl } = useApi();
-  // rebuild the model with ALL custo mfields present, including nullish values
-  const data = useCustomFieldsModelParser(custom_fields, fieldsModel);
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return put({
-    url: useUrl(`/orders/${basket.id}`),
-    data,
-    withAccessToken: true
-  })
-    .then(check)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
-    });
 }
 
 async function setCurrency({ basket, items }: BasketContext, { data }: any) {
@@ -444,32 +417,6 @@ async function getProvisioningFieldsValues(basket: any) {
 }
 
 // --------------------------------------------------------
-// --- Basket Field Methods
-
-async function getCustomFields(_context: BasketContext, { data }: any) {
-  const { get, useUrl } = useApi();
-  return get({
-    // url: useUrl("basket_fields", { brand_id: null }),
-    url: useUrl("basket_fields")
-  }).then(({ data }) => data);
-}
-
-async function validateFields(
-  { fieldsSchema, fieldsModel }: BasketContext,
-  _event: any
-) {
-  const { validate } = useValidation();
-
-  return new Promise((resolve, reject) => {
-    const errors = validate(fieldsSchema, fieldsModel);
-    if (errors.length) {
-      reject(errors);
-    } else {
-      resolve(fieldsModel);
-    }
-  });
-}
-// --------------------------------------------------------
 
 async function convertToInvoice(context: BasketContext, _event: any) {}
 
@@ -484,13 +431,12 @@ async function setPriceList(context: BasketContext, _event: any) {}
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   check,
   generate,
   claim,
   update,
   // ---
-  setFields,
   setCurrency,
   setBilling,
   // ---
@@ -501,8 +447,5 @@ export default <Object>{
   removeItem,
   // ---
   authSubscription,
-  isAuthenticated,
-  // ---
-  getCustomFields,
-  validateFields
+  isAuthenticated
 };

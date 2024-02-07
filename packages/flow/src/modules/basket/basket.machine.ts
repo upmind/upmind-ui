@@ -1,25 +1,20 @@
 // --- external
-import { createMachine, assign, spawn, actions } from "xstate";
+import { createMachine, assign, actions } from "xstate";
 const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
-import type { BasketContext } from "./types.d";
-import configurationMachine from "../product/product.machine";
 import paymentDetailsMachine from "../payment/details.machine";
+import customFieldsMachine from "./fields/fields.machine";
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-
-import { useTime } from "../../utils";
+import { useTime, useValidationParser } from "../../utils";
 import {
   useSummaryParser,
-  useValidationParser,
-  useCustomFieldsSchemaParser,
-  useCustomFieldsUischemaParser,
-  useCustomFieldsModelParser,
-  useBasketFieldsModelParser
+  useBasketFieldsModelParser,
+  spawnConfiguration
 } from "./utils";
 
 import {
@@ -43,22 +38,8 @@ import {
   uniqueId
 } from "lodash-es";
 
-// --------------------------------------------------------
-// utility function to spawn machines based on the given items
-function spawnConfiguration(id, values, currency_id, promotions = []) {
-  try {
-    return spawn(configurationMachine(values, currency_id, promotions), {
-      name: id,
-      sync: true
-    });
-  } catch (err) {
-    console.error("Basket", "spawnConfiguration", {
-      values,
-      currency_id,
-      promotions
-    });
-  }
-}
+// --- types
+import type { BasketContext, BasketEvents } from "./types.d";
 
 // --------------------------------------------------------
 
@@ -70,23 +51,17 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      basket: null,
+      basket: undefined,
       // ---
       items: [],
       bin: [],
       queue: [],
       // ---
-      custom_fields: [],
-      fieldsSchema: undefined,
-      fieldsUischema: undefined,
-      fieldsModel: undefined,
-
-      // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
-      summary: null,
+      summary: undefined,
       // ---
-      error: null
+      error: undefined
     } as BasketContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
@@ -409,86 +384,59 @@ export default createMachine(
           },
 
           custom_fields: {
-            initial: "loading",
+            initial: "processing",
             states: {
-              loading: {
-                invoke: {
-                  src: "getCustomFields",
-                  onDone: {
-                    target: "checking",
-                    actions: ["setFields", "setFieldsSchemas"]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError"]
-                  }
-                }
-              },
-
-              checking: {
-                entry: ["clearError"],
-                invoke: {
-                  src: "validateFields",
-                  onDone: [
-                    {
-                      target: "valid",
-                      cond: "hasDirtyFields"
-                    },
-                    {
-                      target: "complete"
-                    }
-                  ],
-                  onError: {
-                    target: "invalid",
-                    actions: ["setError"]
-                  }
-                }
-              },
-
-              valid: {
-                always: {
-                  target: "complete",
-                  cond: "hasNoDirtyFields"
-                }
-              },
-
-              invalid: {},
-
-              error: {},
-
               processing: {
                 invoke: {
-                  src: "setFields",
-                  onDone: {
-                    target: "complete",
-                    actions: ["updateBasket", "setFeedbackSuccess"]
+                  id: "custom_fields",
+                  src: customFieldsMachine,
+                  data: {
+                    model: (
+                      { basket }: BasketContext,
+                      { data }: BasketEvents
+                    ) => useBasketFieldsModelParser(basket, data)
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onDone: {
+                    target: "complete"
+                  },
+                  onError: { actions: ["setError"] }
                 }
               },
-              // Handle completion, stop the machine and prevent further requests
+
               complete: {
                 type: "final"
               }
             },
             on: {
-              "UPDATE.FIELDS": {
-                target: "custom_fields.processing",
-                cond: "hasFields"
-              },
-              "CLEAR.FIELDS": {
-                target: "custom_fields.checking",
-                actions: ["clearFieldsModel"],
-                cond: "hasFields"
-              },
-              "SET.FIELDS": {
-                target: "custom_fields.checking",
-                actions: ["setFieldsModel"],
-                cond: "hasFields"
-              }
+              REFRESH: { target: "#loading" }
+              // ---
+              // we should not need these as the payment details machine should handle these
+              // "UPDATE.FIELDS": {
+              //   target: "custom_fields.processing",
+              //   actions: [
+              //     sendTo("custom_fields", (_context, { data }) => ({
+              //       type: "UPDATE",
+              //       data,
+              //       delay: 0
+              //     }))
+              //   ]
+              // },
+              // "CLEAR.FIELDS": {
+              //   target: "custom_fields.processing",
+              //   actions: [
+              //     sendTo("custom_fields", { type: "CLEAR", delay: 0 })
+              //   ]
+              // },
+              // "SET.FIELDS": {
+              //   target: "custom_fields.processing",
+              //   actions: [
+              //     sendTo("custom_fields", (_context, { data }) => ({
+              //       type: "SET",
+              //       data,
+              //       delay: 0
+              //     }))
+              //   ]
+              // }
             }
           },
 
@@ -693,23 +641,24 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
-        basket: (context, { data }) => data,
-        summary: (context, { data }) => useSummaryParser(data),
-        fieldsModel: ({ fieldsModel }, { data }) =>
-          useBasketFieldsModelParser(data, fieldsModel),
-        error: null
+        basket: (_context: BasketContext, { data }: BasketEvents) => data,
+        summary: (_context: BasketContext, { data }: BasketEvents) =>
+          useSummaryParser(data),
+        error: undefined
       }),
 
       updateBasket: assign({
-        basket: (context, { data }) => get(data, "basket", context.basket),
-        summary: (context, { data }) => useSummaryParser(context.basket),
-        error: null
+        basket: ({ basket }: BasketContext, { data }: BasketEvents) =>
+          get(data, "basket", basket),
+        summary: ({ basket }: BasketContext, _event: BasketEvents) =>
+          useSummaryParser(basket),
+        error: undefined
       }),
 
       clearBasket: assign({
-        basket: {},
+        basket: undefined,
         summary: useSummaryParser(),
-        error: null
+        error: undefined
       }),
 
       // --- Configuring Items Actions
@@ -732,7 +681,7 @@ export default createMachine(
           });
           return items;
         },
-        error: null
+        error: undefined
       }),
 
       addItem: assign({
@@ -747,7 +696,7 @@ export default createMachine(
           items.push(machine);
           return items;
         },
-        error: null
+        error: undefined
       }),
 
       queueItem: assign({
@@ -763,12 +712,12 @@ export default createMachine(
           if (found) queue.push(found); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return queue;
         },
-        error: null
+        error: undefined
       }),
 
       removeFromQueue: assign({
         queue: ({ queue }, { data }) => reject(queue, ["id", data.id]),
-        error: null
+        error: undefined
       }),
 
       binItem: assign({
@@ -778,7 +727,7 @@ export default createMachine(
           if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
         },
-        error: null
+        error: undefined
       }),
 
       clearQueue: assign({
@@ -793,7 +742,7 @@ export default createMachine(
         },
         bin: [],
         queue: [],
-        error: null
+        error: undefined
       }),
 
       removeItem: assign({
@@ -818,7 +767,7 @@ export default createMachine(
           return queue;
         },
 
-        error: null
+        error: undefined
       }),
 
       refreshItems: assign({
@@ -909,7 +858,7 @@ export default createMachine(
         },
         bin: [],
         queue: [],
-        error: null
+        error: undefined
       }),
 
       // ---
@@ -918,35 +867,6 @@ export default createMachine(
         (_context, { data: { itemId } }) => itemId,
         (_context, { type, data }) => ({ type, data })
       ),
-
-      // ---
-
-      setFieldsSchemas: assign({
-        fieldsSchema: ({ custom_fields }) =>
-          useCustomFieldsSchemaParser(custom_fields),
-        fieldsUischema: ({ custom_fields }) =>
-          useCustomFieldsUischemaParser(custom_fields),
-        fieldsModel: ({ custom_fields, fieldsModel }) =>
-          useCustomFieldsModelParser(custom_fields, fieldsModel)
-      }),
-
-      clearSchemas: assign({
-        fieldsSchema: undefined,
-        fieldsUischema: undefined
-      }),
-
-      setFieldsModel: assign({
-        fieldsModel: ({ custom_fields }, { data }) =>
-          useCustomFieldsModelParser(custom_fields, data)
-      }),
-
-      clearFieldsModel: assign({
-        fieldsModel: {}
-      }),
-
-      setFields: assign({
-        custom_fields: (_context, { data }) => data
-      }),
 
       // ---
       setFeedbackSuccess: (context, { data }) => {
@@ -989,7 +909,7 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: undefined })
     },
 
     guards: {
@@ -1060,54 +980,6 @@ export default createMachine(
       },
 
       hasProducts: ({ basket }) => !!basket?.products?.length,
-
-      hasDirtyFields: ({ fieldsModel, basket }) => {
-        const basketFields = reduce(
-          basket?.custom_fields,
-          (result, { field, value }) => {
-            set(result, field.code, value);
-            return result;
-          },
-          {}
-        );
-
-        const populatedFields = omitBy(fieldsModel?.custom_fields, isNil);
-        const isDirty = !isEqual(populatedFields, basketFields);
-
-        console.log("hasDirtyFields", {
-          populatedFields,
-          basketFields,
-          basket: basket?.custom_fields,
-          isDirty
-        });
-
-        return isDirty;
-      },
-
-      hasNoDirtyFields: ({ fieldsModel, basket }) => {
-        const basketFields = reduce(
-          basket?.custom_fields,
-          (result, { field, value }) => {
-            set(result, field.code, value);
-            return result;
-          },
-          {}
-        );
-
-        const populatedFields = omitBy(fieldsModel?.custom_fields, isNil);
-        const dirty = !isEqual(populatedFields, basketFields);
-
-        console.log({
-          fieldsModel: populatedFields,
-          basketFields: basketFields,
-          dirty
-        });
-
-        return !dirty;
-      },
-
-      hasFields: ({ basket, custom_fields }) =>
-        !isEmpty(basket) && !isEmpty(custom_fields),
 
       hasBilling: ({ basket }) => !!basket?.address_id || !!basket?.company_id,
       hasNoBilling: ({ basket }) => !basket?.address_id && !basket?.company_id,
