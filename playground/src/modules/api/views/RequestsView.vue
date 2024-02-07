@@ -49,7 +49,9 @@
 import { inject } from "vue";
 import { delay, forEach } from "lodash-es";
 import UpmRequest from "../components/Request.vue";
-import { UpmDebug, useApi } from "@upmind/vue";
+import { useApi } from "@upmind/vue";
+import { UpmDebug } from "@upmind/ui";
+
 const { state, errors, count, meta, requests, get, useTime } = useApi();
 
 const activeTheme = inject("activeTheme");

@@ -87,7 +87,8 @@
 import { defineComponent } from "vue";
 
 import { utils } from "@upmind/flow";
-import { UpmDebug, useMessage } from "@upmind/vue";
+import { useMessage } from "@upmind/vue";
+import { UpmDebug } from "@upmind/ui";
 import { useTimestamp } from "@vueuse/core";
 
 import {

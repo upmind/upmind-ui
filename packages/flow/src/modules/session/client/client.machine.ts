@@ -313,14 +313,14 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: (context, event) => context.token
+        data: (context, _event) => context.token
       }
     }
   },
   {
     actions: {
       setCustomFields: assign({
-        customFields: (context, { data }) => data
+        customFields: (_context, { data }) => data
       }),
 
       setRegisterSchemas: assign({
@@ -330,34 +330,34 @@ export default createMachine(
       }),
 
       setLoginSchemas: assign({
-        schema: context => useLoginSchemaParser(),
-        uischema: context => useLoginUischemaParser(),
-        model: context => useLoginModelParser()
+        schema: _context => useLoginSchemaParser(),
+        uischema: _context => useLoginUischemaParser(),
+        model: _context => useLoginModelParser()
       }),
 
       set2faSchemas: assign({
-        schema: context => use2faSchemaParser(),
-        uischema: context => use2faUischemaParser(),
-        model: context => use2faModelParser()
+        schema: _context => use2faSchemaParser(),
+        uischema: _context => use2faUischemaParser(),
+        model: _context => use2faModelParser()
       }),
 
       setModel: assign({
-        model: (context, { data }) => data
+        model: (_context, { data }) => data
       }),
 
       // ---
       set2faToken: assign({
-        token: (context, { data }) => data
+        token: (_context, { data }) => data
       }),
       setToken: assign({
-        token: (context, { data }) => useTokenParser(data)
+        token: (_context, { data }) => useTokenParser(data)
       }),
       clearToken: assign({
         token: {}
       }),
       // ---
       setError: assign({
-        error: (context, { data: { error } }) => {
+        error: (_context, { data: { error } }) => {
           if (error?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
@@ -376,7 +376,7 @@ export default createMachine(
         data.actor_type == "twofa" && !!data?.second_factor_required,
       requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
       isRefreshing: context => !!context.refresh,
-      isUnauthorized: (context, { data }) =>
+      isUnauthorized: (_context, { data }) =>
         data?.status === responseCodes.Unauthorized
     },
 

@@ -1,8 +1,5 @@
 // --------------------------------------------------------
 
-export { default as UpmDac } from "./Dac.vue";
-export { default as UpmDacResults } from "./components/Results.vue";
-
 // --- external
 import { computed, ref, watch } from "vue";
 
@@ -76,12 +73,12 @@ export function useDac({
 
   const sanitised = computed(() => {
     const value = domain.value
-      ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
+      ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
       ?.toLowerCase();
 
     return {
       value,
-      tld: domain.value?.match(/(?:^[^\.]+)(\..{2,})/i)?.[1] || "",
+      tld: domain.value?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
       sld: domain.value?.split(".")?.[0] || ""
     };
   });

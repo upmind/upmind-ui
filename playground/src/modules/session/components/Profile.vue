@@ -47,7 +47,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { UpmDebug, useSession, UpmFormGenerator } from "@upmind/vue";
+import { useSession } from "@upmind/vue";
+import { UpmDebug } from "@upmind/ui";
+
 import {
   UserCircleIcon,
   ArrowRightOnRectangleIcon
@@ -56,7 +58,6 @@ import {
 export default defineComponent({
   name: "Profile",
   components: {
-    UpmFormGenerator,
     UpmDebug,
     UserCircleIcon,
     ArrowRightOnRectangleIcon
@@ -70,7 +71,7 @@ export default defineComponent({
       default: false
     }
   },
-  setup(props) {
+  setup() {
     const session = useSession();
     return session;
   },

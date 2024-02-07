@@ -10,7 +10,7 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types";
 
 export const actions = {
   add: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
+    raw: (_context: ClientListingsContext, { data }: ClientListingsEvents) =>
       data
   }),
   setItems: assign({

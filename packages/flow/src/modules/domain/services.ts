@@ -25,7 +25,7 @@ function search({
 
   if (!search?.length) return Promise.reject("No domain provided");
 
-  const { sld, tld } = parseDomain(search);
+  const { sld } = parseDomain(search);
 
   // --- Build the request, and Fetch the search results
   const params = omitBy(

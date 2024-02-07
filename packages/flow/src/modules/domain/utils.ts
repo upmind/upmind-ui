@@ -17,12 +17,12 @@ export function parseDomain(domain: string) {
   }
 
   const value = domain
-    ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-\.]?/gi, "")
+    ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
     ?.toLowerCase();
 
   return {
     domain: value,
-    tld: value?.match(/(?:^[^\.]+)(\..{2,})/i)?.[1] || "",
+    tld: value?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
     sld: first(value?.split(".")) || ""
   };
 }

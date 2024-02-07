@@ -43,7 +43,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { UpmFormGenerator, useClientAddress } from "@upmind/vue";
+import { useClientAddress } from "@upmind/vue";
+import { UpmFormGenerator } from "@upmind/ui";
 
 export default defineComponent({
   name: "UpmAddressForm",

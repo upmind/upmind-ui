@@ -54,9 +54,6 @@ const controlRenderer = defineComponent({
     ControlWrapper,
     UpmDac: defineAsyncComponent(() =>
       import("@upmind/vue").then(m => m.UpmDac)
-    ),
-    UpmDacResultsDropdown: defineAsyncComponent(() =>
-      import("@upmind/vue").then(m => m.UpmDacResultsDropdown)
     )
   },
   props: {

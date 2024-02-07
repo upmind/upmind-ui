@@ -9,10 +9,9 @@ import {
 import ajvErrors from "ajv-errors";
 
 // --- utils
-import { forEach, some } from "lodash-es";
+import { forEach } from "lodash-es";
 
 // --- types
-import type { EventObject, StateMachine } from "xstate";
 
 // --------------------------------------------------------
 
@@ -24,7 +23,7 @@ export const useValidation = () => {
   ajv.addFormat(
     "domain_name",
     // /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/
-    /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
+    /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
   );
 
   ajv.addKeyword({

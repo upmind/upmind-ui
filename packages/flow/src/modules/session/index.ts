@@ -6,7 +6,6 @@ import { waitFor } from "xstate/lib/waitFor";
 import sessionMachine from "./session.machine";
 
 // --- utils
-import { set, get, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the session machine
@@ -53,6 +52,7 @@ export const useSession = () => {
   // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
   const authSubscription =
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (_context, _event) => async (callback, onReceive) => {
       // firstly, send service's current state upon subscription
 
@@ -61,7 +61,7 @@ export const useSession = () => {
       // then listen for any changes to the client service
       // if we get a change to either authenticated or unauthenticated
       // then we need to send the callback to the subscriber
-      service.onTransition(newState => {
+      service.onTransition(() => {
         // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
         authCallback(callback);
       });

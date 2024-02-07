@@ -1,5 +1,4 @@
 // --- extrnal
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 // ENUMS

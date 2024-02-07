@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { useDate } from "../";
-import { UpmFormGenerator } from "@upmind/vue";
+import { UpmFormGenerator } from "@upmind/ui";
 
 const activeTheme = inject("activeTheme");
 

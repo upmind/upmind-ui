@@ -41,7 +41,7 @@ const router = createRouter({
     // ---
     ...routes
   ],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, _from, _savedPosition) {
     // handle scroll to anchor on same page
     if (to.hash) {
       return {

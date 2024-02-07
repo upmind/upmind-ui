@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -129,7 +129,7 @@ export default createMachine(
 
       complete: {
         entry: sendParent(
-          ({ model }: PaymentDetailsContext, event: PaymentDetailsEvent) => ({
+          ({ model }: PaymentDetailsContext, _event: PaymentDetailsEvent) => ({
             type: "REFRESH",
             data: model
           })

@@ -26,7 +26,7 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import { UpmFormGenerator } from "@upmind/vue";
+import { UpmFormGenerator } from "@upmind/ui";
 import { isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";
 

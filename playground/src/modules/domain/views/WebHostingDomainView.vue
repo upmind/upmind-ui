@@ -128,7 +128,7 @@
             </p>
           </template>
 
-          <template #actions="{ meta, primaryDomain, values }">
+          <template #actions="{ meta, primaryDomain }">
             <div
               class="actions flex items-center justify-between gap-4 w-100 rounded-box px-4 mt-12 border min-h-[5rem]"
               :class="
@@ -184,7 +184,8 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue";
 
-import { UpmDomain, useBasket } from "@upmind/vue";
+import { useBasket } from "@upmind/vue";
+import { UpmDomain } from "@upmind/ui";
 
 import {
   PlusCircleIcon,

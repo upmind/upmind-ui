@@ -29,7 +29,6 @@ import {
   reduce,
   set,
   some,
-  sum,
   sumBy,
   values as objectValues
 } from "lodash-es";
@@ -287,7 +286,7 @@ async function checkAttributes(
 
   const attributes = reduce(
     available.attributes,
-    (result, attribute, index) => {
+    (result, attribute) => {
       let selected = get(values, `attributes.${attribute.id}`, {});
 
       // only include valid values, if we have any
@@ -363,7 +362,7 @@ async function checkOptions(
 
   const options = reduce(
     available.options,
-    (result, option, index) => {
+    (result, option) => {
       // try get any selected values for this option,
 
       let selected = get(values, `options.${option.id}`, {});
@@ -473,7 +472,7 @@ async function calculateSummary(
   //  ---
   prices.attributes = reduce(
     values.attributes,
-    (result, attribute, id) => {
+    (result, attribute) => {
       const subtotal = sumBy(objectValues(attribute), "total") || 0;
       const total = sumBy(objectValues(attribute), "total_discounted") || 0;
       const discount = subtotal - total;
@@ -487,7 +486,7 @@ async function calculateSummary(
   // ---
   prices.options = reduce(
     values.options,
-    (result, option, id) => {
+    (result, option) => {
       const subtotal = sumBy(objectValues(option), "total") || 0;
       const total = sumBy(objectValues(option), "total_discounted") || 0;
       const discount = total ? subtotal - total : 0;

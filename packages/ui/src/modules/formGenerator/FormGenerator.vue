@@ -248,3 +248,4 @@ export default defineComponent({
   }
 });
 </script>
+../../../../ui/src/debug/Debug.vue

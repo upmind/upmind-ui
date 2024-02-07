@@ -427,7 +427,7 @@ import UpmProfile from "../../session/components/Profile.vue";
 import UpmAddresses from "../../client/address/components/Listings.vue";
 import UpmCompanies from "../../client/company/components/Listings.vue";
 
-import { UpmDebug } from "@upmind/vue";
+import { UpmDebug } from "@upmind/ui";
 import {
   SquaresPlusIcon,
   ArrowUturnLeftIcon,
@@ -446,14 +446,11 @@ const {
   promotions,
   currency,
   currencies,
-  fieldsModel,
-  fieldsSchema,
-  fieldsUischema,
+
   // ---
   addProduct,
   addPromotion,
   clearBasket,
-  clearErrors,
   removeItem,
   removePromotion,
   updateAttributes,
@@ -464,8 +461,6 @@ const {
   updateProvisioning,
   updateQuantity,
   updateTerm,
-  clearFields,
-  setFields,
   updateFields,
   setBillingAddress,
   setBillingCompany

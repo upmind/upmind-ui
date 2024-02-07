@@ -44,7 +44,7 @@ export default defineComponent({
       default: false
     }
   },
-  setup(props) {
+  setup() {
     const timestamp = useTimestamp();
 
     const { state, messages, toasts, notifications, meta, useTime, add } =

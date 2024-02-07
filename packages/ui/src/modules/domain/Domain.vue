@@ -117,7 +117,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useDomain } from "./";
+import { useDomain } from "@upmind/vue";
 import UpmDomainAvailable from "./components/Available.vue";
 import UpmDomainInput from "./components/Input.vue";
 import UpmDomainChoices from "./components/Choices.vue";
@@ -181,3 +181,4 @@ export default defineComponent({
   }
 });
 </script>
+../../../../ui/src/debug/Debug.vue . @upmind/vue/src/modules/domain

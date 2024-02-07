@@ -34,7 +34,7 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 async function load(
   _context: ClientListingsContext,
-  { data }: ClientListingsEvents
+  _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
   const { getUserId } = useSession();

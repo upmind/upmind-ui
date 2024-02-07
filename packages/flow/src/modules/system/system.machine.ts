@@ -516,7 +516,7 @@ export default createMachine(
     guards: {
       allRegionsLoaded: (
         { countries, regions }: SystemContext,
-        { data }: SystemEvent
+        _event: SystemEvent
       ) => {
         const existing = keys(regions);
         return (

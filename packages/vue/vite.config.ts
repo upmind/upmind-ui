@@ -16,8 +16,8 @@ export default defineConfig({
     build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "upmind-components",
-      fileName: "upmind-components"
+      name: "upmind-vue",
+      fileName: "upmind-vue"
     }
   },
 })

@@ -8,7 +8,7 @@ import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 
 // --- utils
-import { find, values, isString, get, isEmpty, some } from "lodash-es";
+import { find, isString, get, isEmpty, some } from "lodash-es";
 import type { ICountry } from "./types.d";
 import { isArray } from "xstate/lib/utils";
 
@@ -45,7 +45,7 @@ export const useSystem = () => {
     if (state.matches(`${node}.loading`)) {
       // console.log(node, "is busy...waiting", state.value);
       await waitFor(service, newstate =>
-        [`${node}.idle`, `${node}.complete`].some(state.matches)
+        [`${node}.idle`, `${node}.complete`].some(newstate.matches)
       );
       // console.log(node, "finished, trying again", state.value);
       return fetch(node, getValues, data);
@@ -148,16 +148,16 @@ export const useSystem = () => {
   // ---
 
   const getLanguages = () => state.context.languages;
-  const getLanguage = value => find(state.context.languages, ["code", code]);
+  const getLanguage = value => find(state.context.languages, ["code", value]);
   // ---
 
   const getStatuses = () => state.context.statuses;
-  const getStatus = value => find(state.context.statuses, ["code", code]);
+  const getStatus = value => find(state.context.statuses, ["code", value]);
   // ---
 
   const getDepartments = () => state.context.departments;
   const getDepartment = value =>
-    find(state.context.departments, ["code", code]);
+    find(state.context.departments, ["code", value]);
   // --------------------------------------------------------
 
   return {

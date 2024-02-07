@@ -44,10 +44,11 @@
         <h4 class="card-title m-0 text-base" v-if="name">{{ name }}</h4>
 
         <span v-if="meta.isProcessing">Uploading...</span>
+
         <use-time-ago v-else-if="created" v-slot="{ timeAgo }" :time="created">
           Uploaded {{ timeAgo }}
         </use-time-ago>
-        <span v-else-if="meta.isProcessing">Uploaded</span>
+        <span v-else-if="!meta.isProcessing">Uploaded</span>
 
         <div class="card-actions justify-end mt-auto">
           <button class="btn btn-ghost btn-sm" @click.prevent="onOpen">
@@ -90,7 +91,7 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
 import { TrashIcon } from "@heroicons/vue/24/outline";
-import { useUpload } from "../../../";
+import { useUpload } from "@upmind/vue";
 import { UseTimeAgo } from "@vueuse/components";
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",
@@ -147,7 +148,7 @@ const controlRenderer = defineComponent({
       inputControl.onChange(target);
     }
 
-    function onOpen(target) {
+    function onOpen() {
       input.value.click();
     }
 
@@ -179,3 +180,4 @@ export const entry: JsonFormsRendererRegistryEntry = {
   tester: rankWith(2, and(isStringControl, isFileControl))
 };
 </script>
+../../../upload

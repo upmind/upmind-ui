@@ -55,7 +55,7 @@ export const useClientCompany = item => {
   };
 };
 
-export const useClientCompanies = selected => {
+export const useClientCompanies = () => {
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
 
   const { service } = useUpmindClientCompanies();

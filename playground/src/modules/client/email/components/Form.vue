@@ -29,7 +29,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { UpmFormGenerator, useClientEmail } from "@upmind/vue";
+import { useClientEmail } from "@upmind/vue";
+import { UpmFormGenerator } from "@upmind/ui";
 
 export default defineComponent({
   name: "UpmEmailForm",

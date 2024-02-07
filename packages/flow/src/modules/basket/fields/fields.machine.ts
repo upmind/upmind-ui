@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -118,7 +118,7 @@ export default createMachine(
       },
 
       complete: {
-        entry: sendParent(({ model }: FieldsContext, event: FieldsEvent) => ({
+        entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
           type: "REFRESH",
           data: model
         })),

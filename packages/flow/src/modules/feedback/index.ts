@@ -6,7 +6,7 @@ import feedbackMachine from "./feedback.machine";
 
 // --- utils
 import { useTime } from "../../utils";
-import { get, isString } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import { messageTypes } from "./types.d";

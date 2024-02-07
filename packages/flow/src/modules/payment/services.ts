@@ -84,11 +84,9 @@ async function update(
   { model }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
-  const { put, useUrl } = useApi();
-  const { getUserId } = useSession();
-
-  const client_id = await getUserId();
-
+  // const { put, useUrl } = useApi();
+  // const { getUserId } = useSession();
+  // const client_id = await getUserId();
   // return put({
   //   url: useUrl(`clients/${client_id}/PaymentDetails/${model.id}`),
   //   data: {
