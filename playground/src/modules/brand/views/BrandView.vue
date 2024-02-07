@@ -27,8 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBrand } from "../";
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug, useBrand } from "@upmind/vue";
 
 const { state, context, meta, errors } = useBrand();
 </script>

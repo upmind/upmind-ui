@@ -45,6 +45,7 @@
   "workspaces": [
     "playground",
     "packages/flow",
-    "packages/components"
+    "packages/vue",
+    "packages/ui"
   ]
 }

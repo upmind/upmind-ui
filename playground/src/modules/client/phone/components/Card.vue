@@ -126,7 +126,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientPhone } from "..";
+import { useClientPhone } from "@upmind/vue";
 import {
   PhoneIcon,
   EllipsisVerticalIcon,

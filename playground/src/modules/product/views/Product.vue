@@ -166,8 +166,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, inject } from "vue";
-import { useProductConfig } from "..";
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug, useProductConfig } from "@upmind/vue";
 import ConfigTerms from "../components/Terms.vue";
 import ConfigAttributes from "../components/Attributes.vue";
 import ConfigOptions from "../components/Options.vue";

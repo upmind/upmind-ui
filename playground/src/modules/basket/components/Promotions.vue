@@ -58,7 +58,7 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import { UpmFormGenerator } from "@upmind/components";
+import { UpmFormGenerator } from "@upmind/vue";
 import { XMarkIcon, TagIcon } from "@heroicons/vue/24/outline";
 import { isEmpty } from "lodash-es";
 import type { ErrorObject } from "ajv";

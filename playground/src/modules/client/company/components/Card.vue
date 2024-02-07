@@ -118,7 +118,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientCompany } from "..";
+import { useClientCompany } from "@upmind/vue";
 import {
   BuildingOfficeIcon,
   EllipsisVerticalIcon,

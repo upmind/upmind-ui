@@ -47,9 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useSession } from "../";
-import { UpmDebug } from "@upmind/components";
-import { UpmFormGenerator } from "@upmind/components";
+import { UpmDebug, useSession, UpmFormGenerator } from "@upmind/vue";
 import {
   UserCircleIcon,
   ArrowRightOnRectangleIcon

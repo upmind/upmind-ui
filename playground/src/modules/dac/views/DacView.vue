@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { inject, ref } from "vue";
-import { UpmDac, UpmDebug } from "@upmind/components";
+import { UpmDac, UpmDebug } from "@upmind/vue";
 
 const multiple = ref(true);
 

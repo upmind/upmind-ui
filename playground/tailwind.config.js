@@ -1,10 +1,7 @@
 /* global require, module*/
 
 module.exports = {
-  content: [
-    "./src/**/*.{vue,js,ts}",
-    "../packages/components/src/**/*.{vue,js,ts}"
-  ],
+  content: ["./src/**/*.{vue,js,ts}", "../packages/vue/src/**/*.{vue,js,ts}"],
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
     themes: [

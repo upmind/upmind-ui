@@ -29,8 +29,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientPhone } from "..";
-import { UpmFormGenerator } from "@upmind/components";
+import { UpmFormGenerator, useClientPhone } from "@upmind/vue";
 
 export default defineComponent({
   name: "UpmPhoneForm",

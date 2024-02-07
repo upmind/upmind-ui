@@ -69,11 +69,9 @@
 
 <script setup lang="ts">
 import { inject } from "vue";
-import { useSession } from "../";
-import { UpmDebug } from "@upmind/components";
+import { UpmDebug, useSession, UpmFormGenerator } from "@upmind/vue";
 import UpmAuth from "../components/Auth.vue";
 import UpmProfile from "../components/Profile.vue";
-import { UpmFormGenerator } from "@upmind/components";
 import { ShieldExclamationIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const activeTheme = inject("activeTheme");

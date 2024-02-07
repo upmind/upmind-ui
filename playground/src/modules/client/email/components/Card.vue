@@ -130,7 +130,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useClientEmail } from "..";
+import { useClientEmail } from "@upmind/vue";
 import {
   EnvelopeIcon,
   EllipsisVerticalIcon,

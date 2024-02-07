@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { ref, inject } from "vue";
 
-import { UpmDomain } from "@upmind/components";
+import { UpmDomain } from "@upmind/vue";
 
 import {
   SwatchIcon,
