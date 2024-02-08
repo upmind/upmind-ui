@@ -29,7 +29,7 @@
       <div class="actions flex-none join">
         <slot name="actions">
           <select
-            class="select select-bordered w-24 md:w-auto join-item"
+            class="select select-bordered select-sm w-24 md:w-auto join-item"
             v-model="selected"
             placeholder="Select Option"
           >
@@ -43,7 +43,7 @@
           </select>
 
           <button
-            class="btn btn-primary join-item"
+            class="btn btn-primary btn-sm join-item"
             type="submit"
             :disabled="meta.isLoading || meta.isComplete || !selected"
             @click.prevent="fetch(selected, items[selected])"
@@ -73,13 +73,15 @@
 
           <div class="collapse-title">
             <h4 class="m-0 text-inherit flex gap-2 items-center">
-              <span class="badge badge-neutral" v-if="values">{{
-                values?.length || Object.values(values)?.length
-              }}</span>
+              <span class="badge badge-success badge-xs" v-if="values"></span>
 
-              <span class="badge badge-neutral badge-outline" v-else> ? </span>
+              <span class="badge badge-neutral badge-outline badge-xs" v-else>
+              </span>
 
-              <span>{{ startCase(key) }}</span>
+              <span class="inline-flex items-center gap-1"
+                >{{ startCase(key) }}
+                <em class="text-xs">{{ getCount(values) }}</em></span
+              >
             </h4>
           </div>
 
@@ -109,10 +111,10 @@
 
 <script setup lang="ts">
 import { ref, inject } from "vue";
-import { useSystem } from "..";
+import { useSystem } from "@upmind/vue";
 import { UpmDebug } from "@upmind/ui";
 import { FolderArrowDownIcon } from "@heroicons/vue/24/outline";
-import { startCase } from "lodash-es";
+import { startCase, isArray, isObject } from "lodash-es";
 
 const activeTheme = inject("activeTheme");
 
@@ -127,5 +129,19 @@ const items = {
   statuses: {},
   departments: {}
 };
+
 const { state, context, meta, errors, fetch, responses } = useSystem();
+function getCount(values: any) {
+  let result = null;
+
+  if (isArray(values)) {
+    result = values.length;
+  } else if (isObject(values)) {
+    result = Object.values(values).length;
+  }
+
+  if (result) return `(${result})`;
+
+  return;
+}
 </script>

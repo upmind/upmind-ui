@@ -6,6 +6,7 @@ import { useActor } from "@xstate/vue";
 import { useBrand as useUpmindBrand } from "@upmind/flow";
 
 // --- utils
+import { isArray, isObject, reduce, set } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -22,7 +23,22 @@ export const useBrand = () => {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
     errors: computed(() => state.value.context?.error),
-    //messages: computed(() => state.value.context?.messages),
+    responses: computed(() =>
+      reduce(
+        state.value.context,
+        (result, value, key) => {
+          if (key === "error") return result;
+
+          if (isArray(value) || isObject(value)) {
+            set(result, key, value);
+          } else {
+            set(result, `values.${key}`, value);
+          }
+          return result;
+        },
+        { values: {} }
+      )
+    ),
     // ---
     meta: computed(() => ({
       isLoading: state.value.matches("processing"),
