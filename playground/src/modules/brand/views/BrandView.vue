@@ -4,8 +4,25 @@
       class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
     >
       <div class="flex-1">
-        <h2 class="title m-0">
-          Brand is {{ meta.isLoading ? "loading" : "ready" }}
+        <h2 class="title m-0 flex gap-2 items-center">
+          Brand
+
+          <progress
+            v-if="meta.isLoading"
+            class="progress progress-primary w-24"
+          ></progress>
+
+          <template v-else>
+            <span class="badge badge-primary" v-if="meta.isReady">
+              is Ready!</span
+            >
+            <span class="badge badge-success" v-else-if="meta.isComplete">
+              is Complete!</span
+            >
+            <span class="badge badge-error" v-if="meta.hasErrors">
+              has Errors!</span
+            >
+          </template>
         </h2>
       </div>
 

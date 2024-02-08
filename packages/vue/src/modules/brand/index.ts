@@ -42,7 +42,22 @@ export const useBrand = () => {
     // ---
     meta: computed(() => ({
       isLoading: state.value.matches("processing"),
-      isReady: state.value.matches("complete"),
+      isReady: [
+        "processing.organisation.idle",
+        "processing.config.idle",
+        "processing.settings.idle",
+        "processing.modules.idle",
+        "processing.currencies.idle",
+
+        "processing.organisation.complete",
+        "processing.config.complete",
+        "processing.settings.complete",
+        "processing.modules.complete",
+        "processing.currencies.complete"
+      ].some(state.value.matches),
+
+      isComplete: state.value.matches("complete"),
+
       hasErrors: [
         "organisation.error",
         "config.error",
