@@ -3,11 +3,6 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.authCallback": {
-      type: "done.invoke.authCallback";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]": {
       type: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
       data: unknown;
@@ -22,10 +17,6 @@ export interface Typegen0 {
       type: "done.invoke.paymentDetailsManager.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.authCallback": {
-      type: "error.platform.authCallback";
-      data: unknown;
     };
     "error.platform.paymentDetailsManager.checking.validating:invocation[0]": {
       type: "error.platform.paymentDetailsManager.checking.validating:invocation[0]";
@@ -43,7 +34,6 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    authSubscription: "done.invoke.authCallback";
     load: "done.invoke.paymentDetailsManager.loading:invocation[0]";
     parse: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
     update: "done.invoke.paymentDetailsManager.processing:invocation[0]";
@@ -53,19 +43,17 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services: "authSubscription" | "load" | "parse" | "update" | "validate";
+    services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
     clearError:
       | "CLEAR"
       | "RETRY"
-      | "SESSION"
       | "SET"
-      | "UNAUTHENTICATED"
       | "UPDATE"
-      | "done.invoke.paymentDetailsManager.loading:invocation[0]";
-    clearModel: "CLEAR" | "UNAUTHENTICATED";
-    clearSchemas: "UNAUTHENTICATED";
+      | "done.invoke.paymentDetailsManager.loading:invocation[0]"
+      | "xstate.init";
+    clearModel: "CLEAR";
     setContext:
       | "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]";
@@ -89,8 +77,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {};
   eventsCausingServices: {
-    authSubscription: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
-    load: "SESSION" | "UNAUTHENTICATED";
+    load: "CLEAR" | "SET" | "xstate.init";
     parse:
       | "CLEAR"
       | "SET"
@@ -108,7 +95,6 @@ export interface Typegen0 {
     | "loading"
     | "processed"
     | "processing"
-    | "subscribing"
     | "valid"
     | { checking?: "parsing" | "validating" };
   tags: never;

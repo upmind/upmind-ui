@@ -22,7 +22,7 @@ export default createMachine(
     tsTypes: {} as import("./details.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
-    initial: "subscribing",
+    initial: "loading",
     context: {
       fields: undefined,
       schema: undefined,
@@ -32,18 +32,6 @@ export default createMachine(
       error: null
     } as PaymentDetailsContext,
     states: {
-      // Subscribe to changes in auth and listen for a valid Authenticated client,
-      // we will also wait for a session before we can continue
-      subscribing: {
-        invoke: {
-          id: "authCallback",
-          src: "authSubscription"
-        },
-        on: {
-          SESSION: { target: "loading" }
-        }
-      },
-
       loading: {
         entry: ["clearError"],
         invoke: {
@@ -157,11 +145,6 @@ export default createMachine(
       SET: {
         target: "checking",
         actions: ["setModel"]
-      },
-
-      UNAUTHENTICATED: {
-        target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"]
       }
     }
   },

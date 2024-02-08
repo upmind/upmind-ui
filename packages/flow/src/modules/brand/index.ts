@@ -18,7 +18,7 @@ import { pick, isArray, find, some, first } from "lodash-es";
 
 let state = null;
 
-const service = interpret(brandMachine, { devTools: false }).onTransition(
+const service = interpret(brandMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -32,6 +32,11 @@ export const useBrand = () => {
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
+    // ---
+
+    isModuleReady: async module =>
+      waitFor(service, state => state.matches(`processing.${module}.complete`)),
+    isReady: async () => waitFor(service, state => state.matches("complete")),
     // ---
     getSnapshot: () => state,
     getConfig: async (keys: BrandConfigKeys) => {
