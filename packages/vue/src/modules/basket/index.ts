@@ -1,12 +1,25 @@
 // --- external
-import { computed, unref } from "vue";
+import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useBasket as useUpmindBasket, useBrand } from "@upmind/flow";
 
 // --- utils
-import { map, some } from "lodash-es";
+import {
+  contextMatches,
+  machineMatches,
+  stateMatches,
+  stateValue,
+  useChild,
+  useChildren,
+  useContext,
+  useState
+} from "../../utils";
+import { some } from "lodash-es";
+
+// --------------------------------------------------------
+// Helpers
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
@@ -22,49 +35,109 @@ export const useBasket = () => {
 
   // --------------------------------------------------------
 
+  // We can create reactive refs to the child machines,
+  // so that when they are invoked we can listen to their state changes
+
+  const customFields = useChild(state, "custom_fields");
+  const paymentDetails = useChild(state, "payment_details");
+  // const billing = useChild(state, "billing");
+  // const currency = useChild(state, "currency");
+
+  // --------------------------------------------------------
+
   return {
+    // ---
+    state: useState(state, "value"),
+    context: useContext(state),
+    errors: useContext(state, "error"),
+    // ---
+    meta: computed(() => {
+      return {
+        isLoading: stateMatches(state, ["loading"]),
+        isProcessing:
+          stateMatches(state, [
+            "shopping.items.processing",
+            "shopping.billing.processing",
+            "shopping.currency.processing",
+            "shopping.promotions.adding",
+            "shopping.promotions.removing"
+          ]) ||
+          machineMatches(customFields, ["processing"]) ||
+          machineMatches(paymentDetails, ["processing"]),
+
+        canProcess:
+          stateMatches(state, ["shopping.custom_fields.valid"]) ||
+          machineMatches(customFields, ["valid"]) ||
+          machineMatches(paymentDetails, ["valid"]) ||
+          some(
+            useContext(state, "items"),
+            item =>
+              stateMatches(item?.state, ["configured"]) &&
+              contextMatches(item?.state, ["isNew", "isDirty"])
+          ),
+        // ---
+
+        hasProducts: !stateMatches(state, ["shopping.items.empty"]),
+
+        hasPromotions:
+          stateMatches(state, ["shopping.promotions.active"]) ||
+          contextMatches(state, ["basket.total_discount_amount"]),
+
+        hasTaxes: contextMatches(state, ["basket.taxes.length"]), // TODO: check config for taxes
+
+        // ---
+        isAvailable: stateMatches(state, ["shopping"]),
+        isConfigured: stateMatches(state, ["shopping.items.complete"]),
+        hasBilling: stateMatches(state, ["shopping.billing.complete"]),
+        hasCurrency: stateMatches(state, ["shopping.currency.complete"]),
+        hasPaymentMethod: stateMatches(state, ["payment.complete"]),
+        needsAuth: !stateMatches(state, ["shopping.client.authenticated"]),
+        // ---
+        hasFields: stateMatches(state, ["shopping.custom_fields.complete"]),
+
+        needsFields: !stateMatches(state, [
+          "shopping.custom_fields.loading",
+          "shopping.custom_fields.complete"
+        ]),
+
+        // ---
+        needsUpdating:
+          stateMatches(state, ["shopping.items.configuring"]) ||
+          machineMatches(customFields, ["valid"]) ||
+          machineMatches(paymentDetails, ["valid"]),
+
+        isReadyForCheckout: stateMatches(state, ["checkout"]),
+
+        hasErrors:
+          stateMatches(state, [
+            "shopping.items.processing.error",
+            "shopping.promotions.error",
+            "shopping.client.error"
+          ]) ||
+          machineMatches(customFields, ["error"]) ||
+          machineMatches(paymentDetails, ["error"]) ||
+          !!useContext(state, "error")
+      };
+    }),
+    //  ---
+    basket: useContext(state, "basket"),
+    summary: useContext(state, "summary"),
+    items: useChildren(state, "items"),
+    products: useContext(state, "basket?.products", []),
+    promotions: useContext(state, "basket?.promotions", []),
+    taxes: useContext(state, "basket?.taxes", []),
+    currency: useContext(state, "basket?.currency"),
+    currencies: useContext(brandState, "currencies", []),
+    // ---
+    customFields,
+    paymentDetails,
+    // ---
     updateBasket: () => send({ type: "UPDATE" }),
-
     clearBasket: () => send({ type: "CLEAR" }),
-
     clearErrors: () => send({ type: "CLEAR.ERRORS" }),
 
-    clearFields: () => send({ type: "CLEAR.FIELDS" }),
-
-    setFields: values => {
-      send({ type: "SET.FIELDS", data: values });
-    },
-
-    updateFields: () => {
-      send({ type: "UPDATE.FIELDS" });
-    },
-
-    setBillingAddress: value => {
-      send({
-        type: "UPDATE.ADDRESS",
-        data: { address_id: value?.id, company_id: null }
-      });
-    },
-
-    setBillingCompany: value => {
-      const state = unref(value.state);
-      const address_id = state?.context?.model.address_id;
-      send({
-        type: "UPDATE.COMPANY",
-        data: { address_id, company_id: value.id }
-      });
-    },
-
-    updateCurrency: currency =>
-      send({ type: "UPDATE.CURRENCY", data: currency }),
-
-    addPromotion: ({ promocode }) => {
-      send({ type: "ADD.PROMOTION", data: { promocode } });
-    },
-
-    removePromotion: ({ id }) => {
-      send({ type: "REMOVE.PROMOTION", data: { id } });
-    },
+    // ---
+    // Methods
 
     addProduct: ({ id, product_id, quantity, term, attributes, options }) => {
       // const { product_id, quantity, term, attributes, options } = unref(model);
@@ -95,94 +168,37 @@ export const useBasket = () => {
       send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
 
     updateProvisioning: ({ itemId, provision_fields }) =>
-      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
+      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } })
+  };
+};
 
+export const useBasketFields = actor => {
+  const { state, send } = actor;
+
+  // --------------------------------------------------------
+
+  return {
+    state: useState(state, "value"),
+    context: useContext(state),
+    errors: useContext(state, "error"),
+    //messages: useContext(state, 'messages'),
     // ---
-    state: computed(() => state.value.value),
-
-    context: computed(() => state.value.context),
-
-    errors: computed(() => state.value.context?.error),
-    //messages: computed(() => state.value.context?.messages),
-
+    meta: computed(() => ({
+      isLoading: stateMatches(state, ["loading"]),
+      hasErrors: stateMatches(state, ["error"]),
+      isProcessing: stateMatches(state, ["checking", "processing"]),
+      isValid: stateMatches(state, ["valid"]),
+      isComplete:
+        stateValue(state, "done", false) ||
+        stateMatches(state, ["processed", "complete"])
+    })),
     // ---
-    meta: computed(() => {
-      return {
-        isLoading: ["loading"].some(state.value.matches),
-        isProcessing: [
-          "shopping.items.processing",
-          "shopping.custom_fields.processing",
-          "shopping.billing.processing",
-          "shopping.currency.processing",
-          "shopping.promotions.adding",
-          "shopping.promotions.removing"
-        ].some(state.value.matches),
-        canProcess:
-          ["shopping.custom_fields.valid"].some(state.value.matches) ||
-          some(
-            state.value?.context?.items,
-            item =>
-              item.state.matches("configured") &&
-              (item.state.context.isNew || item.state.context.isDirty)
-          ),
-        // ---
-
-        hasProducts: !["shopping.items.empty"].some(state.value.matches),
-        hasPromotions:
-          ["shopping.promotions.active"].some(state.value.matches) ||
-          !!state.value?.context?.basket?.total_discount_amount,
-        hasTaxes: !!state.value?.context?.basket?.taxes?.length, // TODO: check config for taxes
-
-        // ---
-        isAvailable: ["shopping"].some(state.value.matches),
-        isConfigured: ["shopping.items.complete"].some(state.value.matches),
-        hasBilling: ["shopping.billing.complete"].some(state.value.matches),
-        hasCurrency: ["shopping.currency.complete"].some(state.value.matches),
-        hasPaymentMethod: ["payment.complete"].some(state.value.matches),
-        needsAuth: !["shopping.client.authenticated"].some(state.value.matches),
-        hasFields: ["shopping.custom_fields.complete"].some(
-          state.value.matches
-        ),
-        needsFields: ![
-          "shopping.custom_fields.loading",
-          "shopping.custom_fields.complete"
-        ].some(state.value.matches),
-
-        // ---
-        needsUpdating: [
-          "shopping.items.configuring",
-          "shopping.custom_fields.valid"
-        ].some(state.value.matches),
-        isReadyForCheckout: ["checkout"].some(state.value.matches),
-        hasErrors:
-          [
-            "shopping.items.processing.error",
-            "shopping.promotions.error",
-            "shopping.client.error"
-          ].some(state.value.matches) || !!state.value.context?.error
-      };
-    }),
-    //  ---
-    basket: computed(() => state.value.context?.basket),
-    summary: computed(() => state.value.context?.summary),
-    items: computed(
-      () =>
-        map(state.value.context.items, item => ({
-          id: item.id,
-          ...useActor(item)
-        }))
-      // map(state.value.context.items, item => ({
-      //   id: item.id,
-      //   ...item.getSnapshot()
-      // }))
-    ),
-    products: computed(() => state.value.context?.basket?.products || []),
-    promotions: computed(() => state.value.context?.basket?.promotions || []),
-    taxes: computed(() => state.value.context?.basket?.taxes || []),
-    currency: computed(() => state.value.context?.basket?.currency),
-    currencies: computed(() => brandState.value.context?.currencies || []),
-    fieldsModel: computed(() => state.value.context?.fieldsModel),
-    fieldsSchema: computed(() => state.value.context?.fieldsSchema),
-    fieldsUischema: computed(() => state.value.context?.fieldsUischema)
+    model: useContext(state, "model"),
+    schema: useContext(state, "schema"),
+    uischema: useContext(state, "uischema"),
+    // ---
+    clear: () => send({ type: "CLEAR" }),
+    input: model => send({ type: "SET", data: model }),
+    update: () => send({ type: "UPDATE" })
   };
 };

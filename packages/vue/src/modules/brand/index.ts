@@ -25,21 +25,8 @@ export const useBrand = () => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: [
-        "organisation.loading",
-        "config.loading",
-        "settings.loading",
-        "modules.loading",
-        "currencies.loading"
-      ].some(state.value.matches),
-      isReady: [
-        "organisation.complete",
-        "config.complete",
-        "settings.complete",
-        "modules.complete",
-        "currencies.complete"
-      ].every(state.value.matches),
-
+      isLoading: state.value.matches("processing"),
+      isReady: state.value.matches("complete"),
       hasErrors: [
         "organisation.error",
         "config.error",
