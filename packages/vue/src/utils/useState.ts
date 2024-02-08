@@ -5,7 +5,7 @@ import { useActor } from "@xstate/vue";
 // --- internal
 
 // --- utils
-import { isFunction, map, some, get, isArray, isEmpty } from "lodash-es";
+import { isFunction, map, some, get, isArray, isEmpty, isNil } from "lodash-es";
 
 // --------------------------------------------------------
 // These are some helper to reduce the repetition of the same code when using xstate/vue
@@ -35,7 +35,10 @@ export const contextMatches = (state, props: string[]) => {
 
   if (!context || !props?.length) return false;
 
-  return some(context, props);
+  return some(props, prop => {
+    const value = get(context, prop);
+    return !(isNil(value) || isEmpty(value));
+  });
 };
 
 export const machineMatches = (machine, states: string[]) => {
@@ -67,31 +70,41 @@ export const contextValue = (state, prop?: string, fallback?: any) => {
   return get(context, prop, fallback);
 };
 
-export const childActor = (state, prop?: string) => {
+export const childActor = (state, prop?: string, fallback?: any) => {
   state = unref(state);
 
-  if (!state || !prop?.length) return undefined;
+  if (!state || !prop?.length) return fallback;
 
-  const child = contextValue(state, prop);
+  const context = state?.children[prop];
+  // const context = get(state, "children", prop);
 
-  if (!child) return undefined;
+  if (isNil(context)) return fallback;
 
-  return useActor(child.value);
+  if (isArray(context)) return map(context, createActor);
+
+  return createActor(context);
 };
 
-export const childrenActors = (state, prop?: string) => {
+export const contextActor = (state, prop?: string, fallback?: any) => {
   state = unref(state);
-  if (!state || !prop?.length) return [];
-  const children = contextValue(state, prop, []);
+  if (!state || !prop?.length) return fallback;
 
-  if (!isArray(children) || isEmpty(children)) return [];
+  const context = contextValue(state, prop);
 
-  return map(children, child => ({
-    id: child.id,
-    ...useActor(child)
-  }));
+  if (isNil(context)) return fallback;
+
+  if (isArray(context)) return map(context, createActor);
+
+  return createActor(context);
 };
 
+const createActor = context => {
+  const actor = useActor(context);
+  return {
+    id: context.id,
+    ...actor
+  };
+};
 // --- computed helpers
 
 export const useState = (state, prop?: string, fallback?: any) =>
@@ -100,8 +113,8 @@ export const useState = (state, prop?: string, fallback?: any) =>
 export const useContext = (state, prop?: string, fallback?: any) =>
   computed(() => contextValue(state, prop, fallback));
 
-export const useChild = (state, prop?: string) =>
-  computed(() => childActor(state, prop));
+export const useChildActor = (state, prop?: string, fallback?: any) =>
+  computed(() => childActor(state, prop), fallback);
 
-export const useChildren = (state, prop?: string) =>
-  computed(() => childrenActors(state, prop));
+export const useContextActor = (state, prop?: string, fallback?: any) =>
+  computed(() => contextActor(state, prop, fallback));
