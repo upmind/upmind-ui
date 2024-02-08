@@ -176,7 +176,7 @@ import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { isNil } from "lodash-es";
 
 export default defineComponent({
-  name: "ConfigProduct",
+  name: "UpmProduct",
   components: {
     ConfigTerms,
     ConfigAttributes,

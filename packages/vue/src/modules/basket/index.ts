@@ -11,8 +11,8 @@ import {
   machineMatches,
   stateMatches,
   stateValue,
-  useChild,
-  useChildren,
+  useChildActor,
+  useContextActor,
   useContext,
   useState
 } from "../../utils";
@@ -38,11 +38,10 @@ export const useBasket = () => {
   // We can create reactive refs to the child machines,
   // so that when they are invoked we can listen to their state changes
 
-  const customFields = useChild(state, "custom_fields");
-  const paymentDetails = useChild(state, "payment_details");
-  // const billing = useChild(state, "billing");
-  // const currency = useChild(state, "currency");
-
+  const customFields = useChildActor(state, "custom_fields");
+  const paymentDetails = useChildActor(state, "payment_details");
+  // const billing = useChildActor(state, "billing");
+  // const currency = useChildActor(state, "currency");
   // --------------------------------------------------------
 
   return {
@@ -72,7 +71,7 @@ export const useBasket = () => {
             some(
               useContext(state, "items"),
               item =>
-                stateMatches(item?.state, ["configured"]) &&
+                machineMatches(item, ["configured"]) &&
                 contextMatches(item?.state, ["isNew", "isDirty"])
             )),
         // ---
@@ -83,7 +82,7 @@ export const useBasket = () => {
           stateMatches(state, ["shopping.promotions.active"]) ||
           contextMatches(state, ["basket.total_discount_amount"]),
 
-        hasTaxes: contextMatches(state, ["basket.taxes.length"]), // TODO: check config for taxes
+        hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
         // ---
         isAvailable: stateMatches(state, ["shopping"]),
@@ -118,11 +117,11 @@ export const useBasket = () => {
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    items: useChildren(state, "items"),
-    products: useContext(state, "basket?.products", []),
-    promotions: useContext(state, "basket?.promotions", []),
-    taxes: useContext(state, "basket?.taxes", []),
-    currency: useContext(state, "basket?.currency"),
+    items: useContextActor(state, "items", []),
+    products: useContext(state, "basket.products", []),
+    promotions: useContext(state, "basket.promotions", []),
+    taxes: useContext(state, "basket.taxes", []),
+    currency: useContext(state, "basket.currency"),
     currencies: useContext(brandState, "currencies", []),
     // ---
     customFields,

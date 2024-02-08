@@ -197,21 +197,15 @@
         class="fields col-span-5 order-2"
         :class="{ disabled: meta.needsAuth }"
         :disabled="meta.needsAuth"
-        v-if="meta.needsFields || meta.hasFields"
+        v-if="customFields"
       >
         <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
-        <!-- <upm-basket-fields
-          :schema="fieldsSchema"
-          :uischema="fieldsUischema"
-          :model-value="fieldsModel"
+        <upm-basket-fields
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
-          :additionalErrors="errors?.data"
-          @resolve="updateFields"
-          @update:modelValue="setFields"
-          @reject="clearFields"
-        ></upm-basket-fields> -->
+          :item="customFields"
+        ></upm-basket-fields>
       </section>
 
       <!-- account -->
@@ -402,7 +396,6 @@
     <footer>
       <upm-debug
         :debugging="debugging"
-        :open="{ state: true }"
         title="Basket"
         :state="state"
         :model="{ model }"
@@ -446,24 +439,19 @@ const {
   promotions,
   currency,
   currencies,
-
   // ---
   addProduct,
-  addPromotion,
   clearBasket,
   removeItem,
-  removePromotion,
   updateAttributes,
   updateBasket,
-  updateCurrency,
   updateItem,
   updateOptions,
   updateProvisioning,
   updateQuantity,
   updateTerm,
-  updateFields,
-  setBillingAddress,
-  setBillingCompany
+  // ---
+  customFields
 } = useBasket();
 
 const productCatalogue = [
