@@ -138,7 +138,7 @@ export default createMachine(
         type: "parallel",
         states: {
           items: {
-            initial: "empty",
+            initial: "configuring",
             states: {
               empty: {
                 always: [

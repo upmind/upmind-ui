@@ -66,7 +66,12 @@
         <h2 class="flex-1 title m-0 flex gap-1 justify-center">
           Basket
 
-          <template v-if="!meta.isLoading">
+          <span
+            v-if="meta.isLoading || meta.isProcessing"
+            class="loading loading-dots text-primary mx-2"
+          ></span>
+
+          <template v-else>
             <span v-if="!meta.hasProducts">
               is <span class="text-primary">Empty</span>
             </span>
@@ -83,11 +88,6 @@
               is <span class="text-primary">Ready for Checkout</span>
             </span>
           </template>
-
-          <span
-            v-if="meta.isLoading || meta.isProcessing"
-            class="loading loading-dots text-primary mx-2"
-          ></span>
         </h2>
       </div>
 
@@ -363,7 +363,7 @@
         <div class="actions flex flex-col gap-8 relative">
           <button
             class="btn btn-block btn-primary btn-outline"
-            v-if="meta.canProcess"
+            v-if="meta.needsUpdating"
             :disabled="meta.isProcessing"
             @click.prevent="updateBasket"
           >

@@ -65,16 +65,16 @@ export const useBasket = () => {
           machineMatches(customFields, ["processing"]) ||
           machineMatches(paymentDetails, ["processing"]),
 
-        canProcess:
-          stateMatches(state, ["shopping.custom_fields.valid"]) ||
+        needsUpdating:
           machineMatches(customFields, ["valid"]) ||
           machineMatches(paymentDetails, ["valid"]) ||
-          some(
-            useContext(state, "items"),
-            item =>
-              stateMatches(item?.state, ["configured"]) &&
-              contextMatches(item?.state, ["isNew", "isDirty"])
-          ),
+          (stateMatches(state, ["shopping.items.configuring"]) &&
+            some(
+              useContext(state, "items"),
+              item =>
+                stateMatches(item?.state, ["configured"]) &&
+                contextMatches(item?.state, ["isNew", "isDirty"])
+            )),
         // ---
 
         hasProducts: !stateMatches(state, ["shopping.items.empty"]),
@@ -101,10 +101,6 @@ export const useBasket = () => {
         ]),
 
         // ---
-        needsUpdating:
-          stateMatches(state, ["shopping.items.configuring"]) ||
-          machineMatches(customFields, ["valid"]) ||
-          machineMatches(paymentDetails, ["valid"]),
 
         isReadyForCheckout: stateMatches(state, ["checkout"]),
 
