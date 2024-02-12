@@ -68,8 +68,6 @@ async function getImage({ field }: UploadContext, { data }: UploadEvent) {
   // const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
   const path = `images/${data.hash}`;
 
-  debugger;
-
   return get({
     url: useUrl(path),
     withAccessToken: true,
@@ -83,13 +81,15 @@ async function check(_context: any, { data }: any) {
   let error = null;
 
   const { getConfig } = useBrand();
+
   const fileTypes = await getConfig(
     BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES
-  ).then(
-    response =>
+  ).then(response => {
+    const types =
       get(response, BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES) ||
-      ImageUploadTypes
-  );
+      ImageUploadTypes;
+    return types;
+  });
 
   if (!isEmpty(fileTypes) && !includes(fileTypes, data.type)) {
     isValid = false;

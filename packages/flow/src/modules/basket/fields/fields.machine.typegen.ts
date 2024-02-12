@@ -8,6 +8,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.fieldsManager.checking.validating:invocation[0]": {
+      type: "done.invoke.fieldsManager.checking.validating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.fieldsManager.loading:invocation[0]": {
       type: "done.invoke.fieldsManager.loading:invocation[0]";
       data: unknown;
@@ -46,6 +51,7 @@ export interface Typegen0 {
     services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
+    clearDirty: "done.invoke.fieldsManager.processing:invocation[0]";
     clearError:
       | "CLEAR"
       | "RETRY"
@@ -59,6 +65,7 @@ export interface Typegen0 {
     setContext:
       | "done.invoke.fieldsManager.checking.parsing:invocation[0]"
       | "done.invoke.fieldsManager.loading:invocation[0]";
+    setDirty: "CLEAR" | "SET";
     setError:
       | "error.platform.fieldsManager.checking.validating:invocation[0]"
       | "error.platform.fieldsManager.loading:invocation[0]"
@@ -75,7 +82,9 @@ export interface Typegen0 {
   eventsCausingDelays: {
     wait: "done.invoke.fieldsManager.processing:invocation[0]";
   };
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    isDirty: "done.invoke.fieldsManager.checking.validating:invocation[0]";
+  };
   eventsCausingServices: {
     load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse: "CLEAR" | "SET" | "done.invoke.fieldsManager.loading:invocation[0]";

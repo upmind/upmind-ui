@@ -90,14 +90,11 @@ export const useBasket = () => {
         hasBilling: stateMatches(state, ["shopping.billing.complete"]),
         hasCurrency: stateMatches(state, ["shopping.currency.complete"]),
         hasPaymentMethod: stateMatches(state, ["payment.complete"]),
-        needsAuth: !stateMatches(state, ["shopping.client.authenticated"]),
-        // ---
-        hasFields: stateMatches(state, ["shopping.custom_fields.complete"]),
 
-        needsFields: !stateMatches(state, [
-          "shopping.custom_fields.loading",
-          "shopping.custom_fields.complete"
-        ]),
+        needsAuth: !stateMatches(state, ["shopping.client.authenticated"]),
+        hasFields:
+          stateMatches(state, ["shopping.custom_fields.complete"]) ||
+          machineMatches(customFields, ["complete"]),
 
         // ---
 
