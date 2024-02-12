@@ -180,4 +180,3 @@ export const entry: JsonFormsRendererRegistryEntry = {
   tester: rankWith(2, and(isStringControl, isFileControl))
 };
 </script>
-../../../upload

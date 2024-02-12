@@ -52,9 +52,7 @@ const controlRenderer = defineComponent({
   name: "DacControlRenderer",
   components: {
     ControlWrapper,
-    UpmDac: defineAsyncComponent(() =>
-      import("@upmind/vue").then(m => m.UpmDac)
-    )
+    UpmDac: defineAsyncComponent(() => import("@upmind/ui").then(m => m.UpmDac))
   },
   props: {
     ...rendererProps<ControlElement>()

@@ -45,7 +45,7 @@ const controlRenderer = defineComponent({
     ControlWrapper,
 
     UpmLookup: defineAsyncComponent(() =>
-      import("@upmind/vue").then(m => m.UpmLookup)
+      import("@upmind/ui").then(m => m.UpmLookup)
     )
   },
   props: {

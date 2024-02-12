@@ -181,4 +181,3 @@ export default defineComponent({
   }
 });
 </script>
-../../../../ui/src/debug/Debug.vue . @upmind/vue/src/modules/domain
