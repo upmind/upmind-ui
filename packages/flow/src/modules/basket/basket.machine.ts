@@ -385,12 +385,13 @@ export default createMachine(
                 invoke: {
                   id: "custom_fields",
                   src: customFieldsMachine,
-                  data: {
-                    model: (
-                      { basket }: BasketContext,
-                      { data }: BasketEvents
-                    ) => useBasketFieldsModelParser(basket, data)
-                  },
+                  data: (
+                    { basket }: BasketContext,
+                    { data }: BasketEvents
+                  ) => ({
+                    basketId: basket?.id,
+                    model: useBasketFieldsModelParser(basket, data)
+                  }),
                   onDone: {
                     target: "complete"
                   },
