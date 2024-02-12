@@ -8,6 +8,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.paymentDetailsManager.checking.validating:invocation[0]": {
+      type: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.paymentDetailsManager.loading:invocation[0]": {
       type: "done.invoke.paymentDetailsManager.loading:invocation[0]";
       data: unknown;
@@ -46,17 +51,21 @@ export interface Typegen0 {
     services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
+    clearDirty: "done.invoke.paymentDetailsManager.processing:invocation[0]";
     clearError:
       | "CLEAR"
       | "RETRY"
       | "SET"
+      | "UNAUTHENTICATED"
       | "UPDATE"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]"
       | "xstate.init";
-    clearModel: "CLEAR";
+    clearModel: "CLEAR" | "UNAUTHENTICATED";
+    clearSchemas: "UNAUTHENTICATED";
     setContext:
       | "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]";
+    setDirty: "CLEAR" | "SET";
     setError:
       | "error.platform.paymentDetailsManager.checking.validating:invocation[0]"
       | "error.platform.paymentDetailsManager.loading:invocation[0]"
@@ -75,9 +84,11 @@ export interface Typegen0 {
   eventsCausingDelays: {
     wait: "done.invoke.paymentDetailsManager.processing:invocation[0]";
   };
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    isDirty: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
+  };
   eventsCausingServices: {
-    load: "CLEAR" | "SET" | "xstate.init";
+    load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
       | "SET"

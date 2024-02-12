@@ -29,6 +29,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
+      dirty: false,
       error: null
     } as PaymentDetailsContext,
     states: {
@@ -65,9 +66,15 @@ export default createMachine(
           validating: {
             invoke: {
               src: "validate",
-              onDone: {
-                target: "#valid"
-              },
+              onDone: [
+                {
+                  target: "#valid",
+                  cond: "isDirty"
+                },
+                {
+                  target: "#complete"
+                }
+              ],
               onError: {
                 target: "#invalid",
                 actions: ["setError"]
@@ -97,7 +104,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setFeedbackSuccess"]
+            actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
           },
           onError: {
             target: "error",
@@ -116,13 +123,12 @@ export default createMachine(
       },
 
       complete: {
-        entry: sendParent(
-          ({ model }: PaymentDetailsContext, _event: PaymentDetailsEvent) => ({
-            type: "REFRESH",
-            data: model
-          })
-        ),
-        type: "final"
+        id: "complete"
+        // entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
+        //   type: "REFRESH",
+        //   data: model
+        // })),
+        // type: "final"
       },
 
       error: {
@@ -140,11 +146,16 @@ export default createMachine(
       },
       CLEAR: {
         target: "checking",
-        actions: ["clearModel"]
+        actions: ["clearModel", "setDirty"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel"]
+        actions: ["setModel", "setDirty"]
+      },
+
+      UNAUTHENTICATED: {
+        target: "loading",
+        actions: ["clearError", "clearModel", "clearSchemas"]
       }
     }
   },
@@ -157,7 +168,7 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model)
+        model: context => useModelParser(context, context.model)
       }),
 
       clearSchemas: assign({
@@ -166,20 +177,24 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ fields }, { data }) => useModelParser(fields, data)
+        model: (context, { data }) => useModelParser(context, data)
       }),
 
       clearModel: assign({
         model: undefined
       }),
 
-      setFields: assign({
-        fields: (_context, { data }) => data
+      setDirty: assign({
+        dirty: true
+      }),
+
+      clearDirty: assign({
+        dirty: false
       }),
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
-        addSuccess("Successfully updated the basket");
+        addSuccess("Successfully updated the payment details");
       },
 
       setFeedbackError: ({ error }, _event) => {
@@ -208,7 +223,9 @@ export default createMachine(
       clearError: assign({ error: null })
     },
 
-    guards: {},
+    guards: {
+      isDirty: ({ dirty }, _event) => !!dirty
+    },
 
     delays: {
       error: () => useTime().ERROR,

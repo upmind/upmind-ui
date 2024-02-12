@@ -29,11 +29,10 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
+      dirty: false,
       error: null
     } as FieldsContext,
     states: {
-      // Subscribe to changes in auth and listen for a valid Authenticated client,
-      // we will also wait for a session before we can continu
       loading: {
         entry: ["clearError"],
         invoke: {
@@ -67,9 +66,15 @@ export default createMachine(
           validating: {
             invoke: {
               src: "validate",
-              onDone: {
-                target: "#valid"
-              },
+              onDone: [
+                {
+                  target: "#valid",
+                  cond: "isDirty"
+                },
+                {
+                  target: "#complete"
+                }
+              ],
               onError: {
                 target: "#invalid",
                 actions: ["setError"]
@@ -99,7 +104,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setFeedbackSuccess"]
+            actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
           },
           onError: {
             target: "error",
@@ -118,11 +123,12 @@ export default createMachine(
       },
 
       complete: {
-        entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
-          type: "REFRESH",
-          data: model
-        })),
-        type: "final"
+        id: "complete"
+        // entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
+        //   type: "REFRESH",
+        //   data: model
+        // })),
+        // type: "final"
       },
 
       error: {
@@ -140,11 +146,11 @@ export default createMachine(
       },
       CLEAR: {
         target: "checking",
-        actions: ["clearModel"]
+        actions: ["clearModel", "setDirty"]
       },
       SET: {
         target: "checking",
-        actions: ["setModel"]
+        actions: ["setModel", "setDirty"]
       },
 
       UNAUTHENTICATED: {
@@ -178,6 +184,14 @@ export default createMachine(
         model: undefined
       }),
 
+      setDirty: assign({
+        dirty: true
+      }),
+
+      clearDirty: assign({
+        dirty: false
+      }),
+
       // ---
       setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated the basket fields");
@@ -209,7 +223,9 @@ export default createMachine(
       clearError: assign({ error: null })
     },
 
-    guards: {},
+    guards: {
+      isDirty: ({ dirty }, _event) => !!dirty
+    },
 
     delays: {
       error: () => useTime().ERROR,

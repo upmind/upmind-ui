@@ -48,9 +48,14 @@ export const useBrand = () => {
       service.send({ type: "CONFIG.GET", data: keys });
 
       // then we await the state of the request to be processed/cached
-      await waitFor(service, state =>
-        ["config.complete", "config.error"].some(state.matches)
-      );
+      await waitFor(service, newstate => {
+        console.log("useBrand", "getConfig", newstate.value);
+        return [
+          "processing.config.complete",
+          "processing.config.error",
+          "complete"
+        ].some(newstate.matches);
+      });
 
       // finally return the requested keys from the config
       return pick(state.context, keys);

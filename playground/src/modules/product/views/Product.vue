@@ -233,9 +233,12 @@ export default defineComponent({
         "border-base-300":
           this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty,
 
-        "border-primary":
+        "border-warning":
           this.meta.isConfiguring ||
           (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty)),
+
+        "border-primary":
+          this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty,
 
         "border-error": this.meta.hasErrors
       };
@@ -251,11 +254,11 @@ export default defineComponent({
         if (this.meta.hasErrors)
           values.push({ color: "error", label: "Has Errors" });
         if (this.meta.isConfiguring)
-          values.push({ color: "primary", label: "Needs Configuring" });
+          values.push({ color: "warning", label: "Needs Configuring" });
         if (this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty)
-          values.push({ color: "secondary", label: "Is Configured" });
+          values.push({ color: "primary", label: "Is Configured" });
         if (this.meta.isConfigured && (this.meta.isNew || this.meta.isDirty))
-          values.push({ color: "primary", label: "Pending" });
+          values.push({ color: "warning", label: "Pending" });
       }
 
       return values;

@@ -214,7 +214,7 @@
 
         <upm-auth class="my-8 p-0" v-if="meta.needsAuth"></upm-auth>
 
-        <upm-profile class="my-8 p-0" v-else></upm-profile>
+        <upm-profile class="my-8 p-0 border-primary" v-else></upm-profile>
       </section>
 
       <!-- billing -->
