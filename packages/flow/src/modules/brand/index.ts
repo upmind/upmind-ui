@@ -83,7 +83,10 @@ export const useBrand = () => {
       return currency_id;
     },
     getBrandId: () => state?.context?.id,
-    getCurrency: () => state?.context?.currency_id,
+    getCurrencyId: () => state?.context?.currency_id,
+    getCurrency: () =>
+      find(state.context.currencies, ["id", state?.context?.currency_id]),
+    getCurrencies: () => state?.context?.currencies,
     getCountry: () => state?.context?.country_id
   };
 };

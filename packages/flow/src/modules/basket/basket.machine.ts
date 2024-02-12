@@ -6,6 +6,9 @@ const { sendTo } = actions;
 import services from "./services";
 import paymentDetailsMachine from "../payment/details.machine";
 import customFieldsMachine from "./fields/fields.machine";
+import promotionsMachine from "./promotions/promotions.machine";
+import currencyMachine from "./currency/currency.machine";
+import billingDetailsMachine from "./billing/details.machine";
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
@@ -137,6 +140,26 @@ export default createMachine(
         id: "shopping",
         type: "parallel",
         states: {
+          client: {
+            initial: "checking",
+            states: {
+              checking: {
+                invoke: {
+                  src: "isAuthenticated",
+                  onDone: { target: "authenticated" },
+                  onError: { target: "unauthenticated" }
+                }
+              },
+              unauthenticated: {},
+              authenticated: {
+                type: "final"
+              }
+            },
+            on: {
+              AUTHENTICATED: { target: "#claiming" }
+            }
+          },
+
           items: {
             initial: "configuring",
             states: {
@@ -299,82 +322,76 @@ export default createMachine(
             }
           },
 
-          promotions: {
-            initial: "empty",
+          currency: {
+            initial: "processing",
             states: {
-              empty: {
-                always: {
-                  target: "active",
-                  cond: "hasPromotions"
-                },
-                type: "final"
-              },
-              adding: {
+              processing: {
                 invoke: {
-                  src: "addPromotion",
+                  id: "currency",
+                  src: currencyMachine,
+                  data: ({ basket }: BasketContext, _event: BasketEvents) => ({
+                    basketId: basket?.id,
+                    model: { id: basket?.currency_id }
+                  }),
                   onDone: {
-                    target: "active",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
+                    target: "complete"
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: { actions: ["setError"] }
                 }
               },
-              removing: {
-                invoke: {
-                  src: "removePromotion",
-                  onDone: {
-                    target: "empty",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-              error: {},
-              active: {
-                always: {
-                  target: "empty",
-                  cond: "hasNoPromotions"
-                },
+
+              complete: {
                 type: "final"
               }
-            },
-            on: {
-              "ADD.PROMOTION": { target: "promotions.adding" },
-              "REMOVE.PROMOTION": { target: "promotions.removing" }
             }
           },
 
-          client: {
-            initial: "checking",
+          promotions: {
+            initial: "processing",
             states: {
-              checking: {
+              processing: {
                 invoke: {
-                  src: "isAuthenticated",
-                  onDone: { target: "authenticated" },
-                  onError: { target: "unauthenticated" }
+                  id: "promotions",
+                  src: promotionsMachine,
+                  data: ({ basket }: BasketContext, _event: BasketEvents) => ({
+                    basketId: basket?.id,
+                    promotions: basket?.promotions
+                  }),
+                  onDone: {
+                    target: "complete"
+                  },
+                  onError: { actions: ["setError"] }
                 }
               },
-              unauthenticated: {},
-              authenticated: {
+
+              complete: {
                 type: "final"
               }
-            },
-            on: {
-              AUTHENTICATED: { target: "#claiming" }
+            }
+          },
+
+          billing_details: {
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  id: "billing_details",
+                  src: billingDetailsMachine,
+                  data: ({ basket }: BasketContext, _event: BasketEvents) => ({
+                    basketId: basket?.id,
+                    address_id: basket?.address_id,
+                    company_id: basket?.company_id
+                  }),
+                  onDone: {
+                    target: "complete"
+                  },
+                  onError: { actions: ["setError"] }
+                }
+              },
+
+              complete: {
+                type: "final"
+              }
             }
           },
 
@@ -402,137 +419,6 @@ export default createMachine(
               complete: {
                 type: "final"
               }
-            },
-            on: {
-              REFRESH: { target: "#loading" }
-              // ---
-              // we should not need these as the payment details machine should handle these
-              // "UPDATE.FIELDS": {
-              //   target: "custom_fields.processing",
-              //   actions: [
-              //     sendTo("custom_fields", (_context, { data }) => ({
-              //       type: "UPDATE",
-              //       data,
-              //       delay: 0
-              //     }))
-              //   ]
-              // },
-              // "CLEAR.FIELDS": {
-              //   target: "custom_fields.processing",
-              //   actions: [
-              //     sendTo("custom_fields", { type: "CLEAR", delay: 0 })
-              //   ]
-              // },
-              // "SET.FIELDS": {
-              //   target: "custom_fields.processing",
-              //   actions: [
-              //     sendTo("custom_fields", (_context, { data }) => ({
-              //       type: "SET",
-              //       data,
-              //       delay: 0
-              //     }))
-              //   ]
-              // }
-            }
-          },
-
-          billing: {
-            initial: "empty",
-            states: {
-              empty: {
-                always: {
-                  target: "complete",
-                  cond: "hasBilling"
-                }
-              },
-
-              processing: {
-                invoke: {
-                  src: "setBilling",
-                  onDone: {
-                    target: "complete",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-
-              // Handle errors
-              error: {},
-
-              // Handle completion, stop the machine and prevent further requests
-              complete: {
-                type: "final",
-                always: {
-                  target: "empty",
-                  cond: "hasNoBilling"
-                }
-              }
-            },
-            on: {
-              "UPDATE.ADDRESS": {
-                target: "billing.processing",
-                cond: "notSameAddress"
-              },
-              "UPDATE.COMPANY": {
-                target: "billing.processing",
-                cond: "notSameCompany"
-              }
-            }
-          },
-
-          currency: {
-            initial: "empty",
-            states: {
-              empty: {
-                always: {
-                  target: "complete",
-                  cond: "hasCurrency"
-                }
-              },
-
-              processing: {
-                invoke: {
-                  src: "setCurrency",
-                  onDone: {
-                    target: "complete",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-
-              // Handle errors
-              error: {},
-
-              // Handle completion, stop the machine and prevent further requests
-              complete: {
-                type: "final",
-                always: {
-                  target: "empty",
-                  cond: "hasNoCurrency"
-                }
-              }
-            },
-            on: {
-              "UPDATE.CURRENCY": {
-                target: "currency.processing",
-                cond: "notSameCurrency"
-              }
             }
           },
 
@@ -543,9 +429,13 @@ export default createMachine(
                 invoke: {
                   id: "payment_details",
                   src: paymentDetailsMachine,
-                  data: {
-                    model: (context, { data }) => data
-                  },
+                  data: (
+                    { basket }: BasketContext,
+                    { data }: BasketEvents
+                  ) => ({
+                    basketId: basket?.id,
+                    model: data
+                  }),
                   onDone: {
                     target: "complete"
                   },
@@ -556,37 +446,6 @@ export default createMachine(
               complete: {
                 type: "final"
               }
-            },
-            on: {
-              REFRESH: { target: "#loading" }
-              // ---
-              // we should not need these as the payment details machine should handle these
-              // "UPDATE.PAYMENT_DETAILS": {
-              //   target: "payment_details.processing",
-              //   actions: [
-              //     sendTo("payment_details", (_context, { data }) => ({
-              //       type: "UPDATE",
-              //       data,
-              //       delay: 0
-              //     }))
-              //   ]
-              // },
-              // "CLEAR.PAYMENT_DETAILS": {
-              //   target: "payment_details.processing",
-              //   actions: [
-              //     sendTo("payment_details", { type: "CLEAR", delay: 0 })
-              //   ]
-              // },
-              // "SET.PAYMENT_DETAILS": {
-              //   target: "payment_details.processing",
-              //   actions: [
-              //     sendTo("payment_details", (_context, { data }) => ({
-              //       type: "SET",
-              //       data,
-              //       delay: 0
-              //     }))
-              //   ]
-              // }
             }
           }
         },
@@ -621,6 +480,7 @@ export default createMachine(
       }
     },
     on: {
+      REFRESH: { target: "#loading" },
       UNAUTHENTICATED: {
         target: "#loading",
         actions: [

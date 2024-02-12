@@ -30,7 +30,7 @@
             :disabled="!meta.isDirty || !meta.isValid || meta.isProcessing"
             v-show="meta.isDirty"
           >
-            Update fields
+            Update currency
           </button>
         </template>
       </upm-form-generator>
@@ -41,10 +41,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { UpmFormGenerator } from "@upmind/ui";
-import { useBasketFields } from "@upmind/vue";
+import { useBasketCurrency } from "@upmind/vue";
 
 export default defineComponent({
-  name: "UpmBasketFields",
+  name: "UpmBasketCurrency",
   components: { UpmFormGenerator },
   inheritAttrs: true,
   customOptions: {},
@@ -56,7 +56,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    return useBasketFields(props.actor);
+    return useBasketCurrency(props.actor);
   }
 });
 </script>

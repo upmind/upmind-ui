@@ -5,7 +5,16 @@ import { useActor } from "@xstate/vue";
 // --- internal
 
 // --- utils
-import { isFunction, map, some, get, isArray, isEmpty, isNil } from "lodash-es";
+import {
+  isFunction,
+  map,
+  some,
+  get,
+  isArray,
+  isObject,
+  isEmpty,
+  isNil
+} from "lodash-es";
 
 // --------------------------------------------------------
 // These are some helper to reduce the repetition of the same code when using xstate/vue
@@ -34,10 +43,9 @@ export const contextMatches = (state, props: string[]) => {
   const context = stateValue(state, "context");
 
   if (!context || !props?.length) return false;
-
   return some(props, prop => {
     const value = get(context, prop);
-    return !(isNil(value) || isEmpty(value));
+    return !isEmpty(value) || !!value;
   });
 };
 
@@ -114,7 +122,7 @@ export const useContext = (state, prop?: string, fallback?: any) =>
   computed(() => contextValue(state, prop, fallback));
 
 export const useChildActor = (state, prop?: string, fallback?: any) =>
-  computed(() => childActor(state, prop), fallback);
+  computed(() => childActor(state, prop, fallback));
 
 export const useContextActor = (state, prop?: string, fallback?: any) =>
   computed(() => contextActor(state, prop, fallback));

@@ -1,17 +1,16 @@
 <template>
   <section class="basket w-full">
-    <div class="actions flex flex-none join justify-end relative z-20">
+    <div class="actions flex flex-none justify-end relative z-20 gap-2">
+      <!-- Currency -->
       <upm-currency
-        v-if="currency"
-        :model-value="currency"
-        :currencies="currencies"
-        :processing="meta.isLoading || meta.isProcessing"
-        @update:modelValue="updateCurrency"
-        class="mx-4"
-      >
-      </upm-currency>
+        v-if="actors?.currency"
+        :loading="meta.isLoading"
+        :processing="meta.isProcessing"
+        :actor="actors.currency"
+      ></upm-currency>
+
       <slot name="actions">
-        <form @submit.prevent="addProduct(model)">
+        <form @submit.prevent="addProduct(model)" class="join">
           <fieldset>
             <select
               class="select select-sm select-bordered w-24 md:w-auto join-item"
@@ -32,22 +31,22 @@
               </component>
             </select>
           </fieldset>
+
+          <button
+            class="btn btn-sm btn-primary join-item"
+            type="submit"
+            :disabled="meta.isProcessing || !model.product_id"
+            @click.prevent="addProduct(model)"
+          >
+            <!-- <div class="indicator"> -->
+            <!-- <span class="indicator-item"> -->
+            <!-- </span> -->
+
+            <squares-plus-icon class="h-6 w-6" />
+            <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
+            <!-- </div> -->
+          </button>
         </form>
-
-        <button
-          class="btn btn-sm btn-primary join-item"
-          type="submit"
-          :disabled="meta.isProcessing || !model.product_id"
-          @click.prevent="addProduct(model)"
-        >
-          <!-- <div class="indicator"> -->
-          <!-- <span class="indicator-item"> -->
-          <!-- </span> -->
-
-          <squares-plus-icon class="h-6 w-6" />
-          <!-- <PlusIcon class="h-4 w-4 -ml-3" /> -->
-          <!-- </div> -->
-        </button>
 
         <!-- <button
             class="btn btn-ghost join-item"
@@ -197,14 +196,14 @@
         class="fields col-span-5 order-2"
         :class="{ disabled: meta.needsAuth }"
         :disabled="meta.needsAuth"
-        v-if="customFields"
+        v-if="actors?.customFields"
       >
         <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
         <upm-basket-fields
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
-          :item="customFields"
+          :actor="actors.customFields"
         ></upm-basket-fields>
       </section>
 
@@ -325,10 +324,10 @@
           </div>
 
           <!-- Promotions -->
-          <div v-if="meta.hasPromotions">
+          <!-- <div v-if="meta.hasPromotions">
             <div class="divider uppercase text-xs opacity-50">Discount</div>
             <h4 class="text-inherit mt-0">{{ summary?.discount }}</h4>
-          </div>
+          </div> -->
 
           <!-- Subtotal -->
           <div>
@@ -437,8 +436,7 @@ const {
   meta,
   items,
   promotions,
-  currency,
-  currencies,
+
   // ---
   addProduct,
   clearBasket,
@@ -451,7 +449,7 @@ const {
   updateQuantity,
   updateTerm,
   // ---
-  customFields
+  actors
 } = useBasket();
 
 const productCatalogue = [
@@ -514,6 +512,6 @@ const model = ref({
 
 // make sure we update any basket fields if we navigate away from the basket
 onBeforeUnmount(() => {
-  updateFields();
+  // updateFields();
 });
 </script>
