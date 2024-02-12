@@ -10,8 +10,7 @@
       :class="$attrs?.class"
       role="button"
       tabindex="0"
-      @focus="doToggle(true)"
-      @blur="doToggle(false)"
+      @click="doToggle(!open)"
     >
       <slot name="trigger" v-bind="{ open, toggle: doToggle }"></slot>
 

@@ -155,27 +155,6 @@ async function update({ basket, items }: BasketContext, _event: any) {
   });
 }
 
-async function setCurrency({ basket, items }: BasketContext, { data }: any) {
-  const { put, useUrl } = useApi();
-
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return put({
-    url: useUrl(`/orders/${basket.id}/currency`),
-    data: {
-      currency_code: data?.code || data?.id
-    },
-    withAccessToken: true
-  })
-    .then(check)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
-    })
-    .then(updateItemProvisioningFields);
-}
-
 async function setBilling({ basket, items }: BasketContext, { data }: any) {
   const { put, useUrl } = useApi();
 
@@ -428,12 +407,6 @@ export default {
   generate,
   claim,
   update,
-  // ---
-  setCurrency,
-  setBilling,
-  // ---
-  addPromotion,
-  removePromotion,
   // ---
   updateItem,
   removeItem,

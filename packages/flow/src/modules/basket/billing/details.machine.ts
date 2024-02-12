@@ -13,25 +13,24 @@ import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { FieldsContext, FieldsEvent } from "./types";
+import type { BillingDetailsContext, BillingDetailsEvent } from "./types";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    tsTypes: {} as import("./fields.machine.typegen").Typegen0,
-    id: "basketFieldsManager",
+    tsTypes: {} as import("./details.machine.typegen").Typegen0,
+    id: "billingDetailsManager",
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      fields: undefined,
       schema: undefined,
       uischema: undefined,
       model: undefined,
       // ---
       dirty: false,
       error: null
-    } as FieldsContext,
+    } as BillingDetailsContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -124,7 +123,7 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
+        // entry: sendParent(({ model }: BillingDetailsContext, _event: BillingDetailsEvent) => ({
         //   type: "REFRESH",
         //   data: model
         // })),
@@ -162,7 +161,7 @@ export default createMachine(
   {
     actions: {
       setContext: assign(
-        (_context: FieldsContext, { data }: FieldsEvent) => data
+        (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => data
       ),
 
       setSchemas: assign({
@@ -194,14 +193,13 @@ export default createMachine(
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
-        addSuccess("Successfully updated the basket fields");
+        addSuccess("Successfully updated billing details");
       },
 
       setFeedbackError: ({ error }, _event) => {
         addError({
           title:
-            error?.title ||
-            "We experienced an error updating the basket fields",
+            error?.title || "We experienced an error updating billing details",
           copy: error?.message,
           data: error?.data
         });

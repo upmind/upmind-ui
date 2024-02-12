@@ -7,7 +7,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 // private
 
-export interface IField {
+export interface IBillingDetail {
   notes: string;
   custom_fields: Record<string, any>;
 }
@@ -15,13 +15,12 @@ export interface IField {
 // --------------------------------------------------------
 // Contexts
 
-export interface FieldsContext {
-  basketId: String;
+export interface BillingDetailsContext {
   // ---
   fields?: Array;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IField;
+  model?: IBillingDetail;
   // ---
   dirty: Boolean;
   error?: RequestError;
@@ -30,8 +29,8 @@ export interface FieldsContext {
 // --------------------------------------------------------
 // Events
 
-export interface FieldsEvent {
+export interface BillingDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: IField;
+  data?: IBillingDetail;
   error?: RequestError;
 }

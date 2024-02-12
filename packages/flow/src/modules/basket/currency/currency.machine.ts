@@ -13,25 +13,25 @@ import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { FieldsContext, FieldsEvent } from "./types";
+import type { CurrencyContext, CurrencyEvent } from "./types";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    tsTypes: {} as import("./fields.machine.typegen").Typegen0,
-    id: "basketFieldsManager",
+    tsTypes: {} as import("./currency.machine.typegen").Typegen0,
+    id: "basketCurrencyManager",
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      fields: undefined,
+      currencies: undefined,
       schema: undefined,
       uischema: undefined,
       model: undefined,
       // ---
       dirty: false,
       error: null
-    } as FieldsContext,
+    } as CurrencyContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -124,7 +124,7 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
+        // entry: sendParent(({ model }: CurrencyContext, _event: CurrencyEvent) => ({
         //   type: "REFRESH",
         //   data: model
         // })),
@@ -162,7 +162,7 @@ export default createMachine(
   {
     actions: {
       setContext: assign(
-        (_context: FieldsContext, { data }: FieldsEvent) => data
+        (_context: CurrencyContext, { data }: CurrencyEvent) => data
       ),
 
       setSchemas: assign({
@@ -194,14 +194,14 @@ export default createMachine(
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
-        addSuccess("Successfully updated the basket fields");
+        addSuccess("Successfully updated the basket currency");
       },
 
       setFeedbackError: ({ error }, _event) => {
         addError({
           title:
             error?.title ||
-            "We experienced an error updating the basket fields",
+            "We experienced an error updating the basket currency",
           copy: error?.message,
           data: error?.data
         });

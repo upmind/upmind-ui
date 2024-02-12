@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBasket as useUpmindBasket, useBrand } from "@upmind/flow";
+import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 // --- utils
 import {
@@ -27,11 +27,9 @@ import { some } from "lodash-es";
 
 export const useBasket = () => {
   const { service } = useUpmindBasket();
-  const { service: brandService } = useBrand();
   // --------------------------------------------------------
   // we need this for reactive state
   const { state, send } = useActor(service);
-  const { state: brandState } = useActor(brandService);
 
   // --------------------------------------------------------
 
@@ -41,7 +39,7 @@ export const useBasket = () => {
   const customFields = useChildActor(state, "custom_fields");
   const paymentDetails = useChildActor(state, "payment_details");
   // const billing = useChildActor(state, "billing");
-  // const currency = useChildActor(state, "currency");
+  const currency = useChildActor(state, "currency");
   // --------------------------------------------------------
 
   return {
@@ -57,10 +55,10 @@ export const useBasket = () => {
           stateMatches(state, [
             "shopping.items.processing",
             "shopping.billing.processing",
-            "shopping.currency.processing",
             "shopping.promotions.adding",
             "shopping.promotions.removing"
           ]) ||
+          machineMatches(currency, ["processing"]) ||
           machineMatches(customFields, ["processing"]) ||
           machineMatches(paymentDetails, ["processing"]),
 
@@ -88,7 +86,10 @@ export const useBasket = () => {
         isAvailable: stateMatches(state, ["shopping"]),
         isConfigured: stateMatches(state, ["shopping.items.complete"]),
         hasBilling: stateMatches(state, ["shopping.billing.complete"]),
-        hasCurrency: stateMatches(state, ["shopping.currency.complete"]),
+        hasCurrency:
+          stateMatches(state, ["shopping.currency.complete"]) ||
+          machineMatches(currency, ["complete"]),
+
         hasPaymentMethod: stateMatches(state, ["payment.complete"]),
 
         needsAuth: !stateMatches(state, ["shopping.client.authenticated"]),
@@ -118,11 +119,13 @@ export const useBasket = () => {
     products: useContext(state, "basket.products", []),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
-    currency: useContext(state, "basket.currency"),
-    currencies: useContext(brandState, "currencies", []),
+    currency: useContext(state, "basket.currency", []),
     // ---
-    customFields,
-    paymentDetails,
+    actors: computed(() => ({
+      currency: currency.value,
+      customFields: customFields.value,
+      paymentDetails: paymentDetails.value
+    })),
     // ---
     updateBasket: () => send({ type: "UPDATE" }),
     clearBasket: () => send({ type: "CLEAR" }),
@@ -188,6 +191,38 @@ export const useBasketFields = actor => {
     model: useContext(state, "model"),
     schema: useContext(state, "schema"),
     uischema: useContext(state, "uischema"),
+    // ---
+    clear: () => send({ type: "CLEAR" }),
+    input: model => send({ type: "SET", data: model }),
+    update: () => send({ type: "UPDATE" })
+  };
+};
+
+export const useBasketCurrency = actor => {
+  const { state, send } = actor;
+  // --------------------------------------------------------
+
+  return {
+    state: useState(state, "value"),
+    context: useContext(state),
+    errors: useContext(state, "error"),
+    //messages: useContext(state, 'messages'),
+    // ---
+    meta: computed(() => ({
+      isLoading: stateMatches(state, ["loading"]),
+      hasErrors: stateMatches(state, ["error"]),
+      isProcessing: stateMatches(state, ["checking", "processing"]),
+      isValid: stateMatches(state, ["valid"]),
+      isDirty: contextMatches(state, ["dirty"]),
+      isComplete:
+        stateValue(state, "done", false) ||
+        stateMatches(state, ["processed", "complete"])
+    })),
+    // ---
+    model: useContext(state, "model"),
+    schema: useContext(state, "schema"),
+    uischema: useContext(state, "uischema"),
+    currencies: useContext(state, "currencies"),
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),

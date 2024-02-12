@@ -1,27 +1,25 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
+// ---internal
+export type { ICurrency } from "../../system/types.d";
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
 // private
 
-export interface IField {
-  notes: string;
-  custom_fields: Record<string, any>;
-}
-
 // --------------------------------------------------------
 // Contexts
 
-export interface FieldsContext {
+export interface CurrencyContext {
   basketId: String;
   // ---
-  fields?: Array;
+  currencies?: ICurrency[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IField;
+  model?: ICurrency;
+  baseModel?: ICurrency;
   // ---
   dirty: Boolean;
   error?: RequestError;
@@ -30,8 +28,8 @@ export interface FieldsContext {
 // --------------------------------------------------------
 // Events
 
-export interface FieldsEvent {
+export interface CurrencyEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: IField;
+  data?: ICurrency;
   error?: RequestError;
 }

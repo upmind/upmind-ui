@@ -20,7 +20,7 @@ async function load(
   _context: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
-  const { getBrandId, getCurrency, isReady } = useBrand();
+  const { getBrandId, getCurrencyId, isReady } = useBrand();
   const { get, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -28,7 +28,7 @@ async function load(
 
   const client_id = await getUserId();
   const brand_id = getBrandId(); // "47d73824-8507-9315-e54f-81e642d59e06";
-  const currency_id = getCurrency(); //"e47d7382-4850-7931-56c8-1e642d59e063";
+  const currency_id = getCurrencyId(); //"e47d7382-4850-7931-56c8-1e642d59e063";
 
   // ---
 
