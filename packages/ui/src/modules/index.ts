@@ -2,10 +2,8 @@
 // export * from "./brand";
 // export * from "./client";
 export * from "./dac";
-export * from "./debug";
 export * from "./domain";
 // export * from "./feedback";
-export * from "./formGenerator";
 export * from "./lookup";
 // export * from "./product";
 // export * from "./requests";
