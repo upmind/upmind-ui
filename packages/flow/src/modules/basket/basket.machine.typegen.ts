@@ -56,28 +56,8 @@ export interface Typegen0 {
       type: "error.platform.basketManager.shopping.items.processing.everything:invocation[0]";
       data: unknown;
     };
-    "error.platform.billing_details": {
-      type: "error.platform.billing_details";
-      data: unknown;
-    };
     "error.platform.claiming:invocation[0]": {
       type: "error.platform.claiming:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.currency": {
-      type: "error.platform.currency";
-      data: unknown;
-    };
-    "error.platform.custom_fields": {
-      type: "error.platform.custom_fields";
-      data: unknown;
-    };
-    "error.platform.payment_details": {
-      type: "error.platform.payment_details";
-      data: unknown;
-    };
-    "error.platform.promotions": {
-      type: "error.platform.promotions";
       data: unknown;
     };
     "error.platform.removing:invocation[0]": {
@@ -150,12 +130,7 @@ export interface Typegen0 {
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.billing_details"
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.currency"
-      | "error.platform.custom_fields"
-      | "error.platform.payment_details"
-      | "error.platform.promotions"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
@@ -248,18 +223,12 @@ export interface Typegen0 {
     | "refreshing"
     | "shopping"
     | "shopping.billing_details"
-    | "shopping.billing_details.complete"
-    | "shopping.billing_details.processing"
     | "shopping.client"
     | "shopping.client.authenticated"
     | "shopping.client.checking"
     | "shopping.client.unauthenticated"
     | "shopping.currency"
-    | "shopping.currency.complete"
-    | "shopping.currency.processing"
     | "shopping.custom_fields"
-    | "shopping.custom_fields.complete"
-    | "shopping.custom_fields.processing"
     | "shopping.items"
     | "shopping.items.complete"
     | "shopping.items.configuring"
@@ -271,11 +240,7 @@ export interface Typegen0 {
     | "shopping.items.processing.removing"
     | "shopping.items.processing.updating"
     | "shopping.payment_details"
-    | "shopping.payment_details.complete"
-    | "shopping.payment_details.processing"
     | "shopping.promotions"
-    | "shopping.promotions.complete"
-    | "shopping.promotions.processing"
     | "subscribing"
     | {
         checkout?: "payment";
@@ -289,10 +254,7 @@ export interface Typegen0 {
           | "payment_details"
           | "promotions"
           | {
-              billing_details?: "complete" | "processing";
               client?: "authenticated" | "checking" | "unauthenticated";
-              currency?: "complete" | "processing";
-              custom_fields?: "complete" | "processing";
               items?:
                 | "complete"
                 | "configuring"
@@ -306,8 +268,6 @@ export interface Typegen0 {
                       | "removing"
                       | "updating";
                   };
-              payment_details?: "complete" | "processing";
-              promotions?: "complete" | "processing";
             };
       };
   tags: never;

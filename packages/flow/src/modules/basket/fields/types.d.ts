@@ -16,7 +16,7 @@ export interface IField {
 // Contexts
 
 export interface FieldsContext {
-  basketId?: String;
+  basket_id?: String;
   // ---
   fields?: Array;
   schema?: JsonSchema;

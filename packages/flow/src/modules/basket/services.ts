@@ -311,7 +311,7 @@ async function getProvisioningFieldsValues(basket: any) {
   // bail if we have no basket, or if we have a basket with products
   if (!basket || !basket?.products?.length) return Promise.resolve(basket);
 
-  const { id: basketId, products } = basket;
+  const { id: basket_id, products } = basket;
 
   const provisioningPromises = [];
 
@@ -323,7 +323,7 @@ async function getProvisioningFieldsValues(basket: any) {
       // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
       const promise = get({
         url: useUrl(
-          `orders/${basketId}/products/${id}/provision_fields/values`
+          `orders/${basket_id}/products/${id}/provision_fields/values`
         ),
         useCache: false,
         withAccessToken: true

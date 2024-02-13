@@ -16,7 +16,7 @@ export interface IBillingDetail {
 // Contexts
 
 export interface BillingDetailsContext {
-  basketId?: string;
+  basket_id?: string;
   address_id?: string;
   company_id?: string;
   // ---

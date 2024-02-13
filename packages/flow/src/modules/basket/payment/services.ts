@@ -5,7 +5,7 @@ import { useApi, useSession, useBrand } from "../../";
 const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
-import { useValidation } from "../../utils";
+import { useValidation } from "../../../utils";
 
 // --- types
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
@@ -17,7 +17,7 @@ import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
 // Invoked by machines, providing context and event data
 
 async function load(
-  _context: PaymentDetailsContext,
+  { currency_id }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   const { getBrandId, getCurrencyId, isReady } = useBrand();
@@ -28,7 +28,7 @@ async function load(
 
   const client_id = await getUserId();
   const brand_id = getBrandId(); // "47d73824-8507-9315-e54f-81e642d59e06";
-  const currency_id = getCurrencyId(); //"e47d7382-4850-7931-56c8-1e642d59e063";
+  currency_id ??= getCurrencyId(); //"e47d7382-4850-7931-56c8-1e642d59e063";
 
   // ---
 
