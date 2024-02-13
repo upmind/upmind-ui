@@ -10,7 +10,9 @@
     ]"
   >
     <div class="card-body">
-      <h3 class="text-inherit text-xl mt-2 mb-0">Discounts</h3>
+      <h3 class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50">
+        Discounts
+      </h3>
 
       <upm-form-generator
         tabindex="1"

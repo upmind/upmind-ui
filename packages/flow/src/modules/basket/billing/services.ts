@@ -5,8 +5,7 @@ import { useApi } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { useModelParser } from "./utils";
-
+import { omitBy, isNil } from "lodash-es";
 // --- types
 import type { BillingDetailsEvent, BillingDetailsContext } from "./types";
 
@@ -20,27 +19,26 @@ async function load(
   _context: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  const { get, useUrl } = useApi();
-
-  return get({
-    url: useUrl("basket_fields")
-  }).then(({ data }) => ({ fields: data }));
+  // we dont need to do anything here as we are not loading any data
+  return new Promise(resolve => {
+    resolve({});
+  });
 }
 
 // --------------------------------------------------------
-
 async function update(
-  { basketId, fields, model }: BillingDetailsContext,
+  { basketId, model }: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
   const { put, useUrl } = useApi();
-  // rebuild the model with ALL custo mfields present, including nullish values
-  const data = useModelParser({ fields }, model);
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basketId}`),
-    data,
+    data: {
+      address_id: model?.address_id || null,
+      company_id: model?.company_id || null
+    },
     withAccessToken: true
   });
 }
@@ -53,7 +51,7 @@ async function parse(
 ) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model });
+  return Promise.resolve({ model: omitBy(model, isNil) });
 }
 
 async function validate(

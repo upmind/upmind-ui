@@ -10,6 +10,10 @@
     ]"
   >
     <div class="card-body">
+      <h3 class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50">
+        Order fields
+      </h3>
+
       <upm-form-generator
         tabindex="1"
         :additional-errors="errors?.data"

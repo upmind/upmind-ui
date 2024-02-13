@@ -3,42 +3,65 @@
 // --- internal
 
 // --- utils
-import { get, map } from "lodash-es";
+import { get, set, reduce, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { IBillingDetails, BillingDetailssContext } from "./types";
+import type { IBillingDetail, BillingDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ fields }: BillingDetailssContext) => {
+export const useSchema = (_context: BillingDetailsContext) => {
   const schema = {
     type: "object",
     title: "BillingDetailss",
-    required: [],
-    properties: {
-      notes: {
-        type: ["string", "null"],
-        title: "Order Notes"
+    anyOf: [
+      {
+        type: "object",
+        required: ["address_id"],
+        properties: {
+          address_id: {
+            type: ["string", "null"],
+            title: "Use Address"
+          }
+        }
+      },
+      {
+        type: "object",
+        required: ["company_id"],
+        properties: {
+          company_id: {
+            type: ["string", "null"],
+            title: "Use Company"
+          }
+        }
       }
-    }
+    ]
   };
 
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ fields }: BillingDetailssContext) => {
+export const useUischema = (_context: BillingDetailsContext) => {
   const schema = {
     type: "VerticalLayout",
     elements: [
       {
         type: "Control",
-        scope: "#/properties/notes",
+        scope: "#/properties/address_id",
         options: {
-          multi: true,
           focus: true,
           autocomplete: "off",
-          placeholder: "Add notes here..."
+          placeholder: "Select Address"
+        }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/company_id",
+        options: {
+          focus: true,
+          autocomplete: "off",
+          placeholder: "Select Company"
         }
       }
     ]
@@ -47,13 +70,16 @@ export const useUischema = ({ fields }: BillingDetailssContext) => {
   return schema as UISchemaElement;
 };
 
-export const useModelParser = (
-  { fields }: BillingDetailssContext,
-  values: IBillingDetails
-) => {
-  const model = {
-    notes: values?.notes
-  };
+export const useModelParser = (schema: JsonSchema, values: IBillingDetail) => {
+  const model = reduce(
+    schema.properties,
+    (result, field, key) => {
+      const value = get(values, key, field?.const || field?.default);
+      set(result, key, value);
+      return result;
+    },
+    {}
+  );
 
-  return model as IBillingDetails;
+  return defaultsDeep(model, values) as IBillingDetail;
 };

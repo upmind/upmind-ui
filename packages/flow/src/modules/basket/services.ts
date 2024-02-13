@@ -155,28 +155,6 @@ async function update({ basket, items }: BasketContext, _event: any) {
   });
 }
 
-async function setBilling({ basket, items }: BasketContext, { data }: any) {
-  const { put, useUrl } = useApi();
-
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return put({
-    url: useUrl(`/orders/${basket.id}`),
-    data: {
-      address_id: data?.address_id,
-      company_id: data?.company_id
-    },
-    withAccessToken: true
-  })
-    .then(check)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
-    })
-    .then(updateItemProvisioningFields);
-}
-
 // --- Basket Item Methods
 
 // this function effectively processes the items 1 at a time

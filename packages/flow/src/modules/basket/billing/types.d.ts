@@ -8,16 +8,18 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // private
 
 export interface IBillingDetail {
-  notes: string;
-  custom_fields: Record<string, any>;
+  address_id?: string;
+  company_id?: string;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface BillingDetailsContext {
+  basketId?: string;
+  address_id?: string;
+  company_id?: string;
   // ---
-  fields?: Array;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IBillingDetail;
