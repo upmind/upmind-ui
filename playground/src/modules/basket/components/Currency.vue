@@ -8,7 +8,7 @@
   >
     <template #trigger="">
       <span class="flex gap-2 items-center w-16 mr-2">
-        <strong class="badge badge-outline">
+        <strong class="badge badge-neutral">
           {{ model?.prefix || model?.suffix }}
         </strong>
         {{ model?.code }}
@@ -69,7 +69,7 @@ export default defineComponent({
   computed: {},
 
   methods: {
-    doSelect(currency: Event, callback) {
+    doSelect(currency: Event, callback: Function) {
       debugger;
       this.input(currency);
       if (callback) callback(false);

@@ -40,6 +40,7 @@ export const useBasket = () => {
   const paymentDetails = useChildActor(state, "payment_details");
   // const billing = useChildActor(state, "billing");
   const currency = useChildActor(state, "currency");
+  const promotions = useChildActor(state, "promotions");
   // --------------------------------------------------------
 
   return {
@@ -124,7 +125,8 @@ export const useBasket = () => {
     actors: computed(() => ({
       currency: currency.value,
       customFields: customFields.value,
-      paymentDetails: paymentDetails.value
+      paymentDetails: paymentDetails.value,
+      promotions: promotions.value
     })),
     // ---
     updateBasket: () => send({ type: "UPDATE" }),
@@ -227,5 +229,39 @@ export const useBasketCurrency = actor => {
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
     update: () => send({ type: "UPDATE" })
+  };
+};
+
+export const useBasketPromotions = actor => {
+  const { state, send } = actor;
+  // --------------------------------------------------------
+
+  return {
+    state: useState(state, "value"),
+    context: useContext(state),
+    errors: useContext(state, "error"),
+    //messages: useContext(state, 'messages'),
+    // ---
+    meta: computed(() => ({
+      isLoading: stateMatches(state, ["loading"]),
+      hasErrors: stateMatches(state, ["error"]),
+      isProcessing: stateMatches(state, ["checking", "processing"]),
+      hasPromotions: contextMatches(state, ["promotions"]),
+      isValid: stateMatches(state, ["valid"]),
+      isDirty: contextMatches(state, ["dirty"]),
+      isComplete:
+        stateValue(state, "done", false) ||
+        stateMatches(state, ["processed", "complete"])
+    })),
+    // ---
+    model: useContext(state, "model"),
+    schema: useContext(state, "schema"),
+    uischema: useContext(state, "uischema"),
+    promotions: useContext(state, "promotions"),
+    // ---
+    clear: () => send({ type: "CLEAR" }),
+    input: model => send({ type: "SET", data: model }),
+    add: () => send({ type: "ADD" }),
+    remove: promotion => send({ type: "REMOVE", data: promotion })
   };
 };

@@ -28,6 +28,8 @@ async function load({ model }: CurrencyContext, _event: CurrencyEvent) {
   // check if weve been given a currency, and ensure its a valid & fully hydrated
   if (model?.id) {
     model = find(currencies, ["id", model.id]);
+  } else {
+    model = baseModel;
   }
 
   return new Promise((resolve, reject) => {
@@ -59,10 +61,14 @@ async function update(
 
 // --------------------------------------------------------
 
-async function parse({ model }: CurrencyContext, _event: CurrencyEvent) {
+async function parse(
+  { model, currencies }: CurrencyContext,
+  _event: CurrencyEvent
+) {
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model });
+  // if we have a valid currency, lets hydrate it base don the code.
+  const currency = find(currencies, ["code", model?.code]);
+  return Promise.resolve({ model: currency });
 }
 
 async function validate(

@@ -1,81 +1,70 @@
 // --- external
 
 // --- internal
-import {
-  useFieldsSchemaParser,
-  useFieldsUischemaParser,
-  useFieldsModelParser
-} from "../../../utils";
 
 // --- utils
-import { get, map } from "lodash-es";
+import { get, set, reduce, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { IField, FieldsContext } from "./types";
+import type { IPromotion, PromotionsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ fields }: FieldsContext) => {
+export const useSchema = (_context: PromotionsContext) => {
   const schema = {
     type: "object",
-    title: "Fields",
-    required: [],
+    title: "Promotions",
+    required: ["code"],
     properties: {
-      notes: {
+      code: {
         type: ["string", "null"],
-        title: "Order Notes"
-      },
-      custom_fields: useFieldsSchemaParser(fields)
+        title: "Code"
+      }
     }
   };
 
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ fields }: FieldsContext) => {
+export const useUischema = (_context: PromotionsContext) => {
   const schema = {
     type: "VerticalLayout",
     elements: [
       {
         type: "Control",
-        scope: "#/properties/notes",
+        scope: "#/properties/code",
         options: {
-          multi: true,
           focus: true,
           autocomplete: "off",
-          placeholder: "Add notes here..."
-        }
-      },
-      useFieldsUischemaParser(
-        map(fields, field => {
-          if (["input_file", "image"].includes(field.type_code)) {
-            field.options ??= {};
-
-            field.options.field = {
-              field_id: field?.id,
-              field_type: "client_custom_field",
-              field_is_default: false
-            };
+          placeholder: "Enter code...",
+          styles: {
+            control: {
+              label: {
+                root: "label sr-only",
+                text: "label-text"
+              },
+              input: "input input-bordered w-full "
+            }
           }
-
-          return field;
-        })
-      )
+        }
+      }
     ]
   };
 
   return schema as UISchemaElement;
 };
 
-export const useModelParser = ({ fields }: FieldsContext, values: IField) => {
-  const model = {
-    notes: values?.notes,
-    custom_fields: useFieldsModelParser(
-      fields,
-      get(values, "custom_fields", {})
-    )
-  };
+export const useModelParser = (schema: JsonSchema, values: IPromotion) => {
+  const model = reduce(
+    schema.properties,
+    (result, field, key) => {
+      const value = get(values, key, field?.const || field?.default);
+      set(result, key, value);
+      return result;
+    },
+    {}
+  );
 
-  return model as IField;
+  return defaultsDeep(model, values) as IPromotion;
 };
