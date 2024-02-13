@@ -1,3 +1,2 @@
 export { default as UpmDropdown } from "./Dropdown.vue";
-export * from "./formGenerator";
-export * from "./debug";
+export { default as UpmDebug } from "./Debug.vue";

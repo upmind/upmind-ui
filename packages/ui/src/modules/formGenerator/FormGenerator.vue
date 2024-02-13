@@ -69,7 +69,7 @@ import type { PropType } from "vue";
 import { defineComponent, unref, toRaw } from "vue";
 
 import { utils } from "@upmind/flow";
-import UpmDebug from "../debug/Debug.vue";
+import { UpmDebug } from "../../components";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";

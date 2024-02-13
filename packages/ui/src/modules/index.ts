@@ -1,3 +1,4 @@
+export * from "./formGenerator";
 // export * from "./basket";
 // export * from "./brand";
 // export * from "./client";
