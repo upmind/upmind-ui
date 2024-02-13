@@ -136,6 +136,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
+        entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: {
             target: "complete"
@@ -145,11 +146,6 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: PromotionsContext, _event: PromotionsEvent) => ({
-        //   type: "REFRESH",
-        //   data: model
-        // })),
-        // type: "final"
       },
 
       error: {

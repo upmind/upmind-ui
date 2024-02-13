@@ -50,6 +50,7 @@ export const useBasket = () => {
     meta: computed(() => {
       return {
         isLoading:
+          stateMatches(state, ["refreshing"]) ||
           stateMatches(state, ["loading"]) ||
           machineMatches(currency, ["loading"]) ||
           machineMatches(customFields, ["loading"]) ||

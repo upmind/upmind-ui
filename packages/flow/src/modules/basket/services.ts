@@ -38,7 +38,7 @@ export enum SemanticTypes {
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(_context: BasketContext, _event: any) {
+async function load(_context?: BasketContext, _event?: any) {
   const { get, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
@@ -153,6 +153,18 @@ async function update({ basket, items }: BasketContext, _event: any) {
       resolve(response);
     }
   });
+}
+
+async function refresh({ basket, items }: BasketContext, { data }: any) {
+  const validItems = reject(items, item => item.state.context.isNew);
+
+  // get returns a promise so we can pass it directly back to the machine
+  return load()
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems };
+    })
+    .then(updateItemProvisioningFields);
 }
 
 // --- Basket Item Methods
@@ -337,10 +349,11 @@ async function getProvisioningFieldsValues(basket: any) {
 // EXPORTS
 
 export default {
-  check,
+  load,
   generate,
   claim,
   update,
+  refresh,
   // ---
   updateItem,
   removeItem,

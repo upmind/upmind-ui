@@ -29,6 +29,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.refreshing:invocation[0]": {
+      type: "done.invoke.refreshing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.removing:invocation[0]": {
       type: "done.invoke.removing:invocation[0]";
       data: unknown;
@@ -91,10 +96,11 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
-    check: "done.invoke.basketManager.loading.basket:invocation[0]";
     claim: "done.invoke.claiming:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
+    load: "done.invoke.basketManager.loading.basket:invocation[0]";
+    refresh: "done.invoke.refreshing:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     update: "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]";
     updateItem: "done.invoke.updating:invocation[0]";
@@ -105,10 +111,11 @@ export interface Typegen0 {
     guards: never;
     services:
       | "authSubscription"
-      | "check"
       | "claim"
       | "generate"
       | "isAuthenticated"
+      | "load"
+      | "refresh"
       | "removeItem"
       | "update"
       | "updateItem";
@@ -123,6 +130,7 @@ export interface Typegen0 {
     queueItem: "UPDATE";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.updating:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
@@ -162,6 +170,7 @@ export interface Typegen0 {
       | "done.invoke.updating:invocation[0]";
     updateBasket:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
@@ -187,34 +196,41 @@ export interface Typegen0 {
     someConfiguring: "";
   };
   eventsCausingServices: {
-    authSubscription: "REFRESH" | "UNAUTHENTICATED" | "xstate.init";
+    authSubscription: "UNAUTHENTICATED" | "xstate.init";
     billing_details:
       | ""
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
-    check: "REFRESH" | "SESSION" | "UNAUTHENTICATED";
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
     claim: "AUTHENTICATED";
     currency:
       | ""
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
     custom_fields:
       | ""
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
     generate: "ADD";
     isAuthenticated:
       | ""
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
+    load: "SESSION" | "UNAUTHENTICATED";
     payment_details:
       | ""
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
     promotions:
       | ""
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
+    refresh: "REFRESH";
     removeItem: "REMOVE";
     update: "CLEAR" | "REMOVE" | "UPDATE";
     updateItem: "UPDATE";
@@ -229,6 +245,7 @@ export interface Typegen0 {
     | "loading"
     | "loading.basket"
     | "loading.items"
+    | "refreshing"
     | "shopping"
     | "shopping.billing_details"
     | "shopping.billing_details.complete"
