@@ -72,7 +72,6 @@ export interface Typegen0 {
       | "SET"
       | "UNAUTHENTICATED"
       | "UPDATE"
-      | "done.invoke.basketPromotionsManager.loading:invocation[0]"
       | "xstate.init";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
@@ -118,10 +117,7 @@ export interface Typegen0 {
       | "SET"
       | "UNAUTHENTICATED"
       | "xstate.init";
-    parse:
-      | "CLEAR"
-      | "SET"
-      | "done.invoke.basketPromotionsManager.loading:invocation[0]";
+    parse: "CLEAR" | "SET";
     remove: "REMOVE";
     validate: "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]";
   };

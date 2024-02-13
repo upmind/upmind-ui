@@ -24,6 +24,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      basketId: undefined,
       fields: undefined,
       schema: undefined,
       uischema: undefined,

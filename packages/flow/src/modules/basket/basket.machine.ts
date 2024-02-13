@@ -379,8 +379,10 @@ export default createMachine(
                   src: billingDetailsMachine,
                   data: ({ basket }: BasketContext, _event: BasketEvents) => ({
                     basketId: basket?.id,
-                    address_id: basket?.address_id,
-                    company_id: basket?.company_id
+                    model: {
+                      address_id: basket?.address_id,
+                      company_id: basket?.company_id
+                    }
                   }),
                   onDone: {
                     target: "complete"

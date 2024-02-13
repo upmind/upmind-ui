@@ -122,8 +122,8 @@
 
         <router-link
           class="step m-0 p-0 text-inherit no-underline uppercase"
-          :class="meta.hasBilling ? 'step-primary' : 'step-warning'"
-          :data-content="meta.hasBilling ? '✓' : '!'"
+          :class="meta.hasBillingDetails ? 'step-primary' : 'step-warning'"
+          :data-content="meta.hasBillingDetails ? '✓' : '!'"
           :to="{ hash: '#billing' }"
         >
           Billing Details
@@ -131,8 +131,8 @@
 
         <router-link
           class="step m-0 p-0 text-inherit no-underline uppercase"
-          :class="meta.hasPaymentMethod ? 'step-primary' : 'step-warning'"
-          :data-content="meta.hasPaymentMethod ? '✓' : '!'"
+          :class="meta.hasPaymentDetails ? 'step-primary' : 'step-warning'"
+          :data-content="meta.hasPaymentDetails ? '✓' : '!'"
           :to="{ hash: '#payment' }"
         >
           Payment
@@ -158,9 +158,11 @@
         id="items"
         class="items col-span-5 order-0 grid grid-cols-card gap-4 items-start"
       >
-        <div class="col-span-full divider uppercase text-xs opacity-50">
+        <h3
+          class="col-span-full text-inherit uppercase text-xl mt-2 mb-0 opacity-50"
+        >
           Basket Items
-        </div>
+        </h3>
 
         <upm-product
           v-for="item in items"
@@ -196,14 +198,14 @@
         :disabled="meta.needsAuth"
         v-if="actors?.customFields"
       >
-        <div class="divider uppercase text-xs opacity-50">Order fields</div>
-
         <upm-basket-fields :actor="actors.customFields"></upm-basket-fields>
       </section>
 
       <!-- account -->
       <section id="account" class="account col-span-5 order-2">
-        <div class="divider uppercase text-xs opacity-50">Account</div>
+        <h3 class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50">
+          Account
+        </h3>
 
         <upm-auth class="my-8 p-0" v-if="meta.needsAuth"></upm-auth>
 
@@ -216,66 +218,11 @@
         class="billing col-span-5 order-2"
         :class="{ disabled: meta.needsAuth }"
         :disabled="meta.needsAuth"
+        v-if="!meta.needsAuth"
       >
-        <div class="divider uppercase text-xs opacity-50">Billing Details</div>
-
-        <div
-          role="tablist"
-          class="tabs tabs-lg tabs-lifted my-8"
-          v-if="!meta.needsAuth"
-        >
-          <input
-            type="radio"
-            name="billing_details"
-            role="tab"
-            class="tab"
-            :class="{
-              'text-primary': !basket?.company_id && basket?.address_id
-            }"
-            :aria-label="`My Addresses ${!basket?.company_id && basket?.address_id ? ' ✓ ' : ''}`"
-            :checked="!basket?.company_id"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <upm-addresses
-              v-if="!meta.needsAuth"
-              class="p-0"
-              :key="basket?.address_id"
-              :processing="meta.isProcessing"
-              :model-value="!basket?.company_id ? basket?.address_id : null"
-              @update:model-value="setBillingAddress"
-              :checked="!basket?.company_id || false"
-            />
-          </div>
-
-          <input
-            type="radio"
-            name="billing_details"
-            role="tab"
-            class="tab"
-            :class="{
-              'text-primary': !!basket?.company_id
-            }"
-            :aria-label="`My Companies ${!!basket?.company_id ? ' ✓ ' : ''}`"
-            :checked="!!basket?.company_id"
-          />
-
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <upm-companies
-              v-if="!meta.needsAuth"
-              class="p-0"
-              :key="basket?.company_id"
-              :processing="meta.isProcessing"
-              :model-value="basket?.company_id"
-              @update:model-value="setBillingCompany"
-            />
-          </div>
-        </div>
+        <upm-billing-details
+          :actor="actors.billingDetails"
+        ></upm-billing-details>
       </section>
 
       <!-- payment -->
@@ -284,9 +231,7 @@
         class="payment col-span-5 order-2"
         :class="{ disabled: meta.needsAuth }"
         :disabled="meta.needsAuth"
-      >
-        <div class="divider uppercase text-xs opacity-50">Payment Methods</div>
-      </section>
+      ></section>
 
       <!-- summary -->
       <aside
@@ -403,11 +348,10 @@ import { useBasket } from "@upmind/vue";
 import UpmCurrency from "../components/Currency.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
+import UpmBillingDetails from "../components/BillingDetails.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAuth from "../../session/components/Auth.vue";
 import UpmProfile from "../../session/components/Profile.vue";
-import UpmAddresses from "../../client/address/components/Listings.vue";
-import UpmCompanies from "../../client/company/components/Listings.vue";
 
 import { UpmDebug } from "@upmind/ui";
 import {
