@@ -82,7 +82,7 @@ export default createMachine(
         states: {
           basket: {
             invoke: {
-              src: "check",
+              src: "load",
               onDone: {
                 target: "items",
                 actions: ["setBasket", "loadItems"]
@@ -125,6 +125,18 @@ export default createMachine(
           onDone: {
             target: "shopping",
             actions: ["setBasket"]
+          },
+          onError: { target: "#error" }
+        }
+      },
+
+      refreshing: {
+        id: "refreshing",
+        invoke: {
+          src: "refresh",
+          onDone: {
+            target: "shopping",
+            actions: ["refreshItems", "updateBasket"]
           },
           onError: { target: "#error" }
         }
@@ -451,7 +463,9 @@ export default createMachine(
             }
           }
         },
-
+        on: {
+          REFRESH: { target: "#refreshing" }
+        },
         onDone: {
           // we are now ready for Checkout
           // target: "checkout"
@@ -482,7 +496,6 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: { target: "#loading" },
       UNAUTHENTICATED: {
         target: "#loading",
         actions: ["clearError", "clearBasket", "removeAllItems", "clearQueue"]

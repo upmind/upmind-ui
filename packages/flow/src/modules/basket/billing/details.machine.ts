@@ -116,6 +116,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
+        entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: {
             target: "complete"

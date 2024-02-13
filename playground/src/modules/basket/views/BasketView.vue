@@ -63,12 +63,16 @@
         <h2 class="flex-1 title m-0 flex gap-1 justify-center">
           Basket
 
+          <span v-if="meta.isLoading">is Loading</span>
+
+          <span v-if="meta.isProcessing">is Updating</span>
+
           <span
             v-if="meta.isLoading || meta.isProcessing"
             class="loading loading-dots text-primary mx-2"
           ></span>
 
-          <template v-else>
+          <template v-if="!meta.isLoading && !meta.isProcessing">
             <span v-if="!meta.hasProducts">
               is <span class="text-primary">Empty</span>
             </span>
