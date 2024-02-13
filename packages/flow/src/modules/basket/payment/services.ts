@@ -6,7 +6,7 @@ const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { unset, get, sortBy } from "lodash-es";
+import { unset, get, sortBy, find } from "lodash-es";
 
 // --- types
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
@@ -19,6 +19,16 @@ export enum PaymentTypes {
   PARTIAL_PAYMENT = "partial-payment",
   PAY_LATER = "pay-later"
   // MANUAL_PAYMENT = "manual-payment" // only admi s can do this and we dont support it...YET
+}
+
+export enum GatewayTypes {
+  CARD = 1,
+  BANK_TRANSFER = 2,
+  DIRECT_DEBIT = 3,
+  SEPA = 4,
+  OFFLINE = 5,
+  MOBILE = 6,
+  WALLET = 7
 }
 
 // --------------------------------------------------------
