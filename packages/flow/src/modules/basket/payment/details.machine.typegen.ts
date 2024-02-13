@@ -74,9 +74,7 @@ export interface Typegen0 {
       | "error.platform.paymentDetailsManager.loading:invocation[0]"
       | "error.platform.paymentDetailsManager.processing:invocation[0]";
     setFeedbackSuccess: "done.invoke.paymentDetailsManager.processing:invocation[0]";
-    setModel:
-      | "SET"
-      | "done.invoke.paymentDetailsManager.processing:invocation[0]";
+    setModel: "SET";
     setSchemas:
       | "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]";

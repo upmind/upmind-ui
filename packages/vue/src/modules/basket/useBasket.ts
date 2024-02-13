@@ -30,8 +30,8 @@ export const useBasket = () => {
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
-
-  // We can create reactive refs to the child machines,
+  // Actors
+  // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
 
   const customFields = useChildActor(state, "custom_fields");
@@ -79,49 +79,47 @@ export const useBasket = () => {
                 machineMatches(item, ["configured"]) &&
                 contextMatches(item?.state, ["isNew", "isDirty"])
             )),
+
         // ---
 
-        hasProducts: !stateMatches(state, ["shopping.items.empty"]),
+        isAvailable:
+          stateMatches(state, ["shopping"]) &&
+          !stateMatches(state, ["shopping.items.empty"]),
+
+        needsAuth: !stateMatches(state, ["shopping.account.authenticated"]),
+
+        // ---
+        hasProducts: stateMatches(state, ["shopping.items.complete"]),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
-        // ---
-        isAvailable: stateMatches(state, ["shopping"]),
-        isConfigured: stateMatches(state, ["shopping.items.complete"]),
+        hasPromotions: machineMatches(promotions, ["complete"]),
+
+        hasBillingDetails: machineMatches(billingDetails, ["complete"]),
+
+        hasCurrency: machineMatches(currency, ["complete"]),
+
+        hasPaymentDetails: machineMatches(paymentDetails, ["complete"]),
+
+        hasFields: machineMatches(customFields, ["complete"]),
+
+        hasAccount: stateMatches(state, ["shopping.account.authenticated"]),
 
         // ---
 
-        hasPromotions:
-          stateMatches(state, ["shopping.promotions.complete"]) ||
+        isReadyForCheckout:
+          stateMatches(state, ["shopping.items.complete"]) &&
+          machineMatches(currency, ["complete"]) &&
+          machineMatches(customFields, ["complete"]) &&
+          machineMatches(paymentDetails, ["complete"]) &&
+          machineMatches(billingDetails, ["complete"]) &&
           machineMatches(promotions, ["complete"]),
-
-        hasBillingDetails:
-          stateMatches(state, ["shopping.billing_details.complete"]) ||
-          machineMatches(billingDetails, ["complete"]),
-
-        hasCurrency:
-          stateMatches(state, ["shopping.currency.complete"]) ||
-          machineMatches(currency, ["complete"]),
-
-        hasPaymentDetails:
-          stateMatches(state, ["payment_details.complete"]) ||
-          machineMatches(paymentDetails, ["complete"]),
-
-        hasFields:
-          stateMatches(state, ["shopping.custom_fields.complete"]) ||
-          machineMatches(customFields, ["complete"]),
-
-        needsAuth: !stateMatches(state, ["shopping.client.authenticated"]),
-
-        // ---
-
-        isReadyForCheckout: stateMatches(state, ["checkout"]),
 
         hasErrors:
           stateMatches(state, [
             "shopping.items.processing.error",
             "shopping.promotions.error",
-            "shopping.client.error"
+            "shopping.account.error"
           ]) ||
           machineMatches(customFields, ["error"]) ||
           machineMatches(paymentDetails, ["error"]) ||

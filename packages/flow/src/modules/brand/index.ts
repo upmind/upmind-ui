@@ -39,7 +39,7 @@ export const useBrand = () => {
     isReady: async () => waitFor(service, state => state.matches("complete")),
     // ---
     getSnapshot: () => state,
-    getConfig: async (keys: BrandConfigKeys) => {
+    getConfig: async (keys: BrandConfigKeys | BrandConfigKeys[]) => {
       // ensure we have an array of keys
       keys = isArray(keys) ? keys : [keys];
 
@@ -49,7 +49,7 @@ export const useBrand = () => {
 
       // then we await the state of the request to be processed/cached
       await waitFor(service, newstate => {
-        console.log("useBrand", "getConfig", newstate.value);
+        // console.log("useBrand", "getConfig", newstate.value);
         return [
           "processing.config.complete",
           "processing.config.error",

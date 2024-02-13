@@ -41,6 +41,10 @@ export interface Styles {
       wrapper?: string;
       item?: string;
     };
+    list: {
+      wrapper?: string;
+      item?: string;
+    };
     rating: {
       wrapper?: string;
       item?: string;
@@ -54,6 +58,8 @@ export interface Styles {
     textarea?: string;
     select?: string;
     option?: string;
+    prefix?: string;
+    suffix?: string;
   };
   verticalLayout: {
     root?: string;

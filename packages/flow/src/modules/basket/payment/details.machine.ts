@@ -1,6 +1,5 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -104,7 +103,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
+            actions: ["setFeedbackSuccess", "clearDirty"]
           },
           onError: {
             target: "error",
@@ -115,7 +114,6 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: {
             target: "complete"

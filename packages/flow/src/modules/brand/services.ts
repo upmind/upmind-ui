@@ -118,7 +118,7 @@ async function fetchBrandConfig(context: any, _event: any) {
     const template = reduce(
       missingKeys,
       (acc, key) => {
-        set(acc, key, null);
+        acc[key] = null;
         return acc;
       },
       {}

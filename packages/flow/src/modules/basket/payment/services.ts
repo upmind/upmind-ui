@@ -1,16 +1,25 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand } from "../../";
+import { useApi, useSession, useBrand, BrandConfigKeys } from "../../";
 const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { unset, get, sortBy } from "lodash-es";
 
 // --- types
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
 
 // --------------------------------------------------------
+// ENUMS
+
+export enum PaymentTypes {
+  PAY_IN_FULL = "stored-card",
+  PARTIAL_PAYMENT = "partial-payment",
+  PAY_LATER = "pay-later"
+  // MANUAL_PAYMENT = "manual-payment" // only admi s can do this and we dont support it...YET
+}
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -20,19 +29,34 @@ async function load(
   { currency_id }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
-  const { getBrandId, getCurrencyId, isReady } = useBrand();
-  const { get, useUrl } = useApi();
+  const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
+  const { get: getRequest, useUrl } = useApi();
   const { getUserId } = useSession();
 
   await isReady();
 
+  // ---
+
   const client_id = await getUserId();
-  const brand_id = getBrandId(); // "47d73824-8507-9315-e54f-81e642d59e06";
-  currency_id ??= getCurrencyId(); //"e47d7382-4850-7931-56c8-1e642d59e063";
+  const brand_id = getBrandId();
+  currency_id ??= getCurrencyId();
+
+  // ---
+  // checkif our brand allows or restricts certain payment types
+  await getConfig([
+    BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
+    BrandConfigKeys.PAY_LATER_ENABLED
+  ]).then(data => {
+    if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
+      unset(PaymentTypes, "PARTIAL_PAYMENT");
+
+    if (!get(data, BrandConfigKeys.PAY_LATER_ENABLED))
+      unset(PaymentTypes, "PAY_LATER");
+  });
 
   // ---
 
-  const balance = get({
+  const balance = getRequest({
     url: useUrl(`wallet/balance`, {
       currency_id
       // with_staged_imports=1
@@ -43,7 +67,7 @@ async function load(
 
   // ---
 
-  const payment_details = get({
+  const payment_details = getRequest({
     url: useUrl(`clients/${client_id}/payment_details`, {
       limit: 0,
       brand_id,
@@ -58,7 +82,7 @@ async function load(
 
   // ---
 
-  const gateways = get({
+  const gateways = getRequest({
     url: useUrl(`brands/${brand_id}/gateways`, {
       limit: 0,
       client_id,
@@ -69,13 +93,16 @@ async function load(
     }),
     withAccessToken: true,
     useCache: false
-  }).then(({ data }) => data);
+  }).then(({ data }) => sortBy(data, ["order"]));
+
+  // ----
 
   return Promise.all([balance, payment_details, gateways]).then(
     ([balance, payment_details, gateways]) => ({
       balance,
       payment_details,
-      gateways
+      gateways,
+      payment_types: PaymentTypes
     })
   );
 }
@@ -106,7 +133,12 @@ async function parse(
   _event: PaymentDetailsEvent
 ) {
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
+
+  // ensure we dont send the gateway_id if the payment type is pay later
+  if (model?.type == PaymentTypes.PAY_LATER) {
+    unset(model, "gateway_id");
+  }
+
   return Promise.resolve({ model });
 }
 
