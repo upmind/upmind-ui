@@ -7,6 +7,7 @@ export { default as EnumControlRenderer } from "./EnumControlRenderer.vue";
 export { default as LookupEnumControlRenderer } from "./EnumLookupControlRenderer.vue";
 export { default as oneOfEnumControlRenderer } from "./EnumOneOfControlRenderer.vue";
 export { default as oneOfEnumMenuControlRenderer } from "./EnumOneOfMenuControlRenderer.vue";
+export { default as oneOfEnumRadioControlRenderer } from "./EnumOneOfRadioControlRenderer.vue";
 export { default as DateControlRenderer } from "./DateControlRenderer.vue";
 export { default as TimeControlRenderer } from "./TimeControlRenderer.vue";
 export { default as BooleanControlRenderer } from "./BooleanControlRenderer.vue";
@@ -24,6 +25,7 @@ import { entry as enumControlRendererEntry } from "./EnumControlRenderer.vue";
 import { entry as lookupEnumControlRendererEntry } from "./EnumLookupControlRenderer.vue";
 import { entry as oneOfEnumControlRendererEntry } from "./EnumOneOfControlRenderer.vue";
 import { entry as oneOfEnumMenuControlRendererEntry } from "./EnumOneOfMenuControlRenderer.vue";
+import { entry as oneOfEnumRadioControlRendererEntry } from "./EnumOneOfRadioControlRenderer.vue";
 import { entry as dateControlRendererEntry } from "./DateControlRenderer.vue";
 import { entry as timeControlRendererEntry } from "./TimeControlRenderer.vue";
 import { entry as booleanControlRendererEntry } from "./BooleanControlRenderer.vue";
@@ -42,6 +44,7 @@ export const controlRenderers = [
   lookupEnumControlRendererEntry,
   oneOfEnumControlRendererEntry,
   oneOfEnumMenuControlRendererEntry,
+  oneOfEnumRadioControlRendererEntry,
   dateControlRendererEntry,
   timeControlRendererEntry,
   booleanControlRendererEntry,

@@ -42,7 +42,6 @@ export const useBasketPaymentDetails = actor => {
     model: useContext(state, "model"),
     schema: useContext(state, "schema"),
     uischema: useContext(state, "uischema"),
-    currencies: useContext(state, "currencies"),
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),

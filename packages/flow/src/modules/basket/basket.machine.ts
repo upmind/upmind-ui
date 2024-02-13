@@ -152,7 +152,7 @@ export default createMachine(
         id: "shopping",
         type: "parallel",
         states: {
-          client: {
+          account: {
             initial: "checking",
             states: {
               checking: {
@@ -387,8 +387,10 @@ export default createMachine(
               src: paymentDetailsMachine,
               data: ({ basket }: BasketContext, { data }: BasketEvents) => ({
                 basket_id: basket?.id,
-                currency_id: basket?.currency_id,
-                model: data
+                currency: basket?.currency,
+                model: {
+                  amount: basket?.unpaid_amount_converted || 0.0
+                }
               })
             }
           }

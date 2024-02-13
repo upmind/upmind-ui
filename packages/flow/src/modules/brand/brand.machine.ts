@@ -271,7 +271,7 @@ export default createMachine(
       ),
 
       setConfigKeys: assign({
-        keys: ({ keys }, { data }: { data: BrandConfigKeys }) => {
+        keys: ({ keys }, { data }: { data: BrandConfigKeys[] }) => {
           keys.config.push(...data);
           return keys;
         }

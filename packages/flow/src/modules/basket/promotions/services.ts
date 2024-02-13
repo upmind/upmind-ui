@@ -48,8 +48,6 @@ async function remove(
 
   const { del, useUrl } = useApi();
 
-  debugger;
-
   return del({
     url: useUrl(`/orders/${basket_id}/promotions/${id}`),
     withAccessToken: true

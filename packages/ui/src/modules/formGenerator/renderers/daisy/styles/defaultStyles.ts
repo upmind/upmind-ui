@@ -22,6 +22,10 @@ export const defaultStyles: Styles = {
       wrapper: "menu-wrapper",
       item: "menu-item"
     },
+    list: {
+      wrapper: "list-none p-0",
+      item: ""
+    },
     rating: {
       wrapper: "gap-2",
       item: "mask-star",
@@ -33,7 +37,7 @@ export const defaultStyles: Styles = {
     },
     dac: {},
     textarea: "textarea textarea-bordered w-full",
-    wrapper: "wrapper relative",
+    wrapper: "wrapper relative flex items-center",
     option: "option",
     description: "description text-xs mt-2",
     error: {
@@ -41,7 +45,11 @@ export const defaultStyles: Styles = {
       label: "text-error",
       input: "border-error",
       wrapper: "error"
-    }
+    },
+    prefix:
+      "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -ml-4",
+    suffix:
+      "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -mr-4"
   },
   verticalLayout: {
     root: "vertical-layout flex flex-col gap-4 w-full",

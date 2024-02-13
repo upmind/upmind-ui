@@ -78,7 +78,7 @@ export interface Typegen0 {
     authSubscription: "done.invoke.authCallback";
     claim: "done.invoke.claiming:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
-    isAuthenticated: "done.invoke.basketManager.shopping.client.checking:invocation[0]";
+    isAuthenticated: "done.invoke.basketManager.shopping.account.checking:invocation[0]";
     load: "done.invoke.basketManager.loading.basket:invocation[0]";
     refresh: "done.invoke.refreshing:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
@@ -222,11 +222,11 @@ export interface Typegen0 {
     | "loading.items"
     | "refreshing"
     | "shopping"
+    | "shopping.account"
+    | "shopping.account.authenticated"
+    | "shopping.account.checking"
+    | "shopping.account.unauthenticated"
     | "shopping.billing_details"
-    | "shopping.client"
-    | "shopping.client.authenticated"
-    | "shopping.client.checking"
-    | "shopping.client.unauthenticated"
     | "shopping.currency"
     | "shopping.custom_fields"
     | "shopping.items"
@@ -246,15 +246,15 @@ export interface Typegen0 {
         checkout?: "payment";
         loading?: "basket" | "items";
         shopping?:
+          | "account"
           | "billing_details"
-          | "client"
           | "currency"
           | "custom_fields"
           | "items"
           | "payment_details"
           | "promotions"
           | {
-              client?: "authenticated" | "checking" | "unauthenticated";
+              account?: "authenticated" | "checking" | "unauthenticated";
               items?:
                 | "complete"
                 | "configuring"

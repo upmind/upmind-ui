@@ -73,7 +73,7 @@
           ></span>
 
           <template v-if="!meta.isLoading && !meta.isProcessing">
-            <span v-if="!meta.hasProducts">
+            <span v-if="!meta.isAvailable">
               is <span class="text-primary">Empty</span>
             </span>
 
@@ -95,12 +95,12 @@
       <!-- breadcrumbs -->
       <div
         class="steps steps-horizontal w-full my-4 text-xs"
-        v-if="meta.hasProducts && !meta.isLoading"
+        v-if="meta.isAvailable && !meta.isLoading"
       >
         <router-link
           class="step m-0 p-0 text-inherit no-underline uppercase"
-          :class="meta.isConfigured ? 'step-primary' : 'step-warning'"
-          :data-content="meta.isConfigured ? '✓' : '!'"
+          :class="meta.hasProducts ? 'step-primary' : 'step-warning'"
+          :data-content="meta.hasProducts ? '✓' : '!'"
           :to="{ hash: '#items' }"
         >
           Basket Items
@@ -154,7 +154,7 @@
 
     <div
       class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
-      v-if="!meta.isLoading && meta.hasProducts"
+      v-if="!meta.isLoading && meta.isAvailable"
       :data-theme="activeTheme"
     >
       <!-- items -->
@@ -181,9 +181,9 @@
           @update:options="updateOptions"
           @update:provisioning="updateProvisioning"
         >
-          <template #actions="{ isConfigured, isNew, isDirty }">
+          <template #actions="{ hasProducts, isNew, isDirty }">
             <button
-              v-if="isConfigured && (isNew || isDirty)"
+              v-if="hasProducts && (isNew || isDirty)"
               class="btn btn-primary btn-sm btn-block mt-4"
               :disabled="meta.isProcessing"
               @click.prevent="updateItem(item.id)"
@@ -229,7 +229,11 @@
         class="payment col-span-5 order-2"
         :class="{ disabled: meta.needsAuth }"
         :disabled="meta.needsAuth"
-      ></section>
+      >
+        <upm-payment-details
+          :actor="actors.paymentDetails"
+        ></upm-payment-details>
+      </section>
 
       <!-- summary -->
       <aside
@@ -349,6 +353,7 @@ import UpmPromotions from "../components/Promotions.vue";
 import UpmBillingDetails from "../components/BillingDetails.vue";
 import UpmBasketFields from "../components/Fields.vue";
 import UpmAccount from "../components/Account.vue";
+import UpmPaymentDetails from "../components/PaymentDetails.vue";
 
 import { UpmDebug } from "@upmind/ui";
 import {
