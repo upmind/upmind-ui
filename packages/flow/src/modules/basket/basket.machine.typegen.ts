@@ -100,7 +100,7 @@ export interface Typegen0 {
     updateItem: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
-    actions: "clearFieldsModel" | "clearSchemas";
+    actions: never;
     delays: never;
     guards: never;
     services:
@@ -118,9 +118,7 @@ export interface Typegen0 {
     binItem: "REMOVE";
     clearBasket: "UNAUTHENTICATED";
     clearError: "UNAUTHENTICATED";
-    clearFieldsModel: "UNAUTHENTICATED";
     clearQueue: "UNAUTHENTICATED" | "UPDATE";
-    clearSchemas: "UNAUTHENTICATED";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     queueItem: "UPDATE";
     refreshItems:

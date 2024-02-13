@@ -141,7 +141,7 @@
           <span class="uppercase">Item Total: </span>
 
           <strong class="text-secondary text-xl ml-2">
-            {{ summary?.totalFormatted }}
+            {{ summary?.totalFormatted || "Free" }}
           </strong>
         </template>
       </aside>

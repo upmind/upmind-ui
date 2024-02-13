@@ -483,14 +483,7 @@ export default createMachine(
       REFRESH: { target: "#loading" },
       UNAUTHENTICATED: {
         target: "#loading",
-        actions: [
-          "clearError",
-          "clearBasket",
-          "removeAllItems",
-          "clearQueue",
-          "clearFieldsModel",
-          "clearSchemas"
-        ]
+        actions: ["clearError", "clearBasket", "removeAllItems", "clearQueue"]
       }
     }
   },

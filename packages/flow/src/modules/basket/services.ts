@@ -177,50 +177,6 @@ async function setBilling({ basket, items }: BasketContext, { data }: any) {
     .then(updateItemProvisioningFields);
 }
 
-// --- Basket Promotions Methods
-
-async function addPromotion({ basket, items }, { data }: any) {
-  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
-
-  const promocode = get(data, "promocode");
-
-  if (!promocode) return Promise.reject("No Promotion to add to basket");
-
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  const { post, useUrl } = useApi();
-
-  return post({
-    url: useUrl(`/orders/${basket.id}/promotions`),
-    data: { promocode },
-    withAccessToken: true
-  })
-    .then(check)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
-    });
-}
-
-async function removePromotion({ basket, items }, { data }: any) {
-  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
-
-  const id = get(data, "id", data);
-
-  if (!id) return Promise.reject("No Promotion provided to remove from basket");
-
-  const { del, useUrl } = useApi();
-
-  return del({
-    url: useUrl(`/orders/${basket.id}/promotions/${id}`),
-    withAccessToken: true
-  })
-    .then(check)
-    .then(basket => {
-      return { basket, items, newItems: basket.products };
-    });
-}
-
 // --- Basket Item Methods
 
 // this function effectively processes the items 1 at a time

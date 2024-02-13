@@ -8,19 +8,18 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // private
 
 export interface IPromotion {
-  notes: string;
-  custom_fields: Record<string, any>;
+  code: string;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface PromotionsContext {
+  basketId: string;
   // ---
-  fields?: Array;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IField;
+  model?: IPromotion;
   // ---
   dirty: Boolean;
   error?: RequestError;
@@ -30,7 +29,7 @@ export interface PromotionsContext {
 // Events
 
 export interface PromotionsEvent {
-  type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: IField;
+  type: "ADD" | "REMOVE" | "CLEAR" | "SET" | "RETRY";
+  data?: IPromotion;
   error?: RequestError;
 }

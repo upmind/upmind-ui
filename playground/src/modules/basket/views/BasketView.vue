@@ -4,8 +4,6 @@
       <!-- Currency -->
       <upm-currency
         v-if="actors?.currency"
-        :loading="meta.isLoading"
-        :processing="meta.isProcessing"
         :actor="actors.currency"
       ></upm-currency>
 
@@ -200,11 +198,7 @@
       >
         <div class="divider uppercase text-xs opacity-50">Order fields</div>
 
-        <upm-basket-fields
-          :loading="meta.isLoading"
-          :processing="meta.isProcessing"
-          :actor="actors.customFields"
-        ></upm-basket-fields>
+        <upm-basket-fields :actor="actors.customFields"></upm-basket-fields>
       </section>
 
       <!-- account -->
@@ -301,12 +295,8 @@
       >
         <!-- Promotions -->
         <upm-promotions
-          :promotions="promotions"
-          :loading="meta.isLoading"
-          :processing="meta.isProcessing"
-          :additionalErrors="errors?.data"
-          @resolve="addPromotion"
-          @reject="removePromotion"
+          v-if="actors?.promotions"
+          :actor="actors.promotions"
         ></upm-promotions>
 
         <!-- Summary -->

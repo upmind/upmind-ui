@@ -43,9 +43,10 @@ export const contextMatches = (state, props: string[]) => {
   const context = stateValue(state, "context");
 
   if (!context || !props?.length) return false;
+
   return some(props, prop => {
     const value = get(context, prop);
-    return !isEmpty(value) || !!value;
+    return isArray(value) || isObject(value) ? !isEmpty(value) : !!value;
   });
 };
 

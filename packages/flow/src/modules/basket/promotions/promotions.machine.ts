@@ -99,16 +99,36 @@ export default createMachine(
 
       processing: {
         entry: ["clearError"],
-
-        invoke: {
-          src: "update",
-          onDone: {
-            target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
+        initial: "update",
+        states: {
+          update: {
+            always: "#processed"
           },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"]
+          add: {
+            invoke: {
+              src: "add",
+              onDone: {
+                target: "#processed",
+                actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          },
+          remove: {
+            invoke: {
+              src: "remove",
+              onDone: {
+                target: "#processed",
+                actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           }
         }
       },
@@ -132,17 +152,15 @@ export default createMachine(
       },
 
       error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "processing"
-          }
-        }
+        id: "error"
       }
     },
     on: {
-      UPDATE: {
-        target: ".processing"
+      ADD: {
+        target: "processing.add"
+      },
+      REMOVE: {
+        target: "processing.remove"
       },
       CLEAR: {
         target: "checking",

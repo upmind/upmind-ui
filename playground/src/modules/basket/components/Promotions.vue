@@ -1,146 +1,96 @@
 <template>
   <div
-    class="promotions flex flex-col gap-4 text-accent border border-accent rounded-box p-4 text-center"
+    tabindex="0"
+    ref="form"
+    class="card card-bordered card-compact bg-base-100"
+    :class="[
+      meta.hasErrors ? 'border-error' : '',
+      meta.isComplete ? 'border-accent' : '',
+      !meta.isComplete ? 'border-accent' : ''
+    ]"
   >
-    <!-- <h4 class="divider uppercase text-xs">Discounts</h4> -->
-    <h3 class="text-inherit text-xl mt-2 mb-0">Discounts</h3>
+    <div class="card-body">
+      <h3 class="text-inherit text-xl mt-2 mb-0">Discounts</h3>
 
-    <upm-form-generator
-      :schema="schema"
-      :uischema="uischema"
-      :additional-errors="additionalErrors"
-      :loading="loading"
-      :processing="processing"
-      @resolve="doResolve"
-      class="gap-2"
-    >
-      <template #actions="{ meta }">
-        <button
-          type="submit"
-          class="btn btn-outline btn-sm btn-block btn-accent border-none"
-          :disabled="!meta.isValid || meta.isProcessing"
-        >
-          Apply
-        </button>
-      </template>
-    </upm-form-generator>
-
-    <ul class="flex flex-col p-0 list-none text-left" v-if="hasPromotions">
-      <div class="divider text-xs uppercase text-base-content mt-0">
-        Active Discounts
-      </div>
-
-      <li
-        class="border border-accent bg-accent bg-opacity-10 text-base-content flex items-center justify-between rounded-btn p-2 text-xs"
-        v-for="promotion in promotions"
-        :key="promotion.promotion.code"
+      <upm-form-generator
+        tabindex="1"
+        :additional-errors="errors?.data"
+        :loading="meta.isLoading"
+        :model-value="model"
+        :processing="meta.isProcessing"
+        :schema="schema"
+        :uischema="uischema"
+        @reject="clear"
+        @resolve="add"
+        @update:modelValue="input"
+        class="mt-2 gap-4"
       >
-        <!-- <ReceiptPercentIcon class="w-6 h-6" /> -->
+        <template #actions="{ meta }">
+          <button
+            type="submit"
+            class="btn btn-outline btn-sm btn-accent border-none"
+            :disabled="!meta.isDirty || !meta.isValid || meta.isProcessing"
+            v-show="meta.isDirty"
+          >
+            Apply
+          </button>
+        </template>
+      </upm-form-generator>
 
-        <span class="spacer mx-1 text-sm flex gap-2 items-center">
-          <tag-icon class="w-6 h-6" />
-          {{ promotion.promotion.code }}
-        </span>
+      <ul
+        class="flex flex-col p-0 list-none text-left"
+        v-if="meta.hasPromotions"
+      >
+        <div class="divider text-xs uppercase text-base-content mt-0">
+          Active Discounts
+        </div>
 
-        <button
-          class="btn btn-circle btn-ghost btn-xs"
-          title="Click to Remove Discount"
-          @click.prevent="doReject(promotion)"
-          :disabled="processing"
+        <li
+          class="border border-accent bg-accent bg-opacity-10 text-base-content flex items-center justify-between rounded-btn p-2 text-xs"
+          v-for="promotion in promotions"
+          :key="promotion.promotion.code"
         >
-          <x-mark-icon class="w-fit h-fit" />
-        </button>
-      </li>
-    </ul>
+          <!-- <ReceiptPercentIcon class="w-6 h-6" /> -->
+
+          <span class="spacer mx-1 text-sm flex gap-2 items-center">
+            <tag-icon class="w-6 h-6" />
+            {{ promotion.promotion.code }}
+          </span>
+
+          <button
+            class="btn btn-circle btn-ghost btn-xs"
+            title="Click to Remove Discount"
+            @click.prevent="remove(promotion)"
+            :disabled="meta.isProcessing"
+          >
+            <x-mark-icon class="w-fit h-fit" />
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
 import { defineComponent } from "vue";
 import { UpmFormGenerator } from "@upmind/ui";
+import { useBasketPromotions } from "@upmind/vue";
 import { XMarkIcon, TagIcon } from "@heroicons/vue/24/outline";
-import { isEmpty } from "lodash-es";
-import type { ErrorObject } from "ajv";
 
 export default defineComponent({
   name: "UpmBasketPromotions",
   components: { UpmFormGenerator, XMarkIcon, TagIcon },
   inheritAttrs: true,
   customOptions: {},
-  emits: ["reject", "resolve"],
   props: {
-    loading: {
-      type: Boolean,
-      default: false
-    },
-    processing: {
-      type: Boolean,
-      default: false
-    },
-    promotions: {
-      type: Array,
+    actor: {
+      type: Object, // xstate actor
       required: true
-    },
-    additionalErrors: {
-      type: Array as PropType<
-        ErrorObject<string, Record<string, any>, unknown>[]
-      >,
-      default: () => []
     }
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setup(props, { emit }) {
-    const doReject = value => {
-      emit("reject", value);
-    };
 
-    const doResolve = value => {
-      emit("resolve", value);
-    };
-
-    return {
-      doReject,
-      doResolve
-    };
-  },
-  computed: {
-    hasPromotions() {
-      return !isEmpty(this.promotions);
-    },
-
-    schema() {
-      return {
-        type: "object",
-        required: ["promocode"],
-        properties: {
-          promocode: {
-            type: ["string", "null"],
-            title: "Promotion Code"
-          }
-        }
-      };
-    },
-
-    uischema() {
-      return {
-        type: "InlineLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/promocode",
-            options: {
-              placeholder: "eg: 9VT9TVXV, BF-fixed-10",
-              styles: {
-                control: {
-                  input: "input input-accent input-bordered w-full max-w-xs"
-                }
-              }
-            }
-          }
-        ]
-      };
-    }
+  setup(props) {
+    return useBasketPromotions(props.actor);
   }
 });
 </script>

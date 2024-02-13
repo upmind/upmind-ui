@@ -6,6 +6,7 @@ import { useApi } from "../../..";
 // --- utils
 import { useValidation } from "../../../utils";
 import { useModelParser } from "./utils";
+import { get } from "lodash-es";
 
 // --- types
 import type { PromotionsEvent, PromotionsContext } from "./types";
@@ -17,27 +18,40 @@ import type { PromotionsEvent, PromotionsContext } from "./types";
 // Invoked by machines, providing context and event data
 
 async function load(_context: PromotionsContext, _event: PromotionsEvent) {
-  const { get, useUrl } = useApi();
-
-  return get({
-    url: useUrl("basket_promotions")
-  }).then(({ data }) => ({ promotions: data }));
+  // Promotions dont have any initial state to load, so we can pass through an empty object
+  return Promise.resolve({});
 }
 
 // --------------------------------------------------------
 
-async function update(
-  { basketId, promotions, model }: PromotionsContext,
+async function add(
+  { basketId, model }: PromotionsContext,
   _event: PromotionsEvent
 ) {
-  const { put, useUrl } = useApi();
-  // rebuild the model with ALL custo mpromotions present, including nullish values
-  const data = useModelParser({ promotions }, model);
+  const { post, useUrl } = useApi();
 
-  // get returns a promise so we can pass it directly back to the machine
-  return put({
-    url: useUrl(`/orders/${basketId}`),
-    data,
+  return post({
+    url: useUrl(`/orders/${basketId}/promotions`),
+    data: { promocode: model?.code },
+    withAccessToken: true
+  });
+}
+
+async function remove(
+  { basketId }: PromotionsContext,
+  { data }: PromotionsEvent
+) {
+  const id = get(data, "id", data);
+
+  if (!id)
+    return Promise.reject("No Promotion provided to remove from basketId");
+
+  const { del, useUrl } = useApi();
+
+  debugger;
+
+  return del({
+    url: useUrl(`/orders/${basketId}/promotions/${id}`),
     withAccessToken: true
   });
 }
@@ -76,5 +90,6 @@ export default {
   load,
   parse,
   validate,
-  update
+  add,
+  remove
 };
