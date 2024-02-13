@@ -4,12 +4,12 @@ const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
-import { useFeedback } from "../feedback";
+import { useFeedback } from "../../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
 
-import { useTime, useValidationParser } from "../../utils";
+import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
@@ -115,6 +115,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
+        entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: {
             target: "complete"
@@ -124,11 +125,6 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
-        //   type: "REFRESH",
-        //   data: model
-        // })),
-        // type: "final"
       },
 
       error: {

@@ -13,7 +13,7 @@ export type { ICurrency } from "../../system/types.d";
 // Contexts
 
 export interface CurrencyContext {
-  basketId?: String;
+  basket_id?: String;
   // ---
   currencies?: ICurrency[];
   schema?: JsonSchema;

@@ -4,7 +4,7 @@ const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
-import paymentDetailsMachine from "../payment/details.machine";
+import paymentDetailsMachine from "./payment/details.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
 import currencyMachine from "./currency/currency.machine";
@@ -335,131 +335,61 @@ export default createMachine(
           },
 
           currency: {
-            initial: "processing",
-            states: {
-              processing: {
-                invoke: {
-                  id: "currency",
-                  src: currencyMachine,
-                  data: ({ basket }: BasketContext, _event: BasketEvents) => ({
-                    basketId: basket?.id,
-                    model: { id: basket?.currency_id }
-                  }),
-                  onDone: {
-                    target: "complete"
-                  },
-                  onError: { actions: ["setError"] }
-                }
-              },
-
-              complete: {
-                type: "final"
-              }
+            invoke: {
+              id: "currency",
+              src: currencyMachine,
+              data: ({ basket }: BasketContext, _event: BasketEvents) => ({
+                basket_id: basket?.id,
+                model: { id: basket?.currency_id }
+              })
             }
           },
 
           promotions: {
-            initial: "processing",
-            states: {
-              processing: {
-                invoke: {
-                  id: "promotions",
-                  src: promotionsMachine,
-                  data: ({ basket }: BasketContext, _event: BasketEvents) => ({
-                    basketId: basket?.id,
-                    promotions: basket?.promotions
-                  }),
-                  onDone: {
-                    target: "complete"
-                  },
-                  onError: { actions: ["setError"] }
-                }
-              },
-
-              complete: {
-                type: "final"
-              }
+            invoke: {
+              id: "promotions",
+              src: promotionsMachine,
+              data: ({ basket }: BasketContext, _event: BasketEvents) => ({
+                basket_id: basket?.id,
+                promotions: basket?.promotions
+              })
             }
           },
 
           billing_details: {
-            initial: "processing",
-            states: {
-              processing: {
-                invoke: {
-                  id: "billing_details",
-                  src: billingDetailsMachine,
-                  data: ({ basket }: BasketContext, _event: BasketEvents) => ({
-                    basketId: basket?.id,
-                    model: {
-                      address_id: basket?.address_id,
-                      company_id: basket?.company_id
-                    }
-                  }),
-                  onDone: {
-                    target: "complete"
-                  },
-                  onError: { actions: ["setError"] }
+            invoke: {
+              id: "billing_details",
+              src: billingDetailsMachine,
+              data: ({ basket }: BasketContext, _event: BasketEvents) => ({
+                basket_id: basket?.id,
+                model: {
+                  address_id: basket?.address_id,
+                  company_id: basket?.company_id
                 }
-              },
-
-              complete: {
-                type: "final"
-              }
+              })
             }
           },
 
           custom_fields: {
-            initial: "processing",
-            states: {
-              processing: {
-                invoke: {
-                  id: "custom_fields",
-                  src: customFieldsMachine,
-                  data: (
-                    { basket }: BasketContext,
-                    { data }: BasketEvents
-                  ) => ({
-                    basketId: basket?.id,
-                    model: useBasketFieldsModelParser(basket, data)
-                  }),
-                  onDone: {
-                    target: "complete"
-                  },
-                  onError: { actions: ["setError"] }
-                }
-              },
-
-              complete: {
-                type: "final"
-              }
+            invoke: {
+              id: "custom_fields",
+              src: customFieldsMachine,
+              data: ({ basket }: BasketContext, { data }: BasketEvents) => ({
+                basket_id: basket?.id,
+                model: useBasketFieldsModelParser(basket, data)
+              })
             }
           },
 
           payment_details: {
-            initial: "processing",
-            states: {
-              processing: {
-                invoke: {
-                  id: "payment_details",
-                  src: paymentDetailsMachine,
-                  data: (
-                    { basket }: BasketContext,
-                    { data }: BasketEvents
-                  ) => ({
-                    basketId: basket?.id,
-                    model: data
-                  }),
-                  onDone: {
-                    target: "complete"
-                  },
-                  onError: { actions: ["setError"] }
-                }
-              },
-
-              complete: {
-                type: "final"
-              }
+            invoke: {
+              id: "payment_details",
+              src: paymentDetailsMachine,
+              data: ({ basket }: BasketContext, { data }: BasketEvents) => ({
+                basket_id: basket?.id,
+                currency_id: basket?.currency_id,
+                model: data
+              })
             }
           }
         },

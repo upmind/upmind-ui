@@ -25,33 +25,33 @@ async function load(_context: PromotionsContext, _event: PromotionsEvent) {
 // --------------------------------------------------------
 
 async function add(
-  { basketId, model }: PromotionsContext,
+  { basket_id, model }: PromotionsContext,
   _event: PromotionsEvent
 ) {
   const { post, useUrl } = useApi();
 
   return post({
-    url: useUrl(`/orders/${basketId}/promotions`),
+    url: useUrl(`/orders/${basket_id}/promotions`),
     data: { promocode: model?.code },
     withAccessToken: true
   });
 }
 
 async function remove(
-  { basketId }: PromotionsContext,
+  { basket_id }: PromotionsContext,
   { data }: PromotionsEvent
 ) {
   const id = get(data, "id", data);
 
   if (!id)
-    return Promise.reject("No Promotion provided to remove from basketId");
+    return Promise.reject("No Promotion provided to remove from basket_id");
 
   const { del, useUrl } = useApi();
 
   debugger;
 
   return del({
-    url: useUrl(`/orders/${basketId}/promotions/${id}`),
+    url: useUrl(`/orders/${basket_id}/promotions/${id}`),
     withAccessToken: true
   });
 }

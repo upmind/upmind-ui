@@ -27,14 +27,14 @@ async function load(
 
 // --------------------------------------------------------
 async function update(
-  { basketId, model }: BillingDetailsContext,
+  { basket_id, model }: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
   const { put, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
-    url: useUrl(`/orders/${basketId}`),
+    url: useUrl(`/orders/${basket_id}`),
     data: {
       address_id: model?.address_id || null,
       company_id: model?.company_id || null
