@@ -207,13 +207,7 @@
 
       <!-- account -->
       <section id="account" class="account col-span-5 order-2">
-        <h3 class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50">
-          Account
-        </h3>
-
-        <upm-auth class="my-8 p-0" v-if="meta.needsAuth"></upm-auth>
-
-        <upm-profile class="my-8 p-0 border-primary" v-else></upm-profile>
+        <upm-account :modelValue="meta.needsAuth"></upm-account>
       </section>
 
       <!-- billing -->
@@ -354,8 +348,7 @@ import UpmProduct from "@/modules/product/views/Product.vue";
 import UpmPromotions from "../components/Promotions.vue";
 import UpmBillingDetails from "../components/BillingDetails.vue";
 import UpmBasketFields from "../components/Fields.vue";
-import UpmAuth from "../../session/components/Auth.vue";
-import UpmProfile from "../../session/components/Profile.vue";
+import UpmAccount from "../components/Account.vue";
 
 import { UpmDebug } from "@upmind/ui";
 import {
