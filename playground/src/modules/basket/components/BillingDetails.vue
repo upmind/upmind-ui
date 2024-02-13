@@ -39,7 +39,7 @@
         </template>
       </upm-form-generator> -->
 
-      <div role="tablist" class="tabs tabs-lg tabs-lifted my-8">
+      <div role="tablist" class="tabs tabs-lg tabs-lifted my-4">
         <input
           type="radio"
           name="billing_details"
