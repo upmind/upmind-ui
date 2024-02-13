@@ -122,7 +122,7 @@ import UpmDomainAvailable from "./components/Available.vue";
 import UpmDomainInput from "./components/Input.vue";
 import UpmDomainChoices from "./components/Choices.vue";
 import UpmDomainSelect from "./components/Select.vue";
-import UpmDebug from "../debug/Debug.vue";
+import { UpmDebug } from "../../components";
 
 // --- utils
 
@@ -181,3 +181,4 @@ export default defineComponent({
   }
 });
 </script>
+../../components/debug/Debug.vue
