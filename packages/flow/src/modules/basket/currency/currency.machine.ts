@@ -139,9 +139,6 @@ export default createMachine(
       }
     },
     on: {
-      UPDATE: {
-        target: ".processing"
-      },
       CLEAR: {
         target: "checking",
         actions: ["clearModel", "setDirty"]

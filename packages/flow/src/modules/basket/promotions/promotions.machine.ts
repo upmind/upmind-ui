@@ -88,6 +88,9 @@ export default createMachine(
       valid: {
         id: "valid",
         on: {
+          ADD: {
+            target: "processing"
+          },
           UPDATE: {
             target: "processing"
           }
@@ -103,9 +106,6 @@ export default createMachine(
         initial: "update",
         states: {
           update: {
-            always: "#processed"
-          },
-          add: {
             invoke: {
               src: "add",
               onDone: {
@@ -154,9 +154,6 @@ export default createMachine(
       }
     },
     on: {
-      ADD: {
-        target: "processing.add"
-      },
       REMOVE: {
         target: "processing.remove"
       },

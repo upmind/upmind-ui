@@ -57,7 +57,7 @@ export const useSummaryParser = (data?: any) => {
 // --------------------------------------------------------
 // Fields
 
-export const useBasketFieldsModelParser = (basket: any, data: any) => {
+export const useBasketFieldsModelParser = (basket: any, data = {}) => {
   const notes = get(basket, "notes", get(data, "notes"));
   const custom_fields = reduce(
     get(basket, "custom_fields"),

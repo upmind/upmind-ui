@@ -3,7 +3,6 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "": { type: "" };
     "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]": {
       type: "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]";
       data: unknown;
@@ -19,13 +18,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.basketPromotionsManager.processing.add:invocation[0]": {
-      type: "done.invoke.basketPromotionsManager.processing.add:invocation[0]";
+    "done.invoke.basketPromotionsManager.processing.remove:invocation[0]": {
+      type: "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.basketPromotionsManager.processing.remove:invocation[0]": {
-      type: "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
+    "done.invoke.basketPromotionsManager.processing.update:invocation[0]": {
+      type: "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -37,19 +36,19 @@ export interface Typegen0 {
       type: "error.platform.basketPromotionsManager.loading:invocation[0]";
       data: unknown;
     };
-    "error.platform.basketPromotionsManager.processing.add:invocation[0]": {
-      type: "error.platform.basketPromotionsManager.processing.add:invocation[0]";
-      data: unknown;
-    };
     "error.platform.basketPromotionsManager.processing.remove:invocation[0]": {
       type: "error.platform.basketPromotionsManager.processing.remove:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.basketPromotionsManager.processing.update:invocation[0]": {
+      type: "error.platform.basketPromotionsManager.processing.update:invocation[0]";
       data: unknown;
     };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    add: "done.invoke.basketPromotionsManager.processing.add:invocation[0]";
+    add: "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     load: "done.invoke.basketPromotionsManager.loading:invocation[0]";
     parse: "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]";
     remove: "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
@@ -63,8 +62,8 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clearDirty:
-      | "done.invoke.basketPromotionsManager.processing.add:invocation[0]"
-      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
+      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
+      | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     clearError:
       | "ADD"
       | "CLEAR"
@@ -82,41 +81,34 @@ export interface Typegen0 {
     setError:
       | "error.platform.basketPromotionsManager.checking.validating:invocation[0]"
       | "error.platform.basketPromotionsManager.loading:invocation[0]"
-      | "error.platform.basketPromotionsManager.processing.add:invocation[0]"
-      | "error.platform.basketPromotionsManager.processing.remove:invocation[0]";
+      | "error.platform.basketPromotionsManager.processing.remove:invocation[0]"
+      | "error.platform.basketPromotionsManager.processing.update:invocation[0]";
     setFeedbackError:
       | "error.platform.basketPromotionsManager.loading:invocation[0]"
-      | "error.platform.basketPromotionsManager.processing.add:invocation[0]"
-      | "error.platform.basketPromotionsManager.processing.remove:invocation[0]";
+      | "error.platform.basketPromotionsManager.processing.remove:invocation[0]"
+      | "error.platform.basketPromotionsManager.processing.update:invocation[0]";
     setFeedbackSuccess:
-      | "done.invoke.basketPromotionsManager.processing.add:invocation[0]"
-      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
+      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
+      | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     setModel:
       | "SET"
-      | "done.invoke.basketPromotionsManager.processing.add:invocation[0]"
-      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
+      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
+      | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     setSchemas:
       | "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]"
       | "done.invoke.basketPromotionsManager.loading:invocation[0]";
   };
   eventsCausingDelays: {
     wait:
-      | ""
-      | "done.invoke.basketPromotionsManager.processing.add:invocation[0]"
-      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]";
+      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
+      | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
   };
   eventsCausingGuards: {
     isDirty: "done.invoke.basketPromotionsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {
-    add: "ADD";
-    load:
-      | "ADD"
-      | "CLEAR"
-      | "REMOVE"
-      | "SET"
-      | "UNAUTHENTICATED"
-      | "xstate.init";
+    add: "ADD" | "REMOVE" | "UPDATE";
+    load: "CLEAR" | "REMOVE" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse: "CLEAR" | "SET";
     remove: "REMOVE";
     validate: "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]";
@@ -131,13 +123,9 @@ export interface Typegen0 {
     | "loading"
     | "processed"
     | "processing"
-    | "processing.add"
     | "processing.remove"
     | "processing.update"
     | "valid"
-    | {
-        checking?: "parsing" | "validating";
-        processing?: "add" | "remove" | "update";
-      };
+    | { checking?: "parsing" | "validating"; processing?: "remove" | "update" };
   tags: never;
 }
