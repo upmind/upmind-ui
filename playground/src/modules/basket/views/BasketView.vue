@@ -150,13 +150,15 @@
           Payment
         </router-link>
 
-        <div
-          class="step m-0 p-0 text-inherit no-underline uppercase"
-          :class="meta.isCheckout ? 'step-primary' : ''"
-          :data-content="meta.isCheckout ? '✓' : ''"
+        <button
+          :disabled="!meta.isReadyForCheckout || meta.isProcessing"
+          @click.prevent="checkout"
+          class="btn uppercase btn-primary btn-sm h-full mr-8"
+          :class="meta.isReadyForCheckout ? 'step-primary' : ''"
+          :data-content="meta.isReadyForCheckout ? '✓' : ''"
         >
-          Checkout
-        </div>
+          Place order
+        </button>
       </div>
     </header>
 
@@ -309,11 +311,11 @@
           </button>
 
           <button
-            class="btn btn-lg btn-block btn-primary"
+            class="btn btn-lg btn-block btn-primary uppercase"
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
             @click.prevent="checkout"
           >
-            Place order and pay
+            Place order
           </button>
 
           <div class="flex flex-wrap justify-between">
