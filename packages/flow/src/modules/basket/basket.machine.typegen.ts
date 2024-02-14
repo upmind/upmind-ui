@@ -19,13 +19,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.checkout": {
-      type: "done.invoke.checkout";
+    "done.invoke.claiming:invocation[0]": {
+      type: "done.invoke.claiming:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.claiming:invocation[0]": {
-      type: "done.invoke.claiming:invocation[0]";
+    "done.invoke.convert": {
+      type: "done.invoke.convert";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -61,14 +61,11 @@ export interface Typegen0 {
       type: "error.platform.basketManager.shopping.items.processing.everything:invocation[0]";
       data: unknown;
     };
-    "error.platform.checkout": {
-      type: "error.platform.checkout";
-      data: unknown;
-    };
     "error.platform.claiming:invocation[0]": {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
+    "error.platform.convert": { type: "error.platform.convert"; data: unknown };
     "error.platform.removing:invocation[0]": {
       type: "error.platform.removing:invocation[0]";
       data: unknown;
@@ -85,8 +82,8 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
-    checkout: "done.invoke.checkout";
     claim: "done.invoke.claiming:invocation[0]";
+    convert: "done.invoke.convert";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.account.checking:invocation[0]";
     load: "done.invoke.basketManager.loading.basket:invocation[0]";
@@ -96,13 +93,13 @@ export interface Typegen0 {
     updateItem: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
-    actions: "setOrder";
+    actions: never;
     delays: never;
     guards: never;
     services:
       | "authSubscription"
-      | "checkout"
       | "claim"
+      | "convert"
       | "generate"
       | "isAuthenticated"
       | "load"
@@ -141,23 +138,23 @@ export interface Typegen0 {
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.checkout"
       | "error.platform.claiming:invocation[0]"
+      | "error.platform.convert"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.checkout"
       | "error.platform.claiming:invocation[0]"
+      | "error.platform.convert"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackSuccess:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "done.invoke.checkout"
+      | "done.invoke.convert"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
-    setOrder: "done.invoke.checkout";
+    setOrder: "done.invoke.convert";
     updateBasket:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
@@ -193,8 +190,8 @@ export interface Typegen0 {
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";
-    checkout: "CHECKOUT" | "done.state.shopping";
     claim: "AUTHENTICATED";
+    convert: "CHECKOUT" | "done.state.shopping";
     currency:
       | ""
       | "done.invoke.claiming:invocation[0]"

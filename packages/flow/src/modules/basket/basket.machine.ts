@@ -414,8 +414,8 @@ export default createMachine(
 
       checkout: {
         invoke: {
-          id: "checkout",
-          src: "checkout",
+          id: "convert",
+          src: "convert",
           onDone: {
             target: "complete",
             actions: ["setOrder", "setFeedbackSuccess"]
@@ -433,8 +433,8 @@ export default createMachine(
       },
 
       complete: {
-        id: "complete",
-        type: "final"
+        id: "complete"
+        // type: "final"
       }
     },
     on: {
@@ -447,6 +447,13 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
+        basket: (_context: BasketContext, { data }: BasketEvents) => data,
+        summary: (_context: BasketContext, { data }: BasketEvents) =>
+          useSummaryParser(data),
+        error: undefined
+      }),
+
+      setOrder: assign({
         basket: (_context: BasketContext, { data }: BasketEvents) => data,
         summary: (_context: BasketContext, { data }: BasketEvents) =>
           useSummaryParser(data),
@@ -723,6 +730,8 @@ export default createMachine(
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
       isOrder: (_context, { data }) => {
+        if (!data) return false;
+
         debugger;
         const status = get(data, "status.code");
         debugger;
