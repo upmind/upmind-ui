@@ -5,8 +5,8 @@
     class="card card-bordered card-compact bg-base-100"
     :class="[
       meta.hasErrors ? 'border-error' : '',
-      meta.isComplete ? 'border-primary' : '',
-      !meta.isComplete ? 'border-warning' : ''
+      meta.isComplete || meta.isValid ? 'border-primary' : '',
+      !meta.isComplete && !meta.isValid ? 'border-warning' : ''
     ]"
   >
     <div class="card-body">
