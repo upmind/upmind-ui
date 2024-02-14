@@ -133,8 +133,7 @@ async function update({ basket, items }: BasketContext, _event: any) {
   const productConfigs = map(validItems, item => item.state.context.config);
   // get returns a promise so we can pass it directly back to the machine
 
-  let error = null;
-  const response = await put({
+  return put({
     url: useUrl(`/orders/${basket.id}`),
     data: {
       products: productConfigs
@@ -142,6 +141,17 @@ async function update({ basket, items }: BasketContext, _event: any) {
     withAccessToken: true
   })
     .then(useBasketParser)
+    .then(basket => {
+      const newItems = differenceBy(basket.products, validItems, "id");
+      return { basket, items: validItems, newItems };
+    });
+}
+
+async function refresh({ basket, items }: BasketContext, { data }: any) {
+  const validItems = reject(items, item => item.state.context.isNew);
+
+  // get returns a promise so we can pass it directly back to the machine
+  return load()
     .then(basket => {
       const newItems = differenceBy(basket.products, validItems, "id");
       return { basket, items: validItems, newItems };
@@ -155,28 +165,8 @@ async function update({ basket, items }: BasketContext, _event: any) {
       const newItems = differenceBy(basket.products, validItems, "id");
 
       merge(err, { basket, items: validItems, newItems });
-      error = err;
+      throw new Error(err);
     });
-
-  return new Promise((resolve, reject) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(response);
-    }
-  });
-}
-
-async function refresh({ basket, items }: BasketContext, { data }: any) {
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return load()
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
-    })
-    .then(updateItemProvisioningFields);
 }
 
 // --------------------------------------------------------
@@ -202,9 +192,7 @@ async function updateItem({ basket, items, queue }, { data }: any) {
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${item.id}`;
 
-  let error;
-
-  const response = await action({
+  return action({
     url: useUrl(`/orders/${basket.id}/products${suffix}`),
     data: config,
     withAccessToken: true
@@ -213,25 +201,7 @@ async function updateItem({ basket, items, queue }, { data }: any) {
     .then(basket => {
       const newItems = differenceBy(basket.products, items, "id");
       return { basket, items: [item], newItems };
-    })
-    .then(updateItemProvisioningFields)
-    .catch(err => {
-      // pass the basket, items, newItems  to the error
-      // as we may stll need to process them despite the error
-      // if they have not already been set by a previous error
-      // we will set them here with the current basket, items, NO newItems
-      const newItems = differenceBy(basket.products, items, "id");
-      merge(err, { basket, items: [item], newItems });
-      error = err;
     });
-
-  return new Promise((resolve, reject) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(response);
-    }
-  });
 }
 
 async function updateItemProvisioningFields({ basket, items, newItems }) {

@@ -464,16 +464,6 @@ export default createMachine(
         error: undefined
       }),
 
-      //  --- Shopping Actors
-
-      updateShoppingActors: pure((_context, _event) => {
-        debugger;
-        sendTo("promotions", { type: "UPDATE" });
-        sendTo("billing_details", { type: "UPDATE" });
-        sendTo("custom_fields", { type: "UPDATE" });
-        sendTo("currency", { type: "UPDATE" });
-      }),
-
       // --- Configuring Items Actions
 
       loadItems: assign({
