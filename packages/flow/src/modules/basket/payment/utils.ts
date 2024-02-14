@@ -67,7 +67,10 @@ export const useSchema = ({
     }
   };
 
-  // append our gateway specific schema
+  // append our gateway specific schema,
+  // NB: we use this function as some of the conditions to apply the schema
+  // cannot be determined from within the schema directly, eg using gateway type from the gateway based on gateway_id
+  // so the use of allOf or anyOf is not possible
   const gatewaySchema = getGatewaySchema(model?.gateway_id, gateways);
   if (!isEmpty(gatewaySchema?.properties)) {
     schema.properties = merge(schema.properties, gatewaySchema?.properties);
@@ -129,8 +132,8 @@ export const useUischema = ({
         type: "Control",
         scope: "#/properties/amount",
         options: {
-          prefix: currency.prefix,
-          suffix: currency.suffix
+          prefix: currency?.prefix,
+          suffix: currency?.suffix
         }
       },
       {

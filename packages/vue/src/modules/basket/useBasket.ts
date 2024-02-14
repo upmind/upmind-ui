@@ -115,6 +115,8 @@ export const useBasket = () => {
           machineMatches(billingDetails, ["complete"]) &&
           machineMatches(promotions, ["complete"]),
 
+        isCheckout: stateMatches(state, ["checkout"]),
+
         hasErrors:
           stateMatches(state, [
             "shopping.items.processing.error",
@@ -179,6 +181,8 @@ export const useBasket = () => {
       send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
 
     updateProvisioning: ({ itemId, provision_fields }) =>
-      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } })
+      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
+
+    checkout: () => send({ type: "CHECKOUT" })
   };
 };

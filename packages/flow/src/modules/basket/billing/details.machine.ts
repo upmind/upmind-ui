@@ -126,10 +126,6 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: BillingDetailsContext, _event: BillingDetailsEvent) => ({
-        //   type: "REFRESH",
-        //   data: model
-        // })),
         // type: "final"
       },
 

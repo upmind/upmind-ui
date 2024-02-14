@@ -1,6 +1,6 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-
+import type { PaymentTypes } from "./services";
 // --------------------------------------------------------
 // ENUMS
 
@@ -94,6 +94,7 @@ export interface IPaymentDetail {
 export interface PaymentDetailsContext {
   // ---
   gateways?: Array<IGateway>;
+  payment_types?: PaymentTypes;
   payment_details?: Array<IPaymentDetail>;
   balance?: IWalletBalance;
 

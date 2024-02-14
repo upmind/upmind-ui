@@ -126,10 +126,6 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: CurrencyContext, _event: CurrencyEvent) => ({
-        //   type: "REFRESH",
-        //   data: model
-        // })),
         // type: "final"
       },
 

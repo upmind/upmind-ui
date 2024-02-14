@@ -126,10 +126,6 @@ export default createMachine(
 
       complete: {
         id: "complete"
-        // entry: sendParent(({ model }: FieldsContext, _event: FieldsEvent) => ({
-        //   type: "REFRESH",
-        //   data: model
-        // })),
         // type: "final"
       },
 

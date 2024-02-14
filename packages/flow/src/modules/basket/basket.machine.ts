@@ -3,7 +3,7 @@ import { createMachine, assign, actions } from "xstate";
 const { sendTo } = actions;
 
 // --- internal
-import services from "./services";
+import services, { InvoiceStatus } from "./services";
 import paymentDetailsMachine from "./payment/details.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
@@ -83,10 +83,17 @@ export default createMachine(
           basket: {
             invoke: {
               src: "load",
-              onDone: {
-                target: "items",
-                actions: ["setBasket", "loadItems"]
-              },
+              onDone: [
+                {
+                  target: "#complete",
+                  actions: ["setBasket", "loadItems"],
+                  cond: "isOrder"
+                },
+                {
+                  target: "items",
+                  actions: ["setBasket", "loadItems"]
+                }
+              ],
               onError: {
                 target: "#error",
                 actions: ["setError", "setFeedbackError"]
@@ -385,7 +392,7 @@ export default createMachine(
             invoke: {
               id: "payment_details",
               src: paymentDetailsMachine,
-              data: ({ basket }: BasketContext, { data }: BasketEvents) => ({
+              data: ({ basket }: BasketContext, {}: BasketEvents) => ({
                 basket_id: basket?.id,
                 currency: basket?.currency,
                 model: {
@@ -396,25 +403,27 @@ export default createMachine(
           }
         },
         on: {
-          REFRESH: { target: "#refreshing" }
+          CHECKOUT: { target: "checkout" },
+          REFRESH: { target: "refreshing" }
         },
         onDone: {
           // we are now ready for Checkout
-          // target: "checkout"
+          target: "checkout"
         }
       },
 
-      // when we are ready for checkout, we can start the checkout process
-      // and lock the basket from being modified
-      //  TODO: merge this into shopping as additional parallel state
       checkout: {
-        type: "parallel",
-        states: {
-          payment: {}
-        },
-
-        onDone: {
-          target: "complete"
+        invoke: {
+          id: "checkout",
+          src: "checkout",
+          onDone: {
+            target: "complete",
+            actions: ["setOrder", "setFeedbackSuccess"]
+          },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError"]
+          }
         }
       },
 
@@ -424,6 +433,7 @@ export default createMachine(
       },
 
       complete: {
+        id: "complete",
         type: "final"
       }
     },
@@ -712,11 +722,12 @@ export default createMachine(
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
-      // --- Promotion gaurds
-
-      hasNoPromotions: ({ basket }) => isEmpty(basket?.promotions),
-
-      hasPromotions: ({ basket }) => !isEmpty(basket?.promotions),
+      isOrder: (_context, { data }) => {
+        debugger;
+        const status = get(data, "status.code");
+        debugger;
+        return status !== InvoiceStatus.DRAFT;
+      },
 
       // --- Configuration Guards
 
@@ -740,18 +751,20 @@ export default createMachine(
             state.context.isNew === true
         ),
 
+      isReadyForCheckout: ({ items }) => {},
+
       // --- Item Guards
       isNotQueued: ({ queue }, { data }) => {
         return !!data?.itemId && !some(queue, ["id", data.itemId]);
       },
 
-      hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
-
-      hasItems: ({ items }) => !isEmpty(items),
-
       isNotLoading: ({ items }) => {
         return every(items, ({ state }) => !state.matches("loading"));
       },
+
+      hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
+
+      hasItems: ({ items }) => !isEmpty(items),
 
       hasNoItems: ({ items }) => isEmpty(items),
 
@@ -776,21 +789,7 @@ export default createMachine(
         });
       },
 
-      hasProducts: ({ basket }) => !!basket?.products?.length,
-
-      hasBilling: ({ basket }) => !!basket?.address_id || !!basket?.company_id,
-      hasNoBilling: ({ basket }) => !basket?.address_id && !basket?.company_id,
-      notSameCompany: ({ basket }, { data }) => {
-        return basket?.company_id !== data?.company_id;
-      },
-      notSameAddress: ({ basket }, { data }) => {
-        return basket?.address_id !== data?.address_id;
-      },
-
-      hasCurrency: ({ basket }) => !!basket?.currency_id,
-      hasNoCurrency: ({ basket }) => !basket?.currency_id,
-      notSameCurrency: ({ basket }, { data }) =>
-        basket?.currency_id !== data?.currency_id
+      hasProducts: ({ basket }) => !!basket?.products?.length
     },
 
     delays: {
