@@ -100,10 +100,10 @@ export default createMachine(
         entry: ["clearError"],
 
         invoke: {
-          src: "update",
+          src: "convert",
           onDone: {
             target: "processed",
-            actions: ["setFeedbackSuccess", "clearDirty"]
+            actions: ["setFeedbackSuccess", "clearDirty", "setOrder"]
           },
           onError: {
             target: "error",
@@ -122,8 +122,9 @@ export default createMachine(
       },
 
       complete: {
-        id: "complete"
-        // type: "final"
+        id: "complete",
+        type: "final",
+        data: ({ order }, _event) => order
       },
 
       error: {
@@ -136,7 +137,7 @@ export default createMachine(
       }
     },
     on: {
-      UPDATE: {
+      CONVERT: {
         target: ".processing"
       },
       CLEAR: {
@@ -156,6 +157,11 @@ export default createMachine(
   },
   {
     actions: {
+      setOrder: assign({
+        order: (_context, { data }) => data,
+        error: undefined
+      }),
+
       setContext: assign(
         (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
       ),
@@ -189,14 +195,14 @@ export default createMachine(
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
-        addSuccess("Successfully updated the payment details");
+        addSuccess("Successfully placed the order!");
       },
 
       setFeedbackError: ({ error }, _event) => {
         addError({
           title:
             error?.title ||
-            "We experienced an error updating the payment details",
+            "We experienced an error while processing your order. Please try again.",
           copy: error?.message,
           data: error?.data
         });

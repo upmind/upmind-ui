@@ -70,7 +70,6 @@ export default defineComponent({
 
   methods: {
     doSelect(currency: Event, callback: Function) {
-      debugger;
       this.input(currency);
       if (callback) callback(false);
     }

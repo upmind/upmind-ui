@@ -32,15 +32,6 @@ export function spawnConfiguration(
   }
 }
 
-export const useInvoiceParser = (data: any) => {
-  data = get(data, "data", data); // handle the reponse types from the api
-  data = isArray(data) ? first(data) : data; // usually from the claims endpoint
-
-  // TODO:...map properly...
-
-  return data;
-};
-
 export const useBasketParser = (data: any) => {
   data = get(data, "data", data); // handle the reponse types from the api
   data = isArray(data) ? first(data) : data; // usually from the claims endpoint

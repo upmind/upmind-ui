@@ -26,6 +26,7 @@
         @resolve="update"
         @update:modelValue="input"
         class="mt-2 gap-4"
+        no-actions=""
       >
         <template #actions="{ meta }">
           <button

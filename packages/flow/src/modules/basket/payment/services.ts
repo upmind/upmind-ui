@@ -6,7 +6,8 @@ const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { unset, get, sortBy, find } from "lodash-es";
+import { useInvoiceParser } from "./utils";
+import { unset, get, sortBy } from "lodash-es";
 
 // --- types
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
@@ -119,21 +120,20 @@ async function load(
 
 // --------------------------------------------------------
 
-async function update(
-  { model }: PaymentDetailsContext,
+async function convert(
+  { basket_id, model }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
-  // const { put, useUrl } = useApi();
-  // const { getUserId } = useSession();
-  // const client_id = await getUserId();
-  // return put({
-  //   url: useUrl(`clients/${client_id}/PaymentDetails/${model.id}`),
-  //   data: {
-  //     PaymentDetails: model.PaymentDetails,
-  //     type: model.type
-  //   },
-  //   withAccessToken: true
-  // }).then(({ data }) => data);
+  const { patch, useUrl } = useApi();
+
+  // this will return an array of the users baskets, ordered by most recent
+  // but the response basket does not contain the products, so we need to
+  // request the basket by id to get the products?
+  return patch({
+    url: useUrl(`/orders/${basket_id}/convert`),
+    withAccessToken: true,
+    data: model
+  }).then(useInvoiceParser);
 }
 
 // --------------------------------------------------------
@@ -178,7 +178,7 @@ export default {
   load,
   parse,
   validate,
-  update,
+  convert,
   // ---
   authSubscription,
   isAuthenticated

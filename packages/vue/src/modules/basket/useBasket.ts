@@ -111,9 +111,9 @@ export const useBasket = () => {
           stateMatches(state, ["shopping.items.complete"]) &&
           machineMatches(currency, ["complete"]) &&
           machineMatches(customFields, ["complete"]) &&
-          machineMatches(paymentDetails, ["complete"]) &&
           machineMatches(billingDetails, ["complete"]) &&
-          machineMatches(promotions, ["complete"]),
+          machineMatches(promotions, ["complete"]) &&
+          machineMatches(paymentDetails, ["valid"]), // NB payment details are the last thing that needs to be valid
 
         isCheckout: stateMatches(state, ["checkout"]),
         isComplete: stateMatches(state, ["complete"]),
@@ -184,6 +184,6 @@ export const useBasket = () => {
     updateProvisioning: ({ itemId, provision_fields }) =>
       send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
 
-    checkout: () => send({ type: "CHECKOUT" })
+    checkout: () => paymentDetails.value.send({ type: "CONVERT" })
   };
 };

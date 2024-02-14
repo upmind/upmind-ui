@@ -102,6 +102,8 @@ export interface PaymentDetailsContext {
   uischema?: UISchemaElement;
   model?: IPaymentDetail;
   // ---
+  order?: IInvoice;
+  // ---
   error?: RequestError;
 }
 
