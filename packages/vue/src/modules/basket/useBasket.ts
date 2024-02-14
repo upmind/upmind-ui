@@ -189,7 +189,18 @@ export const useBasket = () => {
       send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
 
     checkout: () => {
-      paymentDetails.value.send({ type: "CONVERT" });
+      // safety check, lets make sure everything is ready
+      // this SHOULD live in the machine, but we can do it here for now
+      if (
+        stateMatches(state, ["shopping.items.complete"]) &&
+        machineMatches(currency, ["complete"]) &&
+        machineMatches(customFields, ["complete"]) &&
+        machineMatches(billingDetails, ["complete"]) &&
+        machineMatches(promotions, ["complete"]) &&
+        machineMatches(paymentDetails, ["valid"])
+      ) {
+        paymentDetails.value.send({ type: "CONVERT" });
+      }
     }
   };
 };
