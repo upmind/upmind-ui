@@ -123,6 +123,7 @@ export default createMachine(
 
       complete: {
         id: "complete"
+        // type: "final"
       },
 
       error: {

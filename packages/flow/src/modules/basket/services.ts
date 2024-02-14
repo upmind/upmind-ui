@@ -33,6 +33,18 @@ export enum SemanticTypes {
   DOMAIN_NAMES = "domain_name"
 }
 
+export enum InvoiceStatus {
+  ADJUSTED = "invoice_adjusted",
+  CANCELLED = "invoice_cancelled",
+  DRAFT = "invoice_draft",
+  OVERDUE = "invoice_overdue",
+  PAID = "invoice_paid",
+  REFUNDED = "invoice_refunded",
+  REPLACED = "invoice_replaced", // Only on imported invoices
+  UNPAID = "invoice_unpaid",
+  CANCELLATION_REQUEST = "invoice_cancellation_request"
+}
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data

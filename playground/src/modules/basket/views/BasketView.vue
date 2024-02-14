@@ -73,7 +73,11 @@
           ></span>
 
           <template v-if="!meta.isLoading && !meta.isProcessing">
-            <span v-if="!meta.isAvailable">
+            <span v-if="meta.isCheckout">
+              is <span class="text-primary">Checking out</span>
+            </span>
+
+            <span v-else-if="!meta.isAvailable">
               is <span class="text-primary">Empty</span>
             </span>
 
@@ -144,10 +148,10 @@
 
         <div
           class="step m-0 p-0 text-inherit no-underline uppercase"
-          :class="meta.isReadyForCheckout ? 'step-primary' : ''"
-          :data-content="meta.isReadyForCheckout ? '✓' : '?'"
+          :class="meta.isCheckout ? 'step-primary' : ''"
+          :data-content="meta.isCheckout ? '✓' : ''"
         >
-          Complete
+          Checkout
         </div>
       </div>
     </header>
@@ -303,6 +307,7 @@
           <button
             class="btn btn-lg btn-block btn-primary"
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
+            @click.prevent="checkout"
           >
             Place order and pay
           </button>
@@ -384,6 +389,7 @@ const {
   updateProvisioning,
   updateQuantity,
   updateTerm,
+  checkout,
   // ---
   actors
 } = useBasket();
