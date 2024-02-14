@@ -38,6 +38,7 @@ import {
 
 // --- types
 import type { BasketContext, BasketEvents } from "./types.d";
+import { pure } from "xstate/lib/actions";
 
 // --------------------------------------------------------
 
@@ -201,24 +202,17 @@ export default createMachine(
                 initial: "everything",
                 states: {
                   everything: {
+                    entry: ["muteBasket"],
+
                     invoke: {
                       src: "update",
                       onDone: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setFeedbackSuccess"
-                        ]
+                        target: "#refreshing",
+                        actions: ["setFeedbackSuccess"]
                       },
                       onError: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setError",
-                          "setFeedbackError"
-                        ]
+                        target: "#refreshing",
+                        actions: ["setError", "setFeedbackError"]
                       }
                     }
                   },
@@ -345,6 +339,7 @@ export default createMachine(
             invoke: {
               id: "currency",
               src: currencyMachine,
+              autoForward: true,
               data: ({ basket }: BasketContext, _event: BasketEvents) => ({
                 basket_id: basket?.id,
                 model: { id: basket?.currency_id }
@@ -356,6 +351,7 @@ export default createMachine(
             invoke: {
               id: "promotions",
               src: promotionsMachine,
+              autoForward: false, // this should NOT update when we update the entire basket!
               data: ({ basket }: BasketContext, _event: BasketEvents) => ({
                 basket_id: basket?.id,
                 promotions: basket?.promotions
@@ -367,6 +363,7 @@ export default createMachine(
             invoke: {
               id: "billing_details",
               src: billingDetailsMachine,
+              autoForward: true,
               data: ({ basket }: BasketContext, _event: BasketEvents) => ({
                 basket_id: basket?.id,
                 model: {
@@ -381,6 +378,7 @@ export default createMachine(
             invoke: {
               id: "custom_fields",
               src: customFieldsMachine,
+              autoForward: true,
               data: ({ basket }: BasketContext, { data }: BasketEvents) => ({
                 basket_id: basket?.id,
                 model: useBasketFieldsModelParser(basket, data)
@@ -404,29 +402,9 @@ export default createMachine(
           }
         },
         on: {
-          // CHECKOUT: { target: "checkout" },
-          REFRESH: { target: "refreshing" }
+          REFRESH: { target: "refreshing", cond: "isNotMuted" }
         }
-        // onDone: {
-        // we are now ready for Checkout
-        // target: "checkout"
-        // }
       },
-
-      // checkout: {
-      //   invoke: {
-      //     id: "convert",
-      //     src: "convert",
-      //     onDone: {
-      //       target: "complete",
-      //       actions: ["setOrder", "setFeedbackSuccess"]
-      //     },
-      //     onError: {
-      //       target: "#error",
-      //       actions: ["setError", "setFeedbackError"]
-      //     }
-      //   }
-      // },
 
       // Handle errors
       error: {
@@ -459,13 +437,28 @@ export default createMachine(
           get(data, "basket", basket),
         summary: ({ basket }: BasketContext, _event: BasketEvents) =>
           useSummaryParser(basket),
-        error: undefined
+        error: undefined,
+        muted: false
+      }),
+
+      muteBasket: assign({
+        muted: true
       }),
 
       clearBasket: assign({
         basket: undefined,
         summary: useSummaryParser(),
         error: undefined
+      }),
+
+      //  --- Shopping Actors
+
+      updateShoppingActors: pure((_context, _event) => {
+        debugger;
+        sendTo("promotions", { type: "UPDATE" });
+        sendTo("billing_details", { type: "UPDATE" });
+        sendTo("custom_fields", { type: "UPDATE" });
+        sendTo("currency", { type: "UPDATE" });
       }),
 
       // --- Configuring Items Actions
@@ -728,6 +721,8 @@ export default createMachine(
         const status = get(data, "status.code");
         return status !== InvoiceStatus.DRAFT;
       },
+
+      isNotMuted: ({ muted }) => !muted,
 
       // --- Configuration Guards
 
