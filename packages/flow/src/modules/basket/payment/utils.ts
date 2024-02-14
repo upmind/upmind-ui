@@ -13,7 +13,9 @@ import {
   defaultsDeep,
   merge,
   concat,
-  isEmpty
+  isEmpty,
+  isArray,
+  first
 } from "lodash-es";
 
 // --- types
@@ -163,7 +165,6 @@ export const useUischema = ({
   // append our gateway specific uischema
   const gatewayUischema = getGatewayUischema(model?.gateway_id, gateways);
   if (!isEmpty(gatewayUischema?.elements)) {
-    debugger;
     uischema.elements = concat(uischema.elements, gatewayUischema?.elements);
   }
 
@@ -249,4 +250,14 @@ export const useModelParser = (schema: JsonSchema, values: IPaymentDetail) => {
   );
 
   return defaultsDeep(model, values) as IPaymentDetail;
+};
+
+// --------------------------------------------------------
+export const useInvoiceParser = (data: any) => {
+  data = get(data, "data", data); // handle the reponse types from the api
+  data = isArray(data) ? first(data) : data; // usually from the claims endpoint
+
+  // TODO:...map properly...
+
+  return data;
 };

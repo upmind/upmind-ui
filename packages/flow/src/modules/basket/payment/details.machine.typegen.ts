@@ -39,21 +39,22 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
+    convert: "done.invoke.paymentDetailsManager.processing:invocation[0]";
     load: "done.invoke.paymentDetailsManager.loading:invocation[0]";
     parse: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
-    update: "done.invoke.paymentDetailsManager.processing:invocation[0]";
     validate: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "load" | "parse" | "update" | "validate";
+    services: "convert" | "load" | "parse" | "validate";
   };
   eventsCausingActions: {
     clearDirty: "done.invoke.paymentDetailsManager.processing:invocation[0]";
     clearError:
       | "CLEAR"
+      | "CONVERT"
       | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
@@ -75,6 +76,7 @@ export interface Typegen0 {
       | "error.platform.paymentDetailsManager.processing:invocation[0]";
     setFeedbackSuccess: "done.invoke.paymentDetailsManager.processing:invocation[0]";
     setModel: "SET";
+    setOrder: "done.invoke.paymentDetailsManager.processing:invocation[0]";
     setSchemas:
       | "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]";
@@ -86,12 +88,12 @@ export interface Typegen0 {
     isDirty: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {
+    convert: "CONVERT" | "RETRY" | "UPDATE";
     load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
       | "SET"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]";
-    update: "RETRY" | "UPDATE";
     validate: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
   };
   matchesStates:

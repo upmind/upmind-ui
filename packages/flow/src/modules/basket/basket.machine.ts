@@ -398,34 +398,35 @@ export default createMachine(
                 model: {
                   amount: basket?.unpaid_amount_converted || 0.0
                 }
-              })
+              }),
+              onDone: "#complete"
             }
           }
         },
         on: {
-          CHECKOUT: { target: "checkout" },
+          // CHECKOUT: { target: "checkout" },
           REFRESH: { target: "refreshing" }
-        },
-        onDone: {
-          // we are now ready for Checkout
-          target: "checkout"
         }
+        // onDone: {
+        // we are now ready for Checkout
+        // target: "checkout"
+        // }
       },
 
-      checkout: {
-        invoke: {
-          id: "convert",
-          src: "convert",
-          onDone: {
-            target: "complete",
-            actions: ["setOrder", "setFeedbackSuccess"]
-          },
-          onError: {
-            target: "#error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
-      },
+      // checkout: {
+      //   invoke: {
+      //     id: "convert",
+      //     src: "convert",
+      //     onDone: {
+      //       target: "complete",
+      //       actions: ["setOrder", "setFeedbackSuccess"]
+      //     },
+      //     onError: {
+      //       target: "#error",
+      //       actions: ["setError", "setFeedbackError"]
+      //     }
+      //   }
+      // },
 
       // Handle errors
       error: {
@@ -447,13 +448,6 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvents) => data,
-        summary: (_context: BasketContext, { data }: BasketEvents) =>
-          useSummaryParser(data),
-        error: undefined
-      }),
-
-      setOrder: assign({
         basket: (_context: BasketContext, { data }: BasketEvents) => data,
         summary: (_context: BasketContext, { data }: BasketEvents) =>
           useSummaryParser(data),
@@ -731,10 +725,7 @@ export default createMachine(
 
       isOrder: (_context, { data }) => {
         if (!data) return false;
-
-        debugger;
         const status = get(data, "status.code");
-        debugger;
         return status !== InvoiceStatus.DRAFT;
       },
 
@@ -759,8 +750,6 @@ export default createMachine(
             state.context.isDirty === true ||
             state.context.isNew === true
         ),
-
-      isReadyForCheckout: ({ items }) => {},
 
       // --- Item Guards
       isNotQueued: ({ queue }, { data }) => {
