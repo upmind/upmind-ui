@@ -9,7 +9,7 @@ import type { Token } from "../session/types.d";
 const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
-import { useBasketParser } from "./utils";
+import { useBasketParser, useInvoiceParser } from "./utils";
 import {
   differenceBy,
   filter,
@@ -178,6 +178,23 @@ async function refresh({ basket, items }: BasketContext, { data }: any) {
     })
     .then(updateItemProvisioningFields);
 }
+
+async function convert({ basket }: BasketContext, _event: any) {
+  const { patch, useUrl } = useApi();
+
+  // this will return an array of the users baskets, ordered by most recent
+  // but the response basket does not contain the products, so we need to
+  // request the basket by id to get the products?
+  return patch({
+    url: useUrl(`/orders/${basket.id}/convert`),
+    withAccessToken: true,
+    data: {
+      amount: basket.unpaid_amount_converted
+    }
+  }).then(useInvoiceParser);
+}
+
+// --------------------------------------------------------
 
 // --- Basket Item Methods
 
@@ -354,10 +371,6 @@ async function getProvisioningFieldsValues(basket: any) {
 }
 
 // --------------------------------------------------------
-
-// async function convertToInvoice(context: BasketContext, _event: any) {}
-
-// --------------------------------------------------------
 // EXPORTS
 
 export default {
@@ -366,6 +379,7 @@ export default {
   claim,
   update,
   refresh,
+  convert,
   // ---
   updateItem,
   removeItem,

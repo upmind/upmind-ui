@@ -50,7 +50,6 @@ export const useBasket = () => {
     meta: computed(() => {
       return {
         isLoading:
-          stateMatches(state, ["refreshing"]) ||
           stateMatches(state, ["loading"]) ||
           machineMatches(currency, ["loading"]) ||
           machineMatches(customFields, ["loading"]) ||
@@ -59,6 +58,7 @@ export const useBasket = () => {
           machineMatches(promotions, ["loading"]),
 
         isProcessing:
+          stateMatches(state, ["refreshing"]) ||
           stateMatches(state, ["shopping.items.processing"]) ||
           machineMatches(currency, ["processing"]) ||
           machineMatches(customFields, ["processing"]) ||
@@ -116,6 +116,7 @@ export const useBasket = () => {
           machineMatches(promotions, ["complete"]),
 
         isCheckout: stateMatches(state, ["checkout"]),
+        isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:
           stateMatches(state, [

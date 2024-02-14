@@ -73,7 +73,11 @@
           ></span>
 
           <template v-if="!meta.isLoading && !meta.isProcessing">
-            <span v-if="meta.isCheckout">
+            <span v-if="meta.isComplete">
+              is <span class="text-primary">Now an Order</span>
+            </span>
+
+            <span v-else-if="meta.isCheckout">
               is <span class="text-primary">Checking out</span>
             </span>
 
@@ -185,9 +189,9 @@
           @update:options="updateOptions"
           @update:provisioning="updateProvisioning"
         >
-          <template #actions="{ hasProducts, isNew, isDirty }">
+          <template #actions="{ isConfigured, isNew, isDirty }">
             <button
-              v-if="hasProducts && (isNew || isDirty)"
+              v-if="isConfigured && (isNew || isDirty)"
               class="btn btn-primary btn-sm btn-block mt-4"
               :disabled="meta.isProcessing"
               @click.prevent="updateItem(item.id)"
