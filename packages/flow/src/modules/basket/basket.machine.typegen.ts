@@ -107,11 +107,13 @@ export interface Typegen0 {
     clearError: "UNAUTHENTICATED";
     clearQueue: "UNAUTHENTICATED" | "UPDATE";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
-    muteBasket: "CLEAR" | "REMOVE" | "UPDATE";
+    muteBasket: "CLEAR" | "REFRESH" | "REMOVE" | "UPDATE";
     queueItem: "UPDATE";
     refreshItems:
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.updating:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     removeAllItems: "CLEAR" | "UNAUTHENTICATED";
@@ -143,16 +145,20 @@ export interface Typegen0 {
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
     updateBasket:
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
   };
   eventsCausingDelays: {
     wait:
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]"
+      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "xstate.after(error)#basketManager.shopping.items.processing.error";
   };
@@ -202,10 +208,7 @@ export interface Typegen0 {
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";
-    refresh:
-      | "REFRESH"
-      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]";
+    refresh: "REFRESH" | "xstate.after(wait)#processed";
     removeItem: "REMOVE";
     update: "CLEAR" | "REMOVE" | "UPDATE";
     updateItem: "UPDATE";

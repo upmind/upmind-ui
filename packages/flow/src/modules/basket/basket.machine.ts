@@ -207,12 +207,21 @@ export default createMachine(
                     invoke: {
                       src: "update",
                       onDone: {
-                        target: "#refreshing",
-                        actions: ["setFeedbackSuccess"]
+                        target: "#processed",
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setFeedbackSuccess"
+                        ]
                       },
                       onError: {
-                        target: "#refreshing",
-                        actions: ["setError", "setFeedbackError"]
+                        target: "#processed",
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "setError",
+                          "setFeedbackError"
+                        ]
                       }
                     }
                   },
@@ -277,7 +286,7 @@ export default createMachine(
               processed: {
                 id: "processed",
                 after: {
-                  wait: "#configuring"
+                  wait: "#refreshing"
                 }
               },
 
@@ -402,7 +411,11 @@ export default createMachine(
           }
         },
         on: {
-          REFRESH: { target: "refreshing", cond: "isNotMuted" }
+          REFRESH: {
+            target: "refreshing",
+            actions: "muteBasket",
+            cond: "isNotMuted"
+          }
         }
       },
 
@@ -537,7 +550,10 @@ export default createMachine(
 
       removeAllItems: assign({
         items: ({ items }, _event) => {
-          forEach(items, item => !item?.state?.done && item?.stop());
+          forEach(
+            items,
+            item => !item?.state?.done && item?.stop && item?.stop()
+          );
           return [];
         },
         bin: [],
@@ -550,14 +566,18 @@ export default createMachine(
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(items, ["id", itemId]);
-          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(
+            item => !item?.state?.done && item?.stop && item?.stop()
+          ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return items;
         },
         bin: ({ bin }, { data }, _event) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(bin, ["id", itemId]);
-          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(
+            item => !item?.state?.done && item?.stop && item?.stop()
+          ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
         },
         queue: ({ queue }, { data }, _event) => {

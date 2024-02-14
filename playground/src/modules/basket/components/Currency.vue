@@ -3,7 +3,7 @@
     v-if="currencies?.length"
     class="input input-bordered input-sm"
     :items="currencies"
-    :model-value="model.code"
+    :model-value="model?.code"
     :processing="meta.isLoading || meta.isProcessing"
   >
     <template #trigger="">
