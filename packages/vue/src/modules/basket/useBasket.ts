@@ -8,11 +8,12 @@ import { useBasket as useUpmindBasket } from "@upmind/flow";
 // --- utils
 import {
   contextMatches,
+  contextValue,
   machineMatches,
   stateMatches,
   useChildActor,
-  useContextActor,
   useContext,
+  useContextActor,
   useState
 } from "../../utils";
 import { some } from "lodash-es";
@@ -74,7 +75,7 @@ export const useBasket = () => {
           machineMatches(promotions, ["valid"]) ||
           (stateMatches(state, ["shopping.items.configuring"]) &&
             some(
-              useContext(state, "items"),
+              contextValue(state, "items"),
               item =>
                 machineMatches(item, ["configured"]) &&
                 contextMatches(item?.state, ["isNew", "isDirty"])

@@ -5,7 +5,6 @@ import { useApi } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { useModelParser } from "./utils";
 import { get } from "lodash-es";
 
 // --- types
