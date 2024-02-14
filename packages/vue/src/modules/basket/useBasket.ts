@@ -99,7 +99,11 @@ export const useBasket = () => {
 
         hasCurrency: machineMatches(currency, ["complete"]),
 
-        hasPaymentDetails: machineMatches(paymentDetails, ["complete"]),
+        hasPaymentDetails: machineMatches(paymentDetails, [
+          "complete",
+          "valid",
+          "processing"
+        ]),
 
         hasFields: machineMatches(customFields, ["complete"]),
 
@@ -184,6 +188,8 @@ export const useBasket = () => {
     updateProvisioning: ({ itemId, provision_fields }) =>
       send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
 
-    checkout: () => paymentDetails.value.send({ type: "CONVERT" })
+    checkout: () => {
+      paymentDetails.value.send({ type: "CONVERT" });
+    }
   };
 };
