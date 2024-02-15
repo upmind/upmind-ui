@@ -81,46 +81,101 @@ export const useSchema = ({
 
   return schema;
 };
+const getGatewaySchema = (gateway_id, gateways) => {
+  const brandGateway = find(gateways, ["gateway_id", gateway_id]);
+  const gateway_provider = get(brandGateway, "gateway.gateway_provider", {});
 
-const getGatewaySchema = (gateway_id, providers) => {
-  const gatewayProvider = find(providers, ["gateway_id", gateway_id]);
-  switch (gatewayProvider?.gateway?.type) {
+  // ---
+  const isExternal = get(gateway_provider, "external_payment", false);
+  if (isExternal) return useExternalCardSchema(gateway_provider);
+
+  // ---
+  switch (brandGateway?.gateway?.type) {
     case GatewayTypes.CARD:
-      return useCardSchema();
+      return useCardSchema(gateway_provider);
     case GatewayTypes.BANK_TRANSFER:
-      return useBankTransferSchema();
+      return useBankTransferSchema(gateway_provider);
     case GatewayTypes.DIRECT_DEBIT:
-      return useDirectDebitCardSchema();
+      return useDirectDebitCardSchema(gateway_provider);
     case GatewayTypes.SEPA:
-      return useSepaCardSchema();
+      return useSepaCardSchema(gateway_provider);
     case GatewayTypes.OFFLINE:
-      return useOfflineCardSchema();
+      return useOfflineCardSchema(gateway_provider);
     case GatewayTypes.MOBILE:
-      return useMobileCardSchema();
+      return useMobileCardSchema(gateway_provider);
     case GatewayTypes.WALLET:
-      return useWalletCardSchema();
+      return useWalletCardSchema(gateway_provider);
 
     default:
       return null;
   }
 };
-
-const useCardSchema = () => ({
-  required: ["card_number", "expiry_date", "cvv"],
+const useExternalCardSchema = gateway_provider => ({
+  required: ["external"],
   properties: {
-    card_number: { type: "string", title: "Card Number" },
-    expiry_date: { type: "string", title: "Expiry Date" },
-    cvv: { type: "string", title: "CVV" }
+    requires_address: {
+      type: "boolean",
+      title: "Requires Address",
+      const: get(gateway_provider, "needs_address", false)
+    },
+    external: {
+      type: "boolean",
+      title: "Use external payment gateway",
+      const: true
+    }
   }
 });
-const useBankTransferSchema = () => {};
-const useDirectDebitCardSchema = () => {};
-const useSepaCardSchema = () => {};
-const useOfflineCardSchema = () => {};
-const useMobileCardSchema = () => {};
-const useWalletCardSchema = () => {};
+const useCardSchema = gateway_provider => {
+  const schema = {
+    required: ["card_num", "card_expiry", "card_cvv"],
+    properties: {
+      cardholder_name: { type: "string", title: "Cardholder Name" },
+      card_num: {
+        type: "string",
+        title: "Card Number",
+        description: "The 16 digit number on the front of your card.",
+        minLength: 0,
+        maxLength: 22,
+        pattern: "[0-9]*"
+      },
+      card_expiry: {
+        type: "string",
+        description: 'Expiry Date of the card. Date Format: MM/YY"',
+        title: "Expiry Date",
+        pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$"
+      },
+      card_cvv: {
+        type: "string",
+        title: "CVV",
+        description:
+          "card security code found on the back of your card that provides an additional measure of credit card security.",
+        pattern: "^[0-9]*$",
+        minLength: 3,
+        maxLength: 5
+      }, // todo: get from gateway card type cvv_length
+      external: {
+        type: "boolean",
+        title: "Use external payment gateway",
+        const: false
+      }
+    }
+  };
 
-// ---
+  // conditioanlly add the cardholder_name to the required fields
+  if (gateway_provider?.requires_name) {
+    schema.required.push("cardholder_name");
+  }
+
+  return schema;
+};
+const useBankTransferSchema = gateway_provider => {};
+const useDirectDebitCardSchema = gateway_provider => {};
+const useSepaCardSchema = gateway_provider => {};
+const useOfflineCardSchema = gateway_provider => {};
+const useMobileCardSchema = gateway_provider => {};
+const useWalletCardSchema = gateway_provider => {};
+
+// --------------------------------------------------------
 
 export const useUischema = ({
   currency,
@@ -170,32 +225,38 @@ export const useUischema = ({
 
   return uischema as UISchemaElement;
 };
+const getGatewayUischema = (gateway_id, gateways) => {
+  const brandGateway = find(gateways, ["gateway_id", gateway_id]);
+  const gateway_provider = get(brandGateway, "gateway.gateway_provider", {});
 
-const getGatewayUischema = (gateway_id, providers) => {
-  const gatewayProvider = find(providers, ["gateway_id", gateway_id]);
+  // ---
+  const isExternal = get(gateway_provider, "external_payment", false);
+  if (isExternal) return useExternalCardUischema(gateway_provider);
 
-  switch (gatewayProvider?.gateway?.type) {
+  // ---
+
+  switch (brandGateway?.gateway?.type) {
     case GatewayTypes.CARD:
-      return useCardUischema();
+      return useCardUischema(gateway_provider);
     case GatewayTypes.BANK_TRANSFER:
-      return useBankTransferUischema();
+      return useBankTransferUischema(gateway_provider);
     case GatewayTypes.DIRECT_DEBIT:
-      return useDirectDebitCardUischema();
+      return useDirectDebitCardUischema(gateway_provider);
     case GatewayTypes.SEPA:
-      return useSepaCardUischema();
+      return useSepaCardUischema(gateway_provider);
     case GatewayTypes.OFFLINE:
-      return useOfflineCardUischema();
+      return useOfflineCardUischema(gateway_provider);
     case GatewayTypes.MOBILE:
-      return useMobileCardUischema();
+      return useMobileCardUischema(gateway_provider);
     case GatewayTypes.WALLET:
-      return useWalletCardUischema();
+      return useWalletCardUischema(gateway_provider);
 
     default:
       return null;
   }
 };
-
-const useCardUischema = () => ({
+const useExternalCardUischema = gateway_provider => [];
+const useCardUischema = gateway_provider => ({
   elements: [
     {
       type: "Group",
@@ -212,31 +273,60 @@ const useCardUischema = () => ({
       elements: [
         {
           type: "Control",
-          scope: "#/properties/card_number",
-          options: {}
+          scope: "#/properties/cardholder_name",
+          options: {
+            autocomplete: "cc-name"
+          },
+          // only show this field if its in the required fields
+          // as NOT ALL gateways require the cardholder_name
+          rule: {
+            effect: "SHOW",
+            condition: {
+              scope: "#/required",
+              schema: { enum: ["cardholder_name"] }
+            }
+          }
         },
         {
           type: "Control",
-          scope: "#/properties/expiry_date",
-          options: {}
+          scope: "#/properties/card_num",
+          options: {
+            autocomplete: "cc-number"
+          }
         },
         {
-          type: "Control",
-          scope: "#/properties/cvv",
-          options: {}
+          type: "HorizontalLayout",
+          elements: [
+            {
+              type: "Control",
+              scope: "#/properties/card_expiry",
+              options: {
+                autocomplete: "cc-exp",
+                trim: true
+              }
+            },
+            {
+              type: "Control",
+              scope: "#/properties/card_cvv",
+              options: {
+                autocomplete: "cc-csc",
+                trim: true
+              }
+            }
+          ]
         }
       ]
     }
   ]
 });
-const useBankTransferUischema = () => [];
-const useDirectDebitCardUischema = () => [];
-const useSepaCardUischema = () => [];
-const useOfflineCardUischema = () => [];
-const useMobileCardUischema = () => [];
-const useWalletCardUischema = () => [];
+const useBankTransferUischema = gateway_provider => [];
+const useDirectDebitCardUischema = gateway_provider => [];
+const useSepaCardUischema = gateway_provider => [];
+const useOfflineCardUischema = gateway_provider => [];
+const useMobileCardUischema = gateway_provider => [];
+const useWalletCardUischema = gateway_provider => [];
 
-// ---
+// --------------------------------------------------------
 
 export const useModelParser = (schema: JsonSchema, values: IPaymentDetail) => {
   const model = reduce(
@@ -253,6 +343,7 @@ export const useModelParser = (schema: JsonSchema, values: IPaymentDetail) => {
 };
 
 // --------------------------------------------------------
+
 export const useInvoiceParser = (data: any) => {
   data = get(data, "data", data); // handle the reponse types from the api
   data = isArray(data) ? first(data) : data; // usually from the claims endpoint

@@ -11,6 +11,9 @@
       :step="1"
       :class="[
         styles.control.input,
+        appliedOptions?.trim
+          ? styles.control.size.trim
+          : styles.control.size.full,
         controlWrapper.errors ? styles.control.error.input : null
       ]"
       :value="control.data"

@@ -8,7 +8,11 @@ export const defaultStyles: Styles = {
       root: "label",
       text: "label-text"
     },
-    input: "input input-bordered w-full",
+    input: "input input-bordered",
+    size: {
+      full: "w-full",
+      trim: "w-auto"
+    },
     file: "file-input input-bordered w-full",
     password: "input input-bordered w-full",
     checkbox: "checkbox",
