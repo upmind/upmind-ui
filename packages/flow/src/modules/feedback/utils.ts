@@ -29,7 +29,7 @@ export const useMessageParser = (data: Object) => {
     delay: 0,
     maxAge: 0
   };
-  // todo pars einto a message format
+  // TODO: pars einto a message format
   const message = defaultsDeep(data, defaultMessage);
   unset(message, "id");
 

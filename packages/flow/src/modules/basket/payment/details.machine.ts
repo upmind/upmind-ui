@@ -86,7 +86,7 @@ export default createMachine(
       valid: {
         id: "valid",
         on: {
-          UPDATE: {
+          CONVERT: {
             target: "processing"
           }
         }
@@ -137,9 +137,6 @@ export default createMachine(
       }
     },
     on: {
-      CONVERT: {
-        target: ".processing"
-      },
       CLEAR: {
         target: "checking",
         actions: ["clearModel", "setDirty"]
