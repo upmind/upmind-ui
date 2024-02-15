@@ -152,7 +152,7 @@ const useCardSchema = gateway_provider => {
         pattern: "^[0-9]*$",
         minLength: 3,
         maxLength: 5
-      }, // todo: get from gateway card type cvv_length
+      }, // TODO: get from gateway card type cvv_length
       external: {
         type: "boolean",
         title: "Use external payment gateway",
@@ -190,7 +190,8 @@ export const useUischema = ({
         scope: "#/properties/amount",
         options: {
           prefix: currency?.prefix,
-          suffix: currency?.suffix
+          suffix: currency?.suffix,
+          trim: true
         }
       },
       {

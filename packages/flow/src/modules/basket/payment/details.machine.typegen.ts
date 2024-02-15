@@ -58,7 +58,6 @@ export interface Typegen0 {
       | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
-      | "UPDATE"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]"
       | "xstate.init";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
@@ -88,7 +87,7 @@ export interface Typegen0 {
     isDirty: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {
-    convert: "CONVERT" | "RETRY" | "UPDATE";
+    convert: "CONVERT" | "RETRY";
     load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
