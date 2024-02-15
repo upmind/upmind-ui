@@ -12,6 +12,9 @@
         'items-center',
         'gap-2',
         styles.control.input,
+        appliedOptions?.trim
+          ? styles.control.size.trim
+          : styles.control.size.full,
         controlWrapper.errors ? styles.control.error.input : null
       ]"
     >
