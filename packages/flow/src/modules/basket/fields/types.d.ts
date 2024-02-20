@@ -23,7 +23,7 @@ export interface FieldsContext {
   uischema?: UISchemaElement;
   model?: IField;
   // ---
-  dirty: Boolean;
+  dirty?: Boolean;
   error?: RequestError;
 }
 

@@ -8,9 +8,9 @@ import { useFeedback } from "../../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-
 import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
+import { useBasketFieldsModelParser } from "../utils";
 
 // --- types
 import type { FieldsContext, FieldsEvent } from "./types";
@@ -151,11 +151,25 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
+      },
+
+      REFRESH: {
+        target: "checking",
+        actions: ["refreshContext", "setSchemas"]
       }
     }
   },
   {
     actions: {
+      refreshContext: assign(
+        (_context: FieldsContext, { data: basket }: FieldsEvent) => {
+          return {
+            basket_id: basket?.id,
+            model: useBasketFieldsModelParser(basket)
+          };
+        }
+      ),
+
       setContext: assign(
         (_context: FieldsContext, { data }: FieldsEvent) => data
       ),

@@ -1,18 +1,19 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- internal
+import stripeMachine from "./gateways/stripe/stripe.machine";
 import services from "./services";
-import { useFeedback } from "../../feedback";
+import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
 
-import { useTime, useValidationParser } from "../../../utils";
+import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { PaymentDetailsContext, PaymentDetailsEvent } from "./types.d";
+import type { PaymentDetailsContext, PaymentDetailsEvent } from "./types";
 
 // --------------------------------------------------------
 
@@ -67,7 +68,7 @@ export default createMachine(
               src: "validate",
               onDone: [
                 {
-                  target: "#valid",
+                  target: "#gateway",
                   cond: "isDirty"
                 },
                 {
@@ -83,41 +84,45 @@ export default createMachine(
         }
       },
 
-      valid: {
-        id: "valid",
-        on: {
-          CONVERT: {
-            target: "processing"
-          }
-        }
-      },
-
       invalid: {
         id: "invalid"
       },
 
-      processing: {
-        entry: ["clearError"],
+      // ---
 
-        invoke: {
-          src: "convert",
-          onDone: {
-            target: "processed",
-            actions: ["setFeedbackSuccess", "clearDirty", "setOrder"]
+      gateway: {
+        id: "gateway",
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              SELECT: [
+                { target: "stripe", cond: "isStripe" },
+                // ---
+                // TODO: add other payment checks and actions
+                // ---
+                // For all other payment methods that DONT require a sub machine
+                { target: "#complete" }
+              ]
+            }
           },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
-      },
 
-      processed: {
-        id: "processed",
-        after: {
-          wait: {
-            target: "complete"
+          // ---
+          stripe: {
+            id: "stripe",
+            invoke: {
+              src: "stripeMachine",
+              onDone: {
+                target: "#complete"
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           }
+          // ---
+          // TODO: add other payment methods/machines state nodes
         }
       },
 
@@ -128,12 +133,7 @@ export default createMachine(
       },
 
       error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "processing"
-          }
-        }
+        id: "error"
       }
     },
     on: {
@@ -149,15 +149,30 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
+      },
+
+      REFRESH: {
+        target: "checking",
+        actions: ["refreshContext", "setSchemas"]
       }
     }
   },
   {
     actions: {
-      setOrder: assign({
-        order: (_context, { data }) => data,
-        error: undefined
-      }),
+      refreshContext: assign(
+        (
+          _context: PaymentDetailsContext,
+          { data: basket }: PaymentDetailsEvent
+        ) => {
+          return {
+            basket_id: basket?.id,
+            currency: basket?.currency,
+            model: {
+              amount: basket?.unpaid_amount_converted || 0.0
+            }
+          };
+        }
+      ),
 
       setContext: assign(
         (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data

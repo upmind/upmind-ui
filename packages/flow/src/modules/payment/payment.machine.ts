@@ -25,19 +25,59 @@ export default createMachine(
       error: null
     } as PaymentContext,
     states: {
-      loading: {},
-      processing: {
-        entry: ["clearError"],
+      loading: {
         invoke: {
-          src: "src of the sub machine type, eg: Stripe",
+          src: "loadOrder",
           onDone: {
-            target: "processed",
-            actions: ["setFeedbackSuccess"]
+            target: "idle",
+            actions: ["setOrder"]
           },
           onError: {
-            target: "error",
+            target: "#error",
             actions: ["setError", "setFeedbackError"]
           }
+        }
+      },
+
+      idle: {
+        on: {
+          PAY: {
+            target: "processing",
+            actions: ["clearError"]
+          }
+        }
+      },
+
+      processing: {
+        entry: ["clearError"],
+        initial: "checking",
+        states: {
+          checking: {
+            always: [
+              {
+                target: "stripe",
+                cond: "isStripePayment"
+              }
+              // TODO: add other payment checks and actions
+            ]
+          },
+          stripe: {
+            invoke: {
+              src: "src of the sub machine type, eg: Stripe",
+              onDone: {
+                target: "#processed",
+                actions: ["setFeedbackSuccess"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
+          }
+          // TODO: add other payment methods/machines
+          // paypal: {},
+          // bank: {},
+          // offline: {}
         }
       },
 
@@ -54,7 +94,7 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: (_context, _event) => ({})
+        data: (_context: PaymentContext, _event: PaymentEvent) => ({})
       },
 
       error: {
@@ -70,11 +110,11 @@ export default createMachine(
   {
     actions: {
       // ---
-      setFeedbackSuccess: (_context, _event) => {
+      setFeedbackSuccess: (_context: PaymentContext, _event: PaymentEvent) => {
         addSuccess("Successfully made payment");
       },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: PaymentContext, _event: PaymentEvent) => {
         addError({
           title:
             error?.title || "We experienced an error processing your payment",
@@ -100,9 +140,15 @@ export default createMachine(
     },
 
     guards: {
-      hasNoOutstandingBalance: (_context, _event) => {
+      hasNoOutstandingBalance: (
+        _context: PaymentContext,
+        _event: PaymentEvent
+      ) => {
         // TODO: check if there is an outstanding balance
         return true;
+      },
+      isStripePayment: (_context: PaymentContext, _event: PaymentEvent) => {
+        return true; // TODO: check if the payment method is stripe
       }
     },
 

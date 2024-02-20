@@ -28,7 +28,11 @@ const service = interpret(systemMachine, { devTools: false }).onTransition(
 // --------------------------------------------------------
 
 export const useSystem = () => {
-  const { getCountry: getDefaultCountry, service: brandService } = useBrand();
+  const {
+    getCountry: getDefaultCountry,
+    getCurrencyId: getDefaultCurrency,
+    service: brandService
+  } = useBrand();
 
   // --- Helpers
 
@@ -79,7 +83,14 @@ export const useSystem = () => {
   // --- Methods
 
   const getCurrencies = () => state.context.currencies;
-  const getCurrency = value => find(state.context.currencies, ["code", value]);
+  const getCurrency = (value?: string) => {
+    // if we are not passed a country, then we need to get the default country
+    value ??= getDefaultCurrency();
+
+    if (value?.length == 3)
+      return find(state.context.currencies, ["code", value]);
+    return find(state.context.currencies, ["id", value]);
+  };
   // ---
 
   const getBillingCycles = () => state.context.billingCycles;

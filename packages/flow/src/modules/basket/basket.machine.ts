@@ -1,14 +1,9 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { sendTo } = actions;
+import { createMachine, assign, sendTo, pure } from "xstate";
 
 // --- internal
 import services, { InvoiceStatus } from "./services";
-import paymentDetailsMachine from "./payment/details.machine";
-import customFieldsMachine from "./fields/fields.machine";
-import promotionsMachine from "./promotions/promotions.machine";
-import currencyMachine from "./currency/currency.machine";
-import billingDetailsMachine from "./billing/details.machine";
+
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
@@ -16,8 +11,12 @@ const { addError, addSuccess } = useFeedback();
 import { useTime, useValidationParser } from "../../utils";
 import {
   useSummaryParser,
-  useBasketFieldsModelParser,
-  spawnConfiguration
+  spawnConfiguration,
+  spawnBillingDetails,
+  spawnCurrency,
+  spawnCustomFields,
+  spawnPaymentDetails,
+  spawnPromotions
 } from "./utils";
 
 import {
@@ -37,8 +36,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { BasketContext, BasketEvents } from "./types.d";
-import { pure } from "xstate/lib/actions";
+import type { BasketContext, BasketEvent } from "./types.d";
 
 // --------------------------------------------------------
 
@@ -55,6 +53,15 @@ export default createMachine(
       items: [],
       bin: [],
       queue: [],
+      // ---
+      actors: {
+        billing_details: undefined,
+        currency: undefined,
+        custom_fields: undefined,
+        payment_details: undefined,
+        promotions: undefined
+      },
+
       // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
@@ -87,12 +94,12 @@ export default createMachine(
               onDone: [
                 {
                   target: "#complete",
-                  actions: ["setBasket", "loadItems"],
+                  actions: ["setBasket", "loadItems", "spawnActors"],
                   cond: "isOrder"
                 },
                 {
                   target: "items",
-                  actions: ["setBasket", "loadItems"]
+                  actions: ["setBasket", "loadItems", "spawnActors"]
                 }
               ],
               onError: {
@@ -144,7 +151,7 @@ export default createMachine(
           src: "refresh",
           onDone: {
             target: "shopping",
-            actions: ["refreshItems", "updateBasket"]
+            actions: ["refreshItems", "updateBasket", "refreshActors"]
           },
           onError: { target: "#error" }
         }
@@ -345,76 +352,139 @@ export default createMachine(
           },
 
           currency: {
-            invoke: {
-              id: "currency",
-              src: currencyMachine,
-              autoForward: true,
-              data: ({ basket }: BasketContext, _event: BasketEvents) => ({
-                basket_id: basket?.id,
-                model: { id: basket?.currency_id }
-              })
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "currencyComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [
+                  { target: "configuring", cond: "currencyConfiguring" }
+                ],
+                type: "final"
+              }
             }
           },
 
           promotions: {
-            invoke: {
-              id: "promotions",
-              src: promotionsMachine,
-              autoForward: false, // this should NOT update when we update the entire basket!
-              data: ({ basket }: BasketContext, _event: BasketEvents) => ({
-                basket_id: basket?.id,
-                promotions: basket?.promotions
-              })
-            }
-          },
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "promotionsComplete" }
+              },
 
-          billing_details: {
-            invoke: {
-              id: "billing_details",
-              src: billingDetailsMachine,
-              autoForward: true,
-              data: ({ basket }: BasketContext, _event: BasketEvents) => ({
-                basket_id: basket?.id,
-                model: {
-                  address_id: basket?.address_id,
-                  company_id: basket?.company_id
-                }
-              })
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [
+                  { target: "configuring", cond: "promotionsConfiguring" }
+                ],
+                type: "final"
+              }
             }
           },
 
           custom_fields: {
-            invoke: {
-              id: "custom_fields",
-              src: customFieldsMachine,
-              autoForward: true,
-              data: ({ basket }: BasketContext, { data }: BasketEvents) => ({
-                basket_id: basket?.id,
-                model: useBasketFieldsModelParser(basket, data)
-              })
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "custom_fieldsComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [
+                  { target: "configuring", cond: "custom_fieldsConfiguring" }
+                ],
+                type: "final"
+              }
+            }
+          },
+
+          billing_details: {
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "billingComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [{ target: "configuring", cond: "billingConfiguring" }],
+                type: "final"
+              }
             }
           },
 
           payment_details: {
-            invoke: {
-              id: "payment_details",
-              src: paymentDetailsMachine,
-              data: ({ basket }: BasketContext, {}: BasketEvents) => ({
-                basket_id: basket?.id,
-                currency: basket?.currency,
-                model: {
-                  amount: basket?.unpaid_amount_converted || 0.0
-                }
-              }),
-              onDone: "#complete"
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "paymentComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [{ target: "configuring", cond: "paymentConfiguring" }],
+                type: "final"
+              }
             }
           }
+
+          // ---
         },
         on: {
           REFRESH: {
             target: "refreshing",
             actions: "muteBasket",
             cond: "isNotMuted"
+          }
+        }
+      },
+
+      checkout: {
+        initial: "checking",
+        states: {
+          checking: {
+            invoke: {
+              src: "isReadyForCheckout",
+              onDone: "available",
+              onError: "invalid"
+            }
+          },
+          invalid: {
+            after: {
+              poll: "checking"
+            }
+          },
+          available: {
+            // ---
+            // NB: Checkout is a chained sequence of events:
+            // First, it will forward the event to the payment_details machine
+            // The payment_details machine will then forward that to the payment_gateway sub machine
+            // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
+            // The payment_details machine will then Parse and return that to the processing state
+            // The processing state will then run its process and when complete will return the completed order
+            on: {
+              CHECKOUT: {
+                actions: sendTo("payment_details", { type: "CHECKOUT" }) //TODO: add suitable guards
+              }
+            }
+          },
+          processing: {
+            id: "processing",
+            invoke: {
+              src: "convert",
+              onDone: {
+                target: "#complete",
+                actions: ["setFeedbackSuccess", "clearDirty", "setOrder"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           }
         }
       },
@@ -439,16 +509,16 @@ export default createMachine(
   {
     actions: {
       setBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvents) => data,
-        summary: (_context: BasketContext, { data }: BasketEvents) =>
+        basket: (_context: BasketContext, { data }: BasketEvent) => data,
+        summary: (_context: BasketContext, { data }: BasketEvent) =>
           useSummaryParser(data),
         error: undefined
       }),
 
       updateBasket: assign({
-        basket: ({ basket }: BasketContext, { data }: BasketEvents) =>
+        basket: ({ basket }: BasketContext, { data }: BasketEvent) =>
           get(data, "basket", basket),
-        summary: ({ basket }: BasketContext, _event: BasketEvents) =>
+        summary: ({ basket }: BasketContext, _event: BasketEvent) =>
           useSummaryParser(basket),
         error: undefined,
         muted: false
@@ -462,6 +532,29 @@ export default createMachine(
         basket: undefined,
         summary: useSummaryParser(),
         error: undefined
+      }),
+
+      // --- Spawned Actors Actions
+      spawnActors: assign({
+        actors: ({ basket }: BasketContext) => {
+          return {
+            billing_details: spawnBillingDetails(basket),
+            currency: spawnCurrency(basket),
+            custom_fields: spawnCustomFields(basket),
+            payment_details: spawnPaymentDetails(basket),
+            promotions: spawnPromotions(basket)
+          };
+        }
+      }),
+
+      refreshActors: pure(({ basket, actors }) => {
+        forEach(actors, actor => {
+          debugger;
+          if (actor?.send) {
+            debugger;
+            actor.send({ type: "REFRESH", data: basket });
+          }
+        });
       }),
 
       // --- Configuring Items Actions
@@ -734,6 +827,47 @@ export default createMachine(
 
       isNotMuted: ({ muted }) => !muted,
 
+      // --- Actor Guards
+      currencyComplete: ({ actors }) => {
+        return actors.currency?.state?.matches("complete");
+      },
+
+      currencyConfiguring: ({ actors }) => {
+        return !actors.currency?.state?.matches("complete");
+      },
+
+      promotionsComplete: ({ actors }) => {
+        return actors.promotions?.state?.matches("complete");
+      },
+
+      promotionsConfiguring: ({ actors }) => {
+        return !actors.promotions?.state?.matches("complete");
+      },
+
+      custom_fieldsComplete: ({ actors }) => {
+        return actors.custom_fields?.state?.matches("complete");
+      },
+
+      custom_fieldsConfiguring: ({ actors }) => {
+        return !actors.custom_fields?.state?.matches("complete");
+      },
+
+      billingComplete: ({ actors }) => {
+        return actors.billing?.state?.matches("complete");
+      },
+
+      billingConfiguring: ({ actors }) => {
+        return !actors.billing?.state?.matches("complete");
+      },
+
+      paymentComplete: ({ actors }) => {
+        return actors.payment_details?.state?.matches("complete");
+      },
+
+      paymentConfiguring: ({ actors }) => {
+        return !actors.payment_details?.state?.matches("complete");
+      },
+
       // --- Configuration Guards
 
       allConfigured: ({ items }) => {
@@ -797,7 +931,8 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
+      poll: () => useTime().POLL
     },
 
     services

@@ -61,7 +61,7 @@ export const machineMatches = (machine, states: string[]) => {
 };
 
 // --- value helpers
-export const stateValue = (state, prop?: string, fallback?: any) => {
+export const stateValue = (state, prop?: string | string[], fallback?: any) => {
   state = unref(state);
 
   if (!state) return fallback;
@@ -71,7 +71,11 @@ export const stateValue = (state, prop?: string, fallback?: any) => {
   return get(state, prop, fallback);
 };
 
-export const contextValue = (state, prop?: string, fallback?: any) => {
+export const contextValue = (
+  state,
+  prop?: string | string[],
+  fallback?: any
+) => {
   const context = stateValue(state, "context");
 
   if (!prop?.length || !context) return fallback;
@@ -79,7 +83,7 @@ export const contextValue = (state, prop?: string, fallback?: any) => {
   return get(context, prop, fallback);
 };
 
-export const childActor = (state, prop?: string, fallback?: any) => {
+export const childActor = (state, prop?: string | string[], fallback?: any) => {
   state = unref(state);
 
   if (!state || !prop?.length) return fallback;
@@ -94,15 +98,22 @@ export const childActor = (state, prop?: string, fallback?: any) => {
   return createActor(context);
 };
 
-export const contextActor = (state, prop?: string, fallback?: any) => {
+export const contextActor = (
+  state,
+  prop?: string | string[],
+  fallback?: any
+) => {
   state = unref(state);
+
   if (!state || !prop?.length) return fallback;
 
   const context = contextValue(state, prop);
 
   if (isNil(context)) return fallback;
 
-  if (isArray(context)) return map(context, createActor);
+  if (isArray(context)) {
+    return map(context, createActor);
+  }
 
   return createActor(context);
 };
@@ -116,14 +127,20 @@ const createActor = context => {
 };
 // --- computed helpers
 
-export const useState = (state, prop?: string, fallback?: any) =>
+export const useState = (state, prop?: string | string[], fallback?: any) =>
   computed(() => stateValue(state, prop, fallback));
 
-export const useContext = (state, prop?: string, fallback?: any) =>
+export const useContext = (state, prop?: string | string[], fallback?: any) =>
   computed(() => contextValue(state, prop, fallback));
 
-export const useChildActor = (state, prop?: string, fallback?: any) =>
-  computed(() => childActor(state, prop, fallback));
+export const useChildActor = (
+  state,
+  prop?: string | string[],
+  fallback?: any
+) => computed(() => childActor(state, prop, fallback));
 
-export const useContextActor = (state, prop?: string, fallback?: any) =>
-  computed(() => contextActor(state, prop, fallback));
+export const useContextActor = (
+  state,
+  prop?: string | string[],
+  fallback?: any
+) => computed(() => contextActor(state, prop, fallback));

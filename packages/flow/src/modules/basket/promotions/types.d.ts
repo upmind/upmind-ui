@@ -22,7 +22,7 @@ export interface PromotionsContext {
   uischema?: UISchemaElement;
   model?: IPromotion;
   // ---
-  dirty: Boolean;
+  dirty?: Boolean;
   error?: RequestError;
 }
 

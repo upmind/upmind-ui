@@ -151,11 +151,30 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
+      },
+      REFRESH: {
+        target: "checking",
+        actions: ["refreshContext", "setSchemas"]
       }
     }
   },
   {
     actions: {
+      refreshContext: assign(
+        (
+          _context: BillingDetailsContext,
+          { data: basket }: BillingDetailsEvent
+        ) => {
+          return {
+            basket_id: basket.id,
+            model: {
+              address_id: basket?.address_id,
+              company_id: basket?.company_id
+            }
+          };
+        }
+      ),
+
       setContext: assign(
         (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => data
       ),

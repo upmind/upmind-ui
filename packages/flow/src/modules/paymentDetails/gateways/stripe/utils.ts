@@ -6,7 +6,7 @@
 import { reduce, includes, find } from "lodash-es";
 
 // --- types
-import type { IGateway } from "../../types.d";
+import type { IGateway } from "../../../payment/types";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
 
 // --------------------------------------------------------
