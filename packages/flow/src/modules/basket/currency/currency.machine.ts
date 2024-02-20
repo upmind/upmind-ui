@@ -153,7 +153,7 @@ export default createMachine(
         actions: ["clearError", "clearModel", "clearSchemas"]
       },
       REFRESH: {
-        target: "checking",
+        target: "loading",
         actions: ["refreshContext", "setSchemas"]
       }
     }

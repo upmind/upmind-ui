@@ -1,5 +1,6 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import listingsMachine from "../listings.machine";
@@ -29,6 +30,7 @@ export const useClientCompanies = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+    isReady: async () => waitFor(service, state => !state.matches("loading")),
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getItem: id => find(state?.context?.items, ["id", id]),

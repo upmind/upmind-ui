@@ -37,7 +37,11 @@ async function load(
   _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
-  const { getUserId } = useSession();
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
 
   const clientId = await getUserId();
 

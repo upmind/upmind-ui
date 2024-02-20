@@ -40,9 +40,14 @@ async function load(
   { currency_id }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
+
   const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
   const { get: getRequest, useUrl } = useApi();
-  const { getUserId } = useSession();
 
   await isReady();
 

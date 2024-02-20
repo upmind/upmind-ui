@@ -121,7 +121,10 @@ export interface Typegen0 {
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     muteBasket: "CLEAR" | "REFRESH" | "REMOVE" | "UPDATE";
     queueItem: "UPDATE";
-    refreshActors: "done.invoke.refreshing:invocation[0]";
+    refreshActors:
+      | "done.invoke.claiming:invocation[0]"
+      | "done.invoke.generating:invocation[0]"
+      | "done.invoke.refreshing:invocation[0]";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
@@ -162,6 +165,7 @@ export interface Typegen0 {
       | "done.invoke.updating:invocation[0]";
     setOrder: "done.invoke.processing:invocation[0]";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
+    updateActors: "CLEAR" | "REMOVE" | "UPDATE";
     updateBasket:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"

@@ -94,7 +94,6 @@ export interface Typegen0 {
     load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "done.invoke.billingDetailsManager.loading:invocation[0]";
     update: "RETRY" | "UPDATE";

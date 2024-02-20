@@ -76,10 +76,16 @@ export default createMachine(
                   target: "#complete"
                 }
               ],
-              onError: {
-                target: "#invalid",
-                actions: ["setError"]
-              }
+              onError: [
+                {
+                  target: "#invalid",
+                  actions: ["setError"],
+                  cond: "isDirty"
+                },
+                {
+                  target: "#complete"
+                }
+              ]
             }
           }
         }

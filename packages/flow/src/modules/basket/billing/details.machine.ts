@@ -14,6 +14,7 @@ import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
 import type { BillingDetailsContext, BillingDetailsEvent } from "./types";
+import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
@@ -153,7 +154,7 @@ export default createMachine(
         actions: ["clearError", "clearModel", "clearSchemas"]
       },
       REFRESH: {
-        target: "checking",
+        target: "loading",
         actions: ["refreshContext", "setSchemas"]
       }
     }
@@ -212,6 +213,9 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
+        // dont show any unauthorized errors
+        if (error?.code == responseCodes.Unauthorized) return;
+
         addError({
           title:
             error?.title || "We experienced an error updating billing details",
