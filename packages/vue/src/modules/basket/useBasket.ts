@@ -90,7 +90,7 @@ export const useBasket = () => {
           stateMatches(state, ["shopping", "refreshing", "checkout"]) &&
           !stateMatches(state, ["shopping.items.empty"]),
 
-        needsAuth: !stateMatches(state, ["shopping.account.authenticated"]),
+        needsAuth: !stateMatches(state, ["shopping.account.complete"]),
 
         // ---
         hasProducts: stateMatches(state, ["shopping.items.complete"]),
@@ -113,7 +113,7 @@ export const useBasket = () => {
 
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
-        hasAccount: stateMatches(state, ["shopping.account.authenticated"]),
+        hasAccount: stateMatches(state, ["shopping.account.complete"]),
 
         // ---
 

@@ -244,9 +244,9 @@ export interface Typegen0 {
     | "refreshing"
     | "shopping"
     | "shopping.account"
-    | "shopping.account.authenticated"
     | "shopping.account.checking"
-    | "shopping.account.unauthenticated"
+    | "shopping.account.complete"
+    | "shopping.account.configuring"
     | "shopping.billing_details"
     | "shopping.billing_details.complete"
     | "shopping.billing_details.configuring"
@@ -285,7 +285,7 @@ export interface Typegen0 {
           | "payment_details"
           | "promotions"
           | {
-              account?: "authenticated" | "checking" | "unauthenticated";
+              account?: "checking" | "complete" | "configuring";
               billing_details?: "complete" | "configuring";
               currency?: "complete" | "configuring";
               custom_fields?: "complete" | "configuring";

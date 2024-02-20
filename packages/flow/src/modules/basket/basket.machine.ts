@@ -173,12 +173,12 @@ export default createMachine(
               checking: {
                 invoke: {
                   src: "isAuthenticated",
-                  onDone: { target: "authenticated" },
-                  onError: { target: "unauthenticated" }
+                  onDone: { target: "complete" },
+                  onError: { target: "configuring" }
                 }
               },
-              unauthenticated: {},
-              authenticated: {
+              configuring: {},
+              complete: {
                 type: "final"
               }
             },
@@ -853,11 +853,11 @@ export default createMachine(
       },
 
       billingComplete: ({ actors }) => {
-        return actors.billing?.state?.matches("complete");
+        return actors.billing_details?.state?.matches("complete");
       },
 
       billingConfiguring: ({ actors }) => {
-        return !actors.billing?.state?.matches("complete");
+        return !actors.billing_details?.state?.matches("complete");
       },
 
       paymentComplete: ({ actors }) => {
