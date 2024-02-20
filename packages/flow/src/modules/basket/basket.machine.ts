@@ -145,6 +145,7 @@ export default createMachine(
         }
       },
 
+      // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
       refreshing: {
         id: "refreshing",
         invoke: {
@@ -415,25 +416,11 @@ export default createMachine(
                 type: "final"
               }
             }
-          },
-
-          payment_details: {
-            initial: "configuring",
-            states: {
-              configuring: {
-                always: { target: "complete", cond: "paymentComplete" }
-              },
-
-              // items are 'complete' only when they have been successfully added to the basket
-              complete: {
-                always: [{ target: "configuring", cond: "paymentConfiguring" }],
-                type: "final"
-              }
-            }
           }
 
           // ---
         },
+        onDone: "checkout",
         on: {
           REFRESH: {
             target: "refreshing",
@@ -443,22 +430,29 @@ export default createMachine(
         }
       },
 
+      // We are now ready to accept payment as all the shopping items are complete
+      // We will accept the checkout event and forward it to the payment_details machine
+      // Which in turn will forward it to the payment_gateway machine
+      // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
+      // The payment_details machine will then Parse and return that to the processing state
+      // This will trigger the Convert service, which will then process the order
+      // The processing state will then run its process and when complete will return the completed order
       checkout: {
-        initial: "checking",
+        initial: "configuring",
         states: {
-          checking: {
-            invoke: {
-              src: "isReadyForCheckout",
-              onDone: "available",
-              onError: "invalid"
-            }
+          configuring: {
+            always: [
+              { target: "available", cond: "paymentValid" },
+              { target: "processing", cond: "paymentComplete" }
+            ]
           },
-          invalid: {
-            after: {
-              poll: "checking"
-            }
-          },
+
+          // items are 'complete' only when they have been successfully added to the basket
           available: {
+            always: [
+              { target: "configuring", cond: "paymentConfiguring" },
+              { target: "processing", cond: "paymentComplete" }
+            ],
             // ---
             // NB: Checkout is a chained sequence of events:
             // First, it will forward the event to the payment_details machine
@@ -472,6 +466,7 @@ export default createMachine(
               }
             }
           },
+
           processing: {
             id: "processing",
             invoke: {
@@ -549,9 +544,7 @@ export default createMachine(
 
       refreshActors: pure(({ basket, actors }) => {
         forEach(actors, actor => {
-          debugger;
           if (actor?.send) {
-            debugger;
             actor.send({ type: "REFRESH", data: basket });
           }
         });
@@ -860,12 +853,18 @@ export default createMachine(
         return !actors.billing_details?.state?.matches("complete");
       },
 
+      paymentValid: ({ actors }) => {
+        return actors.payment_details?.state?.matches("valid");
+      },
+
       paymentComplete: ({ actors }) => {
         return actors.payment_details?.state?.matches("complete");
       },
 
       paymentConfiguring: ({ actors }) => {
-        return !actors.payment_details?.state?.matches("complete");
+        return !["valid", "complete"].some(
+          actors.payment_details?.state?.matches
+        );
       },
 
       // --- Configuration Guards

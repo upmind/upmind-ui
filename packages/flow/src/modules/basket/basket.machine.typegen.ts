@@ -53,10 +53,6 @@ export interface Typegen0 {
       type: "error.platform.authCallback";
       data: unknown;
     };
-    "error.platform.basketManager.checkout.checking:invocation[0]": {
-      type: "error.platform.basketManager.checkout.checking:invocation[0]";
-      data: unknown;
-    };
     "error.platform.basketManager.loading.basket:invocation[0]": {
       type: "error.platform.basketManager.loading.basket:invocation[0]";
       data: unknown;
@@ -84,9 +80,6 @@ export interface Typegen0 {
     "xstate.after(error)#basketManager.shopping.items.processing.error": {
       type: "xstate.after(error)#basketManager.shopping.items.processing.error";
     };
-    "xstate.after(poll)#basketManager.checkout.invalid": {
-      type: "xstate.after(poll)#basketManager.checkout.invalid";
-    };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
@@ -96,7 +89,6 @@ export interface Typegen0 {
     convert: "done.invoke.processing:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.account.checking:invocation[0]";
-    isReadyForCheckout: "done.invoke.basketManager.checkout.checking:invocation[0]";
     load: "done.invoke.basketManager.loading.basket:invocation[0]";
     refresh: "done.invoke.refreshing:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
@@ -113,7 +105,6 @@ export interface Typegen0 {
       | "convert"
       | "generate"
       | "isAuthenticated"
-      | "isReadyForCheckout"
       | "load"
       | "refresh"
       | "removeItem"
@@ -181,7 +172,6 @@ export interface Typegen0 {
       | "error.platform.updating:invocation[0]";
   };
   eventsCausingDelays: {
-    poll: "error.platform.basketManager.checkout.checking:invocation[0]";
     wait:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.removing:invocation[0]"
@@ -207,6 +197,7 @@ export interface Typegen0 {
     isOrder: "done.invoke.basketManager.loading.basket:invocation[0]";
     paymentComplete: "";
     paymentConfiguring: "";
+    paymentValid: "";
     promotionsComplete: "";
     promotionsConfiguring: "";
     someConfiguring: "";
@@ -214,14 +205,13 @@ export interface Typegen0 {
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
     claim: "AUTHENTICATED";
-    convert: never;
+    convert: "";
     generate: "ADD";
     isAuthenticated:
       | ""
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";
-    isReadyForCheckout: "xstate.after(poll)#basketManager.checkout.invalid";
     load: "SESSION" | "UNAUTHENTICATED";
     refresh: "REFRESH" | "xstate.after(wait)#processed";
     removeItem: "REMOVE";
@@ -231,8 +221,7 @@ export interface Typegen0 {
   matchesStates:
     | "checkout"
     | "checkout.available"
-    | "checkout.checking"
-    | "checkout.invalid"
+    | "checkout.configuring"
     | "checkout.processing"
     | "claiming"
     | "complete"
@@ -266,15 +255,12 @@ export interface Typegen0 {
     | "shopping.items.processing.everything"
     | "shopping.items.processing.removing"
     | "shopping.items.processing.updating"
-    | "shopping.payment_details"
-    | "shopping.payment_details.complete"
-    | "shopping.payment_details.configuring"
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
     | "subscribing"
     | {
-        checkout?: "available" | "checking" | "invalid" | "processing";
+        checkout?: "available" | "configuring" | "processing";
         loading?: "basket" | "items";
         shopping?:
           | "account"
@@ -282,7 +268,6 @@ export interface Typegen0 {
           | "currency"
           | "custom_fields"
           | "items"
-          | "payment_details"
           | "promotions"
           | {
               account?: "checking" | "complete" | "configuring";
@@ -302,7 +287,6 @@ export interface Typegen0 {
                       | "removing"
                       | "updating";
                   };
-              payment_details?: "complete" | "configuring";
               promotions?: "complete" | "configuring";
             };
       };
