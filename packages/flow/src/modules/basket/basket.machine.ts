@@ -123,7 +123,8 @@ export default createMachine(
         invoke: {
           src: "claim",
           onDone: {
-            target: "#shopping"
+            target: "#shopping",
+            actions: ["refreshActors"]
           },
           onError: {
             target: "#error",
@@ -139,7 +140,7 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: ["setBasket"]
+            actions: ["setBasket", "refreshActors"]
           },
           onError: { target: "#error" }
         }
@@ -210,7 +211,7 @@ export default createMachine(
                 initial: "everything",
                 states: {
                   everything: {
-                    entry: ["muteBasket"],
+                    entry: ["muteBasket", "updateActors"],
 
                     invoke: {
                       src: "update",
@@ -531,7 +532,13 @@ export default createMachine(
 
       // --- Spawned Actors Actions
       spawnActors: assign({
-        actors: ({ basket }: BasketContext) => {
+        actors: ({ actors, basket }: BasketContext) => {
+          // housekeeping...
+          forEach(
+            actors,
+            actor => !actor?.state?.done && actor?.stop && actor?.stop()
+          );
+
           return {
             billing_details: spawnBillingDetails(basket),
             currency: spawnCurrency(basket),
@@ -546,6 +553,15 @@ export default createMachine(
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "REFRESH", data: basket });
+          }
+        });
+      }),
+
+      updateActors: pure(({ actors }) => {
+        debugger;
+        forEach(actors, actor => {
+          if (actor?.send) {
+            actor.send({ type: "UPDATE" });
           }
         });
       }),

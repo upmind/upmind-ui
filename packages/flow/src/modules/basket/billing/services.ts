@@ -1,7 +1,12 @@
 // --- external
 
 // --- internal
-import { useApi } from "../../..";
+import {
+  useApi,
+  useClientAddresses,
+  useClientCompanies,
+  useSession
+} from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -19,9 +24,28 @@ async function load(
   _context: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  // we dont need to do anything here as we are not loading any data
-  return new Promise(resolve => {
-    resolve({});
+  const { isAuthenticated } = useSession();
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
+
+  const { isReady: isAddressesReady, getItems: getAddresses } =
+    useClientAddresses();
+
+  const { isReady: isCompaniesReady, getItems: getCompanies } =
+    useClientCompanies();
+
+  return Promise.all([isAddressesReady(), isCompaniesReady()]).then(() => {
+    const addresses = getAddresses();
+    const companies = getCompanies();
+
+    return new Promise((resolve, reject) => {
+      if (addresses?.length || companies?.length) {
+        resolve({ addresses, companies });
+      } else {
+        reject("No Companies or Addresses Available");
+      }
+    });
   });
 }
 

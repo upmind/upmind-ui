@@ -239,6 +239,7 @@
         class="payment col-span-5 order-2"
         :class="{ disabled: meta.needsAuth }"
         :disabled="meta.needsAuth"
+        v-if="!meta.needsAuth"
       >
         <upm-payment-details
           :actor="actors.paymentDetails"

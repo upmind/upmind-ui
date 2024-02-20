@@ -21,46 +21,17 @@ export interface IWalletCurrencyBalance {
 }
 
 export interface IPaymentDetail {
-  active: boolean;
-  address: IAddress;
-  address_id: string;
-  allow_bacs: null | string;
-  allow_cheque: null | string;
-  can_delete: boolean;
-  card_cvv: null | string;
-  card_expire_date: string;
-  card_last4: string;
-  card_num: null | string;
-  card_token: string;
-  card_type: string;
-  client_id: string;
-  created_at: string;
-  currency_id: string;
-  default: boolean;
-  gateway_id: string;
-  gateway: IGateway;
-  id: string;
-  import_id: string;
-  name: null | string;
-  sepadd_bic: null | string;
-  sepadd_iban: null | string;
-  staged_import: boolean;
-  type: number;
-  ukdd_account_number: null | string;
-  ukdd_account_sortcode: null | string;
-  updated_at: string;
-  user_id: string;
-  sca_verified: boolean;
-  next_action: {
-    url: string;
-  };
-  auto_payment: boolean;
+  amount: Number;
+  type?: PaymentTypes;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface PaymentDetailsContext {
+  // ---
+  basket_id?: string;
+  currency?: iCurrency;
   // ---
   gateways?: Array<IGateway>;
   payment_types?: PaymentTypes;
@@ -70,8 +41,7 @@ export interface PaymentDetailsContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IPaymentDetail;
-  // ---
-  order?: IInvoice;
+
   // ---
   error?: RequestError;
 }
@@ -82,5 +52,11 @@ export interface PaymentDetailsContext {
 export interface PaymentDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IPaymentDetail;
+  error?: RequestError;
+}
+
+export interface RefreshEvent {
+  type: "REFRESH";
+  data?: IBasket;
   error?: RequestError;
 }

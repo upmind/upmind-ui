@@ -49,15 +49,6 @@ export const useSchema = ({
           title: key
         }))
       }
-    },
-
-    if: {
-      properties: {
-        type: { const: PaymentTypes.PAY_IN_FULL }
-      }
-    },
-    then: {
-      required: ["gateway_id"]
     }
   };
 
@@ -84,20 +75,6 @@ export const useUischema = ({ currency }: PaymentDetailsContext) => {
         scope: "#/properties/type",
         options: {
           format: "radio"
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/gateway_id",
-        options: {
-          format: "radio"
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/type",
-            schema: { const: PaymentTypes.PAY_IN_FULL }
-          }
         }
       }
     ]
