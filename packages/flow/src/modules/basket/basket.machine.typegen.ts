@@ -114,6 +114,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     addItem: "ADD";
     binItem: "REMOVE";
+    checkoutActors: "CHECKOUT";
     clearBasket: "UNAUTHENTICATED";
     clearDirty: "done.invoke.processing:invocation[0]";
     clearError: "UNAUTHENTICATED";

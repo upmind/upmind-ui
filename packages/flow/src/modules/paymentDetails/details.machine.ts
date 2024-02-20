@@ -19,6 +19,7 @@ import type {
   PaymentDetailsEvent,
   RefreshEvent
 } from "./types.d";
+import { sendTo } from "xstate/lib/actions";
 
 // --------------------------------------------------------
 
@@ -43,7 +44,7 @@ export default createMachine(
         invoke: {
           src: "load",
           onDone: {
-            target: "checking",
+            target: "available",
             actions: ["setContext", "setSchemas"]
           },
           onError: {
@@ -54,116 +55,96 @@ export default createMachine(
       },
       // ---
 
-      checking: {
-        entry: ["clearError"],
-        id: "checking",
-        initial: "parsing",
+      available: {
+        id: "available",
+        type: "parallel",
         states: {
-          parsing: {
-            invoke: {
-              src: "parse",
-              onDone: {
-                target: "validating",
-                actions: ["setContext", "setSchemas"]
-              }
-            }
-          },
-          validating: {
-            invoke: {
-              src: "validate",
-              onDone: [
-                {
-                  target: "#gateway",
-                  cond: "needsGateway"
-                },
-                {
-                  target: "#valid"
+          details: {
+            initial: "checking",
+            states: {
+              checking: {
+                entry: ["clearError"],
+                id: "checking",
+                initial: "parsing",
+                states: {
+                  parsing: {
+                    invoke: {
+                      src: "parse",
+                      onDone: {
+                        target: "validating",
+                        actions: ["setContext", "setSchemas"]
+                      }
+                    }
+                  },
+                  validating: {
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "#available.details.valid" },
+                      onError: {
+                        target: "#available.details.invalid",
+                        actions: ["setError"]
+                      }
+                    }
+                  }
                 }
-              ],
-              onError: {
-                target: "#invalid",
-                actions: ["setError"]
-              }
+              },
+              invalid: {},
+              valid: { type: "final" }
             }
           }
-        }
+          // gateway: {
+          //   id: "gateway",
+          //   initial: "checking",
+          //   states: {
+          //     checking: {
+          //       always: [
+          //         { target: "complete", cond: "noGateway" },
+          //         { target: "stripe", cond: "isStripe" },
+          //         { target: "idle" }
+          //       ]
+          //     },
+          //     idle: {
+          //       on: {
+          //         SELECT: [
+          //           { target: "stripe", cond: "isStripe" }
+          //           // ---
+          //           // TODO: add other payment checks and actions
+          //           // ---
+          //           // For all other payment methods that DONT require a sub machine
+          //           // { target: "#valid" }
+          //         ]
+          //       }
+          //     },
+
+          //     // ---
+          //     stripe: {
+          //       id: "stripe",
+          //       invoke: {
+          //         src: stripeMachine,
+          //         autoForward: true,
+          //         onDone: {
+          //           target: "complete"
+          //         },
+          //         onError: {
+          //           target: "#error",
+          //           actions: ["setError", "setFeedbackError"]
+          //         }
+          //       }
+          //     },
+          //     // ---
+          //     // TODO: add other payment methods/machines state nodes
+          //     // ---
+          //     complete: {
+          //       type: "final"
+          //     }
+          //   }
+          // }
+        },
+        onDone: "valid"
       },
 
       valid: {
-        id: "valid",
-        on: {
-          CHECKOUT: {
-            target: "processing"
-          }
-        }
-      },
-
-      invalid: {
-        id: "invalid",
-        initial: "details",
-        states: {
-          details: {},
-          gateway: {
-            id: "gateway",
-            initial: "idle",
-            states: {
-              idle: {
-                on: {
-                  SELECT: [
-                    { target: "stripe", cond: "isStripe" }
-                    // ---
-                    // TODO: add other payment checks and actions
-                    // ---
-                    // For all other payment methods that DONT require a sub machine
-                    // { target: "#valid" }
-                  ]
-                }
-              },
-
-              // ---
-              stripe: {
-                id: "stripe",
-                invoke: {
-                  src: "stripeMachine",
-                  onDone: {
-                    target: "#complete"
-                  },
-                  onError: {
-                    target: "#error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              }
-              // ---
-              // TODO: add other payment methods/machines state nodes
-            }
-          }
-        }
-      },
-
-      processing: {
-        entry: ["clearError"],
-
-        invoke: {
-          src: "update",
-          onDone: {
-            target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
-          },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
-      },
-
-      processed: {
-        id: "processed",
-        after: {
-          wait: {
-            target: "complete"
-          }
-        }
+        id: "valid"
       },
 
       complete: {
@@ -180,11 +161,11 @@ export default createMachine(
     },
     on: {
       CLEAR: {
-        target: "checking",
+        target: "#checking",
         actions: ["clearModel", "setDirty"]
       },
       SET: {
-        target: "checking",
+        target: "#checking",
         actions: ["setModel", "setDirty"]
       },
 
@@ -277,7 +258,9 @@ export default createMachine(
     },
 
     guards: {
-      needsGateway: ({ model }, _event) => model.type !== PaymentTypes.PAY_LATER
+      needsGateway: ({ model }, _event) =>
+        model.type !== PaymentTypes.PAY_LATER,
+      noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER
     },
 
     delays: {

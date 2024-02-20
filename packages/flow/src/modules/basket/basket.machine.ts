@@ -463,7 +463,7 @@ export default createMachine(
             // The processing state will then run its process and when complete will return the completed order
             on: {
               CHECKOUT: {
-                actions: sendTo("payment_details", { type: "CHECKOUT" }) //TODO: add suitable guards
+                actions: "checkoutActors"
               }
             }
           },
@@ -549,7 +549,7 @@ export default createMachine(
         }
       }),
 
-      refreshActors: pure(({ basket, actors }) => {
+      refreshActors: pure(({ basket, actors }: BasketContext) => {
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "REFRESH", data: basket });
@@ -557,13 +557,18 @@ export default createMachine(
         });
       }),
 
-      updateActors: pure(({ actors }) => {
+      updateActors: pure(({ actors }: BasketContext) => {
         debugger;
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "UPDATE" });
           }
         });
+      }),
+
+      checkoutActors: pure(({ actors }: BasketContext) => {
+        // for Now  only the payment details is affected by checkout
+        actors?.payment_details?.send({ type: "CHECKOUT" });
       }),
 
       // --- Configuring Items Actions

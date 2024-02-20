@@ -1,33 +1,20 @@
 // --- external
 
 // --- internal
-import { PaymentTypes, GatewayTypes } from "./services";
+import { PaymentTypes } from "./services";
 
 // --- utils
-import {
-  find,
-  get,
-  map,
-  set,
-  reduce,
-  defaultsDeep,
-  merge,
-  concat,
-  isEmpty,
-  isArray,
-  first
-} from "lodash-es";
+import { defaultsDeep, get, map, reduce, set } from "lodash-es";
 
 // --- types
-import type { IPaymentDetail, PaymentDetailsContext } from "./types";
+import type { IPaymentDetail, PaymentDetailsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
 export const useSchema = ({
   payment_types,
-  gateways,
-  model
+  gateways
 }: PaymentDetailsContext) => {
   const schema = {
     type: "object",
@@ -48,7 +35,24 @@ export const useSchema = ({
           const: value,
           title: key
         }))
+      },
+      gateway_id: {
+        type: ["string", "null"],
+        title: "Select a payment method",
+        oneOf: map(gateways, ({ gateway_id, gateway }) => ({
+          const: gateway_id,
+          title: gateway.name
+        }))
       }
+    },
+
+    if: {
+      properties: {
+        type: { const: PaymentTypes.PAY_IN_FULL }
+      }
+    },
+    then: {
+      required: ["gateway_id"]
     }
   };
 
@@ -76,6 +80,20 @@ export const useUischema = ({ currency }: PaymentDetailsContext) => {
         options: {
           format: "radio"
         }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/gateway_id",
+        options: {
+          format: "radio"
+        },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/type",
+            schema: { const: PaymentTypes.PAY_IN_FULL }
+          }
+        }
       }
     ]
   };
@@ -97,15 +115,4 @@ export const useModelParser = (schema: JsonSchema, values: IPaymentDetail) => {
   );
 
   return defaultsDeep(model, values) as IPaymentDetail;
-};
-
-// --------------------------------------------------------
-
-export const useInvoiceParser = (data: any) => {
-  data = get(data, "data", data); // handle the reponse types from the api
-  data = isArray(data) ? first(data) : data; // usually from the claims endpoint
-
-  // TODO:...map properly...
-
-  return data;
 };
