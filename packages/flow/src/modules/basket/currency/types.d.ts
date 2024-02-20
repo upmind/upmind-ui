@@ -21,7 +21,7 @@ export interface CurrencyContext {
   model?: ICurrency;
   baseModel?: ICurrency;
   // ---
-  dirty: Boolean;
+  dirty?: Boolean;
   error?: RequestError;
 }
 

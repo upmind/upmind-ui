@@ -151,11 +151,24 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
+      },
+      REFRESH: {
+        target: "checking",
+        actions: ["refreshContext", "setSchemas"]
       }
     }
   },
   {
     actions: {
+      refreshContext: assign(
+        (_context: CurrencyContext, { data: basket }: CurrencyEvent) => {
+          return {
+            basket_id: basket?.id,
+            model: basket?.currency
+          };
+        }
+      ),
+
       setContext: assign(
         (_context: CurrencyContext, { data }: CurrencyEvent) => data
       ),

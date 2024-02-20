@@ -7,11 +7,11 @@ import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 // --- utils
 import {
+  contextActor,
   contextMatches,
   contextValue,
   machineMatches,
   stateMatches,
-  useChildActor,
   useContext,
   useContextActor,
   useState
@@ -34,12 +34,15 @@ export const useBasket = () => {
   // Actors
   // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
+  const actors = computed(() => ({
+    customFields: contextActor(state, "actors.custom_fields"),
+    paymentDetails: contextActor(state, "actors.payment_details"),
+    billingDetails: contextActor(state, "actors.billing_details"),
+    currency: contextActor(state, "actors.currency"),
+    promotions: contextActor(state, "actors.promotions")
+  }));
 
-  const customFields = useChildActor(state, "custom_fields");
-  const paymentDetails = useChildActor(state, "payment_details");
-  const billingDetails = useChildActor(state, "billing_details");
-  const currency = useChildActor(state, "currency");
-  const promotions = useChildActor(state, "promotions");
+  debugger;
   // --------------------------------------------------------
 
   return {
@@ -52,27 +55,27 @@ export const useBasket = () => {
       return {
         isLoading:
           stateMatches(state, ["loading"]) ||
-          machineMatches(currency, ["loading"]) ||
-          machineMatches(customFields, ["loading"]) ||
-          machineMatches(paymentDetails, ["loading"]) ||
-          machineMatches(billingDetails, ["loading"]) ||
-          machineMatches(promotions, ["loading"]),
+          machineMatches(actors.value.currency, ["loading"]) ||
+          machineMatches(actors.value.customFields, ["loading"]) ||
+          machineMatches(actors.value.paymentDetails, ["loading"]) ||
+          machineMatches(actors.value.billingDetails, ["loading"]) ||
+          machineMatches(actors.value.promotions, ["loading"]),
 
         isProcessing:
           stateMatches(state, ["refreshing"]) ||
           stateMatches(state, ["shopping.items.processing"]) ||
-          machineMatches(currency, ["processing"]) ||
-          machineMatches(customFields, ["processing"]) ||
-          machineMatches(paymentDetails, ["processing"]) ||
-          machineMatches(billingDetails, ["processing"]) ||
-          machineMatches(promotions, ["processing"]),
+          machineMatches(actors.value.currency, ["processing"]) ||
+          machineMatches(actors.value.customFields, ["processing"]) ||
+          machineMatches(actors.value.paymentDetails, ["processing"]) ||
+          machineMatches(actors.value.billingDetails, ["processing"]) ||
+          machineMatches(actors.value.promotions, ["processing"]),
 
         needsUpdating:
-          machineMatches(currency, ["valid"]) ||
-          machineMatches(customFields, ["valid"]) ||
-          machineMatches(paymentDetails, ["valid"]) ||
-          machineMatches(billingDetails, ["valid"]) ||
-          machineMatches(promotions, ["valid"]) ||
+          machineMatches(actors.value.currency, ["valid"]) ||
+          machineMatches(actors.value.customFields, ["valid"]) ||
+          machineMatches(actors.value.paymentDetails, ["valid"]) ||
+          machineMatches(actors.value.billingDetails, ["valid"]) ||
+          machineMatches(actors.value.promotions, ["valid"]) ||
           (stateMatches(state, ["shopping.items.configuring"]) &&
             some(
               contextValue(state, "items"),
@@ -84,7 +87,7 @@ export const useBasket = () => {
         // ---
 
         isAvailable:
-          stateMatches(state, ["shopping"]) &&
+          stateMatches(state, ["shopping", "refreshing", "checkout"]) &&
           !stateMatches(state, ["shopping.items.empty"]),
 
         needsAuth: !stateMatches(state, ["shopping.account.authenticated"]),
@@ -94,33 +97,28 @@ export const useBasket = () => {
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
-        hasPromotions: machineMatches(promotions, ["complete"]),
+        hasPromotions: machineMatches(actors.value.promotions, ["complete"]),
 
-        hasBillingDetails: machineMatches(billingDetails, ["complete"]),
+        hasBillingDetails: machineMatches(actors.value.billingDetails, [
+          "complete"
+        ]),
 
-        hasCurrency: machineMatches(currency, ["complete"]),
+        hasCurrency: machineMatches(actors.value.currency, ["complete"]),
 
-        hasPaymentDetails: machineMatches(paymentDetails, [
+        hasPaymentDetails: machineMatches(actors.value.paymentDetails, [
           "complete",
           "valid",
           "processing"
         ]),
 
-        hasFields: machineMatches(customFields, ["complete"]),
+        hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
         hasAccount: stateMatches(state, ["shopping.account.authenticated"]),
 
         // ---
 
-        isReadyForCheckout:
-          stateMatches(state, ["shopping.items.complete"]) &&
-          machineMatches(currency, ["complete"]) &&
-          machineMatches(customFields, ["complete"]) &&
-          machineMatches(billingDetails, ["complete"]) &&
-          machineMatches(promotions, ["complete"]) &&
-          machineMatches(paymentDetails, ["valid"]), // NB payment details are the last thing that needs to be valid
-
-        isCheckout: stateMatches(state, ["checkout"]),
+        isReadyForCheckout: stateMatches(state, ["checkout.available"]),
+        isCheckout: stateMatches(state, ["checkout.processing"]),
         isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:
@@ -129,8 +127,8 @@ export const useBasket = () => {
             "shopping.promotions.error",
             "shopping.account.error"
           ]) ||
-          machineMatches(customFields, ["error"]) ||
-          machineMatches(paymentDetails, ["error"]) ||
+          machineMatches(actors.value.customFields, ["error"]) ||
+          machineMatches(actors.value.paymentDetails, ["error"]) ||
           !!useContext(state, "error")
       };
     }),
@@ -143,20 +141,14 @@ export const useBasket = () => {
     taxes: useContext(state, "basket.taxes", []),
     currency: useContext(state, "basket.currency", []),
     // ---
-    actors: computed(() => ({
-      currency: currency.value,
-      customFields: customFields.value,
-      paymentDetails: paymentDetails.value,
-      promotions: promotions.value,
-      billingDetails: billingDetails.value
-    })),
+    actors,
     // ---
     updateBasket: () => send({ type: "UPDATE" }),
     clearBasket: () => send({ type: "CLEAR" }),
     clearErrors: () => send({ type: "CLEAR.ERRORS" }),
-
+    checkout: () => send({ type: "CHECKOUT" }),
     // ---
-    // Methods
+    // Item Methods
 
     addProduct: ({ id, product_id, quantity, term, attributes, options }) => {
       // const { product_id, quantity, term, attributes, options } = unref(model);
@@ -187,21 +179,6 @@ export const useBasket = () => {
       send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
 
     updateProvisioning: ({ itemId, provision_fields }) =>
-      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
-
-    checkout: () => {
-      // safety check, lets make sure everything is ready
-      // this SHOULD live in the machine, but we can do it here for now
-      if (
-        stateMatches(state, ["shopping.items.complete"]) &&
-        machineMatches(currency, ["complete"]) &&
-        machineMatches(customFields, ["complete"]) &&
-        machineMatches(billingDetails, ["complete"]) &&
-        machineMatches(promotions, ["complete"]) &&
-        machineMatches(paymentDetails, ["valid"])
-      ) {
-        paymentDetails.value.send({ type: "CONVERT" });
-      }
-    }
+      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } })
   };
 };

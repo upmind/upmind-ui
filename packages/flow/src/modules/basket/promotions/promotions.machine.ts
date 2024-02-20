@@ -169,11 +169,25 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
+      },
+
+      REFRESH: {
+        target: "checking",
+        actions: ["refreshContext", "setSchemas"]
       }
     }
   },
   {
     actions: {
+      refreshContext: assign(
+        (_context: PromotionsContext, { data: basket }: PromotionsEvent) => {
+          return {
+            basket_id: basket?.id,
+            promotions: basket?.promotions
+          };
+        }
+      ),
+
       setContext: assign(
         (_context: PromotionsContext, { data }: PromotionsEvent) => data
       ),

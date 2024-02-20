@@ -1,16 +1,16 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand, BrandConfigKeys } from "../../";
+import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
 const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
-import { useValidation } from "../../../utils";
+import { useValidation } from "../../utils";
 import { useInvoiceParser } from "./utils";
 import { unset, get, sortBy } from "lodash-es";
 
 // --- types
-import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
+import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -120,24 +120,6 @@ async function load(
 
 // --------------------------------------------------------
 
-async function convert(
-  { basket_id, model }: PaymentDetailsContext,
-  _event: PaymentDetailsEvent
-) {
-  const { patch, useUrl } = useApi();
-
-  // this will return an array of the users baskets, ordered by most recent
-  // but the response basket does not contain the products, so we need to
-  // request the basket by id to get the products?
-  return patch({
-    url: useUrl(`/orders/${basket_id}/convert`),
-    withAccessToken: true,
-    data: model
-  }).then(useInvoiceParser);
-}
-
-// --------------------------------------------------------
-
 async function parse(
   { model }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
@@ -178,7 +160,6 @@ export default {
   load,
   parse,
   validate,
-  convert,
   // ---
   authSubscription,
   isAuthenticated

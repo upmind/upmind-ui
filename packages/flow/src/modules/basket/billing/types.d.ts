@@ -17,14 +17,12 @@ export interface IBillingDetail {
 
 export interface BillingDetailsContext {
   basket_id?: string;
-  address_id?: string;
-  company_id?: string;
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IBillingDetail;
   // ---
-  dirty: Boolean;
+  dirty?: Boolean;
   error?: RequestError;
 }
 

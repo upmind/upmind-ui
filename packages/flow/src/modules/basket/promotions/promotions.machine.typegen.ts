@@ -67,6 +67,7 @@ export interface Typegen0 {
     clearError:
       | "ADD"
       | "CLEAR"
+      | "REFRESH"
       | "REMOVE"
       | "SET"
       | "UNAUTHENTICATED"
@@ -74,6 +75,7 @@ export interface Typegen0 {
       | "xstate.init";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
+    refreshContext: "REFRESH";
     setContext:
       | "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]"
       | "done.invoke.basketPromotionsManager.loading:invocation[0]";
@@ -95,6 +97,7 @@ export interface Typegen0 {
       | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
       | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     setSchemas:
+      | "REFRESH"
       | "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]"
       | "done.invoke.basketPromotionsManager.loading:invocation[0]";
   };
@@ -108,8 +111,14 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     add: "ADD" | "REMOVE" | "UPDATE";
-    load: "CLEAR" | "REMOVE" | "SET" | "UNAUTHENTICATED" | "xstate.init";
-    parse: "CLEAR" | "SET";
+    load:
+      | "CLEAR"
+      | "REFRESH"
+      | "REMOVE"
+      | "SET"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
+    parse: "CLEAR" | "REFRESH" | "SET";
     remove: "REMOVE";
     validate: "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]";
   };

@@ -5,7 +5,7 @@ import { useApi, useBrand } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { find, set } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 import type { CurrencyEvent, CurrencyContext } from "./types";

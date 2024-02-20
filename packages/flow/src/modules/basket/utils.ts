@@ -3,6 +3,11 @@ import { spawn } from "xstate";
 
 // --- internal
 import configurationMachine from "../product/product.machine";
+import paymentDetailsMachine from "../paymentDetails/details.machine";
+import customFieldsMachine from "./fields/fields.machine";
+import promotionsMachine from "./promotions/promotions.machine";
+import currencyMachine from "./currency/currency.machine";
+import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
 import { first, get, isArray, reduce, set } from "lodash-es";
@@ -31,6 +36,64 @@ export function spawnConfiguration(
     });
   }
 }
+
+export function spawnBillingDetails(basket: IBasket) {
+  return spawn(
+    billingDetailsMachine.withContext({
+      basket_id: basket?.id,
+      model: {
+        address_id: basket?.address_id,
+        company_id: basket?.company_id
+      }
+    }),
+    { name: "billingDetails", sync: true }
+  );
+}
+
+export function spawnCurrency(basket: IBasket) {
+  return spawn(
+    currencyMachine.withContext({
+      basket_id: basket?.id,
+      model: { id: basket?.currency_id }
+    }),
+    { name: "currency", sync: true }
+  );
+}
+
+export function spawnCustomFields(basket: IBasket) {
+  return spawn(
+    customFieldsMachine.withContext({
+      basket_id: basket?.id,
+      model: useBasketFieldsModelParser(basket)
+    }),
+    { name: "customFields", sync: true }
+  );
+}
+
+export function spawnPaymentDetails(basket: IBasket) {
+  return spawn(
+    paymentDetailsMachine.withContext({
+      basket_id: basket?.id,
+      currency: basket?.currency,
+      model: {
+        amount: basket?.unpaid_amount_converted || 0.0
+      }
+    }),
+    { name: "paymentDetails", sync: true }
+  );
+}
+
+export function spawnPromotions(basket: IBasket) {
+  return spawn(
+    promotionsMachine.withContext({
+      basket_id: basket?.id,
+      promotions: basket?.promotions
+    }),
+    { name: "promotions", sync: true }
+  );
+}
+
+// --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
   data = get(data, "data", data); // handle the reponse types from the api

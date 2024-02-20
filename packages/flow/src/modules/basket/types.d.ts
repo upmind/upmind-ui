@@ -8,11 +8,19 @@
 
 export interface BasketContext {
   basket?: Basket;
-  items?: Array;
+  items?: Array; // Array of actors
   bin?: Array;
   queue?: Array;
   error?: RequestError;
   summary?: Object;
+  // --- SPAWNED ACTORS/MACHINES
+  actors: {
+    billing_details?: Object;
+    currency?: Object;
+    custom_fields?: Object;
+    payment_details?: Object;
+    promotions?: Object;
+  };
 }
 
 export interface Basket {
@@ -90,7 +98,7 @@ export interface Basket {
 // --------------------------------------------------------
 // Events
 
-export interface BasketEvents {
+export interface BasketEvent {
   type: "CHECK" | "REFRESH";
   data?: IBasket;
   error?: RequestError;

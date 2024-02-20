@@ -3,7 +3,7 @@
 // --- internal
 import { useApi } from "../api";
 
-import type { BasketContext } from "./types.d";
+import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 import type { Token } from "../session/types.d";
 const { authSubscription, getHistory, isAuthenticated } = useSession();
@@ -50,7 +50,7 @@ export enum InvoiceStatus {
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function load(_context?: BasketContext, _event?: any) {
+async function load(_context?: BasketContext, _event?: BasketEvent) {
   const { get, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
@@ -90,7 +90,7 @@ async function load(_context?: BasketContext, _event?: any) {
 }
 
 // this generates an empty basket!
-async function generate({ basket }: BasketContext, _event: any) {
+async function generate({ basket }: BasketContext, _event: BasketEvent) {
   // safety check, if we have a basket, we dont need to generate one
   if (!isEmpty(basket)) return Promise.resolve(basket);
 
@@ -107,7 +107,7 @@ async function generate({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function claim({ basket }: BasketContext, _event: any) {
+async function claim({ basket }: BasketContext, _event: BasketEvent) {
   if (isEmpty(basket)) return Promise.resolve();
 
   const { patch, useUrl } = useApi();
@@ -126,7 +126,7 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function update({ basket, items }: BasketContext, _event: any) {
+async function update({ basket, items }: BasketContext, _event: BasketEvent) {
   const { put, useUrl } = useApi();
 
   const validItems = filter(items, item => item.state.matches("configured"));
@@ -147,7 +147,7 @@ async function update({ basket, items }: BasketContext, _event: any) {
     });
 }
 
-async function refresh({ basket, items }: BasketContext, { data }: any) {
+async function refresh({ basket, items }: BasketContext, _event: BasketEvent) {
   const validItems = reject(items, item => item.state.context.isNew);
 
   // get returns a promise so we can pass it directly back to the machine
@@ -169,6 +169,19 @@ async function refresh({ basket, items }: BasketContext, { data }: any) {
     });
 }
 
+async function convert({ basket }: BasketContext, { data }: BasketEvent) {
+  const { patch, useUrl } = useApi();
+
+  // this will return an array of the users baskets, ordered by most recent
+  // but the response basket does not contain the products, so we need to
+  // request the basket by id to get the products?
+  return patch({
+    url: useUrl(`/orders/${basket.id}/convert`),
+    withAccessToken: true,
+    data
+  }).then(useBasketParser);
+}
+
 // --------------------------------------------------------
 
 // --- Basket Item Methods
@@ -177,7 +190,7 @@ async function refresh({ basket, items }: BasketContext, { data }: any) {
 // to achieve this we simply take the 1st  item and process it
 // and then return the  new basket AND the internal id/machine of the item that was processed
 
-async function updateItem({ basket, items, queue }, { data }: any) {
+async function updateItem({ basket, items, queue }, { data }: BasketEvent) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = find(queue, ["id", data.itemId]);
@@ -273,7 +286,10 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
   });
 }
 
-async function removeItem({ basket, bin }: BasketContext, { data }: any) {
+async function removeItem(
+  { basket, bin }: BasketContext,
+  { data }: BasketEvent
+) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = find(bin, ["id", data.itemId]);
@@ -289,7 +305,7 @@ async function removeItem({ basket, bin }: BasketContext, { data }: any) {
   }).then(({ data }) => ({ basket: data, itemId: item.id }));
 }
 
-async function getProvisioningFieldsValues(basket: any) {
+async function getProvisioningFieldsValues(basket: BasketEvent) {
   const { get, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
@@ -334,6 +350,7 @@ export default {
   claim,
   update,
   refresh,
+  convert,
   // ---
   updateItem,
   removeItem,

@@ -54,6 +54,7 @@ export interface Typegen0 {
     clearDirty: "done.invoke.billingDetailsManager.processing:invocation[0]";
     clearError:
       | "CLEAR"
+      | "REFRESH"
       | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
@@ -62,6 +63,7 @@ export interface Typegen0 {
       | "xstate.init";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
+    refreshContext: "REFRESH";
     setContext:
       | "done.invoke.billingDetailsManager.checking.parsing:invocation[0]"
       | "done.invoke.billingDetailsManager.loading:invocation[0]";
@@ -78,6 +80,7 @@ export interface Typegen0 {
       | "SET"
       | "done.invoke.billingDetailsManager.processing:invocation[0]";
     setSchemas:
+      | "REFRESH"
       | "done.invoke.billingDetailsManager.checking.parsing:invocation[0]"
       | "done.invoke.billingDetailsManager.loading:invocation[0]";
   };
@@ -88,9 +91,10 @@ export interface Typegen0 {
     isDirty: "done.invoke.billingDetailsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {
-    load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
+    load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.billingDetailsManager.loading:invocation[0]";
     update: "RETRY" | "UPDATE";
