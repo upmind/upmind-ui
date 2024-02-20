@@ -42,7 +42,6 @@ export const useBasket = () => {
     promotions: contextActor(state, "actors.promotions")
   }));
 
-  debugger;
   // --------------------------------------------------------
 
   return {
@@ -90,10 +89,16 @@ export const useBasket = () => {
           stateMatches(state, ["shopping", "refreshing", "checkout"]) &&
           !stateMatches(state, ["shopping.items.empty"]),
 
-        needsAuth: !stateMatches(state, ["shopping.account.complete"]),
+        needsAuth: !stateMatches(state, [
+          "shopping.account.complete",
+          "checkout"
+        ]),
 
         // ---
-        hasProducts: stateMatches(state, ["shopping.items.complete"]),
+        hasProducts: stateMatches(state, [
+          "shopping.items.complete",
+          "checkout"
+        ]),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
