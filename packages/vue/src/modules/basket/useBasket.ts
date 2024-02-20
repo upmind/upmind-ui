@@ -61,8 +61,11 @@ export const useBasket = () => {
           machineMatches(actors.value.promotions, ["loading"]),
 
         isProcessing:
-          stateMatches(state, ["refreshing"]) ||
-          stateMatches(state, ["shopping.items.processing"]) ||
+          stateMatches(state, [
+            "refreshing",
+            "generating",
+            "shopping.items.processing"
+          ]) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
           machineMatches(actors.value.paymentDetails, ["processing"]) ||
