@@ -3,11 +3,73 @@
 // --- internal
 
 // --- utils
-import { reduce, includes, find } from "lodash-es";
+import { reduce, includes, find, defaultsDeep, get, set } from "lodash-es";
 
 // --- types
+import type { StripeContext } from "./types.d";
 import type { IGateway } from "../../../payment/types";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+
+// --------------------------------------------------------
+
+export const useSchema = (_context: StripeContext) => {
+  const schema = {
+    type: "object",
+    title: "Payment Gateway Options",
+    required: [],
+    properties: {
+      save: {
+        type: "boolean",
+        title: "Save Payment Details",
+        default: false // todo use brand settings
+      },
+      autopay: {
+        type: "boolean",
+        title: "Auto Pay",
+        default: false // todo use brand settings
+      }
+    }
+  };
+
+  return schema;
+};
+
+// --------------------------------------------------------
+
+export const useUischema = (_context: StripeContext) => {
+  const uischema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/save"
+      },
+      {
+        type: "Control",
+        scope: "#/properties/autopay"
+      }
+    ]
+  };
+
+  return uischema as UISchemaElement;
+};
+
+// --------------------------------------------------------
+
+export const useModelParser = (schema: JsonSchema, values) => {
+  const model = reduce(
+    schema?.properties,
+    (result, field, key) => {
+      const value = get(values, key, field?.const || field?.default);
+      set(result, key, value);
+      return result;
+    },
+    {}
+  );
+
+  return defaultsDeep(model, values);
+};
 
 // --------------------------------------------------------
 

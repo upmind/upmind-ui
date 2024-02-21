@@ -16,24 +16,20 @@ import type { GatewayContext } from "../../types";
 // --------------------------------------------------------
 // Contexts
 
-export interface StripeContext {
-  stripe?: any;
-  elements?: any;
-  element?: any;
-  renderer?: Function;
+export interface GenericContext {
   // ---
-  gateway?: IGateway;
-  ctx?: GatewayContext;
-  amount?: number;
-  currency?: ICurrency;
-  type?: GatewayTypes;
+  gateway: IGateway;
+  ctx: GatewayContext;
+  amount: number;
+  currency: ICurrency;
+  type: GatewayTypes;
 
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IBillingDetail;
   // --- Output
-  paymentDetails?: any; // will contain the response from Stripe, as wel las any model data
+  paymentDetails?: any; // will contain the response from Generic, as wel las any model data
   // ---
   error?: RequestError;
 }
@@ -41,7 +37,7 @@ export interface StripeContext {
 // --------------------------------------------------------
 // Events
 
-export interface StripeEvent {
+export interface GenericEvent {
   type: "CHECKOUT";
   data?: any;
   error?: RequestError;

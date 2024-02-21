@@ -3,6 +3,11 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "done.invoke.stripePaymentManager.checking.parsing:invocation[0]": {
+      type: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.stripePaymentManager.loading.addElement:invocation[0]": {
       type: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
       data: unknown;
@@ -28,6 +33,10 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "error.platform.stripePaymentManager.checking.validating:invocation[0]": {
+      type: "error.platform.stripePaymentManager.checking.validating:invocation[0]";
+      data: unknown;
+    };
     "error.platform.stripePaymentManager.loading.addElement:invocation[0]": {
       type: "error.platform.stripePaymentManager.loading.addElement:invocation[0]";
       data: unknown;
@@ -49,6 +58,8 @@ export interface Typegen0 {
     createPaymentElement: "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
     load: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     makePayment: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
+    parse: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
+    validate: "done.invoke.stripePaymentManager.checking.validating:invocation[0]";
   };
   missingImplementations: {
     actions: "set";
@@ -59,17 +70,32 @@ export interface Typegen0 {
       | "createAddElement"
       | "createPaymentElement"
       | "load"
-      | "makePayment";
+      | "makePayment"
+      | "parse"
+      | "validate";
   };
   eventsCausingActions: {
-    clearError: "ADD" | "CHECKOUT" | "PAY" | "RETRY";
-    provideElements: "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+    clearError:
+      | "ADD"
+      | "CHECKOUT"
+      | "CLEAR"
+      | "PAY"
+      | "RETRY"
+      | "SET"
+      | "UNAUTHENTICATED"
+      | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
+      | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+    clearModel: "CLEAR" | "UNAUTHENTICATED";
+    clearSchemas: "UNAUTHENTICATED";
+    providePaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     set: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
     setClientDetails: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
+    setContext: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
     setElements:
       | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
       | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
     setError:
+      | "error.platform.stripePaymentManager.checking.validating:invocation[0]"
       | "error.platform.stripePaymentManager.loading.addElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.paymentElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.stripe:invocation[0]";
@@ -80,7 +106,9 @@ export interface Typegen0 {
     setFeedbackSuccess:
       | "done.invoke.stripePaymentManager.processing.adding:invocation[0]"
       | "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
-    setPaymentData: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
+    setModel: "SET";
+    setPaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
+    setSchemas: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
     setStripeInstance: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
   };
   eventsCausingDelays: {
@@ -96,13 +124,22 @@ export interface Typegen0 {
     confirmSetup: "ADD";
     createAddElement: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     createPaymentElement: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
-    load: "xstate.init";
+    load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     makePayment: "CHECKOUT" | "PAY";
+    parse:
+      | "CLEAR"
+      | "SET"
+      | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
+      | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+    validate: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
   };
   matchesStates:
+    | "checking"
+    | "checking.parsing"
+    | "checking.validating"
     | "complete"
     | "error"
-    | "idle"
+    | "invalid"
     | "loading"
     | "loading.addElement"
     | "loading.paymentElement"
@@ -111,7 +148,9 @@ export interface Typegen0 {
     | "processing"
     | "processing.adding"
     | "processing.payment"
+    | "valid"
     | {
+        checking?: "parsing" | "validating";
         loading?: "addElement" | "paymentElement" | "stripe";
         processing?: "adding" | "payment";
       };

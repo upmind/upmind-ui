@@ -208,12 +208,22 @@ export interface Typegen0 {
     someConfiguring: "";
   };
   eventsCausingServices: {
-    authSubscription: "UNAUTHENTICATED" | "xstate.init";
+    authSubscription:
+      | "ADD"
+      | "CLEAR"
+      | "REFRESH"
+      | "REMOVE"
+      | "UNAUTHENTICATED"
+      | "UPDATE"
+      | "xstate.init";
     claim: "AUTHENTICATED";
     convert: "" | "PAYMENT_DETAILS";
     generate: "ADD";
     isAuthenticated:
       | ""
+      | "CLEAR"
+      | "REMOVE"
+      | "UPDATE"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";

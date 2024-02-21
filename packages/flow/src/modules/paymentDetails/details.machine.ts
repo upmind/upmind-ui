@@ -1,25 +1,21 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, sendParent, pure } from "xstate";
 
 // --- internal
-import stripeMachine from "./gateways/stripe/stripe.machine";
 import services from "./services";
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 import { responseCodes } from "../api";
 
+import { spawnGateway } from "./utils";
+
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
-import { find } from "lodash-es";
+import { set, unset } from "lodash-es";
 
 // --- types
-import {
-  GatewayContext,
-  GatewayProviderCodes,
-  GatewayTypes,
-  PaymentTypes
-} from "./types.d";
+import { PaymentTypes } from "./types.d";
 
 import type {
   PaymentDetailsContext,
@@ -41,7 +37,10 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      dirty: false,
+      actors: {
+        gateway: undefined
+      },
+      // ---
       error: null
     } as PaymentDetailsContext,
     states: {
@@ -91,53 +90,17 @@ export default createMachine(
 
       valid: {
         id: "valid",
-        initial: "gateway",
-        entry: ["clearError", "clearElementToMount"],
-        states: {
-          gateway: {
-            always: [
-              { target: "stripe", cond: "isStripe" },
-              { target: "complete" } // catchall if theres no matching gateway
-            ]
-          },
+        on: {
+          CHECKOUT: { actions: "forwardCheckout", target: "processing" }
+        }
+      },
 
-          // ---
-          stripe: {
-            id: "stripe",
-            invoke: {
-              src: stripeMachine,
-              autoForward: true,
-              data: (
-                { gateway, model, currency }: PaymentDetailsContext,
-                _event
-              ) => ({
-                gateway,
-                ctx: GatewayContext.PAY,
-                amount: model?.amount || 0,
-                currency,
-                type: GatewayTypes.CARD
-              }),
-
-              onDone: {
-                target: "#complete",
-                actions: ["setPaymentDetails", "providePaymentDetails"]
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            },
-            on: {
-              MOUNT: {
-                actions: ["setElementToMount"]
-              }
-            }
-          },
-          // ---
-          // TODO: add other payment methods/machines state nodes
-          // ---
-          complete: {
-            type: "final"
+      processing: {
+        // ths is the return from the gateway
+        on: {
+          PAYMENT_DETAILS: {
+            target: "complete",
+            actions: ["setPaymentDetails", "providePaymentDetails"]
           }
         }
       },
@@ -157,11 +120,11 @@ export default createMachine(
     on: {
       CLEAR: {
         target: "#checking",
-        actions: ["clearModel", "setDirty"]
+        actions: ["clearModel"]
       },
       SET: {
         target: "#checking",
-        actions: ["setModel", "setDirty"]
+        actions: ["setModel"]
       },
 
       UNAUTHENTICATED: {
@@ -188,7 +151,32 @@ export default createMachine(
       ),
 
       setContext: assign(
-        (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
+        (
+          { currency }: PaymentDetailsContext,
+          { data }: PaymentDetailsEvent
+        ) => {
+          // if we are provided a gateway,
+          // lets spawn it if it doesnt exist or if it is different
+          // otherwise stop the old one if it exists
+          // THIS HAS TO BE DONE IN AN ASSIGN!
+
+          if (!data?.gateway) {
+            if (data?.actors?.gateway)
+              !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
+            unset(data, "actors.gateway");
+          } else if (data.actors?.gateway?.id != data?.gateway?.id) {
+            if (data?.actors?.gateway)
+              !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
+            const actor = spawnGateway({
+              gateway: data.gateway,
+              amount: data.model?.amount,
+              currency
+            });
+            set(data, "actors.gateway", actor);
+          }
+
+          return data;
+        }
       ),
 
       setSchemas: assign({
@@ -203,30 +191,11 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: (context, { data }) => useModelParser(context, data),
-        gateway: ({ gateways }, { data }) =>
-          find(gateways, { gateway_id: data.gateway_id })?.gateway // we dont need the full brand gateway, just the actual gateway
+        model: (context, { data }) => useModelParser(context, data)
       }),
 
       clearModel: assign({
         model: undefined
-      }),
-
-      setDirty: assign({
-        dirty: true
-      }),
-
-      clearDirty: assign({
-        dirty: false
-      }),
-      // ---
-
-      setElementToMount: assign({
-        mount: (_context, { data }) => data
-      }),
-
-      clearElementToMount: assign({
-        mount: undefined
       }),
 
       // ---
@@ -242,10 +211,11 @@ export default createMachine(
 
       // ---
 
-      provideElements: sendParent(({ element }) => ({
-        type: "MOUNT",
-        data: element
-      })),
+      // ---
+
+      forwardCheckout: pure((_context, { data: { actors } }) => {
+        actors?.gateway?.send({ type: "CHECKOUT" });
+      }),
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
@@ -284,13 +254,7 @@ export default createMachine(
     guards: {
       needsGateway: ({ model }, _event) =>
         model.type !== PaymentTypes.PAY_LATER,
-      noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER,
-
-      // --- Gateway guards
-
-      isStripe: ({ gateway }, _event) =>
-        gateway?.gateway_provider?.code === GatewayProviderCodes.STRIPE &&
-        !!gateway?.use_frontend_implementation
+      noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER
     },
 
     delays: {

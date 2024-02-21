@@ -78,7 +78,10 @@ export interface PaymentDetailsContext {
   // ---
   mount?: HTMLElement;
   paymentDetails?: Object; // This is the response from the actual payment gateway
-  gateway?: IGateway;
+  // --- SPAWNED ACTORS/MACHINES
+  actors: {
+    gateway?: Object;
+  };
 
   // ---
   error?: RequestError;

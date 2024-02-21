@@ -8,6 +8,7 @@ const { addError, addSuccess } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser } from "../../../../utils";
+import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
 import type { StripeContext, StripeEvent } from "./types.d";
@@ -22,7 +23,11 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      model: {},
+      gateway: undefined,
+      schema: undefined,
+      uischema: undefined,
+      model: undefined,
+      // ---
       error: null
     } as StripeContext,
     states: {
@@ -54,8 +59,8 @@ export default createMachine(
             invoke: {
               src: "createPaymentElement",
               onDone: {
-                target: "#idle",
-                actions: ["setElements", "provideElements"]
+                target: "#checking",
+                actions: ["setElements"]
               },
               onError: {
                 target: "#error",
@@ -63,11 +68,12 @@ export default createMachine(
               }
             }
           },
+
           addElement: {
             invoke: {
               src: "createAddElement",
               onDone: {
-                target: "#idle",
+                target: "#checking",
                 actions: ["setElements", "setClientDetails"]
               },
               onError: {
@@ -79,8 +85,38 @@ export default createMachine(
         }
       },
 
-      idle: {
-        id: "idle",
+      // ---
+      checking: {
+        entry: ["clearError"],
+        id: "checking",
+        initial: "parsing",
+        states: {
+          parsing: {
+            invoke: {
+              src: "parse",
+              onDone: {
+                target: "validating",
+                actions: ["setContext", "setSchemas"]
+              }
+            }
+          },
+          validating: {
+            invoke: {
+              src: "validate",
+              onDone: { target: "#valid" },
+              onError: {
+                target: "#invalid",
+                actions: ["setError"]
+              }
+            }
+          }
+        }
+      },
+
+      invalid: { id: "invalid" },
+
+      valid: {
+        id: "valid",
         on: {
           CHECKOUT: "processing.payment",
           PAY: "processing.payment",
@@ -96,7 +132,11 @@ export default createMachine(
               src: "makePayment",
               onDone: {
                 target: "#processed",
-                actions: ["setPaymentData", "setFeedbackSuccess"]
+                actions: [
+                  "setPaymentDetails",
+                  "providePaymentDetails",
+                  "setFeedbackSuccess"
+                ]
               }
             }
           },
@@ -137,6 +177,21 @@ export default createMachine(
           }
         }
       }
+    },
+    on: {
+      CLEAR: {
+        target: "#checking",
+        actions: ["clearModel"]
+      },
+      SET: {
+        target: "#checking",
+        actions: ["setModel"]
+      },
+
+      UNAUTHENTICATED: {
+        target: "loading",
+        actions: ["clearError", "clearModel", "clearSchemas"]
+      }
     }
   },
   {
@@ -149,7 +204,13 @@ export default createMachine(
         elements: (_context: StripeContext, { data }: StripeEvent) =>
           data?.elements,
         element: (_context: StripeContext, { data }: StripeEvent) =>
-          data?.element
+          data?.element,
+        renderer: (_context: StripeContext, { data }: StripeEvent) => {
+          function renderer(container: HTMLElement) {
+            data?.element?.mount(container);
+          }
+          return renderer;
+        }
       }),
 
       setClientDetails: assign({
@@ -161,14 +222,38 @@ export default createMachine(
           data?.clientSecret
       }),
 
-      setPaymentData: assign({
+      setContext: assign(
+        (_context: CurrencyContext, { data }: CurrencyEvent) => data
+      ),
+
+      // ---
+      setSchemas: assign({
+        schema: context => useSchema(context),
+        uischema: context => useUischema(context),
+        model: context => useModelParser(context, context.model)
+      }),
+
+      clearSchemas: assign({
+        schema: undefined,
+        uischema: undefined
+      }),
+
+      setModel: assign({
+        model: (context, { data }) => useModelParser(context, data)
+      }),
+
+      clearModel: assign({
+        model: undefined
+      }),
+
+      // ---
+      setPaymentDetails: assign({
         paymentDetails: (_context, { data }) => data
       }),
-      // ---
 
-      provideElements: sendParent(({ element }: StripeContext) => ({
-        type: "MOUNT",
-        data: element
+      providePaymentDetails: sendParent(({ paymentDetails }) => ({
+        type: "PAYMENT_DETAILS",
+        data: paymentDetails
       })),
 
       // ---
