@@ -175,6 +175,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   // this will return an array of the users baskets, ordered by most recent
   // but the response basket does not contain the products, so we need to
   // request the basket by id to get the products?
+  debugger;
   return patch({
     url: useUrl(`/orders/${basket.id}/convert`),
     withAccessToken: true,

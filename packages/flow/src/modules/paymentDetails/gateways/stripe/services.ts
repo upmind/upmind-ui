@@ -2,13 +2,13 @@
 import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
-import { useApi, useSession } from "../api";
+import { useApi, useSession } from "../../../";
 
 // --- utils
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 
 // --- types
-import type { StripeEvents, StripeContext } from "../types";
+import type { StripeEvent, StripeContext } from "./types.d";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -57,9 +57,12 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
 // Invoked by machines, providing context and event data
 async function load(
   { gateway, isPayment, amount, currency }: StripeContext,
-  _event: StripeEvents
+  _event: StripeEvent
 ) {
-  const stripe = await loadStripe(getPublicKey(gateway));
+  const key = getPublicKey(gateway);
+  if (!key) return Promise.reject("Stripe public key not found.");
+
+  const stripe = await loadStripe(key);
 
   return new Promise(resolve => {
     resolve(stripe);
@@ -71,10 +74,9 @@ async function load(
 
 async function createPaymentElement(
   { amount, currency, gateway, stripe }: StripeContext,
-  _event: StripeEvents
+  _event: StripeEvent
 ) {
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
-  debugger;
   const elements = stripe.elements({
     amount: Math.round((amount || 0) * 100), // NB: Stripe expects amount in cents
     currency: currency.code.toLowerCase(), // NB: MUST be lowercase
@@ -84,8 +86,7 @@ async function createPaymentElement(
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
     setupFutureUsage: "off_session"
   });
-
-  const element = response.elements?.create("payment");
+  const element = elements?.create("payment");
 
   return new Promise(resolve => {
     resolve({
@@ -101,7 +102,7 @@ async function createPaymentElement(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function makePayment({ gateway_id, elements, stripe }) {
+async function makePayment({ gateway, elements, stripe }) {
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
   // return Promise.reject($t("_sentence.payments.gateway_elements_not_found"));
@@ -121,7 +122,7 @@ async function makePayment({ gateway_id, elements, stripe }) {
     } else {
       /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
       resolve({
-        gateway_id,
+        gateway_id: gateway.id,
         payment_method_addition: {
           payment_method_type: paymentMethod?.type,
           payment_method_id: paymentMethod?.id
@@ -139,22 +140,20 @@ async function makePayment({ gateway_id, elements, stripe }) {
  * Stripe 'Elements' instance.
  */
 async function createAddElement(
-  { gateway_id, stripe, gateway, isPayment, amount, currency }: StripeContext,
-  _event: StripeEvents
+  { stripe, gateway, isPayment, amount, currency }: StripeContext,
+  _event: StripeEvent
 ) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
   const client_id = await getUserId();
 
   return post({
-    url: useUrl(`gateway/frontend/tokenize-begin/${gateway_id}`),
+    url: useUrl(`gateway/frontend/tokenize-begin/${gateway.id}`),
     withAccessToken: true,
     data: {
       client_id
     }
   }).then(({ data }) => {
-    debugger;
-
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
     debugger;
     const clientPaymentDetailsId = data?.client_payment_details?.id;

@@ -167,7 +167,7 @@ export default createMachine(
           { data: basket }: BillingDetailsEvent
         ) => {
           return {
-            basket_id: basket.id,
+            basket_id: basket?.id,
             model: {
               address_id: basket?.address_id,
               company_id: basket?.company_id

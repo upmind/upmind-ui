@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 
@@ -42,6 +42,8 @@ export const useBasketPaymentDetails = actor => {
     model: useContext(state, "model"),
     schema: useContext(state, "schema"),
     uischema: useContext(state, "uischema"),
+    mount: useContext(state, "mount"),
+    mountedElement: ref(),
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),

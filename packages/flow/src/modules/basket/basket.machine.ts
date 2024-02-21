@@ -464,6 +464,9 @@ export default createMachine(
             on: {
               CHECKOUT: {
                 actions: "checkoutActors"
+              },
+              PAYMENT_DETAILS: {
+                target: "processing"
               }
             }
           },
@@ -484,6 +487,8 @@ export default createMachine(
           }
         }
       },
+
+      // TODO: actual payment node.
 
       // Handle errors
       error: {
@@ -533,19 +538,14 @@ export default createMachine(
       // --- Spawned Actors Actions
       spawnActors: assign({
         actors: ({ actors, basket }: BasketContext) => {
-          // housekeeping...
-          forEach(
-            actors,
-            actor => !actor?.state?.done && actor?.stop && actor?.stop()
-          );
+          // only spawn if we have not already spawned
+          actors.billing_details ??= spawnBillingDetails(basket);
+          actors.currency ??= spawnCurrency(basket);
+          actors.custom_fields ??= spawnCustomFields(basket);
+          actors.payment_details ??= spawnPaymentDetails(basket);
+          actors.promotions ??= spawnPromotions(basket);
 
-          return {
-            billing_details: spawnBillingDetails(basket),
-            currency: spawnCurrency(basket),
-            custom_fields: spawnCustomFields(basket),
-            payment_details: spawnPaymentDetails(basket),
-            promotions: spawnPromotions(basket)
-          };
+          return actors;
         }
       }),
 
@@ -558,7 +558,6 @@ export default createMachine(
       }),
 
       updateActors: pure(({ actors }: BasketContext) => {
-        debugger;
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "UPDATE" });

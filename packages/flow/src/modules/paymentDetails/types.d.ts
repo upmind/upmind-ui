@@ -23,6 +23,7 @@ export interface IWalletCurrencyBalance {
 export interface IPaymentDetail {
   amount: Number;
   type?: PaymentTypes;
+  gateway_id: String;
 }
 
 // --------------------------------------------------------
@@ -41,6 +42,9 @@ export interface PaymentDetailsContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IPaymentDetail;
+  // ---
+  mount?: HTMLElement;
+  paymentDetails?: Object; // This is the response from the actual payment gateway
 
   // ---
   error?: RequestError;
