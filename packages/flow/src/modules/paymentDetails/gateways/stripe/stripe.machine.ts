@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -7,10 +7,10 @@ import { useFeedback } from "../../../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-import { useTime, useValidationParser } from "../../utils";
+import { useTime, useValidationParser } from "../../../../utils";
 
 // --- types
-import type { StripeContext, StripeEvent } from "./types";
+import type { StripeContext, StripeEvent } from "./types.d";
 
 // --------------------------------------------------------
 
@@ -52,7 +52,7 @@ export default createMachine(
               src: "createPaymentElement",
               onDone: {
                 target: "#idle",
-                actions: ["setElements"]
+                actions: ["setElements", "provideElements"]
               },
               onError: {
                 target: "#error",
@@ -79,12 +79,9 @@ export default createMachine(
       idle: {
         id: "idle",
         on: {
-          PAY: {
-            target: "processing.payment"
-          },
-          ADD: {
-            target: "processing.payment_method"
-          }
+          CHECKOUT: "processing.payment",
+          PAY: "processing.payment",
+          ADD: "processing.payment_method"
         }
       },
 
@@ -163,6 +160,12 @@ export default createMachine(
       setPaymentData: assign({
         payment: (_context: StripeContext, { data }: StripeEvent) => data
       }),
+      // ---
+
+      provideElements: sendParent(({ element }: StripeContext) => ({
+        type: "MOUNT",
+        data: element
+      })),
 
       // ---
       setFeedbackSuccess: (_context: StripeContext, _event: StripeEvent) => {
@@ -204,7 +207,7 @@ export default createMachine(
       },
 
       isAddingPaymentMethod: (_context: StripeContext, _event: StripeEvent) => {
-        return true; // TODO: check if we are adding a payment method
+        return false; // TODO: check if we are adding a payment method
       }
     },
 

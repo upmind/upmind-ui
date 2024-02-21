@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import stripeMachine from "./gateways/stripe/stripe.machine";
@@ -9,9 +9,9 @@ const { addError, addSuccess } = useFeedback();
 import { responseCodes } from "../api";
 
 // --- utils
-
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
+import { find } from "lodash-es";
 
 // --- types
 import type {
@@ -19,7 +19,6 @@ import type {
   PaymentDetailsEvent,
   RefreshEvent
 } from "./types.d";
-import { sendTo } from "xstate/lib/actions";
 
 // --------------------------------------------------------
 
@@ -44,7 +43,7 @@ export default createMachine(
         invoke: {
           src: "load",
           onDone: {
-            target: "available",
+            target: "checking",
             actions: ["setContext", "setSchemas"]
           },
           onError: {
@@ -54,103 +53,90 @@ export default createMachine(
         }
       },
       // ---
-
-      available: {
-        id: "available",
-        type: "parallel",
+      checking: {
+        entry: ["clearError"],
+        id: "checking",
+        initial: "parsing",
         states: {
-          details: {
-            initial: "checking",
-            states: {
-              checking: {
-                entry: ["clearError"],
-                id: "checking",
-                initial: "parsing",
-                states: {
-                  parsing: {
-                    invoke: {
-                      src: "parse",
-                      onDone: {
-                        target: "validating",
-                        actions: ["setContext", "setSchemas"]
-                      }
-                    }
-                  },
-                  validating: {
-                    invoke: {
-                      src: "validate",
-                      onDone: { target: "#available.details.valid" },
-                      onError: {
-                        target: "#available.details.invalid",
-                        actions: ["setError"]
-                      }
-                    }
-                  }
-                }
-              },
-              invalid: {},
-              valid: { type: "final" }
+          parsing: {
+            invoke: {
+              src: "parse",
+              onDone: {
+                target: "validating",
+                actions: ["setContext", "setSchemas"]
+              }
+            }
+          },
+          validating: {
+            invoke: {
+              src: "validate",
+              onDone: { target: "#valid" },
+              onError: {
+                target: "#invalid",
+                actions: ["setError"]
+              }
             }
           }
-          // gateway: {
-          //   id: "gateway",
-          //   initial: "checking",
-          //   states: {
-          //     checking: {
-          //       always: [
-          //         { target: "complete", cond: "noGateway" },
-          //         { target: "stripe", cond: "isStripe" },
-          //         { target: "idle" }
-          //       ]
-          //     },
-          //     idle: {
-          //       on: {
-          //         SELECT: [
-          //           { target: "stripe", cond: "isStripe" }
-          //           // ---
-          //           // TODO: add other payment checks and actions
-          //           // ---
-          //           // For all other payment methods that DONT require a sub machine
-          //           // { target: "#valid" }
-          //         ]
-          //       }
-          //     },
-
-          //     // ---
-          //     stripe: {
-          //       id: "stripe",
-          //       invoke: {
-          //         src: stripeMachine,
-          //         autoForward: true,
-          //         onDone: {
-          //           target: "complete"
-          //         },
-          //         onError: {
-          //           target: "#error",
-          //           actions: ["setError", "setFeedbackError"]
-          //         }
-          //       }
-          //     },
-          //     // ---
-          //     // TODO: add other payment methods/machines state nodes
-          //     // ---
-          //     complete: {
-          //       type: "final"
-          //     }
-          //   }
-          // }
-        },
-        onDone: "valid"
+        }
       },
 
+      invalid: { id: "invalid" },
+
       valid: {
-        id: "valid"
+        id: "valid",
+        initial: "gateway",
+        states: {
+          gateway: {
+            always: [
+              { target: "stripe", cond: "isStripe" },
+              { target: "complete" } // catchall if theres no matching gateway
+            ]
+          },
+
+          // ---
+          stripe: {
+            id: "stripe",
+            invoke: {
+              src: stripeMachine,
+              autoForward: true,
+              data: (
+                { gateways, model, currency }: PaymentDetailsContext,
+                _event
+              ) => ({
+                gateway: find(gateways, { gateway_id: model.gateway_id })
+                  ?.gateway, // we dont need the full brand gateway, just the actual gateway
+                isPayment: true,
+                amount: model?.amount || 0,
+                currency
+              }),
+              onDone: {
+                target: "#complete",
+                actions: ["setPaymentDetails", "providePaymentDetails"]
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            },
+            on: {
+              MOUNT: {
+                actions: ["setElementToMount"]
+              }
+            }
+          },
+          // ---
+          // TODO: add other payment methods/machines state nodes
+          // ---
+          complete: {
+            type: "final"
+          }
+        }
       },
 
       complete: {
-        id: "complete"
-        // type: "final"
-        // data: ({ order }, _event) => order
+        id: "complete",
+        type: "final",
+        data: ({ paymentDetails }, _event) => paymentDetails
       },
 
       // ---
@@ -222,6 +208,29 @@ export default createMachine(
       clearDirty: assign({
         dirty: false
       }),
+      // ---
+
+      setElementToMount: assign({
+        mount: (_context, { data }) => data
+      }),
+
+      // ---
+
+      setPaymentDetails: assign({
+        paymentDetails: (_context, { data }) => data
+      }),
+
+      providePaymentDetails: sendParent(({ paymentDetails }) => ({
+        type: "PAYMENT_DETAILS",
+        data: paymentDetails
+      })),
+
+      // ---
+
+      provideElements: sendParent(({ element }) => ({
+        type: "MOUNT",
+        data: element
+      })),
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
@@ -260,7 +269,9 @@ export default createMachine(
     guards: {
       needsGateway: ({ model }, _event) =>
         model.type !== PaymentTypes.PAY_LATER,
-      noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER
+      noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER,
+
+      isStripe: (_context, _event) => true // TODO actual check
     },
 
     delays: {

@@ -62,7 +62,8 @@ export interface Typegen0 {
       | "makePayment";
   };
   eventsCausingActions: {
-    clearError: "ADD" | "PAY" | "RETRY";
+    clearError: "ADD" | "CHECKOUT" | "PAY" | "RETRY";
+    provideElements: "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
     set: "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]";
     setClientDetails: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
     setElements:
@@ -96,7 +97,7 @@ export interface Typegen0 {
     createAddElement: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     createPaymentElement: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     load: "xstate.init";
-    makePayment: "PAY";
+    makePayment: "CHECKOUT" | "PAY";
   };
   matchesStates:
     | "complete"

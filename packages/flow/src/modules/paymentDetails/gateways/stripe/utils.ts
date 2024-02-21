@@ -17,12 +17,10 @@ export function getSupportedPaymentMethods(gateway: IGateway) {
     (result: STRIPE_PAYMENT_METHOD_TYPES[], setting) => {
       result ??= [];
 
-      debugger;
       if (
         includes(["paymentMethodCard", "paymentMethodPayPal"], setting.field) &&
         setting.value === "1"
       ) {
-        debugger;
         switch (setting.field) {
           case "paymentMethodCard":
             result.push(STRIPE_PAYMENT_METHOD_TYPES.CARD);

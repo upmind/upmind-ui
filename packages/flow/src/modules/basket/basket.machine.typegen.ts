@@ -210,7 +210,7 @@ export interface Typegen0 {
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
     claim: "AUTHENTICATED";
-    convert: "";
+    convert: "" | "PAYMENT_DETAILS";
     generate: "ADD";
     isAuthenticated:
       | ""

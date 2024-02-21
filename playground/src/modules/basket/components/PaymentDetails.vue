@@ -39,6 +39,19 @@
           </button>
         </template>
       </upm-form-generator>
+
+      <!-- Mounted Content -->
+      <div v-show="mount" class="card card-compact bg-base-200">
+        <div class="card-body">
+          <div class="navbar px-0 mx-0">
+            <div class="flex-1">
+              <a class="btn btn-ghost text-xl">Payment Details</a>
+            </div>
+            <div class="flex-none"></div>
+          </div>
+          <div ref="mountedElement" class="px-4 mb-6"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -57,6 +70,13 @@ export default defineComponent({
     actor: {
       type: Object, // xstate actor
       required: true
+    }
+  },
+  watch: {
+    mount(element) {
+      if (element) {
+        element?.mount(this.mountedElement as HTMLElement);
+      }
     }
   },
 
