@@ -2,8 +2,11 @@
   <div
     tabindex="0"
     ref="form"
-    class="card card-compact card-bordered bg-base-200"
-    :class="[meta.hasErrors ? ' border-error' : '']"
+    class="card card-compact"
+    :class="[
+      meta.hasErrors ? ' border-error' : '',
+      !meta.isRenderless ? 'bg-base-200 card-bordered' : ''
+    ]"
   >
     <div class="card-body">
       <!-- gateway Render Content (* IF Provided) -->

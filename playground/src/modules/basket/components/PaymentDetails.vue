@@ -43,6 +43,7 @@
       </upm-form-generator>
 
       <upm-payment-details-gateway
+        :key="gateway?.id"
         tabindex="2"
         class="mt-2 col-span-2"
         v-if="gateway"

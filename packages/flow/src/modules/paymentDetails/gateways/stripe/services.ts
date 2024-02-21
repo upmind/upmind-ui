@@ -124,12 +124,7 @@ async function createPaymentElement(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function makePayment({
-  gateway,
-  elements,
-  stripe,
-  model
-}: StripeContext) {
+async function update({ gateway, elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
   // return Promise.reject($t("_sentence.payments.gateway_elements_not_found"));
@@ -149,7 +144,6 @@ async function makePayment({
     if (error) {
       reject(error);
     } else {
-      model ??= {}; // safety check
       // add the payment details to the model
       set(model, "gateway_id", gateway.id);
       set(
@@ -245,5 +239,5 @@ export default {
   // ---
   confirmSetup,
   endSetup,
-  makePayment
+  update
 };

@@ -2,24 +2,23 @@
 import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
-import services from "./services";
-import { useFeedback } from "../../../feedback";
+import services from "./card/services";
+import { useFeedback } from "../../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-import { useTime, useValidationParser } from "../../../../utils";
+import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { StripeContext, StripeEvent } from "./types.d";
-import { GatewayContext } from "../../types.d";
+import type { GatewayContext, GatewayEvent } from "./types";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
-    id: "stripePaymentManager",
+    tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
+    id: "gatewayPaymentManager",
     predictableActionArguments: true,
     initial: "loading",
     context: {
@@ -29,58 +28,15 @@ export default createMachine(
       model: undefined,
       // ---
       error: null
-    } as StripeContext,
+    } as GatewayContext,
     states: {
       loading: {
-        initial: "stripe",
-        states: {
-          stripe: {
-            invoke: {
-              src: "load",
-              onDone: [
-                {
-                  target: "addElement",
-                  actions: ["setStripeInstance"],
-                  cond: "isAdding"
-                },
-                {
-                  target: "paymentElement",
-                  actions: ["setStripeInstance"]
-                  // cond: "isPaying"
-                }
-              ],
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          },
-          paymentElement: {
-            invoke: {
-              src: "createPaymentElement",
-              onDone: {
-                target: "#checking",
-                actions: ["setElements"]
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          },
-
-          addElement: {
-            invoke: {
-              src: "createAddElement",
-              onDone: {
-                target: "#checking",
-                actions: ["setElements", "setClientDetails"]
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+        invoke: {
+          src: "load",
+          onDone: { target: "checking" },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError"]
           }
         }
       },
@@ -118,36 +74,22 @@ export default createMachine(
       valid: {
         id: "valid",
         on: {
-          CHECKOUT: "processing.payment",
-          PAY: "processing.payment",
-          ADD: "processing.adding"
+          CHECKOUT: "processing",
+          PAY: "processing"
         }
       },
 
       processing: {
         entry: ["clearError"],
-        states: {
-          payment: {
-            invoke: {
-              src: "update",
-              onDone: {
-                target: "#processed",
-                actions: [
-                  "setPaymentDetails",
-                  "providePaymentDetails",
-                  "setFeedbackSuccess"
-                ]
-              }
-            }
-          },
-          adding: {
-            invoke: {
-              src: "confirmSetup",
-              onDone: {
-                target: "#processed",
-                actions: ["set", "setFeedbackSuccess"]
-              }
-            }
+        invoke: {
+          src: "update",
+          onDone: {
+            target: "#processed",
+            actions: [
+              "setPaymentDetails",
+              "providePaymentDetails",
+              "setFeedbackSuccess"
+            ]
           }
         }
       },
@@ -165,7 +107,7 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: ({ paymentDetails }: StripeContext, _event: StripeEvent) =>
+        data: ({ paymentDetails }: GatewayContext, _event: GatewayEvent) =>
           paymentDetails
       },
 
@@ -196,32 +138,6 @@ export default createMachine(
   },
   {
     actions: {
-      setStripeInstance: assign({
-        stripe: (_context: StripeContext, { data }: StripeEvent) => data
-      }),
-
-      setElements: assign({
-        elements: (_context: StripeContext, { data }: StripeEvent) =>
-          data?.elements,
-        element: (_context: StripeContext, { data }: StripeEvent) =>
-          data?.element,
-        renderer: (_context: StripeContext, { data }: StripeEvent) => {
-          function renderer(container: HTMLElement) {
-            data?.element?.mount(container);
-          }
-          return renderer;
-        }
-      }),
-
-      setClientDetails: assign({
-        clientPaymentDetailsId: (
-          _context: StripeContext,
-          { data }: StripeEvent
-        ) => data?.clientPaymentDetailsId,
-        clientSecret: (_context: StripeContext, { data }: StripeEvent) =>
-          data?.clientSecret
-      }),
-
       setContext: assign(
         (_context: CurrencyContext, { data }: CurrencyEvent) => data
       ),
@@ -257,11 +173,11 @@ export default createMachine(
       })),
 
       // ---
-      setFeedbackSuccess: (_context: StripeContext, _event: StripeEvent) => {
+      setFeedbackSuccess: (_context: GatewayContext, _event: GatewayEvent) => {
         addSuccess("Successfully made payment");
       },
 
-      setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
+      setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
         addError({
           title:
             error?.title || "We experienced an error processing your payment",
@@ -271,7 +187,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context: StripeContext, { data }: StripeEvent) => {
+        error: (_context: GatewayContext, { data }: GatewayEvent) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data
@@ -288,18 +204,11 @@ export default createMachine(
 
     guards: {
       hasNoOutstandingBalance: (
-        _context: StripeContext,
-        _event: StripeEvent
+        _context: GatewayContext,
+        _event: GatewayEvent
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
-      },
-
-      isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
-        return ctx === GatewayContext.ADD;
-      },
-      isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
-        return ctx === GatewayContext.PAY;
       }
     },
 

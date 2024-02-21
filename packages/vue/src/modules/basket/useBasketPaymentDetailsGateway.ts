@@ -39,7 +39,10 @@ export const useBasketPaymentDetailsGateway = actor => {
       isDirty: contextMatches(state, ["dirty"]),
       isComplete:
         stateValue(state, "done", false) ||
-        stateMatches(state, ["processed", "complete"])
+        stateMatches(state, ["processed", "complete"]),
+      isRenderless:
+        contextMatches(state, ["renderless"]) ||
+        !contextMatches(state, ["schema.properties", "renderer"])
     })),
     // ---
     model: useContext(state, "model"),
