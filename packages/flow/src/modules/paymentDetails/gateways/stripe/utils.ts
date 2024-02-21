@@ -19,14 +19,16 @@ export const useSchema = (_context: StripeContext) => {
     title: "Payment Gateway Options",
     required: [],
     properties: {
-      save: {
+      store: {
         type: "boolean",
-        title: "Save Payment Details",
+        title: "Save payment details",
         default: false // todo use brand settings
       },
-      autopay: {
+      auto_payment: {
         type: "boolean",
-        title: "Auto Pay",
+        title: "Allow auto payment",
+        description:
+          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
         default: false // todo use brand settings
       }
     }
@@ -43,11 +45,11 @@ export const useUischema = (_context: StripeContext) => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/save"
+        scope: "#/properties/store"
       },
       {
         type: "Control",
-        scope: "#/properties/autopay"
+        scope: "#/properties/auto_payment"
       }
     ]
   };
