@@ -64,7 +64,8 @@ export const useBasket = () => {
           stateMatches(state, [
             "refreshing",
             "generating",
-            "shopping.items.processing"
+            "shopping.items.processing",
+            "checkout.processing"
           ]) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||

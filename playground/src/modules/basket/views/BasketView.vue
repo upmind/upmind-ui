@@ -304,7 +304,7 @@
         <div class="actions flex flex-col gap-8 relative">
           <button
             class="btn btn-block btn-primary btn-outline"
-            v-if="meta.needsUpdating"
+            v-if="meta.needsUpdating && !meta.isReadyForCheckout"
             :disabled="meta.isProcessing"
             @click.prevent="updateBasket"
           >

@@ -9,8 +9,10 @@
       !meta.isComplete && !meta.isValid ? 'border-warning' : ''
     ]"
   >
-    <div class="card-body">
-      <h3 class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50">
+    <div class="card-body grid grid-cols-3">
+      <h3
+        class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50 col-span-full"
+      >
         Payment Details
       </h3>
 
@@ -25,7 +27,7 @@
         @reject="clear"
         @resolve="update"
         @update:modelValue="input"
-        class="mt-2 gap-4"
+        class="mt-2 gap-4 col-span-1"
         no-actions
       >
         <template #actions="{ meta }">
@@ -40,16 +42,10 @@
         </template>
       </upm-form-generator>
 
-      <!-- Mounted Content -->
-      <div v-show="mount" class="card card-compact bg-base-200">
+      <!-- Gateway Content -->
+      <div v-show="mount" class="card card-compact bg-base-200 col-span-2">
         <div class="card-body">
-          <div class="navbar px-0 mx-0">
-            <div class="flex-1">
-              <a class="btn btn-ghost text-xl">Payment Details</a>
-            </div>
-            <div class="flex-none"></div>
-          </div>
-          <div ref="mountedElement" class="px-4 mb-6"></div>
+          <div ref="mountedElement" class="p-4"></div>
         </div>
       </div>
     </div>
@@ -76,6 +72,8 @@ export default defineComponent({
     mount(element) {
       if (element) {
         element?.mount(this.mountedElement as HTMLElement);
+      } else {
+        this.mountedElement.innerHTML = "";
       }
     }
   },

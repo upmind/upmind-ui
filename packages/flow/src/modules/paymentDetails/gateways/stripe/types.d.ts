@@ -1,4 +1,11 @@
 // --- extrnal
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+
+// --- types
+import type { IGateway } from "@/modules/payment/types";
+import type { ICurrency } from "@/modules/system/types";
+import type { GatewayTypes } from "../../services";
+import type { GatewayContext } from "../../types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -10,6 +17,23 @@
 // Contexts
 
 export interface StripeContext {
+  stripe: any;
+  elements: any;
+  element: any;
+  // ---
+  gateway: IGateway;
+  ctx: GatewayContext;
+  amount: number;
+  currency: ICurrency;
+  renderless: boolean;
+  type: GatewayTypes;
+
+  // --- UI
+  schema?: JsonSchema;
+  uischema?: UISchemaElement;
+  model?: IBillingDetail;
+  // --- Output
+  paymentDetails?: any; // will contain the response from Stripe, as wel las any model data
   // ---
   error?: RequestError;
 }
@@ -19,6 +43,6 @@ export interface StripeContext {
 
 export interface StripeEvent {
   type: "CHECKOUT";
-  data?: null;
+  data?: any;
   error?: RequestError;
 }

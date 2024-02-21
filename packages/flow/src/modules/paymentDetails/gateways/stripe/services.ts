@@ -6,6 +6,7 @@ import { useApi, useSession } from "../../../";
 
 // --- utils
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
+import { set } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types.d";
@@ -55,10 +56,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
-async function load(
-  { gateway, isPayment, amount, currency }: StripeContext,
-  _event: StripeEvent
-) {
+async function load({ gateway }: StripeContext, _event: StripeEvent) {
   const key = getPublicKey(gateway);
   if (!key) return Promise.reject("Stripe public key not found.");
 
@@ -102,7 +100,12 @@ async function createPaymentElement(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function makePayment({ gateway, elements, stripe }) {
+async function makePayment({
+  gateway,
+  elements,
+  stripe,
+  model
+}: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
   // return Promise.reject($t("_sentence.payments.gateway_elements_not_found"));
@@ -112,22 +115,33 @@ async function makePayment({ gateway, elements, stripe }) {
   if (submitError) return Promise.reject(submitError);
 
   // Create PaymentMethod using details collected via Payment Element
-  const { error, paymentMethod } = await stripe.createPaymentMethod({
-    elements
-  });
+  const { error, paymentMethod } = await stripe
+    .createPaymentMethod({
+      elements
+    })
+    .catch(error => Promise.reject(error));
 
   return new Promise((resolve, reject) => {
     if (error) {
       reject(error);
     } else {
+      model ??= {}; // safety check
+      debugger;
+      // add the payment details to the model
+      set(model, "gateway_id", gateway.id);
+      set(
+        model,
+        "payment_method_addition.payment_method_id",
+        paymentMethod?.id
+      );
+      set(
+        model,
+        "payment_method_addition.payment_method_type",
+        paymentMethod?.type
+      );
+      debugger;
       /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
-      resolve({
-        gateway_id: gateway.id,
-        payment_method_addition: {
-          payment_method_type: paymentMethod?.type,
-          payment_method_id: paymentMethod?.id
-        }
-      });
+      resolve(model);
     }
   });
 }
@@ -140,7 +154,7 @@ async function makePayment({ gateway, elements, stripe }) {
  * Stripe 'Elements' instance.
  */
 async function createAddElement(
-  { stripe, gateway, isPayment, amount, currency }: StripeContext,
+  { stripe, gateway }: StripeContext,
   _event: StripeEvent
 ) {
   const { post, useUrl } = useApi();
