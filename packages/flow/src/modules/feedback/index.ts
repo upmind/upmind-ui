@@ -63,7 +63,7 @@ export const useFeedback = () => {
     message: string | Object,
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
-    maxAge: number = useTime().SECOND * 6
+    maxAge: number = useTime().SECOND * 2
   ) {
     if (!message) return; // bail if no message
 

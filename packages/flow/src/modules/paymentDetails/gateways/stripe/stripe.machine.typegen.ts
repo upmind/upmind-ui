@@ -18,13 +18,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.stripePaymentManager.processing.payment:invocation[0]": {
-      type: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
+    "done.invoke.stripePaymentManager.processing.adding:invocation[0]": {
+      type: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]": {
-      type: "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]";
+    "done.invoke.stripePaymentManager.processing.payment:invocation[0]": {
+      type: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -44,7 +44,7 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    confirmSetup: "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]";
+    confirmSetup: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
     createAddElement: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
     createPaymentElement: "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
     load: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
@@ -64,7 +64,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearError: "ADD" | "CHECKOUT" | "PAY" | "RETRY";
     provideElements: "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
-    set: "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]";
+    set: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
     setClientDetails: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
     setElements:
       | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
@@ -78,19 +78,19 @@ export interface Typegen0 {
       | "error.platform.stripePaymentManager.loading.paymentElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.stripe:invocation[0]";
     setFeedbackSuccess:
-      | "done.invoke.stripePaymentManager.processing.payment:invocation[0]"
-      | "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]";
+      | "done.invoke.stripePaymentManager.processing.adding:invocation[0]"
+      | "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     setPaymentData: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     setStripeInstance: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
   };
   eventsCausingDelays: {
     wait:
-      | "done.invoke.stripePaymentManager.processing.payment:invocation[0]"
-      | "done.invoke.stripePaymentManager.processing.payment_method:invocation[0]";
+      | "done.invoke.stripePaymentManager.processing.adding:invocation[0]"
+      | "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
   };
   eventsCausingGuards: {
     hasNoOutstandingBalance: "xstate.after(wait)#processed";
-    isAddingPaymentMethod: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
+    isAdding: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
   };
   eventsCausingServices: {
     confirmSetup: "ADD";
@@ -109,11 +109,11 @@ export interface Typegen0 {
     | "loading.stripe"
     | "processed"
     | "processing"
+    | "processing.adding"
     | "processing.payment"
-    | "processing.payment_method"
     | {
         loading?: "addElement" | "paymentElement" | "stripe";
-        processing?: "payment" | "payment_method";
+        processing?: "adding" | "payment";
       };
   tags: never;
 }

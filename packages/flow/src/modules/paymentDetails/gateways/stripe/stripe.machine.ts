@@ -11,6 +11,7 @@ import { useTime, useValidationParser } from "../../../../utils";
 
 // --- types
 import type { StripeContext, StripeEvent } from "./types.d";
+import { GatewayContext } from "../../types.d";
 
 // --------------------------------------------------------
 
@@ -21,6 +22,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      model: {},
       error: null
     } as StripeContext,
     states: {
@@ -34,11 +36,12 @@ export default createMachine(
                 {
                   target: "addElement",
                   actions: ["setStripeInstance"],
-                  cond: "isAddingPaymentMethod"
+                  cond: "isAdding"
                 },
                 {
                   target: "paymentElement",
                   actions: ["setStripeInstance"]
+                  // cond: "isPaying"
                 }
               ],
               onError: {
@@ -81,7 +84,7 @@ export default createMachine(
         on: {
           CHECKOUT: "processing.payment",
           PAY: "processing.payment",
-          ADD: "processing.payment_method"
+          ADD: "processing.adding"
         }
       },
 
@@ -97,7 +100,7 @@ export default createMachine(
               }
             }
           },
-          payment_method: {
+          adding: {
             invoke: {
               src: "confirmSetup",
               onDone: {
@@ -122,7 +125,8 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: ({ payment }: StripeContext, _event: StripeEvent) => payment
+        data: ({ paymentDetails }: StripeContext, _event: StripeEvent) =>
+          paymentDetails
       },
 
       error: {
@@ -158,7 +162,7 @@ export default createMachine(
       }),
 
       setPaymentData: assign({
-        payment: (_context: StripeContext, { data }: StripeEvent) => data
+        paymentDetails: (_context, { data }) => data
       }),
       // ---
 
@@ -206,8 +210,11 @@ export default createMachine(
         return true;
       },
 
-      isAddingPaymentMethod: (_context: StripeContext, _event: StripeEvent) => {
-        return false; // TODO: check if we are adding a payment method
+      isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
+        return ctx === GatewayContext.ADD;
+      },
+      isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
+        return ctx === GatewayContext.PAY;
       }
     },
 

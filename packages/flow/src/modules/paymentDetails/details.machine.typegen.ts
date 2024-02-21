@@ -9,6 +9,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.paymentDetailsManager.checking.validating:invocation[0]": {
+      type: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.paymentDetailsManager.loading:invocation[0]": {
       type: "done.invoke.paymentDetailsManager.loading:invocation[0]";
       data: unknown;
@@ -45,11 +50,13 @@ export interface Typegen0 {
     services: "load" | "parse" | "validate";
   };
   eventsCausingActions: {
+    clearElementToMount: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
     clearError:
       | "CLEAR"
       | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
+      | "done.invoke.paymentDetailsManager.checking.validating:invocation[0]"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]"
       | "xstate.init";
     clearModel: "CLEAR" | "UNAUTHENTICATED";

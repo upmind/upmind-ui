@@ -3,7 +3,7 @@ import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import stripeMachine from "./gateways/stripe/stripe.machine";
-import services, { PaymentTypes } from "./services";
+import services from "./services";
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 import { responseCodes } from "../api";
@@ -14,6 +14,13 @@ import { useSchema, useUischema, useModelParser } from "./utils";
 import { find } from "lodash-es";
 
 // --- types
+import {
+  GatewayContext,
+  GatewayProviderCodes,
+  GatewayTypes,
+  PaymentTypes
+} from "./types.d";
+
 import type {
   PaymentDetailsContext,
   PaymentDetailsEvent,
@@ -85,6 +92,7 @@ export default createMachine(
       valid: {
         id: "valid",
         initial: "gateway",
+        entry: ["clearError", "clearElementToMount"],
         states: {
           gateway: {
             always: [
@@ -100,15 +108,16 @@ export default createMachine(
               src: stripeMachine,
               autoForward: true,
               data: (
-                { gateways, model, currency }: PaymentDetailsContext,
+                { gateway, model, currency }: PaymentDetailsContext,
                 _event
               ) => ({
-                gateway: find(gateways, { gateway_id: model.gateway_id })
-                  ?.gateway, // we dont need the full brand gateway, just the actual gateway
-                isPayment: true,
+                gateway,
+                ctx: GatewayContext.PAY,
                 amount: model?.amount || 0,
-                currency
+                currency,
+                type: GatewayTypes.CARD
               }),
+
               onDone: {
                 target: "#complete",
                 actions: ["setPaymentDetails", "providePaymentDetails"]
@@ -194,7 +203,9 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: (context, { data }) => useModelParser(context, data)
+        model: (context, { data }) => useModelParser(context, data),
+        gateway: ({ gateways }, { data }) =>
+          find(gateways, { gateway_id: data.gateway_id })?.gateway // we dont need the full brand gateway, just the actual gateway
       }),
 
       clearModel: assign({
@@ -212,6 +223,10 @@ export default createMachine(
 
       setElementToMount: assign({
         mount: (_context, { data }) => data
+      }),
+
+      clearElementToMount: assign({
+        mount: undefined
       }),
 
       // ---
@@ -271,7 +286,11 @@ export default createMachine(
         model.type !== PaymentTypes.PAY_LATER,
       noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER,
 
-      isStripe: (_context, _event) => true // TODO actual check
+      // --- Gateway guards
+
+      isStripe: ({ gateway }, _event) =>
+        gateway?.gateway_provider?.code === GatewayProviderCodes.STRIPE &&
+        !!gateway?.use_frontend_implementation
     },
 
     delays: {

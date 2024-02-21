@@ -1,12 +1,12 @@
 // --- external
 
 // --- internal
-import { PaymentTypes } from "./services";
 
 // --- utils
 import { defaultsDeep, get, map, reduce, set } from "lodash-es";
 
 // --- types
+import { PaymentTypes } from "./types.d";
 import type { IPaymentDetail, PaymentDetailsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
@@ -65,27 +65,27 @@ export const useUischema = ({ currency }: PaymentDetailsContext) => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
-      {
-        type: "Control",
-        scope: "#/properties/amount",
-        options: {
-          prefix: currency?.prefix,
-          suffix: currency?.suffix,
-          trim: true
-        }
-      },
+      // {
+      //   type: "Control",
+      //   scope: "#/properties/amount",
+      //   options: {
+      //     prefix: currency?.prefix,
+      //     suffix: currency?.suffix,
+      //     trim: true
+      //   }
+      // },
       {
         type: "Control",
         scope: "#/properties/type",
         options: {
-          format: "radio"
+          format: "menu"
         }
       },
       {
         type: "Control",
         scope: "#/properties/gateway_id",
         options: {
-          format: "radio"
+          format: "menu"
         },
         rule: {
           effect: "SHOW",
