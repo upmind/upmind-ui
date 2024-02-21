@@ -6,7 +6,7 @@ const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
 import { useValidation } from "../../utils";
-import { unset, get, sortBy } from "lodash-es";
+import { unset, get, sortBy, find, set } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -109,17 +109,25 @@ async function load(
 // --------------------------------------------------------
 
 async function parse(
-  { model }: PaymentDetailsContext,
+  { model, actors, gateways }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   // ---
+  let gateway = null;
 
   // ensure we dont send the gateway_id if the payment type is pay later
   if (model?.type == PaymentTypes.PAY_LATER) {
     unset(model, "gateway_id");
   }
 
-  return Promise.resolve({ model });
+  // also make sure we clear the gateway actor if we have no gateway_id
+  else if (model?.gateway_id) {
+    gateway = find(gateways, {
+      gateway_id: model.gateway_id
+    })?.gateway; // we dont need the full brand gateway, just the actual gateway;
+  }
+
+  return Promise.resolve({ model, gateway, actors });
 }
 
 async function validate(

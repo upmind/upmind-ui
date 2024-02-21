@@ -5,13 +5,15 @@ import { computed, ref } from "vue";
 
 // --- utils
 import {
-  contextActor,
   contextMatches,
+  contextValue,
   stateMatches,
   stateValue,
   useContext,
   useState
 } from "../../utils";
+
+import { isFunction } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -19,7 +21,7 @@ import {
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useBasketPaymentDetails = actor => {
+export const useBasketPaymentDetailsGateway = actor => {
   const { state, send } = actor;
   // --------------------------------------------------------
 
@@ -43,11 +45,27 @@ export const useBasketPaymentDetails = actor => {
     model: useContext(state, "model"),
     schema: useContext(state, "schema"),
     uischema: useContext(state, "uischema"),
-    gateway: computed(() => contextActor(state, "actors.gateway")),
+    renderer: useContext(state, "renderer"),
 
     // ---
+
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
-    update: () => send({ type: "UPDATE" })
+    update: () => send({ type: "UPDATE" }),
+    render(container: HTMLElement | null = null) {
+      const renderer = contextValue(state, "renderer");
+
+      if (!container) {
+        console.error("No container available for the renderer");
+        return;
+      }
+
+      // NB: renderer MUST be a function, if not then we clear the container
+      if (isFunction(renderer)) {
+        renderer(container);
+      } else {
+        container.innerHTML = "";
+      }
+    }
   };
 };

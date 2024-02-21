@@ -5,6 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useApi, useSession } from "../../../";
 
 // --- utils
+import { useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { set } from "lodash-es";
 
@@ -66,6 +67,28 @@ async function load({ gateway }: StripeContext, _event: StripeEvent) {
     resolve(stripe);
   });
 }
+// --------------------------------------------------------
+
+async function parse(_context: StripeContext, _event: StripeEvent) {
+  // we dont need to parse anything, so we just return an empty object
+  return Promise.resolve({});
+}
+
+async function validate({ schema, model }: StripeContext, _event: StripeEvent) {
+  // ---
+
+  // Now validate the model as per normal
+  const { validate } = useValidation();
+
+  return new Promise((resolve, reject) => {
+    const errors = validate(schema, model);
+    if (errors?.length) {
+      reject({ error: errors });
+    } else {
+      resolve(model);
+    }
+  });
+}
 
 // --------------------------------------------------------
 // PAYMENT METHODS
@@ -93,6 +116,7 @@ async function createPaymentElement(
     });
   });
 }
+
 /**
  * @name getPaymentData
  * @desc Here we create a new payment detail via the Stripe SDK, and return
@@ -126,7 +150,6 @@ async function makePayment({
       reject(error);
     } else {
       model ??= {}; // safety check
-      debugger;
       // add the payment details to the model
       set(model, "gateway_id", gateway.id);
       set(
@@ -139,7 +162,6 @@ async function makePayment({
         "payment_method_addition.payment_method_type",
         paymentMethod?.type
       );
-      debugger;
       /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
       resolve(model);
     }
@@ -148,6 +170,7 @@ async function makePayment({
 
 // --------------------------------------------------------
 // ADD ASYNC PAYMENT METHODS
+
 /**
  * @name beginSetup
  * @desc Here we obtain a client secret via the API, before creating a
@@ -214,6 +237,8 @@ async function endSetup(paymentDetailId?: string) {}
 
 export default {
   load,
+  parse,
+  validate,
   // ---
   createPaymentElement,
   createAddElement,

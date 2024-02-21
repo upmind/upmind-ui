@@ -36,7 +36,7 @@ export interface Typegen0 {
     services: "loadOrder" | "src of the sub machine type, eg: Stripe";
   };
   eventsCausingActions: {
-    clearError: "PAY" | "RETRY";
+    clearError: "PAY" | "PAYMENT" | "RETRY";
     setError:
       | "error.platform.paymentManager.loading:invocation[0]"
       | "error.platform.paymentManager.processing.stripe:invocation[0]";

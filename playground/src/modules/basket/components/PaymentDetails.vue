@@ -42,12 +42,12 @@
         </template>
       </upm-form-generator>
 
-      <!-- Gateway Content -->
-      <div v-show="mount" class="card card-compact bg-base-200 col-span-2">
-        <div class="card-body">
-          <div ref="mountedElement" class="p-4"></div>
-        </div>
-      </div>
+      <upm-payment-details-gateway
+        tabindex="2"
+        class="mt-2 col-span-2"
+        v-if="gateway"
+        :actor="gateway"
+      ></upm-payment-details-gateway>
     </div>
   </div>
 </template>
@@ -56,10 +56,11 @@
 import { defineComponent } from "vue";
 import { UpmFormGenerator } from "@upmind/ui";
 import { useBasketPaymentDetails } from "@upmind/vue";
+import UpmPaymentDetailsGateway from "./PaymentDetailsGateway.vue";
 
 export default defineComponent({
   name: "UpmBasketPaymentDetails",
-  components: { UpmFormGenerator },
+  components: { UpmFormGenerator, UpmPaymentDetailsGateway },
   inheritAttrs: true,
   customOptions: {},
   props: {

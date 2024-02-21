@@ -307,49 +307,6 @@ export default createMachine(
                 ],
                 type: "final"
               }
-            },
-            on: {
-              ADD: [
-                {
-                  target: "#generating",
-                  cond: "hasNoBasket",
-                  actions: ["addItem"]
-                },
-                { actions: ["addItem"] }
-              ],
-              REMOVE: {
-                target: "items.processing.removing",
-                actions: ["binItem"]
-              },
-              UPDATE: [
-                {
-                  target: "items.processing.everything",
-                  actions: ["clearQueue"],
-                  cond: "hasNoItem"
-                }, // update everything
-                {
-                  target: "items.processing.updating",
-                  actions: ["queueItem"],
-                  cond: "isNotQueued"
-                }
-              ],
-
-              CLEAR: {
-                target: "items.processing",
-                actions: ["removeAllItems"]
-              }, // bath process ALL items
-              // ---
-              "UPDATE.QUANTITY": { actions: ["sendToItem"] },
-              "UPDATE.TERM": { actions: ["sendToItem"] },
-              "UPDATE.OPTIONS": { actions: ["sendToItem"] },
-              "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
-              "UPDATE.PROVISIONING": { actions: ["sendToItem"] }
-
-              // This transition will match any event, but we will target the completion of ANY spawned machine
-              // "*": {
-              //   actions: ["removeItem"],
-              //   cond: (_context, event) => includes(event.type, "done.invoke")
-              // }
             }
           },
 
@@ -421,14 +378,7 @@ export default createMachine(
 
           // ---
         },
-        onDone: "checkout",
-        on: {
-          REFRESH: {
-            target: "refreshing",
-            actions: "muteBasket",
-            cond: "isNotMuted"
-          }
-        }
+        onDone: "checkout"
       },
 
       // We are now ready to accept payment as all the shopping items are complete
@@ -501,6 +451,53 @@ export default createMachine(
       }
     },
     on: {
+      ADD: [
+        {
+          target: "#generating",
+          cond: "hasNoBasket",
+          actions: ["addItem"]
+        },
+        { actions: ["addItem"] }
+      ],
+      REMOVE: {
+        target: "#shopping.items.processing.removing",
+        actions: ["binItem"]
+      },
+      UPDATE: [
+        {
+          target: "#shopping.items.processing.everything",
+          actions: ["clearQueue"],
+          cond: "hasNoItem"
+        }, // update everything
+        {
+          target: "#shopping.items.processing.updating",
+          actions: ["queueItem"],
+          cond: "isNotQueued"
+        }
+      ],
+      CLEAR: {
+        target: "#shopping.items.processing",
+        actions: ["removeAllItems"]
+      },
+      // ---
+      "UPDATE.QUANTITY": { actions: ["sendToItem"] },
+      "UPDATE.TERM": { actions: ["sendToItem"] },
+      "UPDATE.OPTIONS": { actions: ["sendToItem"] },
+      "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
+      "UPDATE.PROVISIONING": { actions: ["sendToItem"] },
+
+      // This transition will match any event, but we will target the completion of ANY spawned machine
+      // "*": {
+      //   actions: ["removeItem"],
+      //   cond: (_context, event) => includes(event.type, "done.invoke")
+      // }
+
+      REFRESH: {
+        target: "refreshing",
+        actions: "muteBasket",
+        cond: "isNotMuted"
+      },
+
       UNAUTHENTICATED: {
         target: "#loading",
         actions: ["clearError", "clearBasket", "removeAllItems", "clearQueue"]
