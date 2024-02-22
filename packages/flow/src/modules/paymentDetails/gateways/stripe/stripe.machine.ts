@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, sendParent, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -188,6 +188,11 @@ export default createMachine(
         actions: ["setModel"]
       },
 
+      VALIDATE: {
+        target: "#checking.validating",
+        actions: ["setElementStatus"]
+      },
+
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"]
@@ -210,7 +215,26 @@ export default createMachine(
             data?.element?.mount(container);
           }
           return renderer;
+        },
+        validationObserver: (
+          { element }: StripeContext,
+          { data }: StripeEvent
+        ) => {
+          const stripeChangeEvent = (callback, receive) => {
+            data.element.on("change", event => {
+              console.log("Stripe", "Validate", event);
+              callback({ type: "VALIDATE", data: event });
+            });
+
+            return () => {};
+          };
+
+          return spawn(stripeChangeEvent);
         }
+      }),
+
+      setElementStatus: assign({
+        elementStatus: (_context: StripeContext, { data }: StripeEvent) => data
       }),
 
       setClientDetails: assign({

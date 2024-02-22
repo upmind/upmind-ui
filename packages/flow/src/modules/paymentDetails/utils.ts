@@ -89,14 +89,14 @@ export const useUischema = ({ currency }: PaymentDetailsContext) => {
         type: "Control",
         scope: "#/properties/type",
         options: {
-          format: "menu"
+          format: "radio"
         }
       },
       {
         type: "Control",
         scope: "#/properties/gateway_id",
         options: {
-          format: "menu"
+          format: "radio"
         },
         rule: {
           effect: "SHOW",

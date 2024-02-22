@@ -22,6 +22,7 @@ export interface Typegen0 {
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
+    "xstate.update": { type: "xstate.update" };
   };
   invokeSrcNameMap: {
     load: "done.invoke.paymentDetailsManager.loading:invocation[0]";
@@ -41,7 +42,8 @@ export interface Typegen0 {
       | "SET"
       | "UNAUTHENTICATED"
       | "done.invoke.paymentDetailsManager.loading:invocation[0]"
-      | "xstate.init";
+      | "xstate.init"
+      | "xstate.update";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     forwardCheckout: "CHECKOUT";
@@ -64,11 +66,18 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
+    load:
+      | "CLEAR"
+      | "REFRESH"
+      | "SET"
+      | "UNAUTHENTICATED"
+      | "xstate.init"
+      | "xstate.update";
     parse:
       | "CLEAR"
       | "SET"
-      | "done.invoke.paymentDetailsManager.loading:invocation[0]";
+      | "done.invoke.paymentDetailsManager.loading:invocation[0]"
+      | "xstate.update";
     validate: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
   };
   matchesStates:

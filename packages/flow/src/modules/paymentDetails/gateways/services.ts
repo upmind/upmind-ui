@@ -27,6 +27,7 @@ async function validate(
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
+
     if (errors?.length) {
       reject({ error: errors });
     } else {

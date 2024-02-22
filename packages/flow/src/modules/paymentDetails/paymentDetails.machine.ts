@@ -119,6 +119,10 @@ export default createMachine(
       }
     },
     on: {
+      "xstate.update": {
+        target: "checking"
+      },
+
       CLEAR: {
         target: "#checking",
         actions: ["clearModel"]

@@ -6,7 +6,7 @@ const { authSubscription, isAuthenticated } = useSession();
 
 // --- utils
 import { useValidation } from "../../utils";
-import { unset, get, sortBy, find, set } from "lodash-es";
+import { unset, get, sortBy, find, forEach } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -131,7 +131,7 @@ async function parse(
 }
 
 async function validate(
-  { schema, model }: PaymentDetailsContext,
+  { schema, model, actors }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   // ---
@@ -140,7 +140,16 @@ async function validate(
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
-    const errors = validate(schema, model);
+    //
+    const errors = validate(schema, model) || [];
+
+    // ALSO check if any of our actors are in an invalid state
+    forEach(actors, actor => {
+      if (["invalid"].some(actor.state.matches)) {
+        errors.push(actor.state.context.error);
+      }
+    });
+
     if (errors?.length) {
       reject({ error: errors });
     } else {
