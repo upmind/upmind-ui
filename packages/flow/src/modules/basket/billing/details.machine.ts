@@ -13,7 +13,7 @@ import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { BillingDetailsContext, BillingDetailsEvent } from "./types";
+import type { BillingDetailsContext, BillingDetailsEvent } from "./types.d";
 import { responseCodes } from "../../api";
 
 // --------------------------------------------------------

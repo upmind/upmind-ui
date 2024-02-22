@@ -3,7 +3,7 @@ import { spawn } from "xstate";
 
 // --- internal
 import configurationMachine from "../product/product.machine";
-import paymentDetailsMachine from "../paymentDetails/details.machine";
+import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
 import currencyMachine from "./currency/currency.machine";

@@ -6,7 +6,7 @@
 import { get, map, set, reduce, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { ICurrency, CurrencyContext } from "./types";
+import type { ICurrency, CurrencyContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------

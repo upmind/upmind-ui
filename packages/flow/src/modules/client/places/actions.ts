@@ -5,7 +5,7 @@ import { assign } from "xstate";
 import { find } from "lodash-es";
 
 // --- types
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 // --------------------------------------------------------
 
 export const actions = {

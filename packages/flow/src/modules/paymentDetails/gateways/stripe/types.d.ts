@@ -2,10 +2,10 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- types
-import type { IGateway } from "@/modules/payment/types";
-import type { ICurrency } from "@/modules/system/types";
+import type { IGateway } from "@/modules/payment/types.d";
+import type { ICurrency } from "@/modules/system/types.d";
 import type { GatewayTypes } from "../../services";
-import type { GatewayContext } from "../../types";
+import type { GatewayContext } from "../../types.d";
 
 // --------------------------------------------------------
 // ENUMS

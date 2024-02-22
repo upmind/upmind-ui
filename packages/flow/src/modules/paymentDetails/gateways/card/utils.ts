@@ -6,7 +6,7 @@
 import { reduce, defaultsDeep, get, set } from "lodash-es";
 
 // --- types
-import type { GatewayContext } from "../types";
+import type { GatewayContext } from "../types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------

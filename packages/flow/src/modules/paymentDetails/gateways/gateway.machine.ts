@@ -11,7 +11,7 @@ import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { GatewayContext, GatewayEvent } from "./types";
+import type { GatewayContext, GatewayEvent } from "./types.d";
 
 // --------------------------------------------------------
 

@@ -11,7 +11,7 @@ import {
 import { get, map } from "lodash-es";
 
 // --- types
-import type { IField, FieldsContext } from "./types";
+import type { IField, FieldsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------

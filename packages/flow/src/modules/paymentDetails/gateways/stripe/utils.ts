@@ -7,7 +7,7 @@ import { reduce, includes, find, defaultsDeep, get, set } from "lodash-es";
 
 // --- types
 import type { StripeContext } from "./types.d";
-import type { IGateway } from "../../../payment/types";
+import type { IGateway } from "../../../payment/types.d";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 

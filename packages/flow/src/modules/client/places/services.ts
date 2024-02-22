@@ -7,7 +7,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { usePlaceParser, usePredictionsParser } from "./utils";
 
 // --- types
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS

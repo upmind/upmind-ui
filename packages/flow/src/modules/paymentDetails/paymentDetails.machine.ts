@@ -28,7 +28,7 @@ import { sendTo } from "xstate/lib/actions";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./details.machine.typegen").Typegen0,
+    tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "loading",

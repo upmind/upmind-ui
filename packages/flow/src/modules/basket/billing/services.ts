@@ -12,7 +12,7 @@ import {
 import { useValidation } from "../../../utils";
 import { omitBy, isNil } from "lodash-es";
 // --- types
-import type { BillingDetailsEvent, BillingDetailsContext } from "./types";
+import type { BillingDetailsEvent, BillingDetailsContext } from "./types.d";
 
 // --------------------------------------------------------
 

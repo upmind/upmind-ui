@@ -6,8 +6,8 @@ import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map, get, compact, isObject } from "lodash-es";
 
 // --- types
-import type { PhoneContext, PhoneEvent } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { PhoneContext, PhoneEvent } from "./types.d";
+import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 // --------------------------------------------------------
 
 export const ListingActions = {

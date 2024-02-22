@@ -24,7 +24,7 @@ import type {
   AddressContext,
   AddressesEvents,
   AddressesContext
-} from "./types";
+} from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS

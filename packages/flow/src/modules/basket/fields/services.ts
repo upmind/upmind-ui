@@ -8,7 +8,7 @@ import { useValidation } from "../../../utils";
 import { useModelParser } from "./utils";
 
 // --- types
-import type { FieldsEvent, FieldsContext } from "./types";
+import type { FieldsEvent, FieldsContext } from "./types.d";
 
 // --------------------------------------------------------
 
