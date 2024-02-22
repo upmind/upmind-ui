@@ -9,8 +9,8 @@ import { useValidation } from "../../../utils";
 import { includes, isString, keyBy, filter } from "lodash-es";
 
 // --- types
-import type { PhoneEvent, PhoneContext } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { PhoneEvent, PhoneContext } from "./types.d";
+import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS

@@ -13,7 +13,7 @@ import { useTime, useValidationParser } from "../../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
 
 // --- types
-import type { CurrencyContext, CurrencyEvent } from "./types";
+import type { CurrencyContext, CurrencyEvent } from "./types.d";
 
 // --------------------------------------------------------
 

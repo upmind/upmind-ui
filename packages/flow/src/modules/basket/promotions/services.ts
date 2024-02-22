@@ -8,7 +8,7 @@ import { useValidation } from "../../../utils";
 import { get } from "lodash-es";
 
 // --- types
-import type { PromotionsEvent, PromotionsContext } from "./types";
+import type { PromotionsEvent, PromotionsContext } from "./types.d";
 
 // --------------------------------------------------------
 

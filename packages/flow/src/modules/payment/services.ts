@@ -6,7 +6,7 @@ import { useApi } from "../..";
 // --- utils
 
 // --- types
-import type { PaymentEvent, PaymentContext } from "./types";
+import type { PaymentEvent, PaymentContext } from "./types.d";
 
 // --------------------------------------------------------
 

@@ -13,7 +13,7 @@ import { useSchema, useUischema, useModelParser } from "./utils";
 import { useBasketFieldsModelParser } from "../utils";
 
 // --- types
-import type { FieldsContext, FieldsEvent } from "./types";
+import type { FieldsContext, FieldsEvent } from "./types.d";
 
 // --------------------------------------------------------
 

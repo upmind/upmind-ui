@@ -433,16 +433,16 @@ export default createMachine(
       // },
       //     loading: {
       //       invoke: {
-      //         src: "fetchTaxBusinessTypes",
+      //         src: "fetchTaxBusinesstypes",
       //         onDone: {
       //           target: "processed",
-      //           actions: ["setTaxBusinessTypes"]
+      //           actions: ["setTaxBusinesstypes"]
       //         },
       //         onError: {
       //           target: "error",
       //           actions: assign({
       //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
-      //               set(error, "taxBusinessTypes", data);
+      //               set(error, "taxBusinesstypes", data);
       //               return error;
       //             }
       //           })
@@ -461,7 +461,7 @@ export default createMachine(
       //           target: "loading",
       //           actions: assign({
       //             error: ({ error }: SystemContext) => {
-      //               unset(error, "taxBusinessTypes");
+      //               unset(error, "taxBusinesstypes");
       //               return error;
       //             }
       //           })

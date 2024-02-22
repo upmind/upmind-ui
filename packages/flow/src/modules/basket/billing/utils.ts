@@ -6,7 +6,7 @@
 import { get, set, reduce, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { IBillingDetail, BillingDetailsContext } from "./types";
+import type { IBillingDetail, BillingDetailsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------

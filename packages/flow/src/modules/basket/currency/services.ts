@@ -8,7 +8,7 @@ import { useValidation } from "../../../utils";
 import { find } from "lodash-es";
 
 // --- types
-import type { CurrencyEvent, CurrencyContext } from "./types";
+import type { CurrencyEvent, CurrencyContext } from "./types.d";
 
 // --------------------------------------------------------
 

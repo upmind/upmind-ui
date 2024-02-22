@@ -7,7 +7,7 @@ import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map, get, compact } from "lodash-es";
 
 // --- types
-import type { AddressContext, AddressEvent } from "./types";
+import type { AddressContext, AddressEvent } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------

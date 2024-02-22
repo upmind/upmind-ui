@@ -7,7 +7,7 @@ import { useValidation } from "../../../../utils";
 import { set } from "lodash-es";
 
 // --- types
-import type { GatewayEvent, GatewayContext } from "../types";
+import type { GatewayEvent, GatewayContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS

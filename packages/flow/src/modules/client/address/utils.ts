@@ -9,7 +9,7 @@ import services from "./services";
 import { get, set, map, reduce, defaultsDeep, uniqueId } from "lodash-es";
 
 // --- types
-import type { IAddress, AddressContext } from "./types";
+import type { IAddress, AddressContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
