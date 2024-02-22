@@ -57,7 +57,7 @@
       </slot>
     </div>
     <header
-      class="bg-base-100 text-base-content shadow-md rounded-box sticky top-0 z-10"
+      class="bg-base-100 bg-opacity-10 text-base-content shadow-md rounded-box sticky top-0 z-10"
     >
       <div class="navbar relative z-20 pl-4">
         <h2 class="flex-1 title m-0 flex gap-1 justify-center">
@@ -114,7 +114,7 @@
       <!-- breadcrumbs -->
       <div
         class="steps steps-horizontal w-full my-4 text-xs"
-        v-if="meta.isAvailable && !meta.isLoading"
+        v-if="meta.isAvailable && !meta.isLoading && !meta.isProcessing"
       >
         <router-link
           class="step m-0 p-0 text-inherit no-underline uppercase"
@@ -181,7 +181,7 @@
       <!-- items -->
       <section
         id="items"
-        class="items col-span-5 order-0 grid grid-cols-card gap-4 items-start"
+        class="items col-span-5 order-0 grid grid-cols-card card-bordered gap-4 items-start"
       >
         <h3
           class="col-span-full text-inherit uppercase text-xl mt-2 mb-0 opacity-50"
@@ -350,6 +350,105 @@
           </div>
         </div>
       </aside>
+    </div>
+
+    <div
+      v-if="
+        meta.isCheckout ||
+        meta.isConverting ||
+        meta.isPaying ||
+        meta.isComplete ||
+        true
+      "
+      class="grid grid-cols-3 gap-8 w-full justify-center px-4 py-8 my-8 min-h-96"
+    >
+      <div
+        :class="{
+          skeleton: meta.isCheckout,
+          'bg-secondary': meta.isCheckout,
+          'border-secondary': meta.isCheckout,
+
+          'bg-primary': meta.isConverting || meta.isPaying || meta.isComplete,
+          'border-primary':
+            meta.isConverting || meta.isPaying || meta.isComplete
+        }"
+        class="card card-bordered bg-base-100 bg-opacity-10 bg-opacity-10 rounded-box place-items-center"
+      >
+        <figure class="avatar placeholder">
+          <div class="bg-neutral bg-opacity-5 rounded-full w-24">
+            <span class="text-3xl">1</span>
+          </div>
+        </figure>
+
+        <div class="card-body">
+          <h3 class="card-title m-0 text-center text-inherit">
+            {{
+              meta.isAvailable
+                ? "Gather"
+                : meta.isCheckout
+                  ? "Gathering"
+                  : "Gathered"
+            }}
+            Payment Details
+          </h3>
+        </div>
+      </div>
+
+      <div
+        :class="{
+          skeleton: meta.isConverting,
+          'bg-primary': meta.isPaying || meta.isComplete,
+          'border-primary': meta.isPaying || meta.isComplete
+        }"
+        class="card card-bordered bg-base-100 bg-opacity-10 rounded-box place-items-center"
+      >
+        <figure class="avatar placeholder">
+          <div class="bg-neutral bg-opacity-5 rounded-full w-24">
+            <span class="text-3xl">2</span>
+          </div>
+        </figure>
+
+        <div class="card-body">
+          <h3 class="card-title m-0 text-center text-inherit">
+            {{
+              meta.isAvailable || meta.isCheckout
+                ? "Convert"
+                : meta.isConverting
+                  ? "Converting"
+                  : "Converted"
+            }}
+            to Order
+          </h3>
+        </div>
+      </div>
+
+      <div
+        :class="{
+          skeleton: meta.isPaying,
+          'bg-primary': meta.isComplete,
+          'border-primary': meta.isComplete
+        }"
+        class="card card-bordered bg-base-100 bg-opacity-10 rounded-box place-items-center"
+      >
+        <figure class="avatar placeholder">
+          <div class="bg-neutral bg-opacity-5 rounded-full w-24">
+            <span class="text-3xl">3</span>
+          </div>
+        </figure>
+
+        <div class="card-body">
+          <h3 class="card-title m-0 text-center text-inherit">
+            {{
+              meta.isAvailable || meta.isCheckout || meta.isConverting
+                ? "Attempt"
+                : meta.isPaying
+                  ? "Attempting"
+                  : "Successfully Completed "
+            }}
+            Payment
+          </h3>
+        </div>
+      </div>
     </div>
 
     <footer>

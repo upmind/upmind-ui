@@ -410,8 +410,14 @@ export default createMachine(
             // The processing state will then run its process and when complete will return the completed order
             on: {
               CHECKOUT: {
+                target: "processing",
                 actions: "checkoutActors"
-              },
+              }
+            }
+          },
+
+          processing: {
+            on: {
               // response from the payment_details machine = we are ready to convert
               PAYMENT_DETAILS: {
                 target: "#converting",
