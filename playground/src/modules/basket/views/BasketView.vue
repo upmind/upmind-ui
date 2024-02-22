@@ -354,11 +354,7 @@
 
     <div
       v-if="
-        meta.isCheckout ||
-        meta.isConverting ||
-        meta.isPaying ||
-        meta.isComplete ||
-        true
+        meta.isCheckout || meta.isConverting || meta.isPaying || meta.isComplete
       "
       class="grid grid-cols-3 gap-8 w-full justify-center px-4 py-8 my-8 min-h-96"
     >
@@ -397,6 +393,8 @@
       <div
         :class="{
           skeleton: meta.isConverting,
+          'bg-secondary': meta.isConverting,
+          'border-secondary': meta.isConverting,
           'bg-primary': meta.isPaying || meta.isComplete,
           'border-primary': meta.isPaying || meta.isComplete
         }"
@@ -425,6 +423,8 @@
       <div
         :class="{
           skeleton: meta.isPaying,
+          'bg-secondary': meta.isPaying,
+          'border-secondary': meta.isPaying,
           'bg-primary': meta.isComplete,
           'border-primary': meta.isComplete
         }"
@@ -443,9 +443,11 @@
                 ? "Attempt"
                 : meta.isPaying
                   ? "Attempting"
-                  : "Successfully Completed "
+                  : ""
             }}
             Payment
+
+            {{ meta.isComplete ? "Successful" : "" }}
           </h3>
         </div>
       </div>
