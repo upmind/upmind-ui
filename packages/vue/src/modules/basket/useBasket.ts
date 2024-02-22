@@ -126,7 +126,7 @@ export const useBasket = () => {
         isReadyForCheckout: stateMatches(state, ["checkout.available"]),
         isCheckout: stateMatches(state, ["checkout.processing"]),
         isConverting: stateMatches(state, ["converting"]),
-        isPaying: stateMatches(state, [""]),
+        isPaying: stateMatches(state, ["paying"]),
         isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:

@@ -249,6 +249,7 @@ export interface Typegen0 {
     | "checkout"
     | "checkout.available"
     | "checkout.configuring"
+    | "checkout.processing"
     | "claiming"
     | "complete"
     | "converting"
@@ -288,7 +289,7 @@ export interface Typegen0 {
     | "shopping.promotions.configuring"
     | "subscribing"
     | {
-        checkout?: "available" | "configuring";
+        checkout?: "available" | "configuring" | "processing";
         loading?: "actors" | "basket";
         shopping?:
           | "account"
