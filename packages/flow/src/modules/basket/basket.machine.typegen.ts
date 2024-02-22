@@ -34,6 +34,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.paying:invocation[0]": {
+      type: "done.invoke.paying:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.refreshing:invocation[0]": {
       type: "done.invoke.refreshing:invocation[0]";
       data: unknown;
@@ -69,6 +74,10 @@ export interface Typegen0 {
       type: "error.platform.converting:invocation[0]";
       data: unknown;
     };
+    "error.platform.paying:invocation[0]": {
+      type: "error.platform.paying:invocation[0]";
+      data: unknown;
+    };
     "error.platform.removing:invocation[0]": {
       type: "error.platform.removing:invocation[0]";
       data: unknown;
@@ -96,7 +105,7 @@ export interface Typegen0 {
     updateItem: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
-    actions: "clearDirty" | "setOrder";
+    actions: "clearDirty";
     delays: never;
     guards: never;
     services:
@@ -144,12 +153,14 @@ export interface Typegen0 {
       | "UPDATE.TERM";
     setBasket:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.converting:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
       | "error.platform.converting:invocation[0]"
+      | "error.platform.paying:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
@@ -157,14 +168,15 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
       | "error.platform.converting:invocation[0]"
+      | "error.platform.paying:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackSuccess:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "done.invoke.converting:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
-    setOrder: "done.invoke.converting:invocation[0]";
+    setPayment: "done.invoke.paying:invocation[0]";
+    setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
     updateActors: "CLEAR" | "REMOVE" | "UPDATE";
     updateBasket:
