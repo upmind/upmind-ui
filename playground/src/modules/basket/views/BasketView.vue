@@ -73,14 +73,29 @@
           ></span>
 
           <template v-if="!meta.isLoading && !meta.isProcessing">
+            <!-- Main Statuses -->
             <span v-if="meta.isComplete">
-              is <span class="text-primary">Now an Order</span>
+              is <span class="text-primary">Paid and Complete!</span>
+            </span>
+
+            <span v-else-if="meta.isPaying">
+              is <span class="text-primary">Attempting Payment</span>
+            </span>
+
+            <span v-else-if="meta.isConverting">
+              is <span class="text-primary">Converting to an Order</span>
             </span>
 
             <span v-else-if="meta.isCheckout">
-              is <span class="text-primary">Checking out</span>
+              is <span class="text-primary">Gathering Payment Details</span>
             </span>
 
+            <span v-else-if="meta.isReadyForCheckout">
+              is <span class="text-primary">Ready for Checkout</span>
+            </span>
+
+            <!-- ----- -->
+            <!-- Shopping Statuses -->
             <span v-else-if="!meta.isAvailable">
               is <span class="text-primary">Empty</span>
             </span>
@@ -89,12 +104,8 @@
               needs <span class="text-primary">Updating</span>
             </span>
 
-            <span v-else-if="!meta.isReadyForCheckout">
-              is <span class="text-warning">NOT</span> Ready for Checkout
-            </span>
-
             <span v-else>
-              is <span class="text-primary">Ready for Checkout</span>
+              is <span class="text-warning">NOT</span> Ready for Checkout
             </span>
           </template>
         </h2>

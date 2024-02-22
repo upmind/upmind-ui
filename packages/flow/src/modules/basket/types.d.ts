@@ -4,25 +4,7 @@
 // ENUMS
 
 // --------------------------------------------------------
-// Contexts
-
-export interface BasketContext {
-  basket?: Basket;
-  items?: Array; // Array of actors
-  bin?: Array;
-  queue?: Array;
-  error?: RequestError;
-  summary?: Object;
-  // --- SPAWNED ACTORS/MACHINES
-  actors: {
-    billing_details?: Object;
-    currency?: Object;
-    custom_fields?: Object;
-    payment_details?: Object;
-    promotions?: Object;
-  };
-}
-
+// Interfaces
 export interface Basket {
   account: Object; //IAccount;
   account_id: string; //IAccount["id"];
@@ -93,6 +75,29 @@ export interface Basket {
   taxes: Array; //IAppliedTax[];
   ip: string;
   warning_notes: Array; //IWarningNote[];
+}
+
+// --------------------------------------------------------
+// Contexts
+
+export interface BasketContext {
+  basket?: Basket;
+  items?: Array; // Array of actors
+  bin?: Array;
+  queue?: Array;
+  error?: RequestError;
+  summary?: Object;
+  // --- SPAWNED ACTORS/MACHINES
+  actors: {
+    billing_details?: Object;
+    currency?: Object;
+    custom_fields?: Object;
+    payment_details?: Object;
+    promotions?: Object;
+  };
+  // --- Payments
+  paymentDetails?: Object;
+  payment?: Object;
 }
 
 // --------------------------------------------------------

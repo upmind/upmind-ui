@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -7,11 +7,11 @@ import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
 import type { PaymentContext, PaymentEvent } from "./types.d";
+import { isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -27,10 +27,10 @@ export default createMachine(
     states: {
       loading: {
         invoke: {
-          src: "loadOrder",
+          src: "load",
           onDone: {
-            target: "idle",
-            actions: ["setOrder"]
+            target: "checking",
+            actions: ["setContext"]
           },
           onError: {
             target: "#error",
@@ -39,65 +39,87 @@ export default createMachine(
         }
       },
 
-      idle: {
+      // ---
+      checking: {
+        entry: ["clearError"],
+        id: "checking",
+        invoke: {
+          src: "validate",
+          onDone: { target: "#valid" },
+          onError: {
+            target: "#invalid",
+            actions: ["setError"]
+          }
+        }
+      },
+
+      invalid: {
+        id: "invalid",
         on: {
-          PAY: {
+          "xstate.update": {
+            target: "checking"
+          }
+        }
+      },
+
+      valid: {
+        id: "valid",
+        always: [
+          {
             target: "processing",
-            actions: ["clearError"]
-          },
-          PAYMENT: {
-            target: "processing"
+            cond: "hasPaymentDetails"
+          }
+        ],
+        on: {
+          PAY: { target: "processing" },
+          "xstate.update": {
+            target: "checking"
           }
         }
       },
 
       processing: {
-        entry: ["clearError"],
-        initial: "checking",
-        states: {
-          checking: {
-            always: [
-              {
-                target: "stripe",
-                cond: "isStripePayment"
-              }
-              // TODO: add other payment checks and actions
+        invoke: {
+          src: "update",
+          onDone: {
+            target: "processed",
+            actions: [
+              "clearPaymentDetails",
+              "setPayment",
+              "providePayment",
+              "setFeedbackSuccess"
             ]
           },
-          stripe: {
-            invoke: {
-              src: "src of the sub machine type, eg: Stripe",
-              onDone: {
-                target: "#processed",
-                actions: ["setFeedbackSuccess"]
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+          onError: {
+            target: "error",
+            actions: ["setError", "setFeedbackError"]
           }
-          // TODO: add other payment methods/machines
-          // paypal: {},
-          // bank: {},
-          // offline: {}
         }
       },
 
       processed: {
         id: "processed",
         after: {
-          wait: {
-            target: "complete",
-            cond: "hasNoOutstandingBalance"
-          }
+          wait: [
+            {
+              target: "waiting",
+              cond: "hasRedirect"
+            },
+            {
+              target: "complete",
+              cond: "hasNoOutstandingBalance"
+            },
+            { target: "invalid" }
+          ]
         }
       },
+
+      waiting: {},
 
       complete: {
         id: "complete",
         type: "final",
-        data: (_context: PaymentContext, _event: PaymentEvent) => ({})
+        data: ({ payment }: PaymentContext, _event: PaymentEvent) => payment
       },
 
       error: {
@@ -112,6 +134,27 @@ export default createMachine(
   },
   {
     actions: {
+      setContext: assign(
+        (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
+      ),
+
+      setPaymentDetails: assign({
+        paymentDetails: (_context, { data }) => data
+      }),
+
+      clearPaymentDetails: assign({
+        paymentDetails: {}
+      }),
+
+      setPayment: assign({
+        payment: (_context, { data }) => data
+      }),
+
+      providePayment: sendParent(({ payment }) => ({
+        type: "PAYMENT",
+        data: payment
+      })),
+
       // ---
       setFeedbackSuccess: (_context: PaymentContext, _event: PaymentEvent) => {
         addSuccess("Successfully made payment");
@@ -143,15 +186,20 @@ export default createMachine(
     },
 
     guards: {
+      hasPaymentDetails: (
+        { paymentDetails }: PaymentContext,
+        _event: PaymentEvent
+      ) => !isEmpty(paymentDetails),
+
+      hasRedirect: ({ payment }: PaymentContext, _event: PaymentEvent) =>
+        !!payment.approval_url,
+
       hasNoOutstandingBalance: (
         _context: PaymentContext,
         _event: PaymentEvent
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
-      },
-      isStripePayment: (_context: PaymentContext, _event: PaymentEvent) => {
-        return true; // TODO: check if the payment method is stripe
       }
     },
 

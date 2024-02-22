@@ -3,6 +3,7 @@ import { createMachine, assign, sendTo, pure } from "xstate";
 
 // --- internal
 import services, { InvoiceStatus } from "./services";
+import paymentMachine from "../payment/payment.machine";
 
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
@@ -390,6 +391,7 @@ export default createMachine(
       // This will trigger the Convert service, which will then process the order
       // The processing state will then run its process and when complete will return the completed order
       checkout: {
+        id: "checkout",
         initial: "configuring",
         states: {
           configuring: {
@@ -413,6 +415,7 @@ export default createMachine(
               // response from the payment_details machine = we are ready to convert
               PAYMENT_DETAILS: {
                 target: "#converting",
+                actions: "setPaymentDetails",
                 cond: "paymentDetailsComplete"
               }
             }
@@ -425,17 +428,40 @@ export default createMachine(
         invoke: {
           src: "convert",
           onDone: {
-            target: "#complete",
-            actions: ["setFeedbackSuccess", "clearDirty", "setOrder"]
+            target: "paying",
+            actions: ["clearDirty", "setBasket"]
           },
           onError: {
-            target: "#error",
+            target: "#checkout",
             actions: ["setError", "setFeedbackError"]
           }
         }
       },
 
-      paying: {},
+      // Payment machine is invoked directly as we are serializing the payment process
+      // we wont leave this node until the payment is complete, or we cancel
+      paying: {
+        id: "paying",
+        invoke: {
+          src: paymentMachine,
+          data: ({ basket, paymentDetails }: BasketContext) => ({
+            order: basket,
+            paymentDetails
+          }),
+          onDone: {
+            target: "#complete",
+            actions: ["setPayment"]
+          },
+          onError: {
+            actions: ["setError", "setFeedbackError"]
+          }
+        },
+        on: {
+          CANCEL: {
+            target: "#checkout"
+          }
+        }
+      },
 
       // TODO: actual payment node.
 
@@ -529,6 +555,14 @@ export default createMachine(
         basket: undefined,
         summary: useSummaryParser(),
         error: undefined
+      }),
+
+      setPaymentDetails: assign({
+        paymentDetails: (_context: BasketContext, { data }: BasketEvent) => data
+      }),
+
+      setPayment: assign({
+        payment: (_context: BasketContext, { data }: BasketEvent) => data
       }),
 
       // --- Spawned Actors Actions

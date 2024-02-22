@@ -132,11 +132,7 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "setPaymentDetails",
-                  "providePaymentDetails",
-                  "setFeedbackSuccess"
-                ]
+                actions: ["setPaymentDetails", "providePaymentDetails"]
               }
             }
           },
@@ -145,7 +141,7 @@ export default createMachine(
               src: "confirmSetup",
               onDone: {
                 target: "#processed",
-                actions: ["set", "setFeedbackSuccess"]
+                actions: ["set"]
               }
             }
           }
@@ -280,10 +276,6 @@ export default createMachine(
       })),
 
       // ---
-      setFeedbackSuccess: (_context: StripeContext, _event: StripeEvent) => {
-        addSuccess("Successfully made payment");
-      },
-
       setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
         addError({
           title:

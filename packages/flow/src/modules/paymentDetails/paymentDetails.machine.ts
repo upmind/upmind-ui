@@ -233,9 +233,6 @@ export default createMachine(
       }),
 
       // ---
-      setFeedbackSuccess: (_context, _event) => {
-        addSuccess("Successfully placed the order!");
-      },
 
       setFeedbackError: ({ error }, _event) => {
         // dont show any unauthorized errors

@@ -9,63 +9,79 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.paymentManager.processing.stripe:invocation[0]": {
-      type: "done.invoke.paymentManager.processing.stripe:invocation[0]";
+    "done.invoke.paymentManager.processing:invocation[0]": {
+      type: "done.invoke.paymentManager.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "error.platform.checking:invocation[0]": {
+      type: "error.platform.checking:invocation[0]";
+      data: unknown;
     };
     "error.platform.paymentManager.loading:invocation[0]": {
       type: "error.platform.paymentManager.loading:invocation[0]";
       data: unknown;
     };
-    "error.platform.paymentManager.processing.stripe:invocation[0]": {
-      type: "error.platform.paymentManager.processing.stripe:invocation[0]";
+    "error.platform.paymentManager.processing:invocation[0]": {
+      type: "error.platform.paymentManager.processing:invocation[0]";
       data: unknown;
     };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
+    "xstate.update": { type: "xstate.update" };
   };
   invokeSrcNameMap: {
-    loadOrder: "done.invoke.paymentManager.loading:invocation[0]";
-    "src of the sub machine type, eg: Stripe": "done.invoke.paymentManager.processing.stripe:invocation[0]";
+    load: "done.invoke.paymentManager.loading:invocation[0]";
+    update: "done.invoke.paymentManager.processing:invocation[0]";
+    validate: "done.invoke.checking:invocation[0]";
   };
   missingImplementations: {
-    actions: "setOrder";
+    actions: never;
     delays: never;
     guards: never;
-    services: "loadOrder" | "src of the sub machine type, eg: Stripe";
+    services: "load" | "update" | "validate";
   };
   eventsCausingActions: {
-    clearError: "PAY" | "PAYMENT" | "RETRY";
+    clearError:
+      | "done.invoke.paymentManager.loading:invocation[0]"
+      | "xstate.update";
+    clearPaymentDetails: "done.invoke.paymentManager.processing:invocation[0]";
+    providePayment: "done.invoke.paymentManager.processing:invocation[0]";
+    setContext: "done.invoke.paymentManager.loading:invocation[0]";
     setError:
+      | "error.platform.checking:invocation[0]"
       | "error.platform.paymentManager.loading:invocation[0]"
-      | "error.platform.paymentManager.processing.stripe:invocation[0]";
+      | "error.platform.paymentManager.processing:invocation[0]";
     setFeedbackError:
       | "error.platform.paymentManager.loading:invocation[0]"
-      | "error.platform.paymentManager.processing.stripe:invocation[0]";
-    setFeedbackSuccess: "done.invoke.paymentManager.processing.stripe:invocation[0]";
-    setOrder: "done.invoke.paymentManager.loading:invocation[0]";
+      | "error.platform.paymentManager.processing:invocation[0]";
+    setFeedbackSuccess: "done.invoke.paymentManager.processing:invocation[0]";
+    setPayment: "done.invoke.paymentManager.processing:invocation[0]";
   };
   eventsCausingDelays: {
-    wait: "done.invoke.paymentManager.processing.stripe:invocation[0]";
+    wait: "done.invoke.paymentManager.processing:invocation[0]";
   };
   eventsCausingGuards: {
     hasNoOutstandingBalance: "xstate.after(wait)#processed";
-    isStripePayment: "";
+    hasPaymentDetails: "";
+    hasRedirect: "xstate.after(wait)#processed";
   };
   eventsCausingServices: {
-    loadOrder: "xstate.init";
-    "src of the sub machine type, eg: Stripe": "";
+    load: "xstate.init";
+    update: "" | "PAY" | "RETRY";
+    validate:
+      | "done.invoke.paymentManager.loading:invocation[0]"
+      | "xstate.update";
   };
   matchesStates:
+    | "checking"
     | "complete"
     | "error"
-    | "idle"
+    | "invalid"
     | "loading"
     | "processed"
     | "processing"
-    | "processing.checking"
-    | "processing.stripe"
-    | { processing?: "checking" | "stripe" };
+    | "valid"
+    | "waiting";
   tags: never;
 }

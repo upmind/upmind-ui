@@ -59,12 +59,10 @@ export const useBasket = () => {
             "refreshing",
             "generating",
             "claiming",
-            "shopping.items.processing",
-            "checkout.processing"
+            "shopping.items.processing"
           ]) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
-          machineMatches(actors.value.paymentDetails, ["processing"]) ||
           machineMatches(actors.value.billingDetails, ["processing"]) ||
           machineMatches(actors.value.promotions, ["processing"]),
 
@@ -127,6 +125,8 @@ export const useBasket = () => {
 
         isReadyForCheckout: stateMatches(state, ["checkout.available"]),
         isCheckout: stateMatches(state, ["checkout.processing"]),
+        isConverting: stateMatches(state, ["converting"]),
+        isPaying: stateMatches(state, [""]),
         isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:

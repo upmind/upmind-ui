@@ -85,11 +85,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "#processed",
-            actions: [
-              "setPaymentDetails",
-              "providePaymentDetails",
-              "setFeedbackSuccess"
-            ]
+            actions: ["setPaymentDetails", "providePaymentDetails"]
           }
         }
       },
@@ -173,9 +169,6 @@ export default createMachine(
       })),
 
       // ---
-      setFeedbackSuccess: (_context: GatewayContext, _event: GatewayEvent) => {
-        addSuccess("Successfully made payment");
-      },
 
       setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
         addError({
