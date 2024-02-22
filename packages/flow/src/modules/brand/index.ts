@@ -49,7 +49,6 @@ export const useBrand = () => {
 
       // then we await the state of the request to be processed/cached
       await waitFor(service, newstate => {
-        // console.log("useBrand", "getConfig", newstate.value);
         return [
           "processing.config.complete",
           "processing.config.error",

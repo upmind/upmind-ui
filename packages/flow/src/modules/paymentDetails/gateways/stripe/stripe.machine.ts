@@ -221,10 +221,9 @@ export default createMachine(
           { data }: StripeEvent
         ) => {
           const stripeChangeEvent = (callback, receive) => {
-            data.element.on("change", event => {
-              console.log("Stripe", "Validate", event);
-              callback({ type: "VALIDATE", data: event });
-            });
+            data.element.on("change", event =>
+              callback({ type: "VALIDATE", data: event })
+            );
 
             return () => {};
           };

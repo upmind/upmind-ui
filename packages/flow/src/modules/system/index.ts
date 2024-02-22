@@ -47,11 +47,9 @@ export const useSystem = () => {
     // if we are, then wait for the fetch to complete
 
     if (state.matches(`${node}.loading`)) {
-      // console.log(node, "is busy...waiting", state.value);
       await waitFor(service, newstate =>
         [`${node}.idle`, `${node}.complete`].some(newstate.matches)
       );
-      // console.log(node, "finished, trying again", state.value);
       return fetch(node, getValues, data);
     }
 

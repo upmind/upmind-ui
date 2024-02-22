@@ -66,13 +66,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {
-    load:
-      | "CLEAR"
-      | "REFRESH"
-      | "SET"
-      | "UNAUTHENTICATED"
-      | "xstate.init"
-      | "xstate.update";
+    load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
       | "SET"

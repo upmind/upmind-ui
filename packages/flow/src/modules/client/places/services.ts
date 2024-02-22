@@ -91,8 +91,6 @@ async function parse(
       (result, status) => {
         sessionToken = new AutocompleteSessionToken();
 
-        console.log("getPlaceDetails", "callback", { result, status });
-
         if (status === statuses.OK) {
           usePlaceParser(result).then(place => {
             resolve(place);

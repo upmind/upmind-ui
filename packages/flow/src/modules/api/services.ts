@@ -47,7 +47,6 @@ async function doFetch({ url, init }: RequestContext) {
       // TODO: transform our responses to ensure we have a consistent data object
       // always in camelCase
       // const safeData = ensureCamelCaseKeys({ ...data });
-      // console.log("api response", "ensureCamelCaseKeys", { data, safeData });
       // return safeData;
 
       return data;
@@ -79,12 +78,10 @@ async function refreshToken(_context: RequestContext, _event: any) {
   // start by getting the current service and state
   // kick off the auth process
   let state = getSnapshot();
-  console.log("refreshToken", "before send", state);
 
   sessionService.send("REFRESH");
 
   state = getSnapshot();
-  console.log("refreshToken", "sent", state);
 
   // wait for the service to complete
   await waitFor(sessionService, newState =>
@@ -98,7 +95,6 @@ async function refreshToken(_context: RequestContext, _event: any) {
   // });
 
   state = getSnapshot();
-  console.log("refreshToken", "after wait", "session", state);
 
   // return the token or error
   return new Promise((resolve, reject) => {
