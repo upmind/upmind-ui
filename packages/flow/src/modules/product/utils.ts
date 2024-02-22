@@ -78,7 +78,6 @@ export const useProductParser = (data: any) => {
     "provision_blueprint_id"
   ]);
 
-  // console.log("useProductParser", data);
   // --------------------------------------------------------
   // then add some syntactic sugar / computed properties
 
@@ -347,7 +346,6 @@ export const useProvisioningParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data: any) => {
-  // console.log("useSummaryParser", data);
   const summary = {
     discount: data?.configuration_total_discount_amount_converted,
     discountFormatted: data?.configuration_total_discount_amount_formatted,

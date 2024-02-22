@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, sendParent, pure } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -12,7 +12,7 @@ import { spawnGateway } from "./utils";
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema, useModelParser } from "./utils";
-import { set, unset } from "lodash-es";
+import { set, unset, forEach } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -22,7 +22,6 @@ import type {
   PaymentDetailsEvent,
   RefreshEvent
 } from "./types.d";
-import { sendTo } from "xstate/lib/actions";
 
 // --------------------------------------------------------
 
@@ -87,16 +86,27 @@ export default createMachine(
         }
       },
 
-      invalid: { id: "invalid" },
+      invalid: {
+        id: "invalid",
+        on: {
+          "xstate.update": {
+            target: "checking"
+          }
+        }
+      },
 
       valid: {
         id: "valid",
         on: {
-          CHECKOUT: { actions: "forwardCheckout", target: "processing" }
+          CHECKOUT: { target: "processing" },
+          "xstate.update": {
+            target: "checking"
+          }
         }
       },
 
       processing: {
+        entry: ["forwardCheckout"],
         // ths is the return from the gateway
         on: {
           PAYMENT_DETAILS: {
@@ -119,10 +129,6 @@ export default createMachine(
       }
     },
     on: {
-      "xstate.update": {
-        target: "checking"
-      },
-
       CLEAR: {
         target: "#checking",
         actions: ["clearModel"]
@@ -218,8 +224,12 @@ export default createMachine(
 
       // ---
 
-      forwardCheckout: sendTo(({ actors }) => actors?.gateway?.id, {
-        type: "CHECKOUT"
+      forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
+        forEach(actors, actor => {
+          if (actor?.send) {
+            actor.send({ type: "CHECKOUT" });
+          }
+        });
       }),
 
       // ---

@@ -2,7 +2,6 @@ import { isEmpty, isObject, isArray } from "lodash-es";
 
 // a custom isEmpty that can handle deeply nested objects
 export function isDeepEmpty(value: any): boolean {
-  console.log("isDeepEmpty", value);
   if (isEmpty(value)) {
     return true;
   }

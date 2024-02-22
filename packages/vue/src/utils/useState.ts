@@ -21,20 +21,11 @@ import {
 
 // --- state matching
 export const stateMatches = (state, states: string[]) => {
-  // console.log("stateMatches", states?.toString());
-
   state = unref(state);
 
   if (!state || !states?.length) return false;
 
   if (!isFunction(state.matches)) return false;
-
-  // console.log(
-  //   "stateMatches",
-  //   states?.toString(),
-  //   states.some(state.matches),
-  //   state.value
-  // );
 
   return states.some(state.matches);
 };
