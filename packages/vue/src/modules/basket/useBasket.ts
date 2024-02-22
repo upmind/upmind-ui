@@ -87,7 +87,8 @@ export const useBasket = () => {
             "generating",
             "refreshing",
             "shopping",
-            "checkout"
+            "checkout.configuring",
+            "checkout.available"
           ]) && !stateMatches(state, ["shopping.items.empty"]),
 
         needsAuth: !stateMatches(state, [
