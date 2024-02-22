@@ -7,7 +7,7 @@ import { useApi, useSession } from "../../../";
 // --- utils
 import { useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
-import { set } from "lodash-es";
+import { set, get } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types.d";
@@ -74,14 +74,29 @@ async function parse(_context: StripeContext, _event: StripeEvent) {
   return Promise.resolve({});
 }
 
-async function validate({ schema, model }: StripeContext, _event: StripeEvent) {
+async function validate(
+  { schema, model, element, elementStatus }: StripeContext,
+  { data }: StripeEvent
+) {
   // ---
+
+  // Get any errors from the Stripe Element
+  if (!element) return Promise.reject("Stripe elements not found.");
 
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
-    const errors = validate(schema, model);
+    const errors = validate(schema, model) || [];
+
+    // NB: we are invalid if the stripe element status is NOT complete!
+    if (!elementStatus?.complete) {
+      errors.push({
+        title: "Stripe element is incomplete.",
+        data
+      });
+    }
+
     if (errors?.length) {
       reject({ error: errors });
     } else {
