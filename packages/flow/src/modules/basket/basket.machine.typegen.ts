@@ -24,13 +24,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.generating:invocation[0]": {
-      type: "done.invoke.generating:invocation[0]";
+    "done.invoke.converting:invocation[0]": {
+      type: "done.invoke.converting:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.processing:invocation[0]": {
-      type: "done.invoke.processing:invocation[0]";
+    "done.invoke.generating:invocation[0]": {
+      type: "done.invoke.generating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -65,8 +65,8 @@ export interface Typegen0 {
       type: "error.platform.claiming:invocation[0]";
       data: unknown;
     };
-    "error.platform.processing:invocation[0]": {
-      type: "error.platform.processing:invocation[0]";
+    "error.platform.converting:invocation[0]": {
+      type: "error.platform.converting:invocation[0]";
       data: unknown;
     };
     "error.platform.removing:invocation[0]": {
@@ -86,7 +86,7 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
     claim: "done.invoke.claiming:invocation[0]";
-    convert: "done.invoke.processing:invocation[0]";
+    convert: "done.invoke.converting:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.account.checking:invocation[0]";
     load: "done.invoke.basketManager.loading.basket:invocation[0]";
@@ -116,7 +116,7 @@ export interface Typegen0 {
     binItem: "REMOVE";
     checkoutActors: "CHECKOUT";
     clearBasket: "UNAUTHENTICATED";
-    clearDirty: "done.invoke.processing:invocation[0]";
+    clearDirty: "done.invoke.converting:invocation[0]";
     clearError: "UNAUTHENTICATED";
     clearQueue: "UNAUTHENTICATED" | "UPDATE";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
@@ -149,22 +149,22 @@ export interface Typegen0 {
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.processing:invocation[0]"
+      | "error.platform.converting:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
-      | "error.platform.processing:invocation[0]"
+      | "error.platform.converting:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackSuccess:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "done.invoke.processing:invocation[0]"
+      | "done.invoke.converting:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
-    setOrder: "done.invoke.processing:invocation[0]";
+    setOrder: "done.invoke.converting:invocation[0]";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
     updateActors: "CLEAR" | "REMOVE" | "UPDATE";
     updateBasket:
@@ -200,9 +200,9 @@ export interface Typegen0 {
     isNotMuted: "REFRESH";
     isNotQueued: "UPDATE";
     isOrder: "done.invoke.basketManager.loading.basket:invocation[0]";
-    paymentComplete: "";
     paymentConfiguring: "";
-    paymentValid: "";
+    paymentDetailsComplete: "PAYMENT_DETAILS";
+    paymentDetailsValid: "";
     promotionsComplete: "";
     promotionsConfiguring: "";
     someConfiguring: "";
@@ -217,7 +217,7 @@ export interface Typegen0 {
       | "UPDATE"
       | "xstate.init";
     claim: "AUTHENTICATED";
-    convert: "" | "PAYMENT_DETAILS";
+    convert: "PAYMENT_DETAILS";
     generate: "ADD";
     isAuthenticated:
       | ""
@@ -237,14 +237,15 @@ export interface Typegen0 {
     | "checkout"
     | "checkout.available"
     | "checkout.configuring"
-    | "checkout.processing"
     | "claiming"
     | "complete"
+    | "converting"
     | "error"
     | "generating"
     | "loading"
+    | "loading.actors"
     | "loading.basket"
-    | "loading.items"
+    | "paying"
     | "refreshing"
     | "shopping"
     | "shopping.account"
@@ -275,8 +276,8 @@ export interface Typegen0 {
     | "shopping.promotions.configuring"
     | "subscribing"
     | {
-        checkout?: "available" | "configuring" | "processing";
-        loading?: "basket" | "items";
+        checkout?: "available" | "configuring";
+        loading?: "actors" | "basket";
         shopping?:
           | "account"
           | "billing_details"

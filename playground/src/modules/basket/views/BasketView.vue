@@ -164,7 +164,7 @@
 
     <div
       class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
-      v-if="!meta.isLoading && meta.isAvailable"
+      v-if="meta.isAvailable"
       :data-theme="activeTheme"
     >
       <!-- items -->
@@ -345,6 +345,7 @@
       <upm-debug
         :debugging="debugging"
         title="Basket"
+        :open="{ state: true }"
         :state="state"
         :model="{ model }"
         :context="{ promotions, items, basket }"

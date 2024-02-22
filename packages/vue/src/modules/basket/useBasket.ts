@@ -52,18 +52,13 @@ export const useBasket = () => {
     // ---
     meta: computed(() => {
       return {
-        isLoading:
-          stateMatches(state, ["loading"]) ||
-          machineMatches(actors.value.currency, ["loading"]) ||
-          machineMatches(actors.value.customFields, ["loading"]) ||
-          machineMatches(actors.value.paymentDetails, ["loading"]) ||
-          machineMatches(actors.value.billingDetails, ["loading"]) ||
-          machineMatches(actors.value.promotions, ["loading"]),
+        isLoading: stateMatches(state, ["loading"]),
 
         isProcessing:
           stateMatches(state, [
             "refreshing",
             "generating",
+            "claiming",
             "shopping.items.processing",
             "checkout.processing"
           ]) ||
@@ -76,7 +71,6 @@ export const useBasket = () => {
         needsUpdating:
           machineMatches(actors.value.currency, ["valid"]) ||
           machineMatches(actors.value.customFields, ["valid"]) ||
-          machineMatches(actors.value.paymentDetails, ["valid"]) ||
           machineMatches(actors.value.billingDetails, ["valid"]) ||
           machineMatches(actors.value.promotions, ["valid"]) ||
           (stateMatches(state, ["shopping.items.configuring"]) &&
@@ -90,8 +84,13 @@ export const useBasket = () => {
         // ---
 
         isAvailable:
-          stateMatches(state, ["shopping", "refreshing", "checkout"]) &&
-          !stateMatches(state, ["shopping.items.empty"]),
+          stateMatches(state, [
+            "claiming",
+            "generating",
+            "refreshing",
+            "shopping",
+            "checkout"
+          ]) && !stateMatches(state, ["shopping.items.empty"]),
 
         needsAuth: !stateMatches(state, [
           "shopping.account.complete",

@@ -94,12 +94,12 @@ export default createMachine(
               onDone: [
                 {
                   target: "#complete",
-                  actions: ["setBasket", "loadItems", "spawnActors"],
+                  actions: ["setBasket", "loadItems"],
                   cond: "isOrder"
                 },
                 {
-                  target: "items",
-                  actions: ["setBasket", "loadItems", "spawnActors"]
+                  target: "actors",
+                  actions: ["setBasket", "loadItems"]
                 }
               ],
               onError: {
@@ -108,7 +108,8 @@ export default createMachine(
               }
             }
           },
-          items: {
+          actors: {
+            entry: ["spawnActors"],
             always: {
               target: "#shopping",
               cond: "isNotLoading"
@@ -392,18 +393,12 @@ export default createMachine(
         initial: "configuring",
         states: {
           configuring: {
-            always: [
-              { target: "available", cond: "paymentValid" },
-              { target: "processing", cond: "paymentComplete" }
-            ]
+            always: [{ target: "available", cond: "paymentDetailsValid" }]
           },
 
           // items are 'complete' only when they have been successfully added to the basket
           available: {
-            always: [
-              { target: "configuring", cond: "paymentConfiguring" },
-              { target: "processing", cond: "paymentComplete" }
-            ],
+            always: [{ target: "configuring", cond: "paymentConfiguring" }],
             // ---
             // NB: Checkout is a chained sequence of events:
             // First, it will forward the event to the payment_details machine
@@ -415,28 +410,32 @@ export default createMachine(
               CHECKOUT: {
                 actions: "checkoutActors"
               },
+              // response from the payment_details machine = we are ready to convert
               PAYMENT_DETAILS: {
-                target: "processing"
-              }
-            }
-          },
-
-          processing: {
-            id: "processing",
-            invoke: {
-              src: "convert",
-              onDone: {
-                target: "#complete",
-                actions: ["setFeedbackSuccess", "clearDirty", "setOrder"]
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
+                target: "#converting",
+                cond: "paymentDetailsComplete"
               }
             }
           }
         }
       },
+
+      converting: {
+        id: "converting",
+        invoke: {
+          src: "convert",
+          onDone: {
+            target: "#complete",
+            actions: ["setFeedbackSuccess", "clearDirty", "setOrder"]
+          },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
+      },
+
+      paying: {},
 
       // TODO: actual payment node.
 
@@ -870,17 +869,19 @@ export default createMachine(
         return !actors.billing_details?.state?.matches("complete");
       },
 
-      paymentValid: ({ actors }) => {
+      paymentDetailsValid: ({ actors }) => {
         return actors.payment_details?.state?.matches("valid");
       },
 
-      paymentComplete: ({ actors }) => {
-        return actors.payment_details?.state?.matches("complete");
+      paymentConfiguring: ({ actors }) => {
+        return ["invalid", "checking", "loading"].some(
+          actors.payment_details?.state?.matches
+        );
       },
 
-      paymentConfiguring: ({ actors }) => {
-        return !["valid", "complete"].some(
-          actors.payment_details?.state?.matches
+      paymentDetailsComplete: ({ actors }, { data }, meta) => {
+        return (
+          actors.payment_details?.state?.matches("complete") && !isEmpty(data)
         );
       },
 
@@ -911,8 +912,11 @@ export default createMachine(
         return !!data?.itemId && !some(queue, ["id", data.itemId]);
       },
 
-      isNotLoading: ({ items }) => {
-        return every(items, ({ state }) => !state.matches("loading"));
+      isNotLoading: ({ items, actors }) => {
+        return (
+          every(actors, ({ state }) => !state.matches("loading")) &&
+          every(items, ({ state }) => !state.matches("loading"))
+        );
       },
 
       hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,

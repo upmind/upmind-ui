@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendParent, pure } from "xstate";
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -22,6 +22,7 @@ import type {
   PaymentDetailsEvent,
   RefreshEvent
 } from "./types.d";
+import { sendTo } from "xstate/lib/actions";
 
 // --------------------------------------------------------
 
@@ -213,8 +214,8 @@ export default createMachine(
 
       // ---
 
-      forwardCheckout: pure((_context, { data: { actors } }) => {
-        actors?.gateway?.send({ type: "CHECKOUT" });
+      forwardCheckout: sendTo(({ actors }) => actors?.gateway?.id, {
+        type: "CHECKOUT"
       }),
 
       // ---
