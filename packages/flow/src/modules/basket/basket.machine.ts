@@ -2,7 +2,7 @@
 import { createMachine, assign, sendTo, pure } from "xstate";
 
 // --- internal
-import services, { InvoiceStatus } from "./services";
+import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 
 import { useFeedback } from "../feedback";
@@ -27,6 +27,7 @@ import {
   findIndex,
   forEach,
   get,
+  includes,
   isEmpty,
   omit,
   reject,
@@ -38,6 +39,7 @@ import {
 
 // --- types
 import type { BasketContext, BasketEvent } from "./types.d";
+import { PaymentTypes, GatewayTypes } from "../paymentDetails/types.d";
 
 // --------------------------------------------------------
 
@@ -92,17 +94,10 @@ export default createMachine(
           basket: {
             invoke: {
               src: "load",
-              onDone: [
-                {
-                  target: "#complete",
-                  actions: ["setBasket", "loadItems"],
-                  cond: "isOrder"
-                },
-                {
-                  target: "actors",
-                  actions: ["setBasket", "loadItems"]
-                }
-              ],
+              onDone: {
+                target: "actors",
+                actions: ["setBasket", "loadItems"]
+              },
               onError: {
                 target: "#error",
                 actions: ["setError", "setFeedbackError"]
@@ -433,10 +428,17 @@ export default createMachine(
         id: "converting",
         invoke: {
           src: "convert",
-          onDone: {
-            target: "paying",
-            actions: ["clearDirty", "setBasket"]
-          },
+          onDone: [
+            {
+              target: "#paying",
+              actions: ["setBasket"],
+              cond: "needsPayment"
+            },
+            {
+              target: "#complete",
+              actions: ["setBasket"]
+            }
+          ],
           onError: {
             target: "#checkout",
             actions: ["setError", "setFeedbackError"]
@@ -868,10 +870,30 @@ export default createMachine(
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
-      isOrder: (_context, { data }) => {
-        if (!data) return false;
-        const status = get(data, "status.code");
-        return status !== InvoiceStatus.DRAFT;
+      needsPayment: ({ paymentDetails }) => {
+        const hasOustandingBalance = paymentDetails?.amount >= 0;
+        const payingNow =
+          paymentDetails?.payment_type != PaymentTypes.PAY_LATER;
+        const manualPayment = includes(
+          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+          paymentDetails?.gateway?.type
+        );
+
+        const valid = hasOustandingBalance && payingNow && !manualPayment;
+
+        // NB: original checks from the vue app for reference
+        // (data.balance !== 0 && data.payment_type !== PaymentTypes.PAY_LATER) ||
+        //   includes(
+        //     [
+        //       PaymentMethodType.GATEWAY_OFFLINE,
+        //       PaymentMethodType.GATEWAY_BANK_TRANSFER,
+        //       PaymentTypes.PAY_LATER
+        //     ],
+        //     paymentMethodType
+        //   )) ||
+        // this.paymentData.wallet_amount > 0
+
+        return valid;
       },
 
       isNotMuted: ({ muted }) => !muted,

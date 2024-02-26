@@ -201,7 +201,6 @@ async function createAddElement(
     }
   }).then(({ data }) => {
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
-    debugger;
     const clientPaymentDetailsId = data?.client_payment_details?.id;
     const clientSecret = data?.gateway_specific?.client_secret;
 
@@ -211,9 +210,7 @@ async function createAddElement(
       locale: "auto" // TODO: add i18n local
     });
 
-    debugger;
     const element = elements?.create("payment");
-    debugger;
     // ---
 
     return {

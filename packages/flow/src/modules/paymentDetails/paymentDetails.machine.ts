@@ -212,7 +212,9 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: (_context, { data }) => data
+        paymentDetails: ({ model }, { data }) => {
+          return { ...model, ...data };
+        }
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
@@ -263,11 +265,7 @@ export default createMachine(
       clearError: assign({ error: null })
     },
 
-    guards: {
-      needsGateway: ({ model }, _event) =>
-        model.type !== PaymentTypes.PAY_LATER,
-      noGateway: ({ model }, _event) => model.type == PaymentTypes.PAY_LATER
-    },
+    guards: {},
 
     delays: {
       error: () => useTime().ERROR,

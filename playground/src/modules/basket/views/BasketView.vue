@@ -57,7 +57,7 @@
       </slot>
     </div>
     <header
-      class="bg-base-100 bg-opacity-10 text-base-content shadow-md rounded-box sticky top-0 z-10"
+      class="bg-base-100 text-base-content shadow-md rounded-box sticky top-0 z-50"
     >
       <div class="navbar relative z-20 pl-4">
         <h2 class="flex-1 title m-0 flex gap-1 justify-center">
@@ -163,7 +163,7 @@
 
         <button
           :disabled="!meta.isReadyForCheckout || meta.isProcessing"
-          @click.prevent="checkout"
+          @click.prevent="doCheckout"
           class="btn uppercase btn-primary btn-sm h-full mr-8"
           :class="meta.isReadyForCheckout ? 'step-primary' : ''"
           :data-content="meta.isReadyForCheckout ? '✓' : ''"
@@ -175,7 +175,7 @@
 
     <div
       class="basket grid grid-cols-7 gap-8 my-4 p-4 rounded-box items-start"
-      v-if="meta.isAvailable"
+      v-show="meta.isAvailable"
       :data-theme="activeTheme"
     >
       <!-- items -->
@@ -353,7 +353,7 @@
     </div>
 
     <div
-      v-if="
+      v-show="
         meta.isCheckout || meta.isConverting || meta.isPaying || meta.isComplete
       "
       class="grid grid-cols-3 gap-8 w-full justify-center px-4 py-8 my-8 min-h-96"
@@ -421,6 +421,7 @@
       </div>
 
       <div
+        ref="paymentProcess"
         :class="{
           skeleton: meta.isPaying,
           'bg-secondary': meta.isPaying,
@@ -470,7 +471,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, onBeforeUnmount } from "vue";
+import { ref, inject, onBeforeUnmount, nextTick } from "vue";
 import { useBasket } from "@upmind/vue";
 import UpmCurrency from "../components/Currency.vue";
 import UpmProduct from "@/modules/product/views/Product.vue";
@@ -571,6 +572,21 @@ const model = ref({
   product_id: null,
   quantity: 1
 });
+
+const paymentProcess = ref(null);
+
+async function doCheckout() {
+  checkout();
+  await nextTick();
+
+  const yOffset = -108;
+  const y =
+    paymentProcess.value?.getBoundingClientRect().top +
+    window.scrollY +
+    yOffset;
+
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
 
 // make sure we update any basket fields if we navigate away from the basket
 onBeforeUnmount(() => {
