@@ -105,7 +105,7 @@ export interface Typegen0 {
     updateItem: "done.invoke.updating:invocation[0]";
   };
   missingImplementations: {
-    actions: "clearDirty";
+    actions: never;
     delays: never;
     guards: never;
     services:
@@ -125,7 +125,6 @@ export interface Typegen0 {
     binItem: "REMOVE";
     checkoutActors: "CHECKOUT";
     clearBasket: "UNAUTHENTICATED";
-    clearDirty: "done.invoke.converting:invocation[0]";
     clearError: "UNAUTHENTICATED";
     clearQueue: "UNAUTHENTICATED" | "UPDATE";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
@@ -211,7 +210,7 @@ export interface Typegen0 {
     isNotLoading: "";
     isNotMuted: "REFRESH";
     isNotQueued: "UPDATE";
-    isOrder: "done.invoke.basketManager.loading.basket:invocation[0]";
+    needsPayment: "done.invoke.converting:invocation[0]";
     paymentConfiguring: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";
     paymentDetailsValid: "";

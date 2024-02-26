@@ -10,6 +10,19 @@ export enum PaymentTypes {
   // MANUAL_PAYMENT = "manual-payment" // only admi s can do this and we dont support it...YET
 }
 
+export enum PaymentMethodTypes {
+  STORED_CARD = "stored-card",
+  GATEWAY_CARD = "gateway-card",
+  GATEWAY_BANK_TRANSFER = "gateway-bank-transfer",
+  GATEWAY_DIRECT_DEBIT = "gateway-direct-debit",
+  GATEWAY_SEPA = "gateway-sepa",
+  GATEWAY_MOBILE = "gateway-mobile",
+  GATEWAY_OFFLINE = "gateway-offline",
+  PAY_LATER = "pay-later",
+  MANUAL_PAYMENT = "manual-payment",
+  EXTERNAL_STORE = "external-store"
+}
+
 export enum GatewayTypes {
   CARD = 1,
   BANK_TRANSFER = 2,

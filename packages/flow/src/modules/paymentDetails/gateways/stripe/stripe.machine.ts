@@ -267,7 +267,9 @@ export default createMachine(
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: (_context, { data }) => data
+        paymentDetails: ({ gateway }, { data }) => {
+          return { gateway, ...data };
+        }
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
