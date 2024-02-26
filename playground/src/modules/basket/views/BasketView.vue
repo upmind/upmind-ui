@@ -368,7 +368,7 @@
           'border-primary':
             meta.isConverting || meta.isPaying || meta.isComplete
         }"
-        class="card card-bordered bg-base-100 bg-opacity-10 bg-opacity-10 rounded-box place-items-center"
+        class="card card-bordered bg-base-100 bg-opacity-10 rounded-box place-items-center"
       >
         <figure class="avatar placeholder">
           <div class="bg-neutral bg-opacity-5 rounded-full w-24">
@@ -380,12 +380,11 @@
           <h3 class="card-title m-0 text-center text-inherit">
             {{
               meta.isAvailable
-                ? "Gather"
+                ? "Gather Payment Details"
                 : meta.isCheckout
-                  ? "Gathering"
-                  : "Gathered"
+                  ? "Gathering Payment Details..."
+                  : "Payment Details Gathered!"
             }}
-            Payment Details
           </h3>
         </div>
       </div>
@@ -410,12 +409,11 @@
           <h3 class="card-title m-0 text-center text-inherit">
             {{
               meta.isAvailable || meta.isCheckout
-                ? "Convert"
+                ? "Convert Basket"
                 : meta.isConverting
-                  ? "Converting"
-                  : "Converted"
+                  ? "Converting Basket ..."
+                  : "Basket Converted to Order!"
             }}
-            to Order
           </h3>
         </div>
       </div>
@@ -441,14 +439,11 @@
           <h3 class="card-title m-0 text-center text-inherit">
             {{
               meta.isAvailable || meta.isCheckout || meta.isConverting
-                ? "Attempt"
-                : meta.isPaying
-                  ? "Attempting"
-                  : ""
+                ? "Attempt Payment"
+                : !meta.isComplete
+                  ? "Attempting Payment..."
+                  : "Payment Successful!"
             }}
-            Payment
-
-            {{ meta.isComplete ? "Successful" : "" }}
           </h3>
         </div>
       </div>
