@@ -169,7 +169,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (context, { data }, meta) => {
+        error: (context, { data }) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data

@@ -7,7 +7,7 @@ import { ItemActions as actions } from "./actions";
 import services from "./services";
 
 // --- utils
-import { get, set, reduce, defaultsDeep, uniqueId, map } from "lodash-es";
+import { get, uniqueId, map } from "lodash-es";
 
 // --- types
 import type { ICompany } from "./types.d";
@@ -167,20 +167,6 @@ export const useUischema = () => {
   };
 
   return schema as UISchemaElement;
-};
-
-export const useModelParser = (schema: JsonSchema, values: ICompany) => {
-  const model = reduce(
-    schema.properties,
-    (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values) as ICompany;
 };
 
 // --------------------------------------------------------

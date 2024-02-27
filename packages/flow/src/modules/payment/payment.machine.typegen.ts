@@ -18,6 +18,10 @@ export interface Typegen0 {
       type: "error.platform.checking:invocation[0]";
       data: unknown;
     };
+    "error.platform.paymentManager.approving:invocation[0]": {
+      type: "error.platform.paymentManager.approving:invocation[0]";
+      data: unknown;
+    };
     "error.platform.paymentManager.loading:invocation[0]": {
       type: "error.platform.paymentManager.loading:invocation[0]";
       data: unknown;
@@ -32,6 +36,7 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     load: "done.invoke.paymentManager.loading:invocation[0]";
+    redirect: "done.invoke.paymentManager.approving:invocation[0]";
     update: "done.invoke.paymentManager.processing:invocation[0]";
     validate: "done.invoke.checking:invocation[0]";
   };
@@ -39,7 +44,7 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services: "load" | "update" | "validate";
+    services: "load" | "redirect" | "update" | "validate";
   };
   eventsCausingActions: {
     clearError:
@@ -50,9 +55,11 @@ export interface Typegen0 {
     setContext: "done.invoke.paymentManager.loading:invocation[0]";
     setError:
       | "error.platform.checking:invocation[0]"
+      | "error.platform.paymentManager.approving:invocation[0]"
       | "error.platform.paymentManager.loading:invocation[0]"
       | "error.platform.paymentManager.processing:invocation[0]";
     setFeedbackError:
+      | "error.platform.paymentManager.approving:invocation[0]"
       | "error.platform.paymentManager.loading:invocation[0]"
       | "error.platform.paymentManager.processing:invocation[0]";
     setFeedbackSuccess: "done.invoke.paymentManager.processing:invocation[0]";
@@ -64,16 +71,18 @@ export interface Typegen0 {
   eventsCausingGuards: {
     hasNoOutstandingBalance: "xstate.after(wait)#processed";
     hasPaymentDetails: "";
-    hasRedirect: "xstate.after(wait)#processed";
+    needsApproval: "xstate.after(wait)#processed";
   };
   eventsCausingServices: {
     load: "xstate.init";
+    redirect: "xstate.after(wait)#processed";
     update: "" | "PAY" | "RETRY";
     validate:
       | "done.invoke.paymentManager.loading:invocation[0]"
       | "xstate.update";
   };
   matchesStates:
+    | "approving"
     | "checking"
     | "complete"
     | "error"
@@ -81,7 +90,6 @@ export interface Typegen0 {
     | "loading"
     | "processed"
     | "processing"
-    | "valid"
-    | "waiting";
+    | "valid";
   tags: never;
 }

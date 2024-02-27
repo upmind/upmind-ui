@@ -7,7 +7,7 @@ import stripeMachine from "./gateways/stripe/stripe.machine";
 import cardConfig from "./gateways/card";
 
 // --- utils
-import { defaultsDeep, get, map, reduce, set } from "lodash-es";
+import { map } from "lodash-es";
 
 // --- types
 
@@ -18,8 +18,8 @@ import {
   GatewayProviderCodes
 } from "./types.d";
 
-import type { IPaymentDetail, PaymentDetailsContext } from "./types.d";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { PaymentDetailsContext } from "./types.d";
+import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
@@ -72,19 +72,10 @@ export const useSchema = ({
 
 // --------------------------------------------------------
 
-export const useUischema = ({ currency }: PaymentDetailsContext) => {
+export const useUischema = (_context: PaymentDetailsContext) => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
-      // {
-      //   type: "Control",
-      //   scope: "#/properties/amount",
-      //   options: {
-      //     prefix: currency?.prefix,
-      //     suffix: currency?.suffix,
-      //     trim: true
-      //   }
-      // },
       {
         type: "Control",
         scope: "#/properties/type",
@@ -110,22 +101,6 @@ export const useUischema = ({ currency }: PaymentDetailsContext) => {
   };
 
   return uischema as UISchemaElement;
-};
-
-// --------------------------------------------------------
-
-export const useModelParser = (schema: JsonSchema, values: IPaymentDetail) => {
-  const model = reduce(
-    schema?.properties,
-    (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values) as IPaymentDetail;
 };
 
 // --------------------------------------------------------

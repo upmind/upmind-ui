@@ -3,22 +3,31 @@
 // --- internal
 
 // --- utils
-import { reduce, defaultsDeep, get, set } from "lodash-es";
+import { generateUrls } from "../utils";
+import { get } from "lodash-es";
 
 // --- types
+import { QUERY_PARAMS } from "../types.d";
 import type { GatewayContext } from "../types.d";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ gateway }: GatewayContext) => {
+export const useSchema = ({ gateway, operation_id }: GatewayContext) => {
   const gateway_provider = get(gateway, "gateway_provider", {});
+  const { cancel, successsEncoded, failEncoded } = generateUrls(operation_id);
 
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
-    required: ["card_num", "card_expiry", "card_cvv"],
+    required: ["gateway_id", "card_num", "card_expiry", "card_cvv"],
     properties: {
+      gateway_id: {
+        type: "string",
+        title: "Gateway ID",
+        const: gateway.id
+      },
+
       cardholder_name: { type: "string", title: "Cardholder Name" },
       card_num: {
         type: "string",
@@ -59,6 +68,18 @@ export const useSchema = ({ gateway }: GatewayContext) => {
         description:
           "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
         default: false // todo use brand settings
+      },
+      return_url: {
+        type: "string",
+        title: "Return URL",
+        format: "uri-reference",
+        const: `?${QUERY_PARAMS.SUCCESS}=${successsEncoded}&${QUERY_PARAMS.FAILED}=${failEncoded}`
+      },
+      cancel_url: {
+        type: "string",
+        title: "Cancel URL",
+        format: "uri",
+        const: cancel
       }
     }
   };
@@ -133,20 +154,4 @@ export const useUischema = (_context: GatewayContext) => {
   };
 
   return uischema as UISchemaElement;
-};
-
-// --------------------------------------------------------
-
-export const useModelParser = (schema: JsonSchema, values) => {
-  const model = reduce(
-    schema?.properties,
-    (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values);
 };

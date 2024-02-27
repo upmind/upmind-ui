@@ -9,7 +9,7 @@ import {
 import ajvErrors from "ajv-errors";
 
 // --- utils
-import { forEach } from "lodash-es";
+import { forEach, reduce, get, set, defaultsDeep } from "lodash-es";
 
 // --- types
 
@@ -74,4 +74,18 @@ export const useValidationParser = (error: any) => {
   }
 
   return error;
+};
+
+export const useModelParser = (schema, values) => {
+  const model = reduce(
+    schema?.properties,
+    (result, field, key) => {
+      const value = field?.const || get(values, key, field?.default);
+      set(result, key, value);
+      return result;
+    },
+    {}
+  );
+
+  return defaultsDeep(model, values);
 };

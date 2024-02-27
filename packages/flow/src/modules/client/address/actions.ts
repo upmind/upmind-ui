@@ -61,7 +61,7 @@ export const ItemActions = {
   }),
 
   setModel: assign({
-    model: ({ schema }: AddressContext, { data }: AddressEvent) =>
-      useModelParser(schema, data)
+    model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
+      useModelParser(schema, data, baseModel)
   })
 };

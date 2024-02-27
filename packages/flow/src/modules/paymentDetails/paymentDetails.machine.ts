@@ -4,18 +4,18 @@ import { createMachine, assign, sendParent, pure } from "xstate";
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 import { responseCodes } from "../api";
 
 import { spawnGateway } from "./utils";
 
 // --- utils
+import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
-import { useSchema, useUischema, useModelParser } from "./utils";
+import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
 
 // --- types
-import { PaymentTypes } from "./types.d";
 
 import type {
   PaymentDetailsContext,
@@ -193,7 +193,7 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: context => useModelParser(context, context.model)
+        model: ({ schema, model }) => useModelParser(schema, model)
       }),
 
       clearSchemas: assign({
@@ -202,9 +202,9 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: (context, { data }) => useModelParser(context, data)
+        model: ({ schema, model }, { data }) =>
+          useModelParser(schema, data || model)
       }),
-
       clearModel: assign({
         model: undefined
       }),

@@ -13,6 +13,11 @@ export interface PaymentContext {
   id?: string;
   order?: IBasket;
   paymentDetails?: Object;
+  payment?: IPayment;
+  urls: {
+    return?: URL;
+    cancel?: URL;
+  };
   // ---
   error?: RequestError;
 }

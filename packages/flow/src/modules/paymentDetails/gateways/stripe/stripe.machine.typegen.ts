@@ -105,7 +105,9 @@ export interface Typegen0 {
       | "error.platform.stripePaymentManager.loading.addElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.paymentElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.stripe:invocation[0]";
-    setModel: "SET";
+    setModel:
+      | "SET"
+      | "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
     setPaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     setSchemas: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
     setStripeInstance: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";

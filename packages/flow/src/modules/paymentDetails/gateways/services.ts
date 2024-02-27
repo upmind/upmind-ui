@@ -4,7 +4,6 @@
 
 // --- utils
 import { useValidation } from "../../../../utils";
-import { set } from "lodash-es";
 
 // --- types
 import type { GatewayEvent, GatewayContext } from "../types.d";
@@ -46,10 +45,9 @@ async function validate(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ gateway, model }: GatewayContext) {
-  return new Promise((resolve, reject) => {
+async function update({ model }: GatewayContext) {
+  return new Promise(resolve => {
     // add the payment details to the model
-    set(model, "gateway_id", gateway.id);
     /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
     resolve(model);
   });

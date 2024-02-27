@@ -144,17 +144,6 @@ async function update({ basket, items }: BasketContext, _event: BasketEvent) {
     .then(basket => {
       const newItems = differenceBy(basket.products, validItems, "id");
       return { basket, items: validItems, newItems };
-    });
-}
-
-async function refresh({ basket, items }: BasketContext, _event: BasketEvent) {
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return load()
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
     })
     .then(updateItemProvisioningFields)
     .catch(err => {
@@ -167,6 +156,16 @@ async function refresh({ basket, items }: BasketContext, _event: BasketEvent) {
       merge(err, { basket, items: validItems, newItems });
       throw new Error(err);
     });
+}
+
+async function refresh({ items }: BasketContext, _event: BasketEvent) {
+  const validItems = reject(items, item => item.state.context.isNew);
+
+  // get returns a promise so we can pass it directly back to the machine
+  return load().then(basket => {
+    const newItems = differenceBy(basket.products, validItems, "id");
+    return { basket, items: validItems, newItems };
+  });
 }
 
 async function convert({ basket }: BasketContext, { data }: BasketEvent) {
@@ -214,6 +213,16 @@ async function updateItem({ basket, items, queue }, { data }: BasketEvent) {
     .then(basket => {
       const newItems = differenceBy(basket.products, items, "id");
       return { basket, items: [item], newItems };
+    })
+    .then(updateItemProvisioningFields)
+    .catch(err => {
+      // pass the basket, items, newItems  to the error
+      // as we may stll need to process them despite the error
+      // if they have not already been set by a previous error
+      // we will set them here with the current basket, items, NO newItems
+      const newItems = differenceBy(basket.products, items, "id");
+      merge(err, { basket, items: [item], newItems });
+      throw new Error(err);
     });
 }
 

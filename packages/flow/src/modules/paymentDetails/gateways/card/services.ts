@@ -4,7 +4,6 @@
 
 // --- utils
 import { useValidation } from "../../../../utils";
-import { set } from "lodash-es";
 
 // --- types
 import type { GatewayEvent, GatewayContext } from "../types.d";
@@ -45,13 +44,9 @@ async function validate(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ gateway, model }: GatewayContext) {
+async function update({ model }: GatewayContext) {
   return new Promise(resolve => {
-    // add the payment details to the model
-    set(model, "gateway_id", gateway.id);
     resolve(model);
-
-    //  TODO: return the actua; payment detail response from the back end
   });
 }
 

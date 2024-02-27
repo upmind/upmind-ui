@@ -255,16 +255,13 @@ export const useUischema = () => {
 export const useModelParser = (
   schema: JsonSchema,
   values: IAddress,
-  baseModel: IAddress
+  baseModel?: IAddress
 ) => {
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value = get(
-        values,
-        key,
-        field?.const || field?.default || get(baseModel, key)
-      );
+      const value =
+        field?.const || get(values, key, field?.default || get(baseModel, key));
       set(result, key, value);
       return result;
     },

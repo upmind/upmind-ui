@@ -7,7 +7,7 @@ import { useApi, useSession } from "../../../";
 // --- utils
 import { useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
-import { set, get } from "lodash-es";
+import { set } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types.d";
@@ -139,7 +139,7 @@ async function createPaymentElement(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ gateway, elements, stripe, model }: StripeContext) {
+async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
   // return Promise.reject($t("_sentence.payments.gateway_elements_not_found"));
@@ -160,7 +160,6 @@ async function update({ gateway, elements, stripe, model }: StripeContext) {
       reject(error);
     } else {
       // add the payment details to the model
-      set(model, "gateway_id", gateway.id);
       set(
         model,
         "payment_method_addition.payment_method_id",

@@ -58,7 +58,9 @@ export interface Typegen0 {
       | "error.platform.gatewayPaymentManager.checking.validating:invocation[0]"
       | "error.platform.gatewayPaymentManager.loading:invocation[0]";
     setFeedbackError: "error.platform.gatewayPaymentManager.loading:invocation[0]";
-    setModel: "SET";
+    setModel:
+      | "SET"
+      | "done.invoke.gatewayPaymentManager.checking.parsing:invocation[0]";
     setPaymentDetails: "done.invoke.gatewayPaymentManager.processing:invocation[0]";
     setSchemas: "done.invoke.gatewayPaymentManager.checking.parsing:invocation[0]";
   };

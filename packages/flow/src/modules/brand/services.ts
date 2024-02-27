@@ -2,7 +2,7 @@
 import { useApi } from "../api";
 
 // --- utils
-import { filter, has, set, reduce, defaultsDeep } from "lodash-es";
+import { filter, has, reduce, defaultsDeep } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS

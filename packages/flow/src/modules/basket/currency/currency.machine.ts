@@ -9,8 +9,8 @@ const { addError, addSuccess } = useFeedback();
 
 // --- utils
 
-import { useTime, useValidationParser } from "../../../utils";
-import { useSchema, useUischema, useModelParser } from "./utils";
+import { useTime, useValidationParser, useModelParser } from "../../../utils";
+import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { CurrencyContext, CurrencyEvent } from "./types.d";
@@ -176,7 +176,7 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: context => useModelParser(context, context.model)
+        model: ({ schema, model }) => useModelParser(schema, model)
       }),
 
       clearSchemas: assign({
@@ -185,7 +185,8 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: (context, { data }) => useModelParser(context, data)
+        model: ({ schema, model }, { data }) =>
+          useModelParser(schema, data || model)
       }),
 
       clearModel: assign({
