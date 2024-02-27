@@ -941,7 +941,7 @@ export default createMachine(
         );
       },
 
-      paymentDetailsComplete: ({ actors }, { data }, meta) => {
+      paymentDetailsComplete: ({ actors }, { data }) => {
         return (
           actors.payment_details?.state?.matches("complete") && !isEmpty(data)
         );

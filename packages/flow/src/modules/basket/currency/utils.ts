@@ -3,10 +3,10 @@
 // --- internal
 
 // --- utils
-import { get, map, set, reduce, defaultsDeep } from "lodash-es";
+import { map } from "lodash-es";
 
 // --- types
-import type { ICurrency, CurrencyContext } from "./types.d";
+import type { CurrencyContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -49,18 +49,4 @@ export const useUischema = (_context: CurrencyContext) => {
   };
 
   return schema as UISchemaElement;
-};
-
-export const useModelParser = (schema: JsonSchema, values: ICurrency) => {
-  const model = reduce(
-    schema.properties,
-    (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values) as ICurrency;
 };

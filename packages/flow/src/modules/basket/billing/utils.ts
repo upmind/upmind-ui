@@ -3,10 +3,9 @@
 // --- internal
 
 // --- utils
-import { get, set, reduce, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { IBillingDetail, BillingDetailsContext } from "./types.d";
+import type { BillingDetailsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -68,18 +67,4 @@ export const useUischema = (_context: BillingDetailsContext) => {
   };
 
   return schema as UISchemaElement;
-};
-
-export const useModelParser = (schema: JsonSchema, values: IBillingDetail) => {
-  const model = reduce(
-    schema.properties,
-    (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values) as IBillingDetail;
 };

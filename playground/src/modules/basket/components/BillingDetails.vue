@@ -111,14 +111,18 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { UpmFormGenerator } from "@upmind/ui";
+// import { UpmFormGenerator } from "@upmind/ui";
 import { useBasketBillingDetails } from "@upmind/vue";
 import UpmAddresses from "../../client/address/components/Listings.vue";
 import UpmCompanies from "../../client/company/components/Listings.vue";
 
 export default defineComponent({
   name: "UpmBasketBillingDetails",
-  components: { UpmFormGenerator, UpmAddresses, UpmCompanies },
+  components: {
+    // UpmFormGenerator,
+    UpmAddresses,
+    UpmCompanies
+  },
   inheritAttrs: true,
   customOptions: {},
   props: {

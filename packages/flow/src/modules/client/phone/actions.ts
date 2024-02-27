@@ -2,7 +2,8 @@
 import { assign } from "xstate";
 
 // --- utils
-import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
+import { useModelParser } from "../../../utils";
+import { useSchema, useUischema, spawnItem } from "./utils";
 import { find, map, get, compact, isObject } from "lodash-es";
 
 // --- types
@@ -52,7 +53,7 @@ export const ItemActions = {
   }),
 
   setModel: assign({
-    model: ({ schema }: PhoneContext, { data }: PhoneEvent) =>
-      useModelParser(schema, data)
+    model: ({ schema, model }, { data }) =>
+      useModelParser(schema, data || model)
   })
 };

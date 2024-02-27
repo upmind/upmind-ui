@@ -102,8 +102,8 @@ export default createMachine(
         after: {
           wait: [
             {
-              target: "waiting",
-              cond: "hasRedirect"
+              target: "approving",
+              cond: "needsApproval"
             },
             {
               target: "complete",
@@ -114,7 +114,18 @@ export default createMachine(
         }
       },
 
-      waiting: {},
+      approving: {
+        invoke: {
+          src: "redirect",
+          onDone: {
+            target: "complete"
+          },
+          onError: {
+            target: "error",
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
+      },
 
       complete: {
         id: "complete",
@@ -191,7 +202,7 @@ export default createMachine(
         _event: PaymentEvent
       ) => !isEmpty(paymentDetails),
 
-      hasRedirect: ({ payment }: PaymentContext, _event: PaymentEvent) =>
+      needsApproval: ({ payment }: PaymentContext, _event: PaymentEvent) =>
         !!payment.approval_url,
 
       hasNoOutstandingBalance: (

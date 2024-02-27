@@ -4,11 +4,15 @@ import { createMachine, assign, sendParent, spawn } from "xstate";
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
-import { useTime, useValidationParser } from "../../../../utils";
-import { useSchema, useUischema, useModelParser } from "./utils";
+import {
+  useTime,
+  useValidationParser,
+  useModelParser
+} from "../../../../utils";
+import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { StripeContext, StripeEvent } from "./types.d";
@@ -96,7 +100,7 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas"]
+                actions: ["setContext", "setSchemas", "setModel"]
               }
             }
           },
@@ -213,10 +217,10 @@ export default createMachine(
           return renderer;
         },
         validationObserver: (
-          { element }: StripeContext,
+          _context: StripeContext,
           { data }: StripeEvent
         ) => {
-          const stripeChangeEvent = (callback, receive) => {
+          const stripeChangeEvent = callback => {
             data.element.on("change", event =>
               callback({ type: "VALIDATE", data: event })
             );
@@ -248,8 +252,7 @@ export default createMachine(
       // ---
       setSchemas: assign({
         schema: context => useSchema(context),
-        uischema: context => useUischema(context),
-        model: context => useModelParser(context, context.model)
+        uischema: context => useUischema(context)
       }),
 
       clearSchemas: assign({
@@ -258,7 +261,8 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: (context, { data }) => useModelParser(context, data)
+        model: ({ schema, model }, { data }) =>
+          useModelParser(schema, data || model)
       }),
 
       clearModel: assign({

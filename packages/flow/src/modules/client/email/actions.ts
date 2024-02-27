@@ -2,7 +2,8 @@
 import { assign } from "xstate";
 
 // --- utils
-import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
+import { useModelParser } from "../../../utils";
+import { useSchema, useUischema, spawnItem } from "./utils";
 import { find, map } from "lodash-es";
 
 // --- types
@@ -42,7 +43,7 @@ export const ItemActions = {
   }),
 
   setModel: assign({
-    model: ({ schema }: EmailContext, { data }: EmailEvent) =>
-      useModelParser(schema, data)
+    model: ({ schema, model }, { data }) =>
+      useModelParser(schema, data || model)
   })
 };

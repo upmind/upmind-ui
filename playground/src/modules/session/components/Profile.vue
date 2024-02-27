@@ -46,7 +46,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/vue";
-import { UpmDebug } from "@upmind/ui";
+// import { UpmDebug } from "@upmind/ui";
 
 import {
   UserCircleIcon,
@@ -56,7 +56,7 @@ import {
 export default defineComponent({
   name: "Profile",
   components: {
-    UpmDebug,
+    // UpmDebug,
     UserCircleIcon,
     ArrowRightOnRectangleIcon
   },

@@ -68,7 +68,10 @@ export const useUischema = ({ fields }: FieldsContext) => {
   return schema as UISchemaElement;
 };
 
-export const useModelParser = ({ fields }: FieldsContext, values: IField) => {
+export const useModelParser = (
+  fields: FieldsContext["fields"],
+  values: IField
+) => {
   const model = {
     notes: values?.notes,
     custom_fields: useFieldsModelParser(

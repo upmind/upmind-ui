@@ -3,10 +3,9 @@
 // --- internal
 
 // --- utils
-import { get, set, reduce, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { IPromotion, PromotionsContext } from "./types.d";
+import type { PromotionsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -53,18 +52,4 @@ export const useUischema = (_context: PromotionsContext) => {
   };
 
   return schema as UISchemaElement;
-};
-
-export const useModelParser = (schema: JsonSchema, values: IPromotion) => {
-  const model = reduce(
-    schema.properties,
-    (result, field, key) => {
-      const value = get(values, key, field?.const || field?.default);
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values) as IPromotion;
 };
