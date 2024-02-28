@@ -50,7 +50,6 @@ export interface Typegen0 {
     clearError:
       | "done.invoke.paymentManager.loading:invocation[0]"
       | "xstate.update";
-    clearPaymentDetails: "done.invoke.paymentManager.processing:invocation[0]";
     providePayment: "done.invoke.paymentManager.processing:invocation[0]";
     setContext: "done.invoke.paymentManager.loading:invocation[0]";
     setError:

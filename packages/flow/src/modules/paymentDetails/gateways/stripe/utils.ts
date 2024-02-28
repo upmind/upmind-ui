@@ -15,8 +15,8 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ gateway, operation_id }: StripeContext) => {
-  const { cancel, successsEncoded, failEncoded } = generateUrls(operation_id);
+export const useSchema = (context: StripeContext) => {
+  const { cancel, success, fail } = generateUrls(context);
 
   const schema = {
     type: "object",
@@ -26,7 +26,7 @@ export const useSchema = ({ gateway, operation_id }: StripeContext) => {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
-        const: gateway.id
+        const: context.gateway.id
       },
       store: {
         type: "boolean",
@@ -44,7 +44,7 @@ export const useSchema = ({ gateway, operation_id }: StripeContext) => {
         type: "string",
         title: "Return URL",
         format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${successsEncoded}&${QUERY_PARAMS.FAILED}=${failEncoded}`
+        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
       },
       cancel_url: {
         type: "string",
