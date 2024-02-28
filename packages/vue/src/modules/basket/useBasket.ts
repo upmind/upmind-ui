@@ -7,6 +7,7 @@ import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 // --- utils
 import {
+  childActor,
   contextActor,
   contextMatches,
   contextValue,
@@ -39,7 +40,9 @@ export const useBasket = () => {
     paymentDetails: contextActor(state, "actors.payment_details"),
     billingDetails: contextActor(state, "actors.billing_details"),
     currency: contextActor(state, "actors.currency"),
-    promotions: contextActor(state, "actors.promotions")
+    promotions: contextActor(state, "actors.promotions"),
+    // ---
+    payment: childActor(state, "paying")
   }));
 
   // --------------------------------------------------------
@@ -128,6 +131,7 @@ export const useBasket = () => {
         isCheckout: stateMatches(state, ["checkout.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
+        needsApproving: machineMatches("payment", ["approving"]),
         isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:
