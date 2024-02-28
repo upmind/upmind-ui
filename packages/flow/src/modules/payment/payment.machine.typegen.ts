@@ -51,6 +51,7 @@ export interface Typegen0 {
       | "done.invoke.paymentManager.loading:invocation[0]"
       | "xstate.update";
     providePayment: "done.invoke.paymentManager.processing:invocation[0]";
+    setApproval: "xstate.after(wait)#processed";
     setContext: "done.invoke.paymentManager.loading:invocation[0]";
     setError:
       | "error.platform.checking:invocation[0]"

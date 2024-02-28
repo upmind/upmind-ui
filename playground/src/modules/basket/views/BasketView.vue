@@ -424,10 +424,10 @@
           skeleton: meta.isPaying,
           'bg-secondary': meta.isPaying,
           'border-secondary': meta.isPaying,
-          'bg-warning': meta.isComplete && !meta?.needsApproving,
-          'border-warning': meta.isComplete && !meta?.needsApproving,
-          'bg-primary': meta.isComplete && !meta?.needsApproving,
-          'border-primary': meta.isComplete && !meta?.needsApproving
+          'bg-warning': meta?.needsApproval,
+          'border-warning': meta?.needsApproval,
+          'bg-primary': meta.isComplete,
+          'border-primary': meta.isComplete
         }"
         class="card card-bordered bg-base-100 bg-opacity-10 rounded-box place-items-center"
       >
@@ -442,11 +442,11 @@
             {{
               meta.isAvailable || meta.isCheckout || meta.isConverting
                 ? "Attempt Payment"
-                : !meta.isComplete
-                  ? "Attempting Payment..."
-                  : !meta?.needsApproving
-                    ? "Redirecting for Approval"
-                    : "Payment Successful!"
+                : meta.needsApproval
+                  ? "Redirecting for Approval"
+                  : meta.isComplete
+                    ? "Payment Successful!"
+                    : "Attempting Payment..."
             }}
           </h3>
         </div>
