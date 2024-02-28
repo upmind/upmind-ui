@@ -153,32 +153,20 @@ async function update(
  * remains unchanged whilst the page offloads
  */
 async function redirect(
-  { order, payment, paymentDetails }: PaymentContext,
+  { payment, paymentDetails }: PaymentContext,
   _event: PaymentEvent
 ) {
-  const url = new URL(payment.approval_url);
-
   /**
    * Inject aborted state for cases when user click back from the browser
    * We have no router to handle this, so we need to handle it manually
    */
-  const cancelPath = new URL(paymentDetails?.cancel_url, {
-    basketId: order.id,
-    [QUERY_PARAMS.ORDER_ID]: order.id,
-    [QUERY_PARAMS.AUTO_PAY]: encodeURIComponent(
-      btoa(JSON.stringify(paymentDetails.auto_payment))
-    ),
-    [QUERY_PARAMS.INIT_PAY]: encodeURIComponent(
-      btoa(
-        JSON.stringify(
-          paymentDetails?.external ? { invoiceId: order.id } : undefined
-        )
-      )
-    ),
-    [QUERY_PARAMS.PAYMENT_METHOD_TYPE]: paymentDetails.type
-  });
+  if (paymentDetails?.cancel_url) {
+    window.history.replaceState("", "", paymentDetails.cancel_url);
+  }
 
-  window.history.replaceState("", "", `${location.origin}${cancelPath}`);
+  // TODO : if we have fields we may have to submit via form
+  window.location.replace(payment.approval_url.url);
+
   Promise.resolve();
 }
 
@@ -203,5 +191,6 @@ async function validate(
 export default {
   load,
   update,
-  validate
+  validate,
+  redirect
 };

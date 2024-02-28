@@ -179,6 +179,7 @@ export default createMachine(
             if (data?.actors?.gateway)
               !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
             const actor = spawnGateway({
+              basket_id: data.basket_id,
               gateway: data.gateway,
               amount: data.model?.amount,
               currency

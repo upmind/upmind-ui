@@ -83,12 +83,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: [
-              "clearPaymentDetails",
-              "setPayment",
-              "providePayment",
-              "setFeedbackSuccess"
-            ]
+            actions: ["setPayment", "providePayment", "setFeedbackSuccess"]
           },
           onError: {
             target: "error",
@@ -148,14 +143,6 @@ export default createMachine(
       setContext: assign(
         (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
       ),
-
-      setPaymentDetails: assign({
-        paymentDetails: (_context, { data }) => data
-      }),
-
-      clearPaymentDetails: assign({
-        paymentDetails: {}
-      }),
 
       setPayment: assign({
         payment: (_context, { data }) => data

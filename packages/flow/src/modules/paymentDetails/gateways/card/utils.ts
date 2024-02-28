@@ -13,9 +13,9 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ gateway, operation_id }: GatewayContext) => {
-  const gateway_provider = get(gateway, "gateway_provider", {});
-  const { cancel, successsEncoded, failEncoded } = generateUrls(operation_id);
+export const useSchema = (context: GatewayContext) => {
+  const gateway_provider = get(context.gateway, "gateway_provider", {});
+  const { cancel, success, fail } = generateUrls(context);
 
   const schema = {
     type: "object",
@@ -25,7 +25,7 @@ export const useSchema = ({ gateway, operation_id }: GatewayContext) => {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
-        const: gateway.id
+        const: context.gateway.id
       },
 
       cardholder_name: { type: "string", title: "Cardholder Name" },
@@ -73,7 +73,7 @@ export const useSchema = ({ gateway, operation_id }: GatewayContext) => {
         type: "string",
         title: "Return URL",
         format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${successsEncoded}&${QUERY_PARAMS.FAILED}=${failEncoded}`
+        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
       },
       cancel_url: {
         type: "string",

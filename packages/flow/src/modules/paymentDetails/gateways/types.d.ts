@@ -120,6 +120,7 @@ export interface GatewayContext {
   element?: any;
   renderer?: Function;
   // ---
+  basket_id?: string;
   gateway?: IGateway;
   ctx?: GatewayContext;
   amount?: number;

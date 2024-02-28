@@ -106,14 +106,16 @@ export const useUischema = (_context: PaymentDetailsContext) => {
 // --------------------------------------------------------
 // Gateway Machine Spawner (Factory)
 
-export function spawnGateway({ gateway, amount, currency }) {
+export function spawnGateway({ basket_id, gateway, amount, currency }) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
 
-  if (isStripe(gateway)) return spawnStripe({ gateway, amount, currency });
+  if (isStripe(gateway))
+    return spawnStripe({ basket_id, gateway, amount, currency });
 
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
+      basket_id,
       gateway,
       amount,
       currency
@@ -121,6 +123,7 @@ export function spawnGateway({ gateway, amount, currency }) {
 
   if (isDirectDebit(gateway))
     return spawnGenericGateway(GatewayTypes.DIRECT_DEBIT, {
+      basket_id,
       gateway,
       amount,
       currency
@@ -128,6 +131,7 @@ export function spawnGateway({ gateway, amount, currency }) {
 
   if (isSEPA(gateway))
     return spawnGenericGateway(GatewayTypes.SEPA, {
+      basket_id,
       gateway,
       amount,
       currency
@@ -135,6 +139,7 @@ export function spawnGateway({ gateway, amount, currency }) {
 
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
+      basket_id,
       gateway,
       amount,
       currency
@@ -142,14 +147,17 @@ export function spawnGateway({ gateway, amount, currency }) {
 
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
+      basket_id,
       gateway,
       amount,
       currency
     });
 
-  if (isExternal(gateway)) return spawnExternal({ gateway, amount, currency });
+  if (isExternal(gateway))
+    return spawnExternal({ basket_id, gateway, amount, currency });
 
-  if (isCard(gateway)) return spawnCard({ gateway, amount, currency });
+  if (isCard(gateway))
+    return spawnCard({ basket_id, gateway, amount, currency });
 
   return null;
 }
@@ -157,9 +165,10 @@ export function spawnGateway({ gateway, amount, currency }) {
 // --------------------------------------------------------
 // Individual Gateway Machine Spawners
 
-export function spawnCard({ gateway, amount, currency }) {
+export function spawnCard({ basket_id, gateway, amount, currency }) {
   return spawn(
     gatewayMachine.withConfig(cardConfig).withContext({
+      basket_id,
       gateway,
       amount: amount || 0,
       currency,
@@ -169,9 +178,10 @@ export function spawnCard({ gateway, amount, currency }) {
   );
 }
 
-export function spawnStripe({ gateway, amount, currency }) {
+export function spawnStripe({ basket_id, gateway, amount, currency }) {
   return spawn(
     stripeMachine.withContext({
+      basket_id,
       gateway,
       ctx: GatewayContext.PAY,
       amount: amount || 0,
@@ -183,9 +193,13 @@ export function spawnStripe({ gateway, amount, currency }) {
 }
 
 // Our generic gateway machine
-export function spawnGenericGateway(type, { gateway, amount, currency }) {
+export function spawnGenericGateway(
+  type,
+  { basket_id, gateway, amount, currency }
+) {
   return spawn(
     gatewayMachine.withContext({
+      basket_id,
       gateway,
       amount: amount || 0,
       currency,
@@ -195,9 +209,10 @@ export function spawnGenericGateway(type, { gateway, amount, currency }) {
   );
 }
 
-export function spawnExternal({ gateway, amount, currency }) {
+export function spawnExternal({ basket_id, gateway, amount, currency }) {
   return spawn(
     gatewayMachine.withContext({
+      basket_id,
       gateway,
       amount: amount || 0,
       currency,
