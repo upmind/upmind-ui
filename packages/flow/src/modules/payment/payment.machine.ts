@@ -7,11 +7,13 @@ import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
+import { useApprovalParser } from "./utils";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
 import type { PaymentContext, PaymentEvent } from "./types.d";
 import { isEmpty } from "lodash-es";
+import { parse } from "path";
 
 // --------------------------------------------------------
 
@@ -98,7 +100,8 @@ export default createMachine(
           wait: [
             {
               target: "approving",
-              cond: "needsApproval"
+              cond: "needsApproval",
+              actions: ["setApproval"]
             },
             {
               target: "complete",
@@ -146,6 +149,10 @@ export default createMachine(
 
       setPayment: assign({
         payment: (_context, { data }) => data
+      }),
+
+      setApproval: assign({
+        payment: context => useApprovalParser(context)
       }),
 
       providePayment: sendParent(({ payment }) => ({

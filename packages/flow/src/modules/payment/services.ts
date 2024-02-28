@@ -44,6 +44,7 @@ function submitViaForm({
   return new Promise((resolve, reject) => {
     try {
       const form = document.createElement("form");
+
       form.target = target;
       form.method = method;
       form.action = url;
@@ -67,29 +68,6 @@ function submitViaForm({
   });
 }
 
-function buildResolver({
-  url,
-  params,
-  paymentMethodType = null,
-  autoPay = undefined,
-  initPay = undefined
-}) {
-  const query = omitBy(
-    {
-      [QUERY_PARAMS.AUTO_PAY]: encodeURIComponent(
-        btoa(JSON.stringify(autoPay))
-      ),
-      [QUERY_PARAMS.INIT_PAY]: encodeURIComponent(
-        btoa(JSON.stringify(initPay))
-      ),
-      [QUERY_PARAMS.PAYMENT_METHOD_TYPE]: paymentMethodType,
-      ...params
-    },
-    isNil
-  );
-
-  return this.$router.resolve(merge(url, { query }));
-}
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -164,10 +142,8 @@ async function redirect(
     window.history.replaceState("", "", paymentDetails.cancel_url);
   }
 
-  // TODO : if we have fields we may have to submit via form
-  window.location.replace(payment.approval_url.url);
-
-  Promise.resolve();
+  // Now submit the form generated from the approval_url
+  return submitViaForm(payment.approval_form);
 }
 
 // --------------------------------------------------------

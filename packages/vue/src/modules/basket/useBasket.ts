@@ -13,6 +13,7 @@ import {
   contextValue,
   machineMatches,
   stateMatches,
+  useChildActor,
   useContext,
   useContextActor,
   useState
@@ -40,10 +41,10 @@ export const useBasket = () => {
     paymentDetails: contextActor(state, "actors.payment_details"),
     billingDetails: contextActor(state, "actors.billing_details"),
     currency: contextActor(state, "actors.currency"),
-    promotions: contextActor(state, "actors.promotions"),
-    // ---
-    payment: childActor(state, "paying")
+    promotions: contextActor(state, "actors.promotions")
   }));
+
+  const payment = useChildActor(state, "payment");
 
   // --------------------------------------------------------
 
@@ -131,7 +132,7 @@ export const useBasket = () => {
         isCheckout: stateMatches(state, ["checkout.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
-        needsApproving: machineMatches("payment", ["approving"]),
+        needsApproval: machineMatches(payment, ["approving"]),
         isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:

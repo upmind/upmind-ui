@@ -34,8 +34,8 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.paying:invocation[0]": {
-      type: "done.invoke.paying:invocation[0]";
+    "done.invoke.payment": {
+      type: "done.invoke.payment";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -74,10 +74,7 @@ export interface Typegen0 {
       type: "error.platform.converting:invocation[0]";
       data: unknown;
     };
-    "error.platform.paying:invocation[0]": {
-      type: "error.platform.paying:invocation[0]";
-      data: unknown;
-    };
+    "error.platform.payment": { type: "error.platform.payment"; data: unknown };
     "error.platform.removing:invocation[0]": {
       type: "error.platform.removing:invocation[0]";
       data: unknown;
@@ -159,7 +156,7 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
       | "error.platform.converting:invocation[0]"
-      | "error.platform.paying:invocation[0]"
+      | "error.platform.payment"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackError:
@@ -167,14 +164,14 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.claiming:invocation[0]"
       | "error.platform.converting:invocation[0]"
-      | "error.platform.paying:invocation[0]"
+      | "error.platform.payment"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     setFeedbackSuccess:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
-    setPayment: "done.invoke.paying:invocation[0]";
+    setPayment: "done.invoke.payment";
     setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
     updateActors: "CLEAR" | "REMOVE" | "UPDATE";
@@ -239,6 +236,7 @@ export interface Typegen0 {
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";
     load: "SESSION" | "UNAUTHENTICATED";
+    payment: "done.invoke.converting:invocation[0]";
     refresh: "REFRESH" | "xstate.after(wait)#processed";
     removeItem: "REMOVE";
     update: "CLEAR" | "REMOVE" | "UPDATE";
