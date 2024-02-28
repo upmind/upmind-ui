@@ -424,8 +424,10 @@
           skeleton: meta.isPaying,
           'bg-secondary': meta.isPaying,
           'border-secondary': meta.isPaying,
-          'bg-primary': meta.isComplete,
-          'border-primary': meta.isComplete
+          'bg-warning': meta.isComplete && !meta?.needsApproving,
+          'border-warning': meta.isComplete && !meta?.needsApproving,
+          'bg-primary': meta.isComplete && !meta?.needsApproving,
+          'border-primary': meta.isComplete && !meta?.needsApproving
         }"
         class="card card-bordered bg-base-100 bg-opacity-10 rounded-box place-items-center"
       >
@@ -442,7 +444,9 @@
                 ? "Attempt Payment"
                 : !meta.isComplete
                   ? "Attempting Payment..."
-                  : "Payment Successful!"
+                  : !meta?.needsApproving
+                    ? "Redirecting for Approval"
+                    : "Payment Successful!"
             }}
           </h3>
         </div>
