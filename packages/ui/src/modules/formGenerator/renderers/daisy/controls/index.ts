@@ -16,6 +16,7 @@ export { default as DacControlRenderer } from "./DacControlRenderer.vue";
 export { default as PasswordControlRenderer } from "./PasswordControlRenderer.vue";
 export { default as PhoneControlRenderer } from "./PhoneControlRenderer.vue";
 export { default as FileControlRenderer } from "./FileControlRenderer.vue";
+export { default as HiddenControlRenderer } from "./FileControlRenderer.vue";
 
 import { entry as stringControlRendererEntry } from "./StringControlRenderer.vue";
 import { entry as multiStringControlRendererEntry } from "./MultiStringControlRenderer.vue";
@@ -34,6 +35,7 @@ import { entry as dacControlRendererEntry } from "./DacControlRenderer.vue";
 import { entry as passwordControlRendererEntry } from "./PasswordControlRenderer.vue";
 import { entry as phoneControlRendererEntry } from "./PhoneControlRenderer.vue";
 import { entry as fileControlRendererEntry } from "./FileControlRenderer.vue";
+import { entry as hiddenControlRendererEntry } from "./HiddenControlRenderer.vue";
 
 export const controlRenderers = [
   stringControlRendererEntry,
@@ -52,5 +54,6 @@ export const controlRenderers = [
   dacControlRendererEntry,
   passwordControlRendererEntry,
   phoneControlRendererEntry,
-  fileControlRendererEntry
+  fileControlRendererEntry,
+  hiddenControlRendererEntry
 ];

@@ -25,6 +25,7 @@ export const useDaisyControl = <I extends { control: any; handleChange: any }>(
   );
 
   const isFocused = ref(false);
+
   const onChange = (event: Event) => {
     input.handleChange(
       input.control.value.path,

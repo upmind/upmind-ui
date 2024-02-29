@@ -9,7 +9,7 @@
       !meta.isComplete && !meta.isValid ? 'border-warning' : ''
     ]"
   >
-    <div class="card-body grid grid-cols-3">
+    <div class="card-body grid grid-cols-3 items-start">
       <h3
         class="text-inherit uppercase text-xl mt-2 mb-0 opacity-50 col-span-full"
       >

@@ -1,12 +1,12 @@
 // --- external
 
 // --- internal
+import sharedServices from "../services";
 
 // --- utils
-import { useValidation } from "../../../../utils";
 
 // --- types
-import type { GatewayEvent, GatewayContext } from "../types.d";
+import type { GatewayContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -14,25 +14,6 @@ import type { GatewayEvent, GatewayContext } from "../types.d";
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
-
-async function validate(
-  { schema, model }: GatewayContext,
-  _event: GatewayEvent
-) {
-  // ---
-
-  // Now validate the model as per normal
-  const { validate } = useValidation();
-
-  return new Promise((resolve, reject) => {
-    const errors = validate(schema, model);
-    if (errors?.length) {
-      reject({ error: errors });
-    } else {
-      resolve(model);
-    }
-  });
-}
 
 // --------------------------------------------------------
 // PAYMENT METHODS
@@ -46,6 +27,8 @@ async function validate(
  */
 async function update({ model }: GatewayContext) {
   return new Promise(resolve => {
+    // add the payment details to the model
+    /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
     resolve(model);
   });
 }
@@ -54,9 +37,7 @@ async function update({ model }: GatewayContext) {
 // EXPORTS
 
 export default {
-  load: () => Promise.resolve({}), // no need to load anything
-  parse: () => Promise.resolve({}), // no need to parse anything
-  validate,
+  ...sharedServices,
   // ---
   update
 };

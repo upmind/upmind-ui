@@ -16,7 +16,7 @@ import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { StripeContext, StripeEvent } from "./types.d";
-import { GatewayContext } from "../../types.d";
+import { GatewayCtx } from "../types.d";
 
 // --------------------------------------------------------
 
@@ -44,12 +44,12 @@ export default createMachine(
               onDone: [
                 {
                   target: "addElement",
-                  actions: ["setStripeInstance"],
+                  actions: ["setContext"],
                   cond: "isAdding"
                 },
                 {
                   target: "paymentElement",
-                  actions: ["setStripeInstance"]
+                  actions: ["setContext"]
                   // cond: "isPaying"
                 }
               ],
@@ -201,10 +201,6 @@ export default createMachine(
   },
   {
     actions: {
-      setStripeInstance: assign({
-        stripe: (_context: StripeContext, { data }: StripeEvent) => data
-      }),
-
       setElements: assign({
         elements: (_context: StripeContext, { data }: StripeEvent) =>
           data?.elements,
@@ -246,7 +242,7 @@ export default createMachine(
       }),
 
       setContext: assign(
-        (_context: CurrencyContext, { data }: CurrencyEvent) => data
+        (_context: StripeContext, { data }: StripeEvent) => data
       ),
 
       // ---
@@ -317,10 +313,10 @@ export default createMachine(
       },
 
       isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
-        return ctx === GatewayContext.ADD;
+        return ctx === GatewayCtx.ADD;
       },
       isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
-        return ctx === GatewayContext.PAY;
+        return ctx === GatewayCtx.PAY;
       }
     },
 

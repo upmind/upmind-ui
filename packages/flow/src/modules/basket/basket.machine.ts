@@ -39,7 +39,8 @@ import {
 
 // --- types
 import type { BasketContext, BasketEvent } from "./types.d";
-import { PaymentTypes, GatewayTypes } from "../paymentDetails/types.d";
+import { PaymentTypes } from "../paymentDetails/types.d";
+import { GatewayTypes } from "../paymentDetails/gateways/types.d";
 
 // --------------------------------------------------------
 

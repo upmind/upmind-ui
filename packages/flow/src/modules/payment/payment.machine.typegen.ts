@@ -18,8 +18,8 @@ export interface Typegen0 {
       type: "error.platform.checking:invocation[0]";
       data: unknown;
     };
-    "error.platform.paymentManager.approving:invocation[0]": {
-      type: "error.platform.paymentManager.approving:invocation[0]";
+    "error.platform.paymentManager.approving.redirecting:invocation[0]": {
+      type: "error.platform.paymentManager.approving.redirecting:invocation[0]";
       data: unknown;
     };
     "error.platform.paymentManager.loading:invocation[0]": {
@@ -36,7 +36,7 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     load: "done.invoke.paymentManager.loading:invocation[0]";
-    redirect: "done.invoke.paymentManager.approving:invocation[0]";
+    redirect: "done.invoke.paymentManager.approving.redirecting:invocation[0]";
     update: "done.invoke.paymentManager.processing:invocation[0]";
     validate: "done.invoke.checking:invocation[0]";
   };
@@ -55,21 +55,20 @@ export interface Typegen0 {
     setContext: "done.invoke.paymentManager.loading:invocation[0]";
     setError:
       | "error.platform.checking:invocation[0]"
-      | "error.platform.paymentManager.approving:invocation[0]"
+      | "error.platform.paymentManager.approving.redirecting:invocation[0]"
       | "error.platform.paymentManager.loading:invocation[0]"
       | "error.platform.paymentManager.processing:invocation[0]";
     setFeedbackError:
-      | "error.platform.paymentManager.approving:invocation[0]"
+      | "error.platform.paymentManager.approving.redirecting:invocation[0]"
       | "error.platform.paymentManager.loading:invocation[0]"
       | "error.platform.paymentManager.processing:invocation[0]";
-    setFeedbackSuccess: "done.invoke.paymentManager.processing:invocation[0]";
+    setFeedbackSuccess: "xstate.after(wait)#processed";
     setPayment: "done.invoke.paymentManager.processing:invocation[0]";
   };
   eventsCausingDelays: {
     wait: "done.invoke.paymentManager.processing:invocation[0]";
   };
   eventsCausingGuards: {
-    hasNoOutstandingBalance: "xstate.after(wait)#processed";
     hasPaymentDetails: "";
     needsApproval: "xstate.after(wait)#processed";
   };
@@ -83,6 +82,8 @@ export interface Typegen0 {
   };
   matchesStates:
     | "approving"
+    | "approving.offsite"
+    | "approving.redirecting"
     | "checking"
     | "complete"
     | "error"
@@ -90,6 +91,7 @@ export interface Typegen0 {
     | "loading"
     | "processed"
     | "processing"
-    | "valid";
+    | "valid"
+    | { approving?: "offsite" | "redirecting" };
   tags: never;
 }

@@ -3,11 +3,15 @@
 // --- internal
 
 // --- utils
-import { generateUrls } from "../utils";
+import {
+  generateUrls,
+  useSchema as useDefaultSchema,
+  useUischema as useDefaultUischema
+} from "../utils";
+
 import { reduce, includes, find } from "lodash-es";
 
 // --- types
-import { QUERY_PARAMS } from "../types.d";
 import type { IGateway } from "../types.d";
 import type { StripeContext } from "./types.d";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
@@ -16,42 +20,17 @@ import type { UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 
 export const useSchema = (context: StripeContext) => {
-  const { cancel, success, fail } = generateUrls(context);
+  const defaultSchema = useDefaultSchema(context);
 
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
-    required: ["gateway_id"],
+    required: [
+      ...(defaultSchema?.required || []) // NB Always include the default schema required fields
+    ],
+
     properties: {
-      gateway_id: {
-        type: "string",
-        title: "Gateway ID",
-        const: context.gateway.id
-      },
-      store: {
-        type: "boolean",
-        title: "Save payment details",
-        default: false // todo use brand settings
-      },
-      auto_payment: {
-        type: "boolean",
-        title: "Allow auto payment",
-        description:
-          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
-        default: false // todo use brand settings
-      },
-      return_url: {
-        type: "string",
-        title: "Return URL",
-        format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
-      },
-      cancel_url: {
-        type: "string",
-        title: "Cancel URL",
-        format: "uri",
-        const: cancel
-      }
+      ...(defaultSchema?.properties || {}) // NB Always include the default schema properties
     }
   };
 
@@ -60,18 +39,13 @@ export const useSchema = (context: StripeContext) => {
 
 // --------------------------------------------------------
 
-export const useUischema = (_context: StripeContext) => {
+export const useUischema = (context: StripeContext) => {
+  const defaultUischema = useDefaultUischema(context);
+
   const uischema = {
     type: "VerticalLayout",
     elements: [
-      {
-        type: "Control",
-        scope: "#/properties/store"
-      },
-      {
-        type: "Control",
-        scope: "#/properties/auto_payment"
-      }
+      ...(defaultUischema?.elements || []) // NB Always append the default uischema elements
     ]
   };
 

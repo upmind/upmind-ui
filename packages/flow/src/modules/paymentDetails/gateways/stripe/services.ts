@@ -3,11 +3,12 @@ import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
 import { useApi, useSession } from "../../../";
+import sharedServices from "../services";
 
 // --- utils
 import { useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
-import { set } from "lodash-es";
+import { reject, set } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types.d";
@@ -58,21 +59,22 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 async function load({ gateway }: StripeContext, _event: StripeEvent) {
+  const options = await sharedServices.load({ gateway }, _event);
+
   const key = getPublicKey(gateway);
   if (!key) return Promise.reject("Stripe public key not found.");
 
   const stripe = await loadStripe(key);
 
   return new Promise(resolve => {
-    resolve(stripe);
+    if (!stripe) {
+      reject("Stripe not found.");
+    } else {
+      resolve({ stripe, ...(options || {}) });
+    }
   });
 }
 // --------------------------------------------------------
-
-async function parse(_context: StripeContext, _event: StripeEvent) {
-  // we dont need to parse anything, so we just return an empty object
-  return Promise.resolve({});
-}
 
 async function validate(
   { schema, model, element, elementStatus }: StripeContext,
@@ -170,7 +172,7 @@ async function update({ elements, stripe, model }: StripeContext) {
         "payment_method_addition.payment_method_type",
         paymentMethod?.type
       );
-      /* Here we don't pass 'auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+      /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
       resolve(model);
     }
   });
@@ -242,7 +244,7 @@ async function endSetup(paymentDetailId?: string) {}
 
 export default {
   load,
-  parse,
+  parse: sharedServices.parse,
   validate,
   // ---
   createPaymentElement,
