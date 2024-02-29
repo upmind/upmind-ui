@@ -107,8 +107,6 @@ export const useSchema = (context: GatewayContext) => {
     schema.properties.store_on_payment.const = false;
     schema.properties.store_on_payment_auto_payment.const = false;
   } else {
-    schema.required.push("store_on_payment");
-    schema.required.push("store_on_payment_auto_payment");
     if (context.must_store) schema.properties.store_on_payment.const = true;
     if (context.must_auto_pay)
       schema.properties.store_on_payment_auto_payment.const = true;
@@ -128,18 +126,16 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         type: "Control",
         scope: "#/properties/store_on_payment",
         options: {
-          autocomplete: "off",
-          type: !can_store ? "hidden" : "checkbox"
+          autocomplete: "off"
         }
       },
       {
         type: "Control",
         scope: "#/properties/store_on_payment_auto_payment",
         options: {
-          autocomplete: "off",
-          type: !can_store ? "hidden" : "checkbox"
+          autocomplete: "off"
         },
-        // only show this field if its in the required fields
+        // only show this field if we have the store_on_payment flag
         rule: {
           effect: "SHOW",
           condition: {
