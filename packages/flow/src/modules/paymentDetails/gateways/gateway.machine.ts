@@ -33,7 +33,7 @@ export default createMachine(
       loading: {
         invoke: {
           src: "load",
-          onDone: { target: "checking" },
+          onDone: { target: "checking", actions: ["setContext"] },
           onError: {
             target: "#error",
             actions: ["setError", "setFeedbackError"]

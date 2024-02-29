@@ -53,7 +53,9 @@ export interface Typegen0 {
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     providePaymentDetails: "done.invoke.gatewayPaymentManager.processing:invocation[0]";
-    setContext: "done.invoke.gatewayPaymentManager.checking.parsing:invocation[0]";
+    setContext:
+      | "done.invoke.gatewayPaymentManager.checking.parsing:invocation[0]"
+      | "done.invoke.gatewayPaymentManager.loading:invocation[0]";
     setError:
       | "error.platform.gatewayPaymentManager.checking.validating:invocation[0]"
       | "error.platform.gatewayPaymentManager.loading:invocation[0]";

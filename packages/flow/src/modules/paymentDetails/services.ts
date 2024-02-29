@@ -38,13 +38,41 @@ async function load(
 
   const client_id = await getUserId();
   const brand_id = getBrandId();
+  const store_payment_options = {
+    force_auto_payment: false,
+    force_card_storage: false
+  };
   currency_id ??= getCurrencyId();
 
   // ---
   // checkif our brand allows or restricts certain payment types
+
+  // function forceCardStorage(): boolean {
+  //   return (
+  //     (this.$store.getters["brand/config"][
+  //       BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE
+  //     ] ??
+  //       false) ||
+  //     (this.brandGateway.gateway?.store_on_payment_force ?? false)
+  //   );
+  // }
+  // /**
+  //  * @name forceAutoPayment
+  //  * @desc Returns true if auto-payment is enforced by the brand
+  //  */
+  // function forceAutoPayment(): boolean {
+  //   return (
+  //     this.$store.getters["brand/config"][
+  //       BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
+  //     ] ?? false
+  //   );
+  // }
+
   await getConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
-    BrandConfigKeys.PAY_LATER_ENABLED
+    BrandConfigKeys.PAY_LATER_ENABLED,
+    BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
+    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]).then(data => {
     if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
       unset(PaymentTypes, "PARTIAL_PAYMENT");

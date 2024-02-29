@@ -6,7 +6,8 @@
 
 // --- types
 import { QUERY_PARAMS } from "./types.d";
-import type { GatewayContext } from "./types.d";
+import { GatewayStoreType } from "./types.d";
+import type { GatewayContext, IGateway } from "./types.d";
 import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -36,7 +37,9 @@ export function generateUrls({
   cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basket_id);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
-    encodeURIComponent(btoa(JSON.stringify(model?.auto_payment)))
+    encodeURIComponent(
+      btoa(JSON.stringify(model?.store_on_payment_auto_payment))
+    )
   );
   cancelUrl.searchParams.append(
     QUERY_PARAMS.INIT_PAY,
@@ -60,6 +63,8 @@ export function generateUrls({
   };
 }
 
+// --------------------------------------------------------
+
 export const useSchema = (context: GatewayContext) => {
   const { cancel, success, fail } = generateUrls(context);
   const schema = {
@@ -71,6 +76,16 @@ export const useSchema = (context: GatewayContext) => {
         type: "string",
         title: "Gateway ID",
         const: context.gateway.id
+      },
+      store_on_payment: {
+        type: "boolean",
+        title: "Save payment details"
+      },
+      store_on_payment_auto_payment: {
+        type: "boolean",
+        title: "Allow auto payment",
+        description:
+          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice."
       },
       return_url: {
         type: "string",
@@ -87,18 +102,71 @@ export const useSchema = (context: GatewayContext) => {
     }
   };
 
+  // enforce brand settings via setting the const value. This will ensure the value is not editable
+  if (!context.can_store) {
+    schema.properties.store_on_payment.const = false;
+    schema.properties.store_on_payment_auto_payment.const = false;
+  } else {
+    schema.required.push("store_on_payment");
+    schema.required.push("store_on_payment_auto_payment");
+    if (context.must_store) schema.properties.store_on_payment.const = true;
+    if (context.must_auto_pay)
+      schema.properties.store_on_payment_auto_payment.const = true;
+  }
   return schema;
 };
 
 // --------------------------------------------------------
 
-export const useUischema = (_context: GatewayContext) => {
+export const useUischema = ({ can_store }: GatewayContext) => {
+  // if (!can_store) return { type: "VerticalLayout", elements: [] };
+
   const uischema = {
     type: "VerticalLayout",
-    elements: []
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/store_on_payment",
+        options: {
+          autocomplete: "off",
+          type: !can_store ? "hidden" : "checkbox"
+        }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/store_on_payment_auto_payment",
+        options: {
+          autocomplete: "off",
+          type: !can_store ? "hidden" : "checkbox"
+        },
+        // only show this field if its in the required fields
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/store_on_payment",
+            schema: { const: true }
+          }
+        }
+      }
+    ]
   };
 
   return uischema as UISchemaElement;
 };
 
 // --------------------------------------------------------
+
+export function canBeStored(gateway: IGateway) {
+  const {
+    is_stored,
+    gateway_provider,
+    store_on_payment,
+    store_outside_payment
+  } = gateway;
+  const { store_type } = gateway_provider;
+  if (!is_stored) return false;
+  if (store_type === GatewayStoreType.NONE) return false;
+  if (store_outside_payment) return true;
+  if (store_on_payment) return false;
+  return true;
+}

@@ -3,30 +3,34 @@
 // --- internal
 
 // --- utils
-import { generateUrls } from "../utils";
-import { get } from "lodash-es";
+import {
+  generateUrls,
+  useSchema as useDefaultSchema,
+  useUischema as useDefaultUischema
+} from "../utils";
+import { get, merge, concat } from "lodash-es";
 
 // --- types
-import { QUERY_PARAMS } from "../types.d";
 import type { GatewayContext } from "../types.d";
-import type { UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
 export const useSchema = (context: GatewayContext) => {
   const gateway_provider = get(context.gateway, "gateway_provider", {});
-  const { cancel, success, fail } = generateUrls(context);
+  const defaultSchema = useDefaultSchema(context);
 
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
-    required: ["gateway_id", "card_num", "card_expiry", "card_cvv"],
+    required: [
+      ...(defaultSchema?.required || []), // NB Always include the default schema required fields
+      "card_num",
+      "card_expiry",
+      "card_cvv"
+    ],
     properties: {
-      gateway_id: {
-        type: "string",
-        title: "Gateway ID",
-        const: context.gateway.id
-      },
+      ...(defaultSchema?.properties || {}), // NB Always include the default schema properties
 
       cardholder_name: { type: "string", title: "Cardholder Name" },
       card_num: {
@@ -56,30 +60,6 @@ export const useSchema = (context: GatewayContext) => {
         type: "boolean",
         title: "Use external payment gateway",
         const: false
-      },
-      store: {
-        type: "boolean",
-        title: "Save payment details",
-        default: false // todo use brand settings
-      },
-      auto_payment: {
-        type: "boolean",
-        title: "Allow auto payment",
-        description:
-          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
-        default: false // todo use brand settings
-      },
-      return_url: {
-        type: "string",
-        title: "Return URL",
-        format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
-      },
-      cancel_url: {
-        type: "string",
-        title: "Cancel URL",
-        format: "uri",
-        const: cancel
       }
     }
   };
@@ -89,12 +69,14 @@ export const useSchema = (context: GatewayContext) => {
     schema.required.push("cardholder_name");
   }
 
-  return schema;
+  return schema as JsonSchema;
 };
 
 // --------------------------------------------------------
 
-export const useUischema = (_context: GatewayContext) => {
+export const useUischema = (context: GatewayContext) => {
+  const defaultUischema = useDefaultUischema(context);
+
   const uischema = {
     type: "VerticalLayout",
     elements: [
@@ -142,14 +124,7 @@ export const useUischema = (_context: GatewayContext) => {
           }
         ]
       },
-      {
-        type: "Control",
-        scope: "#/properties/store"
-      },
-      {
-        type: "Control",
-        scope: "#/properties/auto_payment"
-      }
+      ...(defaultUischema?.elements || []) // NB Always append the default uischema elements
     ]
   };
 

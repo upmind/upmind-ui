@@ -86,6 +86,5 @@ export const useModelParser = (schema, values) => {
     },
     {}
   );
-
   return defaultsDeep(model, values);
 };

@@ -10,13 +10,12 @@ import cardConfig from "./gateways/card";
 import { map } from "lodash-es";
 
 // --- types
-
+import { PaymentTypes } from "./types.d";
 import {
-  PaymentTypes,
-  GatewayContext,
+  GatewayCtx,
   GatewayTypes,
   GatewayProviderCodes
-} from "./types.d";
+} from "./gateways/types.d";
 
 import type { PaymentDetailsContext } from "./types.d";
 import type { UISchemaElement } from "@jsonforms/core";
@@ -118,7 +117,8 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       basket_id,
       gateway,
       amount,
-      currency
+      currency,
+      renderless: true
     });
 
   if (isDirectDebit(gateway))
@@ -126,7 +126,8 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       basket_id,
       gateway,
       amount,
-      currency
+      currency,
+      renderless: true
     });
 
   if (isSEPA(gateway))
@@ -134,7 +135,8 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       basket_id,
       gateway,
       amount,
-      currency
+      currency,
+      renderless: true
     });
 
   if (isMobile(gateway))
@@ -142,7 +144,8 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       basket_id,
       gateway,
       amount,
-      currency
+      currency,
+      renderless: true
     });
 
   if (isOffline(gateway))
@@ -150,7 +153,8 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       basket_id,
       gateway,
       amount,
-      currency
+      currency,
+      renderless: true
     });
 
   if (isExternal(gateway))
@@ -183,7 +187,7 @@ export function spawnStripe({ basket_id, gateway, amount, currency }) {
     stripeMachine.withContext({
       basket_id,
       gateway,
-      ctx: GatewayContext.PAY,
+      ctx: GatewayCtx.PAY,
       amount: amount || 0,
       currency,
       type: GatewayTypes.CARD
@@ -195,7 +199,7 @@ export function spawnStripe({ basket_id, gateway, amount, currency }) {
 // Our generic gateway machine
 export function spawnGenericGateway(
   type,
-  { basket_id, gateway, amount, currency }
+  { basket_id, gateway, amount, currency, renderless = false }
 ) {
   return spawn(
     gatewayMachine.withContext({
@@ -203,7 +207,8 @@ export function spawnGenericGateway(
       gateway,
       amount: amount || 0,
       currency,
-      type
+      type,
+      renderless
     }),
     { name: gateway.id, sync: true }
   );

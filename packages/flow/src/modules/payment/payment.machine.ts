@@ -85,7 +85,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setPayment", "providePayment", "setFeedbackSuccess"]
+            actions: ["setPayment", "providePayment"]
           },
           onError: {
             target: "error",
@@ -105,22 +105,33 @@ export default createMachine(
             },
             {
               target: "complete",
-              cond: "hasNoOutstandingBalance"
-            },
-            { target: "invalid" }
+              actions: "setFeedbackSuccess"
+            }
           ]
         }
       },
 
       approving: {
-        invoke: {
-          src: "redirect",
-          onDone: {
-            target: "complete"
+        initial: "redirecting",
+        states: {
+          redirecting: {
+            invoke: {
+              src: "redirect",
+              onDone: {
+                target: "offsite"
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"]
+          offsite: {
+            on: {
+              APPROVED: {
+                target: "#complete"
+              }
+            }
           }
         }
       },

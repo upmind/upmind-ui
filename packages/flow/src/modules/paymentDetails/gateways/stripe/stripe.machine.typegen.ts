@@ -91,7 +91,9 @@ export interface Typegen0 {
     providePaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     set: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
     setClientDetails: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
-    setContext: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
+    setContext:
+      | "done.invoke.stripePaymentManager.checking.parsing:invocation[0]"
+      | "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     setElementStatus: "VALIDATE";
     setElements:
       | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
@@ -110,7 +112,6 @@ export interface Typegen0 {
       | "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
     setPaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     setSchemas: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
-    setStripeInstance: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
   };
   eventsCausingDelays: {
     wait:
