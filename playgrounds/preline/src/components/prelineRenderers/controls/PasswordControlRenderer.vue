@@ -1,0 +1,104 @@
+<template>
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :is-focused="isFocused"
+    :applied-options="appliedOptions"
+  >
+    <input
+      :id="control.id + '-input'"
+      :class="[
+        styles.control.input,
+        appliedOptions?.trim
+          ? styles.control.size.trim
+          : styles.control.size.full,
+        controlWrapper.errors ? styles.control.error.input : null
+      ]"
+      :value="control.data"
+      :disabled="!control.enabled"
+      :autocomplete="appliedOptions.autocomplete"
+      :placeholder="appliedOptions.placeholder"
+      :type="unmask ? 'input' : 'password'"
+      @change="onChange"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    />
+    <span class="absolute top-0 right-1" v-if="control.data">
+      <button
+        class="btn btn-link text-inherit btn-square"
+        @click="unmask = true"
+        v-if="!unmask"
+      >
+        <eye-icon class="w-5 h-5" />
+        <span class="sr-only">Show password value</span>
+      </button>
+      <button
+        class="btn btn-link text-inherit btn-square"
+        @click="unmask = false"
+        v-else
+      >
+        <eye-slash-icon class="w-5 h-5" />
+        <span class="sr-only">Hide password value</span>
+      </button>
+    </span>
+  </control-wrapper>
+</template>
+
+<script lang="ts">
+import type {
+  ControlElement,
+  JsonFormsRendererRegistryEntry
+} from "@jsonforms/core";
+
+import {
+  rankWith,
+  isStringControl,
+  uiTypeIs,
+  formatIs,
+  // scopeEndsWith,
+  and,
+  or
+} from "@jsonforms/core";
+import { defineComponent } from "vue";
+import type { RendererProps } from "@jsonforms/vue";
+import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import ControlWrapper from "./ControlWrapper.vue";
+import { useprelineControl } from "../util";
+
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
+
+const controlRenderer = defineComponent({
+  name: "StringControlRenderer",
+  components: {
+    ControlWrapper,
+    EyeIcon,
+    EyeSlashIcon
+  },
+  props: {
+    ...rendererProps<ControlElement>()
+  },
+  data() {
+    return {
+      unmask: false
+    };
+  },
+  setup(props: RendererProps<ControlElement>) {
+    return useprelineControl(
+      useJsonFormsControl(props),
+      target => target.value || undefined
+    );
+  }
+});
+
+export default controlRenderer;
+
+export const isPasswordControl = and(
+  uiTypeIs("Control"),
+  or(formatIs("password"))
+);
+
+export const entry: JsonFormsRendererRegistryEntry = {
+  renderer: controlRenderer,
+  tester: rankWith(2, and(isStringControl, isPasswordControl))
+};
+</script>
