@@ -11,7 +11,7 @@
     "url": "git@git.upmind.io:dominic.dacosta/upmind-core.git"
   },
   "scripts": {
-    "clean": "rm -rf packages/**/{node_modules,dist,*.tsbuildinfo}",
+    "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo}",
     "start": "npm run start --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "build:tsc": "tsc --build --verbose",
@@ -41,9 +41,10 @@
     "typescript": "^5.0.2"
   },
   "workspaces": [
-    "playground",
     "packages/flow",
     "packages/vue",
-    "packages/ui"
+    "packages/ui",
+    "playgrounds/primevue",
+    "playgrounds/daisyui"
   ]
 }
