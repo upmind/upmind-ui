@@ -45,6 +45,7 @@
     "packages/vue",
     "packages/ui",
     "playgrounds/primevue",
-    "playgrounds/daisyui"
+    "playgrounds/daisyui",
+    "playgrounds/preline"
   ]
 }
