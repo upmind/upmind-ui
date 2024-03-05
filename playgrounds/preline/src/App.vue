@@ -72,7 +72,7 @@
         <li v-for="route in routes" :key="route.path">
           <router-link
             :to="route.path"
-            active-class="bg-primary-100 hover:bg-primary-100 text-primary"
+            active-class="bg-primary-content hover:bg-primary-content text-primary"
             :class="[
               'flex',
               'items-center',
