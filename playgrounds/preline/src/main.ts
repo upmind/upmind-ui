@@ -1,4 +1,4 @@
-import "./assets/app.css";
+import "./assets/main.css";
 
 import { createApp } from "vue";
 import upmind from "./plugins/upmind";
