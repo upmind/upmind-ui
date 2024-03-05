@@ -2,7 +2,7 @@
   <div class="item flex relative items-start p-4">
     <div class="avatar placeholder">
       <div
-        class="bg-neutral text-neutral-content rounded-full w-12 h-12 self-start mt-6"
+        class="bg-neutral text-neutral-content rounded-full w-12 h-12 self-start mt-6 flex items-center justify-center"
       >
         <!-- <span class="text-3xl">D</span> -->
         <slot name="icon"></slot>

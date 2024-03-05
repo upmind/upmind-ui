@@ -61,8 +61,10 @@ let colors = {
     700: "#673ab7",
     800: "#5c34a3",
     900: "#4c2d85",
-    950: "#2f1b5a"
+    950: "#2f1b5a",
+    content: "#f6f5fd"
   },
+
   secondary: {
     DEFAULT: "#34b1fd",
     50: "#eefaff",
@@ -75,8 +77,10 @@ let colors = {
     700: "#167bdf",
     800: "#1863b5",
     900: "#1a548e",
-    950: "#153456"
+    950: "#153456",
+    content: "#eefaff"
   },
+
   tertiary: {
     DEFAULT: "#eaad08",
     50: "#fefbe8",
@@ -89,8 +93,26 @@ let colors = {
     700: "#a15e07",
     800: "#854a0e",
     900: "#713d12",
-    950: "#421e06"
+    950: "#421e06",
+    content: "#fefbe8"
   },
+
+  accent: {
+    DEFAULT: "#f83c85",
+    50: "#fef1f7",
+    100: "#fee5f0",
+    200: "#fecce3",
+    300: "#ffa2cb",
+    400: "#fe68a6",
+    500: "#f83c85",
+    600: "#e91e63",
+    700: "#cb0b47",
+    800: "#a70d3b",
+    900: "#8b1034",
+    950: "#55021a",
+    content: "#fef1f7"
+  },
+
   neutral: {
     DEFAULT: "#6d6d6d",
     50: "#f6f6f6",
@@ -103,7 +125,8 @@ let colors = {
     700: "#4f4f4f",
     800: "#424242",
     900: "#3d3d3d",
-    950: "#262626"
+    950: "#262626",
+    content: "#e7e7e7"
   }
 };
 
@@ -120,35 +143,19 @@ module.exports = {
     |-----------------------------------------------------------------------------
     | Colors                                  https://tailwindcss.com/docs/colors
     |-----------------------------------------------------------------------------
-    |
-    | The color palette defined above is also assigned to the "colors" key of
-    | your Tailwind config. This makes it easy to access them in your CSS
-    | using Tailwind's config helper. For example:
-    |
-    | .error { color: config('colors.red') }
-    |
     */
 
     extend: {
-      colors: colors
+      colors: colors,
+      textColors: colors,
+      backgroundColors: colors,
+      borderColors: colors
     },
 
     /*
     |-----------------------------------------------------------------------------
     | Fonts                                    https://tailwindcss.com/docs/fonts
     |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your project's font stack, or font families.
-    | Keep in mind that Tailwind doesn't actually load any fonts for you.
-    | If you're using custom fonts you'll need to import them prior to
-    | defining them here.
-    |
-    | By default we provide a native font stack that works remarkably well on
-    | any device or OS you're using, since it just uses the default fonts
-    | provided by the platform.
-    |
-    | Class name: .font-{name}
-    |
     */
 
     fonts: {
@@ -161,19 +168,6 @@ module.exports = {
     |-----------------------------------------------------------------------------
     | Text sizes                         https://tailwindcss.com/docs/text-sizing
     |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your text sizes. Name these in whatever way
-    | makes the most sense to you. We use size names by default, but
-    | you're welcome to use a numeric scale or even something else
-    | entirely.
-    |
-    | By default Tailwind uses the "rem" unit type for most measurements.
-    | This allows you to set a root font size which all other sizes are
-    | then based on. That said, you are free to use whatever units you
-    | prefer, be it rems, ems, pixels or other.
-    |
-    | Class name: .text-{size}
-    |
     */
 
     textSizes: {
@@ -192,14 +186,6 @@ module.exports = {
     |-----------------------------------------------------------------------------
     | Font weights                       https://tailwindcss.com/docs/font-weight
     |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your font weights. We've provided a list of
-    | common font weight names with their respective numeric scale values
-    | to get you started. It's unlikely that your project will require
-    | all of these, so we recommend removing those you don't need.
-    |
-    | Class name: .font-{weight}
-    |
     */
 
     fontWeights: {
@@ -218,12 +204,6 @@ module.exports = {
     |-----------------------------------------------------------------------------
     | Leading (line height)              https://tailwindcss.com/docs/line-height
     |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your line height values, or as we call
-    | them in Tailwind, leadings.
-    |
-    | Class name: .leading-{size}
-    |
     */
 
     leading: {
@@ -237,12 +217,6 @@ module.exports = {
     |-----------------------------------------------------------------------------
     | Tracking (letter spacing)       https://tailwindcss.com/docs/letter-spacing
     |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your letter spacing values, or as we call
-    | them in Tailwind, tracking.
-    |
-    | Class name: .tracking-{size}
-    |
     */
 
     tracking: {
@@ -253,67 +227,8 @@ module.exports = {
 
     /*
     |-----------------------------------------------------------------------------
-    | Text colors                         https://tailwindcss.com/docs/text-color
-    |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your text colors. By default these use the
-    | color palette we defined above, however you're welcome to set these
-    | independently if that makes sense for your project.
-    |
-    | Class name: .text-{color}
-    |
-    */
-
-    textColors: colors,
-
-    /*
-    |-----------------------------------------------------------------------------
-    | Background colors             https://tailwindcss.com/docs/background-color
-    |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your background colors. By default these use
-    | the color palette we defined above, however you're welcome to set
-    | these independently if that makes sense for your project.
-    |
-    | Class name: .bg-{color}
-    |
-    */
-
-    backgroundColors: colors,
-
-    /*
-    |-----------------------------------------------------------------------------
-    | Border colors                     https://tailwindcss.com/docs/border-color
-    |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your border colors. By default these use the
-    | color palette we defined above, however you're welcome to set these
-    | independently if that makes sense for your project.
-    |
-    | Take note that border colors require a special "default" value set
-    | as well. This is the color that will be used when you do not
-    | specify a border color.
-    |
-    | Class name: .border-{color}
-    |
-    */
-
-    borderColors: Object.assign({ default: colors["grey-light"] }, colors),
-
-    /*
-    |-----------------------------------------------------------------------------
     | Shadows                                https://tailwindcss.com/docs/shadows
     |-----------------------------------------------------------------------------
-    |
-    | Here is where you define your shadow utilities. As you can see from
-    | the defaults we provide, it's possible to apply multiple shadows
-    | per utility using comma separation.
-    |
-    | If a `default` shadow is provided, it will be made available as the non-
-    | suffixed `.shadow` utility.
-    |
-    | Class name: .shadow-{size?}
-    |
     */
 
     shadows: {
