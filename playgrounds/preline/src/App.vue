@@ -8,7 +8,22 @@
 
     <button
       type="button"
-      class="text-gray-500 hover:text-gray-600"
+      :class="[
+        'hover:border-neutral-300',
+        'hover:shadow-lg',
+        'hover:-tranneutral-y-1',
+        'hover:border',
+        // ---
+        'active:border-neutral-600',
+        'active:shadow-lg',
+        'active:-tranneutral-y-0.5',
+        'active:border',
+        // ---
+        'transition-all',
+        'rounded-full',
+        'aspect-square',
+        'p-2'
+      ]"
       data-hs-overlay="#drawer-1"
       aria-controls="drawer-1"
       aria-label="Toggle navigation"
@@ -48,7 +63,7 @@
         />
       </svg>
     </template>
-    <div class="px-6">
+    <div class="">
       <a
         class="flex-none text-xl font-semibold dark:text-white"
         href="#"
@@ -57,14 +72,14 @@
       >
     </div>
     <nav
-      class="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
+      class="hs-accordion-group mt-4 w-full flex flex-col flex-wrap"
       data-hs-accordion-always-open
     >
       <ul class="space-y-1.5">
         <li v-for="route in routes" :key="route.path">
           <router-link
             :to="route.path"
-            active-class="bg-gray-300"
+            active-class="bg-neutral-300"
             :class="[
               'flex',
               'items-center',
@@ -72,14 +87,14 @@
               'px-2.5',
               'text-sm',
               'rounded-lg',
-              'bg-gray-100',
-              'text-slate-700',
-              'hover:bg-gray-200',
-              'dark:bg-gray-900',
+              'bg-neutral-100',
+              'text-neutral-900',
+              'hover:bg-neutral-200',
+              'dark:bg-neutral-900',
               'dark:text-white',
               'dark:focus:outline-none',
               'dark:focus:ring-1',
-              'dark:focus:ring-gray-600'
+              'dark:focus:ring-neutral-600'
             ]"
           >
             {{ startCase(route.name) }}

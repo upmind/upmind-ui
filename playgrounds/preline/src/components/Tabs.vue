@@ -9,7 +9,7 @@ defineProps<{
     <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
       <button
         type="button"
-        class="hs-tab-active:font-semibold hs-tab-active:border-blue-600 hs-tab-active:text-blue-600 py-4 px-1 inline-flex items-center gap-x-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-blue-600 focus:outline-none focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-400 dark:hover:text-blue-500 active"
+        class="hs-tab-active:font-semibold hs-tab-active:border-primary-600 hs-tab-active:text-primary-600 py-4 px-1 inline-flex items-center gap-x-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-primary-600 focus:outline-none focus:text-primary-600 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-400 dark:hover:text-primary-500 active"
         :id="`tabs-item-${groupId}-1`"
         :data-hs-tab="`#tabs-${groupId}-1`"
         :aria-controls="`tabs-${groupId}-1`"
@@ -34,7 +34,7 @@ defineProps<{
       </button>
       <button
         type="button"
-        class="hs-tab-active:font-semibold hs-tab-active:border-blue-600 hs-tab-active:text-blue-600 py-4 px-1 inline-flex items-center gap-x-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-blue-600 focus:outline-none focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-400 dark:hover:text-blue-500"
+        class="hs-tab-active:font-semibold hs-tab-active:border-primary-600 hs-tab-active:text-primary-600 py-4 px-1 inline-flex items-center gap-x-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-primary-600 focus:outline-none focus:text-primary-600 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-400 dark:hover:text-primary-500"
         :id="`tabs-item-${groupId}-2`"
         :data-hs-tab="`#tabs-${groupId}-2`"
         :aria-controls="`tabs-${groupId}-2`"
@@ -60,7 +60,7 @@ defineProps<{
       </button>
       <button
         type="button"
-        class="hs-tab-active:font-semibold hs-tab-active:border-blue-600 hs-tab-active:text-blue-600 py-4 px-1 inline-flex items-center gap-x-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-blue-600 focus:outline-none focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-400 dark:hover:text-blue-500"
+        class="hs-tab-active:font-semibold hs-tab-active:border-primary-600 hs-tab-active:text-primary-600 py-4 px-1 inline-flex items-center gap-x-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-primary-600 focus:outline-none focus:text-primary-600 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-400 dark:hover:text-primary-500"
         :id="`tabs-item-${groupId}-3`"
         :data-hs-tab="`#tabs-${groupId}-3`"
         :aria-controls="`tabs-${groupId}-3`"

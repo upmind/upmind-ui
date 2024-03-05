@@ -16,7 +16,7 @@
           <div class="sm:hidden">
             <button
               type="button"
-              class="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-2 rounded-lg border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
+              class="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-2 rounded-lg border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-primary-600 transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
               data-hs-collapse="#navbar-collapse-basic"
               aria-controls="navbar-collapse-basic"
               aria-label="Toggle navigation"
@@ -65,13 +65,13 @@
             class="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5 [--scrollspy-offset:220] md:[--scrollspy-offset:70]"
           >
             <a
-              class="text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-blue-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-blue-500 hs-scrollspy-active:text-blue-600 dark:hs-scrollspy-active:text-blue-400 active"
+              class="text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-primary-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-primary-500 hs-scrollspy-active:text-primary-600 dark:hs-scrollspy-active:text-primary-400 active"
               href="#first"
             >
               First
             </a>
             <a
-              class="text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-blue-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-blue-500 hs-scrollspy-active:text-blue-600 dark:hs-scrollspy-active:text-blue-400"
+              class="text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-primary-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-primary-500 hs-scrollspy-active:text-primary-600 dark:hs-scrollspy-active:text-primary-400"
               href="#second"
             >
               Second
@@ -84,7 +84,7 @@
               <button
                 type="button"
                 id="hs-mega-menu-basic-dr"
-                class="group hs-scrollspy-active:text-blue-600 mb-3 sm:mb-0 dark:hs-scrollspy-active:text-blue-400 inline-flex justify-center items-center gap-x-1 text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-blue-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-blue-500 hs-scrollspy-active:text-blue-600 dark:hs-scrollspy-active:text-blue-400"
+                class="group hs-scrollspy-active:text-primary-600 mb-3 sm:mb-0 dark:hs-scrollspy-active:text-primary-400 inline-flex justify-center items-center gap-x-1 text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-primary-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-primary-500 hs-scrollspy-active:text-primary-600 dark:hs-scrollspy-active:text-primary-400"
               >
                 Dropdown
                 <svg
@@ -108,19 +108,19 @@
                 style=""
               >
                 <a
-                  class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-blue-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-blue-500 hs-scrollspy-active:text-blue-600 dark:hs-scrollspy-active:text-blue-400"
+                  class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-primary-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-primary-500 hs-scrollspy-active:text-primary-600 dark:hs-scrollspy-active:text-primary-400"
                   href="#third"
                 >
                   Third
                 </a>
                 <a
-                  class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-blue-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-blue-500 hs-scrollspy-active:text-blue-600 dark:hs-scrollspy-active:text-blue-400"
+                  class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-primary-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-primary-500 hs-scrollspy-active:text-primary-600 dark:hs-scrollspy-active:text-primary-400"
                   href="#fourth"
                 >
                   Fourth
                 </a>
                 <a
-                  class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-blue-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-blue-500 hs-scrollspy-active:text-blue-600 dark:hs-scrollspy-active:text-blue-400"
+                  class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-700 leading-6 hover:text-gray-500 focus:outline-none focus:text-primary-600 dark:text-gray-400 dark:hover:text-gray-500 dark:focus:text-primary-500 hs-scrollspy-active:text-primary-600 dark:hs-scrollspy-active:text-primary-400"
                   href="#fifth"
                 >
                   Fifth
