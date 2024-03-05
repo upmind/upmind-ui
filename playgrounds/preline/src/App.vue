@@ -44,7 +44,7 @@
 
   <pv-drawer
     contentId="drawer-1"
-    title="Drawer 1"
+    title="Upmind Flow Demo"
     action="Toggle Navigation"
     no-action
   >
@@ -63,33 +63,25 @@
         />
       </svg>
     </template>
-    <div class="">
-      <a
-        class="flex-none text-xl font-semibold dark:text-white"
-        href="#"
-        aria-label="Brand"
-        >Upmind Flow Demo</a
-      >
-    </div>
+
     <nav
-      class="hs-accordion-group mt-4 w-full flex flex-col flex-wrap"
+      class="hs-accordion-group w-full flex flex-col flex-wrap"
       data-hs-accordion-always-open
     >
       <ul class="space-y-1.5">
         <li v-for="route in routes" :key="route.path">
           <router-link
             :to="route.path"
-            active-class="bg-neutral-300"
+            active-class="bg-primary-100 hover:bg-primary-100 text-primary"
             :class="[
               'flex',
               'items-center',
               'p-2',
               'px-2.5',
               'text-sm',
-              'rounded-lg',
-              'bg-neutral-100',
+              'rounded',
               'text-neutral-900',
-              'hover:bg-neutral-200',
+              'hover:bg-neutral-50',
               'dark:bg-neutral-900',
               'dark:text-white',
               'dark:focus:outline-none',

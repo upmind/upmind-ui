@@ -50,6 +50,7 @@ let colors = {
   white: "#FFFFFF",
 
   primary: {
+    DEFAULT: "#9070e2",
     50: "#f6f5fd",
     100: "#efecfb",
     200: "#dfdbf9",
@@ -63,6 +64,7 @@ let colors = {
     950: "#2f1b5a"
   },
   secondary: {
+    DEFAULT: "#34b1fd",
     50: "#eefaff",
     100: "#daf3ff",
     200: "#bdebff",
@@ -76,6 +78,7 @@ let colors = {
     950: "#153456"
   },
   tertiary: {
+    DEFAULT: "#eaad08",
     50: "#fefbe8",
     100: "#fef7c3",
     200: "#feed8a",
@@ -89,6 +92,7 @@ let colors = {
     950: "#421e06"
   },
   neutral: {
+    DEFAULT: "#6d6d6d",
     50: "#f6f6f6",
     100: "#e7e7e7",
     200: "#d1d1d1",
