@@ -7,7 +7,7 @@
         <input
           type="password"
           id="hs-strong-password-with-indicator-and-hint"
-          class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter password"
         />
         <div
@@ -15,7 +15,7 @@
           data-hs-strong-password='{
             "target": "#hs-strong-password-with-indicator-and-hint",
             "hints": "#hs-strong-password-hints",
-            "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-blue-500 opacity-50 mx-1"
+            "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-primary-500 opacity-50 mx-1"
           }'
           class="flex mt-2 -mx-1"
         ></div>

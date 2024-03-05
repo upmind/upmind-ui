@@ -28,27 +28,27 @@
     animation: sliding-img-left-1 120s linear infinite;
   }
 
-  .active-link.text-blue-500 {
+  .active-link.text-primary-500 {
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
   }
 
-  .active.text-blue-500 {
+  .active.text-primary-500 {
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
   }
 
-  .active.text-blue-600 {
+  .active.text-primary-600 {
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
   }
 
-  .dark .active.text-blue-500 {
+  .dark .active.text-primary-500 {
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
   }
 
-  .dark .active-link.text-blue-500 {
+  .dark .active-link.text-primary-500 {
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
   }
