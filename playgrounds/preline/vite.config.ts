@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import svgLoader from 'vite-svg-loader';
 // import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -10,6 +11,7 @@ export default defineConfig({
   plugins: [
     // basicSsl(),
     vue(),
+    vueJsx(),
     svgLoader()
   ],
   server: {

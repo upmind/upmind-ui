@@ -1,8 +1,8 @@
 <template>
   <div class="grid grid-cols-6 gap-4 min-h-screen" :data-theme="activeTheme">
-    <header class="flex flex-col items-center justify-start">
-      <div class="avatar my-4">
-        <div class="w-28 h-28">
+    <header class="p-2">
+      <div class="avatar">
+        <div class="w-20 h-20 mx-auto">
           <logo-icon class="w-full h-full"></logo-icon>
         </div>
       </div>
@@ -11,7 +11,7 @@
         <Bars4Icon></Bars4Icon>
       </label> -->
 
-      <pv-menu :model="routes" class="sticky top-0 w-full">
+      <pv-menu :model="routes" class="sticky top-0 w-full my-4">
         <template #start>
           <pv-input-group class="p-2">
             <pv-input-group-addon>
@@ -27,8 +27,14 @@
             </pv-dropdown>
           </pv-input-group>
         </template>
+
         <template #item="{ item, props }">
-          <router-link v-slot="{ href, navigate }" :to="item.path" custom>
+          <router-link
+            v-slot="{ href, navigate }"
+            :to="item.path"
+            custom
+            active-class="p-menu-active"
+          >
             <a v-ripple :href="href" v-bind="props.action" @click="navigate">
               <span :class="item.icon" v-if="item?.icon" />
               <span>{{ startCase(item.name) }}</span>

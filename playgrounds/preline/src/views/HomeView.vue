@@ -11,3 +11,4 @@ const activeTheme = inject("activeTheme");
     </div>
   </section>
 </template>
+../components.origin/TheWelcome.vue

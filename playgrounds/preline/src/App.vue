@@ -1,48 +1,98 @@
 <template>
-  <div class="grid grid-cols-6 gap-4 min-h-screen" :data-theme="activeTheme">
-    <header class="flex flex-col items-center justify-start">
-      <div class="avatar my-4">
-        <div class="w-28 h-28">
-          <logo-icon class="w-full h-full"></logo-icon>
-        </div>
+  <header class="flex items-center justify-start p-4 gap-4">
+    <div class="avatar my-4">
+      <div class="w-auto h-16">
+        <logo-icon class="w-full h-full"></logo-icon>
       </div>
+    </div>
 
-      <!-- <label for="my-drawer-2" class="btn btn-square drawer-button lg:hidden">
-        <Bars4Icon></Bars4Icon>
-      </label> -->
+    <button
+      type="button"
+      class="text-gray-500 hover:text-gray-600"
+      data-hs-overlay="#drawer-1"
+      aria-controls="drawer-1"
+      aria-label="Toggle navigation"
+    >
+      <span class="sr-only">Toggle Navigation</span>
+      <svg
+        class="flex-shrink-0 size-4 h-6 w-6"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+        />
+      </svg>
+    </button>
+  </header>
 
-      <pv-menu :model="routes" class="sticky top-0 w-full">
-        <template #start>
-          <pv-input-group class="p-2">
-            <pv-input-group-addon>
-              <i class="pi pi-palette"></i>
-            </pv-input-group-addon>
-            <pv-dropdown
-              v-model="activeTheme"
-              :options="themes"
-              placeholder="Select a Theme"
-            >
-              <template #option="{ option }">{{ startCase(option) }}</template>
-              <template #value="{ value }">{{ startCase(value) }}</template>
-            </pv-dropdown>
-          </pv-input-group>
-        </template>
-        <template #item="{ item, props }">
-          <router-link v-slot="{ href, navigate }" :to="item.path" custom>
-            <a v-ripple :href="href" v-bind="props.action" @click="navigate">
-              <span :class="item.icon" v-if="item?.icon" />
-              <span>{{ startCase(item.name) }}</span>
-            </a>
+  <pv-drawer
+    contentId="drawer-1"
+    title="Drawer 1"
+    action="Toggle Navigation"
+    no-action
+  >
+    <template #action>
+      <span class="sr-only">Toggle Navigation</span>
+      <svg
+        class="flex-shrink-0 size-4"
+        width="16"
+        height="16"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+        />
+      </svg>
+    </template>
+    <div class="px-6">
+      <a
+        class="flex-none text-xl font-semibold dark:text-white"
+        href="#"
+        aria-label="Brand"
+        >Upmind Flow Demo</a
+      >
+    </div>
+    <nav
+      class="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
+      data-hs-accordion-always-open
+    >
+      <ul class="space-y-1.5">
+        <li v-for="route in routes" :key="route.path">
+          <router-link
+            :to="route.path"
+            active-class="bg-gray-300"
+            :class="[
+              'flex',
+              'items-center',
+              'p-2',
+              'px-2.5',
+              'text-sm',
+              'rounded-lg',
+              'bg-gray-100',
+              'text-slate-700',
+              'hover:bg-gray-200',
+              'dark:bg-gray-900',
+              'dark:text-white',
+              'dark:focus:outline-none',
+              'dark:focus:ring-1',
+              'dark:focus:ring-gray-600'
+            ]"
+          >
+            {{ startCase(route.name) }}
           </router-link>
-        </template>
-      </pv-menu>
-    </header>
+        </li>
+      </ul>
+    </nav>
+  </pv-drawer>
 
-    <main class="prose max-w-none col-span-5 p-4">
-      <upm-feedback :data-theme="activeTheme" />
-      <router-view class="view" />
-    </main>
-  </div>
+  <main class="container min-h-screen" :data-theme="activeTheme">
+    <upm-feedback />
+    <router-view class="view" />
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -50,12 +100,10 @@
 import { provide, ref, watch } from "vue";
 import { RouterView, useRouter } from "vue-router";
 
-// --- components
-
 // --- internal
 import LogoIcon from "@/assets/logo.svg";
 import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
-
+import PvDrawer from "@/components/Drawer.vue";
 // --- utils
 import { startCase } from "lodash-es";
 
