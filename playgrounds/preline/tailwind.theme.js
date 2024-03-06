@@ -27,10 +27,18 @@ For a full list of options, see the official Tailwind CSS documentation: https:/
 
 let colors = {
   transparent: "transparent",
-  black: "#000000",
-  white: "#FFFFFF",
+  black: "var(--color-black, #000000)",
+  white: "var(--color-white, #ffffff)",
 
   // ---
+
+  base: {
+    DEFAULT: "var(--color-base, #ffffff)",
+    100: "var(--color-base-50,#ffffff)",
+    200: "var(--color-base-100,#efefef)",
+    300: "var(--color-base-200,#dcdcdc)",
+    content: "var(--color-base-content, #000000)",
+  },
 
   gray: {
     DEFAULT: "var(--color-gray,  #6d6d6d)",
