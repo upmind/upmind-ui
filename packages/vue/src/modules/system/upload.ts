@@ -25,7 +25,7 @@ export const useUpload = field => {
   const add = async (value: string) => {
     send({
       type: "ADD",
-      data: value
+      data: value,
     });
 
     return new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ export const useUpload = field => {
 
   const remove = () => {
     send({
-      type: "REMOVE"
+      type: "REMOVE",
     });
   };
 
@@ -60,8 +60,8 @@ export const useUpload = field => {
       data: {
         type,
         typeId,
-        isDefault
-      }
+        isDefault,
+      },
     });
 
   const getImageByHash = hash => {
@@ -92,13 +92,13 @@ export const useUpload = field => {
       isProcessing: ["checking", "processing"].some(state.value.matches),
       isComplete: ["processed", "complete"].some(state.value.matches),
       hasErrors: state.value.matches("error"),
-      hasFile: !isEmpty(state.value.context?.file)
+      hasFile: !isEmpty(state.value.context?.file),
     })),
     // ---
     add,
     remove,
     getImage,
     getImageByHash,
-    destroy: upload.destroy
+    destroy: upload.destroy,
   };
 };

@@ -15,7 +15,7 @@
         appliedOptions?.trim
           ? styles.control.size.trim
           : styles.control.size.full,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
     >
       <span :class="styles.control.prefix" v-if="appliedOptions?.prefix">{{
@@ -47,7 +47,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isNumberControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -59,10 +59,10 @@ import { useprelineControl } from "../util";
 const controlRenderer = defineComponent({
   name: "NumberControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useprelineControl(useJsonFormsControl(props), target =>
@@ -73,14 +73,14 @@ const controlRenderer = defineComponent({
     step(): number {
       const options: any = this.appliedOptions;
       return options.step ?? 0.1;
-    }
-  }
+    },
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(1, isNumberControl)
+  tester: rankWith(1, isNumberControl),
 };
 </script>

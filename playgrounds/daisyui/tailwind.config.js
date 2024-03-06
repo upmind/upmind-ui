@@ -33,14 +33,14 @@ module.exports = {
       "lemonade",
       "night",
       "coffee",
-      "winter"
-    ]
+      "winter",
+    ],
   },
   safelist: [
     {
       pattern:
-        /badge-(primary|secondary|accent|info|success|error|warning|neutral)/
-    }
+        /badge-(primary|secondary|accent|info|success|error|warning|neutral)/,
+    },
   ],
   theme: {
     extend: {
@@ -50,8 +50,8 @@ module.exports = {
         card: "repeat(auto-fill, minmax(320px, 1fr))",
         "card-md": "repeat(auto-fill, minmax(480px, 1fr))",
         "card-lg": "repeat(auto-fill, minmax(640px, 1fr))",
-        "card-xl": "repeat(auto-fill, minmax(720px, 1fr))"
-      }
-    }
-  }
+        "card-xl": "repeat(auto-fill, minmax(720px, 1fr))",
+      },
+    },
+  },
 };

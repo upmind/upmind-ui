@@ -6,7 +6,7 @@
       :class="[
         !!error ? 'input-error ' : 'focus-within/domain-input:input-primary',
         compact ? 'p-0' : 'input-lg ',
-        filteredSuggestions?.length && model?.length ? 'join-item' : ''
+        filteredSuggestions?.length && model?.length ? 'join-item' : '',
       ]"
     >
       <div class="join h-full w-full items-center relative">
@@ -107,54 +107,54 @@ export default defineComponent({
   name: "UpmSearch",
   components: {
     MagnifyingGlassIcon,
-    BackspaceIcon
+    BackspaceIcon,
   },
   emits: ["update:modelValue", "reset", "focus", "blur", "click"],
   props: {
     modelValue: {
-      type: [String, Array<String>]
+      type: [String, Array<String>],
     },
     suggestions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     action: {
-      type: String
+      type: String,
     },
     icon: {
       type: String,
-      default: ""
+      default: "",
     },
     clearable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     autocomplete: {
       type: String,
-      default: ""
+      default: "",
     },
     placeholder: {
       type: String,
-      default: ""
+      default: "",
     },
     compact: {
       type: Boolean,
-      default: false
+      default: false,
     },
     error: {
-      type: String
+      type: String,
     },
     autofocus: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data: () => ({
-    input: null as HTMLInputElement | null
+    input: null as HTMLInputElement | null,
   }),
 
   setup(props) {
@@ -175,7 +175,7 @@ export default defineComponent({
 
     return {
       model,
-      iconComponent
+      iconComponent,
     };
   },
   computed: {
@@ -192,7 +192,7 @@ export default defineComponent({
             highlight: item.domain.replace(
               this.model,
               "<strong class='text-inherit underline underline-offset-4 decoration-primary'>$&</strong>"
-            )
+            ),
           };
         }
       );
@@ -202,14 +202,14 @@ export default defineComponent({
     },
     hasIcon() {
       return !!this.iconComponent;
-    }
+    },
   },
   methods: {
     doSuggestion(value: string) {
       this.model = value;
 
       this.$emit("update:modelValue", {
-        currentTarget: { value: this.model }
+        currentTarget: { value: this.model },
       });
 
       this.setFocus();
@@ -218,7 +218,7 @@ export default defineComponent({
     doClick(_event: Event) {
       // resend the model value to the parent to trigger the search
       this.$emit("click", {
-        currentTarget: { value: this.model }
+        currentTarget: { value: this.model },
       });
     },
 
@@ -240,10 +240,10 @@ export default defineComponent({
 
     setFocus() {
       this.$refs?.input?.focus();
-    }
+    },
   },
   mounted() {
     if (this.autofocus) this.setFocus();
-  }
+  },
 });
 </script>

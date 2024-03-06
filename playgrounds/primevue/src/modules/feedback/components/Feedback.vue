@@ -32,17 +32,17 @@ import { useTimestamp } from "@vueuse/core";
 export default defineComponent({
   name: "UpmFeedback",
   components: {
-    UpmMessage
+    UpmMessage,
   },
   props: {
     scheduled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup() {
     const timestamp = useTimestamp();
@@ -58,10 +58,10 @@ export default defineComponent({
       meta,
       useTime,
       add,
-      timestamp
+      timestamp,
     };
   },
 
-  computed: {}
+  computed: {},
 });
 </script>

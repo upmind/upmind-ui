@@ -38,7 +38,7 @@
         data-prefix="RES > "
         :class="{
           'text-success': request.response.status == 200,
-          'text-error': request.response.status != 200
+          'text-error': request.response.status != 200,
         }"
       >
        <div>{{ request.response }}</div>
@@ -58,8 +58,8 @@ export default defineComponent({
   props: {
     hash: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const { requests } = inject("upmind");
@@ -84,13 +84,13 @@ export default defineComponent({
         isCached: state.matches("processed.cached"),
         isStale: state.matches("processed.stale"),
         hasNoContent: state.matches("processed.empty"),
-        hasErrors: state.matches("error")
+        hasErrors: state.matches("error"),
       };
     });
 
     return {
       request,
-      timestamp
+      timestamp,
     };
   },
   computed: {
@@ -115,7 +115,7 @@ export default defineComponent({
       if (endsWith(time, " ago")) return `Expired ${time}`;
       else if (startsWith(time, "in ")) return `Expires ${time}`;
       else return `Expires ${time} `;
-    }
-  }
+    },
+  },
 });
 </script>

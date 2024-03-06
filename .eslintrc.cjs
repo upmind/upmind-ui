@@ -1,18 +1,18 @@
 module.exports = {
   env: {
     browser: true,
-    es2021: true
+    es2021: true,
   },
   extends: [
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
   ],
   overrides: [],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    project: "./tsconfig.json"
+    project: "./tsconfig.json",
   },
   plugins: ["@typescript-eslint", "prettier"],
   rules: {
@@ -37,8 +37,8 @@ module.exports = {
       {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
-        caughtErrorsIgnorePattern: "^_"
-      }
+        caughtErrorsIgnorePattern: "^_",
+      },
     ],
 
     // typecript
@@ -54,8 +54,8 @@ module.exports = {
       "error",
       {
         allowDestructuring: true, // Allow `const { props, state } = this`; false by default
-        allowedNames: ["vm"] // Allow `const vm= this`; `[]` by default
-      }
+        allowedNames: ["vm"], // Allow `const vm= this`; `[]` by default
+      },
     ],
 
     // vue
@@ -67,6 +67,6 @@ module.exports = {
 
     // general
     "no-unsafe-optional-chaining": "off",
-    "prettier/prettier": ["error", { endOfLine: "auto" }]
-  }
+    "prettier/prettier": ["error", { endOfLine: "auto" }],
+  },
 };

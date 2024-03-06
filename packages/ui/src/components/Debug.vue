@@ -95,7 +95,7 @@ export default defineComponent({
     state: [Object, String],
     open: Object,
     meta: Object,
-    errors: [Object, String]
+    errors: [Object, String],
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
@@ -104,13 +104,13 @@ export default defineComponent({
 
     return {
       isOpen,
-      debugbar
+      debugbar,
     };
   },
   computed: {
     isDebugging(): boolean {
       return this.debugging && import.meta.env.DEV;
-    }
-  }
+    },
+  },
 });
 </script>

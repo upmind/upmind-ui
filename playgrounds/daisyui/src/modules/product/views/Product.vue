@@ -183,7 +183,7 @@ export default defineComponent({
     ConfigOptions,
     ConfigProvisioning,
     UpmDebug,
-    XMarkIcon
+    XMarkIcon,
   },
   inject: ["activeTheme"],
   emits: [
@@ -192,25 +192,25 @@ export default defineComponent({
     "update:quantity",
     "update:attributes",
     "update:provisioning",
-    "update:options"
+    "update:options",
   ],
   props: {
     id: {
       type: String,
-      required: true
+      required: true,
     },
     item: {
       type: Object, // xstate actor
-      required: true
+      required: true,
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup: (props, { emit }) => {
     const productConfig = useProductConfig(props.item);
@@ -221,7 +221,7 @@ export default defineComponent({
       isNil,
       remove,
       ...productConfig,
-      uuid: getCurrentInstance()?.uid
+      uuid: getCurrentInstance()?.uid,
     };
   },
   computed: {
@@ -240,7 +240,7 @@ export default defineComponent({
         "border-primary":
           this.meta.isConfigured && !this.meta.isNew && !this.meta.isDirty,
 
-        "border-error": this.meta.hasErrors
+        "border-error": this.meta.hasErrors,
       };
     },
     status() {
@@ -263,8 +263,8 @@ export default defineComponent({
 
       return values;
       // return values.join(" · ");
-    }
+    },
   },
-  methods: {}
+  methods: {},
 });
 </script>

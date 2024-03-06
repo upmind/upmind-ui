@@ -6,7 +6,7 @@
     :class="[
       meta.hasErrors ? 'border-error' : '',
       meta.isComplete ? 'border-primary' : '',
-      !meta.isComplete ? 'border-warning' : ''
+      !meta.isComplete ? 'border-warning' : '',
     ]"
   >
     <div class="card-body">
@@ -55,12 +55,12 @@ export default defineComponent({
   props: {
     actor: {
       type: Object, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
 
   setup(props) {
     return useBasketFields(props.actor);
-  }
+  },
 });
 </script>

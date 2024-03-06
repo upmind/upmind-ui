@@ -4,7 +4,7 @@
     <div
       :class="[
         styles.control.wrapper,
-        errors ? styles.control.error.wrapper : null
+        errors ? styles.control.error.wrapper : null,
       ]"
     >
       <!-- label -->
@@ -14,7 +14,7 @@
         :class="[
           styles.control.label.root,
           errors ? styles.control.error.label : null,
-          styles.control.inline
+          styles.control.inline,
         ]"
       >
         <slot></slot>
@@ -47,47 +47,47 @@ export default defineComponent({
   props: {
     id: {
       required: true,
-      type: String
+      type: String,
     },
     description: {
       required: false as const,
       type: String,
-      default: undefined
+      default: undefined,
     },
     errors: {
       required: false as const,
       type: String,
-      default: undefined
+      default: undefined,
     },
     label: {
       required: false as const,
       type: String,
-      default: undefined
+      default: undefined,
     },
     appliedOptions: {
       required: false as const,
       type: Object as PropType<Options>,
-      default: undefined
+      default: undefined,
     },
     visible: {
       required: false as const,
       type: Boolean,
-      default: true
+      default: true,
     },
     required: {
       required: false as const,
       type: Boolean,
-      default: false
+      default: false,
     },
     isFocused: {
       required: false as const,
       type: Boolean,
-      default: false
+      default: false,
     },
     styles: {
       required: true,
-      type: Object as PropType<Styles>
-    }
+      type: Object as PropType<Styles>,
+    },
   },
   computed: {
     showDescription(): boolean {
@@ -104,7 +104,7 @@ export default defineComponent({
         this.required,
         !!this.appliedOptions?.hideRequiredAsterisk
       );
-    }
-  }
+    },
+  },
 });
 </script>

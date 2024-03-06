@@ -23,9 +23,9 @@
             ? 'hidden opacity-50 pointer-events-none'
             : '',
           {
-            'border-primary': item.id === selected?.id
+            'border-primary': item.id === selected?.id,
             // 'col-span-full': item.id === selected?.id && meta.isEditing
-          }
+          },
         ]"
       />
 
@@ -74,22 +74,22 @@ export default defineComponent({
     SquaresPlusIcon,
     UpmCard,
     UpmForm,
-    UpmDebug
+    UpmDebug,
   },
   emits: ["update:modelValue"],
   props: {
     modelValue: {
       type: String,
-      default: ""
+      default: "",
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props, { emit }) {
     const {
@@ -101,7 +101,7 @@ export default defineComponent({
       add,
       select,
       filter,
-      selected
+      selected,
     } = useClientPhones();
 
     select(props.modelValue);
@@ -125,11 +125,11 @@ export default defineComponent({
       errors,
       select,
       filter,
-      editing: ref()
+      editing: ref(),
     };
   },
 
-  computed: {}
+  computed: {},
 });
 </script>
 ./Phone.vue./PhoneForm.vue

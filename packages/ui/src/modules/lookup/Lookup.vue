@@ -43,9 +43,9 @@
               ? 'hidden opacity-50 pointer-events-none'
               : '',
             {
-              'border-primary': item.id === selected?.id
+              'border-primary': item.id === selected?.id,
               // 'col-span-full': item.id === selected?.id && meta.isEditing
-            }
+            },
           ]"
         />
       </template>
@@ -83,39 +83,39 @@ export default defineComponent({
     PlusIcon,
     UpmItem,
     UpmForm,
-    UpmDropdown
+    UpmDropdown,
   },
   emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
     lookup: {
       type: Function,
-      required: true
+      required: true,
     },
     modelValue: {
       type: String,
-      default: ""
+      default: "",
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debugging: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     placeholder: {
       type: String,
-      default: "Select an item"
+      default: "Select an item",
     },
     noAdd: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props, { emit }) {
     const {
@@ -132,7 +132,7 @@ export default defineComponent({
       selectedActor,
       value,
       title,
-      description
+      description,
     } = useLookup(props.lookup);
 
     if (props.modelValue) {
@@ -160,7 +160,7 @@ export default defineComponent({
       refresh,
       edit,
       // ---
-      trigger: ref(null)
+      trigger: ref(null),
     };
   },
   watch: {
@@ -172,7 +172,7 @@ export default defineComponent({
       if (!value) {
         this.active = false;
       }
-    }
+    },
   },
 
   methods: {
@@ -193,8 +193,8 @@ export default defineComponent({
       this.$emit("change", event);
       this.select(event?.currentTarget?.value);
       if (callback) callback(false);
-    }
-  }
+    },
+  },
 });
 </script>
 .

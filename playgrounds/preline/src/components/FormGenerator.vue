@@ -5,7 +5,7 @@ import { UpmFormGenerator } from "@upmind/ui";
 import {
   defaultStyles,
   mergeStyles,
-  prelineRenderers
+  prelineRenderers,
 } from "./prelineRenderers";
 
 export default defineComponent({
@@ -25,8 +25,8 @@ export default defineComponent({
       // -------
       ajv,
       renderers: Object.freeze([...prelineRenderers]),
-      formStyles
+      formStyles,
     };
-  }
+  },
 });
 </script>

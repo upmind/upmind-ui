@@ -9,7 +9,7 @@ import {
   stateMatches,
   stateValue,
   useContext,
-  useState
+  useState,
 } from "../../utils";
 
 // --------------------------------------------------------
@@ -37,7 +37,7 @@ export const useBasketPromotions = actor => {
       isDirty: contextMatches(state, ["dirty"]),
       isComplete:
         stateValue(state, "done", false) ||
-        stateMatches(state, ["processed", "complete"])
+        stateMatches(state, ["processed", "complete"]),
     })),
     // ---
     model: useContext(state, "model"),
@@ -48,6 +48,6 @@ export const useBasketPromotions = actor => {
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
     add: () => send({ type: "ADD" }),
-    remove: promotion => send({ type: "REMOVE", data: promotion })
+    remove: promotion => send({ type: "REMOVE", data: promotion }),
   };
 };

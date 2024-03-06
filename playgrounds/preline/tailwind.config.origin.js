@@ -3,21 +3,21 @@ module.exports = {
   content: [
     "./src/**/*.{html,vue,js,tsx}",
     "../packages/ui/src/**/*.{vue,js,ts}",
-    "../../node_modules/preline/preline.js"
+    "../../node_modules/preline/preline.js",
   ],
   darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
         sans: [
-          "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji"
-        ]
-      }
-    }
+          "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji",
+        ],
+      },
+    },
   },
   plugins: [
     require("@tailwindcss/typography"),
     require("@tailwindcss/forms"),
-    require("preline/plugin")
-  ]
+    require("preline/plugin"),
+  ],
 };

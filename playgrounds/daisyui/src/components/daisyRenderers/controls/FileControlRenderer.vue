@@ -11,7 +11,7 @@
       :class="[
         styles.control.file,
         controlWrapper.errors ? styles.control.error.input : null,
-        { hidden: meta.hasFile || meta.isProcessing }
+        { hidden: meta.hasFile || meta.isProcessing },
       ]"
       :disabled="!control.enabled"
       :autocomplete="appliedOptions.autocomplete"
@@ -72,7 +72,7 @@
 import { ref } from "vue";
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 
 import {
@@ -83,7 +83,7 @@ import {
   optionIs,
   // scopeEndsWith,
   and,
-  or
+  or,
 } from "@jsonforms/core";
 import { defineComponent, onBeforeUnmount } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
@@ -98,10 +98,10 @@ const controlRenderer = defineComponent({
   components: {
     UseTimeAgo,
     ControlWrapper,
-    TrashIcon
+    TrashIcon,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   data() {
     return {};
@@ -123,7 +123,7 @@ const controlRenderer = defineComponent({
       add,
       remove,
       getImageByHash,
-      destroy
+      destroy,
     } = useUpload(inputControl.appliedOptions.value?.field);
 
     onBeforeUnmount(() => {
@@ -163,9 +163,9 @@ const controlRenderer = defineComponent({
       ...inputControl,
       onChange,
       onRemove,
-      onOpen
+      onOpen,
     };
-  }
+  },
 });
 
 export default controlRenderer;
@@ -177,6 +177,6 @@ export const isFileControl = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, and(isStringControl, isFileControl))
+  tester: rankWith(2, and(isStringControl, isFileControl)),
 };
 </script>

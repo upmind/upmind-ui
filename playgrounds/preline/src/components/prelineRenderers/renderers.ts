@@ -7,5 +7,5 @@ export const prelineRenderers = [
   ...controlRenderers,
   ...layoutRenderers,
   ...arrayRenderers,
-  ...labelRenderers
+  ...labelRenderers,
 ];

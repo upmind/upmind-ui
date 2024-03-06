@@ -43,19 +43,19 @@ const schema = {
       type: ["string", "null"],
       minLength: 1,
       title: "Task",
-      description: "The task's name"
+      description: "The task's name",
     },
 
     description: {
       title: "Short Description",
       type: ["string", "null"],
-      maxLength: 100
+      maxLength: 100,
     },
 
     note: {
       title: "Long Description/Details",
       type: ["string", "null"],
-      maxLength: 280
+      maxLength: 280,
     },
 
     rating: {
@@ -63,14 +63,14 @@ const schema = {
       maximum: 5,
       minimum: 1,
       title: "Rate the difficulty",
-      description: "The difficulty is measured between 1 (easy) and 5 (hard)"
+      description: "The difficulty is measured between 1 (easy) and 5 (hard)",
     },
 
     domain: {
       type: ["string", "array", "null"],
       format: "domain_name",
       title: "Add A domain....",
-      description: ""
+      description: "",
     },
 
     dueDate: {
@@ -78,23 +78,23 @@ const schema = {
       format: "date",
       description: "The task's due date",
       formatMaximum: useDate(),
-      default: useDate()
+      default: useDate(),
     },
 
     recurrence: {
       type: ["string", "null"],
-      enum: ["Daily", "Weekly", "Monthly"]
+      enum: ["Daily", "Weekly", "Monthly"],
     },
 
     recurrenceInterval: {
       type: "integer",
-      description: "Days until recurrence"
+      description: "Days until recurrence",
     },
 
     done: {
-      type: "boolean"
-    }
-  }
+      type: "boolean",
+    },
+  },
 };
 
 const uischema = {
@@ -108,16 +108,16 @@ const uischema = {
           scope: "#/properties/domain",
           options: {
             placeholder: "pewpew.com",
-            multiple: false
-          }
+            multiple: false,
+          },
         },
         {
           type: "Control",
           scope: "#/properties/name",
           options: {
             placeholder: "What needs to be done?",
-            focus: true
-          }
+            focus: true,
+          },
         },
 
         {
@@ -133,21 +133,21 @@ const uischema = {
                   item2: "bg-lime-400",
                   item3: "bg-yellow-400",
                   item4: "bg-orange-400",
-                  item5: "bg-red-400"
-                }
-              }
-            }
-          }
+                  item5: "bg-red-400",
+                },
+              },
+            },
+          },
         },
 
         {
           type: "Control",
-          scope: "#/properties/dueDate"
+          scope: "#/properties/dueDate",
         },
 
         {
           type: "Control",
-          scope: "#/properties/recurrence"
+          scope: "#/properties/recurrence",
         },
         {
           type: "Control",
@@ -155,17 +155,17 @@ const uischema = {
           options: {
             styles: {
               control: {
-                input: "input input-bordered w-auto"
-              }
-            }
+                input: "input input-bordered w-auto",
+              },
+            },
           },
           rule: {
             effect: "SHOW",
             condition: {
               scope: "#/properties/recurrence",
-              schema: { type: "string", not: { const: null } }
-            }
-          }
+              schema: { type: "string", not: { const: null } },
+            },
+          },
         },
         {
           type: "Control",
@@ -173,12 +173,12 @@ const uischema = {
           options: {
             styles: {
               control: {
-                checkbox: "checkbox checkbox-primary"
-              }
-            }
-          }
-        }
-      ]
+                checkbox: "checkbox checkbox-primary",
+              },
+            },
+          },
+        },
+      ],
     },
     {
       type: "VerticalLayout",
@@ -188,20 +188,20 @@ const uischema = {
           scope: "#/properties/description",
           options: {
             multi: true,
-            rows: 5
-          }
+            rows: 5,
+          },
         },
         {
           type: "Control",
           scope: "#/properties/note",
           options: {
             multi: true,
-            rows: 10
-          }
-        }
-      ]
-    }
-  ]
+            rows: 10,
+          },
+        },
+      ],
+    },
+  ],
 };
 
 function doReject() {

@@ -35,11 +35,11 @@ export default defineComponent({
   props: {
     choices: {
       type: Object,
-      required: true
+      required: true,
     },
     modelValue: {
-      type: String
-    }
+      type: String,
+    },
   },
   methods: {
     doUpdate(event: Event) {
@@ -47,7 +47,7 @@ export default defineComponent({
     },
     isSelected(value: string) {
       return this.modelValue === value;
-    }
-  }
+    },
+  },
 });
 </script>

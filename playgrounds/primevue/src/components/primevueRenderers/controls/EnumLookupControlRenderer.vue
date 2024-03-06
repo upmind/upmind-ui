@@ -9,7 +9,7 @@
       :id="control.id + '-lookup'"
       :class="[
         styles.control.lookup,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :lookup="lookup"
       :model-value="control.data"
@@ -27,7 +27,7 @@
 import type {
   Tester,
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 
 import { rankWith, schemaMatches, isEnumControl, and } from "@jsonforms/core";
@@ -46,10 +46,10 @@ const controlRenderer = defineComponent({
 
     UpmLookup: defineAsyncComponent(() =>
       import("@upmind/ui").then(m => m.UpmLookup)
-    )
+    ),
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     const inputControl = useprimevueControl(
@@ -60,9 +60,9 @@ const controlRenderer = defineComponent({
     const lookup = get(inputControl, "control.value.schema.lookup");
     return {
       lookup,
-      ...inputControl
+      ...inputControl,
     };
-  }
+  },
 });
 
 export default controlRenderer;
@@ -76,6 +76,6 @@ const isLookupControl = (): Tester =>
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(3, isLookupControl())
+  tester: rankWith(3, isLookupControl()),
 };
 </script>

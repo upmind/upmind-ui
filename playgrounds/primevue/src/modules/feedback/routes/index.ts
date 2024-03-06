@@ -3,7 +3,7 @@ export default {
     {
       path: "/feedback",
       name: "feedback",
-      component: () => import("../views/FeedbackView.vue")
-    }
-  ]
+      component: () => import("../views/FeedbackView.vue"),
+    },
+  ],
 };

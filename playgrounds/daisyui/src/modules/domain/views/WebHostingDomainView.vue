@@ -191,7 +191,7 @@ import {
   PlusCircleIcon,
   CheckCircleIcon,
   ChevronRightIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
 
 import { filter, map, includes, first, find, uniqueId } from "lodash-es";
@@ -213,7 +213,7 @@ const products = [
     price: "$5",
     prefix: "starting from",
     suffix: "per month",
-    variant: "primary"
+    variant: "primary",
   },
   {
     label: "Advanced Hosting",
@@ -221,8 +221,8 @@ const products = [
     price: "$10",
     prefix: "starting from",
     suffix: "per month",
-    variant: "primary"
-  }
+    variant: "primary",
+  },
 ];
 
 const validProducts = computed(() => map(products, "value"));

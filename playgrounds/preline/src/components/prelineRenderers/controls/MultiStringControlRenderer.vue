@@ -9,7 +9,7 @@
       :id="control.id + '-input'"
       :class="[
         styles.control.textarea,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data"
       :disabled="!control.enabled"
@@ -26,13 +26,13 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import {
   rankWith,
   isStringControl,
   isMultiLineControl,
-  and
+  and,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
@@ -43,23 +43,23 @@ import { useprelineControl } from "../util";
 const controlRenderer = defineComponent({
   name: "MultiStringControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useprelineControl(
       useJsonFormsControl(props),
       target => target.value || undefined
     );
-  }
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, and(isStringControl, isMultiLineControl))
+  tester: rankWith(2, and(isStringControl, isMultiLineControl)),
 };
 </script>

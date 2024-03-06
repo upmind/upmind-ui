@@ -3,7 +3,7 @@ export default {
     {
       path: "/session",
       name: "session",
-      component: () => import("../views/SessionView.vue")
-    }
-  ]
+      component: () => import("../views/SessionView.vue"),
+    },
+  ],
 };

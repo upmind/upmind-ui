@@ -7,5 +7,5 @@ export const daisyRenderers = [
   ...controlRenderers,
   ...layoutRenderers,
   ...arrayRenderers,
-  ...labelRenderers
+  ...labelRenderers,
 ];

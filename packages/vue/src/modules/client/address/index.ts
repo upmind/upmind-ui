@@ -29,7 +29,7 @@ export const useClientAddress = item => {
       hasErrors: [
         "error",
         "loading.constants.error",
-        "loading.autocomplete.error"
+        "loading.autocomplete.error",
       ].some(state.value.matches),
       isSearching: ["searching"].some(state.value.matches),
       isProcessing: ["populating", "checking", "processing"].some(
@@ -41,7 +41,7 @@ export const useClientAddress = item => {
       canRemove: state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
       isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches)
+        state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
     // ---
     filters: computed(() => state.value.context?.filters),
@@ -62,7 +62,7 @@ export const useClientAddress = item => {
     // ---
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "REFRESH" })
+    cancel: () => service.send({ type: "REFRESH" }),
   };
 };
 
@@ -83,20 +83,20 @@ export const useClientAddresses = () => {
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches)
+      isEditing: ["editing"].some(state.value.matches),
     })),
     // ---
     items: computed(() =>
       map(state.value.context.items, item => ({
         id: item.id,
-        ...useActor(item)
+        ...useActor(item),
       }))
     ),
     selected: computed(() =>
       state.value.context?.selected
         ? {
             id: state.value.context.selected?.id,
-            ...useActor(state.value.context.selected)
+            ...useActor(state.value.context.selected),
           }
         : null
     ),
@@ -110,6 +110,6 @@ export const useClientAddresses = () => {
     },
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    filter: debounce(data => send({ type: "FILTER", data }), 300)
+    filter: debounce(data => send({ type: "FILTER", data }), 300),
   };
 };

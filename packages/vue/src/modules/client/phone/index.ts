@@ -33,7 +33,7 @@ export const useClientPhone = item => {
       canRemove: state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
       isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches)
+        state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
     // ---
     title: computed(() => get(state.value.context, "title")),
@@ -52,7 +52,7 @@ export const useClientPhone = item => {
     // ---
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "REFRESH" })
+    cancel: () => service.send({ type: "REFRESH" }),
   };
 };
 
@@ -74,20 +74,20 @@ export const useClientPhones = () => {
       isLoading: ["loading"].some(state.value.matches),
       isProcessing: ["filtering", "processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches)
+      isEditing: ["editing"].some(state.value.matches),
     })),
     // ---
     items: computed(() =>
       map(state.value.context.items, item => ({
         id: item.id,
-        ...useActor(item)
+        ...useActor(item),
       }))
     ),
     selected: computed(() =>
       state.value.context?.selected
         ? {
             id: state.value.context.selected?.id,
-            ...useActor(state.value.context.selected)
+            ...useActor(state.value.context.selected),
           }
         : null
     ),
@@ -101,6 +101,6 @@ export const useClientPhones = () => {
     },
     filter: debounce(data => send({ type: "FILTER", data }), 300),
     edit: id => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" })
+    add: () => send({ type: "ADD" }),
   };
 };

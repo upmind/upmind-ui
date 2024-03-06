@@ -28,7 +28,7 @@ export const useApi = () => {
     meta: computed(() => ({
       isIdle: ["loading"].some(state.value.matches),
       isActive: ["processing"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches)
+      hasErrors: ["error"].some(state.value.matches),
     })),
     //  ---
     requests: computed(() => state.value.context.requests),
@@ -37,6 +37,6 @@ export const useApi = () => {
     useUrl: api.useUrl,
     useTime: api.useTime,
     get: api.get,
-    post: api.post
+    post: api.post,
   };
 };

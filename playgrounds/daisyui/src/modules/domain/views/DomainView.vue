@@ -90,7 +90,7 @@ import { UpmDomain } from "@upmind/ui";
 import {
   CheckCircleIcon,
   ChevronRightIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
 
 const debugging = ref(true);

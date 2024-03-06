@@ -3,12 +3,12 @@ export default {
     {
       path: "/domain",
       name: "Domains",
-      component: () => import("../views/DomainView.vue")
+      component: () => import("../views/DomainView.vue"),
     },
     {
       path: "/web-hosting",
       name: "Web hosting",
-      component: () => import("../views/WebHostingDomainView.vue")
-    }
-  ]
+      component: () => import("../views/WebHostingDomainView.vue"),
+    },
+  ],
 };

@@ -27,22 +27,22 @@ export default defineComponent({
   props: {
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     fields: {
       type: Object,
-      required: true
+      required: true,
     },
     modelValue: {
       type: Object,
-      required: true
+      required: true,
     },
     additionalErrors: {
       type: Array as PropType<
         ErrorObject<string, Record<string, any>, unknown>[]
       >,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
@@ -55,13 +55,13 @@ export default defineComponent({
 
     return {
       getValue,
-      doUpdate
+      doUpdate,
     };
   },
   computed: {
     hasFields() {
       return !isEmpty(this.fields?.properties);
-    }
-  }
+    },
+  },
 });
 </script>

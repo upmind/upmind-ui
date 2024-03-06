@@ -8,7 +8,7 @@
 <script lang="ts">
 import type {
   JsonFormsRendererRegistryEntry,
-  LabelElement
+  LabelElement,
 } from "@jsonforms/core";
 import { rankWith, uiTypeIs } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -19,17 +19,17 @@ import { useprimevueLabel } from "../util";
 const labelRenderer = defineComponent({
   name: "LabelRenderer",
   props: {
-    ...rendererProps<LabelElement>()
+    ...rendererProps<LabelElement>(),
   },
   setup(props: RendererProps<LabelElement>) {
     return useprimevueLabel(useJsonFormsLabel(props));
-  }
+  },
 });
 
 export default labelRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: labelRenderer,
-  tester: rankWith(1, uiTypeIs("Label"))
+  tester: rankWith(1, uiTypeIs("Label")),
 };
 </script>

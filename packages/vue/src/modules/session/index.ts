@@ -44,7 +44,7 @@ export const useSession = () => {
         "unauthenticated.login.idle",
         "unauthenticated.login.challenging",
         "unauthenticated.register.idle",
-        "unauthenticated.register.challenging"
+        "unauthenticated.register.challenging",
       ].some(client.value.matches),
 
     hasErrors: !isEmpty(state.value?.context?.error),
@@ -63,15 +63,15 @@ export const useSession = () => {
       client.value?.matches &&
       [
         "unauthenticated.login.challenging",
-        "unauthenticated.login.verifying"
+        "unauthenticated.login.verifying",
       ].some(client.value.matches),
     showRegisterForm: client.value?.matches("unauthenticated.register"),
     isFormLoading:
       client.value?.matches &&
       [
         "unauthenticated.login.loading",
-        "unauthenticated.register.loading"
-      ].some(client.value.matches)
+        "unauthenticated.register.loading",
+      ].some(client.value.matches),
   }));
 
   const user = computed(() => state.value?.context?.user);
@@ -84,19 +84,19 @@ export const useSession = () => {
 
   function clearErrors() {
     send({
-      type: "CLEAR.ERRORS"
+      type: "CLEAR.ERRORS",
     });
   }
 
   function showLogin() {
     send({
-      type: "LOGIN"
+      type: "LOGIN",
     });
   }
 
   function showRegister() {
     send({
-      type: "REGISTER"
+      type: "REGISTER",
     });
   }
 
@@ -104,34 +104,34 @@ export const useSession = () => {
   function login(model) {
     send({
       type: "AUTHENTICATE",
-      data: unref(model)
+      data: unref(model),
     });
   }
 
   function verify2fa({ token }) {
     send({
       type: "VERIFY",
-      data: unref(token)
+      data: unref(token),
     });
   }
 
   function register(model) {
     send({
       type: "REGISTER",
-      data: unref(model)
+      data: unref(model),
     });
   }
 
   function verifyReCaptcha(token) {
     send({
       type: "VERIFY",
-      data: unref(token)
+      data: unref(token),
     });
   }
 
   function logout() {
     send({
-      type: "LOGOUT"
+      type: "LOGOUT",
     });
   }
 
@@ -145,7 +145,7 @@ export const useSession = () => {
 
   function reject() {
     send({
-      type: "CANCEL"
+      type: "CANCEL",
     });
   }
 
@@ -177,6 +177,6 @@ export const useSession = () => {
     showLogin,
     showRegister,
     verify2fa,
-    verifyReCaptcha
+    verifyReCaptcha,
   };
 };

@@ -10,7 +10,7 @@
       type="checkbox"
       :class="[
         styles.control.checkbox,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :checked="!!control.data"
       :disabled="!control.enabled"
@@ -26,7 +26,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isBooleanControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -39,23 +39,23 @@ import { useDaisyControl } from "../util";
 const controlRenderer = defineComponent({
   name: "BooleanControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useDaisyControl(
       useJsonFormsControl(props),
       target => target.checked
     );
-  }
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(1, isBooleanControl)
+  tester: rankWith(1, isBooleanControl),
 };
 </script>

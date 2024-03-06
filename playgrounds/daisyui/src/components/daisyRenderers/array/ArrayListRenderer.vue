@@ -45,20 +45,20 @@
 <script lang="ts">
 import type {
   JsonFormsRendererRegistryEntry,
-  ControlElement
+  ControlElement,
 } from "@jsonforms/core";
 import {
   composePaths,
   createDefaultValue,
   rankWith,
-  schemaTypeIs
+  schemaTypeIs,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsArrayControl
+  useJsonFormsArrayControl,
 } from "@jsonforms/vue";
 import { useDaisyArrayControl } from "../util";
 import ArrayListElement from "./ArrayListElement.vue";
@@ -67,10 +67,10 @@ const controlRenderer = defineComponent({
   name: "ArrayListRenderer",
   components: {
     ArrayListElement,
-    DispatchRenderer
+    DispatchRenderer,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useDaisyArrayControl(useJsonFormsArrayControl(props));
@@ -78,7 +78,7 @@ const controlRenderer = defineComponent({
   computed: {
     noData(): boolean {
       return !this.control.data || this.control.data.length === 0;
-    }
+    },
   },
   methods: {
     composePaths,
@@ -88,14 +88,14 @@ const controlRenderer = defineComponent({
         this.control.path,
         createDefaultValue(this.control.schema)
       )();
-    }
-  }
+    },
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, schemaTypeIs("array"))
+  tester: rankWith(2, schemaTypeIs("array")),
 };
 </script>

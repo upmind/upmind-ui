@@ -6,7 +6,7 @@
     :class="[
       meta.hasErrors ? 'border-error' : '',
       meta.isComplete || meta.isValid ? 'border-primary' : '',
-      !meta.isComplete && !meta.isValid ? 'border-warning' : ''
+      !meta.isComplete && !meta.isValid ? 'border-warning' : '',
     ]"
   >
     <div class="card-body grid grid-cols-3 items-start">
@@ -67,8 +67,8 @@ export default defineComponent({
   props: {
     actor: {
       type: Object, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
   watch: {
     mount(element) {
@@ -77,11 +77,11 @@ export default defineComponent({
       } else {
         this.mountedElement.innerHTML = "";
       }
-    }
+    },
   },
 
   setup(props) {
     return useBasketPaymentDetails(props.actor);
-  }
+  },
 });
 </script>

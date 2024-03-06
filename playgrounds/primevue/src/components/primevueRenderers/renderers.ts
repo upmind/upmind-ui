@@ -7,5 +7,5 @@ export const primevueRenderers = [
   ...controlRenderers,
   ...layoutRenderers,
   ...arrayRenderers,
-  ...labelRenderers
+  ...labelRenderers,
 ];

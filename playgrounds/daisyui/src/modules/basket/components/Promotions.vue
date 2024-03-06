@@ -6,7 +6,7 @@
     :class="[
       meta.hasErrors ? 'border-error' : '',
       meta.isComplete ? 'border-accent' : '',
-      !meta.isComplete ? 'border-accent' : ''
+      !meta.isComplete ? 'border-accent' : '',
     ]"
   >
     <div class="card-body">
@@ -87,12 +87,12 @@ export default defineComponent({
   props: {
     actor: {
       type: Object, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
 
   setup(props) {
     return useBasketPromotions(props.actor);
-  }
+  },
 });
 </script>

@@ -87,29 +87,29 @@ import { some } from "lodash-es";
 export default defineComponent({
   name: "ProductConfigAttributes",
   components: {
-    Quantity
+    Quantity,
   },
   inheritAttrs: true,
   customOptions: {},
   emits: [
     "update:modelValue",
     "update:quantity:increment",
-    "update:quantity:decrement"
+    "update:quantity:decrement",
   ],
   props: {
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     attributes: {
       type: Array,
       default: () => [],
-      required: true
+      required: true,
     },
     modelValue: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
@@ -119,9 +119,9 @@ export default defineComponent({
 
     return {
       isSelected,
-      uuid: getCurrentInstance()?.uid
+      uuid: getCurrentInstance()?.uid,
     };
   },
-  computed: {}
+  computed: {},
 });
 </script>

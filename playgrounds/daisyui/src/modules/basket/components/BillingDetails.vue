@@ -6,7 +6,7 @@
     :class="[
       meta.hasErrors ? 'border-error' : '',
       meta.isComplete ? 'border-primary' : '',
-      !meta.isComplete ? 'border-warning' : ''
+      !meta.isComplete ? 'border-warning' : '',
     ]"
   >
     <div class="card-body">
@@ -46,7 +46,7 @@
           role="tab"
           class="tab"
           :class="{
-            'text-primary': !model?.company_id && model?.address_id
+            'text-primary': !model?.company_id && model?.address_id,
           }"
           :aria-label="`My Addresses ${!model?.company_id && model?.address_id ? ' ✓ ' : ''}`"
           :checked="!model?.company_id"
@@ -73,7 +73,7 @@
           role="tab"
           class="tab"
           :class="{
-            'text-primary': !!model?.company_id
+            'text-primary': !!model?.company_id,
           }"
           :aria-label="`My Companies ${!!model?.company_id ? ' ✓ ' : ''}`"
           :checked="!!model?.company_id"
@@ -119,19 +119,19 @@ export default defineComponent({
   name: "UpmBasketBillingDetails",
   components: {
     UpmAddresses,
-    UpmCompanies
+    UpmCompanies,
   },
   inheritAttrs: true,
   customOptions: {},
   props: {
     actor: {
       type: Object, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
 
   setup(props) {
     return useBasketBillingDetails(props.actor);
-  }
+  },
 });
 </script>

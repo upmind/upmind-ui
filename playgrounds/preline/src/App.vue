@@ -22,7 +22,7 @@
         'transition-all',
         'rounded-full',
         'aspect-square',
-        'p-2'
+        'p-2',
       ]"
       data-hs-overlay="#drawer-1"
       aria-controls="drawer-1"
@@ -86,7 +86,7 @@
               'dark:text-white',
               'dark:focus:outline-none',
               'dark:focus:ring-1',
-              'dark:focus:ring-neutral-600'
+              'dark:focus:ring-neutral-600',
             ]"
           >
             {{ startCase(route.name) }}

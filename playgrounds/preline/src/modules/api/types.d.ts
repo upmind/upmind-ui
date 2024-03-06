@@ -42,7 +42,7 @@ interface UseApiFunctions {
   post: ({
     url,
     data,
-    init
+    init,
   }: {
     url: string;
     data: any;

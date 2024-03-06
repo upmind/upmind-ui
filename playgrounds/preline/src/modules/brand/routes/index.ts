@@ -3,7 +3,7 @@ export default {
     {
       path: "/brand",
       name: "brand",
-      component: () => import("../views/BrandView.vue")
-    }
-  ]
+      component: () => import("../views/BrandView.vue"),
+    },
+  ],
 };

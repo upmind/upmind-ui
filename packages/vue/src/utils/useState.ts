@@ -13,7 +13,7 @@ import {
   isArray,
   isObject,
   isEmpty,
-  isNil
+  isNil,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -113,7 +113,7 @@ const createActor = context => {
   const actor = useActor(context);
   return {
     id: context.id,
-    ...actor
+    ...actor,
   };
 };
 // --- computed helpers

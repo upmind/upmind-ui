@@ -36,7 +36,7 @@
             controlWrapper.errors ? styles.control.error.label : null,
             'cursor-pointer',
             'justify-start',
-            'gap-2'
+            'gap-2',
           ]"
         >
           <input
@@ -64,7 +64,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -76,16 +76,16 @@ import { useprelineControl } from "../util";
 const controlRenderer = defineComponent({
   name: "EnumOneofControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useprelineControl(useJsonFormsOneOfEnumControl(props), target =>
       target.selectedIndex === 0 ? undefined : target.value
     );
-  }
+  },
 });
 
 export default controlRenderer;
@@ -97,6 +97,6 @@ export const isRadioControl = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(3, isRadioControl)
+  tester: rankWith(3, isRadioControl),
 };
 </script>

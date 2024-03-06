@@ -6,7 +6,7 @@
 import type {
   Tester,
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import {
   rankWith,
@@ -14,7 +14,7 @@ import {
   formatIs,
   schemaMatches,
   and,
-  or
+  or,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
@@ -27,17 +27,17 @@ import { has } from "lodash-es";
 const controlRenderer = defineComponent({
   name: "BooleanControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useDaisyControl(
       useJsonFormsControl(props),
       target => target.checked
     );
-  }
+  },
 });
 
 export default controlRenderer;
@@ -52,6 +52,6 @@ export const isHiddenControl: Tester = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(3, isHiddenControl)
+  tester: rankWith(3, isHiddenControl),
 };
 </script>

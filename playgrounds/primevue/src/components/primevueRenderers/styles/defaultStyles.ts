@@ -6,12 +6,12 @@ export const defaultStyles: Styles = {
     inline: "justify-start gap-2",
     label: {
       root: "label",
-      text: "label-text"
+      text: "label-text",
     },
     input: "input input-bordered",
     size: {
       full: "w-full",
-      trim: "w-auto"
+      trim: "w-auto",
     },
     file: "file-input input-bordered w-full",
     password: "input input-bordered w-full",
@@ -20,15 +20,15 @@ export const defaultStyles: Styles = {
     select: "select select-bordered w-full",
     lookup: {
       wrapper: "lookup-wrapper",
-      item: "lookup-item"
+      item: "lookup-item",
     },
     menu: {
       wrapper: "menu-wrapper",
-      item: "menu-item"
+      item: "menu-item",
     },
     list: {
       wrapper: "list-none p-0",
-      item: ""
+      item: "",
     },
     rating: {
       wrapper: "gap-2",
@@ -37,7 +37,7 @@ export const defaultStyles: Styles = {
       item2: "mask-star",
       item3: "mask-star",
       item4: "mask-star",
-      item5: "mask-star"
+      item5: "mask-star",
     },
     dac: {},
     textarea: "textarea textarea-bordered w-full",
@@ -48,25 +48,25 @@ export const defaultStyles: Styles = {
       text: "text-error",
       label: "text-error",
       input: "border-error",
-      wrapper: "error"
+      wrapper: "error",
     },
     prefix:
       "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -ml-4",
     suffix:
-      "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -mr-4"
+      "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -mr-4",
   },
   verticalLayout: {
     root: "vertical-layout flex flex-col gap-4 w-full",
-    item: "vertical-layout-item w-full empty:hidden"
+    item: "vertical-layout-item w-full empty:hidden",
   },
   horizontalLayout: {
     root: "horizontal-layout flex flex-wrap gap-4 w-full",
-    item: "horizontal-layout-item flex-1"
+    item: "horizontal-layout-item flex-1",
   },
   group: {
     root: "group",
     label: "group-label divider ",
-    item: "group-item"
+    item: "group-item",
   },
   arrayList: {
     root: "array-list",
@@ -82,9 +82,9 @@ export const defaultStyles: Styles = {
     itemExpanded: "expanded",
     itemMoveUp: "array-list-item-move-up",
     itemMoveDown: "array-list-item-move-down",
-    itemDelete: "array-list-item-delete"
+    itemDelete: "array-list-item-delete",
   },
   label: {
-    root: "label-element"
-  }
+    root: "label-element",
+  },
 };

@@ -48,28 +48,28 @@ export default defineComponent({
   props: {
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     label: {
       type: String,
-      default: ""
+      default: "",
     },
     min: {
       type: Number,
-      default: 1
+      default: 1,
     },
     max: {
       type: Number,
-      default: 10
+      default: 10,
     },
     step: {
       type: Number,
-      default: 1
+      default: 1,
     },
     modelValue: {
       type: Number,
-      default: 1
-    }
-  }
+      default: 1,
+    },
+  },
 });
 </script>

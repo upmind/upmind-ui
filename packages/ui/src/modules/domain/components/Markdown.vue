@@ -9,7 +9,7 @@ import DOMPurify from "dompurify";
 
 const props = withDefaults(defineProps<{ tag?: string; text?: string }>(), {
   tag: "span",
-  text: ""
+  text: "",
 });
 
 const $slots = useSlots();

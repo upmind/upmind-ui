@@ -3,7 +3,7 @@ export default {
     {
       path: "/basket",
       name: "basket",
-      component: () => import("../views/BasketView.vue")
-    }
-  ]
+      component: () => import("../views/BasketView.vue"),
+    },
+  ],
 };

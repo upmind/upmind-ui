@@ -3,7 +3,7 @@ export default {
     {
       path: "/system",
       name: "system",
-      component: () => import("../views/SystemView.vue")
-    }
-  ]
+      component: () => import("../views/SystemView.vue"),
+    },
+  ],
 };

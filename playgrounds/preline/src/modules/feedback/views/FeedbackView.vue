@@ -137,7 +137,7 @@ function processMessages() {
       delay: getRandomDelay(),
       maxAge,
       type: getRandomType(),
-      display: getRandomDisplay()
+      display: getRandomDisplay(),
     };
     add(message);
   });

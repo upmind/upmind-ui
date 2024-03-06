@@ -10,7 +10,7 @@ import {
   stateMatches,
   stateValue,
   useContext,
-  useState
+  useState,
 } from "../../utils";
 
 import { isFunction } from "lodash-es";
@@ -42,7 +42,7 @@ export const useBasketPaymentDetailsGateway = actor => {
         stateMatches(state, ["processed", "complete"]),
       isRenderless:
         contextMatches(state, ["renderless"]) ||
-        !contextMatches(state, ["schema.properties", "renderer"])
+        !contextMatches(state, ["schema.properties", "renderer"]),
     })),
     // ---
     model: useContext(state, "model"),
@@ -69,6 +69,6 @@ export const useBasketPaymentDetailsGateway = actor => {
       } else {
         container.innerHTML = "";
       }
-    }
+    },
   };
 };

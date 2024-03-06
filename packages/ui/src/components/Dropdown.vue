@@ -57,19 +57,19 @@ export default defineComponent({
   props: {
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     force: {
       type: Boolean,
-      default: false
+      default: false,
     },
     items: {
       type: Array,
-      required: true
+      required: true,
     },
     modelValue: {
-      type: [String, Object]
-    }
+      type: [String, Object],
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
@@ -88,9 +88,9 @@ export default defineComponent({
     return {
       target,
       doToggle,
-      open
+      open,
     };
   },
-  computed: {}
+  computed: {},
 });
 </script>

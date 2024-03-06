@@ -20,7 +20,7 @@
           class="absolute left-0 w-full flex place-items-center group-focus-within/dac:hidden"
           :class="[
             compact ? 'gap-1' : 'gap-2',
-            multiple && compact ? 'mx-2' : ''
+            multiple && compact ? 'mx-2' : '',
           ]"
         >
           <template v-if="multiple">
@@ -47,7 +47,7 @@
         <magnifying-glass-icon
           :class="[
             compact ? 'w-5 h-5 ml-2' : 'w-7 h-7 ',
-            !model?.length ? '' : 'invisible w-0'
+            !model?.length ? '' : 'invisible w-0',
           ]"
           class="join-item text-inherit group-focus-within/dac:text-primary group-focus-within/dac:visible group-focus-within/dac:w-auto"
         />
@@ -60,7 +60,7 @@
           @focus="doFocus"
           :class="[
             compact ? 'ml-2 px-2' : 'mx-6 px-4',
-            !model?.length ? '' : 'invisible w-0'
+            !model?.length ? '' : 'invisible w-0',
           ]"
           class="flex-1 bg-transparent h-full group-focus-within/dac:visible group-focus-within/dac:w-auto"
           id="domain-search"
@@ -86,7 +86,7 @@
           @click="doSearch"
           :class="[
             compact ? 'join-item' : '',
-            !model?.length ? '' : 'invisible w-0'
+            !model?.length ? '' : 'invisible w-0',
           ]"
           class="btn btn-primary opacity-50 group-focus-within/dac:opacity-100 group-focus-within/dac:visible group-focus-within/dac:w-auto"
           tabindex="-1"
@@ -150,61 +150,61 @@ export default defineComponent({
   components: {
     UpmDacResults,
     MagnifyingGlassIcon,
-    BackspaceIcon
+    BackspaceIcon,
   },
   emits: ["update:modelValue", "change", "focus", "blur"],
   props: {
     promotions: {
       type: Array<String>,
-      default: () => []
+      default: () => [],
     },
     currencyCode: {
       type: String,
-      default: ""
+      default: "",
     },
     limit: {
       type: Number,
-      default: 10
+      default: 10,
     },
     orderConfigUrl: {
       type: String,
-      default: ""
+      default: "",
     },
     skeletonCount: {
       type: Number,
-      default: null
+      default: null,
     },
     modelValue: {
-      type: [String, Array<String>]
+      type: [String, Array<String>],
     },
     multiple: {
       type: Boolean,
-      default: false
+      default: false,
     },
     clearable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     id: {
-      type: String
+      type: String,
     },
 
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     autocomplete: {
       type: String,
-      default: ""
+      default: "",
     },
     placeholder: {
       type: String,
-      default: ""
+      default: "",
     },
     compact: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     const {
@@ -213,7 +213,7 @@ export default defineComponent({
       limit,
       orderConfigUrl,
       modelValue,
-      multiple
+      multiple,
     } = props;
     const dac = useDac({
       promotions,
@@ -221,7 +221,7 @@ export default defineComponent({
       limit,
       orderConfigUrl,
       modelValue,
-      multiple
+      multiple,
     });
 
     // --- DOM observers
@@ -237,7 +237,7 @@ export default defineComponent({
       // --- Refs
       focused,
       input,
-      control
+      control,
     };
   },
   watch: {
@@ -257,7 +257,7 @@ export default defineComponent({
       if (!value) {
         this.active = false;
       }
-    }
+    },
   },
   methods: {
     resetInput() {
@@ -287,7 +287,7 @@ export default defineComponent({
 
     removeValue(value?: string) {
       this.model = this.multiple ? without(this.model, value) : "";
-    }
+    },
   },
   computed: {
     hasErrors() {
@@ -295,7 +295,7 @@ export default defineComponent({
         this.meta.hasErrors ||
         (!this.focused && includes(this.$attrs?.class, "error"))
       );
-    }
-  }
+    },
+  },
 });
 </script>
