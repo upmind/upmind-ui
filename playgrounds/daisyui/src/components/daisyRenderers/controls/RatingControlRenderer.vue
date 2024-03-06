@@ -24,7 +24,7 @@
         :class="[
           styles.control.rating.item,
           styles.control.rating.item1,
-          controlWrapper.errors ? styles.control.error.input : null
+          controlWrapper.errors ? styles.control.error.input : null,
         ]"
         :disabled="!control.enabled"
         @change="onChange"
@@ -40,7 +40,7 @@
         :class="[
           styles.control.rating.item,
           styles.control.rating.item2,
-          controlWrapper.errors ? styles.control.error.input : null
+          controlWrapper.errors ? styles.control.error.input : null,
         ]"
         :disabled="!control.enabled"
         @change="onChange"
@@ -56,7 +56,7 @@
         :class="[
           styles.control.rating.item,
           styles.control.rating.item3,
-          controlWrapper.errors ? styles.control.error.input : null
+          controlWrapper.errors ? styles.control.error.input : null,
         ]"
         :disabled="!control.enabled"
         @change="onChange"
@@ -72,7 +72,7 @@
         :class="[
           styles.control.rating.item,
           styles.control.rating.item4,
-          controlWrapper.errors ? styles.control.error.input : null
+          controlWrapper.errors ? styles.control.error.input : null,
         ]"
         :disabled="!control.enabled"
         @change="onChange"
@@ -88,7 +88,7 @@
         :class="[
           styles.control.rating.item,
           styles.control.rating.item5,
-          controlWrapper.errors ? styles.control.error.input : null
+          controlWrapper.errors ? styles.control.error.input : null,
         ]"
         :disabled="!control.enabled"
         @change="onChange"
@@ -106,13 +106,13 @@ import {
   type ControlElement,
   type JsonFormsRendererRegistryEntry,
   rankWith,
-  scopeEndsWith
+  scopeEndsWith,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import {
   rendererProps,
   useJsonFormsControl,
-  type RendererProps
+  type RendererProps,
 } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useDaisyControl } from "../util";
@@ -120,22 +120,22 @@ import { useDaisyControl } from "../util";
 const controlRenderer = defineComponent({
   name: "RatingControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useDaisyControl(useJsonFormsControl(props), target =>
       parseInt(target.value || 0)
     );
-  }
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, scopeEndsWith("rating"))
+  tester: rankWith(2, scopeEndsWith("rating")),
 };
 </script>

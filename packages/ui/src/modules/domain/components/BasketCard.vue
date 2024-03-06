@@ -3,7 +3,7 @@
     class="group/domain-baket-card items-center gap-x-4 gap-y-1 m-0 px-4 py-4 transition-colors sm:flex sm:flex-wrap sm:pl-6"
     :class="{
       'dark:hover:bg-dm-contrast/5 hover:bg-lm-contrast/2': is_available,
-      'bg-primary text-primary-text': isSelected
+      'bg-primary text-primary-text': isSelected,
     }"
     @click="select"
   >
@@ -16,7 +16,7 @@
         class="h-7 w-7"
         :class="{
           'text-primary-content': isSelected,
-          'text-primary': !isSelected
+          'text-primary': !isSelected,
         }"
       />
       <arrows-right-left-icon
@@ -24,7 +24,7 @@
         class="h-7 w-7"
         :class="{
           'text-primary-content': isSelected,
-          'text-primary': !isSelected
+          'text-primary': !isSelected,
         }"
       />
     </div>
@@ -36,7 +36,7 @@
         :class="{
           'text-primary-content': isSelected,
           'text-primary': is_available && !isSelected,
-          'text-auto-50': !is_available
+          'text-auto-50': !is_available,
         }"
       >
         {{ is_available ? "Available" : "Transfer" }}
@@ -48,14 +48,14 @@
           class="text-rtl text-auto grow truncate text-xl sm:text-2xl"
           :class="{
             'transition-transform sm:group-hover/domain-baket-card:translate-x-2':
-              is_available && !isSelected
+              is_available && !isSelected,
           }"
         >
           <span
             class="font-light opacity-80"
             :class="{
               'text-base-content': !isSelected,
-              'text-primary-content': isSelected
+              'text-primary-content': isSelected,
             }"
             >{{ sld }}</span
           >
@@ -68,7 +68,7 @@
               'group-hover/domain-baket-card:text-primary transition-colors':
                 is_available && !isSelected,
               'group-hover/domain-baket-card:text-primary-content transition-colors':
-                is_available && isSelected
+                is_available && isSelected,
             }"
             >{{ tld }}</strong
           >
@@ -89,7 +89,7 @@
               class="text-auto-50 mr-auto shrink-0 text-sm"
               :class="{
                 'text-base-content': !isSelected,
-                'text-primary-content': isSelected
+                'text-primary-content': isSelected,
               }"
               :count="billing_cycle_years"
             >
@@ -98,7 +98,7 @@
                 class="text-auto text-lg font-semibold sm:text-xl"
                 :class="{
                   'text-base-content': !isSelected,
-                  'text-primary-content': isSelected
+                  'text-primary-content': isSelected,
                 }"
                 >{{ price_discounted_formatted || price_formatted }}</span
               >
@@ -188,65 +188,65 @@ export default defineComponent({
     SavingTag,
     CheckCircleIcon,
     ArrowsRightLeftIcon,
-    ShoppingCartIcon
+    ShoppingCartIcon,
   },
   emits: ["change"],
   props: {
     processing: Boolean,
     syncing: Boolean,
     modelValue: {
-      type: [String, Array<String>]
+      type: [String, Array<String>],
     },
     multiple: {
       type: Boolean,
-      default: false
+      default: false,
     },
     billing_cycle_years: {
       type: Number,
-      default: 1
+      default: 1,
     },
     billing_summary: {
       type: String,
-      default: ""
+      default: "",
     },
     domain: {
       type: String,
-      required: true
+      required: true,
     },
     is_available: {
       type: Boolean,
-      default: false
+      default: false,
     },
     order_url: {
       type: String,
-      default: ""
+      default: "",
     },
     percentage_saving: {
       type: Number,
-      default: 0
+      default: 0,
     },
     price_discounted_formatted: {
       type: String,
-      default: ""
+      default: "",
     },
     price_formatted: {
       type: String,
-      default: ""
+      default: "",
     },
     sld: {
       type: String,
-      required: true
+      required: true,
     },
     tld: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup() {
     const input = ref<InstanceType<typeof HTMLInputElement>>();
 
     return {
-      input
+      input,
     };
   },
 
@@ -255,7 +255,7 @@ export default defineComponent({
       return this.multiple
         ? includes(this.modelValue, this.domain)
         : this.modelValue === this.domain;
-    }
+    },
   },
   methods: {
     select() {
@@ -269,7 +269,7 @@ export default defineComponent({
 
     updateModel(event: Event) {
       this.$emit("change", event);
-    }
-  }
+    },
+  },
 });
 </script>

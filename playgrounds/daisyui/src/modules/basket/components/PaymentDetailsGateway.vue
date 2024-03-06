@@ -5,7 +5,7 @@
     class="card card-compact"
     :class="[
       meta.hasErrors ? ' border-error' : '',
-      !meta.isRenderless ? 'bg-base-200 card-bordered' : ''
+      !meta.isRenderless ? 'bg-base-200 card-bordered' : '',
     ]"
   >
     <div class="card-body">
@@ -56,8 +56,8 @@ export default defineComponent({
   props: {
     actor: {
       type: Object, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
 
   setup(props) {
@@ -72,8 +72,8 @@ export default defineComponent({
 
     return {
       container,
-      ...gateway
+      ...gateway,
     };
-  }
+  },
 });
 </script>

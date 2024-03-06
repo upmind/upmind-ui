@@ -2,7 +2,7 @@
 import {
   createRouter,
   createWebHistory,
-  type RouteRecordRaw
+  type RouteRecordRaw,
 } from "vue-router";
 
 import { type IStaticMethods } from "preline/preline";
@@ -23,7 +23,7 @@ import { get } from "lodash-es";
 
 const importedRoutes = import.meta.glob<Object>("@/modules/**/routes/*.ts", {
   import: "default",
-  eager: true
+  eager: true,
 });
 
 const routes: RouteRecordRaw[] = [];
@@ -43,10 +43,10 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: HomeView
+      component: HomeView,
     },
     // ---
-    ...routes
+    ...routes,
   ],
   scrollBehavior(to, _from, _savedPosition) {
     // handle scroll to anchor on same page
@@ -54,10 +54,10 @@ const router = createRouter({
       return {
         el: to.hash,
         behavior: "smooth",
-        top: 108
+        top: 108,
       };
     }
-  }
+  },
 });
 
 // Preline AutoInit

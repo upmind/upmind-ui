@@ -3,7 +3,7 @@
     <label
       :class="{
         'bg-primary bg-opacity-20 ': selected,
-        'border-primary': selected
+        'border-primary': selected,
       }"
       class="active:bg-primary"
     >
@@ -43,30 +43,30 @@ import { StarIcon } from "@heroicons/vue/24/solid";
 export default defineComponent({
   name: "UpmLookuItem",
   components: {
-    StarIcon
+    StarIcon,
   },
   emits: ["select"],
   props: {
     item: {
       type: Object, // xstate actor
-      required: true
+      required: true,
     },
     selected: {
       type: Boolean,
-      default: false
+      default: false,
     },
     loading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 </script>

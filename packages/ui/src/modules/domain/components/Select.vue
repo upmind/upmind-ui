@@ -62,25 +62,25 @@ export default defineComponent({
   props: {
     domains: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     modelValue: {
-      type: String
+      type: String,
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     syncing: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
     validDomains() {
       return filter(this.domains, "product_id");
-    }
+    },
   },
   methods: {
     updateModel(event: Event) {
@@ -89,7 +89,7 @@ export default defineComponent({
 
     isSelected(value: string) {
       return this.modelValue === value;
-    }
-  }
+    },
+  },
 });
 </script>

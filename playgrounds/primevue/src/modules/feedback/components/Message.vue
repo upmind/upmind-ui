@@ -96,7 +96,7 @@ import {
   ExclamationCircleIcon,
   InformationCircleIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { endsWith, startsWith } from "lodash-es";
 
@@ -108,21 +108,21 @@ export default defineComponent({
     ExclamationCircleIcon,
     InformationCircleIcon,
     ExclamationTriangleIcon,
-    CheckCircleIcon
+    CheckCircleIcon,
   },
   props: {
     item: {
       type: Object, // xstate actor
-      required: true
+      required: true,
     },
     scheduled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     const timestamp = useTimestamp();
@@ -134,7 +134,7 @@ export default defineComponent({
       message,
       meta,
       dismiss,
-      timestamp
+      timestamp,
     };
   },
   computed: {
@@ -165,8 +165,8 @@ export default defineComponent({
       if (endsWith(time, " ago")) return `Showed ${time}`;
       else if (startsWith(time, "in ")) return `Shows ${time}`;
       else return `Showing `;
-    }
-  }
+    },
+  },
 });
 </script>
 

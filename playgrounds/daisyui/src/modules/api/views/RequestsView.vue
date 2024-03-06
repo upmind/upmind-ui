@@ -70,7 +70,7 @@ const dummyRequests = [
   {
     url: "https://dummyjson.com/products/1",
     delay: useTime().IMMIDIATE,
-    maxAge: useTime().MINUTE * 10
+    maxAge: useTime().MINUTE * 10,
   },
   { url: "https://dummyjson.com/products/1", delay: useTime().IMMIDIATE },
   { url: "https://dummyjson.com/products/1", delay: useTime().SECOND * 15 },
@@ -83,38 +83,38 @@ const dummyRequests = [
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().IMMIDIATE,
-    useCache: false
+    useCache: false,
   },
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().IMMIDIATE,
-    useCache: false
+    useCache: false,
   },
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().SECOND * 15,
-    useCache: false
+    useCache: false,
   },
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().SECOND * 30,
-    useCache: false
+    useCache: false,
   },
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().SECOND * 45,
-    useCache: false
+    useCache: false,
   },
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().SECOND * 60,
-    useCache: false
+    useCache: false,
   },
   {
     url: "https://dummyjson.com/products/2",
     delay: useTime().SECOND * 75,
-    useCache: false
-  }
+    useCache: false,
+  },
 ];
 
 function processRequests() {

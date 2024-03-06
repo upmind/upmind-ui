@@ -28,27 +28,27 @@ import type { RendererProps } from "@jsonforms/vue";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsLayout
+  useJsonFormsLayout,
 } from "@jsonforms/vue";
 import { useprimevueLayout } from "../util";
 
 const layoutRenderer = defineComponent({
   name: "GroupRenderer",
   components: {
-    DispatchRenderer
+    DispatchRenderer,
   },
   props: {
-    ...rendererProps<Layout>()
+    ...rendererProps<Layout>(),
   },
   setup(props: RendererProps<Layout>) {
     return useprimevueLayout(useJsonFormsLayout(props));
-  }
+  },
 });
 
 export default layoutRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
-  tester: rankWith(2, and(isLayout, uiTypeIs("Group")))
+  tester: rankWith(2, and(isLayout, uiTypeIs("Group"))),
 };
 </script>

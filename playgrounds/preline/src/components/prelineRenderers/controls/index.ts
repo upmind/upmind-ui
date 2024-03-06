@@ -55,5 +55,5 @@ export const controlRenderers = [
   passwordControlRendererEntry,
   phoneControlRendererEntry,
   fileControlRendererEntry,
-  hiddenControlRendererEntry
+  hiddenControlRendererEntry,
 ];

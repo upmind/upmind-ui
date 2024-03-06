@@ -7,10 +7,10 @@ module.exports = {
     "plugin:vue/vue3-essential",
     "eslint:recommended",
     "@vue/eslint-config-typescript",
-    "@vue/eslint-config-prettier/skip-formatting"
+    "@vue/eslint-config-prettier/skip-formatting",
   ],
   parserOptions: {
-    ecmaVersion: "latest"
+    ecmaVersion: "latest",
   },
   globals: {
     // process: true,
@@ -39,8 +39,8 @@ module.exports = {
       {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
-        caughtErrorsIgnorePattern: "^_"
-      }
+        caughtErrorsIgnorePattern: "^_",
+      },
     ],
 
     // typecript
@@ -56,8 +56,8 @@ module.exports = {
       "error",
       {
         allowDestructuring: true, // Allow `const { props, state } = this`; false by default
-        allowedNames: ["vm"] // Allow `const vm= this`; `[]` by default
-      }
+        allowedNames: ["vm"], // Allow `const vm= this`; `[]` by default
+      },
     ],
 
     // vue
@@ -68,8 +68,8 @@ module.exports = {
     "vue/no-v-model-argument": "off",
 
     // general
-    "no-unsafe-optional-chaining": "off"
-  }
+    "no-unsafe-optional-chaining": "off",
+  },
   // settings: {
   //   "vue-i18n": {
   //     localeDir: "./src/i18n/languages/*.json" // extention is glob formatting!

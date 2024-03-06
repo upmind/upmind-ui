@@ -31,7 +31,7 @@ export function useLookup(lookup) {
       isProcessing: ["filtering", "processing"].some(state.value.matches),
       isFiltered: ["filtered"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches)
+      isEditing: ["editing"].some(state.value.matches),
     })),
     // ---
     items: computed(() =>
@@ -44,7 +44,7 @@ export function useLookup(lookup) {
       if (state.value.context?.selected) {
         return {
           id: state.value.context?.selected.id,
-          ...useActor(state.value.context?.selected)
+          ...useActor(state.value.context?.selected),
         };
       }
       return null;
@@ -75,7 +75,7 @@ export function useLookup(lookup) {
     add: () => send({ type: "ADD" }),
     refresh: () => send({ type: "REFRESH" }),
 
-    filter: debounce(data => send({ type: "FILTER", data }), 600)
+    filter: debounce(data => send({ type: "FILTER", data }), 600),
     // filter: data => send({ type: "FILTER", data })
   };
 }
@@ -104,7 +104,7 @@ export function useLookupItem({ item }, { emit }) {
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches)
+        state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
 
     // ---
@@ -120,6 +120,6 @@ export function useLookupItem({ item }, { emit }) {
     // ---
     select: () => emit("select", item.id),
     edit: () => emit("edit", item.id),
-    cancel: () => emit("refresh")
+    cancel: () => emit("refresh"),
   };
 }

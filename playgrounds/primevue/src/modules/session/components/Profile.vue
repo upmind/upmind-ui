@@ -50,7 +50,7 @@ import { useSession } from "@upmind/vue";
 
 import {
   UserCircleIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
 } from "@heroicons/vue/24/solid";
 
 export default defineComponent({
@@ -58,7 +58,7 @@ export default defineComponent({
   components: {
     // UpmDebug,
     UserCircleIcon,
-    ArrowRightOnRectangleIcon
+    ArrowRightOnRectangleIcon,
   },
   inheritAttrs: true,
   customOptions: {},
@@ -66,14 +66,14 @@ export default defineComponent({
   props: {
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup() {
     const session = useSession();
     return session;
   },
   computed: {},
-  methods: {}
+  methods: {},
 });
 </script>

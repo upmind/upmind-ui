@@ -9,7 +9,7 @@ import {
   stateMatches,
   stateValue,
   useContext,
-  useState
+  useState,
 } from "../../utils";
 
 // --------------------------------------------------------
@@ -36,7 +36,7 @@ export const useBasketCurrency = actor => {
       isDirty: contextMatches(state, ["dirty"]),
       isComplete:
         stateValue(state, "done", false) ||
-        stateMatches(state, ["processed", "complete"])
+        stateMatches(state, ["processed", "complete"]),
     })),
     // ---
     model: useContext(state, "model"),
@@ -46,6 +46,6 @@ export const useBasketCurrency = actor => {
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
-    update: () => send({ type: "UPDATE" })
+    update: () => send({ type: "UPDATE" }),
   };
 };

@@ -78,7 +78,7 @@
       class="bg-opacity-10 my-8 p-4 gap-8"
       :class="{
         'bg-primary': meta.showRegisterForm,
-        'bg-secondary': meta.showLoginForm
+        'bg-secondary': meta.showLoginForm,
       }"
       v-if="meta.showLoginForm || meta.show2fa || meta.showRegisterForm"
     >
@@ -87,7 +87,7 @@
           class="btn"
           :class="[
             { 'btn-primary': meta.showRegisterForm },
-            { 'btn-secondary': meta.showLoginForm }
+            { 'btn-secondary': meta.showLoginForm },
           ]"
           type="submit"
           :disabled="!formMeta.isValid || formMeta.isProcessing"
@@ -127,13 +127,13 @@ export default defineComponent({
   props: {
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup() {
     return useSession();
   },
   computed: {},
-  methods: {}
+  methods: {},
 });
 </script>

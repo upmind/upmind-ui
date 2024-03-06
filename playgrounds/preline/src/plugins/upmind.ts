@@ -17,7 +17,7 @@ const upmindPlugin: Plugin = {
     useSession();
 
     app.provide("upmind", api);
-  }
+  },
 };
 
 export default upmindPlugin;

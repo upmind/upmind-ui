@@ -5,7 +5,7 @@
     class="card card-bordered card-compact bg-base-100"
     :class="[
       meta.hasErrors ? '  border-error' : '',
-      meta.isComplete ? ' card-bordered border-primary' : ''
+      meta.isComplete ? ' card-bordered border-primary' : '',
     ]"
   >
     <div class="card-body">
@@ -52,13 +52,13 @@ export default defineComponent({
   props: {
     item: {
       type: Object, // xstate actor
-      required: true
+      required: true,
     },
 
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     const {
@@ -73,7 +73,7 @@ export default defineComponent({
       input,
       search,
       update,
-      cancel
+      cancel,
     } = useClientAddress(props.item);
 
     return {
@@ -89,7 +89,7 @@ export default defineComponent({
       input,
       search,
       update,
-      cancel
+      cancel,
     };
   },
 
@@ -104,6 +104,6 @@ export default defineComponent({
 
       // this.form.focus();
     });
-  }
+  },
 });
 </script>

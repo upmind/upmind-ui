@@ -54,33 +54,33 @@ import { some } from "lodash-es";
 export default defineComponent({
   name: "UpmDomainAvailable",
   components: {
-    UpmCard
+    UpmCard,
   },
   emits: ["change"],
   props: {
     results: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     modelValue: {
-      type: [String, Array<String>]
+      type: [String, Array<String>],
     },
     multiple: {
       type: Boolean,
-      default: false
+      default: false,
     },
     syncing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     open: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   methods: {
@@ -90,7 +90,7 @@ export default defineComponent({
 
     validate(value: string) {
       return some(this.results, { domain: value }) ? value : null;
-    }
-  }
+    },
+  },
 });
 </script>

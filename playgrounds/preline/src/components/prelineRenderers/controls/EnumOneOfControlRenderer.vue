@@ -9,7 +9,7 @@
       :id="control.id + '-input'"
       :class="[
         styles.control.select,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data"
       :disabled="!control.enabled"
@@ -33,7 +33,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isOneOfEnumControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -45,10 +45,10 @@ import { useprelineControl } from "../util";
 const controlRenderer = defineComponent({
   name: "EnumOneofControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     const enumControl = useJsonFormsOneOfEnumControl(props);
@@ -61,13 +61,13 @@ const controlRenderer = defineComponent({
       }
       return undefined;
     });
-  }
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, isOneOfEnumControl)
+  tester: rankWith(2, isOneOfEnumControl),
 };
 </script>

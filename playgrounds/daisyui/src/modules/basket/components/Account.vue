@@ -5,7 +5,7 @@
     class="card card-bordered card-compact bg-base-100"
     :class="[
       !modelValue ? 'border-primary' : '',
-      modelValue ? 'border-warning' : ''
+      modelValue ? 'border-warning' : '',
     ]"
   >
     <div class="card-body">
@@ -33,14 +33,14 @@ export default defineComponent({
   props: {
     modelValue: {
       type: Boolean, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {},
 
   computed: {},
 
-  methods: {}
+  methods: {},
 });
 </script>

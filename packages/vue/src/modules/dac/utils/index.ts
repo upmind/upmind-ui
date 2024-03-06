@@ -9,7 +9,7 @@ import { map, orderBy, uniqBy, first } from "lodash-es";
 import type {
   IDomainProduct,
   IProductPrice,
-  IDomainProductMapped
+  IDomainProductMapped,
 } from "../types.d";
 // ----------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ export function parseDomain(domain: string) {
   return {
     domain: value,
     tld: value?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
-    sld: first(value?.split(".")) || ""
+    sld: first(value?.split(".")) || "",
   };
 }
 
@@ -41,7 +41,7 @@ export function parseResults(
       domain: [sld, domain.tld].join(""),
       sld,
       tld: domain.tld,
-      is_available: domain.domain_available
+      is_available: domain.domain_available,
     } as IDomainProductMapped;
 
     if (domain?.prices?.length) {

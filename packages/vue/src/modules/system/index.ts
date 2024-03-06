@@ -55,7 +55,7 @@ export const useSystem = () => {
         "regions.loading",
         "languages.loading",
         "statuses.loading",
-        "departments.loading"
+        "departments.loading",
       ].some(state.value.matches),
       isReady:
         ["currencies.complete", "billingCycles.complete"].every(
@@ -72,7 +72,7 @@ export const useSystem = () => {
           "regions.complete",
           "languages.complete",
           "statuses.complete",
-          "departments.complete"
+          "departments.complete",
         ].some(state.value.matches),
       isComplete: [
         "currencies.complete",
@@ -81,7 +81,7 @@ export const useSystem = () => {
         "regions.complete",
         "languages.complete",
         "statuses.complete",
-        "departments.complete"
+        "departments.complete",
       ].every(state.value.matches),
       hasErrors: [
         "organisation.error",
@@ -93,8 +93,8 @@ export const useSystem = () => {
         "regions.error",
         "languages.error",
         "statuses.error",
-        "departments.error"
-      ].some(state.value.matches)
+        "departments.error",
+      ].some(state.value.matches),
     })),
     // ---?
     fetch: async (key: string, value?: any) => {
@@ -126,6 +126,6 @@ export const useSystem = () => {
       }
 
       return values;
-    }
+    },
   };
 };

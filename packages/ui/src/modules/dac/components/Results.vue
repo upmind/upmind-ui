@@ -62,23 +62,23 @@ export default defineComponent({
   props: {
     results: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     modelValue: {
-      type: [String, Array<String>]
+      type: [String, Array<String>],
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     multiple: {
       type: Boolean,
-      default: false
+      default: false,
     },
     open: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   methods: {
@@ -90,7 +90,7 @@ export default defineComponent({
       return this.multiple
         ? includes(this.modelValue, value)
         : this.modelValue === value;
-    }
-  }
+    },
+  },
 });
 </script>

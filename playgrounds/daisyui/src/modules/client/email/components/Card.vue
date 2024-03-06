@@ -4,7 +4,7 @@
     :class="[
       meta.isProcessing ? 'border-neutral' : '',
       meta.hasErrors ? 'border-error' : '',
-      meta.isComplete ? 'card-bordered border-primary' : ''
+      meta.isComplete ? 'card-bordered border-primary' : '',
     ]"
   >
     <div class="card-body">
@@ -82,7 +82,7 @@
               <li
                 :class="{
                   disabled: meta.isDefault || !meta.isVerified,
-                  'opacity-50': meta.isDefault || !meta.isVerified
+                  'opacity-50': meta.isDefault || !meta.isVerified,
                 }"
               >
                 <a
@@ -109,7 +109,7 @@
                 class="border-t pt-3"
                 :class="{
                   disabled: !meta.canRemove,
-                  'opacity-50': !meta.canRemove
+                  'opacity-50': !meta.canRemove,
                 }"
               >
                 <a
@@ -136,7 +136,7 @@ import {
   EllipsisVerticalIcon,
   StarIcon,
   ShieldCheckIcon,
-  ShieldExclamationIcon
+  ShieldExclamationIcon,
 } from "@heroicons/vue/24/solid";
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
@@ -148,23 +148,23 @@ export default defineComponent({
     EllipsisVerticalIcon,
     StarIcon,
     ShieldCheckIcon,
-    ShieldExclamationIcon
+    ShieldExclamationIcon,
   },
   props: {
     item: {
       type: Object, // xstate actor
-      required: true
+      required: true,
     },
 
     selected: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     debugging: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     const { isSupported, copy, copied } = useClipboard();
@@ -181,7 +181,7 @@ export default defineComponent({
       edit,
       select,
       remove,
-      setDefault
+      setDefault,
     } = useClientEmail(props.item);
 
     // ------------------------------------------------
@@ -232,8 +232,8 @@ export default defineComponent({
         copy(description.value);
       },
       canCopy: isSupported,
-      copied
+      copied,
     };
-  }
+  },
 });
 </script>

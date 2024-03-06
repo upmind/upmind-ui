@@ -56,13 +56,13 @@ export default defineComponent({
   props: {
     actor: {
       type: Object, // xstate actor
-      required: true
-    }
+      required: true,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
     return {
-      ...useBasketCurrency(props.actor)
+      ...useBasketCurrency(props.actor),
     };
   },
 
@@ -72,7 +72,7 @@ export default defineComponent({
     doSelect(currency: Event, callback: Function) {
       this.input(currency);
       if (callback) callback(false);
-    }
-  }
+    },
+  },
 });
 </script>

@@ -10,6 +10,6 @@ export function useMoney() {
   }
 
   return {
-    removeTrailingZeroes
+    removeTrailingZeroes,
   };
 }

@@ -137,7 +137,7 @@ const items = {
   regions: {},
   languages: {},
   statuses: {},
-  departments: {}
+  departments: {},
 };
 
 const { state, context, meta, errors, fetch, responses } = useSystem();

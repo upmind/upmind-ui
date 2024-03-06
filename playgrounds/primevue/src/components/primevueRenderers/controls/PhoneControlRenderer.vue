@@ -13,7 +13,7 @@
         appliedOptions?.trim
           ? styles.control.size.trim
           : styles.control.size.full,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data?.number"
       :disabled="!control.enabled"
@@ -38,7 +38,7 @@
         <i
           :class="[
             'fi',
-            `fi-${control.data?.country?.toLowerCase() || defaultContry.code.toLowerCase()}`
+            `fi-${control.data?.country?.toLowerCase() || defaultContry.code.toLowerCase()}`,
           ]"
           class="'w-6', 'h-full'"
         ></i>
@@ -85,7 +85,7 @@
 import type {
   Tester,
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 
 import {
@@ -93,7 +93,7 @@ import {
   schemaTypeIs,
   uiTypeIs,
   schemaMatches,
-  and
+  and,
 } from "@jsonforms/core";
 import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
@@ -108,14 +108,14 @@ import { onClickOutside } from "@vueuse/core";
 const controlRenderer = defineComponent({
   name: "StringControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   data() {
     return {
-      unmask: false
+      unmask: false,
     };
   },
   setup(props: RendererProps<ControlElement>) {
@@ -170,9 +170,9 @@ const controlRenderer = defineComponent({
       onChangeCountry,
       onChange,
       countries,
-      defaultContry
+      defaultContry,
     };
-  }
+  },
 });
 
 export default controlRenderer;
@@ -186,6 +186,6 @@ const isPhoneControl = (): Tester =>
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, isPhoneControl())
+  tester: rankWith(2, isPhoneControl()),
 };
 </script>

@@ -21,7 +21,7 @@ export const useFeedback = () => {
   const messages = computed(() =>
     map(state.value.context.messages, item => ({
       id: item.id,
-      ...useActor(item)
+      ...useActor(item),
     }))
   );
 
@@ -33,7 +33,7 @@ export const useFeedback = () => {
           if (item.state.context.display === "notification") {
             result.push({
               id: item.id,
-              ...useActor(item)
+              ...useActor(item),
             });
           }
           return result;
@@ -52,7 +52,7 @@ export const useFeedback = () => {
           if (item.state.context.display === "toast") {
             result.push({
               id: item.id,
-              ...useActor(item)
+              ...useActor(item),
             });
           }
           return result;
@@ -68,7 +68,7 @@ export const useFeedback = () => {
     isProcessing: ["processing"].some(state.value.matches),
     isEmpty: ["empty"].some(state.value.matches),
     hasNotifications: !isEmpty(notifications.value),
-    hasToasts: !isEmpty(toasts.value)
+    hasToasts: !isEmpty(toasts.value),
   }));
 
   // --------------------------------------------------------
@@ -86,7 +86,7 @@ export const useFeedback = () => {
     addSuccess,
     dismiss,
     // ---
-    useTime: utils.useTime
+    useTime: utils.useTime,
   };
 };
 
@@ -97,7 +97,7 @@ export const useMessage = item => {
 
   const meta = computed(() => ({
     isActive: state.value.matches("active"),
-    isScheduled: state.value.matches("pending")
+    isScheduled: state.value.matches("pending"),
   }));
 
   // --------------------------------------------------------
@@ -107,6 +107,6 @@ export const useMessage = item => {
     message,
     meta,
     // ---
-    dismiss: () => send("DISMISS")
+    dismiss: () => send("DISMISS"),
   };
 };

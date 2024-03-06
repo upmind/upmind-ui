@@ -38,7 +38,7 @@
               class="sr-only"
               :class="[
                 styles.control.menu.item,
-                controlWrapper.errors ? styles.control.error.input : null
+                controlWrapper.errors ? styles.control.error.input : null,
               ]"
               :disabled="!control.enabled"
               @change="onChange"
@@ -60,7 +60,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -72,16 +72,16 @@ import { useDaisyControl } from "../util";
 const controlRenderer = defineComponent({
   name: "EnumOneofControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useDaisyControl(useJsonFormsOneOfEnumControl(props), target =>
       target.selectedIndex === 0 ? undefined : target.value
     );
-  }
+  },
 });
 
 export default controlRenderer;
@@ -93,6 +93,6 @@ export const isMenuControl = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(3, isMenuControl)
+  tester: rankWith(3, isMenuControl),
 };
 </script>

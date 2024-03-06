@@ -87,7 +87,7 @@ const {
   guest,
   // ---
   logout,
-  reject
+  reject,
 } = useSession();
 
 // ---

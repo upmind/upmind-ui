@@ -21,8 +21,8 @@ export default defineComponent({
       // -------
       ajv,
       renderers: Object.freeze([...daisyRenderers]),
-      formStyles
+      formStyles,
     };
-  }
+  },
 });
 </script>

@@ -6,7 +6,7 @@ import {
   composePaths,
   findUISchema,
   getFirstPrimitiveProp,
-  Resolve
+  Resolve,
 } from "@jsonforms/core";
 
 /**
@@ -45,7 +45,7 @@ export const useDaisyControl = <I extends { control: any; handleChange: any }>(
     isFocused,
     appliedOptions,
     controlWrapper,
-    onChange
+    onChange,
   };
 };
 
@@ -63,7 +63,7 @@ export const useDaisyLayout = <I extends { layout: any }>(input: I) => {
   return {
     ...input,
     styles: useStyles(input.layout.value.uischema),
-    appliedOptions
+    appliedOptions,
   };
 };
 
@@ -81,7 +81,7 @@ export const useDaisyLabel = <I extends { label: any }>(input: I) => {
   return {
     ...input,
     styles: useStyles(input.label.value.uischema),
-    appliedOptions
+    appliedOptions,
   };
 };
 
@@ -130,6 +130,6 @@ export const useDaisyArrayControl = <I extends { control: any }>(input: I) => {
     styles: useStyles(input.control.value.uischema),
     appliedOptions,
     childUiSchema,
-    childLabelForIndex
+    childLabelForIndex,
   };
 };

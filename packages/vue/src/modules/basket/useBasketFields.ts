@@ -30,7 +30,7 @@ export const useBasketFields = actor => {
       isValid: stateMatches(state, ["valid"]),
       isComplete:
         stateValue(state, "done", false) ||
-        stateMatches(state, ["processed", "complete"])
+        stateMatches(state, ["processed", "complete"]),
     })),
     // ---
     model: useContext(state, "model"),
@@ -39,6 +39,6 @@ export const useBasketFields = actor => {
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
-    update: () => send({ type: "UPDATE" })
+    update: () => send({ type: "UPDATE" }),
   };
 };

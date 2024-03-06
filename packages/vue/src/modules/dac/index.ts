@@ -20,7 +20,7 @@ import {
   omitBy,
   some,
   uniq,
-  without
+  without,
 } from "lodash-es";
 
 // ----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ export function useDac({
   limit = 10,
   orderConfigUrl = "",
   modelValue = "",
-  multiple = false
+  multiple = false,
 }: {
   promotions?: string[];
   currencyCode?: string;
@@ -68,7 +68,7 @@ export function useDac({
     hasErrors: !!errors.value,
     hasMore:
       !!results.value.length && results.value.length < resultsTotal.value,
-    isActive: active.value
+    isActive: active.value,
   }));
 
   const sanitised = computed(() => {
@@ -79,7 +79,7 @@ export function useDac({
     return {
       value,
       tld: domain.value?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
-      sld: domain.value?.split(".")?.[0] || ""
+      sld: domain.value?.split(".")?.[0] || "",
     };
   });
 
@@ -184,7 +184,7 @@ export function useDac({
         offset: offset?.toString(),
         currency_code: currencyCode,
         // tld,
-        promotions: promotions?.join()
+        promotions: promotions?.join(),
       },
       isEmpty
     );
@@ -192,7 +192,7 @@ export function useDac({
     get({
       url: useUrl("modules/web_hosting/domains/search", params),
       init: { signal: controller.value.signal },
-      useCache: true
+      useCache: true,
     })
       .then(response => {
         // --- Update response total
@@ -233,6 +233,6 @@ export function useDac({
     update,
     reset,
     doSearch,
-    loadMore
+    loadMore,
   };
 }

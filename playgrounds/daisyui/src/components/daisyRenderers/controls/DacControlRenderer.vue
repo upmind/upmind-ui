@@ -9,7 +9,7 @@
       :id="control.id + '-dac'"
       :class="[
         styles.control.dac,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :model-value="control.data"
       :disabled="!control.enabled"
@@ -35,13 +35,13 @@ import {
   uiTypeIs,
   formatIs,
   and,
-  or
+  or,
 } from "@jsonforms/core";
 
 import {
   rendererProps,
   useJsonFormsControl,
-  type RendererProps
+  type RendererProps,
 } from "@jsonforms/vue";
 
 import ControlWrapper from "./ControlWrapper.vue";
@@ -52,17 +52,19 @@ const controlRenderer = defineComponent({
   name: "DacControlRenderer",
   components: {
     ControlWrapper,
-    UpmDac: defineAsyncComponent(() => import("@upmind/ui").then(m => m.UpmDac))
+    UpmDac: defineAsyncComponent(() =>
+      import("@upmind/ui").then(m => m.UpmDac)
+    ),
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useDaisyControl(
       useJsonFormsControl(props),
       target => target?.value || undefined
     );
-  }
+  },
 });
 
 export default controlRenderer;
@@ -79,6 +81,6 @@ export const isDomainControl = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, isDomainControl)
+  tester: rankWith(2, isDomainControl),
 };
 </script>

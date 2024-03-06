@@ -16,8 +16,8 @@ export default defineComponent({
   props: {
     percentage: {
       type: Number,
-      default: 0
-    }
-  }
+      default: 0,
+    },
+  },
 });
 </script>

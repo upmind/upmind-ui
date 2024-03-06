@@ -26,7 +26,7 @@
       @change="onChange"
       class="card-content"
       :class="{
-        'opacity-50 pointer-events-none': meta.isProcessing
+        'opacity-50 pointer-events-none': meta.isProcessing,
       }"
     />
 
@@ -76,7 +76,7 @@ import { JsonForms } from "@jsonforms/vue";
 import {
   type ValidationMode,
   type JsonSchema,
-  type UISchemaElement
+  type UISchemaElement,
 } from "@jsonforms/core";
 
 import type { ErrorObject } from "ajv";
@@ -84,7 +84,7 @@ import type { ErrorObject } from "ajv";
 import {
   defaultStyles,
   mergeStyles,
-  vanillaRenderers
+  vanillaRenderers,
 } from "@jsonforms/vue-vanilla";
 
 import { isEmpty, isEqual, isObject, isArray } from "lodash-es";
@@ -117,51 +117,51 @@ export default defineComponent({
   name: "FormGenerator",
   components: {
     JsonForms,
-    UpmDebug
+    UpmDebug,
   },
   inheritAttrs: true,
   props: {
     schema: {
-      type: Object as PropType<JsonSchema>
+      type: Object as PropType<JsonSchema>,
     },
     uischema: {
-      type: Object as PropType<UISchemaElement>
+      type: Object as PropType<UISchemaElement>,
     },
     modelValue: {
-      type: Object
+      type: Object,
     },
     // ---
     noActions: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debugging: {
       type: Boolean,
-      default: false
+      default: false,
     },
     loading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     mode: {
       required: false,
       type: String as PropType<ValidationMode>,
-      default: "ValidateAndShow" // ||  "ValidateAndHide" || "NoValidation"
+      default: "ValidateAndShow", // ||  "ValidateAndHide" || "NoValidation"
     },
     styles: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     additionalErrors: {
       type: Array as PropType<
         ErrorObject<string, Record<string, any>, unknown>[]
       >,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   watch: {
     modelValue: {
@@ -169,8 +169,8 @@ export default defineComponent({
         this.model = toRaw(unref(value)) || {};
       },
       immediate: true,
-      deep: true
-    }
+      deep: true,
+    },
   },
   emits: ["reject", "resolve", "update:modelValue", "valid"],
   customOptions: {},
@@ -187,13 +187,13 @@ export default defineComponent({
       // -------
       ajv,
       renderers: Object.freeze([...vanillaRenderers]),
-      formStyles
+      formStyles,
     };
   },
   data: () => ({
     model: {},
     errors: [],
-    isDirty: false
+    isDirty: false,
   }),
 
   computed: {
@@ -202,7 +202,7 @@ export default defineComponent({
         isLoading: this.loading,
         isProcessing: this.processing,
         isDirty: this.isDirty,
-        isValid: !this.errors?.length
+        isValid: !this.errors?.length,
       };
     },
 
@@ -211,7 +211,7 @@ export default defineComponent({
       return isDeepEmpty(this.model) || !this.isDirty
         ? "ValidateAndHide"
         : this.mode || "ValidateAndShow";
-    }
+    },
   },
 
   methods: {
@@ -243,12 +243,12 @@ export default defineComponent({
       this.$emit("reject");
       this.model = {};
       this.isDirty = false;
-    }
+    },
   },
   provide() {
     return {
-      styles: this.formStyles
+      styles: this.formStyles,
     };
-  }
+  },
 });
 </script>

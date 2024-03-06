@@ -12,7 +12,7 @@
         appliedOptions?.trim
           ? styles.control.size.trim
           : styles.control.size.full,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data"
       :disabled="!control.enabled"
@@ -47,7 +47,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 
 import {
@@ -57,7 +57,7 @@ import {
   formatIs,
   // scopeEndsWith,
   and,
-  or
+  or,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
@@ -72,14 +72,14 @@ const controlRenderer = defineComponent({
   components: {
     ControlWrapper,
     EyeIcon,
-    EyeSlashIcon
+    EyeSlashIcon,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   data() {
     return {
-      unmask: false
+      unmask: false,
     };
   },
   setup(props: RendererProps<ControlElement>) {
@@ -87,7 +87,7 @@ const controlRenderer = defineComponent({
       useJsonFormsControl(props),
       target => target.value || undefined
     );
-  }
+  },
 });
 
 export default controlRenderer;
@@ -99,6 +99,6 @@ export const isPasswordControl = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, and(isStringControl, isPasswordControl))
+  tester: rankWith(2, and(isStringControl, isPasswordControl)),
 };
 </script>

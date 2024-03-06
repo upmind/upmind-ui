@@ -44,46 +44,46 @@ const listItem = defineComponent({
     initiallyExpanded: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
     label: {
       required: false,
       type: String,
-      default: ""
+      default: "",
     },
     moveUpEnabled: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
     moveDownEnabled: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
     moveUp: {
       required: false,
       type: Function,
-      default: undefined
+      default: undefined,
     },
     moveDown: {
       required: false,
       type: Function,
-      default: undefined
+      default: undefined,
     },
     delete: {
       required: false,
       type: Function,
-      default: undefined
+      default: undefined,
     },
     styles: {
       required: true,
-      type: Object as PropType<Styles>
-    }
+      type: Object as PropType<Styles>,
+    },
   },
   data() {
     return {
-      expanded: this.initiallyExpanded
+      expanded: this.initiallyExpanded,
     };
   },
   computed: {
@@ -96,7 +96,7 @@ const listItem = defineComponent({
       return classes`${this.styles.arrayList.itemToolbar} ${
         this.expanded && this.styles.arrayList.itemExpanded
       }`;
-    }
+    },
   },
   methods: {
     expandClicked(): void {
@@ -113,8 +113,8 @@ const listItem = defineComponent({
     deleteClicked(event: Event): void {
       event.stopPropagation();
       this.delete?.();
-    }
-  }
+    },
+  },
 });
 
 export default listItem;

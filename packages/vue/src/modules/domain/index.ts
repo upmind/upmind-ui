@@ -29,15 +29,15 @@ export const useDomain = (
   const choose = (value: string) =>
     send({
       type: "CHOOSE",
-      data: value
+      data: value,
     });
 
   const search = (value: string) =>
     send({
       type: "SEARCH",
       data: {
-        domain: value
-      }
+        domain: value,
+      },
     });
 
   const toggle = (value: string) => {
@@ -47,28 +47,28 @@ export const useDomain = (
 
     send({
       type,
-      data: value
+      data: value,
     });
   };
 
   const add = (value: string) => {
     send({
       type: "ADD",
-      data: value
+      data: value,
     });
   };
 
   const remove = (value: string) => {
     send({
       type: "REMOVE",
-      data: value
+      data: value,
     });
   };
 
   const setPrimaryDomain = (value: string) => {
     send({
       type: "SELECT",
-      data: value
+      data: value,
     });
   };
 
@@ -94,27 +94,27 @@ export const useDomain = (
       isProcessing: [
         "register.processing",
         "transfer.processing",
-        "existing.processing"
+        "existing.processing",
       ].some(state.value.matches),
 
       isSyncing: [
         "register.syncing",
         "transfer.syncing",
         "existing.syncing",
-        "basket.syncing"
+        "basket.syncing",
       ].some(state.value.matches),
 
       isSearching: [
         "register.processing.searching",
         "transfer.processing.searching",
-        "existing.processing.idle"
+        "existing.processing.idle",
       ].some(state.value.matches),
 
       hasErrors: [
         "error",
         "register.error",
         "transfer.error",
-        "existing.error"
+        "existing.error",
       ].some(state.value.matches),
 
       // ---
@@ -129,7 +129,7 @@ export const useDomain = (
           "register.valid",
           "transfer.valid",
           "existing.valid",
-          "basket.valid"
+          "basket.valid",
         ].some(state.value.matches) &&
         some(state.value.context?.values, "is_primary"),
       // ---
@@ -138,7 +138,7 @@ export const useDomain = (
       hasAdditional: state.value.context?.values?.length > 1,
       hasMore:
         !!state.value.context.available.length &&
-        state.value.context.available.length < state.value.context.total
+        state.value.context.available.length < state.value.context.total,
     })),
     // ---
     choose,
@@ -148,6 +148,6 @@ export const useDomain = (
     toggle,
     setPrimaryDomain,
     isSelected: (value: string) => state.value.matches(value),
-    destroy: domain.destroy
+    destroy: domain.destroy,
   };
 };

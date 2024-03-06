@@ -136,40 +136,40 @@ export default defineComponent({
     UpmDomainInput,
     UpmDomainChoices,
     UpmDomainSelect,
-    UpmDebug
+    UpmDebug,
   },
   props: {
     syncBasket: {
-      type: Boolean
+      type: Boolean,
     },
     type: {
       type: String,
       validator: (value: string) =>
-        ["register", "transfer", "existing"].includes(value)
+        ["register", "transfer", "existing"].includes(value),
     },
     promotions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     currencyCode: {
       type: String,
-      default: ""
+      default: "",
     },
     promotion: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     limit: {
       type: Number,
-      default: 10
+      default: 10,
     },
     debugging: {
       type: Boolean,
-      default: false
+      default: false,
     },
     parent: {
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   setup(props) {
@@ -178,7 +178,7 @@ export default defineComponent({
 
   beforeUnmount() {
     this.destroy();
-  }
+  },
 });
 </script>
 ../../components/debug/Debug.vue

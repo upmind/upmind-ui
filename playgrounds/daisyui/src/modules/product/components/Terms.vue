@@ -9,7 +9,7 @@
         class="term stat cursor-pointer"
         :class="{
           selected: isSelected(term),
-          disabled: processing
+          disabled: processing,
         }"
         :data-selected="isSelected(term)"
         @click.prevent="!processing ? $emit('update:modelValue', term) : null"
@@ -89,7 +89,7 @@ import { isEqual } from "lodash-es";
 export default defineComponent({
   name: "ProductConfigTerms",
   components: {
-    Quantity
+    Quantity,
   },
   inheritAttrs: true,
   customOptions: {},
@@ -97,29 +97,29 @@ export default defineComponent({
     "update:modelValue",
     "update:quantity",
     "update:quantity:increment",
-    "update:quantity:decrement"
+    "update:quantity:decrement",
   ],
   props: {
     processing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     product: {
       type: Object,
-      required: true
+      required: true,
     },
     terms: {
       type: Array,
-      required: true
+      required: true,
     },
     modelValue: {
       type: Number,
-      required: true
+      required: true,
     },
     quantity: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props, { emit }) {
@@ -129,9 +129,9 @@ export default defineComponent({
     }
 
     return {
-      isSelected
+      isSelected,
     };
   },
-  computed: {}
+  computed: {},
 });
 </script>

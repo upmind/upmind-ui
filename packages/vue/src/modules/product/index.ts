@@ -13,7 +13,7 @@ import {
   set,
   some,
   subtract,
-  unset
+  unset,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -47,7 +47,7 @@ export const useProductConfig = item => {
     hasErrors: state.value.matches("error") || !isEmpty(errors.value),
     isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
-    isCalculating: state.value.matches("calculating")
+    isCalculating: state.value.matches("calculating"),
   }));
 
   const summary = computed(() => state.value.context.summary);
@@ -64,7 +64,7 @@ export const useProductConfig = item => {
 
   const clearErrors = () => {
     send({
-      type: "CLEAR.ERRORS"
+      type: "CLEAR.ERRORS",
     });
   };
 
@@ -73,8 +73,8 @@ export const useProductConfig = item => {
     send({
       type: "UPDATE.QUANTITY",
       data: {
-        quantity: value || model.value.quantity
-      }
+        quantity: value || model.value.quantity,
+      },
     });
   //emit("update:quantity",{itemId: props.id,...);
 
@@ -120,8 +120,8 @@ export const useProductConfig = item => {
     send({
       type: "UPDATE.TERM",
       data: {
-        term: term.billing_cycle_months
-      }
+        term: term.billing_cycle_months,
+      },
     });
   //emit("update:term",{itemId: props.id,...);
 
@@ -131,8 +131,8 @@ export const useProductConfig = item => {
     send({
       type: "UPDATE.ATTRIBUTES",
       data: {
-        attributes: model.value.attributes
-      }
+        attributes: model.value.attributes,
+      },
     });
   //emit("update:attributes",{itemId: props.id,...);
 
@@ -148,7 +148,7 @@ export const useProductConfig = item => {
 
     if (target.checked) {
       set(model.value.attributes, [attribute.id, value], {
-        product_id: value
+        product_id: value,
       });
     } else {
       unset(model.value.attributes, [attribute.id, value]);
@@ -198,8 +198,8 @@ export const useProductConfig = item => {
     send({
       type: "UPDATE.OPTIONS",
       data: {
-        options: model.value.options
-      }
+        options: model.value.options,
+      },
     });
   //emit("update:options",{itemId: props.id,...);
 
@@ -213,7 +213,7 @@ export const useProductConfig = item => {
 
     if (target.checked) {
       set(model.value.options, [option.id, value], {
-        product_id: value
+        product_id: value,
       });
     } else {
       unset(model.value.options, [option.id, value]);
@@ -261,7 +261,7 @@ export const useProductConfig = item => {
   // --- PROVISIONING
   function getProvisioningFields(showOptional = true, showHidden = false) {
     const schema = availableFields.value || {
-      type: "object"
+      type: "object",
     };
 
     // weere showing all fields, so return the schema
@@ -294,7 +294,7 @@ export const useProductConfig = item => {
   const updateProvisioning = () => {
     send({
       type: "UPDATE.PROVISIONING",
-      data: { provision_fields: model.value.provision_fields }
+      data: { provision_fields: model.value.provision_fields },
     });
   };
 
@@ -339,6 +339,6 @@ export const useProductConfig = item => {
     getProvisioningFields,
     setProvisioningFields,
     updateProvisioning,
-    getProvisioningField
+    getProvisioningField,
   };
 };

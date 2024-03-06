@@ -6,14 +6,14 @@ import {
   composePaths,
   findUISchema,
   getFirstPrimitiveProp,
-  Resolve
+  Resolve,
 } from "@jsonforms/core";
 
 /**
  * Adds styles, isFocused, appliedOptions and onChange
  */
 export const useprelineControl = <
-  I extends { control: any; handleChange: any }
+  I extends { control: any; handleChange: any },
 >(
   input: I,
   adaptTarget: (target: any) => any = v => v.value
@@ -47,7 +47,7 @@ export const useprelineControl = <
     isFocused,
     appliedOptions,
     controlWrapper,
-    onChange
+    onChange,
   };
 };
 
@@ -65,7 +65,7 @@ export const useprelineLayout = <I extends { layout: any }>(input: I) => {
   return {
     ...input,
     styles: useStyles(input.layout.value.uischema),
-    appliedOptions
+    appliedOptions,
   };
 };
 
@@ -83,7 +83,7 @@ export const useprelineLabel = <I extends { label: any }>(input: I) => {
   return {
     ...input,
     styles: useStyles(input.label.value.uischema),
-    appliedOptions
+    appliedOptions,
   };
 };
 
@@ -134,6 +134,6 @@ export const useprelineArrayControl = <I extends { control: any }>(
     styles: useStyles(input.control.value.uischema),
     appliedOptions,
     childUiSchema,
-    childLabelForIndex
+    childLabelForIndex,
   };
 };

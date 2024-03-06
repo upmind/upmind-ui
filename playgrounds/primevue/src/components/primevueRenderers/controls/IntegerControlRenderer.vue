@@ -14,7 +14,7 @@
         appliedOptions?.trim
           ? styles.control.size.trim
           : styles.control.size.full,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data"
       :disabled="!control.enabled"
@@ -30,7 +30,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isIntegerControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -42,22 +42,22 @@ import { useprimevueControl } from "../util";
 const controlRenderer = defineComponent({
   name: "IntegerControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useprimevueControl(useJsonFormsControl(props), target =>
       target.value === "" ? undefined : parseInt(target.value, 10)
     );
-  }
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(1, isIntegerControl)
+  tester: rankWith(1, isIntegerControl),
 };
 </script>

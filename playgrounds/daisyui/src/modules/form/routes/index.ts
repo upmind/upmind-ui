@@ -3,7 +3,7 @@ export default {
     {
       path: "/form",
       name: "form",
-      component: () => import("../views/FormView.vue")
-    }
-  ]
+      component: () => import("../views/FormView.vue"),
+    },
+  ],
 };

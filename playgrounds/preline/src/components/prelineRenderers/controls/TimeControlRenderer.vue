@@ -13,7 +13,7 @@
         appliedOptions?.trim
           ? styles.control.size.trim
           : styles.control.size.full,
-        controlWrapper.errors ? styles.control.error.input : null
+        controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data"
       :disabled="!control.enabled"
@@ -29,7 +29,7 @@
 <script lang="ts">
 import type {
   ControlElement,
-  JsonFormsRendererRegistryEntry
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import { rankWith, isTimeControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
@@ -41,23 +41,23 @@ import { useprelineControl } from "../util";
 const controlRenderer = defineComponent({
   name: "TimeControlRenderer",
   components: {
-    ControlWrapper
+    ControlWrapper,
   },
   props: {
-    ...rendererProps<ControlElement>()
+    ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     return useprelineControl(
       useJsonFormsControl(props),
       target => target.value || undefined
     );
-  }
+  },
 });
 
 export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, isTimeControl)
+  tester: rankWith(2, isTimeControl),
 };
 </script>
