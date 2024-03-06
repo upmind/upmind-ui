@@ -69,29 +69,102 @@
       data-hs-accordion-always-open
     >
       <ul class="space-y-1.5">
-        <li v-for="route in routes" :key="route.path">
-          <router-link
-            :to="route.path"
-            active-class="bg-primary-content hover:bg-primary-content text-primary"
-            :class="[
-              'flex',
-              'items-center',
-              'p-2',
-              'px-2.5',
-              'text-sm',
-              'rounded',
-              'text-neutral-900',
-              'hover:bg-neutral-50',
-              'dark:bg-neutral-900',
-              'dark:text-white',
-              'dark:focus:outline-none',
-              'dark:focus:ring-1',
-              'dark:focus:ring-neutral-600',
-            ]"
-          >
-            {{ startCase(route.name) }}
-          </router-link>
-        </li>
+        <template v-for="route in routes" :key="route.path">
+          <li v-if="!route?.children">
+            <router-link
+              :to="{ name: route.name }"
+              active-class="bg-primary-content hover:bg-primary-content text-primary"
+              :class="[
+                'flex',
+                'items-center',
+                'p-2',
+                'px-2.5',
+                'text-sm',
+                'rounded',
+                'text-neutral-900',
+                'hover:bg-neutral-50',
+                'dark:bg-neutral-900',
+                'dark:text-white',
+                'dark:focus:outline-none',
+                'dark:focus:ring-1',
+                'dark:focus:ring-neutral-600',
+              ]"
+            >
+              {{ startCase(route.name) }}
+            </router-link>
+          </li>
+
+          <li v-else class="hs-accordion" :id="`accordion-${route.path}`">
+            <button
+              type="button"
+              class="hs-accordion-toggle hs-accordion-active:text-blue-600 hs-accordion-active:hover:bg-transparent w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-400 dark:hover:text-slate-300 dark:hs-accordion-active:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+            >
+              {{ startCase(route.name) }}
+
+              <svg
+                class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500 dark:text-gray-400"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m18 15-6-6-6 6" />
+              </svg>
+
+              <svg
+                class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500 dark:text-gray-400"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                ></path>
+              </svg>
+            </button>
+
+            <div
+              :id="`accordion-${route.path}`"
+              class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
+            >
+              <ul class="pt-2 ps-2">
+                <li v-for="child in route.children" :key="child.path">
+                  <router-link
+                    :to="{ name: child.name }"
+                    active-class="bg-primary-content hover:bg-primary-content text-primary"
+                    :class="[
+                      'flex',
+                      'items-center',
+                      'p-2',
+                      'px-2.5',
+                      'text-sm',
+                      'rounded',
+                      'text-neutral-900',
+                      'hover:bg-neutral-50',
+                      'dark:bg-neutral-900',
+                      'dark:text-white',
+                      'dark:focus:outline-none',
+                      'dark:focus:ring-1',
+                      'dark:focus:ring-neutral-600',
+                    ]"
+                  >
+                    {{ startCase(child.name) }}
+                  </router-link>
+                </li>
+              </ul>
+            </div>
+          </li>
+        </template>
       </ul>
     </nav>
   </pv-drawer>
@@ -113,6 +186,7 @@ import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
 import PvDrawer from "@/components/Drawer.vue";
 // --- utils
 import { startCase } from "lodash-es";
+import { start } from "repl";
 
 // ---
 const router = useRouter();
