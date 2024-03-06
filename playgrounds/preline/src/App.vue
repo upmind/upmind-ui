@@ -40,6 +40,10 @@
         />
       </svg>
     </button>
+
+    <div class="actions flex-1 flex gap-4 justify-end items-center">
+      <upm-theme-switcher />
+    </div>
   </header>
 
   <pv-drawer
@@ -97,7 +101,7 @@
           <li v-else class="hs-accordion" :id="`accordion-${route.path}`">
             <button
               type="button"
-              class="hs-accordion-toggle hs-accordion-active:text-blue-600 hs-accordion-active:hover:bg-transparent w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-400 dark:hover:text-slate-300 dark:hs-accordion-active:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+              class="hs-accordion-toggle hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-400 dark:hover:text-slate-300 dark:hs-accordion-active:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
             >
               {{ startCase(route.name) }}
 
@@ -141,7 +145,8 @@
                 <li v-for="child in route.children" :key="child.path">
                   <router-link
                     :to="{ name: child.name }"
-                    active-class="bg-primary-content hover:bg-primary-content text-primary"
+                    :exact="true"
+                    exact-active-class="bg-primary-content hover:bg-primary-content text-primary"
                     :class="[
                       'flex',
                       'items-center',
@@ -177,16 +182,16 @@
 
 <script setup lang="ts">
 // --- external
-import { provide, ref, watch } from "vue";
+import { provide, ref } from "vue";
 import { RouterView, useRouter } from "vue-router";
 
 // --- internal
 import LogoIcon from "@/assets/logo.svg";
+import UpmThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
 import PvDrawer from "@/components/Drawer.vue";
 // --- utils
 import { startCase } from "lodash-es";
-import { start } from "repl";
 
 // ---
 const router = useRouter();
@@ -194,16 +199,6 @@ const routes = ref(router.options.routes);
 
 // ---
 
-const activeTheme = ref("");
-const themes = import.meta.env.VITE_THEMES.split(",");
-
-watch(
-  () => activeTheme.value,
-  (theme, current) => {
-    debugger;
-    // TODO: implement theme change
-  }
-);
-
+const activeTheme = ref("simple");
 provide("activeTheme", activeTheme);
 </script>

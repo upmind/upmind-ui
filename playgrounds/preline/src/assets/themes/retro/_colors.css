@@ -96,19 +96,19 @@
   /* Neutral */
   /* ------------------------------------------------------------------------ */
 
-  --color-neutral: #6d6d6d;
-  --color-neutral-50: #f6f6f6;
-  --color-neutral-100: #e7e7e7;
-  --color-neutral-200: #d1d1d1;
-  --color-neutral-300: #b0b0b0;
-  --color-neutral-400: #888888;
-  --color-neutral-500: #6d6d6d;
-  --color-neutral-600: #5d5d5d;
-  --color-neutral-700: #4f4f4f;
-  --color-neutral-800: #424242;
-  --color-neutral-900: #3d3d3d;
-  --color-neutral-950: #262626;
-  --color-neutral-content: #e7e7e7;
+  --color-neutral: #98745a;
+  --color-neutral-50: #f6f3f0;
+  --color-neutral-100: #e9e1d8;
+  --color-neutral-200: #d4c5b4;
+  --color-neutral-300: #bba289;
+  --color-neutral-400: #a78568;
+  --color-neutral-500: #98745a;
+  --color-neutral-600: #825f4c;
+  --color-neutral-700: #6d4c41;
+  --color-neutral-800: #5a3f39;
+  --color-neutral-900: #4f3834;
+  --color-neutral-950: #2c1e1c;
+  --color-neutral-content: #e9e1d8;
 
   /* ------------------------------------------------------------------------ */
   /* Info */
