@@ -59,7 +59,7 @@
   /* Secondary */
   /* ------------------------------------------------------------------------ */
 
-  --color-secondary: #06120c;
+  --color-secondary: #448562;
   --color-secondary-50: #f1f8f4;
   --color-secondary-100: #deede2;
   --color-secondary-200: #bfdbc9;
@@ -71,7 +71,7 @@
   --color-secondary-800: #224334;
   --color-secondary-900: #1c382b;
   --color-secondary-950: #0f1f18;
-  --color-secondary-content: #282425;
+  --color-secondary-content: #f1f8f4;
 
   /* ------------------------------------------------------------------------ */
   /* Tertiary */

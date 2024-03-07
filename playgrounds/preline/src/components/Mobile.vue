@@ -5,7 +5,7 @@
     >
       <div
         :data-theme="activeTheme"
-        class="bg-base-100 text-base-content max-w-full rounded-[1.25rem] overflow-auto h-[667px]"
+        class="bg-base-100 text-base-content max-w-full rounded-[1.25rem] overflow-auto h-[667px] flex flex-wrap"
       >
         <router-view class="view" />
       </div>

@@ -20,7 +20,7 @@
 
     <div
       :data-theme="activeTheme"
-      class="bg-base-100 text-base-content rounded-b-lg max-w-7xl mx-auto min-h-screen"
+      class="bg-base-100 text-base-content border-base-300 border rounded-b-lg max-w-7xl mx-auto min-h-screen flex flex-wrap"
     >
       <router-view class="view" />
     </div>

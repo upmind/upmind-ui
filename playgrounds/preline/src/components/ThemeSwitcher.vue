@@ -82,7 +82,6 @@ export default defineComponent({
     watch(
       () => activeTheme.value,
       (theme, current) => {
-        debugger;
         // TODO: implement theme change
       }
     );
