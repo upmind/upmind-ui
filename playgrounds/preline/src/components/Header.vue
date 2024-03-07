@@ -6,15 +6,14 @@
       class="relative max-w-[85rem] flex flex-wrap basis-full items-center w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
       aria-label="Global"
     >
-      <div class="flex items-center justify-between">
-        <a
-          class="flex-none text-xl font-semibold w-auto h-10"
-          href="/"
-          aria-label="Brand"
-        >
-          <logo-icon class="w-full h-full tetx-primary"></logo-icon>
-        </a>
-      </div>
+      <a
+        class="flex items-center gap-3 justify-between text-xl font-semibold w-auto h-10"
+        href="/"
+        aria-label="Brand"
+      >
+        <logo-icon class="w-full h-full"></logo-icon>
+        <span class="font-mono tracking-widest">LABS</span>
+      </a>
 
       <div class="flex items-center ms-auto sm:ms-0 sm:order-3">
         <div class="sm:hidden">

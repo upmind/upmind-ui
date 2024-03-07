@@ -24,8 +24,6 @@ export default defineComponent({
 
         const safePath = props.path ? `${props.path}/` : "";
 
-        console.debug("safePath", safePath, iconsImport);
-
         const rawIcon =
           await iconsImport[`/src/assets/icons/${safePath}${props.name}.svg`]();
         icon.value = rawIcon;
