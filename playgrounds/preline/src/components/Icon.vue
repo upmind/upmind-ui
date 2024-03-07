@@ -1,5 +1,5 @@
 <template>
-  <i v-if="icon" class="icon inline-flex" v-html="icon" />
+  <i v-if="icon" class="icon flex" v-html="icon" />
 </template>
 
 <script>
