@@ -23,7 +23,7 @@ defineProps<{
 
   <div
     :id="contentId"
-    class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full fixed top-0 start-0 transition-all duration-300 transform h-full max-w-xs w-full w-full z-[60] bg-white border-e dark:bg-gray-800 dark:border-gray-700 hidden"
+    class="hs-overlay hs-overlay-open:translate-x-0 hidden -translate-x-full fixed top-0 start-0 transition-all duration-300 transform h-full max-w-xs w-full z-[60] bg-white border-e dark:bg-gray-800 dark:border-gray-700"
     tabindex="-1"
   >
     <div
@@ -32,12 +32,12 @@ defineProps<{
       <h3 class="font-bold text-gray-800 dark:text-white">{{ title }}</h3>
       <button
         type="button"
-        class="flex justify-center items-center w-7 h-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+        class="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm dark:text-gray-500 dark:hover:text-gray-400 dark:focus:ring-gray-700 dark:focus:ring-offset-gray-800"
         :data-hs-overlay="`#${contentId}`"
       >
-        <span class="sr-only">Close modal</span>
+        <span class="sr-only">Close drawer</span>
         <svg
-          class="flex-shrink-0 w-4 h-4"
+          class="flex-shrink-0 size-4"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"

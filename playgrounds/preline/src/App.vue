@@ -51,7 +51,7 @@
     </header> -->
 
     <pv-drawer
-      contentId="drawer-1"
+      contentId="navbar-secondary-content"
       title="Upmind Flow Demo"
       action="Toggle Navigation"
       no-action
