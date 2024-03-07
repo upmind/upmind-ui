@@ -105,12 +105,12 @@ export const useLoginSchemaParser = () => {
     required: ["email", "password"],
     properties: {
       email: {
-        type: ["string", "null"],
+        type: ["string"],
         format: "email",
         title: "Your email address"
       },
       password: {
-        type: ["string", "null"],
+        type: ["string"],
         format: "password",
         title: "Your password"
       }

@@ -1,41 +1,64 @@
 <template>
-  <div class="px-8 py-1">
-    <h2 class="mb-1 text-2xl font-semibold tracking-tight group text-inherit">
-      Default login page
-      <a
-        href="#default-login-page"
-        class="ml-3 text-primary font-style-italic transition ease-out duration-100 opacity-0 group-hover:opacity-100"
-      >
-        #
-      </a>
-    </h2>
-    <p class="text-lg lg:mb-0 lg:max-w-2xl">
-      This example includes a form with an email and password input accompanied
-      by the logo and other helper texts and links to other authentication
-      pages.
-    </p>
-  </div>
+  <section class="w-full max-w-md mx-auto p-6">
+    <div
+      class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700"
+    >
+      <div class="p-4 sm:p-7">
+        <div class="text-center">
+          <h1 class="block text-2xl font-bold text-gray-800 dark:text-white">
+            Sign {{ meta.showLoginForm ? "in" : "up" }}
+          </h1>
 
-  <!-- <upm-auth
-    v-if="!meta.isAuthenticated"
-    class="my-8 rounded-box"
-    :data-theme="activeTheme"
-  ></upm-auth>
+          <p
+            v-if="meta.showLoginForm"
+            class="mt-2 text-sm text-gray-600 dark:text-gray-400"
+          >
+            Don't have an account yet?
+            <button
+              class="text-primary decoration-2 hover:underline font-medium dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+              @click.prevent="showRegister"
+            >
+              Sign up here
+            </button>
+          </p>
 
-  <upm-profile
-    v-else
-    class="my-8 rounded-box"
-    :data-theme="activeTheme"
-  ></upm-profile> -->
+          <p
+            v-if="meta.showRegisterForm"
+            class="mt-2 text-sm text-gray-600 dark:text-gray-400"
+          >
+            Already have an account?
+            <button
+              class="text-secondary decoration-2 hover:underline font-medium dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+              @click.prevent="showLogin"
+            >
+              Sign in here
+            </button>
+          </p>
+        </div>
+
+        <div class="mt-5">
+          <div
+            class="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-[1_1_0%] before:border-t before:border-gray-200 before:me-6 after:flex-[1_1_0%] after:border-t after:border-gray-200 after:ms-6 dark:text-gray-500 dark:before:border-gray-600 dark:after:border-gray-600"
+          >
+            Or
+          </div>
+
+          <upm-auth-form
+            v-if="!meta.isAuthenticated"
+            class="mt-4 rounded-box gap-y-6"
+            :data-theme="activeTheme"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
+import { inject, onMounted } from "vue";
 import { useSession } from "@upmind/vue";
-import { UpmDebug } from "@upmind/ui";
 
-import UpmAuth from "../components/Auth.vue";
-import UpmProfile from "../components/Profile.vue";
+import UpmAuthForm from "../components/Form.vue";
 
 const activeTheme = inject("activeTheme");
 
@@ -48,9 +71,17 @@ const {
   client,
   guest,
   // ---
+  showLogin,
+  showRegister,
   logout,
   reject,
 } = useSession();
+
+onMounted(() => {
+  if (!meta.isAuthenticated) {
+    showLogin();
+  }
+});
 
 // ---
 </script>

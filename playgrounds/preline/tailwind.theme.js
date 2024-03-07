@@ -34,7 +34,7 @@ let colors = {
 
   base: {
     DEFAULT: "var(--color-base, #ffffff)",
-    100: "var(--color-base-50,#ffffff)",
+    100: "var(--color-base-50,#fafafa)",
     200: "var(--color-base-100,#efefef)",
     300: "var(--color-base-200,#dcdcdc)",
     content: "var(--color-base-content, #000000)",

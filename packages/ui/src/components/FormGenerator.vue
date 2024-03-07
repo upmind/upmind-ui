@@ -1,6 +1,6 @@
 <template>
   <form
-    class="card w-full relative min-h-[3em]"
+    class="card flex flex-col w-full relative min-h-[3em]"
     v-bind="$attrs"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
