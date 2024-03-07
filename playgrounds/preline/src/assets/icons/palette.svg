@@ -1,15 +1,25 @@
-<svg x="0px" y="0px" fill="currentColor" stroke="none" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
-  <g>
-    <path d="M20.788,7.148l-4.027-3.46c0.014,0.322-0.034,0.651-0.153,0.971l-6.221,16.785l10.562-12.18
-		C21.486,8.636,21.414,7.687,20.788,7.148z" />
-  </g>
-  <path d="M14.785,2.383L9.806,0.538C9.931,0.834,10,1.159,10,1.5v18.108l5.67-15.298C15.957,3.536,15.561,2.671,14.785,2.383z" />
-  <g>
-    <circle cx="4.5" cy="21.5" r="0.5" />
-    <path d="M7.5,0h-6C0.673,0,0,0.673,0,1.5v21C0,23.327,0.673,24,1.5,24h6C8.327,24,9,23.327,9,22.5v-21C9,0.673,8.327,0,7.5,0z
-		 M4.5,23C3.673,23,3,22.327,3,21.5S3.673,20,4.5,20S6,20.673,6,21.5S5.327,23,4.5,23z M7,18.5C7,18.776,6.776,19,6.5,19h-4
-		C2.224,19,2,18.776,2,18.5v-4C2,14.224,2.224,14,2.5,14h4C6.776,14,7,14.224,7,14.5V18.5z M7,12.5C7,12.776,6.776,13,6.5,13h-4
-		C2.224,13,2,12.776,2,12.5v-4C2,8.224,2.224,8,2.5,8h4C6.776,8,7,8.224,7,8.5V12.5z M7,6.5C7,6.776,6.776,7,6.5,7h-4
-		C2.224,7,2,6.776,2,6.5v-4C2,2.224,2.224,2,2.5,2h4C6.776,2,7,2.224,7,2.5V6.5z" />
-  </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px"
+	 height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+<g id="Outline_Icons">
+	<g>
+		<path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M3.868,21.132
+			c-4.491-4.491-4.491-11.773,0-16.265c4.491-4.49,11.772-4.49,16.264,0c4.491,4.491,4.491,11.773,0,16.265
+			c-2.147,2.148-5.63,2.148-7.778,0l-4.242-4.243c-0.938-0.938-2.345,0.485-1.414,1.414c0.78,0.781,0.78,2.046,0,2.829
+			C5.916,21.914,4.649,21.914,3.868,21.132z"/>
+		
+			<circle fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="16.242" cy="8.051" r="1.499"/>
+		
+			<circle fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="19" cy="13" r="1"/>
+		
+			<circle fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="16.242" cy="17.95" r="2"/>
+		
+			<circle fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="10.232" cy="6.989" r="1.499"/>
+	</g>
+</g>
+<g id="Invisible_Shape">
+	<rect x="0" fill="none" width="24" height="24"/>
+</g>
 </svg>
