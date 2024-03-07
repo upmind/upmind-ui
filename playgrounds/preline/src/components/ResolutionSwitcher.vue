@@ -9,12 +9,12 @@
         type="button"
         class="flex flex-col place-items-center gap-1 text-xs sm:text-sm text-inherit hover:text-inherit font-medium rounded-lg py-2 px-3"
         :class="{
-          active: activeResolution === resolution,
-          'bg-white': activeResolution === resolution,
-          'text-inherit': activeResolution === resolution,
-          'shadow-sm': activeResolution === resolution,
+          active: active === resolution,
+          'bg-white': active === resolution,
+          'text-inherit': active === resolution,
+          'shadow-sm': active === resolution,
         }"
-        @click.prevent="activeResolution = resolution"
+        @click.prevent="active = resolution"
       >
         <upm-icon path="devices" :name="resolution" class="size-6" />
         <span class="text-xs sr-only">{{ startCase(resolution) }}</span>
@@ -36,35 +36,22 @@
 </template>
 
 <script lang="ts">
-import { inject, watch, defineComponent, computed } from "vue";
-import Popper from "vue3-popper";
+import { inject, defineComponent } from "vue";
 import UpmIcon from "@/components/Icon.vue";
 import { startCase } from "lodash-es";
 
 export default defineComponent({
   name: "ResolutionSwitcher",
   components: {
-    Popper,
     UpmIcon,
   },
   setup() {
-    const activeResolution = inject("activeResolution");
+    const { active } = inject("resolution");
     const resolutions = ["desktop", "tablet", "mobile"];
-
-    watch(
-      () => activeResolution.value,
-      (resolution, current) => {
-        debugger;
-        // TODO: implement resolution change
-      }
-    );
 
     return {
       resolutions,
-      activeResolution,
-      activeResolutionName: computed(() =>
-        startCase(activeResolution.value || "mobile")
-      ),
+      active,
       startCase,
     };
   },

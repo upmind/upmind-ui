@@ -130,19 +130,13 @@
       </nav>
     </pv-drawer>
 
-    <main
-      class="p-8 w-full flex flex-wrap justify-center"
-      :data-theme="activeTheme"
-    >
-      <div class="canvas min-h-screen">
-        <upm-feedback />
-        <upm-desktop v-if="isDesktopResolution" />
-        <upm-tablet v-else-if="isTabletResolution" />
-        <upm-mobile v-else />
-      </div>
+    <main class="w-full flex flex-wrap justify-center">
+      <upm-feedback />
+
+      <router-view class="w-full" />
 
       <footer
-        class="w-full flex items-start justify-center text-center mt-8 py-12 px-4 gap-4 text-sm"
+        class="w-full flex items-start justify-center text-center py-8 px-4 gap-4 text-sm"
       >
         <span>@copyright {{ new Date().getFullYear() }} Upmind Labs.</span>
       </footer>
@@ -156,15 +150,9 @@ import { provide, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
 // --- internal
-import LogoIcon from "@/assets/logo.svg";
-import UpmThemeSwitcher from "@/components/ThemeSwitcher.vue";
-import UpmResolutionSwitcher from "@/components/ResolutionSwitcher.vue";
 import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
 import PvDrawer from "@/components/Drawer.vue";
 import UpmHeader from "@/components/Header.vue";
-import UpmMobile from "@/components/Mobile.vue";
-import UpmTablet from "@/components/Tablet.vue";
-import UpmDesktop from "@/components/Desktop.vue";
 
 // --- utils
 import { startCase } from "lodash-es";
@@ -181,12 +169,15 @@ provide("activeTheme", activeTheme);
 // ---
 
 const activeResolution = ref("desktop");
-provide("activeResolution", activeResolution);
 
-const isDesktopResolution = computed(
-  () => activeResolution.value === "desktop"
-);
-const isTabletResolution = computed(() => activeResolution.value === "tablet");
+provide("resolution", {
+  active: activeResolution,
+  isDesktop: computed(() => activeResolution.value === "desktop"),
+  isTablet: computed(() => activeResolution.value === "tablet"),
+  isMobile: computed(
+    () => !activeResolution.value || activeResolution.value === "mobile"
+  ),
+});
 </script>
 
 <style lang="scss" scoped>

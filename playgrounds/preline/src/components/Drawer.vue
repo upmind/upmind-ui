@@ -1,17 +1,9 @@
-<script setup lang="ts">
-defineProps<{
-  contentId: string;
-  title: string;
-  action: string;
-  noAction: boolean;
-}>();
-</script>
-
 <template>
   <button
     v-if="!noAction"
     type="button"
-    class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+    v-bind="$attrs"
+    class="py-3 px-4 flex items-center gap-x-2 font-semibold rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1"
     :data-hs-overlay="`#${contentId}`"
     :aria-controls="contentId"
     :aria-label="action"
@@ -58,3 +50,29 @@ defineProps<{
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "Drawer",
+  props: {
+    contentId: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    action: {
+      type: String,
+      default: "Open",
+    },
+    noAction: {
+      type: Boolean,
+      default: false,
+    },
+  },
+});
+</script>

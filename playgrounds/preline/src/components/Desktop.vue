@@ -1,5 +1,6 @@
 <template>
   <figure
+    :data-theme="activeTheme"
     class="relative z-[1] max-w-full h-auto rounded-b-lg shadow-[0_2.75rem_3.5rem_-2rem_rgb(45_55_75_/_20%),_0_0_5rem_-2rem_rgb(45_55_75_/_15%)] dark:shadow-[0_2.75rem_3.5rem_-2rem_rgb(0_0_0_/_20%),_0_0_5rem_-2rem_rgb(0_0_0_/_15%)]"
   >
     <div
@@ -18,7 +19,9 @@
           </div> -->
     </div>
 
-    <div class="bg-base-300 rounded-b-lg">
+    <div
+      class="bg-base text-base-content rounded-b-lg max-w-7xl mx-auto min-h-screen"
+    >
       <router-view class="view" />
     </div>
   </figure>
@@ -33,5 +36,6 @@ export default defineComponent({
   components: {
     RouterView,
   },
+  inject: ["activeTheme"],
 });
 </script>
