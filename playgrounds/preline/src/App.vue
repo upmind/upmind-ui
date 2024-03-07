@@ -2,54 +2,6 @@
   <div class="flex flex-wrap justify-center bg-base text-base-content">
     <upm-header></upm-header>
 
-    <!-- <header class="w-full flex items-center justify-center p-4 gap-4">
-      <div class="avatar">
-        <div class="w-auto h-10">
-          <logo-icon class="w-full h-full"></logo-icon>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        :class="[
-          'hover:border-neutral-300',
-          'hover:shadow-lg',
-          'hover:-tranneutral-y-1',
-          'hover:border',
-          // ---
-          'active:border-neutral-600',
-          'active:shadow-lg',
-          'active:-tranneutral-y-0.5',
-          'active:border',
-          // ---
-          'transition-all',
-          'rounded-full',
-          'aspect-square',
-          'p-2',
-        ]"
-        data-hs-overlay="#drawer-1"
-        aria-controls="drawer-1"
-        aria-label="Toggle navigation"
-      >
-        <span class="sr-only">Toggle Navigation</span>
-        <svg
-          class="flex-shrink-0 size-4 h-6 w-6"
-          fill="currentColor"
-          viewBox="0 0 16 16"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
-          />
-        </svg>
-      </button>
-
-      <div class="actions flex-1 flex gap-4 justify-end items-center">
-        <upm-resolution-switcher />
-        <upm-theme-switcher />
-      </div>
-    </header> -->
-
     <pv-drawer
       contentId="navbar-secondary-content"
       title="Upmind Flow Demo"
@@ -178,18 +130,23 @@
       </nav>
     </pv-drawer>
 
-    <main class="container min-h-screen py-8" :data-theme="activeTheme">
-      <upm-feedback />
-      <upm-desktop v-if="isDesktopResolution" />
-      <upm-tablet v-else-if="isTabletResolution" />
-      <upm-mobile v-else />
-    </main>
-
-    <footer
-      class="w-full flex items-start justify-center text-center py-12 px-4 gap-4 text-sm"
+    <main
+      class="p-8 w-full flex flex-wrap justify-center"
+      :data-theme="activeTheme"
     >
-      <span>@copyright {{ new Date().getFullYear() }} Upmind Labs.</span>
-    </footer>
+      <div class="canvas min-h-screen">
+        <upm-feedback />
+        <upm-desktop v-if="isDesktopResolution" />
+        <upm-tablet v-else-if="isTabletResolution" />
+        <upm-mobile v-else />
+      </div>
+
+      <footer
+        class="w-full flex items-start justify-center text-center mt-8 py-12 px-4 gap-4 text-sm"
+      >
+        <span>@copyright {{ new Date().getFullYear() }} Upmind Labs.</span>
+      </footer>
+    </main>
   </div>
 </template>
 
@@ -231,3 +188,11 @@ const isDesktopResolution = computed(
 );
 const isTabletResolution = computed(() => activeResolution.value === "tablet");
 </script>
+
+<style lang="scss" scoped>
+main {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d1d5db' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-position: center;
+  background-attachment: fixed;
+}
+</style>
