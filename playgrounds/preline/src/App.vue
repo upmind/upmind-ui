@@ -220,7 +220,7 @@ provide("activeTheme", activeTheme);
 
 // ---
 
-const activeResolution = ref("mobile");
+const activeResolution = ref("desktop");
 provide("activeResolution", activeResolution);
 
 const isDesktopResolution = computed(
