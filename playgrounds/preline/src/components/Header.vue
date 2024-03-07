@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-white border-b border-gray-200 text-sm py-3 sm:py-4 sticky top-0 dark:bg-gray-800 dark:border-gray-700"
+    class="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-base text-base-content border-b border-gray-200 text-sm py-3 sm:py-4 sticky top-0 dark:bg-gray-800 dark:border-gray-700"
   >
     <nav
       class="relative max-w-[85rem] flex flex-wrap basis-full items-center w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
@@ -8,11 +8,11 @@
     >
       <div class="flex items-center justify-between">
         <a
-          class="flex-none text-xl font-semibold dark:text-white w-auto h-10"
-          href="#"
+          class="flex-none text-xl font-semibold w-auto h-10"
+          href="/"
           aria-label="Brand"
         >
-          <logo-icon class="w-full h-full"></logo-icon>
+          <logo-icon class="w-full h-full tetx-primary"></logo-icon>
         </a>
       </div>
 

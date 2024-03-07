@@ -3,13 +3,13 @@
 	<g id="Outline_Icons_1_">
 		<g id="Outline_Icons">
 			<g>
-				<path fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" d="M23.5,16.5c0,0.55-0.449,1-1,1h-21
+				<path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" d="M23.5,16.5c0,0.55-0.449,1-1,1h-21
 				c-0.55,0-1-0.45-1-1v-13c0-0.55,0.45-1,1-1h21c0.551,0,1,0.45,1,1V16.5z"/>
-				<rect x="2.5" y="4.5" fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="11"/>
+				<rect x="2.5" y="4.5" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="11"/>
 
-				<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="7" y1="20.5" x2="17" y2="20.5"/>
-				<line fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" x1="10.5" y1="17.5" x2="10.5" y2="20.5"/>
-				<line fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" x1="13.5" y1="17.5" x2="13.5" y2="20.5"/>
+				<line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="7" y1="20.5" x2="17" y2="20.5"/>
+				<line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" x1="10.5" y1="17.5" x2="10.5" y2="20.5"/>
+				<line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" x1="13.5" y1="17.5" x2="13.5" y2="20.5"/>
 			</g>
 		</g>
 		<g id="New_icons_1_">
