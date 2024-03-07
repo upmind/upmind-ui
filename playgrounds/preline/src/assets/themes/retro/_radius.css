@@ -1,0 +1,11 @@
+[data-theme="retro"] {
+  --border-radius-xs: 0rem;
+  --border-radius-sm: 0rem;
+  --border-radius-default: 0rem;
+  --border-radius-lg: 0rem;
+  --border-radius-xl: 0rem;
+  --border-radius-full: 0px;
+  --border-radius-pill: 0rem;
+  --border-radius-button: 0rem;
+  --border-radius-box: 0rem;
+}

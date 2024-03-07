@@ -34,9 +34,17 @@ let colors = {
 
   base: {
     DEFAULT: "var(--color-base, #ffffff)",
-    100: "var(--color-base-50,#fafafa)",
+    50: "var(--color-base-50,#fefefe)",
+    100: "var(--color-base-100,#f5f5f5)",
     200: "var(--color-base-100,#efefef)",
     300: "var(--color-base-200,#dcdcdc)",
+    400: "var(--color-base-300,#bcbcbc)",
+    500: "var(--color-base-400,#9e9e9e)",
+    600: "var(--color-base-500,#7e7e7e)",
+    700: "var(--color-base-600,#5e5e5e)",
+    800: "var(--color-base-700,#3e3e3e)",
+    900: "var(--color-base-800,#1e1e1e)",
+    950: "var(--color-base-950,#000000)",
     content: "var(--color-base-content, #000000)",
   },
 
@@ -417,10 +425,15 @@ module.exports = {
 
   borderRadius: {
     none: "0",
-    sm: ".125rem",
-    default: ".25rem",
-    lg: ".5rem",
-    full: "9999px",
+    xs: "var(--border-radius-xs, .0625rem)", // 1px
+    sm: "var(--border-radius-sm, .125rem)", // 2px
+    default: "var(--border-radius-default, .25rem)", // 4px
+    lg: "var(--border-radius-lg, .5rem)", // 8px
+    xl: "var(--border-radius-xl, 1rem)", // 16px
+    full: "var(--border-radius-full, 9999px)", // 9999px,
+    pill: "var(--border-radius-pill, 10em)", // 9999px,
+    button: "var(--border-radius-button, .25rem)", // 4px,
+    box: "var(--border-radius-box, .5rem)", // 8px,
   },
 
   /*
