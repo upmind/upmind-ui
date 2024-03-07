@@ -1,6 +1,8 @@
 <template>
   <div class="flex flex-wrap justify-center bg-base text-base-content">
-    <header class="w-full flex items-center justify-center p-4 gap-4">
+    <upm-header></upm-header>
+
+    <!-- <header class="w-full flex items-center justify-center p-4 gap-4">
       <div class="avatar">
         <div class="w-auto h-10">
           <logo-icon class="w-full h-full"></logo-icon>
@@ -46,7 +48,7 @@
         <upm-resolution-switcher />
         <upm-theme-switcher />
       </div>
-    </header>
+    </header> -->
 
     <pv-drawer
       contentId="drawer-1"
@@ -202,6 +204,7 @@ import UpmThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import UpmResolutionSwitcher from "@/components/ResolutionSwitcher.vue";
 import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
 import PvDrawer from "@/components/Drawer.vue";
+import UpmHeader from "@/components/Header.vue";
 import UpmMobile from "@/components/Mobile.vue";
 import UpmTablet from "@/components/Tablet.vue";
 import UpmDesktop from "@/components/Desktop.vue";

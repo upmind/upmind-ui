@@ -1,15 +1,15 @@
 <template>
   <!-- Popover -->
-  <popper placement="left" :interactive="false">
+  <popper :interactive="false">
     <button
       type="button"
-      class="inline-flex items-center gap-x-2.5 py-3 px-4 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+      class="inline-flex items-center gap-x-2.5 text-sm font-medium rounded-lg hover:text-primary dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
     >
       <upm-icon name="palette" class="flex-shrink-0 size-6" />
       <span>{{ activeThemeName }}</span>
     </button>
     <template #content>
-      <div :class="['rounded-xl', 'shadow-md', 'my-4']">
+      <div :class="['rounded-xl', 'shadow-md', 'm-2']">
         <ul class="flex flex-col sm:flex-row">
           <li
             :class="[
