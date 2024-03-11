@@ -25,6 +25,11 @@ export default {
           name: "buttons",
           component: () => import("../views/ButtonsView.vue"),
         },
+        {
+          path: "form",
+          name: "form",
+          component: () => import("../views/FormView.vue"),
+        },
       ],
     },
   ],

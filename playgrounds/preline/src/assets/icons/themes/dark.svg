@@ -1,0 +1,20 @@
+<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+	<g id="Outline_Icons">
+		<g>
+			<g>
+				<path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M6.5,12
+				c0-5.094,2.806-9.474,6.827-11.42C6.474-0.221,0.5,5.146,0.5,12c0,6.822,5.931,12.213,12.827,11.423
+				C9.305,21.476,6.5,17.096,6.5,12z"/>
+			</g>
+			<path fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" d="M18.5,14.5c-0.008,2.512,1.215,3.942,4,4
+			c-2.584-0.01-3.869,1.375-4,4c-0.021-2.474-1.131-4.002-4-4C17.068,18.465,18.489,17.225,18.5,14.5z"/>
+			<path fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" d="M13.5,8c-0.006,1.57,0.76,2.463,2.5,2.5
+			c-1.615-0.006-2.418,0.86-2.5,2.5c-0.014-1.547-0.707-2.502-2.5-2.5C12.604,10.478,13.494,9.703,13.5,8z"/>
+			<path fill="none" stroke="#000000" stroke-linejoin="round" stroke-miterlimit="10" d="M20.5,1.5c-0.006,1.885,0.912,2.957,3,3
+			c-1.938-0.007-2.902,1.032-3,3c-0.016-1.856-0.85-3.002-3-3C19.425,4.475,20.492,3.544,20.5,1.5z"/>
+		</g>
+	</g>
+	<g id="invisible_shape">
+		<rect fill="none" width="24" height="24"/>
+	</g>
+</svg>

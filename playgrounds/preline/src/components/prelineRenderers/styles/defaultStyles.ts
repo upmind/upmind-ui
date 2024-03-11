@@ -2,22 +2,33 @@ import type { Styles } from "./styles";
 
 export const defaultStyles: Styles = {
   control: {
-    root: "form-control w-full",
-    inline: "justify-start gap-2",
+    root: "grid gap-2 w-full",
+    inline: "flex justify-start gap-2",
     label: {
-      root: "label",
-      text: "label-text",
+      root: "flex place-items-center gap-2",
+      text: "text-sm",
     },
-    input: "input input-bordered",
+    input: "form-input rounded",
+    file: "rounded w-full",
+    password: "rounded w-full",
+    checkbox: "form-checkbox rounded",
+    radio: "form-radio",
+    select: "form-select rounded w-full",
+    textarea: "form-textarea rounded w-full",
+    wrapper: "wrapper relative flex items-center",
+    option: "option",
+    description: "description text-xs mt-2",
+    error: {
+      text: "text-error text-xs",
+      label: "text-error",
+      input: "border-error",
+      wrapper: "error",
+    },
     size: {
       full: "w-full",
       trim: "w-auto",
     },
-    file: "file-input input-bordered w-full",
-    password: "input input-bordered w-full",
-    checkbox: "checkbox",
-    radio: "radio",
-    select: "select select-bordered w-full",
+
     lookup: {
       wrapper: "lookup-wrapper",
       item: "lookup-item",
@@ -31,25 +42,16 @@ export const defaultStyles: Styles = {
       item: "",
     },
     rating: {
-      wrapper: "gap-2",
-      item: "mask-star",
-      item1: "mask-star",
-      item2: "mask-star",
-      item3: "mask-star",
-      item4: "mask-star",
-      item5: "mask-star",
+      wrapper: "flex gap-2",
+      item: "form-radio mask-star-2",
+      item1: "",
+      item2: "",
+      item3: "",
+      item4: "",
+      item5: "",
     },
     dac: {},
-    textarea: "textarea textarea-bordered w-full",
-    wrapper: "wrapper relative flex items-center",
-    option: "option",
-    description: "description text-xs mt-2",
-    error: {
-      text: "text-error",
-      label: "text-error",
-      input: "border-error",
-      wrapper: "error",
-    },
+
     prefix:
       "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -ml-4",
     suffix:
