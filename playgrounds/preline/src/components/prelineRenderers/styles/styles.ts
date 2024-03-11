@@ -60,6 +60,10 @@ export interface Styles {
     option?: string;
     prefix?: string;
     suffix?: string;
+    size?: {
+      full?: string;
+      trim?: string;
+    };
   };
   verticalLayout: {
     root?: string;

@@ -21,7 +21,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@themes': fileURLToPath(new URL('./src/assets/themes', import.meta.url)),
     }
   }
 })

@@ -138,12 +138,12 @@ const uischema = {
             styles: {
               control: {
                 rating: {
-                  item: "mask-star-2",
-                  item1: "bg-green-400",
-                  item2: "bg-lime-400",
-                  item3: "bg-yellow-400",
-                  item4: "bg-orange-400",
-                  item5: "bg-red-400",
+                  item: "form-radio mask-star-2",
+                  item1: "border-green-400 text-green-400",
+                  item2: "border-lime-400 text-lime-400",
+                  item3: "border-yellow-400 text-yellow-400",
+                  item4: "border-orange-400 text-orange-400",
+                  item5: "border-red-400 text-red-400",
                 },
               },
             },
@@ -162,13 +162,7 @@ const uischema = {
         {
           type: "Control",
           scope: "#/properties/recurrenceInterval",
-          options: {
-            styles: {
-              control: {
-                input: "input input-bordered w-auto",
-              },
-            },
-          },
+          options: {},
           rule: {
             effect: "SHOW",
             condition: {
@@ -180,13 +174,7 @@ const uischema = {
         {
           type: "Control",
           scope: "#/properties/done",
-          options: {
-            styles: {
-              control: {
-                checkbox: "checkbox checkbox-primary",
-              },
-            },
-          },
+          options: {},
         },
       ],
     },

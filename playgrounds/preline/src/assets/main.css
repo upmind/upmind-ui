@@ -1,8 +1,18 @@
-@import "@themes";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Upmind Only */
+
+/* -------------------------------------------------------------------------- */
+/* HACK: ensure our themed containers honour the font family */
+[data-theme] {
+  font-family: var(--fontFamily-sans-0), var(--fontFamily-sans-1),
+    var(--fontFamily-sans-2), var(--fontFamily-sans-3), var(--fontFamily-sans-4),
+    var(--fontFamily-sans-5), var(--fontFamily-sans-6), var(--fontFamily-sans-7),
+    var(--fontFamily-sans-8);
+}
+/* -------------------------------------------------------------------------- */
 
 /* HS Only  */
 @layer utilities {

@@ -38,17 +38,17 @@
                 ? ['text-primary', 'hover:bg-white']
                 : ['text-gray-800', 'hover:bg-gray-50'],
             ]"
-            v-for="theme in themes"
+            v-for="(theme, key) in themes"
             :key="theme"
           >
             <button
               type="button"
               class="flex flex-col items-center place-content-center h-full gap-2.5 py-3 px-8 text-sm font-medium text-inherit rounded-lg"
-              @click.prevent="activeTheme = theme"
+              @click.prevent="activeTheme = key"
             >
               <upm-icon
                 path="themes"
-                :name="theme"
+                :name="key"
                 class="flex-shrink-0 size-12"
               />
 
@@ -67,7 +67,8 @@
 import { inject, watch, defineComponent, computed } from "vue";
 import Popper from "vue3-popper";
 import UpmIcon from "@/components/Icon.vue";
-import { startCase } from "lodash-es";
+import themes from "@/assets/themes";
+import { startCase, set, lowerCase, reduce } from "lodash-es";
 
 export default defineComponent({
   name: "ThemeSwitcher",
@@ -77,7 +78,6 @@ export default defineComponent({
   },
   setup() {
     const activeTheme = inject("activeTheme");
-    const themes = import.meta.env.VITE_THEMES.split(",");
 
     watch(
       () => activeTheme.value,
@@ -87,7 +87,17 @@ export default defineComponent({
     );
 
     return {
-      themes,
+      themes: computed(() =>
+        reduce(
+          themes,
+          (result, theme) => {
+            set(result, lowerCase(theme.id), theme.name);
+            return result;
+          },
+          {}
+        )
+      ),
+
       activeTheme,
       activeThemeName: computed(() => startCase(activeTheme.value || "simple")),
       startCase,
