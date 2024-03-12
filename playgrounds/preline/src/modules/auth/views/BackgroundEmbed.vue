@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { useSession } from "@upmind/vue";
-import UpmAuthForm from "../../components/Form.vue";
+import UpmAuthForm from "../components/Form.vue";
 const { meta, showLogin, showRegister } = useSession();
 const activeTheme = inject("activeTheme");
 
