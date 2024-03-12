@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-base text-base-content w-full mx-auto h-full flex flex-wrap"
+    class="bg-base-50 text-base-content w-full mx-auto h-full flex flex-wrap"
     :data-theme="activeTheme"
   >
     <div
