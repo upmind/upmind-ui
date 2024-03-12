@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="view max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 min-h-screen"
-  >
+  <article class="view max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
     <header class="view-header max-w-3xl">
       <p v-if="flow" class="view-flow mb-2 text-sm font-semibold text-primary">
         {{ flow }}
@@ -54,28 +52,31 @@
       </div>
     </header>
 
-    <div class="canvas w-full min-h-screen my-12">
+    <div class="canvas w-full my-12">
       <figure
-        class="relative z-[1] max-w-full rounded-b-lg shadow-[0_2.75rem_3.5rem_-2rem_rgb(45_55_75_/_20%),_0_0_5rem_-2rem_rgb(45_55_75_/_15%)] dark:shadow-[0_2.75rem_3.5rem_-2rem_rgb(0_0_0_/_20%),_0_0_5rem_-2rem_rgb(0_0_0_/_15%)]"
+        class="relative z-[1] max-w-full border border-base-300 rounded-md shadow-[0_2.75rem_3.5rem_-2rem_rgb(45_55_75_/_20%),_0_0_5rem_-2rem_rgb(45_55_75_/_15%)] dark:shadow-[0_2.75rem_3.5rem_-2rem_rgb(0_0_0_/_20%),_0_0_5rem_-2rem_rgb(0_0_0_/_15%)]"
       >
         <div
-          class="relative flex gap-12 justify-start items-center bg-base-300 rounded-t-lg py-2 px-4 dark:bg-base-200"
+          class="relative flex gap-12 justify-between items-center bg-base-50 rounded-t-lg py-2 px-4 border-b border-base-300"
         >
-          <div class="flex gap-1">
-            <span class="size-2 bg-error rounded-full"></span>
-            <span class="size-2 bg-warning rounded-full"></span>
-            <span class="size-2 bg-success rounded-full"></span>
+          <div class="flex gap-2">
+            <span class="size-3 bg-error rounded-full"></span>
+            <span class="size-3 bg-warning rounded-full"></span>
+            <span class="size-3 bg-success rounded-full"></span>
           </div>
 
-          <!-- <div
-            class="flex-1 rounded-xl text-xs py-1 px-4 bg-base-100 text-base-content"
+          <div
+            class="flex-1 rounded-lg text-sm text-center py-2 px-4 bg-base-100 text-base-content max-w-lg"
           >
             www.upmind.com
-          </div> -->
+          </div>
+
+          <button></button>
         </div>
 
         <div
-          class="transition-all relative bg-base-100 text-base-content border-base-300 border rounded-b-lg mx-auto overflow-auto"
+          :data-theme="activeTheme"
+          class="transition-all relative bg-base-100 text-base-content rounded-b-md mx-auto overflow-auto"
           :class="{
             'w-full h-screen': isDesktop,
             'w-[768px] h-[1024px]': isTablet,
@@ -140,7 +141,7 @@ export default defineComponent({
       required: false,
     },
   },
-
+  inject: ["activeTheme"],
   components: {
     UpmDebug,
     PvDrawer,
