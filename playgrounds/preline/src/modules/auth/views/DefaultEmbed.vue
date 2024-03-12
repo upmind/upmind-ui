@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full max-w-md mx-auto p-6 items-center h-full flex flex-wrap"
+    class="w-full h-screen overflow-auto max-w-md mx-auto p-6 items-center flex flex-wrap"
     :data-theme="activeTheme"
   >
     <div
@@ -47,7 +47,7 @@
 import { inject } from "vue";
 
 import { useSession } from "@upmind/vue";
-import UpmAuthForm from "../../components/Form.vue";
+import UpmAuthForm from "../components/Form.vue";
 const { meta, showLogin, showRegister } = useSession();
 
 const activeTheme = inject("activeTheme");

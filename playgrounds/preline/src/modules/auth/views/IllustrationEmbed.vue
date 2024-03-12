@@ -1,11 +1,21 @@
 <template>
   <div
-    class="w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-wrap"
+    class="bg-base-100 text-base-content w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-wrap"
     :data-theme="activeTheme"
   >
     <div
-      class="h-full w-full grid md:grid-cols-2 gap-4 md:gap-8 xl:gap-12 items-center"
+      class="h-screen overflow-auto w-full md:grid md:grid-cols-2 md:gap-8 xl:gap-12 md:items-center"
     >
+      <div
+        class="col-span-1 relative h-1/4 sm:h-1/3 md:h-full w-full lg:order-last"
+      >
+        <img
+          class="w-full h-full object-contain m-0 p-8"
+          :src="`/illustration-${activeTheme}.svg`"
+          alt="Illustration of a person entering a password"
+        />
+      </div>
+
       <div class="col-span-1 py-8 px-4 sm:px-6 lg:px-8">
         <div
           class="bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-sm"
@@ -48,14 +58,6 @@
           <upm-auth-form v-if="!meta.isAuthenticated" class="gap-y-8" />
         </div>
       </div>
-
-      <div class="col-span-1 relative h-full w-full order-first lg:order-none">
-        <img
-          class="w-full h-full object-contain m-0 p-8"
-          :src="`/illustration-${activeTheme}.svg`"
-          alt="Illustration of a person entering a password"
-        />
-      </div>
     </div>
   </div>
 </template>
@@ -63,7 +65,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { useSession } from "@upmind/vue";
-import UpmAuthForm from "../../components/Form.vue";
+import UpmAuthForm from "../components/Form.vue";
 const { meta, showLogin, showRegister } = useSession();
 const activeTheme = inject("activeTheme");
 

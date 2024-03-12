@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { inject, computed } from "vue";
 import { useRoute } from "vue-router";
-import UpmView from "@/components/View.vue";
+import UpmView from "@/views/ChildView.vue";
 
 const activeTheme = inject("activeTheme");
 const { fullPath, meta } = useRoute();

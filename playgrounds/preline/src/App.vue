@@ -141,7 +141,7 @@
     <main class="w-full flex flex-wrap justify-center">
       <upm-feedback />
 
-      <router-view class="w-full" />
+      <router-view class="w-full" :key="route.fullPath" />
 
       <footer
         class="w-full flex items-start justify-center text-center py-8 px-4 gap-4 text-sm"
@@ -179,7 +179,7 @@ provide("activeTheme", activeTheme);
 
 watch(route, () => {
   isEmbed.value = !!route?.query?.embed;
-  activeTheme.value = route?.query?.theme || "simple";
+  activeTheme.value = route?.query?.theme || activeTheme.value || "simple";
 });
 // ---
 
