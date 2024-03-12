@@ -1,37 +1,24 @@
 <template>
-  <section class="forms w-full">
-    <header class="navbar bg-base-100 pl-4 rounded-box">
-      <div class="flex-1">
-        <h2 class="title m-0">Form Demo</h2>
-      </div>
-
-      <div class="actions flex-none join">
-        <slot name="actions"> </slot>
-      </div>
-    </header>
-
-    <p>This will render a JSON form that is generated from a JSON schema.</p>
-
-    <div :data-theme="activeTheme" class="bg-base-200 rounded-box my-8">
+  <upm-view
+    name="styleguide"
+    title="Basic Form Example"
+    description="This is a simple implementation of our forms with standard fields and validation. It is used to demonstrate the usage of the form generator and the form components."
+    flow="Stylguide"
+  >
+    <section class="w-full p-6">
       <upm-form-generator
         :schema="schema"
         :uischema="uischema"
         @reject="doReject"
         @resolve="doResolve"
-        debugging
-        class="p-4 gap-8"
       />
-    </div>
-
-    <footer></footer>
-  </section>
+    </section>
+  </upm-view>
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
+import UpmView from "@/components/View.vue";
 import UpmFormGenerator from "@/components/FormGenerator.vue";
-
-const activeTheme = inject("activeTheme");
 
 const useDate = val => {
   const date = val ? new Date(Date.parse(val)) : new Date();

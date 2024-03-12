@@ -6,7 +6,10 @@ const activeTheme = inject("activeTheme");
 
 <template>
   <section>
-    <div class="content bg-base-200 rounded-box px-4" :data-theme="activeTheme">
+    <div
+      class="content bg-base-200 text-base-content rounded-box px-4"
+      :data-theme="activeTheme"
+    >
       <the-welcome />
     </div>
   </section>

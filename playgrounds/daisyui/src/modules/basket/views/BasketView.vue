@@ -181,7 +181,7 @@
       <!-- items -->
       <section
         id="items"
-        class="items col-span-5 order-0 grid grid-cols-card card-bordered gap-4 items-start"
+        class="items col-span-5 order-0 p-8 card-bordered grid gap-4 items-start"
       >
         <h3
           class="col-span-full text-inherit uppercase text-xl mt-2 mb-0 opacity-50"

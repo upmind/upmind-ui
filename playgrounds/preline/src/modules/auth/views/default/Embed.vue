@@ -1,7 +1,10 @@
 <template>
-  <section class="w-full max-w-md mx-auto p-6 self-center">
+  <div
+    class="w-full max-w-md mx-auto p-6 items-center h-full flex flex-wrap"
+    :data-theme="activeTheme"
+  >
     <div
-      class="bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-lg"
+      class="w-full bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-lg"
     >
       <div class="text-center">
         <h3 class="block text-2xl font-bold text-inherit">
@@ -37,13 +40,17 @@
 
       <upm-auth-form v-if="!meta.isAuthenticated" class="rounded-box gap-y-8" />
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { inject } from "vue";
+
 import { useSession } from "@upmind/vue";
-import UpmAuthForm from "../components/Form.vue";
+import UpmAuthForm from "../../components/Form.vue";
 const { meta, showLogin, showRegister } = useSession();
+
+const activeTheme = inject("activeTheme");
 
 // Lets automatically show the login form and not wait for the user to click the login button
 if (!meta.isAuthenticated) showLogin();

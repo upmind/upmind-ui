@@ -3,7 +3,7 @@ export default {
     {
       path: "/styleguide",
       name: "styleguide",
-      component: () => import("../views/StyleGuideView.vue"),
+      component: () => import("../views/index.vue"),
       children: [
         {
           path: "",
