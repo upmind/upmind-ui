@@ -7,34 +7,19 @@
       class="h-screen overflow-auto w-full md:grid md:grid-cols-2 md:gap-8 xl:gap-12"
     >
       <div
-        class="flex flex-wrap content-center bg-gradient-to-bl from-neutral to-primary-900 text-neutral-content lg:order-last p-4 sm:p-6 lg:p-8"
+        class="flex flex-wrap content-center bg-gradient-to-bl from-neutral to-primary-900 text-neutral-content lg:order-last py-12 px-6 sm:px-6 lg:px-8"
       >
         <h1
-          class="block text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight dark:text-white"
+          class="block text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight dark:text-white max-w-lg"
         >
           Start your journey with <span class="text-primary">Upmind</span>
         </h1>
-        <p class="mt-3 text-lg">
-          Hand-picked professionals and expertly crafted components, designed
-          for any kind of entrepreneur.
+        <p class="mt-3 text-lg max-w-lg">
+          Entrepreneurs from around the world showcase and sell their services
+          on Upmind - the home to the world’s best billing, sales and automation
+          platform for service businesses.
         </p>
 
-        <!-- Buttons -->
-        <div class="mt-7 grid gap-3 w-full sm:inline-flex">
-          <a
-            class="py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary text-white hover:bg-primary-800 disabled:opacity-50 disabled:pointer-events-none"
-            href="#"
-          >
-            Get started
-            <upm-icon name="chevron-right" class="flex-shrink-0 size-4" />
-          </a>
-          <a
-            class="py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-base text-inherit hover:text-primary hover:border-primary disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-            href="#"
-          >
-            Contact sales team
-          </a>
-        </div>
         <!-- End Buttons -->
       </div>
 
