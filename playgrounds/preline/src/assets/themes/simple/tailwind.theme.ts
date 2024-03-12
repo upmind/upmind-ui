@@ -319,6 +319,7 @@ export default {
   */
 
   borderRadius: {
+    DEFAULT: ".25rem",
     none: "0",
     xs: ".0625rem", // 1px
     sm: ".125rem", // 2px

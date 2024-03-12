@@ -19,10 +19,9 @@
     </div>
 
     <div
-      :data-theme="activeTheme"
-      class="bg-base-100 text-base-content border-base-300 border rounded-b-lg max-w-7xl mx-auto min-h-screen flex flex-wrap"
+      class="transition-all relative bg-base-100 text-base-content border-base-300 border rounded-b-lg max-w-7xl mx-auto h-screen"
     >
-      <router-view class="view" />
+      <object :data="url" class="absolute w-full h-full"></object>
     </div>
   </figure>
 </template>
@@ -33,6 +32,12 @@ import { RouterView } from "vue-router";
 
 export default defineComponent({
   name: "UpmDesktop",
+  props: {
+    url: {
+      type: String,
+      required: true,
+    },
+  },
   components: {
     RouterView,
   },

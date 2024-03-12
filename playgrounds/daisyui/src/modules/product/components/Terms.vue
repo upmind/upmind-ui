@@ -1,7 +1,7 @@
 <template>
   <section class="terms" v-if="terms?.length">
     <ul
-      class="w-full list-none p-0 stats stats-vertical border border-base-300 bg-base-200 bg-opacity-30"
+      class="w-full list-none p-0 stats border border-base-300 bg-base-200 bg-opacity-30"
     >
       <li
         v-for="term in terms"

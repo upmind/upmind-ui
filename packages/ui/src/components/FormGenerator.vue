@@ -52,16 +52,6 @@
       </slot>
     </div>
   </form>
-
-  <!-- debug -->
-  <upm-debug
-    v-if="debugging"
-    title="Form"
-    :open="{ state: true }"
-    :state="model"
-    :errors="errors"
-    :context="{ schema, uischema }"
-  ></upm-debug>
 </template>
 
 <script lang="ts">
@@ -69,7 +59,6 @@ import type { PropType } from "vue";
 import { defineComponent, unref, toRaw } from "vue";
 
 import { utils } from "@upmind/flow";
-import { UpmDebug } from "./";
 
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import { JsonForms } from "@jsonforms/vue";
@@ -117,7 +106,6 @@ export default defineComponent({
   name: "FormGenerator",
   components: {
     JsonForms,
-    UpmDebug,
   },
   inheritAttrs: true,
   props: {
@@ -135,10 +123,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    debugging: {
-      type: Boolean,
-      default: false,
-    },
+
     loading: {
       type: Boolean,
       default: false,

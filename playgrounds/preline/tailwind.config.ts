@@ -25,9 +25,17 @@ export default {
   ],
   theme: {
     extend: {
-      sans: ['"Proxima Nova"', ...defaultTheme.fontFamily.sans],
-      serif: ['"Proxima Nova"', ...defaultTheme.fontFamily.serif],
-      mono: ['"Proxima Nova"', ...defaultTheme.fontFamily.mono],
+      // that is animation class
+      animation: {
+        fade: "fadeOut 300ms ease-in-out",
+      },
+      // that is actual animation
+      keyframes: theme => ({
+        fadeOut: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+      }),
     },
   },
   plugins: [
@@ -45,4 +53,5 @@ export default {
     }),
     preline,
   ],
+  safelist: ["object-cover", "opacity-40"],
 } satisfies Config;
