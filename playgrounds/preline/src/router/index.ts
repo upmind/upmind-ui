@@ -13,7 +13,7 @@ declare global {
 }
 
 // --- internal
-import HomeView from "@/views/HomeView.vue";
+import HomeView from "@/views/Index.vue";
 
 // --- utils
 import { get } from "lodash-es";

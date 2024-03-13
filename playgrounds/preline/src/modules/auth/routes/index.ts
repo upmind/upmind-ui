@@ -1,4 +1,5 @@
-import ParentView from "@/views/ParentView.vue";
+import PageView from "@/views/PageView.vue";
+import NestedView from "@/views/NestedView.vue";
 // -------------------------------------------------------------------------
 
 export default {
@@ -6,13 +7,13 @@ export default {
     {
       path: "/auth-flow",
       name: "auth-flow",
-      component: () => import("../views/index.vue"),
+      component: NestedView,
       children: [
         // --- Default ---
         {
           path: "",
           name: "auth-default",
-          component: ParentView,
+          component: PageView,
           meta: {
             name: "auth",
             title: "Default view for authentication",
@@ -31,7 +32,7 @@ export default {
         {
           path: "illustration",
           name: "auth-illustration",
-          component: ParentView,
+          component: PageView,
           meta: {
             name: "auth",
             title: "Login form with illustration ",
@@ -50,7 +51,7 @@ export default {
         {
           path: "background",
           name: "auth-background",
-          component: ParentView,
+          component: PageView,
           meta: {
             name: "auth",
             title: "Login form with background ",
@@ -69,7 +70,7 @@ export default {
         {
           path: "marketing",
           name: "auth-marketing",
-          component: ParentView,
+          component: PageView,
           meta: {
             name: "auth",
             title: "Login form with marketing content ",
