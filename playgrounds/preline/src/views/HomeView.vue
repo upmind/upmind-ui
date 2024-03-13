@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import TheWelcome from "../components/TheWelcome.vue";
 const activeTheme = inject("activeTheme");
 </script>
 
@@ -9,9 +8,6 @@ const activeTheme = inject("activeTheme");
     <div
       class="content bg-base-200 text-base-content rounded-box px-4"
       :data-theme="activeTheme"
-    >
-      <the-welcome />
-    </div>
+    ></div>
   </section>
 </template>
-../components.origin/TheWelcome.vue
