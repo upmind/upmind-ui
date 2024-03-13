@@ -16,9 +16,9 @@ export default {
           component: PageView,
           meta: {
             name: "auth",
-            title: "Default view for authentication",
+            title: "Simple form",
             description:
-              "This is a simple example of a page with a form for login and a form for registration.",
+              "This is the default signin/signup form. It's a good starting point for your authentication flow.",
             flow: "Authentication Flow",
           },
         },
@@ -35,9 +35,10 @@ export default {
           component: PageView,
           meta: {
             name: "auth",
-            title: "Login form with illustration ",
+            title: "Form with illustration ",
             description:
-              "Use this example to complement the login form with a visually impactful 3D illustration.",
+              "An implementation to show a complimentary illustration next to the signin/signup form.",
+
             flow: "Authentication Flow",
           },
         },
@@ -54,9 +55,9 @@ export default {
           component: PageView,
           meta: {
             name: "auth",
-            title: "Login form with background ",
+            title: "Form with background ",
             description:
-              "Use this example to show a background image on the whole page with the login form in the center of it.",
+              "An implementation to show a background image on the whole page with the signin/signup form in the center of it.",
             flow: "Authentication Flow",
           },
         },
@@ -73,9 +74,9 @@ export default {
           component: PageView,
           meta: {
             name: "auth",
-            title: "Marketing SignUp Banner",
+            title: "Form with Marketing",
             description:
-              "Use this markting banner to promote the sign up form with some compelling copy.",
+              "An implementation to show a marketing banner to promote the signup with some compelling copy.",
             flow: "Authentication Flow",
           },
         },
