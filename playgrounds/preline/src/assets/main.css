@@ -4,6 +4,11 @@
 
 /* Upmind Only */
 
+html,
+body,
+#app {
+  min-height: 100vh;
+}
 /* -------------------------------------------------------------------------- */
 /* HACK: ensure our themed containers honour the font family */
 [data-theme] {

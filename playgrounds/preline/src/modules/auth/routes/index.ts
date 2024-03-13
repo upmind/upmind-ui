@@ -9,10 +9,10 @@ export default {
       name: "auth-flow",
       component: NestedView,
       children: [
-        // --- Default ---
+        // --- Simple ---
         {
           path: "",
-          name: "auth-default",
+          name: "auth-simple",
           component: PageView,
           meta: {
             name: "auth",
@@ -24,8 +24,8 @@ export default {
         },
         {
           path: "embed",
-          name: "auth-default-embed",
-          component: () => import("../views/DefaultEmbed.vue"),
+          name: "auth-simple-embed",
+          component: () => import("../views/SimpleEmbed.vue"),
           meta: { hidden: true },
         },
         // --- Illustration ---
