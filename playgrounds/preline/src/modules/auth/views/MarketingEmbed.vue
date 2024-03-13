@@ -10,7 +10,7 @@
         class="flex flex-wrap content-center bg-gradient-to-bl from-neutral to-primary-900 text-neutral-content lg:order-last py-12 px-6 sm:px-6 lg:px-8"
       >
         <h1
-          class="block text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight dark:text-white max-w-lg"
+          class="block text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight max-w-lg"
         >
           Start your journey with <span class="text-primary">Upmind</span>
         </h1>

@@ -45,11 +45,6 @@
                   'rounded',
                   'text-neutral-900',
                   'hover:bg-neutral-50',
-                  'dark:bg-neutral-900',
-                  'dark:text-white',
-                  'dark:focus:outline-none',
-                  'dark:focus:ring-1',
-                  'dark:focus:ring-neutral-600',
                 ]"
               >
                 {{ startCase(route.name) }}
@@ -63,12 +58,12 @@
             >
               <button
                 type="button"
-                class="hs-accordion-toggle hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-base-300 dark:hover:bg-gray-900 dark:text-slate-400 dark:hover:text-slate-300 dark:hs-accordion-active:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                class="hs-accordion-toggle hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100"
               >
                 {{ startCase(route.name) }}
 
                 <svg
-                  class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500 dark:text-gray-400"
+                  class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
@@ -83,7 +78,7 @@
                 </svg>
 
                 <svg
-                  class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500 dark:text-gray-400"
+                  class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
                   width="16"
                   height="16"
                   viewBox="0 0 16 16"
@@ -119,11 +114,6 @@
                           'rounded',
                           'text-neutral-900',
                           'hover:bg-neutral-50',
-                          'dark:bg-neutral-900',
-                          'dark:text-white',
-                          'dark:focus:outline-none',
-                          'dark:focus:ring-1',
-                          'dark:focus:ring-neutral-600',
                         ]"
                       >
                         {{ startCase(child.name) }}

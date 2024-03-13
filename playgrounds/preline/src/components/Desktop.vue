@@ -1,9 +1,9 @@
 <template>
   <figure
-    class="relative z-[1] max-w-full h-auto rounded-b-lg shadow-[0_2.75rem_3.5rem_-2rem_rgb(45_55_75_/_20%),_0_0_5rem_-2rem_rgb(45_55_75_/_15%)] dark:shadow-[0_2.75rem_3.5rem_-2rem_rgb(0_0_0_/_20%),_0_0_5rem_-2rem_rgb(0_0_0_/_15%)]"
+    class="relative z-[1] max-w-full h-auto rounded-b-lg shadow-[0_2.75rem_3.5rem_-2rem_rgb(45_55_75_/_20%),_0_0_5rem_-2rem_rgb(45_55_75_/_15%)]"
   >
     <div
-      class="relative flex gap-12 justify-start items-center bg-base-300 rounded-t-lg py-2 px-4 dark:bg-base-200"
+      class="relative flex gap-12 justify-start items-center bg-base-300 rounded-t-lg py-2 px-4"
     >
       <div class="flex gap-1">
         <span class="size-2 bg-error rounded-full"></span>

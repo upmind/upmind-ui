@@ -174,7 +174,7 @@ export default defineComponent({
 .message-error {
   // @apply bg-error;
   // @apply text-error-content;
-  // @apply bg-gray-100 dark:bg-gray-900 p-4 text-gray-900 dark:text-gray-50 rounded-full placeholder:text-gray-500 border border-transparent;
+  // @apply bg-gray-100 p-4 text-gray-900  rounded-full placeholder:text-gray-500 border border-transparent;
 }
 
 .message-success {
