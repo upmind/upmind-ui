@@ -2,8 +2,8 @@
   <button
     v-if="!noAction"
     type="button"
+    class="flex items-center gap-x-2 font-semibold disabled:opacity-50 disabled:pointer-events-none"
     v-bind="$attrs"
-    class="py-3 px-4 flex items-center gap-x-2 font-semibold disabled:opacity-50 disabled:pointer-events-none"
     :data-hs-overlay="`#${contentId}`"
     :aria-controls="contentId"
     :aria-label="action"

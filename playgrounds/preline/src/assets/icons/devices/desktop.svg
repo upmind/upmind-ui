@@ -1,21 +1,10 @@
-<!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
-	<g id="Outline_Icons_1_">
-		<g id="Outline_Icons">
-			<g>
-				<path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" d="M23.5,16.5c0,0.55-0.449,1-1,1h-21
-				c-0.55,0-1-0.45-1-1v-13c0-0.55,0.45-1,1-1h21c0.551,0,1,0.45,1,1V16.5z"/>
-				<rect x="2.5" y="4.5" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" width="19" height="11"/>
-
-				<line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="7" y1="20.5" x2="17" y2="20.5"/>
-				<line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" x1="10.5" y1="17.5" x2="10.5" y2="20.5"/>
-				<line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-miterlimit="10" x1="13.5" y1="17.5" x2="13.5" y2="20.5"/>
-			</g>
-		</g>
-		<g id="New_icons_1_">
-		</g>
-	</g>
-	<g id="Invisible_Shape">
-		<rect fill="none" width="24" height="24"/>
-	</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Monitor--Streamline-Ultimate.svg">
+  <desc>Monitor Streamline Icon: https://streamlinehq.com</desc>
+  <defs></defs>
+  <title>monitor</title>
+  <path d="M9 22.5a6.979 6.979 0 0 0 1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M15 22.5a6.979 6.979 0 0 1 -1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="m7.499 22.5 9 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="m0.5 15.5 23 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M1.5 1.5h21s1 0 1 1v15s0 1 -1 1h-21s-1 0 -1 -1v-15s0 -1 1 -1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
 </svg>
