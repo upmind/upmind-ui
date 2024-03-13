@@ -73,9 +73,9 @@ export default {
           component: PageView,
           meta: {
             name: "auth",
-            title: "Login form with marketing content ",
+            title: "Marketing SignUp Banner",
             description:
-              "Use this example of a page layout with two columns where on one side there is a login form and the other side a description of the website.",
+              "Use this markting banner to promote the sign up form with some compelling copy.",
             flow: "Authentication Flow",
           },
         },
