@@ -6,21 +6,18 @@
       </p>
       <h1
         v-if="title"
-        class="view-title block text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white"
+        class="view-title block text-2xl font-bold text-gray-800 sm:text-3xl"
       >
         {{ title }}
       </h1>
-      <p
-        v-if="description"
-        class="view-description mt-2 text-lg text-gray-800 dark:text-gray-400"
-      >
+      <p v-if="description" class="view-description mt-2 text-lg text-gray-800">
         {{ description }}
       </p>
       <div
         class="view-actions mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3"
       >
         <button
-          class="w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+          class="w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
           disabled
         >
           <upm-icon name="code" class="size-4 stroke-current" />

@@ -3,7 +3,7 @@
     v-if="!noAction"
     type="button"
     v-bind="$attrs"
-    class="py-3 px-4 flex items-center gap-x-2 font-semibold rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1"
+    class="py-3 px-4 flex items-center gap-x-2 font-semibold rounded-lg disabled:opacity-50 disabled:pointer-events-none"
     :data-hs-overlay="`#${contentId}`"
     :aria-controls="contentId"
     :aria-label="action"
@@ -15,16 +15,14 @@
 
   <div
     :id="contentId"
-    class="hs-overlay hs-overlay-open:translate-x-0 hidden -translate-x-full fixed top-0 start-0 transition-all duration-300 transform h-full max-w-xs w-full z-[60] bg-white border-e dark:bg-gray-800 dark:border-gray-700"
+    class="hs-overlay hs-overlay-open:translate-x-0 hidden -translate-x-full fixed top-0 start-0 transition-all duration-300 transform h-full max-w-xs w-full z-[60] bg-white border-e"
     tabindex="-1"
   >
-    <div
-      class="flex justify-between items-center py-3 px-4 border-b dark:border-gray-700"
-    >
-      <h3 class="font-bold text-gray-800 dark:text-white">{{ title }}</h3>
+    <div class="flex justify-between items-center py-3 px-4 border-b">
+      <h3 class="font-bold text-gray-800">{{ title }}</h3>
       <button
         type="button"
-        class="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm dark:text-gray-500 dark:hover:text-gray-400 dark:focus:ring-gray-700 dark:focus:ring-offset-gray-800"
+        class="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm"
         :data-hs-overlay="`#${contentId}`"
       >
         <span class="sr-only">Close drawer</span>
