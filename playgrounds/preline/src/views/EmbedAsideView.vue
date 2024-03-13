@@ -1,51 +1,49 @@
 <template>
-  <article class="view w-full grid grid-cols-4 h-full overflow-hidden">
+  <article class="view w-full grid grid-cols-4 gap-4 h-full overflow-hidden">
     <aside
-      class="rounded pr-8 border-e border-neutral-200 bg-neutral-50 py-10 px-4 sm:px-6 lg:px-8 relative h-full overflow-auto"
+      class="rounded pr-8 border-e border-neutral-200 bg-neutral-50 py-12 px-4 sm:px-8 lg:px-12 relative h-full overflow-auto"
     >
       <header class="view-header mb-8">
         <p
           v-if="flow"
-          class="view-flow mb-2 text-sm font-semibold text-primary"
+          class="view-flow mb-2 text-xs font-semibold text-neutral-400 uppercase tracking-wide"
         >
           {{ flow }}
         </p>
 
         <h1
           v-if="title"
-          class="view-title block text-2xl font-bold text-gray-800 sm:text-3xl"
+          class="view-title block text-xl font-bold text-neutral sm:text-3xl"
         >
           {{ title }}
         </h1>
 
         <p
           v-if="description"
-          class="view-description mt-2 text-lg text-gray-800"
+          class="view-description mt-2 text-sm text-neutral-500"
         >
           {{ description }}
         </p>
 
-        <div
-          class="view-actions mt-5 flex flex-col items-center gap-2 sm:gap-3"
-        >
+        <div class="view-actions my-8 flex items-center gap-2 sm:gap-3">
           <button
-            class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
+            class="py-3 px-4 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-neutral text-white hover:bg-neutral disabled:opacity-50 disabled:pointer-events-none transition-colors"
             disabled
           >
             <upm-icon name="code" class="size-4 stroke-current" />
 
-            Show code
+            <span class="sr-only">Show code</span>
           </button>
 
           <pv-drawer
             contentId="debug-auth-flow"
             title="Debug Auth Flow"
             action="Debug"
-            class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary text-primary bg-transparent hover:bg-primary-700 hover:text-primary-content transition-colors"
+            class="py-3 px-4 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-neutral text-neutral bg-transparent hover:bg-neutral hover:text-neutral-content transition-colors"
           >
             <template #action>
               <upm-icon name="debug" class="size-4 fill-current -mt-1" />
-              <span>Debug Auth Flow</span>
+              <span class="sr-only">Debug Auth Flow</span>
             </template>
 
             <upm-debug
@@ -66,20 +64,26 @@
           class="hs-accordion-group w-full flex flex-col flex-wrap"
           data-hs-accordion-always-open
         >
+          <div
+            class="mb-5 py-3 flex items-center text-xs text-neutral-300 uppercase before:flex-[1_1_0%] before:border-t before:border-neutral-200 before:me-6 after:flex-[1_1_0%] after:border-t after:border-neutral-200 after:ms-6"
+          >
+            Options
+          </div>
+
           <ul class="space-y-4">
             <li>
               <span
-                class="flex flex-wrap justify-between py-2 text-xs text-base-500"
+                class="flex flex-wrap justify-between py-2 text-xs text-neutral-500 uppercase"
               >
-                Layout
+                Layout Variants
               </span>
 
               <div class="flex flex-col rounded-lg">
                 <router-link
-                  active-class="bg-primary"
                   :to="{ name: 'auth-simple' }"
                   type="button"
-                  class="py-3 px-4 flex items-center gap-x-2 rounded-t-md text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="py-3 px-4 flex items-center gap-x-2 rounded-t-md text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Simple
                 </router-link>
@@ -87,7 +91,8 @@
                 <router-link
                   :to="{ name: 'auth-illustration' }"
                   type="button"
-                  class="-mt-px py-3 px-4 flex items-center gap-x-2 text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="-mt-px py-3 px-4 flex items-center gap-x-2 text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Illustration
                 </router-link>
@@ -95,7 +100,8 @@
                 <router-link
                   :to="{ name: 'auth-background' }"
                   type="button"
-                  class="-mt-px py-3 px-4 flex items-center gap-x-2 text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="-mt-px py-3 px-4 flex items-center gap-x-2 text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Background
                 </router-link>
@@ -103,13 +109,14 @@
                 <router-link
                   :to="{ name: 'auth-marketing' }"
                   type="button"
-                  class="-mt-px py-3 px-4 flex items-center gap-x-2 rounded-b-md text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="-mt-px py-3 px-4 flex items-center gap-x-2 rounded-b-md text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Marketing
                 </router-link>
               </div>
 
-              <p class="py-2 text-xs text-base-500">
+              <p class="py-2 text-xs text-neutral-300">
                 Choose a layout to see how the auth flow can be customized.
               </p>
             </li>
@@ -121,7 +128,7 @@
     <div class="h-full canvas col-span-3 py-8 px-4 sm:px-6 lg:px-6">
       <!-- <div class="canvas col-span-3"> -->
       <figure
-        class="h-full relative z-[1] max-w-full rounded-md shadow-menu mx-auto transition-all"
+        class="h-full relative z-[1] max-w-full rounded-md shadow-menu mx-auto transition-all overflow-hidden"
         :class="{
           'w-full': isDesktop,
           'w-[768px]': isTablet,
@@ -129,7 +136,7 @@
         }"
       >
         <!-- <div
-          class="relative flex gap-12 justify-between items-center bg-base-50 rounded-t-lg py-2 px-4 border-b border-base-300"
+          class="flex gap-12 justify-between items-center bg-base-50 rounded-t-lg py-2 px-4 border-b border-base-300"
         >
           <div class="flex gap-2">
             <span class="size-3 bg-error rounded-full"></span>
@@ -248,7 +255,7 @@ export default defineComponent({
     var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
-.canvas {
+.view {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d1d5db' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-position: center;
   background-attachment: fixed;
