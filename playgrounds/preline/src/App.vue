@@ -172,12 +172,12 @@ const isEmbed = ref(true);
 
 // ---
 
-const activeTheme = ref("simple");
+const activeTheme = ref("light");
 provide("activeTheme", activeTheme);
 
 watch(route, () => {
   isEmbed.value = !!route?.query?.embed;
-  activeTheme.value = route?.query?.theme || activeTheme.value || "simple";
+  activeTheme.value = route?.query?.theme || activeTheme.value || "light";
 });
 // ---
 

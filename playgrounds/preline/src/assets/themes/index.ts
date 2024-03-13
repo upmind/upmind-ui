@@ -1,5 +1,5 @@
 // -- internal
-import light from "./simple";
+import light from "./light";
 import retro from "./retro";
 import dark from "./dark";
 // -----------------------------------------------------------------------------

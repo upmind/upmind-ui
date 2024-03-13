@@ -4,7 +4,7 @@
     :data-theme="activeTheme"
   >
     <div
-      class="w-full bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-lg"
+      class="w-full bg-base text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-lg"
     >
       <div class="text-center">
         <h3 class="block text-2xl font-bold text-inherit">

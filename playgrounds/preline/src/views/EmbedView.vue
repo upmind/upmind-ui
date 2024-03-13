@@ -71,7 +71,7 @@
 
         <div
           :data-theme="activeTheme"
-          class="h-[80vh] transition-all relative bg-base-100 text-base-content rounded-b-md mx-auto overflow-auto"
+          class="h-[80vh] bg-base text-base-content transition-all relative rounded-b-md mx-auto overflow-auto"
           :class="{
             'w-full': isDesktop,
             'w-[768px]': isTablet,
