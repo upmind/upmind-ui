@@ -4,9 +4,9 @@
     :data-theme="activeTheme"
   >
     <div
-      class="w-full md:grid md:grid-cols-2 md:gap-8 xl:gap-12 md:items-center"
+      class="w-full md:grid md:grid-cols-3 lg:grid-cols-2 md:gap-8 xl:gap-12 md:items-center"
     >
-      <div class="col-span-1 relative h-1/4 sm:h-full w-full md:order-last">
+      <div class="relative h-1/4 sm:h-full w-full md:order-last">
         <img
           class="w-full h-full object-contain m-0 p-8"
           :src="`/illustration-${activeTheme}.svg`"
@@ -14,7 +14,7 @@
         />
       </div>
 
-      <div class="col-span-1 py-8 px-4 sm:px-6 lg:px-8">
+      <div class="md:col-span-2 lg:col-auto py-8 px-4 sm:px-6 lg:px-8">
         <div
           class="bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-sm"
         >
