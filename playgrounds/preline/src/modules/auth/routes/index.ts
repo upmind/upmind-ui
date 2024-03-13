@@ -24,7 +24,7 @@ export default {
         },
         {
           path: "embed",
-          name: "default-embed",
+          name: "auth-default-embed",
           component: () => import("../views/DefaultEmbed.vue"),
           meta: { hidden: true },
         },
