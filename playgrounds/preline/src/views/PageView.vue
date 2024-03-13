@@ -1,5 +1,6 @@
 <template>
-  <upm-view v-bind="meta" :url="embedUrl"> </upm-view>
+  <upm-view v-bind="meta" :url="embedUrl" v-if="embedUrl" />
+  <!-- TODO page structure if we are NOT embedding -->
 </template>
 
 <script setup lang="ts">
