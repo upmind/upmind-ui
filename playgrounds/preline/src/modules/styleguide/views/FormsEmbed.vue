@@ -1,23 +1,18 @@
 <template>
-  <upm-view
-    name="styleguide"
-    title="Basic Form Example"
-    description="This is a simple implementation of our forms with standard fields and validation. It is used to demonstrate the usage of the form generator and the form components."
-    flow="Stylguide"
+  <div
+    class="w-full h-screen overflow-auto p-8 items-center flex flex-wrap"
+    :data-theme="activeTheme"
   >
-    <section class="w-full p-6">
-      <upm-form-generator
-        :schema="schema"
-        :uischema="uischema"
-        @reject="doReject"
-        @resolve="doResolve"
-      />
-    </section>
-  </upm-view>
+    <upm-form-generator
+      :schema="schema"
+      :uischema="uischema"
+      @reject="doReject"
+      @resolve="doResolve"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import UpmView from "@/components/View.vue";
 import UpmFormGenerator from "@/components/FormGenerator.vue";
 
 const useDate = val => {
