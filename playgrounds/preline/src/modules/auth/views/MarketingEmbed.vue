@@ -3,9 +3,7 @@
     class="border lg:border-none bg-base-50 text-base-content w-full mx-auto h-full flex flex-wrap"
     :data-theme="activeTheme"
   >
-    <div
-      class="h-screen overflow-auto w-full lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12"
-    >
+    <div class="w-full lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12">
       <div
         class="flex flex-wrap content-center bg-gradient-to-bl from-neutral to-primary-900 text-neutral-content lg:order-last py-12 px-6 sm:px-6 lg:px-8"
       >

@@ -1,7 +1,13 @@
 <template>
-  <router-view v-if="isEmbed" class="w-full overflow-auto animate-fade" />
+  <router-view
+    v-if="isEmbed"
+    class="w-full h-screen max-h-full overflow-auto animate-fade"
+  />
 
-  <div v-else class="flex flex-wrap justify-center bg-base text-base-content">
+  <div
+    v-else
+    class="flex flex-wrap justify-center bg-base text-base-content h-screen overflow-hidden"
+  >
     <upm-header></upm-header>
 
     <pv-drawer
@@ -128,16 +134,18 @@
       </nav>
     </pv-drawer>
 
-    <main class="w-full flex flex-wrap justify-center">
+    <main
+      class="w-full h-full pt-[5rem] overflow-hidden flex flex-wrap justify-center"
+    >
       <upm-feedback />
 
-      <router-view class="w-full" :key="route.fullPath" />
+      <router-view class="w-full h-full" :key="route.fullPath" />
 
-      <footer
+      <!-- <footer
         class="w-full flex items-start justify-center text-center py-8 px-4 gap-4 text-sm"
       >
         <span>@copyright {{ new Date().getFullYear() }} Upmind Labs.</span>
-      </footer>
+      </footer> -->
     </main>
   </div>
 </template>
