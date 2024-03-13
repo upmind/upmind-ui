@@ -6,9 +6,7 @@
     <div
       class="w-full md:grid md:grid-cols-2 md:gap-8 xl:gap-12 md:items-center"
     >
-      <div
-        class="col-span-1 relative h-1/4 sm:h-1/3 md:h-full w-full lg:order-last"
-      >
+      <div class="col-span-1 relative h-1/4 sm:h-full w-full md:order-last">
         <img
           class="w-full h-full object-contain m-0 p-8"
           :src="`/illustration-${activeTheme}.svg`"
