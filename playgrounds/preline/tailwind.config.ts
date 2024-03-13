@@ -5,7 +5,6 @@ import themer from "tailwindcss-themer";
 import typography from "@tailwindcss/typography";
 import forms from "@tailwindcss/forms";
 import preline from "preline/plugin";
-import defaultTheme from "tailwindcss/defaultTheme";
 
 // --- utils
 import { find, omit } from "lodash-es";
@@ -40,7 +39,7 @@ export default {
   },
   plugins: [
     themer({
-      defaultTheme: omit(find(themes, ["name", "Simple"]), [
+      defaultTheme: omit(find(themes, ["name", "Light"]), [
         "selectors",
         "mediaQuery",
       ]),

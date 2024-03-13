@@ -64,12 +64,6 @@
           class="hs-accordion-group w-full flex flex-col flex-wrap"
           data-hs-accordion-always-open
         >
-          <div
-            class="mb-5 py-3 flex items-center text-xs text-neutral-300 uppercase before:flex-[1_1_0%] before:border-t before:border-neutral-200 before:me-6 after:flex-[1_1_0%] after:border-t after:border-neutral-200 after:ms-6"
-          >
-            Options
-          </div>
-
           <ul class="space-y-4">
             <li>
               <span
@@ -80,7 +74,7 @@
 
               <div class="flex flex-col rounded-lg">
                 <router-link
-                  :to="{ name: 'auth-simple' }"
+                  :to="{ name: 'auth-light' }"
                   type="button"
                   class="py-3 px-4 flex items-center gap-x-2 rounded-t-md text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
                   exact-active-class="!bg-neutral text-neutral-content"
@@ -155,7 +149,7 @@
 
         <div
           :data-theme="activeTheme"
-          class="h-full relative bg-base-100 text-base-content rounded-b-md overflow-auto"
+          class="h-full relative bg-base text-base-content rounded-b-md overflow-auto"
         >
           <object :data="url" class="absolute w-full h-full"></object>
         </div>

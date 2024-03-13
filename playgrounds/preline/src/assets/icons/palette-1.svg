@@ -1,12 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Color-Palette-Sample--Streamline-Ultimate.svg">
-  <desc>Color Palette Sample Streamline Icon: https://streamlinehq.com</desc>
-  <g id="Color-Palette-Sample--Streamline-Ultimate.svg">
-    <path d="M3.5 2.5h4s0.5 0 0.5 0.5v3s0 0.5 -0.5 0.5h-4S3 6.5 3 6V3s0 -0.5 0.5 -0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M3.5 8.5h4s0.5 0 0.5 0.5v3s0 0.5 -0.5 0.5h-4s-0.5 0 -0.5 -0.5V9s0 -0.5 0.5 -0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M3.5 14.5h4s0.5 0 0.5 0.5v3s0 0.5 -0.5 0.5h-4s-0.5 0 -0.5 -0.5v-3s0 -0.5 0.5 -0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M4.5 21a1 1 0 1 0 2 0 1 1 0 1 0 -2 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M10.35 23 23.26 8.94a1 1 0 0 0 -0.11 -1.41L20 4.84" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M1.5 0.5h8s1 0 1 1v21s0 1 -1 1h-8s-1 0 -1 -1v-21s0 -1 1 -1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="m10.5 22.5 7.39 -18.36a1 1 0 0 0 -0.59 -1.29L12.85 1.2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Color-Painting-Palette--Streamline-Ultimate.svg">
+  <desc>Color Painting Palette Streamline Icon: https://streamlinehq.com</desc>
+  <g id="Color-Painting-Palette--Streamline-Ultimate.svg">
+    <path d="M3.87 21a11.5 11.5 0 1 1 16.26 0 5.5 5.5 0 0 1 -7.78 0l-4.24 -4.23a1 1 0 0 0 -1.41 1.41A2 2 0 0 1 3.87 21Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+    <path d="M17.74 7.93a1.5 1.5 0 1 1 -1.5 -1.5 1.5 1.5 0 0 1 1.5 1.5Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+    <path d="M18 12.88a1 1 0 1 0 2 0 1 1 0 1 0 -2 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+    <path d="M16.24 19.83a2 2 0 1 1 2 -2 2 2 0 0 1 -2 2Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+    <path d="M10.23 5.37a1.5 1.5 0 1 1 -1.5 1.5 1.5 1.5 0 0 1 1.5 -1.5Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
   </g>
 </svg>

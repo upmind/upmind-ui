@@ -5,7 +5,7 @@
       type="button"
       class="inline-flex items-center gap-x-2.5 text-sm font-medium rounded-lg hover:text-neutral-400"
     >
-      <span>{{ activeThemeName }}</span>
+      <span>{{ activeThemeName }} Theme</span>
       <upm-icon name="palette" class="flex-shrink-0 size-6" />
     </button>
     <template #content>
@@ -21,7 +21,7 @@
         >
           <upm-icon path="themes" :name="key" class="flex-shrink-0 size-5" />
 
-          {{ startCase(theme) }}
+          {{ startCase(theme) }} Theme
         </li>
       </ul>
     </template>
@@ -66,7 +66,7 @@ export default defineComponent({
       ),
 
       activeTheme,
-      activeThemeName: computed(() => startCase(activeTheme.value || "simple")),
+      activeThemeName: computed(() => startCase(activeTheme.value || "light")),
       startCase,
     };
   },

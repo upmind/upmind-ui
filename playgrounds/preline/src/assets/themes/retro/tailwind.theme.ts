@@ -63,7 +63,7 @@ export default {
     // ---
 
     base: {
-      DEFAULT: "#6d6d6d",
+      DEFAULT: "#f4efe0",
       50: "#faf8f2",
       100: "#f4efe0",
       200: "#ece3ca",
@@ -75,7 +75,7 @@ export default {
       800: "#775335",
       900: "#61442d",
       950: "#342316",
-      content: "#282425",
+      content: "#775335",
     },
 
     // ---

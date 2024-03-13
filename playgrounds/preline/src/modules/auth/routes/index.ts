@@ -12,7 +12,7 @@ export default {
         // --- Simple ---
         {
           path: "",
-          name: "auth-simple",
+          name: "auth-light",
           component: PageView,
           meta: {
             name: "auth",
@@ -24,7 +24,7 @@ export default {
         },
         {
           path: "embed",
-          name: "auth-simple-embed",
+          name: "auth-light-embed",
           component: () => import("../views/SimpleEmbed.vue"),
           meta: { hidden: true },
         },

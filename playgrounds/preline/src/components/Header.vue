@@ -45,7 +45,7 @@
             aria-label="Toggle navigation"
           >
             <span class="sr-only">Toggle Navigation</span>
-            <upm-icon name="hamburger" class="size-6"></upm-icon>
+            <upm-icon name="navigation-menu" class="size-6"></upm-icon>
           </button>
         </div>
       </div>

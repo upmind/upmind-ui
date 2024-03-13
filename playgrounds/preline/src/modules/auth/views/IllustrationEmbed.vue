@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-base-100 text-base-content w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-wrap"
+    class="w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-wrap bg-gradient-to-br from-base to-neutral-200"
     :data-theme="activeTheme"
   >
     <div
@@ -16,7 +16,7 @@
 
       <div class="md:col-span-2 lg:col-auto py-8 px-4 sm:px-6 lg:px-8">
         <div
-          class="bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-sm"
+          class="bg-base-50 text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-lg"
         >
           <div class="text-center">
             <h3 class="block text-2xl font-bold text-inherit">

@@ -1,9 +1,9 @@
 import theme from "./tailwind.theme";
 
 export default {
-  name: "Simple",
-  id: "simple",
-  selectors: ['[data-theme="simple"]'],
+  name: "Light",
+  id: "light",
+  selectors: ['[data-theme="light"]'],
   mediaQuery: {},
   extend: theme,
 };

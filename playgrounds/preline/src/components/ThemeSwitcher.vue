@@ -61,7 +61,7 @@ export default defineComponent({
       ),
 
       activeTheme,
-      activeThemeName: computed(() => startCase(activeTheme.value || "simple")),
+      activeThemeName: computed(() => startCase(activeTheme.value || "light")),
       startCase,
     };
   },
