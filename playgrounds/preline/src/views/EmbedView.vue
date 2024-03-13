@@ -74,11 +74,11 @@
 
         <div
           :data-theme="activeTheme"
-          class="transition-all relative bg-base-100 text-base-content rounded-b-md mx-auto overflow-auto"
+          class="h-[80vh] transition-all relative bg-base-100 text-base-content rounded-b-md mx-auto overflow-auto"
           :class="{
-            'w-full h-screen': isDesktop,
-            'w-[768px] h-[1024px]': isTablet,
-            'w-[375px] h-[667px]': !isDesktop && !isTablet,
+            'w-full': isDesktop,
+            'w-[768px]': isTablet,
+            'w-[375px]': !isDesktop && !isTablet,
           }"
         >
           <object :data="url" class="absolute w-full h-full"></object>
