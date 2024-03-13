@@ -3,56 +3,27 @@
   <popper :interactive="false">
     <button
       type="button"
-      class="inline-flex items-center gap-x-2.5 text-sm font-medium rounded-lg hover:text-primary"
+      class="inline-flex items-center gap-x-2.5 text-sm font-medium rounded-lg hover:text-neutral-400"
     >
       <span>{{ activeThemeName }}</span>
       <upm-icon name="palette" class="flex-shrink-0 size-6" />
     </button>
     <template #content>
-      <div :class="['rounded-xl', 'shadow-md', 'm-2']">
-        <ul class="flex flex-col sm:flex-row">
-          <li
-            :class="[
-              'border',
-              'bg-white',
-              'border-gray-200',
-              'first:mt-0',
-              'first:rounded-t-lg',
-              'font-medium',
-              'gap-x-2.5',
-              'inline-flex',
-              'items-center',
-              'last:rounded-b-lg',
-              'sm:-ms-px',
-              'sm:first:rounded-es-lg',
-              'sm:first:rounded-se-none',
-              'sm:last:rounded-es-none',
-              'sm:last:rounded-se-lg',
-              'sm:mt-0',
-              'text-sm',
-              activeTheme == theme
-                ? ['text-primary', 'hover:bg-white']
-                : ['text-gray-800', 'hover:bg-gray-50'],
-            ]"
-            v-for="(theme, key) in themes"
-            :key="theme"
-          >
-            <button
-              type="button"
-              class="flex flex-col items-center place-content-center h-full gap-2.5 py-3 px-8 text-sm font-medium text-inherit rounded-lg"
-              @click.prevent="activeTheme = key"
-            >
-              <upm-icon
-                path="themes"
-                :name="key"
-                class="flex-shrink-0 size-12"
-              />
+      <ul
+        class="min-w-[15rem] mt-5 mx-2 bg-white border border-base-300 shadow-md rounded-b-lg p-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
+      >
+        <li
+          class="flex cursor-pointer items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-neutral-800 hover:bg-neutral-100 focus:outline-none focus:bg-neutral-100"
+          :class="{ '!bg-neutral-200': activeTheme === key }"
+          v-for="(theme, key) in themes"
+          :key="theme"
+          @click.prevent="activeTheme = key"
+        >
+          <upm-icon path="themes" :name="key" class="flex-shrink-0 size-5" />
 
-              {{ startCase(theme) }}
-            </button>
-          </li>
-        </ul>
-      </div>
+          {{ startCase(theme) }}
+        </li>
+      </ul>
     </template>
   </popper>
 

@@ -1,4 +1,6 @@
-<svg fill="none" aria-hidden="true" viewBox="0 0 48 48">
-  <path d="M5 11a4 4 0 0 1 4-4h30a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V11Z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="2"></path>
-  <path d="M15 7v34" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+<svg viewBox="0 0 24 24"
+  xmlns="http://www.w3.org/2000/svg" id="Light-Mode-Bright-Dark--Streamline-Ultimate.svg">
+  <desc>Light Mode Bright Dark Streamline Icon: https://streamlinehq.com</desc>
+  <path d="M20.2486 15.416L22.8881 12.7765C23.3174 12.347 23.3174 11.6508 22.8881 11.2213L20.2486 8.5818V4.8513C20.2486 4.2439 19.7561 3.7515 19.1487 3.7514H15.4193L12.7798 1.1119C12.3503 0.6826 11.6541 0.6826 11.2246 1.1119L8.5851 3.7514H4.8513C4.2438 3.7514 3.7514 4.2438 3.7514 4.8513V8.584L1.1119 11.2235C0.6826 11.653 0.6826 12.3492 1.1119 12.7787L3.7514 15.4182V19.1487C3.7514 19.7562 4.2438 20.2486 4.8513 20.2486H8.584L11.2235 22.8881C11.653 23.3174 12.3492 23.3174 12.7787 22.8881L15.4182 20.2486H19.1509C19.7584 20.2486 20.2508 19.7562 20.2508 19.1487Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M11.4501 5.4012C15.8493 5.4012 18.0489 8.3552 18.0489 12S15.8493 18.5988 11.4501 18.5988Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
 </svg>

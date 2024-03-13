@@ -1,28 +1,12 @@
-<svg viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
-	<g id="Outline_Icons">
-		<g>
-
-			<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="14.5" y1="23.5" x2="17.5" y2="23.5"/>
-			<path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M20.199,14.5h-4.7
-			l2,9h6l-3.638-9.923C18.769,10.599,19.86,7.26,22.5,5.5c-2.045-1.754-5.033-1.851-7.188-0.234L15,5.5h-2
-			c-0.829,0-1.5,0.672-1.5,1.5v7.5l1,3h3.664"/>
-
-			<circle fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="2" cy="9.5" r="1.5"/>
-
-			<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="9.5" y1="5" x2="9.5" y2="14"/>
-
-			<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="7.5" y1="6" x2="7.5" y2="13"/>
-
-			<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="5.5" y1="7" x2="5.5" y2="12"/>
-
-			<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="15.5" y1="14.5" x2="11.5" y2="14.5"/>
-
-			<line fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="3.5" y1="9.5" x2="11.5" y2="9.5"/>
-
-			<rect x="13.5" y="8.5" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="4" height="2"/>
-		</g>
-	</g>
-	<g id="invisible_shape">
-		<rect fill="none" width="24" height="24"/>
-	</g>
+<svg viewBox="0 0 24 24"
+  xmlns="http://www.w3.org/2000/svg" id="Bicycle-Retro--Streamline-Ultimate.svg">
+  <desc>Bicycle Retro Streamline Icon: https://streamlinehq.com</desc>
+  <path d="M11.5 15.197a6 6 0 1 0 12 0 6 6 0 1 0 -12 0Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M16.5 15.197a1 1 0 1 0 2 0 1 1 0 1 0 -2 0Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M0.5 17.197a4 4 0 1 0 8 0 4 4 0 1 0 -8 0Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M3.5 17.197a1 1 0 1 0 2 0 1 1 0 1 0 -2 0Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M17.5 5.2H16c-6.352 0 -11.5 5.181 -11.5 11" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M17.5 14.2V3.3a0.5 0.5 0 0 1 0.633 -0.482A2.918 2.918 0 0 1 20.5 5.7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="m10.5 6.595 0 -3.398" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="m12.5 3.197 -4 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
 </svg>

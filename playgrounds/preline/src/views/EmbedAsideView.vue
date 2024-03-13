@@ -1,7 +1,7 @@
 <template>
   <article class="view w-full grid grid-cols-4 gap-4 h-full overflow-hidden">
     <aside
-      class="rounded pr-8 border-e border-neutral-200 bg-neutral-50 py-12 px-4 sm:px-8 lg:px-12 relative h-full overflow-auto"
+      class="shadow-inner rounded pr-8 border-e border-neutral-200 bg-neutral-50 py-12 px-4 sm:px-8 lg:px-12 relative h-full overflow-auto"
     >
       <header class="view-header mb-8">
         <p
@@ -27,10 +27,10 @@
 
         <div class="view-actions my-8 flex items-center gap-2 sm:gap-3">
           <button
-            class="py-3 px-4 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-neutral text-white hover:bg-neutral disabled:opacity-50 disabled:pointer-events-none transition-colors"
+            class="py-2 px-2 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-neutral text-white hover:bg-neutral disabled:opacity-50 disabled:pointer-events-none transition-colors"
             disabled
           >
-            <upm-icon name="code" class="size-4 stroke-current" />
+            <upm-icon name="code" class="size-5 stroke-current" />
 
             <span class="sr-only">Show code</span>
           </button>
@@ -39,11 +39,11 @@
             contentId="debug-auth-flow"
             title="Debug Auth Flow"
             action="Debug"
-            class="py-3 px-4 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-neutral text-neutral bg-transparent hover:bg-neutral hover:text-neutral-content transition-colors"
+            class="py-2 px-2 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-neutral text-neutral bg-transparent hover:bg-neutral hover:text-neutral-content transition-colors"
           >
             <template #action>
-              <upm-icon name="debug" class="size-4 fill-current -mt-1" />
-              <span class="sr-only">Debug Auth Flow</span>
+              <upm-icon name="inspect" class="size-5 fill-current -mt-1" />
+              <span class="sr-only">Inspect Auth Flow</span>
             </template>
 
             <upm-debug

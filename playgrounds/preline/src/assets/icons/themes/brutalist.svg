@@ -1,6 +1,12 @@
-<svg fill="none" aria-hidden="true" viewBox="0 0 48 48">
-  <path d="M9 41h30a4 4 0 0 0 4-4V11a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v26a4 4 0 0 0 4 4Z" fill="currentColor" fill-opacity="0" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-  <path d="M15 7v34M17 13h-2M43 13h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-  <path d="M21 29V15a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-  <path d="M25 31v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V19a2 2 0 0 0-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+<svg viewBox="0 0 24 24"
+  xmlns="http://www.w3.org/2000/svg" id="Skull-2--Streamline-Ultimate.svg">
+  <desc>Skull 2 Streamline Icon: https://streamlinehq.com</desc>
+  <path d="M18.5 11a6.5 6.5 0 1 0 -11 4.69V18a1.5 1.5 0 0 0 3 0 1.5 1.5 0 0 0 3 0 1.5 1.5 0 0 0 3 0v-2.31a6.478 6.478 0 0 0 2 -4.69Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M7.5 11a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0 -3 0Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M13.5 11a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0 -3 0Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M13 15.5c-0.263 -0.394 -0.46 -0.7 -1 -0.7s-0.737 0.3 -1 0.7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M6.877 15 3.3 18.58a1.75 1.75 0 0 0 -2.285 2.64l1.765 1.767A1.75 1.75 0 0 0 5.42 20.7l2.18 -2.174" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M8 5.877 5.42 3.3a1.75 1.75 0 0 0 -2.64 -2.287L1.013 2.78A1.75 1.75 0 0 0 3.3 5.42l2.815 2.816" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="m17.123 15 3.577 3.58a1.75 1.75 0 0 1 2.285 2.64l-1.765 1.767a1.75 1.75 0 0 1 -2.64 -2.287l-2.175 -2.176" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+  <path d="M16 5.877 18.58 3.3a1.75 1.75 0 0 1 2.64 -2.285l1.767 1.765A1.75 1.75 0 0 1 20.7 5.42l-2.815 2.816" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
 </svg>
