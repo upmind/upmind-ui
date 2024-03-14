@@ -25,7 +25,7 @@ export default createMachine(
       filters: undefined,
       selected: undefined,
       // ---
-      error: undefined
+      error: undefined,
     },
     states: {
       loading: {
@@ -36,40 +36,40 @@ export default createMachine(
             {
               target: "processing",
               actions: ["setItems", "resetFiltered", "setInitial"],
-              cond: (_context, { data }) => data
+              cond: (_context, { data }) => data,
             },
             {
               target: "available",
-              actions: ["setItems", "resetFiltered"]
-            }
+              actions: ["setItems", "resetFiltered"],
+            },
           ],
           onError: {
             target: "error",
-            actions: ["setError", "clearSelected"]
-          }
-        }
+            actions: ["setError", "clearSelected"],
+          },
+        },
       },
       processing: {
-        always: [{ target: "available", cond: "isNotProcessing" }]
+        always: [{ target: "available", cond: "isNotProcessing" }],
       },
       empty: {
-        always: [{ target: "available", cond: "hasItems" }]
+        always: [{ target: "available", cond: "hasItems" }],
       },
       available: {
-        always: [{ target: "empty", cond: "hasNoItems" }]
+        always: [{ target: "empty", cond: "hasNoItems" }],
       },
       filtering: {
         invoke: {
           src: "filter",
           onDone: {
             target: "filtered",
-            actions: ["setFiltered"]
+            actions: ["setFiltered"],
           },
           onError: {
             target: "filtered",
-            actions: ["resetFiltered"]
-          }
-        }
+            actions: ["resetFiltered"],
+          },
+        },
       },
       filtered: {
         initial: "empty",
@@ -78,52 +78,52 @@ export default createMachine(
             always: [
               {
                 target: "available",
-                cond: "hasFilteredItems"
-              }
-            ]
+                cond: "hasFilteredItems",
+              },
+            ],
           },
           available: {
             always: [
               {
                 target: "empty",
-                cond: "hasNoFilteredItems"
-              }
-            ]
-          }
-        }
+                cond: "hasNoFilteredItems",
+              },
+            ],
+          },
+        },
       },
       editing: {},
       error: { id: "error" },
       complete: {
-        type: "final"
-      }
+        type: "final",
+      },
     },
     on: {
       REFRESH: {
         target: "loading",
-        actions: ["setInitial"]
+        actions: ["setInitial"],
       },
 
       SELECT: {
         actions: ["setSelected"],
-        target: "available"
+        target: "available",
       },
 
       FILTER: [{ target: "filtering", actions: ["setFilters"] }],
       ADD: {
         target: "editing",
-        actions: ["add", "setSelectedNew"]
+        actions: ["add", "setSelectedNew"],
       },
 
       EDIT: {
         target: "editing",
-        actions: ["setSelected"]
+        actions: ["setSelected"],
       },
 
       STOP: {
-        target: "complete"
-      }
-    }
+        target: "complete",
+      },
+    },
   },
   {
     actions: {
@@ -137,15 +137,15 @@ export default createMachine(
 
       resetFiltered: assign({
         items: ({ raw }, _event) => raw,
-        filters: undefined
+        filters: undefined,
       }),
 
       setFiltered: assign({
-        items: (_context, { data }) => data
+        items: (_context, { data }) => data,
       }),
 
       setFilters: assign({
-        filters: (_context, { data }) => data
+        filters: (_context, { data }) => data,
       }),
       // --------------------------------------------
 
@@ -159,7 +159,7 @@ export default createMachine(
         },
         items: [],
         selected: undefined,
-        filters: undefined
+        filters: undefined,
       }),
 
       setInitial: assign({
@@ -170,7 +170,7 @@ export default createMachine(
         selected: (
           { raw, initial }: ClientListingsContext,
           _event: ClientListingsEvents
-        ) => find(raw, ["id", initial]) //|| find(raw, "state.context.model.default")
+        ) => find(raw, ["id", initial]), //|| find(raw, "state.context.model.default")
       }),
 
       setSelected: assign({
@@ -180,7 +180,7 @@ export default createMachine(
         selected: (
           { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
-        ) => find(raw, ["id", data]) // || find(raw, "state.context.model.default")
+        ) => find(raw, ["id", data]), // || find(raw, "state.context.model.default")
       }),
 
       setSelectedNew: assign({
@@ -190,14 +190,14 @@ export default createMachine(
         selected: (
           { raw }: ClientListingsContext,
           _event: ClientListingsEvents
-        ) => last(raw)
+        ) => last(raw),
       }),
 
       clearSelected: assign({
         initial: undefined,
         filters: undefined,
         items: ({ raw }, _event) => raw,
-        selected: undefined
+        selected: undefined,
       }),
 
       // ---
@@ -205,10 +205,10 @@ export default createMachine(
         error: (_context, { data }) => {
           const error = data?.error;
           return error || data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
     guards: {
       isNotProcessing: ({ raw }) => {
@@ -217,7 +217,7 @@ export default createMachine(
       hasItems: ({ raw }) => !isEmpty(raw),
       hasNoItems: ({ raw }) => isEmpty(raw),
       hasFilteredItems: ({ items }) => !isEmpty(items),
-      hasNoFilteredItems: ({ items }) => isEmpty(items)
-    }
+      hasNoFilteredItems: ({ items }) => isEmpty(items),
+    },
   }
 );

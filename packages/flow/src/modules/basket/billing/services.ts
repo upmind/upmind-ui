@@ -5,7 +5,7 @@ import {
   useApi,
   useClientAddresses,
   useClientCompanies,
-  useSession
+  useSession,
 } from "../../..";
 
 // --- utils
@@ -61,9 +61,9 @@ async function update(
     url: useUrl(`/orders/${basket_id}`),
     data: {
       address_id: model?.address_id || null,
-      company_id: model?.company_id || null
+      company_id: model?.company_id || null,
     },
-    withAccessToken: true
+    withAccessToken: true,
   });
 }
 
@@ -104,5 +104,5 @@ export default {
   load,
   parse,
   validate,
-  update
+  update,
 };

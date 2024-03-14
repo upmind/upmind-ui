@@ -19,7 +19,7 @@ import type { StripeEvent, StripeContext } from "./types.d";
 export enum STRIPE_QUERY_PARAMS {
   STRIPE_REDIRECT_STATUS = "redirect_status",
   STRIPE_SETUP_INTENT = "setup_intent",
-  STRIPE_SETUP_INTENT_CLIENT_SECRET = "setup_intent_client_secret"
+  STRIPE_SETUP_INTENT_CLIENT_SECRET = "setup_intent_client_secret",
 }
 
 // NYS = "Not Yet Supported"
@@ -52,7 +52,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
   SEPA_DEBIT = "sepa_debit", // NYS
   SOFORT = "sofort", // NYS
   US_BANK_ACCOUNT = "us_bank_account", // NYS
-  WECHAT_PAY = "wechat_pay" // NYS
+  WECHAT_PAY = "wechat_pay", // NYS
 }
 
 // --------------------------------------------------------
@@ -95,7 +95,7 @@ async function validate(
     if (!elementStatus?.complete) {
       errors.push({
         title: "Stripe element is incomplete.",
-        data
+        data,
       });
     }
 
@@ -122,14 +122,14 @@ async function createPaymentElement(
     mode: "payment",
     paymentMethodCreation: "manual",
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
-    setupFutureUsage: "off_session"
+    setupFutureUsage: "off_session",
   });
   const element = elements?.create("payment");
 
   return new Promise(resolve => {
     resolve({
       elements,
-      element
+      element,
     });
   });
 }
@@ -153,7 +153,7 @@ async function update({ elements, stripe, model }: StripeContext) {
   // Create PaymentMethod using details collected via Payment Element
   const { error, paymentMethod } = await stripe
     .createPaymentMethod({
-      elements
+      elements,
     })
     .catch(error => Promise.reject(error));
 
@@ -198,8 +198,8 @@ async function createAddElement(
     url: useUrl(`gateway/frontend/tokenize-begin/${gateway.id}`),
     withAccessToken: true,
     data: {
-      client_id
-    }
+      client_id,
+    },
   }).then(({ data }) => {
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
     const clientPaymentDetailsId = data?.client_payment_details?.id;
@@ -208,7 +208,7 @@ async function createAddElement(
     // --- create stripe elements
     const elements = stripe.elements({
       clientSecret,
-      locale: "auto" // TODO: add i18n local
+      locale: "auto", // TODO: add i18n local
     });
 
     const element = elements?.create("payment");
@@ -218,7 +218,7 @@ async function createAddElement(
       elements,
       element,
       clientSecret,
-      clientPaymentDetailsId
+      clientPaymentDetailsId,
     };
   });
 }
@@ -252,5 +252,5 @@ export default {
   // ---
   confirmSetup,
   endSetup,
-  update
+  update,
 };

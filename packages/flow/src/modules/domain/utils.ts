@@ -23,7 +23,7 @@ export function parseDomain(domain: string) {
   return {
     domain: value,
     tld: value?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
-    sld: first(value?.split(".")) || ""
+    sld: first(value?.split(".")) || "",
   };
 }
 
@@ -54,7 +54,7 @@ export function parseDomainItem(item) {
     tld: item?.tld,
     sld: item?.sld,
     domain: [item.sld, item.tld].join("").toLowerCase(),
-    is_available: item?.domain_available
+    is_available: item?.domain_available,
   };
 
   if (item?.prices?.length) {
@@ -97,7 +97,7 @@ const useAddedOptionsParser = (data: any) => {
         product_id: option.id,
         unit_quantity: option.unit_quantity || 1,
         billing_cycle_months: option.billing_cycle_months,
-        order_type: option.order_type
+        order_type: option.order_type,
       });
       return result;
     },

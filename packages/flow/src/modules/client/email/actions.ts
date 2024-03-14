@@ -17,7 +17,7 @@ export const ListingActions = {
       const machine = spawnItem(data); // spawn an actor for the new raw
       raw.push(machine);
       return raw;
-    }
+    },
   }),
   setItems: assign({
     raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
@@ -26,24 +26,24 @@ export const ListingActions = {
         if (!found) return spawnItem(item);
         return found;
       }),
-    error: null
-  })
+    error: null,
+  }),
 };
 
 export const ItemActions = {
   setMeta: assign({
     title: ({ model }: EmailContext, _event: EmailEvent) => model?.email,
     description: ({ model }: EmailContext, _event: EmailEvent) =>
-      model?.verified ? "Verified" : "Unverified"
+      model?.verified ? "Verified" : "Unverified",
   }),
   setSchemas: assign({
     schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
     uischema: (context: EmailContext, _event: EmailEvent) =>
-      useUischema(context)
+      useUischema(context),
   }),
 
   setModel: assign({
     model: ({ schema, model }, { data }) =>
-      useModelParser(schema, data || model)
-  })
+      useModelParser(schema, data || model),
+  }),
 };

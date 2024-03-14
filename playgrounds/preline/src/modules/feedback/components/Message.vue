@@ -1,7 +1,7 @@
 <template>
   <div
     role="alert"
-    class="alert flex shadow-lg border-white border-opacity-20"
+    class="alert flex border-white border-opacity-20 shadow-lg"
     :class="[{ 'opacity-30': !meta.isActive }, `message-${message.type}`]"
     v-if="meta.isActive || (scheduled && meta.isScheduled)"
   >
@@ -25,47 +25,47 @@
     </span>
     <!--  -->
 
-    <div class="flex flex-col gap-2 w-full">
-      <h4 class="text-inherit wrap whitespace-normal m-0" v-if="message.title">
+    <div class="flex w-full flex-col gap-2">
+      <h4 class="wrap m-0 whitespace-normal text-inherit" v-if="message.title">
         {{ message.title }}
       </h4>
 
-      <p class="whitespace-normal m-0" v-if="message.copy">
+      <p class="m-0 whitespace-normal" v-if="message.copy">
         {{ message.copy }}
       </p>
 
-      <p class="whitespace-normal text-xs m-0" v-if="message.data">
+      <p class="m-0 whitespace-normal text-xs" v-if="message.data">
         {{ message.data }}
       </p>
     </div>
 
-    <div class="actions text-right self-start">
+    <div class="actions self-start text-right">
       <button
         @click.prevent="dismiss(message.hash)"
         class="btn btn-xs btn-ghost btn-circle"
         v-if="meta.isActive"
       >
-        <x-mark-icon class="w-fit h-fit"></x-mark-icon>
+        <x-mark-icon class="h-fit w-fit"></x-mark-icon>
         <span class="sr-only">Dismiss the message</span>
       </button>
 
-      <div class="flex items-center gap-2 mb-2" v-if="debugging">
+      <div class="mb-2 flex items-center gap-2" v-if="debugging">
         <em
-          class="text-xs ml-auto font-mono text-inherit"
+          class="ml-auto font-mono text-xs text-inherit"
           v-if="!message.maxAge && meta.isActive"
         >
           Persistent
         </em>
 
         <em
-          class="text-xs ml-auto font-mono text-inherit"
+          class="ml-auto font-mono text-xs text-inherit"
           v-if="message.maxAge && meta.isActive"
         >
           {{ hidesIn }}
         </em>
 
         <em
-          class="text-xs ml-auto font-mono text-inherit"
+          class="ml-auto font-mono text-xs text-inherit"
           v-if="meta.isScheduled"
         >
           {{ showsIn }}

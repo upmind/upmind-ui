@@ -50,7 +50,7 @@ export enum QUERY_PARAMS {
   SUBPRODUCT_QUANTITY = "subproduct_qty",
   SUCCESS = "success",
   USERNAME = "username",
-  VIEW = "view"
+  VIEW = "view",
 }
 
 export enum GatewayTypes {
@@ -60,13 +60,13 @@ export enum GatewayTypes {
   SEPA = 4,
   OFFLINE = 5,
   MOBILE = 6,
-  WALLET = 7
+  WALLET = 7,
 }
 
 export enum GatewayAuthType {
   NONE = "none",
   SETTINGS = "settings",
-  OAUTH2 = "oauth2"
+  OAUTH2 = "oauth2",
 }
 
 export enum GatewayStoreType {
@@ -81,16 +81,16 @@ export enum GatewayStoreType {
   /**
    * always (gateway does NOT support one-off payments; stored payment details only) - this is the case for GoCardless where an agreement (mandate) must be set up first
    */
-  ALWAYS = "always"
+  ALWAYS = "always",
 }
 
 export enum GatewayCtx {
   PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
-  ADD = "add" // ADD = Gateways are shown in the context of adding a stored payment detail
+  ADD = "add", // ADD = Gateways are shown in the context of adding a stored payment detail
 }
 
 export enum GatewayProviderCodes {
-  STRIPE = "Stripe_PaymentIntents"
+  STRIPE = "Stripe_PaymentIntents",
 }
 
 // --------------------------------------------------------

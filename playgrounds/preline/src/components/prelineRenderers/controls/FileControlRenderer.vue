@@ -23,17 +23,17 @@
     />
 
     <aside
-      class="card sm:card-side bg-base-100 border rounded-btn"
+      class="card sm:card-side rounded-btn border bg-base-100"
       v-if="meta.hasFile || meta.isProcessing"
     >
       <figure
-        class="relative m-0 sm:w-1/2 md:w-36 aspect-square bg-neutral-100"
+        class="relative m-0 aspect-square bg-neutral-100 sm:w-1/2 md:w-36"
       >
         <img
           v-if="src"
           :src="src"
           alt="uploaded image thumbnail "
-          class="aspect-square w-full h-full"
+          class="aspect-square h-full w-full"
         />
         <span
           v-if="meta.isProcessing"
@@ -50,7 +50,7 @@
         </use-time-ago>
         <span v-else-if="!meta.isProcessing">Uploaded</span>
 
-        <div class="card-actions justify-end mt-auto">
+        <div class="card-actions mt-auto justify-end">
           <button class="btn btn-ghost btn-sm" @click.prevent="onOpen">
             Change
           </button>
@@ -59,7 +59,7 @@
             @click.prevent="onRemove"
             v-if="meta.isComplete"
           >
-            <trash-icon class="w-6 h-6" />
+            <trash-icon class="h-6 w-6" />
             <span class="sr-only">Remove image</span>
           </button>
         </div>

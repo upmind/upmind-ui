@@ -27,7 +27,7 @@
     >
       <template #actions="{ meta: formMeta }">
         <button
-          class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent disabled:opacity-50 disabled:pointer-events-none"
+          class="inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent px-4 py-3 text-sm font-semibold disabled:pointer-events-none disabled:opacity-50"
           :class="[
             {
               'bg-primary text-primary-content hover:bg-primary-700 ':

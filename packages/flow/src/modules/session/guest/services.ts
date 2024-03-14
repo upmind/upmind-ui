@@ -31,7 +31,7 @@ async function generateToken(_context: GuestContext, _event: any) {
 
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data: { grant_type: GrantTypes.GUEST }
+    data: { grant_type: GrantTypes.GUEST },
   });
 }
 
@@ -42,8 +42,8 @@ async function refreshToken(context: GuestContext, _event: any) {
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token
-    }
+      refresh_token,
+    },
   });
 }
 
@@ -71,5 +71,5 @@ export default <Object>{
   generateToken,
   refreshToken,
   persistToken,
-  dumpToken
+  dumpToken,
 };

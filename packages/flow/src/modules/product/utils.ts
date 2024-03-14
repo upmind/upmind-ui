@@ -17,7 +17,7 @@ import {
   reduce,
   set,
   some,
-  values
+  values,
 } from "lodash-es";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
@@ -75,7 +75,7 @@ export const useProductParser = (data: any) => {
     "min_order_quantity",
     "max_order_quantity",
     // ---
-    "provision_blueprint_id"
+    "provision_blueprint_id",
   ]);
 
   // --------------------------------------------------------
@@ -114,7 +114,7 @@ export const useTermsParser = (data: any) => {
       "price",
       "price_discounted",
       "price_discounted_formatted",
-      "price_formatted"
+      "price_formatted",
     ]);
 
     // --------------------------------------------------------
@@ -221,7 +221,7 @@ export const useOptionsParser = (data: any) => {
           "name",
           "multiple",
           "required",
-          "price_override"
+          "price_override",
         ])
       );
       option.name = translateName(rawOption.category);
@@ -237,7 +237,7 @@ export const useOptionsParser = (data: any) => {
         "order_type",
         "unit_quantity",
         "max_order_quantity",
-        "min_order_quantity"
+        "min_order_quantity",
       ]);
       value.name = translateName(rawOption);
       value.canChangeQuantity = rawOption.order_type == 2;
@@ -251,7 +251,7 @@ export const useOptionsParser = (data: any) => {
           "price_discounted",
           "price_formatted",
           "price_discounted_formatted",
-          "promotions"
+          "promotions",
         ])
       );
 
@@ -329,7 +329,7 @@ export const useProvisioningParser = (data: any) => {
       default: field.default,
       enum: field.options?.length ? field.options : undefined,
       // ---
-      defer: field?.deferrable ? field?.defer_mode : undefined
+      defer: field?.deferrable ? field?.defer_mode : undefined,
     };
 
     set(properties, field.name, omitBy(schema, isNil));
@@ -339,7 +339,7 @@ export const useProvisioningParser = (data: any) => {
   return {
     type: "object",
     properties,
-    required
+    required,
   };
 };
 
@@ -355,7 +355,7 @@ export const useSummaryParser = (data: any) => {
 
     // TODO: use the correc ttotals when discoutns are applied!
     total: data?.configuration_selling_price_discounted_converted,
-    totalFormatted: data?.configuration_net_selling_price_formatted
+    totalFormatted: data?.configuration_net_selling_price_formatted,
   };
 
   return summary;
@@ -373,7 +373,7 @@ export const useValuesParser = (data: any) => {
     "term",
     "attributes",
     "options",
-    "provision_fields"
+    "provision_fields",
   ]);
 
   // ---
@@ -404,7 +404,7 @@ const useAddedAttributesParser = (data: any) => {
         id: attribute?.id,
         product_id: attribute.product_id,
         unit_quantity: attribute.unit_quantity,
-        billing_cycle_months: attribute.billing_cycle_months
+        billing_cycle_months: attribute.billing_cycle_months,
       });
       return result;
     },
@@ -422,7 +422,7 @@ const useAddedOptionsParser = (data: any) => {
         id: option?.id,
         product_id: option.product_id,
         unit_quantity: option.unit_quantity,
-        billing_cycle_months: option.billing_cycle_months
+        billing_cycle_months: option.billing_cycle_months,
       });
       return result;
     },
@@ -481,7 +481,7 @@ export const useProductConfigParser = (data: any) => {
     provision_field_values: data.provision_fields,
     // promotions: data?.promtions,
     // ---
-    start_trial: !!data?.start_trial
+    start_trial: !!data?.start_trial,
   };
 
   // only add the id if it exists
@@ -508,7 +508,7 @@ export const useValidationParser = (error: any) => {
         // --- optional
         schemaPath: "",
         keyword: "",
-        params: {}
+        params: {},
       };
       errors.push(newError);
     });

@@ -14,7 +14,7 @@ import { PaymentTypes } from "./types.d";
 import {
   GatewayCtx,
   GatewayTypes,
-  GatewayProviderCodes
+  GatewayProviderCodes,
 } from "./gateways/types.d";
 
 import type { PaymentDetailsContext } from "./types.d";
@@ -24,7 +24,7 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 export const useSchema = ({
   payment_types,
-  gateways
+  gateways,
 }: PaymentDetailsContext) => {
   const schema = {
     type: "object",
@@ -35,7 +35,7 @@ export const useSchema = ({
       amount: {
         type: "number",
         title: "Amount",
-        readOnly: true
+        readOnly: true,
       },
       type: {
         type: "string",
@@ -43,27 +43,27 @@ export const useSchema = ({
         default: PaymentTypes.PAY_IN_FULL,
         oneOf: map(payment_types, (value, key) => ({
           const: value,
-          title: key
-        }))
+          title: key,
+        })),
       },
       gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
         oneOf: map(gateways, ({ gateway_id, gateway }) => ({
           const: gateway_id,
-          title: gateway.name
-        }))
-      }
+          title: gateway.name,
+        })),
+      },
     },
 
     if: {
       properties: {
-        type: { const: PaymentTypes.PAY_IN_FULL }
-      }
+        type: { const: PaymentTypes.PAY_IN_FULL },
+      },
     },
     then: {
-      required: ["gateway_id"]
-    }
+      required: ["gateway_id"],
+    },
   };
 
   return schema;
@@ -79,24 +79,24 @@ export const useUischema = (_context: PaymentDetailsContext) => {
         type: "Control",
         scope: "#/properties/type",
         options: {
-          format: "radio"
-        }
+          format: "radio",
+        },
       },
       {
         type: "Control",
         scope: "#/properties/gateway_id",
         options: {
-          format: "radio"
+          format: "radio",
         },
         rule: {
           effect: "SHOW",
           condition: {
             scope: "#/properties/type",
-            schema: { const: PaymentTypes.PAY_IN_FULL }
-          }
-        }
-      }
-    ]
+            schema: { const: PaymentTypes.PAY_IN_FULL },
+          },
+        },
+      },
+    ],
   };
 
   return uischema as UISchemaElement;
@@ -118,7 +118,7 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       gateway,
       amount,
       currency,
-      renderless: true
+      renderless: true,
     });
 
   if (isDirectDebit(gateway))
@@ -127,7 +127,7 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       gateway,
       amount,
       currency,
-      renderless: true
+      renderless: true,
     });
 
   if (isSEPA(gateway))
@@ -136,7 +136,7 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       gateway,
       amount,
       currency,
-      renderless: true
+      renderless: true,
     });
 
   if (isMobile(gateway))
@@ -145,7 +145,7 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       gateway,
       amount,
       currency,
-      renderless: true
+      renderless: true,
     });
 
   if (isOffline(gateway))
@@ -154,7 +154,7 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       gateway,
       amount,
       currency,
-      renderless: true
+      renderless: true,
     });
 
   if (isExternal(gateway))
@@ -176,7 +176,7 @@ export function spawnCard({ basket_id, gateway, amount, currency }) {
       gateway,
       amount: amount || 0,
       currency,
-      type: GatewayTypes.CARD
+      type: GatewayTypes.CARD,
     }),
     { name: gateway.id, sync: true }
   );
@@ -190,7 +190,7 @@ export function spawnStripe({ basket_id, gateway, amount, currency }) {
       ctx: GatewayCtx.PAY,
       amount: amount || 0,
       currency,
-      type: GatewayTypes.CARD
+      type: GatewayTypes.CARD,
     }),
     { name: gateway.id, sync: true }
   );
@@ -208,7 +208,7 @@ export function spawnGenericGateway(
       amount: amount || 0,
       currency,
       type,
-      renderless
+      renderless,
     }),
     { name: gateway.id, sync: true }
   );
@@ -221,7 +221,7 @@ export function spawnExternal({ basket_id, gateway, amount, currency }) {
       gateway,
       amount: amount || 0,
       currency,
-      type: gateway?.gateway_provider.external_store
+      type: gateway?.gateway_provider.external_store,
     }),
     { name: gateway.id, sync: true }
   );

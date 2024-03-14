@@ -22,7 +22,7 @@ import {
   forIn,
   keys,
   isString,
-  defaultsDeep
+  defaultsDeep,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -55,7 +55,7 @@ export const useApi = () => {
     // ensure our instance has the correct defaults
     instance = defaultsDeep(instance, {
       base: import.meta.env.VITE_API_URL,
-      context: "api"
+      context: "api",
     });
 
     // clean up path
@@ -82,7 +82,7 @@ export const useApi = () => {
     withAccessToken,
     useCache = false,
     maxAge = null,
-    refresh = false
+    refresh = false,
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -116,7 +116,7 @@ export const useApi = () => {
     // first we trigger the request
     service.send({
       type: "ADD",
-      data: { hash, url, init, useCache, maxAge, refresh }
+      data: { hash, url, init, useCache, maxAge, refresh },
     });
 
     // then we get the request from context
@@ -166,7 +166,7 @@ export const useApi = () => {
     withAccessToken,
     useCache = true,
     maxAge = null,
-    refresh = false
+    refresh = false,
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -191,7 +191,7 @@ export const useApi = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
   }: RequestParams) {
     // safe guard
     init ??= {};
@@ -214,7 +214,7 @@ export const useApi = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
   }: RequestParams) {
     // safe guard
     init ??= {};
@@ -237,7 +237,7 @@ export const useApi = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
   }: RequestParams) {
     // safe guard
     init ??= {};
@@ -260,7 +260,7 @@ export const useApi = () => {
     url,
     init,
     data,
-    withAccessToken
+    withAccessToken,
   }: RequestParams) {
     // safe guard
     init ??= {};
@@ -284,7 +284,7 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null
+    maxAge = null,
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
@@ -313,6 +313,6 @@ export const useApi = () => {
     put: putRequest,
     patch: patchRequest,
     del: deleteRequest,
-    head: headRequest
+    head: headRequest,
   };
 };

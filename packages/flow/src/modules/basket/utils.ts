@@ -26,13 +26,13 @@ export function spawnConfiguration(
   try {
     return spawn(configurationMachine(values, currency_id, promotions), {
       name: id,
-      sync: true
+      sync: true,
     });
   } catch (err) {
     console.error("Basket", "spawnConfiguration", {
       values,
       currency_id,
-      promotions
+      promotions,
     });
   }
 }
@@ -43,8 +43,8 @@ export function spawnBillingDetails(basket: IBasket) {
       basket_id: basket?.id,
       model: {
         address_id: basket?.address_id,
-        company_id: basket?.company_id
-      }
+        company_id: basket?.company_id,
+      },
     }),
     { name: "billingDetails", sync: true }
   );
@@ -54,7 +54,7 @@ export function spawnCurrency(basket: IBasket) {
   return spawn(
     currencyMachine.withContext({
       basket_id: basket?.id,
-      model: { id: basket?.currency_id }
+      model: { id: basket?.currency_id },
     }),
     { name: "currency", sync: true }
   );
@@ -64,7 +64,7 @@ export function spawnCustomFields(basket: IBasket) {
   return spawn(
     customFieldsMachine.withContext({
       basket_id: basket?.id,
-      model: useBasketFieldsModelParser(basket)
+      model: useBasketFieldsModelParser(basket),
     }),
     { name: "customFields", sync: true }
   );
@@ -76,8 +76,8 @@ export function spawnPaymentDetails(basket: IBasket) {
       basket_id: basket?.id,
       currency: basket?.currency,
       model: {
-        amount: basket?.unpaid_amount_converted || 0.0
-      }
+        amount: basket?.unpaid_amount_converted || 0.0,
+      },
     }),
     { name: "paymentDetails", sync: true }
   );
@@ -87,7 +87,7 @@ export function spawnPromotions(basket: IBasket) {
   return spawn(
     promotionsMachine.withContext({
       basket_id: basket?.id,
-      promotions: basket?.promotions
+      promotions: basket?.promotions,
     }),
     { name: "promotions", sync: true }
   );
@@ -111,7 +111,7 @@ export const useSummaryParser = (data?: any) => {
     discount: data?.net_discount_amount_formatted, // total_discount_amount
     subtotal: data?.net_amount_formatted || "", // total_amount
     taxes: data?.tax_amount_formatted, // tax_amount
-    total: data?.unpaid_amount_formatted || "" // unpaid_amount
+    total: data?.unpaid_amount_formatted || "", // unpaid_amount
   };
   return summary;
 };
@@ -132,6 +132,6 @@ export const useBasketFieldsModelParser = (basket: any, data = {}) => {
 
   return {
     notes,
-    custom_fields
+    custom_fields,
   };
 };

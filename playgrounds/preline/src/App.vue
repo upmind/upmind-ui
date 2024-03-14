@@ -1,12 +1,12 @@
 <template>
   <router-view
     v-if="isEmbed"
-    class="w-full h-screen max-h-full overflow-auto animate-fade"
+    class="h-screen max-h-full w-full overflow-auto"
   />
 
   <div
     v-else
-    class="flex flex-wrap justify-center bg-base text-base-content h-screen overflow-hidden"
+    class="flex h-screen flex-wrap justify-center overflow-hidden bg-base text-base-content"
   >
     <upm-header></upm-header>
 
@@ -19,7 +19,7 @@
       <template #action>
         <span class="sr-only">Toggle Navigation</span>
         <svg
-          class="flex-shrink-0 size-4"
+          class="size-4 flex-shrink-0"
           width="16"
           height="16"
           fill="currentColor"
@@ -33,7 +33,7 @@
       </template>
 
       <nav
-        class="hs-accordion-group w-full flex flex-col flex-wrap"
+        class="hs-accordion-group flex w-full flex-col flex-wrap"
         data-hs-accordion-always-open
       >
         <ul class="space-y-1.5">
@@ -64,12 +64,12 @@
             >
               <button
                 type="button"
-                class="hs-accordion-toggle hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100"
+                class="hs-accordion-toggle flex w-full items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-start text-sm text-slate-700 hover:bg-gray-100 hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content"
               >
                 {{ startCase(route.name) }}
 
                 <svg
-                  class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
+                  class="ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500 hs-accordion-active:block"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
@@ -84,7 +84,7 @@
                 </svg>
 
                 <svg
-                  class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
+                  class="ms-auto block size-4 text-gray-600 group-hover:text-gray-500 hs-accordion-active:hidden"
                   width="16"
                   height="16"
                   viewBox="0 0 16 16"
@@ -102,9 +102,9 @@
 
               <div
                 :id="`accordion-${route.path}`"
-                class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
+                class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
               >
-                <ul class="pt-2 ps-2">
+                <ul class="ps-2 pt-2">
                   <template v-for="child in route.children" :key="child.path">
                     <li v-if="!child?.meta?.hidden">
                       <router-link
@@ -136,11 +136,11 @@
 
     <!-- provide padding for our fixed header 4.5rem -->
     <main
-      class="w-full h-full pt-[4.5rem] overflow-hidden flex flex-wrap justify-center"
+      class="flex h-full w-full flex-wrap justify-center overflow-hidden pt-[4.5rem]"
     >
       <upm-feedback />
 
-      <router-view class="w-full h-full" :key="route.fullPath" />
+      <router-view class="h-full w-full" :key="route.fullPath" />
 
       <!-- <footer
         class="w-full flex items-start justify-center text-center py-8 px-4 gap-4 text-sm"

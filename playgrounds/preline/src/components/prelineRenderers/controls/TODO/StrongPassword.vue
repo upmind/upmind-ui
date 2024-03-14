@@ -2,12 +2,12 @@
 
 <template>
   <div class="max-w-sm">
-    <div class="flex mb-2">
+    <div class="mb-2 flex">
       <div class="flex-1">
         <input
           type="password"
           id="hs-strong-password-with-indicator-and-hint"
-          class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="block w-full rounded-md border-gray-200 px-4 py-3 text-sm focus:border-primary-500 focus:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter password"
         />
         <div
@@ -17,7 +17,7 @@
             "hints": "#hs-strong-password-hints",
             "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-primary-500 opacity-50 mx-1"
           }'
-          class="flex mt-2 -mx-1"
+          class="-mx-1 mt-2 flex"
         ></div>
       </div>
     </div>
@@ -38,11 +38,11 @@
       <ul class="space-y-1 text-sm text-gray-500">
         <li
           data-hs-strong-password-hints-rule-text="min-length"
-          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
+          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
         >
           <span class="hidden" data-check>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -58,7 +58,7 @@
           </span>
           <span data-uncheck>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -77,11 +77,11 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="lowercase"
-          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
+          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
         >
           <span class="hidden" data-check>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -97,7 +97,7 @@
           </span>
           <span data-uncheck>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -116,11 +116,11 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="uppercase"
-          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
+          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
         >
           <span class="hidden" data-check>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -136,7 +136,7 @@
           </span>
           <span data-uncheck>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -155,11 +155,11 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="numbers"
-          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
+          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
         >
           <span class="hidden" data-check>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -175,7 +175,7 @@
           </span>
           <span data-uncheck>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -194,11 +194,11 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="special-characters"
-          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
+          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
         >
           <span class="hidden" data-check>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -214,7 +214,7 @@
           </span>
           <span data-uncheck>
             <svg
-              class="flex-shrink-0 w-4 h-4"
+              class="h-4 w-4 flex-shrink-0"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"

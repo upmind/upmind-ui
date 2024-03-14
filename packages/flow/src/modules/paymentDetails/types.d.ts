@@ -6,7 +6,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 export enum PaymentTypes {
   PAY_IN_FULL = "stored-card",
   PARTIAL_PAYMENT = "partial-payment",
-  PAY_LATER = "pay-later"
+  PAY_LATER = "pay-later",
   // MANUAL_PAYMENT = "manual-payment" // only admi s can do this and we dont support it...YET
 }
 
@@ -20,7 +20,7 @@ export enum PaymentMethodTypes {
   GATEWAY_OFFLINE = "gateway-offline",
   PAY_LATER = "pay-later",
   MANUAL_PAYMENT = "manual-payment",
-  EXTERNAL_STORE = "external-store"
+  EXTERNAL_STORE = "external-store",
 }
 
 // --------------------------------------------------------

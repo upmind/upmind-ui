@@ -32,7 +32,7 @@ export default createMachine(
       model: undefined,
       // ---
       dirty: false,
-      error: null
+      error: null,
     } as BillingDetailsContext,
     states: {
       loading: {
@@ -41,13 +41,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "checking",
-            actions: ["setContext", "setSchemas"]
+            actions: ["setContext", "setSchemas"],
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
       // ---
 
@@ -61,9 +61,9 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas"]
-              }
-            }
+                actions: ["setContext", "setSchemas"],
+              },
+            },
           },
           validating: {
             invoke: {
@@ -71,32 +71,32 @@ export default createMachine(
               onDone: [
                 {
                   target: "#valid",
-                  cond: "isDirty"
+                  cond: "isDirty",
                 },
                 {
-                  target: "#complete"
-                }
+                  target: "#complete",
+                },
               ],
               onError: {
                 target: "#invalid",
-                actions: ["setError"]
-              }
-            }
-          }
-        }
+                actions: ["setError"],
+              },
+            },
+          },
+        },
       },
 
       valid: {
         id: "valid",
         on: {
           UPDATE: {
-            target: "processing"
-          }
-        }
+            target: "processing",
+          },
+        },
       },
 
       invalid: {
-        id: "invalid"
+        id: "invalid",
       },
 
       processing: {
@@ -106,13 +106,13 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"]
+            actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
 
       processed: {
@@ -120,13 +120,13 @@ export default createMachine(
         entry: sendParent({ type: "REFRESH" }),
         after: {
           wait: {
-            target: "complete"
-          }
-        }
+            target: "complete",
+          },
+        },
       },
 
       complete: {
-        id: "complete"
+        id: "complete",
         // type: "final"
       },
 
@@ -134,30 +134,30 @@ export default createMachine(
         id: "error",
         on: {
           RETRY: {
-            target: "processing"
-          }
-        }
-      }
+            target: "processing",
+          },
+        },
+      },
     },
     on: {
       CLEAR: {
         target: "checking",
-        actions: ["clearModel", "setDirty"]
+        actions: ["clearModel", "setDirty"],
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty"]
+        actions: ["setModel", "setDirty"],
       },
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"]
+        actions: ["clearError", "clearModel", "clearSchemas"],
       },
       REFRESH: {
         target: "loading",
-        actions: ["refreshContext", "setSchemas"]
-      }
-    }
+        actions: ["refreshContext", "setSchemas"],
+      },
+    },
   },
   {
     actions: {
@@ -170,8 +170,8 @@ export default createMachine(
             basket_id: basket?.id,
             model: {
               address_id: basket?.address_id,
-              company_id: basket?.company_id
-            }
+              company_id: basket?.company_id,
+            },
           };
         }
       ),
@@ -183,29 +183,29 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model)
+        model: ({ schema, model }) => useModelParser(schema, model),
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined
+        uischema: undefined,
       }),
 
       setModel: assign({
         model: ({ schema, model }, { data }) =>
-          useModelParser(schema, data || model)
+          useModelParser(schema, data || model),
       }),
 
       clearModel: assign({
-        model: undefined
+        model: undefined,
       }),
 
       setDirty: assign({
-        dirty: true
+        dirty: true,
       }),
 
       clearDirty: assign({
-        dirty: false
+        dirty: false,
       }),
 
       // ---
@@ -221,7 +221,7 @@ export default createMachine(
           title:
             error?.title || "We experienced an error updating billing details",
           copy: error?.message,
-          data: error?.data
+          data: error?.data,
         });
       },
 
@@ -235,21 +235,21 @@ export default createMachine(
           }
 
           return error || data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty
+      isDirty: ({ dirty }, _event) => !!dirty,
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
 
-    services
+    services,
   }
 );

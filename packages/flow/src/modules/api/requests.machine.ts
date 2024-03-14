@@ -19,7 +19,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "empty",
     context: {
-      requests: {}
+      requests: {},
     },
     states: {
       // our initial state depends on if the machine has any requests
@@ -27,31 +27,31 @@ export default createMachine(
       // otherwise we will await a request
       // individual request events are defined to allow for more granular control
       empty: {
-        always: [{ target: "processing", cond: "hasRequests" }]
+        always: [{ target: "processing", cond: "hasRequests" }],
       },
       processing: {
         always: [{ target: "empty", cond: "hasNoRequests" }],
         on: {
           CANCEL: {
-            actions: ["cancel"]
-          }
-        }
+            actions: ["cancel"],
+          },
+        },
       },
       complete: {
-        type: "final"
-      }
+        type: "final",
+      },
     },
     on: {
       ADD: {
-        actions: ["add"]
+        actions: ["add"],
       },
       REMOVE: {
-        actions: ["remove"]
+        actions: ["remove"],
       },
       STOP: {
-        target: "complete"
-      }
-    }
+        target: "complete",
+      },
+    },
   },
   {
     actions: {
@@ -59,7 +59,7 @@ export default createMachine(
         requests: (
           { requests }: RequestsContext,
           {
-            data: { hash, url, init, useCache, maxAge, refresh }
+            data: { hash, url, init, useCache, maxAge, refresh },
           }: RequestsEvents
         ) => {
           hash ??= generateHash(url, init, useCache, keys(requests));
@@ -74,7 +74,7 @@ export default createMachine(
               requestMachine({ hash, url, init, useCache, maxAge }),
               {
                 name: hash,
-                sync: true
+                sync: true,
               }
             );
 
@@ -86,7 +86,7 @@ export default createMachine(
           // we can check if its stale and needs to be refreshed
           else if (request.state.matches("processed.stale") || refresh) {
             request.send({
-              type: "REFRESH"
+              type: "REFRESH",
             });
           }
 
@@ -94,12 +94,12 @@ export default createMachine(
           // we can check if its errored and needs to be retried
           else if (request.state.matches("error")) {
             request.send({
-              type: "RETRY"
+              type: "RETRY",
             });
           }
 
           return requests;
-        }
+        },
       }),
 
       remove: assign({
@@ -123,7 +123,7 @@ export default createMachine(
 
           unset(requests, hash);
           return requests;
-        }
+        },
       }),
 
       cancel: assign({
@@ -143,8 +143,8 @@ export default createMachine(
           }
 
           return requests;
-        }
-      })
+        },
+      }),
     },
 
     guards: {
@@ -153,8 +153,8 @@ export default createMachine(
       },
       hasNoRequests: ({ requests }) => {
         return isEmpty(requests);
-      }
+      },
     },
-    services
+    services,
   }
 );

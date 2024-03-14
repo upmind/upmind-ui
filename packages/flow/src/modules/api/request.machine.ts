@@ -32,7 +32,7 @@ export default (request: RequestParams) =>
         response: null,
         error: null,
         // ---
-        attempts: 0
+        attempts: 0,
       },
       states: {
         // our initial state depends on how the machine was invoked
@@ -44,9 +44,9 @@ export default (request: RequestParams) =>
           always: [
             {
               target: "processing",
-              cond: "hasRequest"
-            }
-          ]
+              cond: "hasRequest",
+            },
+          ],
         },
 
         // Process auth refresh tokens before processing the request
@@ -57,9 +57,9 @@ export default (request: RequestParams) =>
             onDone: { actions: ["setAuthHeader"], target: "#processing" },
             onError: {
               target: "#error",
-              actions: ["setError"]
-            }
-          }
+              actions: ["setError"],
+            },
+          },
         },
 
         // Process the request through our service
@@ -71,17 +71,17 @@ export default (request: RequestParams) =>
             src: "doFetch",
             onDone: {
               target: "processed",
-              actions: ["setResponse"]
+              actions: ["setResponse"],
             },
             onError: [
               { target: "authorizing", cond: "canAuthorize" },
-              { target: "error", actions: ["setError"] }
-            ]
+              { target: "error", actions: ["setError"] },
+            ],
           },
           on: {
             CANCEL: { actions: [forwardTo("process")] },
-            CANCELLED: { target: "processed.cancelled" }
-          }
+            CANCELLED: { target: "processed.cancelled" },
+          },
         },
 
         // Use have an Available state to indicate a successful process
@@ -99,39 +99,39 @@ export default (request: RequestParams) =>
                 {
                   delay: 0,
                   target: "empty",
-                  cond: "hasNoContent"
+                  cond: "hasNoContent",
                 },
                 {
                   delay: 0,
                   target: "cached",
-                  cond: "isCachable"
+                  cond: "isCachable",
                 },
                 {
                   delay: "wait",
-                  target: "#complete"
-                }
-              ]
+                  target: "#complete",
+                },
+              ],
             },
             cancelled: {
               after: {
-                wait: "#complete" // automatically move to complete after  max age
-              }
+                wait: "#complete", // automatically move to complete after  max age
+              },
             },
             empty: {},
             cached: {
               after: { maxAge: "stale" }, // automatically move to stale after max age
               on: {
                 CANCEL: { target: "#complete" },
-                REFRESH: { target: "#processing" }
-              }
+                REFRESH: { target: "#processing" },
+              },
             },
             stale: {
               on: {
                 REFRESH: { target: "#processing" },
-                CANCEL: { target: "#complete" }
-              }
-            }
-          }
+                CANCEL: { target: "#complete" },
+              },
+            },
+          },
         },
 
         // Handle errors
@@ -146,30 +146,30 @@ export default (request: RequestParams) =>
               always: [
                 {
                   target: "#processed.cancelled",
-                  cond: "hasRetried"
+                  cond: "hasRetried",
                 },
                 {
                   target: "unauthorized",
-                  cond: "isUnauthorized"
+                  cond: "isUnauthorized",
                 },
                 {
                   target: "forbidden",
-                  cond: "isForbidden"
+                  cond: "isForbidden",
                 },
                 {
                   target: "notFound",
-                  cond: "isNotFound"
+                  cond: "isNotFound",
                 },
                 {
                   target: "conflict",
-                  cond: "hasConflict"
+                  cond: "hasConflict",
                 },
                 {
                   target: "tooManyRequests",
-                  cond: "hasTooManyRequests"
+                  cond: "hasTooManyRequests",
                 },
-                { target: "unknown" } // automatically move to complete after  max age
-              ]
+                { target: "unknown" }, // automatically move to complete after  max age
+              ],
             },
             // this is for errors we don't know how to handle
             unknown: {},
@@ -178,16 +178,16 @@ export default (request: RequestParams) =>
             forbidden: {},
             notFound: {},
             conflict: {},
-            tooManyRequests: {}
+            tooManyRequests: {},
           },
 
           on: {
             RETRY: {
               target: "processing",
-              actions: []
+              actions: [],
             },
-            CANCEL: { target: "#complete" }
-          }
+            CANCEL: { target: "#complete" },
+          },
         },
 
         // Handle completion, stop the machine and prevent further requests
@@ -195,26 +195,26 @@ export default (request: RequestParams) =>
         complete: {
           id: "complete",
           entry: ["sendClearRequest"],
-          type: "final"
-        }
-      }
+          type: "final",
+        },
+      },
     },
     {
       actions: {
         setResponse: assign({
           response: (context, { data }) => data,
-          completed: () => Date.now()
+          completed: () => Date.now(),
         }),
 
         clearResponse: assign({ response: null, completed: null }),
 
         sendClearRequest: sendParent(({ hash }) => ({
           type: "REMOVE",
-          data: { hash }
+          data: { hash },
         })),
 
         setError: assign({
-          error: (context, { data }) => data
+          error: (context, { data }) => data,
         }),
 
         // escalateError: escalate(_context, ({ data }) => data),
@@ -222,15 +222,15 @@ export default (request: RequestParams) =>
         clearError: assign({ error: null }),
 
         incrementAttempts: assign({
-          attempts: ({ attempts }) => toNumber(attempts) + 1
+          attempts: ({ attempts }) => toNumber(attempts) + 1,
         }),
 
         setAuthHeader: assign({
           init: ({ init }, { data }) => {
             set(init, "headers.Authorization", `Bearer ${data.access_token}`);
             return init;
-          }
-        })
+          },
+        }),
       },
       services: machineServices,
       guards: {
@@ -265,12 +265,12 @@ export default (request: RequestParams) =>
           response?.status === responseCodes.No_Content,
         // ---
         isCachable: ({ init, useCache }) =>
-          init?.method === FetchMethods.GET && !!useCache
+          init?.method === FetchMethods.GET && !!useCache,
       },
       delays: {
         maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
         error: () => useTime().ERROR,
-        wait: () => useTime().WAIT
-      }
+        wait: () => useTime().WAIT,
+      },
     }
   );

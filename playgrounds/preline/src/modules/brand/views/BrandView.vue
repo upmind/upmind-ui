@@ -1,10 +1,10 @@
 <template>
   <section class="brand w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
+      class="navbar sticky top-0 z-10 rounded-box bg-base-100 pl-4 shadow-md"
     >
       <div class="flex-1">
-        <h2 class="title m-0 flex gap-2 items-center">
+        <h2 class="title m-0 flex items-center gap-2">
           Brand
 
           <progress
@@ -26,24 +26,24 @@
         </h2>
       </div>
 
-      <div class="actions flex-none join">
+      <div class="actions join flex-none">
         <slot name="actions"> </slot>
       </div>
     </header>
 
     <div
-      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
+      class="my-8 grid grid-cols-1 gap-4 rounded-box bg-base-200 p-4 text-base-content"
       :data-theme="activeTheme"
     >
       <template v-for="(values, key) in responses" :key="key">
         <div
-          class="collapse collapse-plus border border-opacity-50 border-neutral-300 rounded-box mb-2"
+          class="collapse-plus collapse mb-2 rounded-box border border-neutral-300 border-opacity-50"
           :class="{ 'border-neutral': values }"
         >
           <input type="checkbox" name="request" />
 
           <div class="collapse-title">
-            <h4 class="m-0 text-inherit flex gap-2 items-center">
+            <h4 class="m-0 flex items-center gap-2 text-inherit">
               <span class="badge badge-success badge-xs" v-if="values"></span>
 
               <span class="badge badge-neutral badge-outline badge-xs" v-else>

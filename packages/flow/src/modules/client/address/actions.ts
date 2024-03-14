@@ -18,7 +18,7 @@ export const ListingActions = {
       const machine = spawnItem(data); // spawn an actor for the new raw
       raw.push(machine);
       return raw;
-    }
+    },
   }),
   setItems: assign({
     raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
@@ -27,8 +27,8 @@ export const ListingActions = {
         if (!found) return spawnItem(item);
         return found;
       }),
-    error: null
-  })
+    error: null,
+  }),
 };
 
 export const ItemActions = {
@@ -48,20 +48,20 @@ export const ItemActions = {
         get(model, "city"),
         get(model, "postcode"),
         get(region, "name"),
-        get(country, "name")
+        get(country, "name"),
       ]).join(", ");
-    }
+    },
   }),
 
   setSchemas: assign({
     schema: (context: AddressContext, _event: AddressEvent) =>
       useSchema(context),
     uischema: (context: AddressContext, _event: AddressEvent) =>
-      useUischema(context)
+      useUischema(context),
   }),
 
   setModel: assign({
     model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
-      useModelParser(schema, data, baseModel)
-  })
+      useModelParser(schema, data, baseModel),
+  }),
 };

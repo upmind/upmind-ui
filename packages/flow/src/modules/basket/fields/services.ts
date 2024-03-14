@@ -20,7 +20,7 @@ async function load(_context: FieldsContext, _event: FieldsEvent) {
   const { get, useUrl } = useApi();
 
   return get({
-    url: useUrl("basket_fields")
+    url: useUrl("basket_fields"),
   }).then(({ data }) => ({ fields: data }));
 }
 
@@ -38,7 +38,7 @@ async function update(
   return put({
     url: useUrl(`/orders/${basket_id}`),
     data,
-    withAccessToken: true
+    withAccessToken: true,
   });
 }
 
@@ -73,5 +73,5 @@ export default {
   load,
   parse,
   validate,
-  update
+  update,
 };

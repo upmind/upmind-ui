@@ -16,7 +16,7 @@ export enum FetchMethods {
   GET = "GET",
   PATCH = "PATCH",
   POST = "POST",
-  PUT = "PUT"
+  PUT = "PUT",
 }
 
 // --------------------------------------------------------
@@ -54,7 +54,7 @@ async function doFetch({ url, init }: RequestContext) {
     .catch(error => {
       console.warn("doFetch response.json error", error);
       return {
-        data: null
+        data: null,
       };
     });
 
@@ -113,5 +113,5 @@ async function refreshToken(_context: RequestContext, _event: any) {
 
 export default <Object>{
   doFetch,
-  refreshToken
+  refreshToken,
 };

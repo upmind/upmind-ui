@@ -9,7 +9,7 @@ defineProps<{
     <div class="max-w-sm">
       <label
         :for="`hs-toggle-password-${groupId}-np`"
-        class="block text-sm mb-2 dark:text-white"
+        class="mb-2 block text-sm dark:text-white"
       >
         New password
       </label>
@@ -17,7 +17,7 @@ defineProps<{
         <input
           :id="`hs-toggle-password-${groupId}-np`"
           type="password"
-          class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="block w-full rounded-lg border-gray-200 px-4 py-3 text-sm focus:border-primary-500 focus:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter new password"
         />
         <button
@@ -25,10 +25,10 @@ defineProps<{
           :data-hs-toggle-password="`{
             &quot;target&quot;: [&quot;#hs-toggle-password-${groupId}&quot;, &quot;#hs-toggle-password-${groupId}-np&quot;]
           }`"
-          class="absolute top-0 end-0 p-3.5 rounded-e-md dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+          class="absolute end-0 top-0 rounded-e-md p-3.5 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
         >
           <svg
-            class="flex-shrink-0 w-3.5 h-3.5 text-gray-400 dark:text-neutral-600"
+            class="h-3.5 w-3.5 flex-shrink-0 text-gray-400 dark:text-neutral-600"
             width="24"
             height="24"
             viewBox="0 0 24 24"
@@ -75,7 +75,7 @@ defineProps<{
     <div class="max-w-sm">
       <label
         :for="`hs-toggle-password-${groupId}`"
-        class="block text-sm mb-2 dark:text-white"
+        class="mb-2 block text-sm dark:text-white"
       >
         Current password
       </label>
@@ -83,7 +83,7 @@ defineProps<{
         <input
           :id="`hs-toggle-password-${groupId}`"
           type="password"
-          class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="block w-full rounded-lg border-gray-200 px-4 py-3 text-sm focus:border-primary-500 focus:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter current password"
           value="12345qwerty"
         />
@@ -92,10 +92,10 @@ defineProps<{
           :data-hs-toggle-password="`{
             &quot;target&quot;: [&quot;#hs-toggle-password-${groupId}&quot;, &quot;#hs-toggle-password-${groupId}-np&quot;]
           }`"
-          class="absolute top-0 end-0 p-3.5 rounded-e-md dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+          class="absolute end-0 top-0 rounded-e-md p-3.5 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
         >
           <svg
-            class="flex-shrink-0 w-3.5 h-3.5 text-gray-400 dark:text-neutral-600"
+            class="h-3.5 w-3.5 flex-shrink-0 text-gray-400 dark:text-neutral-600"
             width="24"
             height="24"
             viewBox="0 0 24 24"

@@ -1,12 +1,12 @@
 <template>
   <nav
-    class="flex bg-neutral-50 hover:bg-neutral-100 rounded-lg transition py-1 px-1 space-x-1 justify-between"
+    class="flex justify-between space-x-1 rounded-lg bg-neutral-50 px-1 py-1 transition hover:bg-neutral-100"
   >
     <button
       v-for="resolution in resolutions"
       :key="resolution"
       type="button"
-      class="flex flex-col place-items-center gap-1 text-xs sm:text-sm text-inherit hover:text-inherit font-medium rounded-lg py-2 px-2"
+      class="flex flex-col place-items-center gap-1 rounded-lg px-2 py-2 text-xs font-medium text-inherit hover:text-inherit sm:text-sm"
       :class="{
         active: active === resolution,
         'bg-white': active === resolution,
@@ -16,7 +16,7 @@
       @click.prevent="active = resolution"
     >
       <upm-icon path="devices" :name="resolution" class="size-4" />
-      <span class="text-xs sr-only">{{ startCase(resolution) }}</span>
+      <span class="sr-only text-xs">{{ startCase(resolution) }}</span>
     </button>
   </nav>
 

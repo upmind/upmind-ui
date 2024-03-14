@@ -22,7 +22,7 @@ async function load(
 ) {
   const loader = new Loader({
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-    version: "weekly"
+    version: "weekly",
   });
 
   const api = await loader.importLibrary("places").catch(error => {
@@ -34,7 +34,7 @@ async function load(
     service: new api.AutocompleteService(),
     AutocompleteSessionToken: api.AutocompleteSessionToken,
     sessionToken: new api.AutocompleteSessionToken(),
-    statuses: api.PlacesServiceStatus
+    statuses: api.PlacesServiceStatus,
   });
 }
 
@@ -51,7 +51,7 @@ async function filterItems(
       {
         input: data,
         sessionToken: sessionToken,
-        fields: ["address_components"]
+        fields: ["address_components"],
       },
       (result, status) => {
         if (status === statuses.OK) {
@@ -72,7 +72,7 @@ async function parse(
     sessionToken,
     AutocompleteSessionToken,
     statuses,
-    service
+    service,
   }: ClientListingsContext,
   { data }: ClientListingsEvents
 ) {
@@ -86,7 +86,7 @@ async function parse(
       {
         placeId: data?.place,
         sessionToken: sessionToken,
-        fields: ["address_components", "name"]
+        fields: ["address_components", "name"],
       },
       (result, status) => {
         sessionToken = new AutocompleteSessionToken();
@@ -111,5 +111,5 @@ async function parse(
 export default {
   load,
   parse,
-  filter: filterItems
+  filter: filterItems,
 };

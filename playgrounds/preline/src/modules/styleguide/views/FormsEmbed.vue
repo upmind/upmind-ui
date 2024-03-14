@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 items-center flex flex-wrap" :data-theme="activeTheme">
+  <div class="flex flex-wrap items-center p-8" :data-theme="activeTheme">
     <upm-form-generator
       :schema="schema"
       :uischema="uischema"

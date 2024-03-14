@@ -46,7 +46,7 @@ export async function usePredictionsParser(results: any) {
     const value = {
       id: result.place_id,
       title: result.description,
-      description: null
+      description: null,
     };
 
     return value;
@@ -59,7 +59,7 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
 
   const address_1 = [
     parseValue(address, ["street_number"]),
-    parseValue(address, ["route"])
+    parseValue(address, ["route"]),
   ];
 
   const address_2 = [parseValue(address, ["sublocality"])];
@@ -69,7 +69,7 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
   const city = parseValue(address, [
     "postal_town",
     "locality",
-    "administrative_area_level_2"
+    "administrative_area_level_2",
   ]);
 
   const country = parseCountry(address);
@@ -87,7 +87,7 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
     postcode,
     city,
     country_id: get(country, "id"),
-    region_id: get(region, "id")
+    region_id: get(region, "id"),
   };
 
   return value as IAddress;

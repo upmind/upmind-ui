@@ -11,7 +11,7 @@ import {
   isArray,
   map,
   reduce,
-  set
+  set,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -25,7 +25,7 @@ export function getMaxAge(seconds = 60) {
 export function addMeta(obj: Object, prop: PropertyKey, value: any) {
   Object.defineProperty(obj, prop, {
     value,
-    enumerable: false
+    enumerable: false,
   });
 }
 

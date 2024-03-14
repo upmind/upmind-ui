@@ -17,7 +17,7 @@ export function generateUrls({
   basket_id,
   type,
   operation_id,
-  model
+  model,
 }: GatewayContext) {
   const url = new URL(window.location.pathname, window.location.origin);
   // if (operation_id)
@@ -59,7 +59,7 @@ export function generateUrls({
   return {
     cancel: cancelUrl.toString(),
     success: successUrl.toString(),
-    fail: failUrl.toString()
+    fail: failUrl.toString(),
   };
 }
 
@@ -75,31 +75,31 @@ export const useSchema = (context: GatewayContext) => {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
-        const: context.gateway.id
+        const: context.gateway.id,
       },
       store_on_payment: {
         type: "boolean",
-        title: "Save payment details"
+        title: "Save payment details",
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "Allow auto payment",
         description:
-          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice."
+          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
       },
       return_url: {
         type: "string",
         title: "Return URL",
         format: "uri-reference",
-        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`
+        const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`,
       },
       cancel_url: {
         type: "string",
         title: "Cancel URL",
         format: "uri",
-        const: cancel
-      }
-    }
+        const: cancel,
+      },
+    },
   };
 
   // enforce brand settings via setting the const value. This will ensure the value is not editable
@@ -126,25 +126,25 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         type: "Control",
         scope: "#/properties/store_on_payment",
         options: {
-          autocomplete: "off"
-        }
+          autocomplete: "off",
+        },
       },
       {
         type: "Control",
         scope: "#/properties/store_on_payment_auto_payment",
         options: {
-          autocomplete: "off"
+          autocomplete: "off",
         },
         // only show this field if we have the store_on_payment flag
         rule: {
           effect: "SHOW",
           condition: {
             scope: "#/properties/store_on_payment",
-            schema: { const: true }
-          }
-        }
-      }
-    ]
+            schema: { const: true },
+          },
+        },
+      },
+    ],
   };
 
   return uischema as UISchemaElement;
@@ -157,7 +157,7 @@ export function canBeStored(gateway: IGateway) {
     is_stored,
     gateway_provider,
     store_on_payment,
-    store_outside_payment
+    store_outside_payment,
   } = gateway;
   const { store_type } = gateway_provider;
   if (!is_stored) return false;

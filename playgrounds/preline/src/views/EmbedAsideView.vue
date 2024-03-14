@@ -1,12 +1,12 @@
 <template>
-  <article class="view w-full grid grid-cols-4 gap-4 h-full overflow-hidden">
+  <article class="view grid h-full w-full grid-cols-4 gap-4 overflow-hidden">
     <aside
-      class="shadow-inner rounded pr-8 border-e border-neutral-200 bg-neutral-50 py-12 px-4 sm:px-8 lg:px-12 relative h-full overflow-auto"
+      class="relative h-full overflow-auto rounded border-e border-neutral-200 bg-neutral-50 px-4 py-12 pr-8 shadow-inner sm:px-8 lg:px-12"
     >
       <header class="view-header mb-8">
         <p
           v-if="flow"
-          class="view-flow mb-2 text-xs font-semibold text-neutral-400 uppercase tracking-wide"
+          class="view-flow mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400"
         >
           {{ flow }}
         </p>
@@ -27,7 +27,7 @@
 
         <div class="view-actions my-8 flex items-center gap-2 sm:gap-3">
           <button
-            class="py-2 px-2 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-neutral text-white hover:bg-neutral disabled:opacity-50 disabled:pointer-events-none transition-colors"
+            class="inline-flex aspect-square items-center justify-center gap-x-2 rounded-full border border-transparent bg-neutral px-2 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral disabled:pointer-events-none disabled:opacity-50"
             disabled
           >
             <upm-icon name="code" class="size-5 stroke-current" />
@@ -39,10 +39,10 @@
             contentId="debug-auth-flow"
             title="Debug Auth Flow"
             action="Debug"
-            class="py-2 px-2 aspect-square inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-neutral text-neutral bg-transparent hover:bg-neutral hover:text-neutral-content transition-colors"
+            class="inline-flex aspect-square items-center justify-center gap-x-2 rounded-full border border-neutral bg-transparent px-2 py-2 text-sm font-semibold text-neutral transition-colors hover:bg-neutral hover:text-neutral-content"
           >
             <template #action>
-              <upm-icon name="inspect" class="size-5 fill-current -mt-1" />
+              <upm-icon name="inspect" class="-mt-1 size-5 fill-current" />
               <span class="sr-only">Inspect Auth Flow</span>
             </template>
 
@@ -61,13 +61,13 @@
 
       <div class="sticky top-0">
         <nav
-          class="hs-accordion-group w-full flex flex-col flex-wrap"
+          class="hs-accordion-group flex w-full flex-col flex-wrap"
           data-hs-accordion-always-open
         >
           <ul class="space-y-4">
             <li>
               <span
-                class="flex flex-wrap justify-between py-2 text-xs text-neutral-500 uppercase"
+                class="flex flex-wrap justify-between py-2 text-xs uppercase text-neutral-500"
               >
                 Layout Variants
               </span>
@@ -76,7 +76,7 @@
                 <router-link
                   :to="{ name: 'auth-light' }"
                   type="button"
-                  class="py-3 px-4 flex items-center gap-x-2 rounded-t-md text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="flex items-center gap-x-2 rounded-t-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
                   exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Simple
@@ -85,7 +85,7 @@
                 <router-link
                   :to="{ name: 'auth-illustration' }"
                   type="button"
-                  class="-mt-px py-3 px-4 flex items-center gap-x-2 text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="-mt-px flex items-center gap-x-2 border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
                   exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Illustration
@@ -94,7 +94,7 @@
                 <router-link
                   :to="{ name: 'auth-background' }"
                   type="button"
-                  class="-mt-px py-3 px-4 flex items-center gap-x-2 text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="-mt-px flex items-center gap-x-2 border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
                   exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Background
@@ -103,7 +103,7 @@
                 <router-link
                   :to="{ name: 'auth-marketing' }"
                   type="button"
-                  class="-mt-px py-3 px-4 flex items-center gap-x-2 rounded-b-md text-sm font-medium focus:z-10 border border-neutral-200 bg-white text-neutral-400 shadow-sm hover:bg-neutral-50 disabled:opacity-50 disabled:pointer-events-none"
+                  class="-mt-px flex items-center gap-x-2 rounded-b-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
                   exact-active-class="!bg-neutral text-neutral-content"
                 >
                   Marketing
@@ -119,10 +119,10 @@
       </div>
     </aside>
 
-    <div class="h-full canvas col-span-3 py-8 px-4 sm:px-6 lg:px-6">
+    <div class="canvas col-span-3 h-full px-4 py-8 sm:px-6 lg:px-6">
       <!-- <div class="canvas col-span-3"> -->
       <figure
-        class="h-full relative z-[1] max-w-full rounded-md shadow-menu mx-auto transition-all overflow-hidden"
+        class="shadow-menu relative z-[1] mx-auto h-full max-w-full overflow-hidden rounded-md transition-all"
         :class="{
           'w-full': isDesktop,
           'w-[768px]': isTablet,
@@ -149,9 +149,9 @@
 
         <div
           :data-theme="activeTheme"
-          class="h-full relative bg-base text-base-content rounded-b-md overflow-auto"
+          class="relative h-full overflow-auto rounded-b-md bg-base text-base-content"
         >
-          <object :data="url" class="absolute w-full h-full"></object>
+          <object :data="url" class="absolute h-full w-full"></object>
         </div>
       </figure>
     </div>

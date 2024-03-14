@@ -10,6 +10,6 @@ export const useTokenParser = (data: any) => {
     second_factor_required: isBoolean(data?.isBoolean)
       ? data?.isBoolean
       : data?.isBoolean === "true",
-    token_type: toString(data?.token_type)
+    token_type: toString(data?.token_type),
   };
 };

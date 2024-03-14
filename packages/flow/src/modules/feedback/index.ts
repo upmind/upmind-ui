@@ -55,7 +55,7 @@ export const useFeedback = () => {
       data: message?.data,
       display,
       delay,
-      maxAge
+      maxAge,
     } as Message);
   }
 
@@ -75,7 +75,7 @@ export const useFeedback = () => {
       data: message?.data,
       display,
       delay,
-      maxAge
+      maxAge,
     } as Message);
   }
 
@@ -107,6 +107,6 @@ export const useFeedback = () => {
     add,
     addError,
     addSuccess,
-    dismiss
+    dismiss,
   };
 };

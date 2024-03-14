@@ -28,7 +28,7 @@
     <details
       tabindex="-1"
       ref="target"
-      class="dropdown dropdown-start absolute top-2 left-3"
+      class="dropdown dropdown-start absolute left-3 top-2"
       :class="{ 'dropdown-open': open }"
       :open="open"
       @toggle="doToggle($event.currentTarget.open)"
@@ -46,7 +46,7 @@
       </summary>
       <ul
         tabindex="0"
-        class="menu menu-xs dropdown-content z-10 p-2 shadow bg-base-100 rounded w-52 mt-0 max-h-60 overflow-auto flex-nowrap"
+        class="menu menu-xs dropdown-content z-10 mt-0 max-h-60 w-52 flex-nowrap overflow-auto rounded bg-base-100 p-2 shadow"
       >
         <li v-for="country in countries" :key="country">
           <a

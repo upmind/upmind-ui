@@ -107,6 +107,6 @@ export const useSession = () => {
           reject(false);
         }
       });
-    }
+    },
   };
 };

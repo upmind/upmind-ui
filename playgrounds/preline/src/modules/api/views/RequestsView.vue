@@ -1,7 +1,7 @@
 <template>
   <section class="requests w-full">
     <header
-      class="navbar bg-base-100 shadow-md sticky top-0 z-10 pl-4 rounded-box"
+      class="navbar sticky top-0 z-10 rounded-box bg-base-100 pl-4 shadow-md"
     >
       <div class="flex-1">
         <h2 class="title m-0">
@@ -14,7 +14,7 @@
         </h2>
       </div>
 
-      <div class="actions flex-none join">
+      <div class="actions join flex-none">
         <slot name="actions">
           <button class="btn btn-outline btn-sm" @click="processRequests">
             Add dummy requests
@@ -24,7 +24,7 @@
     </header>
 
     <div
-      class="grid grid-cols-1 gap-4 my-8 rounded-box p-4 bg-base-200 text-base-content"
+      class="my-8 grid grid-cols-1 gap-4 rounded-box bg-base-200 p-4 text-base-content"
       :data-theme="activeTheme"
     >
       <upm-request

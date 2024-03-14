@@ -52,15 +52,15 @@ async function getUser(_context: SessionContext, _event: any) {
     url: useUrl("self", {
       with: [
         "actor",
-        "accounts"
+        "accounts",
         // client specific only
         // "actor.account", // Relation required for determining `topup_enabled` value
         // "actor.brand", // Relation required for determining `topup_enabled` value
         // "delegated_ids",
         // "enabled_modules"
-      ].join()
+      ].join(),
     }),
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data?.actor);
 
   // const self = await dispatch(
@@ -94,5 +94,5 @@ export default <Object>{
   dumpTokens,
   dumpGuestToken,
   dumpClientToken,
-  getUser
+  getUser,
 };

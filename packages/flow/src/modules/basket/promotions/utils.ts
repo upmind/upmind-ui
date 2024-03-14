@@ -18,9 +18,9 @@ export const useSchema = (_context: PromotionsContext) => {
     properties: {
       code: {
         type: ["string", "null"],
-        title: "Code"
-      }
-    }
+        title: "Code",
+      },
+    },
   };
 
   return schema as JsonSchema;
@@ -41,14 +41,14 @@ export const useUischema = (_context: PromotionsContext) => {
             control: {
               label: {
                 root: "label sr-only",
-                text: "label-text"
+                text: "label-text",
               },
-              input: "input input-bordered w-full "
-            }
-          }
-        }
-      }
-    ]
+              input: "input input-bordered w-full ",
+            },
+          },
+        },
+      },
+    ],
   };
 
   return schema as UISchemaElement;

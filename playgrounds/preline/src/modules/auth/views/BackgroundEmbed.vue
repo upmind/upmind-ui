@@ -1,18 +1,18 @@
 <template>
-  <div class="relative w-full mx-auto flex flex-wrap" :data-theme="activeTheme">
-    <figure class="absolute h-full w-full z-index-0 bg-neutral">
+  <div class="relative mx-auto flex w-full flex-wrap" :data-theme="activeTheme">
+    <figure class="z-index-0 absolute h-full w-full bg-neutral">
       <img
-        class="w-full h-full object-cover m-0 opacity-40"
+        class="m-0 h-full w-full object-cover opacity-40"
         src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/background.jpg"
         alt="Illustration of a person entering a password"
       />
     </figure>
 
     <div
-      class="relative z-index-1 max-h-full h-screen overflow-auto w-full flex mx-4 md:mx-8 xl:mx-12 items-center justify-center"
+      class="z-index-1 relative mx-4 flex h-screen max-h-full w-full items-center justify-center overflow-auto md:mx-8 xl:mx-12"
     >
       <div
-        class="bg-base-50 text-base-content border p-4 sm:p-7 w-full max-w-md py-8 px-4 sm:px-6 lg:px-8 border-base-300 rounded-xl shadow-sm"
+        class="w-full max-w-md rounded-xl border border-base-300 bg-base-50 p-4 px-4 py-8 text-base-content shadow-sm sm:p-7 sm:px-6 lg:px-8"
       >
         <div class="text-center">
           <h3 class="block text-2xl font-bold text-inherit">
@@ -22,7 +22,7 @@
           <p v-if="meta.showLoginForm" class="mt-2 text-sm text-base-content">
             Don't have an account yet?
             <button
-              class="text-primary decoration-2 hover:underline font-medium"
+              class="font-medium text-primary decoration-2 hover:underline"
               @click.prevent="showRegister"
             >
               Sign up here
@@ -35,7 +35,7 @@
           >
             Already have an account?
             <button
-              class="text-secondary decoration-2 hover:underline font-medium"
+              class="font-medium text-secondary decoration-2 hover:underline"
               @click.prevent="showLogin"
             >
               Sign in here
@@ -44,7 +44,7 @@
         </div>
 
         <div
-          class="my-5 py-3 flex items-center text-xs text-base-400 uppercase before:flex-[1_1_0%] before:border-t before:border-base-400 before:me-6 after:flex-[1_1_0%] after:border-t after:border-base-400 after:ms-6"
+          class="my-5 flex items-center py-3 text-xs uppercase text-base-400 before:me-6 before:flex-[1_1_0%] before:border-t before:border-base-400 after:ms-6 after:flex-[1_1_0%] after:border-t after:border-base-400"
         >
           Or
         </div>

@@ -1,5 +1,5 @@
 <template>
-  <article class="view max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <article class="view mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
     <header class="view-header max-w-3xl">
       <p v-if="flow" class="view-flow mb-2 text-sm font-semibold text-primary">
         {{ flow }}
@@ -17,7 +17,7 @@
         class="view-actions mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3"
       >
         <button
-          class="w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
+          class="inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-700 disabled:pointer-events-none disabled:opacity-50 sm:w-auto"
           disabled
         >
           <upm-icon name="code" class="size-4 stroke-current" />
@@ -29,10 +29,10 @@
           contentId="debug-auth-flow"
           title="Debug Auth Flow"
           action="Debug"
-          class="text-sm border border-primary text-primary bg-transparent hover:bg-primary-700 hover:text-primary-content transition-colors"
+          class="border border-primary bg-transparent text-sm text-primary transition-colors hover:bg-primary-700 hover:text-primary-content"
         >
           <template #action>
-            <upm-icon name="debug" class="size-4 fill-current -mt-1" />
+            <upm-icon name="debug" class="-mt-1 size-4 fill-current" />
             <span>Debug Auth Flow</span>
           </template>
 
@@ -49,19 +49,19 @@
       </div>
     </header>
 
-    <div class="canvas w-full my-12">
-      <figure class="relative z-[1] max-w-full rounded-md shadow-menu">
+    <div class="canvas my-12 w-full">
+      <figure class="shadow-menu relative z-[1] max-w-full rounded-md">
         <div
-          class="relative flex gap-12 justify-between items-center bg-base-50 rounded-t-lg py-2 px-4 border-b border-base-300"
+          class="relative flex items-center justify-between gap-12 rounded-t-lg border-b border-base-300 bg-base-50 px-4 py-2"
         >
           <div class="flex gap-2">
-            <span class="size-3 bg-error rounded-full"></span>
-            <span class="size-3 bg-warning rounded-full"></span>
-            <span class="size-3 bg-success rounded-full"></span>
+            <span class="size-3 rounded-full bg-error"></span>
+            <span class="size-3 rounded-full bg-warning"></span>
+            <span class="size-3 rounded-full bg-success"></span>
           </div>
 
           <div
-            class="flex-1 rounded-lg text-sm text-center py-2 px-4 bg-base-100 text-base-content max-w-lg"
+            class="max-w-lg flex-1 rounded-lg bg-base-100 px-4 py-2 text-center text-sm text-base-content"
           >
             www.upmind.com
           </div>
@@ -71,14 +71,14 @@
 
         <div
           :data-theme="activeTheme"
-          class="h-[80vh] bg-base text-base-content transition-all relative rounded-b-md mx-auto overflow-auto"
+          class="relative mx-auto h-[80vh] overflow-auto rounded-b-md bg-base text-base-content transition-all"
           :class="{
             'w-full': isDesktop,
             'w-[768px]': isTablet,
             'w-[375px]': !isDesktop && !isTablet,
           }"
         >
-          <object :data="url" class="absolute w-full h-full"></object>
+          <object :data="url" class="absolute h-full w-full"></object>
         </div>
       </figure>
     </div>

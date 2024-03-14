@@ -21,7 +21,7 @@ import { find } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false
+  devTools: false,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -35,6 +35,7 @@ export const useClientPhones = () => {
     getItems: () => state?.context?.items,
     getSelected: () => state?.context?.selected,
     getItem: id => find(state?.context?.items, ["id", id]),
-    getDefault: () => find(state?.context?.items, "state.context.model.default")
+    getDefault: () =>
+      find(state?.context?.items, "state.context.model.default"),
   };
 };

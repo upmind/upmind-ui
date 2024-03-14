@@ -19,7 +19,7 @@ import { actions } from "./actions";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false
+  devTools: false,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -34,6 +34,6 @@ export const usePlaces = () => {
     getDefault: () => null, // we have no default in this machine,
     getPlaceDetails: id =>
       services.parse(state?.context, { data: { place: id } }),
-    reset: () => service.send("REFRESH")
+    reset: () => service.send("REFRESH"),
   };
 };

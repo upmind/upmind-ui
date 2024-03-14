@@ -7,7 +7,7 @@
   >
     <ul
       :id="control.id + '-input'"
-      class="menu bg-base-100 w-full rounded-btn m-0 gap-2"
+      class="menu rounded-btn m-0 w-full gap-2 bg-base-100"
       :class="[styles.control.menu.wrapper]"
     >
       <li class="menu-title m-0" v-if="appliedOptions?.title">
@@ -30,7 +30,7 @@
         v-for="optionElement in control.options"
         :key="optionElement.value"
       >
-        <li class="p-0 m-0">
+        <li class="m-0 p-0">
           <label :class="{ active: control?.data == optionElement.value }">
             <input
               type="radio"

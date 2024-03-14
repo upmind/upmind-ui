@@ -52,7 +52,7 @@ export const useBrand = () => {
         return [
           "processing.config.complete",
           "processing.config.error",
-          "complete"
+          "complete",
         ].some(newstate.matches);
       });
 
@@ -86,6 +86,6 @@ export const useBrand = () => {
     getCurrency: () =>
       find(state.context.currencies, ["id", state?.context?.currency_id]),
     getCurrencies: () => state?.context?.currencies,
-    getCountry: () => state?.context?.country_id
+    getCountry: () => state?.context?.country_id,
   };
 };

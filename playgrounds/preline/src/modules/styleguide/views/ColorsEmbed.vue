@@ -1,6 +1,6 @@
 <template>
   <div
-    class="max-w-md mx-auto p-6 items-center flex flex-wrap"
+    class="mx-auto flex max-w-md flex-wrap items-center p-6"
     :data-theme="activeTheme"
   >
     <!-- TODO -->

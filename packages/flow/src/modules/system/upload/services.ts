@@ -72,7 +72,7 @@ async function getImage({ field }: UploadContext, { data }: UploadEvent) {
     url: useUrl(path),
     withAccessToken: true,
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data);
 }
 
@@ -131,7 +131,7 @@ async function upload({ field, request }: any, _event: any) {
   return post({
     url: useUrl(path),
     data: request,
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }: any) => data);
 }
 
@@ -141,5 +141,5 @@ async function upload({ field, request }: any, _event: any) {
 export default {
   getImage,
   check,
-  upload
+  upload,
 };

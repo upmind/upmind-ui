@@ -21,9 +21,9 @@ export const useSchema = (_context: BillingDetailsContext) => {
         properties: {
           address_id: {
             type: ["string", "null"],
-            title: "Use Address"
-          }
-        }
+            title: "Use Address",
+          },
+        },
       },
       {
         type: "object",
@@ -31,11 +31,11 @@ export const useSchema = (_context: BillingDetailsContext) => {
         properties: {
           company_id: {
             type: ["string", "null"],
-            title: "Use Company"
-          }
-        }
-      }
-    ]
+            title: "Use Company",
+          },
+        },
+      },
+    ],
   };
 
   return schema as JsonSchema;
@@ -51,8 +51,8 @@ export const useUischema = (_context: BillingDetailsContext) => {
         options: {
           focus: true,
           autocomplete: "off",
-          placeholder: "Select Address"
-        }
+          placeholder: "Select Address",
+        },
       },
       {
         type: "Control",
@@ -60,10 +60,10 @@ export const useUischema = (_context: BillingDetailsContext) => {
         options: {
           focus: true,
           autocomplete: "off",
-          placeholder: "Select Company"
-        }
-      }
-    ]
+          placeholder: "Select Company",
+        },
+      },
+    ],
   };
 
   return schema as UISchemaElement;

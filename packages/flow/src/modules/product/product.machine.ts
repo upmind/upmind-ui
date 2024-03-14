@@ -16,7 +16,7 @@ import {
   useTermsParser,
   useValuesParser,
   useSummaryParser,
-  useValidationParser
+  useValidationParser,
 } from "./utils";
 
 import { get, set, map, toNumber, find, merge, isEqual } from "lodash-es";
@@ -53,7 +53,7 @@ export default (values, currency_id, promotions) => {
           terms: null,
           options: null,
           attributes: null,
-          provision_fields: null
+          provision_fields: null,
         },
 
         // ---
@@ -65,7 +65,7 @@ export default (values, currency_id, promotions) => {
         promotions,
         currency_id: validateCurrency(currency_id),
         // ---
-        error: null
+        error: null,
       },
       states: {
         // first load our product, we do this even if we are given a configured set of values
@@ -77,15 +77,15 @@ export default (values, currency_id, promotions) => {
             onDone: [{ target: "processed", actions: ["setAvailable"] }],
             onError: {
               target: "#error",
-              actions: ["setError", "escalateError"]
-            }
-          }
+              actions: ["setError", "escalateError"],
+            },
+          },
         },
 
         processed: {
           after: {
-            wait: "configuring"
-          }
+            wait: "configuring",
+          },
         },
 
         // The product requires configuration
@@ -101,25 +101,25 @@ export default (values, currency_id, promotions) => {
                     src: "checkQuantity",
                     onDone: {
                       target: "valid",
-                      actions: ["setQuantity", "setConfig"]
+                      actions: ["setQuantity", "setConfig"],
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setError", "escalateError"]
-                    }
-                  }
+                      actions: ["setError", "escalateError"],
+                    },
+                  },
                 },
                 invalid: {},
                 valid: {
-                  type: "final"
-                }
+                  type: "final",
+                },
               },
               on: {
                 "UPDATE.QUANTITY": {
                   target: "quantity.checking",
-                  actions: ["setQuantity", "setCalculating"]
-                }
-              }
+                  actions: ["setQuantity", "setCalculating"],
+                },
+              },
             },
             term: {
               initial: "checking",
@@ -130,21 +130,21 @@ export default (values, currency_id, promotions) => {
                     onDone: { target: "valid", actions: ["setTerm"] },
                     onError: {
                       target: "invalid",
-                      actions: ["setError", "escalateError"]
-                    }
-                  }
+                      actions: ["setError", "escalateError"],
+                    },
+                  },
                 },
                 invalid: {},
                 valid: {
-                  type: "final"
-                }
+                  type: "final",
+                },
               },
               on: {
                 "UPDATE.TERM": {
                   target: "term.checking",
-                  actions: ["setTerm", "setConfig", "setCalculating"]
-                }
-              }
+                  actions: ["setTerm", "setConfig", "setCalculating"],
+                },
+              },
             },
             attributes: {
               initial: "checking",
@@ -154,25 +154,25 @@ export default (values, currency_id, promotions) => {
                     src: "checkAttributes",
                     onDone: {
                       target: "valid",
-                      actions: ["setAttributes", "setConfig"]
+                      actions: ["setAttributes", "setConfig"],
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setAttributes", "setConfig", "setError"]
-                    }
-                  }
+                      actions: ["setAttributes", "setConfig", "setError"],
+                    },
+                  },
                 },
                 invalid: {},
                 valid: {
-                  type: "final"
-                }
+                  type: "final",
+                },
               },
               on: {
                 "UPDATE.ATTRIBUTES": {
                   target: "attributes.checking",
-                  actions: ["setAttributes"]
-                }
-              }
+                  actions: ["setAttributes"],
+                },
+              },
             },
             options: {
               initial: "checking",
@@ -182,25 +182,25 @@ export default (values, currency_id, promotions) => {
                     src: "checkOptions",
                     onDone: {
                       target: "valid",
-                      actions: ["setOptions", "setConfig"]
+                      actions: ["setOptions", "setConfig"],
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setOptions", "setConfig", "setError"]
-                    }
-                  }
+                      actions: ["setOptions", "setConfig", "setError"],
+                    },
+                  },
                 },
                 invalid: {},
                 valid: {
-                  type: "final"
-                }
+                  type: "final",
+                },
               },
               on: {
                 "UPDATE.OPTIONS": {
                   target: "options.checking",
-                  actions: ["setOptions", "setCalculating"]
-                }
-              }
+                  actions: ["setOptions", "setCalculating"],
+                },
+              },
             },
             provisioning: {
               initial: "checking",
@@ -210,48 +210,48 @@ export default (values, currency_id, promotions) => {
                     src: "checkProvisioning",
                     onDone: {
                       target: "valid",
-                      actions: ["setProvisioning", "setConfig"]
+                      actions: ["setProvisioning", "setConfig"],
                     },
                     onError: {
                       target: "invalid",
-                      actions: ["setProvisioning", "setConfig", "setError"]
-                    }
-                  }
+                      actions: ["setProvisioning", "setConfig", "setError"],
+                    },
+                  },
                 },
                 invalid: {},
                 valid: {
-                  type: "final"
-                }
+                  type: "final",
+                },
               },
               on: {
                 "UPDATE.PROVISIONING": {
                   target: "provisioning.checking",
-                  actions: ["setProvisioning"]
-                }
-              }
-            }
+                  actions: ["setProvisioning"],
+                },
+              },
+            },
           },
           on: {
             REFRESH: {
               target: "loading",
-              actions: ["setValues", "setClean"]
+              actions: ["setValues", "setClean"],
             },
             UPDATE: {
               target: "processed",
-              actions: ["setValues", "setDirty", "setCalculating"]
+              actions: ["setValues", "setDirty", "setCalculating"],
             },
             PUT: [
               {
                 target: "processed",
                 actions: ["mergeValues", "setDirty", "setCalculating"],
-                cond: "hasChanged"
-              }
-            ]
+                cond: "hasChanged",
+              },
+            ],
           },
           onDone: [
             { target: "calculating", cond: "needsRecalculating" },
-            { target: "configured" }
-          ]
+            { target: "configured" },
+          ],
         },
 
         calculating: {
@@ -259,10 +259,10 @@ export default (values, currency_id, promotions) => {
             src: "calculateSummary",
             onDone: {
               target: "configured",
-              actions: ["setSummary", "clearCalculating"]
-            }
+              actions: ["setSummary", "clearCalculating"],
+            },
             // onError: { target: "error", actions: ["setError"] }
-          }
+          },
         },
 
         // this is our state where we are all good and can add/update this configuration to the basket
@@ -271,50 +271,50 @@ export default (values, currency_id, promotions) => {
           on: {
             REFRESH: {
               target: "loading",
-              actions: ["setValues", "setClean"]
+              actions: ["setValues", "setClean"],
             },
             // ---
             UPDATE: {
               target: "processed",
-              actions: ["setValues", "setDirty", "setCalculating"]
+              actions: ["setValues", "setDirty", "setCalculating"],
             },
             PUT: [
               {
                 target: "processed",
                 actions: ["mergeValues", "setDirty", "setCalculating"],
-                cond: "hasChanged"
-              }
+                cond: "hasChanged",
+              },
             ],
 
             "UPDATE.QUANTITY": {
               target: "configuring.quantity.checking",
-              actions: ["setQuantity", "setDirty", "setCalculating"]
+              actions: ["setQuantity", "setDirty", "setCalculating"],
             },
             "UPDATE.TERM": {
               target: "configuring.term.checking",
-              actions: ["setTerm", "setDirty", "setCalculating"]
+              actions: ["setTerm", "setDirty", "setCalculating"],
             },
             "UPDATE.ATTRIBUTES": {
               target: "configuring.attributes.checking",
-              actions: ["setAttributes", "setDirty"]
+              actions: ["setAttributes", "setDirty"],
             },
             "UPDATE.OPTIONS": {
               target: "configuring.options.checking",
-              actions: ["setOptions", "setDirty", "setCalculating"]
+              actions: ["setOptions", "setDirty", "setCalculating"],
             },
             "UPDATE.PROVISIONING": {
               target: "configuring.provisioning.checking",
-              actions: ["setProvisioning", "setDirty"]
-            }
-          }
+              actions: ["setProvisioning", "setDirty"],
+            },
+          },
         },
 
         // Handle errors
         error: {
           id: "error",
           after: {
-            error: "#configuring"
-          }
+            error: "#configuring",
+          },
         },
 
         // Handle completion, stop the machine and prevent further products
@@ -323,13 +323,13 @@ export default (values, currency_id, promotions) => {
         complete: {
           id: "valid",
           type: "final",
-          data: ({ values }, _event) => useProductConfigParser(values)
-        }
+          data: ({ values }, _event) => useProductConfigParser(values),
+        },
       },
       on: {
         ERROR: { target: "#error", actions: ["setError"] },
-        "CLEAR.ERRORS": { actions: ["clearError"] }
-      }
+        "CLEAR.ERRORS": { actions: ["clearError"] },
+      },
     },
     {
       actions: {
@@ -339,30 +339,30 @@ export default (values, currency_id, promotions) => {
           promotions: ({ promotions }, { data }) =>
             data?.promotions || promotions || [],
           values: (_context, { data }) => useValuesParser(data?.product),
-          summary: (_context, { data }) => useSummaryParser(data?.product)
+          summary: (_context, { data }) => useSummaryParser(data?.product),
         }),
 
         mergeValues: assign({
           values: ({ values }, { data }) => {
             const newValues = merge({}, values, useValuesParser(data));
             return newValues;
-          }
+          },
         }),
 
         // ---
 
         setConfig: assign({
-          config: ({ values }, _event) => useProductConfigParser(values)
+          config: ({ values }, _event) => useProductConfigParser(values),
         }),
 
         sendConfig: sendParent(({ values }, _event) => ({
           type: "CONFIGURED",
-          data: useProductConfigParser(values)
+          data: useProductConfigParser(values),
         })),
 
         // ---
         setSummary: assign({
-          summary: (_context, { data }) => data
+          summary: (_context, { data }) => data,
         }),
 
         setQuantity: assign({
@@ -370,7 +370,7 @@ export default (values, currency_id, promotions) => {
             const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
             set(values, "quantity", Math.max(1, quantity)); //TODO: min check? step check
             return values;
-          }
+          },
         }),
 
         setTerm: assign({
@@ -386,7 +386,7 @@ export default (values, currency_id, promotions) => {
               option.values = map(option.values, value => {
                 value.price = find(value.prices, [
                   "billing_cycle_months",
-                  term?.billing_cycle_months
+                  term?.billing_cycle_months,
                 ]);
                 return value;
               });
@@ -394,7 +394,7 @@ export default (values, currency_id, promotions) => {
               return option;
             });
             return available;
-          }
+          },
         }),
 
         setAttributes: assign({
@@ -402,7 +402,7 @@ export default (values, currency_id, promotions) => {
             const attributes = get(data, "attributes", data); // workaround to allow the same action to be used for different event sources
             set(values, "attributes", attributes);
             return values;
-          }
+          },
         }),
 
         setOptions: assign({
@@ -410,7 +410,7 @@ export default (values, currency_id, promotions) => {
             const options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
             set(values, "options", options);
             return values;
-          }
+          },
         }),
 
         setProvisioning: assign({
@@ -418,7 +418,7 @@ export default (values, currency_id, promotions) => {
             const provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
             set(values, "provision_fields", provision_fields);
             return values;
-          }
+          },
         }),
 
         // ---
@@ -428,7 +428,7 @@ export default (values, currency_id, promotions) => {
             // TODO: a more comprehensive check to see if values have actually changed.
             // For now we will always set this to true, as we need to recalculate the summary
             return true;
-          }
+          },
         }),
 
         clearCalculating: assign({ needsCalculating: false }),
@@ -436,7 +436,7 @@ export default (values, currency_id, promotions) => {
         setClean: assign({
           isDirty: false,
           needsCalculating: false,
-          error: null
+          error: null,
         }),
 
         // ---
@@ -449,9 +449,9 @@ export default (values, currency_id, promotions) => {
               options: useOptionsParser(data.products_options),
               provision_fields: useProvisioningParser(
                 data.products_provisioning
-              )
+              ),
             };
-          }
+          },
         }),
 
         // ---
@@ -466,7 +466,7 @@ export default (values, currency_id, promotions) => {
             }
 
             return error;
-          }
+          },
         }),
 
         escalateError: escalate(({ error }) => {
@@ -476,7 +476,7 @@ export default (values, currency_id, promotions) => {
           return error;
         }),
 
-        clearError: assign({ error: null })
+        clearError: assign({ error: null }),
       },
       services,
       guards: {
@@ -484,12 +484,12 @@ export default (values, currency_id, promotions) => {
         hasChanged: ({ values }, { data }) => {
           const newValues = merge({}, values, useValuesParser(data));
           return !isEqual(newValues, values);
-        }
+        },
       },
       delays: {
         error: () => useTime().ERROR,
-        wait: () => useTime().WAIT
-      }
+        wait: () => useTime().WAIT,
+      },
     }
   );
 };

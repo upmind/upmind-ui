@@ -23,14 +23,14 @@ import {
   merge,
   reduce,
   reject,
-  set
+  set,
 } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
 
 export enum SemanticTypes {
-  DOMAIN_NAMES = "domain_name"
+  DOMAIN_NAMES = "domain_name",
 }
 
 export enum InvoiceStatus {
@@ -42,7 +42,7 @@ export enum InvoiceStatus {
   REFUNDED = "invoice_refunded",
   REPLACED = "invoice_replaced", // Only on imported invoices
   UNPAID = "invoice_unpaid",
-  CANCELLATION_REQUEST = "invoice_cancellation_request"
+  CANCELLATION_REQUEST = "invoice_cancellation_request",
 }
 
 // --------------------------------------------------------
@@ -79,11 +79,11 @@ async function load(_context?: BasketContext, _event?: BasketEvent) {
         "status",
         "taxes",
         "taxes.tax_tag_data",
-        `products.product.category${".top_category".repeat(4)}`
-      ].join()
+        `products.product.category${".top_category".repeat(4)}`,
+      ].join(),
     }),
     withAccessToken: true,
-    useCache: false
+    useCache: false,
   })
     .then(useBasketParser)
     .then(getProvisioningFieldsValues);
@@ -100,10 +100,10 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
     url: useUrl("orders"),
     withAccessToken: true,
     data: {
-      category_slug: "new_contract"
+      category_slug: "new_contract",
       // currency_code: "GBP", // from brand
       // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
-    }
+    },
   }).then(useBasketParser);
 }
 
@@ -121,8 +121,8 @@ async function claim({ basket }: BasketContext, _event: BasketEvent) {
     url: useUrl("orders/claim"),
     withAccessToken: true,
     data: {
-      guest_token: token.access_token
-    }
+      guest_token: token.access_token,
+    },
   }).then(useBasketParser);
 }
 
@@ -136,9 +136,9 @@ async function update({ basket, items }: BasketContext, _event: BasketEvent) {
   return put({
     url: useUrl(`/orders/${basket.id}`),
     data: {
-      products: productConfigs
+      products: productConfigs,
     },
-    withAccessToken: true
+    withAccessToken: true,
   })
     .then(useBasketParser)
     .then(basket => {
@@ -177,7 +177,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   return patch({
     url: useUrl(`/orders/${basket.id}/convert`),
     withAccessToken: true,
-    data
+    data,
   }).then(useBasketParser);
 }
 
@@ -207,7 +207,7 @@ async function updateItem({ basket, items, queue }, { data }: BasketEvent) {
   return action({
     url: useUrl(`/orders/${basket.id}/products${suffix}`),
     data: config,
-    withAccessToken: true
+    withAccessToken: true,
   })
     .then(useBasketParser)
     .then(basket => {
@@ -247,7 +247,7 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
       const hasProvisioning = !!get(item.state.context, [
         "available",
         "product",
-        "provision_blueprint_id"
+        "provision_blueprint_id",
       ]);
 
       // if the product has no provisioning fields, we dont need to make a request
@@ -261,7 +261,7 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
           `/orders/${basket.id}/products/${product.id}/provision_fields/values`
         ),
         data: { provision_field_values },
-        withAccessToken: true
+        withAccessToken: true,
       }).then(({ data }) => {
         // update the product with the provisioning fields, before returning the basket
         set(product, ["provision_fields"], data);
@@ -310,7 +310,7 @@ async function removeItem(
   const { del, useUrl } = useApi();
   return del({
     url: useUrl(`/orders/${basket.id}/products/${item.id}`),
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => ({ basket: data, itemId: item.id }));
 }
 
@@ -335,7 +335,7 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
           `orders/${basket_id}/products/${id}/provision_fields/values`
         ),
         useCache: false,
-        withAccessToken: true
+        withAccessToken: true,
       }).then(({ data }) => {
         // update the product with the provisioning fields
         set(product, "provision_fields", data);
@@ -365,5 +365,5 @@ export default {
   removeItem,
   // ---
   authSubscription,
-  isAuthenticated
+  isAuthenticated,
 };

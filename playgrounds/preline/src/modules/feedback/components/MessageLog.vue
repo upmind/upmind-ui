@@ -1,16 +1,16 @@
 <template>
-  <div class="message flex flex-col border rounded-box bg-base-100 px-4">
-    <h3 class="text-inherit wrap whitespace-normal" v-if="message.title">
+  <div class="message flex flex-col rounded-box border bg-base-100 px-4">
+    <h3 class="wrap whitespace-normal text-inherit" v-if="message.title">
       {{ message.title }}
     </h3>
 
     <p class="whitespace-normal" v-if="message.copy">{{ message.copy }}</p>
 
-    <p class="whitespace-normal text-xs mt-0" v-if="message.data">
+    <p class="mt-0 whitespace-normal text-xs" v-if="message.data">
       {{ message.data }}
     </p>
 
-    <div class="flex text-xs mb-4 uppercase join font-mono">
+    <div class="join mb-4 flex font-mono text-xs uppercase">
       <!-- <span class="join-item badge  badge-ghost badge-sm">{{ message.hash }}</span> -->
       <span
         class="join-item badge badge-sm rounded"

@@ -28,7 +28,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      error: undefined
+      error: undefined,
     } as ClientItemContext,
     states: {
       loading: {
@@ -38,13 +38,13 @@ export default createMachine(
           src: "loadLookups",
           onDone: {
             target: "checking",
-            actions: ["setContext", "setSchemas", "setMeta"]
+            actions: ["setContext", "setSchemas", "setMeta"],
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
       // ---
 
@@ -58,23 +58,23 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas", "setMeta"]
-              }
-            }
+                actions: ["setContext", "setSchemas", "setMeta"],
+              },
+            },
           },
           validating: {
             invoke: {
               src: "validate",
               onDone: {
-                target: "#valid"
+                target: "#valid",
               },
               onError: {
                 target: "#invalid",
-                actions: ["setError"]
-              }
-            }
-          }
-        }
+                actions: ["setError"],
+              },
+            },
+          },
+        },
       },
 
       valid: {
@@ -83,17 +83,17 @@ export default createMachine(
           UPDATE: [
             {
               target: "processing.adding",
-              cond: "isNew"
+              cond: "isNew",
             },
             {
-              target: "processing.updating"
-            }
-          ]
-        }
+              target: "processing.updating",
+            },
+          ],
+        },
       },
 
       invalid: {
-        id: "invalid"
+        id: "invalid",
       },
 
       processing: {
@@ -108,14 +108,14 @@ export default createMachine(
                   "setModel",
                   pure((context, _event) => {
                     addSuccess(`Successfully added ${context.title}`);
-                  })
-                ]
+                  }),
+                ],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
           },
           updating: {
             invoke: {
@@ -126,14 +126,14 @@ export default createMachine(
                   "setModel",
                   pure((context, _event) => {
                     addSuccess(`Successfully updated ${context.title}`);
-                  })
-                ]
+                  }),
+                ],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
           },
           removing: {
             invoke: {
@@ -144,14 +144,14 @@ export default createMachine(
                   "clearModel",
                   pure((context, _event) => {
                     addSuccess(`Successfully deleted ${context.title}`);
-                  })
-                ]
+                  }),
+                ],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
           },
           setting: {
             invoke: {
@@ -162,65 +162,65 @@ export default createMachine(
                   "setModel",
                   pure((context, _event) => {
                     addSuccess(`Successfully set ${context.title} as default`);
-                  })
-                ]
+                  }),
+                ],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          }
-        }
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
+          },
+        },
       },
 
       processed: {
         id: "processed",
         after: {
           wait: {
-            target: "complete"
-          }
-        }
+            target: "complete",
+          },
+        },
       },
 
       complete: {
         entry: sendParent(
           ({ model }: ClientItemContext, _event: ClientItemEvent) => ({
             type: "REFRESH",
-            data: model?.id
+            data: model?.id,
           })
         ),
-        type: "final"
+        type: "final",
       },
 
       error: {
         id: "error",
         on: {
           RETRY: {
-            target: "processing"
-          }
-        }
-      }
+            target: "processing",
+          },
+        },
+      },
     },
     on: {
       CLEAR: {
         target: "checking",
-        actions: ["clearModel"]
+        actions: ["clearModel"],
       },
       SET: {
         target: "checking",
-        actions: ["setModel"]
+        actions: ["setModel"],
       },
       // ---
       REMOVE: {
         target: "processing.removing",
-        cond: "canRemove"
+        cond: "canRemove",
       },
       DEFAULT: {
         target: "processing.setting",
-        cond: "isNotDefault"
-      }
-    }
+        cond: "isNotDefault",
+      },
+    },
   },
   {
     actions: {
@@ -241,7 +241,7 @@ export default createMachine(
       }),
 
       clearModel: assign({
-        model: undefined
+        model: undefined,
       }),
 
       // ---
@@ -255,7 +255,7 @@ export default createMachine(
           }
 
           return error || data;
-        }
+        },
       }),
 
       clearError: assign({ error: null }),
@@ -264,9 +264,9 @@ export default createMachine(
         addError({
           title: error?.title || "We experienced an error with this item",
           copy: error?.message,
-          data: error?.data
+          data: error?.data,
         });
-      }
+      },
     },
     guards: {
       isNew: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
@@ -276,11 +276,11 @@ export default createMachine(
         !!model?.id && !model?.default,
 
       canRemove: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
-        !!model?.id && !!model?.can_delete
+        !!model?.id && !!model?.can_delete,
     },
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
-    }
+      wait: () => useTime().WAIT,
+    },
   }
 );

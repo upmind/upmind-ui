@@ -7,10 +7,10 @@ module.exports = {
     "plugin:vue/vue3-essential",
     "eslint:recommended",
     "@vue/eslint-config-typescript",
-    "@vue/eslint-config-prettier/skip-formatting"
+    "@vue/eslint-config-prettier/skip-formatting",
   ],
   parserOptions: {
-    ecmaVersion: "latest"
+    ecmaVersion: "latest",
   },
   // custom rules here
   rules: {
@@ -35,8 +35,8 @@ module.exports = {
       {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
-        caughtErrorsIgnorePattern: "^_"
-      }
+        caughtErrorsIgnorePattern: "^_",
+      },
     ],
 
     // typecript
@@ -52,17 +52,17 @@ module.exports = {
       "error",
       {
         allowDestructuring: true, // Allow `const { props, state } = this`; false by default
-        allowedNames: ["vm"] // Allow `const vm= this`; `[]` by default
-      }
+        allowedNames: ["vm"], // Allow `const vm= this`; `[]` by default
+      },
     ],
     "@typescript-eslint/consistent-type-imports": [
       "error",
       {
-        disallowTypeAnnotations: false
-      }
+        disallowTypeAnnotations: false,
+      },
     ],
 
     // general
-    "no-unsafe-optional-chaining": "off"
-  }
+    "no-unsafe-optional-chaining": "off",
+  },
 };

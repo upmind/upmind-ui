@@ -1,4 +1,4 @@
-import theme from "./tailwind.theme";
+import theme from "./tailwind.config";
 
 export default {
   id: "retro",
