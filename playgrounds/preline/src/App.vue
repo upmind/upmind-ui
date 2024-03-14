@@ -134,6 +134,7 @@
       </nav>
     </pv-drawer>
 
+    <!-- provide padding for our fixed header 4.5rem -->
     <main
       class="w-full h-full pt-[4.5rem] overflow-hidden flex flex-wrap justify-center"
     >
