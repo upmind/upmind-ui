@@ -2,7 +2,7 @@
   <upm-embed-view v-bind="meta" :url="embedUrl" v-if="embedUrl" />
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { inject, computed } from "vue";
 import { useRoute } from "vue-router";
 import UpmEmbedView from "./EmbedView.vue";

@@ -38,7 +38,7 @@
   </nav>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import { startCase, defaultsDeep, omitBy, isEmpty, get } from "lodash-es";
 import UpmIcon from "@/components/Icon.vue";
@@ -59,7 +59,7 @@ export default defineComponent({
     };
   },
   computed: {
-    isDebugging(): boolean {
+    isDebugging() {
       return import.meta.env.DEV;
     },
     inspector() {

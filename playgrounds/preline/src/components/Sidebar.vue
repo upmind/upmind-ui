@@ -1,6 +1,6 @@
 <template>
   <aside class="">
-    <header class="view-header mb-8 flex flex-col gap-2">
+    <header class="view-header flex flex-col gap-2">
       <p class="inline-flex items-center">
         <span
           v-if="icon"
@@ -45,7 +45,7 @@
   </aside>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import UpmIcon from "@/components/Icon.vue";
 

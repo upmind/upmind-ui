@@ -48,7 +48,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/vue";
 

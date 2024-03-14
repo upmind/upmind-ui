@@ -3,57 +3,14 @@
     <aside
       class="relative h-full overflow-auto rounded border-e border-neutral-200 bg-neutral-50 px-4 pb-12 pr-8 pt-6 shadow-inner sm:px-8 lg:px-8"
     >
-      <div class="mb-4 border-b border-neutral-200">
-        <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
-          <button
-            type="button"
-            class="flex size-10 items-center justify-center gap-x-2 whitespace-nowrap border-b-2 border-transparent text-sm text-gray-500 hover:text-neutral-600 disabled:pointer-events-none disabled:opacity-50"
-            :class="{
-              'border-neutral-600 font-semibold text-neutral-600':
-                !activeTab || activeTab == 'tab-settings',
-            }"
-            aria-controls="tab-settings"
-            role="tab"
-            @click="activeTab = 'tab-settings'"
-          >
-            <upm-icon name="cog" class="mb-4 size-5" />
-            <span class="sr-only">Show Settings</span>
-          </button>
-          <button
-            type="button"
-            class="flex size-10 items-center justify-center gap-x-2 whitespace-nowrap border-b-2 border-transparent text-sm text-gray-500 hover:text-neutral-600 disabled:pointer-events-none disabled:opacity-50"
-            aria-controls="tab-inspector"
-            role="tab"
-            :class="{
-              'border-neutral-600 font-semibold text-neutral-600':
-                activeTab == 'tab-inspector',
-            }"
-            @click="activeTab = 'tab-inspector'"
-          >
-            <upm-icon name="inspect" class="mb-4 size-5" />
-            <span class="sr-only">Inspect Auth Flow</span>
-          </button>
-          <button
-            type="button"
-            class="flex size-10 items-center justify-center gap-x-2 whitespace-nowrap border-b-2 border-transparent text-sm text-gray-500 hover:text-neutral-600 disabled:pointer-events-none disabled:opacity-50"
-            aria-controls="tab-code"
-            role="tab"
-            @click="activeTab = 'tab-code'"
-            :class="{
-              'border-neutral-600 font-semibold text-neutral-600':
-                activeTab == 'tab-code',
-            }"
-          >
-            <upm-icon name="code" class="mb-4 size-5" />
-            <span class="sr-only">Show code</span>
-          </button>
-        </nav>
-      </div>
-
       <upm-sidebar
         v-bind="$props"
-        v-show="!activeTab || activeTab == 'tab-settings'"
+        v-show="!activeTab || activeTab == 'settings'"
       >
+        <template #actions>
+          <upm-tabs v-model="activeTab" :items="tabs" />
+        </template>
+
         <!-- main slot content -->
         <div class="sticky top-0">
           <nav
@@ -116,22 +73,30 @@
       </upm-sidebar>
 
       <upm-sidebar
-        v-if="inspect && activeTab == 'tab-inspector'"
+        v-show="inspect && activeTab == 'inspector'"
         :flow="flow"
         :title="title"
         description="Take a look into the flow to see ts current State, Meta, Context, any Data Model and all Errors"
       >
+        <template #actions>
+          <upm-tabs v-model="activeTab" :items="tabs" />
+        </template>
+
         <upm-inspector :flow="inspect" />
       </upm-sidebar>
 
       <upm-sidebar
-        v-if="activeTab == 'tab-code'"
+        v-show="activeTab == 'code'"
         :flow="flow"
         :title="title"
         description="See the actual Code implementation for this layout and how its used with the Auth Flow"
       >
+        <template #actions>
+          <upm-tabs v-model="activeTab" :items="tabs" />
+        </template>
       </upm-sidebar>
     </aside>
+
     <div class="canvas col-span-3 h-full px-4 py-8 sm:px-6 lg:px-6">
       <!-- <div class="canvas col-span-3"> -->
       <figure
@@ -173,20 +138,18 @@
   </article>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent, inject, ref } from "vue";
 import UpmInspector from "@/components/Inspector.vue";
-import UpmIcon from "@/components/Icon.vue";
 import UpmSidebar from "@/components/Sidebar.vue";
-
-import { startCase, kebabCase } from "lodash-es";
+import UpmTabs from "@/components/Tabs.vue";
 
 export default defineComponent({
   name: "UpmEmbedView",
   components: {
     UpmInspector,
-    UpmIcon,
     UpmSidebar,
+    UpmTabs,
   },
   props: {
     title: {
@@ -230,16 +193,21 @@ export default defineComponent({
   inject: ["activeTheme"],
 
   setup() {
-    const { active, isDesktop, isTablet } = inject("resolution");
+    const { isDesktop, isTablet } = inject("resolution");
 
-    const activeTab = ref();
+    const tabs = {
+      settings: { label: "Settings", icon: "cog" },
+      inspector: { label: "Inspect", icon: "inspect" },
+      code: { label: "Code", icon: "code", disabled: true },
+    };
+
+    const activeTab = ref("settings");
+
     return {
+      tabs,
       activeTab,
       isDesktop,
       isTablet,
-      resolution: active,
-      startCase,
-      kebabCase,
     };
   },
 });

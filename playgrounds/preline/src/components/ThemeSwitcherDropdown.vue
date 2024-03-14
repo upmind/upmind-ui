@@ -29,7 +29,7 @@
   <!-- End Popover -->
 </template>
 
-<script lang="ts">
+<script>
 import { inject, watch, defineComponent, computed } from "vue";
 import Popper from "vue3-popper";
 import UpmIcon from "@/components/Icon.vue";
