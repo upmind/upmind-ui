@@ -5,12 +5,12 @@
   >
     <div class="w-full lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12">
       <div
-        class="flex flex-wrap content-center bg-gradient-to-bl from-neutral-900 to-primary-900 px-6 py-12 text-neutral-content sm:px-6 lg:order-last lg:px-8"
+        class="flex flex-wrap content-center bg-gradient-to-tr from-primary to-secondary px-6 py-12 text-neutral-content sm:px-6 lg:order-last lg:px-8"
       >
         <h1
           class="block max-w-lg text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight"
         >
-          Start your journey with <span class="text-primary">Upmind</span>
+          Start your journey with <span class="text-neutral">Upmind</span>
         </h1>
         <p class="mt-3 max-w-lg text-lg">
           Entrepreneurs from around the world showcase and sell their services
