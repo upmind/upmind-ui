@@ -1,10 +1,30 @@
 {
-  "name": "@upmind/mono",
+  "name": "upmind",
   "version": "0.0.0",
-  "description": "",
+  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Flow) and Vue.js implementations (Vue), along with playgrounds demonstrating UI integration using",
   "private": true,
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "upmind",
+    "billing",
+    "sales",
+    "automation",
+    "platform",
+    "service business",
+    "shopping cart",
+    "e-commerce",
+    "forms",
+    "ui components",
+    "vue.js",
+    "javascript",
+    "xstate",
+    "tailwind",
+    "preline",
+    "daisyui",
+    "primevue"
+  ],
+  "authors": [
+    "Dom da Costa <dominic.dacosta@upmind.com>"
+  ],
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
@@ -13,6 +33,9 @@
   "scripts": {
     "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo}",
     "start": "npm run start --workspaces --if-present",
+    "start:daisyu": "npm run dev --workspace=playgrounds/daisyui",
+    "start:preline": "npm run dev --workspace=playgrounds/preline",
+    "start:primevue": "npm run dev --workspace=playgrounds/primevue",
     "build": "npm run build --workspaces --if-present",
     "build:tsc": "tsc --build --verbose",
     "lint": "npm run lint --workspaces --if-present",

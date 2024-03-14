@@ -1,52 +1,26 @@
-# @upmind-playground
+## Preline Playground
 
-This template should help get you started developing with Vue 3 in Vite.
+The Preline playground serves as a platform for exploring Upmind Labs concepts and functionalities. It offers several features to enhance user experience:
 
-## Recommended IDE Setup
+- **Flow Exploration:** Explore all Upmind flows and their appearance on various screen sizes (desktop, tablet, mobile) through a canvas.
+- **Theming Options:** Experiment with different themes (light, dark, custom) to personalize the UI experience.
+- **Theme Builder (Styleguide):** Build custom themes using the provided tools and save them as Tailwind configs usable within the playground.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+This playground is ideal for designers, developers, and product managers to visualize and test Upmind flows across different layouts and styles.
 
-## Type Support for `.vue` Imports in TS
+**Running the Playground:**
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+Launch the Preline playground using the following command:
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+This will start a development server and open the playground in your web browser.
 
-```sh
-npm run build
-```
+## Additional Notes:
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+This playground is under development, and features may be added or modified in the future.
+The code for this playground resides within the playgrounds/preline directory.
 
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+> Experiment with Preline to unlock the full potential of Upmind Labs' innovative design and customization capabilities!

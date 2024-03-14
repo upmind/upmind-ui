@@ -1,52 +1,31 @@
-# @upmind-playground
+## Primvue Playground (Work in Progress)
 
-This template should help get you started developing with Vue 3 in Vite.
+The Primvue playground is an exploration of an alternative Vue.js component framework (Primvue) as a potential replacement for DaisyUi in Upmind's UI implementation. While Primvue is configured in this playground, the integration with Upmind flows is not yet complete.
 
-## Recommended IDE Setup
+**Current Status:**
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+- Primvue components are configured within the playground.
+- Integration with Upmind flows is ongoing development.
 
-## Type Support for `.vue` Imports in TS
+This playground serves as a testing ground to evaluate Primvue's suitability for future Upmind UI development.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+**Running the Playground (Optional):**
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+**Note:** This playground might not be fully functional yet.
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+If you'd like to attempt running the Primvue playground, use the following command:
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Important Note:
 
-```sh
-npm run build
-```
+Functionality of the Primvue playground is not guaranteed at this stage.
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## Future Development:
 
-```sh
-npm run test:unit
-```
+The development team will assess the feasibility of using Primvue in Upmind.
+This playground may be updated or removed based on the evaluation results.
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+> Stay tuned for further updates on the Primvue playground!
