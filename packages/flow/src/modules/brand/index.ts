@@ -33,8 +33,13 @@ export const useBrand = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+
+    isModuleReady: async module =>
+      waitFor(service, state => state.matches(`processing.${module}.complete`)),
+    isReady: async () => waitFor(service, state => state.matches("complete")),
+    // ---
     getSnapshot: () => state,
-    getConfig: async (keys: BrandConfigKeys) => {
+    getConfig: async (keys: BrandConfigKeys | BrandConfigKeys[]) => {
       // ensure we have an array of keys
       keys = isArray(keys) ? keys : [keys];
 
@@ -43,9 +48,13 @@ export const useBrand = () => {
       service.send({ type: "CONFIG.GET", data: keys });
 
       // then we await the state of the request to be processed/cached
-      await waitFor(service, state =>
-        ["config.complete", "config.error"].some(state.matches)
-      );
+      await waitFor(service, newstate => {
+        return [
+          "processing.config.complete",
+          "processing.config.error",
+          "complete"
+        ].some(newstate.matches);
+      });
 
       // finally return the requested keys from the config
       return pick(state.context, keys);
@@ -72,7 +81,11 @@ export const useBrand = () => {
       // othrwise we clearly have a valid currency and we return it
       return currency_id;
     },
-    getCurrency: () => state?.context?.currency_id,
+    getBrandId: () => state?.context?.id,
+    getCurrencyId: () => state?.context?.currency_id,
+    getCurrency: () =>
+      find(state.context.currencies, ["id", state?.context?.currency_id]),
+    getCurrencies: () => state?.context?.currencies,
     getCountry: () => state?.context?.country_id
   };
 };

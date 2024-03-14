@@ -424,7 +424,7 @@ export default (values, currency_id, promotions) => {
         // ---
 
         setCalculating: assign({
-          needsCalculating: ({ needsCalculating }, { data }) => {
+          needsCalculating: (_context, _event) => {
             // TODO: a more comprehensive check to see if values have actually changed.
             // For now we will always set this to true, as we need to recalculate the summary
             return true;

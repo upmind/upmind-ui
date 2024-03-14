@@ -1,25 +1,23 @@
 // --- external
-import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo } = actions;
+import { createMachine, assign, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
-import type { BasketContext } from "./types.d";
-import configurationMachine from "../product/product.machine";
+import paymentMachine from "../payment/payment.machine";
+
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-
-import { useTime } from "../../utils";
+import { useTime, useValidationParser } from "../../utils";
 import {
-  useBasketParser,
   useSummaryParser,
-  useValidationParser,
-  useCustomFieldsSchemaParser,
-  useCustomFieldsUischemaParser,
-  useCustomFieldsModelParser,
-  useBasketFieldsModelParser
+  spawnConfiguration,
+  spawnBillingDetails,
+  spawnCurrency,
+  spawnCustomFields,
+  spawnPaymentDetails,
+  spawnPromotions
 } from "./utils";
 
 import {
@@ -29,6 +27,7 @@ import {
   findIndex,
   forEach,
   get,
+  includes,
   isEmpty,
   omit,
   reject,
@@ -38,22 +37,10 @@ import {
   uniqueId
 } from "lodash-es";
 
-// --------------------------------------------------------
-// utility function to spawn machines based on the given items
-function spawnConfiguration(id, values, currency_id, promotions = []) {
-  try {
-    return spawn(configurationMachine(values, currency_id, promotions), {
-      name: id,
-      sync: true
-    });
-  } catch (err) {
-    console.error("Basket", "spawnConfiguration", {
-      values,
-      currency_id,
-      promotions
-    });
-  }
-}
+// --- types
+import type { BasketContext, BasketEvent } from "./types.d";
+import { PaymentTypes } from "../paymentDetails/types.d";
+import { GatewayTypes } from "../paymentDetails/gateways/types.d";
 
 // --------------------------------------------------------
 
@@ -65,23 +52,26 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      basket: null,
+      basket: undefined,
       // ---
       items: [],
       bin: [],
       queue: [],
       // ---
-      custom_fields: [],
-      fieldsSchema: undefined,
-      fieldsUischema: undefined,
-      fieldsModel: undefined,
+      actors: {
+        billing_details: undefined,
+        currency: undefined,
+        custom_fields: undefined,
+        payment_details: undefined,
+        promotions: undefined
+      },
 
       // ---
       // the generated summary of ALL the items,
       // including the totals formatted for display
-      summary: null,
+      summary: undefined,
       // ---
-      error: null
+      error: undefined
     } as BasketContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
@@ -104,9 +94,9 @@ export default createMachine(
         states: {
           basket: {
             invoke: {
-              src: "check",
+              src: "load",
               onDone: {
-                target: "items",
+                target: "actors",
                 actions: ["setBasket", "loadItems"]
               },
               onError: {
@@ -115,7 +105,8 @@ export default createMachine(
               }
             }
           },
-          items: {
+          actors: {
+            entry: ["spawnActors"],
             always: {
               target: "#shopping",
               cond: "isNotLoading"
@@ -130,7 +121,8 @@ export default createMachine(
         invoke: {
           src: "claim",
           onDone: {
-            target: "#shopping"
+            target: "#shopping",
+            actions: ["refreshActors"]
           },
           onError: {
             target: "#error",
@@ -146,7 +138,20 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: ["setBasket"]
+            actions: ["setBasket", "refreshActors"]
+          },
+          onError: { target: "#error" }
+        }
+      },
+
+      // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
+      refreshing: {
+        id: "refreshing",
+        invoke: {
+          src: "refresh",
+          onDone: {
+            target: "shopping",
+            actions: ["refreshItems", "updateBasket", "refreshActors"]
           },
           onError: { target: "#error" }
         }
@@ -162,8 +167,28 @@ export default createMachine(
         id: "shopping",
         type: "parallel",
         states: {
+          account: {
+            initial: "checking",
+            states: {
+              checking: {
+                invoke: {
+                  src: "isAuthenticated",
+                  onDone: { target: "complete" },
+                  onError: { target: "configuring" }
+                }
+              },
+              configuring: {},
+              complete: {
+                type: "final"
+              }
+            },
+            on: {
+              AUTHENTICATED: { target: "#claiming" }
+            }
+          },
+
           items: {
-            initial: "empty",
+            initial: "configuring",
             states: {
               empty: {
                 always: [
@@ -184,6 +209,8 @@ export default createMachine(
                 initial: "everything",
                 states: {
                   everything: {
+                    entry: ["muteBasket", "updateActors"],
+
                     invoke: {
                       src: "update",
                       onDone: {
@@ -266,7 +293,7 @@ export default createMachine(
               processed: {
                 id: "processed",
                 after: {
-                  wait: "#configuring"
+                  wait: "#refreshing"
                 }
               },
 
@@ -278,335 +305,175 @@ export default createMachine(
                 ],
                 type: "final"
               }
-            },
-            on: {
-              ADD: [
-                {
-                  target: "#generating",
-                  cond: "hasNoBasket",
-                  actions: ["addItem"]
-                },
-                { actions: ["addItem"] }
-              ],
-              REMOVE: {
-                target: "items.processing.removing",
-                actions: ["binItem"]
-              },
-              UPDATE: [
-                {
-                  target: "items.processing.everything",
-                  actions: ["clearQueue"],
-                  cond: "hasNoItem"
-                }, // update everything
-                {
-                  target: "items.processing.updating",
-                  actions: ["queueItem"],
-                  cond: "isNotQueued"
-                }
-              ],
-
-              CLEAR: {
-                target: "items.processing",
-                actions: ["removeAllItems"]
-              }, // bath process ALL items
-              // ---
-              "UPDATE.QUANTITY": { actions: ["sendToItem"] },
-              "UPDATE.TERM": { actions: ["sendToItem"] },
-              "UPDATE.OPTIONS": { actions: ["sendToItem"] },
-              "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
-              "UPDATE.PROVISIONING": { actions: ["sendToItem"] }
-
-              // This transition will match any event, but we will target the completion of ANY spawned machine
-              // "*": {
-              //   actions: ["removeItem"],
-              //   cond: (_context, event) => includes(event.type, "done.invoke")
-              // }
-            }
-          },
-
-          promotions: {
-            initial: "empty",
-            states: {
-              empty: {
-                always: {
-                  target: "active",
-                  cond: "hasPromotions"
-                },
-                type: "final"
-              },
-              adding: {
-                invoke: {
-                  src: "addPromotion",
-                  onDone: {
-                    target: "active",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-              removing: {
-                invoke: {
-                  src: "removePromotion",
-                  onDone: {
-                    target: "empty",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-              error: {},
-              active: {
-                always: {
-                  target: "empty",
-                  cond: "hasNoPromotions"
-                },
-                type: "final"
-              }
-            },
-            on: {
-              "ADD.PROMOTION": { target: "promotions.adding" },
-              "REMOVE.PROMOTION": { target: "promotions.removing" }
-            }
-          },
-
-          client: {
-            initial: "checking",
-            states: {
-              checking: {
-                invoke: {
-                  src: "isAuthenticated",
-                  onDone: { target: "authenticated" },
-                  onError: { target: "unauthenticated" }
-                }
-              },
-              unauthenticated: {},
-              authenticated: {
-                type: "final"
-              }
-            },
-            on: {
-              AUTHENTICATED: { target: "#claiming" }
-            }
-          },
-
-          custom_fields: {
-            initial: "loading",
-            states: {
-              loading: {
-                invoke: {
-                  src: "getCustomFields",
-                  onDone: {
-                    target: "complete",
-                    actions: ["setFields", "setFieldsSchemas"]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError"]
-                  }
-                }
-              },
-
-              checking: {
-                entry: ["clearError"],
-                invoke: {
-                  src: "validateFields",
-                  onDone: {
-                    target: "valid"
-                  },
-                  onError: {
-                    target: "invalid",
-                    actions: ["setError"]
-                  }
-                }
-              },
-
-              valid: {},
-
-              invalid: {},
-
-              error: {},
-
-              processing: {
-                invoke: {
-                  src: "setFields",
-                  onDone: {
-                    target: "complete",
-                    actions: ["updateBasket", "setFeedbackSuccess"]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-              // Handle completion, stop the machine and prevent further requests
-              complete: {
-                type: "final",
-                always: {
-                  target: "checking",
-                  cond: "hasNoFields"
-                }
-              }
-            },
-            on: {
-              "UPDATE.FIELDS": {
-                target: "custom_fields.processing",
-                cond: "hasFields"
-              },
-              "CLEAR.FIELDS": {
-                target: "custom_fields.checking",
-                actions: ["clearFieldsModel"],
-                cond: "hasFields"
-              },
-              "SET.FIELDS": {
-                target: "custom_fields.checking",
-                actions: ["setFieldsModel"],
-                cond: "hasFields"
-              }
-            }
-          },
-
-          billing: {
-            initial: "empty",
-            states: {
-              empty: {
-                always: {
-                  target: "complete",
-                  cond: "hasBilling"
-                }
-              },
-
-              processing: {
-                invoke: {
-                  src: "setBilling",
-                  onDone: {
-                    target: "complete",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-
-              // Handle errors
-              error: {},
-
-              // Handle completion, stop the machine and prevent further requests
-              complete: {
-                type: "final",
-                always: {
-                  target: "empty",
-                  cond: "hasNoBilling"
-                }
-              }
-            },
-            on: {
-              "UPDATE.ADDRESS": {
-                target: "billing.processing",
-                cond: "notSameAddress"
-              },
-              "UPDATE.COMPANY": {
-                target: "billing.processing",
-                cond: "notSameCompany"
-              }
             }
           },
 
           currency: {
-            initial: "empty",
+            initial: "configuring",
             states: {
-              empty: {
-                always: {
-                  target: "complete",
-                  cond: "hasCurrency"
-                }
+              configuring: {
+                always: { target: "complete", cond: "currencyComplete" }
               },
 
-              processing: {
-                invoke: {
-                  src: "setCurrency",
-                  onDone: {
-                    target: "complete",
-                    actions: [
-                      "refreshItems",
-                      "updateBasket",
-                      "setFeedbackSuccess"
-                    ]
-                  },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-
-              // Handle errors
-              error: {},
-
-              // Handle completion, stop the machine and prevent further requests
+              // items are 'complete' only when they have been successfully added to the basket
               complete: {
-                type: "final",
-                always: {
-                  target: "empty",
-                  cond: "hasNoCurrency"
-                }
-              }
-            },
-            on: {
-              "UPDATE.CURRENCY": {
-                target: "currency.processing",
-                cond: "notSameCurrency"
+                always: [
+                  { target: "configuring", cond: "currencyConfiguring" }
+                ],
+                type: "final"
               }
             }
           },
 
-          payment_details: {}
+          promotions: {
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "promotionsComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [
+                  { target: "configuring", cond: "promotionsConfiguring" }
+                ],
+                type: "final"
+              }
+            }
+          },
+
+          custom_fields: {
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "custom_fieldsComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [
+                  { target: "configuring", cond: "custom_fieldsConfiguring" }
+                ],
+                type: "final"
+              }
+            }
+          },
+
+          billing_details: {
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: { target: "complete", cond: "billingComplete" }
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              complete: {
+                always: [{ target: "configuring", cond: "billingConfiguring" }],
+                type: "final"
+              }
+            }
+          }
+
+          // ---
         },
-        on: {
-          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] },
-          "CLEAR.ERRORS": { target: "#shopping", actions: ["clearError"] }
-        },
-        onDone: {
-          // we are now ready for Checkout
-          // target: "checkout"
+        onDone: "checkout"
+      },
+
+      // We are now ready to accept payment as all the shopping items are complete
+      // We will accept the checkout event and forward it to the payment_details machine
+      // Which in turn will forward it to the payment_gateway machine
+      // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
+      // The payment_details machine will then Parse and return that to the processing state
+      // This will trigger the Convert service, which will then process the order
+      // The processing state will then run its process and when complete will return the completed order
+      checkout: {
+        id: "checkout",
+        initial: "configuring",
+        states: {
+          configuring: {
+            always: [{ target: "available", cond: "paymentDetailsValid" }]
+          },
+
+          // items are 'complete' only when they have been successfully added to the basket
+          available: {
+            always: [{ target: "configuring", cond: "paymentConfiguring" }],
+            // ---
+            // NB: Checkout is a chained sequence of events:
+            // First, it will forward the event to the payment_details machine
+            // The payment_details machine will then forward that to the payment_gateway sub machine
+            // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
+            // The payment_details machine will then Parse and return that to the processing state
+            // The processing state will then run its process and when complete will return the completed order
+            on: {
+              CHECKOUT: {
+                target: "processing",
+                actions: "checkoutActors"
+              }
+            }
+          },
+
+          processing: {
+            on: {
+              // response from the payment_details machine = we are ready to convert
+              PAYMENT_DETAILS: {
+                target: "#converting",
+                actions: "setPaymentDetails",
+                cond: "paymentDetailsComplete"
+              }
+            }
+          }
         }
       },
 
-      // when we are ready for checkout, we can start the checkout process
-      // and lock the basket from being modified
-      //  TODO: merge this into shopping as additional parallel state
-      checkout: {
-        type: "parallel",
-        states: {
-          payment: {}
-        },
-        on: {
-          UNAUTHENTICATED: { target: "#loading", actions: ["clearBasket"] }
-        },
-        onDone: {
-          target: "complete"
+      converting: {
+        id: "converting",
+        invoke: {
+          src: "convert",
+          onDone: [
+            {
+              target: "#paying",
+              actions: ["setBasket"],
+              cond: "needsPayment"
+            },
+            {
+              target: "#complete",
+              actions: ["setBasket"]
+            }
+          ],
+          onError: {
+            target: "#checkout",
+            actions: ["setError", "setFeedbackError"]
+          }
         }
       },
+
+      // Payment machine is invoked directly as we are serializing the payment process
+      // we wont leave this node until the payment is complete, or we cancel
+      paying: {
+        id: "paying",
+        invoke: {
+          id: "payment",
+          src: paymentMachine,
+          data: ({ basket, paymentDetails }: BasketContext) => ({
+            order: basket,
+            paymentDetails
+          }),
+          onDone: {
+            target: "#complete",
+            actions: ["setPayment"]
+          },
+          onError: {
+            actions: ["setError", "setFeedbackError"]
+          }
+        },
+        on: {
+          CANCEL: {
+            target: "#checkout"
+          }
+        }
+      },
+
+      // TODO: actual payment node.
 
       // Handle errors
       error: {
@@ -614,36 +481,133 @@ export default createMachine(
       },
 
       complete: {
-        type: "final"
+        id: "complete"
+        // type: "final"
+      }
+    },
+    on: {
+      ADD: [
+        {
+          target: "#generating",
+          cond: "hasNoBasket",
+          actions: ["addItem"]
+        },
+        { actions: ["addItem"] }
+      ],
+      REMOVE: {
+        target: "#shopping.items.processing.removing",
+        actions: ["binItem"]
+      },
+      UPDATE: [
+        {
+          target: "#shopping.items.processing.everything",
+          actions: ["clearQueue"],
+          cond: "hasNoItem"
+        }, // update everything
+        {
+          target: "#shopping.items.processing.updating",
+          actions: ["queueItem"],
+          cond: "isNotQueued"
+        }
+      ],
+      CLEAR: {
+        target: "#shopping.items.processing",
+        actions: ["removeAllItems"]
+      },
+      // ---
+      "UPDATE.QUANTITY": { actions: ["sendToItem"] },
+      "UPDATE.TERM": { actions: ["sendToItem"] },
+      "UPDATE.OPTIONS": { actions: ["sendToItem"] },
+      "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
+      "UPDATE.PROVISIONING": { actions: ["sendToItem"] },
+
+      // This transition will match any event, but we will target the completion of ANY spawned machine
+      // "*": {
+      //   actions: ["removeItem"],
+      //   cond: (_context, event) => includes(event.type, "done.invoke")
+      // }
+
+      REFRESH: {
+        target: "refreshing",
+        actions: "muteBasket",
+        cond: "isNotMuted"
+      },
+
+      UNAUTHENTICATED: {
+        target: "#loading",
+        actions: ["clearError", "clearBasket", "removeAllItems", "clearQueue"]
       }
     }
   },
   {
     actions: {
       setBasket: assign({
-        basket: (context, { data }) => data,
-        summary: (context, { data }) => useSummaryParser(data),
-        fieldsModel: ({ fieldsModel }, { data }) =>
-          useBasketFieldsModelParser(data, fieldsModel),
-        error: null
+        basket: (_context: BasketContext, { data }: BasketEvent) => data,
+        summary: (_context: BasketContext, { data }: BasketEvent) =>
+          useSummaryParser(data),
+        error: undefined
       }),
 
       updateBasket: assign({
-        basket: (context, { data }) => {
-          const value = get(data, "basket", context.basket);
-          return useBasketParser(value);
-        },
-        summary: (context, { data }) => {
-          const value = get(data, "basket", context.basket);
-          return useSummaryParser(value);
-        },
-        error: null
+        basket: ({ basket }: BasketContext, { data }: BasketEvent) =>
+          get(data, "basket", basket),
+        summary: ({ basket }: BasketContext, _event: BasketEvent) =>
+          useSummaryParser(basket),
+        error: undefined,
+        muted: false
+      }),
+
+      muteBasket: assign({
+        muted: true
       }),
 
       clearBasket: assign({
-        basket: {},
+        basket: undefined,
         summary: useSummaryParser(),
-        error: null
+        error: undefined
+      }),
+
+      setPaymentDetails: assign({
+        paymentDetails: (_context: BasketContext, { data }: BasketEvent) => data
+      }),
+
+      setPayment: assign({
+        payment: (_context: BasketContext, { data }: BasketEvent) => data
+      }),
+
+      // --- Spawned Actors Actions
+      spawnActors: assign({
+        actors: ({ actors, basket }: BasketContext) => {
+          // only spawn if we have not already spawned
+          actors.billing_details ??= spawnBillingDetails(basket);
+          actors.currency ??= spawnCurrency(basket);
+          actors.custom_fields ??= spawnCustomFields(basket);
+          actors.payment_details ??= spawnPaymentDetails(basket);
+          actors.promotions ??= spawnPromotions(basket);
+
+          return actors;
+        }
+      }),
+
+      refreshActors: pure(({ basket, actors }: BasketContext) => {
+        forEach(actors, actor => {
+          if (actor?.send) {
+            actor.send({ type: "REFRESH", data: basket });
+          }
+        });
+      }),
+
+      updateActors: pure(({ actors }: BasketContext) => {
+        forEach(actors, actor => {
+          if (actor?.send) {
+            actor.send({ type: "UPDATE" });
+          }
+        });
+      }),
+
+      checkoutActors: pure(({ actors }: BasketContext) => {
+        // for Now  only the payment details is affected by checkout
+        actors?.payment_details?.send({ type: "CHECKOUT" });
       }),
 
       // --- Configuring Items Actions
@@ -666,7 +630,7 @@ export default createMachine(
           });
           return items;
         },
-        error: null
+        error: undefined
       }),
 
       addItem: assign({
@@ -681,7 +645,7 @@ export default createMachine(
           items.push(machine);
           return items;
         },
-        error: null
+        error: undefined
       }),
 
       queueItem: assign({
@@ -697,12 +661,12 @@ export default createMachine(
           if (found) queue.push(found); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return queue;
         },
-        error: null
+        error: undefined
       }),
 
       removeFromQueue: assign({
         queue: ({ queue }, { data }) => reject(queue, ["id", data.id]),
-        error: null
+        error: undefined
       }),
 
       binItem: assign({
@@ -712,7 +676,7 @@ export default createMachine(
           if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
         },
-        error: null
+        error: undefined
       }),
 
       clearQueue: assign({
@@ -721,13 +685,16 @@ export default createMachine(
       }),
 
       removeAllItems: assign({
-        items: ({ items, bin }, _event) => {
-          forEach(items, item => !item?.state?.done && item?.stop());
+        items: ({ items }, _event) => {
+          forEach(
+            items,
+            item => !item?.state?.done && item?.stop && item?.stop()
+          );
           return [];
         },
         bin: [],
         queue: [],
-        error: null
+        error: undefined
       }),
 
       removeItem: assign({
@@ -735,14 +702,18 @@ export default createMachine(
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(items, ["id", itemId]);
-          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(
+            item => !item?.state?.done && item?.stop && item?.stop()
+          ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return items;
         },
         bin: ({ bin }, { data }, _event) => {
           // me may be given a name, but if not we can determine it from the event type
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = remove(bin, ["id", itemId]);
-          removed.forEach(item => !item?.state?.done && item?.stop()); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          removed.forEach(
+            item => !item?.state?.done && item?.stop && item?.stop()
+          ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
         },
         queue: ({ queue }, { data }, _event) => {
@@ -752,11 +723,11 @@ export default createMachine(
           return queue;
         },
 
-        error: null
+        error: undefined
       }),
 
       refreshItems: assign({
-        items: ({ items, basket }, { data }) => {
+        items: ({ items }, { data }) => {
           const promotions = data?.basket?.promotions || [];
           const currency_id = data?.basket?.currency_id;
 
@@ -843,7 +814,7 @@ export default createMachine(
         },
         bin: [],
         queue: [],
-        error: null
+        error: undefined
       }),
 
       // ---
@@ -854,31 +825,7 @@ export default createMachine(
       ),
 
       // ---
-
-      setFieldsSchemas: assign({
-        fieldsSchema: ({ custom_fields }) =>
-          useCustomFieldsSchemaParser(custom_fields),
-        fieldsUischema: ({ custom_fields }) =>
-          useCustomFieldsUischemaParser(custom_fields),
-        fieldsModel: ({ custom_fields, fieldsModel }) =>
-          useCustomFieldsModelParser(custom_fields, fieldsModel)
-      }),
-
-      setFieldsModel: assign({
-        fieldsModel: ({ custom_fields }, { data }) =>
-          useCustomFieldsModelParser(custom_fields, data)
-      }),
-
-      clearFieldsModel: assign({
-        fieldsModel: {}
-      }),
-
-      setFields: assign({
-        custom_fields: (_context, { data }) => data
-      }),
-
-      // ---
-      setFeedbackSuccess: (context, { data }) => {
+      setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated the basket");
       },
 
@@ -892,7 +839,8 @@ export default createMachine(
 
       setError: assign({
         error: (context, { data }) => {
-          let { items, newItems, error } = data;
+          const { items, newItems } = data;
+          let { error } = data;
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
@@ -918,21 +866,92 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: undefined })
     },
 
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
-      // --- Promotion gaurds
+      needsPayment: ({ paymentDetails }) => {
+        const hasOustandingBalance = paymentDetails?.amount >= 0;
+        const payingNow =
+          paymentDetails?.payment_type != PaymentTypes.PAY_LATER;
+        const manualPayment = includes(
+          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+          paymentDetails?.gateway?.type
+        );
 
-      hasNoPromotions: ({ basket }) => isEmpty(basket?.promotions),
+        const valid = hasOustandingBalance && payingNow && !manualPayment;
 
-      hasPromotions: ({ basket }) => !isEmpty(basket?.promotions),
+        // NB: original checks from the vue app for reference
+        // (data.balance !== 0 && data.payment_type !== PaymentTypes.PAY_LATER) ||
+        //   includes(
+        //     [
+        //       PaymentMethodType.GATEWAY_OFFLINE,
+        //       PaymentMethodType.GATEWAY_BANK_TRANSFER,
+        //       PaymentTypes.PAY_LATER
+        //     ],
+        //     paymentMethodType
+        //   )) ||
+        // this.paymentData.wallet_amount > 0
+
+        return valid;
+      },
+
+      isNotMuted: ({ muted }) => !muted,
+
+      // --- Actor Guards
+      currencyComplete: ({ actors }) => {
+        return actors.currency?.state?.matches("complete");
+      },
+
+      currencyConfiguring: ({ actors }) => {
+        return !actors.currency?.state?.matches("complete");
+      },
+
+      promotionsComplete: ({ actors }) => {
+        return actors.promotions?.state?.matches("complete");
+      },
+
+      promotionsConfiguring: ({ actors }) => {
+        return !actors.promotions?.state?.matches("complete");
+      },
+
+      custom_fieldsComplete: ({ actors }) => {
+        return actors.custom_fields?.state?.matches("complete");
+      },
+
+      custom_fieldsConfiguring: ({ actors }) => {
+        return !actors.custom_fields?.state?.matches("complete");
+      },
+
+      billingComplete: ({ actors }) => {
+        return actors.billing_details?.state?.matches("complete");
+      },
+
+      billingConfiguring: ({ actors }) => {
+        return !actors.billing_details?.state?.matches("complete");
+      },
+
+      paymentDetailsValid: ({ actors }) => {
+        return actors.payment_details?.state?.matches("valid");
+      },
+
+      paymentConfiguring: ({ actors }) => {
+        return ["invalid", "checking", "loading"].some(
+          actors.payment_details?.state?.matches
+        );
+      },
+
+      paymentDetailsComplete: ({ actors }, { data }) => {
+        return (
+          actors.payment_details?.state?.matches("complete") && !isEmpty(data)
+        );
+      },
 
       // --- Configuration Guards
 
-      allConfigured: ({ items, bin }) => {
+      allConfigured: ({ items }) => {
         const allConfigured = every(
           items,
           ({ state }) =>
@@ -957,18 +976,21 @@ export default createMachine(
         return !!data?.itemId && !some(queue, ["id", data.itemId]);
       },
 
-      hasNoItem: ({ items }, { data }) => isEmpty(data) || !data?.itemId,
+      isNotLoading: ({ items, actors }) => {
+        return (
+          every(actors, ({ state }) => !state.matches("loading")) &&
+          every(items, ({ state }) => !state.matches("loading"))
+        );
+      },
+
+      hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
       hasItems: ({ items }) => !isEmpty(items),
-
-      isNotLoading: ({ items }) => {
-        return every(items, ({ state }) => !state.matches("loading"));
-      },
 
       hasNoItems: ({ items }) => isEmpty(items),
 
       hasNewItems: ({ items }) => {
-        const value = some(items, ({ id, state }) => {
+        const value = some(items, ({ state }) => {
           const isConfigured = state.matches("configured");
           const isNew = get(state, "context.isNew");
           return isConfigured && isNew;
@@ -988,34 +1010,13 @@ export default createMachine(
         });
       },
 
-      hasProducts: ({ basket }) => !!basket?.products?.length,
-
-      hasFieldValues: ({ fieldsModel }) => !isEmpty(fieldsModel),
-
-      hasNoFields: ({ basket, custom_fields }) =>
-        isEmpty(basket) || isEmpty(custom_fields),
-
-      hasFields: ({ basket, custom_fields }) =>
-        !isEmpty(basket) && !isEmpty(custom_fields),
-
-      hasBilling: ({ basket }) => !!basket?.address_id || !!basket?.company_id,
-      hasNoBilling: ({ basket }) => !basket?.address_id && !basket?.company_id,
-      notSameCompany: ({ basket }, { data }) => {
-        return basket?.company_id !== data?.company_id;
-      },
-      notSameAddress: ({ basket }, { data }) => {
-        return basket?.address_id !== data?.address_id;
-      },
-
-      hasCurrency: ({ basket }) => !!basket?.currency_id,
-      hasNoCurrency: ({ basket }) => !basket?.currency_id,
-      notSameCurrency: ({ basket }, { data }) =>
-        basket?.currency_id !== data?.currency_id
+      hasProducts: ({ basket }) => !!basket?.products?.length
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
+      poll: () => useTime().POLL
     },
 
     services

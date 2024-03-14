@@ -34,10 +34,14 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 async function load(
   _context: ClientListingsContext,
-  { data }: ClientListingsEvents
+  _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
-  const { getUserId } = useSession();
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
 
   const clientId = await getUserId();
 

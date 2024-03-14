@@ -1,6 +1,5 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { I } from "vitest/dist/reporters-5f784f42.js";
 
 // --------------------------------------------------------
 // ENUMS

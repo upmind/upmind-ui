@@ -39,13 +39,6 @@ const exists = (items = [], mapping, context = null) => {
     every(mapping, (value, key) => {
       const itemValue = get(item, `${context}${key}`, get(item, key));
       const matches = itemValue == value;
-      // console.log("exists", {
-      //   item,
-      //   key: `${context}${key}`,
-      //   itemValue,
-      //   value,
-      //   matches
-      // });
       return matches;
     })
   );
@@ -92,7 +85,7 @@ export const useBasketHelper = (
   parentBuilder
 ) => {
   // TODO: check if there is a valid actor and that it is started
-  const { findItem, itemExists, service, getItemsSnapshot } = useBasket();
+  const { findItem, service, getItemsSnapshot } = useBasket();
   const dirtyItems = [];
   const processingItems = {};
 

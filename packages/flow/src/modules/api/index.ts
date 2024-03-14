@@ -10,6 +10,7 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types.d";
 
 import { useSession } from "../session";
+export { responseCodes } from "./types.d";
 
 // --- utils
 import { parseData } from "./utils";

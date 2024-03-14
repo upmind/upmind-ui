@@ -19,10 +19,14 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 async function load(
   _context: ClientListingsContext,
-  { data }: ClientListingsEvents
+  _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
-  const { getUserId } = useSession();
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
 
   const clientId = await getUserId();
 
@@ -37,7 +41,7 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: EmailContext, { data }: EmailEvent) {
+async function loadLookups(_context: EmailContext, _event: EmailEvent) {
   // we dont have any lookups for emails, so just return null
   return Promise.resolve(null);
 }
@@ -122,7 +126,7 @@ async function remove({ model }: EmailContext, _event: EmailEvent) {
 
 // --------------------------------------------------------
 
-async function parse({ model }: PhoneContext, _event: PhoneEvent) {
+async function parse({ model }: EmailContext, _event: EmailEvent) {
   // ---
   return Promise.resolve({ model });
 }

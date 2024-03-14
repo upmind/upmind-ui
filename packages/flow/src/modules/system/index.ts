@@ -8,7 +8,7 @@ import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 
 // --- utils
-import { find, values, isString, get, isEmpty, some } from "lodash-es";
+import { find, isString, get, isEmpty, some } from "lodash-es";
 import type { ICountry } from "./types.d";
 import { isArray } from "xstate/lib/utils";
 
@@ -22,13 +22,17 @@ import { isArray } from "xstate/lib/utils";
 
 let state = null;
 
-const service = interpret(systemMachine, { devTools: true }).onTransition(
+const service = interpret(systemMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
 
 export const useSystem = () => {
-  const { getCountry: getDefaultCountry, service: brandService } = useBrand();
+  const {
+    getCountry: getDefaultCountry,
+    getCurrencyId: getDefaultCurrency,
+    service: brandService
+  } = useBrand();
 
   // --- Helpers
 
@@ -43,11 +47,9 @@ export const useSystem = () => {
     // if we are, then wait for the fetch to complete
 
     if (state.matches(`${node}.loading`)) {
-      // console.log(node, "is busy...waiting", state.value);
       await waitFor(service, newstate =>
-        [`${node}.idle`, `${node}.complete`].some(state.matches)
+        [`${node}.idle`, `${node}.complete`].some(newstate.matches)
       );
-      // console.log(node, "finished, trying again", state.value);
       return fetch(node, getValues, data);
     }
 
@@ -79,7 +81,14 @@ export const useSystem = () => {
   // --- Methods
 
   const getCurrencies = () => state.context.currencies;
-  const getCurrency = value => find(state.context.currencies, ["code", value]);
+  const getCurrency = (value?: string) => {
+    // if we are not passed a country, then we need to get the default country
+    value ??= getDefaultCurrency();
+
+    if (value?.length == 3)
+      return find(state.context.currencies, ["code", value]);
+    return find(state.context.currencies, ["id", value]);
+  };
   // ---
 
   const getBillingCycles = () => state.context.billingCycles;
@@ -148,16 +157,16 @@ export const useSystem = () => {
   // ---
 
   const getLanguages = () => state.context.languages;
-  const getLanguage = value => find(state.context.languages, ["code", code]);
+  const getLanguage = value => find(state.context.languages, ["code", value]);
   // ---
 
   const getStatuses = () => state.context.statuses;
-  const getStatus = value => find(state.context.statuses, ["code", code]);
+  const getStatus = value => find(state.context.statuses, ["code", value]);
   // ---
 
   const getDepartments = () => state.context.departments;
   const getDepartment = value =>
-    find(state.context.departments, ["code", code]);
+    find(state.context.departments, ["code", value]);
   // --------------------------------------------------------
 
   return {

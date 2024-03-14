@@ -13,7 +13,7 @@ import { type SessionContext } from "./types.d";
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(context: SessionContext, _event: any) {
+async function check(_context: SessionContext, _event: any) {
   const clientToken = get(localStorage, `client/auth/token`);
   const guestToken = get(localStorage, `guest/auth/token`);
 
@@ -28,24 +28,24 @@ async function check(context: SessionContext, _event: any) {
   });
 }
 
-async function dumpGuestToken(context: SessionContext, event: any) {
+async function dumpGuestToken(_context: SessionContext, _event: any) {
   localStorage.removeItem(`guest/auth/token`);
   return Promise.resolve(); // we dont need to return anything
 }
 
-async function dumpClientToken(context: SessionContext, event: any) {
+async function dumpClientToken(_context: SessionContext, _event: any) {
   localStorage.removeItem(`client/auth/token`);
   return Promise.resolve(); // we dont need to return anything
 }
 
-async function dumpTokens(context: SessionContext, event: any) {
+async function dumpTokens(_context: SessionContext, _event: any) {
   localStorage.removeItem(`client/auth/token`);
   localStorage.removeItem(`guest/auth/token`);
 
   return Promise.resolve(); // we dont need to return anything
 }
 
-async function getUser(context: SessionContext, event: any) {
+async function getUser(_context: SessionContext, _event: any) {
   const { get, useUrl } = useApi();
 
   return get({

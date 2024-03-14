@@ -24,7 +24,7 @@ import type {
   AddressContext,
   AddressesEvents,
   AddressesContext
-} from "./types";
+} from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
@@ -49,9 +49,13 @@ export const AddressTypes = [
 //   );
 // }
 
-async function load(_context: AddressesContext, { data }: AddressesEvents) {
+async function load(_context: AddressesContext, _event: AddressesEvents) {
   const { get, useUrl } = useApi();
-  const { getUserId } = useSession();
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
 
   const clientId = await getUserId();
 
@@ -66,7 +70,7 @@ async function load(_context: AddressesContext, { data }: AddressesEvents) {
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: AddressContext, { data }: AddressEvent) {
+async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   const { fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model

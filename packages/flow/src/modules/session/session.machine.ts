@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendTo, raise } = actions;
+const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
@@ -8,7 +8,7 @@ import type { SessionContext } from "./types.d";
 import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 import { useTokenParser } from "./utils";
@@ -233,11 +233,11 @@ export default createMachine(
       setToken: assign({ token: (context, { data }) => useTokenParser(data) }),
       clearToken: assign({ token: {}, history: [] }),
       // ---
-      setUser: assign({ user: (context, { data }) => data }),
+      setUser: assign({ user: (_context, { data }) => data }),
       clearUser: assign({ user: {} }),
       // ---
-      setSuccess: (context, { data }) => {
-        addSuccess("Successfully logged in");
+      setSuccess: (_context, _event) => {
+        // addSuccess("Successfully logged in");
       },
 
       setError: assign({

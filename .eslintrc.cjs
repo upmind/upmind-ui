@@ -1,18 +1,18 @@
 module.exports = {
   env: {
     browser: true,
-    es2021: true
+    es2021: true,
   },
   extends: [
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
   ],
   overrides: [],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    project: "./tsconfig.json"
+    project: "./tsconfig.json",
   },
   plugins: ["@typescript-eslint", "prettier"],
   rules: {
@@ -28,6 +28,19 @@ module.exports = {
     // "@intlify/vue-i18n/no-raw-text": "off",
     // "@intlify/vue-i18n/no-v-html": "off",
 
+    // unused
+    // note you must disable the base rule
+    // as it can report incorrect errors
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn", // or "error"
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
+    ],
+
     // typecript
     "@typescript-eslint/no-var-requires": "off", // we have a vite plugin that resolves this
     "@typescript-eslint/ban-ts-comment": "off",
@@ -41,8 +54,8 @@ module.exports = {
       "error",
       {
         allowDestructuring: true, // Allow `const { props, state } = this`; false by default
-        allowedNames: ["vm"] // Allow `const vm= this`; `[]` by default
-      }
+        allowedNames: ["vm"], // Allow `const vm= this`; `[]` by default
+      },
     ],
 
     // vue
@@ -54,6 +67,6 @@ module.exports = {
 
     // general
     "no-unsafe-optional-chaining": "off",
-    "prettier/prettier": ["error", { endOfLine: "auto" }]
-  }
+    "prettier/prettier": ["error", { endOfLine: "auto" }],
+  },
 };

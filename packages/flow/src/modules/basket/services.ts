@@ -3,14 +3,13 @@
 // --- internal
 import { useApi } from "../api";
 
-import type { BasketContext } from "./types.d";
+import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 import type { Token } from "../session/types.d";
 const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
-import { useValidation } from "../../utils";
-import { useBasketParser, useCustomFieldsModelParser } from "./utils";
+import { useBasketParser } from "./utils";
 import {
   differenceBy,
   filter,
@@ -34,12 +33,24 @@ export enum SemanticTypes {
   DOMAIN_NAMES = "domain_name"
 }
 
+export enum InvoiceStatus {
+  ADJUSTED = "invoice_adjusted",
+  CANCELLED = "invoice_cancelled",
+  DRAFT = "invoice_draft",
+  OVERDUE = "invoice_overdue",
+  PAID = "invoice_paid",
+  REFUNDED = "invoice_refunded",
+  REPLACED = "invoice_replaced", // Only on imported invoices
+  UNPAID = "invoice_unpaid",
+  CANCELLATION_REQUEST = "invoice_cancellation_request"
+}
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(_context: BasketContext, _event: any) {
+async function load(_context?: BasketContext, _event?: BasketEvent) {
   const { get, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
@@ -79,7 +90,7 @@ async function check(_context: BasketContext, _event: any) {
 }
 
 // this generates an empty basket!
-async function generate({ basket }: BasketContext, _event: any) {
+async function generate({ basket }: BasketContext, _event: BasketEvent) {
   // safety check, if we have a basket, we dont need to generate one
   if (!isEmpty(basket)) return Promise.resolve(basket);
 
@@ -96,7 +107,7 @@ async function generate({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function claim({ basket }: BasketContext, _event: any) {
+async function claim({ basket }: BasketContext, _event: BasketEvent) {
   if (isEmpty(basket)) return Promise.resolve();
 
   const { patch, useUrl } = useApi();
@@ -115,22 +126,17 @@ async function claim({ basket }: BasketContext, _event: any) {
   }).then(useBasketParser);
 }
 
-async function update(
-  { basket, items, fieldsModel }: BasketContext,
-  _event: any
-) {
+async function update({ basket, items }: BasketContext, _event: BasketEvent) {
   const { put, useUrl } = useApi();
 
   const validItems = filter(items, item => item.state.matches("configured"));
   const productConfigs = map(validItems, item => item.state.context.config);
   // get returns a promise so we can pass it directly back to the machine
 
-  let error = null;
-  const response = await put({
+  return put({
     url: useUrl(`/orders/${basket.id}`),
     data: {
-      products: productConfigs,
-      ...fieldsModel
+      products: productConfigs
     },
     withAccessToken: true
   })
@@ -148,194 +154,34 @@ async function update(
       const newItems = differenceBy(basket.products, validItems, "id");
 
       merge(err, { basket, items: validItems, newItems });
-      error = err;
+      throw new Error(err);
     });
+}
 
-  return new Promise((resolve, reject) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(response);
-    }
+async function refresh({ items }: BasketContext, _event: BasketEvent) {
+  const validItems = reject(items, item => item.state.context.isNew);
+
+  // get returns a promise so we can pass it directly back to the machine
+  return load().then(basket => {
+    const newItems = differenceBy(basket.products, validItems, "id");
+    return { basket, items: validItems, newItems };
   });
 }
 
-async function setFields(
-  { basket, custom_fields, fieldsModel }: BasketContext,
-  _event: any
-) {
-  const { put, useUrl } = useApi();
-  // rebuild the model with ALL custo mfields present, including nullish values
-  const data = useCustomFieldsModelParser(custom_fields, fieldsModel);
+async function convert({ basket }: BasketContext, { data }: BasketEvent) {
+  const { patch, useUrl } = useApi();
 
-  // get returns a promise so we can pass it directly back to the machine
-  return put({
-    url: useUrl(`/orders/${basket.id}`),
-    data,
-    withAccessToken: true
+  // this will return an array of the users baskets, ordered by most recent
+  // but the response basket does not contain the products, so we need to
+  // request the basket by id to get the products?
+  return patch({
+    url: useUrl(`/orders/${basket.id}/convert`),
+    withAccessToken: true,
+    data
   }).then(useBasketParser);
 }
 
-async function setCurrency({ basket, items }: BasketContext, { data }: any) {
-  const { put, get, useUrl } = useApi();
-
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return (
-    put({
-      url: useUrl(`/orders/${basket.id}/currency`),
-      data: {
-        currency_code: data?.code || data?.id
-      },
-      withAccessToken: true
-    })
-      // now we have to refresh our basket as the we dont have all our data
-      .then(({ data }) => {
-        return get({
-          url: useUrl(`orders/${data.id}`, {
-            with: [
-              "account.brand.image",
-              "account.pricelist",
-              "brand.image",
-              "client.image",
-              "contract",
-              "currency",
-              "custom_fields.field",
-              "payments",
-              "products.product.image",
-              "products.product.images",
-              "products.product.prices",
-              "products.product.products_attributes",
-              "products.product.products_attributes.category",
-              "products.product.products_options",
-              "products.product.products_options.category",
-              "products.product.products_options.prices",
-              "products.product.provision_field_values",
-              "products.tags",
-              "promotions",
-              "status",
-              "taxes",
-              "taxes.tax_tag_data",
-              `products.product.category${".top_category".repeat(4)}`
-            ].join()
-          }),
-          withAccessToken: true,
-          useCache: false
-        });
-      })
-      .then(useBasketParser)
-      .then(basket => {
-        const newItems = differenceBy(basket.products, validItems, "id");
-        return { basket, items: validItems, newItems };
-      })
-      .then(updateItemProvisioningFields)
-  );
-}
-
-async function setBilling({ basket, items }: BasketContext, { data }: any) {
-  const { put, get, useUrl } = useApi();
-
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return (
-    put({
-      url: useUrl(`/orders/${basket.id}`),
-      data: {
-        address_id: data?.address_id,
-        company_id: data?.company_id
-      },
-      withAccessToken: true
-    })
-      // now we have to refresh our basket as the we dont have all our data
-      .then(({ data }) => {
-        return get({
-          url: useUrl(`orders/${data.id}`, {
-            with: [
-              "account.brand.image",
-              "account.pricelist",
-              "brand.image",
-              "client.image",
-              "contract",
-              "currency",
-              "custom_fields.field",
-              "payments",
-              "products.product.image",
-              "products.product.images",
-              "products.product.prices",
-              "products.product.products_attributes",
-              "products.product.products_attributes.category",
-              "products.product.products_options",
-              "products.product.products_options.category",
-              "products.product.products_options.prices",
-              "products.product.provision_field_values",
-              "products.tags",
-              "promotions",
-              "status",
-              "taxes",
-              "taxes.tax_tag_data",
-              `products.product.category${".top_category".repeat(4)}`
-            ].join()
-          }),
-          withAccessToken: true,
-          useCache: false
-        });
-      })
-      .then(useBasketParser)
-      .then(basket => {
-        const newItems = differenceBy(basket.products, validItems, "id");
-        return { basket, items: validItems, newItems };
-      })
-      .then(updateItemProvisioningFields)
-  );
-}
-
-// --- Basket Promotions Methods
-
-async function addPromotion({ basket, items }, { data }: any) {
-  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
-
-  const promocode = get(data, "promocode");
-
-  if (!promocode) return Promise.reject("No Promotion to add to basket");
-
-  const validItems = reject(items, item => item.state.context.isNew);
-
-  const { post, useUrl } = useApi();
-
-  return post({
-    url: useUrl(`/orders/${basket.id}/promotions`),
-    data: { promocode },
-    withAccessToken: true
-  })
-    .then(useBasketParser)
-    .then(getProvisioningFieldsValues)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
-    });
-}
-
-async function removePromotion({ basket, items }, { data }: any) {
-  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
-
-  const id = get(data, "id", data);
-
-  if (!id) return Promise.reject("No Promotion provided to remove from basket");
-
-  const { del, useUrl } = useApi();
-
-  return del({
-    url: useUrl(`/orders/${basket.id}/promotions/${id}`),
-    withAccessToken: true
-  })
-    .then(useBasketParser)
-    .then(getProvisioningFieldsValues)
-    .then(basket => {
-      return { basket, items, newItems: basket.products };
-    });
-}
+// --------------------------------------------------------
 
 // --- Basket Item Methods
 
@@ -343,7 +189,7 @@ async function removePromotion({ basket, items }, { data }: any) {
 // to achieve this we simply take the 1st  item and process it
 // and then return the  new basket AND the internal id/machine of the item that was processed
 
-async function updateItem({ basket, items, queue }, { data }: any) {
+async function updateItem({ basket, items, queue }, { data }: BasketEvent) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = find(queue, ["id", data.itemId]);
@@ -358,9 +204,7 @@ async function updateItem({ basket, items, queue }, { data }: any) {
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${item.id}`;
 
-  let error;
-
-  const response = await action({
+  return action({
     url: useUrl(`/orders/${basket.id}/products${suffix}`),
     data: config,
     withAccessToken: true
@@ -378,16 +222,8 @@ async function updateItem({ basket, items, queue }, { data }: any) {
       // we will set them here with the current basket, items, NO newItems
       const newItems = differenceBy(basket.products, items, "id");
       merge(err, { basket, items: [item], newItems });
-      error = err;
+      throw new Error(err);
     });
-
-  return new Promise((resolve, reject) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(response);
-    }
-  });
 }
 
 async function updateItemProvisioningFields({ basket, items, newItems }) {
@@ -459,7 +295,10 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
   });
 }
 
-async function removeItem({ basket, bin }: BasketContext, { data }: any) {
+async function removeItem(
+  { basket, bin }: BasketContext,
+  { data }: BasketEvent
+) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
   const item = find(bin, ["id", data.itemId]);
@@ -475,13 +314,13 @@ async function removeItem({ basket, bin }: BasketContext, { data }: any) {
   }).then(({ data }) => ({ basket: data, itemId: item.id }));
 }
 
-async function getProvisioningFieldsValues(basket: any) {
+async function getProvisioningFieldsValues(basket: BasketEvent) {
   const { get, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
   if (!basket || !basket?.products?.length) return Promise.resolve(basket);
 
-  const { id: basketId, products } = basket;
+  const { id: basket_id, products } = basket;
 
   const provisioningPromises = [];
 
@@ -493,7 +332,7 @@ async function getProvisioningFieldsValues(basket: any) {
       // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
       const promise = get({
         url: useUrl(
-          `orders/${basketId}/products/${id}/provision_fields/values`
+          `orders/${basket_id}/products/${id}/provision_fields/values`
         ),
         useCache: false,
         withAccessToken: true
@@ -512,67 +351,19 @@ async function getProvisioningFieldsValues(basket: any) {
 }
 
 // --------------------------------------------------------
-// --- Basket Field Methods
-
-async function getCustomFields(_context: BasketContext, { data }: any) {
-  const { get, useUrl } = useApi();
-  return get({
-    // url: useUrl("basket_fields", { brand_id: null }),
-    url: useUrl("basket_fields")
-  }).then(({ data }) => data);
-}
-
-async function validateFields(
-  { fieldsSchema, fieldsModel }: BasketContext,
-  _event: any
-) {
-  const { validate } = useValidation();
-
-  return new Promise((resolve, reject) => {
-    const errors = validate(fieldsSchema, fieldsModel);
-    if (errors.length) {
-      reject(errors);
-    } else {
-      resolve(fieldsModel);
-    }
-  });
-}
-// --------------------------------------------------------
-
-async function hideWarnings(context: BasketContext, _event: any) {}
-
-async function convertToInvoice(context: BasketContext, _event: any) {}
-
-// --------------------------------------------------------
-// --- Syntax sugar to Update Basket
-// --------------------------------------------------------
-
-async function setBasket(context: BasketContext, _event: any) {}
-
-async function setPriceList(context: BasketContext, _event: any) {}
-
-// --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
-  check,
+export default {
+  load,
   generate,
   claim,
   update,
-  // ---
-  setFields,
-  setCurrency,
-  setBilling,
-  // ---
-  addPromotion,
-  removePromotion,
+  refresh,
+  convert,
   // ---
   updateItem,
   removeItem,
   // ---
   authSubscription,
-  isAuthenticated,
-  // ---
-  getCustomFields,
-  validateFields
+  isAuthenticated
 };

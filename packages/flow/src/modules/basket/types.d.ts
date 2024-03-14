@@ -1,24 +1,10 @@
 // --- extrnal
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
-// Contexts
-
-export interface BasketContext {
-  basket: Basket | null;
-  items: Array;
-  bin: Array;
-  queue: Array;
-  custom_fields: Array;
-  fieldsModel?: Object;
-  fieldsSchema?: JsonSchema;
-  fieldsUischema?: UISchemaElement;
-  error?: RequestError;
-}
-
+// Interfaces
 export interface Basket {
   account: Object; //IAccount;
   account_id: string; //IAccount["id"];
@@ -92,9 +78,33 @@ export interface Basket {
 }
 
 // --------------------------------------------------------
+// Contexts
+
+export interface BasketContext {
+  basket?: Basket;
+  items?: Array; // Array of actors
+  bin?: Array;
+  queue?: Array;
+  error?: RequestError;
+  summary?: Object;
+  // --- SPAWNED ACTORS/MACHINES
+  actors: {
+    billing_details?: Object;
+    currency?: Object;
+    custom_fields?: Object;
+    payment_details?: Object;
+    promotions?: Object;
+  };
+  // --- Payments
+  paymentDetails?: Object;
+  payment?: Object;
+}
+
+// --------------------------------------------------------
 // Events
 
-export interface BasketEvents {
+export interface BasketEvent {
   type: "CHECK" | "REFRESH";
-  payload?: any;
+  data?: IBasket;
+  error?: RequestError;
 }
