@@ -60,12 +60,7 @@ export default defineComponent({
   inheritAttrs: false,
   customOptions: {},
   emits: [],
-  props: {
-    debugging: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  props: {},
   setup() {
     return useSession();
   },

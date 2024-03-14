@@ -20,6 +20,7 @@ export default {
             description:
               "This is the default signin/signup form. It's a good starting point for your authentication flow.",
             flow: "Authentication Flow",
+            inspect: "session",
           },
         },
         {
@@ -40,6 +41,7 @@ export default {
               "An implementation to show a complimentary illustration next to the signin/signup form.",
 
             flow: "Authentication Flow",
+            inspect: "session",
           },
         },
         {
@@ -59,6 +61,7 @@ export default {
             description:
               "An implementation to show a background image on the whole page with the signin/signup form in the center of it.",
             flow: "Authentication Flow",
+            inspect: "session",
           },
         },
         {
@@ -78,6 +81,7 @@ export default {
             description:
               "An implementation to show a marketing banner to promote the signup with some compelling copy.",
             flow: "Authentication Flow",
+            inspect: "session",
           },
         },
         {

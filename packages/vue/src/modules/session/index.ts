@@ -1,17 +1,17 @@
 // --- external
-import { computed, unref } from "vue";
+import { computed, unref, watch, toRaw } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useSession as useUpmindSession } from "@upmind/flow";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, isFunction } from "lodash-es";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useSession = () => {
+export const useSession = (inspector?: Function) => {
   const { service } = useUpmindSession();
   const { state, send } = useActor(service);
 
@@ -148,7 +148,35 @@ export const useSession = () => {
       type: "CANCEL",
     });
   }
+  // --------------------------------------------------------
 
+  if (isFunction(inspector)) {
+    // send a message to indicate we are
+    inspector({
+      key: "_upm-inspector",
+      message: "inspecting session",
+      flow: "session",
+    });
+
+    // whenever our state changes, post a message to our parent window
+
+    watch([state, client, guest], () =>
+      inspector({
+        key: "_upm-inspector",
+        flow: "session",
+        snapshot: {
+          state: {
+            session: state?.value?.value,
+            guest: guest?.value?.value,
+            client: client?.value?.value,
+          },
+          context: toRaw(unref(context)),
+          errors: toRaw(unref(errors)),
+          meta: toRaw(unref(meta)),
+        },
+      })
+    );
+  }
   // --------------------------------------------------------
 
   return {

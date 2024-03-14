@@ -138,8 +138,6 @@
     <main
       class="flex h-full w-full flex-wrap justify-center overflow-hidden pt-[4.5rem]"
     >
-      <upm-feedback />
-
       <router-view class="h-full w-full" :key="route.fullPath" />
 
       <!-- <footer
@@ -157,12 +155,11 @@ import { provide, ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 // --- internal
-import UpmFeedback from "@/modules/feedback/components/Feedback.vue";
 import PvDrawer from "@/components/Drawer.vue";
 import UpmHeader from "@/components/Header.vue";
 
 // --- utils
-import { startCase } from "lodash-es";
+import { startCase, set } from "lodash-es";
 
 // ---
 const router = useRouter();
@@ -192,4 +189,25 @@ provide("resolution", {
     () => !activeResolution.value || activeResolution.value === "mobile"
   ),
 });
+
+// ---
+const inspectors = ref({});
+provide("inspectors", inspectors.value);
+
+// listen for events from our embedded content
+window.addEventListener(
+  "message",
+  event => {
+    if (event.origin !== window.origin) return; // safety check we are getting data from ourselves
+    if (
+      event?.data?.key == "_upm-inspector" &&
+      !!event?.data?.flow &&
+      !!event?.data?.snapshot
+    ) {
+      set(inspectors.value, event.data.flow, event.data.snapshot);
+    }
+    // …
+  },
+  false
+);
 </script>

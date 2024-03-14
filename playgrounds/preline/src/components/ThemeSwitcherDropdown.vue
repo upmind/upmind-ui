@@ -10,18 +10,17 @@
     </button>
     <template #content>
       <ul
-        class="mx-2 mt-5 min-w-[15rem] rounded-b-lg border border-base-300 bg-white p-2 shadow-md before:absolute before:-top-4 before:start-0 before:h-4 before:w-full after:absolute after:-bottom-4 after:start-0 after:h-4 after:w-full"
+        class="min-w-md mx-2 mt-5 rounded-b-lg border border-base-300 bg-white p-2 shadow-md before:absolute before:-top-4 before:start-0 before:h-4 before:w-full after:absolute after:-bottom-4 after:start-0 after:h-4 after:w-full"
       >
         <li
-          class="flex cursor-pointer items-center gap-x-3.5 rounded-lg px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none"
+          class="flex cursor-pointer items-center justify-between gap-x-3.5 rounded-lg px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none"
           :class="{ '!bg-neutral-200': activeTheme === key }"
           v-for="(theme, key) in themes"
           :key="theme"
           @click.prevent="activeTheme = key"
         >
-          <upm-icon path="themes" :name="key" class="size-5 flex-shrink-0" />
-
           {{ startCase(theme) }} Theme
+          <upm-icon path="themes" :name="key" class="size-5 flex-shrink-0" />
         </li>
       </ul>
     </template>
