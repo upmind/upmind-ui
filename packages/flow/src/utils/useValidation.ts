@@ -4,7 +4,7 @@ import { createAjv } from "@jsonforms/core";
 import {
   isValidPhoneNumber,
   type CountryCode,
-  type PhoneNumber
+  type PhoneNumber,
 } from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
 
@@ -36,8 +36,8 @@ export const useValidation = () => {
       return isValidPhoneNumber(value, country);
     },
     error: {
-      message: cxt => `must be a valid ${cxt.schema} phone number`
-    }
+      message: cxt => `must be a valid ${cxt.schema} phone number`,
+    },
   });
 
   return {
@@ -49,7 +49,7 @@ export const useValidation = () => {
         return validate.errors;
       }
       return [];
-    }
+    },
   };
 };
 
@@ -65,7 +65,7 @@ export const useValidationParser = (error: any) => {
         // --- optional
         schemaPath: "",
         keyword: "",
-        params: {}
+        params: {},
       };
       errors.push(newError);
     });

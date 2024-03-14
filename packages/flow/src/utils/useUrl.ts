@@ -24,6 +24,6 @@ export function useUrl() {
 
   return {
     getParamFromUrl,
-    syncParamToUrl
+    syncParamToUrl,
   };
 }

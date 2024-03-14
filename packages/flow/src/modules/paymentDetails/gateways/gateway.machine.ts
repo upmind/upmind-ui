@@ -27,7 +27,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      error: null
+      error: null,
     } as GatewayContext,
     states: {
       loading: {
@@ -36,9 +36,9 @@ export default createMachine(
           onDone: { target: "checking", actions: ["setContext"] },
           onError: {
             target: "#error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
 
       // ---
@@ -52,9 +52,9 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas", "setModel"]
-              }
-            }
+                actions: ["setContext", "setSchemas", "setModel"],
+              },
+            },
           },
           validating: {
             invoke: {
@@ -62,11 +62,11 @@ export default createMachine(
               onDone: { target: "#valid" },
               onError: {
                 target: "#invalid",
-                actions: ["setError"]
-              }
-            }
-          }
-        }
+                actions: ["setError"],
+              },
+            },
+          },
+        },
       },
 
       invalid: { id: "invalid" },
@@ -75,8 +75,8 @@ export default createMachine(
         id: "valid",
         on: {
           CHECKOUT: "processing",
-          PAY: "processing"
-        }
+          PAY: "processing",
+        },
       },
 
       processing: {
@@ -85,9 +85,9 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "#processed",
-            actions: ["setPaymentDetails", "providePaymentDetails"]
-          }
-        }
+            actions: ["setPaymentDetails", "providePaymentDetails"],
+          },
+        },
       },
 
       processed: {
@@ -95,42 +95,42 @@ export default createMachine(
         after: {
           wait: {
             target: "complete",
-            cond: "hasNoOutstandingBalance"
-          }
-        }
+            cond: "hasNoOutstandingBalance",
+          },
+        },
       },
 
       complete: {
         id: "complete",
         type: "final",
         data: ({ paymentDetails }: GatewayContext, _event: GatewayEvent) =>
-          paymentDetails
+          paymentDetails,
       },
 
       error: {
         id: "error",
         on: {
           RETRY: {
-            target: "processing"
-          }
-        }
-      }
+            target: "processing",
+          },
+        },
+      },
     },
     on: {
       CLEAR: {
         target: "#checking",
-        actions: ["clearModel"]
+        actions: ["clearModel"],
       },
       SET: {
         target: "#checking",
-        actions: ["setModel"]
+        actions: ["setModel"],
       },
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"]
-      }
-    }
+        actions: ["clearError", "clearModel", "clearSchemas"],
+      },
+    },
   },
   {
     actions: {
@@ -141,33 +141,33 @@ export default createMachine(
       // ---
       setSchemas: assign({
         schema: context => useSchema(context),
-        uischema: context => useUischema(context)
+        uischema: context => useUischema(context),
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined
+        uischema: undefined,
       }),
 
       setModel: assign({
         model: ({ schema, model }, { data }) =>
-          useModelParser(schema, data || model)
+          useModelParser(schema, data || model),
       }),
 
       clearModel: assign({
-        model: undefined
+        model: undefined,
       }),
 
       // ---
       setPaymentDetails: assign({
         paymentDetails: ({ gateway }, { data }) => {
           return { gateway, data };
-        }
+        },
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
         type: "PAYMENT_DETAILS",
-        data: paymentDetails
+        data: paymentDetails,
       })),
 
       // ---
@@ -177,7 +177,7 @@ export default createMachine(
           title:
             error?.title || "We experienced an error processing your payment",
           copy: error?.message,
-          data: error?.data
+          data: error?.data,
         });
       },
 
@@ -191,10 +191,10 @@ export default createMachine(
           }
 
           return error || data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
 
     guards: {
@@ -204,14 +204,14 @@ export default createMachine(
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
-      }
+      },
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
 
-    services
+    services,
   }
 );

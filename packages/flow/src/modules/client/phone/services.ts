@@ -18,7 +18,7 @@ export const PhoneTypes: any[] = [
   { key: 1, value: "Mobile" },
   { key: 2, value: "Home" },
   { key: 3, value: "Office" },
-  { key: 4, value: "Personal" }
+  { key: 4, value: "Personal" },
 ];
 
 // --------------------------------------------------------
@@ -41,11 +41,11 @@ async function load(
   return get({
     url: useUrl(`clients/${clientId}/phones`, {
       // with: [].join(),
-      limit: 0
+      limit: 0,
     }),
     withAccessToken: true,
     useCache: true,
-    refresh: true
+    refresh: true,
   }).then(({ data }) => data);
 }
 
@@ -55,7 +55,7 @@ async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
   await fetchCountries();
   return Promise.resolve({
     types: keyBy(PhoneTypes, "key"),
-    country: getCountry()
+    country: getCountry(),
   });
 }
 
@@ -97,9 +97,9 @@ async function add({ model }: PhoneContext, _event: PhoneEvent) {
       phone: model.phone.nationalNumber, // without the country code
       phone_code: `+${model.phone.countryCallingCode}`,
       phone_country_code: model.phone.country,
-      type: model.type
+      type: model.type,
     },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -115,9 +115,9 @@ async function update({ model }: PhoneContext, _event: PhoneEvent) {
       phone: model.phone.nationalNumber, // without the country code
       phone_code: `+${model.phone.countryCallingCode}`,
       phone_country_code: model.phone.country,
-      type: model.type
+      type: model.type,
     },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -130,7 +130,7 @@ async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
   return put({
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: { default: true },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -142,7 +142,7 @@ async function remove({ model }: PhoneContext, _event: PhoneEvent) {
 
   return del({
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -167,7 +167,7 @@ async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
     nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
     countryCallingCode:
       phone?.countryCallingCode || model.phone?.countryCallingCode,
-    country: phone?.country || model.phone?.country || country?.code
+    country: phone?.country || model.phone?.country || country?.code,
   };
 
   if (!!model.phone?.country && model.phone.country !== country.code) {
@@ -207,5 +207,5 @@ export default {
   add,
   update,
   remove,
-  filter: filterItems
+  filter: filterItems,
 };

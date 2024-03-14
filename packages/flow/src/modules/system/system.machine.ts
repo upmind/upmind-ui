@@ -32,7 +32,7 @@ export default createMachine(
       // taxBusinessTypes: null,
 
       // ---
-      error: {}
+      error: {},
     } as SystemContext,
 
     type: "parallel",
@@ -47,7 +47,7 @@ export default createMachine(
               src: "fetchCurrencies",
               onDone: {
                 target: "processed",
-                actions: ["setCurrencies"]
+                actions: ["setCurrencies"],
               },
               onError: {
                 target: "error",
@@ -55,15 +55,15 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "currencies", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
-              wait: "complete"
-            }
+              wait: "complete",
+            },
           },
           complete: { type: "final" },
           error: {
@@ -74,12 +74,12 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "currencies");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
+                  },
+                }),
+              },
+            },
+          },
+        },
 
         // Currencies
         // /currencies?limit=0&lang=en
@@ -93,7 +93,7 @@ export default createMachine(
               src: "fetchBillingCycles",
               onDone: {
                 target: "processed",
-                actions: ["setBillingCycles"]
+                actions: ["setBillingCycles"],
               },
               onError: {
                 target: "error",
@@ -101,15 +101,15 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "billingCycles", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
-              wait: "complete"
-            }
+              wait: "complete",
+            },
           },
           complete: { type: "final" },
           error: {
@@ -120,12 +120,12 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "billingCycles");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
+                  },
+                }),
+              },
+            },
+          },
+        },
       },
 
       // --- ad hoc: these can be loaded at any time as needed
@@ -135,15 +135,15 @@ export default createMachine(
         states: {
           idle: {
             on: {
-              "COUNTRIES.GET": "loading"
-            }
+              "COUNTRIES.GET": "loading",
+            },
           },
           loading: {
             invoke: {
               src: "fetchCountries",
               onDone: {
                 target: "processed",
-                actions: ["setCountries"]
+                actions: ["setCountries"],
               },
               onError: {
                 target: "error",
@@ -151,15 +151,15 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "countries", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
-              wait: "complete"
-            }
+              wait: "complete",
+            },
           },
           complete: { type: "final" },
           error: {
@@ -170,12 +170,12 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "countries");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
+                  },
+                }),
+              },
+            },
+          },
+        },
       },
 
       regions: {
@@ -183,15 +183,15 @@ export default createMachine(
         states: {
           idle: {
             on: {
-              "REGIONS.GET": "loading"
-            }
+              "REGIONS.GET": "loading",
+            },
           },
           loading: {
             invoke: {
               src: "fetchRegions",
               onDone: {
                 target: "processed",
-                actions: ["setRegions"]
+                actions: ["setRegions"],
               },
               onError: {
                 target: "error",
@@ -199,18 +199,18 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "regions", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
               wait: [
                 { target: "complete", cond: "allRegionsLoaded" },
-                { target: "idle" }
-              ]
-            }
+                { target: "idle" },
+              ],
+            },
           },
           complete: { type: "final" },
           error: {
@@ -221,12 +221,12 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "regions");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
+                  },
+                }),
+              },
+            },
+          },
+        },
       },
 
       languages: {
@@ -234,15 +234,15 @@ export default createMachine(
         states: {
           idle: {
             on: {
-              "LANGUAGES.GET": "loading"
-            }
+              "LANGUAGES.GET": "loading",
+            },
           },
           loading: {
             invoke: {
               src: "fetchLanguages",
               onDone: {
                 target: "processed",
-                actions: ["setLanguages"]
+                actions: ["setLanguages"],
               },
               onError: {
                 target: "error",
@@ -250,15 +250,15 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "languages", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
-              wait: "complete"
-            }
+              wait: "complete",
+            },
           },
           complete: { type: "final" },
           error: {
@@ -269,12 +269,12 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "languages");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
+                  },
+                }),
+              },
+            },
+          },
+        },
       },
 
       statuses: {
@@ -282,15 +282,15 @@ export default createMachine(
         states: {
           idle: {
             on: {
-              "STATUSES.GET": "loading"
-            }
+              "STATUSES.GET": "loading",
+            },
           },
           loading: {
             invoke: {
               src: "fetchStatuses",
               onDone: {
                 target: "processed",
-                actions: ["setStatuses"]
+                actions: ["setStatuses"],
               },
               onError: {
                 target: "error",
@@ -298,15 +298,15 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "statuses", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
-              wait: "complete"
-            }
+              wait: "complete",
+            },
           },
           complete: { type: "final" },
           error: {
@@ -317,12 +317,12 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "statuses");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
+                  },
+                }),
+              },
+            },
+          },
+        },
       },
 
       departments: {
@@ -330,15 +330,15 @@ export default createMachine(
         states: {
           idle: {
             on: {
-              "DEPARTMENTS.GET": "loading"
-            }
+              "DEPARTMENTS.GET": "loading",
+            },
           },
           loading: {
             invoke: {
               src: "fetchDepartments",
               onDone: {
                 target: "processed",
-                actions: ["setDepartments"]
+                actions: ["setDepartments"],
               },
               onError: {
                 target: "error",
@@ -346,15 +346,15 @@ export default createMachine(
                   error: ({ error }: SystemContext, { data }: SystemEvent) => {
                     set(error, "departments", data);
                     return error;
-                  }
-                })
-              }
-            }
+                  },
+                }),
+              },
+            },
           },
           processed: {
             after: {
-              wait: "complete"
-            }
+              wait: "complete",
+            },
           },
           complete: { type: "final" },
           error: {
@@ -365,13 +365,13 @@ export default createMachine(
                   error: ({ error }: SystemContext) => {
                     unset(error, "departments");
                     return error;
-                  }
-                })
-              }
-            }
-          }
-        }
-      }
+                  },
+                }),
+              },
+            },
+          },
+        },
+      },
 
       // --- admin only endpoints
 
@@ -470,35 +470,35 @@ export default createMachine(
       //     }
       //   }
       // }
-    }
+    },
   },
   {
     actions: {
       setCurrencies: assign({
-        currencies: (_context: SystemContext, { data }: SystemEvent) => data
+        currencies: (_context: SystemContext, { data }: SystemEvent) => data,
       }),
       setBillingCycles: assign({
-        billingCycles: (_context: SystemContext, { data }: SystemEvent) => data
+        billingCycles: (_context: SystemContext, { data }: SystemEvent) => data,
       }),
       setCountries: assign({
-        countries: (_context: SystemContext, { data }: SystemEvent) => data
+        countries: (_context: SystemContext, { data }: SystemEvent) => data,
       }),
       setRegions: assign({
         regions: ({ regions }: SystemContext, { data }: SystemEvent) => {
           regions ??= {}; // ensure we have a regions object
           set(regions, data.key, data.values);
           return regions;
-        }
+        },
       }),
       setLanguages: assign({
-        languages: (_context: SystemContext, { data }: SystemEvent) => data
+        languages: (_context: SystemContext, { data }: SystemEvent) => data,
       }),
       setStatuses: assign({
-        statuses: (_context: SystemContext, { data }: SystemEvent) => data
+        statuses: (_context: SystemContext, { data }: SystemEvent) => data,
       }),
       setDepartments: assign({
-        departments: (_context: SystemContext, { data }: SystemEvent) => data
-      })
+        departments: (_context: SystemContext, { data }: SystemEvent) => data,
+      }),
 
       // --- admin only endpoints
 
@@ -523,12 +523,12 @@ export default createMachine(
           existing.length == countries?.length &&
           every(countries, ({ code }) => includes(existing, code))
         );
-      }
+      },
     },
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
-    services
+    services,
   }
 );

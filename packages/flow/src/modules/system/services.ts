@@ -13,7 +13,7 @@ import type {
   IRegion,
   ILanguage,
   IStatuses,
-  ITicketDepartment
+  ITicketDepartment,
 } from "./types.d";
 // --------------------------------------------------------
 // ENUMS
@@ -31,7 +31,7 @@ async function fetchCurrencies(_context: SystemContext, _event: SystemEvent) {
   return get({
     url: useUrl("currencies", { limit: 0 }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data as ICurrency[]);
 }
 
@@ -44,7 +44,7 @@ async function fetchBillingCycles(
   return get({
     url: useUrl("billing_cycles", { limit: 0 }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data as IBillingCycle[]);
 }
 
@@ -54,7 +54,7 @@ async function fetchCountries(_context: SystemContext, _event: SystemEvent) {
   return get({
     url: useUrl("countries", { limit: 0 }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data as ICountry[]);
 }
 
@@ -69,7 +69,7 @@ async function fetchRegions(
   return get({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(
     ({ data }: any) => ({ key: code, values: data }) as Record<string, IRegion>
   );
@@ -82,7 +82,7 @@ async function fetchLanguages(_context: SystemContext, _event: SystemEvent) {
     url: useUrl("languages", { limit: 0 }),
     useCache: true,
     maxAge: useTime()?.DAY,
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }: any) => data as ILanguage[]);
 }
 
@@ -92,7 +92,7 @@ async function fetchStatuses(_context: SystemContext, _event: SystemEvent) {
   return get({
     url: useUrl("statuses", { limit: 0 }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data as IStatuses);
 }
 
@@ -102,7 +102,7 @@ async function fetchDepartments(_context: SystemContext, _event: SystemEvent) {
   return get({
     url: useUrl("tickets/departments", { limit: 0 }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data as ITicketDepartment[]);
 }
 
@@ -140,7 +140,7 @@ export default {
   fetchRegions,
   fetchLanguages,
   fetchStatuses,
-  fetchDepartments
+  fetchDepartments,
   // fetchSystemIPAddresses,
   // fetchTaxBusinessTypes
 };

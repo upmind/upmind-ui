@@ -1,28 +1,28 @@
 <template>
   <header
-    class="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-base text-base-content border-b border-gray-200 text-sm py-3 sm:py-4 fixed top-0"
+    class="fixed top-0 z-50 flex w-full flex-wrap border-b border-gray-200 bg-base py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start sm:py-4"
   >
     <nav
-      class="relative flex gap-4 flex-wrap basis-full items-center w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
+      class="relative mx-auto flex w-full basis-full flex-wrap items-center gap-4 px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
       aria-label="Global"
     >
       <a
-        class="flex items-center gap-3 justify-between text-xl font-semibold w-auto h-10"
+        class="flex h-10 w-auto items-center justify-between gap-3 text-xl font-semibold"
         href="/"
         aria-label="Brand"
       >
-        <logo-icon class="w-full h-full"></logo-icon>
+        <logo-icon class="h-full w-full"></logo-icon>
         <span class="font-mono tracking-widest">LABS</span>
       </a>
 
-      <div class="flex gap-4 justify-center">
+      <div class="flex justify-center gap-4">
         <upm-resolution-switcher />
       </div>
 
-      <div class="flex justify-end items-center ms-auto sm:ms-0 sm:order-3">
+      <div class="ms-auto flex items-center justify-end sm:order-3 sm:ms-0">
         <upm-theme-switcher />
 
-        <div class="ps-3 sm:ps-6 sm:ms-6 sm:border-s sm:border-gray-300">
+        <div class="ps-3 sm:ms-6 sm:border-s sm:border-gray-300 sm:ps-6">
           <button
             type="button"
             :class="[

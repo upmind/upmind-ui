@@ -32,7 +32,7 @@ async function add(
   return post({
     url: useUrl(`/orders/${basket_id}/promotions`),
     data: { promocode: model?.code },
-    withAccessToken: true
+    withAccessToken: true,
   });
 }
 
@@ -49,7 +49,7 @@ async function remove(
 
   return del({
     url: useUrl(`/orders/${basket_id}/promotions/${id}`),
-    withAccessToken: true
+    withAccessToken: true,
   });
 }
 
@@ -88,5 +88,5 @@ export default {
   parse,
   validate,
   add,
-  remove
+  remove,
 };

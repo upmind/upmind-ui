@@ -1,23 +1,23 @@
 <template>
   <div class="auth">
     <div v-if="!meta.isAuthenticated">
-      <div class="stats border w-full">
+      <div class="stats w-full border">
         <div
-          class="stat bg-primary bg-opacity-10 indicator"
+          class="stat indicator bg-primary bg-opacity-10"
           @click.prevent="showRegister"
         >
           <span
             v-if="meta.showRegisterForm"
-            class="indicator-item bg-primary text-primary-content aspect-square rounded-full p-1 m-4"
+            class="indicator-item m-4 aspect-square rounded-full bg-primary p-1 text-primary-content"
           >
-            <check-icon class="w-5 h-5" />
+            <check-icon class="h-5 w-5" />
           </span>
 
-          <div class="stat-figure text-primary flex">
-            <plus-icon class="w-8 h-8 -mr-4" />
-            <user-icon class="w-16 h-16" />
+          <div class="stat-figure flex text-primary">
+            <plus-icon class="-mr-4 h-8 w-8" />
+            <user-icon class="h-16 w-16" />
           </div>
-          <div class="stat-value text-xl text-primary whitespace-normal">
+          <div class="stat-value whitespace-normal text-xl text-primary">
             New Customer
           </div>
           <div class="stat-title max-w-sm whitespace-normal">
@@ -29,21 +29,21 @@
         </div>
 
         <div
-          class="stat bg-secondary bg-opacity-10 indicator"
+          class="stat indicator bg-secondary bg-opacity-10"
           @click.prevent="showLogin"
         >
           <span
             v-if="meta.showLoginForm"
-            class="indicator-item bg-secondary text-secondary-content aspect-square rounded-full p-1 m-4"
+            class="indicator-item m-4 aspect-square rounded-full bg-secondary p-1 text-secondary-content"
           >
-            <check-icon class="w-5 h-5" />
+            <check-icon class="h-5 w-5" />
           </span>
 
-          <div class="stat-figure text-secondary flex">
-            <check-icon class="w-8 h-8 -mr-4" />
-            <user-icon class="w-16 h-16" />
+          <div class="stat-figure flex text-secondary">
+            <check-icon class="-mr-4 h-8 w-8" />
+            <user-icon class="h-16 w-16" />
           </div>
-          <div class="stat-value text-xl text-secondary whitespace-normal">
+          <div class="stat-value whitespace-normal text-xl text-secondary">
             Existing Customer
           </div>
           <div class="stat-title max-w-sm whitespace-normal">
@@ -75,7 +75,7 @@
       :additional-errors="errors?.data"
       @reject="reject"
       @resolve="resolve"
-      class="bg-opacity-10 my-8 p-4 gap-8"
+      class="my-8 gap-8 bg-opacity-10 p-4"
       :class="{
         'bg-primary': meta.showRegisterForm,
         'bg-secondary': meta.showLoginForm,

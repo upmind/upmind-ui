@@ -30,7 +30,7 @@ import {
   set,
   some,
   sumBy,
-  values as objectValues
+  values as objectValues,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -40,18 +40,18 @@ export enum DefaultPaymentPeriod {
   INHERIT_FROM_BRAND = 0,
   LOWEST_PRICE = 1,
   LOWEST_MONTHLY_PRICE = 2,
-  HIGHEST_PRICE = 3
+  HIGHEST_PRICE = 3,
 }
 
 export enum TrialEndActionTypes {
   CONTINUE = 0,
   MIGRATE = 1,
-  CANCEL = 2
+  CANCEL = 2,
 }
 export enum PromotionDisplayTypes {
   NAME = "name",
   LABEL = "label",
-  PERCENTAGE = "percentage"
+  PERCENTAGE = "percentage",
 }
 
 // --------------------------------------------------------
@@ -119,7 +119,7 @@ async function getProduct(
         "products_attributes",
         "products_options",
         "products_options.prices",
-        "provision_field_values"
+        "provision_field_values",
 
         // "provision_blueprint"
 
@@ -133,11 +133,11 @@ async function getProduct(
         // "trial_migration_rule",
         // "trial_migration_rule.new_product",
         // "trial_migration_rule.new_product.prices"
-      ].join()
+      ].join(),
     }),
     useCache: true,
     maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 
   // lets get our provision_fields fields early, so we can make them available
@@ -164,7 +164,7 @@ async function getProvisioningFields(
   return get({
     url: useUrl(`basket/products/${product_id}/provision_fields`),
     useCache: false,
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -305,7 +305,7 @@ async function checkAttributes(
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
             billing_cycle_months: values?.term?.billing_cycle_months,
-            unit_quantity: 1
+            unit_quantity: 1,
           });
 
           // ensure we have a valid unit_quantity
@@ -316,7 +316,7 @@ async function checkAttributes(
 
           value.price = find(product.prices, [
             "billing_cycle_months",
-            value.billing_cycle_months
+            value.billing_cycle_months,
           ]);
 
           value.total = value.unit_quantity * (value.price?.price || 0);
@@ -390,7 +390,7 @@ async function checkOptions(
             })
               ? values?.term?.billing_cycle_months
               : first(product.prices)?.billing_cycle_months || 0,
-            unit_quantity: 1
+            unit_quantity: 1,
           });
 
           // ensure we have a valid unit_quantity
@@ -401,7 +401,7 @@ async function checkOptions(
 
           value.price = find(product.prices, [
             "billing_cycle_months",
-            value.billing_cycle_months
+            value.billing_cycle_months,
           ]);
 
           value.total = value.unit_quantity * (value.price?.price || 0);
@@ -453,14 +453,14 @@ async function calculateSummary(
   const prices = {
     term: { subtotal: 0, total: 0, discount: 0 },
     attributes: { subtotal: 0, total: 0, discount: 0 },
-    options: { subtotal: 0, total: 0, discount: 0 }
+    options: { subtotal: 0, total: 0, discount: 0 },
   };
   // ---
   // only calculate the term price if we dont have any price overrides
   if (!useHasPriceOverride(values.options, available.options)) {
     const term = find(available.terms, [
       "billing_cycle_months",
-      values.term?.billing_cycle_months
+      values.term?.billing_cycle_months,
     ]);
     const subtotal = values.quantity * term?.price || 0;
     const total = values.quantity * term?.price_discounted || 0;
@@ -507,9 +507,9 @@ async function calculateSummary(
       prices: [
         prices.term.subtotal,
         prices.attributes.subtotal,
-        prices.options.subtotal
-      ]
-    }
+        prices.options.subtotal,
+      ],
+    },
   }).then(response => response?.data);
 
   const discountPromise = await post({
@@ -520,9 +520,9 @@ async function calculateSummary(
       prices: [
         prices.term.discount,
         prices.attributes.discount,
-        prices.options.discount
-      ]
-    }
+        prices.options.discount,
+      ],
+    },
   }).then(response => response?.data);
 
   const totalPromise = await post({
@@ -530,8 +530,12 @@ async function calculateSummary(
     withAccessToken: true,
     data: {
       currency_id,
-      prices: [prices.term.total, prices.attributes.total, prices.options.total]
-    }
+      prices: [
+        prices.term.total,
+        prices.attributes.total,
+        prices.options.total,
+      ],
+    },
   }).then(response => response?.data);
 
   return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
@@ -543,7 +547,7 @@ async function calculateSummary(
         discount: discount?.total,
         discountFormatted: discount?.total_formatted,
         total: total?.total,
-        totalFormatted: total?.total_formatted
+        totalFormatted: total?.total_formatted,
       };
       return newSummary;
     }
@@ -562,5 +566,5 @@ export default <Object>{
   checkOptions,
   checkProvisioning,
   // ---
-  calculateSummary
+  calculateSummary,
 };

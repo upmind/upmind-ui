@@ -10,7 +10,7 @@
     </aside>
 
     <aside
-      class="toast toast-top toast-end grid grid-cols-1 gap-4 max-h-screen overflow-auto z-[999]"
+      class="toast toast-top toast-end z-[999] grid max-h-screen grid-cols-1 gap-4 overflow-auto"
     >
       <upm-message
         v-for="toast in toasts"

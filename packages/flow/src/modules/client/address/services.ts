@@ -15,7 +15,7 @@ import {
   get,
   includes,
   filter,
-  defaultsDeep
+  defaultsDeep,
 } from "lodash-es";
 
 // --- types
@@ -23,7 +23,7 @@ import type {
   AddressEvent,
   AddressContext,
   AddressesEvents,
-  AddressesContext
+  AddressesContext,
 } from "./types.d";
 
 // --------------------------------------------------------
@@ -31,7 +31,7 @@ import type {
 export const AddressTypes = [
   { key: 1, value: "Home" },
   { key: 2, value: "Office" },
-  { key: 3, value: "Holiday" }
+  { key: 3, value: "Holiday" },
 ];
 // --------------------------------------------------------
 
@@ -62,11 +62,11 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
   return get({
     url: useUrl(`clients/${clientId}/addresses`, {
       // with: ["country", "region"].join(),
-      limit: 0
+      limit: 0,
     }),
     withAccessToken: true,
     useCache: true,
-    refresh: true
+    refresh: true,
   }).then(({ data }) => data);
 }
 
@@ -83,7 +83,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   const baseModel = {
     ...model,
     country_id: defaultCountry?.id,
-    type: first(AddressTypes)?.key
+    type: first(AddressTypes)?.key,
   };
 
   // ---
@@ -101,7 +101,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
         regions,
         baseModel,
         types: AddressTypes,
-        places: usePlaces
+        places: usePlaces,
       });
     } else {
       reject("Failed to load countries and regions");
@@ -140,7 +140,7 @@ async function add({ model }: AddressesContext, _event: AddressesEvents) {
   return post({
     url: useUrl(`clients/${clientId}/addresses`),
     data: model,
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -153,7 +153,7 @@ async function update({ model }: AddressesContext, _event: AddressesEvents) {
   return put({
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     data: model,
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -169,7 +169,7 @@ async function setDefault(
   return put({
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     data: { default: true },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -181,7 +181,7 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
 
   return del({
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -247,5 +247,5 @@ export default {
   add,
   update,
   remove,
-  filter: filterItems
+  filter: filterItems,
 };

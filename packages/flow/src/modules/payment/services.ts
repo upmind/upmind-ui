@@ -18,7 +18,7 @@ export enum Targets {
   BLANK = "_blank",
   SELF = "_self",
   PARENT = "_parent",
-  TOP = "_top"
+  TOP = "_top",
 }
 
 // --------------------------------------------------------
@@ -34,7 +34,7 @@ function submitViaForm({
   fields,
   method = FetchMethods.GET,
   target = Targets.SELF,
-  url
+  url,
 }: {
   fields?: Record<string, any>;
   method?: FetchMethods;
@@ -80,7 +80,7 @@ async function load(
 
   const urls = {
     return: undefined,
-    cancel: undefined
+    cancel: undefined,
   };
   // TODO
   // generate urls for the payment gateway,  most will require a return and cancel url
@@ -98,7 +98,7 @@ async function load(
   if (!data?.id) return Promise.reject({ title: "Invalid order", code: 400 });
 
   return get({
-    url: useUrl(`order/${data.id}`)
+    url: useUrl(`order/${data.id}`),
   }).then(({ data }) => ({ fields: data, urls }));
 }
 
@@ -120,7 +120,7 @@ async function update(
   return post({
     url: useUrl(`/payments`),
     data: usePaymentParser({ paymentDetails, order }),
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -168,5 +168,5 @@ export default {
   load,
   update,
   validate,
-  redirect
+  redirect,
 };

@@ -31,7 +31,7 @@ export default (message: Message) =>
         type: message?.type,
         // ---
         delay: message?.delay,
-        maxAge: message?.maxAge
+        maxAge: message?.maxAge,
       },
       states: {
         // our initial state depends on how the machine was invoked
@@ -42,9 +42,9 @@ export default (message: Message) =>
           after: [
             {
               delay: "delay",
-              target: "active"
-            }
-          ]
+              target: "active",
+            },
+          ],
         },
 
         active: {
@@ -52,12 +52,12 @@ export default (message: Message) =>
             {
               delay: "maxAge",
               target: "#complete",
-              cond: "hasMaxAge"
-            }
+              cond: "hasMaxAge",
+            },
           ],
           on: {
-            DISMISS: { target: "complete" }
-          }
+            DISMISS: { target: "complete" },
+          },
         },
 
         // Handle completion, stop the machine and prevent further messages
@@ -65,18 +65,18 @@ export default (message: Message) =>
         complete: {
           id: "complete",
           entry: ["sendClearMessage"],
-          type: "final"
-        }
-      }
+          type: "final",
+        },
+      },
     },
     {
       actions: {
         sendClearMessage: sendParent(({ hash }) => {
           return {
             type: "REMOVE",
-            data: { id: hash }
+            data: { id: hash },
           };
-        })
+        }),
       },
       guards: {
         isActive: ({ scheduled }) => {
@@ -84,13 +84,13 @@ export default (message: Message) =>
           const isFuture = scheduled > current;
           return !isFuture;
         },
-        hasMaxAge: ({ maxAge }) => maxAge
+        hasMaxAge: ({ maxAge }) => maxAge,
       },
       delays: {
         delay: ({ delay }) => delay, // this allows us to override the max age in the context
         maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
         error: () => useTime().ERROR,
-        wait: () => useTime().WAIT
-      }
+        wait: () => useTime().WAIT,
+      },
     }
   );

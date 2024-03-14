@@ -9,7 +9,7 @@ export enum responseCodes {
   "Forbidden" = 403,
   "Not_Found" = 404,
   "Conflict" = 409,
-  "Too_Many_Requests" = 429
+  "Too_Many_Requests" = 429,
 }
 
 // --------------------------------------------------------

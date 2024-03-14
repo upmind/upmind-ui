@@ -30,11 +30,11 @@ export default createMachine(
         // ---
         redirect: null,
         actor_id: null,
-        actor_type: null
+        actor_type: null,
       },
       refresh: false,
       // ---
-      error: null
+      error: null,
     } as GuestContext,
     states: {
       // our initial state will check 'self' and see if we have a token
@@ -45,8 +45,8 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: { target: "#authenticated", actions: ["setToken"] },
-          onError: { target: "#unauthenticated", actions: ["clearToken"] }
-        }
+          onError: { target: "#unauthenticated", actions: ["clearToken"] },
+        },
       },
 
       // in this state, we are unauthenticated, and we need to generate a "guest" token
@@ -55,7 +55,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
-            always: { target: "generating" }
+            always: { target: "generating" },
           },
 
           generating: {
@@ -64,15 +64,15 @@ export default createMachine(
               src: "generateToken",
               onDone: {
                 target: "#authenticated",
-                actions: ["setToken"]
+                actions: ["setToken"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "escalateError"]
-              }
-            }
-          }
-        }
+                actions: ["setError", "escalateError"],
+              },
+            },
+          },
+        },
       },
 
       // in this state, we are authenticated, and we can either refresh or kill the token
@@ -83,8 +83,8 @@ export default createMachine(
           idle: {
             always: [
               { target: "refreshing", cond: "isRefreshing" },
-              { target: "persisting" }
-            ]
+              { target: "persisting" },
+            ],
           },
           // in this state, we are attempting to refresh our token
           // if we are unauthorized (refresh token has expired),
@@ -99,11 +99,11 @@ export default createMachine(
                 {
                   target: "clearing",
                   cond: "isUnauthorized",
-                  actions: ["setError", "escalateError"]
+                  actions: ["setError", "escalateError"],
                 },
-                { target: "#error", actions: ["setError", "escalateError"] }
-              ]
-            }
+                { target: "#error", actions: ["setError", "escalateError"] },
+              ],
+            },
           },
           // in this state, we are removing our token to localStorage,
           // and then we start over
@@ -113,10 +113,10 @@ export default createMachine(
               src: "dumpToken",
               onDone: [
                 { target: "#loading", cond: "isRefreshing" },
-                { target: "#complete" }
-              ]
+                { target: "#complete" },
+              ],
             },
-            exit: "clearToken"
+            exit: "clearToken",
           },
           // in this state, we are persisting our token to localStorage,
           // and then we are done
@@ -125,50 +125,50 @@ export default createMachine(
             invoke: {
               src: "persistToken",
               onDone: {
-                target: "#complete"
-              }
-            }
-          }
-        }
+                target: "#complete",
+              },
+            },
+          },
+        },
       },
 
       // Handle errors
       error: {
-        id: "error"
+        id: "error",
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
         type: "final",
-        data: (context, _event) => context.token
-      }
-    }
+        data: (context, _event) => context.token,
+      },
+    },
   },
   {
     actions: {
       setToken: assign({
-        token: (context, { data }) => useTokenParser(data)
+        token: (context, { data }) => useTokenParser(data),
       }),
       clearToken: assign({
-        token: {}
+        token: {},
       }),
       // ---
       setError: assign({
-        error: (context, { data }) => data
+        error: (context, { data }) => data,
       }),
       escalateError: escalate(({ error }) => error),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
     guards: {
       isRefreshing: context => !!context.refresh,
       isUnauthorized: (_context, { data }) => {
         return data?.status === responseCodes.Unauthorized;
-      }
+      },
     },
 
     delays: {},
-    services
+    services,
   }
 );

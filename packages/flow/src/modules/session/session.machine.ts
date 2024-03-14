@@ -34,12 +34,12 @@ export default createMachine(
         // ---
         redirect: null,
         actor_id: null,
-        actor_type: null
+        actor_type: null,
       },
       history: [],
       user: {},
       refresh: false,
-      error: null
+      error: null,
     } as SessionContext,
     states: {
       // our initial state will check 'self' and see if we have a token
@@ -58,15 +58,15 @@ export default createMachine(
                 {
                   target: "client",
                   cond: "isClientToken",
-                  actions: ["setToken"]
+                  actions: ["setToken"],
                 },
                 {
                   target: "guest",
-                  actions: ["setToken"]
-                }
+                  actions: ["setToken"],
+                },
               ],
-              onError: { target: "guest" }
-            }
+              onError: { target: "guest" },
+            },
           },
           guest: {
             invoke: {
@@ -74,11 +74,11 @@ export default createMachine(
               src: guestMachine,
               autoForward: true,
               data: {
-                refresh: context => context.refresh
+                refresh: context => context.refresh,
               },
               onDone: { target: "#guest", actions: ["setToken"] },
-              onError: { actions: ["setError"] }
-            }
+              onError: { actions: ["setError"] },
+            },
           },
           client: {
             invoke: {
@@ -86,25 +86,25 @@ export default createMachine(
               src: clientMachine,
               autoForward: true,
               data: {
-                refresh: context => context.refresh
+                refresh: context => context.refresh,
               },
               onDone: {
                 target: "#client",
-                actions: ["setHistory", "setToken", "setSuccess"]
+                actions: ["setHistory", "setToken", "setSuccess"],
               },
-              onError: { actions: ["setError"] }
-            }
-          }
+              onError: { actions: ["setError"] },
+            },
+          },
         },
         onDone: {
-          actions: ["clearRefresh", "clearError"]
+          actions: ["clearRefresh", "clearError"],
         },
         on: {
           CANCEL: {
             target: "#starting",
-            actions: ["clearError"]
-          }
-        }
+            actions: ["clearError"],
+          },
+        },
       },
 
       guest: {
@@ -114,45 +114,45 @@ export default createMachine(
           idle: {
             type: "final",
             on: {
-              SELF: { target: "processing" }
-            }
+              SELF: { target: "processing" },
+            },
           },
           processing: {
             invoke: {
               src: "getUser",
               onDone: {
                 target: "idle",
-                actions: ["setUser"]
+                actions: ["setUser"],
               },
               onError: {
                 target: "error",
-                actions: ["setError"]
-              }
-            }
+                actions: ["setError"],
+              },
+            },
           },
           error: {
-            after: { wait: "idle" }
-          }
+            after: { wait: "idle" },
+          },
         },
         on: {
           LOGIN: {
             target: "#starting.client",
             actions: [
               "clearError",
-              sendTo("client", "LOGIN", { delay: 0 }) // delay needed to only trigger when in the correct state
-            ]
+              sendTo("client", "LOGIN", { delay: 0 }), // delay needed to only trigger when in the correct state
+            ],
           },
           REGISTER: {
             target: "#starting.client",
             actions: [
               "clearError",
-              sendTo("client", "REGISTER", { delay: 0 }) // delay needed to only trigger when in the correct state
-            ]
+              sendTo("client", "REGISTER", { delay: 0 }), // delay needed to only trigger when in the correct state
+            ],
           },
           REFRESH: { target: "#starting", actions: "setRefresh" },
           KILL: { target: "#clearing" },
-          CANCEL: { target: "#starting", actions: ["clearError"] }
-        }
+          CANCEL: { target: "#starting", actions: ["clearError"] },
+        },
       },
 
       client: {
@@ -163,32 +163,32 @@ export default createMachine(
             always: [
               {
                 cond: "hasNoUser",
-                target: "processing"
-              }
-            ]
+                target: "processing",
+              },
+            ],
           },
           processing: {
             invoke: {
               src: "getUser",
               onDone: {
                 target: "idle",
-                actions: ["setUser"]
+                actions: ["setUser"],
               },
               onError: {
                 target: "error",
-                actions: ["setError"]
-              }
-            }
+                actions: ["setError"],
+              },
+            },
           },
 
-          error: {}
+          error: {},
         },
         on: {
           LOGOUT: { target: "#clearing" },
           REFRESH: { target: "#starting", actions: "setRefresh" },
           KILL: { target: "#clearing" },
-          CANCEL: { target: "#starting", actions: ["clearError"] }
-        }
+          CANCEL: { target: "#starting", actions: ["clearError"] },
+        },
       },
 
       // admin: {
@@ -203,19 +203,19 @@ export default createMachine(
         id: "clearing",
         invoke: {
           src: "dumpTokens",
-          onDone: { target: "#starting", actions: ["clearToken", "clearUser"] }
-        }
+          onDone: { target: "#starting", actions: ["clearToken", "clearUser"] },
+        },
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         entry: ["clearToken", "clearUser"],
-        type: "final"
-      }
+        type: "final",
+      },
     },
     on: {
-      "CLEAR.ERRORS": { actions: ["clearError"] }
-    }
+      "CLEAR.ERRORS": { actions: ["clearError"] },
+    },
   },
   {
     actions: {
@@ -228,7 +228,7 @@ export default createMachine(
           if (isEqual(context.token, data)) return context.history;
           context.history.push(context.token);
           return context.history;
-        }
+        },
       }),
       setToken: assign({ token: (context, { data }) => useTokenParser(data) }),
       clearToken: assign({ token: {}, history: [] }),
@@ -245,14 +245,14 @@ export default createMachine(
           addError({
             title: data?.title || "We experienced an error",
             copy: data?.message,
-            data: data?.data
+            data: data?.data,
           });
 
           return data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
     guards: {
       hasError: ({ error }) => !!error,
@@ -260,13 +260,13 @@ export default createMachine(
       // ---
       hasNoUser: ({ user }) => !user?.id,
       // ---
-      isClientToken: (_context, { data }) => data?.type === "client"
+      isClientToken: (_context, { data }) => data?.type === "client",
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
-    services
+    services,
   }
 );

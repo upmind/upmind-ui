@@ -6,7 +6,7 @@
 import {
   generateUrls,
   useSchema as useDefaultSchema,
-  useUischema as useDefaultUischema
+  useUischema as useDefaultUischema,
 } from "../utils";
 import { get, merge, concat } from "lodash-es";
 
@@ -27,7 +27,7 @@ export const useSchema = (context: GatewayContext) => {
       ...(defaultSchema?.required || []), // NB Always include the default schema required fields
       "card_num",
       "card_expiry",
-      "card_cvv"
+      "card_cvv",
     ],
     properties: {
       ...(defaultSchema?.properties || {}), // NB Always include the default schema properties
@@ -39,13 +39,13 @@ export const useSchema = (context: GatewayContext) => {
         description: "The 16 digit number on the front of your card.",
         minLength: 0,
         maxLength: 22,
-        pattern: "[0-9]*"
+        pattern: "[0-9]*",
       },
       card_expiry: {
         type: "string",
         description: 'Expiry Date of the card. Date Format: MM/YY"',
         title: "Expiry Date",
-        pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$"
+        pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$",
       },
       card_cvv: {
         type: "string",
@@ -54,14 +54,14 @@ export const useSchema = (context: GatewayContext) => {
           "card security code found on the back of your card that provides an additional measure of credit card security.",
         pattern: "^[0-9]*$",
         minLength: 3,
-        maxLength: 5
+        maxLength: 5,
       }, // TODO: get from gateway card type cvv_length
       external: {
         type: "boolean",
         title: "Use external payment gateway",
-        const: false
-      }
-    }
+        const: false,
+      },
+    },
   };
 
   // conditionally add the cardholder_name to the required fields
@@ -84,7 +84,7 @@ export const useUischema = (context: GatewayContext) => {
         type: "Control",
         scope: "#/properties/cardholder_name",
         options: {
-          autocomplete: "cc-name"
+          autocomplete: "cc-name",
         },
         // only show this field if its in the required fields
         // as NOT ALL gateways require the cardholder_name
@@ -92,16 +92,16 @@ export const useUischema = (context: GatewayContext) => {
           effect: "SHOW",
           condition: {
             scope: "#/required",
-            schema: { enum: ["cardholder_name"] }
-          }
-        }
+            schema: { enum: ["cardholder_name"] },
+          },
+        },
       },
       {
         type: "Control",
         scope: "#/properties/card_num",
         options: {
-          autocomplete: "cc-number"
-        }
+          autocomplete: "cc-number",
+        },
       },
       {
         type: "HorizontalLayout",
@@ -111,21 +111,21 @@ export const useUischema = (context: GatewayContext) => {
             scope: "#/properties/card_expiry",
             options: {
               autocomplete: "cc-exp",
-              trim: true
-            }
+              trim: true,
+            },
           },
           {
             type: "Control",
             scope: "#/properties/card_cvv",
             options: {
               autocomplete: "cc-csc",
-              trim: true
-            }
-          }
-        ]
+              trim: true,
+            },
+          },
+        ],
       },
-      ...(defaultUischema?.elements || []) // NB Always append the default uischema elements
-    ]
+      ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
+    ],
   };
 
   return uischema as UISchemaElement;

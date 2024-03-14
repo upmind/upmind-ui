@@ -2,7 +2,7 @@
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
-  useFieldsModelParser
+  useFieldsModelParser,
 } from "../../../utils";
 
 export { useValidationParser } from "../../../utils";
@@ -17,24 +17,24 @@ export const useRegisterSchemaParser = (data: any) => {
     properties: {
       firstname: {
         type: ["string", "null"],
-        title: "Your first name"
+        title: "Your first name",
       },
       lastname: {
         type: ["string", "null"],
-        title: "Your last name"
+        title: "Your last name",
       },
       email: {
         type: ["string", "null"],
         title: "Your email address",
-        format: "email"
+        format: "email",
       },
       password: {
         type: ["string", "null"],
         title: "Your password",
-        minLength: 8
+        minLength: 8,
       },
-      custom_fields: useFieldsSchemaParser(data)
-    }
+      custom_fields: useFieldsSchemaParser(data),
+    },
   };
 
   return schema;
@@ -50,24 +50,24 @@ export const useRegisterUischemaParser = (data: any) => {
         options: {
           focus: true,
           autocomplete: "given-name",
-          placeholder: "Jay,Jane,John,... "
-        }
+          placeholder: "Jay,Jane,John,... ",
+        },
       },
       {
         type: "Control",
         scope: "#/properties/lastname",
         options: {
           autocomplete: "family-name",
-          placeholder: "Doe, Smith, ..."
-        }
+          placeholder: "Doe, Smith, ...",
+        },
       },
       {
         type: "Control",
         scope: "#/properties/email",
         options: {
           autocomplete: "email",
-          placeholder: "name@email.com"
-        }
+          placeholder: "name@email.com",
+        },
       },
       {
         type: "Control",
@@ -75,11 +75,11 @@ export const useRegisterUischemaParser = (data: any) => {
         options: {
           type: "password",
           autocomplete: "current-password",
-          placeholder: "Use a strong password or passphrase"
-        }
+          placeholder: "Use a strong password or passphrase",
+        },
       },
-      useFieldsUischemaParser(data)
-    ]
+      useFieldsUischemaParser(data),
+    ],
   };
 
   return schema;
@@ -91,7 +91,7 @@ export const useRegisterModelParser = (data: any) => {
     lastname: null,
     email: null,
     password: null,
-    custom_fields: useFieldsModelParser(data)
+    custom_fields: useFieldsModelParser(data),
   };
 
   return model;
@@ -107,14 +107,14 @@ export const useLoginSchemaParser = () => {
       email: {
         type: ["string"],
         format: "email",
-        title: "Your email address"
+        title: "Your email address",
       },
       password: {
         type: ["string"],
         format: "password",
-        title: "Your password"
-      }
-    }
+        title: "Your password",
+      },
+    },
   };
 };
 
@@ -127,8 +127,8 @@ export const useLoginUischemaParser = () => {
         scope: "#/properties/email",
         options: {
           autocomplete: "email",
-          placeholder: "name@email.com"
-        }
+          placeholder: "name@email.com",
+        },
       },
       {
         type: "Control",
@@ -136,17 +136,17 @@ export const useLoginUischemaParser = () => {
         options: {
           type: "password",
           autocomplete: "current-password",
-          placeholder: "password or passphrase"
-        }
-      }
-    ]
+          placeholder: "password or passphrase",
+        },
+      },
+    ],
   };
 };
 
 export const useLoginModelParser = () => {
   return {
     email: null,
-    password: null
+    password: null,
   };
 };
 // ---
@@ -160,9 +160,9 @@ export const use2faSchemaParser = () => {
       token: {
         type: ["string", "null"],
         pattern: "\\d{6}",
-        title: "Your 2fa code"
-      }
-    }
+        title: "Your 2fa code",
+      },
+    },
   };
 };
 
@@ -175,16 +175,16 @@ export const use2faUischemaParser = () => {
         scope: "#/properties/token",
         options: {
           autocomplete: "off",
-          placeholder: "123 456"
+          placeholder: "123 456",
           // mask: "### ###"
-        }
-      }
-    ]
+        },
+      },
+    ],
   };
 };
 
 export const use2faModelParser = () => {
   return {
-    token: null
+    token: null,
   };
 };

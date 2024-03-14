@@ -20,7 +20,7 @@ import {
   useLoginModelParser,
   use2faSchemaParser,
   use2faUischemaParser,
-  use2faModelParser
+  use2faModelParser,
 } from "./utils";
 
 // --------------------------------------------------------
@@ -43,7 +43,7 @@ export default createMachine(
         // ---
         redirect: null,
         actor_id: null,
-        actor_type: null
+        actor_type: null,
       },
       customFields: [],
       model: {},
@@ -52,7 +52,7 @@ export default createMachine(
       // ---
       refresh: false,
       // ---
-      error: null
+      error: null,
     } as ClientContext,
     states: {
       // our initial state will check 'self' and see if we have a token
@@ -66,8 +66,8 @@ export default createMachine(
         invoke: {
           src: "check",
           onDone: { target: "#authenticated", actions: ["setToken"] },
-          onError: { target: "#unauthenticated", actions: ["clearToken"] }
-        }
+          onError: { target: "#unauthenticated", actions: ["clearToken"] },
+        },
       },
 
       // in this state, we are unauthenticated, and we can either login or register, possibly with a challenge like 2fa or recaptcha
@@ -87,8 +87,8 @@ export default createMachine(
               loading: {
                 always: {
                   target: "idle",
-                  actions: ["clearError", "setLoginSchemas"]
-                }
+                  actions: ["clearError", "setLoginSchemas"],
+                },
                 // after: {
                 //   wait: {
                 //     target: "idle",
@@ -101,9 +101,9 @@ export default createMachine(
                 on: {
                   AUTHENTICATE: {
                     target: "authenticating",
-                    actions: ["setModel"]
-                  }
-                }
+                    actions: ["setModel"],
+                  },
+                },
               },
               authenticating: {
                 invoke: {
@@ -112,39 +112,39 @@ export default createMachine(
                     {
                       target: "challenging",
                       actions: ["set2faToken", "set2faSchemas"],
-                      cond: "requires2fa"
+                      cond: "requires2fa",
                     },
-                    { target: "#authenticated", actions: ["setToken"] }
+                    { target: "#authenticated", actions: ["setToken"] },
                   ],
                   onError: {
                     target: "error",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               challenging: {
                 on: {
                   VERIFY: { target: "verifying" },
-                  CANCEL: { target: "idle" }
-                }
+                  CANCEL: { target: "idle" },
+                },
               },
               verifying: {
                 invoke: {
                   src: "verify2fa",
                   onDone: {
                     target: "#authenticated",
-                    actions: ["setChallengeToken"]
+                    actions: ["setChallengeToken"],
                   },
                   onError: {
                     target: "challenging",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               error: {
-                after: { error: "idle" } // automatically move to stale after max age
-              }
-            }
+                after: { error: "idle" }, // automatically move to stale after max age
+              },
+            },
           },
 
           // --- Start the create flow
@@ -158,49 +158,49 @@ export default createMachine(
                   src: "getCustomFields",
                   onDone: {
                     target: "idle",
-                    actions: ["setCustomFields", "setRegisterSchemas"]
+                    actions: ["setCustomFields", "setRegisterSchemas"],
                   },
                   onError: {
                     target: "error",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               idle: {
                 on: {
-                  REGISTER: { target: "checking", actions: ["setModel"] }
-                }
+                  REGISTER: { target: "checking", actions: ["setModel"] },
+                },
               },
               checking: {
                 invoke: {
                   src: "checkForReCaptcha",
                   onDone: [
                     { target: "challenging", cond: "requiresReCaptcha" },
-                    { target: "registering" }
+                    { target: "registering" },
                   ],
                   onError: {
                     target: "error",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               challenging: {
                 on: {
-                  VERIFY: { target: "verifying" }
-                }
+                  VERIFY: { target: "verifying" },
+                },
               },
               verifying: {
                 invoke: {
                   src: "verifyReCaptcha",
                   onDone: {
                     target: "registering",
-                    actions: ["setChallengeToken"]
+                    actions: ["setChallengeToken"],
                   },
                   onError: {
                     target: "challenging",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               registering: {
                 invoke: {
@@ -208,9 +208,9 @@ export default createMachine(
                   onDone: { target: "authenticating", actions: ["setToken"] },
                   onError: {
                     target: "error",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               authenticating: {
                 invoke: {
@@ -218,15 +218,15 @@ export default createMachine(
                   onDone: { target: "#authenticated", actions: ["setToken"] },
                   onError: {
                     target: "error",
-                    actions: ["setError", "escalateError"]
-                  }
-                }
+                    actions: ["setError", "escalateError"],
+                  },
+                },
               },
               error: {
-                after: { error: "idle" } // automatically move to stale after max age
-              }
-            }
-          }
+                after: { error: "idle" }, // automatically move to stale after max age
+              },
+            },
+          },
 
           // --- potential alternate/future form flows
           // social: {}, // when we require user to login with a social provider
@@ -237,8 +237,8 @@ export default createMachine(
         },
         on: {
           LOGIN: { target: "#login" },
-          REGISTER: { target: "#register" }
-        }
+          REGISTER: { target: "#register" },
+        },
       },
 
       // in this state, we are authenticated, and we can either refresh or kill the token
@@ -250,8 +250,8 @@ export default createMachine(
           idle: {
             always: [
               { target: "refreshing", cond: "isRefreshing" },
-              { target: "persisting" }
-            ]
+              { target: "persisting" },
+            ],
           },
           // in this state, we are attempting to refresh our token
           // if we are unauthorized (refresh token has expired),
@@ -265,11 +265,11 @@ export default createMachine(
                 {
                   target: "clearing",
                   cond: "isUnauthorized",
-                  actions: ["setError", "escalateError"]
+                  actions: ["setError", "escalateError"],
                 },
-                { target: "#error", actions: ["setError", "escalateError"] }
-              ]
-            }
+                { target: "#error", actions: ["setError", "escalateError"] },
+              ],
+            },
           },
 
           // in this state, we are removing our token to localStorage,
@@ -279,10 +279,10 @@ export default createMachine(
               src: "dumpToken",
               onDone: [
                 { target: "#unauthenticated.login", cond: "isRefreshing" },
-                { target: "#complete" }
-              ]
+                { target: "#complete" },
+              ],
             },
-            exit: "clearToken"
+            exit: "clearToken",
           },
 
           // in this state, we are persisting our token to localStorage,
@@ -291,69 +291,69 @@ export default createMachine(
             invoke: {
               src: "persistToken",
               onDone: {
-                target: "#complete"
-              }
-            }
+                target: "#complete",
+              },
+            },
 
             // ---
             // potential future states
             // ---
             // onboarding: {},
             // updating: {},
-          }
-        }
+          },
+        },
       },
 
       // Handle errors
       error: {
-        id: "error"
+        id: "error",
       },
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
         type: "final",
-        data: (context, _event) => context.token
-      }
-    }
+        data: (context, _event) => context.token,
+      },
+    },
   },
   {
     actions: {
       setCustomFields: assign({
-        customFields: (_context, { data }) => data
+        customFields: (_context, { data }) => data,
       }),
 
       setRegisterSchemas: assign({
         schema: ({ customFields }) => useRegisterSchemaParser(customFields),
         uischema: ({ customFields }) => useRegisterUischemaParser(customFields),
-        model: ({ customFields }) => useRegisterModelParser(customFields)
+        model: ({ customFields }) => useRegisterModelParser(customFields),
       }),
 
       setLoginSchemas: assign({
         schema: _context => useLoginSchemaParser(),
         uischema: _context => useLoginUischemaParser(),
-        model: _context => useLoginModelParser()
+        model: _context => useLoginModelParser(),
       }),
 
       set2faSchemas: assign({
         schema: _context => use2faSchemaParser(),
         uischema: _context => use2faUischemaParser(),
-        model: _context => use2faModelParser()
+        model: _context => use2faModelParser(),
       }),
 
       setModel: assign({
-        model: (_context, { data }) => data
+        model: (_context, { data }) => data,
       }),
 
       // ---
       set2faToken: assign({
-        token: (_context, { data }) => data
+        token: (_context, { data }) => data,
       }),
       setToken: assign({
-        token: (_context, { data }) => useTokenParser(data)
+        token: (_context, { data }) => useTokenParser(data),
       }),
       clearToken: assign({
-        token: {}
+        token: {},
       }),
       // ---
       setError: assign({
@@ -365,11 +365,11 @@ export default createMachine(
           }
 
           return error;
-        }
+        },
       }),
       escalateError: escalate(({ error }) => error),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
     guards: {
       requires2fa: (_context, { data }) =>
@@ -377,13 +377,13 @@ export default createMachine(
       requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
       isRefreshing: context => !!context.refresh,
       isUnauthorized: (_context, { data }) =>
-        data?.status === responseCodes.Unauthorized
+        data?.status === responseCodes.Unauthorized,
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
-    services
+    services,
   }
 );

@@ -48,11 +48,11 @@ async function load(
   return get({
     url: useUrl(`clients/${clientId}/companies`, {
       // with: [].join(),
-      limit: 0
+      limit: 0,
     }),
     withAccessToken: true,
     useCache: true,
-    refresh: true
+    refresh: true,
   }).then(({ data }) => data);
 }
 
@@ -84,8 +84,8 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
       ...model,
       address_id: addresses.getDefault()?.id,
       email_id: emails.getDefault()?.id,
-      phone_id: phones.getDefault()?.id
-    }
+      phone_id: phones.getDefault()?.id,
+    },
   }));
 }
 
@@ -126,9 +126,9 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: model.phone_id,
       reg_number: model.reg_number,
       vat_number: model.vat_number,
-      vat_percent: model.vat_percent
+      vat_percent: model.vat_percent,
     },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -147,9 +147,9 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: model.phone_id,
       reg_number: model.reg_number,
       vat_number: model.vat_number,
-      vat_percent: model.vat_percent
+      vat_percent: model.vat_percent,
     },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -162,7 +162,7 @@ async function setDefault({ model }: CompanyContext, _event: CompanyEvent) {
   return put({
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
     data: { default: true },
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -174,7 +174,7 @@ async function remove({ model }: CompanyContext, _event: CompanyEvent) {
 
   return del({
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data }) => data);
 }
 
@@ -216,5 +216,5 @@ export default {
   add,
   update,
   remove,
-  filter: filterItems
+  filter: filterItems,
 };

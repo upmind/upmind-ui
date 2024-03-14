@@ -2,7 +2,7 @@
 
 module.exports = {
   content: ["./src/**/*.{vue,js,ts}", "../packages/ui/src/**/*.{vue,js,ts}"],
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [require("@tailwindcss/typography"), "prettier-plugin-tailwindcss"],
   theme: {
     extend: {
       colors: {

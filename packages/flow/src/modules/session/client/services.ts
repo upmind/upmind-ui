@@ -34,8 +34,8 @@ async function authenticate({ model }: ClientContext) {
     data: {
       username: model.email,
       password: model.password,
-      grant_type: GrantTypes.PASSWORD
-    }
+      grant_type: GrantTypes.PASSWORD,
+    },
   });
 }
 
@@ -47,8 +47,8 @@ async function verify2fa(context: ClientContext, { data }: any) {
     data: {
       twofa_provider: "google",
       twofa_code: data,
-      grant_type: GrantTypes.TWOFA
-    }
+      grant_type: GrantTypes.TWOFA,
+    },
   });
 }
 
@@ -58,7 +58,7 @@ async function getCustomFields(_context: ClientContext, _event: any) {
   const { get, useUrl } = useApi();
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
-    url: useUrl("clients_fields")
+    url: useUrl("clients_fields"),
   }).then(({ data }) => data);
 }
 
@@ -85,8 +85,8 @@ async function register({ model }: ClientContext) {
       phone: model?.phone,
       phone_code: model?.phone_code,
       phone_country_code: model?.phone_country_code,
-      recaptcha_token: model?.recaptcha_token
-    }
+      recaptcha_token: model?.recaptcha_token,
+    },
   });
 }
 
@@ -99,8 +99,8 @@ async function refreshToken(context: ClientContext) {
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token
-    }
+      refresh_token,
+    },
   });
 }
 
@@ -140,5 +140,5 @@ export default <Object>{
   // ---
   refreshToken,
   persistToken,
-  dumpToken
+  dumpToken,
 };

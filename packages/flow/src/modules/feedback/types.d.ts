@@ -5,7 +5,7 @@ import type { StateMachine } from "xstate";
 export enum messageDisplays {
   TOAST = "toast",
   NOTIFICATION = "notification",
-  SNACKBAR = "snackbar"
+  SNACKBAR = "snackbar",
   // CONSOLE = "console"
 }
 
@@ -17,7 +17,7 @@ export enum messageTypes {
   PRIMARY = "primary",
   SECONDARY = "secondary",
   SUCCESS = "success",
-  WARNING = "warning"
+  WARNING = "warning",
 }
 
 interface Message {

@@ -1,10 +1,10 @@
 <template>
   <div
-    class="max-w-md mx-auto p-6 items-center flex flex-wrap"
+    class="mx-auto flex max-w-md flex-wrap items-center p-6"
     :data-theme="activeTheme"
   >
     <div
-      class="w-full bg-base text-base-content border p-4 sm:p-7 border-base-300 rounded-xl shadow-lg"
+      class="w-full rounded-xl border border-base-300 bg-base p-4 text-base-content shadow-lg sm:p-7"
     >
       <div class="text-center">
         <h3 class="block text-2xl font-bold text-inherit">
@@ -14,7 +14,7 @@
         <p v-if="meta.showLoginForm" class="mt-2 text-sm text-base-content">
           Don't have an account yet?
           <button
-            class="text-primary decoration-2 hover:underline font-medium"
+            class="font-medium text-primary decoration-2 hover:underline"
             @click.prevent="showRegister"
           >
             Sign up here
@@ -24,7 +24,7 @@
         <p v-if="meta.showRegisterForm" class="mt-2 text-sm text-base-content">
           Already have an account?
           <button
-            class="text-secondary decoration-2 hover:underline font-medium"
+            class="font-medium text-secondary decoration-2 hover:underline"
             @click.prevent="showLogin"
           >
             Sign in here
@@ -33,12 +33,12 @@
       </div>
 
       <div
-        class="my-5 py-3 flex items-center text-xs text-base-400 uppercase before:flex-[1_1_0%] before:border-t before:border-base-400 before:me-6 after:flex-[1_1_0%] after:border-t after:border-base-400 after:ms-6"
+        class="my-5 flex items-center py-3 text-xs uppercase text-base-400 before:me-6 before:flex-[1_1_0%] before:border-t before:border-base-400 after:ms-6 after:flex-[1_1_0%] after:border-t after:border-base-400"
       >
         Or
       </div>
 
-      <upm-auth-form v-if="!meta.isAuthenticated" class="rounded-box gap-y-8" />
+      <upm-auth-form v-if="!meta.isAuthenticated" class="gap-y-8 rounded-box" />
     </div>
   </div>
 </template>

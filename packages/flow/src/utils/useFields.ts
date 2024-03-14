@@ -9,7 +9,7 @@ export const useFieldsSchemaParser = (data: any) => {
     type: "object",
     title: "Fields",
     required: [],
-    properties: {}
+    properties: {},
   };
 
   if (data?.length) {
@@ -111,8 +111,8 @@ export const useFieldsSchemaParser = (data: any) => {
               ? undefined
               : map(useTranslateField(field, "values"), item => ({
                   const: item.value,
-                  title: item.label
-                }))
+                  title: item.label,
+                })),
           },
           isNil
         )
@@ -181,10 +181,10 @@ export const useFieldsUischemaParser = (data: any) => {
           placeholder: useTranslateField(field, "placeholder"),
           multi,
           type,
-          ...options
-        }
+          ...options,
+        },
       };
-    })
+    }),
   };
 
   return schema;

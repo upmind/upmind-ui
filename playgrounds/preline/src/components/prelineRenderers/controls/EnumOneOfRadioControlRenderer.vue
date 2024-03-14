@@ -7,7 +7,7 @@
   >
     <ul
       :id="control.id + '-input'"
-      class="radiolist bg-base-100 w-full rounded-btn m-0 gap-2"
+      class="radiolist rounded-btn m-0 w-full gap-2 bg-base-100"
       :class="[styles.control.list.wrapper]"
     >
       <li class="radiolist-title m-0" v-if="appliedOptions?.title">
@@ -26,7 +26,7 @@
       </li>
 
       <li
-        class="p-0 m-0"
+        class="m-0 p-0"
         v-for="optionElement in control.options"
         :key="optionElement.value"
       >

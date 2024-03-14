@@ -19,7 +19,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "empty",
     context: {
-      messages: []
+      messages: [],
     },
     states: {
       // our initial state depends on if the machine has any message
@@ -27,31 +27,31 @@ export default createMachine(
       // otherwise we will await a message
       // individual message events are defined to allow for more granular control
       empty: {
-        always: [{ target: "processing", cond: "hasMessages" }]
+        always: [{ target: "processing", cond: "hasMessages" }],
       },
       processing: {
         always: [{ target: "empty", cond: "hasNoMessages" }],
         on: {
           DISMISS: {
-            actions: ["dismiss"]
-          }
-        }
+            actions: ["dismiss"],
+          },
+        },
       },
       complete: {
-        type: "final"
-      }
+        type: "final",
+      },
     },
     on: {
       ADD: {
-        actions: ["add"]
+        actions: ["add"],
       },
       REMOVE: {
-        actions: ["remove"]
+        actions: ["remove"],
       },
       STOP: {
-        target: "complete"
-      }
-    }
+        target: "complete",
+      },
+    },
   },
   {
     actions: {
@@ -71,7 +71,7 @@ export default createMachine(
             // spawn an actor for the new messages
             const machine = spawn(messageMachine(useMessageParser(data)), {
               name: id,
-              sync: true
+              sync: true,
             });
 
             // for now well just add the new machine to our list
@@ -79,7 +79,7 @@ export default createMachine(
           }
 
           return messages;
-        }
+        },
       }),
 
       remove: assign({
@@ -96,7 +96,7 @@ export default createMachine(
 
           remove(messages, ["id", id]);
           return messages;
-        }
+        },
       }),
 
       dismiss: assign({
@@ -116,8 +116,8 @@ export default createMachine(
           }
 
           return messages;
-        }
-      })
+        },
+      }),
     },
 
     guards: {
@@ -126,7 +126,7 @@ export default createMachine(
       },
       hasNoMessages: ({ messages }) => {
         return isEmpty(messages);
-      }
-    }
+      },
+    },
   }
 );

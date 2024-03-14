@@ -23,21 +23,21 @@
       @focus="isFocused = true"
       @blur="isFocused = false"
     />
-    <span class="absolute top-0 right-1" v-if="control.data">
+    <span class="absolute right-1 top-0" v-if="control.data">
       <button
-        class="btn btn-link text-inherit btn-square"
+        class="btn btn-link btn-square text-inherit"
         @click="unmask = true"
         v-if="!unmask"
       >
-        <eye-icon class="w-5 h-5" />
+        <eye-icon class="h-5 w-5" />
         <span class="sr-only">Show password value</span>
       </button>
       <button
-        class="btn btn-link text-inherit btn-square"
+        class="btn btn-link btn-square text-inherit"
         @click="unmask = false"
         v-else
       >
-        <eye-slash-icon class="w-5 h-5" />
+        <eye-slash-icon class="h-5 w-5" />
         <span class="sr-only">Hide password value</span>
       </button>
     </span>

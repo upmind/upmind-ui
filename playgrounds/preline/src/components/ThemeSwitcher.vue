@@ -1,13 +1,13 @@
 <template>
   <div
-    class="flex bg-neutral-100 hover:bg-neutral-200 rounded-xl transition py-2 px-2"
+    class="flex rounded-xl bg-neutral-100 px-2 py-2 transition hover:bg-neutral-200"
   >
-    <nav class="flex space-x-1 justify-between w-full">
+    <nav class="flex w-full justify-between space-x-1">
       <button
         v-for="(theme, key) in themes"
         :key="key"
         type="button"
-        class="flex flex-col place-items-center gap-1 text-xs sm:text-sm text-inherit hover:text-inherit font-medium rounded-lg py-2 px-3"
+        class="flex flex-col place-items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium text-inherit hover:text-inherit sm:text-sm"
         :class="{
           active: activeTheme === key,
           'bg-white': activeTheme === key,
@@ -17,7 +17,7 @@
         @click.prevent="activeTheme = key"
       >
         <upm-icon path="themes" :name="key" class="size-6" />
-        <span class="text-xs sr-only">{{ startCase(theme) }}</span>
+        <span class="sr-only text-xs">{{ startCase(theme) }}</span>
       </button>
     </nav>
   </div>

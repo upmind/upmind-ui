@@ -53,9 +53,9 @@ async function update(
   return put({
     url: useUrl(`/orders/${basket_id}/currency`),
     data: {
-      currency_code: model?.code
+      currency_code: model?.code,
     },
-    withAccessToken: true
+    withAccessToken: true,
   });
 }
 
@@ -97,5 +97,5 @@ export default {
   load,
   parse,
   validate,
-  update
+  update,
 };

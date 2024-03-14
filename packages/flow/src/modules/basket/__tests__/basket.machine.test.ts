@@ -8,20 +8,20 @@ const basketModel = createModel(basketMachine).withEvents({
     exec: async ({ context }) => {
       // simulate adding a product to the basket
       context.basket = {
-        products: [{ id: 1, name: "Product 1", price: 10 }]
+        products: [{ id: 1, name: "Product 1", price: 10 }],
       };
-    }
+    },
   },
   CLEAR_BASKET: {
     exec: async ({ context }) => {
       // simulate clearing the basket
       context.basket = {};
-    }
+    },
   },
   SESSION: {},
   GENERATE: {},
   UNAUTHENTICATED: {},
-  AUTHENTICATED: {}
+  AUTHENTICATED: {},
 });
 
 test("basket machine", async ({ pass }) => {

@@ -19,7 +19,7 @@ function search({
   controller,
   available,
   search,
-  offset
+  offset,
 }: DomainContext) {
   const { get, useUrl } = useApi();
 
@@ -36,7 +36,7 @@ function search({
       offset: offset?.toString(),
       currency_code: currency,
       // tld,
-      promotions: promotions?.join()
+      promotions: promotions?.join(),
     },
     isEmpty
   );
@@ -44,11 +44,11 @@ function search({
   return get({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
-    useCache: true
+    useCache: true,
   }).then(({ data, total }) => {
     return {
       available: parseAvailable(sld, data, available),
-      total: total || 0
+      total: total || 0,
     };
   });
 }
@@ -60,11 +60,11 @@ function getClientDomains({ controller }: DomainContext) {
     url: useUrl("modules/web_hosting/domains/client_domains"),
     init: { signal: controller?.signal },
     useCache: true,
-    withAccessToken: true
+    withAccessToken: true,
   }).then(({ data, total }) => {
     return {
       available: map(data, ({ domain_name }) => parseDomain(domain_name)),
-      total: total || 0
+      total: total || 0,
     };
   });
 }
@@ -73,5 +73,5 @@ function getClientDomains({ controller }: DomainContext) {
 
 export default {
   search,
-  getClientDomains
+  getClientDomains,
 };

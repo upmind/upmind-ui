@@ -20,7 +20,7 @@ import { set, unset, forEach } from "lodash-es";
 import type {
   PaymentDetailsContext,
   PaymentDetailsEvent,
-  RefreshEvent
+  RefreshEvent,
 } from "./types.d";
 
 // --------------------------------------------------------
@@ -38,10 +38,10 @@ export default createMachine(
       model: undefined,
       // ---
       actors: {
-        gateway: undefined
+        gateway: undefined,
       },
       // ---
-      error: null
+      error: null,
     } as PaymentDetailsContext,
     states: {
       loading: {
@@ -50,13 +50,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "checking",
-            actions: ["setContext", "setSchemas"]
+            actions: ["setContext", "setSchemas"],
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
       // ---
       checking: {
@@ -69,9 +69,9 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas"]
-              }
-            }
+                actions: ["setContext", "setSchemas"],
+              },
+            },
           },
           validating: {
             invoke: {
@@ -79,20 +79,20 @@ export default createMachine(
               onDone: { target: "#valid" },
               onError: {
                 target: "#invalid",
-                actions: ["setError"]
-              }
-            }
-          }
-        }
+                actions: ["setError"],
+              },
+            },
+          },
+        },
       },
 
       invalid: {
         id: "invalid",
         on: {
           "xstate.update": {
-            target: "checking"
-          }
-        }
+            target: "checking",
+          },
+        },
       },
 
       valid: {
@@ -100,9 +100,9 @@ export default createMachine(
         on: {
           CHECKOUT: { target: "processing" },
           "xstate.update": {
-            target: "checking"
-          }
-        }
+            target: "checking",
+          },
+        },
       },
 
       processing: {
@@ -111,43 +111,43 @@ export default createMachine(
         on: {
           PAYMENT_DETAILS: {
             target: "complete",
-            actions: ["setPaymentDetails", "providePaymentDetails"]
-          }
-        }
+            actions: ["setPaymentDetails", "providePaymentDetails"],
+          },
+        },
       },
 
       complete: {
         id: "complete",
         type: "final",
-        data: ({ paymentDetails }, _event) => paymentDetails
+        data: ({ paymentDetails }, _event) => paymentDetails,
       },
 
       // ---
 
       error: {
-        id: "error"
-      }
+        id: "error",
+      },
     },
     on: {
       CLEAR: {
         target: "#checking",
-        actions: ["clearModel"]
+        actions: ["clearModel"],
       },
       SET: {
         target: "#checking",
-        actions: ["setModel"]
+        actions: ["setModel"],
       },
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"]
+        actions: ["clearError", "clearModel", "clearSchemas"],
       },
 
       REFRESH: {
         target: "loading",
-        actions: ["refreshContext", "setSchemas"]
-      }
-    }
+        actions: ["refreshContext", "setSchemas"],
+      },
+    },
   },
   {
     actions: {
@@ -156,8 +156,8 @@ export default createMachine(
           basket_id: basket?.id,
           currency: basket?.currency,
           model: {
-            amount: basket?.unpaid_amount_converted || 0.0
-          }
+            amount: basket?.unpaid_amount_converted || 0.0,
+          },
         })
       ),
 
@@ -182,7 +182,7 @@ export default createMachine(
               basket_id: data.basket_id,
               gateway: data.gateway,
               amount: data.model?.amount,
-              currency
+              currency,
             });
             set(data, "actors.gateway", actor);
           }
@@ -194,20 +194,20 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model)
+        model: ({ schema, model }) => useModelParser(schema, model),
       }),
 
       clearSchemas: assign({
         schema: undefined,
-        uischema: undefined
+        uischema: undefined,
       }),
 
       setModel: assign({
         model: ({ schema, model }, { data }) =>
-          useModelParser(schema, data || model)
+          useModelParser(schema, data || model),
       }),
       clearModel: assign({
-        model: undefined
+        model: undefined,
       }),
 
       // ---
@@ -215,12 +215,12 @@ export default createMachine(
       setPaymentDetails: assign({
         paymentDetails: ({ model }, { data }) => {
           return { ...model, ...data };
-        }
+        },
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
         type: "PAYMENT_DETAILS",
-        data: paymentDetails
+        data: paymentDetails,
       })),
 
       // ---
@@ -246,7 +246,7 @@ export default createMachine(
             error?.title ||
             "We experienced an error while processing your order. Please try again.",
           copy: error?.message,
-          data: error?.data
+          data: error?.data,
         });
       },
 
@@ -260,19 +260,19 @@ export default createMachine(
           }
 
           return error || data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
 
     guards: {},
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
 
-    services
+    services,
   }
 );

@@ -15,7 +15,7 @@ import {
   has,
   map,
   omit,
-  unionBy
+  unionBy,
 } from "lodash-es";
 
 // --- types
@@ -47,7 +47,7 @@ export default createMachine(
       offset: 0,
       controller: null,
       // ---
-      error: null
+      error: null,
     } as DomainContext,
     states: {
       loading: {
@@ -56,21 +56,21 @@ export default createMachine(
           {
             target: "#existing.valid",
             actions: assign({ type: () => "existing" }),
-            cond: "isExistingPrimaryDomain"
+            cond: "isExistingPrimaryDomain",
           },
           {
             target: "basket",
             actions: assign({ type: () => "basket" }),
-            cond: ({ sync, values }) => !sync && !!values.length
+            cond: ({ sync, values }) => !sync && !!values.length,
           },
           {
             target: "idle",
-            cond: ({ sync }) => !sync
-          }
+            cond: ({ sync }) => !sync,
+          },
         ],
         on: {
-          SYNC: { actions: ["sync"] }
-        }
+          SYNC: { actions: ["sync"] },
+        },
       },
 
       // our initial state depends on if the machine has been forced to a type,
@@ -80,22 +80,22 @@ export default createMachine(
         always: [
           {
             target: "register",
-            cond: ({ type, sync }) => !sync && type === "register"
+            cond: ({ type, sync }) => !sync && type === "register",
           },
           {
             target: "transfer",
-            cond: ({ type, sync }) => !sync && type === "transfer"
+            cond: ({ type, sync }) => !sync && type === "transfer",
           },
 
           {
             target: "existing",
-            cond: ({ type, sync }) => !sync && type === "existing"
+            cond: ({ type, sync }) => !sync && type === "existing",
           },
           {
             target: "basket",
-            cond: ({ type, sync }) => !sync && type === "basket"
-          }
-        ]
+            cond: ({ type, sync }) => !sync && type === "basket",
+          },
+        ],
       },
 
       register: {
@@ -103,7 +103,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
-            entry: ["cancelController", "clearAvailable", "clearError"]
+            entry: ["cancelController", "clearAvailable", "clearError"],
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
@@ -112,7 +112,7 @@ export default createMachine(
             states: {
               cancelling: {
                 entry: "cancelController",
-                after: { wait: "searching" }
+                after: { wait: "searching" },
               },
               searching: {
                 entry: ["clearAvailable", "clearError", "newController"],
@@ -120,54 +120,54 @@ export default createMachine(
                   src: "search",
                   onDone: {
                     target: "#register.available",
-                    actions: ["setAvailable"]
+                    actions: ["setAvailable"],
                   },
                   onError: [
                     {
                       target: "#register.error",
                       actions: ["setError"],
-                      cond: "isNotCancelled"
-                    }
-                  ]
-                }
-              }
-            }
+                      cond: "isNotCancelled",
+                    },
+                  ],
+                },
+              },
+            },
           },
           available: {
             always: {
               target: "valid",
-              cond: "hasValues"
-            }
+              cond: "hasValues",
+            },
           },
           valid: {
             type: "final",
             always: {
               target: "available",
-              cond: "hasNoValues"
-            }
+              cond: "hasNoValues",
+            },
           },
           syncing: {},
-          error: {}
+          error: {},
         },
         on: {
           ADD: {
             target: "#register.valid",
             actions: ["add"],
-            cond: "hasAvailable"
+            cond: "hasAvailable",
           },
           REMOVE: {
             target: "#register.available",
             actions: ["remove"],
-            cond: "hasValues"
+            cond: "hasValues",
           },
           SEARCH: {
             target: ".processing",
             actions: ["setSearch"],
-            cond: "isValidSearch"
+            cond: "isValidSearch",
           },
           SYNC: { target: "#register.syncing" },
-          REFRESH: { target: "#register.available" }
-        }
+          REFRESH: { target: "#register.available" },
+        },
       },
 
       transfer: {
@@ -175,7 +175,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
-            entry: ["cancelController", "clearAvailable", "clearError"]
+            entry: ["cancelController", "clearAvailable", "clearError"],
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
@@ -184,7 +184,7 @@ export default createMachine(
             states: {
               cancelling: {
                 entry: "cancelController",
-                after: { wait: "searching" }
+                after: { wait: "searching" },
               },
               searching: {
                 entry: ["clearAvailable", "clearError", "newController"],
@@ -192,54 +192,54 @@ export default createMachine(
                   src: "search",
                   onDone: {
                     target: "#transfer.available",
-                    actions: ["setAvailable"]
+                    actions: ["setAvailable"],
                   },
                   onError: [
                     {
                       target: "#transfer.error",
                       actions: ["setError"],
-                      cond: "isNotCancelled"
-                    }
-                  ]
-                }
-              }
-            }
+                      cond: "isNotCancelled",
+                    },
+                  ],
+                },
+              },
+            },
           },
           available: {
             always: {
               target: "valid",
-              cond: "hasValues"
-            }
+              cond: "hasValues",
+            },
           },
           valid: {
             type: "final",
             always: {
               target: "available",
-              cond: "hasNoValues"
-            }
+              cond: "hasNoValues",
+            },
           },
           syncing: {},
-          error: {}
+          error: {},
         },
         on: {
           ADD: {
             target: "#transfer.valid",
             actions: ["add"],
-            cond: "hasAvailable"
+            cond: "hasAvailable",
           },
           REMOVE: {
             target: "#transfer.available",
             actions: ["remove"],
-            cond: "hasValues"
+            cond: "hasValues",
           },
           SEARCH: {
             target: ".processing",
             actions: ["setSearch"],
-            cond: "isValidSearch"
+            cond: "isValidSearch",
           },
           SYNC: { target: "#transfer.syncing" },
-          REFRESH: { target: "#transfer.available" }
-        }
+          REFRESH: { target: "#transfer.available" },
+        },
       },
 
       existing: {
@@ -251,22 +251,22 @@ export default createMachine(
               "cancelController",
               "clearAvailable",
               "clearError",
-              "newController"
+              "newController",
             ],
             invoke: {
               src: "getClientDomains",
               onDone: {
                 target: "#existing.idle",
-                actions: ["setAvailable"]
+                actions: ["setAvailable"],
               },
               onError: [
                 {
                   target: "#existing.error",
                   actions: ["setError"],
-                  cond: "isNotCancelled"
-                }
-              ]
-            }
+                  cond: "isNotCancelled",
+                },
+              ],
+            },
           },
           idle: {},
           // cancel any existing search via the controller then wait before starting a new search & controller
@@ -276,48 +276,48 @@ export default createMachine(
             states: {
               cancelling: {
                 entry: "cancelController",
-                after: { wait: "#existing.available" }
-              }
-            }
+                after: { wait: "#existing.available" },
+              },
+            },
           },
           available: {
             always: {
               target: "valid",
-              cond: "hasValues"
-            }
+              cond: "hasValues",
+            },
           },
           valid: {
             type: "final",
             always: {
               target: "available",
-              cond: "hasNoValues"
-            }
+              cond: "hasNoValues",
+            },
           },
           syncing: {},
-          error: {}
+          error: {},
         },
         on: {
           ADD: [
             {
               target: "#existing.valid",
               actions: ["addExisting"],
-              cond: "isValidDomain"
+              cond: "isValidDomain",
             },
             {
               target: "#existing.error",
               meta: {
-                message: "Invalid domain name"
-              }
-            }
+                message: "Invalid domain name",
+              },
+            },
           ],
           REMOVE: {
             target: "#existing.available",
             actions: ["remove"],
-            cond: "hasValues"
+            cond: "hasValues",
           },
           SYNC: { target: "#existing.syncing" },
-          REFRESH: { target: "#existing.available" }
-        }
+          REFRESH: { target: "#existing.available" },
+        },
       },
 
       basket: {
@@ -328,86 +328,86 @@ export default createMachine(
             always: [
               {
                 target: "#idle",
-                cond: "hasNoValues"
+                cond: "hasNoValues",
               },
 
               {
-                target: "valid"
-              }
-            ]
+                target: "valid",
+              },
+            ],
           },
           updating: {
             after: {
-              wait: "loading"
-            }
+              wait: "loading",
+            },
           },
           syncing: {},
           valid: {
             type: "final",
             always: {
               target: "#idle",
-              cond: "hasNoValues"
-            }
-          }
+              cond: "hasNoValues",
+            },
+          },
         },
         on: {
           SELECT: [
             {
               target: "#basket.updating",
               actions: ["setPrimary"],
-              cond: "hasValues"
-            }
+              cond: "hasValues",
+            },
           ],
           SYNC: { target: "#basket.syncing" },
-          REFRESH: { target: "#basket.valid" }
-        }
+          REFRESH: { target: "#basket.valid" },
+        },
       },
 
       error: {
         id: "error",
-        after: { error: "idle" }
+        after: { error: "idle" },
       },
 
       complete: {
-        type: "final"
-      }
+        type: "final",
+      },
     },
     on: {
       CHOOSE: [
         {
           target: "error",
-          cond: "isInvalidType"
+          cond: "isInvalidType",
         },
         {
           // do nothing
-          cond: "isForced"
+          cond: "isForced",
         },
         {
           target: "register",
           actions: ["setType"],
-          cond: "isDomainRegister"
+          cond: "isDomainRegister",
         },
         {
           target: "transfer",
           actions: ["setType"],
-          cond: "isDomainTransfer"
+          cond: "isDomainTransfer",
         },
         {
           target: "existing",
           actions: ["setType"],
-          cond: "isExistingDomain"
+          cond: "isExistingDomain",
         },
         {
           target: "basket",
           actions: ["setType"],
-          cond: "isBasket"
-        }
+          cond: "isBasket",
+        },
       ],
 
       STOP: {
-        target: "complete"
-      }
-    }
+        target: "complete",
+      },
+    },
   },
   {
     actions: {
@@ -415,10 +415,10 @@ export default createMachine(
         choices: ({ choices, sync }) => {
           if (!sync) return omit(choices, "basket");
           return choices;
-        }
+        },
       }),
       setType: assign({
-        type: (_context, { data }) => data
+        type: (_context, { data }) => data,
       }),
 
       sync: assign({
@@ -444,7 +444,7 @@ export default createMachine(
         choices: ({ choices }, { data }) => {
           if (!data?.length) return omit(choices, "basket");
           return choices;
-        }
+        },
         // type: ({ type }, { data }) => (type || data.length ? "basket" : null)
       }),
 
@@ -464,7 +464,7 @@ export default createMachine(
           if (domain) domain.is_primary = !some(values, "is_primary");
 
           return values;
-        }
+        },
       }),
 
       addExisting: assign({
@@ -485,7 +485,7 @@ export default createMachine(
         // reset all the search/available vars, as we dont show any available domains
         search: "",
         offset: 0,
-        total: 0
+        total: 0,
       }),
 
       remove: assign({
@@ -495,7 +495,7 @@ export default createMachine(
             newValues[0].is_primary = true;
           }
           return newValues;
-        }
+        },
       }),
 
       cancelController: assign({
@@ -504,30 +504,30 @@ export default createMachine(
             controller?.abort();
           }
           return null;
-        }
+        },
       }),
 
       newController: assign({
         controller: () => {
           return new AbortController();
-        }
+        },
       }),
 
       setSearch: assign({
         search: (_context, { data }) => data?.domain || "",
-        offset: (_context, { data }) => data?.offset || 0
+        offset: (_context, { data }) => data?.offset || 0,
       }),
 
       setAvailable: assign({
         available: (_context, { data }) => data.available,
         total: (_context, { data }) => data.total,
-        controller: null
+        controller: null,
       }),
 
       clearAvailable: assign({
         available: (_context, _event) => {
           return [];
-        }
+        },
       }),
 
       setPrimary: assign({
@@ -537,7 +537,7 @@ export default createMachine(
             value.is_primary = value === primary;
             return value;
           });
-        }
+        },
       }),
 
       import: assign({
@@ -550,7 +550,7 @@ export default createMachine(
             return value;
           });
         },
-        type: () => "existing"
+        type: () => "existing",
       }),
 
       // ---
@@ -563,14 +563,14 @@ export default createMachine(
           addError({
             title: data?.title || "We experienced an error getting domains",
             copy: data?.message,
-            data: data?.data
+            data: data?.data,
           });
 
           return data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
 
     guards: {
@@ -622,14 +622,14 @@ export default createMachine(
       isDomainRegister: (_context, { data }: { data: string }) =>
         data === "register",
 
-      isBasket: (_context, { data }: { data: string }) => data === "basket"
+      isBasket: (_context, { data }: { data: string }) => data === "basket",
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
 
-    services
+    services,
   }
 );

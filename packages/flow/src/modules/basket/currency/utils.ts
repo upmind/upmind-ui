@@ -23,10 +23,10 @@ export const useSchema = ({ currencies, baseModel }: CurrencyContext) => {
         default: baseModel?.code,
         oneOf: map(currencies, item => ({
           const: item.code,
-          title: `${item?.prefix || item?.suffix} ${item.code}`
-        }))
-      }
-    }
+          title: `${item?.prefix || item?.suffix} ${item.code}`,
+        })),
+      },
+    },
   };
 
   return schema as JsonSchema;
@@ -42,10 +42,10 @@ export const useUischema = (_context: CurrencyContext) => {
         options: {
           focus: true,
           autocomplete: "off",
-          placeholder: "Select currency..."
-        }
-      }
-    ]
+          placeholder: "Select currency...",
+        },
+      },
+    ],
   };
 
   return schema as UISchemaElement;

@@ -1,32 +1,32 @@
 <template>
   <aside
-    class="card sm:card-side bg-base-100 border rounded-btn"
+    class="card sm:card-side rounded-btn border bg-base-100"
     v-if="meta.isClient && !meta.isProcessing"
   >
-    <figure class="relative m-0 sm:w-1/2 md:w-36 aspect-square">
+    <figure class="relative m-0 aspect-square sm:w-1/2 md:w-36">
       <img
         v-if="user.image_url"
         :src="user.image_url"
         alt="uploaded image thumbnail "
-        class="aspect-square w-full h-full"
+        class="aspect-square h-full w-full"
       />
     </figure>
-    <div class="card-body py-2 px-4">
+    <div class="card-body px-4 py-2">
       <div class="">
         <span class="text-sm font-light italic"
           >You're currently logged in as</span
         >
-        <h4 class="mt-2 mb-0">{{ user.fullname }}</h4>
+        <h4 class="mb-0 mt-2">{{ user.fullname }}</h4>
         <h5 class="m-0 text-sm italic">{{ user.email }}</h5>
       </div>
-      <div class="card-actions justify-end mt-auto">
+      <div class="card-actions mt-auto justify-end">
         <router-link to="/" class="btn btn-ghost btn-sm">
-          <user-circle-icon class="w-6 h-6" />
+          <user-circle-icon class="h-6 w-6" />
           My Account
         </router-link>
 
         <button class="btn btn-ghost btn-sm" @click.prevent="logout">
-          <arrow-right-on-rectangle-icon class="w-6 h-6" />
+          <arrow-right-on-rectangle-icon class="h-6 w-6" />
           Logout
         </button>
       </div>

@@ -31,7 +31,7 @@ export const useSystem = () => {
   const {
     getCountry: getDefaultCountry,
     getCurrencyId: getDefaultCurrency,
-    service: brandService
+    service: brandService,
   } = useBrand();
 
   // --- Helpers
@@ -57,7 +57,7 @@ export const useSystem = () => {
     // if we dont have the regions for this country, then we need to fetch them
     service.send({
       type: `${node.toUpperCase()}.GET`,
-      data
+      data,
     });
 
     // finally ... await the response
@@ -200,6 +200,6 @@ export const useSystem = () => {
     // ---
     fetchDepartments: async () => fetch("departments", getDepartments),
     getDepartments,
-    getDepartment
+    getDepartment,
   };
 };

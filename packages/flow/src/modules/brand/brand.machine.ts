@@ -30,7 +30,7 @@ export default createMachine(
           OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
           OrgFeatureKeys.UNLIMITED_PAYMENT_GATEWAYS,
           OrgFeatureKeys.UNLIMITED_PROVISION_CONFIGURATIONS,
-          OrgFeatureKeys.WEBHOOKS
+          OrgFeatureKeys.WEBHOOKS,
         ],
         config: [
           BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
@@ -55,14 +55,14 @@ export default createMachine(
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
           BrandConfigKeys.UI_CLIENT_APP_PAYMENT_TERM_DESCRIPTIONS,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
-          BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION
-        ]
+          BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
+        ],
       },
       // ---
       //  we dont have a set type for this yet as its 100% dynamic from the API
       //  on fetch we will inject the data into the context
       // ---
-      error: {}
+      error: {},
     } as BrandContext,
 
     states: {
@@ -77,7 +77,7 @@ export default createMachine(
                   src: "fetchOrganisationConfig",
                   onDone: {
                     target: "complete",
-                    actions: ["setOrganisation"]
+                    actions: ["setOrganisation"],
                   },
                   onError: {
                     target: "error",
@@ -88,13 +88,13 @@ export default createMachine(
                       ) => {
                         set(error, "organisation", data);
                         return error;
-                      }
-                    })
-                  }
-                }
+                      },
+                    }),
+                  },
+                },
               },
               complete: {
-                type: "final"
+                type: "final",
               },
               error: {
                 on: {
@@ -104,12 +104,12 @@ export default createMachine(
                       error: ({ error }: BrandContext) => {
                         unset(error, "organisation");
                         return error;
-                      }
-                    })
-                  }
-                }
-              }
-            }
+                      },
+                    }),
+                  },
+                },
+              },
+            },
           },
           config: {
             initial: "loading",
@@ -119,7 +119,7 @@ export default createMachine(
                   src: "fetchBrandConfig",
                   onDone: {
                     target: "complete",
-                    actions: ["setConfig"]
+                    actions: ["setConfig"],
                   },
                   onError: {
                     target: "error",
@@ -130,13 +130,13 @@ export default createMachine(
                       ) => {
                         set(error, "config", data);
                         return error;
-                      }
-                    })
-                  }
-                }
+                      },
+                    }),
+                  },
+                },
               },
               complete: {
-                type: "final"
+                type: "final",
               },
               error: {
                 on: {
@@ -146,12 +146,12 @@ export default createMachine(
                       error: ({ error }: BrandContext) => {
                         unset(error, "config");
                         return error;
-                      }
-                    })
-                  }
-                }
-              }
-            }
+                      },
+                    }),
+                  },
+                },
+              },
+            },
 
             // Brand values
             // /config/brand/values?keys=analytics.google.measurement_id,analytics.gtm.container_id,ui.basket.default_currency,billing.gateway.force_auto_payment_for_stored_details,billing.gateway.force_card_storage,ui.checkout.checkout_flow,ui.checkout.hide_promotions_field,ui.checkout.checkout_summary_color_stop1,ui.checkout.checkout_summary_color_stop2,ui.checkout.checkout_summary_contrast_mode,ui.client_area.allow_vault,ui.client_area.homepage,ui.client_area.hide_registration_forms,billing.gateway.allow_card_removal_replacement,ui.client_registration.require_phone,ui.basket.truncate_product_description,ui.client_area.show_catalog,tickets.support.support_pin_enabled,ui.client_area.disable_support_system,ui.client_area.page_after_login,ui.client_area.payment_term_descriptions,ui.client_area.enter_key_action,ui.client_area.price_before_discount_position&lang=en
@@ -164,7 +164,7 @@ export default createMachine(
                   src: "fetchBrandSettings",
                   onDone: {
                     target: "complete",
-                    actions: ["setSettings"]
+                    actions: ["setSettings"],
                   },
                   onError: {
                     target: "error",
@@ -175,13 +175,13 @@ export default createMachine(
                       ) => {
                         set(error, "settings", data);
                         return error;
-                      }
-                    })
-                  }
-                }
+                      },
+                    }),
+                  },
+                },
               },
               complete: {
-                type: "final"
+                type: "final",
               },
               error: {
                 on: {
@@ -191,12 +191,12 @@ export default createMachine(
                       error: ({ error }: BrandContext) => {
                         unset(error, "settings");
                         return error;
-                      }
-                    })
-                  }
-                }
-              }
-            }
+                      },
+                    }),
+                  },
+                },
+              },
+            },
 
             // Brand Settings
             // /brand/settings?lang=en
@@ -209,7 +209,7 @@ export default createMachine(
                   src: "fetchModules",
                   onDone: {
                     target: "complete",
-                    actions: ["setModules"]
+                    actions: ["setModules"],
                   },
                   onError: {
                     target: "error",
@@ -220,13 +220,13 @@ export default createMachine(
                       ) => {
                         set(error, "modules", data);
                         return error;
-                      }
-                    })
-                  }
-                }
+                      },
+                    }),
+                  },
+                },
               },
               complete: {
-                type: "final"
+                type: "final",
               },
               error: {
                 on: {
@@ -236,29 +236,29 @@ export default createMachine(
                       error: ({ error }: BrandContext) => {
                         unset(error, "modules");
                         return error;
-                      }
-                    })
-                  }
-                }
-              }
-            }
+                      },
+                    }),
+                  },
+                },
+              },
+            },
 
             // Modules
             // /org/modules?lang=en
-          }
+          },
         },
-        onDone: "complete"
+        onDone: "complete",
       },
       complete: {
         // type: "final",
         on: {
           "CONFIG.GET": {
             target: "processing.config",
-            actions: ["setConfigKeys"]
-          }
-        }
-      }
-    }
+            actions: ["setConfigKeys"],
+          },
+        },
+      },
+    },
   },
   {
     actions: {
@@ -274,7 +274,7 @@ export default createMachine(
         keys: ({ keys }, { data }: { data: BrandConfigKeys[] }) => {
           keys.config.push(...data);
           return keys;
-        }
+        },
       }),
 
       // ---
@@ -283,16 +283,16 @@ export default createMachine(
       ),
 
       setModules: assign({
-        modules: (_context: BrandContext, { data }: BrandEvent) => data
-      })
+        modules: (_context: BrandContext, { data }: BrandEvent) => data,
+      }),
 
       // ---
     },
     guards: {},
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
-    services
+    services,
   }
 );

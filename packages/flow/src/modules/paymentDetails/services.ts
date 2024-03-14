@@ -40,7 +40,7 @@ async function load(
   const brand_id = getBrandId();
   const store_payment_options = {
     force_auto_payment: false,
-    force_card_storage: false
+    force_card_storage: false,
   };
   currency_id ??= getCurrencyId();
 
@@ -72,7 +72,7 @@ async function load(
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
     BrandConfigKeys.PAY_LATER_ENABLED,
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
+    BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
   ]).then(data => {
     if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
       unset(PaymentTypes, "PARTIAL_PAYMENT");
@@ -85,11 +85,11 @@ async function load(
 
   const balance = getRequest({
     url: useUrl(`wallet/balance`, {
-      currency_id
+      currency_id,
       // with_staged_imports=1
     }),
     withAccessToken: true,
-    useCache: false
+    useCache: false,
   }).then(({ data }) => data);
 
   // ---
@@ -100,11 +100,11 @@ async function load(
       brand_id,
       "filter[gateway.currencies.id]": currency_id,
       order: ["-default", "id"].join(),
-      with: ["gateway", "client"].join()
+      with: ["gateway", "client"].join(),
       // with_staged_imports: 1
     }),
     withAccessToken: true,
-    useCache: false
+    useCache: false,
   }).then(({ data }) => data);
 
   // ---
@@ -116,10 +116,10 @@ async function load(
       order: "order",
       "filter[gateway.currencies.id]": currency_id,
       "filter:[active]": 1,
-      with: ["gateway.gateway_provider", "gateway.card_types"].join()
+      with: ["gateway.gateway_provider", "gateway.card_types"].join(),
     }),
     withAccessToken: true,
-    useCache: false
+    useCache: false,
   }).then(({ data }) => sortBy(data, ["order"]));
 
   // ----
@@ -129,7 +129,7 @@ async function load(
       balance,
       payment_details,
       gateways,
-      payment_types: PaymentTypes
+      payment_types: PaymentTypes,
     })
   );
 }
@@ -151,7 +151,7 @@ async function parse(
   // also make sure we clear the gateway actor if we have no gateway_id
   else if (model?.gateway_id) {
     gateway = find(gateways, {
-      gateway_id: model.gateway_id
+      gateway_id: model.gateway_id,
     })?.gateway; // we dont need the full brand gateway, just the actual gateway;
   }
 
@@ -195,5 +195,5 @@ export default {
   validate,
   // ---
   authSubscription,
-  isAuthenticated
+  isAuthenticated,
 };

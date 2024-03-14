@@ -26,7 +26,7 @@ export const usePaymentParser = ({ paymentDetails, order }: PaymentContext) => {
     //  --- Converted Basket / Order / Invoice
     invoice_id: order.id,
     client_id: order.client_id,
-    account_id: order.account_id
+    account_id: order.account_id,
 
     // --- URLS
     // return_url:
@@ -49,7 +49,7 @@ export const useApprovalParser = ({ payment }: PaymentContext) => {
   payment.approval_form = {
     url: [url.origin, url.pathname].join(""), // only the url without query params
     method: approval_url.method,
-    fields
+    fields,
   };
 
   return payment;

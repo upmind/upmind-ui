@@ -1,6 +1,6 @@
 <template>
   <div
-    class="request collapse collapse-plus border border-opacity-50 border-neutral-300 rounded-box mb-2"
+    class="request collapse-plus collapse mb-2 rounded-box border border-neutral-300 border-opacity-50"
     :class="{ error: request.hasErrors, warning: request.hasNoContent }"
   >
     <input type="checkbox" name="request" />
@@ -8,7 +8,7 @@
     <div class="collapse-title">
       <h4 class="m-0 text-inherit">{{ request.id }}</h4>
 
-      <div class="flex items-center gap-2 mt-2">
+      <div class="mt-2 flex items-center gap-2">
         <button
           class="btn btn-neutral btn-outline btn-xs status"
           v-for="(value, key) in safeStates"
@@ -21,7 +21,7 @@
           </span>
         </button>
         <em
-          class="text-xs ml-auto font-mono text-inherit"
+          class="ml-auto font-mono text-xs text-inherit"
           v-if="request.isCached || request.isStale"
         >
           {{ expiresIn }}

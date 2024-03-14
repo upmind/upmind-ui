@@ -17,11 +17,11 @@ export const useSystemUpload = (field?: Object) => {
   let state = null;
 
   const context = {
-    field
+    field,
   };
 
   const service = interpret(uploadMachine.withContext(context), {
-    devTools: true
+    devTools: true,
   })
     .onTransition(newState => (state = newState))
     .start();
@@ -30,6 +30,6 @@ export const useSystemUpload = (field?: Object) => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => state,
-    destroy: () => service.stop()
+    destroy: () => service.stop(),
   };
 };

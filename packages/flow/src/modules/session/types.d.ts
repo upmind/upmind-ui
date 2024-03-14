@@ -5,7 +5,7 @@ export enum AccessRoleTypes {
   GUEST = "guest",
   CLIENT = "client",
   RESELLER = "reseller",
-  USER = "user"
+  USER = "user",
 }
 
 export enum GrantTypes {
@@ -20,11 +20,11 @@ export enum GrantTypes {
   PASSWORD_RESET = "password_reset",
   REFRESH_TOKEN = "refresh_token",
   TWOFA_ADMIN = "twofa-admin",
-  TWOFA = "twofa"
+  TWOFA = "twofa",
 }
 
 export enum TwofaProviders {
-  GOOGLE = "google"
+  GOOGLE = "google",
 }
 
 // --------------------------------------------------------

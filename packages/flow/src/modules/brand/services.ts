@@ -54,7 +54,7 @@ export enum BrandConfigKeys {
   UI_ENTER_KEY_ACTION = "ui.client_area.enter_key_action",
   UI_PRICE_BEFORE_DISCOUNT_POSITION = "ui.client_area.price_before_discount_position",
   UPMIND_AFFILIATES_CUSTOMER_CONTROLS_ENABLED = "affiliate_systems.upmind.customer_controls_enabled",
-  UPMIND_AFFILIATES_ENABLED = "affiliate_systems.upmind.enabled"
+  UPMIND_AFFILIATES_ENABLED = "affiliate_systems.upmind.enabled",
 }
 
 export enum OrgFeatureKeys {
@@ -65,7 +65,7 @@ export enum OrgFeatureKeys {
   REMOVE_UPMIND_BRANDING_ENABLED = "package.enabled_features.remove_upmind_branding",
   UNLIMITED_PAYMENT_GATEWAYS = "package.enabled_features.unlimited_payment_gateways",
   UNLIMITED_PROVISION_CONFIGURATIONS = "package.enabled_features.unlimited_provisioning_configurations",
-  WEBHOOKS = "package.enabled_features.webhooks"
+  WEBHOOKS = "package.enabled_features.webhooks",
 }
 
 // --------------------------------------------------------
@@ -79,10 +79,10 @@ async function fetchOrganisationConfig({ keys }: any, _event: any) {
 
   return get({
     url: useUrl("config/organisation/values", {
-      keys: keys.organisation.join()
+      keys: keys.organisation.join(),
     }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data);
 }
 
@@ -92,7 +92,7 @@ async function fetchBrandSettings(_context: any, _event: any) {
   return get({
     url: useUrl("brand/settings", {}),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data);
 }
 
@@ -108,10 +108,10 @@ async function fetchBrandConfig(context: any, _event: any) {
 
   return get({
     url: useUrl("config/brand/values", {
-      keys: missingKeys.join()
+      keys: missingKeys.join(),
     }),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => {
     // create an object template with ALL the keys and set them to null
     // this is to ensure that the config object has all the keys that were requested
@@ -134,7 +134,7 @@ async function fetchModules(_context: any, _event: any) {
   return get({
     url: useUrl("org/modules", {}),
     useCache: true,
-    maxAge: useTime()?.DAY
+    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data);
 }
 
@@ -145,5 +145,5 @@ export default <Object>{
   fetchOrganisationConfig,
   fetchBrandSettings,
   fetchBrandConfig,
-  fetchModules
+  fetchModules,
 };

@@ -8,20 +8,20 @@ const domainsModel = createModel(domainsMachine).withEvents({
     exec: async ({ context }) => {
       // simulate adding a product to the domains
       context.domains = {
-        "pewpew.com": { domain: "pewpew.com", sld: "pewpew", tld: ".com" }
+        "pewpew.com": { domain: "pewpew.com", sld: "pewpew", tld: ".com" },
       };
-    }
+    },
   },
   CLEAR_BASKET: {
     exec: async ({ context }) => {
       // simulate clearing the domains
       context.domains = {};
-    }
+    },
   },
   SESSION: {},
   GENERATE: {},
   UNAUTHENTICATED: {},
-  AUTHENTICATED: {}
+  AUTHENTICATED: {},
 });
 
 test("domains machine", async ({ pass }) => {

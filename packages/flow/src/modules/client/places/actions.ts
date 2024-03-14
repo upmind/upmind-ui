@@ -11,11 +11,11 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 export const actions = {
   add: assign({
     raw: (_context: ClientListingsContext, { data }: ClientListingsEvents) =>
-      data
+      data,
   }),
   setItems: assign({
     raw: [],
-    error: null
+    error: null,
   }),
   setSelected: assign({
     selected: (
@@ -23,10 +23,10 @@ export const actions = {
       { data }: ClientListingsEvents
     ) => find(items, ["id", data]),
     initial: undefined,
-    filters: undefined
+    filters: undefined,
   }),
 
   setInitial: assign(
     (_context: ClientListingsContext, { data }: ClientListingsEvents) => data
-  )
+  ),
 };

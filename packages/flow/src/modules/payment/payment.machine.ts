@@ -24,7 +24,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      error: null
+      error: null,
     } as PaymentContext,
     states: {
       loading: {
@@ -32,13 +32,13 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "checking",
-            actions: ["setContext"]
+            actions: ["setContext"],
           },
           onError: {
             target: "#error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
 
       // ---
@@ -50,18 +50,18 @@ export default createMachine(
           onDone: { target: "#valid" },
           onError: {
             target: "#invalid",
-            actions: ["setError"]
-          }
-        }
+            actions: ["setError"],
+          },
+        },
       },
 
       invalid: {
         id: "invalid",
         on: {
           "xstate.update": {
-            target: "checking"
-          }
-        }
+            target: "checking",
+          },
+        },
       },
 
       valid: {
@@ -69,15 +69,15 @@ export default createMachine(
         always: [
           {
             target: "processing",
-            cond: "hasPaymentDetails"
-          }
+            cond: "hasPaymentDetails",
+          },
         ],
         on: {
           PAY: { target: "processing" },
           "xstate.update": {
-            target: "checking"
-          }
-        }
+            target: "checking",
+          },
+        },
       },
 
       processing: {
@@ -85,13 +85,13 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setPayment", "providePayment"]
+            actions: ["setPayment", "providePayment"],
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
       },
 
       processed: {
@@ -101,14 +101,14 @@ export default createMachine(
             {
               target: "approving",
               cond: "needsApproval",
-              actions: ["setApproval"]
+              actions: ["setApproval"],
             },
             {
               target: "complete",
-              actions: "setFeedbackSuccess"
-            }
-          ]
-        }
+              actions: "setFeedbackSuccess",
+            },
+          ],
+        },
       },
 
       approving: {
@@ -118,39 +118,39 @@ export default createMachine(
             invoke: {
               src: "redirect",
               onDone: {
-                target: "offsite"
+                target: "offsite",
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
           },
           offsite: {
             on: {
               APPROVED: {
-                target: "#complete"
-              }
-            }
-          }
-        }
+                target: "#complete",
+              },
+            },
+          },
+        },
       },
 
       complete: {
         id: "complete",
         type: "final",
-        data: ({ payment }: PaymentContext, _event: PaymentEvent) => payment
+        data: ({ payment }: PaymentContext, _event: PaymentEvent) => payment,
       },
 
       error: {
         id: "error",
         on: {
           RETRY: {
-            target: "processing"
-          }
-        }
-      }
-    }
+            target: "processing",
+          },
+        },
+      },
+    },
   },
   {
     actions: {
@@ -159,16 +159,16 @@ export default createMachine(
       ),
 
       setPayment: assign({
-        payment: (_context, { data }) => data
+        payment: (_context, { data }) => data,
       }),
 
       setApproval: assign({
-        payment: context => useApprovalParser(context)
+        payment: context => useApprovalParser(context),
       }),
 
       providePayment: sendParent(({ payment }) => ({
         type: "PAYMENT",
-        data: payment
+        data: payment,
       })),
 
       // ---
@@ -181,7 +181,7 @@ export default createMachine(
           title:
             error?.title || "We experienced an error processing your payment",
           copy: error?.message,
-          data: error?.data
+          data: error?.data,
         });
       },
 
@@ -195,10 +195,10 @@ export default createMachine(
           }
 
           return error || data;
-        }
+        },
       }),
 
-      clearError: assign({ error: null })
+      clearError: assign({ error: null }),
     },
 
     guards: {
@@ -216,14 +216,14 @@ export default createMachine(
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
-      }
+      },
     },
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
     },
 
-    services
+    services,
   }
 );

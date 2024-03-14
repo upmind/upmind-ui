@@ -1,18 +1,18 @@
 <template>
   <div
-    class="border lg:border-none bg-base-50 text-base-content w-full mx-auto h-full flex flex-wrap"
+    class="mx-auto flex h-full w-full flex-wrap border bg-base-50 text-base-content lg:border-none"
     :data-theme="activeTheme"
   >
     <div class="w-full lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12">
       <div
-        class="flex flex-wrap content-center bg-gradient-to-bl from-neutral-900 to-primary-900 text-neutral-content lg:order-last py-12 px-6 sm:px-6 lg:px-8"
+        class="flex flex-wrap content-center bg-gradient-to-bl from-neutral-900 to-primary-900 px-6 py-12 text-neutral-content sm:px-6 lg:order-last lg:px-8"
       >
         <h1
-          class="block text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight max-w-lg"
+          class="block max-w-lg text-3xl font-bold text-inherit sm:text-4xl lg:text-6xl lg:leading-tight"
         >
           Start your journey with <span class="text-primary">Upmind</span>
         </h1>
-        <p class="mt-3 text-lg max-w-lg">
+        <p class="mt-3 max-w-lg text-lg">
           Entrepreneurs from around the world showcase and sell their services
           on Upmind - the home to the world’s best billing, sales and automation
           platform for service businesses.
@@ -22,7 +22,7 @@
       </div>
 
       <div
-        class="self-center col-span-1 mx-4 sm:mx-6 lg:mx-8 py-8 px-4 sm:px-6 lg:px-8"
+        class="col-span-1 mx-4 self-center px-4 py-8 sm:mx-6 sm:px-6 lg:mx-8 lg:px-8"
       >
         <div class="">
           <div class="text-left">
@@ -33,7 +33,7 @@
             <p v-if="meta.showLoginForm" class="mt-2 text-sm text-base-content">
               Don't have an account yet?
               <button
-                class="text-primary decoration-2 hover:underline font-medium"
+                class="font-medium text-primary decoration-2 hover:underline"
                 @click.prevent="showRegister"
               >
                 Sign up here
@@ -46,7 +46,7 @@
             >
               Already have an account?
               <button
-                class="text-secondary decoration-2 hover:underline font-medium"
+                class="font-medium text-secondary decoration-2 hover:underline"
                 @click.prevent="showLogin"
               >
                 Sign in here
@@ -55,7 +55,7 @@
           </div>
 
           <div
-            class="my-5 py-3 flex items-center text-xs text-base-400 uppercase before:flex-[1_1_0%] before:border-t before:border-base-400 before:me-6 after:flex-[1_1_0%] after:border-t after:border-base-400 after:ms-6"
+            class="my-5 flex items-center py-3 text-xs uppercase text-base-400 before:me-6 before:flex-[1_1_0%] before:border-t before:border-base-400 after:ms-6 after:flex-[1_1_0%] after:border-t after:border-base-400"
           >
             Or
           </div>

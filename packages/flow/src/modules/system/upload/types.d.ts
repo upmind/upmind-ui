@@ -10,7 +10,7 @@ export enum ImageObjectTypes {
   BRAND_EMAIL_LOGO = "brandEmailLogo",
   CLIENT = "client",
   ORGANIZATION = "organisation",
-  CLIENT_CUSTOM_FIELD = "client_custom_field"
+  CLIENT_CUSTOM_FIELD = "client_custom_field",
 }
 
 export const ImageUploadTypes = [
@@ -19,7 +19,7 @@ export const ImageUploadTypes = [
   "image/gif",
   "image/webp",
   "image/bmp",
-  "image/svg+xml"
+  "image/svg+xml",
 ];
 // --------------------------------------------------------
 // private

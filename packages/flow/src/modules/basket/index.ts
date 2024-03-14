@@ -18,7 +18,7 @@ import {
   remove,
   set,
   some,
-  unset
+  unset,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -69,7 +69,7 @@ export const useBasket = () => {
     getItemsSnapshot: () => state?.context?.items || [],
     findItem,
     itemExists: mapping =>
-      exists(state?.context?.items, mapping, "state.context.values")
+      exists(state?.context?.items, mapping, "state.context.values"),
   };
 };
 
@@ -104,7 +104,7 @@ export const useBasketHelper = (
       if (isValid && !exists(items, mapping)) {
         const data = itemBuilder({
           ...basketItem.state.context.values,
-          ...basketItem.state.context.available.product
+          ...basketItem.state.context.available.product,
         });
         missingItems.push(data);
       }
@@ -193,7 +193,7 @@ export const useBasketHelper = (
       if (basketItem?.state?.matches("configured")) {
         service.send({
           type: "UPDATE",
-          data: { itemId: basketItem.id }
+          data: { itemId: basketItem.id },
         });
         set(processingItems, basketItem.id, basketItem);
         remove(dirtyItems, mapping);

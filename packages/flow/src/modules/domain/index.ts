@@ -52,11 +52,11 @@ export const useDomain = (
     offset: 0,
     controller: null,
     // ---
-    error: null
+    error: null,
   };
 
   const service = interpret(domainMachine.withContext(context), {
-    devTools: false
+    devTools: false,
   })
     .onTransition(newState => (state = newState))
     .start();
@@ -76,14 +76,14 @@ export const useDomain = (
           billing_cycle_months:
             basketItem?.billing_cycle_months ||
             basketItem?.term?.billing_cycle_months ||
-            basketItem?.term
-        }
+            basketItem?.term,
+        },
       };
     };
 
     const itemMapper = item => ({
       product_id: item.product_id,
-      sld: item?.sld || item?.provision_fields?.sld
+      sld: item?.sld || item?.provision_fields?.sld,
     });
 
     // ---
@@ -94,18 +94,18 @@ export const useDomain = (
         product_id: item.product_id,
         quantity: 1,
         term: {
-          billing_cycle_months: item.billing_cycle_months
+          billing_cycle_months: item.billing_cycle_months,
         },
         options: item.options,
         provision_fields: {
-          sld: item.sld
-        }
+          sld: item.sld,
+        },
       };
     };
 
     const basketItemMapper = item => ({
       product_id: item.product_id,
-      "provision_fields.sld": item?.sld || item?.provision_fields?.sld
+      "provision_fields.sld": item?.sld || item?.provision_fields?.sld,
     });
 
     // ---
@@ -128,8 +128,8 @@ export const useDomain = (
           //finally, build the config for the parent machine with the primary domain
           config = {
             provision_fields: {
-              domain: primaryDomain.domain
-            }
+              domain: primaryDomain.domain,
+            },
           };
         }
 
@@ -137,7 +137,7 @@ export const useDomain = (
       };
 
       parentMapper = () => ({
-        id: parent.id
+        id: parent.id,
       });
     }
 
@@ -152,7 +152,7 @@ export const useDomain = (
         // ---
         "existing.valid",
         // ---
-        "basket.valid"
+        "basket.valid",
       ],
       "values",
       // ---
@@ -172,6 +172,6 @@ export const useDomain = (
     service, // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => state,
-    destroy: () => service.stop()
+    destroy: () => service.stop(),
   };
 };
