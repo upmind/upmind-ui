@@ -23,7 +23,7 @@
   <!-- End Popover -->
 </template>
 
-<script lang="ts">
+<script>
 import { inject, defineComponent } from "vue";
 import UpmIcon from "@/components/Icon.vue";
 import { startCase } from "lodash-es";

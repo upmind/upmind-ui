@@ -53,7 +53,7 @@
   </header>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import LogoIcon from "@/assets/logo.svg";
 import UpmIcon from "@/components/Icon.vue";

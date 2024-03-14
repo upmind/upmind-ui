@@ -149,7 +149,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 // --- external
 import { provide, ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import { utils } from "@upmind/flow";
 import { UpmFormGenerator } from "@upmind/ui";

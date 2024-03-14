@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import UpmFormGenerator from "@/components/FormGenerator.vue";
 
 const useDate = val => {
