@@ -32,21 +32,11 @@
       </div>
     </div>
   </aside>
-
-  <!-- <upm-debug
-    v-if="debugging"
-    title="Session"
-    :state="{ session: state }"
-    :context="context"
-    :errors="errors"
-    :meta="meta"
-  /> -->
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/vue";
-// import { UpmDebug } from "@upmind/ui";
 
 import {
   UserCircleIcon,
@@ -56,19 +46,13 @@ import {
 export default defineComponent({
   name: "Profile",
   components: {
-    // UpmDebug,
     UserCircleIcon,
     ArrowRightOnRectangleIcon,
   },
   inheritAttrs: true,
   customOptions: {},
   emits: [],
-  props: {
-    debugging: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  props: {},
   setup() {
     const session = useSession();
     return session;

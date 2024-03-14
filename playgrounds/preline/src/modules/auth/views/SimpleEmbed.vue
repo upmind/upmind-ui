@@ -48,12 +48,16 @@ import { inject } from "vue";
 
 import { useSession } from "@upmind/vue";
 import UpmAuthForm from "../components/Form.vue";
-const { meta, showLogin, showRegister } = useSession();
-
+// ---
 const activeTheme = inject("activeTheme");
+
+// ---
+// lets set up an inspector on the session
+const { meta, showLogin, showRegister } = useSession(message =>
+  window?.top?.postMessage(message, "*")
+);
 
 // Lets automatically show the login form and not wait for the user to click the login button
 if (!meta.isAuthenticated) showLogin();
-
 // ---
 </script>

@@ -1,11 +1,11 @@
 <template>
-  <upm-view v-bind="meta" :url="embedUrl" v-if="embedUrl" />
+  <upm-embed-view v-bind="meta" :url="embedUrl" v-if="embedUrl" />
 </template>
 
 <script setup lang="ts">
 import { inject, computed } from "vue";
 import { useRoute } from "vue-router";
-import UpmView from "./EmbedAsideView.vue";
+import UpmEmbedView from "./EmbedView.vue";
 
 const activeTheme = inject("activeTheme");
 const { fullPath, meta } = useRoute();

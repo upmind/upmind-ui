@@ -98,38 +98,23 @@
         </button>
       </template>
     </upm-form-generator>
-
-    <upm-debug
-      v-if="debugging"
-      title="Session"
-      :state="{ session: state, guest: guest?.value, client: client?.value }"
-      :context="context"
-      :errors="errors"
-      :meta="meta"
-    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/vue";
-import { UpmDebug } from "@upmind/ui";
 
 import UpmFormGenerator from "@/components/FormGenerator.vue";
 import { UserIcon, PlusIcon, CheckIcon } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
   name: "Auth",
-  components: { UpmFormGenerator, UpmDebug, UserIcon, PlusIcon, CheckIcon },
+  components: { UpmFormGenerator, UserIcon, PlusIcon, CheckIcon },
   inheritAttrs: true,
   customOptions: {},
   emits: [],
-  props: {
-    debugging: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  props: {},
   setup() {
     return useSession();
   },

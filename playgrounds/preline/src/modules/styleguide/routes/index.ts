@@ -8,6 +8,8 @@ export default {
       path: "/style-guide",
       name: "style-guide",
       component: NestedView,
+      meta: { hidden: true },
+
       children: [
         // --- Intro ---
         {
