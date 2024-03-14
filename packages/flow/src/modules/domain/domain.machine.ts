@@ -89,7 +89,7 @@ export default createMachine(
 
           {
             target: "existing",
-            cond: ({ type, sync, values }) => !sync && type === "existing"
+            cond: ({ type, sync }) => !sync && type === "existing"
           },
           {
             target: "basket",
@@ -525,7 +525,7 @@ export default createMachine(
       }),
 
       clearAvailable: assign({
-        available: (_context, { data }) => {
+        available: (_context, _event) => {
           return [];
         }
       }),
@@ -554,12 +554,12 @@ export default createMachine(
       }),
 
       // ---
-      setSuccess: (context, { data }) => {
+      setSuccess: (_context, _event) => {
         addSuccess("Successfully set Domain");
       },
 
       setError: assign({
-        error: (context, { data }) => {
+        error: (_context, { data }) => {
           addError({
             title: data?.title || "We experienced an error getting domains",
             copy: data?.message,

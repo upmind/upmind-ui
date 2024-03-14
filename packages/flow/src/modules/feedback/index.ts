@@ -6,7 +6,7 @@ import feedbackMachine from "./feedback.machine";
 
 // --- utils
 import { useTime } from "../../utils";
-import { get, isString } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import { messageTypes } from "./types.d";
@@ -20,7 +20,7 @@ import { messageDisplays, type Message } from "./types.d";
 
 let state = null;
 
-const service = interpret(feedbackMachine, { devTools: true }).onTransition(
+const service = interpret(feedbackMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -63,7 +63,7 @@ export const useFeedback = () => {
     message: string | Object,
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
-    maxAge: number = useTime().SECOND * 6
+    maxAge: number = useTime().SECOND * 2
   ) {
     if (!message) return; // bail if no message
 

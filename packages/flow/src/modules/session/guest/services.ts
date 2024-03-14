@@ -14,7 +14,7 @@ import { get, omit } from "lodash-es";
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(context: GuestContext, _event: any) {
+async function check(_context: GuestContext, _event: any) {
   const token = get(localStorage, `guest/auth/token`);
 
   return new Promise((resolve, reject) => {
@@ -58,7 +58,7 @@ async function persistToken(context: GuestContext, _event: any) {
   return Promise.resolve(); // we dont need to return anything
 }
 
-async function dumpToken(context: GuestContext, _event: any) {
+async function dumpToken(_context: GuestContext, _event: any) {
   localStorage.removeItem(`guest/auth/token`);
   return Promise.resolve(); // we dont need to return anything
 }

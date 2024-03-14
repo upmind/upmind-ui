@@ -141,7 +141,7 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: (context, event) => context.token
+        data: (context, _event) => context.token
       }
     }
   },

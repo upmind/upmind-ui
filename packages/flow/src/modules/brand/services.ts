@@ -2,7 +2,7 @@
 import { useApi } from "../api";
 
 // --- utils
-import { filter, has, set, reduce, defaultsDeep } from "lodash-es";
+import { filter, has, reduce, defaultsDeep } from "lodash-es";
 
 // --------------------------------------------------------
 // ENUMS
@@ -118,7 +118,7 @@ async function fetchBrandConfig(context: any, _event: any) {
     const template = reduce(
       missingKeys,
       (acc, key) => {
-        set(acc, key, null);
+        acc[key] = null;
         return acc;
       },
       {}

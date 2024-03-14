@@ -7,8 +7,8 @@ import { useSystem } from "../..";
 import { some, get, find, includes, map } from "lodash-es";
 
 // --- types
-import type { IAddress } from "../address/types";
-import type { ICountry } from "../../system/types";
+import type { IAddress } from "../address/types.d";
+import type { ICountry } from "../../system/types.d";
 
 // --------------------------------------------------------
 

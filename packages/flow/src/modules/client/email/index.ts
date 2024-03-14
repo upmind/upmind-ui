@@ -1,5 +1,6 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import listingsMachine from "../listings.machine";
@@ -20,7 +21,7 @@ import { find } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: true
+  devTools: false
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -29,6 +30,7 @@ export const useClientEmails = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+    isReady: async () => waitFor(service, state => !state.matches("loading")),
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getItem: id => find(state?.context?.items, ["id", id]),

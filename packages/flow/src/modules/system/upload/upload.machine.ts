@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { escalate } = actions;
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -170,9 +169,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (context, { data }, meta) => {
-          console.log("setError", data, meta);
-
+        error: (context, { data }) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data

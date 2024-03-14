@@ -79,7 +79,7 @@ export default (message: Message) =>
         })
       },
       guards: {
-        isActive: ({ scheduled, created, delay }) => {
+        isActive: ({ scheduled }) => {
           const current = Date.now();
           const isFuture = scheduled > current;
           return !isFuture;

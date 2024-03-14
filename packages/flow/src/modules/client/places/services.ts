@@ -7,7 +7,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { usePlaceParser, usePredictionsParser } from "./utils";
 
 // --- types
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -90,8 +90,6 @@ async function parse(
       },
       (result, status) => {
         sessionToken = new AutocompleteSessionToken();
-
-        console.log("getPlaceDetails", "callback", { result, status });
 
         if (status === statuses.OK) {
           usePlaceParser(result).then(place => {

@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent, pure } = actions;
+const { sendParent, pure } = actions;
 
 // --- internal
 import { useFeedback } from "../feedback";
@@ -106,7 +106,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  pure((context, event) => {
+                  pure((context, _event) => {
                     addSuccess(`Successfully added ${context.title}`);
                   })
                 ]
@@ -124,7 +124,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  pure((context, event) => {
+                  pure((context, _event) => {
                     addSuccess(`Successfully updated ${context.title}`);
                   })
                 ]
@@ -142,7 +142,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "clearModel",
-                  pure((context, event) => {
+                  pure((context, _event) => {
                     addSuccess(`Successfully deleted ${context.title}`);
                   })
                 ]
@@ -160,7 +160,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  pure((context, event) => {
+                  pure((context, _event) => {
                     addSuccess(`Successfully set ${context.title} as default`);
                   })
                 ]
@@ -185,9 +185,9 @@ export default createMachine(
 
       complete: {
         entry: sendParent(
-          ({ model }: ClientItemContext, event: ClientItemEvent) => ({
-            data: model?.id,
-            type: "REFRESH"
+          ({ model }: ClientItemContext, _event: ClientItemEvent) => ({
+            type: "REFRESH",
+            data: model?.id
           })
         ),
         type: "final"
@@ -269,13 +269,13 @@ export default createMachine(
       }
     },
     guards: {
-      isNew: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
+      isNew: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
         !model?.id,
 
-      isNotDefault: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
+      isNotDefault: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
         !!model?.id && !model?.default,
 
-      canRemove: ({ model }: ClientItemContext, { data }: ClientItemEvent) =>
+      canRemove: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
         !!model?.id && !!model?.can_delete
     },
     delays: {

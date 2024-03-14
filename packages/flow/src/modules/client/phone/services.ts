@@ -9,8 +9,8 @@ import { useValidation } from "../../../utils";
 import { includes, isString, keyBy, filter } from "lodash-es";
 
 // --- types
-import type { PhoneEvent, PhoneContext } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { PhoneEvent, PhoneContext } from "./types.d";
+import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -30,7 +30,11 @@ async function load(
   _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
-  const { getUserId } = useSession();
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(() =>
+    Promise.reject({ title: "Unauthorized", code: 401 })
+  );
 
   const clientId = await getUserId();
 
@@ -45,7 +49,7 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups({ model }: PhoneContext, { data }: PhoneEvent) {
+async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
   // we dont have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
   await fetchCountries();

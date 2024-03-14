@@ -9,7 +9,7 @@ import services from "./services";
 import { get, set, map, reduce, defaultsDeep, uniqueId } from "lodash-es";
 
 // --- types
-import type { IAddress, AddressContext } from "./types";
+import type { IAddress, AddressContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -255,16 +255,13 @@ export const useUischema = () => {
 export const useModelParser = (
   schema: JsonSchema,
   values: IAddress,
-  baseModel: IAddress
+  baseModel?: IAddress
 ) => {
   const model = reduce(
     schema.properties,
     (result, field, key) => {
-      const value = get(
-        values,
-        key,
-        field?.const || field?.default || get(baseModel, key)
-      );
+      const value =
+        field?.const || get(values, key, field?.default || get(baseModel, key));
       set(result, key, value);
       return result;
     },
