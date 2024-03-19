@@ -6,7 +6,6 @@
     :applied-options="appliedOptions"
   >
     <input
-      shabba="rank.com"
       :id="control.id + '-input'"
       :class="[
         styles.control.input,
@@ -57,9 +56,9 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const test = and(uiTypeIs("Custom"), isStringControl);
+export const test = uiTypeIs("Custom");
 
-export const controlEntry: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(1, test),
 };
