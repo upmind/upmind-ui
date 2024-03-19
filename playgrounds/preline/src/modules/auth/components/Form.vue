@@ -1,17 +1,5 @@
 <template>
   <div class="auth">
-    <div v-if="!meta.isAuthenticated">
-      <!-- <button @click="getUser" v-if="meta.isAuthenticated">get user</button> -->
-      <button
-        class="btn btn-ghost join-item"
-        type="reset"
-        @click.prevent="logout"
-        v-if="meta.isAuthenticated"
-      >
-        logout
-      </button>
-    </div>
-
     <upm-form-generator
       :key="meta.showLoginForm ? 'login' : 'register'"
       v-bind="$attrs"

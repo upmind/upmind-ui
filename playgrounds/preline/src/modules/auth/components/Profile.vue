@@ -1,33 +1,27 @@
 <template>
   <aside
-    class="card sm:card-side rounded-btn border bg-base-100"
-    v-if="meta.isClient && !meta.isProcessing"
+    v-if="meta.isAuthenticated"
+    class="w-full rounded-xl border border-base-300 bg-base-50 p-4 text-base-content shadow-lg sm:p-7"
   >
-    <figure class="relative m-0 aspect-square sm:w-1/2 md:w-36">
+    <div class="flex flex-col items-center py-10">
       <img
-        v-if="user.image_url"
+        class="mb-3 h-24 w-24 rounded-full shadow-lg"
         :src="user.image_url"
-        alt="uploaded image thumbnail "
-        class="aspect-square h-full w-full"
+        alt="Bonnie image"
+        v-if="user.image_url"
       />
-    </figure>
-    <div class="card-body px-4 py-2">
-      <div class="">
-        <span class="text-sm font-light italic"
-          >You're currently logged in as</span
+      <h5 class="mb-1 text-xl font-medium text-base-900 dark:text-white">
+        {{ user.fullname }}
+      </h5>
+      <span class="text-sm text-base-500 dark:text-base-400">{{
+        user.email
+      }}</span>
+      <div class="mt-4 flex md:mt-6">
+        <button
+          @click.prevent="logout"
+          class="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary dark:focus:ring-primary-800"
         >
-        <h4 class="mb-0 mt-2">{{ user.fullname }}</h4>
-        <h5 class="m-0 text-sm italic">{{ user.email }}</h5>
-      </div>
-      <div class="card-actions mt-auto justify-end">
-        <router-link to="/" class="btn btn-ghost btn-sm">
-          <user-circle-icon class="h-6 w-6" />
-          My Account
-        </router-link>
-
-        <button class="btn btn-ghost btn-sm" @click.prevent="logout">
-          <arrow-right-on-rectangle-icon class="h-6 w-6" />
-          Logout
+          Sign out
         </button>
       </div>
     </div>

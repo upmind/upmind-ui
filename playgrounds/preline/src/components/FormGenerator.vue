@@ -2,9 +2,40 @@
 import { defineComponent } from "vue";
 import { utils } from "@upmind/flow";
 import { UpmFormGenerator } from "@upmind/ui";
-import { mergeStyles, vanillaRenderers } from "@jsonforms/vue-vanilla";
+import {
+  defaultStyles,
+  mergeStyles,
+  vanillaRenderers,
+} from "@jsonforms/vue-vanilla";
 
-import { defaultStyles } from "@/components/prelineRenderers/styles";
+import { uiTypeIs } from "@jsonforms/core";
+
+import type { JsonFormsRendererRegistryEntry, Tester } from "@jsonforms/core";
+import { rankWith } from "@jsonforms/core";
+
+// import {
+//   defaultStyles,
+//   mergeStyles,
+//   prelineRenderers,
+// } from "@/components/prelineRenderers";
+
+import PrelineStringRendererComponent, {
+  test,
+} from "../components/prelineRenderers/controls/StringControlRenderer.vue";
+debugger;
+
+function buildRendererRegistryEntry(testRenderer: any, controlType: Tester) {
+  const entry: JsonFormsRendererRegistryEntry = {
+    renderer: testRenderer,
+    tester: rankWith(3, controlType),
+  };
+  return entry;
+}
+
+const customRendererEntry = buildRendererRegistryEntry(
+  PrelineStringRendererComponent,
+  test
+);
 
 export default defineComponent({
   name: "FormGenerator",
@@ -22,7 +53,7 @@ export default defineComponent({
     return {
       // -------
       ajv,
-      renderers: Object.freeze([...vanillaRenderers]),
+      renderers: Object.freeze([...vanillaRenderers, customRendererEntry]),
       formStyles,
     };
   },

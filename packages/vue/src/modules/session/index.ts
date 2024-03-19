@@ -36,7 +36,7 @@ export const useSession = (inspector?: Function) => {
   //const messages= computed(() => state.value.context?.messages);
   // ---
   const meta = computed(() => ({
-    isLoading: ["starting"].some(state.value.matches),
+    isLoading: state.value.matches("starting"),
     isProcessing:
       client.value?.matches &&
       ![
@@ -51,11 +51,16 @@ export const useSession = (inspector?: Function) => {
     // ---
     isGuest: ["guest", "starting.guest"].some(state.value.matches),
     isClient: ["client", "starting.client"].some(state.value.matches),
-    isAuthenticated: ["client.idle"].some(state.value.matches),
+    isAuthenticated: state.value.matches("client.idle"),
     // ---
     showReCaptcha: client.value?.matches(
       "unauthenticated.register.challenging"
     ),
+    canShowForms:
+      state.value?.matches("guest.idle") &&
+      !client.value?.matches("unauthenticated.login") &&
+      !client.value?.matches("unauthenticated.register"),
+
     showLoginForm: client.value?.matches("unauthenticated.login"),
     // show2fa: client.value?.matches("unauthenticated.login.challenging"),
 
@@ -165,13 +170,13 @@ export const useSession = (inspector?: Function) => {
         key: "_upm-inspector",
         flow: "session",
         snapshot: {
+          errors: toRaw(unref(errors)),
           state: {
             session: state?.value?.value,
             guest: guest?.value?.value,
             client: client?.value?.value,
           },
           context: toRaw(unref(context)),
-          errors: toRaw(unref(errors)),
           meta: toRaw(unref(meta)),
         },
       })
