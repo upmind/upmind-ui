@@ -9,7 +9,7 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test": "vitest",
-    "build-only": "vite build",
+    "build-only": "vite build --mode development",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "format": "prettier --write src/",
@@ -18,6 +18,9 @@
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
     "@heroicons/vue": "^2.1.1",
+    "@jsonforms/core": "^3.2.1",
+    "@jsonforms/vue": "^3.2.1",
+    "@jsonforms/vue-vanilla": "^3.2.1",
     "@upmind/ui": "^0.0.0",
     "@upmind/vue": "^0.0.0",
     "@vueuse/components": "^10.7.2",

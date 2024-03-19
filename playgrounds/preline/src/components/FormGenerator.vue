@@ -1,12 +1,10 @@
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { utils } from "@upmind/flow";
 import { UpmFormGenerator } from "@upmind/ui";
-import {
-  defaultStyles,
-  mergeStyles,
-  prelineRenderers,
-} from "./prelineRenderers";
+import { mergeStyles, vanillaRenderers } from "@jsonforms/vue-vanilla";
+
+import { defaultStyles } from "@/components/prelineRenderers/styles";
 
 export default defineComponent({
   name: "FormGenerator",
@@ -24,7 +22,7 @@ export default defineComponent({
     return {
       // -------
       ajv,
-      renderers: Object.freeze([...prelineRenderers]),
+      renderers: Object.freeze([...vanillaRenderers]),
       formStyles,
     };
   },
