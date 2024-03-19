@@ -6,12 +6,13 @@
     :applied-options="appliedOptions"
   >
     <input
+      shabba="rank.com"
       :id="control.id + '-input'"
       :class="[
         styles.control.input,
         appliedOptions?.trim
-          ? styles.control.size.trim
-          : styles.control.size.full,
+          ? styles.control?.size?.trim
+          : styles.control?.size?.full,
         controlWrapper.errors ? styles.control.error.input : null,
       ]"
       :value="control.data"
@@ -31,7 +32,7 @@ import type {
   ControlElement,
   JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
-import { rankWith, isStringControl } from "@jsonforms/core";
+import { isStringControl, rankWith, uiTypeIs, and } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
@@ -39,7 +40,7 @@ import ControlWrapper from "./ControlWrapper.vue";
 import { useprelineControl } from "../util";
 
 const controlRenderer = defineComponent({
-  name: "StringControlRenderer",
+  name: "StringControlPrelineRenderer",
   components: {
     ControlWrapper,
   },
@@ -56,8 +57,10 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const entry: JsonFormsRendererRegistryEntry = {
+export const test = and(uiTypeIs("Custom"), isStringControl);
+
+export const controlEntry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(1, isStringControl),
+  tester: rankWith(1, test),
 };
 </script>

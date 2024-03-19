@@ -106,7 +106,6 @@ export const useLoginSchemaParser = () => {
     properties: {
       email: {
         type: ["string"],
-        format: "email",
         title: "Your email address",
       },
       password: {
@@ -123,7 +122,7 @@ export const useLoginUischemaParser = () => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Control",
+        type: "Custom",
         scope: "#/properties/email",
         options: {
           autocomplete: "email",

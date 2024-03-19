@@ -4,6 +4,7 @@
     :data-theme="activeTheme"
   >
     <div
+      v-if="meta.showLoginForm || meta.showRegisterForm"
       class="w-full rounded-xl border border-base-300 bg-base-50 p-4 text-base-content shadow-lg sm:p-7"
     >
       <div class="text-center">
@@ -38,16 +39,19 @@
         Or
       </div>
 
-      <upm-auth-form v-if="!meta.isAuthenticated" class="gap-y-8 rounded-box" />
+      <upm-auth-form class="gap-y-8" />
     </div>
+
+    <upm-profile></upm-profile>
   </div>
 </template>
 
 <script setup>
-import { inject } from "vue";
+import { inject, watch } from "vue";
 
 import { useSession } from "@upmind/vue";
 import UpmAuthForm from "../components/Form.vue";
+import UpmProfile from "../components/Profile.vue";
 // ---
 const activeTheme = inject("activeTheme");
 
@@ -59,5 +63,10 @@ const { meta, showLogin, showRegister } = useSession(message =>
 
 // Lets automatically show the login form and not wait for the user to click the login button
 if (!meta.isAuthenticated) showLogin();
-// ---
+
+watch(meta, ({ canShowForms }) => {
+  if (canShowForms) {
+    showLogin();
+  }
+});
 </script>

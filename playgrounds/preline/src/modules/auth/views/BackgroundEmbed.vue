@@ -51,6 +51,8 @@
 
         <upm-auth-form v-if="!meta.isAuthenticated" class="gap-y-8" />
       </div>
+
+      <upm-profile></upm-profile>
     </div>
   </div>
 </template>
@@ -60,6 +62,7 @@ import { inject } from "vue";
 
 import { useSession } from "@upmind/vue";
 import UpmAuthForm from "../components/Form.vue";
+import UpmProfile from "../components/Profile.vue";
 // ---
 const activeTheme = inject("activeTheme");
 

@@ -2,7 +2,7 @@
   <nav
     class="hs-accordion-group flex w-full flex-col flex-wrap"
     data-hs-accordion-always-open
-    v-if="inspector && isDebugging"
+    v-if="inspector"
   >
     <ul class="w-full space-y-3">
       <li
@@ -74,10 +74,10 @@ export default defineComponent({
       const inspector = get(this.inspectors, this.flow);
       return omitBy(
         defaultsDeep(inspector, {
+          errors: null,
           state: null,
           context: null,
           meta: null,
-          errors: null,
           model: null,
         }),
         isEmpty
