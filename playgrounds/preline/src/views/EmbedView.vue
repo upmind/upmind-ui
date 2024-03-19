@@ -82,7 +82,7 @@
           <upm-tabs v-model="activeTab" :items="tabs" />
         </template>
 
-        <upm-inspector :flow="inspect" />
+        <upm-inspector :flow="inspect" v-if="inspect" />
       </upm-sidebar>
 
       <upm-sidebar

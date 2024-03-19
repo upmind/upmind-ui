@@ -1,10 +1,6 @@
 <template>
   <div class="w-full border-b border-neutral-300" v-if="items">
-    <nav
-      class="flex justify-between space-x-2"
-      aria-label="Tabs"
-      role="tablist"
-    >
+    <nav class="flex justify-between space-x-2">
       <template v-for="(item, key) in items" :key="key">
         <button
           type="button"
@@ -32,7 +28,7 @@ import UpmIcon from "@/components/Icon.vue";
 export default defineComponent({
   name: "UpmEmbedView",
   components: { UpmIcon },
-  emits: ["update:ModelValue"],
+  emits: ["update:modelValue"],
   props: {
     modelValue: String,
     items: Object,
