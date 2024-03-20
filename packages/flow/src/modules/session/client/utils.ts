@@ -122,7 +122,7 @@ export const useLoginUischemaParser = () => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Custom",
+        type: "Control",
         scope: "#/properties/email",
         options: {
           autocomplete: "email",

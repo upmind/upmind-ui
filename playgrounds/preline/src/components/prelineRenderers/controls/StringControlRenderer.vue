@@ -6,6 +6,7 @@
     :applied-options="appliedOptions"
   >
     <input
+      shabba="ranks"
       :id="control.id + '-input'"
       :class="[
         styles.control.input,
@@ -27,18 +28,15 @@
 </template>
 
 <script lang="ts">
-import type {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-} from "@jsonforms/core";
-import { isStringControl, rankWith, uiTypeIs, and } from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
 import { defineComponent } from "vue";
+import { isStringControl } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
 import { useprelineControl } from "../util";
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: "StringControlPrelineRenderer",
   components: {
     ControlWrapper,
@@ -54,12 +52,5 @@ const controlRenderer = defineComponent({
   },
 });
 
-export default controlRenderer;
-
-export const test = uiTypeIs("Custom");
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(1, test),
-};
+export const tester = { rank: 2, controlType: isStringControl };
 </script>

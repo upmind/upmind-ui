@@ -48,17 +48,10 @@
 import type {
   ControlElement,
   JsonFormsRendererRegistryEntry,
+  Tester,
 } from "@jsonforms/core";
 
-import {
-  rankWith,
-  isStringControl,
-  uiTypeIs,
-  formatIs,
-  // scopeEndsWith,
-  and,
-  or,
-} from "@jsonforms/core";
+import { rankWith, uiTypeIs, formatIs, and, or } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
@@ -68,7 +61,7 @@ import { useprelineControl } from "../util";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
 
 const controlRenderer = defineComponent({
-  name: "StringControlRenderer",
+  name: "StringControlPrelineRenderer",
   components: {
     ControlWrapper,
     EyeIcon,
@@ -92,13 +85,16 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const isPasswordControl = and(
-  uiTypeIs("Control"),
-  or(formatIs("password"))
-);
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, and(isStringControl, isPasswordControl)),
+export const entry: {
+  rank: number;
+  controlType: Tester;
+} = {
+  rank: 2,
+  controlType: and(uiTypeIs("Control"), or(formatIs("password"))),
 };
+
+// export const entry: JsonFormsRendererRegistryEntry = {
+//   renderer: controlRenderer,
+//   tester: rankWith(2, test),
+// };
 </script>
