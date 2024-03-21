@@ -90,13 +90,7 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const isRadioControl = and(
-  isOneOfEnumControl,
-  optionIs("format", "radio")
-);
+const isRadioControl = and(isOneOfEnumControl, optionIs("format", "radio"));
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isRadioControl),
-};
+export const tester = { rank: 3, controlType: isRadioControl };
 </script>

@@ -47,8 +47,5 @@ export const isHiddenControl: Tester = and(
   )
 );
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isHiddenControl),
-};
+export const tester = { rank: 3, controlType: isHiddenControl };
 </script>

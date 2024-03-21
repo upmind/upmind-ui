@@ -184,8 +184,5 @@ const isPhoneControl = (): Tester =>
     schemaMatches(schema => !!schema?.isPhoneNumber)
   );
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isPhoneControl()),
-};
+export const tester = { rank: 2, controlType: isPhoneControl() };
 </script>

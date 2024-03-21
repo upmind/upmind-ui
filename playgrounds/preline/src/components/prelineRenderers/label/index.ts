@@ -1,5 +1,13 @@
+import { registerEntry } from "../util/registerEntry";
+
+// -----------------------------------------------------------------------------
+
 export { default as LabelRenderer } from "./LabelRenderer.vue";
 
-import { entry as labelRendererEntry } from "./LabelRenderer.vue";
+import LabelRendererEntry, {
+  tester as labelRendererTest,
+} from "./LabelRenderer.vue";
 
-export const labelRenderers = [labelRendererEntry];
+export const labelRenderers = [
+  registerEntry(LabelRendererEntry, labelRendererTest),
+];

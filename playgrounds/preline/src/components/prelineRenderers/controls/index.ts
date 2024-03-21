@@ -1,13 +1,8 @@
-import type { JsonFormsRendererRegistryEntry, Tester } from "@jsonforms/core";
-import { rankWith } from "@jsonforms/core";
-
+import { registerEntry } from "../util/registerEntry";
 // -----------------------------------------------------------------------------
 
 export { default as ControlWrapper } from "./ControlWrapper.vue";
-export {
-  default as StringControlRenderer,
-  tester as stringControlRendererTest,
-} from "./StringControlRenderer.vue";
+export { default as StringControlRenderer } from "./StringControlRenderer.vue";
 export { default as MultiStringControlRenderer } from "./MultiStringControlRenderer.vue";
 export { default as NumberControlRenderer } from "./NumberControlRenderer.vue";
 export { default as IntegerControlRenderer } from "./IntegerControlRenderer.vue";
@@ -26,39 +21,98 @@ export { default as PhoneControlRenderer } from "./PhoneControlRenderer.vue";
 export { default as FileControlRenderer } from "./FileControlRenderer.vue";
 export { default as HiddenControlRenderer } from "./FileControlRenderer.vue";
 
-// import { entry as multiStringControlRendererEntry } from "./MultiStringControlRenderer.vue";
-// import { entry as numberControlRendererEntry } from "./NumberControlRenderer.vue";
-// import { entry as integerControlRefdererEntry } from "./IntegerControlRenderer.vue";
-// import { entry as enumControlRendererEntry } from "./EnumControlRenderer.vue";
-// import { entry as lookupEnumControlRendererEntry } from "./EnumLookupControlRenderer.vue";
-// import { entry as oneOfEnumControlRendererEntry } from "./EnumOneOfControlRenderer.vue";
-// import { entry as oneOfEnumMenuControlRendererEntry } from "./EnumOneOfMenuControlRenderer.vue";
-// import { entry as oneOfEnumRadioControlRendererEntry } from "./EnumOneOfRadioControlRenderer.vue";
-// import { entry as dateControlRendererEntry } from "./DateControlRenderer.vue";
-// import { entry as timeControlRendererEntry } from "./TimeControlRenderer.vue";
-// import { entry as booleanControlRendererEntry } from "./BooleanControlRenderer.vue";
-// import { entry as ratingControlRendererEntry } from "./RatingControlRenderer.vue";
-// import { entry as dacControlRendererEntry } from "./DacControlRenderer.vue";
-// import { entry as passwordControlRendererEntry } from "./PasswordControlRenderer.vue";
-// import { entry as phoneControlRendererEntry } from "./PhoneControlRenderer.vue";
-// import { entry as fileControlRendererEntry } from "./FileControlRenderer.vue";
-// import { entry as hiddenControlRendererEntry } from "./HiddenControlRenderer.vue";
-
 import StringControlRenderer, {
   tester as stringControlRendererTest,
 } from "./StringControlRenderer.vue";
 
-export const controlRenderers = [
-  buildRendererRegistryEntry(StringControlRenderer, stringControlRendererTest),
-];
+import MultiStringControlRenderer, {
+  tester as multiStringControlRendererTest,
+} from "./MultiStringControlRenderer.vue";
 
-export function buildRendererRegistryEntry(
-  renderer: any,
-  { rank, controlType }: { rank: number; controlType: Tester }
-) {
-  const entry: JsonFormsRendererRegistryEntry = {
-    renderer,
-    tester: rankWith(rank, controlType),
-  };
-  return entry;
-}
+import NumberControlRenderer, {
+  tester as numberControlRendererTest,
+} from "./NumberControlRenderer.vue";
+
+import IntegerControlRenderer, {
+  tester as integerControlRendererTest,
+} from "./IntegerControlRenderer.vue";
+
+import EnumControlRenderer, {
+  tester as enumControlRendererTest,
+} from "./EnumControlRenderer.vue";
+
+import LookupEnumControlRenderer, {
+  tester as lookupEnumControlRendererTest,
+} from "./EnumLookupControlRenderer.vue";
+
+import OneOfEnumControlRenderer, {
+  tester as oneOfEnumControlRendererTest,
+} from "./EnumOneOfControlRenderer.vue";
+
+import OneOfEnumMenuControlRenderer, {
+  tester as oneOfEnumMenuControlRendererTest,
+} from "./EnumOneOfMenuControlRenderer.vue";
+
+import OneOfEnumRadioControlRenderer, {
+  tester as oneOfEnumRadioControlRendererTest,
+} from "./EnumOneOfRadioControlRenderer.vue";
+
+import DateControlRenderer, {
+  tester as dateControlRendererTest,
+} from "./DateControlRenderer.vue";
+
+import TimeControlRenderer, {
+  tester as timeControlRendererTest,
+} from "./TimeControlRenderer.vue";
+
+import BooleanControlRenderer, {
+  tester as booleanControlRendererTest,
+} from "./BooleanControlRenderer.vue";
+
+import RatingControlRenderer, {
+  tester as ratingControlRendererTest,
+} from "./RatingControlRenderer.vue";
+
+import DacControlRenderer, {
+  tester as dacControlRendererTest,
+} from "./DacControlRenderer.vue";
+
+import PasswordControlRenderer, {
+  tester as passwordControlRendererTest,
+} from "./PasswordControlRenderer.vue";
+
+import PhoneControlRenderer, {
+  tester as phoneControlRendererTest,
+} from "./PhoneControlRenderer.vue";
+
+import FileControlRenderer, {
+  tester as fileControlRendererTest,
+} from "./FileControlRenderer.vue";
+
+import HiddenControlRenderer, {
+  tester as hiddenControlRendererTest,
+} from "./HiddenControlRenderer.vue";
+
+export const controlRenderers = [
+  registerEntry(StringControlRenderer, stringControlRendererTest),
+  registerEntry(MultiStringControlRenderer, multiStringControlRendererTest),
+  registerEntry(NumberControlRenderer, numberControlRendererTest),
+  registerEntry(IntegerControlRenderer, integerControlRendererTest),
+  registerEntry(EnumControlRenderer, enumControlRendererTest),
+  registerEntry(LookupEnumControlRenderer, lookupEnumControlRendererTest),
+  registerEntry(OneOfEnumControlRenderer, oneOfEnumControlRendererTest),
+  registerEntry(OneOfEnumMenuControlRenderer, oneOfEnumMenuControlRendererTest),
+  registerEntry(
+    OneOfEnumRadioControlRenderer,
+    oneOfEnumRadioControlRendererTest
+  ),
+  registerEntry(DateControlRenderer, dateControlRendererTest),
+  registerEntry(TimeControlRenderer, timeControlRendererTest),
+  registerEntry(BooleanControlRenderer, booleanControlRendererTest),
+  registerEntry(RatingControlRenderer, ratingControlRendererTest),
+  registerEntry(DacControlRenderer, dacControlRendererTest),
+  registerEntry(PasswordControlRenderer, passwordControlRendererTest),
+  registerEntry(PhoneControlRenderer, phoneControlRendererTest),
+  registerEntry(FileControlRenderer, fileControlRendererTest),
+  registerEntry(HiddenControlRenderer, hiddenControlRendererTest),
+];

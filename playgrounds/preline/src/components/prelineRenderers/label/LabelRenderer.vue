@@ -28,8 +28,8 @@ const labelRenderer = defineComponent({
 
 export default labelRenderer;
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: labelRenderer,
-  tester: rankWith(1, uiTypeIs("Label")),
+export const tester = {
+  rank: 1,
+  controlType: uiTypeIs("Label"),
 };
 </script>

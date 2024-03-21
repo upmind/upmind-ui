@@ -74,8 +74,5 @@ const isLookupControl = (): Tester =>
     schemaMatches(schema => isFunction(get(schema, "lookup")))
   );
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isLookupControl()),
-};
+export const tester = { rank: 3, controlType: isLookupControl() };
 </script>

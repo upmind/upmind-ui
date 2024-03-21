@@ -85,16 +85,8 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const entry: {
-  rank: number;
-  controlType: Tester;
-} = {
+export const tester = {
   rank: 2,
   controlType: and(uiTypeIs("Control"), or(formatIs("password"))),
 };
-
-// export const entry: JsonFormsRendererRegistryEntry = {
-//   renderer: controlRenderer,
-//   tester: rankWith(2, test),
-// };
 </script>
