@@ -86,13 +86,7 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const isMenuControl = and(
-  isOneOfEnumControl,
-  optionIs("format", "menu")
-);
+const isMenuControl = and(isOneOfEnumControl, optionIs("format", "menu"));
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isMenuControl),
-};
+export const tester = { rank: 1, controlType: isMenuControl };
 </script>

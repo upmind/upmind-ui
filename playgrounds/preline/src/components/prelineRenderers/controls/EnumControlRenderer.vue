@@ -59,8 +59,5 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isEnumControl),
-};
+export const tester = { rank: 2, controlType: isEnumControl };
 </script>

@@ -51,8 +51,10 @@ const layoutRenderer = defineComponent({
 
 export default layoutRenderer;
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: layoutRenderer,
-  tester: rankWith(1, isLayout),
-};
+export const tester = { rank: 1, controlType: isLayout };
+
+// export const entry: JsonFormsRendererRegistryEntry = {
+//   renderer: layoutRenderer,
+//   tester: rankWith(1, isLayout),
+// };
 </script>

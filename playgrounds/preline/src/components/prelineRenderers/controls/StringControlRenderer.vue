@@ -52,5 +52,5 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 2, controlType: isStringControl };
+export const tester = { rank: 1, controlType: isStringControl };
 </script>

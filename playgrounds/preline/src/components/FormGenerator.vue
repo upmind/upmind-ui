@@ -2,7 +2,7 @@
 import { defineComponent } from "vue";
 import { utils } from "@upmind/flow";
 import { UpmFormGenerator } from "@upmind/ui";
-import { vanillaRenderers } from "@jsonforms/vue-vanilla";
+// import { vanillaRenderers } from "@jsonforms/vue-vanilla";
 
 import {
   defaultStyles,
@@ -26,7 +26,7 @@ export default defineComponent({
     return {
       // -------
       ajv,
-      renderers: Object.freeze([...vanillaRenderers, ...prelineRenderers]),
+      renderers: Object.freeze(prelineRenderers),
       formStyles,
     };
   },

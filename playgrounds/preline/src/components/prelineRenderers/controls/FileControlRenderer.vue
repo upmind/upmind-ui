@@ -178,8 +178,8 @@ export const isFileControl = and(
   or(optionIs("type", "file"), formatIs("file"))
 );
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, and(isStringControl, isFileControl)),
+export const tester = {
+  rank: 2,
+  controlType: and(isStringControl, isFileControl),
 };
 </script>

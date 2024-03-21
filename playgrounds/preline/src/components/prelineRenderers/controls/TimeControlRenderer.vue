@@ -56,8 +56,10 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isTimeControl),
-};
+export const tester = { rank: 2, controlType: isTimeControl };
+
+// export const entry: JsonFormsRendererRegistryEntry = {
+//   renderer: controlRenderer,
+//   tester: rankWith(2, isTimeControl),
+// };
 </script>

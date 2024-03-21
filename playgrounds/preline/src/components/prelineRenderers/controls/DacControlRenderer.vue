@@ -79,8 +79,5 @@ export const isDomainControl = and(
   or(formatIs("domain_name"), scopeEndsWith("domain"))
 );
 
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isDomainControl),
-};
+export const tester = { rank: 2, controlType: isDomainControl };
 </script>
