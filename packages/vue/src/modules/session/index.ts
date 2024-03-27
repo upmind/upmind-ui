@@ -38,14 +38,15 @@ export const useSession = (inspector?: Function) => {
   const meta = computed(() => ({
     isLoading: state.value.matches("starting"),
     isProcessing:
-      client.value?.matches &&
-      ![
-        "unauthenticated.idle",
-        "unauthenticated.login.idle",
-        "unauthenticated.login.challenging",
-        "unauthenticated.register.idle",
-        "unauthenticated.register.challenging",
-      ].some(client.value.matches),
+      state.value.matches("client.processing") ||
+      (client.value?.matches &&
+        ![
+          "unauthenticated.idle",
+          "unauthenticated.login.idle",
+          "unauthenticated.login.challenging",
+          "unauthenticated.register.idle",
+          "unauthenticated.register.challenging",
+        ].some(client.value.matches)),
 
     hasErrors: !isEmpty(state.value?.context?.error),
     // ---

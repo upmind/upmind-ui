@@ -24,7 +24,12 @@
       <div
         class="col-span-1 mx-4 self-center px-4 py-8 sm:mx-6 sm:px-6 lg:mx-8 lg:px-8"
       >
-        <div class="">
+        <upm-spinner
+          class="w-full justify-center text-center"
+          v-if="meta.isProcessing"
+        />
+
+        <div v-else-if="meta.showLoginForm || meta.showRegisterForm">
           <div class="text-left">
             <h3 class="block text-2xl font-bold text-inherit">
               Sign {{ meta.showLoginForm ? "in" : "up" }}
@@ -62,16 +67,20 @@
 
           <upm-auth-form v-if="!meta.isAuthenticated" class="gap-y-8" />
         </div>
+
+        <upm-profile></upm-profile>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { inject } from "vue";
+import { inject, watch } from "vue";
 
 import { useSession } from "@upmind/vue";
 import UpmAuthForm from "../components/Form.vue";
+import UpmProfile from "../components/Profile.vue";
+import UpmSpinner from "../../../components/Spinner.vue";
 // ---
 const activeTheme = inject("activeTheme");
 
@@ -83,5 +92,10 @@ const { meta, showLogin, showRegister } = useSession(message =>
 
 // Lets automatically show the login form and not wait for the user to click the login button
 if (!meta.isAuthenticated) showLogin();
-// ---
+
+watch(meta, ({ canShowForms }) => {
+  if (canShowForms) {
+    showLogin();
+  }
+});
 </script>
