@@ -3,8 +3,13 @@
     class="mx-auto flex max-w-md flex-wrap items-center p-6"
     :data-theme="activeTheme"
   >
+    <upm-spinner
+      class="w-full justify-center text-center"
+      v-if="meta.isProcessing"
+    />
+
     <div
-      v-if="meta.showLoginForm || meta.showRegisterForm"
+      v-else-if="meta.showLoginForm || meta.showRegisterForm"
       class="w-full rounded-xl border border-base-300 bg-base-50 p-4 text-base-content shadow-lg sm:p-7"
     >
       <div class="text-center">
@@ -52,6 +57,7 @@ import { inject, watch } from "vue";
 import { useSession } from "@upmind/vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
+import UpmSpinner from "../../../components/Spinner.vue";
 // ---
 const activeTheme = inject("activeTheme");
 
