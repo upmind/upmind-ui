@@ -38,7 +38,7 @@ export const enum ButtonShape {
   lg = "lg",
   xl = "xl",
   pill = "pill",
-  full = "full",
+  icon = "icon",
 }
 // ----------------------------------------------
 // our form component styles
@@ -68,22 +68,13 @@ const defaultStyles = {
     xl: ["py-5", "px-6", "text-xl"],
   },
   variants: {
-    default: "",
+    default: [],
     elevated: ["shadow-md", "hover:shadow-lg"],
-    plain: "",
-    flat: "",
-    outlined: "border",
-    ghost: "",
-    link: "hover:underline",
-    icon: [
-      "!p-0",
-      "[&[data-size=xs]]size-2",
-      "[&[data-size=sm]]size-3",
-      "[&[data-size=md]]size-4",
-      "[&[data-size=lg]]size-5",
-      "[&[data-size=xl]]size-6",
-      "[&>.label]:sr-only",
-    ],
+    plain: [],
+    flat: [],
+    outlined: ["border"],
+    ghost: [],
+    link: ["hover:underline"],
   },
   colors: {
     default: [
@@ -166,6 +157,19 @@ const defaultStyles = {
     lg: ["rounded-lg"],
     xl: ["rounded-xl"],
     pill: ["rounded-full"],
+    icon: [
+      "!p-0",
+      "size-12",
+      "data-[size=xs]:size-8",
+      "data-[size=sm]:size-10",
+      "data-[size=md]:size-12",
+      "data-[size=lg]:size-14",
+      "data-[size=xl]:size-16",
+      "[&>.btn-label]:sr-only",
+      "[&>.btn-icon]:size-full",
+      "[&>.btn-icon]:p-[0.75em]",
+      "rounded-full",
+    ],
   },
 };
 

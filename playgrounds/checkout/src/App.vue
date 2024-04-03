@@ -1,15 +1,13 @@
 <template>
   <div
-    class="flex h-screen flex-wrap justify-center overflow-hidden bg-base text-base-content"
+    class="flex min-h-screen flex-wrap justify-center overflow-hidden bg-base text-base-content"
     :data-theme="activeTheme"
   >
     <upm-header></upm-header>
 
     <!-- provide padding for our fixed header 4.5rem -->
-    <main
-      class="flex h-full w-full flex-wrap justify-center overflow-hidden pt-[4.5rem]"
-    >
-      <router-view class="h-full w-full" :key="route.fullPath" />
+    <main class="min-h-ful flex w-full flex-wrap justify-center pt-[4.5rem]">
+      <router-view class="min-h-full w-full" :key="route.fullPath" />
 
       <footer
         class="flex w-full items-start justify-center gap-4 px-4 py-8 text-center text-sm"
