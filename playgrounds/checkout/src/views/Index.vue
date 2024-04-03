@@ -17,14 +17,36 @@
     <h3 class="mt-8 w-full">Size Variants</h3>
     <div class="flex flex-wrap items-center gap-4">
       <upw-button
+        prepend-icon="cog"
+        append-icon="arrow-down"
         variant="plain"
         size="xs"
         label="Xtra Small Button"
       ></upw-button>
-      <upw-button variant="plain" size="sm" label="Small Button"></upw-button>
-      <upw-button variant="plain" size="md" label="Medium Button"></upw-button>
-      <upw-button variant="plain" size="lg" label="Large Button"></upw-button>
       <upw-button
+        prepend-icon="cog"
+        append-icon="arrow-down"
+        variant="plain"
+        size="sm"
+        label="Small Button"
+      ></upw-button>
+      <upw-button
+        prepend-icon="cog"
+        append-icon="arrow-down"
+        variant="plain"
+        size="md"
+        label="Medium Button"
+      ></upw-button>
+      <upw-button
+        prepend-icon="cog"
+        append-icon="arrow-down"
+        variant="plain"
+        size="lg"
+        label="Large Button"
+      ></upw-button>
+      <upw-button
+        prepend-icon="cog"
+        append-icon="arrow-down"
         variant="plain"
         size="xl"
         label="Xtra Large Button"
@@ -79,34 +101,34 @@
       <upw-button
         variant="plain"
         shape="icon"
-        icon="cog"
+        prepend-icon="cog"
         size="xs"
         label="Icon Only Button"
       ></upw-button>
       <upw-button
         variant="plain"
         shape="icon"
-        icon="cog"
+        prepend-icon="cog"
         size="sm"
         label="Icon Only Button"
       ></upw-button>
       <upw-button
         variant="plain"
         shape="icon"
-        icon="cog"
+        prepend-icon="cog"
         label="Icon Only Button"
       ></upw-button>
       <upw-button
         variant="plain"
         shape="icon"
-        icon="cog"
+        prepend-icon="cog"
         size="lg"
         label="Icon Only Button"
       ></upw-button>
       <upw-button
         variant="plain"
         shape="icon"
-        icon="cog"
+        prepend-icon="cog"
         size="xl"
         label="Icon Only Button"
       ></upw-button>
@@ -116,4 +138,18 @@
 
 <script setup>
 import { UpwButton } from "@upmind/upwind";
+import { provide } from "vue";
+
+const styles = {
+  button: {
+    sizes: {
+      default: ["py-3", "px-9"],
+    },
+    shape: {
+      default: ["rounded-b-0", "rounded-t-xl"],
+    },
+  },
+};
+
+provide("styles", styles);
 </script>

@@ -57,8 +57,8 @@ const defaultStyles = {
     "hover:-translate-y-0.5",
     "active:-translate-y-px",
   ],
-  label: ["duration-200", "font-bold", "flex-1"],
-  icon: ["size-4"],
+  label: ["font-bold", "flex-1"],
+  icon: ["size-[1em]"],
   loading: ["size-4", "animate-spin"],
   // badge: ["size-4", "leading-none", "flex", "items-center", "justify-center"],
   // ---
