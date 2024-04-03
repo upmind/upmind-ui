@@ -1,5 +1,6 @@
 <template>
   <button
+    class="btn"
     :class="styles.root"
     type="button"
     :aria-label="ariaLabel"
@@ -11,15 +12,22 @@
   >
     <slot v-bind="{ styles }">
       <slot v-if="loading" name="loading" v-bind="{ styles: styles.loading }">
-        <upw-spinner :class="styles.loading" />
+        <upw-spinner :class="styles.loading" class="btn-loading" />
       </slot>
 
       <template v-else>
         <slot name="icon" v-bind="{ styles: styles.icon }">
-          <upw-icon v-if="icon" :class="styles.icon" :name="icon" />
+          <upw-icon
+            v-if="icon"
+            :class="styles.icon"
+            :name="icon"
+            class="btn-icon"
+          />
         </slot>
 
-        <span :class="styles.label" v-if="label">{{ label }}</span>
+        <span :class="styles.label" v-if="label" class="btn-label">{{
+          label
+        }}</span>
       </template>
     </slot>
   </button>
@@ -73,7 +81,7 @@ export default defineComponent({
     // ---
     variant: {
       type: String as PropType<ButtonVariant>,
-      default: "",
+      default: null,
     },
     color: {
       type: String as PropType<ButtonColor>,
