@@ -6,10 +6,10 @@
 
     <h3 class="mt-8 w-full">Variants</h3>
     <div class="flex flex-wrap items-center gap-4">
-      <upw-button label="Default Button"></upw-button>
       <upw-button variant="flat" label="Flat Button"></upw-button>
       <upw-button variant="elevated" label="Elevated Button"></upw-button>
       <upw-button variant="outlined" label="Outlined Button"></upw-button>
+      <upw-button variant="plain" label="Plain Button"></upw-button>
       <upw-button variant="ghost" label="Ghost Button"></upw-button>
       <upw-button variant="link" label="Link Button"></upw-button>
     </div>
