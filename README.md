@@ -6,6 +6,12 @@
 
 Upmind is a monorepo that houses all the second-generation packages and UI components for Upmind, a billing, sales, and automation platform designed to help service businesses run and scale their online operations.
 
+### Adding a new pkg
+
+```bash
+npm init -y --scope @upmind -w packages/XXX
+```
+
 **Packages:**
 
 Upmind consists of several reusable packages located in the `packages` directory, all named using camelCase.
