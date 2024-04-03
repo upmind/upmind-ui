@@ -138,18 +138,4 @@
 
 <script setup>
 import { UpwButton } from "@upmind/upwind";
-import { provide } from "vue";
-
-const styles = {
-  button: {
-    sizes: {
-      default: ["py-3", "px-9"],
-    },
-    shape: {
-      default: ["rounded-b-0", "rounded-t-xl"],
-    },
-  },
-};
-
-provide("styles", styles);
 </script>

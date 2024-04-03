@@ -30,11 +30,11 @@
 </template>
 
 <script>
-import { inject, defineComponent, computed } from "vue";
+import { inject, defineComponent, computed, watch } from "vue";
 import Popper from "vue3-popper";
 import { UpwIcon } from "@upmind/upwind";
 import themes from "@/assets/themes";
-import { startCase, set, lowerCase, reduce } from "lodash-es";
+import { startCase, set, lowerCase, reduce, find } from "lodash-es";
 
 export default defineComponent({
   name: "ThemeSwitcherDropdown",
@@ -44,7 +44,15 @@ export default defineComponent({
   },
   setup() {
     const activeTheme = inject("activeTheme");
+    const upwindStyles = inject("upwind");
 
+    watch(activeTheme, value => {
+      debugger;
+      const theme = find(themes, ["id", value]);
+      upwindStyles.value = theme?.upwind || {};
+
+      debugger;
+    });
     return {
       themes: computed(() =>
         reduce(

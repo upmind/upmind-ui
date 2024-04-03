@@ -1,5 +1,11 @@
-import { inject, ref } from "vue";
-import { merge, get, omit } from "lodash-es";
+// --- global
+import { inject, ref, watch } from "vue";
+
+// --- utils
+import { generateComponentStyles } from "../../utils";
+import { get, omit } from "lodash-es";
+
+// --- types
 
 export const enum ButtonSize {
   xs = "extra-small",
@@ -40,8 +46,8 @@ export const enum ButtonShape {
   pill = "pill",
   icon = "icon",
 }
+
 // ----------------------------------------------
-// our form component styles
 
 const defaultStyles = {
   root: [
@@ -186,44 +192,60 @@ const defaultStyles = {
 
 // ----------------------------------------------
 
-export default ({ props }) => {
-  // Check if weve been provided with style overrides, then merge the default styles with the overrides
-  const overrideStyles = get(inject("styles", {}), "button", {});
-  const mergedStyles = merge({}, defaultStyles, overrideStyles);
-
-  // -- Remove the variants, sizes, colors and rounded from the root styles as they will be applied conditionally
-  const styles = ref();
-  styles.value = omit(mergedStyles, "sizes", "variants", "colors", "shapes");
-
+function applyStyles(styles, { props }) {
+  const result = omit(styles, "sizes", "variants", "colors", "shapes");
   // ----------------------------------------------
   // Conditional styles
 
   // -- Sizes
-  const sizes = get(mergedStyles, "sizes");
+  const sizes = get(styles, "sizes");
   const size = get(sizes, props.size, sizes.default);
-  styles.value.root.push(...size);
+  result.root.push(...size);
 
   // --- Variants
-  const variants = get(mergedStyles, "variants");
+  const variants = get(styles, "variants");
   const variant = get(variants, props.variant, variants.default);
-  styles.value.root.push(...variant);
-  if (props.variant) debugger;
+  result.root.push(...variant);
 
   // --- Color Variants
-  const colors = get(mergedStyles, "colors");
+  const colors = get(styles, "colors");
   if (props.disabled) {
-    styles.value.root.push(...colors.disabled);
+    result.root.push(...colors.disabled);
   } else {
-    const colors = get(mergedStyles, "colors");
+    const colors = get(styles, "colors");
     const color = get(colors, props.color, colors.default);
-    styles.value.root.push(...color);
+    result.root.push(...color);
   }
 
   // --- Shape Variants
-  const shapes = get(mergedStyles, "shapes");
+  const shapes = get(styles, "shapes");
   const shape = get(shapes, props.shape, shapes.default);
-  styles.value.root.push(...shape);
+  result.root.push(...shape);
 
   // ----------------------------------------------
+
+  return result;
+}
+
+// ----------------------------------------------
+
+export default context => {
+  // Check if weve been provided with style overrides, then merge the default styles with the overrides
+  const overrideStyles = inject("upwind", {});
+
+  const styles = ref();
+  styles.value = applyStyles(
+    generateComponentStyles("button", defaultStyles, overrideStyles),
+    context
+  );
+
+  // Watch for changes in the override styles
+  watch(overrideStyles, () => {
+    styles.value = applyStyles(
+      generateComponentStyles("button", defaultStyles, overrideStyles),
+      context
+    );
+  });
+
   return styles;
 };
