@@ -1,0 +1,22 @@
+{
+  "files": [],
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    { "path": "../../packages/flow" },
+    { "path": "../../packages/flow-vue" },
+    { "path": "../../packages/client" },
+    { "path": "../../packages/upwind" },
+
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ]
+}

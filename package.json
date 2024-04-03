@@ -28,18 +28,16 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git@git.upmind.io:dominic.dacosta/upmind-core.git"
+    "url": "git@git.upmind.io:upmind/upmind-monorepo.git"
   },
   "scripts": {
     "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo}",
     "start": "npm run start --workspaces --if-present",
-    "start:daisyu": "npm run dev --workspace=playgrounds/daisyui",
-    "start:preline": "npm run dev --workspace=playgrounds/preline",
-    "start:primevue": "npm run dev --workspace=playgrounds/primevue",
+    "start:labs": "npm run dev --workspace=playgrounds/labs",
+    "start:checkout": "npm run dev --workspace=playgrounds/checkout",
     "build": "npm run build --workspaces --if-present",
-    "build:tsc": "tsc --build --verbose",
     "lint": "npm run lint --workspaces --if-present",
-    "format": "prettier . --write",
+    "format": "npm run format --workspaces --if-present",
     "prepare": "husky install"
   },
   "devDependencies": {
@@ -65,10 +63,10 @@
   },
   "workspaces": [
     "packages/flow",
-    "packages/vue",
-    "packages/ui",
-    "playgrounds/primevue",
-    "playgrounds/daisyui",
-    "playgrounds/preline"
+    "packages/flow-vue",
+    "packages/upwind",
+    "packages/client",
+    "playgrounds/labs",
+    "playgrounds/checkout"
   ]
 }

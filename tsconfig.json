@@ -28,8 +28,9 @@
   "references": [
     { "path": "playground/" },
     { "path": "packages/flow" },
-    { "path": "packages/vue" },
-    { "path": "packages/ui" }
+    { "path": "packages/flow-vue" },
+    { "path": "packages/client" },
+    { "path": "packages/upwind" }
   ],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }
