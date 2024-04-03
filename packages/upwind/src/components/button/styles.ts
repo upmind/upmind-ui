@@ -11,7 +11,6 @@ export const enum ButtonSize {
 
 export const enum ButtonVariant {
   elevated = "elevated",
-  plain = "plain",
   flat = "flat",
   outlined = "outlined",
   ghost = "ghost",
@@ -53,6 +52,9 @@ const defaultStyles = {
     "leading-normal",
     "text-center",
     "transition-all",
+    "cursor-pointer",
+    "hover:-translate-y-0.5",
+    "active:-translate-y-px",
   ],
   label: ["duration-200", "font-bold", "flex-1"],
   icon: ["size-4"],
@@ -70,17 +72,22 @@ const defaultStyles = {
   variants: {
     default: [],
     elevated: ["shadow-md", "hover:shadow-lg"],
-    plain: [],
     flat: [],
-    outlined: ["border"],
-    ghost: [],
-    link: ["hover:underline"],
+    outlined: ["border", "bg-opacity-0", "hover:bg-opacity-100"],
+    ghost: ["bg-neutral-100", "text-neutral"],
+    link: ["!bg-transparent", "!text-primary", "hover:underline"],
   },
   colors: {
     default: [
       "bg-neutral",
       "text-neutral-content",
+      "data-[variant=outlined]:border-neutral",
+      "data-[variant=outlined]:text-neutral",
+      "data-[variant=ghost]:text-neutral",
+      "data-[variant=outlined]:hover:text-neutral-content",
+      "data-[variant=ghost]:hover:text-neutral-content",
       "hover:bg-neutral-600",
+      "hover:text-neutral-content",
       "border-neutral-300",
       "hover:border-neutral-100",
     ],
@@ -196,6 +203,7 @@ export default ({ props }) => {
   const variants = get(mergedStyles, "variants");
   const variant = get(variants, props.variant, variants.default);
   styles.value.root.push(...variant);
+  if (props.variant) debugger;
 
   // --- Color Variants
   const colors = get(mergedStyles, "colors");
@@ -213,6 +221,5 @@ export default ({ props }) => {
   styles.value.root.push(...shape);
 
   // ----------------------------------------------
-  debugger;
   return styles;
 };
