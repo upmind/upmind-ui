@@ -32,7 +32,7 @@ export default {
     outlined: ["border", "bg-opacity-0", "hover:bg-opacity-100"],
     plain: ["bg-neutral-100", "text-neutral"],
     ghost: ["bg-opacity-0", "text-neutral", "hover:bg-opacity-20"],
-    link: ["!bg-transparent", "!text-primary", "hover:underline"],
+    link: ["!bg-transparent", "!text-primary", "hover:underline", "!p-0"],
   },
   colors: {
     default: [
