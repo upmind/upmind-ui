@@ -76,7 +76,7 @@ const defaultStyles = {
     flat: [],
     outlined: ["border", "bg-opacity-0", "hover:bg-opacity-100"],
     plain: ["bg-neutral-100", "text-neutral"],
-    ghost: ["bg-opacity-0", "text-neutral"],
+    ghost: ["bg-opacity-0", "text-neutral", "hover:bg-opacity-20"],
     link: ["!bg-transparent", "!text-primary", "hover:underline"],
   },
   colors: {
@@ -87,7 +87,7 @@ const defaultStyles = {
       "data-[variant=outlined]:text-neutral",
       "data-[variant=outlined]:hover:text-neutral-content",
       "data-[variant=ghost]:text-neutral",
-      "data-[variant=ghost]:hover:text-neutral-content",
+      "data-[variant=ghost]:hover:text-neutral",
       "data-[variant=plain]:text-neutral",
       "data-[variant=plain]:hover:text-neutral-content",
       "hover:bg-neutral-600",

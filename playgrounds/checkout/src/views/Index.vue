@@ -6,21 +6,29 @@
 
     <h3 class="mt-8 w-full">Variants</h3>
     <div class="flex flex-wrap items-center gap-4">
-      <upw-button variant="flat" label="Flat Button"></upw-button>
-      <upw-button variant="elevated" label="Elevated Button"></upw-button>
-      <upw-button variant="outlined" label="Outlined Button"></upw-button>
       <upw-button variant="plain" label="Plain Button"></upw-button>
+      <upw-button variant="flat" label="Flat Button"></upw-button>
+      <upw-button variant="outlined" label="Outlined Button"></upw-button>
+      <upw-button variant="elevated" label="Elevated Button"></upw-button>
       <upw-button variant="ghost" label="Ghost Button"></upw-button>
       <upw-button variant="link" label="Link Button"></upw-button>
     </div>
 
     <h3 class="mt-8 w-full">Size Variants</h3>
     <div class="flex flex-wrap items-center gap-4">
-      <upw-button size="xs" label="Xtra Small Button"></upw-button>
-      <upw-button size="sm" label="Small Button"></upw-button>
-      <upw-button size="md" label="Medium Button"></upw-button>
-      <upw-button size="lg" label="Large Button"></upw-button>
-      <upw-button size="xl" label="Xtra Large Button"></upw-button>
+      <upw-button
+        variant="plain"
+        size="xs"
+        label="Xtra Small Button"
+      ></upw-button>
+      <upw-button variant="plain" size="sm" label="Small Button"></upw-button>
+      <upw-button variant="plain" size="md" label="Medium Button"></upw-button>
+      <upw-button variant="plain" size="lg" label="Large Button"></upw-button>
+      <upw-button
+        variant="plain"
+        size="xl"
+        label="Xtra Large Button"
+      ></upw-button>
     </div>
 
     <h3 class="mt-8 w-full">Color Variants</h3>
@@ -37,33 +45,66 @@
 
     <h3 class="mt-8 w-full">Shape Variants</h3>
     <div class="flex flex-wrap items-center gap-4">
-      <upw-button shape="none" label="No Shaped Button"></upw-button>
-      <upw-button shape="sm" label="Small Shaped Button"></upw-button>
-      <upw-button shape="md" label="Medium Shaped Button"></upw-button>
-      <upw-button shape="lg" label="Large Shaped Button"></upw-button>
-      <upw-button shape="xl" label="Xtra Large Shaped Button"></upw-button>
-      <upw-button shape="pill" label="Pill Shaped Button"></upw-button>
+      <upw-button
+        variant="plain"
+        shape="none"
+        label="No Shaped Button"
+      ></upw-button>
+      <upw-button
+        variant="plain"
+        shape="sm"
+        label="Small Shaped Button"
+      ></upw-button>
+      <upw-button
+        variant="plain"
+        shape="md"
+        label="Medium Shaped Button"
+      ></upw-button>
+      <upw-button
+        variant="plain"
+        shape="lg"
+        label="Large Shaped Button"
+      ></upw-button>
+      <upw-button
+        variant="plain"
+        shape="xl"
+        label="Xtra Large Shaped Button"
+      ></upw-button>
+      <upw-button
+        variant="plain"
+        shape="pill"
+        label="Pill Shaped Button"
+      ></upw-button>
       <!--  -->
       <upw-button
+        variant="plain"
         shape="icon"
         icon="cog"
         size="xs"
         label="Icon Only Button"
       ></upw-button>
       <upw-button
+        variant="plain"
         shape="icon"
         icon="cog"
         size="sm"
         label="Icon Only Button"
       ></upw-button>
-      <upw-button shape="icon" icon="cog" label="Icon Only Button"></upw-button>
       <upw-button
+        variant="plain"
+        shape="icon"
+        icon="cog"
+        label="Icon Only Button"
+      ></upw-button>
+      <upw-button
+        variant="plain"
         shape="icon"
         icon="cog"
         size="lg"
         label="Icon Only Button"
       ></upw-button>
       <upw-button
+        variant="plain"
         shape="icon"
         icon="cog"
         size="xl"
