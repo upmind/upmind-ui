@@ -25,16 +25,26 @@ import { useRoute } from "vue-router";
 
 // --- internal
 import UpmHeader from "@/components/Header.vue";
+import themes from "@/assets/themes";
 
 // --- utils
+import { find } from "lodash-es";
 
 // ---
 const route = useRoute();
 
 // ---
-
 const activeTheme = ref("light");
 provide("activeTheme", activeTheme);
+
+// ---
+const upwindStyles = ref({});
+if (themes) {
+  const theme = find(themes, ["id", activeTheme.value]);
+  upwindStyles.value = theme?.upwind || {};
+}
+provide("upwind", upwindStyles);
+// ---
 
 watch(route, () => {
   activeTheme.value = route?.query?.theme || activeTheme.value || "light";
