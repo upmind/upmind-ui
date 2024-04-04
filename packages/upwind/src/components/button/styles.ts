@@ -72,11 +72,10 @@ function applyStyles(styles, { props }) {
   const colors = get(styles, "colors");
   if (props.disabled) {
     result.root.push(...colors.disabled);
-  } else {
-    const colors = get(styles, "colors");
-    const color = get(colors, props.color, colors.default);
-    result.root.push(...color);
   }
+
+  const color = get(colors, props.color, colors.default);
+  result.root.push(...color);
 
   // --- Shape Variants
   const shapes = get(styles, "shapes");
