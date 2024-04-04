@@ -118,13 +118,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const styles = useStyles("button", config, { props }, [
-      "size",
-      "variant",
-      "color",
-      "shape",
-      "disabled",
-    ]);
+    const styles = useStyles("button", config, { props });
 
     return {
       styles,
