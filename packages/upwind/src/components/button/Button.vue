@@ -14,31 +14,29 @@
       <upw-spinner :class="styles.loading" class="btn-loading" />
     </slot>
 
-    <template v-else>
-      <slot name="prepend" v-bind="{ styles: styles.icon, icon: prependIcon }">
-        <upw-icon
-          v-if="prependIcon"
-          :class="styles.icon"
-          :name="prependIcon"
-          class="btn-icon"
-        />
-      </slot>
+    <slot name="prepend" v-bind="{ styles: styles.icon, icon: prependIcon }">
+      <upw-icon
+        v-if="prependIcon"
+        :class="styles.icon"
+        :name="prependIcon"
+        class="btn-icon"
+      />
+    </slot>
 
-      <slot v-bind="{ styles }">
-        <span :class="styles.label" v-if="label" class="btn-label">
-          {{ label }}
-        </span>
-      </slot>
+    <slot v-bind="{ styles }">
+      <span :class="styles.label" v-if="label" class="btn-label">
+        {{ label }}
+      </span>
+    </slot>
 
-      <slot name="append" v-bind="{ styles: styles.icon, icon: appendIcon }">
-        <upw-icon
-          v-if="appendIcon"
-          :class="styles.icon"
-          :name="appendIcon"
-          class="btn-icon"
-        />
-      </slot>
-    </template>
+    <slot name="append" v-bind="{ styles: styles.icon, icon: appendIcon }">
+      <upw-icon
+        v-if="appendIcon"
+        :class="styles.icon"
+        :name="appendIcon"
+        class="btn-icon"
+      />
+    </slot>
   </button>
 </template>
 
