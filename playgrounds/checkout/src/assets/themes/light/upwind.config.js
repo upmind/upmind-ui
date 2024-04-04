@@ -1,6 +1,1 @@
-export default {
-  spinner: {
-    root: [],
-  },
-  button: {},
-};
+export default {};
