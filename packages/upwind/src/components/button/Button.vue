@@ -43,20 +43,27 @@
 </template>
 
 <script lang="ts">
+// --- global
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
 
+// --- local
+import config from "./config";
+
+// --- components
+import UpwIcon from "../icon/Icon.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
+
+// --- utils
+import { useStyles } from "../../utils";
+
+// --- types
 import type {
   ButtonVariant,
   ButtonColor,
   ButtonShape,
   ButtonSize,
-} from "./styles";
-
-import UpwIcon from "../icon/Icon.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
-
-import UseStyles from "./styles";
+} from "./types";
 
 // ----------------------------------------------
 
@@ -111,7 +118,11 @@ export default defineComponent({
   },
 
   setup(props) {
-    const styles = UseStyles({ props });
+    const styles = useStyles(
+      ["size", "variant", "color", "shape", "disabled"],
+      config,
+      { props }
+    );
 
     return {
       styles,
