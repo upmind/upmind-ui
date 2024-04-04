@@ -15,7 +15,7 @@
 
   <div
     :id="contentId"
-    class="hs-overlay fixed start-0 top-0 z-[60] hidden h-full w-full max-w-xs -translate-x-full transform border-e bg-white transition-all duration-300 hs-overlay-open:translate-x-0"
+    class="hs-overlay hs-overlay-open:translate-x-0 fixed start-0 top-0 z-[60] hidden h-full w-full max-w-xs -translate-x-full transform border-e bg-white transition-all duration-300"
     tabindex="-1"
   >
     <div class="flex items-center justify-between border-b px-4 py-3">
