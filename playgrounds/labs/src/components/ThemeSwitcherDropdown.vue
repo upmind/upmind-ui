@@ -6,7 +6,7 @@
       class="inline-flex items-center gap-x-2.5 rounded-lg text-sm font-medium hover:text-neutral-400"
     >
       <span>{{ activeThemeName }} Theme</span>
-      <upm-icon name="palette" class="size-6 flex-shrink-0" />
+      <upw-icon name="palette" class="size-6 flex-shrink-0" />
     </button>
     <template #content>
       <ul
@@ -20,7 +20,7 @@
           @click.prevent="activeTheme = key"
         >
           {{ startCase(theme) }} Theme
-          <upm-icon path="themes" :name="key" class="size-5 flex-shrink-0" />
+          <upw-icon path="themes" :name="key" class="size-5 flex-shrink-0" />
         </li>
       </ul>
     </template>
@@ -30,21 +30,29 @@
 </template>
 
 <script>
-import { inject, defineComponent, computed } from "vue";
+import { inject, defineComponent, computed, watch } from "vue";
 import Popper from "vue3-popper";
-import UpmIcon from "@/components/Icon.vue";
+import { UpwIcon } from "@upmind/upwind";
 import themes from "@/assets/themes";
-import { startCase, set, lowerCase, reduce } from "lodash-es";
+import { startCase, set, lowerCase, reduce, find } from "lodash-es";
 
 export default defineComponent({
   name: "ThemeSwitcherDropdown",
   components: {
     Popper,
-    UpmIcon,
+    UpwIcon,
   },
   setup() {
     const activeTheme = inject("activeTheme");
+    const upwindStyles = inject("upwind");
 
+    watch(activeTheme, value => {
+      debugger;
+      const theme = find(themes, ["id", value]);
+      upwindStyles.value = theme?.upwind || {};
+
+      debugger;
+    });
     return {
       themes: computed(() =>
         reduce(

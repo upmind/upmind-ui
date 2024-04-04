@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-wrap items-center p-8">
-    <upm-form-generator
+  <div class="prose mx-auto max-w-none px-8 pb-8">
+    <upw-form
       :schema="schema"
       :uischema="uischema"
       @reject="doReject"
@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import UpmFormGenerator from "@/components/FormGenerator.vue";
+import { UpwForm } from "@upmind/upwind";
 
 const useDate = val => {
   const date = val ? new Date(Date.parse(val)) : new Date();

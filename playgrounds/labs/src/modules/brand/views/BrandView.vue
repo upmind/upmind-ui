@@ -1,6 +1,6 @@
 <template>
-  <div class="relative mx-auto flex w-full flex-wrap" :data-theme="activeTheme">
-    <upm-spinner
+  <div class="relative mx-auto flex w-full flex-wrap">
+    <upw-spinner
       class="w-full justify-center text-center"
       v-if="meta.isLoading"
     />
@@ -85,12 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
 import { useBrand } from "@upmind/flow-vue";
 import { startCase, isArray, isObject } from "lodash-es";
-import UpmSpinner from "../../../components/Spinner.vue";
-
-const activeTheme = inject("activeTheme");
+import { UpwSpinner } from "@upmind/upwind";
 
 const { meta, responses } = useBrand(message =>
   window?.top?.postMessage(message, "*")

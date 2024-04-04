@@ -3,6 +3,7 @@
     <aside
       class="relative h-full overflow-auto rounded border-e border-neutral-200 bg-neutral-50 px-4 pb-12 pr-8 pt-6 shadow-inner sm:px-8 lg:px-8"
     >
+      <!-- details + options -->
       <upm-sidebar
         v-bind="$props"
         v-show="!activeTab || activeTab == 'settings'"
@@ -17,61 +18,37 @@
             class="hs-accordion-group flex w-full flex-col flex-wrap"
             data-hs-accordion-always-activeTab
           >
-            <ul class="space-y-4">
+            <ul class="space-y-4" v-if="variants">
               <li>
                 <span
                   class="flex flex-wrap justify-between py-2 text-xs uppercase text-neutral-500"
                 >
-                  Layout Variants
+                  Options
                 </span>
 
                 <div class="flex flex-col rounded-lg">
                   <router-link
-                    :to="{ name: 'auth-light' }"
+                    v-for="(variant, index) in variants"
+                    :key="variant"
+                    :to="{ name: variant.name }"
                     type="button"
-                    class="flex items-center gap-x-2 rounded-t-md border border-neutral-200 bg-base px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-100 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
+                    class="flex items-center gap-x-2 border border-neutral-200 bg-base px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-100 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
+                    :class="{
+                      'rounded-t-md': index == 0,
+                      'rounded-b-md': index == variants.length - 1,
+                    }"
                     exact-active-class="!bg-neutral text-neutral-content"
                   >
-                    Simple
-                  </router-link>
-
-                  <router-link
-                    :to="{ name: 'auth-illustration' }"
-                    type="button"
-                    class="-mt-px flex items-center gap-x-2 border border-neutral-200 bg-base px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-100 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
-                    exact-active-class="!bg-neutral text-neutral-content"
-                  >
-                    Illustration
-                  </router-link>
-
-                  <router-link
-                    :to="{ name: 'auth-background' }"
-                    type="button"
-                    class="-mt-px flex items-center gap-x-2 border border-neutral-200 bg-base px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-100 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
-                    exact-active-class="!bg-neutral text-neutral-content"
-                  >
-                    Background
-                  </router-link>
-
-                  <router-link
-                    :to="{ name: 'auth-marketing' }"
-                    type="button"
-                    class="-mt-px flex items-center gap-x-2 rounded-b-md border border-neutral-200 bg-base px-4 py-3 text-sm font-medium text-neutral-400 shadow-sm hover:bg-neutral-100 focus:z-10 disabled:pointer-events-none disabled:opacity-50"
-                    exact-active-class="!bg-neutral text-neutral-content"
-                  >
-                    Marketing
+                    {{ variant?.meta?.title || variant.name }}
                   </router-link>
                 </div>
-
-                <p class="py-2 text-xs text-neutral-300">
-                  Choose a layout to see how the auth flow can be customized.
-                </p>
               </li>
             </ul>
           </nav>
         </div>
       </upm-sidebar>
 
+      <!-- inspector -->
       <upm-sidebar
         v-show="inspect && activeTab == 'inspector'"
         :flow="flow"
@@ -85,6 +62,7 @@
         <upm-inspector :flow="inspect" v-if="inspect" />
       </upm-sidebar>
 
+      <!-- code -->
       <upm-sidebar
         v-show="activeTab == 'code'"
         :flow="flow"
@@ -107,24 +85,6 @@
           'w-[375px]': !isDesktop && !isTablet,
         }"
       >
-        <!-- <div
-          class="flex gap-12 justify-between items-center bg-base-50 rounded-t-lg py-2 px-4 border-b border-base-300"
-        >
-          <div class="flex gap-2">
-            <span class="size-3 bg-error rounded-full"></span>
-            <span class="size-3 bg-warning rounded-full"></span>
-            <span class="size-3 bg-success rounded-full"></span>
-          </div>
-
-          <div
-            class="flex-1 rounded-lg text-sm text-center py-2 px-4 bg-base-100 text-base-content max-w-lg"
-          >
-            www.upmind.com
-          </div>
-
-          <button></button>
-        </div> -->
-
         <div
           :data-theme="activeTheme"
           class="relative h-full overflow-auto rounded-b-md bg-base text-base-content"
@@ -187,6 +147,10 @@ export default defineComponent({
     },
     meta: {
       type: Object,
+      required: false,
+    },
+    variants: {
+      type: Array,
       required: false,
     },
   },

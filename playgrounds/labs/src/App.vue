@@ -1,7 +1,8 @@
 <template>
   <router-view
     v-if="isEmbed"
-    class="h-screen max-h-full w-full overflow-auto"
+    class="h-screen max-h-full w-full overflow-auto bg-base text-base-content"
+    :data-theme="activeTheme"
   />
 
   <div
@@ -10,7 +11,7 @@
   >
     <upm-header></upm-header>
 
-    <pv-drawer
+    <upm-drawer
       contentId="navbar-secondary-content"
       title="Upmind Flow Demo"
       action="Toggle Navigation"
@@ -64,12 +65,12 @@
             >
               <button
                 type="button"
-                class="hs-accordion-toggle flex w-full items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-start text-sm text-slate-700 hover:bg-gray-100 hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content"
+                class="hs-accordion-toggle hs-accordion-active:bg-primary-content hs-accordion-active:text-primary hs-accordion-active:hover:bg-primary-content flex w-full items-center gap-x-3.5 rounded-lg px-2.5 py-2 text-start text-sm text-slate-700 hover:bg-gray-100"
               >
                 {{ startCase(route.name) }}
 
                 <svg
-                  class="ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500 hs-accordion-active:block"
+                  class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
@@ -84,7 +85,7 @@
                 </svg>
 
                 <svg
-                  class="ms-auto block size-4 text-gray-600 group-hover:text-gray-500 hs-accordion-active:hidden"
+                  class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
                   width="16"
                   height="16"
                   viewBox="0 0 16 16"
@@ -132,7 +133,7 @@
           </template>
         </ul>
       </nav>
-    </pv-drawer>
+    </upm-drawer>
 
     <!-- provide padding for our fixed header 4.5rem -->
     <main
@@ -155,11 +156,12 @@ import { provide, ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 // --- internal
-import PvDrawer from "@/components/Drawer.vue";
+import UpmDrawer from "@/components/Drawer.vue";
 import UpmHeader from "@/components/Header.vue";
+import themes from "@/assets/themes";
 
 // --- utils
-import { startCase, set } from "lodash-es";
+import { startCase, set, find } from "lodash-es";
 
 // ---
 const router = useRouter();
@@ -173,9 +175,19 @@ const isEmbed = ref(true);
 const activeTheme = ref("light");
 provide("activeTheme", activeTheme);
 
+// ---
+const upwindStyles = ref({});
+
+provide("upwind", upwindStyles);
+// ---
+
 watch(route, () => {
   isEmbed.value = !!route?.query?.embed;
   activeTheme.value = route?.query?.theme || activeTheme.value || "light";
+  if (themes) {
+    const theme = find(themes, ["id", activeTheme.value]);
+    upwindStyles.value = theme?.upwind || {};
+  }
 });
 // ---
 

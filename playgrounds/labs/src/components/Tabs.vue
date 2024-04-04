@@ -13,7 +13,7 @@
           @click="$emit('update:modelValue', key)"
           :disabled="item?.disabled"
         >
-          <upm-icon :name="item.icon" class="mb-4 size-5" v-if="item?.icon" />
+          <upw-icon :name="item.icon" class="mb-4 size-5" v-if="item?.icon" />
           <span :class="{ 'sr-only': item?.icon }">{{ item.label }}</span>
         </button>
       </template>
@@ -23,11 +23,11 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import UpmIcon from "@/components/Icon.vue";
+import { UpwIcon } from "@upmind/upwind";
 
 export default defineComponent({
   name: "UpmEmbedView",
-  components: { UpmIcon },
+  components: { UpwIcon },
   emits: ["update:modelValue"],
   props: {
     modelValue: String,

@@ -1,7 +1,6 @@
 <template>
   <div
     class="mx-auto flex h-full w-full flex-wrap bg-gradient-to-br from-base to-neutral-200 px-4 sm:px-6 lg:px-8"
-    :data-theme="activeTheme"
   >
     <div
       class="w-full md:grid md:grid-cols-3 md:items-center md:gap-8 lg:grid-cols-2 xl:gap-12"
@@ -15,7 +14,7 @@
       </div>
 
       <div class="px-4 py-8 sm:px-6 md:col-span-2 lg:col-auto lg:px-8">
-        <upm-spinner
+        <upw-spinner
           class="w-full justify-center text-center"
           v-if="meta.isProcessing"
         />
@@ -74,7 +73,7 @@ import { inject, watch } from "vue";
 import { useSession } from "@upmind/flow-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import UpmSpinner from "../../../components/Spinner.vue";
+import { UpwSpinner } from "@upmind/upwind";
 // ---
 const activeTheme = inject("activeTheme");
 

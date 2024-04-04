@@ -51,17 +51,17 @@ export default {
 
     gray: {
       DEFAULT: "#6d6d6d",
-      950: "#f6f6f6",
-      900: "#e7e7e7",
-      800: "#d1d1d1",
-      700: "#b0b0b0",
-      600: "#888888",
-      500: "#6d6d6d",
-      400: "#5d5d5d",
-      300: "#4f4f4f",
-      200: "#424242",
-      100: "#3d3d3d",
       50: "#262626",
+      100: "#3d3d3d",
+      200: "#424242",
+      300: "#4f4f4f",
+      400: "#5d5d5d",
+      500: "#6d6d6d",
+      600: "#888888",
+      700: "#b0b0b0",
+      800: "#d1d1d1",
+      900: "#e7e7e7",
+      950: "#f6f6f6",
       content: "#e7e7e7",
     },
 
@@ -118,19 +118,19 @@ export default {
     },
 
     neutral: {
-      DEFAULT: "#111827",
+      DEFAULT: "#e8ecf6",
+      50: "#111827",
       100: "#253555",
       200: "#273e65",
       300: "#2b4779",
       400: "#345995",
       500: "#4672b1",
-      50: "#111827",
       600: "#6990c7",
       700: "#9db6dc",
       800: "#cbd8ec",
       900: "#e8ecf6",
       950: "#f4f6fb",
-      content: "#f4f6fb",
+      content: "#111827",
     },
 
     // ---
@@ -357,4 +357,49 @@ export default {
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
     none: "none",
   },
+
+  /*
+  |-----------------------------------------------------------------------------
+  | Typography            https://github.com/tailwindlabs/tailwindcss-typography
+  |-----------------------------------------------------------------------------
+  |
+  */
+  // typography: ({ theme }) => ({
+  //   DEFAULT: {
+  //     css: {
+  //       "--tw-prose-body": theme("colors.base[800]"),
+  //       "--tw-prose-headings": theme("colors.base[900]"),
+  //       "--tw-prose-lead": theme("colors.base[700]"),
+  //       "--tw-prose-links": theme("colors.base[900]"),
+  //       "--tw-prose-bold": theme("colors.base[900]"),
+  //       "--tw-prose-counters": theme("colors.base[600]"),
+  //       "--tw-prose-bullets": theme("colors.base[400]"),
+  //       "--tw-prose-hr": theme("colors.base[300]"),
+  //       "--tw-prose-quotes": theme("colors.base[900]"),
+  //       "--tw-prose-quote-borders": theme("colors.base[300]"),
+  //       "--tw-prose-captions": theme("colors.base[700]"),
+  //       "--tw-prose-code": theme("colors.base[900]"),
+  //       "--tw-prose-pre-code": theme("colors.base[100]"),
+  //       "--tw-prose-pre-bg": theme("colors.base[900]"),
+  //       "--tw-prose-th-borders": theme("colors.base[300]"),
+  //       "--tw-prose-td-borders": theme("colors.base[200]"),
+  //       "--tw-prose-invert-body": theme("colors.base[200]"),
+  //       "--tw-prose-invert-headings": theme("colors.white"),
+  //       "--tw-prose-invert-lead": theme("colors.base[300]"),
+  //       "--tw-prose-invert-links": theme("colors.white"),
+  //       "--tw-prose-invert-bold": theme("colors.white"),
+  //       "--tw-prose-invert-counters": theme("colors.base[400]"),
+  //       "--tw-prose-invert-bullets": theme("colors.base[600]"),
+  //       "--tw-prose-invert-hr": theme("colors.base[700]"),
+  //       "--tw-prose-invert-quotes": theme("colors.base[100]"),
+  //       "--tw-prose-invert-quote-borders": theme("colors.base[700]"),
+  //       "--tw-prose-invert-captions": theme("colors.base[400]"),
+  //       "--tw-prose-invert-code": theme("colors.white"),
+  //       "--tw-prose-invert-pre-code": theme("colors.base[300]"),
+  //       "--tw-prose-invert-pre-bg": "rgb(0 0 0 / 50%)",
+  //       "--tw-prose-invert-th-borders": theme("colors.base[600]"),
+  //       "--tw-prose-invert-td-borders": theme("colors.base[700]"),
+  //     },
+  //   },
+  // }),
 };

@@ -1,7 +1,6 @@
 import themer from "tailwindcss-themer";
 import typography from "@tailwindcss/typography";
 import forms from "@tailwindcss/forms";
-import preline from "preline/plugin";
 
 // --- utils
 import { find, omit } from "lodash-es";
@@ -74,6 +73,5 @@ export default {
     forms({
       strategy: "class", // only generate classes, otherwise use 'base'
     }),
-    preline,
   ],
 };

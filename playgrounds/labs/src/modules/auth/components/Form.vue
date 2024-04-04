@@ -1,6 +1,6 @@
 <template>
   <div class="auth">
-    <upm-form-generator
+    <upw-form
       :key="meta.showLoginForm ? 'login' : 'register'"
       v-bind="$attrs"
       :loading="meta.isFormLoading"
@@ -32,7 +32,7 @@
           <span v-else>Continue</span>
         </button>
       </template>
-    </upm-form-generator>
+    </upw-form>
   </div>
 </template>
 
@@ -40,11 +40,11 @@
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/flow-vue";
 
-import UpmFormGenerator from "@/components/FormGenerator.vue";
+import { UpwForm } from "@upmind/upwind";
 
 export default defineComponent({
   name: "AuthForm",
-  components: { UpmFormGenerator },
+  components: { UpwForm },
   inheritAttrs: false,
   customOptions: {},
   emits: [],

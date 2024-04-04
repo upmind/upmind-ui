@@ -1,8 +1,3 @@
-<script setup>
-import { inject } from "vue";
-const activeTheme = inject("activeTheme");
-</script>
-
 <template>
   <section>
     <div
@@ -11,3 +6,8 @@ const activeTheme = inject("activeTheme");
     ></div>
   </section>
 </template>
+
+<script setup>
+import { inject } from "vue";
+const activeTheme = inject("activeTheme");
+</script>
