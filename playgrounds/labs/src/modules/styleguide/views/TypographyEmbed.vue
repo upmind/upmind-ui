@@ -1,445 +1,346 @@
 <template>
   <div class="prose mx-auto max-w-none p-8">
-    <h1 role="heading" aria-level="2" data-uw-rm-heading="level">
-      This is 1st level heading
-    </h1>
-    <h2>This is 2nd level heading</h2>
-    <h3>This is 3rd level heading</h3>
-    <h4>This is 4th level heading</h4>
-    <h5>This is 5th level heading</h5>
-    <h6>This is 6th level heading</h6>
-    <p>
-      <strong>This is a test paragraph.</strong> Adipisicing do aute labore
-      exercitation amet sint aliqua in fugiat. Fugiat do do esse cupidatat.
-      Cupidatat eiusmod laboris consequat consequat nostrud culpa quis. Nostrud
-      incididunt irure adipisicing ullamco.
-    </p>
-    <h2>Basic block level elements</h2>
-
-    <p>
-      This is a normal paragraph (<code>p</code> element). To add some length to
-      it, let us mention that this page was primarily written for testing the
-      effect of <strong>user style sheets</strong>. You can use it for various
-      other purposes as well, like just checking how your browser displays
-      various HTML elements by default. It can also be useful when testing
-      conversions from HTML format to other formats, since some elements can go
-      wrong then.
-    </p>
-    <p>
-      This is another paragraph. I think it needs to be added that the set of
-      elements tested is not exhaustive in any sense. I have selected those
-      elements for which it can make sense to write user style sheet rules, in
-      my opionion.
-    </p>
-    <div>
-      This is a <code>div</code> element. Authors may use such elements instead
-      of paragraph markup for various reasons. (End of <code>div</code>.)
-    </div>
-    <blockquote>
+    <div id="headers">
+      <h2>Headers</h2>
       <p>
-        This is a block quotation containing a single paragraph. Well, not
-        quite, since this is not <em>really</em> quoted text, but I hope you
-        understand the point. After all, this page does not use HTML markup very
-        normally anyway.
+        Headers are used to describe such elements as website name, slogan,
+        section titles. HTML and XHTML specifications define 6 levels of
+        headers, where h1 is the most important and h6 is the least important.
       </p>
-    </blockquote>
-    <p>
-      The following contains address information about the author, in an
-      <code>address</code> element.
-    </p>
-    <address>
-      <a
-        href="../personal.html"
-        lang="fi"
-        hreflang="en"
-        data-uw-rm-brl="FX"
-        data-uw-original-href="https://horsesforachange.org/personal.html"
-        data-uw-rm-lang="false"
-        aria-label="jukka korpela - target website may not be available"
-        data-uw-rm-ext-link=""
-        >Jukka Korpela</a
-      >,
-      <a
-        href="mailto:jukkakk@gmail.com"
-        aria-label="send an email to jukkakk@gmail.com"
-        uw-rm-vague-link-id="mailto:jukkakk@gmail.com$send an email to jukkakk@gmail.com"
-        data-uw-rm-vglnk=""
-        >jukkakk@gmail.com</a
-      ><br role="presentation" data-uw-rm-sr="" />
-      Päivänsäteenkuja 4 A, Espoo, Finland
-    </address>
+      <h1>Header 1</h1>
+      <h2>Header 2</h2>
+      <h3>Header 3</h3>
+      <h4>Header 4</h4>
+      <h5>Header 5</h5>
+      <h6>Header 6</h6>
+    </div>
+    <div id="links">
+      <h2>Links</h2>
+      <p><a href="#">Local link</a></p>
 
-    <h2>Lists</h2>
+      <p>
+        <a href="/style-guide" class="visited">Visited link</a>
+      </p>
 
-    <p>
-      This is a paragraph before an <strong>unnumbered</strong> list
-      (<code>ul</code>). Note that the spacing between a paragraph and a list
-      before or after that is hard to tune in a user style sheet. You can't
-      guess which paragraphs are logically related to a list, e.g. as a "list
-      header".
-    </p>
-    <ul>
-      <li>One.</li>
-      <li>Two.</li>
-      <li>
-        Three. Well, probably this list item should be longer. Note that for
-        short items lists look better if they are compactly presented, whereas
-        for long items, it would be better to have more vertical spacing between
-        items.
-      </li>
-      <li>
-        Four. This is the last item in this list. Let us terminate the list now
-        without making any more fuss about it.
-      </li>
-    </ul>
-    <p>The following is a <code>menu</code> list:</p>
-    <menu>
-      <li>One.</li>
-      <li>Two.</li>
-      <li>
-        Three. Well, probably this list item should be longer so that it will
-        probably wrap to the next line in rendering.
-      </li>
-    </menu>
-    <p>The following is a <code>dir</code> list:</p>
-    <dir>
-      <li>One.</li>
-      <li>Two.</li>
-      <li>
-        Three. Well, probably this list item should be longer so that it will
-        probably wrap to the next line in rendering.
-      </li>
-    </dir>
+      <p>
+        <a href="http://test.example.com" class="external">External link</a>
+      </p>
 
-    <p>
-      This is a paragraph before a <strong>numbered</strong> list
-      (<code>ol</code>). Note that the spacing between a paragraph and a list
-      before or after that is hard to tune in a user style sheet. You can't
-      guess which paragraphs are logically related to a list, e.g. as a "list
-      header".
-    </p>
-    <ol>
-      <li>One.</li>
-      <li>Two.</li>
-      <li>
-        Three. Well, probably this list item should be longer. Note that if
-        items are short, lists look better if they are compactly presented,
-        whereas for long items, it would be better to have more vertical spacing
-        between items.
-      </li>
-      <li>
-        Four. This is the last item in this list. Let us terminate the list now
-        without making any more fuss about it.
-      </li>
-    </ol>
-
-    <p>
-      This is a paragraph before a <strong>definition</strong> list
-      (<code>dl</code>). In principle, such a list should consist of
-      <em>terms</em> and associated definitions. But many authors use
-      <code>dl</code> elements for fancy "layout" things. Usually the effect is
-      not <em>too</em> bad, if you design user style sheet rules for
-      <code>dl</code>
-      which are suitable for real definition lists.
-    </p>
-    <dl>
-      <dt>recursion</dt>
-      <dd>see recursion</dd>
-      <dt>recursion, indirect</dt>
-      <dd>see indirect recursion</dd>
-      <dt>indirect recursion</dt>
-      <dd>see recursion, indirect</dd>
-      <dt>term</dt>
-      <dd>
-        a word or other expression taken into specific use in a well-defined
-        meaning, which is often defined rather rigorously, even formally, and
-        may differ quite a lot from an everyday meaning
-      </dd>
-    </dl>
-
-    <h2>Text-level markup</h2>
-
-    <ul>
-      <li>
-        <abbr title="Cascading Style Sheets">CSS</abbr> (an abbreviation;
-        <code>abbr</code> markup used)
-      </li>
-      <li>
-        <acronym title="radio detecting and ranging">radar</acronym> (an
-        acronym; <code>acronym</code> markup used)
-      </li>
-      <li>
-        <b>bolded</b> (<code>b</code> markup used - just bolding with
-        unspecified semantics)
-      </li>
-      <li><big>big thing</big> (<code>big</code> markup used)</li>
-      <li>
-        <font size="6">large size</font> (<code>font size=6</code> markup used)
-      </li>
-      <li>
-        <font face="Courier">Courier font</font> (<code>font face=Courier</code>
-        markup used)
-      </li>
-      <li>
-        <font color="red">red text</font> (<code>font color=red</code> markup
-        used)
-      </li>
-      <li>
-        <cite>Origin of Species</cite> (a book title; <code>cite</code> markup
-        used)
-      </li>
-      <li>
-        <code>a[i] = b[i] + c[i);</code> (computer code;
-        <code>code</code> markup used)
-      </li>
-      <li>
-        here we have some <del>deleted</del> text (<code>del</code> markup used)
-      </li>
-      <li>
-        an <dfn>octet</dfn> is an entity consisting of eight bits (<code
-          >dfn</code
+      <p>
+        <a href="https://test.example.com" class="external"
+          >External link with encrypted connection</a
         >
-        markup used for the term being defined)
-      </li>
-      <li>
-        this is <em>very</em> simple (<code>em</code> markup used for
-        emphasizing a word)
-      </li>
-      <li>
-        <i lang="la" data-uw-rm-lang="false">Homo sapiens</i> (should appear in
-        italics; <code>i</code> markup used)
-      </li>
-      <li>
-        here we have some <ins>inserted</ins> text (<code>ins</code> markup
-        used)
-      </li>
-      <li>
-        type <kbd>yes</kbd> when prompted for an answer (<code>kbd</code>
-        markup used for text indicating keyboard input)
-      </li>
-      <li><q>Hello!</q> (<code>q</code> markup used for quotation)</li>
-      <li>
-        He said: <q>She said <q>Hello!</q></q> (a quotation inside a quotation)
-      </li>
-      <li>
-        you may get the message <samp>Core dumped</samp> at times (<code
-          >samp</code
-        >
-        markup used for sample output)
-      </li>
-      <li>
-        <small>this is not that important</small> (<code>small</code> markup
-        used)
-      </li>
-      <li>
-        <strike>overstruck</strike> (<code>strike</code> markup used; note:
-        <code>s</code> is a nonstandard synonym for <code>strike</code>)
-      </li>
-      <li>
-        <strong>this is highlighted text</strong> (<code>strong</code>
-        markup used)
-      </li>
-      <li>
-        In order to test how subscripts and superscripts (<code>sub</code> and
-        <code>sup</code> markup) work inside running text, we need some dummy
-        text around constructs like x<sub>1</sub> and H<sub>2</sub>O (where
-        subscripts occur). So here is some fill so that you will (hopefully) see
-        whether and how badly the subscripts and superscripts mess up vertical
-        spacing between lines. Now superscripts: M<sup>lle</sup>,
-        1<sup>st</sup>, and then some mathematical notations: e<sup>x</sup>,
-        sin<sup>2</sup> <i>x</i>, and some nested superscripts (exponents) too:
-        e<sup>x<sup>2</sup></sup> and f(x)<sup>g(x)<sup>a+b+c</sup></sup>
-        (where 2 and a+b+c should appear as exponents of exponents).
-      </li>
-      <li><tt>text in monospace font</tt> (<code>tt</code> markup used)</li>
-      <li><u>underlined</u> text (<code>u</code> markup used)</li>
-      <li>
-        the command <code>cat</code> <var>filename</var> displays the file
-        specified by the <var>filename</var> (<code>var</code> markup used to
-        indicate a word as a variable).
-      </li>
-    </ul>
+      </p>
 
-    <p>
-      Some of the elements tested above are typically displayed in a monospace
-      font, often using the <em>same</em> presentation for all of them. This
-      tests whether that is the case on your browser:
-    </p>
-
-    <ul>
-      <li><code>This is sample text inside code markup</code></li>
-      <li><kbd>This is sample text inside kbd markup</kbd></li>
-      <li><samp>This is sample text inside samp markup</samp></li>
-      <li><tt>This is sample text inside tt markup</tt></li>
-    </ul>
-    <h2>Links</h2>
-    <ul>
-      <li>
-        <a
-          href="../index.html"
-          data-uw-rm-brl="FX"
-          data-uw-original-href="https://horsesforachange.org/index.html"
-          aria-label="main page - target website may not be available"
-          data-uw-rm-ext-link=""
-          >main page</a
-        >
-      </li>
-      <li>
-        <a
-          href="http://www.unicode.org/versions/Unicode4.0.0/ch06.pdf"
-          title="Writing Systems and Punctuation"
-          type="application/pdf"
-          data-uw-pdf-br="1"
-          data-uw-pdf-doc=""
-          >Unicode Standard, chapter&nbsp;6</a
-        >
-      </li>
-    </ul>
-
-    <p>
-      This is a text paragraph that contains some inline links. Generally,
-      inline links (as opposite to e.g. links lists) are problematic from the
-      <a
-        href="http://www.useit.com"
-        data-uw-rm-brl="BE"
-        data-uw-original-href="http://www.useit.com/"
-        >usability</a
+      <p><a href="mailto:admin@example.com">E-mail link</a></p>
+    </div>
+    <div id="block-elements">
+      <h2>Block elements</h2>
+      <h3>Block quote</h3>
+      <blockquote cite="http://en.wikipedia.org/wiki/Blockquote">
+        <p>
+          The blockquote element is used to indicate the quotation of a bigger
+          section of text from another source. Using the default HTML styling of
+          most web browsers, it will indent the right and left margins both on
+          the display and in printed form.
+          <cite>Wikipedia, The Free Encyclopedia</cite>
+        </p>
+      </blockquote>
+      <h3>Preformated text</h3>
+      <pre>
+    ___                        _
+   /   _ __ _   _ _ __   __ _| |   // This is preformated text
+  / / / '__| | | | '_  / _` | |
+ / /_//| |  | |_| | |_) | (_| | |
+/___,' |_|   __,_| .__/ __,_|_|
+                  |_|
+  </pre
       >
-      perspective, but they may have use as “incidental”, less relevant links.
-      See the document
-      <cite
-        ><a
-          href="links.html"
-          data-uw-rm-brl="FX"
-          data-uw-original-href="https://horsesforachange.org/typography-test-page/links.html"
-          aria-label="links want to be links - target website may not be available"
-          data-uw-rm-ext-link=""
-          >Links Want To Be Links</a
-        ></cite
-      >.
-    </p>
+    </div>
+    <div id="phrase-elements">
+      <h2>Phrase elements</h2>
+      <h3>em</h3>
+      <p>
+        Element used to <em>put emphasis on certain information</em>. Most
+        browsers display emphasized text in italics by default.
+      </p>
+      <p>Sample: <em>This is emphasized text</em>.</p>
+      <h3>strong</h3>
+      <p>
+        This element stands for “stronger emphasis” and is used for marking more
+        important text.
+      </p>
+      <p>Sample: <strong>This is text with stronger emphasis</strong></p>
+      <h3>cite</h3>
+      <p>
+        According to <cite>W3C specification</cite>, we use
+        <code>cite</code> element to define source of a quotation or reference.
+      </p>
+      <p>Sample: <cite>This is quotation source</cite></p>
+      <h3>dfn</h3>
+      <p>Element used to markup inline definition of a single term.</p>
+      <p>Sample: <dfn>This is definition</dfn></p>
+      <h3>code</h3>
+      <p>
+        This element informs the browser that it contains a computer code, such
+        as XHTML markup.
+      </p>
+      <p>Sample: <code>document.write("Hello world");</code></p>
+      <h3>samp</h3>
+      <p>
+        Defines computer output data, for example we can use it to markup error
+        messages
+      </p>
+      <p>Sample: <samp>Error: no such file or directory</samp></p>
+      <h3>kbd</h3>
+      <p>Means information that should be entered by the user.</p>
+      <p>
+        Sample: press <kbd>Alt + F4</kbd> to close this window. <kbd>ESC</kbd>
+      </p>
+      <h3>var</h3>
+      <p>Means variables used in computer programs or scripts.</p>
+      <p>Sample: <var>counter</var></p>
+      <h3>abbr</h3>
+      <p>Abbreviation / a shortened form of a word or phrase</p>
+      <p>Sample: <abbr title="doctor">dr</abbr></p>
+      <h3>acronym</h3>
+      <p>Acronym / a word formed from the initial letters of other words</p>
+      <p>
+        Sample acronyms:
+        <acronym title="eXtensible HyperText Markup Language">XHTML</acronym>
+      </p>
+      <h3>q</h3>
+      <p>Inline quotation</p>
+      <p>Sample: <q>This is sample quotation</q></p>
+    </div>
+    <div id="lists">
+      <h2>Lists</h2>
+      <h3>Unordered List</h3>
+      <ul>
+        <li>
+          Apple
+          <p></p>
+          <ul>
+            <li>Golden Delicious</li>
+            <li>Granny Smith</li>
+            <li>Idared</li>
+            <li>McIntosh</li>
+          </ul>
+        </li>
+        <li>Pear</li>
+        <li>Banana</li>
+        <li>Orange</li>
+        <li>Carrot</li>
+      </ul>
+      <h3>Unordered List with Links</h3>
+      <ul>
+        <li>
+          <a href="http://www.example.com">Apple</a>
+          <p></p>
+          <ul>
+            <li>
+              <a href="http://www.example.com">Golden Delicious</a>
+            </li>
+            <li>
+              <a href="http://www.example.com">Granny Smith</a>
+            </li>
+            <li>
+              <a href="http://www.example.com">Idared</a>
+            </li>
+            <li>
+              <a href="http://www.example.com">McIntosh</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="http://www.example.com">Pear</a>
+        </li>
+        <li>
+          <a href="http://www.example.com">Banana</a>
+        </li>
+        <li>
+          <a href="http://www.example.com">Orange</a>
+        </li>
+        <li>
+          <a href="http://www.example.com">Carrot</a>
+        </li>
+      </ul>
+      <h3>Ordered List</h3>
+      <ol>
+        <li>First</li>
+        <li>Second</li>
+        <li>Third</li>
+        <li>Fourth</li>
+      </ol>
+      <h3>Definition List</h3>
+      <dl>
+        <dt>Definition List Title</dt>
+        <dd>This is a definition list division.</dd>
+        <dt>Inkscape</dt>
+        <dd>Open Source vector graphics editor</dd>
+        <dt>SVG</dt>
+        <dd>Scalable Vector Graphics</dd>
+        <dd>W3C standard</dd>
+        <dt>GIMP</dt>
+        <dd>GNU Image Manipulation Program</dd>
+        <dt>Drupal</dt>
+        <dd>Content Management System</dd>
+      </dl>
+      <h3>Nested lists</h3>
+      <ol>
+        <li>
+          one, two
+          <p></p>
+          <ol>
+            <li>buckle my shoe</li>
+          </ol>
+        </li>
+        <li>
+          three, four
+          <p></p>
+          <ol>
+            <li>knock at the door</li>
+          </ol>
+        </li>
+        <li>
+          Five, six
+          <p></p>
+          <ol>
+            <li>pick up sticks</li>
+          </ol>
+        </li>
+        <li>
+          Seven, eight, lay them straight
+          <p></p>
+          <ol>
+            <li>Nine, ten, a big fat hen</li>
+            <li>Eleven, twelve, dig and delve</li>
+            <li>Thirteen, fourteen, maids a’courting</li>
+            <li>Fifteen, sixteen, maids in the kitchen</li>
+            <li>Seventeen, eighteen, maids a’waiting</li>
+            <li>Nineteen, twenty, my platter’s empty…</li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+    <div id="paragraphs">
+      <h2>Paragraphs</h2>
+      <p>
+        According to Wikipedia: a paragraph (from the Greek
+        <a href="#">paragraphos</a>, “to write beside” or “written beside”) is a
+        self-contained unit of a discourse in writing dealing with a particular
+        point or idea. The start of a paragraph is indicated by beginning on a
+        new line. Sometimes the first line is indented; sometimes it is indented
+        without beginning a new line.
+      </p>
+      <p>
+        A paragraph typically consists of a unifying main point, thought, or
+        idea accompanied by supporting details. The non-fiction paragraph
+        usually begins with the general and moves towards the more specific so
+        as to advance an argument or point of view. Each paragraph builds on
+        what came before and lays the ground or run the length of multiple
+        pages, and may consist of one or many sentences. When dialogue is being
+        quoted in fiction, a new paragraph is used each time the person being
+        quoted changed.
+      </p>
+      <p>
+        In (X)HTML, the p element marks a block of text as a paragraph – the
+        opening tag &lt;p&gt; marks the beginning of a paragraph, and the
+        closing tag &lt;/p&gt; marks the end of a paragraph. The end tag is
+        optional for legacy HTML as the browser automatically starts another
+        paragraph at the next &lt;p&gt; tag, or the nextblock element.
+      </p>
+    </div>
+    <div id="tables">
+      <h2>Tables</h2>
+      <table>
+        <caption>
+          Table title goes here
+        </caption>
+        <thead>
+          <tr>
+            <th>Mauris</th>
+            <th>Tempor</th>
+            <th>Praesent lacus nulla</th>
+            <th>Quis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="odd">
+            <td>Mauris</td>
+            <td>23.000</td>
+            <td>Suspendisse viverra</td>
+            <td>Yes</td>
+          </tr>
+          <tr class="even">
+            <td>Trupis</td>
+            <td>1.000</td>
+            <td>Placerat tortor aesent semper</td>
+            <td>No</td>
+          </tr>
+          <tr class="odd">
+            <td>Sagittis</td>
+            <td>122.000</td>
+            <td>Neque vel condimentum</td>
+            <td>No</td>
+          </tr>
+          <tr class="even">
+            <td>Libero</td>
+            <td>500</td>
+            <td>Hendrerit, lectus elit pretium</td>
+            <td>Yes</td>
+          </tr>
+          <tr class="odd">
+            <td>Tristique</td>
+            <td>100.000</td>
+            <td>Ligula nec consequat</td>
+            <td>Yes</td>
+          </tr>
+          <tr class="even">
+            <td>Id Neque</td>
+            <td>600.000</td>
+            <td>Etiam sodales orci nec</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="others">
+      <h2>Other elements</h2>
+      <h3>Subscript and superscript samples</h3>
+      <p>H<sub>2</sub>O,</p>
+      <p>E = mc<sup>2</sup>,</p>
+      <p>The 14<sup>th</sup> of September</p>
+      <h3>Insertion and deletion samples</h3>
+      <p>
+        <ins
+          title="Added new information according to suggestions"
+          datetime="2009-07-12T08:15:30+02:00"
+        >
+          This information was just added.
+        </ins>
 
-    <h2>Tables</h2>
+        <del> While this information is no longer valid. </del>
+      </p>
+      <h3>Presentational elements</h3>
+      <p>
+        <strong>Bold text</strong>
 
-    <p>
-      The following table has a caption. The first row and the first column
-      contain table header cells (<code>th</code> elements) only; other cells
-      are data cells (<code>td</code> elements), with
-      <code>align="right"</code> attributes:
-    </p>
+        <em>Italic text</em>
 
-    <table
-      summary="Each row names a Nordic country and specifies its total area and land area, in square kilometers"
-    >
-      <caption>
-        Sample table: Areas of the Nordic countries, in sq km
-      </caption>
-      <tbody>
-        <tr>
-          <th scope="col">Country</th>
-          <th scope="col">Total area</th>
-          <th scope="col">Land area</th>
-        </tr>
-        <tr>
-          <th scope="row">Denmark</th>
-          <td align="RIGHT">43,070</td>
-          <td align="RIGHT">42,370</td>
-        </tr>
-        <tr>
-          <th scope="row">Finland</th>
-          <td align="RIGHT">337,030</td>
-          <td align="RIGHT">305,470</td>
-        </tr>
-        <tr>
-          <th scope="row">Iceland</th>
-          <td align="RIGHT">103,000</td>
-          <td align="RIGHT">100,250</td>
-        </tr>
-        <tr>
-          <th scope="row">Norway</th>
-          <td align="RIGHT">324,220</td>
-          <td align="RIGHT">307,860</td>
-        </tr>
-        <tr>
-          <th scope="row">Sweden</th>
-          <td align="RIGHT">449,964</td>
-          <td align="RIGHT">410,928</td>
-        </tr>
-      </tbody>
-    </table>
+        <tt>Typewriter text</tt>
 
-    <h2>Character test</h2>
-    <p>
-      The following table has some sample characters with annotations. If the
-      browser’s default font does not contain all of them, they may get
-      displayed using backup fonts. This may cause stylistic differences, but it
-      should not prevent the characters from being displayed at all.
-    </p>
+        <big>Big</big>
 
-    <table>
-      <tbody>
-        <tr>
-          <th>Char.</th>
-          <th>Explanation</th>
-          <th>Notes</th>
-        </tr>
-        <tr>
-          <td>ê</td>
-          <td>e with circumflex</td>
-          <td>Latin 1 character, should be ok</td>
-        </tr>
-        <tr>
-          <td>—</td>
-          <td>em dash</td>
-          <td>Windows Latin 1 character, should be ok, too</td>
-        </tr>
-        <tr>
-          <td>Ā</td>
-          <td>A with macron (line above)</td>
-          <td>Latin Extended-A character, not present in all fonts</td>
-        </tr>
-        <tr>
-          <td>Ω</td>
-          <td>capital omega</td>
-          <td>A Greek letter</td>
-        </tr>
-        <tr>
-          <td>−</td>
-          <td>minus sign</td>
-          <td>Unicode minus</td>
-        </tr>
-        <tr>
-          <td>⌀</td>
-          <td>diameter sign</td>
-          <td>relatively rare in fonts</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>Hyphenation</h2>
-    <p>
-      In the following, a width setting should cause some hyphenation, depending
-      on support to various methods of hyphenation.
-    </p>
-
-    <h3>CSS-based hyphenation</h3>
-    <p class="limited hyphens">
-      Until recently the great majority of naturalists believed that species
-      were immutable productions, and had been separately created. This view has
-      been ably maintained by many authors.
-    </p>
-    <h3>JavaScript-driven hyphenation</h3>
-    <p class="limited hyphenate">
-      Until recently the great majority of naturalists believed that species
-      were immutable productions, and had been separately created. This view has
-      been ably maintained by many authors.
-    </p>
-    <h3>Explicit hyphenation hints (soft hyphens)</h3>
-    <p class="limited">
-      Un­til re­cent­ly the great ma­jor­i­ty of nat­u­ral­ists be­lieved that
-      spe­cies were im­mu­ta­ble pro­duc­tions, and had been sep­a­rate­ly
-      cre­at­ed. This view has been ably main­tain­ed by many au­thors.
-    </p>
+        <small>Small</small>
+      </p>
+      <p>Horizontal rule:</p>
+      <hr />
+      <h3>UTF-8 test</h3>
+      <p>Ä, ä, Ö, ö, Ü, ü, ß</p>
+      <p>Š Ť Ž Ľ Č Ě Ď Ň Ř Ů Ĺ</p>
+      <p>ХЦЧШЩЬЫЪЭЮЯ</p>
+    </div>
   </div>
 </template>
 
