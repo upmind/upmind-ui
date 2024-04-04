@@ -1,6 +1,8 @@
 <template>
-  <div class="prose mx-auto max-w-none p-8">
-    <upw-dropdown :items="items" />
+  <div class="prose mx-auto flex max-w-none flex-wrap gap-4 p-8">
+    <upw-dropdown :items="items" label="Select an option..." />
+
+    <upw-dropdown :items="items" label="" icon="navigation-menu-vertical" />
   </div>
 </template>
 
