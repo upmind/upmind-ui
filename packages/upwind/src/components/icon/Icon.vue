@@ -1,9 +1,26 @@
 <template>
-  <i v-if="icon" class="icon flex" v-html="icon" />
+  <i
+    v-if="icon"
+    class="icon"
+    :class="styles.root"
+    v-html="icon"
+    role="img"
+    :aria-label="`${name} icon`"
+  />
 </template>
 
 <script>
+// --- global
 import { defineComponent, ref, watchEffect } from "vue";
+
+// --- local
+import config from "./config";
+
+// --- utils
+import { useStyles } from "../../utils";
+
+// ----------------------------------------------
+
 export default defineComponent({
   name: "UpwIcon",
   props: {
@@ -13,6 +30,8 @@ export default defineComponent({
     avatar: { type: Boolean, default: false },
   },
   setup(props) {
+    const styles = useStyles("icon", config);
+
     const icon = ref(null);
 
     watchEffect(async () => {
@@ -33,6 +52,7 @@ export default defineComponent({
     });
 
     return {
+      styles,
       icon,
     };
   },
