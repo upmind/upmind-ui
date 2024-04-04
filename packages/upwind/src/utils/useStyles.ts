@@ -1,5 +1,5 @@
 import { unref, inject, computed } from "vue";
-import { merge, get, omit, forEach } from "lodash-es";
+import { merge, get, omit, forEach, keys } from "lodash-es";
 
 function generateComponentConfig(component, config, globalConfig) {
   config = unref(config) || {}; // safety check
@@ -13,26 +13,24 @@ function generateComponentConfig(component, config, globalConfig) {
 
 function applyComponentStyles(
   styles: Record<string, Object>,
-  context?: { props: Object },
-  attrs?: String[]
+  context?: { props: Object }
 ) {
   // ----------------------------------------------
   // safety checks
   const props = context?.props || {};
-  attrs ??= [];
 
   // ----------------------------------------------
   // First use the styles WITHOUT the conditional styles
   // these will tend to be child elements withing the component
-  const result = omit(styles, ...attrs);
+  const result = omit(styles, "attributes");
   result.root ??= []; // safety, ensure we always have a root array to push to
 
   // ----------------------------------------------
   // Then apply Conditional styles based on Attributes, if any && if they exist
   // NB: Attributes are the props passed to the component that ALSO have a corresponding style in the config
-
+  const attrs = keys(styles.attributes || {});
   forEach(attrs, attr => {
-    const attributStyles = get(styles, attr);
+    const attributStyles = get(styles, ["attributes", attr]);
     const value = get(props, attr);
     const defaults = get(attributStyles, "default", attributStyles);
     if (attributStyles) {
@@ -49,8 +47,7 @@ function applyComponentStyles(
 export const useStyles = (
   component: String,
   config: Record<string, Object>,
-  context?: { props: Object },
-  attrs?: String[]
+  context?: { props: Object }
 ) => {
   // Check if weve been provided with style overrides, then merge the default styles with the overrides
   const globalConfig = inject("upwind", {});
@@ -58,26 +55,9 @@ export const useStyles = (
   const styles = computed(() => {
     return applyComponentStyles(
       generateComponentConfig(component, config, globalConfig),
-      context,
-      attrs
+      context
     );
   });
-
-  // const styles = ref();
-  // styles.value = applyComponentStyles(
-  //   [],
-  //   generateComponentConfig("button", config, globalConfig),
-  //   context
-  // );
-
-  // // Watch for changes in the override styles
-  // watch(globalConfig, () => {
-  //   styles.value = applyComponentStyles(
-  //     attrs,
-  //     generateComponentConfig("button", config, globalConfig),
-  //     context
-  //   );
-  // });
 
   return styles;
 };
