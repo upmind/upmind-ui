@@ -17,7 +17,8 @@ export default {
   loading: ["size-4", "opacity-80"],
   // badge: ["size-4", "leading-none", "flex", "items-center", "justify-center"],
   // ---
-  sizes: {
+  // Conditional Classes based on Attribute values
+  size: {
     default: ["py-3", "px-4", "text-sm"],
     sm: ["py-2", "px-3", "text-sm"],
     lg: ["py-4", "px-5", "text-sm"],
@@ -36,7 +37,7 @@ export default {
       "rounded-full",
     ],
   },
-  variants: {
+  variant: {
     default: ["border-transparent"],
     flat: ["border-transparent"],
     outlined: ["border", "!bg-opacity-0"],
@@ -45,7 +46,16 @@ export default {
     elevated: ["border-transparent", "shadow-md", "hover:shadow-lg"],
     link: ["!bg-transparent", "hover:underline"],
   },
-  colors: {
+  disabled: {
+    default: [],
+    true: [
+      "opacity-50",
+      "cursor-not-allowed",
+      "hover:translate-y-0",
+      "active:translate-y-0",
+    ],
+  },
+  color: {
     default: [
       "bg-neutral-600",
       "text-neutral-content",
@@ -69,12 +79,6 @@ export default {
       "data-[variant=plain]:hover:bg-neutral-200",
 
       "data-[variant=link]:text-neutral",
-    ],
-    disabled: [
-      "opacity-50",
-      "cursor-not-allowed",
-      "hover:translate-y-0",
-      "active:translate-y-0",
     ],
     primary: [
       "bg-primary",
@@ -269,7 +273,7 @@ export default {
       "data-[variant=link]:text-info",
     ],
   },
-  shapes: {
+  shape: {
     default: ["rounded-lg"],
     none: ["rounded-none"],
     xs: ["rounded-xs"],

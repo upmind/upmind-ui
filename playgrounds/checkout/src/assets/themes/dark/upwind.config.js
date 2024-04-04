@@ -1,6 +1,6 @@
 export default {
   button: {
-    sizes: {
+    size: {
       default: [],
     },
     shape: {
