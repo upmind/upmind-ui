@@ -55,6 +55,8 @@ export default {
           name: "style-guide-colors",
           component: PageView,
           meta: {
+            hidden: true,
+
             name: "style-guide",
             title: "Colors",
             description:
@@ -74,6 +76,8 @@ export default {
           name: "style-guide-icons",
           component: PageView,
           meta: {
+            hidden: true,
+
             name: "style-guide",
             title: "Icons",
             description:
@@ -106,6 +110,25 @@ export default {
           component: () => import("../views/ButtonsEmbed.vue"),
           meta: { hidden: true },
         },
+        // --- Dropdowns ---
+        {
+          path: "dropdowns",
+          name: "style-guide-dropdowns",
+          component: PageView,
+          meta: {
+            name: "style-guide",
+            title: "Dropdowns",
+            description:
+              "A guide to the dropdowns used in the app. This includes all the different dropdown styles, sizes, and states.",
+            flow: "Style Guide",
+          },
+        },
+        {
+          path: "dropdowns/embed",
+          name: "style-guide-dropdowns-embed",
+          component: () => import("../views/DropdownsEmbed.vue"),
+          meta: { hidden: true },
+        },
         // --- Forms ---
         {
           path: "forms",
@@ -131,6 +154,7 @@ export default {
           name: "style-guide-cards",
           component: PageView,
           meta: {
+            hidden: true,
             name: "style-guide",
             title: "Cards",
             description:

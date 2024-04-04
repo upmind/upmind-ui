@@ -47,11 +47,8 @@ export default defineComponent({
     const upwindStyles = inject("upwind");
 
     watch(activeTheme, value => {
-      debugger;
       const theme = find(themes, ["id", value]);
       upwindStyles.value = theme?.upwind || {};
-
-      debugger;
     });
     return {
       themes: computed(() =>

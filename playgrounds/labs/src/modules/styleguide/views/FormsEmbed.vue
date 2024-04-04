@@ -1,5 +1,5 @@
 <template>
-  <div class="prose mx-auto max-w-none px-8 pb-8">
+  <div class="prose mx-auto max-w-none p-8">
     <upw-form
       :schema="schema"
       :uischema="uischema"

@@ -21,7 +21,6 @@ const children = reject(
   first(matched)?.children || [],
   child => child?.meta?.hidden //|| child.path == ""
 );
-debugger;
 
 const embedUrl = computed(
   () => `${fullPath}/embed?embed=true&theme=${activeTheme.value}`
