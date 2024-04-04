@@ -1,12 +1,6 @@
 <template>
   <div class="prose mx-auto max-w-none p-8">
     <div id="headers">
-      <h2>Headers</h2>
-      <p>
-        Headers are used to describe such elements as website name, slogan,
-        section titles. HTML and XHTML specifications define 6 levels of
-        headers, where h1 is the most important and h6 is the least important.
-      </p>
       <h1>Header 1</h1>
       <h2>Header 2</h2>
       <h3>Header 3</h3>
