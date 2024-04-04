@@ -19,8 +19,8 @@ export default {
       "disabled:opacity-50",
       "disabled:pointer-events-none",
     ],
-    label: ["font-semibold"],
-    icon: ["size-3", "transition-all", "aria-checked:rotate-180"],
+    label: ["leading-none"],
+    icon: ["size-[1em]", "transition-all", "aria-checked:rotate-180"],
   },
   items: [
     //   "w-56",
@@ -63,6 +63,6 @@ export default {
       "focus:bg-gray-100",
       "no-underline",
     ],
-    icon: ["size-4", "flex-shrink-0"],
+    icon: ["size-[1.5em]", "flex-shrink-0"],
   },
 };

@@ -2,10 +2,13 @@
   <h-menu :class="styles.root" v-slot="{ open }">
     <popper :show="open" :placement="placement">
       <h-menu-button class="dropdown-btn" :class="styles.button.root">
-        <span class="btn-label" :class="styles.button.label"> Options </span>
+        <span class="btn-label" :class="styles.button.label" v-if="label">
+          {{ label }}
+        </span>
 
         <upw-icon
-          name="arrow-down"
+          v-if="icon"
+          :name="icon"
           class="dropdown-btn-icon"
           :class="styles.button.icon"
           :aria-checked="open"
@@ -125,6 +128,14 @@ export default defineComponent({
     UpwIcon,
   },
   props: {
+    label: {
+      type: String,
+      default: "",
+    },
+    icon: {
+      type: String,
+      default: "arrow-down",
+    },
     placement: {
       type: String as PropType<DropdownPosition>,
       default: "bottom-end",

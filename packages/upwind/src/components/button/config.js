@@ -12,7 +12,7 @@ export default {
     "hover:-translate-y-0.5",
     "active:-translate-y-px",
   ],
-  label: ["font-semibold"],
+  label: ["font-semibold", "leading-none"],
   icon: ["size-[1.25em]"],
   loading: ["size-6", "opacity-80"],
 
