@@ -1,17 +1,34 @@
 <template>
   <div
-    class="inline-block animate-spin rounded-[100%] border-[0.2em] border-current border-t-transparent text-current"
+    class="spinner"
+    :class="styles.root"
     role="status"
-    aria-label="loading"
+    aria-label="animated loading icon"
   >
     <span class="sr-only">Loading...</span>
   </div>
 </template>
 
 <script>
+// -- global
 import { defineComponent } from "vue";
+
+// --- local
+import config from "./config";
+
+// --- utils
+import { useStyles } from "../../utils";
+
+// ----------------------------------------------
 
 export default defineComponent({
   name: "UpwSpinner",
+  setup(props) {
+    const styles = useStyles("spinner", config);
+
+    return {
+      styles,
+    };
+  },
 });
 </script>

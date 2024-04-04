@@ -44,7 +44,6 @@
 
 <script lang="ts">
 // --- global
-import type { PropType } from "vue";
 import { defineComponent } from "vue";
 
 // --- local
@@ -58,6 +57,7 @@ import UpwSpinner from "../spinner/Spinner.vue";
 import { useStyles } from "../../utils";
 
 // --- types
+import type { PropType } from "vue";
 import type {
   ButtonVariant,
   ButtonColor,
@@ -118,11 +118,13 @@ export default defineComponent({
   },
 
   setup(props) {
-    const styles = useStyles(
-      ["size", "variant", "color", "shape", "disabled"],
-      config,
-      { props }
-    );
+    const styles = useStyles("button", config, { props }, [
+      "size",
+      "variant",
+      "color",
+      "shape",
+      "disabled",
+    ]);
 
     return {
       styles,

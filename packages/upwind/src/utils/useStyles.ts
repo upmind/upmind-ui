@@ -1,4 +1,4 @@
-import { unref, inject, ref, watch, computed } from "vue";
+import { unref, inject, computed } from "vue";
 import { merge, get, omit, forEach } from "lodash-es";
 
 function generateComponentConfig(component, config, globalConfig) {
@@ -12,10 +12,15 @@ function generateComponentConfig(component, config, globalConfig) {
 }
 
 function applyComponentStyles(
-  attrs: String[],
   styles: Record<string, Object>,
-  { props }: { props: Object }
+  context?: { props: Object },
+  attrs?: String[]
 ) {
+  // ----------------------------------------------
+  // safety checks
+  const props = context?.props || {};
+  attrs ??= [];
+
   // ----------------------------------------------
   // First use the styles WITHOUT the conditional styles
   // these will tend to be child elements withing the component
@@ -23,7 +28,7 @@ function applyComponentStyles(
   result.root ??= []; // safety, ensure we always have a root array to push to
 
   // ----------------------------------------------
-  // Then apply Conditional styles based on Attributes
+  // Then apply Conditional styles based on Attributes, if any && if they exist
   // NB: Attributes are the props passed to the component that ALSO have a corresponding style in the config
 
   forEach(attrs, attr => {
@@ -38,23 +43,23 @@ function applyComponentStyles(
 
   // ----------------------------------------------
   // Finally return the result with the conditional styles applied
-  debugger;
   return result;
 }
 
 export const useStyles = (
-  attrs: String[],
+  component: String,
   config: Record<string, Object>,
-  context: { props: Object }
+  context?: { props: Object },
+  attrs?: String[]
 ) => {
   // Check if weve been provided with style overrides, then merge the default styles with the overrides
   const globalConfig = inject("upwind", {});
 
   const styles = computed(() => {
     return applyComponentStyles(
-      attrs,
-      generateComponentConfig("button", config, globalConfig),
-      context
+      generateComponentConfig(component, config, globalConfig),
+      context,
+      attrs
     );
   });
 

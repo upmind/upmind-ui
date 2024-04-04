@@ -14,7 +14,7 @@ export default {
   ],
   label: ["font-semibold"],
   icon: ["size-[1.25em]"],
-  loading: ["size-4", "opacity-80"],
+  loading: ["size-6", "opacity-80"],
   // badge: ["size-4", "leading-none", "flex", "items-center", "justify-center"],
   // ---
   // Conditional Classes based on Attribute values
