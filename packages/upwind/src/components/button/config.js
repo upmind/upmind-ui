@@ -18,6 +18,7 @@ export default {
 
   // ------------------------------------------------------------
   // Attribute based Classes: These are conditional based on the component props
+  // Each Attribute is an object of key value pairs where key is the attribute value that can be passed to the component
   attributes: {
     size: {
       default: ["py-3", "px-4", "text-sm"],
