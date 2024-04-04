@@ -27,7 +27,7 @@
               v-if="item?.href"
               :href="item.href"
               :target="item?.target"
-              :class="[styles.item.root, active ? styles.active : '']"
+              :class="[styles.item.root, active ? styles.item.active : '']"
             >
               <upw-icon
                 v-if="item.icon"
@@ -42,7 +42,7 @@
             <button
               v-else-if="item?.action"
               @click="item.action"
-              :class="[styles.item.root, active ? styles.active : '']"
+              :class="[styles.item.root, active ? styles.item.active : '']"
             >
               <upw-icon
                 v-if="item.icon"
@@ -55,7 +55,7 @@
 
             <span
               v-else
-              :class="[styles.item.root, active ? styles.active : '']"
+              :class="[styles.item.root, active ? styles.item.active : '']"
             >
               <upw-icon
                 v-if="item.icon"
@@ -73,7 +73,7 @@
             >
               <a
                 :href="item.href"
-                :class="[styles.item.root, active ? styles.active : '']"
+                :class="[styles.item.root, active ? styles.item.active : '']"
               >
                 {{ item.label }}
               </a>
@@ -81,12 +81,12 @@
               <button
                 v-if="item?.action"
                 @click="item.action"
-                :class="[styles.item.root, active ? styles.active : '']"
+                :class="[styles.item.root, active ? styles.item.active : '']"
               >
                 {{ item.label }}
               </button>
 
-              <span :class="[styles.item.root, active ? styles.active : '']">
+              <span :class="[styles.item.root, active ? styles.item.active : '']">
                 {{ item.label }}
               </span>
             </h-menu-item> -->
