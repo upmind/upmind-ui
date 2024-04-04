@@ -15,7 +15,7 @@
       }"
       @click.prevent="active = resolution"
     >
-      <upm-icon path="devices" :name="resolution" class="size-4" />
+      <upw-icon path="devices" :name="resolution" class="size-4" />
       <span class="sr-only text-xs">{{ startCase(resolution) }}</span>
     </button>
   </nav>
@@ -25,13 +25,13 @@
 
 <script>
 import { inject, defineComponent } from "vue";
-import UpmIcon from "@/components/Icon.vue";
+import { UpwIcon } from "@upmind/upwind";
 import { startCase } from "lodash-es";
 
 export default defineComponent({
   name: "ResolutionSwitcher",
   components: {
-    UpmIcon,
+    UpwIcon,
   },
   setup() {
     const { active } = inject("resolution");

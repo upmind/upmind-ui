@@ -6,7 +6,7 @@
           v-if="icon"
           class="mr-2 inline-flex size-8 items-center justify-center rounded-full bg-neutral-200 text-neutral"
         >
-          <upm-icon :name="icon" class="size-5" />
+          <upw-icon :name="icon" class="size-5" />
         </span>
 
         <span
@@ -47,11 +47,11 @@
 
 <script>
 import { defineComponent } from "vue";
-import UpmIcon from "@/components/Icon.vue";
+import { UpwIcon } from "@upmind/upwind";
 
 export default defineComponent({
   name: "UpmView",
-  components: { UpmIcon },
+  components: { UpwIcon },
   props: {
     icon: {
       type: String,

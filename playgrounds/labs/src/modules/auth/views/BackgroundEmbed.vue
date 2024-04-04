@@ -1,5 +1,5 @@
 <template>
-  <div class="relative mx-auto flex w-full flex-wrap" :data-theme="activeTheme">
+  <div class="relative mx-auto flex w-full flex-wrap">
     <figure class="z-index-0 absolute h-full w-full bg-neutral">
       <img
         class="m-0 h-full w-full object-cover opacity-40"
@@ -11,7 +11,7 @@
     <div
       class="z-index-1 relative mx-4 flex h-screen max-h-full w-full items-center justify-center overflow-auto md:mx-8 xl:mx-12"
     >
-      <upm-spinner
+      <upw-spinner
         class="w-full justify-center text-center"
         v-if="meta.isProcessing"
       />
@@ -64,14 +64,12 @@
 </template>
 
 <script setup>
-import { inject, watch } from "vue";
+import { watch } from "vue";
 
 import { useSession } from "@upmind/flow-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import UpmSpinner from "../../../components/Spinner.vue";
-// ---
-const activeTheme = inject("activeTheme");
+import { UpwSpinner } from "@upmind/upwind";
 
 // ---
 // lets set up an inspector on the session

@@ -66,7 +66,7 @@
       </button>
     </div>
 
-    <upm-form-generator
+    <upw-form
       :loading="meta.isFormLoading"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -97,7 +97,7 @@
           <span v-else>Continue</span>
         </button>
       </template>
-    </upm-form-generator>
+    </upw-form>
   </div>
 </template>
 
@@ -105,11 +105,11 @@
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/flow-vue";
 
-import UpmFormGenerator from "@/components/FormGenerator.vue";
+import { UpwFormGenerator } from "@upmind/upwind";
 
 export default defineComponent({
   name: "Auth",
-  components: { UpmFormGenerator, UserIcon, PlusIcon, CheckIcon },
+  components: { UpwForm, UserIcon, PlusIcon, CheckIcon },
   inheritAttrs: true,
   customOptions: {},
   emits: [],

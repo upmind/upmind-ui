@@ -13,20 +13,20 @@
       >
         <button
           type="button"
-          class="hs-accordion-toggle flex w-full items-center gap-x-3.5 rounded border border-neutral-200 bg-base px-3 py-2 text-start text-sm font-medium text-neutral hover:bg-neutral-100 hs-accordion-active:rounded-b-none hs-accordion-active:bg-neutral-700 hs-accordion-active:text-neutral-content hs-accordion-active:hover:bg-neutral-700"
+          class="hs-accordion-toggle hs-accordion-active:rounded-b-none hs-accordion-active:bg-neutral-700 hs-accordion-active:text-neutral-content hs-accordion-active:hover:bg-neutral-700 flex w-full items-center gap-x-3.5 rounded border border-neutral-200 bg-base px-3 py-2 text-start text-sm font-medium text-neutral hover:bg-neutral-100"
           @click="open = open === key ? null : key"
         >
           {{ startCase(key) }}
 
-          <upm-icon
+          <upw-icon
             v-if="open === key"
             name="arrow-up"
-            class="ms-auto size-3 group-hover:text-neutral-500 hs-accordion-active:block"
+            class="hs-accordion-active:block ms-auto size-3 group-hover:text-neutral-500"
           />
-          <upm-icon
+          <upw-icon
             v-else
             name="arrow-down"
-            class="ms-auto block size-3 group-hover:text-neutral-500 hs-accordion-active:hidden"
+            class="hs-accordion-active:hidden ms-auto block size-3 group-hover:text-neutral-500"
           />
         </button>
 
@@ -48,11 +48,11 @@
 <script>
 import { defineComponent, ref } from "vue";
 import { startCase, defaultsDeep, omitBy, isEmpty, get } from "lodash-es";
-import UpmIcon from "@/components/Icon.vue";
+import { UpwIcon } from "@upmind/upwind";
 
 export default defineComponent({
   name: "UpmInspctor",
-  components: { UpmIcon },
+  components: { UpwIcon },
   inheritAttrs: true,
   customOptions: {},
   inject: ["inspectors"],

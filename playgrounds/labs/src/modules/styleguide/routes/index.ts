@@ -8,7 +8,7 @@ export default {
       path: "/style-guide",
       name: "style-guide",
       component: NestedView,
-      meta: { hidden: true },
+      // meta: { hidden: true },
 
       children: [
         // --- Intro ---
@@ -18,7 +18,7 @@ export default {
           component: PageView,
           meta: {
             name: "style-guide",
-            title: "Introduction to the style guide",
+            title: "Introduction",
             description:
               "This explains the purpose of the style guide and how to use it.",
             flow: "Style Guide",
@@ -37,7 +37,7 @@ export default {
           component: PageView,
           meta: {
             name: "style-guide",
-            title: "Typographic styles",
+            title: "Typography",
             description:
               "A guide to the typography used in the app. This includes all the different text styles, sizes, and weights, as well as all the common HTML elements used in WYSIWYG content.",
             flow: "Style Guide",
@@ -56,7 +56,7 @@ export default {
           component: PageView,
           meta: {
             name: "style-guide",
-            title: "Color palette",
+            title: "Colors",
             description:
               "A guide to the color palette used in the app. This includes all the different colors, their names, and their usage.",
             flow: "Style Guide",

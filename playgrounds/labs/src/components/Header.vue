@@ -45,7 +45,7 @@
             aria-label="Toggle navigation"
           >
             <span class="sr-only">Toggle Navigation</span>
-            <upm-icon name="navigation-menu" class="size-6"></upm-icon>
+            <upw-icon name="navigation-menu" class="size-6"></upw-icon>
           </button>
         </div>
       </div>
@@ -56,7 +56,7 @@
 <script>
 import { defineComponent } from "vue";
 import LogoIcon from "@/assets/logo.svg";
-import UpmIcon from "@/components/Icon.vue";
+import { UpwIcon } from "@upmind/upwind";
 import UpmThemeSwitcher from "@/components/ThemeSwitcherDropdown.vue";
 import UpmResolutionSwitcher from "@/components/ResolutionSwitcher.vue";
 
@@ -64,7 +64,7 @@ export default defineComponent({
   name: "UpmHeader",
   components: {
     LogoIcon,
-    UpmIcon,
+    UpwIcon,
     UpmThemeSwitcher,
     UpmResolutionSwitcher,
   },

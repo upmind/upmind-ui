@@ -1,4 +1,5 @@
 import theme from "./tailwind.config";
+import upwind from "./upwind.config";
 
 export default {
   id: "dark",
@@ -6,4 +7,5 @@ export default {
   selectors: [".dark-mode", '[data-theme="dark"]'],
   mediaQuery: "@media (prefers-color-scheme: dark)",
   extend: theme,
+  upwind,
 };
