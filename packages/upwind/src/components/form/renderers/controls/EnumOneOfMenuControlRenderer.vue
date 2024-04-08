@@ -7,7 +7,7 @@
   >
     <ul
       :id="control.id + '-input'"
-      class="menu rounded-btn m-0 w-full gap-2 bg-base-100"
+      class="menu rounded-btn bg-base-100 m-0 w-full gap-2"
       :class="[styles.control.menu.wrapper]"
     >
       <li class="menu-title m-0" v-if="appliedOptions?.title">
@@ -58,11 +58,8 @@
 </template>
 
 <script lang="ts">
-import type {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-} from "@jsonforms/core";
-import { rankWith, isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
+import { isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";

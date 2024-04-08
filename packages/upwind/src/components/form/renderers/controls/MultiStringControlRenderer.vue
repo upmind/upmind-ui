@@ -24,16 +24,8 @@
 </template>
 
 <script lang="ts">
-import type {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-} from "@jsonforms/core";
-import {
-  rankWith,
-  isStringControl,
-  isMultiLineControl,
-  and,
-} from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
+import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";

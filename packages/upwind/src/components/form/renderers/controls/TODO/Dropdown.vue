@@ -12,7 +12,7 @@ defineProps<{
     >
       {{ title }}
       <svg
-        class="h-4 w-4 hs-dropdown-open:rotate-180"
+        class="hs-dropdown-open:rotate-180 h-4 w-4"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -28,7 +28,7 @@ defineProps<{
     </button>
 
     <div
-      class="hs-dropdown-menu duration mt-2 hidden min-w-[15rem] rounded-lg bg-white p-2 opacity-0 shadow-md transition-[opacity,margin] before:absolute before:-top-4 before:start-0 before:h-4 before:w-full after:absolute after:-bottom-4 after:start-0 after:h-4 after:w-full hs-dropdown-open:opacity-100 dark:divide-gray-700 dark:border dark:border-gray-700 dark:bg-gray-800"
+      class="hs-dropdown-menu duration hs-dropdown-open:opacity-100 mt-2 hidden min-w-[15rem] rounded-lg bg-white p-2 opacity-0 shadow-md transition-[opacity,margin] before:absolute before:-top-4 before:start-0 before:h-4 before:w-full after:absolute after:-bottom-4 after:start-0 after:h-4 after:w-full dark:divide-gray-700 dark:border dark:border-gray-700 dark:bg-gray-800"
     >
       <a
         class="flex items-center gap-x-3.5 rounded-lg px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"

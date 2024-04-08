@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts">
-import type { JsonFormsRendererRegistryEntry, Layout } from "@jsonforms/core";
-import { rankWith, and, isLayout, uiTypeIs } from "@jsonforms/core";
+import type { Layout } from "@jsonforms/core";
+import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import {

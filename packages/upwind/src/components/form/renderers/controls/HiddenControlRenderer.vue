@@ -3,19 +3,8 @@
 </template>
 
 <script lang="ts">
-import type {
-  Tester,
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-} from "@jsonforms/core";
-import {
-  rankWith,
-  uiTypeIs,
-  formatIs,
-  schemaMatches,
-  and,
-  or,
-} from "@jsonforms/core";
+import type { Tester, ControlElement } from "@jsonforms/core";
+import { uiTypeIs, formatIs, schemaMatches, and, or } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";

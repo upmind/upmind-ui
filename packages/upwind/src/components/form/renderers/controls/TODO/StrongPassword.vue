@@ -7,7 +7,7 @@
         <input
           type="password"
           id="hs-strong-password-with-indicator-and-hint"
-          class="block w-full rounded-md border-gray-200 px-4 py-3 text-sm focus:border-primary-500 focus:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="focus:border-primary-500 focus:ring-primary-500 block w-full rounded-md border-gray-200 px-4 py-3 text-sm disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter password"
         />
         <div
@@ -38,7 +38,7 @@
       <ul class="space-y-1 text-sm text-gray-500">
         <li
           data-hs-strong-password-hints-rule-text="min-length"
-          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
+          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
         >
           <span class="hidden" data-check>
             <svg
@@ -77,7 +77,7 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="lowercase"
-          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
+          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
         >
           <span class="hidden" data-check>
             <svg
@@ -116,7 +116,7 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="uppercase"
-          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
+          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
         >
           <span class="hidden" data-check>
             <svg
@@ -155,7 +155,7 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="numbers"
-          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
+          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
         >
           <span class="hidden" data-check>
             <svg
@@ -194,7 +194,7 @@
         </li>
         <li
           data-hs-strong-password-hints-rule-text="special-characters"
-          class="flex items-center gap-x-2 hs-strong-password-active:text-teal-500"
+          class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
         >
           <span class="hidden" data-check>
             <svg
