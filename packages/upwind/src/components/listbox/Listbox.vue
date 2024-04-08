@@ -1,13 +1,20 @@
 <template>
-  <h-listbox :multiple="multiple" v-model="selected" v-slot="{ open }">
+  <h-listbox :multiple="multiple" v-model="value" v-slot="{ open }">
     <div class="listbox" :class="styles.root">
       <h-listbox-button
         class="listbox-btn"
         :class="[styles.button.root, open ? styles.button.active : '']"
         ref="reference"
       >
+        <upw-icon
+          v-if="selectedIcon"
+          :icon="selectedIcon"
+          class="btn-icon"
+          :class="styles.button.icon"
+        />
+
         <span class="btn-label" :class="styles.button.label" v-if="label">
-          {{ getSelectedLabel(selected) }}
+          {{ selectedLabel }}
 
           {{ open ? "" : "" }}
         </span>
@@ -15,8 +22,7 @@
         <upw-icon
           v-if="icon"
           :icon="icon"
-          class="listbox-btn-icon"
-          :class="styles.button.icon"
+          class="listbox-btn-icon size-[1em]"
         />
       </h-listbox-button>
 
@@ -34,8 +40,19 @@
           ref="floating"
           :style="floatingStyles"
         >
+          <div :class="styles.search.root" v-if="searchable">
+            <input
+              tabindex="0"
+              type="search"
+              v-model="search"
+              class="form-input"
+              :class="styles.search.input"
+              placeholder="Search..."
+            />
+          </div>
+
           <h-listbox-option
-            v-for="(item, key) in items"
+            v-for="(item, key) in filteredItems"
             :key="key"
             as="template"
             v-slot="{ active, selected }"
@@ -49,6 +66,13 @@
                 selected ? styles.item.selected : '',
               ]"
             >
+              <upw-icon
+                v-if="item.icon"
+                :icon="item.icon"
+                :class="styles.item.icon"
+                aria-hidden="true"
+              />
+
               <span :class="styles.item.label">{{ item.label }}</span>
 
               <upw-icon
@@ -84,7 +108,7 @@ import config from "./config";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { find, get, isArray, first, map } from "lodash-es";
+import { find, get, isArray, first, map, filter } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -128,6 +152,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    searchable: {
+      type: Boolean,
+      default: false,
+    },
     counter: {
       type: String,
       default: null,
@@ -147,7 +175,7 @@ export default defineComponent({
         : initialValue;
 
     // ---
-    const selected = ref(initialValue);
+    const value = ref(initialValue);
     const reference = ref(null);
     const floating = ref(null);
     const { floatingStyles } = useFloating(reference, floating, {
@@ -157,25 +185,24 @@ export default defineComponent({
 
     const styles = useStyles("listbox", config);
 
-    watch(selected, value => {
+    watch(value, value => {
       const item = find(props.items, ["value", value]);
       emit("update:modelValue", item?.value || "");
     });
 
     return {
-      selected,
+      value,
+      search: ref(),
       styles,
       reference,
       floating,
       floatingStyles,
     };
   },
-  methods: {
-    getSelectedLabel(value: string) {
-      debugger;
-
+  computed: {
+    selectedLabel() {
       if (this.multiple) {
-        const selected = map(value, item => {
+        const selected = map(this.value, item => {
           const selected = find(this.items, ["value", item]);
           return selected?.label;
         });
@@ -184,11 +211,34 @@ export default defineComponent({
           return `${selected.length} ${this.counter}`;
         if (selected?.length) return selected.join(", ");
       } else {
-        const selected = find(this.items, ["value", value]);
-        if (selected) return item?.label;
+        const selected = find(this.items, ["value", this.value]);
+        if (selected) return selected?.label;
       }
 
       return this.label;
+    },
+    selectedIcon() {
+      if (this.multiple) {
+        const selected = map(this.value, item => {
+          const selected = find(this.items, ["value", item]);
+          return selected?.icon;
+        });
+
+        return selected?.length ? "check-square" : null;
+      } else {
+        const selected = find(this.items, ["value", this.value]);
+        return selected?.icon;
+      }
+    },
+    filteredItems() {
+      if (!this.search) return this.items;
+
+      return filter(
+        this.items,
+        item =>
+          item?.label?.toLowerCase()?.includes(this.search?.toLowerCase()) ||
+          item?.value?.toLowerCase()?.includes(this.search?.toLowerCase())
+      );
     },
   },
 });

@@ -10,12 +10,17 @@ export default {
     ),
     active: upwConfig("ring-base-500 border-base-500"),
     label: upwConfig("flex-1 truncate leading-none"),
-    icon: upwConfig("size-[1em]"),
+    icon: upwConfig("size-[1.25em]"),
+  },
+  search: {
+    input: upwConfig(
+      "border-base-200 focus:border-base-500 focus:ring-base-500 block w-full rounded-lg px-3 py-2 text-sm before:absolute before:inset-0 before:z-[1]"
+    ),
+    root: upwConfig("bg-base sticky top-[-0.25rem] -m-1 p-2 "),
   },
   items: upwConfig(
     "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 mt-2 max-h-72 min-w-full space-y-0.5 overflow-hidden overflow-y-auto rounded-lg  border p-1  [&::-webkit-scrollbar-thumb]:rounded-full  [&::-webkit-scrollbar]:w-2"
   ),
-
   item: {
     root: upwConfig(
       "text-base-800 focus:bg-base-100 flex w-full cursor-pointer items-center justify-between gap-x-4 text-nowrap rounded-lg  px-4 py-2 text-sm focus:outline-none"
