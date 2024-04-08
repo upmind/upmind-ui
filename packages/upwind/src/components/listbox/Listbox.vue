@@ -40,7 +40,7 @@
           ref="floating"
           :style="floatingStyles"
         >
-          <div :class="styles.search.root" v-if="searchable">
+          <div :class="styles.search.root" v-if="hasSearch">
             <input
               tabindex="0"
               type="search"
@@ -152,7 +152,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    searchable: {
+    hasSearch: {
       type: Boolean,
       default: false,
     },
@@ -219,12 +219,7 @@ export default defineComponent({
     },
     selectedIcon() {
       if (this.multiple) {
-        const selected = map(this.value, item => {
-          const selected = find(this.items, ["value", item]);
-          return selected?.icon;
-        });
-
-        return selected?.length ? "check-square" : null;
+        return null;
       } else {
         const selected = find(this.items, ["value", this.value]);
         return selected?.icon;
