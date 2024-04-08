@@ -18,35 +18,44 @@
       />
     </h-menu-button>
 
-    <h-menu-items
-      class="dropdown-items"
-      :class="styles.items"
-      ref="floating"
-      :style="floatingStyles"
+    <transition
+      :enter-active-class="styles?.transition?.enter?.active?.join(' ')"
+      :enter-from-class="styles?.transition?.enter?.from?.join(' ')"
+      :enter-to-class="styles?.transition?.enter?.to?.join(' ')"
+      :leave-active-class="styles?.transition?.leave?.active?.join(' ')"
+      :leave-from-class="styles?.transition?.leave?.from?.join(' ')"
+      :leave-to-class="styles?.transition?.leave?.to?.join(' ')"
     >
-      <template v-for="(item, key) in items" :key="key">
-        <!-- grouped items -->
-        <div v-if="item?.children" :class="styles.group.root">
-          <!-- group title -->
-          <upw-dropdown-item
-            v-if="item?.label || item?.icon"
-            v-bind="item"
-            :styles="styles.group.title"
-          />
+      <h-menu-items
+        class="dropdown-items"
+        :class="styles.items"
+        ref="floating"
+        :style="floatingStyles"
+      >
+        <template v-for="(item, key) in items" :key="key">
+          <!-- grouped items -->
+          <div v-if="item?.children" :class="styles.group.root">
+            <!-- group title -->
+            <upw-dropdown-item
+              v-if="item?.label || item?.icon"
+              v-bind="item"
+              :styles="styles.group.title"
+            />
 
-          <!-- group items -->
-          <upw-dropdown-item
-            v-for="(child, childKey) in item.children"
-            :key="childKey"
-            v-bind="child"
-            :styles="styles.item"
-          />
-        </div>
+            <!-- group items -->
+            <upw-dropdown-item
+              v-for="(child, childKey) in item.children"
+              :key="childKey"
+              v-bind="child"
+              :styles="styles.item"
+            />
+          </div>
 
-        <!-- items -->
-        <upw-dropdown-item v-else v-bind="item" :styles="styles.item" />
-      </template>
-    </h-menu-items>
+          <!-- items -->
+          <upw-dropdown-item v-else v-bind="item" :styles="styles.item" />
+        </template>
+      </h-menu-items>
+    </transition>
   </h-menu>
 </template>
 
