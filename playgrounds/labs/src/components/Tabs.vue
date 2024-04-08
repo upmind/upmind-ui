@@ -13,7 +13,7 @@
           @click="$emit('update:modelValue', key)"
           :disabled="item?.disabled"
         >
-          <upw-icon :name="item.icon" class="mb-4 size-5" v-if="item?.icon" />
+          <upw-icon :icon="item.icon" class="mb-4 size-5" v-if="item?.icon" />
           <span :class="{ 'sr-only': item?.icon }">{{ item.label }}</span>
         </button>
       </template>

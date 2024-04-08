@@ -1,15 +1,15 @@
 <template>
   <i
-    v-if="icon"
+    v-if="svg"
     class="icon"
     :class="styles.root"
-    v-html="icon"
+    v-html="svg"
     role="img"
-    :aria-label="`${name} icon`"
+    :aria-label="`${icon} icon`"
   />
 </template>
 
-<script>
+<script lang="ts">
 // --- global
 import { defineComponent, ref, watchEffect } from "vue";
 
@@ -18,21 +18,24 @@ import config from "./config";
 
 // --- utils
 import { useStyles } from "../../utils";
+import { isObject } from "lodash-es";
 
+// --- types
+import type { PropType } from "vue";
+import type { Icon } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
   name: "UpwIcon",
   props: {
-    path: String,
-    name: { type: String, required: true },
+    icon: { type: [String, Object as PropType<Icon>], required: true },
     filled: { type: Boolean, default: false },
     avatar: { type: Boolean, default: false },
   },
   setup(props) {
     const styles = useStyles("icon", config);
 
-    const icon = ref(null);
+    const svg = ref(null);
 
     watchEffect(async () => {
       try {
@@ -41,19 +44,20 @@ export default defineComponent({
           eager: false,
         });
 
-        const safePath = props.path ? `${props.path}/` : "";
+        const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
+        const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
         const rawIcon =
-          await iconsImport[`/src/assets/icons/${safePath}${props.name}.svg`]();
-        icon.value = rawIcon;
+          await iconsImport[`/src/assets/icons/${safePath}${safeName}.svg`]();
+        svg.value = rawIcon;
       } catch {
-        icon.value = null;
+        svg.value = null;
       }
     });
 
     return {
       styles,
-      icon,
+      svg,
     };
   },
 });

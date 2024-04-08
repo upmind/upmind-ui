@@ -40,7 +40,35 @@ export default {
     "before:w-full",
   ],
 
-  group: [],
+  group: {
+    root: [
+      "pb-2",
+      "mb-2",
+      "border-b",
+      "border-base-200",
+      "first:pt-0",
+      "last:pb-0",
+      "last:mb-0",
+      "last:border-b-0",
+      "w-full",
+    ],
+    title: {
+      root: [
+        "w-full",
+        "flex",
+        "items-center",
+        "gap-x-3.5",
+        "block",
+        "py-2",
+        "px-3",
+        "text-xs",
+        "font-medium",
+        "text-base-500",
+      ],
+      label: ["uppercase"],
+      icon: ["size-[1.5em]", "flex-shrink-0"],
+    },
+  },
   item: {
     root: [
       "w-full",

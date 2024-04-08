@@ -19,7 +19,7 @@
         <upw-icon
           v-if="prependIcon"
           :class="styles.icon"
-          :name="prependIcon"
+          :icon="prependIcon"
           class="btn-icon"
         />
       </slot>
@@ -34,7 +34,7 @@
         <upw-icon
           v-if="appendIcon"
           :class="styles.icon"
-          :name="appendIcon"
+          :icon="appendIcon"
           class="btn-icon"
         />
       </slot>

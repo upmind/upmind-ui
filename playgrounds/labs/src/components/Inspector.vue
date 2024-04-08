@@ -20,12 +20,12 @@
 
           <upw-icon
             v-if="open === key"
-            name="arrow-up"
+            icon="arrow-up"
             class="hs-accordion-active:block ms-auto size-3 group-hover:text-neutral-500"
           />
           <upw-icon
             v-else
-            name="arrow-down"
+            icon="arrow-down"
             class="hs-accordion-active:hidden ms-auto block size-3 group-hover:text-neutral-500"
           />
         </button>
