@@ -20,7 +20,7 @@
       :items="countries"
       counter="chosen"
       label="Choose Country"
-      searchable
+      has-search
     />
 
     <upw-listbox
