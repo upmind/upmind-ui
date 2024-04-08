@@ -43,14 +43,10 @@
 </template>
 
 <script lang="ts">
-import type {
-  JsonFormsRendererRegistryEntry,
-  ControlElement,
-} from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
 import {
   composePaths,
   createDefaultValue,
-  rankWith,
   schemaTypeIs,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";

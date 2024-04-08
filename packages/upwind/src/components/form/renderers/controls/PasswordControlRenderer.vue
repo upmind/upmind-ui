@@ -45,11 +45,7 @@
 </template>
 
 <script lang="ts">
-import type {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  Tester,
-} from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
 
 import { uiTypeIs, formatIs, and, or } from "@jsonforms/core";
 import { defineComponent } from "vue";

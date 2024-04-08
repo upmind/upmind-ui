@@ -23,7 +23,7 @@ import { useStyles } from "../../utils";
 
 export default defineComponent({
   name: "UpwSpinner",
-  setup(props) {
+  setup() {
     const styles = useStyles("spinner", config);
 
     return {

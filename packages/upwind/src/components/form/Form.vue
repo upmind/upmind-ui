@@ -1,6 +1,6 @@
 <template>
   <form
-    class="upw-form flex flex-col w-full relative min-h-[3em]"
+    class="upw-form relative flex min-h-[3em] w-full flex-col"
     v-bind="$attrs"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"

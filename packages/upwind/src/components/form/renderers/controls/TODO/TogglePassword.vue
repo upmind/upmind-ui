@@ -17,7 +17,7 @@ defineProps<{
         <input
           :id="`hs-toggle-password-${groupId}-np`"
           type="password"
-          class="block w-full rounded-lg border-gray-200 px-4 py-3 text-sm focus:border-primary-500 focus:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="focus:border-primary-500 focus:ring-primary-500 block w-full rounded-lg border-gray-200 px-4 py-3 text-sm disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter new password"
         />
         <button
@@ -58,11 +58,11 @@ defineProps<{
               y2="22"
             />
             <path
-              class="hidden hs-password-active:block"
+              class="hs-password-active:block hidden"
               d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
             />
             <circle
-              class="hidden hs-password-active:block"
+              class="hs-password-active:block hidden"
               cx="12"
               cy="12"
               r="3"
@@ -83,7 +83,7 @@ defineProps<{
         <input
           :id="`hs-toggle-password-${groupId}`"
           type="password"
-          class="block w-full rounded-lg border-gray-200 px-4 py-3 text-sm focus:border-primary-500 focus:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
+          class="focus:border-primary-500 focus:ring-primary-500 block w-full rounded-lg border-gray-200 px-4 py-3 text-sm disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
           placeholder="Enter current password"
           value="12345qwerty"
         />
@@ -125,11 +125,11 @@ defineProps<{
               y2="22"
             />
             <path
-              class="hidden hs-password-active:block"
+              class="hs-password-active:block hidden"
               d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
             />
             <circle
-              class="hidden hs-password-active:block"
+              class="hs-password-active:block hidden"
               cx="12"
               cy="12"
               r="3"

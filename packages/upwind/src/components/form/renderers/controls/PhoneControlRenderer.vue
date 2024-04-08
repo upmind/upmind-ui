@@ -46,7 +46,7 @@
       </summary>
       <ul
         tabindex="0"
-        class="menu menu-xs dropdown-content z-10 mt-0 max-h-60 w-52 flex-nowrap overflow-auto rounded bg-base-100 p-2 shadow"
+        class="menu menu-xs dropdown-content bg-base-100 z-10 mt-0 max-h-60 w-52 flex-nowrap overflow-auto rounded p-2 shadow"
       >
         <li v-for="country in countries" :key="country">
           <a
@@ -82,19 +82,9 @@
 </template>
 
 <script lang="ts">
-import type {
-  Tester,
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-} from "@jsonforms/core";
+import type { Tester, ControlElement } from "@jsonforms/core";
 
-import {
-  rankWith,
-  schemaTypeIs,
-  uiTypeIs,
-  schemaMatches,
-  and,
-} from "@jsonforms/core";
+import { schemaTypeIs, uiTypeIs, schemaMatches, and } from "@jsonforms/core";
 import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";

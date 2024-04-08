@@ -31,11 +31,8 @@
 </template>
 
 <script lang="ts">
-import type {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-} from "@jsonforms/core";
-import { rankWith, isOneOfEnumControl } from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
+import { isOneOfEnumControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
