@@ -129,6 +129,25 @@ export default {
           component: () => import("../views/DropdownsEmbed.vue"),
           meta: { hidden: true },
         },
+        // --- Listboxes ---
+        {
+          path: "listboxes",
+          name: "style-guide-listboxes",
+          component: PageView,
+          meta: {
+            name: "style-guide",
+            title: "Listboxes",
+            description:
+              "A guide to the listboxes used in the app. This includes all the different listbox styles, sizes, and states.",
+            flow: "Style Guide",
+          },
+        },
+        {
+          path: "listboxes/embed",
+          name: "style-guide-listboxes-embed",
+          component: () => import("../views/ListboxesEmbed.vue"),
+          meta: { hidden: true },
+        },
         // --- Forms ---
         {
           path: "forms",
