@@ -39,7 +39,6 @@ export default {
     "before:start-0",
     "before:w-full",
   ],
-
   group: {
     root: [
       "pb-2",
@@ -87,5 +86,17 @@ export default {
     ],
     active: ["bg-base-200", "hover:bg-base-200", "focus:bg-base-200"],
     icon: ["size-[1.5em]", "flex-shrink-0"],
+  },
+  transition: {
+    enter: {
+      active: ["transition", "duration-100", "ease-out"],
+      from: ["transform", "scale-95", "opacity-0"],
+      to: ["transform", "scale-100", "opacity-100"],
+    },
+    leave: {
+      active: ["transition", "duration-75", "ease-in"],
+      from: ["transform", "scale-100", "opacity-100"],
+      to: ["transform", "scale-95", "opacity-0"],
+    },
   },
 };
