@@ -15,6 +15,7 @@
         class="dropdown-btn-icon"
         :class="styles.button.icon"
         :aria-checked="open && icon === 'arrow-down' ? 'true' : 'false'"
+        aria-hidden="true"
       />
     </h-menu-button>
 
