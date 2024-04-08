@@ -15,10 +15,7 @@
       }"
       @click.prevent="active = resolution"
     >
-      <upw-icon
-        :icon="{ path: 'devices', name: 'resolution' }"
-        class="size-4"
-      />
+      <upw-icon :icon="{ path: 'devices', name: resolution }" class="size-4" />
       <span class="sr-only text-xs">{{ startCase(resolution) }}</span>
     </button>
   </nav>
