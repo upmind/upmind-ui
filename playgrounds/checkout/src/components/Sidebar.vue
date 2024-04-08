@@ -6,7 +6,7 @@
           v-if="icon"
           class="mr-2 inline-flex size-8 items-center justify-center rounded-full bg-neutral-200 text-neutral"
         >
-          <upw-icon :name="icon" class="size-5" />
+          <upw-icon :icon="icon" class="size-5" />
         </span>
 
         <span

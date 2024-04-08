@@ -41,7 +41,7 @@
             aria-label="Toggle navigation"
           >
             <span class="sr-only">Toggle Navigation</span>
-            <upw-icon name="navigation-menu" class="size-6"></upw-icon>
+            <upw-icon icon="navigation-menu" class="size-6" />
           </button>
         </div>
       </div>

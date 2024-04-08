@@ -1,109 +1,64 @@
 <template>
-  <h-menu :class="styles.root" v-slot="{ open }">
-    <popper :show="open" :placement="placement">
-      <h-menu-button class="dropdown-btn" :class="styles.button.root">
-        <span class="btn-label" :class="styles.button.label" v-if="label">
-          {{ label }}
-        </span>
+  <h-menu as="div" :class="styles.root" v-slot="{ open }">
+    <h-menu-button
+      class="dropdown-btn"
+      :class="styles.button.root"
+      ref="reference"
+    >
+      <span class="btn-label" :class="styles.button.label" v-if="label">
+        {{ label }}
+      </span>
 
-        <upw-icon
-          v-if="icon"
-          :name="icon"
-          class="dropdown-btn-icon"
-          :class="styles.button.icon"
-          :aria-checked="open"
-        />
-      </h-menu-button>
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        class="dropdown-btn-icon"
+        :class="styles.button.icon"
+        :aria-checked="open && icon === 'arrow-down' ? 'true' : 'false'"
+      />
+    </h-menu-button>
 
-      <template #content>
-        <h-menu-items static class="dropdown-items" :class="styles.items">
-          <h-menu-item
-            v-for="(item, key) in items"
-            :key="key"
-            as="template"
-            v-slot="{ active }"
-          >
-            <a
-              v-if="item?.href"
-              :href="item.href"
-              :target="item?.target"
-              :class="[styles.item.root, active ? styles.item.active : '']"
-            >
-              <upw-icon
-                v-if="item.icon"
-                :name="item.icon"
-                :class="styles.item.icon"
-                class="dropdown-item-icon"
-              />
+    <h-menu-items
+      class="dropdown-items"
+      :class="styles.items"
+      ref="floating"
+      :style="floatingStyles"
+    >
+      <template v-for="(item, key) in items" :key="key">
+        <!-- grouped items -->
+        <div v-if="item?.children" :class="styles.group.root">
+          <!-- group title -->
+          <upw-dropdown-item
+            v-if="item?.label || item?.icon"
+            v-bind="item"
+            :styles="styles.group.title"
+          />
 
-              <span>{{ item.label }}</span>
-            </a>
+          <!-- group items -->
+          <upw-dropdown-item
+            v-for="(child, childKey) in item.children"
+            :key="childKey"
+            v-bind="child"
+            :styles="styles.item"
+          />
+        </div>
 
-            <button
-              v-else-if="item?.action"
-              @click="item.action"
-              :class="[styles.item.root, active ? styles.item.active : '']"
-            >
-              <upw-icon
-                v-if="item.icon"
-                :name="item.icon"
-                :class="styles.item.icon"
-                class="dropdown-item-icon"
-              />
-              <span>{{ item.label }}</span>
-            </button>
-
-            <span
-              v-else
-              :class="[styles.item.root, active ? styles.item.active : '']"
-            >
-              <upw-icon
-                v-if="item.icon"
-                :name="item.icon"
-                :class="styles.item.icon"
-                class="dropdown-item-icon"
-              />
-              <span>{{ item.label }}</span>
-            </span>
-          </h-menu-item>
-          <!-- <h-menu-item
-              v-for="(item, index) in items"
-              :key="item?.id || `item-${index}`"
-              v-slot="{ active }"
-            >
-              <a
-                :href="item.href"
-                :class="[styles.item.root, active ? styles.item.active : '']"
-              >
-                {{ item.label }}
-              </a>
-
-              <button
-                v-if="item?.action"
-                @click="item.action"
-                :class="[styles.item.root, active ? styles.item.active : '']"
-              >
-                {{ item.label }}
-              </button>
-
-              <span :class="[styles.item.root, active ? styles.item.active : '']">
-                {{ item.label }}
-              </span>
-            </h-menu-item> -->
-        </h-menu-items>
+        <!-- items -->
+        <upw-dropdown-item v-else v-bind="item" :styles="styles.item" />
       </template>
-    </popper>
+    </h-menu-items>
   </h-menu>
 </template>
 
 <script lang="ts">
 // --- global
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- components
-import Popper from "vue3-popper";
-import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+import { useFloating, offset, flip, shift } from "@floating-ui/vue";
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
 import config from "./config";
@@ -120,12 +75,11 @@ import type { DropdownPosition, DropdownItems } from "./types";
 export default defineComponent({
   name: "UpwDropdown",
   components: {
-    Popper,
     HMenu: Menu,
     HMenuButton: MenuButton,
     HMenuItems: MenuItems,
-    HMenuItem: MenuItem,
     UpwIcon,
+    UpwDropdownItem,
   },
   props: {
     label: {
@@ -146,10 +100,20 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const reference = ref(null);
+    const floating = ref(null);
+    const { floatingStyles } = useFloating(reference, floating, {
+      placement: props.placement,
+      middleware: [offset(10), flip(), shift()],
+    });
+
     const styles = useStyles("dropdown", config);
 
     return {
       styles,
+      reference,
+      floating,
+      floatingStyles,
     };
   },
 });

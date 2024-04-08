@@ -26,6 +26,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.0.6",
     "@headlessui/vue": "^1.7.19",
     "@jsonforms/core": "^3.2.1",
     "@jsonforms/vue": "^3.2.1",
