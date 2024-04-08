@@ -1,3 +1,6 @@
+import { upwConfig } from "../../utils";
+
+// -----------------------------------------------------------------------------
 export default {
-  root: ["flex", "text-current", "fill-current", "stroke-current"],
+  root: upwConfig("flex fill-current stroke-current text-current"),
 };
