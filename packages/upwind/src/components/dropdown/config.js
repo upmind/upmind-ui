@@ -1,102 +1,48 @@
+import { upwConfig } from "../../utils";
+
+// -----------------------------------------------------------------------------
+
 export default {
-  root: ["relative", "inline-flex"],
+  root: upwConfig("relative inline-flex"),
   button: {
-    root: [
-      "py-3",
-      "px-4",
-      "inline-flex",
-      "items-center",
-      "gap-x-2",
-      "text-sm",
-      "font-medium",
-      "rounded-lg",
-      "border",
-      "border-base-200",
-      "bg-white",
-      "text-base-800",
-      "shadow-sm",
-      "hover:bg-base-50",
-      "disabled:opacity-50",
-      "disabled:pointer-events-none",
-    ],
-    label: ["leading-none"],
-    icon: ["size-[1em]", "transition-all", "aria-checked:rotate-180"],
+    root: upwConfig(
+      "bg-base text-base-800 border-base-200 hover:bg-base-50 inline-flex items-center gap-x-2 rounded-lg border px-4 py-3 text-sm font-medium shadow-sm disabled:pointer-events-none disabled:opacity-50"
+    ),
+    label: upwConfig("m leading-none"),
+    icon: upwConfig("size-[1em] transition-all aria-checked:rotate-180"),
   },
-  items: [
-    "min-w-60",
-    "bg-base",
-    "shadow-md",
-    "rounded-lg",
-    "p-2",
-    "after:h-4",
-    "after:absolute",
-    "after:-bottom-4",
-    "after:start-0",
-    "after:w-full",
-    "before:h-4",
-    "before:absolute",
-    "before:-top-4",
-    "before:start-0",
-    "before:w-full",
-  ],
+  items: upwConfig(
+    "bg-base min-w-60 rounded-lg p-2 shadow-md before:absolute before:-top-4 before:start-0 before:h-4 before:w-full after:absolute after:-bottom-4 after:start-0 after:h-4 after:w-full"
+  ),
   group: {
-    root: [
-      "pb-2",
-      "mb-2",
-      "border-b",
-      "border-base-200",
-      "first:pt-0",
-      "last:pb-0",
-      "last:mb-0",
-      "last:border-b-0",
-      "w-full",
-    ],
+    root: upwConfig(
+      "border-base-200 mb-2 w-full border-b pb-2 first:pt-0 last:mb-0 last:border-b-0 last:pb-0"
+    ),
     title: {
-      root: [
-        "w-full",
-        "flex",
-        "items-center",
-        "gap-x-3.5",
-        "block",
-        "py-2",
-        "px-3",
-        "text-xs",
-        "font-medium",
-        "text-base-500",
-      ],
-      label: ["uppercase"],
-      icon: ["size-[1.5em]", "flex-shrink-0"],
+      root: upwConfig(
+        "text-base-500 flex w-full items-center gap-x-3.5 px-3 py-2 text-xs font-medium"
+      ),
+      label: upwConfig("uppercase"),
+      icon: upwConfig("size-[1.5em] flex-shrink-0"),
     },
   },
   item: {
-    root: [
-      "w-full",
-      "flex",
-      "items-center",
-      "gap-x-3.5",
-      "py-2",
-      "px-3",
-      "rounded-lg",
-      "text-sm",
-      "text-base-800",
-      "hover:bg-base-100",
-      "focus:outline-none",
-      "focus:bg-base-100",
-      "no-underline",
-    ],
-    active: ["bg-base-200", "hover:bg-base-200", "focus:bg-base-200"],
-    icon: ["size-[1.5em]", "flex-shrink-0"],
+    root: upwConfig(
+      "text-base-800 hover:bg-base-100 focus:bg-base-100 flex w-full items-center gap-x-3.5 rounded-lg px-3 py-2 text-sm no-underline focus:outline-none"
+    ),
+    active: upwConfig("bg-base-200 hover:bg-base-200 focus:bg-base-200"),
+    icon: upwConfig("size-[1.5em] flex-shrink-0"),
   },
   transition: {
     enter: {
-      active: ["transition", "duration-100", "ease-out"],
-      from: ["transform", "scale-95", "opacity-0"],
-      to: ["transform", "scale-100", "opacity-100"],
+      active: upwConfig("m-0 transition duration-100 ease-out"),
+      from: upwConfig("scale-95 transform opacity-0"),
+      to: upwConfig("scale-100 transform opacity-100"),
     },
     leave: {
-      active: ["transition", "duration-75", "ease-in"],
-      from: ["transform", "scale-100", "opacity-100"],
-      to: ["transform", "scale-95", "opacity-0"],
+      active: upwConfig("transition duration-75 ease-in"),
+      from: upwConfig("scale-100 transform opacity-100"),
+      to: upwConfig("scale-95 transform opacity-0"),
     },
   },
 };

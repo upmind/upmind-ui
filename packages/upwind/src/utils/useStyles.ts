@@ -1,5 +1,6 @@
 import { unref, inject, computed } from "vue";
 import { merge, get, omit, forEach, keys } from "lodash-es";
+import { split, uniq } from "lodash-es";
 
 function generateComponentConfig(component, config, globalConfig) {
   config = unref(config) || {}; // safety check
@@ -60,4 +61,11 @@ export const useStyles = (
   });
 
   return styles;
+};
+
+// we use a function so that we can have tailwin intellisense and sorting
+export const upwConfig = (classes: string) => {
+  // TODO: MAYBE parse valid tailwind classes
+  // NB: always return as an array without duplicates!
+  return uniq(split(classes, " "));
 };
