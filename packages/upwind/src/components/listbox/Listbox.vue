@@ -15,14 +15,14 @@
 
         <span class="btn-label" :class="styles.button.label" v-if="label">
           {{ selectedLabel }}
-
-          {{ open ? "" : "" }}
         </span>
 
         <upw-icon
-          v-if="icon"
-          :icon="icon"
-          class="listbox-btn-icon size-[1em]"
+          v-if="toggle"
+          :icon="toggle"
+          :class="styles.button.toggle"
+          :aria-checked="open && toggleRotate"
+          aria-hidden="true"
         />
       </h-listbox-button>
 
@@ -78,7 +78,10 @@
               <upw-icon
                 v-if="iconSelected"
                 :icon="iconSelected"
-                :class="[styles.item.icon, { invisible: !selected }]"
+                :class="[
+                  styles.item.icon,
+                  { invisible: !selected, 'pointer-events-none': !selected },
+                ]"
                 aria-hidden="true"
               />
             </li>
@@ -128,14 +131,29 @@ export default defineComponent({
   },
   emits: ["update:modelValue"],
   props: {
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["sm", "md", "lg"].includes(value),
+    },
+    // ---
     label: {
       type: String,
       default: "Select option...",
     },
     icon: {
       type: String,
+      default: "",
+    },
+    toggle: {
+      type: String,
       default: "arrow-up-down",
     },
+    toggleRotate: {
+      type: Boolean,
+      default: false,
+    },
+
     iconSelected: {
       type: String,
       default: "check-square",
@@ -149,7 +167,7 @@ export default defineComponent({
       default: () => {},
     },
     modelValue: {
-      type: [String, Array as PropType<string[]>],
+      type: [String, Array] as PropType<string[]>,
       default: "",
     },
     multiple: {
@@ -162,6 +180,11 @@ export default defineComponent({
     },
     counter: {
       type: String,
+      default: null,
+    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
       default: null,
     },
   },
@@ -187,7 +210,7 @@ export default defineComponent({
       middleware: [offset(10), flip(), shift()],
     });
 
-    const styles = useStyles("listbox", config);
+    const styles = useStyles("listbox", { props }, config, props.upwindConfig);
 
     watch(value, value => {
       const item = find(props.items, ["value", value]);

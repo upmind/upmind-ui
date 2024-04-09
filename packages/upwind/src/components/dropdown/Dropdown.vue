@@ -1,15 +1,22 @@
 <template>
   <h-menu as="div" :class="styles.root" v-slot="{ open }">
     <h-menu-button :class="styles.button.root" ref="reference">
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        class="btn-icon"
+        :class="styles.button.icon"
+      />
+
       <span class="label" :class="styles.button.label" v-if="label">
         {{ label }}
       </span>
 
       <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.button.icon"
-        :aria-checked="open && icon === 'arrow-down' ? 'true' : 'false'"
+        v-if="toggle"
+        :icon="toggle"
+        :class="styles.button.toggle"
+        :aria-checked="open && toggleRotate"
         aria-hidden="true"
       />
     </h-menu-button>
@@ -34,7 +41,7 @@
             <upw-dropdown-item
               v-if="item?.label || item?.icon"
               v-bind="item"
-              :styles="styles.group.title"
+              :upwind-config="styles.group.title"
             />
 
             <!-- group items -->
@@ -42,12 +49,12 @@
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
-              :styles="styles.item"
+              :upwind-config="styles.item"
             />
           </div>
 
           <!-- items -->
-          <upw-dropdown-item v-else v-bind="item" :styles="styles.item" />
+          <upw-dropdown-item v-else v-bind="item" :upwindConfig="styles.item" />
         </template>
       </h-menu-items>
     </transition>
@@ -86,13 +93,27 @@ export default defineComponent({
     UpwDropdownItem,
   },
   props: {
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["sm", "md", "lg"].includes(value),
+    },
+    // ---
     label: {
       type: String,
       default: "",
     },
     icon: {
       type: String,
+      default: null,
+    },
+    toggle: {
+      type: String,
       default: "arrow-down",
+    },
+    toggleRotate: {
+      type: Boolean,
+      default: true,
     },
     placement: {
       type: String as PropType<DropdownPosition>,
@@ -101,6 +122,11 @@ export default defineComponent({
     items: {
       type: Object as PropType<DropdownItems>,
       default: () => {},
+    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
     },
   },
   setup(props) {
@@ -111,7 +137,7 @@ export default defineComponent({
       middleware: [offset(10), flip(), shift()],
     });
 
-    const styles = useStyles("dropdown", config);
+    const styles = useStyles("dropdown", { props }, config, props.upwindConfig);
 
     return {
       styles,

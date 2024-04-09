@@ -6,7 +6,7 @@
       :target="target"
       :class="[styles.root, active ? styles.active : '']"
     >
-      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
+      <upw-icon v-if="icon" :icon="icon" :upwind-config="styles.icon" />
 
       <span :class="styles.label">{{ label }}</span>
     </a>
@@ -38,14 +38,22 @@
 </template>
 
 <script lang="ts">
+// --- global
 import { defineComponent } from "vue";
+
+// --- components
 import { MenuItem } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
 import { RouterLink } from "vue-router";
+
+// --- local
+
+// --- utils
+import { useStyles } from "../../utils";
 import { isFunction } from "lodash-es";
 
 export default defineComponent({
-  name: "UpwDropdown",
+  name: "UpwDropdownItem",
   inheritAttrs: false,
   components: {
     RouterLink,
@@ -77,13 +85,16 @@ export default defineComponent({
       type: Function,
       default: null,
     },
-    styles: {
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
       type: Object,
-      default: () => ({}),
+      default: null,
     },
   },
-  setup() {
+  setup(props) {
+    const styles = useStyles("dropdown.item", { props }, props.upwindConfig);
     return {
+      styles,
       isFunction,
     };
   },

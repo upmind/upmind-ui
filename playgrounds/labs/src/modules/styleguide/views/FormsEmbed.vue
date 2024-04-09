@@ -68,7 +68,7 @@ const schema = {
       type: ["string", "null"],
       format: "date",
       description: "The task's due date",
-      formatMaximum: useDate(),
+      formatMinimum: useDate(),
       default: useDate(),
     },
 
@@ -94,14 +94,6 @@ const uischema = {
     {
       type: "VerticalLayout",
       elements: [
-        {
-          type: "Control",
-          scope: "#/properties/domain",
-          options: {
-            placeholder: "pewpew.com",
-            multiple: false,
-          },
-        },
         {
           type: "Control",
           scope: "#/properties/name",
@@ -134,6 +126,9 @@ const uischema = {
         {
           type: "Control",
           scope: "#/properties/dueDate",
+          options: {
+            saveFormat: "yyyy-MM-dd",
+          },
         },
 
         {

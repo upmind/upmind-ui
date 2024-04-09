@@ -2,9 +2,23 @@
   <div
     class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
   >
-    <upw-dropdown :items="items" label="Select an option..." />
+    <section class="flex w-full flex-wrap items-center gap-4">
+      <h3 class="w-full">Type Variants</h3>
+      <upw-dropdown :items="items" label="Select an option..." />
+      <upw-dropdown
+        :items="items"
+        label=""
+        toggle="navigation-menu-vertical"
+        :toggle-rotate="false"
+      />
+    </section>
 
-    <upw-dropdown :items="items" label="" icon="navigation-menu-vertical" />
+    <section class="flex w-full flex-wrap items-center gap-4">
+      <h3 class="w-full">Size Variants</h3>
+      <upw-dropdown :items="items" label="Select an option..." />
+      <upw-dropdown size="sm" :items="items" label="Select an option..." />
+      <upw-dropdown size="lg" :items="items" label="Select an option..." />
+    </section>
   </div>
 </template>
 

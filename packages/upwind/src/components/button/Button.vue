@@ -56,7 +56,6 @@ import type {
 
 export default defineComponent({
   name: "UpwButton",
-  inheritAttrs: false,
   components: {
     UpwIcon,
     UpwSpinner,
@@ -102,10 +101,15 @@ export default defineComponent({
       type: String as PropType<ButtonShape>,
       default: null,
     },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
   },
 
   setup(props) {
-    const styles = useStyles("button", config, { props });
+    const styles = useStyles("button", { props }, config, props.upwindConfig);
 
     return {
       styles,
