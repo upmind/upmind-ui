@@ -43,7 +43,7 @@
       class="max-w-sm"
       :items="items"
       label=""
-      icon="navigation-menu-vertical"
+      toggle="navigation-menu-vertical"
     />
   </div>
 </template>
