@@ -17,7 +17,7 @@ function generateComponentConfig(
   // Check if weve been provided with config overrides, then merge the default config
   // TODO: maybe add some intelligent merging here, to ensure we dont add contradictory styles, eg 2 bg-[colors]
   const componentConfig = get(globalConfig, component, {});
-  const mergedConfig = merge({}, componentConfig, ...configs);
+  const mergedConfig = merge({}, ...configs, componentConfig);
   return mergedConfig;
 }
 
@@ -68,7 +68,6 @@ export const useStyles = (
 ) => {
   // Check if weve been provided with style overrides, then merge the default styles with the overrides
   const globalConfig = inject("upwind", {});
-
   const styles = computed(() => {
     return applyComponentStyles(
       generateComponentConfig(component, globalConfig, ...configs),

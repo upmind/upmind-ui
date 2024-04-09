@@ -4,12 +4,15 @@
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <slot v-if="loading" name="loading" v-bind="{ styles: styles.loading }">
+    <slot
+      v-if="meta.isLoading"
+      name="loading"
+      v-bind="{ styles: styles.loading }"
+    >
       <upw-spinner :class="styles.loading" class="loading" />
     </slot>
 
     <json-forms
-      v-if="!meta.isLoading"
       :ajv="ajv"
       :data="model"
       :schema="schema"
@@ -21,12 +24,19 @@
       :class="[
         styles.content.root,
         meta.isProcessing ? styles.content.processing : '',
+        meta.isLoading ? styles.content.loading : '',
       ]"
     />
 
     <!-- actions -->
-
-    <div v-if="safeActions && !meta.isLoading" :class="styles.actions.root">
+    <div
+      v-if="safeActions"
+      :class="[
+        styles.actions.root,
+        meta.isProcessing ? styles.actions.processing : '',
+        meta.isLoading ? styles.actions.loading : '',
+      ]"
+    >
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <upw-button
           v-for="(action, key) in safeActions"
@@ -160,7 +170,6 @@ export default defineComponent({
 
   setup(props) {
     const styles = useStyles("form", { props }, config, props.upwindConfig);
-
     return {
       renderers: Object.freeze(prelineRenderers),
       styles,

@@ -73,10 +73,8 @@ export default defineComponent({
       type: String,
       default: "_self",
     },
-    icon: {
-      type: String,
-      default: "",
-    },
+    icon: { type: [String, Object], default: null },
+
     label: {
       type: String,
       default: "",

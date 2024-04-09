@@ -103,10 +103,9 @@ export default defineComponent({
       type: String,
       default: "",
     },
-    icon: {
-      type: String,
-      default: null,
-    },
+
+    icon: { type: [String, Object], default: null },
+
     toggle: {
       type: String,
       default: "arrow-down",
