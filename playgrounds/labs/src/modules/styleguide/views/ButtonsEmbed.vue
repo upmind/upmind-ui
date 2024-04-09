@@ -123,14 +123,54 @@
 
     <section class="flex w-full flex-wrap items-center gap-4">
       <h3 class="w-full">Loading Color Variants</h3>
-      <upw-button loading variant="plain" color="primary" label="Primary" />
-      <upw-button loading variant="plain" color="secondary" label="Secondary" />
-      <upw-button loading variant="plain" color="accent" label="Accent" />
-      <upw-button loading variant="plain" color="neutral" label="Neutral" />
-      <upw-button loading variant="plain" color="info" label="Info" />
-      <upw-button loading variant="plain" color="success" label="Success" />
-      <upw-button loading variant="plain" color="error" label="Error" />
-      <upw-button loading variant="plain" color="warning" label="Warning" />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="primary"
+        label="Primary"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="secondary"
+        label="Secondary"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="accent"
+        label="Accent"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="neutral"
+        label="Neutral"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="info"
+        label="Info"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="success"
+        label="Success"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="error"
+        label="Error"
+      />
+      <upw-button
+        :loading="isLoading"
+        variant="plain"
+        color="warning"
+        label="Warning"
+      />
     </section>
 
     <section class="flex w-full flex-wrap items-center gap-4">
@@ -164,4 +204,13 @@
 
 <script setup>
 import { UpwButton } from "@upmind/upwind";
+import { onMounted, ref } from "vue";
+
+const isLoading = ref(true);
+
+onMounted(() => {
+  setInterval(() => {
+    isLoading.value = !isLoading.value;
+  }, 2000);
+});
 </script>

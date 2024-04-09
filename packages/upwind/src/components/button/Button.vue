@@ -7,25 +7,39 @@
     :data-color="color"
     :data-shape="shape"
   >
-    <slot v-if="loading" name="loading" v-bind="{ styles: styles.loading }">
+    <slot
+      v-if="meta.isLoading"
+      name="loading"
+      v-bind="{ styles: styles.loading }"
+    >
       <upw-spinner :class="styles.loading" class="loading" />
     </slot>
 
-    <template v-else>
-      <slot name="prepend" v-bind="{ styles: styles.icon, icon: prependIcon }">
-        <upw-icon v-if="prependIcon" :class="styles.icon" :icon="prependIcon" />
-      </slot>
+    <slot name="prepend" v-bind="{ styles: styles.icon, icon: prependIcon }">
+      <upw-icon
+        v-if="prependIcon"
+        :class="[styles.icon.root, meta.isLoading ? styles.icon.loading : '']"
+        :icon="prependIcon"
+      />
+    </slot>
 
-      <slot v-bind="{ styles }">
-        <span :class="styles.label" v-if="label" class="label">
-          {{ label }}
-        </span>
-      </slot>
+    <slot v-bind="{ styles }">
+      <span
+        :class="[styles.label.root, meta.isLoading ? styles.label.loading : '']"
+        v-if="label"
+        class="label"
+      >
+        {{ label }}
+      </span>
+    </slot>
 
-      <slot name="append" v-bind="{ styles: styles.icon, icon: appendIcon }">
-        <upw-icon v-if="appendIcon" :class="styles.icon" :icon="appendIcon" />
-      </slot>
-    </template>
+    <slot name="append" v-bind="{ styles: styles.icon, icon: appendIcon }">
+      <upw-icon
+        v-if="appendIcon"
+        :class="[styles.icon.root, meta.isLoading ? styles.icon.loading : '']"
+        :icon="appendIcon"
+      />
+    </slot>
   </button>
 </template>
 
@@ -114,6 +128,14 @@ export default defineComponent({
     return {
       styles,
     };
+  },
+
+  computed: {
+    meta() {
+      return {
+        isLoading: this.loading,
+      };
+    },
   },
 });
 </script>
