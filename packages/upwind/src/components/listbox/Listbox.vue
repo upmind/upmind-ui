@@ -76,9 +76,9 @@
               <span :class="styles.item.label">{{ item.label }}</span>
 
               <upw-icon
-                v-if="selected"
-                icon="check-square"
-                :class="styles.item.icon"
+                v-if="iconSelected"
+                :icon="iconSelected"
+                :class="[styles.item.icon, { invisible: !selected }]"
                 aria-hidden="true"
               />
             </li>
@@ -135,6 +135,10 @@ export default defineComponent({
     icon: {
       type: String,
       default: "arrow-up-down",
+    },
+    iconSelected: {
+      type: String,
+      default: "check-square",
     },
     placement: {
       type: String as PropType<ListboxPosition>,
