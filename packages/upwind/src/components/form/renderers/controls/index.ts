@@ -1,8 +1,8 @@
-import { registerEntry } from "../util/registerEntry";
+import { registerEntry } from "../utils/registerEntry";
 // -----------------------------------------------------------------------------
 
 export { default as ControlWrapper } from "./ControlWrapper.vue";
-export { default as StringControlRenderer } from "./StringControlRenderer.vue";
+export { default as StringControlRenderer } from "./string/Renderer.vue";
 export { default as MultiStringControlRenderer } from "./MultiStringControlRenderer.vue";
 export { default as NumberControlRenderer } from "./NumberControlRenderer.vue";
 export { default as IntegerControlRenderer } from "./IntegerControlRenderer.vue";
@@ -19,7 +19,7 @@ export { default as HiddenControlRenderer } from "./HiddenControlRenderer.vue";
 
 import StringControlRenderer, {
   tester as stringControlRendererTest,
-} from "./StringControlRenderer.vue";
+} from "./string/Renderer.vue";
 
 import MultiStringControlRenderer, {
   tester as multiStringControlRendererTest,

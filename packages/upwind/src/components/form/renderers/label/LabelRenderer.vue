@@ -11,7 +11,7 @@ import { uiTypeIs } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
-import { useprelineLabel } from "../util";
+import { useprelineLabel } from "../utils";
 
 const labelRenderer = defineComponent({
   name: "LabelRenderer",
@@ -30,3 +30,4 @@ export const tester = {
   controlType: uiTypeIs("Label"),
 };
 </script>
+../utils

@@ -9,7 +9,7 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
-import { useprelineControl } from "../util";
+import { useprelineControl } from "../utils";
 import { has } from "lodash-es";
 
 const controlRenderer = defineComponent({
@@ -38,3 +38,4 @@ export const isHiddenControl: Tester = and(
 
 export const tester = { rank: 3, controlType: isHiddenControl };
 </script>
+../utils

@@ -89,7 +89,7 @@ import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
-import { useprelineControl } from "../util";
+import { useprelineControl } from "../utils";
 import { useSystem } from "@upmind/flow";
 import { set } from "lodash-es";
 import "flag-icons/css/flag-icons.min.css";
@@ -176,3 +176,4 @@ const isPhoneControl = (): Tester =>
 
 export const tester = { rank: 2, controlType: isPhoneControl() };
 </script>
+../utils

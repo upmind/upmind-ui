@@ -36,9 +36,9 @@ export const useprelineControl = <
   };
 
   const controlWrapper = computed(() => {
-    const { id, description, errors, label, visible, required } =
+    const { id, description, errors, label, visible, required, enabled } =
       input.control.value;
-    return { id, description, errors, label, visible, required };
+    return { id, description, errors, label, visible, required, enabled };
   });
 
   return {

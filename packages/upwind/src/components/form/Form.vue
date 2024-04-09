@@ -93,7 +93,8 @@ import type {
   UISchemaElement,
 } from "@jsonforms/core";
 
-// ----------------
+// ----------------------------------------------
+
 export default defineComponent({
   name: "UpwForm",
   components: {

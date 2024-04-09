@@ -110,6 +110,8 @@ const uischema = {
           options: {
             placeholder: "What needs to be done?",
             focus: true,
+            prefix: "shabba",
+            suffix: "ranks",
           },
         },
 
