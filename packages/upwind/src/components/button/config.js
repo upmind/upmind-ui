@@ -20,7 +20,7 @@ export default {
       lg: upwConfig("px-5 py-4 text-sm"),
       block: upwConfig("flex w-full px-5 py-4 text-sm"),
       icon: upwConfig(
-        "[&>.btn-icon]:p-[0.75em) size-12 rounded-full !p-0 data-[size=lg]:size-14 data-[size=md]:size-12 data-[size=sm]:size-10 data-[size=xl]:size-16 data-[size=xs]:size-8 [&>.btn-icon]:size-full [&>.btn-label]:sr-only"
+        "size-12 rounded-full !p-0 data-[size=lg]:size-14 data-[size=md]:size-12 data-[size=sm]:size-10 data-[size=xl]:size-16 data-[size=xs]:size-8 [&>.icon]:size-full [&>.icon]:p-[0.75em] [&>.label]:sr-only"
       ),
     },
     variant: {

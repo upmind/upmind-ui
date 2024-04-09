@@ -1,6 +1,10 @@
+// --- global
 import { unref, inject, computed } from "vue";
-import { merge, get, omit, forEach, keys } from "lodash-es";
-import { split, uniq } from "lodash-es";
+
+// ---utils
+import { merge, get, omit, forEach, keys, split, uniq } from "lodash-es";
+
+// -----------------------------------------------------------------------------
 
 function generateComponentConfig(component, config, globalConfig) {
   config = unref(config) || {}; // safety check

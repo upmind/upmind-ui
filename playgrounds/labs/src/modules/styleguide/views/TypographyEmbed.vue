@@ -1,6 +1,8 @@
 <template>
-  <div class="prose mx-auto max-w-none p-8">
-    <div id="headers">
+  <div
+    class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
+  >
+    <div id="headers" class="w-full">
       <h1>Header 1</h1>
       <h2>Header 2</h2>
       <h3>Header 3</h3>
@@ -8,7 +10,8 @@
       <h5>Header 5</h5>
       <h6>Header 6</h6>
     </div>
-    <div id="links">
+
+    <div id="links" class="w-full">
       <h2>Links</h2>
       <p><a href="#">Local link</a></p>
 
@@ -28,7 +31,8 @@
 
       <p><a href="mailto:admin@example.com">E-mail link</a></p>
     </div>
-    <div id="block-elements">
+
+    <div id="block-elements" class="w-full">
       <h2>Block elements</h2>
       <h3>Block quote</h3>
       <blockquote cite="http://en.wikipedia.org/wiki/Blockquote">
@@ -51,7 +55,8 @@
   </pre
       >
     </div>
-    <div id="phrase-elements">
+
+    <div id="phrase-elements" class="w-full">
       <h2>Phrase elements</h2>
       <h3>em</h3>
       <p>
@@ -107,7 +112,8 @@
       <p>Inline quotation</p>
       <p>Sample: <q>This is sample quotation</q></p>
     </div>
-    <div id="lists">
+
+    <div id="lists" class="w-full">
       <h2>Lists</h2>
       <h3>Unordered List</h3>
       <ul>
@@ -217,7 +223,8 @@
         </li>
       </ol>
     </div>
-    <div id="paragraphs">
+
+    <div id="paragraphs" class="w-full">
       <h2>Paragraphs</h2>
       <p>
         According to Wikipedia: a paragraph (from the Greek
@@ -245,7 +252,8 @@
         paragraph at the next &lt;p&gt; tag, or the nextblock element.
       </p>
     </div>
-    <div id="tables">
+
+    <div id="tables" class="w-full">
       <h2>Tables</h2>
       <table>
         <caption>
@@ -299,7 +307,8 @@
         </tbody>
       </table>
     </div>
-    <div id="others">
+
+    <div id="others" class="w-full">
       <h2>Other elements</h2>
       <h3>Subscript and superscript samples</h3>
       <p>H<sub>2</sub>O,</p>

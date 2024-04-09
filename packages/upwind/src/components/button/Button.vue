@@ -1,9 +1,6 @@
 <template>
   <button
-    class="btn"
     :class="styles.root"
-    type="button"
-    :aria-label="ariaLabel"
     :disabled="disabled"
     :data-size="size"
     :data-variant="variant"
@@ -11,32 +8,22 @@
     :data-shape="shape"
   >
     <slot v-if="loading" name="loading" v-bind="{ styles: styles.loading }">
-      <upw-spinner :class="styles.loading" class="btn-loading" />
+      <upw-spinner :class="styles.loading" class="loading" />
     </slot>
 
     <template v-else>
       <slot name="prepend" v-bind="{ styles: styles.icon, icon: prependIcon }">
-        <upw-icon
-          v-if="prependIcon"
-          :class="styles.icon"
-          :icon="prependIcon"
-          class="btn-icon"
-        />
+        <upw-icon v-if="prependIcon" :class="styles.icon" :icon="prependIcon" />
       </slot>
 
       <slot v-bind="{ styles }">
-        <span :class="styles.label" v-if="label" class="btn-label">
+        <span :class="styles.label" v-if="label" class="label">
           {{ label }}
         </span>
       </slot>
 
       <slot name="append" v-bind="{ styles: styles.icon, icon: appendIcon }">
-        <upw-icon
-          v-if="appendIcon"
-          :class="styles.icon"
-          :icon="appendIcon"
-          class="btn-icon"
-        />
+        <upw-icon v-if="appendIcon" :class="styles.icon" :icon="appendIcon" />
       </slot>
     </template>
   </button>
@@ -123,11 +110,6 @@ export default defineComponent({
     return {
       styles,
     };
-  },
-  computed: {
-    ariaLabel() {
-      return this.label || this.$attrs.ariaLabel;
-    },
   },
 });
 </script>

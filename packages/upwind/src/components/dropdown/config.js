@@ -10,7 +10,7 @@ export default {
       // "bg-base text-base-800 focus:border-primary-500 focus:ring-primary-500 border-base-200 hover:bg-base-50 flex items-center gap-x-2 rounded-lg border px-4 py-3 text-sm font-medium shadow-sm disabled:pointer-events-none disabled:opacity-50"
     ),
     active: upwConfig("ring-primary-500 border-primary-500"),
-    label: upwConfig("m flex-1 leading-none"),
+    label: upwConfig("flex-1 leading-none"),
     icon: upwConfig("size-[1em] transition-all aria-checked:rotate-180"),
   },
   items: upwConfig(
