@@ -56,7 +56,7 @@ import {
   rendererProps,
   useJsonFormsArrayControl,
 } from "@jsonforms/vue";
-import { useprelineArrayControl } from "../util";
+import { useprelineArrayControl } from "../utils";
 import ArrayListElement from "./ArrayListElement.vue";
 
 const controlRenderer = defineComponent({
@@ -95,3 +95,4 @@ export const tester = {
   controlType: schemaTypeIs("array"),
 };
 </script>
+../utils

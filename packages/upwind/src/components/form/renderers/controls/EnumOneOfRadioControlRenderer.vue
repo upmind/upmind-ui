@@ -68,7 +68,7 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import ControlWrapper from "./ControlWrapper.vue";
-import { useprelineControl } from "../util";
+import { useprelineControl } from "../utils";
 
 const controlRenderer = defineComponent({
   name: "EnumOneofControlRenderer",
@@ -91,3 +91,4 @@ const isRadioControl = and(isOneOfEnumControl, optionIs("format", "radio"));
 
 export const tester = { rank: 3, controlType: isRadioControl };
 </script>
+../utils

@@ -30,7 +30,7 @@ import {
   rendererProps,
   useJsonFormsLayout,
 } from "@jsonforms/vue";
-import { useprelineLayout } from "../util";
+import { useprelineLayout } from "../utils";
 
 const layoutRenderer = defineComponent({
   name: "GroupRenderer",
@@ -57,3 +57,4 @@ export const tester = {
 //   tester: rankWith(2, and(isLayout, uiTypeIs("Group"))),
 // };
 </script>
+../utils

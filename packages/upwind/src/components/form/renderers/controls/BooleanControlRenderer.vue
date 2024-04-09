@@ -31,7 +31,7 @@ import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 import ControlWrapper from "./ControlWrapperInline.vue";
-import { useprelineControl } from "../util";
+import { useprelineControl } from "../utils";
 
 const controlRenderer = defineComponent({
   name: "BooleanControlRenderer",
@@ -53,3 +53,4 @@ export default controlRenderer;
 
 export const tester = { rank: 1, controlType: isBooleanControl };
 </script>
+../utils

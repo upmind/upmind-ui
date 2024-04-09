@@ -27,7 +27,7 @@ import {
   rendererProps,
   useJsonFormsLayout,
 } from "@jsonforms/vue";
-import { useprelineLayout } from "../util";
+import { useprelineLayout } from "../utils";
 
 const layoutRenderer = defineComponent({
   name: "LayoutRenderer",
@@ -58,3 +58,4 @@ export const tester = { rank: 1, controlType: isLayout };
 //   tester: rankWith(1, isLayout),
 // };
 </script>
+../utils

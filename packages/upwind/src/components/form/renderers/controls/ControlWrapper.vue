@@ -1,34 +1,52 @@
 <template>
-  <div v-if="visible" :id="id" :class="styles.control.root">
+  <div v-if="visible" :id="id" :class="styles?.root">
     <!-- label -->
     <label
       v-if="computedLabel"
       :for="id + '-input'"
-      :class="[
-        styles.control.label.root,
-        errors ? styles.control.error.label : null,
-      ]"
+      :class="[styles?.label?.root, errors ? styles?.label?.error : null]"
     >
-      <span :class="styles.control.label.text">{{ computedLabel }}</span>
+      <span :class="styles?.label?.text">{{ computedLabel }}</span>
     </label>
 
     <!-- wrapper -->
     <div
       :class="[
-        styles.control.wrapper,
-        errors ? styles.control.error.wrapper : null,
+        styles?.wrapper?.root,
+        errors ? styles?.wrapper?.error : null,
+        disabled ? 'disabled' : null,
       ]"
     >
+      <slot name="append">
+        <span
+          class="prefix"
+          :class="[styles?.prefix.root, errors ? styles?.prefix.error : null]"
+          v-if="appliedOptions?.prefix"
+        >
+          {{ appliedOptions.prefix }}
+        </span>
+      </slot>
+
       <slot></slot>
+
+      <slot name="append">
+        <span
+          class="suffix"
+          :class="[styles?.suffix.root, errors ? styles?.suffix.error : null]"
+          v-if="appliedOptions?.suffix"
+        >
+          {{ appliedOptions.suffix }}
+        </span>
+      </slot>
     </div>
 
     <!-- help/description -->
-    <div v-if="showDescription" :class="styles.control.description">
+    <div v-if="showDescription" :class="styles?.description">
       {{ description }}
     </div>
 
     <!-- errors -->
-    <div v-if="errors" :class="styles.control.error.text">
+    <div v-if="errors" :class="styles?.error">
       {{ errors }}
     </div>
   </div>
@@ -38,8 +56,8 @@
 import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import type { Styles } from "../styles";
-import type { Options } from "../util";
+import { useStyles } from "../../../../utils";
+import type { Options } from "../utils";
 
 export default defineComponent({
   name: "ControlWrapper",
@@ -73,6 +91,11 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    disabled: {
+      required: false as const,
+      type: Boolean,
+      default: false,
+    },
     required: {
       required: false as const,
       type: Boolean,
@@ -83,9 +106,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    styles: {
-      required: true,
-      type: Object as PropType<Styles>,
+
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
     },
   },
   computed: {
@@ -105,5 +130,12 @@ export default defineComponent({
       );
     },
   },
+  setup(props) {
+    const styles = useStyles("form", { props }, props.upwindConfig);
+    return {
+      styles,
+    };
+  },
 });
 </script>
+../utils

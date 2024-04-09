@@ -1,4 +1,4 @@
-import { registerEntry } from "../util/registerEntry";
+import { registerEntry } from "../utils/registerEntry";
 
 // -----------------------------------------------------------------------------
 
