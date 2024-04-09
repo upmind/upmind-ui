@@ -18,11 +18,11 @@ export default {
   content: {
     root: upwConfig("transition-all duration-300"),
     processing: upwConfig("pointer-events-none opacity-50"),
-    loading: upwConfig("invisible opacity-0"),
+    loading: upwConfig("invisible opacity-0 duration-0"),
   },
   actions: {
     root: upwConfig("flex gap-x-2 transition-all duration-300"),
     processing: upwConfig("pointer-events-none opacity-50"),
-    loading: upwConfig("invisible opacity-0"),
+    loading: upwConfig("invisible opacity-0 duration-0"),
   },
 };
