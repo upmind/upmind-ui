@@ -1,13 +1,12 @@
 <template>
   <form
-    class="upw-form relative flex min-h-[3em] w-full flex-col"
-    v-bind="$attrs"
+    :class="styles.root"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <div class="upw-form-loading" v-if="meta.isLoading || meta.isProcessing">
-      <!-- <progress class="progress w-full "></progress> -->
-    </div>
+    <slot v-if="loading" name="loading" v-bind="{ styles: styles.loading }">
+      <upw-spinner :class="styles.loading" class="loading" />
+    </slot>
 
     <json-forms
       v-if="!meta.isLoading"
@@ -19,84 +18,73 @@
       :validationMode="safeMode"
       :additionalErrors="additionalErrors"
       @change="onChange"
-      class="upw-form-content"
-      :class="{
-        'opacity-50': meta.isProcessing,
-        'pointer-events-none': meta.isProcessing,
-      }"
+      :class="[
+        styles.content.root,
+        meta.isProcessing ? styles.content.processing : '',
+      ]"
     />
 
     <!-- actions -->
 
-    <div class="upw-form-actions" v-if="!noActions && !meta.isLoading">
+    <div v-if="!actions && !meta.isLoading" :class="styles.actions.root">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
-        <button
+        <upw-button
           type="submit"
-          class="btn btn-accent"
+          :class="styles.actions.button"
           :disabled="!meta.isValid || meta.isProcessing"
+          color="primary"
         >
           Save
-        </button>
+        </upw-button>
 
-        <button
+        <upw-button
           :disabled="meta.isProcessing"
-          class="btn btn-ghost"
+          :class="styles.actions.button"
           @click="doReject"
+          variant="ghost"
         >
           Cancel
-        </button>
+        </upw-button>
       </slot>
     </div>
   </form>
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+// --- global
 import { defineComponent, unref, toRaw } from "vue";
-
-import type { JsonFormsChangeEvent } from "@jsonforms/vue";
-import { JsonForms } from "@jsonforms/vue";
-import {
-  type ValidationMode,
-  type JsonSchema,
-  type UISchemaElement,
-} from "@jsonforms/core";
 
 import type { Ajv, ErrorObject } from "ajv";
 
-import { defaultStyles, mergeStyles, prelineRenderers } from "./renderers";
+// --- components
+import { JsonForms } from "@jsonforms/vue";
+import UpwButton from "../button/Button.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
 
-import { isEmpty, isEqual, isObject, isArray } from "lodash-es";
+// --- local
+import config from "./config";
+import { prelineRenderers } from "./renderers";
 
-// a custom isEmpty that can handle deeply nested objects
-function isDeepEmpty(value: any): boolean {
-  if (isEmpty(value)) {
-    return true;
-  }
-  if (isObject(value)) {
-    for (const item of Object.values(value)) {
-      // if item is not undefined and is a primitive, return false
-      // otherwise dig deeper
-      if (
-        (item !== undefined && typeof item !== "object") ||
-        !isDeepEmpty(item)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }
-  if (isArray(value)) {
-    return value.every(item => isDeepEmpty(item));
-  }
-  return isEmpty(value);
-}
+// --- utils
+import { useStyles, isDeepEmpty } from "../../utils";
+import { isEqual } from "lodash-es";
 
+// --- types
+import type { PropType } from "vue";
+import type { JsonFormsChangeEvent } from "@jsonforms/vue";
+import type {
+  ValidationMode,
+  JsonSchema,
+  UISchemaElement,
+} from "@jsonforms/core";
+
+// ----------------
 export default defineComponent({
   name: "UpwForm",
-
   components: {
     JsonForms,
+    UpwButton,
+    UpwSpinner,
   },
 
   inheritAttrs: true,
@@ -117,10 +105,19 @@ export default defineComponent({
       type: Object,
     },
     // ---
-    noActions: {
-      type: Boolean,
-      default: false,
+    actions: {
+      type: Object as PropType<Record<string, Object>>,
+      // default: () => {
+      //   submit:{
+      //     label:"Save",
+      //     color:"primary",
+      //     action: ()=>
+
+      //   },
+      //   reset:{}
+      // },
     },
+    // ---
 
     loading: {
       type: Boolean,
@@ -134,10 +131,6 @@ export default defineComponent({
       required: false,
       type: String as PropType<ValidationMode>,
       default: "ValidateAndShow", // ||  "ValidateAndHide" || "NoValidation"
-    },
-    styles: {
-      type: Object,
-      default: () => ({}),
     },
     additionalErrors: {
       type: Array as PropType<
@@ -162,16 +155,9 @@ export default defineComponent({
   customOptions: {},
 
   setup(props) {
-    // -------
-
-    // mergeStyles combines all classes from both styles definitions into one
-    const formStyles = mergeStyles(defaultStyles, props.styles);
-
-    // -------
     return {
-      // -------
       renderers: Object.freeze(prelineRenderers),
-      formStyles,
+      styles: useStyles("form", config),
     };
   },
   data: () => ({
@@ -228,11 +214,6 @@ export default defineComponent({
       this.model = {};
       this.isDirty = false;
     },
-  },
-  provide() {
-    return {
-      styles: this.formStyles,
-    };
   },
 });
 </script>

@@ -6,12 +6,7 @@
       :target="target"
       :class="[styles.root, active ? styles.active : '']"
     >
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.icon"
-        class="dropdown-item-icon"
-      />
+      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
 
       <span :class="styles.label">{{ label }}</span>
     </a>
@@ -21,12 +16,7 @@
       :to="to"
       :class="[styles.root, active ? styles.active : '']"
     >
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.icon"
-        class="dropdown-item-icon"
-      />
+      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
 
       <span :class="styles.label">{{ label }}</span>
     </router-link>
@@ -36,22 +26,12 @@
       @click="action"
       :class="[styles.root, active ? styles.active : '']"
     >
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.icon"
-        class="dropdown-item-icon"
-      />
+      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
       <span :class="styles.label">{{ label }}</span>
     </button>
 
     <span v-else :class="[styles.root, active ? styles.active : '']">
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.icon"
-        class="dropdown-item-icon"
-      />
+      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
       <span :class="styles.label">{{ label }}</span>
     </span>
   </h-menu-item>

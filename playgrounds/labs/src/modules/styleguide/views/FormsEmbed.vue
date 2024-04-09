@@ -1,5 +1,7 @@
 <template>
-  <div class="prose mx-auto max-w-none p-8">
+  <div
+    class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
+  >
     <upw-form
       :schema="schema"
       :uischema="uischema"

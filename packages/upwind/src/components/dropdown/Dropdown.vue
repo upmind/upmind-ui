@@ -1,18 +1,13 @@
 <template>
   <h-menu as="div" :class="styles.root" v-slot="{ open }">
-    <h-menu-button
-      class="dropdown-btn"
-      :class="styles.button.root"
-      ref="reference"
-    >
-      <span class="btn-label" :class="styles.button.label" v-if="label">
+    <h-menu-button :class="styles.button.root" ref="reference">
+      <span class="label" :class="styles.button.label" v-if="label">
         {{ label }}
       </span>
 
       <upw-icon
         v-if="icon"
         :icon="icon"
-        class="dropdown-btn-icon"
         :class="styles.button.icon"
         :aria-checked="open && icon === 'arrow-down' ? 'true' : 'false'"
         aria-hidden="true"
@@ -28,7 +23,6 @@
       :leave-to-class="styles?.transition?.leave?.to?.join(' ')"
     >
       <h-menu-items
-        class="dropdown-items"
         :class="styles.items"
         ref="floating"
         :style="floatingStyles"
