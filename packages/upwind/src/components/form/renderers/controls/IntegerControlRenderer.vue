@@ -5,25 +5,43 @@
     :is-focused="isFocused"
     :applied-options="appliedOptions"
   >
-    <input
-      :id="control.id + '-input'"
-      type="number"
-      :step="1"
+    <div
+      :disabled="!control.enabled ? 'disabled' : null"
       :class="[
+        'inline-flex',
+        'items-center',
+        'gap-2',
         styles.control.input,
         appliedOptions?.trim
           ? styles.control.size.trim
           : styles.control.size.full,
         controlWrapper.errors ? styles.control.error.input : null,
       ]"
-      :value="control.data"
-      :disabled="!control.enabled"
-      :autocomplete="appliedOptions.autocomplete"
-      :placeholder="appliedOptions.placeholder"
-      @change="onChange"
-      @focus="isFocused = true"
-      @blur="isFocused = false"
-    />
+    >
+      <span :class="styles.control.prefix" v-if="appliedOptions?.prefix">{{
+        appliedOptions.prefix
+      }}</span>
+
+      <input
+        :id="control.id + '-input'"
+        type="number"
+        :step="step"
+        :max="appliedOptions?.max || control?.schema?.maximum"
+        :min="appliedOptions?.min || control?.schema?.minimum"
+        class="flex-1 bg-transparent outline-none"
+        :value="control.data"
+        :disabled="!control.enabled"
+        :autocomplete="appliedOptions.autocomplete"
+        :cols="appliedOptions.cols"
+        :placeholder="appliedOptions.placeholder"
+        @change="onChange"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+      />
+      <span :class="styles.control.suffix" v-if="appliedOptions?.suffix">{{
+        appliedOptions.suffix
+      }}</span>
+    </div>
   </control-wrapper>
 </template>
 
@@ -48,6 +66,12 @@ const controlRenderer = defineComponent({
     return useprelineControl(useJsonFormsControl(props), target =>
       target.value === "" ? undefined : parseInt(target.value, 10)
     );
+  },
+  computed: {
+    step(): number {
+      const options: any = this.appliedOptions;
+      return options.step ?? 1;
+    },
   },
 });
 

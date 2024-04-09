@@ -28,7 +28,7 @@ const useDate = val => {
 };
 
 const schema = {
-  required: ["name", "rating", "dueDate", "domain"],
+  required: ["name", "rating"],
   properties: {
     name: {
       type: ["string", "null"],
@@ -53,8 +53,17 @@ const schema = {
       type: "integer",
       maximum: 5,
       minimum: 1,
+
       title: "Rate the difficulty",
       description: "The difficulty is measured between 1 (easy) and 5 (hard)",
+    },
+
+    impact: {
+      type: "number",
+      maximum: 10,
+      minimum: 0,
+      title: "Rate the impact",
+      description: "The impact is measured between 0 (none) and 10 (high)",
     },
 
     domain: {
@@ -79,7 +88,8 @@ const schema = {
 
     recurrenceInterval: {
       type: "integer",
-      description: "Days until recurrence",
+      minimum: 1,
+      maximum: 365,
     },
 
     done: {
@@ -125,6 +135,26 @@ const uischema = {
 
         {
           type: "Control",
+          scope: "#/properties/impact",
+          options: {
+            // showUnfocusedDescription: true,
+            styles: {
+              control: {
+                rating: {
+                  item: "form-radio mask-star-2",
+                  item1: "border-green-400 text-green-400",
+                  item2: "border-lime-400 text-lime-400",
+                  item3: "border-yellow-400 text-yellow-400",
+                  item4: "border-orange-400 text-orange-400",
+                  item5: "border-red-400 text-red-400",
+                },
+              },
+            },
+          },
+        },
+
+        {
+          type: "Control",
           scope: "#/properties/dueDate",
           options: {
             saveFormat: "yyyy-MM-dd",
@@ -138,12 +168,48 @@ const uischema = {
         {
           type: "Control",
           scope: "#/properties/recurrenceInterval",
-          options: {},
+          options: {
+            min: 1,
+            max: 365,
+            placeholder: "Days until recurrence",
+          },
           rule: {
             effect: "SHOW",
             condition: {
               scope: "#/properties/recurrence",
-              schema: { type: "string", not: { const: null } },
+              schema: { type: "string", const: "Daily" },
+            },
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/recurrenceInterval",
+          options: {
+            placeholder: "Weeks until recurrence",
+            min: 1,
+            max: 52,
+          },
+          rule: {
+            effect: "SHOW",
+            condition: {
+              scope: "#/properties/recurrence",
+              schema: { type: "string", const: "Weekly" },
+            },
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/recurrenceInterval",
+          options: {
+            placeholder: "Months until recurrence",
+            min: 1,
+            max: 12,
+          },
+          rule: {
+            effect: "SHOW",
+            condition: {
+              scope: "#/properties/recurrence",
+              schema: { type: "string", const: "Monthly" },
             },
           },
         },
