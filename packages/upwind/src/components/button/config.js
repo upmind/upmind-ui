@@ -7,12 +7,12 @@ export default {
     "relative inline-flex !cursor-pointer items-center justify-center gap-x-2 text-center align-bottom leading-normal transition-all hover:-translate-y-0.5 active:-translate-y-px"
   ),
   label: {
-    root: upwConfig("font-semibold leading-none"),
-    loading: upwConfig("invisible opacity-0"),
+    root: upwConfig("font-semibold leading-none transition-all duration-300 "),
+    loading: upwConfig("invisible opacity-0 duration-0"),
   },
   icon: {
-    root: upwConfig("size-[1.25em]"),
-    loading: upwConfig("invisible opacity-0"),
+    root: upwConfig("size-[1.25em] transition-all duration-300"),
+    loading: upwConfig("invisible opacity-0 duration-0"),
   },
   loading: upwConfig(
     "absolute bottom-0 left-0 right-0 top-0 m-auto size-6 opacity-80"
