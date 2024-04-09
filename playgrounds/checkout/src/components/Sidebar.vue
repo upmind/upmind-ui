@@ -53,10 +53,7 @@ export default defineComponent({
   name: "UpmView",
   components: { UpwIcon },
   props: {
-    icon: {
-      type: String,
-      required: false,
-    },
+    icon: { type: [String, Object], default: null },
 
     title: {
       type: String,

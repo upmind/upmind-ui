@@ -7,12 +7,17 @@
       :uischema="uischema"
       @reject="doReject"
       @resolve="doResolve"
+      :loading="isLoading"
     />
   </div>
 </template>
 
 <script setup>
 import { UpwForm } from "@upmind/upwind";
+import { onMounted, ref } from "vue";
+import { delay } from "lodash-es";
+
+const isLoading = ref(true);
 
 const useDate = val => {
   const date = val ? new Date(Date.parse(val)) : new Date();
@@ -66,13 +71,6 @@ const schema = {
       description: "The impact is measured between 0 (none) and 10 (high)",
     },
 
-    domain: {
-      type: ["string", "array", "null"],
-      format: "domain_name",
-      title: "Add A domain....",
-      description: "",
-    },
-
     dueDate: {
       type: ["string", "null"],
       format: "date",
@@ -82,11 +80,13 @@ const schema = {
     },
 
     recurrence: {
+      title: "Recurrs...",
       type: ["string", "null"],
       enum: ["Daily", "Weekly", "Monthly"],
     },
 
     recurrenceInterval: {
+      title: "Every...",
       type: "integer",
       minimum: 1,
       maximum: 365,
@@ -162,56 +162,67 @@ const uischema = {
         },
 
         {
-          type: "Control",
-          scope: "#/properties/recurrence",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval",
-          options: {
-            min: 1,
-            max: 365,
-            placeholder: "Days until recurrence",
-          },
-          rule: {
-            effect: "SHOW",
-            condition: {
+          type: "HorizontalLayout",
+          elements: [
+            {
+              type: "Control",
               scope: "#/properties/recurrence",
-              schema: { type: "string", const: "Daily" },
+              options: {
+                trim: true,
+              },
             },
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval",
-          options: {
-            placeholder: "Weeks until recurrence",
-            min: 1,
-            max: 52,
-          },
-          rule: {
-            effect: "SHOW",
-            condition: {
-              scope: "#/properties/recurrence",
-              schema: { type: "string", const: "Weekly" },
+            {
+              type: "Control",
+              scope: "#/properties/recurrenceInterval",
+              options: {
+                min: 1,
+                max: 365,
+                trim: true,
+                suffix: "days",
+              },
+              rule: {
+                effect: "SHOW",
+                condition: {
+                  scope: "#/properties/recurrence",
+                  schema: { type: "string", const: "Daily" },
+                },
+              },
             },
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval",
-          options: {
-            placeholder: "Months until recurrence",
-            min: 1,
-            max: 12,
-          },
-          rule: {
-            effect: "SHOW",
-            condition: {
-              scope: "#/properties/recurrence",
-              schema: { type: "string", const: "Monthly" },
+            {
+              type: "Control",
+              scope: "#/properties/recurrenceInterval",
+              options: {
+                min: 1,
+                max: 52,
+                suffix: "weeks",
+                trim: true,
+              },
+              rule: {
+                effect: "SHOW",
+                condition: {
+                  scope: "#/properties/recurrence",
+                  schema: { type: "string", const: "Weekly" },
+                },
+              },
             },
-          },
+            {
+              type: "Control",
+              scope: "#/properties/recurrenceInterval",
+              options: {
+                min: 1,
+                max: 12,
+                suffix: "months",
+                trim: true,
+              },
+              rule: {
+                effect: "SHOW",
+                condition: {
+                  scope: "#/properties/recurrence",
+                  schema: { type: "string", const: "Monthly" },
+                },
+              },
+            },
+          ],
         },
         {
           type: "Control",
@@ -251,4 +262,10 @@ function doReject() {
 function doResolve(value) {
   console.log("doResolve", value);
 }
+
+onMounted(() => {
+  delay(() => {
+    isLoading.value = false;
+  }, 1000);
+});
 </script>

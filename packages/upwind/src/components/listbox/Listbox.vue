@@ -141,10 +141,8 @@ export default defineComponent({
       type: String,
       default: "Select option...",
     },
-    icon: {
-      type: String,
-      default: "",
-    },
+    icon: { type: [String, Object], default: null },
+
     toggle: {
       type: String,
       default: "arrow-up-down",

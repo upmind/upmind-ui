@@ -8,7 +8,7 @@ export const defaultStyles: Styles = {
       root: "flex place-items-center gap-2",
       text: "text-sm",
     },
-    input: "form-input rounded w-full",
+    input: "form-input rounded",
     file: "rounded w-full",
     password: "rounded w-full",
     checkbox: "form-checkbox rounded",

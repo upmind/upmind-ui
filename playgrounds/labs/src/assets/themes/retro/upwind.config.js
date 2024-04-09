@@ -1,12 +1,20 @@
 export default {
   button: {
-    label: ["font-light", "uppercase"],
+    label: "font-light uppercase",
     attributes: {
       size: {
-        sm: ["py-1", "px-2", "text-sm"],
-        default: ["py-1", "px-2", "text-sm"],
-        lg: ["py-2", "px-4", "text-sm"],
+        default: "px-2 py-1 text-sm ",
+        sm: "px-2 py-1 text-sm",
+        lg: "px-4 py-2 text-sm",
       },
+    },
+  },
+  form: {
+    content: {
+      loading: "scale-0 transform invisible opacity-0",
+    },
+    actions: {
+      loading: "invisible opacity-0",
     },
   },
 };
