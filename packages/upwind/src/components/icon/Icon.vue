@@ -28,12 +28,15 @@ import type { Icon } from "./types";
 export default defineComponent({
   name: "UpwIcon",
   props: {
-    icon: { type: [String, Object as PropType<Icon>], required: true },
-    filled: { type: Boolean, default: false },
-    avatar: { type: Boolean, default: false },
+    icon: { type: [String, Object] as PropType<Icon>, required: true },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
   },
   setup(props) {
-    const styles = useStyles("icon", config);
+    const styles = useStyles("icon", { props }, config, props.upwindConfig);
 
     const svg = ref(null);
 
@@ -47,9 +50,9 @@ export default defineComponent({
         const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
         const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
-        const rawIcon =
-          await iconsImport[`/src/assets/icons/${safePath}${safeName}.svg`]();
-        svg.value = rawIcon;
+        svg.value = (await iconsImport[
+          `/src/assets/icons/${safePath}${safeName}.svg`
+        ]()) as any;
       } catch {
         svg.value = null;
       }

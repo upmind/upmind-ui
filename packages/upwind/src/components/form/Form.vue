@@ -26,25 +26,14 @@
 
     <!-- actions -->
 
-    <div v-if="!actions && !meta.isLoading" :class="styles.actions.root">
+    <div v-if="safeActions && !meta.isLoading" :class="styles.actions.root">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <upw-button
-          type="submit"
-          :class="styles.actions.button"
-          :disabled="!meta.isValid || meta.isProcessing"
-          color="primary"
-        >
-          Save
-        </upw-button>
-
-        <upw-button
-          :disabled="meta.isProcessing"
-          :class="styles.actions.button"
-          @click="doReject"
-          variant="ghost"
-        >
-          Cancel
-        </upw-button>
+          v-for="(action, key) in safeActions"
+          :key="key"
+          v-bind="action"
+          @click.prevent="doAction(action, $event)"
+        />
       </slot>
     </div>
   </form>
@@ -53,8 +42,9 @@
 <script lang="ts">
 // --- global
 import { defineComponent, unref, toRaw } from "vue";
+import type Ajv from "ajv";
 
-import type { Ajv, ErrorObject } from "ajv";
+import type { ErrorObject } from "ajv";
 
 // --- components
 import { JsonForms } from "@jsonforms/vue";
@@ -67,7 +57,22 @@ import { prelineRenderers } from "./renderers";
 
 // --- utils
 import { useStyles, isDeepEmpty } from "../../utils";
-import { isEqual } from "lodash-es";
+import {
+  isArray,
+  isEqual,
+  isFunction,
+  isObject,
+  mapValues,
+  map,
+  isNil,
+} from "lodash-es";
+
+function safeValue(value: String | Object | Function, context?: any) {
+  if (isObject(value)) return mapValues(value, v => safeValue(v, context));
+  if (isArray(value)) return map(value, v => safeValue(v, context));
+  if (isFunction(value)) return value(context);
+  return value;
+}
 
 // --- types
 import type { PropType } from "vue";
@@ -106,16 +111,10 @@ export default defineComponent({
     },
     // ---
     actions: {
-      type: Object as PropType<Record<string, Object>>,
-      // default: () => {
-      //   submit:{
-      //     label:"Save",
-      //     color:"primary",
-      //     action: ()=>
-
-      //   },
-      //   reset:{}
-      // },
+      type: [Boolean, Object] as PropType<
+        Boolean | Record<string, { label: string; action: Function }>
+      >,
+      default: null,
     },
     // ---
 
@@ -138,6 +137,11 @@ export default defineComponent({
       >,
       default: () => [],
     },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
   },
 
   watch: {
@@ -155,9 +159,12 @@ export default defineComponent({
   customOptions: {},
 
   setup(props) {
+    const styles = useStyles("form", { props }, config, props.upwindConfig);
+
     return {
       renderers: Object.freeze(prelineRenderers),
-      styles: useStyles("form", config),
+      styles,
+      safeValue,
     };
   },
   data: () => ({
@@ -167,6 +174,35 @@ export default defineComponent({
   }),
 
   computed: {
+    safeActions() {
+      if (isNil(this.actions)) {
+        return {
+          submit: {
+            type: "submit",
+            label: "Save",
+            // color: "accent",
+            variant: "elevated",
+            disabled: !this.meta.isValid || this.meta.isProcessing,
+            action: () => {
+              this?.doSubmit();
+            },
+          },
+          reset: {
+            label: "Cancel",
+            variant: "ghost",
+            // color: "accent",
+            disabled: this.meta.isProcessing,
+            action: () => {
+              this.doReject();
+            },
+          },
+        };
+      } else if (this.actions) {
+        return safeValue(this.actions, this);
+      }
+      return null;
+    },
+
     meta() {
       return {
         isLoading: this.loading,
@@ -202,6 +238,25 @@ export default defineComponent({
       }
 
       this.$emit("valid", !this.errors?.length);
+    },
+
+    doAction(item, $event) {
+      if (this.meta.isProcessing) {
+        $event.preventDefault();
+        return;
+      }
+
+      if (isFunction(item.action)) {
+        item.action(this);
+        return;
+      }
+
+      if (item.action) {
+        this.$emit(item.action);
+        return;
+      }
+
+      this.$emit("click", item);
     },
 
     doSubmit() {

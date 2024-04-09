@@ -23,8 +23,15 @@ import { useStyles } from "../../utils";
 
 export default defineComponent({
   name: "UpwSpinner",
-  setup() {
-    const styles = useStyles("spinner", config);
+  props: {
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
+  },
+  setup(props) {
+    const styles = useStyles("spinner", { props }, config, props.upwindConfig);
 
     return {
       styles,

@@ -2,17 +2,22 @@
 import { unref, inject, computed } from "vue";
 
 // ---utils
-import { merge, get, omit, forEach, keys, split, uniq } from "lodash-es";
+import { merge, get, omit, forEach, keys, split, uniq, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-function generateComponentConfig(component, config, globalConfig) {
-  config = unref(config) || {}; // safety check
+function generateComponentConfig(
+  component: string,
+  globalConfig: Record<string, Object>,
+  ...configs: Array<Record<string, Object>>
+) {
+  configs = map(configs, unref); // safety check
   globalConfig = unref(globalConfig) || {};
 
   // Check if weve been provided with config overrides, then merge the default config
+  // TODO: maybe add some intelligent merging here, to ensure we dont add contradictory styles, eg 2 bg-[colors]
   const componentConfig = get(globalConfig, component, {});
-  const mergedConfig = merge({}, config, componentConfig);
+  const mergedConfig = merge({}, componentConfig, ...configs);
   return mergedConfig;
 }
 
@@ -31,16 +36,23 @@ function applyComponentStyles(
   result.root ??= []; // safety, ensure we always have a root array to push to
 
   // ----------------------------------------------
-  // Then apply Conditional styles based on Attributes, if any && if they exist
-  // NB: Attributes are the props passed to the component that ALSO have a corresponding style in the config
+  /* Then apply Conditional styles based on Attributes, if any && if they exist
+   NB: Attributes are the props passed to the component that ALSO have a corresponding style in the config
+      Atrributes consist of a target and options,
+      - target is the path of a node WITHIN the styles object to apply the conditional styles to
+      eg: root, or button.root, or item.root, etc
+      - options are the conditional styles to apply
+  */
   const attrs = keys(styles.attributes || {});
   forEach(attrs, attr => {
-    const attributStyles = get(styles, ["attributes", attr]);
+    const target = get(styles, ["attributes", attr, "target"]);
+    const options = get(styles, ["attributes", attr, "options"]);
+    const defaults = get(styles, ["attributes", attr, "options", "default"]);
     const value = get(props, attr);
-    const defaults = get(attributStyles, "default", attributStyles);
-    if (attributStyles) {
-      const style = get(attributStyles, value, defaults);
-      result.root.push(...style);
+    if (options) {
+      const style = get(options, value, defaults);
+      const targetStyles = get(result, target, []);
+      targetStyles.push(...style);
     }
   });
 
@@ -50,16 +62,16 @@ function applyComponentStyles(
 }
 
 export const useStyles = (
-  component: String,
-  config: Record<string, Object>,
-  context?: { props: Object }
+  component: string,
+  context?: { props: Object },
+  ...configs: Array<Record<string, Object>>
 ) => {
   // Check if weve been provided with style overrides, then merge the default styles with the overrides
   const globalConfig = inject("upwind", {});
 
   const styles = computed(() => {
     return applyComponentStyles(
-      generateComponentConfig(component, config, globalConfig),
+      generateComponentConfig(component, globalConfig, ...configs),
       context
     );
   });
