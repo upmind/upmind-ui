@@ -1,6 +1,11 @@
 <template>
   <div class="prose mx-auto flex max-w-none flex-wrap items-start gap-4 p-8">
-    <upw-listbox class="max-w-sm" :items="items" label="Choose an option" />
+    <upw-listbox
+      class="max-w-sm"
+      :items="items"
+      label="Choose an option"
+      icon-selected=""
+    />
     <upw-listbox
       class="max-w-sm"
       :items="items"
@@ -21,6 +26,15 @@
       counter="chosen"
       label="Choose Country"
       has-search
+    />
+
+    <upw-listbox
+      class="max-w-sm"
+      :items="countries"
+      counter="chosen"
+      label="Disabled"
+      has-search
+      disabled
     />
 
     <upw-listbox
