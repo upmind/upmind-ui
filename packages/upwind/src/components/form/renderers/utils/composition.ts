@@ -38,7 +38,7 @@ export const useprelineControl = <
   const controlWrapper = computed(() => {
     const { id, description, errors, label, visible, required, enabled, data } =
       input.control.value;
-    debugger;
+
     const meta = {
       isInvalid: !!errors?.length,
       isValid: !errors?.length && !isNil(data),
