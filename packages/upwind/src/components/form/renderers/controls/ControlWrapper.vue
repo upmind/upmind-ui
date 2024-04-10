@@ -1,10 +1,14 @@
 <template>
-  <div v-if="visible" :id="id" :class="styles?.root">
+  <div v-if="meta.isVisible" :id="id" :class="styles?.root">
     <!-- label -->
     <label
       v-if="computedLabel"
       :for="id + '-input'"
-      :class="[styles?.label?.root, errors ? styles?.label?.error : null]"
+      :class="[
+        styles?.label?.root,
+        meta.isInvalid ? styles?.label?.error : null,
+        meta.isValid ? styles?.label?.success : null,
+      ]"
     >
       <span :class="styles?.label?.text">{{ computedLabel }}</span>
     </label>
@@ -13,26 +17,110 @@
     <div
       :class="[
         styles?.wrapper?.root,
-        errors ? styles?.wrapper?.error : null,
-        disabled ? 'disabled' : null,
+        meta.isInvalid ? styles?.wrapper?.error : null,
+        meta.isValid ? styles?.wrapper?.success : null,
+        meta.isDisabled ? 'disabled' : null,
       ]"
     >
-      <slot name="append">
+      <slot name="prepend">
         <span
           class="prefix"
-          :class="[styles?.prefix.root, errors ? styles?.prefix.error : null]"
+          :class="[
+            styles?.prefix?.root,
+            meta.isInvalid ? styles?.prefix?.error : null,
+            meta.isValid ? styles?.prefix?.success : null,
+          ]"
           v-if="appliedOptions?.prefix"
         >
           {{ appliedOptions.prefix }}
         </span>
       </slot>
 
+      <slot
+        name="prepend-avatar"
+        v-bind="{
+          styles: styles?.avatar,
+          avatar: appliedOptions?.prependAvatar,
+        }"
+      >
+        <upw-icon
+          v-if="appliedOptions?.prependAvatar"
+          class="avatar"
+          :class="styles?.avatar"
+          :icon="appliedOptions.prependAvatar"
+        />
+      </slot>
+
+      <slot
+        name="prepend-icon"
+        v-bind="{
+          styles: styles?.icon,
+          icon: appliedOptions?.prependIcon,
+        }"
+      >
+        <upw-icon
+          v-if="appliedOptions?.prependIcon"
+          :class="styles?.icon"
+          :icon="appliedOptions.prependIcon"
+        />
+      </slot>
+
       <slot></slot>
+
+      <slot
+        name="status"
+        v-bind="{
+          styles: styles?.status,
+          errors,
+          meta,
+        }"
+      >
+        <upw-icon
+          v-if="meta.isInvalid"
+          :class="[styles?.icon, styles?.status?.error]"
+          icon="alert-circle"
+        />
+        <upw-icon
+          v-else-if="meta.isValid"
+          :class="[styles?.icon, styles?.status?.success]"
+          icon="check-circle"
+        />
+      </slot>
+
+      <slot
+        name="append-icon"
+        v-bind="{ styles: styles?.icon, icon: appliedOptions?.appendIcon }"
+      >
+        <upw-icon
+          v-if="appliedOptions?.appendIcon"
+          :class="styles?.icon"
+          :icon="appliedOptions.appendIcon"
+        />
+      </slot>
+
+      <slot
+        name="append-avatar"
+        v-bind="{
+          styles: styles?.avatar,
+          avatar: appliedOptions?.appendAvatar,
+        }"
+      >
+        <upw-icon
+          v-if="appliedOptions?.appendAvatar"
+          class="avatar"
+          :class="styles?.avatar"
+          :icon="appliedOptions.appendAvatar"
+        />
+      </slot>
 
       <slot name="append">
         <span
           class="suffix"
-          :class="[styles?.suffix.root, errors ? styles?.suffix.error : null]"
+          :class="[
+            styles?.suffix?.root,
+            meta.isInvalid ? styles?.suffix?.error : null,
+            meta.isValid ? styles?.suffix?.success : null,
+          ]"
           v-if="appliedOptions?.suffix"
         >
           {{ appliedOptions.suffix }}
@@ -42,71 +130,66 @@
 
     <!-- help/description -->
     <div v-if="showDescription" :class="styles?.description">
-      {{ description }}
+      <upw-icon :class="styles?.icon" icon="info-circle" />
+      <span>{{ description }}</span>
     </div>
 
     <!-- errors -->
-    <div v-if="errors" :class="styles?.error">
-      {{ errors }}
+    <div v-if="meta.isInvalid" :class="styles?.error">
+      <upw-icon :class="styles?.icon" icon="info-circle" />
+      <span>{{ errors }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
-import type { PropType } from "vue";
+// --- global
 import { defineComponent } from "vue";
+import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
+
+// --- components
+import UpwIcon from "../../../icon/Icon.vue";
+
+// --- local
+
+// --- utils
 import { useStyles } from "../../../../utils";
+
+// --- types
+import type { PropType } from "vue";
 import type { Options } from "../utils";
 
 export default defineComponent({
   name: "ControlWrapper",
+  components: {
+    UpwIcon,
+  },
   props: {
     id: {
       required: true,
       type: String,
     },
     description: {
-      required: false as const,
       type: String,
       default: undefined,
     },
     errors: {
-      required: false as const,
       type: String,
       default: undefined,
     },
     label: {
-      required: false as const,
       type: String,
       default: undefined,
     },
     appliedOptions: {
-      required: false as const,
       type: Object as PropType<Options>,
       default: undefined,
     },
-    visible: {
-      required: false as const,
-      type: Boolean,
-      default: true,
+    meta: {
+      required: true,
+      type: Object,
+      default: undefined,
     },
-    disabled: {
-      required: false as const,
-      type: Boolean,
-      default: false,
-    },
-    required: {
-      required: false as const,
-      type: Boolean,
-      default: false,
-    },
-    isFocused: {
-      required: false as const,
-      type: Boolean,
-      default: false,
-    },
-
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -116,16 +199,16 @@ export default defineComponent({
   computed: {
     showDescription(): boolean {
       return !isDescriptionHidden(
-        this.visible,
+        this.meta?.isVisible,
         this.description,
-        this.isFocused,
+        this.meta?.isFocused,
         !!this.appliedOptions?.showUnfocusedDescription
       );
     },
     computedLabel(): string {
       return computeLabel(
         this.label,
-        this.required,
+        this.meta?.isRequired,
         !!this.appliedOptions?.hideRequiredAsterisk
       );
     },
@@ -138,4 +221,3 @@ export default defineComponent({
   },
 });
 </script>
-../utils
