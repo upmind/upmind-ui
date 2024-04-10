@@ -1,6 +1,6 @@
 import { useStyles } from "../styles";
 import { computed, ref } from "vue";
-import { merge, cloneDeep } from "lodash-es";
+import { merge, cloneDeep, isNil } from "lodash-es";
 
 import {
   composePaths,
@@ -36,9 +36,19 @@ export const useprelineControl = <
   };
 
   const controlWrapper = computed(() => {
-    const { id, description, errors, label, visible, required, enabled } =
+    const { id, description, errors, label, visible, required, enabled, data } =
       input.control.value;
-    return { id, description, errors, label, visible, required, enabled };
+    debugger;
+    const meta = {
+      isInvalid: !!errors?.length,
+      isValid: !errors?.length && !isNil(data),
+      isDirty: !isNil(data),
+      isFocused: isFocused.value,
+      isRequired: required,
+      isVisible: visible,
+      isDisabled: !enabled,
+    };
+    return { id, description, errors, label, meta };
   });
 
   return {

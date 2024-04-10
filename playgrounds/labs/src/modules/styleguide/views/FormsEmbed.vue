@@ -110,8 +110,12 @@ const uischema = {
           options: {
             placeholder: "What needs to be done?",
             focus: true,
-            prefix: "shabba",
-            suffix: "ranks",
+            prefix: "$",
+            suffix: ".00",
+            prependIcon: "cog",
+            prependAvatar: { name: "ZA", path: "flags" },
+            appendIcon: "devices",
+            appendAvatar: { name: "GB", path: "flags" },
           },
         },
 

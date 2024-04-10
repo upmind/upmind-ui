@@ -17,6 +17,7 @@
     <slot
       name="prepend-avatar"
       v-bind="{ styles: styles.avatar, avatar: prependAvatar }"
+      v-if="!iconOnly"
     >
       <upw-icon
         v-if="prependAvatar"
@@ -54,7 +55,7 @@
       </slot>
 
       <slot
-        name="append"
+        name="append-icon"
         v-bind="{ styles: styles.icon, icon: appendIcon }"
         v-if="!iconOnly || (iconOnly && !prependIcon)"
       >
@@ -69,6 +70,7 @@
     <slot
       name="append-avatar"
       v-bind="{ styles: styles.avatar, avatar: appendAvatar }"
+      v-if="!iconOnly"
     >
       <upw-icon
         v-if="appendAvatar"
