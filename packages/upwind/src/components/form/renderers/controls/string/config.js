@@ -11,16 +11,12 @@ export default {
     error: upwConfig("border-error-300"),
   },
   prefix: {
-    root: upwConfig(
-      "bg-base-100 group-focus-within:bg-primary-50 rounded-s-lg px-4 py-3"
-    ),
-    error: upwConfig("bg-error-50"),
+    root: upwConfig("bg-base-100 rounded-s-lg px-4 py-3"),
+    error: upwConfig(""),
   },
   suffix: {
-    root: upwConfig(
-      "bg-base-100 group-focus-within:bg-primary-50 rounded-e-lg px-4 py-3"
-    ),
-    error: upwConfig("bg-error-50"),
+    root: upwConfig("bg-base-100  rounded-e-lg px-4 py-3"),
+    error: upwConfig(""),
   },
   label: {
     root: upwConfig("text-base-content"),

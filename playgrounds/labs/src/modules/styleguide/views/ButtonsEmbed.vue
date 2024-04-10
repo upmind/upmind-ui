@@ -2,54 +2,67 @@
   <div
     class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
   >
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Types/Variants</h3>
       <upw-button variant="flat" label="Flat (Solid)" />
       <upw-button variant="outlined" label="Outlined" />
       <upw-button variant="ghost" label="Ghost" />
-      <upw-button variant="plain" label="Plain (Soft)" />
-      <upw-button variant="elevated" label="Elevated" />
       <upw-button variant="link" label="Link" />
     </section>
 
-    <section class="flex w-full flex-wrap items-center gap-4">
-      <h3 class="w-full">Size Variants</h3>
+    <section class="flex w-full flex-wrap items-center gap-2">
+      <h3 class="w-full">Slot variants</h3>
+      <p class="w-full">
+        Buttons with all slots activated<br />
+        prepend-avatar | prepend-icon | append-icon | append-avatar
+      </p>
       <upw-button
-        prepend-icon="cog"
-        append-icon="arrow-down"
-        variant="plain"
         size="sm"
         label="Small"
+        :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+        prepend-icon="cog"
+        append-icon="devices"
+        :append-avatar="{ name: 'GB', path: 'flags' }"
       />
       <upw-button
+        label="Medium (Default)"
+        :prepend-avatar="{ name: 'ZA', path: 'flags' }"
         prepend-icon="cog"
-        append-icon="arrow-down"
-        variant="plain"
-        label="Default"
+        append-icon="devices"
+        :append-avatar="{ name: 'GB', path: 'flags' }"
       />
       <upw-button
-        prepend-icon="cog"
-        append-icon="arrow-down"
-        variant="plain"
         size="lg"
         label="Large"
-      />
-
-      <upw-button
-        variant="plain"
-        size="icon"
+        :prepend-avatar="{ name: 'ZA', path: 'flags' }"
         prepend-icon="cog"
-        label="Icon Only"
-      />
-      <upw-button
-        variant="plain"
-        prepend-icon="cog"
-        size="block"
-        label="Block"
+        append-icon="devices"
+        :append-avatar="{ name: 'GB', path: 'flags' }"
       />
     </section>
 
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
+      <h3 class="w-full">Size Variants</h3>
+      <upw-button size="sm" label="Small" />
+      <upw-button label="Medium (Default)" />
+      <upw-button size="lg" label="Large" />
+    </section>
+
+    <section class="flex w-full flex-wrap items-center gap-2">
+      <h3 class="w-full">Icon only Variants</h3>
+      <upw-button icon-only prepend-icon="cog" size="sm" label="Small" />
+      <upw-button icon-only prepend-icon="cog" label="Medium (Default)" />
+      <upw-button icon-only prepend-icon="cog" size="lg" label="Large" />
+    </section>
+
+    <section class="flex w-full flex-wrap items-center gap-2">
+      <h3 class="w-full">Block Variants</h3>
+      <upw-button block size="sm" label="Small" />
+      <upw-button block label="Medium (Default)" />
+      <upw-button block size="lg" label="Large" />
+    </section>
+
+    <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Solid Color Variants</h3>
       <upw-button color="primary" label="Primary" />
       <upw-button color="secondary" label="Secondary" />
@@ -61,7 +74,7 @@
       <upw-button color="warning" label="Warning" />
     </section>
 
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Outlined Color Variants</h3>
       <upw-button variant="outlined" color="primary" label="Primary" />
       <upw-button variant="outlined" color="secondary" label="Secondary" />
@@ -73,8 +86,8 @@
       <upw-button variant="outlined" color="warning" label="Warning" />
     </section>
 
-    <h3 class="w-full">Ghost Color Variants</h3>
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
+      <h3 class="w-full">Ghost Color Variants</h3>
       <upw-button variant="ghost" color="primary" label="Primary" />
       <upw-button variant="ghost" color="secondary" label="Secondary" />
       <upw-button variant="ghost" color="accent" label="Accent" />
@@ -85,31 +98,7 @@
       <upw-button variant="ghost" color="warning" label="Warning" />
     </section>
 
-    <h3 class="w-full">Plain (Soft) Color Variants</h3>
-    <section class="flex w-full flex-wrap items-center gap-4">
-      <upw-button variant="plain" color="primary" label="Primary" />
-      <upw-button variant="plain" color="secondary" label="Secondary" />
-      <upw-button variant="plain" color="accent" label="Accent" />
-      <upw-button variant="plain" color="neutral" label="Neutral" />
-      <upw-button variant="plain" color="info" label="Info" />
-      <upw-button variant="plain" color="success" label="Success" />
-      <upw-button variant="plain" color="error" label="Error" />
-      <upw-button variant="plain" color="warning" label="Warning" />
-    </section>
-
-    <section class="flex w-full flex-wrap items-center gap-4">
-      <h3 class="w-full">Elevated Color Variants</h3>
-      <upw-button variant="elevated" color="primary" label="Primary" />
-      <upw-button variant="elevated" color="secondary" label="Secondary" />
-      <upw-button variant="elevated" color="accent" label="Accent" />
-      <upw-button variant="elevated" color="neutral" label="Neutral" />
-      <upw-button variant="elevated" color="info" label="Info" />
-      <upw-button variant="elevated" color="success" label="Success" />
-      <upw-button variant="elevated" color="error" label="Error" />
-      <upw-button variant="elevated" color="warning" label="Warning" />
-    </section>
-
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Link Color Variants</h3>
       <upw-button variant="link" color="primary" label="Primary" />
       <upw-button variant="link" color="secondary" label="Secondary" />
@@ -121,83 +110,28 @@
       <upw-button variant="link" color="warning" label="Warning" />
     </section>
 
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Loading Color Variants</h3>
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="primary"
-        label="Primary"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="secondary"
-        label="Secondary"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="accent"
-        label="Accent"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="neutral"
-        label="Neutral"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="info"
-        label="Info"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="success"
-        label="Success"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="error"
-        label="Error"
-      />
-      <upw-button
-        :loading="isLoading"
-        variant="plain"
-        color="warning"
-        label="Warning"
-      />
+      <upw-button :loading="isLoading" color="primary" label="Primary" />
+      <upw-button :loading="isLoading" color="secondary" label="Secondary" />
+      <upw-button :loading="isLoading" color="accent" label="Accent" />
+      <upw-button :loading="isLoading" color="neutral" label="Neutral" />
+      <upw-button :loading="isLoading" color="info" label="Info" />
+      <upw-button :loading="isLoading" color="success" label="Success" />
+      <upw-button :loading="isLoading" color="error" label="Error" />
+      <upw-button :loading="isLoading" color="warning" label="Warning" />
     </section>
 
-    <section class="flex w-full flex-wrap items-center gap-4">
+    <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Disabled Color Variants</h3>
-      <upw-button disabled variant="plain" color="primary" label="Primary" />
-      <upw-button
-        disabled
-        variant="plain"
-        color="secondary"
-        label="Secondary"
-      />
-      <upw-button disabled variant="plain" color="accent" label="Accent" />
-      <upw-button disabled variant="plain" color="neutral" label="Neutral" />
-      <upw-button disabled variant="plain" color="info" label="Info" />
-      <upw-button disabled variant="plain" color="success" label="Success" />
-      <upw-button disabled variant="plain" color="error" label="Error" />
-      <upw-button disabled variant="plain" color="warning" label="Warning" />
-    </section>
-
-    <section class="flex w-full flex-wrap items-center gap-4">
-      <h3 class="w-full">Shape Variants</h3>
-      <upw-button variant="plain" shape="none" label="No Shaped" />
-      <upw-button variant="plain" shape="sm" label="Small Shaped" />
-      <upw-button variant="plain" shape="md" label="Medium Shaped" />
-      <upw-button variant="plain" shape="lg" label="Large Shaped" />
-      <upw-button variant="plain" shape="xl" label="Xtra Large Shaped" />
-      <upw-button variant="plain" shape="pill" label="Pill Shaped" />
+      <upw-button disabled color="primary" label="Primary" />
+      <upw-button disabled color="secondary" label="Secondary" />
+      <upw-button disabled color="accent" label="Accent" />
+      <upw-button disabled color="neutral" label="Neutral" />
+      <upw-button disabled color="info" label="Info" />
+      <upw-button disabled color="success" label="Success" />
+      <upw-button disabled color="error" label="Error" />
+      <upw-button disabled color="warning" label="Warning" />
     </section>
   </div>
 </template>

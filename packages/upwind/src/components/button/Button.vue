@@ -5,7 +5,6 @@
     :data-size="size"
     :data-variant="variant"
     :data-color="color"
-    :data-shape="shape"
   >
     <slot
       v-if="meta.isLoading"
@@ -15,29 +14,70 @@
       <upw-spinner :class="styles.loading" class="loading" />
     </slot>
 
-    <slot name="prepend" v-bind="{ styles: styles.icon, icon: prependIcon }">
+    <slot
+      name="prepend-avatar"
+      v-bind="{ styles: styles.avatar, avatar: prependAvatar }"
+    >
       <upw-icon
-        v-if="prependIcon"
-        :class="[styles.icon.root, meta.isLoading ? styles.icon.loading : '']"
-        :icon="prependIcon"
+        v-if="prependAvatar"
+        class="avatar"
+        :class="[
+          styles.avatar.root,
+          meta.isLoading ? styles.avatar.loading : '',
+        ]"
+        :icon="prependAvatar"
       />
     </slot>
 
-    <slot v-bind="{ styles }">
-      <span
-        :class="[styles.label.root, meta.isLoading ? styles.label.loading : '']"
-        v-if="label"
-        class="label"
+    <span
+      class="content"
+      :class="[
+        styles.content.root,
+        meta.isLoading ? styles.content.loading : '',
+      ]"
+    >
+      <slot
+        name="prepend-icon"
+        v-bind="{ styles: styles.content.icon, icon: prependIcon }"
       >
-        {{ label }}
-      </span>
-    </slot>
+        <upw-icon
+          v-if="prependIcon"
+          :class="styles.content.icon"
+          :icon="prependIcon"
+        />
+      </slot>
 
-    <slot name="append" v-bind="{ styles: styles.icon, icon: appendIcon }">
+      <slot v-bind="{ styles }">
+        <span :class="styles.content.label" v-if="label" class="label">
+          {{ label }}
+        </span>
+      </slot>
+
+      <slot
+        name="append"
+        v-bind="{ styles: styles.icon, icon: appendIcon }"
+        v-if="!iconOnly || (iconOnly && !prependIcon)"
+      >
+        <upw-icon
+          v-if="appendIcon"
+          :class="styles.content.icon"
+          :icon="appendIcon"
+        />
+      </slot>
+    </span>
+
+    <slot
+      name="append-avatar"
+      v-bind="{ styles: styles.avatar, avatar: appendAvatar }"
+    >
       <upw-icon
-        v-if="appendIcon"
-        :class="[styles.icon.root, meta.isLoading ? styles.icon.loading : '']"
-        :icon="appendIcon"
+        v-if="appendAvatar"
+        class="avatar"
+        :class="[
+          styles.avatar.root,
+          meta.isLoading ? styles.avatar.loading : '',
+        ]"
+        :icon="appendAvatar"
       />
     </slot>
   </button>
@@ -59,12 +99,7 @@ import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
-import type {
-  ButtonVariant,
-  ButtonColor,
-  ButtonShape,
-  ButtonSize,
-} from "./types";
+import type { ButtonVariant, ButtonColor, ButtonSize } from "./types";
 
 // ----------------------------------------------
 
@@ -80,11 +115,19 @@ export default defineComponent({
       type: String,
       default: null,
     },
+    prependAvatar: {
+      type: String,
+      default: null,
+    },
     prependIcon: {
       type: String,
       default: null,
     },
     appendIcon: {
+      type: String,
+      default: null,
+    },
+    appendAvatar: {
       type: String,
       default: null,
     },
@@ -111,9 +154,13 @@ export default defineComponent({
       type: String as PropType<ButtonSize>,
       default: null,
     },
-    shape: {
-      type: String as PropType<ButtonShape>,
-      default: null,
+    iconOnly: {
+      type: Boolean,
+      default: false,
+    },
+    block: {
+      type: Boolean,
+      default: false,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
