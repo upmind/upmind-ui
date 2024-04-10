@@ -130,13 +130,13 @@
 
     <!-- help/description -->
     <div v-if="showDescription" :class="styles?.description">
-      <upw-icon :class="styles?.icon" icon="info-circle" />
+      <upw-icon :class="styles?.icon" icon="information-circle" />
       <span>{{ description }}</span>
     </div>
 
     <!-- errors -->
-    <div v-if="meta.isInvalid" :class="styles?.error">
-      <upw-icon :class="styles?.icon" icon="info-circle" />
+    <div v-if="showError" :class="styles?.error">
+      <upw-icon :class="styles?.icon" icon="information-circle" />
       <span>{{ errors }}</span>
     </div>
   </div>
@@ -203,6 +203,17 @@ export default defineComponent({
         this.description,
         this.meta?.isFocused,
         !!this.appliedOptions?.showUnfocusedDescription
+      );
+    },
+    showError(): boolean {
+      return (
+        this.meta.isInvalid &&
+        isDescriptionHidden(
+          this.meta?.isVisible,
+          this.description,
+          this.meta?.isFocused,
+          !!this.appliedOptions?.showUnfocusedDescription
+        )
       );
     },
     computedLabel(): string {
