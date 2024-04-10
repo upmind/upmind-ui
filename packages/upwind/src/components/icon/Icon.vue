@@ -5,7 +5,7 @@
     :class="styles.root"
     v-html="svg"
     role="img"
-    :aria-label="`${icon} icon`"
+    :aria-label="`${icon?.name || icon} icon`"
   />
 </template>
 
@@ -69,8 +69,8 @@ export default defineComponent({
 <style lang="scss">
 .icon {
   > svg {
-    width: 100%;
-    height: 100%;
+    width: apply(w-full);
+    height: apply(h-full);
   }
 }
 </style>
