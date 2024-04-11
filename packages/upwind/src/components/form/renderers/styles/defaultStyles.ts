@@ -58,11 +58,11 @@ export const defaultStyles: Styles = {
       "bg-gray-500 bg-opacity-10 px-4 inline-flex items-center h-full -mr-4",
   },
   verticalLayout: {
-    root: "vertical-layout flex flex-col gap-4 w-full",
+    root: "vertical-layout flex flex-col gap-10 w-full",
     item: "vertical-layout-item w-full empty:hidden",
   },
   horizontalLayout: {
-    root: "horizontal-layout flex flex-wrap gap-4 w-full",
+    root: "horizontal-layout flex flex-wrap gap-10 w-full",
     item: "horizontal-layout-item flex-1",
   },
   group: {

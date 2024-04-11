@@ -3,7 +3,7 @@ import { upwConfig } from "../../../../../utils";
 // -----------------------------------------------------------------------------
 
 export default {
-  root: upwConfig("relative flex flex-col gap-3 pb-9"),
+  root: upwConfig("relative flex flex-col gap-3"),
   wrapper: {
     root: upwConfig(
       "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full  items-center gap-2 rounded-lg border px-2 py-0 text-sm ring-0 focus-within:ring-4 focus-within:ring-opacity-10 disabled:pointer-events-none disabled:opacity-50"
@@ -42,29 +42,28 @@ export default {
     success: upwConfig(""),
   },
 
-  error: upwConfig(
-    "text-error absolute bottom-0 left-0 right-0 flex items-center gap-2 align-bottom text-xs"
-  ),
-
-  description: upwConfig(
-    "text-base-content absolute bottom-0 left-0 right-0 flex items-center gap-2 align-bottom text-xs"
-  ),
-  transition: {
-    enter: {
-      // active: upwConfig("m-0 transition duration-100 ease-out"),
-      // from: upwConfig("-translate-y-1 transform opacity-0"),
-      // to: upwConfig("translate-y-0 transform opacity-100"),
-      active: upwConfig("m-0 transition duration-100 ease-out"),
-      from: upwConfig("transform opacity-0"),
-      to: upwConfig("transform opacity-100"),
-    },
-    leave: {
-      // active: upwConfig("absolute transition duration-75 ease-in"),
-      // from: upwConfig("translate-y-0 transform opacity-100"),
-      // to: upwConfig("-translate-y-1 transform opacity-0"),
-      active: upwConfig("absolute transition duration-75 ease-in"),
-      from: upwConfig("transform opacity-100"),
-      to: upwConfig("transform opacity-0"),
+  feedback: {
+    root: upwConfig("flex items-center text-xs"),
+    hidden: upwConfig("invisible w-0 overflow-hidden text-nowrap"),
+    error: upwConfig("text-error flex items-center gap-2"),
+    description: upwConfig("text-base-content flex items-center gap-2"),
+    transition: {
+      enter: {
+        // active: upwConfig("m-0 transition duration-100 ease-out"),
+        // from: upwConfig("-translate-y-1 transform opacity-0"),
+        // to: upwConfig("translate-y-0 transform opacity-100"),
+        active: upwConfig("m-0 transition duration-100 ease-out"),
+        from: upwConfig("transform opacity-0"),
+        to: upwConfig("transform opacity-100"),
+      },
+      leave: {
+        // active: upwConfig("absolute transition duration-75 ease-in"),
+        // from: upwConfig("translate-y-0 transform opacity-100"),
+        // to: upwConfig("-translate-y-1 transform opacity-0"),
+        active: upwConfig("absolute transition duration-75 ease-in"),
+        from: upwConfig("transform opacity-100"),
+        to: upwConfig("transform opacity-0"),
+      },
     },
   },
 };
