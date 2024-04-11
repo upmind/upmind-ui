@@ -6,14 +6,15 @@ export default {
   root: upwConfig("relative flex flex-col gap-3"),
   wrapper: {
     root: upwConfig(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full  items-center gap-2 rounded-lg border px-2 py-0 text-sm ring-0 focus-within:ring-4 focus-within:ring-opacity-10 disabled:pointer-events-none disabled:opacity-50"
+      "border-base-300 focus-within:border-primary focus-within:ring-primary  group inline-flex  w-full items-center gap-2 rounded-lg border px-2 py-0 text-sm ring-0 focus-within:ring-4 focus-within:ring-opacity-10"
     ),
     error: upwConfig(
-      "border-error-300 ring-error focus-within:border-error focus-within:ring-error ring-4 ring-opacity-10"
+      "border-error-300 focus-within:border-error focus-within:ring-error"
     ),
     success: upwConfig(
-      "border-success-300 ring-success focus-within:border-success focus-within:ring-success ring-4 ring-opacity-10"
+      "border-success-300 focus-within:border-success focus-within:ring-success"
     ),
+    disabled: upwConfig("bg-base-100 pointer-events-none opacity-50"),
   },
   icon: upwConfig("size-[1.5em]"),
   avatar: upwConfig("size-[1.5em] overflow-hidden rounded-full"),
