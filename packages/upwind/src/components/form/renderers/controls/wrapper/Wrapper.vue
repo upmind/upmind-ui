@@ -198,7 +198,7 @@ export default defineComponent({
     showDescription(): boolean {
       return (
         !isNil(this?.description) &&
-        !this.meta.isInvalid &&
+        !this.meta?.isInvalid &&
         (this.meta?.isFocused || this.appliedOptions?.persistDescription)
       );
     },
