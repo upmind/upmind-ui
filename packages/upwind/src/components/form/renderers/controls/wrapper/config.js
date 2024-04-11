@@ -3,13 +3,13 @@ import { upwConfig } from "../../../../../utils";
 // -----------------------------------------------------------------------------
 
 export default {
-  root: upwConfig("relative flex flex-col gap-3"),
+  root: upwConfig("relative flex flex-col gap-1"),
   wrapper: {
     root: upwConfig(
       "border-base-300 focus-within:border-primary focus-within:ring-primary  group inline-flex  w-full items-center gap-2 rounded-lg border px-2 py-0 text-sm ring-0 focus-within:ring-4 focus-within:ring-opacity-10"
     ),
     error: upwConfig(
-      "border-error-300 focus-within:border-error focus-within:ring-error"
+      "border-error-300 focus-within:!border-error focus-within:!ring-error focus-within:!ring-opacity-10"
     ),
     success: upwConfig(
       "border-success-300 focus-within:border-success focus-within:ring-success"
@@ -36,9 +36,9 @@ export default {
     root: upwConfig(
       "text-base-content flex w-full items-center justify-between gap-2"
     ),
-    text: upwConfig(""),
-    required: upwConfig("text-base-500 text-sm leading-tight"),
-    optional: upwConfig("text-base-500 text-sm leading-tight"),
+    text: upwConfig("text-sm"),
+    required: upwConfig("text-base-500 text-xs leading-tight"),
+    optional: upwConfig("text-base-500 text-xs leading-tight"),
     error: upwConfig(""),
     success: upwConfig(""),
   },

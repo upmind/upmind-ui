@@ -41,20 +41,20 @@ const schema = {
       type: ["string"],
       title: "Task",
       description: "The task's name",
-      readOnly: true,
     },
     text: {
       type: ["string", "null"],
-      title: "Text",
+      title: "Text Input",
     },
 
     text2: {
       type: ["string", "null"],
-      title: "Text 2",
+      title: "Disabled Text Input",
+      readOnly: true,
     },
     text3: {
       type: ["string", "null"],
-      title: "Text 3",
+      title: "Text Input with Icon",
     },
 
     description: {
