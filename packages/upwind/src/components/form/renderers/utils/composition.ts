@@ -1,6 +1,6 @@
 import { useStyles } from "../styles";
 import { computed, ref } from "vue";
-import { merge, cloneDeep, isNil } from "lodash-es";
+import { merge, cloneDeep } from "lodash-es";
 
 import {
   composePaths,
