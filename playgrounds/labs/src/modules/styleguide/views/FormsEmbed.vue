@@ -41,6 +41,7 @@ const schema = {
       type: ["string"],
       title: "Task",
       description: "The task's name",
+      readOnly: true,
     },
     text: {
       type: ["string", "null"],

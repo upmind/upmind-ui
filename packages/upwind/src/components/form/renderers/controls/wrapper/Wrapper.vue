@@ -1,12 +1,12 @@
 <template>
-  <div v-if="meta.isVisible" :id="id" :class="styles?.root">
+  <div v-if="meta.isVisible" :id="id" :class="[styles?.root]">
     <!-- label -->
     <div
       class="label"
       :class="[
         styles?.label?.root,
-        meta.isInvalid ? styles?.label?.error : null,
-        meta.isValid ? styles?.label?.success : null,
+        showError ? styles?.label?.error : null,
+        showSuccess ? styles?.label?.success : null,
       ]"
     >
       <label
@@ -30,17 +30,17 @@
     <div
       :class="[
         styles?.wrapper?.root,
-        meta.isInvalid ? styles?.wrapper?.error : null,
-        meta.isValid ? styles?.wrapper?.success : null,
-        meta.isDisabled ? 'disabled' : null,
+        showError ? styles?.wrapper?.error : null,
+        showSuccess ? styles?.wrapper?.success : null,
+        meta.isDisabled ? styles?.wrapper?.disabled : '',
       ]"
     >
       <span
         class="prefix"
         :class="[
           styles?.prefix?.root,
-          meta.isInvalid ? styles?.prefix?.error : null,
-          meta.isValid ? styles?.prefix?.success : null,
+          showError ? styles?.prefix?.error : null,
+          showSuccess ? styles?.prefix?.success : null,
         ]"
         v-if="appliedOptions?.prefix"
       >
@@ -90,8 +90,8 @@
         class="suffix"
         :class="[
           styles?.suffix?.root,
-          meta.isInvalid ? styles?.suffix?.error : null,
-          meta.isValid ? styles?.suffix?.success : null,
+          showError ? styles?.suffix?.error : null,
+          showSuccess ? styles?.suffix?.success : null,
         ]"
         v-if="appliedOptions?.suffix"
       >
@@ -100,21 +100,22 @@
     </div>
 
     <!-- feedback -->
-    <transition-group
-      :enter-active-class="
-        styles?.feedback?.transition?.enter?.active?.join(' ')
-      "
-      :enter-from-class="styles?.feedback?.transition?.enter?.from?.join(' ')"
-      :enter-to-class="styles?.feedback?.transition?.enter?.to?.join(' ')"
-      :leave-active-class="
-        styles?.feedback?.transition?.leave?.active?.join(' ')
-      "
-      :leave-from-class="styles?.feedback?.transition?.leave?.from?.join(' ')"
-      :leave-to-class="styles?.feedback?.transition?.leave?.to?.join(' ')"
-    >
-      <div class="feedback" :class="styles?.feedback?.root">
+    <div class="feedback" :class="styles?.feedback?.root">
+      <transition-group
+        :enter-active-class="
+          styles?.feedback?.transition?.enter?.active?.join(' ')
+        "
+        :enter-from-class="styles?.feedback?.transition?.enter?.from?.join(' ')"
+        :enter-to-class="styles?.feedback?.transition?.enter?.to?.join(' ')"
+        :leave-active-class="
+          styles?.feedback?.transition?.leave?.active?.join(' ')
+        "
+        :leave-from-class="styles?.feedback?.transition?.leave?.from?.join(' ')"
+        :leave-to-class="styles?.feedback?.transition?.leave?.to?.join(' ')"
+      >
         <!-- hint/description -->
         <span
+          key="description"
           :class="[
             styles?.feedback?.description,
             !showDescription ? styles?.feedback?.hidden : '',
@@ -126,6 +127,7 @@
 
         <!-- errors -->
         <span
+          key="errors"
           :class="[
             styles?.feedback?.error,
             !showError ? styles?.feedback?.hidden : '',
@@ -134,8 +136,8 @@
           <upw-icon :class="styles?.icon" icon="information-circle" />
           <span>{{ errors }}</span>
         </span>
-      </div>
-    </transition-group>
+      </transition-group>
+    </div>
   </div>
 </template>
 
@@ -151,7 +153,7 @@ import config from "./config";
 
 // --- utils
 import { useStyles } from "../../../../../utils";
-import { isNil } from "lodash-es";
+import { isNil, isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -183,11 +185,28 @@ export default defineComponent({
       type: Object as PropType<Options>,
       default: undefined,
     },
-    meta: {
-      required: true,
-      type: Object,
-      default: undefined,
+    // ---
+    required: {
+      type: Boolean,
+      default: false,
     },
+    visible: {
+      type: Boolean,
+      default: true,
+    },
+    focused: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    data: {
+      type: [String, Number, Boolean, Object, Array],
+      default: null,
+    },
+
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -195,6 +214,18 @@ export default defineComponent({
     },
   },
   computed: {
+    meta(): any {
+      return {
+        isInvalid: !!this.errors?.length,
+        isValid: isEmpty(this.errors) && !isNil(this.data),
+        isDirty: !isNil(this.data),
+        isFocused: this.focused,
+        isRequired: this.required,
+        isVisible: this.visible,
+        isDisabled: this.disabled,
+      };
+    },
+
     showDescription(): boolean {
       return (
         !isNil(this?.description) &&
@@ -204,6 +235,10 @@ export default defineComponent({
     },
     showError(): boolean {
       return this.meta.isInvalid;
+    },
+    showSuccess(): boolean {
+      return this.meta.isValid;
+      // TODO: make this show only for a specified period, ie not persist
     },
 
     showAsRequired(): boolean {
