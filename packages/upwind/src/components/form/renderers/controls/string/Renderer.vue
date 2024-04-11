@@ -3,6 +3,8 @@
     v-bind="controlWrapper"
     :is-focused="isFocused"
     :applied-options="appliedOptions"
+    :size="size"
+    :data-size="size"
   >
     <input
       :autocomplete="appliedOptions.autocomplete"
@@ -41,7 +43,7 @@ import { useStyles } from "../../../../../utils";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-
+import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
@@ -51,6 +53,11 @@ export default defineComponent({
   },
   props: {
     ...rendererProps<ControlElement>(),
+    // ---  Additional Attributes
+    size: {
+      type: String as PropType<InputSize>,
+      default: null,
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,

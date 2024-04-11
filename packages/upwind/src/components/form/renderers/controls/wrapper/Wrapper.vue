@@ -158,6 +158,7 @@ import { isNil, isEmpty } from "lodash-es";
 // --- types
 import type { PropType } from "vue";
 import type { Options } from "../../utils";
+import type { InputSize } from "../types";
 
 export default defineComponent({
   name: "ControlWrapper",
@@ -206,7 +207,11 @@ export default defineComponent({
       type: [String, Number, Boolean, Object, Array],
       default: null,
     },
-
+    // ---  Additional Attributes
+    size: {
+      type: String as PropType<InputSize>,
+      default: "sm",
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
