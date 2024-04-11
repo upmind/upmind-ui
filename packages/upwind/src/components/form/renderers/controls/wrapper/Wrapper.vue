@@ -99,24 +99,41 @@
       </span>
     </div>
 
+    <!-- feedback -->
     <transition-group
-      :enter-active-class="styles?.transition?.enter?.active?.join(' ')"
-      :enter-from-class="styles?.transition?.enter?.from?.join(' ')"
-      :enter-to-class="styles?.transition?.enter?.to?.join(' ')"
-      :leave-active-class="styles?.transition?.leave?.active?.join(' ')"
-      :leave-from-class="styles?.transition?.leave?.from?.join(' ')"
-      :leave-to-class="styles?.transition?.leave?.to?.join(' ')"
+      :enter-active-class="
+        styles?.feedback?.transition?.enter?.active?.join(' ')
+      "
+      :enter-from-class="styles?.feedback?.transition?.enter?.from?.join(' ')"
+      :enter-to-class="styles?.feedback?.transition?.enter?.to?.join(' ')"
+      :leave-active-class="
+        styles?.feedback?.transition?.leave?.active?.join(' ')
+      "
+      :leave-from-class="styles?.feedback?.transition?.leave?.from?.join(' ')"
+      :leave-to-class="styles?.feedback?.transition?.leave?.to?.join(' ')"
     >
-      <!-- help/description -->
-      <div v-if="showDescription" :class="styles?.description">
-        <upw-icon :class="styles?.icon" icon="information-circle" />
-        <span>{{ description }}</span>
-      </div>
+      <div class="feedback" :class="styles?.feedback?.root">
+        <!-- hint/description -->
+        <span
+          :class="[
+            styles?.feedback?.description,
+            !showDescription ? styles?.feedback?.hidden : '',
+          ]"
+        >
+          <upw-icon :class="styles?.icon" icon="information-circle" />
+          <span>{{ description }}</span>
+        </span>
 
-      <!-- errors -->
-      <div v-if="showError" :class="styles?.error">
-        <upw-icon :class="styles?.icon" icon="information-circle" />
-        <span>{{ errors }}</span>
+        <!-- errors -->
+        <span
+          :class="[
+            styles?.feedback?.error,
+            !showError ? styles?.feedback?.hidden : '',
+          ]"
+        >
+          <upw-icon :class="styles?.icon" icon="information-circle" />
+          <span>{{ errors }}</span>
+        </span>
       </div>
     </transition-group>
   </div>
