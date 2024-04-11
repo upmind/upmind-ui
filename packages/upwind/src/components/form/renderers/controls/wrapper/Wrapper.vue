@@ -142,7 +142,6 @@
 <script lang="ts">
 // --- global
 import { defineComponent } from "vue";
-import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
 
 // --- components
 import UpwIcon from "../../../../icon/Icon.vue";
@@ -152,6 +151,7 @@ import config from "./config";
 
 // --- utils
 import { useStyles } from "../../../../../utils";
+import { isNil } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -197,13 +197,9 @@ export default defineComponent({
   computed: {
     showDescription(): boolean {
       return (
+        !isNil(this?.description) &&
         !this.meta.isInvalid &&
-        !isDescriptionHidden(
-          this.meta?.isVisible,
-          this.description,
-          this.meta?.isFocused,
-          !!this.appliedOptions?.persistDescription
-        )
+        (this.meta?.isFocused || this.appliedOptions?.persistDescription)
       );
     },
     showError(): boolean {
