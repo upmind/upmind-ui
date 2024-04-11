@@ -36,7 +36,7 @@ import { isOneOfEnumControl } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-import ControlWrapper from "./ControlWrapper.vue";
+import ControlWrapper from "./wrapper/Wrapper.vue";
 import { useprelineControl } from "../utils";
 
 const controlRenderer = defineComponent({
@@ -65,4 +65,3 @@ export default controlRenderer;
 
 export const tester = { rank: 2, controlType: isOneOfEnumControl };
 </script>
-../utils

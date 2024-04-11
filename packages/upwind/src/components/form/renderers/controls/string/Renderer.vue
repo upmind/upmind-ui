@@ -1,7 +1,6 @@
 <template>
   <control-wrapper
     v-bind="controlWrapper"
-    :upwind-config="styles"
     :is-focused="isFocused"
     :applied-options="appliedOptions"
   >
@@ -18,7 +17,7 @@
       @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
-      :class="styles.input"
+      :class="styles.root"
     />
   </control-wrapper>
 </template>
@@ -30,7 +29,7 @@ import { isStringControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import ControlWrapper from "../ControlWrapper.vue";
+import ControlWrapper from "../wrapper/Wrapper.vue";
 
 // --- local
 import config from "./config";

@@ -18,9 +18,6 @@
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
     "@floating-ui/vue": "^1.0.6",
-    "@jsonforms/core": "^3.2.1",
-    "@jsonforms/vue": "^3.2.1",
-    "@jsonforms/vue-vanilla": "^3.2.1",
     "@upmind/client": "^0.0.0",
     "@upmind/upwind": "^0.0.0",
     "@vueuse/components": "^10.7.2",
@@ -32,7 +29,6 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.3.3",
-    "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@tsconfig/node18": "^18.2.2",
     "@types/jsdom": "^21.1.2",

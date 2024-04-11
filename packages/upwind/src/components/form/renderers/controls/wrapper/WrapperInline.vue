@@ -39,8 +39,8 @@
 import { isDescriptionHidden, computeLabel } from "@jsonforms/core";
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import type { Styles } from "../styles";
-import type { Options } from "../utils";
+import type { Styles } from "../../styles";
+import type { Options } from "../../utils";
 
 export default defineComponent({
   name: "ControlWrapper",
@@ -95,17 +95,16 @@ export default defineComponent({
         this.visible,
         this.description,
         this.isFocused,
-        !!this.appliedOptions?.showUnfocusedDescription
+        !!this.appliedOptions?.persistDescription
       );
     },
     computedLabel(): string {
       return computeLabel(
         this.label,
         this.required,
-        !!this.appliedOptions?.hideRequiredAsterisk
+        !!this.appliedOptions?.hideRequired
       );
     },
   },
 });
 </script>
-../utils

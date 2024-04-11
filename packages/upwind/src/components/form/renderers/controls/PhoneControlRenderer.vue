@@ -88,7 +88,7 @@ import { schemaTypeIs, uiTypeIs, schemaMatches, and } from "@jsonforms/core";
 import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
-import ControlWrapper from "./ControlWrapper.vue";
+import ControlWrapper from "./wrapper/Wrapper.vue";
 import { useprelineControl } from "../utils";
 import { useSystem } from "@upmind/flow";
 import { set } from "lodash-es";
@@ -176,4 +176,3 @@ const isPhoneControl = (): Tester =>
 
 export const tester = { rank: 2, controlType: isPhoneControl() };
 </script>
-../utils

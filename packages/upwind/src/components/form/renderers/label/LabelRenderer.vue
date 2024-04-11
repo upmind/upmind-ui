@@ -30,4 +30,3 @@ export const tester = {
   controlType: uiTypeIs("Label"),
 };
 </script>
-../utils
