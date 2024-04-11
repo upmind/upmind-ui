@@ -1,6 +1,5 @@
 import themer from "tailwindcss-themer";
 import typography from "@tailwindcss/typography";
-import forms from "@tailwindcss/forms";
 
 // --- utils
 import { find, omit } from "lodash-es";
@@ -70,8 +69,5 @@ export default {
     }),
     // ...
     typography,
-    forms({
-      strategy: "class", // only generate classes, otherwise use 'base'
-    }),
   ],
 };

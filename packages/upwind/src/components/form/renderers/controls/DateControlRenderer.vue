@@ -32,7 +32,7 @@ import { isDateTimeControl, isDateControl, or } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
-import ControlWrapper from "./ControlWrapper.vue";
+import ControlWrapper from "./wrapper/Wrapper.vue";
 import { useprelineControl } from "../utils";
 import { useDateFormat } from "@vueuse/core";
 
@@ -65,4 +65,3 @@ export const tester = {
   controlType: or(isDateTimeControl, isDateControl),
 };
 </script>
-../utils

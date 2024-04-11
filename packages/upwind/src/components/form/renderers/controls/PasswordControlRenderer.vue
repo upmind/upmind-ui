@@ -51,7 +51,7 @@ import { uiTypeIs, formatIs, and, or } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
-import ControlWrapper from "./ControlWrapper.vue";
+import ControlWrapper from "./wrapper/Wrapper.vue";
 import { useprelineControl } from "../utils";
 
 const controlRenderer = defineComponent({
@@ -82,4 +82,3 @@ export const tester = {
   controlType: and(uiTypeIs("Control"), or(formatIs("password"))),
 };
 </script>
-../utils

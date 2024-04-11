@@ -5,7 +5,7 @@ import { upwConfig } from "../../utils";
 export default {
   root: upwConfig("relative flex w-full flex-col gap-8"),
   loading: upwConfig(
-    "absolute bottom-0 left-0 right-0 top-0 m-auto size-6 opacity-80"
+    "absolute bottom-0 left-0 right-0 top-0 mx-auto size-6 opacity-80"
   ),
   button: {
     root: upwConfig(

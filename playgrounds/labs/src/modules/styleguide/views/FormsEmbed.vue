@@ -3,6 +3,7 @@
     class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
   >
     <upw-form
+      v-model="model"
       :schema="schema"
       :uischema="uischema"
       @reject="doReject"
@@ -18,6 +19,7 @@ import { onMounted, ref } from "vue";
 import { delay } from "lodash-es";
 
 const isLoading = ref(true);
+const model = ref({});
 
 const useDate = val => {
   const date = val ? new Date(Date.parse(val)) : new Date();
@@ -33,13 +35,25 @@ const useDate = val => {
 };
 
 const schema = {
-  required: ["name", "rating"],
+  required: ["name", "text", "rating"],
   properties: {
     name: {
-      type: ["string", "null"],
-      minLength: 1,
+      type: ["string"],
       title: "Task",
       description: "The task's name",
+    },
+    text: {
+      type: ["string", "null"],
+      title: "Text",
+    },
+
+    text2: {
+      type: ["string", "null"],
+      title: "Text 2",
+    },
+    text3: {
+      type: ["string", "null"],
+      title: "Text 3",
     },
 
     description: {
@@ -99,164 +113,173 @@ const schema = {
 };
 
 const uischema = {
-  type: "HorizontalLayout",
+  type: "VerticalLayout",
   elements: [
     {
-      type: "VerticalLayout",
+      type: "Control",
+      scope: "#/properties/name",
+      options: {
+        placeholder: "What needs to be done?",
+        focus: true,
+        prefix: "$",
+        suffix: ".00",
+        prependIcon: "cog",
+        prependAvatar: { name: "ZA", path: "flags" },
+        appendIcon: "devices",
+        appendAvatar: { name: "GB", path: "flags" },
+      },
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/description",
+      options: {
+        multi: true,
+        rows: 5,
+      },
+    },
+    {
+      type: "Control",
+      scope: "#/properties/note",
+      options: {
+        multi: true,
+        rows: 10,
+      },
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/text",
+      options: {},
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/text2",
+      options: { prependIcon: "cog" },
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/text3",
+      options: { appendIcon: "devices" },
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/rating",
+      options: {
+        // persistDescription: true,
+        styles: {
+          control: {
+            rating: {
+              item: "form-radio mask-star-2",
+              item1: "border-green-400 text-green-400",
+              item2: "border-lime-400 text-lime-400",
+              item3: "border-yellow-400 text-yellow-400",
+              item4: "border-orange-400 text-orange-400",
+              item5: "border-red-400 text-red-400",
+            },
+          },
+        },
+      },
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/impact",
+      options: {
+        // persistDescription: true,
+        styles: {
+          control: {
+            rating: {
+              item: "form-radio mask-star-2",
+              item1: "border-green-400 text-green-400",
+              item2: "border-lime-400 text-lime-400",
+              item3: "border-yellow-400 text-yellow-400",
+              item4: "border-orange-400 text-orange-400",
+              item5: "border-red-400 text-red-400",
+            },
+          },
+        },
+      },
+    },
+
+    {
+      type: "Control",
+      scope: "#/properties/dueDate",
+      options: {
+        saveFormat: "yyyy-MM-dd",
+      },
+    },
+
+    {
+      type: "HorizontalLayout",
       elements: [
         {
           type: "Control",
-          scope: "#/properties/name",
+          scope: "#/properties/recurrence",
           options: {
-            placeholder: "What needs to be done?",
-            focus: true,
-            prefix: "$",
-            suffix: ".00",
-            prependIcon: "cog",
-            prependAvatar: { name: "ZA", path: "flags" },
-            appendIcon: "devices",
-            appendAvatar: { name: "GB", path: "flags" },
+            trim: true,
           },
         },
-
         {
           type: "Control",
-          scope: "#/properties/rating",
+          scope: "#/properties/recurrenceInterval",
           options: {
-            // showUnfocusedDescription: true,
-            styles: {
-              control: {
-                rating: {
-                  item: "form-radio mask-star-2",
-                  item1: "border-green-400 text-green-400",
-                  item2: "border-lime-400 text-lime-400",
-                  item3: "border-yellow-400 text-yellow-400",
-                  item4: "border-orange-400 text-orange-400",
-                  item5: "border-red-400 text-red-400",
-                },
-              },
-            },
+            min: 1,
+            max: 365,
+            trim: true,
+            suffix: "days",
           },
-        },
-
-        {
-          type: "Control",
-          scope: "#/properties/impact",
-          options: {
-            // showUnfocusedDescription: true,
-            styles: {
-              control: {
-                rating: {
-                  item: "form-radio mask-star-2",
-                  item1: "border-green-400 text-green-400",
-                  item2: "border-lime-400 text-lime-400",
-                  item3: "border-yellow-400 text-yellow-400",
-                  item4: "border-orange-400 text-orange-400",
-                  item5: "border-red-400 text-red-400",
-                },
-              },
-            },
-          },
-        },
-
-        {
-          type: "Control",
-          scope: "#/properties/dueDate",
-          options: {
-            saveFormat: "yyyy-MM-dd",
-          },
-        },
-
-        {
-          type: "HorizontalLayout",
-          elements: [
-            {
-              type: "Control",
+          rule: {
+            effect: "SHOW",
+            condition: {
               scope: "#/properties/recurrence",
-              options: {
-                trim: true,
-              },
+              schema: { type: "string", const: "Daily" },
             },
-            {
-              type: "Control",
-              scope: "#/properties/recurrenceInterval",
-              options: {
-                min: 1,
-                max: 365,
-                trim: true,
-                suffix: "days",
-              },
-              rule: {
-                effect: "SHOW",
-                condition: {
-                  scope: "#/properties/recurrence",
-                  schema: { type: "string", const: "Daily" },
-                },
-              },
-            },
-            {
-              type: "Control",
-              scope: "#/properties/recurrenceInterval",
-              options: {
-                min: 1,
-                max: 52,
-                suffix: "weeks",
-                trim: true,
-              },
-              rule: {
-                effect: "SHOW",
-                condition: {
-                  scope: "#/properties/recurrence",
-                  schema: { type: "string", const: "Weekly" },
-                },
-              },
-            },
-            {
-              type: "Control",
-              scope: "#/properties/recurrenceInterval",
-              options: {
-                min: 1,
-                max: 12,
-                suffix: "months",
-                trim: true,
-              },
-              rule: {
-                effect: "SHOW",
-                condition: {
-                  scope: "#/properties/recurrence",
-                  schema: { type: "string", const: "Monthly" },
-                },
-              },
-            },
-          ],
+          },
         },
         {
           type: "Control",
-          scope: "#/properties/done",
-          options: {},
+          scope: "#/properties/recurrenceInterval",
+          options: {
+            min: 1,
+            max: 52,
+            suffix: "weeks",
+            trim: true,
+          },
+          rule: {
+            effect: "SHOW",
+            condition: {
+              scope: "#/properties/recurrence",
+              schema: { type: "string", const: "Weekly" },
+            },
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/recurrenceInterval",
+          options: {
+            min: 1,
+            max: 12,
+            suffix: "months",
+            trim: true,
+          },
+          rule: {
+            effect: "SHOW",
+            condition: {
+              scope: "#/properties/recurrence",
+              schema: { type: "string", const: "Monthly" },
+            },
+          },
         },
       ],
     },
     {
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/description",
-          options: {
-            multi: true,
-            rows: 5,
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/note",
-          options: {
-            multi: true,
-            rows: 10,
-          },
-        },
-      ],
+      type: "Control",
+      scope: "#/properties/done",
+      options: {},
     },
   ],
 };

@@ -95,4 +95,3 @@ export const tester = {
   controlType: schemaTypeIs("array"),
 };
 </script>
-../utils

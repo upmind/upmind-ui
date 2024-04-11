@@ -1,6 +1,8 @@
 export interface Options {
-  showUnfocusedDescription?: boolean;
-  hideRequiredAsterisk?: boolean;
+  persistDescription?: boolean;
+  hideRequired?: boolean;
+  requiredText?: string;
+  optionalText?: string;
   focus?: boolean;
   step?: number;
   prefix: string;
