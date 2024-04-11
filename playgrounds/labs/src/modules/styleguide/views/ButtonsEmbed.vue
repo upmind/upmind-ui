@@ -11,55 +11,139 @@
     </section>
 
     <section class="flex w-full flex-wrap items-center gap-2">
-      <h3 class="w-full">Slot variants</h3>
+      <h3 class="w-full">Slot + Size variants</h3>
       <p class="w-full">
-        Buttons with all slots activated<br />
+        Buttons with all slots activated in ALL sizes<br />
         prepend-avatar | prepend-icon | append-icon | append-avatar
       </p>
-      <upw-button
-        size="sm"
-        label="Small"
-        :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-        prepend-icon="cog"
-        append-icon="devices"
-        :append-avatar="{ name: 'GB', path: 'flags' }"
-      />
-      <upw-button
-        label="Medium (Default)"
-        :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-        prepend-icon="cog"
-        append-icon="devices"
-        :append-avatar="{ name: 'GB', path: 'flags' }"
-      />
-      <upw-button
-        size="lg"
-        label="Large"
-        :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-        prepend-icon="cog"
-        append-icon="devices"
-        :append-avatar="{ name: 'GB', path: 'flags' }"
-      />
-    </section>
 
-    <section class="flex w-full flex-wrap items-center gap-2">
-      <h3 class="w-full">Size Variants</h3>
-      <upw-button size="sm" label="Small" />
-      <upw-button label="Medium (Default)" />
-      <upw-button size="lg" label="Large" />
-    </section>
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Icon only Variants</h4>
+        <upw-button icon-only prepend-icon="cog" size="sm" label="Small" />
+        <upw-button icon-only prepend-icon="cog" label="Default" />
+        <upw-button icon-only prepend-icon="cog" size="lg" label="Large" />
+      </div>
 
-    <section class="flex w-full flex-wrap items-center gap-2">
-      <h3 class="w-full">Icon only Variants</h3>
-      <upw-button icon-only prepend-icon="cog" size="sm" label="Small" />
-      <upw-button icon-only prepend-icon="cog" label="Medium (Default)" />
-      <upw-button icon-only prepend-icon="cog" size="lg" label="Large" />
-    </section>
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Label Only</h4>
 
-    <section class="flex w-full flex-wrap items-center gap-2">
-      <h3 class="w-full">Block Variants</h3>
-      <upw-button block size="sm" label="Small" />
-      <upw-button block label="Medium (Default)" />
-      <upw-button block size="lg" label="Large" />
+        <upw-button size="sm" label="Small" />
+        <upw-button label="Default" />
+        <upw-button size="lg" label="Large" />
+      </div>
+
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Label with Avatar (prepended)</h4>
+
+        <upw-button
+          size="sm"
+          label="Small"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+        />
+        <upw-button
+          label="Default"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+        />
+        <upw-button
+          size="lg"
+          label="Large"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+        />
+      </div>
+
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Label with Icon (prepended)</h4>
+
+        <upw-button size="sm" label="Small" prepend-icon="cog" />
+        <upw-button label="Default" prepend-icon="cog" />
+        <upw-button size="lg" label="Large" prepend-icon="cog" />
+      </div>
+
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Label with Icon (appended)</h4>
+
+        <upw-button size="sm" label="Small" append-icon="devices" />
+        <upw-button label="Default" append-icon="devices" />
+        <upw-button size="lg" label="Large" append-icon="devices" />
+      </div>
+
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Label with Avatar (appended)</h4>
+
+        <upw-button
+          size="sm"
+          label="Small"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+        <upw-button
+          label="Default"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+        <upw-button
+          size="lg"
+          label="Large"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+      </div>
+
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Everything</h4>
+
+        <upw-button
+          size="sm"
+          label="Small"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+          prepend-icon="cog"
+          append-icon="devices"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+        <upw-button
+          label="Default"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+          prepend-icon="cog"
+          append-icon="devices"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+        <upw-button
+          size="lg"
+          label="Large"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+          prepend-icon="cog"
+          append-icon="devices"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+      </div>
+
+      <div class="flex w-full flex-wrap items-center gap-2">
+        <h4 class="w-full">Everything (block)</h4>
+
+        <upw-button
+          block
+          size="sm"
+          label="Small"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+          prepend-icon="cog"
+          append-icon="devices"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+        <upw-button
+          block
+          label="Default"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+          prepend-icon="cog"
+          append-icon="devices"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+        <upw-button
+          block
+          size="lg"
+          label="Large"
+          :prepend-avatar="{ name: 'ZA', path: 'flags' }"
+          prepend-icon="cog"
+          append-icon="devices"
+          :append-avatar="{ name: 'GB', path: 'flags' }"
+        />
+      </div>
     </section>
 
     <section class="flex w-full flex-wrap items-center gap-2">
