@@ -118,19 +118,19 @@ export default defineComponent({
       default: null,
     },
     prependAvatar: {
-      type: String,
+      type: [String, Object],
       default: null,
     },
     prependIcon: {
-      type: String,
+      type: [String, Object],
       default: null,
     },
     appendIcon: {
-      type: String,
+      type: [String, Object],
       default: null,
     },
     appendAvatar: {
-      type: String,
+      type: [String, Object],
       default: null,
     },
 

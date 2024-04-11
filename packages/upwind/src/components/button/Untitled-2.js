@@ -1,0 +1,13 @@
+[
+  "bg-warning",
+  "text-warning-content",
+  "border-transparent",
+  "hover:bg-warning-800",
+  "disabled:hover:bg-warning",
+  "data-[variant=ghost]:hover:bg-warning-50",
+  "data-[variant=ghost]:text-warning",
+  "data-[variant=link]:text-warning",
+  "data-[variant=outlined]:border-warning",
+  "data-[variant=outlined]:hover:bg-warning-50",
+  "data-[variant=outlined]:text-warning",
+];
