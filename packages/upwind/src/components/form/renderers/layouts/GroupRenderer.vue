@@ -30,7 +30,7 @@ import {
   rendererProps,
   useJsonFormsLayout,
 } from "@jsonforms/vue";
-import { useprelineLayout } from "../utils";
+import { useupwindLayout } from "../utils";
 
 const layoutRenderer = defineComponent({
   name: "GroupRenderer",
@@ -41,7 +41,7 @@ const layoutRenderer = defineComponent({
     ...rendererProps<Layout>(),
   },
   setup(props: RendererProps<Layout>) {
-    return useprelineLayout(useJsonFormsLayout(props));
+    return useupwindLayout(useJsonFormsLayout(props));
   },
 });
 

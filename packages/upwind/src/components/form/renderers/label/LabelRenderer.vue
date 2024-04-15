@@ -11,7 +11,7 @@ import { uiTypeIs } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
-import { useprelineLabel } from "../utils";
+import { useupwindLabel } from "../utils";
 
 const labelRenderer = defineComponent({
   name: "LabelRenderer",
@@ -19,7 +19,7 @@ const labelRenderer = defineComponent({
     ...rendererProps<LabelElement>(),
   },
   setup(props: RendererProps<LabelElement>) {
-    return useprelineLabel(useJsonFormsLabel(props));
+    return useupwindLabel(useJsonFormsLabel(props));
   },
 });
 

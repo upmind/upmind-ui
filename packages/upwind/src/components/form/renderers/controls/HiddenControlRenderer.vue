@@ -9,7 +9,7 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
-import { useprelineControl } from "../utils";
+import { useupwindControl } from "../utils";
 import { has } from "lodash-es";
 
 const controlRenderer = defineComponent({
@@ -19,7 +19,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useprelineControl(
+    return useupwindControl(
       useJsonFormsControl(props),
       target => target.checked
     );

@@ -12,9 +12,7 @@ import {
 /**
  * Adds styles, isFocused, appliedOptions and onChange
  */
-export const useprelineControl = <
-  I extends { control: any; handleChange: any },
->(
+export const useupwindControl = <I extends { control: any; handleChange: any }>(
   input: I,
   adaptTarget: (target: any) => any = v => v.value
 ) => {
@@ -64,7 +62,7 @@ export const useprelineControl = <
 /**
  * Adds styles and appliedOptions
  */
-export const useprelineLayout = <I extends { layout: any }>(input: I) => {
+export const useupwindLayout = <I extends { layout: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -82,7 +80,7 @@ export const useprelineLayout = <I extends { layout: any }>(input: I) => {
 /**
  * Adds styles and appliedOptions
  */
-export const useprelineLabel = <I extends { label: any }>(input: I) => {
+export const useupwindLabel = <I extends { label: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -100,9 +98,7 @@ export const useprelineLabel = <I extends { label: any }>(input: I) => {
 /**
  * Adds styles, appliedOptions and childUiSchema
  */
-export const useprelineArrayControl = <I extends { control: any }>(
-  input: I
-) => {
+export const useupwindArrayControl = <I extends { control: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},

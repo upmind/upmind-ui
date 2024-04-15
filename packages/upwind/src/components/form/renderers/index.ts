@@ -12,7 +12,7 @@ import { controlRenderers } from "./controls";
 import { labelRenderers } from "./label";
 import { layoutRenderers } from "./layouts";
 
-export const prelineRenderers = [
+export const upwindRenderers = [
   ...controlRenderers,
   ...layoutRenderers,
   ...arrayRenderers,
