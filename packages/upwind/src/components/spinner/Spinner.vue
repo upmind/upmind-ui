@@ -14,7 +14,7 @@
 import { defineComponent } from "vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -31,7 +31,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles("spinner", { props }, config, props.upwindConfig);
+    const styles = useStyles("spinner", props, config, props.upwindConfig);
 
     return {
       styles,
@@ -39,3 +39,4 @@ export default defineComponent({
   },
 });
 </script>
+./config.cva

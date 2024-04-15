@@ -137,7 +137,7 @@
 
     <!-- provide padding for our fixed header 4.5rem -->
     <main
-      class="flex h-full w-full flex-wrap justify-center overflow-hidden pt-[4.5rem]"
+      class="flex h-full w-full flex-wrap justify-center overflow-auto pt-[4.5rem]"
     >
       <router-view class="h-full w-full" :key="route.fullPath" />
 

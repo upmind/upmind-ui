@@ -1,8 +1,18 @@
 // --- global
 import { unref, inject, computed } from "vue";
+import { twMerge } from "tailwind-merge";
+import type { VariantProps } from "class-variance-authority";
 
 // ---utils
-import { merge, get, omit, forEach, keys, split, uniq, map } from "lodash-es";
+import {
+  merge,
+  get,
+  map,
+  mapValues,
+  isFunction,
+  omitBy,
+  isNil,
+} from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -22,65 +32,40 @@ function generateComponentConfig(
 }
 
 function applyComponentStyles(
-  styles: Record<string, Object>,
-  context?: { props: Object }
+  component: string,
+  styles: Record<string, Function>,
+  context: Object = {}
 ) {
   // ----------------------------------------------
-  // safety checks
-  const props = context?.props || {};
+  context = omitBy(unref(context), isNil);
 
-  // ----------------------------------------------
-  // First use the styles WITHOUT the conditional styles
-  // these will tend to be child elements withing the component
-  const result = omit(styles, "attributes");
-  result.root ??= []; // safety, ensure we always have a root array to push to
+  return mapValues(styles, (variant, key) => {
+    if (!isFunction(variant)) return variant;
 
-  // ----------------------------------------------
-  /* Then apply Conditional styles based on Attributes, if any && if they exist
-   NB: Attributes are the props passed to the component that ALSO have a corresponding style in the config
-      Atrributes consist of a target and options,
-      - target is the path of a node WITHIN the styles object to apply the conditional styles to
-      eg: root, or button.root, or item.root, etc
-      - options are the conditional styles to apply
-  */
-  const attrs = keys(styles.attributes || {});
-  forEach(attrs, attr => {
-    const target = get(styles, ["attributes", attr, "target"]);
-    const options = get(styles, ["attributes", attr, "options"]);
-    const defaults = get(styles, ["attributes", attr, "options", "default"]);
-    const value = get(props, attr);
-    if (options) {
-      const style = get(options, value, defaults);
-      const targetStyles = get(result, target, []);
-      targetStyles.push(...style);
-    }
+    console.log("applyComponentStyles", component, {
+      key,
+      context,
+      variant: twMerge(variant(context)),
+    });
+
+    return twMerge(variant(context));
   });
-
-  // ----------------------------------------------
-  // Finally return the result with the conditional styles applied
-  return result;
 }
 
 export const useStyles = (
   component: string,
-  context?: { props: Object },
+  context: Object = {},
   ...configs: Array<Record<string, Object>>
 ) => {
   // Check if weve been provided with style overrides, then merge the default styles with the overrides
   const globalConfig = inject("upwind", {});
   const styles = computed(() => {
     return applyComponentStyles(
+      component,
       generateComponentConfig(component, globalConfig, ...configs),
       context
     );
   });
 
   return styles;
-};
-
-// we use a function so that we can have tailwin intellisense and sorting
-export const upwConfig = (classes: string) => {
-  // TODO: MAYBE parse valid tailwind classes
-  // NB: always return as an array without duplicates!
-  return uniq(split(classes, " "));
 };

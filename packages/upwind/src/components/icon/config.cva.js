@@ -1,6 +1,6 @@
-import { upwConfig } from "../../utils";
-
+import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
+
 export default {
-  root: upwConfig("flex flex-shrink-0 text-current"),
+  root: cva("flex flex-shrink-0 text-current"),
 };
