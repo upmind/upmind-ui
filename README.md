@@ -66,3 +66,23 @@ We also have Husky and Lint-Staged configured to run these commands automaticall
 - Feel free to include any other relevant information for developers, such as testing instructions, contribution guidelines, or links to further documentation.
 
 **Remember:** This README provides a general overview. Specific details and commands may change over time. Please also look at individual package or playground readmes for more information.
+
+# Trello: Lifecycle of a Card
+
+**Spec**: Create a specification document outlining the component's functionality, behavior, and usage.
+**Scope**: Define the component's purpose, use cases, and requirements.
+**Design**: In Figma, create a design system component with all necessary states and interactions.
+**Review**: Ensure Figma design elements and their override options align with spec and all states are represented as well as interactions or animations are defined.
+**Review**: Address accessibility considerations (color contrast, keyboard navigation) in the design.
+**Review**: Check design reference and ensure all states and interactions are considered.
+**Code**: Develop any necessary Back-End endpoints or logic for the component.
+**Code**: Implement the component based on the approved design and specifications.
+**Tests**: Write unit tests to ensure component functionality.
+**Tests**: Write e2e tests to ensure component functionality.
+**Documentation**: Create Storybook stories for the component, covering various states and interactions as well as providing documentation and usage instructions and examples.
+**Review**: Verify Figma Design matches component implementation using Storybook or the provided demo link.
+**Review**: Confirm all design elements, options, and states are implemented as per the design and spec.
+**Review**: Review code quality and adherence to project guidelines.
+**Review**: Verify unit tests cover the implemented functionality.
+**Review**: Verify e2e tests cover the implemented functionality.
+**QA**: Conduct thorough testing of the component functionality on the staging environment.
