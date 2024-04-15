@@ -49,7 +49,6 @@ import { RouterLink } from "vue-router";
 // --- local
 
 // --- utils
-import { useStyles } from "../../utils";
 import { isFunction } from "lodash-es";
 
 export default defineComponent({
@@ -83,16 +82,14 @@ export default defineComponent({
       type: Function,
       default: null,
     },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
+    // --- Provide precalculated styles from parent. This is to avoid recalculating styles for each item.
+    styles: {
       type: Object,
       default: null,
     },
   },
   setup(props) {
-    const styles = useStyles("dropdown.item", { props }, props.upwindConfig);
     return {
-      styles,
       isFunction,
     };
   },

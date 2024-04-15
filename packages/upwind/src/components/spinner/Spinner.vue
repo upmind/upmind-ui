@@ -1,7 +1,7 @@
 <template>
   <div
     class="spinner"
-    :class="styles.root"
+    :class="styles.spinner.root"
     role="status"
     aria-label="animated loading icon"
   >
@@ -39,4 +39,3 @@ export default defineComponent({
   },
 });
 </script>
-./config.cva

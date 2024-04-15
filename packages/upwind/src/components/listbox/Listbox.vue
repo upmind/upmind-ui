@@ -1,52 +1,59 @@
 <template>
   <h-listbox :multiple="multiple" v-model="value" v-slot="{ open }">
-    <div class="listbox" :class="styles.root">
+    <div class="listbox" :class="styles.listbox.root">
       <h-listbox-button
         class="listbox-btn"
-        :class="[styles.button.root, open ? styles.button.active : '']"
+        :class="[
+          styles.listboxButton.root,
+          open ? styles.listboxButton.active : '',
+        ]"
         ref="reference"
       >
         <upw-icon
           v-if="selectedIcon"
           :icon="selectedIcon"
           class="btn-icon"
-          :class="styles.button.icon"
+          :class="styles.listboxButton.icon"
         />
 
-        <span class="btn-label" :class="styles.button.label" v-if="label">
+        <span
+          class="btn-label"
+          :class="styles.listboxButton.label"
+          v-if="label"
+        >
           {{ selectedLabel }}
         </span>
 
         <upw-icon
           v-if="toggle"
           :icon="toggle"
-          :class="styles.button.toggle"
+          :class="styles.listboxButton.toggle"
           :aria-checked="open && toggleRotate"
           aria-hidden="true"
         />
       </h-listbox-button>
 
       <transition
-        :enter-active-class="styles?.transition?.enter?.active?.join(' ')"
-        :enter-from-class="styles?.transition?.enter?.from?.join(' ')"
-        :enter-to-class="styles?.transition?.enter?.to?.join(' ')"
-        :leave-active-class="styles?.transition?.leave?.active?.join(' ')"
-        :leave-from-class="styles?.transition?.leave?.from?.join(' ')"
-        :leave-to-class="styles?.transition?.leave?.to?.join(' ')"
+        :enter-active-class="styles.listboxTransitionEnter.active"
+        :enter-from-class="styles.listboxTransitionEnter.from"
+        :enter-to-class="styles.listboxTransitionEnter.to"
+        :leave-active-class="styles.listboxTransitionLeave.active"
+        :leave-from-class="styles.listboxTransitionLeave.from"
+        :leave-to-class="styles.listboxTransitionLeave.to"
       >
         <h-listbox-options
           class="listbox-options"
-          :class="styles.items"
+          :class="styles.listbox.items"
           ref="floating"
           :style="floatingStyles"
         >
-          <div :class="styles.search.root" v-if="hasSearch">
+          <div :class="styles.listboxSearch.root" v-if="hasSearch">
             <input
               tabindex="0"
               type="search"
               v-model="search"
               class="form-input"
-              :class="styles.search.input"
+              :class="styles.listboxSearch.input"
               placeholder="Search..."
             />
           </div>
@@ -61,25 +68,25 @@
           >
             <li
               :class="[
-                styles.item.root,
-                active ? styles.item.active : '',
-                selected ? styles.item.selected : '',
+                styles.listboxItem.root,
+                active ? styles.listboxItem.active : '',
+                selected ? styles.listboxItem.selected : '',
               ]"
             >
               <upw-icon
                 v-if="item.icon"
                 :icon="item.icon"
-                :class="styles.item.icon"
+                :class="styles.listboxItem.icon"
                 aria-hidden="true"
               />
 
-              <span :class="styles.item.label">{{ item.label }}</span>
+              <span :class="styles.listboxItem.label">{{ item.label }}</span>
 
               <upw-icon
                 v-if="iconSelected"
                 :icon="iconSelected"
                 :class="[
-                  styles.item.icon,
+                  styles.listboxItem.icon,
                   { invisible: !selected, 'pointer-events-none': !selected },
                 ]"
                 aria-hidden="true"
@@ -107,7 +114,7 @@ import {
 import UpwIcon from "../icon/Icon.vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -208,8 +215,18 @@ export default defineComponent({
       middleware: [offset(10), flip(), shift()],
     });
 
-    const styles = useStyles("listbox", { props }, config, props.upwindConfig);
-
+    const styles = useStyles(
+      [
+        "listbox",
+        "listboxButton",
+        "listboxItem",
+        "listboxTransitionEnter",
+        "listboxTransitionLeave",
+      ],
+      props,
+      config,
+      props.upwindConfig
+    );
     watch(value, value => {
       const item = find(props.items, ["value", value]);
       emit("update:modelValue", item?.value || "");
@@ -263,4 +280,3 @@ export default defineComponent({
   },
 });
 </script>
-./config

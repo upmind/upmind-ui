@@ -2,7 +2,7 @@
   <i
     v-if="svg"
     class="icon"
-    :class="styles.root"
+    :class="styles.icon.root"
     v-html="svg"
     role="img"
     :aria-label="`${icon?.name || icon} icon`"
