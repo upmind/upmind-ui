@@ -89,7 +89,7 @@ import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useprelineControl } from "../utils";
+import { useupwindControl } from "../utils";
 import { useSystem } from "@upmind/flow";
 import { set } from "lodash-es";
 import "flag-icons/css/flag-icons.min.css";
@@ -113,7 +113,7 @@ const controlRenderer = defineComponent({
     const countries = getCountries();
     const defaultContry = getCountry();
 
-    const inputControl = useprelineControl(
+    const inputControl = useupwindControl(
       useJsonFormsControl(props),
       () => phone
     );

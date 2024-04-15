@@ -37,7 +37,7 @@ import ControlWrapper from "../wrapper/Wrapper.vue";
 import config from "./config";
 
 // --- utils
-import { useprelineControl } from "../../utils";
+import { useupwindControl } from "../../utils";
 import { useStyles } from "../../../../../utils";
 
 // --- types
@@ -47,7 +47,7 @@ import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "StringControlPrelineRenderer",
+  name: "StringControlRenderer",
   components: {
     ControlWrapper,
   },
@@ -66,7 +66,7 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles("form", { props }, config, props.upwindConfig);
-    const control = useprelineControl(
+    const control = useupwindControl(
       useJsonFormsControl(props),
       target => target.value || undefined
     );

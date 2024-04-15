@@ -53,7 +53,7 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useprelineControl } from "../utils";
+import { useupwindControl } from "../utils";
 
 const controlRenderer = defineComponent({
   name: "NumberControlRenderer",
@@ -64,7 +64,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useprelineControl(useJsonFormsControl(props), target =>
+    return useupwindControl(useJsonFormsControl(props), target =>
       target.value === "" ? undefined : Number(target.value)
     );
   },

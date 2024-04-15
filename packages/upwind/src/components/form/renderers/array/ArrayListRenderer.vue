@@ -56,7 +56,7 @@ import {
   rendererProps,
   useJsonFormsArrayControl,
 } from "@jsonforms/vue";
-import { useprelineArrayControl } from "../utils";
+import { useupwindArrayControl } from "../utils";
 import ArrayListElement from "./ArrayListElement.vue";
 
 const controlRenderer = defineComponent({
@@ -69,7 +69,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useprelineArrayControl(useJsonFormsArrayControl(props));
+    return useupwindArrayControl(useJsonFormsArrayControl(props));
   },
   computed: {
     noData(): boolean {

@@ -33,7 +33,7 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useprelineControl } from "../utils";
+import { useupwindControl } from "../utils";
 import { useDateFormat } from "@vueuse/core";
 
 const controlRenderer = defineComponent({
@@ -45,7 +45,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useprelineControl(useJsonFormsControl(props), target => {
+    return useupwindControl(useJsonFormsControl(props), target => {
       const formatted = useDateFormat(target.value, "YYYY-MM-DD HH:mm:ss");
       return formatted.value;
     });

@@ -68,7 +68,7 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useprelineControl } from "../utils";
+import { useupwindControl } from "../utils";
 
 const controlRenderer = defineComponent({
   name: "EnumOneofControlRenderer",
@@ -79,7 +79,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useprelineControl(useJsonFormsOneOfEnumControl(props), target =>
+    return useupwindControl(useJsonFormsOneOfEnumControl(props), target =>
       target.selectedIndex === 0 ? undefined : target.value
     );
   },

@@ -63,7 +63,7 @@ import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
 import config from "./config";
-import { prelineRenderers } from "./renderers";
+import { upwindRenderers } from "./renderers";
 
 // --- utils
 import { useStyles, isDeepEmpty } from "../../utils";
@@ -172,7 +172,7 @@ export default defineComponent({
   setup(props) {
     const styles = useStyles("form", { props }, config, props.upwindConfig);
     return {
-      renderers: Object.freeze(prelineRenderers),
+      renderers: Object.freeze(upwindRenderers),
       styles,
       safeValue,
     };
