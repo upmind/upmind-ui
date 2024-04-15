@@ -1,15 +1,15 @@
 <template>
   <form
-    :class="styles.root"
+    :class="styles.form.root"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
     <slot
       v-if="meta.isLoading"
       name="loading"
-      v-bind="{ styles: styles.loading }"
+      v-bind="{ styles: styles.form.spinner }"
     >
-      <upw-spinner :class="styles.loading" class="loading" />
+      <upw-spinner :class="styles.form.spinner" class="loading" />
     </slot>
 
     <json-forms
@@ -21,22 +21,11 @@
       :validationMode="safeMode"
       :additionalErrors="additionalErrors"
       @change="onChange"
-      :class="[
-        styles.content.root,
-        meta.isProcessing ? styles.content.processing : '',
-        meta.isLoading ? styles.content.loading : '',
-      ]"
+      :class="styles.formContent.root"
     />
 
     <!-- actions -->
-    <div
-      v-if="safeActions"
-      :class="[
-        styles.actions.root,
-        meta.isProcessing ? styles.actions.processing : '',
-        meta.isLoading ? styles.actions.loading : '',
-      ]"
-    >
+    <div v-if="safeActions" :class="styles.formActions.root">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <upw-button
           v-for="(action, key) in safeActions"
@@ -62,7 +51,7 @@ import UpwButton from "../button/Button.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 import { upwindRenderers } from "./renderers";
 
 // --- utils
@@ -170,7 +159,12 @@ export default defineComponent({
   customOptions: {},
 
   setup(props) {
-    const styles = useStyles("form", { props }, config, props.upwindConfig);
+    const { styles } = useStyles(
+      ["form", "formButton", "formContent", "formActions"],
+      props,
+      config,
+      props.upwindConfig
+    );
     return {
       renderers: Object.freeze(upwindRenderers),
       styles,

@@ -6,32 +6,25 @@
     :data-variant="variant"
     :data-color="color"
   >
-    <slot
-      v-if="meta.isLoading"
-      name="loading"
-      v-bind="{ styles: styles.button.spinner }"
-    >
+    <slot v-if="meta.isLoading" name="loading" v-bind="{ meta }">
       <upw-spinner :class="styles.button.spinner" class="loading" />
     </slot>
 
     <slot
       name="prepend-avatar"
-      v-bind="{ styles: styles.button.avatar, avatar: prependAvatar }"
+      v-bind="{ meta, avatar: prependAvatar }"
       v-if="!iconOnly"
     >
       <upw-icon
         v-if="prependAvatar"
         class="avatar"
-        :class="[styles.button.avatar]"
+        :class="styles.button.avatar"
         :icon="prependAvatar"
       />
     </slot>
 
-    <span class="content" :class="[styles.button.content]">
-      <slot
-        name="prepend-icon"
-        v-bind="{ styles: styles.button.icon, icon: prependIcon }"
-      >
+    <span class="content" :class="styles.button.content">
+      <slot name="prepend-icon" v-bind="{ meta, icon: prependIcon }">
         <upw-icon
           v-if="prependIcon"
           :class="styles.button.icon"
@@ -39,7 +32,7 @@
         />
       </slot>
 
-      <slot v-bind="{ styles }">
+      <slot v-bind="{ meta, label }">
         <span :class="styles.button.label" v-if="label" class="label">
           {{ label }}
         </span>
@@ -47,7 +40,7 @@
 
       <slot
         name="append-icon"
-        v-bind="{ styles: styles.button.icon, icon: appendIcon }"
+        v-bind="{ meta, icon: appendIcon }"
         v-if="!iconOnly || (iconOnly && !prependIcon)"
       >
         <upw-icon
@@ -60,13 +53,13 @@
 
     <slot
       name="append-avatar"
-      v-bind="{ styles: styles.button.avatar, avatar: appendAvatar }"
+      v-bind="{ meta, avatar: appendAvatar }"
       v-if="!iconOnly"
     >
       <upw-icon
         v-if="appendAvatar"
         class="avatar"
-        :class="[styles.button.avatar]"
+        :class="styles.button.avatar"
         :icon="appendAvatar"
       />
     </slot>
@@ -75,7 +68,7 @@
 
 <script lang="ts">
 // --- global
-import { defineComponent } from "vue";
+import { computed, defineComponent, ref } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -160,10 +153,17 @@ export default defineComponent({
   },
 
   setup(props) {
-    const styles = useStyles("button", props, config, props.upwindConfig);
-
     return {
-      styles,
+      styles: computed(() => {
+        const { styles } = useStyles(
+          "button",
+          props,
+          config,
+          props.upwindConfig
+        );
+        debugger;
+        return styles.value;
+      }),
     };
   },
 
