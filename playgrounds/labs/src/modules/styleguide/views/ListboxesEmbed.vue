@@ -66,7 +66,7 @@ const countries = {
   AF: {
     icon: {
       path: "flags",
-      name: "af",
+      name: "AF",
     },
     label: "Afghanistan",
     value: "AF",
@@ -74,7 +74,7 @@ const countries = {
   AX: {
     icon: {
       path: "flags",
-      name: "ax",
+      name: "AX",
     },
     label: "Aland Islands",
     value: "AX",
@@ -82,7 +82,7 @@ const countries = {
   AL: {
     icon: {
       path: "flags",
-      name: "al",
+      name: "AL",
     },
     label: "Albania",
     value: "AL",
@@ -90,7 +90,7 @@ const countries = {
   DZ: {
     icon: {
       path: "flags",
-      name: "dz",
+      name: "DZ",
     },
     label: "Algeria",
     value: "DZ",
@@ -98,7 +98,7 @@ const countries = {
   AS: {
     icon: {
       path: "flags",
-      name: "as",
+      name: "AS",
     },
     label: "American Samoa",
     value: "AS",
@@ -106,7 +106,7 @@ const countries = {
   AD: {
     icon: {
       path: "flags",
-      name: "ad",
+      name: "AD",
     },
     label: "Andorra",
     value: "AD",
@@ -114,7 +114,7 @@ const countries = {
   AO: {
     icon: {
       path: "flags",
-      name: "ao",
+      name: "AO",
     },
     label: "Angola",
     value: "AO",
@@ -122,7 +122,7 @@ const countries = {
   AI: {
     icon: {
       path: "flags",
-      name: "ai",
+      name: "AI",
     },
     label: "Anguilla",
     value: "AI",
@@ -130,7 +130,7 @@ const countries = {
   AG: {
     icon: {
       path: "flags",
-      name: "ag",
+      name: "AG",
     },
     label: "Antigua and Barbuda",
     value: "AG",
@@ -138,7 +138,7 @@ const countries = {
   AR: {
     icon: {
       path: "flags",
-      name: "ar",
+      name: "AR",
     },
     label: "Argentina",
     value: "AR",
@@ -146,7 +146,7 @@ const countries = {
   AM: {
     icon: {
       path: "flags",
-      name: "am",
+      name: "AM",
     },
     label: "Armenia",
     value: "AM",
@@ -154,7 +154,7 @@ const countries = {
   AW: {
     icon: {
       path: "flags",
-      name: "aw",
+      name: "AW",
     },
     label: "Aruba",
     value: "AW",
@@ -162,7 +162,7 @@ const countries = {
   AU: {
     icon: {
       path: "flags",
-      name: "au",
+      name: "AU",
     },
     label: "Australia",
     value: "AU",
@@ -170,7 +170,7 @@ const countries = {
   AT: {
     icon: {
       path: "flags",
-      name: "at",
+      name: "AT",
     },
     label: "Austria",
     value: "AT",
@@ -178,7 +178,7 @@ const countries = {
   AZ: {
     icon: {
       path: "flags",
-      name: "az",
+      name: "AZ",
     },
     label: "Azerbaijan",
     value: "AZ",
@@ -186,7 +186,7 @@ const countries = {
   BS: {
     icon: {
       path: "flags",
-      name: "bs",
+      name: "BS",
     },
     label: "Bahamas",
     value: "BS",
@@ -194,7 +194,7 @@ const countries = {
   BH: {
     icon: {
       path: "flags",
-      name: "bh",
+      name: "BH",
     },
     label: "Bahrain",
     value: "BH",
@@ -202,7 +202,7 @@ const countries = {
   BD: {
     icon: {
       path: "flags",
-      name: "bd",
+      name: "BD",
     },
     label: "Bangladesh",
     value: "BD",
@@ -210,7 +210,7 @@ const countries = {
   BB: {
     icon: {
       path: "flags",
-      name: "bb",
+      name: "BB",
     },
     label: "Barbados",
     value: "BB",
@@ -218,7 +218,7 @@ const countries = {
   BY: {
     icon: {
       path: "flags",
-      name: "by",
+      name: "BY",
     },
     label: "Belarus",
     value: "BY",
@@ -226,7 +226,7 @@ const countries = {
   BE: {
     icon: {
       path: "flags",
-      name: "be",
+      name: "BE",
     },
     label: "Belgium",
     value: "BE",
@@ -234,7 +234,7 @@ const countries = {
   BZ: {
     icon: {
       path: "flags",
-      name: "bz",
+      name: "BZ",
     },
     label: "Belize",
     value: "BZ",
@@ -242,7 +242,7 @@ const countries = {
   BJ: {
     icon: {
       path: "flags",
-      name: "bj",
+      name: "BJ",
     },
     label: "Benin",
     value: "BJ",
@@ -250,7 +250,7 @@ const countries = {
   BM: {
     icon: {
       path: "flags",
-      name: "bm",
+      name: "BM",
     },
     label: "Bermuda",
     value: "BM",
@@ -258,7 +258,7 @@ const countries = {
   BT: {
     icon: {
       path: "flags",
-      name: "bt",
+      name: "BT",
     },
     label: "Bhutan",
     value: "BT",
@@ -266,7 +266,7 @@ const countries = {
   BO: {
     icon: {
       path: "flags",
-      name: "bo",
+      name: "BO",
     },
     label: "Bolivia (Plurinational State of)",
     value: "BO",
@@ -274,7 +274,7 @@ const countries = {
   BQ: {
     icon: {
       path: "flags",
-      name: "bq",
+      name: "BQ",
     },
     label: "Bonaire, Sint Eustatius and Saba",
     value: "BQ",
@@ -282,7 +282,7 @@ const countries = {
   BA: {
     icon: {
       path: "flags",
-      name: "ba",
+      name: "BA",
     },
     label: "Bosnia and Herzegovina",
     value: "BA",
@@ -290,7 +290,7 @@ const countries = {
   BW: {
     icon: {
       path: "flags",
-      name: "bw",
+      name: "BW",
     },
     label: "Botswana",
     value: "BW",
@@ -298,7 +298,7 @@ const countries = {
   BR: {
     icon: {
       path: "flags",
-      name: "br",
+      name: "BR",
     },
     label: "Brazil",
     value: "BR",
@@ -306,7 +306,7 @@ const countries = {
   IO: {
     icon: {
       path: "flags",
-      name: "io",
+      name: "IO",
     },
     label: "British Indian Ocean Territory",
     value: "IO",
@@ -314,7 +314,7 @@ const countries = {
   BN: {
     icon: {
       path: "flags",
-      name: "bn",
+      name: "BN",
     },
     label: "Brunei Darussalam",
     value: "BN",
@@ -322,7 +322,7 @@ const countries = {
   BG: {
     icon: {
       path: "flags",
-      name: "bg",
+      name: "BG",
     },
     label: "Bulgaria",
     value: "BG",
@@ -330,7 +330,7 @@ const countries = {
   BF: {
     icon: {
       path: "flags",
-      name: "bf",
+      name: "BF",
     },
     label: "Burkina Faso",
     value: "BF",
@@ -338,7 +338,7 @@ const countries = {
   BI: {
     icon: {
       path: "flags",
-      name: "bi",
+      name: "BI",
     },
     label: "Burundi",
     value: "BI",
@@ -346,7 +346,7 @@ const countries = {
   CV: {
     icon: {
       path: "flags",
-      name: "cv",
+      name: "CV",
     },
     label: "Cabo Verde",
     value: "CV",
@@ -354,7 +354,7 @@ const countries = {
   KH: {
     icon: {
       path: "flags",
-      name: "kh",
+      name: "KH",
     },
     label: "Cambodia",
     value: "KH",
@@ -362,7 +362,7 @@ const countries = {
   CM: {
     icon: {
       path: "flags",
-      name: "cm",
+      name: "CM",
     },
     label: "Cameroon",
     value: "CM",
@@ -370,7 +370,7 @@ const countries = {
   CA: {
     icon: {
       path: "flags",
-      name: "ca",
+      name: "CA",
     },
     label: "Canada",
     value: "CA",
@@ -378,7 +378,7 @@ const countries = {
   KY: {
     icon: {
       path: "flags",
-      name: "ky",
+      name: "KY",
     },
     label: "Cayman Islands",
     value: "KY",
@@ -386,7 +386,7 @@ const countries = {
   CF: {
     icon: {
       path: "flags",
-      name: "cf",
+      name: "CF",
     },
     label: "Central African Republic",
     value: "CF",
@@ -394,7 +394,7 @@ const countries = {
   TD: {
     icon: {
       path: "flags",
-      name: "td",
+      name: "TD",
     },
     label: "Chad",
     value: "TD",
@@ -402,7 +402,7 @@ const countries = {
   CL: {
     icon: {
       path: "flags",
-      name: "cl",
+      name: "CL",
     },
     label: "Chile",
     value: "CL",
@@ -410,7 +410,7 @@ const countries = {
   CN: {
     icon: {
       path: "flags",
-      name: "cn",
+      name: "CN",
     },
     label: "China",
     value: "CN",
@@ -418,7 +418,7 @@ const countries = {
   CX: {
     icon: {
       path: "flags",
-      name: "cx",
+      name: "CX",
     },
     label: "Christmas Island",
     value: "CX",
@@ -426,7 +426,7 @@ const countries = {
   CC: {
     icon: {
       path: "flags",
-      name: "cc",
+      name: "CC",
     },
     label: "Cocos (Keeling) Islands",
     value: "CC",
@@ -434,7 +434,7 @@ const countries = {
   CO: {
     icon: {
       path: "flags",
-      name: "co",
+      name: "CO",
     },
     label: "Colombia",
     value: "CO",
@@ -442,7 +442,7 @@ const countries = {
   KM: {
     icon: {
       path: "flags",
-      name: "km",
+      name: "KM",
     },
     label: "Comoros",
     value: "KM",
@@ -450,7 +450,7 @@ const countries = {
   CK: {
     icon: {
       path: "flags",
-      name: "ck",
+      name: "CK",
     },
     label: "Cook Islands",
     value: "CK",
@@ -458,7 +458,7 @@ const countries = {
   CR: {
     icon: {
       path: "flags",
-      name: "cr",
+      name: "CR",
     },
     label: "Costa Rica",
     value: "CR",
@@ -466,7 +466,7 @@ const countries = {
   HR: {
     icon: {
       path: "flags",
-      name: "hr",
+      name: "HR",
     },
     label: "Croatia",
     value: "HR",
@@ -474,7 +474,7 @@ const countries = {
   CU: {
     icon: {
       path: "flags",
-      name: "cu",
+      name: "CU",
     },
     label: "Cuba",
     value: "CU",
@@ -482,7 +482,7 @@ const countries = {
   CW: {
     icon: {
       path: "flags",
-      name: "cw",
+      name: "CW",
     },
     label: "Curaçao",
     value: "CW",
@@ -490,7 +490,7 @@ const countries = {
   CY: {
     icon: {
       path: "flags",
-      name: "cy",
+      name: "CY",
     },
     label: "Cyprus",
     value: "CY",
@@ -498,7 +498,7 @@ const countries = {
   CZ: {
     icon: {
       path: "flags",
-      name: "cz",
+      name: "CZ",
     },
     label: "Czech Republic",
     value: "CZ",
@@ -506,7 +506,7 @@ const countries = {
   CI: {
     icon: {
       path: "flags",
-      name: "ci",
+      name: "CI",
     },
     label: "Côte Ivoire",
     value: "CI",
@@ -514,7 +514,7 @@ const countries = {
   CD: {
     icon: {
       path: "flags",
-      name: "cd",
+      name: "CD",
     },
     label: "Democratic Republic of the Congo",
     value: "CD",
@@ -522,7 +522,7 @@ const countries = {
   DK: {
     icon: {
       path: "flags",
-      name: "dk",
+      name: "DK",
     },
     label: "Denmark",
     value: "DK",
@@ -530,7 +530,7 @@ const countries = {
   DJ: {
     icon: {
       path: "flags",
-      name: "dj",
+      name: "DJ",
     },
     label: "Djibouti",
     value: "DJ",
@@ -538,7 +538,7 @@ const countries = {
   DM: {
     icon: {
       path: "flags",
-      name: "dm",
+      name: "DM",
     },
     label: "Dominica",
     value: "DM",
@@ -546,7 +546,7 @@ const countries = {
   DO: {
     icon: {
       path: "flags",
-      name: "do",
+      name: "DO",
     },
     label: "Dominican Republic",
     value: "DO",
@@ -554,7 +554,7 @@ const countries = {
   EC: {
     icon: {
       path: "flags",
-      name: "ec",
+      name: "EC",
     },
     label: "Ecuador",
     value: "EC",
@@ -562,7 +562,7 @@ const countries = {
   EG: {
     icon: {
       path: "flags",
-      name: "eg",
+      name: "EG",
     },
     label: "Egypt",
     value: "EG",
@@ -570,7 +570,7 @@ const countries = {
   SV: {
     icon: {
       path: "flags",
-      name: "sv",
+      name: "SV",
     },
     label: "El Salvador",
     value: "SV",
@@ -578,7 +578,7 @@ const countries = {
   "GB:ENG": {
     icon: {
       path: "flags",
-      name: "gb",
+      name: "GB",
     },
     label: "England",
     value: "GB",
@@ -586,7 +586,7 @@ const countries = {
   GQ: {
     icon: {
       path: "flags",
-      name: "gq",
+      name: "GQ",
     },
     label: "Equatorial Guinea",
     value: "GQ",
@@ -594,7 +594,7 @@ const countries = {
   ER: {
     icon: {
       path: "flags",
-      name: "er",
+      name: "ER",
     },
     label: "Eritrea",
     value: "ER",
@@ -602,7 +602,7 @@ const countries = {
   EE: {
     icon: {
       path: "flags",
-      name: "ee",
+      name: "EE",
     },
     label: "Estonia",
     value: "EE",
@@ -610,7 +610,7 @@ const countries = {
   ET: {
     icon: {
       path: "flags",
-      name: "et",
+      name: "ET",
     },
     label: "Ethiopia",
     value: "ET",
@@ -618,7 +618,7 @@ const countries = {
   FK: {
     icon: {
       path: "flags",
-      name: "fk",
+      name: "FK",
     },
     label: "Falkland Islands",
     value: "FK",
@@ -626,7 +626,7 @@ const countries = {
   FO: {
     icon: {
       path: "flags",
-      name: "fo",
+      name: "FO",
     },
     label: "Faroe Islands",
     value: "FO",
@@ -634,7 +634,7 @@ const countries = {
   FM: {
     icon: {
       path: "flags",
-      name: "fm",
+      name: "FM",
     },
     label: "Federated States of Micronesia",
     value: "FM",
@@ -642,7 +642,7 @@ const countries = {
   FJ: {
     icon: {
       path: "flags",
-      name: "fj",
+      name: "FJ",
     },
     label: "Fiji",
     value: "FJ",
@@ -650,7 +650,7 @@ const countries = {
   FI: {
     icon: {
       path: "flags",
-      name: "fi",
+      name: "FI",
     },
     label: "Finland",
     value: "FI",
@@ -658,7 +658,7 @@ const countries = {
   FR: {
     icon: {
       path: "flags",
-      name: "fr",
+      name: "FR",
     },
     label: "France",
     value: "FR",
@@ -666,7 +666,7 @@ const countries = {
   GF: {
     icon: {
       path: "flags",
-      name: "gf",
+      name: "GF",
     },
     label: "French Guiana",
     value: "GF",
@@ -674,7 +674,7 @@ const countries = {
   PF: {
     icon: {
       path: "flags",
-      name: "pf",
+      name: "PF",
     },
     label: "French Polynesia",
     value: "PF",
@@ -682,7 +682,7 @@ const countries = {
   TF: {
     icon: {
       path: "flags",
-      name: "tf",
+      name: "TF",
     },
     label: "French Southern Territories",
     value: "TF",
@@ -690,7 +690,7 @@ const countries = {
   GA: {
     icon: {
       path: "flags",
-      name: "ga",
+      name: "GA",
     },
     label: "Gabon",
     value: "GA",
@@ -698,7 +698,7 @@ const countries = {
   GM: {
     icon: {
       path: "flags",
-      name: "gm",
+      name: "GM",
     },
     label: "Gambia",
     value: "GM",
@@ -706,7 +706,7 @@ const countries = {
   GE: {
     icon: {
       path: "flags",
-      name: "ge",
+      name: "GE",
     },
     label: "Georgia",
     value: "GE",
@@ -714,7 +714,7 @@ const countries = {
   DE: {
     icon: {
       path: "flags",
-      name: "de",
+      name: "DE",
     },
     label: "Germany",
     value: "DE",
@@ -722,7 +722,7 @@ const countries = {
   GH: {
     icon: {
       path: "flags",
-      name: "gh",
+      name: "GH",
     },
     label: "Ghana",
     value: "GH",
@@ -730,7 +730,7 @@ const countries = {
   GI: {
     icon: {
       path: "flags",
-      name: "gi",
+      name: "GI",
     },
     label: "Gibraltar",
     value: "GI",
@@ -738,7 +738,7 @@ const countries = {
   GR: {
     icon: {
       path: "flags",
-      name: "gr",
+      name: "GR",
     },
     label: "Greece",
     value: "GR",
@@ -746,7 +746,7 @@ const countries = {
   GL: {
     icon: {
       path: "flags",
-      name: "gl",
+      name: "GL",
     },
     label: "Greenland",
     value: "GL",
@@ -754,7 +754,7 @@ const countries = {
   GD: {
     icon: {
       path: "flags",
-      name: "gd",
+      name: "GD",
     },
     label: "Grenada",
     value: "GD",
@@ -762,7 +762,7 @@ const countries = {
   GP: {
     icon: {
       path: "flags",
-      name: "gp",
+      name: "GP",
     },
     label: "Guadeloupe",
     value: "GP",
@@ -770,7 +770,7 @@ const countries = {
   GU: {
     icon: {
       path: "flags",
-      name: "gu",
+      name: "GU",
     },
     label: "Guam",
     value: "GU",
@@ -778,7 +778,7 @@ const countries = {
   GT: {
     icon: {
       path: "flags",
-      name: "gt",
+      name: "GT",
     },
     label: "Guatemala",
     value: "GT",
@@ -786,7 +786,7 @@ const countries = {
   GG: {
     icon: {
       path: "flags",
-      name: "gg",
+      name: "GG",
     },
     label: "Guernsey",
     value: "GG",
@@ -794,7 +794,7 @@ const countries = {
   GN: {
     icon: {
       path: "flags",
-      name: "gn",
+      name: "GN",
     },
     label: "Guinea",
     value: "GN",
@@ -802,7 +802,7 @@ const countries = {
   GW: {
     icon: {
       path: "flags",
-      name: "gw",
+      name: "GW",
     },
     label: "Guinea-Bissau",
     value: "GW",
@@ -810,7 +810,7 @@ const countries = {
   GY: {
     icon: {
       path: "flags",
-      name: "gy",
+      name: "GY",
     },
     label: "Guyana",
     value: "GY",
@@ -818,7 +818,7 @@ const countries = {
   HT: {
     icon: {
       path: "flags",
-      name: "ht",
+      name: "HT",
     },
     label: "Haiti",
     value: "HT",
@@ -826,7 +826,7 @@ const countries = {
   VA: {
     icon: {
       path: "flags",
-      name: "va",
+      name: "VA",
     },
     label: "Holy See",
     value: "VA",
@@ -834,7 +834,7 @@ const countries = {
   HN: {
     icon: {
       path: "flags",
-      name: "hn",
+      name: "HN",
     },
     label: "Honduras",
     value: "HN",
@@ -842,7 +842,7 @@ const countries = {
   HK: {
     icon: {
       path: "flags",
-      name: "hk",
+      name: "HK",
     },
     label: "Hong Kong",
     value: "HK",
@@ -850,7 +850,7 @@ const countries = {
   HU: {
     icon: {
       path: "flags",
-      name: "hu",
+      name: "HU",
     },
     label: "Hungary",
     value: "HU",
@@ -858,7 +858,7 @@ const countries = {
   IS: {
     icon: {
       path: "flags",
-      name: "is",
+      name: "IS",
     },
     label: "Iceland",
     value: "IS",
@@ -866,7 +866,7 @@ const countries = {
   IN: {
     icon: {
       path: "flags",
-      name: "in",
+      name: "IN",
     },
     label: "India",
     value: "IN",
@@ -874,7 +874,7 @@ const countries = {
   ID: {
     icon: {
       path: "flags",
-      name: "id",
+      name: "ID",
     },
     label: "Indonesia",
     value: "ID",
@@ -882,7 +882,7 @@ const countries = {
   IR: {
     icon: {
       path: "flags",
-      name: "ir",
+      name: "IR",
     },
     label: "Iran (Islamic Republic of)",
     value: "IR",
@@ -890,7 +890,7 @@ const countries = {
   IQ: {
     icon: {
       path: "flags",
-      name: "iq",
+      name: "IQ",
     },
     label: "Iraq",
     value: "IQ",
@@ -898,7 +898,7 @@ const countries = {
   IE: {
     icon: {
       path: "flags",
-      name: "ie",
+      name: "IE",
     },
     label: "Ireland",
     value: "IE",
@@ -906,7 +906,7 @@ const countries = {
   IM: {
     icon: {
       path: "flags",
-      name: "im",
+      name: "IM",
     },
     label: "Isle of Man",
     value: "IM",
@@ -914,7 +914,7 @@ const countries = {
   IL: {
     icon: {
       path: "flags",
-      name: "il",
+      name: "IL",
     },
     label: "Israel",
     value: "IL",
@@ -922,7 +922,7 @@ const countries = {
   IT: {
     icon: {
       path: "flags",
-      name: "it",
+      name: "IT",
     },
     label: "Italy",
     value: "IT",
@@ -930,7 +930,7 @@ const countries = {
   JM: {
     icon: {
       path: "flags",
-      name: "jm",
+      name: "JM",
     },
     label: "Jamaica",
     value: "JM",
@@ -938,7 +938,7 @@ const countries = {
   JP: {
     icon: {
       path: "flags",
-      name: "jp",
+      name: "JP",
     },
     label: "Japan",
     value: "JP",
@@ -946,7 +946,7 @@ const countries = {
   JE: {
     icon: {
       path: "flags",
-      name: "je",
+      name: "JE",
     },
     label: "Jersey",
     value: "JE",
@@ -954,7 +954,7 @@ const countries = {
   JO: {
     icon: {
       path: "flags",
-      name: "jo",
+      name: "JO",
     },
     label: "Jordan",
     value: "JO",
@@ -962,7 +962,7 @@ const countries = {
   KZ: {
     icon: {
       path: "flags",
-      name: "kz",
+      name: "KZ",
     },
     label: "Kazakhstan",
     value: "KZ",
@@ -970,7 +970,7 @@ const countries = {
   KE: {
     icon: {
       path: "flags",
-      name: "ke",
+      name: "KE",
     },
     label: "Kenya",
     value: "KE",
@@ -978,7 +978,7 @@ const countries = {
   KI: {
     icon: {
       path: "flags",
-      name: "ki",
+      name: "KI",
     },
     label: "Kiribati",
     value: "KI",
@@ -986,7 +986,7 @@ const countries = {
   KW: {
     icon: {
       path: "flags",
-      name: "kw",
+      name: "KW",
     },
     label: "Kuwait",
     value: "KW",
@@ -994,7 +994,7 @@ const countries = {
   KG: {
     icon: {
       path: "flags",
-      name: "kg",
+      name: "KG",
     },
     label: "Kyrgyzstan",
     value: "KG",
@@ -1002,7 +1002,7 @@ const countries = {
   LA: {
     icon: {
       path: "flags",
-      name: "la",
+      name: "LA",
     },
     label: "Laos",
     value: "LA",
@@ -1010,7 +1010,7 @@ const countries = {
   LV: {
     icon: {
       path: "flags",
-      name: "lv",
+      name: "LV",
     },
     label: "Latvia",
     value: "LV",
@@ -1018,7 +1018,7 @@ const countries = {
   LB: {
     icon: {
       path: "flags",
-      name: "lb",
+      name: "LB",
     },
     label: "Lebanon",
     value: "LB",
@@ -1026,7 +1026,7 @@ const countries = {
   LS: {
     icon: {
       path: "flags",
-      name: "ls",
+      name: "LS",
     },
     label: "Lesotho",
     value: "LS",
@@ -1034,7 +1034,7 @@ const countries = {
   LR: {
     icon: {
       path: "flags",
-      name: "lr",
+      name: "LR",
     },
     label: "Liberia",
     value: "LR",
@@ -1042,7 +1042,7 @@ const countries = {
   LY: {
     icon: {
       path: "flags",
-      name: "ly",
+      name: "LY",
     },
     label: "Libya",
     value: "LY",
@@ -1050,7 +1050,7 @@ const countries = {
   LI: {
     icon: {
       path: "flags",
-      name: "li",
+      name: "LI",
     },
     label: "Liechtenstein",
     value: "LI",
@@ -1058,7 +1058,7 @@ const countries = {
   LT: {
     icon: {
       path: "flags",
-      name: "lt",
+      name: "LT",
     },
     label: "Lithuania",
     value: "LT",
@@ -1066,7 +1066,7 @@ const countries = {
   LU: {
     icon: {
       path: "flags",
-      name: "lu",
+      name: "LU",
     },
     label: "Luxembourg",
     value: "LU",
@@ -1074,7 +1074,7 @@ const countries = {
   MO: {
     icon: {
       path: "flags",
-      name: "mo",
+      name: "MO",
     },
     label: "Macau",
     value: "MO",
@@ -1082,7 +1082,7 @@ const countries = {
   MG: {
     icon: {
       path: "flags",
-      name: "mg",
+      name: "MG",
     },
     label: "Madagascar",
     value: "MG",
@@ -1090,7 +1090,7 @@ const countries = {
   MW: {
     icon: {
       path: "flags",
-      name: "mw",
+      name: "MW",
     },
     label: "Malawi",
     value: "MW",
@@ -1098,7 +1098,7 @@ const countries = {
   MY: {
     icon: {
       path: "flags",
-      name: "my",
+      name: "MY",
     },
     label: "Malaysia",
     value: "MY",
@@ -1106,7 +1106,7 @@ const countries = {
   MV: {
     icon: {
       path: "flags",
-      name: "mv",
+      name: "MV",
     },
     label: "Maldives",
     value: "MV",
@@ -1114,7 +1114,7 @@ const countries = {
   ML: {
     icon: {
       path: "flags",
-      name: "ml",
+      name: "ML",
     },
     label: "Mali",
     value: "ML",
@@ -1122,7 +1122,7 @@ const countries = {
   MT: {
     icon: {
       path: "flags",
-      name: "mt",
+      name: "MT",
     },
     label: "Malta",
     value: "MT",
@@ -1130,7 +1130,7 @@ const countries = {
   MH: {
     icon: {
       path: "flags",
-      name: "mh",
+      name: "MH",
     },
     label: "Marshall Islands",
     value: "MH",
@@ -1138,7 +1138,7 @@ const countries = {
   MQ: {
     icon: {
       path: "flags",
-      name: "mq",
+      name: "MQ",
     },
     label: "Martinique",
     value: "MQ",
@@ -1146,7 +1146,7 @@ const countries = {
   MR: {
     icon: {
       path: "flags",
-      name: "mr",
+      name: "MR",
     },
     label: "Mauritania",
     value: "MR",
@@ -1154,7 +1154,7 @@ const countries = {
   MU: {
     icon: {
       path: "flags",
-      name: "mu",
+      name: "MU",
     },
     label: "Mauritius",
     value: "MU",
@@ -1162,7 +1162,7 @@ const countries = {
   YT: {
     icon: {
       path: "flags",
-      name: "yt",
+      name: "YT",
     },
     label: "Mayotte",
     value: "YT",
@@ -1170,7 +1170,7 @@ const countries = {
   MX: {
     icon: {
       path: "flags",
-      name: "mx",
+      name: "MX",
     },
     label: "Mexico",
     value: "MX",
@@ -1178,7 +1178,7 @@ const countries = {
   MD: {
     icon: {
       path: "flags",
-      name: "md",
+      name: "MD",
     },
     label: "Moldova",
     value: "MD",
@@ -1186,7 +1186,7 @@ const countries = {
   MC: {
     icon: {
       path: "flags",
-      name: "mc",
+      name: "MC",
     },
     label: "Monaco",
     value: "MC",
@@ -1194,7 +1194,7 @@ const countries = {
   MN: {
     icon: {
       path: "flags",
-      name: "mn",
+      name: "MN",
     },
     label: "Mongolia",
     value: "MN",
@@ -1202,7 +1202,7 @@ const countries = {
   ME: {
     icon: {
       path: "flags",
-      name: "me",
+      name: "ME",
     },
     label: "Montenegro",
     value: "ME",
@@ -1210,7 +1210,7 @@ const countries = {
   MS: {
     icon: {
       path: "flags",
-      name: "ms",
+      name: "MS",
     },
     label: "Montserrat",
     value: "MS",
@@ -1218,7 +1218,7 @@ const countries = {
   MA: {
     icon: {
       path: "flags",
-      name: "ma",
+      name: "MA",
     },
     label: "Morocco",
     value: "MA",
@@ -1226,7 +1226,7 @@ const countries = {
   MZ: {
     icon: {
       path: "flags",
-      name: "mz",
+      name: "MZ",
     },
     label: "Mozambique",
     value: "MZ",
@@ -1234,7 +1234,7 @@ const countries = {
   MM: {
     icon: {
       path: "flags",
-      name: "mm",
+      name: "MM",
     },
     label: "Myanmar",
     value: "MM",
@@ -1242,7 +1242,7 @@ const countries = {
   NA: {
     icon: {
       path: "flags",
-      name: "na",
+      name: "NA",
     },
     label: "Namibia",
     value: "NA",
@@ -1250,7 +1250,7 @@ const countries = {
   NR: {
     icon: {
       path: "flags",
-      name: "nr",
+      name: "NR",
     },
     label: "Nauru",
     value: "NR",
@@ -1258,7 +1258,7 @@ const countries = {
   NP: {
     icon: {
       path: "flags",
-      name: "np",
+      name: "NP",
     },
     label: "Nepal",
     value: "NP",
@@ -1266,7 +1266,7 @@ const countries = {
   NL: {
     icon: {
       path: "flags",
-      name: "nl",
+      name: "NL",
     },
     label: "Netherlands",
     value: "NL",
@@ -1274,7 +1274,7 @@ const countries = {
   NC: {
     icon: {
       path: "flags",
-      name: "nc",
+      name: "NC",
     },
     label: "New Caledonia",
     value: "NC",
@@ -1282,7 +1282,7 @@ const countries = {
   NZ: {
     icon: {
       path: "flags",
-      name: "nz",
+      name: "NZ",
     },
     label: "New Zealand",
     value: "NZ",
@@ -1290,7 +1290,7 @@ const countries = {
   NI: {
     icon: {
       path: "flags",
-      name: "ni",
+      name: "NI",
     },
     label: "Nicaragua",
     value: "NI",
@@ -1298,7 +1298,7 @@ const countries = {
   NE: {
     icon: {
       path: "flags",
-      name: "ne",
+      name: "NE",
     },
     label: "Niger",
     value: "NE",
@@ -1306,7 +1306,7 @@ const countries = {
   NG: {
     icon: {
       path: "flags",
-      name: "ng",
+      name: "NG",
     },
     label: "Nigeria",
     value: "NG",
@@ -1314,7 +1314,7 @@ const countries = {
   NU: {
     icon: {
       path: "flags",
-      name: "nu",
+      name: "NU",
     },
     label: "Niue",
     value: "NU",
@@ -1322,7 +1322,7 @@ const countries = {
   NF: {
     icon: {
       path: "flags",
-      name: "nf",
+      name: "NF",
     },
     label: "Norfolk Island",
     value: "NF",
@@ -1330,7 +1330,7 @@ const countries = {
   KP: {
     icon: {
       path: "flags",
-      name: "kp",
+      name: "KP",
     },
     label: "North Korea",
     value: "KP",
@@ -1338,7 +1338,7 @@ const countries = {
   MK: {
     icon: {
       path: "flags",
-      name: "mk",
+      name: "MK",
     },
     label: "North Macedonia",
     value: "MK",
@@ -1346,7 +1346,7 @@ const countries = {
   "GB:NIR": {
     icon: {
       path: "flags",
-      name: "gb",
+      name: "GB",
     },
     label: "Northern Ireland",
     value: "GB",
@@ -1354,7 +1354,7 @@ const countries = {
   MP: {
     icon: {
       path: "flags",
-      name: "mp",
+      name: "MP",
     },
     label: "Northern Mariana Islands",
     value: "MP",
@@ -1362,7 +1362,7 @@ const countries = {
   NO: {
     icon: {
       path: "flags",
-      name: "no",
+      name: "NO",
     },
     label: "Norway",
     value: "NO",
@@ -1370,7 +1370,7 @@ const countries = {
   OM: {
     icon: {
       path: "flags",
-      name: "om",
+      name: "OM",
     },
     label: "Oman",
     value: "OM",
@@ -1378,7 +1378,7 @@ const countries = {
   PK: {
     icon: {
       path: "flags",
-      name: "pk",
+      name: "PK",
     },
     label: "Pakistan",
     value: "PK",
@@ -1386,7 +1386,7 @@ const countries = {
   PW: {
     icon: {
       path: "flags",
-      name: "pw",
+      name: "PW",
     },
     label: "Palau",
     value: "PW",
@@ -1394,7 +1394,7 @@ const countries = {
   PA: {
     icon: {
       path: "flags",
-      name: "pa",
+      name: "PA",
     },
     label: "Panama",
     value: "PA",
@@ -1402,7 +1402,7 @@ const countries = {
   PG: {
     icon: {
       path: "flags",
-      name: "pg",
+      name: "PG",
     },
     label: "Papua New Guinea",
     value: "PG",
@@ -1410,7 +1410,7 @@ const countries = {
   PY: {
     icon: {
       path: "flags",
-      name: "py",
+      name: "PY",
     },
     label: "Paraguay",
     value: "PY",
@@ -1418,7 +1418,7 @@ const countries = {
   PE: {
     icon: {
       path: "flags",
-      name: "pe",
+      name: "PE",
     },
     label: "Peru",
     value: "PE",
@@ -1426,7 +1426,7 @@ const countries = {
   PH: {
     icon: {
       path: "flags",
-      name: "ph",
+      name: "PH",
     },
     label: "Philippines",
     value: "PH",
@@ -1434,7 +1434,7 @@ const countries = {
   PN: {
     icon: {
       path: "flags",
-      name: "pn",
+      name: "PN",
     },
     label: "Pitcairn",
     value: "PN",
@@ -1442,7 +1442,7 @@ const countries = {
   PL: {
     icon: {
       path: "flags",
-      name: "pl",
+      name: "PL",
     },
     label: "Poland",
     value: "PL",
@@ -1450,7 +1450,7 @@ const countries = {
   PT: {
     icon: {
       path: "flags",
-      name: "pt",
+      name: "PT",
     },
     label: "Portugal",
     value: "PT",
@@ -1458,7 +1458,7 @@ const countries = {
   PR: {
     icon: {
       path: "flags",
-      name: "pr",
+      name: "PR",
     },
     label: "Puerto Rico",
     value: "PR",
@@ -1466,7 +1466,7 @@ const countries = {
   QA: {
     icon: {
       path: "flags",
-      name: "qa",
+      name: "QA",
     },
     label: "Qatar",
     value: "QA",
@@ -1474,7 +1474,7 @@ const countries = {
   CG: {
     icon: {
       path: "flags",
-      name: "cg",
+      name: "CG",
     },
     label: "Republic of the Congo",
     value: "CG",
@@ -1482,7 +1482,7 @@ const countries = {
   RO: {
     icon: {
       path: "flags",
-      name: "ro",
+      name: "RO",
     },
     label: "Romania",
     value: "RO",
@@ -1490,7 +1490,7 @@ const countries = {
   RU: {
     icon: {
       path: "flags",
-      name: "ru",
+      name: "RU",
     },
     label: "Russia",
     value: "RU",
@@ -1498,7 +1498,7 @@ const countries = {
   RW: {
     icon: {
       path: "flags",
-      name: "rw",
+      name: "RW",
     },
     label: "Rwanda",
     value: "RW",
@@ -1506,7 +1506,7 @@ const countries = {
   RE: {
     icon: {
       path: "flags",
-      name: "re",
+      name: "RE",
     },
     label: "Réunion",
     value: "RE",
@@ -1514,7 +1514,7 @@ const countries = {
   BL: {
     icon: {
       path: "flags",
-      name: "bl",
+      name: "BL",
     },
     label: "Saint Barthélemy",
     value: "BL",
@@ -1522,7 +1522,7 @@ const countries = {
   SH: {
     icon: {
       path: "flags",
-      name: "sh",
+      name: "SH",
     },
     label: "Saint Helena, Ascension and Tristan da Cunha",
     value: "SH",
@@ -1530,7 +1530,7 @@ const countries = {
   KN: {
     icon: {
       path: "flags",
-      name: "kn",
+      name: "KN",
     },
     label: "Saint Kitts and Nevis",
     value: "KN",
@@ -1538,7 +1538,7 @@ const countries = {
   LC: {
     icon: {
       path: "flags",
-      name: "lc",
+      name: "LC",
     },
     label: "Saint Lucia",
     value: "LC",
@@ -1546,7 +1546,7 @@ const countries = {
   MF: {
     icon: {
       path: "flags",
-      name: "mf",
+      name: "MF",
     },
     label: "Saint Martin",
     value: "MF",
@@ -1554,7 +1554,7 @@ const countries = {
   PM: {
     icon: {
       path: "flags",
-      name: "pm",
+      name: "PM",
     },
     label: "Saint Pierre and Miquelon",
     value: "PM",
@@ -1562,7 +1562,7 @@ const countries = {
   VC: {
     icon: {
       path: "flags",
-      name: "vc",
+      name: "VC",
     },
     label: "Saint Vincent and the Grenadines",
     value: "VC",
@@ -1570,7 +1570,7 @@ const countries = {
   WS: {
     icon: {
       path: "flags",
-      name: "ws",
+      name: "WS",
     },
     label: "Samoa",
     value: "WS",
@@ -1578,7 +1578,7 @@ const countries = {
   SM: {
     icon: {
       path: "flags",
-      name: "sm",
+      name: "SM",
     },
     label: "San Marino",
     value: "SM",
@@ -1586,7 +1586,7 @@ const countries = {
   ST: {
     icon: {
       path: "flags",
-      name: "st",
+      name: "ST",
     },
     label: "Sao Tome and Principe",
     value: "ST",
@@ -1594,7 +1594,7 @@ const countries = {
   SA: {
     icon: {
       path: "flags",
-      name: "sa",
+      name: "SA",
     },
     label: "Saudi Arabia",
     value: "SA",
@@ -1602,7 +1602,7 @@ const countries = {
   "GB:SCT": {
     icon: {
       path: "flags",
-      name: "gb",
+      name: "GB",
     },
     label: "Scotland",
     value: "GB",
@@ -1610,7 +1610,7 @@ const countries = {
   SN: {
     icon: {
       path: "flags",
-      name: "sn",
+      name: "SN",
     },
     label: "Senegal",
     value: "SN",
@@ -1618,7 +1618,7 @@ const countries = {
   RS: {
     icon: {
       path: "flags",
-      name: "rs",
+      name: "RS",
     },
     label: "Serbia",
     value: "RS",
@@ -1626,7 +1626,7 @@ const countries = {
   SC: {
     icon: {
       path: "flags",
-      name: "sc",
+      name: "SC",
     },
     label: "Seychelles",
     value: "SC",
@@ -1634,7 +1634,7 @@ const countries = {
   SL: {
     icon: {
       path: "flags",
-      name: "sl",
+      name: "SL",
     },
     label: "Sierra Leone",
     value: "SL",
@@ -1642,7 +1642,7 @@ const countries = {
   SG: {
     icon: {
       path: "flags",
-      name: "sg",
+      name: "SG",
     },
     label: "Singapore",
     value: "SG",
@@ -1650,7 +1650,7 @@ const countries = {
   SX: {
     icon: {
       path: "flags",
-      name: "sx",
+      name: "SX",
     },
     label: "Sint Maarten",
     value: "SX",
@@ -1658,7 +1658,7 @@ const countries = {
   SK: {
     icon: {
       path: "flags",
-      name: "sk",
+      name: "SK",
     },
     label: "Slovakia",
     value: "SK",
@@ -1666,7 +1666,7 @@ const countries = {
   SI: {
     icon: {
       path: "flags",
-      name: "si",
+      name: "SI",
     },
     label: "Slovenia",
     value: "SI",
@@ -1674,7 +1674,7 @@ const countries = {
   SB: {
     icon: {
       path: "flags",
-      name: "sb",
+      name: "SB",
     },
     label: "Solomon Islands",
     value: "SB",
@@ -1682,7 +1682,7 @@ const countries = {
   SO: {
     icon: {
       path: "flags",
-      name: "so",
+      name: "SO",
     },
     label: "Somalia",
     value: "SO",
@@ -1690,7 +1690,7 @@ const countries = {
   ZA: {
     icon: {
       path: "flags",
-      name: "za",
+      name: "ZA",
     },
     label: "South Africa",
     value: "ZA",
@@ -1698,7 +1698,7 @@ const countries = {
   GS: {
     icon: {
       path: "flags",
-      name: "gs",
+      name: "GS",
     },
     label: "South Georgia and the South Sandwich Islands",
     value: "GS",
@@ -1706,7 +1706,7 @@ const countries = {
   KR: {
     icon: {
       path: "flags",
-      name: "kr",
+      name: "KR",
     },
     label: "South Korea",
     value: "KR",
@@ -1714,7 +1714,7 @@ const countries = {
   SS: {
     icon: {
       path: "flags",
-      name: "ss",
+      name: "SS",
     },
     label: "South Sudan",
     value: "SS",
@@ -1722,7 +1722,7 @@ const countries = {
   ES: {
     icon: {
       path: "flags",
-      name: "es",
+      name: "ES",
     },
     label: "Spain",
     value: "ES",
@@ -1730,7 +1730,7 @@ const countries = {
   LK: {
     icon: {
       path: "flags",
-      name: "lk",
+      name: "LK",
     },
     label: "Sri Lanka",
     value: "LK",
@@ -1738,7 +1738,7 @@ const countries = {
   PS: {
     icon: {
       path: "flags",
-      name: "ps",
+      name: "PS",
     },
     label: "State of Palestine",
     value: "PS",
@@ -1746,7 +1746,7 @@ const countries = {
   SD: {
     icon: {
       path: "flags",
-      name: "sd",
+      name: "SD",
     },
     label: "Sudan",
     value: "SD",
@@ -1754,7 +1754,7 @@ const countries = {
   SR: {
     icon: {
       path: "flags",
-      name: "sr",
+      name: "SR",
     },
     label: "Suriname",
     value: "SR",
@@ -1762,7 +1762,7 @@ const countries = {
   SJ: {
     icon: {
       path: "flags",
-      name: "sj",
+      name: "SJ",
     },
     label: "Svalbard and Jan Mayen",
     value: "SJ",
@@ -1770,7 +1770,7 @@ const countries = {
   SZ: {
     icon: {
       path: "flags",
-      name: "sz",
+      name: "SZ",
     },
     label: "Swaziland",
     value: "SZ",
@@ -1778,7 +1778,7 @@ const countries = {
   SE: {
     icon: {
       path: "flags",
-      name: "se",
+      name: "SE",
     },
     label: "Sweden",
     value: "SE",
@@ -1786,7 +1786,7 @@ const countries = {
   CH: {
     icon: {
       path: "flags",
-      name: "ch",
+      name: "CH",
     },
     label: "Switzerland",
     value: "CH",
@@ -1794,7 +1794,7 @@ const countries = {
   SY: {
     icon: {
       path: "flags",
-      name: "sy",
+      name: "SY",
     },
     label: "Syrian Arab Republic",
     value: "SY",
@@ -1802,7 +1802,7 @@ const countries = {
   TW: {
     icon: {
       path: "flags",
-      name: "tw",
+      name: "TW",
     },
     label: "Taiwan",
     value: "TW",
@@ -1810,7 +1810,7 @@ const countries = {
   TJ: {
     icon: {
       path: "flags",
-      name: "tj",
+      name: "TJ",
     },
     label: "Tajikistan",
     value: "TJ",
@@ -1818,7 +1818,7 @@ const countries = {
   TZ: {
     icon: {
       path: "flags",
-      name: "tz",
+      name: "TZ",
     },
     label: "Tanzania",
     value: "TZ",
@@ -1826,7 +1826,7 @@ const countries = {
   TH: {
     icon: {
       path: "flags",
-      name: "th",
+      name: "TH",
     },
     label: "Thailand",
     value: "TH",
@@ -1834,7 +1834,7 @@ const countries = {
   TL: {
     icon: {
       path: "flags",
-      name: "tl",
+      name: "TL",
     },
     label: "Timor-Leste",
     value: "TL",
@@ -1842,7 +1842,7 @@ const countries = {
   TG: {
     icon: {
       path: "flags",
-      name: "tg",
+      name: "TG",
     },
     label: "Togo",
     value: "TG",
@@ -1850,7 +1850,7 @@ const countries = {
   TK: {
     icon: {
       path: "flags",
-      name: "tk",
+      name: "TK",
     },
     label: "Tokelau",
     value: "TK",
@@ -1858,7 +1858,7 @@ const countries = {
   TO: {
     icon: {
       path: "flags",
-      name: "to",
+      name: "TO",
     },
     label: "Tonga",
     value: "TO",
@@ -1866,7 +1866,7 @@ const countries = {
   TT: {
     icon: {
       path: "flags",
-      name: "tt",
+      name: "TT",
     },
     label: "Trinidad and Tobago",
     value: "TT",
@@ -1874,7 +1874,7 @@ const countries = {
   TN: {
     icon: {
       path: "flags",
-      name: "tn",
+      name: "TN",
     },
     label: "Tunisia",
     value: "TN",
@@ -1882,7 +1882,7 @@ const countries = {
   TR: {
     icon: {
       path: "flags",
-      name: "tr",
+      name: "TR",
     },
     label: "Turkey",
     value: "TR",
@@ -1890,7 +1890,7 @@ const countries = {
   TM: {
     icon: {
       path: "flags",
-      name: "tm",
+      name: "TM",
     },
     label: "Turkmenistan",
     value: "TM",
@@ -1898,7 +1898,7 @@ const countries = {
   TC: {
     icon: {
       path: "flags",
-      name: "tc",
+      name: "TC",
     },
     label: "Turks and Caicos Islands",
     value: "TC",
@@ -1906,7 +1906,7 @@ const countries = {
   TV: {
     icon: {
       path: "flags",
-      name: "tv",
+      name: "TV",
     },
     label: "Tuvalu",
     value: "TV",
@@ -1914,7 +1914,7 @@ const countries = {
   UG: {
     icon: {
       path: "flags",
-      name: "ug",
+      name: "UG",
     },
     label: "Uganda",
     value: "UG",
@@ -1922,7 +1922,7 @@ const countries = {
   UA: {
     icon: {
       path: "flags",
-      name: "ua",
+      name: "UA",
     },
     label: "Ukraine",
     value: "UA",
@@ -1930,7 +1930,7 @@ const countries = {
   AE: {
     icon: {
       path: "flags",
-      name: "ae",
+      name: "AE",
     },
     label: "United Arab Emirates",
     value: "AE",
@@ -1938,7 +1938,7 @@ const countries = {
   GB: {
     icon: {
       path: "flags",
-      name: "gb",
+      name: "GB",
     },
     label: "United Kingdom",
     value: "GB",
@@ -1946,7 +1946,7 @@ const countries = {
   UM: {
     icon: {
       path: "flags",
-      name: "um",
+      name: "UM",
     },
     label: "United States Minor Outlying Islands",
     value: "UM",
@@ -1954,7 +1954,7 @@ const countries = {
   US: {
     icon: {
       path: "flags",
-      name: "us",
+      name: "US",
     },
     label: "United States of America",
     value: "US",
@@ -1962,7 +1962,7 @@ const countries = {
   UY: {
     icon: {
       path: "flags",
-      name: "uy",
+      name: "UY",
     },
     label: "Uruguay",
     value: "UY",
@@ -1970,7 +1970,7 @@ const countries = {
   UZ: {
     icon: {
       path: "flags",
-      name: "uz",
+      name: "UZ",
     },
     label: "Uzbekistan",
     value: "UZ",
@@ -1978,7 +1978,7 @@ const countries = {
   VU: {
     icon: {
       path: "flags",
-      name: "vu",
+      name: "VU",
     },
     label: "Vanuatu",
     value: "VU",
@@ -1986,7 +1986,7 @@ const countries = {
   VE: {
     icon: {
       path: "flags",
-      name: "ve",
+      name: "VE",
     },
     label: "Venezuela (Bolivarian Republic of)",
     value: "VE",
@@ -1994,7 +1994,7 @@ const countries = {
   VN: {
     icon: {
       path: "flags",
-      name: "vn",
+      name: "VN",
     },
     label: "Vietnam",
     value: "VN",
@@ -2002,7 +2002,7 @@ const countries = {
   VG: {
     icon: {
       path: "flags",
-      name: "vg",
+      name: "VG",
     },
     label: "Virgin Islands (British)",
     value: "VG",
@@ -2010,7 +2010,7 @@ const countries = {
   VI: {
     icon: {
       path: "flags",
-      name: "vi",
+      name: "VI",
     },
     label: "Virgin Islands (U.S.)",
     value: "VI",
@@ -2018,7 +2018,7 @@ const countries = {
   "GB:WLS": {
     icon: {
       path: "flags",
-      name: "gb",
+      name: "GB",
     },
     label: "Wales",
     value: "GB",
@@ -2026,7 +2026,7 @@ const countries = {
   WF: {
     icon: {
       path: "flags",
-      name: "wf",
+      name: "WF",
     },
     label: "Wallis and Futuna",
     value: "WF",
@@ -2034,7 +2034,7 @@ const countries = {
   EH: {
     icon: {
       path: "flags",
-      name: "eh",
+      name: "EH",
     },
     label: "Western Sahara",
     value: "EH",
@@ -2042,7 +2042,7 @@ const countries = {
   YE: {
     icon: {
       path: "flags",
-      name: "ye",
+      name: "YE",
     },
     label: "Yemen",
     value: "YE",
@@ -2050,7 +2050,7 @@ const countries = {
   ZM: {
     icon: {
       path: "flags",
-      name: "zm",
+      name: "ZM",
     },
     label: "Zambia",
     value: "ZM",
@@ -2058,7 +2058,7 @@ const countries = {
   ZW: {
     icon: {
       path: "flags",
-      name: "zw",
+      name: "ZW",
     },
     label: "Zimbabwe",
     value: "ZW",

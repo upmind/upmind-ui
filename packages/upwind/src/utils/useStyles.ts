@@ -2,11 +2,10 @@
 import { unref, inject, computed, toRaw } from "vue";
 import { twMerge } from "tailwind-merge";
 import { cx } from "class-variance-authority";
-import type { VariantProps } from "class-variance-authority";
+// import type { VariantProps } from "class-variance-authority";
 
 // ---utils
 import {
-  filter,
   forEach,
   get,
   isArray,
@@ -16,18 +15,13 @@ import {
   isObject,
   map,
   omitBy,
-  pickBy,
   reduce,
-  remove,
   set,
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-function applyVariants(
-  configs: Array<Record<string, Function>>,
-  context: Object = {}
-) {
+function applyVariants(configs: Array<Object>, context: Object = {}) {
   // ----------------------------------------------
   //  NB: This works by getting ALL the unique keys from ALL of the provided configs
   //      then we loop over each key
@@ -42,11 +36,9 @@ function applyVariants(
     configKeys,
     (styles, key) => {
       const variants = map(configs, config => get(config, key, {}));
-      const results = map(variants, variant => {
-        if (isFunction(variant)) return variant(context);
-        return variant;
-      });
-
+      const results = map(variants, variant =>
+        isFunction(variant) ? variant(context) : variant
+      );
       set(styles, key, twMerge(cx(...results)));
       return styles;
     },
@@ -70,8 +62,7 @@ export const useStyles = (
     const styles = {};
 
     // clean up the context object to remove any refs
-    const cleanContext = toRaw(unref(context));
-
+    const cleanContext = omitBy(toRaw(unref(context)), isNil);
     // pick out our component specific configs only
     forEach(components, component => {
       const componentConfigs = reduce(

@@ -219,6 +219,7 @@ export default defineComponent({
       [
         "listbox",
         "listboxButton",
+        "listboxSearch",
         "listboxItem",
         "listboxTransitionEnter",
         "listboxTransitionLeave",

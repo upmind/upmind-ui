@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="styles.root"
+    :class="styles.button.root"
     :disabled="disabled"
     :data-size="size"
     :data-variant="variant"
@@ -9,56 +9,64 @@
     <slot
       v-if="meta.isLoading"
       name="loading"
-      v-bind="{ styles: styles.spinner }"
+      v-bind="{ styles: styles.button.spinner }"
     >
-      <upw-spinner :class="styles.spinner" class="loading" />
+      <upw-spinner :class="styles.button.spinner" class="loading" />
     </slot>
 
     <slot
       name="prepend-avatar"
-      v-bind="{ styles: styles.avatar, avatar: prependAvatar }"
+      v-bind="{ styles: styles.button.avatar, avatar: prependAvatar }"
       v-if="!iconOnly"
     >
       <upw-icon
         v-if="prependAvatar"
         class="avatar"
-        :class="[styles.avatar]"
+        :class="[styles.button.avatar]"
         :icon="prependAvatar"
       />
     </slot>
 
-    <span class="content" :class="[styles.content]">
+    <span class="content" :class="[styles.button.content]">
       <slot
         name="prepend-icon"
-        v-bind="{ styles: styles.icon, icon: prependIcon }"
+        v-bind="{ styles: styles.button.icon, icon: prependIcon }"
       >
-        <upw-icon v-if="prependIcon" :class="styles.icon" :icon="prependIcon" />
+        <upw-icon
+          v-if="prependIcon"
+          :class="styles.button.icon"
+          :icon="prependIcon"
+        />
       </slot>
 
       <slot v-bind="{ styles }">
-        <span :class="styles.label" v-if="label" class="label">
+        <span :class="styles.button.label" v-if="label" class="label">
           {{ label }}
         </span>
       </slot>
 
       <slot
         name="append-icon"
-        v-bind="{ styles: styles.icon, icon: appendIcon }"
+        v-bind="{ styles: styles.button.icon, icon: appendIcon }"
         v-if="!iconOnly || (iconOnly && !prependIcon)"
       >
-        <upw-icon v-if="appendIcon" :class="styles.icon" :icon="appendIcon" />
+        <upw-icon
+          v-if="appendIcon"
+          :class="styles.button.icon"
+          :icon="appendIcon"
+        />
       </slot>
     </span>
 
     <slot
       name="append-avatar"
-      v-bind="{ styles: styles.avatar, avatar: appendAvatar }"
+      v-bind="{ styles: styles.button.avatar, avatar: appendAvatar }"
       v-if="!iconOnly"
     >
       <upw-icon
         v-if="appendAvatar"
         class="avatar"
-        :class="[styles.avatar]"
+        :class="[styles.button.avatar]"
         :icon="appendAvatar"
       />
     </slot>
