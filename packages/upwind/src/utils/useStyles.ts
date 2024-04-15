@@ -1,5 +1,5 @@
 // --- global
-import { unref, inject, computed, toRaw } from "vue";
+import { unref, inject, ref, toRaw, readonly, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { cx } from "class-variance-authority";
 // import type { VariantProps } from "class-variance-authority";
@@ -8,6 +8,7 @@ import { cx } from "class-variance-authority";
 import {
   forEach,
   get,
+  has,
   isArray,
   isEmpty,
   isFunction,
@@ -46,11 +47,11 @@ function applyVariants(configs: Array<Object>, context: Object = {}) {
   );
 }
 
-export const useStyles = (
+export function useStyles(
   components: string | string[],
   context: Object = {},
   ...configs: Array<Object>
-) => {
+) {
   // ensure component is an array so we can loop over it and handle multiple components
   components = isArray(components) ? components : [components];
 
@@ -58,31 +59,33 @@ export const useStyles = (
   const globalConfig = inject("upwind", {});
   if (!isEmpty(globalConfig)) configs.push(globalConfig);
 
-  return computed(() => {
-    const styles = {};
+  const styles = ref({});
 
-    // clean up the context object to remove any refs
-    const cleanContext = omitBy(toRaw(unref(context)), isNil);
-    // pick out our component specific configs only
-    forEach(components, component => {
-      const componentConfigs = reduce(
-        configs,
-        (result, config) => {
-          config = toRaw(unref(config));
-          const componentConfig = get(config, component);
+  // clean up the context object to remove any refs
+  const cleanContext = omitBy(toRaw(unref(context)), isNil);
 
-          if (isObject(componentConfig) && !isEmpty(componentConfig)) {
-            result.push(componentConfig);
-          }
-          return result;
-        },
-        [] as Array<Object>
-      );
+  // pick out our component specific configs only
+  forEach(components, component => {
+    const componentConfigs = reduce(
+      configs,
+      (result, config) => {
+        config = toRaw(unref(config));
+        const componentConfig = get(config, component);
 
-      set(styles, component, applyVariants(componentConfigs, cleanContext));
-    });
+        if (isObject(componentConfig) && !isEmpty(componentConfig)) {
+          result.push(componentConfig);
+        }
+        return result;
+      },
+      [] as Array<Object>
+    );
 
-    // return the requested styles with the variants applied
-    return styles;
+    set(styles.value, component, applyVariants(componentConfigs, cleanContext));
   });
-};
+
+  // if (has(context, "loading"))
+  //   console.log("useStyles", components, styles?.button?.content);
+
+  // return the requested styles with the variants applied
+  return { styles };
+}

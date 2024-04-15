@@ -36,7 +36,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles("icon", props, config, props.upwindConfig);
+    const { styles } = useStyles("icon", props, config, props.upwindConfig);
 
     const svg = ref(null);
 

@@ -102,16 +102,12 @@
     <!-- feedback -->
     <div class="feedback" :class="styles?.feedback?.root">
       <transition-group
-        :enter-active-class="
-          styles?.feedback?.transition?.enter?.active?.join(' ')
-        "
-        :enter-from-class="styles?.feedback?.transition?.enter?.from?.join(' ')"
-        :enter-to-class="styles?.feedback?.transition?.enter?.to?.join(' ')"
-        :leave-active-class="
-          styles?.feedback?.transition?.leave?.active?.join(' ')
-        "
-        :leave-from-class="styles?.feedback?.transition?.leave?.from?.join(' ')"
-        :leave-to-class="styles?.feedback?.transition?.leave?.to?.join(' ')"
+        :enter-active-class="styles?.feedback?.transition?.enter?.active"
+        :enter-from-class="styles?.feedback?.transition?.enter?.from"
+        :enter-to-class="styles?.feedback?.transition?.enter?.to"
+        :leave-active-class="styles?.feedback?.transition?.leave?.active"
+        :leave-from-class="styles?.feedback?.transition?.leave?.from"
+        :leave-to-class="styles?.feedback?.transition?.leave?.to"
       >
         <!-- hint/description -->
         <span
@@ -149,7 +145,7 @@ import { defineComponent } from "vue";
 import UpwIcon from "../../../../icon/Icon.vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../../../../utils";
@@ -273,7 +269,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles("form", { props }, config, props.upwindConfig);
+    const { styles } = useStyles("form", props, config, props.upwindConfig);
     return {
       styles,
     };

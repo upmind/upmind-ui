@@ -19,7 +19,7 @@
       @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
-      :class="styles.root"
+      :class="styles.input.root"
     />
   </control-wrapper>
 </template>
@@ -34,13 +34,14 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "../wrapper/Wrapper.vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- utils
 import { useupwindControl } from "../../utils";
 import { useStyles } from "../../../../../utils";
 
 // --- types
+import type { PropType } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { InputSize } from "../types";
@@ -65,7 +66,7 @@ export default defineComponent({
     },
   },
   setup(props: RendererProps<ControlElement>) {
-    const styles = useStyles("form", { props }, config, props.upwindConfig);
+    const { styles } = useStyles("input", props, config, props.upwindConfig);
     const control = useupwindControl(
       useJsonFormsControl(props),
       target => target.value || undefined
@@ -73,7 +74,6 @@ export default defineComponent({
     return {
       ...control,
       styles,
-      stylesDeprecated: control.styles,
     };
   },
 });
