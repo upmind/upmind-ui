@@ -29,12 +29,7 @@ export default {
       },
     }),
   },
-  // form: {
-  //   content: {
-  //     loading: "scale-0 transform invisible opacity-0",
-  //   },
-  //   actions: {
-  //     loading: "invisible opacity-0",
-  //   },
-  // },
+  form: {
+    loading: cva("invisible scale-0 transform opacity-0"),
+  },
 };

@@ -221,9 +221,7 @@ export default {
         },
       }
     ),
-
     spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto size-[1.5em]"),
-
     avatar: cva("size-[1.5em] overflow-hidden rounded-full", {
       variants: {
         loading: {
@@ -234,9 +232,7 @@ export default {
         },
       },
     }),
-
     icon: cva("size-[1.5em]"),
-
     content: cva("mx-auto flex items-center gap-x-3", {
       variants: {
         loading: {
@@ -252,7 +248,6 @@ export default {
         size: "md",
       },
     }),
-
     label: cva("font-semibold", {
       variants: {
         iconOnly: {
