@@ -9,9 +9,9 @@
     <slot
       v-if="meta.isLoading"
       name="loading"
-      v-bind="{ styles: styles.loading }"
+      v-bind="{ styles: styles.spinner }"
     >
-      <upw-spinner :class="styles.loading" class="loading" />
+      <upw-spinner :class="styles.spinner" class="loading" />
     </slot>
 
     <slot
@@ -22,34 +22,21 @@
       <upw-icon
         v-if="prependAvatar"
         class="avatar"
-        :class="[
-          styles.avatar.root,
-          meta.isLoading ? styles.avatar.loading : '',
-        ]"
+        :class="[styles.avatar]"
         :icon="prependAvatar"
       />
     </slot>
 
-    <span
-      class="content"
-      :class="[
-        styles.content.root,
-        meta.isLoading ? styles.content.loading : '',
-      ]"
-    >
+    <span class="content" :class="[styles.content]">
       <slot
         name="prepend-icon"
-        v-bind="{ styles: styles.content.icon, icon: prependIcon }"
+        v-bind="{ styles: styles.icon, icon: prependIcon }"
       >
-        <upw-icon
-          v-if="prependIcon"
-          :class="styles.content.icon"
-          :icon="prependIcon"
-        />
+        <upw-icon v-if="prependIcon" :class="styles.icon" :icon="prependIcon" />
       </slot>
 
       <slot v-bind="{ styles }">
-        <span :class="styles.content.label" v-if="label" class="label">
+        <span :class="styles.label" v-if="label" class="label">
           {{ label }}
         </span>
       </slot>
@@ -59,11 +46,7 @@
         v-bind="{ styles: styles.icon, icon: appendIcon }"
         v-if="!iconOnly || (iconOnly && !prependIcon)"
       >
-        <upw-icon
-          v-if="appendIcon"
-          :class="styles.content.icon"
-          :icon="appendIcon"
-        />
+        <upw-icon v-if="appendIcon" :class="styles.icon" :icon="appendIcon" />
       </slot>
     </span>
 
@@ -75,10 +58,7 @@
       <upw-icon
         v-if="appendAvatar"
         class="avatar"
-        :class="[
-          styles.avatar.root,
-          meta.isLoading ? styles.avatar.loading : '',
-        ]"
+        :class="[styles.avatar]"
         :icon="appendAvatar"
       />
     </slot>
@@ -90,7 +70,7 @@
 import { defineComponent } from "vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- components
 import UpwIcon from "../icon/Icon.vue";
@@ -172,7 +152,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const styles = useStyles("button", { props }, config, props.upwindConfig);
+    const styles = useStyles("button", props, config, props.upwindConfig);
 
     return {
       styles,

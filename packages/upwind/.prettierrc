@@ -17,6 +17,7 @@
     "prettier-plugin-tailwindcss"
   ],
   "tailwindFunctions": [
-    "upwConfig"
+    "cva",
+    "cx"
   ]
 }

@@ -14,7 +14,7 @@
 import { defineComponent, ref, watchEffect } from "vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -36,7 +36,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles("icon", { props }, config, props.upwindConfig);
+    const styles = useStyles("icon", props, config, props.upwindConfig);
 
     const svg = ref(null);
 
@@ -74,3 +74,4 @@ export default defineComponent({
   }
 }
 </style>
+./config.cva
