@@ -1,47 +1,47 @@
 <template>
-  <h-menu as="div" :class="styles.root" v-slot="{ open }">
-    <h-menu-button :class="styles.button.root" ref="reference">
+  <h-menu as="div" :class="styles.dropdown.root" v-slot="{ open }">
+    <h-menu-button :class="styles.dropdownButton.root" ref="reference">
       <upw-icon
         v-if="icon"
         :icon="icon"
         class="btn-icon"
-        :class="styles.button.icon"
+        :class="styles.dropdownButton.icon"
       />
 
-      <span class="label" :class="styles.button.label" v-if="label">
+      <span class="label" :class="styles.dropdownButton.label" v-if="label">
         {{ label }}
       </span>
 
       <upw-icon
         v-if="toggle"
         :icon="toggle"
-        :class="styles.button.toggle"
+        :class="styles.dropdownButton.toggle"
         :aria-checked="open && toggleRotate"
         aria-hidden="true"
       />
     </h-menu-button>
 
     <transition
-      :enter-active-class="styles?.transition?.enter?.active?.join(' ')"
-      :enter-from-class="styles?.transition?.enter?.from?.join(' ')"
-      :enter-to-class="styles?.transition?.enter?.to?.join(' ')"
-      :leave-active-class="styles?.transition?.leave?.active?.join(' ')"
-      :leave-from-class="styles?.transition?.leave?.from?.join(' ')"
-      :leave-to-class="styles?.transition?.leave?.to?.join(' ')"
+      :enter-active-class="styles.dropdownTransitionEnter.active"
+      :enter-from-class="styles.dropdownTransitionEnter.from"
+      :enter-to-class="styles.dropdownTransitionEnter.to"
+      :leave-active-class="styles.dropdownTransitionLeave.active"
+      :leave-from-class="styles.dropdownTransitionLeave.from"
+      :leave-to-class="styles.dropdownTransitionLeave.to"
     >
       <h-menu-items
-        :class="styles.items"
+        :class="styles.dropdown.items"
         ref="floating"
         :style="floatingStyles"
       >
         <template v-for="(item, key) in items" :key="key">
           <!-- grouped items -->
-          <div v-if="item?.children" :class="styles.group.root">
+          <div v-if="item?.children" :class="styles.dropdownGroup.root">
             <!-- group title -->
             <upw-dropdown-item
               v-if="item?.label || item?.icon"
               v-bind="item"
-              :upwind-config="styles.group.title"
+              :styles="styles.dropdownGroupItem"
             />
 
             <!-- group items -->
@@ -49,12 +49,16 @@
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
-              :upwind-config="styles.item"
+              :styles="styles.dropdownItem"
             />
           </div>
 
           <!-- items -->
-          <upw-dropdown-item v-else v-bind="item" :upwindConfig="styles.item" />
+          <upw-dropdown-item
+            v-else
+            v-bind="item"
+            :styles="styles.dropdownItem"
+          />
         </template>
       </h-menu-items>
     </transition>
@@ -72,7 +76,7 @@ import UpwIcon from "../icon/Icon.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
-import config from "./config";
+import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -136,7 +140,20 @@ export default defineComponent({
       middleware: [offset(10), flip(), shift()],
     });
 
-    const styles = useStyles("dropdown", { props }, config, props.upwindConfig);
+    const styles = useStyles(
+      [
+        "dropdown",
+        "dropdownButton",
+        "dropdownGroup",
+        "dropdownGroupItem",
+        "dropdownItem",
+        "dropdownTransitionEnter",
+        "dropdownTransitionLeave",
+      ],
+      props,
+      config,
+      props.upwindConfig
+    );
 
     return {
       styles,
@@ -147,4 +164,3 @@ export default defineComponent({
   },
 });
 </script>
-./config

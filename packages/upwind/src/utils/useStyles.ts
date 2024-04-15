@@ -6,12 +6,17 @@ import type { VariantProps } from "class-variance-authority";
 
 // ---utils
 import {
+  filter,
+  forEach,
   get,
+  isArray,
   isEmpty,
   isFunction,
   isNil,
+  isObject,
   map,
   omitBy,
+  pickBy,
   reduce,
   remove,
   set,
@@ -38,8 +43,8 @@ function applyVariants(
     (styles, key) => {
       const variants = map(configs, config => get(config, key, {}));
       const results = map(variants, variant => {
-        if (!isFunction(variant)) return variant;
-        return variant(context);
+        if (isFunction(variant)) return variant(context);
+        return variant;
       });
 
       set(styles, key, twMerge(cx(...results)));
@@ -50,26 +55,43 @@ function applyVariants(
 }
 
 export const useStyles = (
-  component: string,
+  components: string | string[],
   context: Object = {},
-  ...configs: Array<Record<string, Object>>
+  ...configs: Array<Object>
 ) => {
-  // Check if weve been provided with style overrides, then merge the default styles with the overrides
+  // ensure component is an array so we can loop over it and handle multiple components
+  components = isArray(components) ? components : [components];
+
+  // Add any provided style overrides to our config, aka globalConfig
   const globalConfig = inject("upwind", {});
+  if (!isEmpty(globalConfig)) configs.push(globalConfig);
 
-  const styles = computed(() => {
-    // add any component specific overrides from our injected global config
-    const componentConfig = get(toRaw(unref(globalConfig)), component);
-    configs.push(componentConfig);
+  return computed(() => {
+    const styles = {};
 
-    // safety checks
-    const cleanContext = omitBy(unref(context), isNil);
-    const cleanConfigs = configs.map(unref);
-    remove(cleanConfigs, isEmpty);
+    // clean up the context object to remove any refs
+    const cleanContext = toRaw(unref(context));
 
-    // return the merged configs using the provided helper
-    return applyVariants(cleanConfigs, cleanContext);
+    // pick out our component specific configs only
+    forEach(components, component => {
+      const componentConfigs = reduce(
+        configs,
+        (result, config) => {
+          config = toRaw(unref(config));
+          const componentConfig = get(config, component);
+
+          if (isObject(componentConfig) && !isEmpty(componentConfig)) {
+            result.push(componentConfig);
+          }
+          return result;
+        },
+        [] as Array<Object>
+      );
+
+      set(styles, component, applyVariants(componentConfigs, cleanContext));
+    });
+
+    // return the requested styles with the variants applied
+    return styles;
   });
-
-  return styles;
 };
