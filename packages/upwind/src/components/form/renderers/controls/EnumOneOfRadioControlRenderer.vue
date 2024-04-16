@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <ul
       :id="control.id + '-input'"
@@ -68,10 +67,10 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 
 const controlRenderer = defineComponent({
-  name: "EnumOneofControlRenderer",
+  name: "EnumOneofRenderer",
   components: {
     ControlWrapper,
   },
@@ -79,7 +78,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useupwindControl(useJsonFormsOneOfEnumControl(props), target =>
+    return useUpwindRenderer(useJsonFormsOneOfEnumControl(props), target =>
       target.selectedIndex === 0 ? undefined : target.value
     );
   },

@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <input
       :id="control.id + '-input'"
@@ -31,10 +30,10 @@ import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 import ControlWrapper from "./wrapper/WrapperInline.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 
 const controlRenderer = defineComponent({
-  name: "BooleanControlRenderer",
+  name: "BooleanRenderer",
   components: {
     ControlWrapper,
   },
@@ -42,7 +41,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useupwindControl(
+    return useUpwindRenderer(
       useJsonFormsControl(props),
       target => target.checked
     );

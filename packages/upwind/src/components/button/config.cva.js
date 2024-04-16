@@ -19,6 +19,8 @@ export default {
             link: "!bg-transparent hover:underline",
           },
           color: {
+            current:
+              "hover:bg-base-100 text-content border-transparent bg-transparent",
             primary:
               "bg-primary hover:bg-primary-800 text-primary-content border-transparent",
             secondary:
@@ -45,6 +47,12 @@ export default {
         },
         compoundVariants: [
           // disabled + color
+          {
+            disabled: true,
+            color: "current",
+            class: "hover:bg-transparent",
+          },
+
           {
             disabled: true,
             color: "primary",
@@ -84,6 +92,22 @@ export default {
             disabled: true,
             color: "info",
             class: "hover:bg-info",
+          },
+          // ---current + variant ---
+          {
+            color: "current",
+            variant: "outlined",
+            class: "hover:bg-base-100 border-current text-current",
+          },
+          {
+            color: "current",
+            variant: "ghost",
+            class: "hover:bg-base-100 text-current",
+          },
+          {
+            color: "current",
+            variant: "link",
+            class: "text-current",
           },
           // ---primary + variant ---
           {

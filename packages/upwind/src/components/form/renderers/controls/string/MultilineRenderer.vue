@@ -1,6 +1,6 @@
 <template>
   <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
-    <input
+    <textarea
       :autocomplete="appliedOptions.autocomplete"
       :cols="appliedOptions.cols"
       :disabled="!control.enabled"
@@ -8,11 +8,12 @@
       :max="appliedOptions?.max || control?.schema?.maximum"
       :min="appliedOptions?.min || control?.schema?.minimum"
       :placeholder="appliedOptions.placeholder"
+      :rows="appliedOptions.rows"
       :type="appliedOptions.type"
       :value="control.data"
-      @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
+      @blur="isFocused = false"
       :class="styles.input.root"
     />
   </control-wrapper>
@@ -21,7 +22,7 @@
 <script lang="ts">
 // --- global
 import { defineComponent } from "vue";
-import { isStringControl } from "@jsonforms/core";
+import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -42,7 +43,7 @@ import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "StringRenderer",
+  name: "MultiStringRenderer",
   components: {
     ControlWrapper,
   },
@@ -72,5 +73,8 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 1, controlType: isStringControl };
+export const tester = {
+  rank: 2,
+  controlType: and(isStringControl, isMultiLineControl),
+};
 </script>

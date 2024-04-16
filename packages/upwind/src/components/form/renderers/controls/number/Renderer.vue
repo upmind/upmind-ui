@@ -5,14 +5,15 @@
       :cols="appliedOptions.cols"
       :disabled="!control.enabled"
       :id="control.id + '-input'"
+      type="number"
+      :step="safeStep"
       :max="appliedOptions?.max || control?.schema?.maximum"
       :min="appliedOptions?.min || control?.schema?.minimum"
       :placeholder="appliedOptions.placeholder"
-      :type="appliedOptions.type"
       :value="control.data"
-      @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
+      @blur="isFocused = false"
       :class="styles.input.root"
     />
   </control-wrapper>
@@ -20,8 +21,13 @@
 
 <script lang="ts">
 // --- global
-import { defineComponent } from "vue";
-import { isStringControl } from "@jsonforms/core";
+import { defineComponent, computed } from "vue";
+import {
+  isNumberControl,
+  isIntegerControl,
+  or,
+  schemaMatches,
+} from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -33,6 +39,7 @@ import config from "./config.cva";
 // --- utils
 import { useUpwindRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
+import { isNil, get, isEmpty, isArray, includes } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -42,7 +49,7 @@ import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "StringRenderer",
+  name: "NumberRenderer",
   components: {
     ControlWrapper,
   },
@@ -61,16 +68,37 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles("input", props, config, props.upwindConfig);
-    const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      target => target.value || undefined
+
+    const isInteger = computed(() => {
+      let type = renderer.control.value.schema.type;
+      type = isArray(type) ? type : [type];
+      return includes(type, "integer");
+    });
+
+    const renderer = useUpwindRenderer(useJsonFormsControl(props), target =>
+      isNil(target.value)
+        ? undefined
+        : isInteger.value
+          ? parseInt(target.value, 10)
+          : Number(target.value)
     );
+
     return {
       ...renderer,
+      isInteger,
       styles,
     };
   },
+  computed: {
+    safeStep(): number {
+      const defaultStep = this.isInteger ? 1 : 0.1;
+      return get(this.appliedOptions, "step", defaultStep);
+    },
+  },
 });
 
-export const tester = { rank: 1, controlType: isStringControl };
+export const tester = {
+  rank: 1,
+  controlType: or(isNumberControl, isIntegerControl),
+};
 </script>

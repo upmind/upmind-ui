@@ -1,11 +1,5 @@
 <template>
-  <button
-    :class="styles.button.root"
-    :disabled="disabled"
-    :data-size="size"
-    :data-variant="variant"
-    :data-color="color"
-  >
+  <button :class="styles.button.root" :disabled="disabled">
     <slot v-if="meta.isLoading" name="loading" v-bind="{ meta }">
       <upw-spinner :class="styles.button.spinner" class="loading" />
     </slot>

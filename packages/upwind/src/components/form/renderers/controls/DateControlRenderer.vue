@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <input
       :id="control.id + '-input'"
@@ -33,11 +32,11 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 import { useDateFormat } from "@vueuse/core";
 
 const controlRenderer = defineComponent({
-  name: "DateControlRenderer",
+  name: "DateRenderer",
   components: {
     ControlWrapper,
   },
@@ -45,7 +44,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useupwindControl(useJsonFormsControl(props), target => {
+    return useUpwindRenderer(useJsonFormsControl(props), target => {
       const formatted = useDateFormat(target.value, "YYYY-MM-DD HH:mm:ss");
       return formatted.value;
     });

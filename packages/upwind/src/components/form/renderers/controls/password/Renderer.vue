@@ -8,25 +8,49 @@
       :max="appliedOptions?.max || control?.schema?.maximum"
       :min="appliedOptions?.min || control?.schema?.minimum"
       :placeholder="appliedOptions.placeholder"
-      :type="appliedOptions.type"
+      :type="unmask ? 'input' : 'password'"
       :value="control.data"
-      @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
+      @blur="isFocused = false"
       :class="styles.input.root"
     />
+
+    <template #append>
+      <upw-button
+        @click="unmask = true"
+        label="Show password value"
+        prepend-icon="view"
+        icon-only
+        color="current"
+        variant="ghost"
+        size="sm"
+        v-if="!unmask"
+      />
+
+      <upw-button
+        v-else
+        @click="unmask = false"
+        label="Hide password value"
+        icon-only
+        prepend-icon="view-off"
+        color="current"
+        variant="ghost"
+        size="sm"
+      />
+    </template>
   </control-wrapper>
 </template>
 
 <script lang="ts">
 // --- global
 import { defineComponent } from "vue";
-import { isStringControl } from "@jsonforms/core";
+import { isStringControl, formatIs, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import ControlWrapper from "../wrapper/Wrapper.vue";
-
+import UpwButton from "../../../../button/Button.vue";
 // --- local
 import config from "./config.cva";
 
@@ -42,9 +66,10 @@ import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "StringRenderer",
+  name: "PasswordRenderer",
   components: {
     ControlWrapper,
+    UpwButton,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -59,6 +84,11 @@ export default defineComponent({
       default: null,
     },
   },
+  data() {
+    return {
+      unmask: false,
+    };
+  },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles("input", props, config, props.upwindConfig);
     const renderer = useUpwindRenderer(
@@ -72,5 +102,8 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 1, controlType: isStringControl };
+export const tester = {
+  rank: 2,
+  controlType: and(isStringControl, formatIs("password")),
+};
 </script>

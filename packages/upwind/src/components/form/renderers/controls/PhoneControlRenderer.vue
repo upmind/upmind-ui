@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <input
       :id="control.id + '-input'"
@@ -89,14 +88,14 @@ import { defineComponent, ref } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 import { useSystem } from "@upmind/flow";
 import { set } from "lodash-es";
 import "flag-icons/css/flag-icons.min.css";
 import { onClickOutside } from "@vueuse/core";
 
 const controlRenderer = defineComponent({
-  name: "StringControlRenderer",
+  name: "StringRenderer",
   components: {
     ControlWrapper,
   },
@@ -113,7 +112,7 @@ const controlRenderer = defineComponent({
     const countries = getCountries();
     const defaultContry = getCountry();
 
-    const inputControl = useupwindControl(
+    const inputControl = useUpwindRenderer(
       useJsonFormsControl(props),
       () => phone
     );

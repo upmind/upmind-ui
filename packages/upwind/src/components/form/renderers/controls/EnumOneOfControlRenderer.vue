@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <select
       :id="control.id + '-input'"
@@ -37,10 +36,10 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 
 const controlRenderer = defineComponent({
-  name: "EnumOneofControlRenderer",
+  name: "EnumOneofRenderer",
   components: {
     ControlWrapper,
   },
@@ -50,7 +49,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const enumControl = useJsonFormsOneOfEnumControl(props);
 
-    return useupwindControl(enumControl, target => {
+    return useUpwindRenderer(enumControl, target => {
       if (target.selectedIndex) {
         const value =
           enumControl.control.value.options[target.selectedIndex - 1].value;
