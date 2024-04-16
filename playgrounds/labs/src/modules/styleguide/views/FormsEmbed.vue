@@ -10,6 +10,10 @@
       @resolve="doResolve"
       :loading="isLoading"
     />
+
+    <code>
+      <pre>{{ model }}</pre>
+    </code>
   </div>
 </template>
 
@@ -17,22 +21,13 @@
 import { UpwForm } from "@upmind/upwind";
 import { onMounted, ref } from "vue";
 import { delay } from "lodash-es";
+import { useDateFormat, useNow } from "@vueuse/core";
 
 const isLoading = ref(true);
 const model = ref({});
 
-const useDate = val => {
-  const date = val ? new Date(Date.parse(val)) : new Date();
-  const yyyy = date.getFullYear();
-  let mm = date.getMonth() + 1; // Months start at 0!
-  let dd = date.getDate();
-
-  if (dd < 10) dd = "0" + dd;
-  if (mm < 10) mm = "0" + mm;
-
-  const parsed = `${yyyy}-${mm}-${dd}`;
-  return parsed;
-};
+const today = useDateFormat(useNow(), "YYYY-MM-DD");
+const now = useDateFormat(useNow(), "YYYY-MM-DD HH:mm:ss");
 
 const schema = {
   required: ["name", "text", "rating"],
@@ -108,8 +103,13 @@ const schema = {
       type: ["string", "null"],
       format: "date",
       description: "The task's due date",
-      formatMinimum: useDate(),
-      default: useDate(),
+      formatMinimum: today.value,
+    },
+    dueDateTime: {
+      type: ["string", "null"],
+      format: "date-time",
+      description: "The task's due date and time",
+      formatMinimum: now.value,
     },
 
     recurrence: {
@@ -239,9 +239,12 @@ const uischema = {
     {
       type: "Control",
       scope: "#/properties/dueDate",
-      options: {
-        saveFormat: "yyyy-MM-dd",
-      },
+      options: {},
+    },
+    {
+      type: "Control",
+      scope: "#/properties/dueDateTime",
+      options: {},
     },
 
     {
