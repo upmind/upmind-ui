@@ -12,7 +12,9 @@ import {
 /**
  * Adds styles, isFocused, appliedOptions and onChange
  */
-export const useupwindControl = <I extends { control: any; handleChange: any }>(
+export const useUpwindRenderer = <
+  I extends { control: any; handleChange: any },
+>(
   input: I,
   adaptTarget: (target: any) => any = v => v.value
 ) => {
@@ -46,6 +48,8 @@ export const useupwindControl = <I extends { control: any; handleChange: any }>(
       disabled: !enabled,
       visible,
       required,
+      // add our ApplyOptions to the controlWrapper
+      ...appliedOptions.value,
     };
   });
 

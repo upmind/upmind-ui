@@ -27,28 +27,35 @@
 
     <!-- wrapper -->
     <div :class="styles.inputControl.wrapper">
-      <span
-        class="prefix"
-        :class="styles.inputControl.prefix"
-        v-if="appliedOptions.prefix"
+      <slot
+        name="prepend"
+        v-bind="{
+          meta,
+          styles: styles.inputControl,
+          prependIcon,
+          prependAvatar,
+          prefix,
+        }"
       >
-        {{ appliedOptions.prefix }}
-      </span>
+        <span class="prefix" :class="styles.inputControl.prefix" v-if="prefix">
+          {{ prefix }}
+        </span>
 
-      <upw-icon
-        v-if="appliedOptions.prependAvatar"
-        class="avatar"
-        :class="styles.inputControl.avatar"
-        :icon="appliedOptions.prependAvatar"
-      />
+        <upw-icon
+          v-if="prependAvatar"
+          class="avatar"
+          :class="styles.inputControl.avatar"
+          :icon="prependAvatar"
+        />
 
-      <upw-icon
-        v-if="appliedOptions.prependIcon"
-        :class="styles.inputControl.icon"
-        :icon="appliedOptions.prependIcon"
-      />
+        <upw-icon
+          v-if="prependIcon"
+          :class="styles.inputControl.icon"
+          :icon="prependIcon"
+        />
+      </slot>
 
-      <slot></slot>
+      <slot v-bind="{ meta, styles: styles.inputControl }"></slot>
 
       <upw-icon
         v-if="meta.isInvalid"
@@ -61,26 +68,33 @@
         icon="check-circle"
       />
 
-      <upw-icon
-        v-if="appliedOptions.appendIcon"
-        :class="styles.inputControl.icon"
-        :icon="appliedOptions.appendIcon"
-      />
-
-      <upw-icon
-        v-if="appliedOptions.appendAvatar"
-        class="avatar"
-        :class="styles.inputControl.avatar"
-        :icon="appliedOptions.appendAvatar"
-      />
-
-      <span
-        class="suffix"
-        :class="styles.inputControl.suffix"
-        v-if="appliedOptions.suffix"
+      <slot
+        name="append"
+        v-bind="{
+          meta,
+          styles: styles.inputControl,
+          appendIcon,
+          appendAvatar,
+          suffix,
+        }"
       >
-        {{ appliedOptions.suffix }}
-      </span>
+        <upw-icon
+          v-if="appendIcon"
+          :class="styles.inputControl.icon"
+          :icon="appendIcon"
+        />
+
+        <upw-icon
+          v-if="appendAvatar"
+          class="avatar"
+          :class="styles.inputControl.avatar"
+          :icon="appendAvatar"
+        />
+
+        <span class="suffix" :class="styles.inputControl.suffix" v-if="suffix">
+          {{ suffix }}
+        </span>
+      </slot>
     </div>
 
     <!-- feedback -->
@@ -122,7 +136,7 @@ export default defineComponent({
     },
     description: {
       type: String,
-      default: undefined,
+      default: null,
     },
     errors: {
       type: String,
@@ -130,12 +144,53 @@ export default defineComponent({
     },
     label: {
       type: String,
-      default: undefined,
+      default: null,
     },
-    appliedOptions: {
-      type: Object as PropType<Options>,
-      default: undefined,
+    // --- Applied Options
+    appendAvatar: {
+      type: [Object, String],
+      default: null,
     },
+    appendIcon: {
+      type: [Object, String],
+      default: null,
+    },
+    prependAvatar: {},
+    prependIcon: {
+      type: [Object, String],
+      default: null,
+    },
+
+    hideRequired: {
+      type: Boolean,
+      default: false,
+    },
+    optionalText: {
+      type: String,
+      default: null,
+    },
+    persistDescription: {
+      type: Boolean,
+      default: false,
+    },
+    prefix: {
+      type: String,
+      default: null,
+    },
+
+    requiredText: {
+      type: String,
+      default: null,
+    },
+    suffix: {
+      type: String,
+      default: null,
+    },
+    size: {
+      type: String as PropType<InputSize>,
+      default: "sm",
+    },
+
     // ---
     required: {
       type: Boolean,
@@ -157,11 +212,7 @@ export default defineComponent({
       type: [String, Number, Boolean, Object, Array],
       default: null,
     },
-    // ---  Additional Attributes
-    size: {
-      type: String as PropType<InputSize>,
-      default: "sm",
-    },
+
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -170,11 +221,11 @@ export default defineComponent({
   },
   computed: {
     computedRequired(): string {
-      return this.appliedOptions.requiredText || "Required" || "*";
+      return this.requiredText || "Required" || "*";
     },
 
     computedOptional(): string {
-      return this.appliedOptions.optionalText || "";
+      return this.optionalText || "";
     },
   },
   setup(props) {
@@ -189,11 +240,11 @@ export default defineComponent({
       hasFeedback:
         (isEmpty(props.errors) &&
           !isNil(props.description) &&
-          (props.focused || props?.appliedOptions?.persistDescription)) ||
+          (props.focused || props.persistDescription)) ||
         !isEmpty(props.errors),
 
-      showAsRequired: props.required && !props?.appliedOptions?.hideRequired,
-      showAsOptional: !props.required && !props?.appliedOptions?.hideRequired,
+      showAsRequired: props.required && !props.hideRequired,
+      showAsOptional: !props.required && !props.hideRequired,
     }));
 
     const styles = useStyles(

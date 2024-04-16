@@ -1,5 +1,10 @@
 <template>
-  <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
+  <control-wrapper
+    v-bind="controlWrapper"
+    :is-focused="isFocused"
+    :size="size"
+    :prepend-icon="controlWrapper.prependIcon || 'url'"
+  >
     <input
       :autocomplete="appliedOptions.autocomplete"
       :cols="appliedOptions.cols"
@@ -8,7 +13,7 @@
       :max="appliedOptions?.max || control?.schema?.maximum"
       :min="appliedOptions?.min || control?.schema?.minimum"
       :placeholder="appliedOptions.placeholder"
-      :type="appliedOptions.type"
+      type="url"
       :value="control.data"
       @blur="isFocused = false"
       @change="onChange"
@@ -21,7 +26,7 @@
 <script lang="ts">
 // --- global
 import { defineComponent } from "vue";
-import { isStringControl } from "@jsonforms/core";
+import { isStringControl, formatIs, and, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -42,7 +47,7 @@ import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "StringRenderer",
+  name: "UrlRenderer",
   components: {
     ControlWrapper,
   },
@@ -65,6 +70,7 @@ export default defineComponent({
       useJsonFormsControl(props),
       target => target.value || undefined
     );
+
     return {
       ...renderer,
       styles,
@@ -72,5 +78,16 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 1, controlType: isStringControl };
+export const tester = {
+  rank: 2,
+  controlType: and(
+    isStringControl,
+    or(
+      formatIs("uri"),
+      formatIs("uri-reference"),
+      formatIs("iri"),
+      formatIs("iri-reference")
+    )
+  ),
+};
 </script>

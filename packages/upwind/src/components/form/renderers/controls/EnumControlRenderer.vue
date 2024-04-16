@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <select
       :id="control.id + '-select'"
@@ -37,10 +36,10 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsEnumControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 
 const controlRenderer = defineComponent({
-  name: "EnumControlRenderer",
+  name: "EnumRenderer",
   components: {
     ControlWrapper,
   },
@@ -48,7 +47,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useupwindControl(useJsonFormsEnumControl(props), target =>
+    return useUpwindRenderer(useJsonFormsEnumControl(props), target =>
       target.selectedIndex === 0 ? undefined : target.value
     );
   },

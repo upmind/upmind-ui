@@ -4,7 +4,6 @@
     type="button"
     class="flex items-center gap-x-2 font-semibold disabled:pointer-events-none disabled:opacity-50"
     v-bind="$attrs"
-    :data-hs-overlay="`#${contentId}`"
     :aria-controls="contentId"
     :aria-label="action"
   >
@@ -23,7 +22,6 @@
       <button
         type="button"
         class="inline-flex size-8 flex-shrink-0 items-center justify-center rounded-lg text-sm text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white"
-        :data-hs-overlay="`#${contentId}`"
       >
         <span class="sr-only">Close drawer</span>
         <svg

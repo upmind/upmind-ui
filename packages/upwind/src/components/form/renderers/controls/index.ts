@@ -3,9 +3,13 @@ import { registerEntry } from "../utils/registerEntry";
 
 export { default as ControlWrapper } from "./wrapper/Wrapper.vue";
 export { default as StringControlRenderer } from "./string/Renderer.vue";
-export { default as MultiStringControlRenderer } from "./MultiStringControlRenderer.vue";
-export { default as NumberControlRenderer } from "./NumberControlRenderer.vue";
-export { default as IntegerControlRenderer } from "./IntegerControlRenderer.vue";
+export { default as MultiStringControlRenderer } from "./string/MultilineRenderer.vue";
+export { default as NumberControlRenderer } from "./number/Renderer.vue";
+export { default as UrlControlRenderer } from "./url/Renderer.vue";
+export { default as EmailControlRenderer } from "./email/Renderer.vue";
+export { default as PasswordControlRenderer } from "./password/Renderer.vue";
+export { default as HiddenControlRenderer } from "./hidden/Renderer.vue";
+// -----------------------------------------------------------------------------
 export { default as EnumControlRenderer } from "./EnumControlRenderer.vue";
 export { default as oneOfEnumControlRenderer } from "./EnumOneOfControlRenderer.vue";
 export { default as oneOfEnumMenuControlRenderer } from "./EnumOneOfMenuControlRenderer.vue";
@@ -13,9 +17,9 @@ export { default as oneOfEnumRadioControlRenderer } from "./EnumOneOfRadioContro
 export { default as DateControlRenderer } from "./DateControlRenderer.vue";
 export { default as TimeControlRenderer } from "./TimeControlRenderer.vue";
 export { default as BooleanControlRenderer } from "./BooleanControlRenderer.vue";
-export { default as PasswordControlRenderer } from "./PasswordControlRenderer.vue";
 export { default as PhoneControlRenderer } from "./PhoneControlRenderer.vue";
-export { default as HiddenControlRenderer } from "./HiddenControlRenderer.vue";
+
+// -----------------------------------------------------------------------------
 
 import StringControlRenderer, {
   tester as stringControlRendererTest,
@@ -23,15 +27,30 @@ import StringControlRenderer, {
 
 import MultiStringControlRenderer, {
   tester as multiStringControlRendererTest,
-} from "./MultiStringControlRenderer.vue";
+} from "./string/MultilineRenderer.vue";
 
 import NumberControlRenderer, {
   tester as numberControlRendererTest,
-} from "./NumberControlRenderer.vue";
+} from "./number/Renderer.vue";
 
-import IntegerControlRenderer, {
-  tester as integerControlRendererTest,
-} from "./IntegerControlRenderer.vue";
+import UrlControlRenderer, {
+  tester as urlControlRendererTest,
+} from "./url/Renderer.vue";
+
+import EmailControlRenderer, {
+  tester as emailControlRendererTest,
+} from "./email/Renderer.vue";
+
+import PasswordControlRenderer, {
+  tester as passwordControlRendererTest,
+} from "./password/Renderer.vue";
+
+import HiddenControlRenderer, {
+  tester as hiddenControlRendererTest,
+} from "./hidden/Renderer.vue";
+
+// -----------------------------------------------------------------------------
+// TODO
 
 import EnumControlRenderer, {
   tester as enumControlRendererTest,
@@ -61,23 +80,20 @@ import BooleanControlRenderer, {
   tester as booleanControlRendererTest,
 } from "./BooleanControlRenderer.vue";
 
-import PasswordControlRenderer, {
-  tester as passwordControlRendererTest,
-} from "./PasswordControlRenderer.vue";
-
 import PhoneControlRenderer, {
   tester as phoneControlRendererTest,
 } from "./PhoneControlRenderer.vue";
-
-import HiddenControlRenderer, {
-  tester as hiddenControlRendererTest,
-} from "./HiddenControlRenderer.vue";
 
 export const controlRenderers = [
   registerEntry(StringControlRenderer, stringControlRendererTest),
   registerEntry(MultiStringControlRenderer, multiStringControlRendererTest),
   registerEntry(NumberControlRenderer, numberControlRendererTest),
-  registerEntry(IntegerControlRenderer, integerControlRendererTest),
+  registerEntry(UrlControlRenderer, urlControlRendererTest),
+  registerEntry(EmailControlRenderer, emailControlRendererTest),
+  registerEntry(PasswordControlRenderer, passwordControlRendererTest),
+  registerEntry(HiddenControlRenderer, hiddenControlRendererTest),
+
+  // -----------------------------------------------------------------------------
   registerEntry(EnumControlRenderer, enumControlRendererTest),
   registerEntry(OneOfEnumControlRenderer, oneOfEnumControlRendererTest),
   registerEntry(OneOfEnumMenuControlRenderer, oneOfEnumMenuControlRendererTest),
@@ -88,7 +104,5 @@ export const controlRenderers = [
   registerEntry(DateControlRenderer, dateControlRendererTest),
   registerEntry(TimeControlRenderer, timeControlRendererTest),
   registerEntry(BooleanControlRenderer, booleanControlRendererTest),
-  registerEntry(PasswordControlRenderer, passwordControlRendererTest),
   registerEntry(PhoneControlRenderer, phoneControlRendererTest),
-  registerEntry(HiddenControlRenderer, hiddenControlRendererTest),
 ];

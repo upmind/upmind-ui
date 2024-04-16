@@ -3,7 +3,6 @@
     v-bind="controlWrapper"
     :styles="styles"
     :is-focused="isFocused"
-    :applied-options="appliedOptions"
   >
     <input
       :id="control.id + '-input'"
@@ -33,10 +32,10 @@ import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import ControlWrapper from "./wrapper/Wrapper.vue";
-import { useupwindControl } from "../utils";
+import { useUpwindRenderer } from "../utils";
 
 const controlRenderer = defineComponent({
-  name: "TimeControlRenderer",
+  name: "TimeRenderer",
   components: {
     ControlWrapper,
   },
@@ -44,7 +43,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useupwindControl(
+    return useUpwindRenderer(
       useJsonFormsControl(props),
       target => target.value || undefined
     );

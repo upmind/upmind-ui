@@ -46,7 +46,6 @@ const schema = {
       type: ["string", "null"],
       title: "Text Input",
     },
-
     text2: {
       type: ["string", "null"],
       title: "Disabled Text Input",
@@ -56,17 +55,36 @@ const schema = {
       type: ["string", "null"],
       title: "Text Input with Icon",
     },
-
     description: {
       title: "Short Description",
       type: ["string", "null"],
       maxLength: 100,
     },
-
     note: {
       title: "Long Description/Details",
       type: ["string", "null"],
       maxLength: 280,
+    },
+
+    url: {
+      type: "string",
+      format: "uri",
+      title: "URL",
+      description: "The task's trello URL",
+    },
+
+    email: {
+      type: "string",
+      format: "email",
+      title: "Email",
+      description: "The notification email address",
+    },
+
+    password: {
+      type: "string",
+      format: "password",
+      title: "Password",
+      description: "A password to access the task",
     },
 
     rating: {
@@ -154,6 +172,18 @@ const uischema = {
       options: {},
     },
 
+    {
+      type: "Control",
+      scope: "#/properties/url",
+    },
+    {
+      type: "Control",
+      scope: "#/properties/email",
+    },
+    {
+      type: "Control",
+      scope: "#/properties/password",
+    },
     {
       type: "Control",
       scope: "#/properties/text2",
