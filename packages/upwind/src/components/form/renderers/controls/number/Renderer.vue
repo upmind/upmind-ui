@@ -39,7 +39,7 @@ import config from "./config.cva";
 // --- utils
 import { useUpwindRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
-import { isNil, get, isEmpty, isArray, includes } from "lodash-es";
+import { isNil, get, isArray, includes } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
