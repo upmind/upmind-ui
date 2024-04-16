@@ -140,7 +140,7 @@ export default defineComponent({
       middleware: [offset(10), flip(), shift()],
     });
 
-    const { styles } = useStyles(
+    const styles = useStyles(
       [
         "dropdown",
         "dropdownButton",

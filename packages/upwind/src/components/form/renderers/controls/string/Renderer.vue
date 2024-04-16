@@ -66,7 +66,7 @@ export default defineComponent({
     },
   },
   setup(props: RendererProps<ControlElement>) {
-    const { styles } = useStyles("input", props, config, props.upwindConfig);
+    const styles = useStyles("input", props, config, props.upwindConfig);
     const control = useupwindControl(
       useJsonFormsControl(props),
       target => target.value || undefined

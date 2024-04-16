@@ -159,7 +159,7 @@ export default defineComponent({
   customOptions: {},
 
   setup(props) {
-    const { styles } = useStyles(
+    const styles = useStyles(
       ["form", "formButton", "formContent", "formActions"],
       props,
       config,
