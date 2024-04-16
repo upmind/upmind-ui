@@ -13,7 +13,7 @@
     </slot>
 
     <json-forms
-      :ajv="ajv"
+      :ajv="safeAjv"
       :data="model"
       :schema="schema"
       :uischema="uischema"
@@ -55,7 +55,8 @@ import config from "./config.cva";
 import { upwindRenderers } from "./renderers";
 
 // --- utils
-import { useStyles, isDeepEmpty } from "../../utils";
+
+import { useStyles, isDeepEmpty, useValidation } from "../../utils";
 import {
   isArray,
   isEqual,
@@ -159,16 +160,20 @@ export default defineComponent({
   customOptions: {},
 
   setup(props) {
+    const { ajv } = useValidation();
+
     const styles = useStyles(
       ["form", "formButton"],
       toRefs(props),
       config,
       props.upwindConfig
     );
+
     return {
       renderers: Object.freeze(upwindRenderers),
       styles,
       safeValue,
+      safeAjv: props.ajv || ajv,
     };
   },
   data: () => ({

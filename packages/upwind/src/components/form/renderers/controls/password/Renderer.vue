@@ -49,7 +49,7 @@ import { isStringControl, formatIs, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import ControlWrapper from "../wrapper/Wrapper.vue";
+import ControlWrapper from "../wrapper/Renderer.vue";
 import UpwButton from "../../../../button/Button.vue";
 // --- local
 import config from "./config.cva";

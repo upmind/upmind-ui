@@ -1,30 +1,5 @@
 <template>
   <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
-    <!-- label -->
-    <div class="label" :class="styles.inputControlLabel.root">
-      <label
-        v-if="label"
-        :for="id + '-input'"
-        :class="styles.inputControlLabel.text"
-      >
-        {{ label }}
-      </label>
-
-      <span
-        v-if="meta.showAsRequired"
-        :class="styles.inputControlLabel.required"
-      >
-        {{ computedRequired }}
-      </span>
-
-      <span
-        v-else-if="meta.showAsOptional"
-        :class="styles.inputControlLabel.optional"
-      >
-        {{ computedOptional }}
-      </span>
-    </div>
-
     <!-- wrapper -->
     <div :class="styles.inputControl.wrapper">
       <slot
@@ -57,11 +32,37 @@
 
       <slot v-bind="{ meta, styles: styles.inputControl }"></slot>
 
+      <!-- label -->
+      <div class="label" tabindex="0" :class="styles.inputControlLabel.root">
+        <label
+          v-if="label"
+          :for="id + '-input'"
+          :class="styles.inputControlLabel.text"
+        >
+          {{ label }}
+        </label>
+
+        <span
+          v-if="meta.showAsRequired"
+          :class="styles.inputControlLabel.required"
+        >
+          {{ computedRequired }}
+        </span>
+
+        <span
+          v-else-if="meta.showAsOptional"
+          :class="styles.inputControlLabel.optional"
+        >
+          {{ computedOptional }}
+        </span>
+      </div>
+
       <upw-icon
         v-if="meta.isInvalid"
         :class="styles.inputControl.status"
         icon="alert-circle"
       />
+
       <upw-icon
         v-else-if="meta.isValid"
         :class="styles.inputControl.status"
@@ -113,7 +114,7 @@ import { defineComponent, computed } from "vue";
 import UpwIcon from "../../../../icon/Icon.vue";
 
 // --- local
-import config from "./config.cva";
+import config from "./config.inline.cva";
 
 // --- utils
 import { useStyles } from "../../../../../utils";
@@ -121,7 +122,6 @@ import { isNil, isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { Options } from "../../utils";
 import type { InputSize } from "../types";
 
 export default defineComponent({
