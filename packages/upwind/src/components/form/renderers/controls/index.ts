@@ -9,12 +9,13 @@ export { default as UrlControlRenderer } from "./url/Renderer.vue";
 export { default as EmailControlRenderer } from "./email/Renderer.vue";
 export { default as PasswordControlRenderer } from "./password/Renderer.vue";
 export { default as HiddenControlRenderer } from "./hidden/Renderer.vue";
+export { default as DateControlRenderer } from "./date/Renderer.vue";
+
 // -----------------------------------------------------------------------------
 export { default as EnumControlRenderer } from "./EnumControlRenderer.vue";
 export { default as oneOfEnumControlRenderer } from "./EnumOneOfControlRenderer.vue";
 export { default as oneOfEnumMenuControlRenderer } from "./EnumOneOfMenuControlRenderer.vue";
 export { default as oneOfEnumRadioControlRenderer } from "./EnumOneOfRadioControlRenderer.vue";
-export { default as DateControlRenderer } from "./DateControlRenderer.vue";
 export { default as TimeControlRenderer } from "./TimeControlRenderer.vue";
 export { default as BooleanControlRenderer } from "./BooleanControlRenderer.vue";
 export { default as PhoneControlRenderer } from "./PhoneControlRenderer.vue";
@@ -49,6 +50,10 @@ import HiddenControlRenderer, {
   tester as hiddenControlRendererTest,
 } from "./hidden/Renderer.vue";
 
+import DateControlRenderer, {
+  tester as dateControlRendererTest,
+} from "./date/Renderer.vue";
+
 // -----------------------------------------------------------------------------
 // TODO
 
@@ -67,10 +72,6 @@ import OneOfEnumMenuControlRenderer, {
 import OneOfEnumRadioControlRenderer, {
   tester as oneOfEnumRadioControlRendererTest,
 } from "./EnumOneOfRadioControlRenderer.vue";
-
-import DateControlRenderer, {
-  tester as dateControlRendererTest,
-} from "./DateControlRenderer.vue";
 
 import TimeControlRenderer, {
   tester as timeControlRendererTest,
@@ -92,6 +93,7 @@ export const controlRenderers = [
   registerEntry(EmailControlRenderer, emailControlRendererTest),
   registerEntry(PasswordControlRenderer, passwordControlRendererTest),
   registerEntry(HiddenControlRenderer, hiddenControlRendererTest),
+  registerEntry(DateControlRenderer, dateControlRendererTest),
 
   // -----------------------------------------------------------------------------
   registerEntry(EnumControlRenderer, enumControlRendererTest),
@@ -101,7 +103,6 @@ export const controlRenderers = [
     OneOfEnumRadioControlRenderer,
     oneOfEnumRadioControlRendererTest
   ),
-  registerEntry(DateControlRenderer, dateControlRendererTest),
   registerEntry(TimeControlRenderer, timeControlRendererTest),
   registerEntry(BooleanControlRenderer, booleanControlRendererTest),
   registerEntry(PhoneControlRenderer, phoneControlRendererTest),
