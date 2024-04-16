@@ -60,7 +60,7 @@ export default {
 
   inputControlLabel: {
     root: cva(
-      "text-base-content inline-flex items-center justify-between gap-x-3"
+      "text-base-content inline-flex items-center justify-between gap-x-3 outline-none"
     ),
     text: cva("text-[0.875em]"),
     required: cva("text-base-500 text-xs leading-tight"),
