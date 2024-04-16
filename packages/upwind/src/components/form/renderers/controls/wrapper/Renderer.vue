@@ -99,7 +99,11 @@
 
     <!-- feedback -->
     <div class="feedback" :class="styles.inputControl.feedback">
-      <upw-icon key="icon" :class="styles.icon" icon="information-circle" />
+      <upw-icon
+        key="icon"
+        :class="styles.inputControl.icon"
+        icon="information-circle"
+      />
       <span key="details">{{ errors || description }}</span>
     </div>
   </div>

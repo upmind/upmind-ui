@@ -13,7 +13,7 @@ export default {
       },
     }),
 
-    wrapper: cva("group flex w-full items-center gap-x-3 px-2 py-0 ring-0", {
+    wrapper: cva("group flex w-full items-center gap-x-3 p-0 ring-0", {
       variants: {
         isDisabled: {
           true: "pointer-events-none opacity-50",
