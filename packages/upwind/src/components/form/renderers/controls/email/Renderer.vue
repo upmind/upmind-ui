@@ -47,7 +47,7 @@ import type { InputSize } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UrlRenderer",
+  name: "EmailRenderer",
   components: {
     ControlWrapper,
   },
