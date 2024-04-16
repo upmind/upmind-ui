@@ -38,7 +38,7 @@ export default {
         isValid: {
           true: "text-success",
         },
-        isInValid: {
+        isInvalid: {
           true: "text-error",
         },
       },
@@ -53,7 +53,7 @@ export default {
     ),
 
     feedback: cva(
-      "text-base-content flex  items-center gap-x-2 text-xs transition-opacity duration-200 ease-in-out",
+      "text-base-content flex  items-center gap-x-2 text-xs transition-opacity duration-300",
       {
         variants: {
           hasFeedback: {
@@ -67,7 +67,7 @@ export default {
     ),
   },
 
-  inputLControLabel: {
+  inputControlLabel: {
     root: cva(
       "text-base-content flex w-full items-center justify-between gap-x-3"
     ),

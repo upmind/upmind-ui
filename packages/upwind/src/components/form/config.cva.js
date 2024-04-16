@@ -7,6 +7,26 @@ export default {
     spinner: cva(
       "absolute bottom-0 left-0 right-0 top-0 mx-auto size-6 opacity-80"
     ),
+    content: cva("transition-opacity duration-300", {
+      variants: {
+        processing: {
+          true: "pointer-events-none opacity-50 duration-0",
+        },
+        loading: {
+          true: "pointer-events-none invisible opacity-0 duration-0",
+        },
+      },
+    }),
+    actions: cva("flex gap-x-2 transition-all duration-300", {
+      variants: {
+        processing: {
+          true: "pointer-events-none opacity-50",
+        },
+        loading: {
+          true: "invisible opacity-0 duration-0",
+        },
+      },
+    }),
   },
   formButton: {
     root: cva(
@@ -15,29 +35,5 @@ export default {
     active: cva("ring-primary-500 border-primary-500"),
     label: cva("flex-1 leading-none"),
     icon: cva("size-[1em] transition-all aria-checked:rotate-180"),
-  },
-  formContent: {
-    root: cva("transition-all duration-300", {
-      variations: {
-        processing: {
-          true: cva("pointer-events-none opacity-50"),
-        },
-        loading: {
-          true: cva("invisible opacity-0 duration-0"),
-        },
-      },
-    }),
-  },
-  formActions: {
-    root: cva("flex gap-x-2 transition-all duration-300", {
-      variations: {
-        processing: {
-          true: cva("pointer-events-none opacity-50"),
-        },
-        loading: {
-          true: cva("invisible opacity-0 duration-0"),
-        },
-      },
-    }),
   },
 };

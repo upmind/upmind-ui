@@ -21,11 +21,11 @@
       :validationMode="safeMode"
       :additionalErrors="additionalErrors"
       @change="onChange"
-      :class="styles.formContent.root"
+      :class="styles.form.content"
     />
 
     <!-- actions -->
-    <div v-if="safeActions" :class="styles.formActions.root">
+    <div v-if="safeActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <upw-button
           v-for="(action, key) in safeActions"
@@ -40,7 +40,7 @@
 
 <script lang="ts">
 // --- global
-import { defineComponent, unref, toRaw } from "vue";
+import { defineComponent, unref, toRaw, toRefs } from "vue";
 import type Ajv from "ajv";
 
 import type { ErrorObject } from "ajv";
@@ -160,8 +160,8 @@ export default defineComponent({
 
   setup(props) {
     const styles = useStyles(
-      ["form", "formButton", "formContent", "formActions"],
-      props,
+      ["form", "formButton"],
+      toRefs(props),
       config,
       props.upwindConfig
     );
