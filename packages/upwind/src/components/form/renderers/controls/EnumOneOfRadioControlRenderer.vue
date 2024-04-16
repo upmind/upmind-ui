@@ -66,7 +66,7 @@ import { isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-import ControlWrapper from "./wrapper/Wrapper.vue";
+import ControlWrapper from "./wrapper/Renderer.vue";
 import { useUpwindRenderer } from "../utils";
 
 const controlRenderer = defineComponent({

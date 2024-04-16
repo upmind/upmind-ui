@@ -1,24 +1,4 @@
 import { registerEntry } from "../utils/registerEntry";
-// -----------------------------------------------------------------------------
-
-export { default as ControlWrapper } from "./wrapper/Wrapper.vue";
-export { default as StringControlRenderer } from "./string/Renderer.vue";
-export { default as MultiStringControlRenderer } from "./string/MultilineRenderer.vue";
-export { default as NumberControlRenderer } from "./number/Renderer.vue";
-export { default as UrlControlRenderer } from "./url/Renderer.vue";
-export { default as EmailControlRenderer } from "./email/Renderer.vue";
-export { default as PasswordControlRenderer } from "./password/Renderer.vue";
-export { default as HiddenControlRenderer } from "./hidden/Renderer.vue";
-export { default as DateControlRenderer } from "./date/Renderer.vue";
-
-// -----------------------------------------------------------------------------
-export { default as EnumControlRenderer } from "./EnumControlRenderer.vue";
-export { default as oneOfEnumControlRenderer } from "./EnumOneOfControlRenderer.vue";
-export { default as oneOfEnumMenuControlRenderer } from "./EnumOneOfMenuControlRenderer.vue";
-export { default as oneOfEnumRadioControlRenderer } from "./EnumOneOfRadioControlRenderer.vue";
-export { default as TimeControlRenderer } from "./TimeControlRenderer.vue";
-export { default as BooleanControlRenderer } from "./BooleanControlRenderer.vue";
-export { default as PhoneControlRenderer } from "./PhoneControlRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -54,6 +34,10 @@ import DateControlRenderer, {
   tester as dateControlRendererTest,
 } from "./date/Renderer.vue";
 
+import BooleanControlRenderer, {
+  tester as booleanControlRendererTest,
+} from "./boolean/Renderer.vue";
+
 // -----------------------------------------------------------------------------
 // TODO
 
@@ -73,17 +57,11 @@ import OneOfEnumRadioControlRenderer, {
   tester as oneOfEnumRadioControlRendererTest,
 } from "./EnumOneOfRadioControlRenderer.vue";
 
-import TimeControlRenderer, {
-  tester as timeControlRendererTest,
-} from "./TimeControlRenderer.vue";
-
-import BooleanControlRenderer, {
-  tester as booleanControlRendererTest,
-} from "./BooleanControlRenderer.vue";
-
 import PhoneControlRenderer, {
   tester as phoneControlRendererTest,
 } from "./PhoneControlRenderer.vue";
+
+// -----------------------------------------------------------------------------
 
 export const controlRenderers = [
   registerEntry(StringControlRenderer, stringControlRendererTest),
@@ -94,6 +72,7 @@ export const controlRenderers = [
   registerEntry(PasswordControlRenderer, passwordControlRendererTest),
   registerEntry(HiddenControlRenderer, hiddenControlRendererTest),
   registerEntry(DateControlRenderer, dateControlRendererTest),
+  registerEntry(BooleanControlRenderer, booleanControlRendererTest),
 
   // -----------------------------------------------------------------------------
   registerEntry(EnumControlRenderer, enumControlRendererTest),
@@ -103,7 +82,5 @@ export const controlRenderers = [
     OneOfEnumRadioControlRenderer,
     oneOfEnumRadioControlRendererTest
   ),
-  registerEntry(TimeControlRenderer, timeControlRendererTest),
-  registerEntry(BooleanControlRenderer, booleanControlRendererTest),
   registerEntry(PhoneControlRenderer, phoneControlRendererTest),
 ];

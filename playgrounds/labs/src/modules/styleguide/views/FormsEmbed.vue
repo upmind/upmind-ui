@@ -30,7 +30,7 @@ const today = useDateFormat(useNow(), "YYYY-MM-DD");
 const now = useDateFormat(useNow(), "YYYY-MM-DD HH:mm:ss");
 
 const schema = {
-  required: ["name", "text", "rating"],
+  required: ["name", "text", "rating", "accept"],
   properties: {
     name: {
       type: ["string"],
@@ -126,7 +126,21 @@ const schema = {
     },
 
     done: {
+      type: ["boolean", "null"],
+      title: "Is the Task Complete?",
+      default: null,
+      enum: [true, false, null],
+    },
+    accept: {
       type: "boolean",
+      title: "Accept our Terms and Conditions",
+      default: null,
+      enum: [null, true],
+    },
+  },
+  errorMessage: {
+    properties: {
+      accept: "We require you accept our Terms and Conditions",
     },
   },
 };
@@ -313,6 +327,11 @@ const uischema = {
     {
       type: "Control",
       scope: "#/properties/done",
+      options: {},
+    },
+    {
+      type: "Control",
+      scope: "#/properties/accept",
       options: {},
     },
   ],

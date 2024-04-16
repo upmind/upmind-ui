@@ -31,7 +31,7 @@ import {
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import ControlWrapper from "../wrapper/Wrapper.vue";
+import ControlWrapper from "../wrapper/Renderer.vue";
 
 // --- local
 import config from "./config.cva";
