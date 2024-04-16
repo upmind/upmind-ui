@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   checkbox: {
     root: cva(
-      "border-base-300 group-focus-within:border-primary group-focus-within:ring-primary group inline-flex size-[1.5em] items-center  justify-center rounded-md border ring-0 group-focus-within:ring-4 group-focus-within:ring-opacity-10",
+      "border-base-300 group-focus-within:border-primary group-focus-within:ring-primary group inline-flex size-[1.5em] items-center justify-center  rounded-md border outline-none ring-0 group-focus-within:ring-4 group-focus-within:ring-opacity-10",
       {
         variants: {
           size: {
