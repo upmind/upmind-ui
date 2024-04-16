@@ -87,11 +87,6 @@ export function useStyles(
       set(styles, component, applyVariants(componentConfigs, cleanContext));
     });
 
-    console.log("useStyles", components, {
-      context: cleanContext,
-      styles: styles,
-    });
-
     // return the requested styles with the variants applied
     return styles;
   });

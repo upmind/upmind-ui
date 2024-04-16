@@ -197,12 +197,7 @@ export default defineComponent({
     }));
 
     const styles = useStyles(
-      [
-        "inputControl",
-        "inputControlLabel",
-        "inputControlTransitionEnter",
-        "inputControlTransitionLeave",
-      ],
+      ["inputControl", "inputControlLabel"],
       meta,
       config,
       props.upwindConfig
