@@ -1,62 +1,50 @@
 <template>
-  <div v-if="meta.isVisible" :id="id" :class="[styles?.root]">
+  <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
     <!-- label -->
-    <div
-      class="label"
-      :class="[
-        styles?.label?.root,
-        showError ? styles?.label?.error : null,
-        showSuccess ? styles?.label?.success : null,
-      ]"
-    >
+    <div class="label" :class="styles.inputControlLabel.root">
       <label
-        v-if="computedLabel"
+        v-if="label"
         :for="id + '-input'"
-        :class="[styles?.label?.text]"
+        :class="styles.inputControlLabel.text"
       >
-        {{ computedLabel }}
+        {{ label }}
       </label>
 
-      <span v-if="showAsRequired" :class="[styles?.label?.required]">
+      <span
+        v-if="meta.showAsRequired"
+        :class="styles.inputControlLabel.required"
+      >
         {{ computedRequired }}
       </span>
 
-      <span v-else-if="showAsOptional" :class="[styles?.label?.optional]">
+      <span
+        v-else-if="meta.showAsOptional"
+        :class="styles.inputControlLabel.optional"
+      >
         {{ computedOptional }}
       </span>
     </div>
 
     <!-- wrapper -->
-    <div
-      :class="[
-        styles?.wrapper?.root,
-        showError ? styles?.wrapper?.error : null,
-        showSuccess ? styles?.wrapper?.success : null,
-        meta.isDisabled ? styles?.wrapper?.disabled : '',
-      ]"
-    >
+    <div :class="styles.inputControl.wrapper">
       <span
         class="prefix"
-        :class="[
-          styles?.prefix?.root,
-          showError ? styles?.prefix?.error : null,
-          showSuccess ? styles?.prefix?.success : null,
-        ]"
-        v-if="appliedOptions?.prefix"
+        :class="styles.inputControl.prefix"
+        v-if="appliedOptions.prefix"
       >
         {{ appliedOptions.prefix }}
       </span>
 
       <upw-icon
-        v-if="appliedOptions?.prependAvatar"
+        v-if="appliedOptions.prependAvatar"
         class="avatar"
-        :class="styles?.avatar"
+        :class="styles.inputControl.avatar"
         :icon="appliedOptions.prependAvatar"
       />
 
       <upw-icon
-        v-if="appliedOptions?.prependIcon"
-        :class="styles?.icon"
+        v-if="appliedOptions.prependIcon"
+        :class="styles.inputControl.icon"
         :icon="appliedOptions.prependIcon"
       />
 
@@ -64,82 +52,48 @@
 
       <upw-icon
         v-if="meta.isInvalid"
-        :class="[styles?.icon, styles?.status?.error]"
+        :class="styles.inputControl.status"
         icon="alert-circle"
       />
       <upw-icon
         v-else-if="meta.isValid"
-        :class="[styles?.icon, styles?.status?.success]"
+        :class="styles.inputControl.status"
         icon="check-circle"
       />
 
       <upw-icon
-        v-if="appliedOptions?.appendIcon"
-        :class="styles?.icon"
+        v-if="appliedOptions.appendIcon"
+        :class="styles.inputControl.icon"
         :icon="appliedOptions.appendIcon"
       />
 
       <upw-icon
-        v-if="appliedOptions?.appendAvatar"
+        v-if="appliedOptions.appendAvatar"
         class="avatar"
-        :class="styles?.avatar"
+        :class="styles.inputControl.avatar"
         :icon="appliedOptions.appendAvatar"
       />
 
       <span
         class="suffix"
-        :class="[
-          styles?.suffix?.root,
-          showError ? styles?.suffix?.error : null,
-          showSuccess ? styles?.suffix?.success : null,
-        ]"
-        v-if="appliedOptions?.suffix"
+        :class="styles.inputControl.suffix"
+        v-if="appliedOptions.suffix"
       >
         {{ appliedOptions.suffix }}
       </span>
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles?.feedback?.root">
-      <transition-group
-        :enter-active-class="styles?.feedback?.transition?.enter?.active"
-        :enter-from-class="styles?.feedback?.transition?.enter?.from"
-        :enter-to-class="styles?.feedback?.transition?.enter?.to"
-        :leave-active-class="styles?.feedback?.transition?.leave?.active"
-        :leave-from-class="styles?.feedback?.transition?.leave?.from"
-        :leave-to-class="styles?.feedback?.transition?.leave?.to"
-      >
-        <!-- hint/description -->
-        <span
-          key="description"
-          :class="[
-            styles?.feedback?.description,
-            !showDescription ? styles?.feedback?.hidden : '',
-          ]"
-        >
-          <upw-icon :class="styles?.icon" icon="information-circle" />
-          <span>{{ description }}</span>
-        </span>
-
-        <!-- errors -->
-        <span
-          key="errors"
-          :class="[
-            styles?.feedback?.error,
-            !showError ? styles?.feedback?.hidden : '',
-          ]"
-        >
-          <upw-icon :class="styles?.icon" icon="information-circle" />
-          <span>{{ errors }}</span>
-        </span>
-      </transition-group>
+    <div class="feedback" :class="styles.inputControl.feedback">
+      <upw-icon key="icon" :class="styles.icon" icon="information-circle" />
+      <span key="details">{{ errors || description }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 // --- global
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- components
 import UpwIcon from "../../../../icon/Icon.vue";
@@ -172,7 +126,7 @@ export default defineComponent({
     },
     errors: {
       type: String,
-      default: undefined,
+      default: () => [],
     },
     label: {
       type: String,
@@ -215,62 +169,46 @@ export default defineComponent({
     },
   },
   computed: {
-    meta(): any {
-      return {
-        isInvalid: !!this.errors?.length,
-        isValid: isEmpty(this.errors) && !isNil(this.data),
-        isDirty: !isNil(this.data),
-        isFocused: this.focused,
-        isRequired: this.required,
-        isVisible: this.visible,
-        isDisabled: this.disabled,
-      };
-    },
-
-    showDescription(): boolean {
-      return (
-        !isNil(this?.description) &&
-        !this.meta?.isInvalid &&
-        (this.meta?.isFocused || this.appliedOptions?.persistDescription)
-      );
-    },
-    showError(): boolean {
-      return this.meta.isInvalid;
-    },
-    showSuccess(): boolean {
-      return this.meta.isValid;
-      // TODO: make this show only for a specified period, ie not persist
-    },
-
-    showAsRequired(): boolean {
-      return this.meta?.isRequired && !this.appliedOptions?.hideRequired;
-    },
-
-    showAsOptional(): boolean {
-      return !this.meta?.isRequired && !this.appliedOptions?.hideRequired;
-    },
-
-    computedLabel(): string {
-      return this.label;
-
-      // return computeLabel(
-      //   this.label,
-      //   this.meta?.isRequired,
-      //   !!this.appliedOptions?.hideRequired
-      // );
-    },
-
     computedRequired(): string {
-      return this.appliedOptions?.requiredText || "Required";
+      return this.appliedOptions.requiredText || "Required" || "*";
     },
 
     computedOptional(): string {
-      return this.appliedOptions?.optionalText || "";
+      return this.appliedOptions.optionalText || "";
     },
   },
   setup(props) {
-    const { styles } = useStyles("form", props, config, props.upwindConfig);
+    const meta = computed(() => ({
+      isInvalid: !isEmpty(props.errors),
+      isValid: isEmpty(props.errors) && !isNil(props.data),
+      isDirty: !isNil(props.data),
+      isFocused: props.focused,
+      isRequired: props.required,
+      isVisible: props.visible,
+      isDisabled: props.disabled,
+      hasFeedback:
+        (isEmpty(props.errors) &&
+          !isNil(props.description) &&
+          (props.focused || props?.appliedOptions?.persistDescription)) ||
+        !isEmpty(props.errors),
+
+      showAsRequired: props.required && !props?.appliedOptions?.hideRequired,
+      showAsOptional: !props.required && !props?.appliedOptions?.hideRequired,
+    }));
+
+    const styles = useStyles(
+      [
+        "inputControl",
+        "inputControlLabel",
+        "inputControlTransitionEnter",
+        "inputControlTransitionLeave",
+      ],
+      meta,
+      config,
+      props.upwindConfig
+    );
     return {
+      meta,
       styles,
     };
   },

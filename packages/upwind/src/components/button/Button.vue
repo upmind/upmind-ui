@@ -68,7 +68,7 @@
 
 <script lang="ts">
 // --- global
-import { computed, defineComponent, ref } from "vue";
+import { defineComponent, computed, toRefs } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -153,26 +153,21 @@ export default defineComponent({
   },
 
   setup(props) {
-    return {
-      styles: computed(() => {
-        const { styles } = useStyles(
-          "button",
-          props,
-          config,
-          props.upwindConfig
-        );
-        debugger;
-        return styles.value;
-      }),
-    };
-  },
+    const meta = computed(() => ({
+      isLoading: props.loading,
+    }));
 
-  computed: {
-    meta() {
-      return {
-        isLoading: this.loading,
-      };
-    },
+    const styles = useStyles(
+      "button",
+      toRefs(props),
+      config,
+      props.upwindConfig
+    );
+
+    return {
+      meta,
+      styles,
+    };
   },
 });
 </script>

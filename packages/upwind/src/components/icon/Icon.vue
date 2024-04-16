@@ -22,13 +22,16 @@ import { isObject } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { Icon } from "./types";
+import type { IconProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
   name: "UpwIcon",
   props: {
-    icon: { type: [String, Object] as PropType<Icon>, required: true },
+    icon: {
+      type: [String, Object] as PropType<IconProps["icon"]>,
+      required: true,
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -36,7 +39,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { styles } = useStyles("icon", props, config, props.upwindConfig);
+    const styles = useStyles("icon", props, config, props.upwindConfig);
 
     const svg = ref(null);
 

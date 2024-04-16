@@ -31,7 +31,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { styles } = useStyles("spinner", props, config, props.upwindConfig);
+    const styles = useStyles("spinner", props, config, props.upwindConfig);
 
     return {
       styles,
