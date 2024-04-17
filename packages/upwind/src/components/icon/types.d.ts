@@ -2,7 +2,7 @@ export interface IconProps {
   icon: string | Icon;
 }
 
-interface Icon {
+export interface Icon {
   name: string;
   path: string;
 }

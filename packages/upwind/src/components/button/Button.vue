@@ -76,7 +76,7 @@ import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
-import type { ButtonVariant, ButtonColor, ButtonSize } from "./types";
+import type { ButtonProps } from "./types";
 
 // ----------------------------------------------
 
@@ -120,15 +120,15 @@ export default defineComponent({
     },
     // ---
     variant: {
-      type: String as PropType<ButtonVariant>,
+      type: String as PropType<ButtonProps["variant"]>,
       default: null,
     },
     color: {
-      type: String as PropType<ButtonColor>,
+      type: String as PropType<ButtonProps["color"]>,
       default: null,
     },
     size: {
-      type: String as PropType<ButtonSize>,
+      type: String as PropType<ButtonProps["size"]>,
       default: null,
     },
     iconOnly: {
