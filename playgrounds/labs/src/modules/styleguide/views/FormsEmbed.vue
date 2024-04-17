@@ -264,30 +264,30 @@ const uischema = {
     {
       type: "HorizontalLayout",
       elements: [
-        {
-          type: "Control",
-          scope: "#/properties/recurrence",
-          options: {
-            trim: true,
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval",
-          options: {
-            min: 1,
-            max: 365,
-            trim: true,
-            suffix: "days",
-          },
-          rule: {
-            effect: "SHOW",
-            condition: {
-              scope: "#/properties/recurrence",
-              schema: { type: "string", const: "Daily" },
-            },
-          },
-        },
+        // {
+        //   type: "Control",
+        //   scope: "#/properties/recurrence",
+        //   options: {
+        //     trim: true,
+        //   },
+        // },
+        // {
+        //   type: "Control",
+        //   scope: "#/properties/recurrenceInterval",
+        //   options: {
+        //     min: 1,
+        //     max: 365,
+        //     trim: true,
+        //     suffix: "days",
+        //   },
+        //   rule: {
+        //     effect: "SHOW",
+        //     condition: {
+        //       scope: "#/properties/recurrence",
+        //       schema: { type: "string", const: "Daily" },
+        //     },
+        //   },
+        // },
         {
           type: "Control",
           scope: "#/properties/recurrenceInterval",

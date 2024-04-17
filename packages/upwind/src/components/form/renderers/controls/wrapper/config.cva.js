@@ -7,9 +7,12 @@ export default {
       variants: {
         size: {
           sm: "text-sm",
-          default: "",
+          md: "",
           lg: "text-lg",
         },
+      },
+      defaultVariants: {
+        size: "md",
       },
     }),
 
