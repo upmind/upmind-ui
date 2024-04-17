@@ -4,13 +4,13 @@ import { cva } from "class-variance-authority";
 export default {
   checkbox: {
     root: cva(
-      "border-base-300 group-focus-within:border-primary group-focus-within:ring-primary group box-content inline-flex size-4 items-center justify-center rounded border outline-none ring-0 group-focus-within:ring-4 group-focus-within:ring-opacity-10",
+      "border-base-300 group-focus-within:border-primary group-focus-within:ring-primary group box-content inline-flex items-center justify-center rounded border outline-none ring-0 group-focus-within:ring-4 group-focus-within:ring-opacity-10",
       {
         variants: {
           size: {
-            sm: "text-sm ",
-            md: "",
-            lg: "text-lg",
+            sm: "size-4 text-sm",
+            md: "size-5",
+            lg: "size-6 text-lg",
           },
           isDisabled: {
             true: "bg-base-100 ",
@@ -31,6 +31,17 @@ export default {
       }
     ),
 
-    icon: cva("size-3"),
+    icon: cva("", {
+      variants: {
+        size: {
+          sm: "size-3",
+          md: "size-4",
+          lg: "size-5",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
   },
 };
