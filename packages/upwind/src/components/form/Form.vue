@@ -274,9 +274,10 @@ export default defineComponent({
     },
 
     doReject() {
-      this.$emit("reject");
       this.model = {};
       this.isDirty = false;
+      this.$emit("update:modelValue", this.model);
+      this.$emit("reject");
     },
   },
 });

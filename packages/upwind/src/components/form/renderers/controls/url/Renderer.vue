@@ -1,10 +1,5 @@
 <template>
-  <control-wrapper
-    v-bind="controlWrapper"
-    :is-focused="isFocused"
-    :size="size"
-    :prepend-icon="controlWrapper.prependIcon || 'url'"
-  >
+  <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
     <input
       :autocomplete="appliedOptions.autocomplete"
       :cols="appliedOptions.cols"

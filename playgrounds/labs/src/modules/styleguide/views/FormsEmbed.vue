@@ -9,9 +9,10 @@
       @reject="doReject"
       @resolve="doResolve"
       :loading="isLoading"
+      class="w-full max-w-xl"
     />
 
-    <code>
+    <code class="w-1/2 flex-grow rounded-lg bg-base-100 p-4">
       <pre>{{ model }}</pre>
     </code>
   </div>
@@ -134,6 +135,7 @@ const schema = {
     accept: {
       type: "boolean",
       title: "Accept our Terms and Conditions",
+      description: "We need your agreement to align with regulations",
       default: null,
       enum: [null, true],
     },
@@ -168,7 +170,6 @@ const uischema = {
       scope: "#/properties/description",
       options: {
         multi: true,
-        rows: 5,
       },
     },
     {
@@ -176,7 +177,7 @@ const uischema = {
       scope: "#/properties/note",
       options: {
         multi: true,
-        rows: 10,
+        rows: 6,
       },
     },
 

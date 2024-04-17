@@ -10,18 +10,31 @@
         {{ label }}
       </label>
 
-      <span
-        v-if="meta.showAsRequired"
-        :class="styles.inputControlLabel.required"
-      >
-        {{ computedRequired }}
-      </span>
+      <span class="status" :class="styles.inputControlLabel.status">
+        <span
+          v-if="meta.showAsRequired"
+          :class="styles.inputControlLabel.required"
+        >
+          {{ requiredText }}
+        </span>
 
-      <span
-        v-else-if="meta.showAsOptional"
-        :class="styles.inputControlLabel.optional"
-      >
-        {{ computedOptional }}
+        <span
+          v-else-if="meta.showAsOptional"
+          :class="styles.inputControlLabel.optional"
+        >
+          {{ optionalText }}
+        </span>
+
+        <upw-icon
+          v-if="meta.isInvalid"
+          :class="styles.inputControlLabel.icon"
+          icon="alert-circle"
+        />
+        <upw-icon
+          v-else-if="meta.isValid"
+          :class="styles.inputControlLabel.icon"
+          icon="check-circle"
+        />
       </span>
     </div>
 
@@ -57,17 +70,6 @@
 
       <slot v-bind="{ meta, styles: styles.inputControl }"></slot>
 
-      <upw-icon
-        v-if="meta.isInvalid"
-        :class="styles.inputControl.status"
-        icon="alert-circle"
-      />
-      <upw-icon
-        v-else-if="meta.isValid"
-        :class="styles.inputControl.status"
-        icon="check-circle"
-      />
-
       <slot
         name="append"
         v-bind="{
@@ -101,7 +103,7 @@
     <div class="feedback" :class="styles.inputControl.feedback">
       <upw-icon
         key="icon"
-        :class="styles.inputControl.icon"
+        :class="styles.inputControl.feedbackIcon"
         icon="information-circle"
       />
       <span key="details">{{ errors || description }}</span>
@@ -170,11 +172,11 @@ export default defineComponent({
     },
     optionalText: {
       type: String,
-      default: null,
+      default: "",
     },
     persistDescription: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     prefix: {
       type: String,
@@ -183,7 +185,7 @@ export default defineComponent({
 
     requiredText: {
       type: String,
-      default: null,
+      default: "Required",
     },
     suffix: {
       type: String,
@@ -222,15 +224,7 @@ export default defineComponent({
       default: null,
     },
   },
-  computed: {
-    computedRequired(): string {
-      return this.requiredText || "Required" || "*";
-    },
-
-    computedOptional(): string {
-      return this.optionalText || "";
-    },
-  },
+  computed: {},
   setup(props) {
     const meta = computed(() => ({
       isInvalid: !isEmpty(props.errors),
@@ -247,7 +241,8 @@ export default defineComponent({
         !isEmpty(props.errors),
 
       showAsRequired: props.required && !props.hideRequired,
-      showAsOptional: !props.required && !props.hideRequired,
+      showAsOptional:
+        !props.required && !props.hideRequired && !isEmpty(props.optionalText),
     }));
 
     const styles = useStyles(
@@ -256,6 +251,7 @@ export default defineComponent({
       config,
       props.upwindConfig
     );
+
     return {
       meta,
       styles,
