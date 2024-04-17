@@ -15,5 +15,17 @@ export default {
         size: "md",
       },
     }),
+    button: cva("leading-tight text-current underline", {
+      variants: {
+        size: {
+          sm: "px-3 text-xs",
+          md: "px-3 text-xs",
+          lg: "px-3 text-xs",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
   },
 };

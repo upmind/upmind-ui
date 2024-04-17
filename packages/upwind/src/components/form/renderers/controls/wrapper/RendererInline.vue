@@ -1,7 +1,7 @@
 <template>
   <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
     <!-- wrapper -->
-    <div :class="styles.inputControl.wrapper">
+    <div :class="styles.inputControl.inline">
       <slot
         name="prepend"
         v-bind="{
@@ -42,18 +42,31 @@
           {{ label }}
         </label>
 
-        <span
-          v-if="meta.showAsRequired"
-          :class="styles.inputControlLabel.required"
-        >
-          {{ computedRequired }}
-        </span>
+        <span class="status" :class="styles.inputControlLabel.status">
+          <span
+            v-if="meta.showAsRequired"
+            :class="styles.inputControlLabel.required"
+          >
+            {{ requiredText }}
+          </span>
 
-        <span
-          v-else-if="meta.showAsOptional"
-          :class="styles.inputControlLabel.optional"
-        >
-          {{ computedOptional }}
+          <span
+            v-else-if="meta.showAsOptional"
+            :class="styles.inputControlLabel.optional"
+          >
+            {{ optionalText }}
+          </span>
+
+          <upw-icon
+            v-if="meta.isInvalid"
+            :class="styles.inputControlLabel.icon"
+            icon="alert-circle"
+          />
+          <upw-icon
+            v-else-if="meta.isValid"
+            :class="styles.inputControlLabel.icon"
+            icon="check-circle"
+          />
         </span>
       </div>
 
@@ -102,7 +115,7 @@
     <div class="feedback" :class="styles.inputControl.feedback">
       <upw-icon
         key="icon"
-        :class="styles.inputControl.icon"
+        :class="styles.inputControl.feedbackIcon"
         icon="information-circle"
       />
       <span key="details">{{ errors || description }}</span>
@@ -112,154 +125,17 @@
 
 <script lang="ts">
 // --- global
-import { defineComponent, computed } from "vue";
+import { defineComponent } from "vue";
 
 // --- components
-import UpwIcon from "../../../../icon/Icon.vue";
-
-// --- local
-import config from "./config.inline.cva";
-
-// --- utils
-import { useStyles } from "../../../../../utils";
-import { isNil, isEmpty } from "lodash-es";
-
-// --- types
-import type { PropType } from "vue";
-import type { InputSize } from "../types";
+import Base from "./Renderer.vue";
 
 export default defineComponent({
   name: "ControlWrapper",
-  components: {
-    UpwIcon,
-  },
-  props: {
-    id: {
-      required: true,
-      type: String,
-    },
-    description: {
-      type: String,
-      default: null,
-    },
-    errors: {
-      type: String,
-      default: () => [],
-    },
-    label: {
-      type: String,
-      default: null,
-    },
-    // --- Applied Options
-    appendAvatar: {
-      type: [Object, String],
-      default: null,
-    },
-    appendIcon: {
-      type: [Object, String],
-      default: null,
-    },
-    prependAvatar: {},
-    prependIcon: {
-      type: [Object, String],
-      default: null,
-    },
-
-    hideRequired: {
-      type: Boolean,
-      default: false,
-    },
-    optionalText: {
-      type: String,
-      default: null,
-    },
-    persistDescription: {
-      type: Boolean,
-      default: false,
-    },
-    prefix: {
-      type: String,
-      default: null,
-    },
-
-    requiredText: {
-      type: String,
-      default: null,
-    },
-    suffix: {
-      type: String,
-      default: null,
-    },
-    size: {
-      type: String as PropType<InputSize>,
-      default: "sm",
-    },
-
-    // ---
-    required: {
-      type: Boolean,
-      default: false,
-    },
-    visible: {
-      type: Boolean,
-      default: true,
-    },
-    focused: {
-      type: Boolean,
-      default: false,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    data: {
-      type: [String, Number, Boolean, Object, Array],
-      default: null,
-    },
-
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
-  },
-  computed: {
-    computedRequired(): string {
-      return this.requiredText || "Required" || "*";
-    },
-
-    computedOptional(): string {
-      return this.optionalText || "";
-    },
-  },
-  setup(props) {
-    const meta = computed(() => ({
-      isInvalid: !isEmpty(props.errors),
-      isValid: isEmpty(props.errors) && !isNil(props.data),
-      isDirty: !isNil(props.data),
-      isFocused: props.focused,
-      isRequired: props.required,
-      isVisible: props.visible,
-      isDisabled: props.disabled,
-      hasFeedback:
-        (isEmpty(props.errors) &&
-          !isNil(props.description) &&
-          (props.focused || props.persistDescription)) ||
-        !isEmpty(props.errors),
-
-      showAsRequired: props.required && !props.hideRequired,
-      showAsOptional: !props.required && !props.hideRequired,
-    }));
-
-    const styles = useStyles(
-      ["inputControl", "inputControlLabel"],
-      meta,
-      config,
-      props.upwindConfig
-    );
+  extends: Base,
+  setup(props, ctx) {
     return {
-      meta,
-      styles,
+      ...Base.setup(props, ctx),
     };
   },
 });

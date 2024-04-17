@@ -17,27 +17,15 @@
     />
 
     <template #append>
-      <upw-button
-        @click="unmask = true"
-        label="Show password value"
-        prepend-icon="view"
-        icon-only
+      <!-- NB: single button to maintain tabindex/toggle with keyboard -->
+      <button
+        :class="styles.input.button"
+        @click.prevent="unmask = !unmask"
         color="current"
-        variant="ghost"
         size="sm"
-        v-if="!unmask"
-      />
-
-      <upw-button
-        v-else
-        @click="unmask = false"
-        label="Hide password value"
-        icon-only
-        prepend-icon="view-off"
-        color="current"
-        variant="ghost"
-        size="sm"
-      />
+      >
+        {{ !unmask ? "Show" : "Hide" }}
+      </button>
     </template>
   </control-wrapper>
 </template>

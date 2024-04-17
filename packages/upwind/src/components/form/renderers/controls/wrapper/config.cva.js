@@ -24,7 +24,7 @@ export default {
             true: "bg-base-100 pointer-events-none opacity-50",
           },
           isValid: {
-            true: "border-success-300 focus-within:border-success focus-within:ring-success",
+            true: "focus-within:border-success focus-within:ring-success",
           },
           isInvalid: {
             true: "border-error-300 focus-within:!border-error focus-within:!ring-error focus-within:!ring-opacity-20",
@@ -33,19 +33,17 @@ export default {
       }
     ),
 
-    icon: cva("size-[1.5em]"),
-    avatar: cva("size-[1.5em] overflow-hidden rounded-full"),
-
-    status: cva("text-base-500 size-[1.5em]", {
+    inline: cva("group flex w-full items-center gap-x-3 p-0 ring-0", {
       variants: {
-        isValid: {
-          true: "text-success",
-        },
-        isInvalid: {
-          true: "text-error",
+        isDisabled: {
+          true: "pointer-events-none opacity-50",
         },
       },
     }),
+
+    icon: cva("size-[1.5em]"),
+
+    avatar: cva("size-[1.5em] overflow-hidden rounded-full"),
 
     prefix: cva(
       "bg-base-100 -ml-2 flex items-center self-stretch rounded-s-lg p-3"
@@ -56,11 +54,11 @@ export default {
     ),
 
     feedback: cva(
-      "text-base-content flex  items-center gap-x-2 text-xs transition-opacity duration-300",
+      "text-base-content text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
       {
         variants: {
           hasFeedback: {
-            false: "invisible w-0 overflow-hidden text-nowrap opacity-0",
+            false: "invisible hidden w-0 overflow-hidden text-nowrap opacity-0",
           },
           isInvalid: {
             true: "text-error",
@@ -68,14 +66,29 @@ export default {
         },
       }
     ),
+    feedbackIcon: cva("size-4"),
   },
 
   inputControlLabel: {
     root: cva(
-      "text-base-content flex w-full items-center justify-between gap-x-3"
+      "text-base-content flex w-full items-center justify-between gap-x-3 outline-none"
     ),
     text: cva("text-[0.875em]"),
-    required: cva("text-base-500 text-xs leading-tight"),
-    optional: cva("text-base-500 text-xs leading-tight"),
+    required: cva(""),
+    optional: cva(""),
+    status: cva(
+      "text-base-500 inline-flex items-center gap-2 text-xs leading-tight",
+      {
+        variants: {
+          isValid: {
+            true: "text-success",
+          },
+          isInvalid: {
+            true: "text-error",
+          },
+        },
+      }
+    ),
+    icon: cva("size-4"),
   },
 };
