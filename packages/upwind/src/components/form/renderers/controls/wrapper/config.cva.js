@@ -14,7 +14,7 @@ export default {
     }),
 
     wrapper: cva(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full items-center gap-x-3 rounded-lg border px-2 py-0 ring-0 focus-within:ring-4 focus-within:ring-opacity-10",
+      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full items-center gap-x-3 rounded-lg border px-2 py-0 ring-0 focus-within:ring-4 focus-within:ring-opacity-20",
       {
         variants: {
           isDisabled: {
@@ -24,7 +24,7 @@ export default {
             true: "border-success-300 focus-within:border-success focus-within:ring-success",
           },
           isInvalid: {
-            true: "border-error-300 focus-within:!border-error focus-within:!ring-error focus-within:!ring-opacity-10",
+            true: "border-error-300 focus-within:!border-error focus-within:!ring-error focus-within:!ring-opacity-20",
           },
         },
       }

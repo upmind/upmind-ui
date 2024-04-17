@@ -31,7 +31,7 @@ export default {
   },
   listboxSearch: {
     input: cva(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-10"
+      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-20"
     ),
     root: cva("bg-base sticky top-[-0.25rem] -m-1 p-2 text-sm shadow-sm"),
   },
