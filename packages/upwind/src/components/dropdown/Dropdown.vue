@@ -83,7 +83,7 @@ import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
-import type { DropdownPosition, DropdownItems } from "./types";
+import type { DropdownProps, DropdownItems } from "./types";
 
 // ----------------------------------------------
 
@@ -108,7 +108,10 @@ export default defineComponent({
       default: "",
     },
 
-    icon: { type: [String, Object], default: null },
+    icon: {
+      type: [String, Object] as PropType<DropdownProps["icon"]>,
+      default: null,
+    },
 
     toggle: {
       type: String,
@@ -119,11 +122,11 @@ export default defineComponent({
       default: true,
     },
     placement: {
-      type: String as PropType<DropdownPosition>,
+      type: String as PropType<DropdownProps["position"]>,
       default: "bottom-end",
     },
     items: {
-      type: Object as PropType<DropdownItems>,
+      type: Object as PropType<DropdownProps["items"]>,
       default: () => {},
     },
     // --- Provide a way to add custom styles for a specific instance of the component

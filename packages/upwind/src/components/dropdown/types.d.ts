@@ -1,19 +1,25 @@
-export const enum DropdownPosition {
-  top = "top",
-  bottom = "bottom",
-  left = "left",
-  right = "right",
-  "bottom-start" = "bottom-start",
-  "bottom-end" = "bottom-end",
-  "top-start" = "top-start",
-  "top-end" = "top-end",
-  "left-start" = "left-start",
-  "left-end" = "left-end",
-  "right-start" = "right-start",
-  "right-end" = "right-end",
+import type { IconProps } from "../icon/types";
+// --------------------------------------------
+
+export interface DropdownProps {
+  icon: IconProps["icon"];
+  position:
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "bottom-start"
+    | "bottom-end"
+    | "top-start"
+    | "top-end"
+    | "left-start"
+    | "left-end"
+    | "right-start"
+    | "right-end";
+  items: DropdownItems;
 }
 
-export interface DropdownItem {
+interface DropdownItem {
   id: string;
   label?: string;
   icon?: string;
