@@ -57,7 +57,7 @@ export function useStyles(
     // ensure component is an array so we can loop over it and handle multiple components
     components = isArray(components) ? components : [components];
     configs = flattenDeep(configs); // in case were passed nested arrays
-    console.log(components, configs);
+
     // Add any provided style overrides to our config, aka globalConfig
     const globalConfig = inject("upwind", {});
     if (!isEmpty(globalConfig)) configs.push(globalConfig);
@@ -76,6 +76,7 @@ export function useStyles(
         configs,
         (result, config) => {
           config = toRaw(unref(config));
+
           const componentConfig = get(config, component);
 
           if (isObject(componentConfig) && !isEmpty(componentConfig)) {
