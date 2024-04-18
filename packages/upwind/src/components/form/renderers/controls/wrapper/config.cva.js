@@ -54,7 +54,7 @@ export default {
     ),
 
     feedback: cva(
-      "text-base-content text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
+      "text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
       {
         variants: {
           hasFeedback: {
@@ -71,7 +71,7 @@ export default {
 
   inputControlLabel: {
     root: cva(
-      "text-base-content flex w-full items-center justify-between gap-x-3 outline-none"
+      "flex w-full items-center justify-between gap-x-3 text-current outline-none"
     ),
     text: cva("text-[0.875em]"),
     required: cva(""),
