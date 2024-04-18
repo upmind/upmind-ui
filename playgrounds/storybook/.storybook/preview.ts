@@ -1,37 +1,23 @@
-import "../assets/main.css";
-import type { Preview } from "@storybook/vue3";
+import "../stories/assets/main.css";
+import { Preview, Renderer } from "@storybook/your-renderer";
+import { withThemeByDataAttribute } from "@storybook/addon-themes";
 
 const preview: Preview = {
-  // parameters: {
-  //   controls: {
-  //     matchers: {
-  //       color: /(background|color)$/i,
-  //       date: /Date$/i,
-  //     },
-  //   },
-  // },
-  globalTypes: {
-    theme: {
-      description: "Global theme for components",
-      defaultValue: "light",
-      toolbar: {
-        title: "Theme",
-        icon: "circlehollow",
-        items: ["light", "dark", "retro", "elegant"],
-        dynamicTitle: true,
-      },
-    },
-  },
   decorators: [
+    withThemeByDataAttribute<Renderer>({
+      themes: {
+        light: "light",
+        dark: "dark",
+        retro: "retro",
+      },
+      defaultTheme: "light",
+      attributeName: "data-theme",
+    }),
     (story, context) => {
-      const theme = context.globals.theme || "light";
       return {
         components: { story },
         template: `
-          <div
-            class="content rounded-box bg-base-200 px-4 text-base-content"
-            data-theme="${theme}"
-          >
+          <div class="content rounded-box bg-base px-4 text-base-content prose max-w-none min-h-screen">
             <story />
           </div>
         `,

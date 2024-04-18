@@ -19,14 +19,12 @@
     "noUnusedLocals": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "packages/*/src",
-    "playground/src",
-    "playground/typings/index.d.ts"
-  ],
+  "include": ["packages/*/src", "playgrounds/*/src"],
 
   "references": [
-    { "path": "playground/" },
+    { "path": "playgrounds/labs" },
+    { "path": "playgrounds/checkout" },
+    { "path": "packages/flow" },
     { "path": "packages/flow" },
     { "path": "packages/flow-vue" },
     { "path": "packages/client" },
