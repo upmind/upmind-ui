@@ -1,19 +1,32 @@
 import "../stories/assets/main.css";
 import { Preview, Renderer } from "@storybook/your-renderer";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
+import { provide, ref } from "vue";
+import themes from "@/assets/themes";
+import { reduce, find, set } from "lodash-es";
 
 const preview: Preview = {
   decorators: [
     withThemeByDataAttribute<Renderer>({
-      themes: {
-        light: "light",
-        dark: "dark",
-        retro: "retro",
-      },
+      themes: reduce(
+        themes,
+        (acc, { id }) => {
+          set(acc, id, id);
+          return acc;
+        },
+        {}
+      ),
       defaultTheme: "light",
       attributeName: "data-theme",
     }),
     (story, context) => {
+      const activeTheme = ref(context.globals.theme);
+      const theme = find(themes, ["id", activeTheme.value]);
+      const upwindStyles = ref(theme?.upwind || {});
+
+      provide("activeTheme", activeTheme);
+      provide("upwind", upwindStyles);
+
       return {
         components: { story },
         template: `
