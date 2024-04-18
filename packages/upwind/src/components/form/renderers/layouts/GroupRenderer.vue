@@ -30,7 +30,7 @@ import {
   rendererProps,
   useJsonFormsLayout,
 } from "@jsonforms/vue";
-import { useupwindLayout } from "../utils";
+import { useUpwindLayout } from "../utils";
 
 const layoutRenderer = defineComponent({
   name: "GroupRenderer",
@@ -41,7 +41,7 @@ const layoutRenderer = defineComponent({
     ...rendererProps<Layout>(),
   },
   setup(props: RendererProps<Layout>) {
-    return useupwindLayout(useJsonFormsLayout(props));
+    return useUpwindLayout(useJsonFormsLayout(props));
   },
 });
 
@@ -57,3 +57,4 @@ export const tester = {
 //   tester: rankWith(2, and(isLayout, uiTypeIs("Group"))),
 // };
 </script>
+../utils ../utils

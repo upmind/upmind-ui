@@ -127,7 +127,7 @@ import { isNil, isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { InputSize } from "../types";
+import type { InputProps } from "../types";
 
 export default defineComponent({
   name: "ControlWrapper",
@@ -192,8 +192,8 @@ export default defineComponent({
       default: null,
     },
     size: {
-      type: String as PropType<InputSize>,
-      default: "sm",
+      type: String as PropType<InputProps["size"]>,
+      default: "md",
     },
 
     // ---

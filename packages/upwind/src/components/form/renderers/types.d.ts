@@ -1,4 +1,4 @@
-import type { InputSize } from "../controls/types";
+import type { InputSize } from "./controls/types";
 
 export interface Options {
   persistDescription?: boolean;
