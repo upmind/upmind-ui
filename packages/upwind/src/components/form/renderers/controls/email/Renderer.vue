@@ -38,7 +38,7 @@ import { useStyles } from "../../../../../utils";
 import type { PropType } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { InputSize } from "../types";
+import type { InputProps } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
@@ -50,7 +50,7 @@ export default defineComponent({
     ...rendererProps<ControlElement>(),
     // ---  Additional Attributes
     size: {
-      type: String as PropType<InputSize>,
+      type: String as PropType<InputProps["size"]>,
       default: null,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
@@ -78,3 +78,4 @@ export const tester = {
   controlType: and(isStringControl, formatIs("email")),
 };
 </script>
+../../utils ../../utils

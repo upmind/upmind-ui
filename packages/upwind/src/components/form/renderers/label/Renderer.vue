@@ -11,7 +11,7 @@ import { uiTypeIs } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
-import { useupwindLabel } from "../utils";
+import { useUpwindLabel } from "../utils";
 
 const labelRenderer = defineComponent({
   name: "LabelRenderer",
@@ -19,7 +19,7 @@ const labelRenderer = defineComponent({
     ...rendererProps<LabelElement>(),
   },
   setup(props: RendererProps<LabelElement>) {
-    return useupwindLabel(useJsonFormsLabel(props));
+    return useUpwindLabel(useJsonFormsLabel(props));
   },
 });
 
@@ -30,3 +30,4 @@ export const tester = {
   controlType: uiTypeIs("Label"),
 };
 </script>
+../utils ../utils

@@ -1,5 +1,3 @@
-export const enum InputSize {
-  sm = "small",
-  md = "medium",
-  lg = "large",
+export interface InputProps {
+  size: "sm" | "md" | "lg";
 }

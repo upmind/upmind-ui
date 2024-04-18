@@ -27,7 +27,7 @@ import {
   rendererProps,
   useJsonFormsLayout,
 } from "@jsonforms/vue";
-import { useupwindLayout } from "../utils";
+import { useUpwindLayout } from "../utils";
 
 const layoutRenderer = defineComponent({
   name: "LayoutRenderer",
@@ -38,7 +38,7 @@ const layoutRenderer = defineComponent({
     ...rendererProps<Layout>(),
   },
   setup(props: RendererProps<Layout>) {
-    return useupwindLayout(useJsonFormsLayout(props));
+    return useUpwindLayout(useJsonFormsLayout(props));
   },
   computed: {
     layoutClassObject(): any {
@@ -58,3 +58,4 @@ export const tester = { rank: 1, controlType: isLayout };
 //   tester: rankWith(1, isLayout),
 // };
 </script>
+../utils ../utils

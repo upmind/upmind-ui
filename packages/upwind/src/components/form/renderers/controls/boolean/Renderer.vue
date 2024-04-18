@@ -46,7 +46,7 @@ import { useStyles } from "../../../../../utils";
 import type { PropType } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { InputSize } from "../types";
+import type { InputProps } from "../types";
 import { isNull, isEmpty, isNil } from "lodash-es";
 // ----------------------------------------------
 
@@ -59,7 +59,7 @@ export default defineComponent({
   props: {
     ...rendererProps<ControlElement>(),
     size: {
-      type: String as PropType<InputSize>,
+      type: String as PropType<InputProps["size"]>,
       default: null,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
@@ -119,3 +119,4 @@ export default defineComponent({
 
 export const tester = { rank: 3, controlType: isBooleanControl };
 </script>
+../../utils ../../utils

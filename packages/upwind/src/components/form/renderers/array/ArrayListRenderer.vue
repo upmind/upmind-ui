@@ -56,7 +56,7 @@ import {
   rendererProps,
   useJsonFormsArrayControl,
 } from "@jsonforms/vue";
-import { useupwindArrayControl } from "../utils";
+import { useUpwindArrayControl } from "../utils";
 import ArrayListElement from "./ArrayListElement.vue";
 
 const controlRenderer = defineComponent({
@@ -69,7 +69,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useupwindArrayControl(useJsonFormsArrayControl(props));
+    return useUpwindArrayControl(useJsonFormsArrayControl(props));
   },
   computed: {
     noData(): boolean {
@@ -95,3 +95,4 @@ export const tester = {
   controlType: schemaTypeIs("array"),
 };
 </script>
+../utils ../utils

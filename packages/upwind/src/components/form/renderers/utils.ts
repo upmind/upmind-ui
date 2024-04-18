@@ -1,4 +1,4 @@
-import { useStyles } from "../styles";
+import { useStyles } from "./styles";
 import { computed, ref } from "vue";
 import { merge, cloneDeep } from "lodash-es";
 
@@ -8,6 +8,11 @@ import {
   getFirstPrimitiveProp,
   Resolve,
 } from "@jsonforms/core";
+
+import type { JsonFormsRendererRegistryEntry, Tester } from "@jsonforms/core";
+import { rankWith } from "@jsonforms/core";
+
+// -----------------------------------------------------------------------------
 
 /**
  * Adds styles, isFocused, appliedOptions and onChange
@@ -66,7 +71,7 @@ export const useUpwindRenderer = <
 /**
  * Adds styles and appliedOptions
  */
-export const useupwindLayout = <I extends { layout: any }>(input: I) => {
+export const useUpwindLayout = <I extends { layout: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -84,7 +89,7 @@ export const useupwindLayout = <I extends { layout: any }>(input: I) => {
 /**
  * Adds styles and appliedOptions
  */
-export const useupwindLabel = <I extends { label: any }>(input: I) => {
+export const useUpwindLabel = <I extends { label: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -102,7 +107,7 @@ export const useupwindLabel = <I extends { label: any }>(input: I) => {
 /**
  * Adds styles, appliedOptions and childUiSchema
  */
-export const useupwindArrayControl = <I extends { control: any }>(input: I) => {
+export const useUpwindArrayControl = <I extends { control: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -147,3 +152,14 @@ export const useupwindArrayControl = <I extends { control: any }>(input: I) => {
     childLabelForIndex,
   };
 };
+
+export function registerEntry(
+  renderer: any,
+  { rank, controlType }: { rank: number; controlType: Tester }
+) {
+  const entry: JsonFormsRendererRegistryEntry = {
+    renderer,
+    tester: rankWith(rank, controlType),
+  };
+  return entry;
+}
