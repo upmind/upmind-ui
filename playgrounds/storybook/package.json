@@ -22,7 +22,6 @@
     "@storybook/vue3": "^8.0.8",
     "@storybook/vue3-vite": "^8.0.8",
     "@types/lodash-es": "^4.17.12",
-    "@upmind/upwind": "^0.0.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
@@ -31,7 +30,9 @@
     "vite-svg-loader": "^5.1.0"
   },
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.12",
+    "@storybook/addon-themes": "^8.0.8",
+    "@tailwindcss/typography": "^0.5.10",
+    "@upmind/upwind": "^0.0.0",
     "lodash-es": "^4.17.21",
     "tailwindcss-themer": "^4.0.0"
   }

@@ -18,7 +18,7 @@ import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isObject } from "lodash-es";
+import { find, isObject, includes } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -41,24 +41,37 @@ export default defineComponent({
   setup(props) {
     const styles = useStyles("icon", props, config, props.upwindConfig);
 
-    const svg = ref(null);
+    const icons = import.meta.glob("@icons/**/*.svg", {
+      as: "raw",
+      eager: false,
+    });
+
+    const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
+    const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
+    const svg = ref();
 
     watchEffect(async () => {
-      try {
-        const iconsImport = import.meta.glob("@/assets/icons/**/*.svg", {
-          as: "raw",
-          eager: false,
+      const asyncImport = find(icons, (fn, iconPath) =>
+        includes(iconPath, `${safePath}${safeName}.svg`)
+      );
+
+      if (!asyncImport) {
+        console.warn("icon", "import not found", {
+          icon: props.icon,
+          icons,
         });
-
-        const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
-        const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
-
-        svg.value = (await iconsImport[
-          `/src/assets/icons/${safePath}${safeName}.svg`
-        ]()) as any;
-      } catch {
         svg.value = null;
+        return;
       }
+
+      svg.value = await asyncImport().catch(error => {
+        console.error("icon", "import error", {
+          icon: props.icon,
+          error,
+          icons,
+        });
+        return null;
+      });
     });
 
     return {

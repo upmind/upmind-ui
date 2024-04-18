@@ -5,7 +5,7 @@ import typography from "@tailwindcss/typography";
 import { find, omit } from "lodash-es";
 
 // --- Themes
-import themes from "./assets/themes";
+import themes from "./stories/assets/themes";
 const defaultTheme = omit(find(themes, ["name", "Light"]), [
   "selectors",
   "mediaQuery",
@@ -18,6 +18,7 @@ export default {
   content: [
     "./src/**/*.{html,vue,js,tsx}",
     // "./src/components/prelineRenderers/styles/*.ts",
+    "./.storybook/**/*.{js,jsx,ts,tsx}",
     "../../packages/upwind/src/**/*.{html,vue,js,tsx,ts}",
   ],
   theme: {

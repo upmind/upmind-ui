@@ -9,7 +9,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./stories', import.meta.url))
+      '@': fileURLToPath(new URL('./stories', import.meta.url)),
+      '@icons': fileURLToPath(new URL('./stories/assets/icons', import.meta.url)),
     }
   }
 })
