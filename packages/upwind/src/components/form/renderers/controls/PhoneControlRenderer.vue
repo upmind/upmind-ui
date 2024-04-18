@@ -175,4 +175,3 @@ const isPhoneControl = (): Tester =>
 
 export const tester = { rank: 2, controlType: isPhoneControl() };
 </script>
-../utils ../utils

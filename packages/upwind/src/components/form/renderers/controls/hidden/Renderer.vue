@@ -54,4 +54,3 @@ export const tester = {
   ),
 };
 </script>
-../../utils ../../utils

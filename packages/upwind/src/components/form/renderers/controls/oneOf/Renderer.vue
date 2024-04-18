@@ -1,34 +1,42 @@
 <template>
   <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
-    <input
+    <select
       :autocomplete="appliedOptions.autocomplete"
       :cols="appliedOptions.cols"
       :disabled="!control.enabled"
-      :id="control.id + '-input'"
+      :id="control.id + '-select'"
       :max="appliedOptions?.max || control?.schema?.maximum"
       :min="appliedOptions?.min || control?.schema?.minimum"
       :placeholder="appliedOptions.placeholder"
-      :type="appliedOptions.type"
       :value="control.data"
       @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
-      :class="styles.input.root"
-    />
+      :class="styles.select.root"
+    >
+      <option key="empty" value="" :class="styles.select.option" />
+      <option
+        v-for="optionElement in control.options"
+        :key="optionElement.value"
+        :value="optionElement.value"
+        :label="optionElement.label"
+        :class="styles.select.option"
+      ></option>
+    </select>
   </control-wrapper>
 </template>
 
 <script lang="ts">
 // --- global
 import { defineComponent } from "vue";
-import { isStringControl } from "@jsonforms/core";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { isOneOfEnumControl } from "@jsonforms/core";
+import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 
 // --- components
 import ControlWrapper from "../wrapper/Renderer.vue";
 
 // --- local
-import config from "./config.cva";
+import config from "../enum/config.cva";
 
 // --- utils
 import { useUpwindRenderer } from "../../utils";
@@ -42,7 +50,7 @@ import type { InputProps } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "StringRenderer",
+  name: "SelectRenderer",
   components: {
     ControlWrapper,
   },
@@ -60,10 +68,13 @@ export default defineComponent({
     },
   },
   setup(props: RendererProps<ControlElement>) {
-    const styles = useStyles("input", props, config, props.upwindConfig);
+    const styles = useStyles("select", props, config, props.upwindConfig);
     const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      target => target.value || undefined
+      useJsonFormsOneOfEnumControl(props),
+      target =>
+        target.selectedIndex
+          ? renderer.control.value.options[target.selectedIndex - 1].value
+          : undefined
     );
     return {
       ...renderer,
@@ -72,5 +83,5 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 1, controlType: isStringControl };
+export const tester = { rank: 2, controlType: isOneOfEnumControl };
 </script>
