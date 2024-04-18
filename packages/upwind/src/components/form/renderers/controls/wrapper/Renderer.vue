@@ -1,16 +1,16 @@
 <template>
-  <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
+  <div v-if="meta.isVisible" :class="styles.inputControl.root">
     <!-- label -->
     <div class="label" :class="styles.inputControlLabel.root">
-      <label
-        v-if="label"
-        :for="id + '-input'"
-        :class="styles.inputControlLabel.text"
-      >
+      <label v-if="label" :for="id" :class="styles.inputControlLabel.text">
         {{ label }}
       </label>
 
-      <span class="status" :class="styles.inputControlLabel.status">
+      <span
+        class="status"
+        :class="styles.inputControlLabel.status"
+        v-if="!hideStatus"
+      >
         <span
           v-if="meta.showAsRequired"
           :class="styles.inputControlLabel.required"
@@ -170,14 +170,22 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+
+    hideStatus: {
+      type: Boolean,
+      default: false,
+    },
+
     optionalText: {
       type: String,
       default: "",
     },
+
     persistDescription: {
       type: Boolean,
       default: true,
     },
+
     prefix: {
       type: String,
       default: null,
@@ -197,6 +205,7 @@ export default defineComponent({
     },
 
     // ---
+
     required: {
       type: Boolean,
       default: false,
@@ -224,7 +233,6 @@ export default defineComponent({
       default: null,
     },
   },
-  computed: {},
   setup(props) {
     const meta = computed(() => ({
       isInvalid: !isEmpty(props.errors),
@@ -257,5 +265,6 @@ export default defineComponent({
       styles,
     };
   },
+  computed: {},
 });
 </script>

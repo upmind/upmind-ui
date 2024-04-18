@@ -1,5 +1,5 @@
 <template>
-  <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
+  <div v-if="meta.isVisible" :class="styles.inputControl.root">
     <!-- wrapper -->
     <div :class="styles.inputControl.inline">
       <slot
@@ -34,15 +34,15 @@
 
       <!-- label -->
       <div class="label" :class="styles.inputControlLabel.root">
-        <label
-          v-if="label"
-          :for="id + '-input'"
-          :class="styles.inputControlLabel.text"
-        >
+        <label v-if="label" :for="id" :class="styles.inputControlLabel.text">
           {{ label }}
         </label>
 
-        <span class="status" :class="styles.inputControlLabel.status">
+        <span
+          class="status"
+          :class="styles.inputControlLabel.status"
+          v-if="!hideStatus"
+        >
           <span
             v-if="meta.showAsRequired"
             :class="styles.inputControlLabel.required"

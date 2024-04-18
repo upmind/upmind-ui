@@ -44,7 +44,7 @@ export const useUpwindRenderer = <
     const { id, description, errors, label, visible, required, enabled, data } =
       input.control.value;
     return {
-      id,
+      id: `${id}-input`,
       description,
       errors,
       label,
