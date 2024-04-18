@@ -18,18 +18,8 @@
       />
       <upw-icon
         :class="styles.checkbox.icon"
-        :icon="indeterminateIcon"
-        v-if="meta.isIndeterminate"
-      />
-      <upw-icon
-        :class="styles.checkbox.icon"
-        :icon="checkIcon"
-        v-else-if="meta.isChecked"
-      />
-      <upw-icon
-        :class="styles.checkbox.icon"
-        :icon="uncheckIcon"
-        v-else-if="uncheckIcon"
+        :icon="computedIcon"
+        v-if="computedIcon"
       />
     </span>
   </control-wrapper>
@@ -105,16 +95,25 @@ export default defineComponent({
       ...renderer,
       meta,
       styles,
-      checkIcon: computed(
-        () => renderer.appliedOptions.value?.checkIcon || "check"
-      ),
-      uncheckIcon: computed(
-        () => renderer.appliedOptions.value?.uncheckIcon || ""
-      ),
-      indeterminateIcon: computed(
-        () => renderer.appliedOptions.value?.indeterminateIcon || "subtract"
-      ),
     };
+  },
+  computed: {
+    checkedIcon() {
+      return this.appliedOptions?.checkedIcon || "check";
+    },
+    uncheckedIcon() {
+      return this.appliedOptions?.uncheckedIcon || "";
+    },
+    indeterminateIcon() {
+      return this.appliedOptions?.indeterminateIcon || "subtract";
+    },
+    computedIcon() {
+      return this.meta.isIndeterminate
+        ? this.indeterminateIcon
+        : this.meta.isChecked
+          ? this.checkedIcon
+          : this.uncheckedIcon;
+    },
   },
 });
 
