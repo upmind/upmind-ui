@@ -33,7 +33,7 @@
       <slot v-bind="{ meta, styles: styles.inputControl }"></slot>
 
       <!-- label -->
-      <div class="label" tabindex="0" :class="styles.inputControlLabel.root">
+      <div class="label" :class="styles.inputControlLabel.root">
         <label
           v-if="label"
           :for="id + '-input'"

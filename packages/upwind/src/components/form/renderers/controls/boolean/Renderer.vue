@@ -1,28 +1,21 @@
 <template>
   <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
-    <input
-      :autocomplete="appliedOptions.autocomplete"
-      :cols="appliedOptions.cols"
-      :disabled="!control.enabled"
-      :id="control.id + '-input'"
-      :max="appliedOptions?.max || control?.schema?.maximum"
-      :min="appliedOptions?.min || control?.schema?.minimum"
-      :placeholder="appliedOptions.placeholder"
-      type="checkbox"
-      :checked="!!control.data"
-      @blur="isFocused = false"
-      @change="onChange"
-      @focus="isFocused = true"
-      class="sr-only"
-    />
-    <!-- checkbox ui -->
-    <label
-      tabindex="0"
-      :for="control.id + '-input'"
-      :class="styles.checkbox.root"
-      :aria-checked="meta.isChecked"
-      aria-hidden="true"
-    >
+    <span :class="styles.checkbox.root">
+      <input
+        :autocomplete="appliedOptions.autocomplete"
+        :cols="appliedOptions.cols"
+        :disabled="!control.enabled"
+        :id="control.id + '-input'"
+        :max="appliedOptions?.max || control?.schema?.maximum"
+        :min="appliedOptions?.min || control?.schema?.minimum"
+        :placeholder="appliedOptions.placeholder"
+        type="checkbox"
+        :checked="!!control.data"
+        @blur="isFocused = false"
+        @change="onChange"
+        @focus="isFocused = true"
+        :class="styles.checkbox.input"
+      />
       <upw-icon
         :class="styles.checkbox.icon"
         :icon="indeterminateIcon"
@@ -38,7 +31,7 @@
         :icon="uncheckIcon"
         v-else-if="uncheckIcon"
       />
-    </label>
+    </span>
   </control-wrapper>
 </template>
 
