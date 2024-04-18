@@ -46,11 +46,11 @@ export default {
     avatar: cva("size-[1.5em] overflow-hidden rounded-full"),
 
     prefix: cva(
-      "bg-base-100 -ml-2 flex items-center self-stretch rounded-s-lg p-3"
+      "bg-base-100 -ml-2 flex items-center self-stretch rounded-s-lg px-3"
     ),
 
     suffix: cva(
-      "bg-base-100 -mr-2 flex items-center self-stretch rounded-e-lg p-3"
+      "bg-base-100 -mr-2 flex items-center self-stretch rounded-e-lg px-3"
     ),
 
     feedback: cva(
