@@ -243,39 +243,51 @@ export const LinkColorVariants: Story = {
 };
 
 export const LoadingColorVariants: Story = {
-  render: () => ({
+  render: args => ({
     components: { UpwButton },
+    setup() {
+      return { args };
+    },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h3 class="w-full">Loading Color Variants</h3>
-        <upw-button :loading="isLoading" color="primary" label="Primary" />
-        <upw-button :loading="isLoading" color="secondary" label="Secondary" />
-        <upw-button :loading="isLoading" color="accent" label="Accent" />
-        <upw-button :loading="isLoading" color="neutral" label="Neutral" />
-        <upw-button :loading="isLoading" color="info" label="Info" />
-        <upw-button :loading="isLoading" color="success" label="Success" />
-        <upw-button :loading="isLoading" color="error" label="Error" />
-        <upw-button :loading="isLoading" color="warning" label="Warning" />
+        <upw-button v-bind="args" color="primary" label="Primary" />
+        <upw-button v-bind="args" color="secondary" label="Secondary" />
+        <upw-button v-bind="args" color="accent" label="Accent" />
+        <upw-button v-bind="args" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" color="info" label="Info" />
+        <upw-button v-bind="args" color="success" label="Success" />
+        <upw-button v-bind="args" color="error" label="Error" />
+        <upw-button v-bind="args" color="warning" label="Warning" />
       </section>
     `,
   }),
+  args: {
+    loading: true,
+  },
 };
 
 export const DisabledColorVariants: Story = {
-  render: () => ({
+  render: args => ({
     components: { UpwButton },
+    setup() {
+      return { args };
+    },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h3 class="w-full">Disabled Color Variants</h3>
-        <upw-button disabled color="primary" label="Primary" />
-        <upw-button disabled color="secondary" label="Secondary" />
-        <upw-button disabled color="accent" label="Accent" />
-        <upw-button disabled color="neutral" label="Neutral" />
-        <upw-button disabled color="info" label="Info" />
-        <upw-button disabled color="success" label="Success" />
-        <upw-button disabled color="error" label="Error" />
-        <upw-button disabled color="warning" label="Warning" />
+        <upw-button v-bind="args" color="primary" label="Primary" />
+        <upw-button v-bind="args" color="secondary" label="Secondary" />
+        <upw-button v-bind="args" color="accent" label="Accent" />
+        <upw-button v-bind="args" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" color="info" label="Info" />
+        <upw-button v-bind="args" color="success" label="Success" />
+        <upw-button v-bind="args" color="error" label="Error" />
+        <upw-button v-bind="args" color="warning" label="Warning" />
       </section>
     `,
   }),
+  args: {
+    disabled: true,
+  },
 };
