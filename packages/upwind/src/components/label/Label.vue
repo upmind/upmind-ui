@@ -1,8 +1,8 @@
 <template>
-  <div class="label" :class="styles.label.root">
-    <label v-if="label" :for="id" :class="styles.label.text">
+  <label class="label" :for="id" :class="styles.label.root">
+    <span v-if="label" :class="styles.label.text">
       {{ label }}
-    </label>
+    </span>
 
     <span class="status" :class="styles.label.status" v-if="!hideStatus">
       <span v-if="meta.showAsRequired" :class="styles.label.required">
@@ -24,7 +24,7 @@
         icon="check-circle"
       />
     </span>
-  </div>
+  </label>
 </template>
 
 <script lang="ts">
