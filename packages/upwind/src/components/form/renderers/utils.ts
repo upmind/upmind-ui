@@ -1,4 +1,3 @@
-import { useStyles } from "./styles";
 import { computed, ref } from "vue";
 import { merge, cloneDeep, isNil } from "lodash-es";
 
@@ -60,7 +59,6 @@ export const useUpwindRenderer = <
 
   return {
     ...input,
-    styles: useStyles(input.control.value.uischema),
     isFocused,
     appliedOptions,
     controlWrapper,
@@ -81,7 +79,6 @@ export const useUpwindLayout = <I extends { layout: any }>(input: I) => {
   );
   return {
     ...input,
-    styles: useStyles(input.layout.value.uischema),
     appliedOptions,
   };
 };
@@ -99,7 +96,6 @@ export const useUpwindLabel = <I extends { label: any }>(input: I) => {
   );
   return {
     ...input,
-    styles: useStyles(input.label.value.uischema),
     appliedOptions,
   };
 };
@@ -169,7 +165,6 @@ export const useUpwindArrayRenderer = <I extends { control: any }>(
 
   return {
     ...input,
-    styles: useStyles(input.control.value.uischema),
     appliedOptions,
     controlWrapper,
     childUiSchema,

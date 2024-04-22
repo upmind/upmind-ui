@@ -18,8 +18,7 @@
     "javascript",
     "xstate",
     "tailwind",
-    "daisyui",
-    "primevue"
+    "storybook"
   ],
   "authors": [
     "Dom da Costa <dominic.dacosta@upmind.com>"
@@ -34,6 +33,7 @@
     "start": "npm run start --workspaces --if-present",
     "start:labs": "npm run dev --workspace=playgrounds/labs",
     "start:checkout": "npm run dev --workspace=playgrounds/checkout",
+    "start:storybook": "npm run storybook --workspace=playgrounds/storybook",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "format": "npm run format --workspaces --if-present",
@@ -56,9 +56,6 @@
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.5.3"
-  },
-  "dependencies": {
-    "typescript": "^5.0.2"
   },
   "workspaces": [
     "packages/flow",
