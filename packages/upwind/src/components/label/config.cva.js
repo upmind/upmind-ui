@@ -6,7 +6,7 @@ export default {
     root: cva(
       "flex w-full items-center justify-between gap-x-3 text-current outline-none"
     ),
-    text: cva("text-[0.875em]"),
+    text: cva("flex-1 text-[0.875em]"),
     required: cva(""),
     optional: cva(""),
     status: cva(

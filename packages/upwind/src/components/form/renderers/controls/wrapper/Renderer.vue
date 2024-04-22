@@ -13,7 +13,7 @@
       :invalid="meta.isInvalid"
       :disabled="meta.isDisabled"
       :size="size"
-      :upwindConfig="config.label"
+      :upwindConfig="[config, upwindConfig]"
     />
 
     <!-- wrapper -->
