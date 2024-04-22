@@ -66,6 +66,7 @@
     "packages/upwind",
     "packages/client",
     "playgrounds/labs",
-    "playgrounds/checkout"
+    "playgrounds/checkout",
+    "playgrounds/storybook"
   ]
 }
