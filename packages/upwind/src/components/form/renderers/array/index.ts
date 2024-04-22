@@ -2,12 +2,12 @@ import { registerEntry } from "../utils";
 
 // -----------------------------------------------------------------------------
 
-export { default as ArrayListRenderer } from "./ArrayListRenderer.vue";
-
-import ArrayRendererEntry, {
-  tester as arrayRendererTest,
-} from "./ArrayListRenderer.vue";
+import ArrayRenderer, { tester as arrayRendererTest } from "./Renderer.vue";
+import StringRenderer, {
+  tester as stringRendererTest,
+} from "./StringRenderer.vue";
 
 export const arrayRenderers = [
-  registerEntry(ArrayRendererEntry, arrayRendererTest),
+  registerEntry(ArrayRenderer, arrayRendererTest),
+  registerEntry(StringRenderer, stringRendererTest),
 ];

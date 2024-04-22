@@ -1,5 +1,5 @@
 // --- global
-import { unref, inject, ref, toRaw, computed } from "vue";
+import { unref, inject, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { cx } from "class-variance-authority";
 // import type { VariantProps } from "class-variance-authority";
@@ -18,6 +18,7 @@ import {
   omitBy,
   reduce,
   set,
+  flattenDeep,
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -55,6 +56,7 @@ export function useStyles(
   return computed(() => {
     // ensure component is an array so we can loop over it and handle multiple components
     components = isArray(components) ? components : [components];
+    configs = flattenDeep(configs); // in case were passed nested arrays
 
     // Add any provided style overrides to our config, aka globalConfig
     const globalConfig = inject("upwind", {});
@@ -74,6 +76,7 @@ export function useStyles(
         configs,
         (result, config) => {
           config = toRaw(unref(config));
+
           const componentConfig = get(config, component);
 
           if (isObject(componentConfig) && !isEmpty(componentConfig)) {

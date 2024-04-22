@@ -12,8 +12,8 @@
       class="w-full max-w-xl"
     />
 
-    <code class="w-1/2 flex-grow rounded-lg bg-base-100 p-4">
-      <pre>{{ model }}</pre>
+    <code class="w-1/2 flex-grow self-stretch rounded-lg bg-base-100 p-4">
+      <pre class="sticky top-0">{{ model }}</pre>
     </code>
   </div>
 </template>
@@ -31,7 +31,7 @@ const today = useDateFormat(useNow(), "YYYY-MM-DD");
 const now = useDateFormat(useNow(), "YYYY-MM-DD HH:mm:ss");
 
 const schema = {
-  required: ["name", "text", "rating", "accept"],
+  required: ["name", "text", "rating", "accept", "oneOfEnum"],
   properties: {
     name: {
       type: ["string"],
@@ -126,6 +126,59 @@ const schema = {
       maximum: 365,
     },
 
+    oneOfEnum: {
+      title: "Whats the situation?",
+      type: ["string", "null"],
+      description: "Hows your day been?",
+      oneOf: [
+        {
+          const: "fu",
+          title: "Started Badly",
+          description:
+            "It was a bad day initially...but there wa slight at the end of the tunnel",
+        },
+        {
+          const: "bar",
+          title: "Ended Badly",
+          description:
+            "It started with hope...then ended in the pits of dispair",
+        },
+        {
+          const: "fubar",
+          title: "Was a total nightmare",
+          description: "Enough said",
+        },
+      ],
+    },
+
+    multiEnum: {
+      type: "array",
+      uniqueItems: true,
+      title: "Pick one or more",
+      description: "...catch a tiger by the toe",
+      items: {
+        type: "string",
+        oneOf: [
+          {
+            const: "eeny",
+            title: "Eeny",
+          },
+          {
+            const: "meeny",
+            title: "Meeny ",
+          },
+          {
+            const: "miny",
+            title: "Miny",
+          },
+          {
+            const: "moe",
+            title: "Moe",
+          },
+        ],
+      },
+    },
+
     done: {
       type: ["boolean", "null"],
       title: "Is the Task Complete?",
@@ -150,191 +203,200 @@ const schema = {
 const uischema = {
   type: "VerticalLayout",
   elements: [
-    {
-      type: "Control",
-      scope: "#/properties/name",
-      options: {
-        placeholder: "What needs to be done?",
-        focus: true,
-        prefix: "$",
-        suffix: ".00",
-        prependIcon: "cog",
-        prependAvatar: { name: "ZA", path: "flags" },
-        appendIcon: "devices",
-        appendAvatar: { name: "GB", path: "flags" },
-      },
-    },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/name",
+    //   options: {
+    //     placeholder: "What needs to be done?",
+    //     focus: true,
+    //     prefix: "$",
+    //     suffix: ".00",
+    //     prependIcon: "cog",
+    //     prependAvatar: { name: "ZA", path: "flags" },
+    //     appendIcon: "devices",
+    //     appendAvatar: { name: "GB", path: "flags" },
+    //   },
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/description",
+    //   options: {
+    //     multi: true,
+    //   },
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/note",
+    //   options: {
+    //     multi: true,
+    //     rows: 6,
+    //   },
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/text",
+    //   options: {},
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/url",
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/email",
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/password",
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/text2",
+    //   options: { prependIcon: "cog" },
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/text3",
+    //   options: { appendIcon: "devices" },
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/rating",
+    //   options: {
+    //     styles: {
+    //       control: {
+    //         rating: {
+    //           item: "form-radio mask-star-2",
+    //           item1: "border-green-400 text-green-400",
+    //           item2: "border-lime-400 text-lime-400",
+    //           item3: "border-yellow-400 text-yellow-400",
+    //           item4: "border-orange-400 text-orange-400",
+    //           item5: "border-red-400 text-red-400",
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/impact",
+    //   options: {
+    //     // persistDescription: true,
+    //     styles: {
+    //       control: {
+    //         rating: {
+    //           item: "form-radio mask-star-2",
+    //           item1: "border-green-400 text-green-400",
+    //           item2: "border-lime-400 text-lime-400",
+    //           item3: "border-yellow-400 text-yellow-400",
+    //           item4: "border-orange-400 text-orange-400",
+    //           item5: "border-red-400 text-red-400",
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
+
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/dueDate",
+    //   options: {},
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/dueDateTime",
+    //   options: {},
+    // },
 
     {
       type: "Control",
-      scope: "#/properties/description",
-      options: {
-        multi: true,
-      },
-    },
-    {
-      type: "Control",
-      scope: "#/properties/note",
-      options: {
-        multi: true,
-        rows: 6,
-      },
-    },
-
-    {
-      type: "Control",
-      scope: "#/properties/text",
+      scope: "#/properties/multiEnum",
       options: {},
     },
 
     {
       type: "Control",
-      scope: "#/properties/url",
-    },
-    {
-      type: "Control",
-      scope: "#/properties/email",
-    },
-    {
-      type: "Control",
-      scope: "#/properties/password",
-    },
-    {
-      type: "Control",
-      scope: "#/properties/text2",
-      options: { prependIcon: "cog" },
-    },
-
-    {
-      type: "Control",
-      scope: "#/properties/text3",
-      options: { appendIcon: "devices" },
-    },
-
-    {
-      type: "Control",
-      scope: "#/properties/rating",
+      scope: "#/properties/oneOfEnum",
       options: {
-        // persistDescription: true,
-        styles: {
-          control: {
-            rating: {
-              item: "form-radio mask-star-2",
-              item1: "border-green-400 text-green-400",
-              item2: "border-lime-400 text-lime-400",
-              item3: "border-yellow-400 text-yellow-400",
-              item4: "border-orange-400 text-orange-400",
-              item5: "border-red-400 text-red-400",
-            },
-          },
-        },
+        format: "radio",
       },
     },
 
-    {
-      type: "Control",
-      scope: "#/properties/impact",
-      options: {
-        // persistDescription: true,
-        styles: {
-          control: {
-            rating: {
-              item: "form-radio mask-star-2",
-              item1: "border-green-400 text-green-400",
-              item2: "border-lime-400 text-lime-400",
-              item3: "border-yellow-400 text-yellow-400",
-              item4: "border-orange-400 text-orange-400",
-              item5: "border-red-400 text-red-400",
-            },
-          },
-        },
-      },
-    },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/recurrence",
+    //   options: {
+    //     format: "radio",
+    //   },
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/recurrenceInterval",
+    //   options: {
+    //     min: 1,
+    //     max: 365,
+    //     trim: true,
+    //     suffix: "days",
+    //   },
+    //   rule: {
+    //     effect: "SHOW",
+    //     condition: {
+    //       scope: "#/properties/recurrence",
+    //       schema: { type: "string", const: "Daily" },
+    //     },
+    //   },
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/recurrenceInterval",
+    //   options: {
+    //     min: 1,
+    //     max: 52,
+    //     suffix: "weeks",
+    //     trim: true,
+    //   },
+    //   rule: {
+    //     effect: "SHOW",
+    //     condition: {
+    //       scope: "#/properties/recurrence",
+    //       schema: { type: "string", const: "Weekly" },
+    //     },
+    //   },
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/recurrenceInterval",
+    //   options: {
+    //     min: 1,
+    //     max: 12,
+    //     suffix: "months",
+    //     trim: true,
+    //   },
+    //   rule: {
+    //     effect: "SHOW",
+    //     condition: {
+    //       scope: "#/properties/recurrence",
+    //       schema: { type: "string", const: "Monthly" },
+    //     },
+    //   },
+    // },
 
-    {
-      type: "Control",
-      scope: "#/properties/dueDate",
-      options: {},
-    },
-    {
-      type: "Control",
-      scope: "#/properties/dueDateTime",
-      options: {},
-    },
-
-    {
-      type: "HorizontalLayout",
-      elements: [
-        // {
-        //   type: "Control",
-        //   scope: "#/properties/recurrence",
-        //   options: {
-        //     trim: true,
-        //   },
-        // },
-        // {
-        //   type: "Control",
-        //   scope: "#/properties/recurrenceInterval",
-        //   options: {
-        //     min: 1,
-        //     max: 365,
-        //     trim: true,
-        //     suffix: "days",
-        //   },
-        //   rule: {
-        //     effect: "SHOW",
-        //     condition: {
-        //       scope: "#/properties/recurrence",
-        //       schema: { type: "string", const: "Daily" },
-        //     },
-        //   },
-        // },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval",
-          options: {
-            min: 1,
-            max: 52,
-            suffix: "weeks",
-            trim: true,
-          },
-          rule: {
-            effect: "SHOW",
-            condition: {
-              scope: "#/properties/recurrence",
-              schema: { type: "string", const: "Weekly" },
-            },
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/recurrenceInterval",
-          options: {
-            min: 1,
-            max: 12,
-            suffix: "months",
-            trim: true,
-          },
-          rule: {
-            effect: "SHOW",
-            condition: {
-              scope: "#/properties/recurrence",
-              schema: { type: "string", const: "Monthly" },
-            },
-          },
-        },
-      ],
-    },
-    {
-      type: "Control",
-      scope: "#/properties/done",
-      options: {},
-    },
-    {
-      type: "Control",
-      scope: "#/properties/accept",
-      options: {},
-    },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/done",
+    //   options: {},
+    // },
+    // {
+    //   type: "Control",
+    //   scope: "#/properties/accept",
+    //   options: {},
+    // },
   ],
 };
 
