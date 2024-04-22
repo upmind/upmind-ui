@@ -35,6 +35,9 @@ import BooleanRenderer, {
 } from "./boolean/Renderer.vue";
 
 import EnumRenderer, { tester as enumRendererTest } from "./enum/Renderer.vue";
+import EnumArrayRenderer, {
+  tester as enumArrayRendererTest,
+} from "./enum/ArrayRenderer.vue";
 
 import OneOfRenderer, {
   tester as oneOfRendererTest,
@@ -68,6 +71,7 @@ export const controlRenderers = [
   registerEntry(DateRenderer, dateRendererTest),
   registerEntry(BooleanRenderer, booleanRendererTest),
   registerEntry(EnumRenderer, enumRendererTest),
+  registerEntry(EnumArrayRenderer, enumArrayRendererTest),
   registerEntry(OneOfRenderer, oneOfRendererTest),
   registerEntry(OneOfRadioRenderer, oneOfRadioRendererTest),
 

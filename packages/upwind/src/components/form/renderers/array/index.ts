@@ -2,12 +2,6 @@ import { registerEntry } from "../utils";
 
 // -----------------------------------------------------------------------------
 
-export { default as ArrayListRenderer } from "./ArrayListRenderer.vue";
+import ArrayRenderer, { tester as arrayRendererTest } from "./Renderer.vue";
 
-import ArrayRendererEntry, {
-  tester as arrayRendererTest,
-} from "./ArrayListRenderer.vue";
-
-export const arrayRenderers = [
-  registerEntry(ArrayRendererEntry, arrayRendererTest),
-];
+export const arrayRenderers = [registerEntry(ArrayRenderer, arrayRendererTest)];

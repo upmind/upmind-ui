@@ -16,42 +16,7 @@
       :upwindConfig="config.label"
     />
 
-    <ul :id="control.id + '-radio'" :class="styles.list.wrapper">
-      <template :class="styles.list.title" v-if="appliedOptions?.title">
-        {{ appliedOptions.title }}
-      </template>
-
-      <li class="sr-only" :class="styles.list.option">
-        <control-wrapper-inline
-          :id="`${control.id}-option-empty`"
-          :dirty="controlWrapper.dirty"
-          :disabled="controlWrapper.disabled"
-          :errors="controlWrapper.errors"
-          :focused="controlWrapper.focused"
-          :is-focused="isFocused"
-          :size="size"
-          :visible="controlWrapper.visible"
-          label=""
-          :upwind-config="[config, upwindConfig]"
-          hide-status
-        >
-          <upw-radio
-            key="empty"
-            :name="control.path"
-            :disabled="!control.enabled"
-            :id="`${control.id}-option-empty`"
-            :placeholder="appliedOptions.placeholder"
-            :invalid="!!control?.errors"
-            :model-value="!control?.data"
-            value=""
-            @blur="isFocused = false"
-            @change="onChange"
-            @focus="isFocused = true"
-            :upwind-config="[config, upwindConfig]"
-          />
-        </control-wrapper-inline>
-      </li>
-
+    <ul :id="control.id + '-input'" :class="styles.list.wrapper">
       <li
         v-for="(optionElement, optionIndex) in control.options"
         :key="optionElement.value"
@@ -69,15 +34,15 @@
           :upwind-config="[config, upwindConfig]"
           hide-status
         >
-          <upw-radio
+          <upw-checkbox
             :name="control.path"
             :disabled="!control.enabled"
             :id="`${control.id}-option-${optionIndex}`"
             :invalid="!!control?.errors"
-            :model-value="control?.data == optionElement.value"
+            :model-value="isSelected(optionElement.value)"
             :value="optionElement.value"
             @blur="isFocused = false"
-            @change="onChange"
+            @change="toggle"
             @focus="isFocused = true"
             :upwind-config="[config, upwindConfig]"
           />
@@ -89,35 +54,41 @@
 
 <script lang="ts">
 // --- global
-import { defineComponent, computed } from "vue";
-import { isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
-import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
+import { computed, defineComponent } from "vue";
+import {
+  uiTypeIs,
+  and,
+  schemaMatches,
+  hasType,
+  schemaSubPathMatches,
+} from "@jsonforms/core";
+import { rendererProps, useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 
 // --- components
 import ControlWrapperInline from "../wrapper/RendererInline.vue";
-import UpwRadio from "../../../../radio/Radio.vue";
+import UpwCheckbox from "../../../../checkbox/Checkbox.vue";
 import UpwLabel from "../../../../label/Label.vue";
 
 // --- local
 import config from "./config.cva";
 
 // --- utils
-import { useUpwindRenderer } from "../../utils";
+import { useUpwindArrayRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
-import { isEmpty, isNil } from "lodash-es";
+import { includes, isEmpty, isNil } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { ControlElement } from "@jsonforms/core";
+import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { InputProps } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "RadioRenderer",
+  name: "ArrayRenderer",
   components: {
     ControlWrapperInline,
-    UpwRadio,
+    UpwCheckbox,
     UpwLabel,
   },
   props: {
@@ -135,9 +106,8 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles(["list"], props, config, props.upwindConfig);
-    const renderer = useUpwindRenderer(
-      useJsonFormsOneOfEnumControl(props),
-      target => (target.selectedIndex === 0 ? undefined : target.value)
+    const renderer = useUpwindArrayRenderer(
+      useJsonFormsMultiEnumControl(props)
     );
 
     const meta = computed(() => ({
@@ -152,17 +122,56 @@ export default defineComponent({
       isDisabled: renderer.controlWrapper.value.disabled,
     }));
 
+    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
     return {
       ...renderer,
       meta,
       styles,
-      config, // pass the radio config to the radio component
+      config, // pass the  config to the  component
     };
+  },
+  methods: {
+    isSelected(value) {
+      return includes(this.control.data, value);
+    },
+    toggle(event) {
+      const checked = event.target.checked;
+      const value = event.target.value;
+      debugger;
+      if (checked) {
+        this.addItem(this.control.path, value);
+      } else {
+        this.removeItem?.(this.control.path, value);
+      }
+    },
   },
 });
 
+const hasOneOfItems = (schema: JsonSchema) =>
+  schema.oneOf !== undefined &&
+  schema.oneOf.length > 0 &&
+  (schema.oneOf as JsonSchema[]).every((entry: JsonSchema) => {
+    return entry.const !== undefined;
+  });
+
+const hasEnumItems = (schema: JsonSchema) =>
+  schema.type === "string" && schema.enum !== undefined;
+
 export const tester = {
-  rank: 3,
-  controlType: and(isOneOfEnumControl, optionIs("format", "radio")),
+  rank: 5,
+  controlType: and(
+    uiTypeIs("Control"),
+    and(
+      schemaMatches(
+        schema =>
+          hasType(schema, "array") &&
+          !Array.isArray(schema.items) &&
+          schema.uniqueItems === true
+      ),
+      schemaSubPathMatches("items", schema => {
+        return hasOneOfItems(schema) || hasEnumItems(schema);
+      })
+    )
+  ),
 };
 </script>
