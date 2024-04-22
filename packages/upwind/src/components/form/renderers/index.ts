@@ -1,7 +1,6 @@
 export * from "./array";
 export * from "./controls";
 export * from "./layouts";
-export * from "./styles";
 export * from "./utils";
 export * from "./label";
 

@@ -31,7 +31,7 @@ const today = useDateFormat(useNow(), "YYYY-MM-DD");
 const now = useDateFormat(useNow(), "YYYY-MM-DD HH:mm:ss");
 
 const schema = {
-  required: ["name", "text", "rating", "accept"],
+  required: ["name", "text", "rating", "accept", "oneOfEnum"],
   properties: {
     name: {
       type: ["string"],
@@ -154,6 +154,8 @@ const schema = {
     multiEnum: {
       type: "array",
       uniqueItems: true,
+      title: "Pick one or more",
+      description: "...catch a tiger by the toe",
       items: {
         type: "string",
         oneOf: [

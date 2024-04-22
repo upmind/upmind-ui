@@ -21,37 +21,6 @@
         {{ appliedOptions.title }}
       </template>
 
-      <li class="sr-only" :class="styles.list.option">
-        <control-wrapper-inline
-          :id="`${control.id}-option-empty`"
-          :dirty="controlWrapper.dirty"
-          :disabled="controlWrapper.disabled"
-          :errors="controlWrapper.errors"
-          :focused="controlWrapper.focused"
-          :is-focused="isFocused"
-          :size="size"
-          :visible="controlWrapper.visible"
-          label=""
-          :upwind-config="[config, upwindConfig]"
-          hide-status
-        >
-          <upw-radio
-            key="empty"
-            :name="control.path"
-            :disabled="!control.enabled"
-            :id="`${control.id}-option-empty`"
-            :placeholder="appliedOptions.placeholder"
-            :invalid="!!control?.errors"
-            :model-value="!control?.data"
-            value=""
-            @blur="isFocused = false"
-            @change="onChange"
-            @focus="isFocused = true"
-            :upwind-config="[config, upwindConfig]"
-          />
-        </control-wrapper-inline>
-      </li>
-
       <li
         v-for="(optionElement, optionIndex) in control.options"
         :key="optionElement.value"
@@ -68,13 +37,14 @@
           :label="optionElement.label"
           :upwind-config="[config, upwindConfig]"
           hide-status
+          hide-feedback
         >
           <upw-radio
             :name="control.path"
             :disabled="!control.enabled"
             :id="`${control.id}-option-${optionIndex}`"
             :invalid="!!control?.errors"
-            :model-value="control?.data == optionElement.value"
+            :model-value="isSelected(optionElement.value)"
             :value="optionElement.value"
             @blur="isFocused = false"
             @change="onChange"
@@ -84,6 +54,16 @@
         </control-wrapper-inline>
       </li>
     </ul>
+
+    <!-- feedback -->
+    <div class="feedback" :class="styles.feedback.root">
+      <upw-icon
+        key="icon"
+        :class="styles.feedback.icon"
+        icon="information-circle"
+      />
+      <span key="details">{{ control.errors || control.description }}</span>
+    </div>
   </div>
 </template>
 
@@ -97,6 +77,7 @@ import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import ControlWrapperInline from "../wrapper/RendererInline.vue";
 import UpwRadio from "../../../../radio/Radio.vue";
 import UpwLabel from "../../../../label/Label.vue";
+import UpwIcon from "../../../../icon/Icon.vue";
 
 // --- local
 import config from "./config.cva";
@@ -119,6 +100,7 @@ export default defineComponent({
     ControlWrapperInline,
     UpwRadio,
     UpwLabel,
+    UpwIcon,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -134,30 +116,47 @@ export default defineComponent({
     },
   },
   setup(props: RendererProps<ControlElement>) {
-    const styles = useStyles(["list"], props, config, props.upwindConfig);
-    const renderer = useUpwindRenderer(
-      useJsonFormsOneOfEnumControl(props),
-      target => (target.selectedIndex === 0 ? undefined : target.value)
-    );
-
     const meta = computed(() => ({
-      isInvalid: !isEmpty(renderer.controlWrapper.value.errors),
+      isInvalid: !isEmpty(renderer.control.value.errors),
       isValid:
-        isEmpty(renderer.controlWrapper.value.errors) &&
-        !isNil(renderer.controlWrapper.value.data),
+        isEmpty(renderer.control.value.errors) &&
+        !isNil(renderer.control.value.data),
       isDirty: renderer.controlWrapper.value.dirty,
       isFocused: renderer.controlWrapper.value.focused,
       isRequired: renderer.controlWrapper.value.required,
       isVisible: renderer.controlWrapper.value.visible,
       isDisabled: renderer.controlWrapper.value.disabled,
+      hasFeedback:
+        (isEmpty(renderer.control.value.errors) &&
+          !isNil(renderer.control.value.description) &&
+          (renderer.controlWrapper.value.focused ||
+            !renderer.controlWrapper.value.focusDescription)) ||
+        !isEmpty(renderer.controlWrapper.value.errors),
     }));
 
+    const styles = useStyles(
+      ["list", "feedback"],
+      meta,
+      config,
+      props.upwindConfig
+    );
+    const renderer = useUpwindRenderer(
+      useJsonFormsOneOfEnumControl(props),
+      target => (target.selectedIndex === 0 ? undefined : target.value)
+    );
+
+    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
     return {
       ...renderer,
       meta,
       styles,
-      config, // pass the radio config to the radio component
+      config, // pass the config to the  component
     };
+  },
+  methods: {
+    isSelected(value: string): boolean {
+      return this.control.data === value;
+    },
   },
 });
 

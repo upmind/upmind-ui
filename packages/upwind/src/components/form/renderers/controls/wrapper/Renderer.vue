@@ -78,10 +78,10 @@
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles.inputControl.feedback">
+    <div class="feedback" :class="styles.feedback.root" v-if="!hideFeedback">
       <upw-icon
         key="icon"
-        :class="styles.inputControl.feedbackIcon"
+        :class="styles.feedback.icon"
         icon="information-circle"
       />
       <span key="details">{{ errors || description }}</span>
@@ -145,37 +145,33 @@ export default defineComponent({
       type: [Object, String],
       default: null,
     },
-
     hideRequired: {
       type: Boolean,
       default: false,
     },
-
     hideStatus: {
       type: Boolean,
       default: false,
     },
-
+    hideFeedback: {
+      type: Boolean,
+      default: false,
+    },
     requiredText: {
       type: String,
       default: "Required",
     },
-
     optionalText: {
       type: String,
       default: "",
     },
-
-    persistDescription: {
+    focusDescription: {
       type: Boolean,
-      default: true,
     },
-
     prefix: {
       type: String,
       default: null,
     },
-
     suffix: {
       type: String,
       default: null,
@@ -184,7 +180,6 @@ export default defineComponent({
       type: String as PropType<InputProps["size"]>,
       default: "md",
     },
-
     // ---
 
     required: {
@@ -226,7 +221,7 @@ export default defineComponent({
       hasFeedback:
         (isEmpty(props.errors) &&
           !isNil(props.description) &&
-          (props.focused || props.persistDescription)) ||
+          (props.focused || !props.focusDescription)) ||
         !isEmpty(props.errors),
 
       showAsRequired: props.required && !props.hideRequired,
@@ -235,7 +230,7 @@ export default defineComponent({
     }));
 
     const styles = useStyles(
-      ["inputControl", "label"],
+      ["inputControl", "label", "feedback"],
       meta,
       config,
       props.upwindConfig

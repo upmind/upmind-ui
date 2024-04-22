@@ -45,6 +45,23 @@ export default {
       }
     ),
   },
+  feedback: {
+    root: cva(
+      "text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
+      {
+        variants: {
+          hasFeedback: {
+            false: "invisible hidden w-0 overflow-hidden text-nowrap opacity-0",
+          },
+          isInvalid: {
+            true: "text-error",
+          },
+        },
+      }
+    ),
+    icon: cva("size-4"),
+  },
+
   label: {
     root: cva("cursor-pointer"),
   },

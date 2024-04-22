@@ -52,8 +52,9 @@ export default {
     suffix: cva(
       "bg-base-100 -mr-2 flex items-center self-stretch rounded-e-lg px-3"
     ),
-
-    feedback: cva(
+  },
+  feedback: {
+    root: cva(
       "text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
       {
         variants: {
@@ -66,6 +67,6 @@ export default {
         },
       }
     ),
-    feedbackIcon: cva("size-4"),
+    icon: cva("size-4"),
   },
 };
