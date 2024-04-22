@@ -5,13 +5,6 @@ import {
   type RouteRecordRaw,
 } from "vue-router";
 
-import { type IStaticMethods } from "preline/preline";
-declare global {
-  interface Window {
-    HSStaticMethods: IStaticMethods;
-  }
-}
-
 // --- internal
 import HomeView from "@/views/Index.vue";
 
@@ -60,14 +53,6 @@ const router = createRouter({
   },
 });
 
-// Preline AutoInit
-router.afterEach((to, from, failure) => {
-  if (!failure) {
-    setTimeout(() => {
-      window.HSStaticMethods.autoInit();
-    }, 100);
-  }
-});
 // -----------------------------------------------------
 
 export default router;

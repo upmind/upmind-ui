@@ -86,4 +86,3 @@ const isMenuControl = and(isOneOfEnumControl, optionIs("format", "menu"));
 
 export const tester = { rank: 1, controlType: isMenuControl };
 </script>
-../utils ../utils

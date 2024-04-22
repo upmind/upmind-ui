@@ -2,85 +2,77 @@ import { registerEntry } from "../utils";
 
 // -----------------------------------------------------------------------------
 
-import StringControlRenderer, {
-  tester as stringControlRendererTest,
+import StringRenderer, {
+  tester as stringRendererTest,
 } from "./string/Renderer.vue";
 
-import MultiStringControlRenderer, {
-  tester as multiStringControlRendererTest,
+import MultiStringRenderer, {
+  tester as multiStringRendererTest,
 } from "./string/MultilineRenderer.vue";
 
-import NumberControlRenderer, {
-  tester as numberControlRendererTest,
+import NumberRenderer, {
+  tester as numberRendererTest,
 } from "./number/Renderer.vue";
 
-import UrlControlRenderer, {
-  tester as urlControlRendererTest,
-} from "./url/Renderer.vue";
+import UrlRenderer, { tester as urlRendererTest } from "./url/Renderer.vue";
 
-import EmailControlRenderer, {
-  tester as emailControlRendererTest,
+import EmailRenderer, {
+  tester as emailRendererTest,
 } from "./email/Renderer.vue";
 
-import PasswordControlRenderer, {
-  tester as passwordControlRendererTest,
+import PasswordRenderer, {
+  tester as passwordRendererTest,
 } from "./password/Renderer.vue";
 
-import HiddenControlRenderer, {
-  tester as hiddenControlRendererTest,
+import HiddenRenderer, {
+  tester as hiddenRendererTest,
 } from "./hidden/Renderer.vue";
 
-import DateControlRenderer, {
-  tester as dateControlRendererTest,
-} from "./date/Renderer.vue";
+import DateRenderer, { tester as dateRendererTest } from "./date/Renderer.vue";
 
-import BooleanControlRenderer, {
-  tester as booleanControlRendererTest,
+import BooleanRenderer, {
+  tester as booleanRendererTest,
 } from "./boolean/Renderer.vue";
+
+import EnumRenderer, { tester as enumRendererTest } from "./enum/Renderer.vue";
+
+import OneOfRenderer, {
+  tester as oneOfRendererTest,
+} from "./oneOf/Renderer.vue";
+
+import OneOfRadioRenderer, {
+  tester as oneOfRadioRendererTest,
+} from "./oneOf/RadioRenderer.vue";
 
 // -----------------------------------------------------------------------------
 // TODO
 
-import EnumControlRenderer, {
-  tester as enumControlRendererTest,
-} from "./EnumControlRenderer.vue";
+// import OneOfMenuRenderer, {
+//   tester as oneOfMenuRendererTest,
+// } from "./EnumOneOfMenuRenderer.vue";
 
-import OneOfEnumControlRenderer, {
-  tester as oneOfEnumControlRendererTest,
-} from "./EnumOneOfControlRenderer.vue";
-
-import OneOfEnumMenuControlRenderer, {
-  tester as oneOfEnumMenuControlRendererTest,
-} from "./EnumOneOfMenuControlRenderer.vue";
-
-import OneOfEnumRadioControlRenderer, {
-  tester as oneOfEnumRadioControlRendererTest,
-} from "./EnumOneOfRadioControlRenderer.vue";
-
-import PhoneControlRenderer, {
-  tester as phoneControlRendererTest,
-} from "./PhoneControlRenderer.vue";
+// import PhoneRenderer, {
+//   tester as phoneRendererTest,
+// } from "./PhoneRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
 export const controlRenderers = [
-  registerEntry(StringControlRenderer, stringControlRendererTest),
-  registerEntry(MultiStringControlRenderer, multiStringControlRendererTest),
-  registerEntry(NumberControlRenderer, numberControlRendererTest),
-  registerEntry(UrlControlRenderer, urlControlRendererTest),
-  registerEntry(EmailControlRenderer, emailControlRendererTest),
-  registerEntry(PasswordControlRenderer, passwordControlRendererTest),
-  registerEntry(HiddenControlRenderer, hiddenControlRendererTest),
-  registerEntry(DateControlRenderer, dateControlRendererTest),
-  registerEntry(BooleanControlRenderer, booleanControlRendererTest),
+  registerEntry(StringRenderer, stringRendererTest),
+  registerEntry(MultiStringRenderer, multiStringRendererTest),
+  registerEntry(NumberRenderer, numberRendererTest),
+  registerEntry(UrlRenderer, urlRendererTest),
+  registerEntry(EmailRenderer, emailRendererTest),
+  registerEntry(PasswordRenderer, passwordRendererTest),
+  registerEntry(HiddenRenderer, hiddenRendererTest),
+  registerEntry(DateRenderer, dateRendererTest),
+  registerEntry(BooleanRenderer, booleanRendererTest),
+  registerEntry(EnumRenderer, enumRendererTest),
+  registerEntry(OneOfRenderer, oneOfRendererTest),
+  registerEntry(OneOfRadioRenderer, oneOfRadioRendererTest),
 
   // -----------------------------------------------------------------------------
-  registerEntry(EnumControlRenderer, enumControlRendererTest),
-  registerEntry(OneOfEnumControlRenderer, oneOfEnumControlRendererTest),
-  registerEntry(OneOfEnumMenuControlRenderer, oneOfEnumMenuControlRendererTest),
-  registerEntry(
-    OneOfEnumRadioControlRenderer,
-    oneOfEnumRadioControlRendererTest
-  ),
-  registerEntry(PhoneControlRenderer, phoneControlRendererTest),
+  // TODO
+  // registerEntry(OneOfMenuRenderer, oneOfMenuRendererTest),
+  // registerEntry(PhoneRenderer, phoneRendererTest),
 ];

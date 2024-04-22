@@ -1,42 +1,20 @@
 <template>
-  <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
+  <div v-if="meta.isVisible" :class="styles.inputControl.root">
     <!-- label -->
-    <div class="label" :class="styles.inputControlLabel.root">
-      <label
-        v-if="label"
-        :for="id + '-input'"
-        :class="styles.inputControlLabel.text"
-      >
-        {{ label }}
-      </label>
-
-      <span class="status" :class="styles.inputControlLabel.status">
-        <span
-          v-if="meta.showAsRequired"
-          :class="styles.inputControlLabel.required"
-        >
-          {{ requiredText }}
-        </span>
-
-        <span
-          v-else-if="meta.showAsOptional"
-          :class="styles.inputControlLabel.optional"
-        >
-          {{ optionalText }}
-        </span>
-
-        <upw-icon
-          v-if="meta.isInvalid"
-          :class="styles.inputControlLabel.icon"
-          icon="alert-circle"
-        />
-        <upw-icon
-          v-else-if="meta.isValid"
-          :class="styles.inputControlLabel.icon"
-          icon="check-circle"
-        />
-      </span>
-    </div>
+    <upw-label
+      :id="id"
+      :label="label"
+      :requiredText="requiredText"
+      :optionalText="optionalText"
+      :hideRequired="hideRequired"
+      :hideStatus="hideStatus"
+      :required="meta.isRequired"
+      :dirty="meta.isDirty"
+      :invalid="meta.isInvalid"
+      :disabled="meta.isDisabled"
+      :size="size"
+      :upwindConfig="[config, upwindConfig]"
+    />
 
     <!-- wrapper -->
     <div :class="styles.inputControl.wrapper">
@@ -100,10 +78,10 @@
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles.inputControl.feedback">
+    <div class="feedback" :class="styles.feedback.root" v-if="!hideFeedback">
       <upw-icon
         key="icon"
-        :class="styles.inputControl.feedbackIcon"
+        :class="styles.feedback.icon"
         icon="information-circle"
       />
       <span key="details">{{ errors || description }}</span>
@@ -117,6 +95,7 @@ import { defineComponent, computed } from "vue";
 
 // --- components
 import UpwIcon from "../../../../icon/Icon.vue";
+import UpwLabel from "../../../../label/Label.vue";
 
 // --- local
 import config from "./config.cva";
@@ -133,6 +112,7 @@ export default defineComponent({
   name: "ControlWrapper",
   components: {
     UpwIcon,
+    UpwLabel,
   },
   props: {
     id: {
@@ -144,7 +124,7 @@ export default defineComponent({
       default: null,
     },
     errors: {
-      type: String,
+      type: [String, Array],
       default: () => [],
     },
     label: {
@@ -165,27 +145,32 @@ export default defineComponent({
       type: [Object, String],
       default: null,
     },
-
     hideRequired: {
       type: Boolean,
       default: false,
+    },
+    hideStatus: {
+      type: Boolean,
+      default: false,
+    },
+    hideFeedback: {
+      type: Boolean,
+      default: false,
+    },
+    requiredText: {
+      type: String,
+      default: "Required",
     },
     optionalText: {
       type: String,
       default: "",
     },
-    persistDescription: {
+    focusDescription: {
       type: Boolean,
-      default: true,
     },
     prefix: {
       type: String,
       default: null,
-    },
-
-    requiredText: {
-      type: String,
-      default: "Required",
     },
     suffix: {
       type: String,
@@ -195,8 +180,8 @@ export default defineComponent({
       type: String as PropType<InputProps["size"]>,
       default: "md",
     },
-
     // ---
+
     required: {
       type: Boolean,
       default: false,
@@ -213,8 +198,8 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    data: {
-      type: [String, Number, Boolean, Object, Array],
+    dirty: {
+      type: Boolean,
       default: null,
     },
 
@@ -224,12 +209,11 @@ export default defineComponent({
       default: null,
     },
   },
-  computed: {},
   setup(props) {
     const meta = computed(() => ({
       isInvalid: !isEmpty(props.errors),
-      isValid: isEmpty(props.errors) && !isNil(props.data),
-      isDirty: !isNil(props.data),
+      isValid: isEmpty(props.errors) && props.dirty,
+      isDirty: props.dirty,
       isFocused: props.focused,
       isRequired: props.required,
       isVisible: props.visible,
@@ -237,7 +221,7 @@ export default defineComponent({
       hasFeedback:
         (isEmpty(props.errors) &&
           !isNil(props.description) &&
-          (props.focused || props.persistDescription)) ||
+          (props.focused || !props.focusDescription)) ||
         !isEmpty(props.errors),
 
       showAsRequired: props.required && !props.hideRequired,
@@ -246,7 +230,7 @@ export default defineComponent({
     }));
 
     const styles = useStyles(
-      ["inputControl", "inputControlLabel"],
+      ["inputControl", "label", "feedback"],
       meta,
       config,
       props.upwindConfig
@@ -254,8 +238,10 @@ export default defineComponent({
 
     return {
       meta,
+      config,
       styles,
     };
   },
+  computed: {},
 });
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="meta.isVisible" :id="id" :class="styles.inputControl.root">
+  <div v-if="meta.isVisible" :class="styles.inputControl.root">
     <!-- wrapper -->
     <div :class="styles.inputControl.inline">
       <slot
@@ -33,53 +33,19 @@
       <slot v-bind="{ meta, styles: styles.inputControl }"></slot>
 
       <!-- label -->
-      <div class="label" :class="styles.inputControlLabel.root">
-        <label
-          v-if="label"
-          :for="id + '-input'"
-          :class="styles.inputControlLabel.text"
-        >
-          {{ label }}
-        </label>
-
-        <span class="status" :class="styles.inputControlLabel.status">
-          <span
-            v-if="meta.showAsRequired"
-            :class="styles.inputControlLabel.required"
-          >
-            {{ requiredText }}
-          </span>
-
-          <span
-            v-else-if="meta.showAsOptional"
-            :class="styles.inputControlLabel.optional"
-          >
-            {{ optionalText }}
-          </span>
-
-          <upw-icon
-            v-if="meta.isInvalid"
-            :class="styles.inputControlLabel.icon"
-            icon="alert-circle"
-          />
-          <upw-icon
-            v-else-if="meta.isValid"
-            :class="styles.inputControlLabel.icon"
-            icon="check-circle"
-          />
-        </span>
-      </div>
-
-      <upw-icon
-        v-if="meta.isInvalid"
-        :class="styles.inputControl.status"
-        icon="alert-circle"
-      />
-
-      <upw-icon
-        v-else-if="meta.isValid"
-        :class="styles.inputControl.status"
-        icon="check-circle"
+      <upw-label
+        :id="id"
+        :label="label"
+        :requiredText="requiredText"
+        :optionalText="optionalText"
+        :hideRequired="hideRequired"
+        :hideStatus="hideStatus"
+        :required="meta.isRequired"
+        :dirty="meta.isDirty"
+        :invalid="meta.isInvalid"
+        :disabled="meta.isDisabled"
+        :size="size"
+        :upwindConfig="[config, upwindConfig]"
       />
 
       <slot
@@ -112,10 +78,10 @@
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles.inputControl.feedback">
+    <div class="feedback" :class="styles.feedback.root" v-if="!hideFeedback">
       <upw-icon
         key="icon"
-        :class="styles.inputControl.feedbackIcon"
+        :class="styles.feedback.icon"
         icon="information-circle"
       />
       <span key="details">{{ errors || description }}</span>
