@@ -78,10 +78,10 @@
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles.inputControl.feedback">
+    <div class="feedback" :class="styles.feedback.root" v-if="!hideFeedback">
       <upw-icon
         key="icon"
-        :class="styles.inputControl.feedbackIcon"
+        :class="styles.feedback.icon"
         icon="information-circle"
       />
       <span key="details">{{ errors || description }}</span>

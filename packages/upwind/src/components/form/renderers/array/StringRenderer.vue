@@ -33,6 +33,7 @@
           :label="optionElement.label"
           :upwind-config="[config, upwindConfig]"
           hide-status
+          hide-feedback
         >
           <upw-checkbox
             :name="control.path"
@@ -42,13 +43,23 @@
             :model-value="isSelected(optionElement.value)"
             :value="optionElement.value"
             @blur="isFocused = false"
-            @change="toggle"
+            @change="onChange"
             @focus="isFocused = true"
             :upwind-config="[config, upwindConfig]"
           />
         </control-wrapper-inline>
       </li>
     </ul>
+
+    <!-- feedback -->
+    <div class="feedback" :class="styles.feedback.root">
+      <upw-icon
+        key="icon"
+        :class="styles.feedback.icon"
+        icon="information-circle"
+      />
+      <span key="details">{{ control.errors || control.description }}</span>
+    </div>
   </div>
 </template>
 
@@ -68,6 +79,7 @@ import { rendererProps, useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 import ControlWrapperInline from "../controls/wrapper/RendererInline.vue";
 import UpwCheckbox from "../../../checkbox/Checkbox.vue";
 import UpwLabel from "../../../label/Label.vue";
+import UpwIcon from "../../../icon/Icon.vue";
 
 // --- local
 import config from "./config.cva";
@@ -90,6 +102,7 @@ export default defineComponent({
     ControlWrapperInline,
     UpwCheckbox,
     UpwLabel,
+    UpwIcon,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -105,39 +118,49 @@ export default defineComponent({
     },
   },
   setup(props: RendererProps<ControlElement>) {
-    const styles = useStyles(["list"], props, config, props.upwindConfig);
-    const renderer = useUpwindArrayRenderer(
-      useJsonFormsMultiEnumControl(props)
-    );
-
     const meta = computed(() => ({
-      isInvalid: !isEmpty(renderer.controlWrapper.value.errors),
+      isInvalid: !isEmpty(renderer.control.value.errors),
       isValid:
-        isEmpty(renderer.controlWrapper.value.errors) &&
-        !isNil(renderer.controlWrapper.value.data),
+        isEmpty(renderer.control.value.errors) &&
+        !isNil(renderer.control.value.data),
       isDirty: renderer.controlWrapper.value.dirty,
       isFocused: renderer.controlWrapper.value.focused,
       isRequired: renderer.controlWrapper.value.required,
       isVisible: renderer.controlWrapper.value.visible,
       isDisabled: renderer.controlWrapper.value.disabled,
+      hasFeedback:
+        (isEmpty(renderer.control.value.errors) &&
+          !isNil(renderer.control.value.description) &&
+          (renderer.controlWrapper.value.focused ||
+            !renderer.controlWrapper.value.focusDescription)) ||
+        !isEmpty(renderer.controlWrapper.value.errors),
     }));
+
+    const styles = useStyles(
+      ["list", "feedback"],
+      meta,
+      config,
+      props.upwindConfig
+    );
+    const renderer = useUpwindArrayRenderer(
+      useJsonFormsMultiEnumControl(props)
+    );
 
     // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
     return {
       ...renderer,
       meta,
       styles,
-      config, // pass the  config to the  component
+      config, // pass the config to the  component
     };
   },
   methods: {
     isSelected(value) {
       return includes(this.control.data, value);
     },
-    toggle(event) {
+    onChange(event) {
       const checked = event.target.checked;
       const value = event.target.value;
-      debugger;
       if (checked) {
         this.addItem(this.control.path, value);
       } else {
