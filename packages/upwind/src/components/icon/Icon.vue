@@ -46,11 +46,12 @@ export default defineComponent({
       eager: false,
     });
 
-    const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
-    const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
     const svg = ref();
 
     watchEffect(async () => {
+      const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
+      const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
+
       const asyncImport = find(icons, (fn, iconPath) =>
         includes(iconPath, `${safePath}${safeName}.svg`)
       );

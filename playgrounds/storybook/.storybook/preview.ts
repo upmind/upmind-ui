@@ -6,6 +6,10 @@ import themes from "@/assets/themes";
 import { reduce, find, set } from "lodash-es";
 
 const preview: Preview = {
+  parameters: {
+    backgrounds: { disable: true },
+    layout: "fullscreen",
+  },
   decorators: [
     withThemeByDataAttribute<Renderer>({
       themes: reduce(
@@ -19,18 +23,19 @@ const preview: Preview = {
       defaultTheme: "light",
       attributeName: "data-theme",
     }),
-    (story, context) => {
-      const activeTheme = ref(context.globals.theme);
-      const theme = find(themes, ["id", activeTheme.value]);
-      const upwindStyles = ref(theme?.upwind || {});
 
-      provide("activeTheme", activeTheme);
-      provide("upwind", upwindStyles);
+    (story, context) => {
+      // const activeTheme = ref(context.globals.theme);
+      // const theme = find(themes, ["id", activeTheme.value]);
+      // const upwindStyles = ref(theme?.upwind || {});
+
+      // provide("activeTheme", activeTheme);
+      // provide("upwind", upwindStyles);
 
       return {
         components: { story },
         template: `
-          <div class="content rounded-box bg-base px-4 text-base-content prose max-w-none min-h-screen">
+          <div class="content bg-base p-4 sm:p-8 text-base-content prose max-w-full min-h-screen">
             <story />
           </div>
         `,
