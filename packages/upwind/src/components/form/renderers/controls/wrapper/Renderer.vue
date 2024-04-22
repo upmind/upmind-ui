@@ -1,42 +1,20 @@
 <template>
   <div v-if="meta.isVisible" :class="styles.inputControl.root">
     <!-- label -->
-    <div class="label" :class="styles.inputControlLabel.root">
-      <label v-if="label" :for="id" :class="styles.inputControlLabel.text">
-        {{ label }}
-      </label>
-
-      <span
-        class="status"
-        :class="styles.inputControlLabel.status"
-        v-if="!hideStatus"
-      >
-        <span
-          v-if="meta.showAsRequired"
-          :class="styles.inputControlLabel.required"
-        >
-          {{ requiredText }}
-        </span>
-
-        <span
-          v-else-if="meta.showAsOptional"
-          :class="styles.inputControlLabel.optional"
-        >
-          {{ optionalText }}
-        </span>
-
-        <upw-icon
-          v-if="meta.isInvalid"
-          :class="styles.inputControlLabel.icon"
-          icon="alert-circle"
-        />
-        <upw-icon
-          v-else-if="meta.isValid"
-          :class="styles.inputControlLabel.icon"
-          icon="check-circle"
-        />
-      </span>
-    </div>
+    <upw-label
+      :id="id"
+      :label="label"
+      :requiredText="requiredText"
+      :optionalText="optionalText"
+      :hideRequired="hideRequired"
+      :hideStatus="hideStatus"
+      :required="meta.isRequired"
+      :dirty="meta.isDirty"
+      :invalid="meta.isInvalid"
+      :disabled="meta.isDisabled"
+      :size="size"
+      :upwindConfig="config.label"
+    />
 
     <!-- wrapper -->
     <div :class="styles.inputControl.wrapper">
@@ -117,6 +95,7 @@ import { defineComponent, computed } from "vue";
 
 // --- components
 import UpwIcon from "../../../../icon/Icon.vue";
+import UpwLabel from "../../../../label/Label.vue";
 
 // --- local
 import config from "./config.cva";
@@ -133,6 +112,7 @@ export default defineComponent({
   name: "ControlWrapper",
   components: {
     UpwIcon,
+    UpwLabel,
   },
   props: {
     id: {
@@ -144,7 +124,7 @@ export default defineComponent({
       default: null,
     },
     errors: {
-      type: String,
+      type: [String, Array],
       default: () => [],
     },
     label: {
@@ -176,6 +156,11 @@ export default defineComponent({
       default: false,
     },
 
+    requiredText: {
+      type: String,
+      default: "Required",
+    },
+
     optionalText: {
       type: String,
       default: "",
@@ -191,10 +176,6 @@ export default defineComponent({
       default: null,
     },
 
-    requiredText: {
-      type: String,
-      default: "Required",
-    },
     suffix: {
       type: String,
       default: null,
@@ -222,8 +203,8 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    data: {
-      type: [String, Number, Boolean, Object, Array],
+    dirty: {
+      type: Boolean,
       default: null,
     },
 
@@ -236,8 +217,8 @@ export default defineComponent({
   setup(props) {
     const meta = computed(() => ({
       isInvalid: !isEmpty(props.errors),
-      isValid: isEmpty(props.errors) && !isNil(props.data),
-      isDirty: !isNil(props.data),
+      isValid: isEmpty(props.errors) && props.dirty,
+      isDirty: props.dirty,
       isFocused: props.focused,
       isRequired: props.required,
       isVisible: props.visible,
@@ -254,7 +235,7 @@ export default defineComponent({
     }));
 
     const styles = useStyles(
-      ["inputControl", "inputControlLabel"],
+      ["inputControl", "label"],
       meta,
       config,
       props.upwindConfig
@@ -262,6 +243,7 @@ export default defineComponent({
 
     return {
       meta,
+      config,
       styles,
     };
   },

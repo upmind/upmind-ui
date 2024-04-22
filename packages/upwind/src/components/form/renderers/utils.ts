@@ -1,6 +1,6 @@
 import { useStyles } from "./styles";
 import { computed, ref } from "vue";
-import { merge, cloneDeep } from "lodash-es";
+import { merge, cloneDeep, isNil } from "lodash-es";
 
 import {
   composePaths,
@@ -48,7 +48,7 @@ export const useUpwindRenderer = <
       description,
       errors,
       label,
-      data,
+      dirty: !isNil(data),
       focused: isFocused.value,
       disabled: !enabled,
       visible,
