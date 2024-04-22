@@ -65,27 +65,27 @@ import {
 import { rendererProps, useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 
 // --- components
-import ControlWrapperInline from "../wrapper/RendererInline.vue";
-import UpwCheckbox from "../../../../checkbox/Checkbox.vue";
-import UpwLabel from "../../../../label/Label.vue";
+import ControlWrapperInline from "../controls/wrapper/RendererInline.vue";
+import UpwCheckbox from "../../../checkbox/Checkbox.vue";
+import UpwLabel from "../../../label/Label.vue";
 
 // --- local
 import config from "./config.cva";
 
 // --- utils
-import { useUpwindArrayRenderer } from "../../utils";
-import { useStyles } from "../../../../../utils";
+import { useUpwindArrayRenderer } from "../utils";
+import { useStyles } from "../../../../utils";
 import { includes, isEmpty, isNil } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { InputProps } from "../types";
+import type { InputProps } from "../controls/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "ArrayRenderer",
+  name: "ArrayStringRenderer",
   components: {
     ControlWrapperInline,
     UpwCheckbox,
