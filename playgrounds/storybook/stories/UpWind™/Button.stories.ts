@@ -5,121 +5,35 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { UpwButton } from "@upmind/upwind";
 
 // --- utils
-// import { mapIcons } from "../../utils";
-import { keys, last, reduce, startCase, set, omit } from "lodash-es";
+import { useSystemArgTypes } from "../../utils";
+import { keys } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-// const icons = mapIcons();
-// const flags = mapIcons("flags");
+enum variants {
+  flat = "Flat",
+  outlined = "Outlined",
+  ghost = "Ghost",
+  link = "Link",
+}
 
-const iconsImport = import.meta.glob("@icons/*.svg", {
-  as: "raw",
-  eager: false,
-});
-
-const icons = reduce(
-  keys(iconsImport),
-  (result, key) => {
-    const icon = last(key.split("/"))?.replace(".svg", "");
-    set(result, icon, startCase(icon));
-    return result;
-  },
-  {}
-);
-
-const flagsImport = import.meta.glob("@icons/flags/*.svg", {
-  as: "raw",
-  eager: false,
-});
-
-const flags = reduce(
-  keys(flagsImport),
-  (result, key) => {
-    const flag = last(key.split("/"))?.replace(".svg", "");
-    set(result, flag, startCase(flag));
-    return result;
-  },
-  {}
-);
-// ---
-debugger;
 const meta: Meta<typeof UpwButton> = {
   component: UpwButton,
-  //👇 Creates specific argTypes
   argTypes: {
-    color: {
-      options: [
-        "primary",
-        "secondary",
-        "accent",
-        "neutral",
-        "success",
-        "error",
-        "warning",
-        "info",
-        "current",
-      ],
-      control: {
-        type: "select",
-        labels: {
-          primary: "Primary",
-          secondary: "Secondary",
-          accent: "Accent",
-          neutral: "Neutral",
-          success: "Success",
-          error: "Error",
-          warning: "Warning",
-          info: "Info",
-          current: "Current",
-        },
-      },
-    },
     variant: {
-      options: ["flat", "outlined", "ghost", "link"],
+      options: keys(variants),
       control: {
         type: "radio",
-        labels: {
-          flat: "Flat",
-          outlined: "Outlined",
-          ghost: "Ghost",
-          link: "Link",
-        },
+        labels: variants,
       },
     },
-    size: {
-      options: ["sm", "md", "lg"],
 
-      control: {
-        type: "radio",
-        labels: {
-          sm: "Small",
-          md: "Default",
-          lg: "Large",
-        },
-      },
-    },
-    // ---
-    prependAvatar: {
-      options: keys(flags),
-    },
-    appendAvatar: {
-      options: keys(flags),
-    },
-    prependIcon: {
-      options: keys(icons),
-      control: {
-        type: "select",
-        labels: icons,
-      },
-    },
-    appendIcon: {
-      options: keys(icons),
-      control: {
-        type: "select",
-        labels: icons,
-      },
-    },
+    size: useSystemArgTypes.size,
+    color: useSystemArgTypes.color,
+    prependAvatar: useSystemArgTypes.flag,
+    appendAvatar: useSystemArgTypes.flag,
+    prependIcon: useSystemArgTypes.icon,
+    appendIcon: useSystemArgTypes.icon,
   },
   args: {
     label: "A compelling call to action",
@@ -155,6 +69,7 @@ export const Variants: Story = {
       return {
         args,
       };
+      f;
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
@@ -181,7 +96,7 @@ export const SlotAndSizes: Story = {
         <div class="flex w-full flex-wrap items-center gap-2">
           <h4 class="w-full">Icon only</h4>
           <upw-button icon-only prepend-icon="cog" size="sm" label="Small" />
-          <upw-button icon-only prepend-icon="cog" label="Default" />
+          <upw-button icon-only prepend-icon="cog" label="Medium" />
           <upw-button icon-only prepend-icon="cog" size="lg" label="Large" />
         </div>
 
@@ -189,7 +104,7 @@ export const SlotAndSizes: Story = {
           <h4 class="w-full">Label Only</h4>
 
           <upw-button size="sm" label="Small" />
-          <upw-button label="Default" />
+          <upw-button label="Medium" />
           <upw-button size="lg" label="Large" />
         </div>
 
@@ -202,7 +117,7 @@ export const SlotAndSizes: Story = {
             :prepend-avatar="{ name: 'ZA', path: 'flags' }"
           />
           <upw-button
-            label="Default"
+            label="Medium"
             :prepend-avatar="{ name: 'ZA', path: 'flags' }"
           />
           <upw-button
@@ -216,7 +131,7 @@ export const SlotAndSizes: Story = {
           <h4 class="w-full">Label with Icon (prepended)</h4>
 
           <upw-button size="sm" label="Small" prepend-icon="cog" />
-          <upw-button label="Default" prepend-icon="cog" />
+          <upw-button label="Medium" prepend-icon="cog" />
           <upw-button size="lg" label="Large" prepend-icon="cog" />
         </div>
 
@@ -224,7 +139,7 @@ export const SlotAndSizes: Story = {
           <h4 class="w-full">Label with Icon (appended)</h4>
 
           <upw-button size="sm" label="Small" append-icon="devices" />
-          <upw-button label="Default" append-icon="devices" />
+          <upw-button label="Medium" append-icon="devices" />
           <upw-button size="lg" label="Large" append-icon="devices" />
         </div>
 
@@ -237,7 +152,7 @@ export const SlotAndSizes: Story = {
             :append-avatar="{ name: 'GB', path: 'flags' }"
           />
           <upw-button
-            label="Default"
+            label="Medium"
             :append-avatar="{ name: 'GB', path: 'flags' }"
           />
           <upw-button
@@ -259,7 +174,7 @@ export const SlotAndSizes: Story = {
             :append-avatar="{ name: 'GB', path: 'flags' }"
           />
           <upw-button
-            label="Default"
+            label="Medium"
             :prepend-avatar="{ name: 'ZA', path: 'flags' }"
             prepend-icon="cog"
             append-icon="devices"
@@ -289,7 +204,7 @@ export const SlotAndSizes: Story = {
           />
           <upw-button
             block
-            label="Default"
+            label="Medium"
             :prepend-avatar="{ name: 'ZA', path: 'flags' }"
             prepend-icon="cog"
             append-icon="devices"

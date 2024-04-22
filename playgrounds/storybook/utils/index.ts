@@ -1,27 +1,59 @@
-// ---utils
-import { keys, last, reduce, map, startCase, set } from "lodash-es";
+// --- exports
+export * from "./useIcons";
 
-// -----------------------------------------------------------------------------
+// --- utils
+import { useIcons } from "./useIcons";
+import { keys } from "lodash";
+// ----------------------------------------------------------------------------
 
-export const mapIcons = (path?: string) => {
-  path = path?.replace("@icons/", "").replace("/*.svg");
+const flags = useIcons("flags");
+const icons = useIcons();
 
-  const safePath = path ? `@icons/${path}/*.svg` : "@icons/*.svg";
+enum colors {
+  primary = "Primary",
+  secondary = "Secondary",
+  accent = "Accent",
+  neutral = "Neutral",
+  success = "Success",
+  error = "Error",
+  warning = "Warning",
+  info = "Info",
+  current = "Current",
+}
 
-  const iconsImport = import.meta.glob(safePath, {
-    as: "raw",
-    eager: false,
-  });
+enum sizes {
+  sm = "Small",
+  md = "Medium",
+  lg = "Large",
+}
 
-  const icons = reduce(
-    keys(iconsImport),
-    (result, key) => {
-      const icon = last(key.split("/"))?.replace(".svg", "");
-      set(result, icon, startCase(icon));
-      return result;
+export const useSystemArgTypes = {
+  color: {
+    options: keys(colors),
+    control: {
+      type: "select",
+      labels: colors,
     },
-    {}
-  );
-
-  return icons;
+  },
+  size: {
+    options: keys(sizes),
+    control: {
+      type: "radio",
+      labels: sizes,
+    },
+  },
+  icon: {
+    options: keys(icons),
+    control: {
+      type: "select",
+      labels: icons,
+    },
+  },
+  flag: {
+    options: keys(flags),
+    control: {
+      type: "select",
+      labels: flags,
+    },
+  },
 };
