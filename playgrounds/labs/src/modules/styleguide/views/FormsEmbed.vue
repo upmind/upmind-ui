@@ -129,10 +129,25 @@ const schema = {
     oneOfEnum: {
       title: "Whats the situation?",
       type: ["string", "null"],
+      description: "Hows your day been?",
       oneOf: [
-        { const: "fu", title: "Started Badly" },
-        { const: "bar", title: "Ended Badly" },
-        { const: "fubar", title: "Was a total nightmare" },
+        {
+          const: "fu",
+          title: "Started Badly",
+          description:
+            "It was a bad day initially...but there wa slight at the end of the tunnel",
+        },
+        {
+          const: "bar",
+          title: "Ended Badly",
+          description:
+            "It started with hope...then ended in the pits of dispair",
+        },
+        {
+          const: "fubar",
+          title: "Was a total nightmare",
+          description: "Enough said",
+        },
       ],
     },
 

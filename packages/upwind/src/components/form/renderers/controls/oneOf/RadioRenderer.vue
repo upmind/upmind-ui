@@ -1,17 +1,38 @@
 <template>
-  <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
-    <ul :id="control.id + '-radio'" :class="styles.radiolist.root">
+  <div v-if="meta.isVisible" :class="styles.radiolist.root">
+    <!-- label -->
+    <upw-label
+      :id="controlWrapper.id"
+      :label="controlWrapper.label"
+      :requiredText="controlWrapper.requiredText"
+      :optionalText="controlWrapper.optionalText"
+      :hideRequired="controlWrapper.hideRequired"
+      :hideStatus="controlWrapper.hideStatus"
+      :required="meta.isRequired"
+      :dirty="meta.isDirty"
+      :invalid="meta.isInvalid"
+      :disabled="meta.isDisabled"
+      :size="size"
+      :upwindConfig="config.label"
+    />
+
+    <ul :id="control.id + '-radio'" :class="styles.radiolist.list">
       <template :class="styles.radiolist.title" v-if="appliedOptions?.title">
         {{ appliedOptions.title }}
       </template>
 
       <li class="sr-only" :class="styles.radiolist.option">
         <control-wrapper-inline
-          v-bind="controlWrapper"
+          :id="`${control.id}-option-empty`"
+          :dirty="controlWrapper.dirty"
+          :disabled="controlWrapper.disabled"
+          :errors="controlWrapper.errors"
+          :focused="controlWrapper.focused"
           :is-focused="isFocused"
           :size="size"
+          :visible="controlWrapper.visible"
           label=""
-          :id="`${control.id}-option-empty`"
+          :upwind-config="[config, upwindConfig]"
           hide-status
         >
           <upw-radio
@@ -37,11 +58,15 @@
         :class="styles.radiolist.option"
       >
         <control-wrapper-inline
-          v-bind="controlWrapper"
-          :is-focused="isFocused"
-          :size="size"
-          :label="optionElement.label"
           :id="`${control.id}-option-${optionIndex}`"
+          :dirty="controlWrapper.dirty"
+          :disabled="controlWrapper.disabled"
+          :errors="controlWrapper.errors"
+          :focused="controlWrapper.focused"
+          :size="size"
+          :visible="controlWrapper.visible"
+          :label="optionElement.label"
+          :upwind-config="[config, upwindConfig]"
           hide-status
         >
           <upw-radio
@@ -59,19 +84,19 @@
         </control-wrapper-inline>
       </li>
     </ul>
-  </control-wrapper>
+  </div>
 </template>
 
 <script lang="ts">
 // --- global
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import { isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 
 // --- components
-import ControlWrapper from "../wrapper/Renderer.vue";
 import ControlWrapperInline from "../wrapper/RendererInline.vue";
 import UpwRadio from "../../../../radio/Radio.vue";
+import UpwLabel from "../../../../label/Label.vue";
 
 // --- local
 import config from "./config.cva";
@@ -79,6 +104,7 @@ import config from "./config.cva";
 // --- utils
 import { useUpwindRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
+import { isEmpty, isNil } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -90,9 +116,9 @@ import type { InputProps } from "../types";
 export default defineComponent({
   name: "RadioRenderer",
   components: {
-    ControlWrapper,
     ControlWrapperInline,
     UpwRadio,
+    UpwLabel,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -113,8 +139,36 @@ export default defineComponent({
       useJsonFormsOneOfEnumControl(props),
       target => (target.selectedIndex === 0 ? undefined : target.value)
     );
+
+    const meta = computed(() => ({
+      isInvalid: !isEmpty(renderer.controlWrapper.value.errors),
+      isValid:
+        isEmpty(renderer.controlWrapper.value.errors) &&
+        !isNil(renderer.controlWrapper.value.data),
+      isDirty: renderer.controlWrapper.value.dirty,
+      isFocused: renderer.controlWrapper.value.focused,
+      isRequired: renderer.controlWrapper.value.required,
+      isVisible: renderer.controlWrapper.value.visible,
+      isDisabled: renderer.controlWrapper.value.disabled,
+      hasFeedback:
+        (isEmpty(renderer.controlWrapper.value.errors) &&
+          !isNil(renderer.controlWrapper.value.description) &&
+          (renderer.controlWrapper.value.focused ||
+            renderer.controlWrapper.value.persistDescription)) ||
+        !isEmpty(renderer.controlWrapper.value.errors),
+
+      showAsRequired:
+        renderer.controlWrapper.value.required &&
+        !renderer.controlWrapper.value.hideRequired,
+      showAsOptional:
+        !renderer.controlWrapper.value.required &&
+        !renderer.controlWrapper.value.hideRequired &&
+        !isEmpty(renderer.controlWrapper.value.optionalText),
+    }));
+
     return {
       ...renderer,
+      meta,
       styles,
       config, // pass the radio config to the radio component
     };

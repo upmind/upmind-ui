@@ -33,53 +33,19 @@
       <slot v-bind="{ meta, styles: styles.inputControl }"></slot>
 
       <!-- label -->
-      <div class="label" :class="styles.inputControlLabel.root">
-        <label v-if="label" :for="id" :class="styles.inputControlLabel.text">
-          {{ label }}
-        </label>
-
-        <span
-          class="status"
-          :class="styles.inputControlLabel.status"
-          v-if="!hideStatus"
-        >
-          <span
-            v-if="meta.showAsRequired"
-            :class="styles.inputControlLabel.required"
-          >
-            {{ requiredText }}
-          </span>
-
-          <span
-            v-else-if="meta.showAsOptional"
-            :class="styles.inputControlLabel.optional"
-          >
-            {{ optionalText }}
-          </span>
-
-          <upw-icon
-            v-if="meta.isInvalid"
-            :class="styles.inputControlLabel.icon"
-            icon="alert-circle"
-          />
-          <upw-icon
-            v-else-if="meta.isValid"
-            :class="styles.inputControlLabel.icon"
-            icon="check-circle"
-          />
-        </span>
-      </div>
-
-      <upw-icon
-        v-if="meta.isInvalid"
-        :class="styles.inputControl.status"
-        icon="alert-circle"
-      />
-
-      <upw-icon
-        v-else-if="meta.isValid"
-        :class="styles.inputControl.status"
-        icon="check-circle"
+      <upw-label
+        :id="id"
+        :label="label"
+        :requiredText="requiredText"
+        :optionalText="optionalText"
+        :hideRequired="hideRequired"
+        :hideStatus="hideStatus"
+        :required="meta.isRequired"
+        :dirty="meta.isDirty"
+        :invalid="meta.isInvalid"
+        :disabled="meta.isDisabled"
+        :size="size"
+        :upwindConfig="config.label"
       />
 
       <slot
