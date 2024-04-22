@@ -1,23 +1,168 @@
+// --- global
 import type { Meta, StoryObj } from "@storybook/vue3";
+
+// -- components
 import { UpwButton } from "@upmind/upwind";
 
+// --- utils
+// import { mapIcons } from "../../utils";
+import { keys, last, reduce, startCase, set, omit } from "lodash-es";
+
+// -----------------------------------------------------------------------------
+
+// const icons = mapIcons();
+// const flags = mapIcons("flags");
+
+const iconsImport = import.meta.glob("@icons/*.svg", {
+  as: "raw",
+  eager: false,
+});
+
+const icons = reduce(
+  keys(iconsImport),
+  (result, key) => {
+    const icon = last(key.split("/"))?.replace(".svg", "");
+    set(result, icon, startCase(icon));
+    return result;
+  },
+  {}
+);
+
+const flagsImport = import.meta.glob("@icons/flags/*.svg", {
+  as: "raw",
+  eager: false,
+});
+
+const flags = reduce(
+  keys(flagsImport),
+  (result, key) => {
+    const flag = last(key.split("/"))?.replace(".svg", "");
+    set(result, flag, startCase(flag));
+    return result;
+  },
+  {}
+);
+// ---
+debugger;
 const meta: Meta<typeof UpwButton> = {
   component: UpwButton,
+  //👇 Creates specific argTypes
+  argTypes: {
+    color: {
+      options: [
+        "primary",
+        "secondary",
+        "accent",
+        "neutral",
+        "success",
+        "error",
+        "warning",
+        "info",
+        "current",
+      ],
+      control: {
+        type: "select",
+        labels: {
+          primary: "Primary",
+          secondary: "Secondary",
+          accent: "Accent",
+          neutral: "Neutral",
+          success: "Success",
+          error: "Error",
+          warning: "Warning",
+          info: "Info",
+          current: "Current",
+        },
+      },
+    },
+    variant: {
+      options: ["flat", "outlined", "ghost", "link"],
+      control: {
+        type: "radio",
+        labels: {
+          flat: "Flat",
+          outlined: "Outlined",
+          ghost: "Ghost",
+          link: "Link",
+        },
+      },
+    },
+    size: {
+      options: ["sm", "md", "lg"],
+
+      control: {
+        type: "radio",
+        labels: {
+          sm: "Small",
+          md: "Default",
+          lg: "Large",
+        },
+      },
+    },
+    // ---
+    prependAvatar: {
+      options: keys(flags),
+    },
+    appendAvatar: {
+      options: keys(flags),
+    },
+    prependIcon: {
+      options: keys(icons),
+      control: {
+        type: "select",
+        labels: icons,
+      },
+    },
+    appendIcon: {
+      options: keys(icons),
+      control: {
+        type: "select",
+        labels: icons,
+      },
+    },
+  },
+  args: {
+    label: "A compelling call to action",
+    // ---
+    size: "md",
+    variant: "flat",
+    color: "primary",
+    iconOnly: false,
+    block: false,
+    // ---
+    prependAvatar: undefined,
+    prependIcon: undefined,
+    appendIcon: undefined,
+    appendAvatar: undefined,
+    // ---
+    loading: false,
+    disabled: false,
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof UpwButton>;
 
+export const Base: Story = {};
+
 export const Variants: Story = {
-  render: () => ({
+  parameters: {
+    controls: { exclude: ["label", "variant"] },
+  },
+  render: args => ({
     components: { UpwButton },
+    setup() {
+      return {
+        args,
+      };
+    },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Types/Variants</h3>
-        <upw-button variant="flat" label="Flat (Solid)" />
-        <upw-button variant="outlined" label="Outlined" />
-        <upw-button variant="ghost" label="Ghost" />
-        <upw-button variant="link" label="Link" />
+        <h1 class="w-full mt-0">Types/Variants</h1>
+        <upw-button v-bind="args" variant="flat" label="Flat (Solid)" />
+        <upw-button v-bind="args" variant="outlined" label="Outlined" />
+        <upw-button v-bind="args" variant="ghost" label="Ghost" />
+        <upw-button v-bind="args" variant="link" label="Link" />
       </section>
     `,
   }),
@@ -28,14 +173,13 @@ export const SlotAndSizes: Story = {
     components: { UpwButton },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Slot + Size variants</h3>
-        <p class="w-full">
+        <h1 class="w-full mt-0">Slot + Sizes</h1>
+        <p class="w-full mt-0">
           Buttons with all slots activated in ALL sizes<br />
-          prepend-avatar | prepend-icon | append-icon | append-avatar
         </p>
 
         <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Icon only Variants</h4>
+          <h4 class="w-full">Icon only</h4>
           <upw-button icon-only prepend-icon="cog" size="sm" label="Small" />
           <upw-button icon-only prepend-icon="cog" label="Default" />
           <upw-button icon-only prepend-icon="cog" size="lg" label="Large" />
@@ -171,7 +315,7 @@ export const SolidColorVariants: Story = {
     components: { UpwButton },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Solid Color Variants</h3>
+        <h1 class="w-full mt-0">Solid Color Variants</h1>
         <upw-button color="primary" label="Primary" />
         <upw-button color="secondary" label="Secondary" />
         <upw-button color="accent" label="Accent" />
@@ -190,7 +334,7 @@ export const OutlinedColorVariants: Story = {
     components: { UpwButton },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Outlined Color Variants</h3>
+        <h1 class="w-full mt-0">Outlined Color Variants</h1>
         <upw-button variant="outlined" color="primary" label="Primary" />
         <upw-button variant="outlined" color="secondary" label="Secondary" />
         <upw-button variant="outlined" color="accent" label="Accent" />
@@ -209,7 +353,7 @@ export const GhostColorVariants: Story = {
     components: { UpwButton },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Ghost Color Variants</h3>
+        <h1 class="w-full mt-0">Ghost Color Variants</h1>
         <upw-button variant="ghost" color="primary" label="Primary" />
         <upw-button variant="ghost" color="secondary" label="Secondary" />
         <upw-button variant="ghost" color="accent" label="Accent" />
@@ -228,7 +372,7 @@ export const LinkColorVariants: Story = {
     components: { UpwButton },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Link Color Variants</h3>
+        <h1 class="w-full mt-0">Link Color Variants</h1>
         <upw-button variant="link" color="primary" label="Primary" />
         <upw-button variant="link" color="secondary" label="Secondary" />
         <upw-button variant="link" color="accent" label="Accent" />
@@ -250,7 +394,7 @@ export const LoadingColorVariants: Story = {
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Loading Color Variants</h3>
+        <h1 class="w-full mt-0">Loading Color Variants</h1>
         <upw-button v-bind="args" color="primary" label="Primary" />
         <upw-button v-bind="args" color="secondary" label="Secondary" />
         <upw-button v-bind="args" color="accent" label="Accent" />
@@ -275,7 +419,7 @@ export const DisabledColorVariants: Story = {
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h3 class="w-full">Disabled Color Variants</h3>
+        <h1 class="w-full mt-0">Disabled Color Variants</h1>
         <upw-button v-bind="args" color="primary" label="Primary" />
         <upw-button v-bind="args" color="secondary" label="Secondary" />
         <upw-button v-bind="args" color="accent" label="Accent" />

@@ -119,6 +119,10 @@ export default defineComponent({
       default: false,
     },
     // ---
+    size: {
+      type: String as PropType<ButtonProps["size"]>,
+      default: null,
+    },
     variant: {
       type: String as PropType<ButtonProps["variant"]>,
       default: null,
@@ -127,10 +131,7 @@ export default defineComponent({
       type: String as PropType<ButtonProps["color"]>,
       default: null,
     },
-    size: {
-      type: String as PropType<ButtonProps["size"]>,
-      default: null,
-    },
+
     iconOnly: {
       type: Boolean,
       default: false,
