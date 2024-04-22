@@ -156,7 +156,24 @@ const schema = {
       uniqueItems: true,
       items: {
         type: "string",
-        enum: ["fu", "bar", "foobar"],
+        oneOf: [
+          {
+            const: "eeny",
+            title: "Eeny",
+          },
+          {
+            const: "meeny",
+            title: "Meeny ",
+          },
+          {
+            const: "miny",
+            title: "Miny",
+          },
+          {
+            const: "moe",
+            title: "Moe",
+          },
+        ],
       },
     },
 
@@ -295,11 +312,11 @@ const uischema = {
     //   options: {},
     // },
 
-    // {
-    //   type: "Control",
-    //   scope: "#/properties/multiEnum",
-    //   options: {},
-    // },
+    {
+      type: "Control",
+      scope: "#/properties/multiEnum",
+      options: {},
+    },
 
     {
       type: "Control",

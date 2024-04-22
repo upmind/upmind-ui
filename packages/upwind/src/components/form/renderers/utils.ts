@@ -107,7 +107,9 @@ export const useUpwindLabel = <I extends { label: any }>(input: I) => {
 /**
  * Adds styles, appliedOptions and childUiSchema
  */
-export const useUpwindArrayControl = <I extends { control: any }>(input: I) => {
+export const useUpwindArrayRenderer = <I extends { control: any }>(
+  input: I
+) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -144,10 +146,32 @@ export const useUpwindArrayControl = <I extends { control: any }>(input: I) => {
     }
     return `${labelValue}`;
   };
+
+  const isFocused = ref(false);
+
+  const controlWrapper = computed(() => {
+    const { id, description, errors, label, visible, required, enabled, data } =
+      input.control.value;
+    return {
+      id: `${id}-input`,
+      description,
+      errors,
+      label,
+      dirty: !isNil(data),
+      focused: isFocused.value,
+      disabled: !enabled,
+      visible,
+      required,
+      // add our ApplyOptions to the controlWrapper
+      ...appliedOptions.value,
+    };
+  });
+
   return {
     ...input,
     styles: useStyles(input.control.value.uischema),
     appliedOptions,
+    controlWrapper,
     childUiSchema,
     childLabelForIndex,
   };

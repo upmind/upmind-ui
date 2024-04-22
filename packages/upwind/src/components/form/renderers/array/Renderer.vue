@@ -36,46 +36,85 @@
         />
       </array-list-element>
     </div>
-    <div v-if="noData" :class="styles.arrayList.noData">
-      {{ control.translations.noDataMessage }}
+    <div v-if="meta.isEmpty" :class="styles.arrayList.empty">
+      {{ control.translations.emptyMessage }}
     </div>
   </fieldset>
 </template>
 
 <script lang="ts">
-import type { ControlElement } from "@jsonforms/core";
+// --- global
+import { computed, defineComponent } from "vue";
 import {
   composePaths,
   createDefaultValue,
   schemaTypeIs,
 } from "@jsonforms/core";
-import { defineComponent } from "vue";
-import type { RendererProps } from "@jsonforms/vue";
+
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsArrayControl,
 } from "@jsonforms/vue";
-import { useUpwindArrayControl } from "../utils";
-import ArrayListElement from "./ArrayListElement.vue";
 
-const controlRenderer = defineComponent({
-  name: "ArrayListRenderer",
+// --- components
+import ArrayListElement from "./components/ArrayListElement.vue";
+import ControlWrapper from "../wrapper/RendererInline.vue";
+import UpwCheckbox from "../../../../checkbox/Checkbox.vue";
+// import UpwCheckbox from "../../../../radio/Radio.vue";
+
+// --- local
+import config from "./config.cva";
+
+// --- utils
+import { useUpwindArrayRenderer } from "../utils";
+import { isEmpty, isNil } from "lodash-es";
+
+// --- types
+import type { PropType } from "vue";
+import type { ControlElement } from "@jsonforms/core";
+import type { RendererProps } from "@jsonforms/vue";
+import type { InputProps } from "../controls/types";
+
+export default defineComponent({
+  name: "ArrayRenderer",
   components: {
     ArrayListElement,
     DispatchRenderer,
   },
   props: {
     ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    return useUpwindArrayControl(useJsonFormsArrayControl(props));
-  },
-  computed: {
-    noData(): boolean {
-      return !this.control.data || this.control.data.length === 0;
+    size: {
+      type: String as PropType<InputProps["size"]>,
+      default: null,
+    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
     },
   },
+  setup(props: RendererProps<ControlElement>) {
+    const meta = computed(() => ({
+      isEmpty: isEmpty(renderer.control.data),
+      isInvalid: !isEmpty(renderer.control.value.errors),
+      isDirty: !isNil(renderer.control.value.data),
+      isFocused: renderer.isFocused.value,
+      isRequired: renderer.control.value.required,
+      isVisible: renderer.control.value.visible,
+      isDisabled: !renderer.control.value.enabled,
+    }));
+
+    const renderer = useUpwindArrayRenderer(useJsonFormsArrayControl(props));
+
+    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
+    return {
+      ...renderer,
+      meta,
+      config,
+    };
+  },
+
   methods: {
     composePaths,
     createDefaultValue,
@@ -87,8 +126,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
 
 export const tester = {
   rank: 2,
