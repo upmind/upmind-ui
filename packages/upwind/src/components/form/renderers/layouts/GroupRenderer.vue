@@ -1,7 +1,7 @@
 <template>
   <fieldset v-if="layout.visible" :class="styles.group.root">
-    <div v-if="layout.layout" :class="styles.group.layout">
-      <legend>{{ layout.layout }}</legend>
+    <div v-if="layout.label" :class="styles.group.label">
+      <legend>{{ layout.label }}</legend>
     </div>
     <div
       v-for="(element, index) in layout.uischema.elements"
