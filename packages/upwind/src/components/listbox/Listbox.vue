@@ -10,8 +10,8 @@
         ref="reference"
       >
         <upw-icon
-          v-if="selectedIcon"
-          :icon="selectedIcon"
+          v-if="icon"
+          :icon="icon"
           class="btn-icon"
           :class="styles.listboxButton.icon"
         />
