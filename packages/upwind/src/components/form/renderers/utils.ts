@@ -69,7 +69,9 @@ export const useUpwindRenderer = <
 /**
  * Adds styles and appliedOptions
  */
-export const useUpwindLayout = <I extends { layout: any }>(input: I) => {
+export const useUpwindLayoutRenderer = <I extends { layout: any }>(
+  input: I
+) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -86,7 +88,7 @@ export const useUpwindLayout = <I extends { layout: any }>(input: I) => {
 /**
  * Adds styles and appliedOptions
  */
-export const useUpwindLabel = <I extends { label: any }>(input: I) => {
+export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},

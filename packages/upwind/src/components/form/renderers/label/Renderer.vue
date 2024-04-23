@@ -1,29 +1,76 @@
 <template>
-  <label v-if="label.visible" :class="styles.label.root">
-    <span :class="styles.label.text" v-if="label.text"> {{ label.text }}</span>
-    <span :class="styles.label.alt" v-if="label.alt"> {{ label.alt }}</span>
-  </label>
+  <upw-label
+    v-if="meta.isVisible"
+    v-bind="label"
+    :requiredText="appliedOptions?.requiredText"
+    :optionalText="appliedOptions?.optionalText"
+    :hideRequired="appliedOptions?.hideRequired"
+    :hideStatus="appliedOptions?.hideStatus"
+    :disabled="meta.isDisabled"
+    :size="size"
+    :upwindConfig="[config, upwindConfig]"
+  />
 </template>
 
 <script lang="ts">
-import type { LabelElement } from "@jsonforms/core";
+// --- global
+import { computed, defineComponent } from "vue";
 import { uiTypeIs } from "@jsonforms/core";
-import { defineComponent } from "vue";
-import type { RendererProps } from "@jsonforms/vue";
 import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
-import { useUpwindLabel } from "../utils";
 
-const labelRenderer = defineComponent({
+// --- components
+import UpwLabel from "../../../label/Label.vue";
+
+// --- local
+import config from "./config.cva";
+
+// --- utils
+import { useUpwindLabelRenderer } from "../utils";
+import { useStyles } from "../../../../utils";
+
+// --- types
+import type { PropType } from "vue";
+import type { LabelElement } from "@jsonforms/core";
+import type { RendererProps } from "@jsonforms/vue";
+import type { InputProps } from "../controls/types";
+
+// -------------------------------------------------------------------
+
+export default defineComponent({
   name: "LabelRenderer",
+  components: {
+    UpwLabel,
+  },
   props: {
     ...rendererProps<LabelElement>(),
+    // ---  Additional Attributes
+    size: {
+      type: String as PropType<InputProps["size"]>,
+      default: null,
+    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
   },
   setup(props: RendererProps<LabelElement>) {
-    return useUpwindLabel(useJsonFormsLabel(props));
+    const meta = computed(() => ({
+      isVisible: renderer.label.value.visible,
+      isDisabled: !renderer.label.value.enabled,
+    }));
+
+    const styles = useStyles(["label"], meta, config, props.upwindConfig);
+    const renderer = useUpwindLabelRenderer(useJsonFormsLabel(props));
+    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
+    return {
+      ...renderer,
+      meta,
+      styles,
+      config, // pass the config to the  component
+    };
   },
 });
-
-export default labelRenderer;
 
 export const tester = {
   rank: 1,
