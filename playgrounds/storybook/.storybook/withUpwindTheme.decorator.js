@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "@storybook/preview-api";
-import { ref } from "vue";
 import { DecoratorHelpers } from "@storybook/addon-themes";
 import { reduce, set } from "lodash-es";
 
@@ -18,23 +17,26 @@ export const withUpwindTheme = ({ themes, defaultTheme }) => {
 
   initializeThemeState(Object.keys(themeNames), defaultTheme);
 
-  return (storyFn, context) => {
+  return (story, context) => {
     const selectedTheme = pluckThemeFromContext(context);
     const { themeOverride } = useThemeParameters();
 
-    const selected = ref(themeOverride || selectedTheme || defaultTheme);
+    const selected = themeOverride || selectedTheme || defaultTheme;
 
     console.log("upwind theme changed", selected, context);
 
     useEffect(() => {
-      // const parentElement = document.querySelector("html");
-      // parentElement?.setAttribute("data-theme", selected);
+      // TODO: deprecate this in favour of a more robust solution
+      // where the selected theme is applied to the template's theme provider
+      // see https://github.com/storybookjs/storybook/issues/12840
+      const parentElement = document.querySelector("html");
+      parentElement?.setAttribute("data-theme", selected);
     }, [themeOverride, selected]);
 
     return {
       components: { story },
       template: `
-      <upw-theme-provider theme="${selected.value}">
+      <upw-theme-provider theme="${selected}">
         <div class="content bg-base p-4 sm:p-8 text-base-content prose max-w-full min-h-screen">
             <story />
         </div>
