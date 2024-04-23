@@ -42,12 +42,6 @@ export const withUpwindTheme = ({ themes, defaultTheme }) => {
             <story />
         </div>
       </upw-theme-provider>`,
-      // template: `
-      // <upw-theme-provider theme="${selected}">
-      //   <div class="content bg-base p-4 sm:p-8 text-base-content prose max-w-full min-h-screen">
-      //       <story />
-      //   </div>
-      // </upw-theme-provider>`,
     };
   };
 };
