@@ -47,10 +47,6 @@ import OneOfRadioRenderer, {
 // -----------------------------------------------------------------------------
 // TODO
 
-// import OneOfMenuRenderer, {
-//   tester as oneOfMenuRendererTest,
-// } from "./EnumOneOfMenuRenderer.vue";
-
 // import PhoneRenderer, {
 //   tester as phoneRendererTest,
 // } from "./PhoneRenderer.vue";
@@ -73,6 +69,5 @@ export const controlRenderers = [
 
   // -----------------------------------------------------------------------------
   // TODO
-  // registerEntry(OneOfMenuRenderer, oneOfMenuRendererTest),
   // registerEntry(PhoneRenderer, phoneRendererTest),
 ];
