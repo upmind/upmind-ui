@@ -7,8 +7,8 @@
       :id="control.id + '-input'"
       type="number"
       :step="safeStep"
-      :max="appliedOptions?.max || control?.schema?.maximum"
-      :min="appliedOptions?.min || control?.schema?.minimum"
+      :max="safeMax"
+      :min="safeMin"
       :placeholder="appliedOptions.placeholder"
       :value="control.data"
       @change="onChange"
@@ -39,7 +39,7 @@ import config from "./config.cva";
 // --- utils
 import { useUpwindRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
-import { isNil, get, isArray, includes } from "lodash-es";
+import { isNil, get, isArray, includes, values } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -80,7 +80,7 @@ export default defineComponent({
         ? undefined
         : isInteger.value
           ? parseInt(target.value, 10)
-          : Number(target.value)
+          : parseFloat(target.value)
     );
 
     return {
@@ -92,7 +92,33 @@ export default defineComponent({
   computed: {
     safeStep(): number {
       const defaultStep = this.isInteger ? 1 : 0.1;
-      return get(this.appliedOptions, "step", defaultStep);
+      const multipleOf = get(this.control, "schema.multipleOf", defaultStep);
+      debugger;
+      return get(this.appliedOptions, "step", multipleOf);
+    },
+    safeMin(): number | null {
+      const applied = this.appliedOptions?.min;
+      if (!isNil(applied)) return applied;
+
+      const minimum = this.control?.schema?.minimum;
+      if (!isNil(minimum)) return minimum;
+
+      const exclusiveMinimum = this.control?.schema?.exclusiveMinimum;
+      if (!isNil(exclusiveMinimum)) return exclusiveMinimum + this.safeStep;
+
+      return null;
+    },
+    safeMax(): number | null {
+      const applied = this.appliedOptions?.max;
+      if (!isNil(applied)) return applied;
+
+      const maximum = this.control?.schema?.maximum;
+      if (!isNil(maximum)) return maximum;
+
+      const exclusiveMaximum = this.control?.schema?.exclusiveMaximum;
+      if (!isNil(exclusiveMaximum)) return exclusiveMaximum - this.safeStep;
+
+      return null;
     },
   },
 });
