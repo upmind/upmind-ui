@@ -1,12 +1,15 @@
+// --- global
+
 import type { Meta, StoryObj } from "@storybook/vue3";
-// import { UpwButton } from "@upmind/upwind";
+
+// -----------------------------------------------------------------------------
 
 const meta: Meta<typeof Object> = {};
 
 export default meta;
 type Story = StoryObj<typeof Object>;
 
-export const Example: Story = {
+export const Base: Story = {
   render: () => ({
     template: `
       <div

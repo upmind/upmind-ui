@@ -8,14 +8,14 @@ import { UpwButton } from "@upmind/upwind";
 import { useSystemArgTypes } from "../../utils";
 import { keys } from "lodash-es";
 
-// -----------------------------------------------------------------------------
-
+// --- types
 enum variants {
   flat = "Flat",
   outlined = "Outlined",
   ghost = "Ghost",
   link = "Link",
 }
+// -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UpwButton> = {
   component: UpwButton,

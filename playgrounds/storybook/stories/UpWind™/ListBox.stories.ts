@@ -1,23 +1,55 @@
+// --- global
 import type { Meta, StoryObj } from "@storybook/vue3";
+
+// --- components
 import { UpwListbox } from "@upmind/upwind";
 
+// --- utils
+import { useSystemArgTypes } from "../../utils";
+
+// -----------------------------------------------------------------------------
+
 const meta: Meta<typeof UpwListbox> = {
+  parameters: {
+    controls: {
+      exclude: ["size"],
+    },
+  },
   component: UpwListbox,
+  argTypes: {
+    placement: useSystemArgTypes.placement,
+    // size: useSystemArgTypes.size,
+    icon: useSystemArgTypes.icon,
+    iconSelected: useSystemArgTypes.icon,
+    toggle: useSystemArgTypes.icon,
+  },
+  args: {
+    label: "Select an Item..",
+    // size: "md",
+    icon: undefined,
+    iconSelected: "check",
+    // ---
+    multiple: false,
+    hasSearch: false,
+    counter: undefined,
+    toggle: undefined,
+    toggleRotate: true,
+    placement: "bottom-start",
+    items: {
+      item1: { value: "item1", label: "Item 1" },
+      item2: { value: "item2", label: "Item 2" },
+      item3: { value: "item3", label: "Item 3" },
+      item4: { value: "item4", label: "Item 4" },
+      item5: { value: "item5", label: "Item 5" },
+      item6: { value: "item6", label: "Item 6" },
+      item7: { value: "item7", label: "Item 7" },
+      item8: { value: "item8", label: "Item 8" },
+    },
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof UpwListbox>;
-
-const items = {
-  typography: { label: "Typography", value: "typography" },
-  colors: { label: "Colors", value: "colors" },
-  buttons: { label: "Buttons", value: "buttons" },
-  account: { label: "Account settings", value: "account" },
-  support: { label: "Support", value: "support" },
-  license: { label: "License", value: "license" },
-  signout: { label: "Sign out", value: "signout" },
-  alert: { icon: "cog", label: "Alert" },
-};
 
 const countries = {
   AF: {
@@ -2022,78 +2054,14 @@ const countries = {
   },
 };
 
-export const Primary: Story = {
-  render: args => ({
-    components: { UpwListbox },
-    setup() {
-      return { args };
-    },
-    template: `
-      <div
-        class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
-      >
-        <upw-listbox
-          v-bind="args"
-          class="max-w-sm"
-          label="Choose an option"
-          icon-selected=""
-        />
-        <upw-listbox
-          v-bind="args"
-          class="max-w-sm"
-          multiple
-          label="Choose multiple"
-        />
-        <upw-listbox
-          v-bind="args"
-          class="max-w-sm"
-          multiple
-          counter="chosen"
-          label="Choose multiple (counter)"
-        />
-        <upw-listbox
-          v-bind="args"
-          class="max-w-sm"
-          label=""
-          toggle="navigation-menu-vertical"
-        />
-      </div>
-    `,
-  }),
-  args: {
-    items,
-  },
-};
+// -----------------------------------------------------------------------------
+
+export const Base: Story = {};
 
 export const Countries: Story = {
-  render: args => ({
-    components: { UpwListbox },
-    setup() {
-      return { args };
-    },
-    template: `
-      <div
-        class="prose mx-auto flex max-w-none flex-wrap place-content-start items-start justify-start gap-4 p-8"
-      >
-        <upw-listbox
-          v-bind="args"
-          class="max-w-sm"
-          counter="chosen"
-          label="Choose Country"
-          has-search
-        />
-        <upw-listbox
-          v-bind="args"
-          class="max-w-sm"
-          counter="chosen"
-          label="Disabled"
-          has-search
-          disabled
-        />
-      </div>
-    `,
-  }),
   args: {
+    label: "Select a Country",
     items: countries,
+    hasSearch: true,
   },
 };
