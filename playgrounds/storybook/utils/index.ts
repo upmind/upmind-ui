@@ -27,7 +27,30 @@ enum sizes {
   lg = "Large",
 }
 
+enum placements {
+  "top" = "Top",
+  "bottom" = "Bottom",
+  "left" = "Left",
+  "right" = "Right",
+  "bottom-start" = "Bottom Start",
+  "bottom-end" = "Bottom End",
+  "top-start" = "Top Start",
+  "top-end" = "Top End",
+  "left-start" = "Left Start",
+  "left-end" = "Left End",
+  "right-start" = "Right Start",
+  "right-end" = "Right End",
+}
+
 export const useSystemArgTypes = {
+  placement: {
+    options: keys(placements),
+    control: {
+      type: "select",
+      labels: placements,
+    },
+  },
+
   color: {
     options: keys(colors),
     control: {
