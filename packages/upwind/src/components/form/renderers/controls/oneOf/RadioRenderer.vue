@@ -85,7 +85,7 @@ import config from "./config.cva";
 // --- utils
 import { useUpwindRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
-import { isEmpty, isNil } from "lodash-es";
+import { isEmpty, isNil, find } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -142,7 +142,13 @@ export default defineComponent({
     );
     const renderer = useUpwindRenderer(
       useJsonFormsOneOfEnumControl(props),
-      target => (target.selectedIndex === 0 ? undefined : target.value)
+      target =>
+        find(
+          renderer.control.value.options,
+          ({ value }) => value == target.value
+        )?.value
+
+      // target => (target.selectedIndex === 0 ? undefined : target.value)
     );
 
     // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
