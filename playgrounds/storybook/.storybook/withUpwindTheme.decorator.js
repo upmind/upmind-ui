@@ -23,8 +23,6 @@ export const withUpwindTheme = ({ themes, defaultTheme }) => {
 
     const selected = themeOverride || selectedTheme || defaultTheme;
 
-    console.log("upwind theme changed", selected, context);
-
     useEffect(() => {
       // TODO: deprecate this in favour of a more robust solution
       // where the selected theme is applied to the template's theme provider
