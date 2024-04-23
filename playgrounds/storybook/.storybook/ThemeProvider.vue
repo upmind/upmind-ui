@@ -1,13 +1,19 @@
 <template>
-  <div :data-theme="theme">
+  <div ref="el" id="theme-provider" :data-theme="activeTheme">
     <slot></slot>
   </div>
 </template>
 
 <script>
-import { inject, defineComponent, computed, watchEffect } from "vue";
+// --- external
+import { inject, defineComponent, watchEffect, ref } from "vue";
+import { useMutationObserver } from "@vueuse/core";
+
+// --- internal
 import themes from "@/assets/themes";
-import { startCase, set, lowerCase, reduce, find } from "lodash-es";
+
+// --- utils
+import { find, first } from "lodash-es";
 
 export default defineComponent({
   name: "ThemeProvider",
@@ -19,39 +25,34 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const el = ref(null);
+
     const activeTheme = inject("activeTheme");
     const upwindStyles = inject("upwind");
 
+    useMutationObserver(
+      el,
+      mutations => {
+        if (first(mutations)?.attributeName === "data-theme") {
+          activeTheme.value = first(mutations)?.target?.dataset?.theme;
+          const theme = find(themes, ["id", activeTheme.value]);
+          if (theme?.upwind) {
+            upwindStyles.value = theme.upwind;
+          }
+        }
+      },
+      {
+        attributes: true,
+      }
+    );
+
     watchEffect(() => {
       activeTheme.value = props.theme || activeTheme.value;
-      const theme = find(themes, ["id", activeTheme.value]);
-      if (theme?.upwind) {
-        upwindStyles.value = theme.upwind;
-      }
     });
 
     return {
-      themes: computed(() =>
-        reduce(
-          themes,
-          (result, theme) => {
-            set(result, lowerCase(theme.id), {
-              label: theme.name,
-              icon: {
-                name: theme.id,
-                path: "themes",
-              },
-              action: () => (activeTheme.value = theme.id),
-            });
-            return result;
-          },
-          {}
-        )
-      ),
-
+      el,
       activeTheme,
-      activeThemeName: computed(() => startCase(activeTheme.value || "light")),
-      startCase,
     };
   },
 });
