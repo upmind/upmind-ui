@@ -1,7 +1,7 @@
 <template>
-  <label class="label" :for="id" :class="styles.label.root">
-    <span v-if="label" :class="styles.label.text">
-      {{ label }}
+  <label :for="id" :class="styles.label.root">
+    <span v-if="text" :class="styles.label.text">
+      {{ text }}
     </span>
 
     <span class="status" :class="styles.label.status" v-if="!hideStatus">
@@ -23,6 +23,10 @@
         :class="styles.label.icon"
         icon="check-circle"
       />
+    </span>
+
+    <span v-if="alt" :class="styles.label.alt">
+      {{ alt }}
     </span>
   </label>
 </template>
@@ -57,14 +61,17 @@ export default defineComponent({
 
   props: {
     id: {
-      required: true,
       type: String,
     },
 
-    label: {
+    text: {
       required: true,
       type: String,
       default: null,
+    },
+    alt: {
+      type: String,
+      default: "",
     },
 
     requiredText: {

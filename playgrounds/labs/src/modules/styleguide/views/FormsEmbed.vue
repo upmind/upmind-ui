@@ -203,6 +203,13 @@ const schema = {
 const uischema = {
   type: "VerticalLayout",
   elements: [
+    {
+      type: "Label",
+      label: "Label Name",
+      text: "Label Text",
+      alt: "Label Alt",
+    },
+
     // {
     //   type: "Control",
     //   scope: "#/properties/name",

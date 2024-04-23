@@ -83,7 +83,7 @@ import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
-import type { DropdownProps, DropdownItems } from "./types";
+import type { DropdownProps } from "./types";
 
 // ----------------------------------------------
 
