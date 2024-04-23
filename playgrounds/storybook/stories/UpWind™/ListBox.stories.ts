@@ -2059,6 +2059,9 @@ const countries = {
 export const Base: Story = {};
 
 export const Countries: Story = {
+  parameters: {
+    controls: { exclude: ["label", "items", "size"] },
+  },
   args: {
     label: "Select a Country",
     items: countries,
