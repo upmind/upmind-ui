@@ -79,7 +79,7 @@ export default defineComponent({
       isNil(target.value)
         ? undefined
         : isInteger.value
-          ? parseInt(target.value, 10)
+          ? parseInt(target.value)
           : parseFloat(target.value)
     );
 
