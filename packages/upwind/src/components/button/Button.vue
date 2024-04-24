@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent, computed, toRefs } from "vue";
 
 // --- local

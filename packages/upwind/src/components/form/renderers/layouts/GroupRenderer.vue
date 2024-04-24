@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { computed, defineComponent } from "vue";
 import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 import {

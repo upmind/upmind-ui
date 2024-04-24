@@ -1,4 +1,4 @@
-// --- globals
+// --- externals
 import { ref, watch } from "vue";
 
 // --- internal

@@ -1,4 +1,4 @@
-// --- global
+// --- external
 import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
@@ -29,13 +29,9 @@ const meta: Meta<typeof UpwForm> = {
     setup() {
       const model = ref({});
 
-      function doReject() {
-        alert("doReject");
-      }
+      function doReject() {}
 
-      function doResolve(value) {
-        alert("doResolve", value);
-      }
+      function doResolve(value) {}
       return {
         args,
         model,

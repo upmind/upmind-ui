@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { computed, defineComponent } from "vue";
 import { uiTypeIs } from "@jsonforms/core";
 import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
