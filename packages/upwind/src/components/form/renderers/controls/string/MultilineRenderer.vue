@@ -1,6 +1,7 @@
 <template>
   <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
     <textarea
+      ref="input"
       :autocomplete="appliedOptions.autocomplete"
       :cols="appliedOptions.cols"
       :disabled="!control.enabled"
@@ -21,7 +22,7 @@
 
 <script lang="ts">
 // --- global
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
@@ -69,7 +70,27 @@ export default defineComponent({
     return {
       ...renderer,
       styles,
+      input: ref(),
     };
+  },
+  methods: {
+    resize() {
+      debugger;
+      if (!this.input || !this.appliedOptions?.autosize) return;
+      debugger;
+      this.input.style.height = "initial";
+      if (this.control.data?.length) {
+        this.input.style.height = this.input.scrollHeight + "px";
+      }
+    },
+  },
+  watch: {
+    "control.data"() {
+      this.$nextTick(this.resize);
+    },
+  },
+  mounted() {
+    this.$nextTick(this.resize);
   },
 });
 

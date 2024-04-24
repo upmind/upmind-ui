@@ -152,6 +152,29 @@ export const Base: Story = {
         },
       },
     },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/integer",
+        },
+
+        {
+          type: "Control",
+          scope: "#/properties/number",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/number",
+          options: {
+            prefix: "$",
+            suffix: ".00",
+            label: "Simple currency input",
+          },
+        },
+      ],
+    },
   },
 };
 
