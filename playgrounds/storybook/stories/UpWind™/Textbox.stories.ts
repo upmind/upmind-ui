@@ -1,0 +1,59 @@
+// --- external
+import type { Meta, StoryObj } from "@storybook/vue3";
+
+// -- components
+import { UpwTextbox, UpwInput } from "@upmind/upwind";
+
+// --- utils
+import { useSystemArgTypes } from "../../utils";
+import { keys } from "lodash-es";
+
+// --- types
+
+// -----------------------------------------------------------------------------
+
+const meta: Meta<typeof UpwTextbox> = {
+  parameters: {
+    controls: { exclude: ["layout", "variant"] },
+  },
+  component: UpwTextbox,
+  subcomponents: { UpwInput },
+  argTypes: {
+    size: useSystemArgTypes.size,
+    // ---
+    prependAvatar: useSystemArgTypes.flag,
+    prependIcon: useSystemArgTypes.icon,
+    // ---
+    appendAvatar: useSystemArgTypes.flag,
+    appendIcon: useSystemArgTypes.icon,
+    // ---
+    feedbackIcon: useSystemArgTypes.icon,
+  },
+  args: {
+    label: "What is your name?",
+    description: "Please enter your full name",
+    errors: undefined,
+    // ---
+    modelValue: undefined,
+    // ---
+    size: "md",
+    variant: "outlined",
+    layout: "stacked",
+    // ---
+    prependAvatar: undefined,
+    prependIcon: undefined,
+    appendIcon: undefined,
+    appendAvatar: undefined,
+    // ---
+    required: false,
+    disabled: false,
+    visible: true,
+    invalid: false,
+    forceFocus: false,
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof UpwTextbox>;
+
+export const Base: Story = {};

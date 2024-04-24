@@ -38,8 +38,8 @@
         :text="label"
         :requiredText="requiredText"
         :optionalText="optionalText"
-        :hideRequired="hideRequired"
-        :hideStatus="hideStatus"
+        :noRequired="noRequired"
+        :noStatus="noStatus"
         :required="meta.isRequired"
         :dirty="meta.isDirty"
         :invalid="meta.isInvalid"
@@ -78,7 +78,7 @@
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles.feedback.root" v-if="!hideFeedback">
+    <div class="feedback" :class="styles.feedback.root" v-if="!noFeedback">
       <upw-icon
         key="icon"
         :class="styles.feedback.icon"
