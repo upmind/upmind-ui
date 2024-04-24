@@ -12,9 +12,10 @@
       :rows="appliedOptions.rows"
       :type="appliedOptions.type"
       :value="control.data"
+      @input="resize"
       @change="onChange"
-      @focus="isFocused = true"
-      @blur="isFocused = false"
+      @focus="onFocus"
+      @blur="onBlur"
       :class="styles.input.root"
     />
   </control-wrapper>
@@ -63,34 +64,37 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles("input", props, config, props.upwindConfig);
-    const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      target => target.value || undefined
-    );
+
+    const input = ref();
+    function resize() {
+      if (!input.value || !renderer.appliedOptions.value?.autosize) return;
+      input.value.style.height = "initial";
+
+      if (renderer.isFocused.value) {
+        input.value.style.height = input.value.scrollHeight + "px";
+      }
+    }
+
+    const renderer = useUpwindRenderer(useJsonFormsControl(props), target => {
+      return target.value || undefined;
+    });
+
     return {
       ...renderer,
       styles,
-      input: ref(),
+      input,
+      resize,
     };
   },
   methods: {
-    resize() {
-      debugger;
-      if (!this.input || !this.appliedOptions?.autosize) return;
-      debugger;
-      this.input.style.height = "initial";
-      if (this.control.data?.length) {
-        this.input.style.height = this.input.scrollHeight + "px";
-      }
+    onFocus() {
+      this.isFocused = true;
+      this.resize();
     },
-  },
-  watch: {
-    "control.data"() {
-      this.$nextTick(this.resize);
+    onBlur() {
+      this.isFocused = false;
+      this.resize();
     },
-  },
-  mounted() {
-    this.$nextTick(this.resize);
   },
 });
 
