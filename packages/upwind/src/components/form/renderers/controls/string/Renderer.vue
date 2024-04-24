@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent } from "vue";
 import { isStringControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";

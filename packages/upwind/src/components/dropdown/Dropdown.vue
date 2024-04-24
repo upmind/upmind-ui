@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent, ref } from "vue";
 
 // --- components

@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent } from "vue";
 import { isOneOfEnumControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";

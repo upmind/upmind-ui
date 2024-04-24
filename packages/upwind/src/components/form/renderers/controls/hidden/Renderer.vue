@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent } from "vue";
 import { uiTypeIs, formatIs, schemaMatches, and, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";

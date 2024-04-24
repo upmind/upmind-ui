@@ -1,4 +1,4 @@
-// --- globals
+// --- externals
 import { unref } from "vue";
 
 // --- utils

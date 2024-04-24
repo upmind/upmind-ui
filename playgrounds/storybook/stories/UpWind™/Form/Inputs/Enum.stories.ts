@@ -1,4 +1,4 @@
-// --- global
+// --- external
 import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
