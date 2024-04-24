@@ -4,11 +4,10 @@ import "../stories/assets/main.css";
 // --- external
 import { setup } from "@storybook/vue3";
 import { withUpwindTheme } from "./withUpwindTheme.decorator";
-import { themes } from "@storybook/theming";
 
 // --- internal
 import upwind from "../plugins/upwind";
-// import themes from "@/assets/themes";
+import themes from "@/assets/themes";
 
 // --- utils
 
@@ -24,9 +23,6 @@ const preview: Preview = {
   parameters: {
     backgrounds: { disable: true },
     layout: "fullscreen",
-    // docs: {
-    //   theme: themes.dark,
-    // },
   },
   decorators: [
     withUpwindTheme({
