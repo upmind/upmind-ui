@@ -214,6 +214,14 @@ export const Formatted: Story = {
     schema: {
       type: "object",
       properties: {
+        single: {
+          type: "string",
+          title: "Simple Text Input",
+        },
+        multi: {
+          type: "string",
+          title: "Multiline Text Input",
+        },
         formatEmail: {
           type: "string",
           title: "Email Input",
@@ -240,6 +248,71 @@ export const Formatted: Story = {
           format: "date-time",
         },
       },
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/single",
+          options: {
+            prependAvatar: { name: "za", path: "flags" },
+            prefix: "ABC",
+            suffix: "XYZ",
+            prependIcon: "cog",
+            appendIcon: "devices",
+            appendAvatar: { name: "gb", path: "flags" },
+            label: "Simple Text Input with Kitchen Sink",
+            placeholder: "Custom Placeholder",
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/multi",
+          options: {
+            multi: true,
+            rows: 5,
+            prependAvatar: { name: "za", path: "flags" },
+            prefix: "ABC",
+            suffix: "XYZ",
+            prependIcon: "cog",
+            appendIcon: "devices",
+            appendAvatar: { name: "gb", path: "flags" },
+            label: "Multiline Text Autosize Input with Kitchen Sink",
+            placeholder: "Custom Placeholder",
+            autosize: true,
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/formatEmail",
+          options: {
+            prependIcon: "email",
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/formatPassword",
+          options: {
+            prependIcon: "password",
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/formatUrl",
+          options: {
+            prependIcon: "url",
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/formatDate",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/formatDateTime",
+        },
+      ],
     },
   },
 };
