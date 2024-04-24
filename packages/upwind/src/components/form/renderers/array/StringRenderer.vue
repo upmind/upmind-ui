@@ -3,7 +3,7 @@
     <!-- label -->
     <upw-label
       :id="controlWrapper.id"
-      :label="controlWrapper.label"
+      :text="controlWrapper.label"
       :requiredText="controlWrapper.requiredText"
       :optionalText="controlWrapper.optionalText"
       :hideRequired="controlWrapper.hideRequired"
@@ -64,7 +64,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { computed, defineComponent } from "vue";
 import {
   uiTypeIs,

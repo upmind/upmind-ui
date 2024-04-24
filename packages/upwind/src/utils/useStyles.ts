@@ -1,4 +1,4 @@
-// --- global
+// --- external
 import { unref, inject, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { cx } from "class-variance-authority";

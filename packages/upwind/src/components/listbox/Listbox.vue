@@ -100,7 +100,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent, ref, watch } from "vue";
 
 // --- components

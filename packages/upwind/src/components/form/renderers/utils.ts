@@ -13,9 +13,6 @@ import { rankWith } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
-/**
- * Adds styles, isFocused, appliedOptions and onChange
- */
 export const useUpwindRenderer = <
   I extends { control: any; handleChange: any },
 >(
@@ -66,10 +63,9 @@ export const useUpwindRenderer = <
   };
 };
 
-/**
- * Adds styles and appliedOptions
- */
-export const useUpwindLayout = <I extends { layout: any }>(input: I) => {
+export const useUpwindLayoutRenderer = <I extends { layout: any }>(
+  input: I
+) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -83,10 +79,7 @@ export const useUpwindLayout = <I extends { layout: any }>(input: I) => {
   };
 };
 
-/**
- * Adds styles and appliedOptions
- */
-export const useUpwindLabel = <I extends { label: any }>(input: I) => {
+export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -100,9 +93,6 @@ export const useUpwindLabel = <I extends { label: any }>(input: I) => {
   };
 };
 
-/**
- * Adds styles, appliedOptions and childUiSchema
- */
 export const useUpwindArrayRenderer = <I extends { control: any }>(
   input: I
 ) => {
@@ -171,6 +161,8 @@ export const useUpwindArrayRenderer = <I extends { control: any }>(
     childLabelForIndex,
   };
 };
+
+// -----------------------------------------------------------------------------
 
 export function registerEntry(
   renderer: any,

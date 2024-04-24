@@ -1,7 +1,7 @@
 // --- styles
 import "../stories/assets/main.css";
 
-// --- global
+// --- external
 import { setup } from "@storybook/vue3";
 import { withUpwindTheme } from "./withUpwindTheme.decorator";
 

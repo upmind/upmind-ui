@@ -3,7 +3,7 @@
     <!-- label -->
     <upw-label
       :id="id"
-      :label="label"
+      :text="label"
       :requiredText="requiredText"
       :optionalText="optionalText"
       :hideRequired="hideRequired"
@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent, computed } from "vue";
 
 // --- components

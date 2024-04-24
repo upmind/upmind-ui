@@ -1,6 +1,7 @@
 <template>
   <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
     <textarea
+      ref="input"
       :autocomplete="appliedOptions.autocomplete"
       :cols="appliedOptions.cols"
       :disabled="!control.enabled"
@@ -11,17 +12,18 @@
       :rows="appliedOptions.rows"
       :type="appliedOptions.type"
       :value="control.data"
+      @input="resize"
       @change="onChange"
-      @focus="isFocused = true"
-      @blur="isFocused = false"
+      @focus="onFocus"
+      @blur="onBlur"
       :class="styles.input.root"
     />
   </control-wrapper>
 </template>
 
 <script lang="ts">
-// --- global
-import { defineComponent } from "vue";
+// --- external
+import { defineComponent, ref } from "vue";
 import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
@@ -62,14 +64,37 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles("input", props, config, props.upwindConfig);
-    const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      target => target.value || undefined
-    );
+
+    const input = ref();
+    function resize() {
+      if (!input.value || !renderer.appliedOptions.value?.autosize) return;
+      input.value.style.height = "initial";
+
+      if (renderer.isFocused.value) {
+        input.value.style.height = input.value.scrollHeight + "px";
+      }
+    }
+
+    const renderer = useUpwindRenderer(useJsonFormsControl(props), target => {
+      return target.value || undefined;
+    });
+
     return {
       ...renderer,
       styles,
+      input,
+      resize,
     };
+  },
+  methods: {
+    onFocus() {
+      this.isFocused = true;
+      this.resize();
+    },
+    onBlur() {
+      this.isFocused = false;
+      this.resize();
+    },
   },
 });
 

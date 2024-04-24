@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { computed, defineComponent } from "vue";
 import { isDateTimeControl, isDateControl, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
