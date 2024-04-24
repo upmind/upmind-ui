@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent, computed } from "vue";
 
 // --- local

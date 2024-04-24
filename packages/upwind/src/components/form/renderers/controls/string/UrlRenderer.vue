@@ -8,37 +8,25 @@
       :max="appliedOptions?.max || control?.schema?.maximum"
       :min="appliedOptions?.min || control?.schema?.minimum"
       :placeholder="appliedOptions.placeholder"
-      :type="unmask ? 'input' : 'password'"
+      type="url"
       :value="control.data"
+      @blur="isFocused = false"
       @change="onChange"
       @focus="isFocused = true"
-      @blur="isFocused = false"
       :class="styles.input.root"
     />
-
-    <template #append>
-      <!-- NB: single button to maintain tabindex/toggle with keyboard -->
-      <button
-        :class="styles.input.button"
-        @click.prevent="unmask = !unmask"
-        color="current"
-        size="sm"
-      >
-        {{ !unmask ? "Show" : "Hide" }}
-      </button>
-    </template>
   </control-wrapper>
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent } from "vue";
-import { isStringControl, formatIs, and } from "@jsonforms/core";
+import { isStringControl, formatIs, and, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import ControlWrapper from "../wrapper/Renderer.vue";
-import UpwButton from "../../../../button/Button.vue";
+
 // --- local
 import config from "./config.cva";
 
@@ -54,10 +42,9 @@ import type { InputProps } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "PasswordRenderer",
+  name: "UrlRenderer",
   components: {
     ControlWrapper,
-    UpwButton,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -72,17 +59,13 @@ export default defineComponent({
       default: null,
     },
   },
-  data() {
-    return {
-      unmask: false,
-    };
-  },
   setup(props: RendererProps<ControlElement>) {
     const styles = useStyles("input", props, config, props.upwindConfig);
     const renderer = useUpwindRenderer(
       useJsonFormsControl(props),
       target => target.value || undefined
     );
+
     return {
       ...renderer,
       styles,
@@ -92,6 +75,14 @@ export default defineComponent({
 
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, formatIs("password")),
+  controlType: and(
+    isStringControl,
+    or(
+      formatIs("uri"),
+      formatIs("uri-reference"),
+      formatIs("iri"),
+      formatIs("iri-reference")
+    )
+  ),
 };
 </script>

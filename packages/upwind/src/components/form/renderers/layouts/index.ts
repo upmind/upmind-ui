@@ -6,14 +6,12 @@ export { default as LayoutRenderer } from "./LayoutRenderer.vue";
 export { default as GroupRenderer } from "./GroupRenderer.vue";
 
 import LayoutRendererEntry, {
-  tester as layoutRendererTest,
+  tester as layoutTest,
 } from "./LayoutRenderer.vue";
 
-import GroupRendererEntry, {
-  tester as groupRendererTest,
-} from "./GroupRenderer.vue";
+import GroupRendererEntry, { tester as groupTest } from "./GroupRenderer.vue";
 
 export const layoutRenderers = [
-  registerEntry(LayoutRendererEntry, layoutRendererTest),
-  registerEntry(GroupRendererEntry, groupRendererTest),
+  registerEntry(LayoutRendererEntry, layoutTest),
+  registerEntry(GroupRendererEntry, groupTest),
 ];

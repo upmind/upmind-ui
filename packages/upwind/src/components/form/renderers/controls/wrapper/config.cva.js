@@ -17,7 +17,7 @@ export default {
     }),
 
     wrapper: cva(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full items-center gap-x-3 rounded-lg border px-2 py-0 ring-0 focus-within:ring-4 focus-within:ring-opacity-20",
+      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full items-start gap-x-3 rounded-lg border px-2 py-0 ring-0 focus-within:ring-4 focus-within:ring-opacity-20",
       {
         variants: {
           isDisabled: {
@@ -41,16 +41,62 @@ export default {
       },
     }),
 
-    icon: cva("size-[1.5em]"),
+    icon: cva("", {
+      variants: {
+        size: {
+          sm: "my-2 size-5",
+          md: "my-3 size-6",
+          lg: "my-4 size-7",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
 
-    avatar: cva("size-[1.5em] overflow-hidden rounded-full"),
+    avatar: cva("my-3  overflow-hidden rounded-full", {
+      variants: {
+        size: {
+          sm: "my-2 size-5",
+          md: "my-3 size-6",
+          lg: "my-4 size-7",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
 
     prefix: cva(
-      "bg-base-100 -ml-2 flex items-center self-stretch rounded-s-lg px-3"
+      "bg-base-100 border-base-300 -ml-2 flex items-start self-stretch rounded-s-lg border-r leading-none",
+      {
+        variants: {
+          size: {
+            sm: "px-3 py-2 leading-5",
+            md: "px-3 py-3 leading-6",
+            lg: "px-3 py-4 leading-7",
+          },
+        },
+        defaultVariants: {
+          size: "md",
+        },
+      }
     ),
 
     suffix: cva(
-      "bg-base-100 -mr-2 flex items-center self-stretch rounded-e-lg px-3"
+      "bg-base-100 border-base-300 -mr-2 flex items-start self-stretch rounded-e-lg border-l",
+      {
+        variants: {
+          size: {
+            sm: "px-3 py-2 leading-5",
+            md: "px-3 py-3 leading-6",
+            lg: "px-3 py-4 leading-7",
+          },
+        },
+        defaultVariants: {
+          size: "md",
+        },
+      }
     ),
   },
   feedback: {

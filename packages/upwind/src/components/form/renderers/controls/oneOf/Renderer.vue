@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent } from "vue";
 import { isOneOfEnumControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
@@ -41,6 +41,7 @@ import config from "../enum/config.cva";
 // --- utils
 import { useUpwindRenderer } from "../../utils";
 import { useStyles } from "../../../../../utils";
+import { find } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -72,9 +73,10 @@ export default defineComponent({
     const renderer = useUpwindRenderer(
       useJsonFormsOneOfEnumControl(props),
       target =>
-        target.selectedIndex
-          ? renderer.control.value.options[target.selectedIndex - 1].value
-          : undefined
+        find(
+          renderer.control.value.options,
+          ({ value }) => value == target.value
+        )?.value
     );
     return {
       ...renderer,

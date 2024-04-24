@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-// --- global
+// --- external
 import { defineComponent, unref, toRaw, toRefs } from "vue";
 import type Ajv from "ajv";
 

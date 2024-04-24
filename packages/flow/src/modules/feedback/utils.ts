@@ -1,4 +1,4 @@
-// --- global
+// --- external
 import { sha1 } from "object-hash";
 
 // --- utils
