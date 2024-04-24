@@ -5,8 +5,8 @@ export default create({
 
   // --- Branding
   brandTitle: "Upmind Labs",
-  brandUrl: "https://upmind.com/",
-  brandImage: "https://upmind.com/assets/interface/upmind-logo.svg",
+  brandUrl: "/",
+  brandImage: "/logo.svg",
   brandTarget: "_self",
 
   // --- Typography
