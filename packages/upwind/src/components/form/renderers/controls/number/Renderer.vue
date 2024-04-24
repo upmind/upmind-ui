@@ -93,7 +93,6 @@ export default defineComponent({
     safeStep(): number {
       const defaultStep = this.isInteger ? 1 : 0.1;
       const multipleOf = get(this.control, "schema.multipleOf", defaultStep);
-      debugger;
       return get(this.appliedOptions, "step", multipleOf);
     },
     safeMin(): number | null {
