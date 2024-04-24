@@ -6,8 +6,8 @@
       :text="label"
       :requiredText="requiredText"
       :optionalText="optionalText"
-      :hideRequired="hideRequired"
-      :hideStatus="hideStatus"
+      :noRequired="noRequired"
+      :noStatus="noStatus"
       :required="meta.isRequired"
       :dirty="meta.isDirty"
       :invalid="meta.isInvalid"
@@ -78,7 +78,7 @@
     </div>
 
     <!-- feedback -->
-    <div class="feedback" :class="styles.feedback.root" v-if="!hideFeedback">
+    <div class="feedback" :class="styles.feedback.root" v-if="!noFeedback">
       <upw-icon
         key="icon"
         :class="styles.feedback.icon"
@@ -145,15 +145,15 @@ export default defineComponent({
       type: [Object, String],
       default: null,
     },
-    hideRequired: {
+    noRequired: {
       type: Boolean,
       default: false,
     },
-    hideStatus: {
+    noStatus: {
       type: Boolean,
       default: false,
     },
-    hideFeedback: {
+    noFeedback: {
       type: Boolean,
       default: false,
     },
@@ -211,6 +211,7 @@ export default defineComponent({
   },
   setup(props) {
     const meta = computed(() => ({
+      // ---
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && props.dirty,
       isDirty: props.dirty,
@@ -224,9 +225,9 @@ export default defineComponent({
           (props.focused || !props.focusDescription)) ||
         !isEmpty(props.errors),
 
-      showAsRequired: props.required && !props.hideRequired,
+      showAsRequired: props.required && !props.noRequired,
       showAsOptional:
-        !props.required && !props.hideRequired && !isEmpty(props.optionalText),
+        !props.required && !props.noRequired && !isEmpty(props.optionalText),
     }));
 
     const styles = useStyles(

@@ -4,7 +4,7 @@
       {{ text }}
     </span>
 
-    <span class="status" :class="styles.label.status" v-if="!hideStatus">
+    <span class="status" :class="styles.label.status" v-if="!noStatus">
       <span v-if="meta.showAsRequired" :class="styles.label.required">
         {{ requiredText }}
       </span>
@@ -63,7 +63,6 @@ export default defineComponent({
     id: {
       type: String,
     },
-
     text: {
       required: true,
       type: String,
@@ -73,12 +72,10 @@ export default defineComponent({
       type: String,
       default: "",
     },
-
     requiredText: {
       type: String,
       default: "Required",
     },
-
     optionalText: {
       type: String,
       default: "",
@@ -86,12 +83,12 @@ export default defineComponent({
 
     // ---
 
-    hideRequired: {
+    noRequired: {
       type: Boolean,
       default: false,
     },
 
-    hideStatus: {
+    noStatus: {
       type: Boolean,
       default: false,
     },
@@ -102,7 +99,6 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-
     dirty: {
       type: Boolean,
       default: false,
@@ -111,7 +107,6 @@ export default defineComponent({
       type: Boolean,
       default: null,
     },
-
     disabled: {
       type: Boolean,
       default: false,
@@ -132,9 +127,9 @@ export default defineComponent({
     const meta = computed(() => ({
       isValid: !props.invalid && props.dirty,
       isInvalid: props.invalid,
-      showAsRequired: props.required && !props.hideRequired,
+      showAsRequired: props.required && !props.noRequired,
       showAsOptional:
-        !props.required && !props.hideRequired && !isEmpty(props.optionalText),
+        !props.required && !props.noRequired && !isEmpty(props.optionalText),
     }));
 
     const styles = useStyles("label", meta, config, props.upwindConfig);

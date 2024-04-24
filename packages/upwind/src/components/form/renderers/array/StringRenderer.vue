@@ -6,8 +6,8 @@
       :text="controlWrapper.label"
       :requiredText="controlWrapper.requiredText"
       :optionalText="controlWrapper.optionalText"
-      :hideRequired="controlWrapper.hideRequired"
-      :hideStatus="controlWrapper.hideStatus"
+      :noRequired="controlWrapper.noRequired"
+      :noStatus="controlWrapper.noStatus"
       :required="meta.isRequired"
       :dirty="meta.isDirty"
       :invalid="meta.isInvalid"
@@ -32,8 +32,8 @@
           :visible="controlWrapper.visible"
           :label="optionElement.label"
           :upwind-config="[config, upwindConfig]"
-          hide-status
-          hide-feedback
+          no-status
+          no-feedback
         >
           <upw-checkbox
             :name="control.path"
