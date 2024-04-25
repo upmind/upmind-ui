@@ -27,8 +27,6 @@ export const useUpwindRenderer = <
     )
   );
 
-  const isFocused = ref(false);
-
   const onChange = (event: Event) => {
     input.handleChange(
       input.control.value.path,
@@ -36,29 +34,9 @@ export const useUpwindRenderer = <
     );
   };
 
-  const controlWrapper = computed(() => {
-    const { id, description, errors, label, visible, required, enabled, data } =
-      input.control.value;
-    return {
-      id: `${id}-input`,
-      description,
-      errors,
-      label,
-      dirty: !isNil(data),
-      focused: isFocused.value,
-      disabled: !enabled,
-      visible,
-      required,
-      // add our ApplyOptions to the controlWrapper
-      ...appliedOptions.value,
-    };
-  });
-
   return {
     ...input,
-    isFocused,
     appliedOptions,
-    controlWrapper,
     onChange,
   };
 };
@@ -93,8 +71,11 @@ export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
   };
 };
 
-export const useUpwindArrayRenderer = <I extends { control: any }>(
-  input: I
+export const useUpwindArrayRenderer = <
+  I extends { control: any; handleChange: any },
+>(
+  input: I,
+  adaptTarget: (target: any) => any = v => v.value
 ) => {
   const appliedOptions = computed(() =>
     merge(
@@ -133,32 +114,20 @@ export const useUpwindArrayRenderer = <I extends { control: any }>(
     return `${labelValue}`;
   };
 
-  const isFocused = ref(false);
-
-  const controlWrapper = computed(() => {
-    const { id, description, errors, label, visible, required, enabled, data } =
-      input.control.value;
-    return {
-      id: `${id}-input`,
-      description,
-      errors,
-      label,
-      dirty: !isNil(data),
-      focused: isFocused.value,
-      disabled: !enabled,
-      visible,
-      required,
-      // add our ApplyOptions to the controlWrapper
-      ...appliedOptions.value,
-    };
-  });
+  const onChange = (event: Event) => {
+    input.handleChange(
+      input.control.value.path,
+      adaptTarget(event.currentTarget)
+    );
+  };
 
   return {
     ...input,
+
     appliedOptions,
-    controlWrapper,
     childUiSchema,
     childLabelForIndex,
+    onChange,
   };
 };
 

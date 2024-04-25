@@ -90,4 +90,14 @@ export default {
       }
     ),
   },
+  label: {
+    root: cva("cursor-pointer"),
+  },
+  // ---------------------------------------------------------------------------
+  list: {
+    root: cva("relative flex flex-col gap-1"),
+    title: cva("m-0 p-0"),
+    wrapper: cva("m-0 flex w-full list-none flex-col gap-2 p-0"),
+    option: cva("m-0 p-0"),
+  },
 };

@@ -1,21 +1,12 @@
 <template>
-  <control-wrapper v-bind="controlWrapper" :is-focused="isFocused" :size="size">
-    <input
-      :autocomplete="appliedOptions.autocomplete"
-      :cols="appliedOptions.cols"
-      :disabled="!control.enabled"
-      :id="control.id + '-input'"
-      :max="appliedOptions?.max || control?.schema?.maximum"
-      :min="appliedOptions?.min || control?.schema?.minimum"
-      :placeholder="appliedOptions.placeholder"
-      :type="type"
-      :value="formattedData"
-      @blur="isFocused = false"
-      @change="onChange"
-      @focus="isFocused = true"
-      :class="styles.input.root"
-    />
-  </control-wrapper>
+  <upw-textbox
+    v-bind="{ ...control, ...appliedOptions }"
+    :id="control.id + '-input'"
+    :disabled="!control.enabled"
+    :model-value="control.data"
+    @change="onChange"
+    type="safeType"
+  />
 </template>
 
 <script lang="ts">
@@ -25,45 +16,27 @@ import { isDateTimeControl, isDateControl, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import ControlWrapper from "../wrapper/Renderer.vue";
-
-// --- local
-import config from "./config.cva";
+import UpwTextbox from "../../../textbox/Textbox.vue";
 
 // --- utils
-import { useUpwindRenderer } from "../../utils";
-import { useStyles } from "../../../../../utils";
+import { useUpwindRenderer } from "../utils";
 import { useDateFormat } from "@vueuse/core";
 import { isArray, includes } from "lodash-es";
 
 // --- types
-import type { PropType } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { InputProps } from "../types";
 // ----------------------------------------------
 
 export default defineComponent({
   name: "DateRenderer",
   components: {
-    ControlWrapper,
+    UpwTextbox,
   },
   props: {
     ...rendererProps<ControlElement>(),
-    // ---  Additional Attributes
-    size: {
-      type: String as PropType<InputProps["size"]>,
-      default: null,
-    },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
   },
   setup(props: RendererProps<ControlElement>) {
-    const styles = useStyles("input", props, config, props.upwindConfig);
-
     const isDateTime = computed(() => {
       let type = renderer.control.value.schema.type;
       let format = renderer.control.value.schema?.format;
@@ -84,14 +57,13 @@ export default defineComponent({
 
     return {
       ...renderer,
-      styles,
       formattedData: computed(() => {
         const formatted = renderer.control.value.data
           ? useDateFormat(renderer.control.value.data, format.value)
           : undefined;
         return formatted?.value;
       }),
-      type: computed(() => (isDateTime.value ? "datetime-local" : "date")),
+      safeType: computed(() => (isDateTime.value ? "datetime-local" : "date")),
     };
   },
 });
