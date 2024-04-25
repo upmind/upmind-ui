@@ -6,7 +6,7 @@ export default {
     root: cva(
       "flex w-full flex-wrap items-center justify-between gap-x-3 text-current outline-none"
     ),
-    text: cva("flex-1 text-[0.875em]"),
+    text: cva("w flex-1 truncate text-[0.875em]"),
     alt: cva("text-base-500 w-full text-xs"),
     required: cva(""),
     optional: cva(""),
