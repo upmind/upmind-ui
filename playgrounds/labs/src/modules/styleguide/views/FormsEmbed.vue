@@ -9,7 +9,6 @@
       @reject="doReject"
       @resolve="doResolve"
       :loading="isLoading"
-      class="w-full max-w-xl"
     />
 
     <code class="w-1/2 flex-grow self-stretch rounded-lg bg-base-100 p-4">
@@ -207,7 +206,7 @@ const uischema = {
       type: "Label",
       label: "Label Name",
       text: "Label Text",
-      alt: "Label Alt",
+      altText: "Label Alt",
     },
 
     // {

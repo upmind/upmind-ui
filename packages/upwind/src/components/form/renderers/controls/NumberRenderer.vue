@@ -18,6 +18,9 @@ import { defineComponent, computed } from "vue";
 import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
+// --- components
+import UpwTextbox from "../../../textbox/Textbox.vue";
+
 // --- utils
 import { useUpwindRenderer } from "../utils";
 import { isNil, get, isArray, includes } from "lodash-es";
@@ -29,7 +32,9 @@ import type { RendererProps } from "@jsonforms/vue";
 
 export default defineComponent({
   name: "NumberRenderer",
-
+  components: {
+    UpwTextbox,
+  },
   props: {
     ...rendererProps<ControlElement>(),
   },

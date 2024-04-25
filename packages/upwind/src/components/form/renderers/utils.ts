@@ -71,11 +71,8 @@ export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
   };
 };
 
-export const useUpwindArrayRenderer = <
-  I extends { control: any; handleChange: any },
->(
-  input: I,
-  adaptTarget: (target: any) => any = v => v.value
+export const useUpwindArrayRenderer = <I extends { control: any }>(
+  input: I
 ) => {
   const appliedOptions = computed(() =>
     merge(
@@ -115,15 +112,17 @@ export const useUpwindArrayRenderer = <
   };
 
   const onChange = (event: Event) => {
-    input.handleChange(
-      input.control.value.path,
-      adaptTarget(event.currentTarget)
-    );
+    const checked = event.currentTarget.checked;
+    const value = event.currentTarget.value;
+    if (checked) {
+      input.addItem(input.control.value.path, value);
+    } else {
+      input.removeItem(input.control.value.path, value);
+    }
   };
 
   return {
     ...input,
-
     appliedOptions,
     childUiSchema,
     childLabelForIndex,

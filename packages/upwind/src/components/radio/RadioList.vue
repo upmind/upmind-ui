@@ -1,173 +1,173 @@
 <template>
-  <div v-if="meta.isVisible" :class="styles.list.root">
-    <!-- label -->
-    <upw-label
-      :id="controlWrapper.id"
-      :text="controlWrapper.label"
-      :requiredText="controlWrapper.requiredText"
-      :optionalText="controlWrapper.optionalText"
-      :noRequired="controlWrapper.noRequired"
-      :noStatus="controlWrapper.noStatus"
-      :required="meta.isRequired"
-      :dirty="meta.isDirty"
-      :invalid="meta.isInvalid"
-      :disabled="meta.isDisabled"
-      :size="size"
-      :upwindConfig="config.label"
-    />
-
-    <ul :id="control.id + '-radio'" :class="styles.list.wrapper">
-      <template :class="styles.list.title" v-if="appliedOptions?.title">
-        {{ appliedOptions.title }}
-      </template>
-
+  <upw-input
+    :id="id"
+    :label="label"
+    :description="description"
+    :errors="errors"
+    :size="size"
+    :append-avatar="appendAvatar"
+    :append-icon="appendIcon"
+    :append-text="appendText"
+    :prepend-avatar="prependAvatar"
+    :prepend-icon="prependIcon"
+    :prepend-text="prependText"
+    :feedback-icon="feedbackIcon"
+    :dirty="meta.isDirty"
+    :disabled="meta.isDisabled"
+    :visible="meta.isVisible"
+    :required="meta.isRequired"
+    :focused="meta.isFocused"
+    :no-required="noRequired"
+    :no-feedback="noFeedback"
+    :no-status="noStatus"
+    :persist-feedback="persistFeedback"
+    variant="flat"
+  >
+    <ul :class="styles.radiolist.root">
       <li
-        v-for="(optionElement, optionIndex) in control.options"
-        :key="optionElement.value"
-        :class="styles.list.option"
+        v-for="(item, index) in items"
+        :key="item.value"
+        :class="styles.radiolist.item"
       >
-        <control-wrapper-inline
-          :id="`${control.id}-option-${optionIndex}`"
-          :dirty="controlWrapper.dirty"
-          :disabled="controlWrapper.disabled"
-          :errors="controlWrapper.errors"
-          :focused="controlWrapper.focused"
+        <upw-radio
+          v-bind="safeAttrs"
+          :id="`${id}-option-${index}`"
+          :errors="meta.errors"
           :size="size"
-          :visible="controlWrapper.visible"
-          :label="optionElement.label"
-          :upwind-config="[config, upwindConfig]"
+          variant="outlined"
+          :label="item.label"
+          :value="item.value"
+          :model-value="isSelected(item.value)"
           no-status
           no-feedback
-        >
-          <upw-radio
-            :name="control.path"
-            :disabled="!control.enabled"
-            :id="`${control.id}-option-${optionIndex}`"
-            :invalid="!!control?.errors"
-            :model-value="isSelected(optionElement.value)"
-            :value="optionElement.value"
-            @blur="isFocused = false"
-            @change="onChange"
-            @focus="isFocused = true"
-            :upwind-config="[config, upwindConfig]"
-          />
-        </control-wrapper-inline>
+          @change="onChange"
+        />
       </li>
     </ul>
-
-    <!-- feedback -->
-    <div class="feedback" :class="styles.feedback.root">
-      <upw-icon
-        key="icon"
-        :class="styles.feedback.icon"
-        icon="information-circle"
-      />
-      <span key="details">{{ control.errors || control.description }}</span>
-    </div>
-  </div>
+  </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
-import { isOneOfEnumControl, optionIs, and } from "@jsonforms/core";
-import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-
-// --- components
-import ControlWrapperInline from "../wrapper/RendererInline.vue";
-import UpwRadio from "../../../../radio/Radio.vue";
-import UpwLabel from "../../../../label/Label.vue";
-import UpwIcon from "../../../../icon/Icon.vue";
+import { defineComponent, computed, ref } from "vue";
 
 // --- local
 import config from "./config.cva";
 
+// --- components
+import UpwInput from "../input/Input.vue";
+import UpwRadio from "../radio/Radio.vue";
+
 // --- utils
-import { useUpwindRenderer } from "../../utils";
-import { useStyles } from "../../../../../utils";
-import { isEmpty, isNil, find } from "lodash-es";
+import { useStyles } from "../../utils";
+import { isEmpty, isNil, omit } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { ControlElement } from "@jsonforms/core";
-import type { RendererProps } from "@jsonforms/vue";
-import type { InputProps } from "../types";
+import type { InputProps, IconProps } from "../input/types";
+
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "RadioRenderer",
+  name: "UpwRadioList",
+  inheritAttrs: false,
+  emits: ["update:modelValue", "focus", "blur"],
   components: {
-    ControlWrapperInline,
+    UpwInput,
     UpwRadio,
-    UpwLabel,
-    UpwIcon,
   },
+
   props: {
-    ...rendererProps<ControlElement>(),
-    // ---  Additional Attributes
-    size: {
-      type: String as PropType<InputProps["size"]>,
+    items: { required: true, type: Array, default: () => [] },
+    // ---
+    id: {
+      type: String,
+      default: () => "radiolist-" + Math.random().toString(36).substr(2, 9),
+    },
+    label: { type: String },
+    description: { type: String },
+    errors: { type: String },
+    // ---
+    size: { type: String as PropType<InputProps["size"]>, default: null },
+    // ---
+    appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
+    appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
+    appendText: { type: String },
+    // ---
+    prependAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
+    prependIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
+    prependText: { type: String },
+    // ---
+    feedbackIcon: {
+      type: [Object, String] as PropType<IconProps["icon"]>,
+      default: "information-circle",
+    },
+    checkedIcon: {
+      type: [String, Object] as PropType<IconProps["icon"]>,
+      default: "dot",
+    },
+    uncheckedIcon: {
+      type: [String, Object] as PropType<IconProps["icon"]>,
       default: null,
     },
+    // ---
+    modelValue: { type: String },
+    // ---
+    required: { type: Boolean },
+    visible: { type: Boolean, default: true },
+    disabled: { type: Boolean },
+    forceFocus: { type: Boolean },
+    // ---
+    noRequired: { type: Boolean },
+    noStatus: { type: Boolean },
+    noFeedback: { type: Boolean },
+    persistFeedback: { type: Boolean, default: true },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: [Array, Object], default: null },
   },
-  setup(props: RendererProps<ControlElement>) {
+
+  setup(props, { emit }) {
+    const focused = ref(false);
+
     const meta = computed(() => ({
-      isInvalid: !isEmpty(renderer.control.value.errors),
-      isValid:
-        isEmpty(renderer.control.value.errors) &&
-        !isNil(renderer.control.value.data),
-      isDirty: renderer.controlWrapper.value.dirty,
-      isFocused: renderer.controlWrapper.value.focused,
-      isRequired: renderer.controlWrapper.value.required,
-      isVisible: renderer.controlWrapper.value.visible,
-      isDisabled: renderer.controlWrapper.value.disabled,
-      hasFeedback:
-        (isEmpty(renderer.control.value.errors) &&
-          !isNil(renderer.control.value.description) &&
-          (renderer.controlWrapper.value.focused ||
-            !renderer.controlWrapper.value.focusDescription)) ||
-        !isEmpty(renderer.controlWrapper.value.errors),
+      size: props.size,
+      // ---
+      isFocused: props.forceFocus || focused.value,
+      isDisabled: props.disabled,
+      isVisible: props.visible,
+      isRequired: props.required,
+      isDirty: !isNil(props.modelValue),
+      isChecked: !!props.modelValue,
+      isInvalid: !isEmpty(props.errors),
+      isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));
 
-    const styles = useStyles(
-      ["list", "feedback"],
-      meta,
-      config,
-      props.upwindConfig
-    );
-    const renderer = useUpwindRenderer(
-      useJsonFormsOneOfEnumControl(props),
-      target =>
-        find(
-          renderer.control.value.options,
-          ({ value }) => value == target.value
-        )?.value
+    const styles = useStyles("radiolist", meta, config, props.upwindConfig);
 
-      // target => (target.selectedIndex === 0 ? undefined : target.value)
-    );
-
-    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
     return {
-      ...renderer,
       meta,
       styles,
-      config, // pass the config to the  component
+      onFocus: event => {
+        focused.value = true;
+        emit("focus", event);
+      },
+      onBlur: event => {
+        focused.value = false;
+        emit("blur", event);
+      },
+      onChange: event => {
+        emit("update:modelValue", event.target.value);
+      },
+      isSelected: value => {
+        return props.modelValue == value;
+      },
     };
   },
-  methods: {
-    isSelected(value: string): boolean {
-      return this.control.data === value;
+  computed: {
+    safeAttrs() {
+      // TODO: maybe whitelist input attributes
+      return omit(this.$attrs, ["layout", "variant"]);
     },
   },
 });
-
-export const tester = {
-  rank: 3,
-  controlType: and(isOneOfEnumControl, optionIs("format", "radio")),
-};
 </script>

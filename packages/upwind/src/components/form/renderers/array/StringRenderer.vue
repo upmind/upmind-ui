@@ -22,7 +22,7 @@ import {
 } from "@jsonforms/core";
 import { rendererProps, useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 // --- components
-import UpwCheckboxList from "../../../../checkbox/CheckboxList.vue";
+import UpwCheckboxList from "../../../checkbox/CheckboxList.vue";
 
 // --- utils
 import { useUpwindArrayRenderer } from "../utils";
@@ -42,17 +42,7 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const renderer = useUpwindArrayRenderer(
-      useJsonFormsMultiEnumControl(props),
-      target => {
-        const checked = target.checked;
-        const value = target.value;
-        debugger;
-        if (checked) {
-          renderer.addItem(renderer.control.value.path, value);
-        } else {
-          renderer.removeItem?.(renderer.control.value.path, value);
-        }
-      }
+      useJsonFormsMultiEnumControl(props)
     );
     return {
       ...renderer,

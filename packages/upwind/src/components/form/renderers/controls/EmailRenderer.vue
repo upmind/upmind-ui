@@ -4,8 +4,8 @@
     :id="control.id + '-input'"
     :disabled="!control.enabled"
     :model-value="control.data"
-    @change="onChange"
     type="email"
+    @change="onChange"
   />
 </template>
 
