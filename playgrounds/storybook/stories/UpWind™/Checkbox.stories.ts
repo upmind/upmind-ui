@@ -6,7 +6,6 @@ import { UpwCheckbox, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
 
 // --- types
 
@@ -14,7 +13,7 @@ import { keys } from "lodash-es";
 
 const meta: Meta<typeof UpwCheckbox> = {
   parameters: {
-    controls: { exclude: ["layout", "variant"] },
+    controls: { exclude: ["layout", "variant", "invalid"] },
   },
   component: UpwCheckbox,
   subcomponents: { UpwInput },
@@ -33,20 +32,20 @@ const meta: Meta<typeof UpwCheckbox> = {
     indeterminateIcon: useSystemArgTypes.icon,
   },
   args: {
-    label: "What is your name?",
-    description: "Please enter your full name",
+    label: "Sign up for our newsletter?",
+    description: "We will send you an email once a week with the latest news.",
     errors: undefined,
     // ---
     modelValue: undefined,
     // ---
     size: "md",
-    variant: "outlined",
-    layout: "stacked",
     // ---
     prependAvatar: undefined,
     prependIcon: undefined,
+    prependText: undefined,
     appendIcon: undefined,
     appendAvatar: undefined,
+    appendText: undefined,
     // ---
     required: false,
     disabled: false,
@@ -59,4 +58,21 @@ const meta: Meta<typeof UpwCheckbox> = {
 export default meta;
 type Story = StoryObj<typeof UpwCheckbox>;
 
-export const Base: Story = {};
+export const Base: Story = {
+  render: (args, { updateArgs }) => ({
+    components: { UpwCheckbox },
+    setup() {
+      return {
+        args,
+      };
+    },
+    methods: {
+      doUpdate(value: boolean) {
+        updateArgs({ modelValue: value });
+      },
+    },
+    template: `
+        <upw-checkbox v-bind="args" @update:modelValue="doUpdate" />
+    `,
+  }),
+};

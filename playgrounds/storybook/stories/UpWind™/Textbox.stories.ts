@@ -6,7 +6,6 @@ import { UpwTextbox, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
 
 // --- types
 
@@ -37,13 +36,13 @@ const meta: Meta<typeof UpwTextbox> = {
     modelValue: undefined,
     // ---
     size: "md",
-    variant: "outlined",
-    layout: "stacked",
     // ---
     prependAvatar: undefined,
     prependIcon: undefined,
+    prependText: undefined,
     appendIcon: undefined,
     appendAvatar: undefined,
+    appendText: undefined,
     // ---
     required: false,
     disabled: false,
@@ -56,4 +55,21 @@ const meta: Meta<typeof UpwTextbox> = {
 export default meta;
 type Story = StoryObj<typeof UpwTextbox>;
 
-export const Base: Story = {};
+export const Base: Story = {
+  render: (args, { updateArgs }) => ({
+    components: { UpwTextbox },
+    setup() {
+      return {
+        args,
+      };
+    },
+    methods: {
+      doUpdate(value: boolean) {
+        updateArgs({ modelValue: value });
+      },
+    },
+    template: `
+        <upw-textbox v-bind="args" @update:modelValue="doUpdate" />
+    `,
+  }),
+};

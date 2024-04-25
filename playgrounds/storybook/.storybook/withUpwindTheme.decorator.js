@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "@storybook/preview-api";
+import { useEffect } from "@storybook/preview-api";
 import { DecoratorHelpers } from "@storybook/addon-themes";
 import { reduce, set } from "lodash-es";
 
@@ -20,7 +20,6 @@ export const withUpwindTheme = ({ themes, defaultTheme }) => {
   return (story, context) => {
     const selectedTheme = pluckThemeFromContext(context);
     const { themeOverride } = useThemeParameters();
-
     const selected = themeOverride || selectedTheme || defaultTheme;
 
     useEffect(() => {
@@ -33,7 +32,6 @@ export const withUpwindTheme = ({ themes, defaultTheme }) => {
 
     return {
       components: { story },
-
       template: `
       <upw-theme-provider theme="${selected}">
         <div class="content bg-base p-4 sm:p-8 text-base-content prose max-w-full min-h-screen">
