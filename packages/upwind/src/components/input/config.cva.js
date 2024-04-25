@@ -42,7 +42,7 @@ export default {
           {
             isValid: true,
             isDisabled: false,
-            class: "border-success-300",
+            class: "",
           },
           {
             isFocused: true,
@@ -51,7 +51,6 @@ export default {
             isDisabled: false,
             class: "border-primary ring-primary ring-4 ring-opacity-20",
           },
-
           {
             isFocused: true,
             isInvalid: true,
@@ -71,60 +70,136 @@ export default {
     icon: cva("", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
+      compoundVariants: [
+        {
+          size: "sm",
+          layout: "stacked",
+          class: "my-2",
+        },
+        {
+          size: "md",
+          layout: "stacked",
+          class: "my-3",
+        },
+        {
+          size: "lg",
+          layout: "stacked",
+          class: "my-4",
+        },
+      ],
       defaultVariants: {
         size: "md",
       },
     }),
 
-    avatar: cva("my-3  overflow-hidden rounded-full", {
+    avatar: cva("overflow-hidden rounded-full", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
+      compoundVariants: [
+        {
+          size: "sm",
+          layout: "stacked",
+          class: "my-2",
+        },
+        {
+          size: "md",
+          layout: "stacked",
+          class: "my-3",
+        },
+        {
+          size: "lg",
+          layout: "stacked",
+          class: "my-4",
+        },
+      ],
       defaultVariants: {
         size: "md",
       },
     }),
 
-    prepend: cva(
-      "bg-base-100 border-base-300 -ml-2 flex items-start self-stretch rounded-s-lg border-r leading-none",
-      {
-        variants: {
-          size: {
-            sm: "px-3 py-2 leading-5",
-            md: "px-3 py-3 leading-6",
-            lg: "px-3 py-4 leading-7",
-          },
+    prepend: cva("flex items-start self-stretch rounded-s-lg", {
+      variants: {
+        size: {
+          sm: "leading-5",
+          md: "leading-6",
+          lg: "leading-7",
         },
-        defaultVariants: {
+        variant: {
+          outlined: "bg-base-100 border-base-300 border-r ",
+          flat: "text-base-500",
+        },
+        layout: {
+          stacked: "-ml-2",
+        },
+      },
+      compoundVariants: [
+        {
+          size: "sm",
+          layout: "stacked",
+          class: "px-3 py-2",
+        },
+        {
           size: "md",
+          layout: "stacked",
+          class: "px-3 py-3",
         },
-      }
-    ),
+        {
+          size: "lg",
+          layout: "stacked",
+          class: "px-3 py-4",
+        },
+      ],
+      defaultVariants: {
+        size: "md",
+      },
+    }),
 
-    append: cva(
-      "bg-base-100 border-base-300 -mr-2 flex items-start self-stretch rounded-e-lg border-l",
-      {
-        variants: {
-          size: {
-            sm: "px-3 py-2 leading-5",
-            md: "px-3 py-3 leading-6",
-            lg: "px-3 py-4 leading-7",
-          },
+    append: cva("flex items-start self-stretch rounded-e-lg", {
+      variants: {
+        size: {
+          sm: "leading-5",
+          md: "leading-6",
+          lg: "leading-7",
         },
-        defaultVariants: {
+        variant: {
+          outlined: "bg-base-100 border-base-300 border-l",
+          flat: "text-base-500",
+        },
+        layout: {
+          stacked: "-mr-2",
+        },
+      },
+      compoundVariants: [
+        {
+          size: "sm",
+          layout: "stacked",
+          class: "px-3 py-2",
+        },
+        {
           size: "md",
+          layout: "stacked",
+          class: "px-3 py-3",
         },
-      }
-    ),
+        {
+          size: "lg",
+          layout: "stacked",
+          class: "px-3 py-4",
+        },
+      ],
+      defaultVariants: {
+        size: "md",
+      },
+    }),
   },
   inputFeedback: {
     root: cva(
