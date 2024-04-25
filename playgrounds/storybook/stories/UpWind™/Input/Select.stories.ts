@@ -2,20 +2,20 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwRadio, UpwInput } from "@upmind/upwind";
+import { UpwSelect, UpwInput } from "@upmind/upwind";
 
 // --- utils
-import { useSystemArgTypes } from "../../utils";
+import { useSystemArgTypes } from "../../../utils";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwRadio> = {
+const meta: Meta<typeof UpwSelect> = {
   parameters: {
-    controls: { exclude: ["layout", "variant", "invalid"] },
+    controls: { exclude: ["layout", "variant"] },
   },
-  component: UpwRadio,
+  component: UpwSelect,
   subcomponents: { UpwInput },
   argTypes: {
     size: useSystemArgTypes.size,
@@ -27,13 +27,32 @@ const meta: Meta<typeof UpwRadio> = {
     appendIcon: useSystemArgTypes.icon,
     // ---
     feedbackIcon: useSystemArgTypes.icon,
-    checkedIcon: useSystemArgTypes.icon,
-    uncheckedIcon: useSystemArgTypes.icon,
-    indeterminateIcon: useSystemArgTypes.icon,
   },
   args: {
-    label: "Sign up for our newsletter?",
-    description: "We will send you an email once a week with the latest news.",
+    items: [
+      {
+        value: "1",
+        label: "Item 1",
+      },
+      {
+        value: "2",
+        label: "Item 2",
+      },
+      {
+        value: "3",
+        label: "Item 3",
+      },
+      {
+        value: "4",
+        label: "Nisi dolore consectetur.",
+      },
+      {
+        value: "5",
+        label: "Incididunt ullamco et elit exercitation ipsum.",
+      },
+    ],
+    label: "What is your name?",
+    description: "Please enter your full name",
     errors: undefined,
     // ---
     modelValue: undefined,
@@ -56,11 +75,11 @@ const meta: Meta<typeof UpwRadio> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwRadio>;
+type Story = StoryObj<typeof UpwSelect>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwRadio },
+    components: { UpwSelect },
     setup() {
       return {
         args,
@@ -72,7 +91,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-radio v-bind="args" @update:modelValue="doUpdate" :value="true" />
+        <upw-Select v-bind="args" @update:modelValue="doUpdate" />
     `,
   }),
 };
