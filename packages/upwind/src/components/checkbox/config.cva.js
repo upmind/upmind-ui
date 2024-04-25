@@ -3,12 +3,12 @@ import { cva } from "class-variance-authority";
 
 export default {
   checkbox: {
-    root: cva("relative inline-block shrink-0", {
+    root: cva("relative inline-flex shrink-0 items-center justify-center", {
       variants: {
         size: {
-          sm: "size-4 text-sm",
-          md: "size-5",
-          lg: "size-6 text-lg",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {
@@ -16,15 +16,55 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 focus:border-primary focus:ring-primary size-full appearance-none rounded border outline-none ring-0 focus:ring-4 focus:ring-opacity-20",
+      "border-base-300 appearance-none rounded border outline-none ring-0",
       {
         variants: {
+          size: {
+            sm: "size-4",
+            md: "size-5",
+            lg: "size-6",
+          },
           isDisabled: {
-            true: "bg-base-100 ",
+            true: "bg-base-100",
           },
           isChecked: {
-            true: `bg-base-content border-base-content focus:border-primary focus:ring-primary text-base focus:ring-4 focus:ring-opacity-20`,
+            true: `bg-base-content border-base-content text-base`,
           },
+        },
+        compoundVariants: [
+          {
+            isInvalid: true,
+            isDisabled: false,
+            class: "border-error-300",
+          },
+          {
+            isValid: true,
+            isDisabled: false,
+            class: "",
+          },
+          {
+            isFocused: true,
+            isInvalid: false,
+            isValid: false,
+            isDisabled: false,
+            class: "border-primary ring-primary ring-4 ring-opacity-20",
+          },
+
+          {
+            isFocused: true,
+            isInvalid: true,
+            isDisabled: false,
+            class: "border-error ring-error ring-4 ring-opacity-20",
+          },
+          {
+            isFocused: true,
+            isValid: true,
+            isDisabled: false,
+            class: "border-success ring-success ring-4 ring-opacity-20",
+          },
+        ],
+        defaultVariants: {
+          size: "md",
         },
       }
     ),

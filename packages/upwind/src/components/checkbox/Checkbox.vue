@@ -17,18 +17,19 @@
     :visible="meta.isVisible"
     :required="meta.isRequired"
     :focused="meta.isFocused"
-    layout="flat"
-    variant="inline"
+    layout="inline"
+    variant="flat"
   >
     <span :class="styles.checkbox.root">
       <input
+        :id="id"
         v-bind="safeAttrs"
         type="checkbox"
         :disabled="disabled"
         :checked="modelValue"
         :class="styles.checkbox.input"
         @blur="onBlur"
-        @change="onChange"
+        @input="onChange"
         @focus="onFocus"
         :aria-invalid="meta.isInvalid"
       />
@@ -73,7 +74,10 @@ export default defineComponent({
   },
 
   props: {
-    id: { type: String },
+    id: {
+      type: String,
+      default: () => "checkbox-" + Math.random().toString(36).substr(2, 9),
+    },
     label: { type: String },
     description: { type: String },
     errors: { type: String },
@@ -125,7 +129,7 @@ export default defineComponent({
       isDisabled: props.disabled,
       isVisible: props.visible,
       isRequired: props.required,
-      isDirty: !isEmpty(props.modelValue),
+      isDirty: !isNil(props.modelValue),
       isChecked: !!props.modelValue,
       isIndeterminate: isNil(props.modelValue),
       isInvalid: !isEmpty(props.errors),
@@ -146,7 +150,7 @@ export default defineComponent({
         emit("blur", event);
       },
       onChange: event => {
-        emit("update:modelValue", event.target.value);
+        emit("update:modelValue", event.target.checked);
       },
     };
   },

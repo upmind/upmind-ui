@@ -193,7 +193,7 @@ export default defineComponent({
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean },
+    persistFeedback: { type: Boolean, default: true },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: Object },
   },
@@ -203,7 +203,7 @@ export default defineComponent({
       variant: props.variant,
       size: props.size,
       // ---
-      isInline: props.layout === "inline",
+      isInline: props.layout == "inline",
       // ---
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && props.dirty,

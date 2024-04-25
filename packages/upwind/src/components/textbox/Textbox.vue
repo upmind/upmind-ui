@@ -21,12 +21,13 @@
     variant="outlined"
   >
     <input
+      :id="id"
       v-bind="safeAttrs"
       :disabled="disabled"
       :value="modelValue"
       :class="styles.textbox.root"
       @blur="onBlur"
-      @change="onChange"
+      @input="onChange"
       @focus="onFocus"
       :aria-invalid="meta.isInvalid"
     />
@@ -61,7 +62,10 @@ export default defineComponent({
     UpwInput,
   },
   props: {
-    id: { type: String },
+    id: {
+      type: String,
+      default: () => "textbox-" + Math.random().toString(36).substr(2, 9),
+    },
     label: { type: String },
     description: { type: String },
     errors: { type: String },
