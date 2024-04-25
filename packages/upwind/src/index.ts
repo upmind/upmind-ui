@@ -8,6 +8,7 @@ export { default as UpwInput } from "./components/input/Input.vue";
 export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
 export { default as UpwRadio } from "./components/radio/Radio.vue";
 export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
+export { default as UpwSelect } from "./components/select/Select.vue";
 
 // ===
 export { useStyles } from "./utils/useStyles";
