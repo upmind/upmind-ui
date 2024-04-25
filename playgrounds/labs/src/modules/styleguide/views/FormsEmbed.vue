@@ -407,13 +407,9 @@ const uischema = {
   ],
 };
 
-function doReject() {
-  console.log("doReject");
-}
+function doReject() {}
 
-function doResolve(value) {
-  console.log("doResolve", value);
-}
+function doResolve(value) {}
 
 onMounted(() => {
   delay(() => {
