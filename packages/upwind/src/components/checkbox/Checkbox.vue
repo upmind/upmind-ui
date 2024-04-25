@@ -59,8 +59,7 @@ import { isNil, isEmpty, omit } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { InputProps } from "../input/types";
-import type { CheckboxProps } from "./types";
+import type { InputProps, IconProps } from "../input/types";
 
 // ----------------------------------------------
 
@@ -97,15 +96,15 @@ export default defineComponent({
       default: "information-circle",
     },
     checkedIcon: {
-      type: [String, Object] as PropType<CheckboxProps["checkedIcon"]>,
+      type: [String, Object] as PropType<IconProps["icon"]>,
       default: "check",
     },
     uncheckedIcon: {
-      type: [String, Object] as PropType<CheckboxProps["uncheckedIcon"]>,
+      type: [String, Object] as PropType<IconProps["icon"]>,
       default: null,
     },
     indeterminateIcon: {
-      type: [String, Object] as PropType<CheckboxProps["indeterminateIcon"]>,
+      type: [String, Object] as PropType<IconProps["icon"]>,
       default: "subtract",
     },
     // ---

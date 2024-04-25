@@ -17,28 +17,28 @@
     :visible="meta.isVisible"
     :required="meta.isRequired"
     :focused="meta.isFocused"
-    layout="inline"
-    variant="flat"
+    layout="stacked"
+    variant="outlined"
   >
-    <span :class="styles.radio.root">
-      <input
-        :id="id"
-        v-bind="safeAttrs"
-        type="radio"
-        :disabled="disabled"
-        :checked="modelValue"
-        :class="styles.radio.input"
-        @blur="onBlur"
-        @input="onChange"
-        @focus="onFocus"
-        :aria-invalid="meta.isInvalid"
+    <select
+      :id="id"
+      v-bind="safeAttrs"
+      :disabled="disabled"
+      :value="modelValue"
+      :class="styles.select.root"
+      @blur="onBlur"
+      @input="onChange"
+      @focus="onFocus"
+      :aria-invalid="meta.isInvalid"
+    >
+      <option key="empty" value="" :class="styles.select.option" />
+      <option
+        v-for="item in items"
+        v-bind="item"
+        :key="item.value"
+        :class="styles.select.option"
       />
-      <upw-icon
-        :class="styles.radio.icon"
-        :icon="computedIcon"
-        v-if="computedIcon"
-      />
-    </span>
+    </select>
   </upw-input>
 </template>
 
@@ -51,7 +51,6 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwIcon from "../icon/Icon.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -64,18 +63,18 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwRadio",
+  name: "UpwCheckbox",
   inheritAttrs: false,
   emits: ["update:modelValue", "focus", "blur"],
   components: {
     UpwInput,
-    UpwIcon,
   },
-
   props: {
+    items: { required: true, type: Array, default: () => [] },
+    // ---
     id: {
       type: String,
-      default: () => "radio-" + Math.random().toString(36).substr(2, 9),
+      default: () => "select-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
     description: { type: String },
@@ -95,17 +94,8 @@ export default defineComponent({
       type: [Object, String] as PropType<IconProps["icon"]>,
       default: "information-circle",
     },
-    checkedIcon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-      default: "dot",
-    },
-    uncheckedIcon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-      default: null,
-    },
-
     // ---
-    modelValue: { type: Boolean },
+    modelValue: { type: String },
     // ---
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
@@ -125,13 +115,12 @@ export default defineComponent({
       isDisabled: props.disabled,
       isVisible: props.visible,
       isRequired: props.required,
-      isDirty: !isNil(props.modelValue),
-      isChecked: !!props.modelValue,
+      isDirty: !isEmpty(props.modelValue),
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));
 
-    const styles = useStyles("radio", meta, config, props.upwindConfig);
+    const styles = useStyles("select", meta, config, props.upwindConfig);
 
     return {
       meta,
@@ -145,7 +134,6 @@ export default defineComponent({
         emit("blur", event);
       },
       onChange: event => {
-        debugger;
         emit("update:modelValue", event.target.value);
       },
     };
@@ -154,9 +142,6 @@ export default defineComponent({
     safeAttrs() {
       // TODO: maybe whitelist input attributes
       return omit(this.$attrs, ["layout", "variant"]);
-    },
-    computedIcon() {
-      return this.meta.isChecked ? this.checkedIcon : this.uncheckedIcon;
     },
   },
 });
