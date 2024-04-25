@@ -16,7 +16,6 @@
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
     :required="meta.isRequired"
-    :focused="meta.isFocused"
     :no-required="noRequired"
     :no-feedback="noFeedback"
     :no-status="noStatus"
@@ -35,7 +34,7 @@
       @input="onChange"
       @focus="onFocus"
       :aria-invalid="meta.isInvalid"
-    />
+    ></textarea>
   </upw-input>
 </template>
 
@@ -62,7 +61,7 @@ import type { InputProps, IconProps } from "../input/types";
 export default defineComponent({
   name: "UpwCheckbox",
   inheritAttrs: false,
-  emits: ["update:modelValue", "focus", "blur"],
+  emits: ["update:modelValue"],
   components: {
     UpwInput,
   },
@@ -76,6 +75,7 @@ export default defineComponent({
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]>, default: null },
+    autosize: { type: Boolean, default: false },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -95,7 +95,6 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
-    forceFocus: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -112,7 +111,7 @@ export default defineComponent({
     const meta = computed(() => ({
       size: props.size,
       // ---
-      isFocused: props.forceFocus || focused.value,
+      isFocused: focused.value,
       isDisabled: props.disabled,
       isVisible: props.visible,
       isRequired: props.required,
@@ -139,12 +138,10 @@ export default defineComponent({
       onFocus: event => {
         focused.value = true;
         resize();
-        emit("focus", event);
       },
       onBlur: event => {
         focused.value = false;
         resize();
-        emit("blur", event);
       },
       onChange: event => {
         resize();

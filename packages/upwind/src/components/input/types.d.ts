@@ -24,7 +24,6 @@ export interface InputProps {
   // ---
   required?: boolean;
   visible?: boolean;
-  focused?: boolean;
   disabled?: boolean;
   dirty?: boolean;
   // ---

@@ -71,8 +71,6 @@ const meta: Meta<typeof UpwRadioList> = {
     required: false,
     disabled: false,
     visible: true,
-    invalid: false,
-    forceFocus: false,
   },
 };
 

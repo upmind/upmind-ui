@@ -186,7 +186,6 @@ export default defineComponent({
     // ---
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
-    focused: { type: Boolean },
     disabled: { type: Boolean },
     dirty: { type: Boolean },
     // ---
@@ -208,14 +207,11 @@ export default defineComponent({
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && props.dirty,
       isDirty: props.dirty,
-      isFocused: props.focused,
       isRequired: props.required,
       isVisible: props.visible,
       isDisabled: props.disabled,
       hasFeedback:
-        (isEmpty(props.errors) &&
-          !isNil(props.description) &&
-          (props.focused || props.persistFeedback)) ||
+        (isEmpty(props.errors) && !isNil(props.description)) ||
         !isEmpty(props.errors),
     }));
 

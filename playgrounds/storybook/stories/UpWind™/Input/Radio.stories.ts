@@ -49,8 +49,6 @@ const meta: Meta<typeof UpwRadio> = {
     required: false,
     disabled: false,
     visible: true,
-    invalid: false,
-    forceFocus: false,
   },
 };
 
