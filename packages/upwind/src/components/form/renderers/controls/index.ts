@@ -2,35 +2,35 @@ import { registerEntry } from "../utils";
 
 // -----------------------------------------------------------------------------
 
-import StringRenderer, { tester as stringTest } from "./string/Renderer.vue";
+import StringRenderer, { tester as stringTest } from "./StringRenderer.vue";
 
 import MultiStringRenderer, {
   tester as multiStringTest,
-} from "./string/MultilineRenderer.vue";
+} from "./MultilineRenderer.vue";
 
-import UrlRenderer, { tester as urlTest } from "./string/UrlRenderer.vue";
+import UrlRenderer, { tester as urlTest } from "./UrlRenderer.vue";
 
-import EmailRenderer, { tester as emailTest } from "./string/EmailRenderer.vue";
+import EmailRenderer, { tester as emailTest } from "./EmailRenderer.vue";
 
 import PasswordRenderer, {
   tester as passwordTest,
-} from "./string/PasswordRenderer.vue";
+} from "./PasswordRenderer.vue";
 
-import DateRenderer, { tester as dateTest } from "./string/DateRenderer.vue";
+import DateRenderer, { tester as dateTest } from "./DateRenderer.vue";
 
-import NumberRenderer, { tester as numberTest } from "./number/Renderer.vue";
+import NumberRenderer, { tester as numberTest } from "./NumberRenderer.vue";
 
-import HiddenRenderer, { tester as hiddenTest } from "./hidden/Renderer.vue";
+import HiddenRenderer, { tester as hiddenTest } from "./ConstRenderer.vue";
 
-import BooleanRenderer, { tester as booleanTest } from "./boolean/Renderer.vue";
+import BooleanRenderer, { tester as booleanTest } from "./BooleanRenderer.vue";
 
-import EnumRenderer, { tester as enumTest } from "./enum/Renderer.vue";
+import EnumRenderer, { tester as enumTest } from "./EnumRenderer.vue";
 
-import OneOfRenderer, { tester as oneOfTest } from "./oneOf/Renderer.vue";
+import OneOfRenderer, { tester as oneOfTest } from "./OneOfRenderer.vue";
 
 import OneOfRadioRenderer, {
   tester as oneOfRadioTest,
-} from "./oneOf/RadioRenderer.vue";
+} from "./OneOfRadioRenderer.vue";
 
 // -----------------------------------------------------------------------------
 // TODO

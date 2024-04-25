@@ -20,12 +20,13 @@
     layout="stacked"
     variant="outlined"
   >
-    <input
+    <textarea
+      ref="input"
       :id="id"
       v-bind="safeAttrs"
       :disabled="disabled"
       :value="modelValue"
-      :class="styles.textbox.root"
+      :class="styles.textarea.root"
       @blur="onBlur"
       @input="onChange"
       @focus="onFocus"
@@ -64,7 +65,7 @@ export default defineComponent({
   props: {
     id: {
       type: String,
-      default: () => "textbox-" + Math.random().toString(36).substr(2, 9),
+      default: () => "textarea-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
     description: { type: String },
@@ -97,6 +98,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const focused = ref(false);
+    const input = ref();
 
     const meta = computed(() => ({
       size: props.size,
@@ -110,20 +112,33 @@ export default defineComponent({
       isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));
 
-    const styles = useStyles("textbox", meta, config, props.upwindConfig);
+    const styles = useStyles("textarea", meta, config, props.upwindConfig);
+
+    function resize() {
+      input.value.style.height = "initial";
+
+      if (input.value && props.autosize && meta.value.isFocused) {
+        input.value.style.height = input.value.scrollHeight + "px";
+      }
+    }
 
     return {
+      input,
       meta,
       styles,
+      resize,
       onFocus: event => {
         focused.value = true;
+        resize();
         emit("focus", event);
       },
       onBlur: event => {
         focused.value = false;
+        resize();
         emit("blur", event);
       },
       onChange: event => {
+        resize();
         emit("update:modelValue", event.target.value);
       },
     };

@@ -1,25 +1,25 @@
 <template>
-  <input
+  <upw-textbox
+    v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
-    type="hidden"
-    :value="control.data"
+    :disabled="!control.enabled"
+    :model-value="control.data"
     @change="onChange"
+    type="url"
   />
 </template>
 
 <script lang="ts">
 // --- external
 import { defineComponent } from "vue";
-import { uiTypeIs, formatIs, schemaMatches, and, or } from "@jsonforms/core";
+import { isStringControl, formatIs, and, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-
-// --- local
+import UpwTextbox from "../../../textbox/Textbox.vue";
 
 // --- utils
-import { useUpwindRenderer } from "../../utils";
-import { has } from "lodash-es";
+import { useUpwindRenderer } from "../utils";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -27,8 +27,10 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "HiddenRenderer",
-  components: {},
+  name: "UrlRenderer",
+  components: {
+    UpwTextbox,
+  },
   props: {
     ...rendererProps<ControlElement>(),
   },
@@ -46,10 +48,12 @@ export default defineComponent({
 export const tester = {
   rank: 2,
   controlType: and(
-    uiTypeIs("Control"),
+    isStringControl,
     or(
-      formatIs("hidden"),
-      schemaMatches(schema => has(schema, "const"))
+      formatIs("uri"),
+      formatIs("uri-reference"),
+      formatIs("iri"),
+      formatIs("iri-reference")
     )
   ),
 };

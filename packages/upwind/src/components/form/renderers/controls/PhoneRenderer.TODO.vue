@@ -95,7 +95,7 @@ import "flag-icons/css/flag-icons.min.css";
 import { onClickOutside } from "@vueuse/core";
 
 const controlRenderer = defineComponent({
-  name: "StringRenderer",
+  name: "PhoneRenderer",
   components: {
     ControlWrapper,
   },
