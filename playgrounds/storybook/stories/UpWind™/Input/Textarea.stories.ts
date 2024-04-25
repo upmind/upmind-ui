@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwCheckbox, UpwInput } from "@upmind/upwind";
+import { UpwTextarea, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
@@ -11,11 +11,11 @@ import { useSystemArgTypes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwCheckbox> = {
+const meta: Meta<typeof UpwTextarea> = {
   parameters: {
-    controls: { exclude: ["layout", "variant", "invalid"] },
+    controls: { exclude: ["layout", "variant"] },
   },
-  component: UpwCheckbox,
+  component: UpwTextarea,
   subcomponents: { UpwInput },
   argTypes: {
     size: useSystemArgTypes.size,
@@ -27,18 +27,16 @@ const meta: Meta<typeof UpwCheckbox> = {
     appendIcon: useSystemArgTypes.icon,
     // ---
     feedbackIcon: useSystemArgTypes.icon,
-    checkedIcon: useSystemArgTypes.icon,
-    uncheckedIcon: useSystemArgTypes.icon,
-    indeterminateIcon: useSystemArgTypes.icon,
   },
   args: {
-    label: "Sign up for our newsletter?",
-    description: "We will send you an email once a week with the latest news.",
+    label: "What is your name?",
+    description: "Please enter your full name",
     errors: undefined,
     // ---
     modelValue: undefined,
     // ---
     size: "md",
+    autosize: false,
     // ---
     prependAvatar: undefined,
     prependIcon: undefined,
@@ -50,16 +48,15 @@ const meta: Meta<typeof UpwCheckbox> = {
     required: false,
     disabled: false,
     visible: true,
-    invalid: false,
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwCheckbox>;
+type Story = StoryObj<typeof UpwTextarea>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwCheckbox },
+    components: { UpwTextarea },
     setup() {
       return {
         args,
@@ -71,7 +68,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-checkbox v-bind="args" @update:modelValue="doUpdate" />
+        <upw-textarea v-bind="args" @update:modelValue="doUpdate" />
     `,
   }),
 };

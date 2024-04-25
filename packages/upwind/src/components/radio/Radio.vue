@@ -16,7 +16,6 @@
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
     :required="meta.isRequired"
-    :focused="meta.isFocused"
     :no-required="noRequired"
     :no-feedback="noFeedback"
     :no-status="noStatus"
@@ -33,9 +32,7 @@
         :disabled="disabled"
         :checked="modelValue"
         :class="styles.radio.input"
-        @blur="onBlur"
         @input="onChange"
-        @focus="onFocus"
         :aria-invalid="meta.isInvalid"
       />
       <upw-icon
@@ -71,7 +68,7 @@ import type { InputProps, IconProps } from "../input/types";
 export default defineComponent({
   name: "UpwRadio",
   inheritAttrs: false,
-  emits: ["update:modelValue", "focus", "blur"],
+  emits: ["update:modelValue"],
   components: {
     UpwInput,
     UpwIcon,
@@ -119,7 +116,6 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
-    forceFocus: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -130,12 +126,9 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const focused = ref(false);
-
     const meta = computed(() => ({
       size: props.size,
       // ---
-      isFocused: props.forceFocus || focused.value,
       isDisabled: props.disabled,
       isVisible: props.visible,
       isRequired: props.required,
@@ -151,14 +144,6 @@ export default defineComponent({
       meta,
       styles,
       config,
-      onFocus: event => {
-        focused.value = true;
-        emit("focus", event);
-      },
-      onBlur: event => {
-        focused.value = false;
-        emit("blur", event);
-      },
       onChange: event => {
         emit("update:modelValue", event.target.value);
       },

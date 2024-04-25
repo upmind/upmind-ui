@@ -43,24 +43,27 @@ export default {
             class: "",
           },
           {
-            isFocused: true,
+            variant: "outlined",
             isInvalid: false,
             isValid: false,
             isDisabled: false,
-            class: "border-primary ring-primary ring-4 ring-opacity-20",
+            class:
+              "focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
           },
 
           {
-            isFocused: true,
+            variant: "outlined",
             isInvalid: true,
             isDisabled: false,
-            class: "border-error ring-error ring-4 ring-opacity-20",
+            class:
+              "focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
           {
-            isFocused: true,
+            variant: "outlined",
             isValid: true,
             isDisabled: false,
-            class: "border-success ring-success ring-4 ring-opacity-20",
+            class:
+              "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
           },
         ],
         defaultVariants: {

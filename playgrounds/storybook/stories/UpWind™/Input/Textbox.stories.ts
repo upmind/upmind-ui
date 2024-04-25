@@ -47,8 +47,6 @@ const meta: Meta<typeof UpwTextbox> = {
     required: false,
     disabled: false,
     visible: true,
-    invalid: false,
-    forceFocus: false,
   },
 };
 
