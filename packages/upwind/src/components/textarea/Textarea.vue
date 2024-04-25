@@ -17,6 +17,10 @@
     :visible="meta.isVisible"
     :required="meta.isRequired"
     :focused="meta.isFocused"
+    :no-required="noRequired"
+    :no-feedback="noFeedback"
+    :no-status="noStatus"
+    :persist-feedback="persistFeedback"
     layout="stacked"
     variant="outlined"
   >
@@ -92,6 +96,11 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     forceFocus: { type: Boolean },
+    // ---
+    noRequired: { type: Boolean },
+    noStatus: { type: Boolean },
+    noFeedback: { type: Boolean },
+    persistFeedback: { type: Boolean, default: true },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -107,7 +116,7 @@ export default defineComponent({
       isDisabled: props.disabled,
       isVisible: props.visible,
       isRequired: props.required,
-      isDirty: !isEmpty(props.modelValue),
+      isDirty: !isNil(props.modelValue),
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));

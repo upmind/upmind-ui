@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   input: {
-    root: cva("relative inline-flex flex-col gap-1", {
+    root: cva("relative flex flex-col gap-1", {
       variants: {
         size: {
           sm: "text-sm",
@@ -16,56 +16,82 @@ export default {
       },
     }),
 
-    wrapper: cva(
-      "group flex w-full items-start gap-3 rounded-lg px-2 py-0 ring-0",
-      {
-        variants: {
-          variant: {
-            outlined: "border-base-300  border ",
-            flat: "",
-          },
-          layout: {
-            stacked: "",
-            inline: "border-none p-0 !ring-0",
-          },
-
-          isDisabled: {
-            true: "bg-base-100 pointer-events-none opacity-50",
-          },
+    wrapper: cva("group flex w-full items-start gap-3 rounded-lg ring-0", {
+      variants: {
+        variant: {
+          outlined: "border-base-300  border px-2",
+          flat: "",
         },
-        compoundVariants: [
-          {
-            isInvalid: true,
-            isDisabled: false,
-            class: "border-error-300",
-          },
-          {
-            isValid: true,
-            isDisabled: false,
-            class: "",
-          },
-          {
-            isFocused: true,
-            isInvalid: false,
-            isValid: false,
-            isDisabled: false,
-            class: "border-primary ring-primary ring-4 ring-opacity-20",
-          },
-          {
-            isFocused: true,
-            isInvalid: true,
-            isDisabled: false,
-            class: "border-error ring-error ring-4 ring-opacity-20",
-          },
-          {
-            isFocused: true,
-            isValid: true,
-            isDisabled: false,
-            class: "border-success ring-success ring-4 ring-opacity-20",
-          },
-        ],
-      }
-    ),
+        layout: {
+          stacked: "",
+          inline: "!ring-0",
+        },
+
+        isDisabled: {
+          true: "bg-base-100 pointer-events-none opacity-50",
+        },
+      },
+      compoundVariants: [
+        {
+          layout: "inline",
+          variant: "flat",
+          class: "p-0",
+        },
+        {
+          layout: "inline",
+          variant: "outlined",
+          size: "sm",
+          class: "px-3 py-2 text-sm leading-5",
+        },
+        {
+          layout: "inline",
+          variant: "outlined",
+          size: "md",
+          class: "px-3 py-3 leading-6",
+        },
+        {
+          layout: "inline",
+          variant: "outlined",
+          size: "lg",
+          class: "px-3 py-4 text-lg leading-7",
+        },
+        // ---
+        {
+          isInvalid: true,
+          isDisabled: false,
+          class: "border-error-300",
+        },
+        {
+          isValid: true,
+          isDisabled: false,
+          class: "",
+        },
+        {
+          isFocused: true,
+          isInvalid: false,
+          isValid: false,
+          isDisabled: false,
+          class: "border-primary ring-primary ring-4 ring-opacity-20",
+        },
+        {
+          isFocused: true,
+          isInvalid: true,
+          isDisabled: false,
+          class: "border-error ring-error ring-4 ring-opacity-20",
+        },
+        {
+          isFocused: true,
+          isValid: true,
+          isDisabled: false,
+          class: "border-success ring-success ring-4 ring-opacity-20",
+        },
+      ],
+      defaultVariants: {
+        variant: "outlined",
+        layout: "stacked",
+        size: "md",
+      },
+    }),
 
     icon: cva("", {
       variants: {

@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   radio: {
-    root: cva("relative inline-flex shrink-0 items-center justify-center", {
+    root: cva("relative flex shrink-0 items-center justify-center", {
       variants: {
         size: {
           sm: "size-5",
@@ -16,7 +16,7 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 appearance-none rounded-[100%] border outline-none ring-0",
+      "border-base-300 cursor-pointer appearance-none rounded-[100%] border outline-none ring-0",
       {
         variants: {
           size: {
@@ -94,10 +94,8 @@ export default {
     root: cva("cursor-pointer"),
   },
   // ---------------------------------------------------------------------------
-  list: {
-    root: cva("relative flex flex-col gap-1"),
-    title: cva("m-0 p-0"),
-    wrapper: cva("m-0 flex w-full list-none flex-col gap-2 p-0"),
-    option: cva("m-0 p-0"),
+  radiolist: {
+    root: cva("m-0 flex w-full list-none flex-col gap-2 p-0"),
+    item: cva("m-0 p-0"),
   },
 };

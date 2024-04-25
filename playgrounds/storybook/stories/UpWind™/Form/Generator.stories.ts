@@ -5,9 +5,6 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 // --- components
 import { UpwForm } from "@upmind/upwind";
 
-// --- utils
-import { useSystemArgTypes } from "../../../utils";
-
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UpwForm> = {

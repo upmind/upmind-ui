@@ -14,6 +14,9 @@ import { defineComponent } from "vue";
 import { isBooleanControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
+// --- components
+import UpwCheckbox from "../../../checkbox/Checkbox.vue";
+
 // --- utils
 import { useUpwindRenderer } from "../utils";
 
@@ -25,6 +28,9 @@ import type { RendererProps } from "@jsonforms/vue";
 
 export default defineComponent({
   name: "BooleanRenderer",
+  components: {
+    UpwCheckbox,
+  },
   props: {
     ...rendererProps<ControlElement>(),
   },

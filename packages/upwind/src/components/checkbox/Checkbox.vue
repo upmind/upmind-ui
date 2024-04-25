@@ -17,8 +17,13 @@
     :visible="meta.isVisible"
     :required="meta.isRequired"
     :focused="meta.isFocused"
+    :no-required="noRequired"
+    :no-feedback="noFeedback"
+    :no-status="noStatus"
+    :persist-feedback="persistFeedback"
     layout="inline"
-    variant="flat"
+    :variant="variant"
+    :upwind-config="[upwindConfig, config]"
   >
     <span :class="styles.checkbox.root">
       <input
@@ -82,6 +87,10 @@ export default defineComponent({
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]>, default: null },
+    variant: {
+      type: String as PropType<InputProps["variant"]>,
+      default: "flat",
+    },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -114,6 +123,11 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     forceFocus: { type: Boolean },
+    // ---
+    noRequired: { type: Boolean },
+    noStatus: { type: Boolean },
+    noFeedback: { type: Boolean },
+    persistFeedback: { type: Boolean, default: true },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -140,6 +154,7 @@ export default defineComponent({
     return {
       meta,
       styles,
+      config,
       onFocus: event => {
         focused.value = true;
         emit("focus", event);

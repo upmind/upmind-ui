@@ -15,6 +15,8 @@
 import { defineComponent } from "vue";
 import { isEnumControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsEnumControl } from "@jsonforms/vue";
+// --- components
+import UpwSelect from "../../../select/Select.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -26,6 +28,9 @@ import type { RendererProps } from "@jsonforms/vue";
 
 export default defineComponent({
   name: "EnumRenderer",
+  components: {
+    UpwSelect,
+  },
 
   props: {
     ...rendererProps<ControlElement>(),

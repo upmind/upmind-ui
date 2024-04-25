@@ -147,7 +147,7 @@ import type { PropType } from "vue";
 import type { InputProps, IconProps } from "./types";
 
 export default defineComponent({
-  name: "ControlWrapper",
+  name: "UpwInput",
   components: {
     UpwIcon,
     UpwLabel,
