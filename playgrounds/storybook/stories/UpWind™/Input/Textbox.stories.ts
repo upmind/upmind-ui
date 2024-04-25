@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { UpwTextbox, UpwInput } from "@upmind/upwind";
 
 // --- utils
-import { useSystemArgTypes } from "../../utils";
+import { useSystemArgTypes } from "../../../utils";
 
 // --- types
 
