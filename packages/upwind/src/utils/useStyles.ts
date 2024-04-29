@@ -1,8 +1,8 @@
 // --- external
-import { unref, inject, toRaw, computed } from "vue";
+import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { cx } from "class-variance-authority";
-// import type { VariantProps } from "class-variance-authority";
+import theme from "./useThemes";
 
 // ---utils
 import {
@@ -58,11 +58,9 @@ export function useStyles(
     components = isArray(components) ? components : [components];
     configs = flattenDeep(configs); // in case were passed nested arrays
 
-    // Add any provided style overrides to our config, aka globalConfig
-    const globalConfig = inject("upwind", {});
+    // Add any provided config overrides
+    const globalConfig = unref(theme?.config);
     if (!isEmpty(globalConfig)) configs.push(globalConfig);
-
-    const styles = {};
 
     // deep clean the context object to remove any refs and falsy values
     const cleanContext = omitBy(
@@ -70,7 +68,8 @@ export function useStyles(
       isNil
     );
 
-    // pick out our component specific configs only
+    // pick out our component specific configs only and add them to the styles object
+    const styles = {};
     forEach(components, component => {
       const componentConfigs = reduce(
         configs,

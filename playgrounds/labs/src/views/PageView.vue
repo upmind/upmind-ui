@@ -13,7 +13,7 @@ import { useRoute } from "vue-router";
 import UpmEmbedView from "./EmbedView.vue";
 import { first, reject } from "lodash-es";
 
-const activeTheme = inject("activeTheme");
+const { activeTheme } = inject("upwind");
 
 const { fullPath, meta, matched } = useRoute();
 //  ignore any hidden or root children
