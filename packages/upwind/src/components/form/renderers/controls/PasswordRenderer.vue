@@ -8,12 +8,13 @@
     :model-value="control.data"
     @change="onChange"
     :type="unmask ? 'input' : 'password'"
-  />
-
-  <!-- NB: single button to maintain tabindex/toggle with keyboard -->
-  <button :class="styles.input.button" @click.prevent="unmask = !unmask">
-    {{ !unmask ? "Show" : "Hide" }}
-  </button>
+  >
+    <template #actions="{ styles }">
+      <button :class="styles?.button" @click.prevent="unmask = !unmask">
+        {{ !unmask ? "Show" : "Hide" }}
+      </button>
+    </template>
+  </upw-textbox>
 </template>
 
 <script lang="ts">
@@ -27,6 +28,7 @@ import UpwTextbox from "../../../textbox/Textbox.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
+import { isNil } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -53,6 +55,26 @@ export default defineComponent({
       ...renderer,
       unmask,
     };
+  },
+  computed: {
+    safeMin(): number | null {
+      const applied = this.appliedOptions?.min;
+      if (!isNil(applied)) return applied;
+
+      const minimum = this.control?.schema?.minimum;
+      if (!isNil(minimum)) return minimum;
+
+      return null;
+    },
+    safeMax(): number | null {
+      const applied = this.appliedOptions?.max;
+      if (!isNil(applied)) return applied;
+
+      const maximum = this.control?.schema?.maximum;
+      if (!isNil(maximum)) return maximum;
+
+      return null;
+    },
   },
 });
 
