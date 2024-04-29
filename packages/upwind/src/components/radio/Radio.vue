@@ -1,98 +1,141 @@
 <template>
-  <span :class="styles.radio.root">
-    <input
-      v-bind="$attrs"
-      type="radio"
-      :checked="modelValue"
-      :class="styles.radio.input"
-      @blur="$emit('blur', $event)"
-      @change="doChange"
-      @focus="$emit('focus', $event)"
-      :aria-invalid="meta.isInvalid"
-    />
-    <upw-icon
-      :class="styles.radio.icon"
-      :icon="computedIcon"
-      v-if="computedIcon"
-    />
-  </span>
+  <upw-input
+    :id="id"
+    :label="label"
+    :description="description"
+    :errors="errors"
+    :size="size"
+    :append-avatar="appendAvatar"
+    :append-icon="appendIcon"
+    :append-text="appendText"
+    :prepend-avatar="prependAvatar"
+    :prepend-icon="prependIcon"
+    :prepend-text="prependText"
+    :feedback-icon="feedbackIcon"
+    :dirty="meta.isDirty"
+    :disabled="meta.isDisabled"
+    :visible="meta.isVisible"
+    :required="meta.isRequired"
+    :no-required="noRequired"
+    :no-feedback="noFeedback"
+    :no-status="noStatus"
+    :persist-feedback="persistFeedback"
+    layout="inline"
+    :variant="variant"
+    :upwind-config="[upwindConfig, config]"
+  >
+    <span :class="styles.radio.root">
+      <input
+        :id="id"
+        v-bind="safeAttrs"
+        type="radio"
+        :disabled="disabled"
+        :checked="modelValue"
+        :class="styles.radio.input"
+        @input="onChange"
+        :aria-invalid="meta.isInvalid"
+      />
+      <upw-icon
+        :class="styles.radio.icon"
+        :icon="computedIcon"
+        v-if="computedIcon"
+      />
+    </span>
+  </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref } from "vue";
 
 // --- local
 import config from "./config.cva";
 
 // --- components
+import UpwInput from "../input/Input.vue";
 import UpwIcon from "../icon/Icon.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil } from "lodash-es";
+import { isNil, isEmpty, omit } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { CheckboxProps } from "./types";
+import type { InputProps, IconProps } from "../input/types";
 
 // ----------------------------------------------
 
 export default defineComponent({
   name: "UpwRadio",
   inheritAttrs: false,
-  emits: ["update:modelValue", "change", "focus", "blur"],
+  emits: ["update:modelValue"],
   components: {
+    UpwInput,
     UpwIcon,
   },
 
   props: {
+    id: {
+      type: String,
+      default: () => "radio-" + Math.random().toString(36).substr(2, 9),
+    },
+    label: { type: String },
+    description: { type: String },
+    errors: { type: String },
+    // ---
+    size: { type: String as PropType<InputProps["size"]>, default: null },
+    variant: {
+      type: String as PropType<InputProps["variant"]>,
+      default: "flat",
+    },
+    // ---
+    appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
+    appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
+    appendText: { type: String },
+    // ---
+    prependAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
+    prependIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
+    prependText: { type: String },
+    // ---
+    feedbackIcon: {
+      type: [Object, String] as PropType<IconProps["icon"]>,
+      default: "information-circle",
+    },
     checkedIcon: {
-      type: [String, Object] as PropType<CheckboxProps["checkedIcon"]>,
+      type: [String, Object] as PropType<IconProps["icon"]>,
       default: "dot",
     },
     uncheckedIcon: {
-      type: [String, Object] as PropType<CheckboxProps["uncheckedIcon"]>,
+      type: [String, Object] as PropType<IconProps["icon"]>,
       default: null,
     },
 
     // ---
-    modelValue: {
-      type: Boolean,
-      default: null,
-    },
+    modelValue: { type: Boolean },
     // ---
-    invalid: {
-      type: Boolean,
-      default: null,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
+    required: { type: Boolean },
+    visible: { type: Boolean, default: true },
+    disabled: { type: Boolean },
     // ---
-    size: {
-      type: String as PropType<CheckboxProps["size"]>,
-      default: null,
-    },
+    noRequired: { type: Boolean },
+    noStatus: { type: Boolean },
+    noFeedback: { type: Boolean },
+    persistFeedback: { type: Boolean, default: true },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: [Array, Object],
-      default: null,
-    },
+    upwindConfig: { type: [Array, Object], default: null },
   },
 
-  setup(props) {
+  setup(props, { emit }) {
     const meta = computed(() => ({
-      isLoading: props.loading,
+      size: props.size,
+      // ---
+      isDisabled: props.disabled,
+      isVisible: props.visible,
+      isRequired: props.required,
+      isDirty: !isNil(props.modelValue),
       isChecked: !!props.modelValue,
-      isIndeterminate: isNil(props.modelValue),
-      isValid: !props.invalid && !isNil(props.modelValue),
-      isInvalid: props.invalid,
+      isInvalid: !isEmpty(props.errors),
+      isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));
 
     const styles = useStyles("radio", meta, config, props.upwindConfig);
@@ -100,19 +143,19 @@ export default defineComponent({
     return {
       meta,
       styles,
+      config,
+      onChange: event => {
+        emit("update:modelValue", event.target.value);
+      },
     };
   },
-
   computed: {
+    safeAttrs() {
+      // TODO: maybe whitelist input attributes
+      return omit(this.$attrs, ["layout", "variant"]);
+    },
     computedIcon() {
       return this.meta.isChecked ? this.checkedIcon : this.uncheckedIcon;
-    },
-  },
-
-  methods: {
-    doChange(event: Event) {
-      this.$emit("update:modelValue", !this.modelValue);
-      this.$emit("change", event);
     },
   },
 });

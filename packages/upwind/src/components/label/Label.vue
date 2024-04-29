@@ -4,7 +4,11 @@
       {{ text }}
     </span>
 
-    <span class="status" :class="styles.label.status" v-if="!hideStatus">
+    <span
+      class="status"
+      :class="styles.label.status"
+      v-if="!noStatus && !disabled"
+    >
       <span v-if="meta.showAsRequired" :class="styles.label.required">
         {{ requiredText }}
       </span>
@@ -25,8 +29,8 @@
       />
     </span>
 
-    <span v-if="alt" :class="styles.label.alt">
-      {{ alt }}
+    <span v-if="altText" :class="styles.label.alt">
+      {{ altText }}
     </span>
   </label>
 </template>
@@ -54,87 +58,41 @@ import type { CheckboxProps } from "./types";
 export default defineComponent({
   name: "UpwLabel",
   inheritAttrs: false,
-  emits: ["update:modelValue", "change", "focus", "blur"],
+  emits: ["update:modelValue", "change"],
   components: {
     UpwIcon,
   },
 
   props: {
-    id: {
-      type: String,
-    },
-
+    id: { type: String },
     text: {
       required: true,
       type: String,
-      default: null,
     },
-    alt: {
-      type: String,
-      default: "",
-    },
-
-    requiredText: {
-      type: String,
-      default: "Required",
-    },
-
-    optionalText: {
-      type: String,
-      default: "",
-    },
-
+    altText: { type: String },
+    requiredText: { type: String, default: "Required" },
+    optionalText: { type: String },
     // ---
-
-    hideRequired: {
-      type: Boolean,
-      default: false,
-    },
-
-    hideStatus: {
-      type: Boolean,
-      default: false,
-    },
-
+    noRequired: { type: Boolean },
+    noStatus: { type: Boolean },
     // ---
-
-    required: {
-      type: Boolean,
-      default: false,
-    },
-
-    dirty: {
-      type: Boolean,
-      default: false,
-    },
-    invalid: {
-      type: Boolean,
-      default: null,
-    },
-
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
+    required: { type: Boolean },
+    dirty: { type: Boolean },
+    invalid: { type: Boolean },
+    disabled: { type: Boolean },
     // ---
-    size: {
-      type: String as PropType<CheckboxProps["size"]>,
-      default: null,
-    },
+    size: { type: String as PropType<CheckboxProps["size"]> },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: [Array, Object],
-      default: null,
-    },
+    upwindConfig: { type: [Array, Object] },
   },
 
   setup(props) {
     const meta = computed(() => ({
       isValid: !props.invalid && props.dirty,
       isInvalid: props.invalid,
-      showAsRequired: props.required && !props.hideRequired,
+      showAsRequired: props.required && !props.noRequired,
       showAsOptional:
-        !props.required && !props.hideRequired && !isEmpty(props.optionalText),
+        !props.required && !props.noRequired && !isEmpty(props.optionalText),
     }));
 
     const styles = useStyles("label", meta, config, props.upwindConfig);

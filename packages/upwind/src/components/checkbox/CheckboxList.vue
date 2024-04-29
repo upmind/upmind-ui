@@ -20,27 +20,29 @@
     :no-feedback="noFeedback"
     :no-status="noStatus"
     :persist-feedback="persistFeedback"
-    layout="inline"
-    :variant="variant"
-    :upwind-config="[upwindConfig, config]"
+    variant="flat"
   >
-    <span :class="styles.checkbox.root">
-      <input
-        :id="id"
-        v-bind="safeAttrs"
-        type="checkbox"
-        :disabled="disabled"
-        :checked="modelValue"
-        :class="styles.checkbox.input"
-        @input="onChange"
-        :aria-invalid="meta.isInvalid"
-      />
-      <upw-icon
-        :class="styles.checkbox.icon"
-        :icon="computedIcon"
-        v-if="computedIcon"
-      />
-    </span>
+    <ul :class="styles.checkboxlist.root">
+      <li
+        v-for="(item, index) in items"
+        :key="item.value"
+        :class="styles.checkboxlist.item"
+      >
+        <upw-checkbox
+          v-bind="safeAttrs"
+          :id="`${id}-option-${index}`"
+          :errors="meta.errors"
+          :size="size"
+          variant="outlined"
+          :label="item.label"
+          :value="item.value"
+          :model-value="isSelected(item.value)"
+          no-status
+          no-feedback
+          @change="onChange"
+        />
+      </li>
+    </ul>
   </upw-input>
 </template>
 
@@ -53,11 +55,19 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwIcon from "../icon/Icon.vue";
+import UpwCheckbox from "../checkbox/Checkbox.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty, omit } from "lodash-es";
+import {
+  isEmpty,
+  isNil,
+  omit,
+  includes,
+  remove,
+  uniq,
+  compact,
+} from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -66,28 +76,26 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwCheckbox",
+  name: "UpwCheckboxList",
   inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {
     UpwInput,
-    UpwIcon,
+    UpwCheckbox,
   },
 
   props: {
+    items: { required: true, type: Array, default: () => [] },
+    // ---
     id: {
       type: String,
-      default: () => "checkbox-" + Math.random().toString(36).substr(2, 9),
+      default: () => "checkboxlist-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]>, default: null },
-    variant: {
-      type: String as PropType<InputProps["variant"]>,
-      default: "flat",
-    },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -103,18 +111,14 @@ export default defineComponent({
     },
     checkedIcon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
-      default: "check",
+      default: "dot",
     },
     uncheckedIcon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
       default: null,
     },
-    indeterminateIcon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-      default: "subtract",
-    },
     // ---
-    modelValue: { type: Boolean },
+    modelValue: { type: Array },
     // ---
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
@@ -137,19 +141,27 @@ export default defineComponent({
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
       isChecked: !!props.modelValue,
-      isIndeterminate: isNil(props.modelValue),
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));
 
-    const styles = useStyles("checkbox", meta, config, props.upwindConfig);
+    const styles = useStyles("checkboxlist", meta, config, props.upwindConfig);
 
     return {
       meta,
       styles,
-      config,
       onChange: event => {
-        emit("update:modelValue", event.target.checked);
+        const selected = props.modelValue || [];
+        const checked = event.target.checked;
+        const value = event.target.value;
+        remove(selected, item => item == value);
+        if (checked) selected.push(value);
+
+        // ensure we return a nice clean array
+        emit("update:modelValue", uniq(compact(selected)));
+      },
+      isSelected: value => {
+        return includes(props.modelValue, value);
       },
     };
   },
@@ -157,13 +169,6 @@ export default defineComponent({
     safeAttrs() {
       // TODO: maybe whitelist input attributes
       return omit(this.$attrs, ["layout", "variant"]);
-    },
-    computedIcon() {
-      return this.meta.isIndeterminate
-        ? this.indeterminateIcon
-        : this.meta.isChecked
-          ? this.checkedIcon
-          : this.uncheckedIcon;
     },
   },
 });

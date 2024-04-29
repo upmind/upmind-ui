@@ -7,9 +7,9 @@ export interface Options {
   appendAvatar?: IconProps;
   appendIcon?: IconProps;
   focus?: boolean;
-  hideFeedback?: boolean;
-  hideRequired?: boolean;
-  hideStatus?: boolean;
+  noFeedback?: boolean;
+  noRequired?: boolean;
+  noStatus?: boolean;
   optionalText?: String;
   focusDescription?: boolean;
   prefix?: String;

@@ -20,27 +20,18 @@
     :no-feedback="noFeedback"
     :no-status="noStatus"
     :persist-feedback="persistFeedback"
-    layout="inline"
-    :variant="variant"
-    :upwind-config="[upwindConfig, config]"
+    layout="stacked"
+    variant="outlined"
   >
-    <span :class="styles.checkbox.root">
-      <input
-        :id="id"
-        v-bind="safeAttrs"
-        type="checkbox"
-        :disabled="disabled"
-        :checked="modelValue"
-        :class="styles.checkbox.input"
-        @input="onChange"
-        :aria-invalid="meta.isInvalid"
-      />
-      <upw-icon
-        :class="styles.checkbox.icon"
-        :icon="computedIcon"
-        v-if="computedIcon"
-      />
-    </span>
+    <input
+      :id="id"
+      v-bind="safeAttrs"
+      :disabled="disabled"
+      :value="modelValue"
+      :class="styles.textbox.root"
+      @input="onChange"
+      :aria-invalid="meta.isInvalid"
+    />
   </upw-input>
 </template>
 
@@ -53,7 +44,6 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwIcon from "../icon/Icon.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -71,23 +61,17 @@ export default defineComponent({
   emits: ["update:modelValue"],
   components: {
     UpwInput,
-    UpwIcon,
   },
-
   props: {
     id: {
       type: String,
-      default: () => "checkbox-" + Math.random().toString(36).substr(2, 9),
+      default: () => "textbox-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]>, default: null },
-    variant: {
-      type: String as PropType<InputProps["variant"]>,
-      default: "flat",
-    },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -101,20 +85,8 @@ export default defineComponent({
       type: [Object, String] as PropType<IconProps["icon"]>,
       default: "information-circle",
     },
-    checkedIcon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-      default: "check",
-    },
-    uncheckedIcon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-      default: null,
-    },
-    indeterminateIcon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-      default: "subtract",
-    },
     // ---
-    modelValue: { type: Boolean },
+    modelValue: { type: String },
     // ---
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
@@ -136,20 +108,18 @@ export default defineComponent({
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
-      isChecked: !!props.modelValue,
-      isIndeterminate: isNil(props.modelValue),
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && !isNil(props.modelValue),
     }));
 
-    const styles = useStyles("checkbox", meta, config, props.upwindConfig);
+    const styles = useStyles("textbox", meta, config, props.upwindConfig);
 
     return {
       meta,
       styles,
-      config,
+
       onChange: event => {
-        emit("update:modelValue", event.target.checked);
+        emit("update:modelValue", event.target.value);
       },
     };
   },
@@ -157,13 +127,6 @@ export default defineComponent({
     safeAttrs() {
       // TODO: maybe whitelist input attributes
       return omit(this.$attrs, ["layout", "variant"]);
-    },
-    computedIcon() {
-      return this.meta.isIndeterminate
-        ? this.indeterminateIcon
-        : this.meta.isChecked
-          ? this.checkedIcon
-          : this.uncheckedIcon;
     },
   },
 });

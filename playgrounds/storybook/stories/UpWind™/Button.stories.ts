@@ -30,10 +30,21 @@ const meta: Meta<typeof UpwButton> = {
 
     size: useSystemArgTypes.size,
     color: useSystemArgTypes.color,
-    prependAvatar: useSystemArgTypes.flag,
-    appendAvatar: useSystemArgTypes.flag,
+    prependAvatar: {
+      ...useSystemArgTypes.flag,
+      if: { arg: "iconOnly", truthy: false },
+    },
     prependIcon: useSystemArgTypes.icon,
-    appendIcon: useSystemArgTypes.icon,
+    appendIcon: {
+      ...useSystemArgTypes.icon,
+      if: { arg: "iconOnly", truthy: false },
+    },
+    appendAvatar: {
+      ...useSystemArgTypes.flag,
+      if: { arg: "iconOnly", truthy: false },
+    },
+
+    iconOnly: { control: "boolean", if: { arg: "prependIcon" } },
   },
   args: {
     label: "A compelling call to action",
