@@ -27,8 +27,6 @@ export const useUpwindRenderer = <
     )
   );
 
-  const isFocused = ref(false);
-
   const onChange = (event: Event) => {
     input.handleChange(
       input.control.value.path,
@@ -36,29 +34,9 @@ export const useUpwindRenderer = <
     );
   };
 
-  const controlWrapper = computed(() => {
-    const { id, description, errors, label, visible, required, enabled, data } =
-      input.control.value;
-    return {
-      id: `${id}-input`,
-      description,
-      errors,
-      label,
-      dirty: !isNil(data),
-      focused: isFocused.value,
-      disabled: !enabled,
-      visible,
-      required,
-      // add our ApplyOptions to the controlWrapper
-      ...appliedOptions.value,
-    };
-  });
-
   return {
     ...input,
-    isFocused,
     appliedOptions,
-    controlWrapper,
     onChange,
   };
 };
@@ -133,32 +111,22 @@ export const useUpwindArrayRenderer = <I extends { control: any }>(
     return `${labelValue}`;
   };
 
-  const isFocused = ref(false);
-
-  const controlWrapper = computed(() => {
-    const { id, description, errors, label, visible, required, enabled, data } =
-      input.control.value;
-    return {
-      id: `${id}-input`,
-      description,
-      errors,
-      label,
-      dirty: !isNil(data),
-      focused: isFocused.value,
-      disabled: !enabled,
-      visible,
-      required,
-      // add our ApplyOptions to the controlWrapper
-      ...appliedOptions.value,
-    };
-  });
+  const onChange = (event: Event) => {
+    const checked = event.currentTarget.checked;
+    const value = event.currentTarget.value;
+    if (checked) {
+      input.addItem(input.control.value.path, value);
+    } else {
+      input.removeItem(input.control.value.path, value);
+    }
+  };
 
   return {
     ...input,
     appliedOptions,
-    controlWrapper,
     childUiSchema,
     childLabelForIndex,
+    onChange,
   };
 };
 

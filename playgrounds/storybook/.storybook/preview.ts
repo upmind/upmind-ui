@@ -4,6 +4,7 @@ import "../stories/assets/main.css";
 // --- external
 import { setup } from "@storybook/vue3";
 import { withUpwindTheme } from "./withUpwindTheme.decorator";
+import { useArgs } from "@storybook/preview-api";
 
 // --- internal
 import upwind from "../plugins/upwind";
@@ -29,6 +30,11 @@ const preview: Preview = {
       themes,
       defaultTheme: "light",
     }),
+    (story, context) => {
+      // This make sit possible to updateArgs within stories
+      const [_, updateArgs] = useArgs();
+      return story({ ...context, updateArgs });
+    },
   ],
 };
 
