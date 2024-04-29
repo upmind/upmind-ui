@@ -32,6 +32,7 @@
       @input="onChange"
       :aria-invalid="meta.isInvalid"
     />
+    <slot name="actions" v-bind="{ styles: styles.textbox }"></slot>
   </upw-input>
 </template>
 

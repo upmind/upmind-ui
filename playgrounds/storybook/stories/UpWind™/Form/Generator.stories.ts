@@ -166,14 +166,14 @@ export const Formatted: Story = {
                   type: "Control",
                   scope: "#/properties/personalData/properties/height",
                   options: {
-                    suffix: "cm",
+                    appendText: "cm",
                   },
                 },
                 {
                   type: "Control",
                   scope: "#/properties/personalData/properties/weight",
                   options: {
-                    suffix: "kg",
+                    appendText: "kg",
                   },
                 },
               ],
