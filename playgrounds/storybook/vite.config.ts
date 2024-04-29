@@ -11,6 +11,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./stories', import.meta.url)),
       '@icons': fileURLToPath(new URL('./stories/assets/icons', import.meta.url)),
+      '@themes': fileURLToPath(new URL('./stories/assets/themes', import.meta.url)),
     }
   }
 })

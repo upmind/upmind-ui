@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-screen flex-wrap justify-center overflow-hidden bg-base text-base-content"
+    class="flex h-screen flex-wrap justify-center overflow-hidden bg-base text-base-content"
     :data-theme="activeTheme"
   >
     <upm-header></upm-header>
@@ -20,33 +20,14 @@
 
 <script setup>
 // --- external
-import { provide, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
 import UpmHeader from "@/components/Header.vue";
 import themes from "@/assets/themes";
-
-// --- utils
-import { find } from "lodash-es";
+import { useThemes } from "@upmind/upwind";
 
 // ---
 const route = useRoute();
-
-// ---
-const activeTheme = ref("light");
-provide("activeTheme", activeTheme);
-
-// ---
-const upwindStyles = ref({});
-if (themes) {
-  const theme = find(themes, ["id", activeTheme.value]);
-  upwindStyles.value = theme?.upwind || {};
-}
-provide("upwind", upwindStyles);
-// ---
-
-watch(route, () => {
-  activeTheme.value = route?.query?.theme || activeTheme.value || "light";
-});
+const { activeTheme } = useThemes(themes);
 </script>

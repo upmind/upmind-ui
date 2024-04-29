@@ -1,19 +1,21 @@
 <template>
   <div ref="el" id="theme-provider" :data-theme="activeTheme">
-    <slot></slot>
+    <!-- force re-render on theme change with a key -->
+    <slot :key="activeTheme"></slot>
   </div>
 </template>
 
 <script>
 // --- external
-import { inject, defineComponent, watchEffect, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 
 // --- internal
+import { useThemes } from "@upmind/upwind";
 import themes from "@/assets/themes";
 
 // --- utils
-import { find, first } from "lodash-es";
+import { first } from "lodash-es";
 
 export default defineComponent({
   name: "ThemeProvider",
@@ -26,29 +28,20 @@ export default defineComponent({
   },
   setup(props) {
     const el = ref(null);
-
-    const activeTheme = inject("activeTheme");
-    const upwindStyles = inject("upwind");
+    const { updateTheme, activeTheme } = useThemes(themes, props.theme);
 
     useMutationObserver(
       el,
       mutations => {
         if (first(mutations)?.attributeName === "data-theme") {
-          activeTheme.value = first(mutations)?.target?.dataset?.theme;
-          const theme = find(themes, ["id", activeTheme.value]);
-          if (theme?.upwind) {
-            upwindStyles.value = theme.upwind;
-          }
+          const theme = first(mutations)?.target?.dataset?.theme;
+          if (theme && theme != activeTheme.value) updateTheme(theme);
         }
       },
       {
         attributes: true,
       }
     );
-
-    watchEffect(() => {
-      activeTheme.value = props.theme || activeTheme.value;
-    });
 
     return {
       el,

@@ -9,10 +9,9 @@
 </template>
 
 <script>
-import { inject, defineComponent, computed, watch } from "vue";
+import { inject, defineComponent, computed } from "vue";
 import { UpwDropdown } from "@upmind/upwind";
-import themes from "@/assets/themes";
-import { startCase, set, lowerCase, reduce, find } from "lodash-es";
+import { startCase } from "lodash-es";
 
 export default defineComponent({
   name: "ThemeSwitcherDropdown",
@@ -20,33 +19,10 @@ export default defineComponent({
     UpwDropdown,
   },
   setup() {
-    const activeTheme = inject("activeTheme");
-    const upwindStyles = inject("upwind");
-
-    watch(activeTheme, value => {
-      const theme = find(themes, ["id", value]);
-      upwindStyles.value = theme?.upwind || {};
-    });
+    const { activeTheme, themes } = inject("upwind");
 
     return {
-      themes: computed(() =>
-        reduce(
-          themes,
-          (result, theme) => {
-            set(result, lowerCase(theme.id), {
-              label: theme.name,
-              icon: {
-                name: theme.id,
-                path: "themes",
-              },
-              action: () => (activeTheme.value = theme.id),
-            });
-            return result;
-          },
-          {}
-        )
-      ),
-
+      themes,
       activeTheme,
       activeThemeName: computed(() => startCase(activeTheme.value || "light")),
       startCase,

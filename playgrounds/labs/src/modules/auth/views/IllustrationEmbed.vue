@@ -75,7 +75,7 @@ import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
 import { UpwSpinner } from "@upmind/upwind";
 // ---
-const activeTheme = inject("activeTheme");
+const { activeTheme } = inject("upwind");
 
 // ---
 // lets set up an inspector on the session

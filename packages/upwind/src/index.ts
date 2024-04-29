@@ -13,5 +13,5 @@ export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
 export { default as UpwSelect } from "./components/select/Select.vue";
 
-// ===
-export { useStyles } from "./utils/useStyles";
+// ---
+export { useStyles, useThemes } from "./utils";
