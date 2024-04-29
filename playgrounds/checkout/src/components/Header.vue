@@ -17,33 +17,6 @@
 
       <div class="ms-auto flex items-center justify-end sm:order-3 sm:ms-0">
         <upm-theme-switcher />
-
-        <div class="ps-3 sm:ms-6 sm:border-s sm:border-gray-300 sm:ps-6">
-          <button
-            type="button"
-            :class="[
-              'hover:border-neutral-300',
-              'hover:shadow-lg',
-              // ---
-              'border',
-              'border-transparent',
-              // ---
-              'active:border-neutral-600',
-              'active:shadow-lg',
-              'active:border',
-              // ---
-              'transition-all',
-              'rounded',
-              'aspect-square',
-            ]"
-            data-hs-overlay="#navbar-secondary-content"
-            aria-controls="navbar-secondary-content"
-            aria-label="Toggle navigation"
-          >
-            <span class="sr-only">Toggle Navigation</span>
-            <upw-icon icon="navigation-menu" class="size-6" />
-          </button>
-        </div>
       </div>
     </nav>
   </header>

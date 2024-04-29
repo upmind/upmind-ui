@@ -105,8 +105,6 @@
 import { defineComponent } from "vue";
 import { useSession } from "@upmind/flow-vue";
 
-import { UpwFormGenerator } from "@upmind/upwind";
-
 export default defineComponent({
   name: "Auth",
   components: { UpwForm, UserIcon, PlusIcon, CheckIcon },
