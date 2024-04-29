@@ -7,7 +7,6 @@
     { "path": "../../packages/flow" },
     { "path": "../../packages/flow-vue" },
     { "path": "../../packages/client" },
-    { "path": "../../packages/upwind" },
 
     {
       "path": "./tsconfig.node.json"
