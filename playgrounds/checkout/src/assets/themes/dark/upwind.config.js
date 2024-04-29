@@ -1,3 +1,1 @@
-export default {
-  button: {},
-};
+export default {};

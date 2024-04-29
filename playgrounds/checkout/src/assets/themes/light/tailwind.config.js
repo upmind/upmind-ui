@@ -66,7 +66,6 @@ export default {
     },
 
     // ---
-
     primary: {
       DEFAULT: "#018ffd",
       50: "#edfbff",
