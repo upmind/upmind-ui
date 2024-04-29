@@ -1,5 +1,5 @@
 import { ref, provide } from "vue";
-import { find, reduce, set, lowerCase } from "lodash-es";
+import { find, reduce, set, lowerCase, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const activeTheme = ref();
@@ -7,15 +7,17 @@ const config = ref({});
 const providedThemes = ref();
 
 export const useThemes = (themes?: Array<Object>, defaultTheme = "light") => {
+  // safety checks
+  themes ??= [];
+  themes = isArray(themes) ? themes : [themes];
+
+  // ---
   providedThemes.value = reduce(
     themes,
-    (result, { id, name }) => {
+    (result, { id, name, icon }) => {
       set(result, lowerCase(id), {
         label: name,
-        icon: {
-          name: id,
-          path: "themes",
-        },
+        icon,
         action: () => updateTheme(id),
       });
       return result;
@@ -35,6 +37,7 @@ export const useThemes = (themes?: Array<Object>, defaultTheme = "light") => {
     }
   }
 
+  // make our theme available to the app
   provide("upwind", {
     activeTheme,
     config,

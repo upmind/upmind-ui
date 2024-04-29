@@ -22,7 +22,6 @@
     "@jsonforms/vue": "^3.2.1",
     "@jsonforms/vue-vanilla": "^3.2.1",
     "@upmind/client": "^0.0.0",
-    "@upmind/upwind": "^0.0.0",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
     "lodash-es": "^4.17.21",
