@@ -4,6 +4,7 @@
   },
   "header": {
     "checkout": "Paiement",
-    "offers": "Offres"
+    "offers": "Offres",
+    "form": "Formulaire de tâche"
   }
 }
