@@ -13,6 +13,7 @@
     </slot>
 
     <json-forms
+      :i18n="safeI18n"
       :ajv="safeAjv"
       :data="model"
       :schema="schema"
@@ -65,6 +66,7 @@ import {
   mapValues,
   map,
   isNil,
+  isEmpty,
 } from "lodash-es";
 
 function safeValue(value: String | Object | Function, context?: any) {
@@ -96,6 +98,10 @@ export default defineComponent({
   inheritAttrs: true,
 
   props: {
+    i18n: {
+      type: Object,
+      default: null,
+    },
     ajv: {
       required: false,
       type: Object as PropType<Ajv>,
@@ -226,6 +232,22 @@ export default defineComponent({
       return isDeepEmpty(this.model) || !this.isDirty
         ? "ValidateAndHide"
         : this.mode || "ValidateAndShow";
+    },
+
+    safeI18n() {
+      // if we are given an i18n object, use it
+      // otherwise, if we have vue-i18n enabled, it will provide the$locale & $t function, use that
+      // otherwise, return null
+      if (!isEmpty(this.i18n)) return this.i18n;
+
+      if (this?.$i18n?.locale && this?.$t)
+        return { locale: this.$i18n.locale, translate: this.$t };
+
+      // fallback to a simple object that just returns the value of the renderers
+      return {
+        locale: "na",
+        translate: (key: string, value) => value,
+      };
     },
   },
 
