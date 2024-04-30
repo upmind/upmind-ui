@@ -1,0 +1,73 @@
+{
+  "form": {
+    "title": "Dies ist ein einfaches Aufgabenformular",
+    "model": "Das Formular ist sauber | Das Formular ist gültig | Das Formular ist ungültig",
+    "label": {
+      "text": "Dies ist ein eigenständiges Label"
+    },
+    "name": {
+      "label": "Name",
+      "description": "Ein übergeordneter Name für die Aufgabe",
+      "placeholder": "Was muss erledigt werden?",
+      "error": {
+        "custom": "Die Aufgabe muss einen Namen haben"
+      }
+    },
+    "description": {
+      "label": "Beschreibung",
+      "description": "Eine Beschreibung der Aufgabe mit Tweet-Länge",
+      "error": {
+        "custom": "Die Aufgabenbeschreibung darf maximal 140 Zeichen lang sein"
+      }
+    },
+    "rating": {
+      "label": "Bewertung",
+      "description": "Wie schwierig ist diese Aufgabe?",
+      "error": {
+        "custom": "Die Aufgabe muss eine Bewertung zwischen 1 und 5 haben"
+      }
+    },
+    "impact": {
+      "label": "Auswirkung",
+      "description": "Welche Auswirkungen hat diese Aufgabe?",
+      "error": {
+        "custom": "Die Auswirkung muss zwischen 1 und 10 liegen"
+      }
+    },
+    "dueDate": {
+      "label": "Fälligkeitsdatum",
+      "description": "Wann muss diese Aufgabe abgeschlossen sein?",
+      "error": {
+        "custom": "Das Fälligkeitsdatum muss ein gültiges Datum in der Zukunft sein"
+      }
+    },
+    "recurrence": {
+      "label": "Wiederholung",
+      "description": "Wiederholt sich diese Aufgabe?",
+      "error": {
+        "custom": "Die Wiederholung kann nur täglich, wöchentlich oder monatlich erfolgen"
+      },
+      "options": {
+        "daily": "Täglich",
+        "weekly": "Wöchentlich",
+        "monthly": "Monatlich"
+      }
+    },
+    "recurrenceInterval": {
+      "label": "Alle...",
+      "description": "Wie oft wiederholt sich diese Aufgabe?",
+      "error": {
+        "custom": "Das Wiederholungsintervall muss eine Zahl sein"
+      }
+    },
+    "done": {
+      "label": "Erledigt",
+      "description": "Ist diese Aufgabe erledigt?",
+      "error": {
+        "custom": "Erledigt muss wahr oder falsch sein"
+      }
+    },
+    "submit": "Aufgabe hinzufügen",
+    "reset": "Formular zurücksetzen und alle Felder löschen"
+  }
+}

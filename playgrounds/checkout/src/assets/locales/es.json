@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "Pagar v2"
+  },
+  "header": {
+    "checkout": "Pagar",
+    "offers": "Ofertas"
+  }
+}

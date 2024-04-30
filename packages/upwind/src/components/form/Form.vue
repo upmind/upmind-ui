@@ -54,6 +54,7 @@ import UpwSpinner from "../spinner/Spinner.vue";
 // --- local
 import config from "./config.cva";
 import { upwindRenderers } from "./renderers";
+// import { vanillaRenderers } from '@jsonforms/vue-vanilla';
 
 // --- utils
 
@@ -66,7 +67,6 @@ import {
   mapValues,
   map,
   isNil,
-  isEmpty,
 } from "lodash-es";
 
 function safeValue(value: String | Object | Function, context?: any) {
@@ -98,10 +98,13 @@ export default defineComponent({
   inheritAttrs: true,
 
   props: {
-    i18n: {
-      type: Object,
-      default: null,
+    translator: {
+      type: Function,
     },
+    locale: {
+      type: String,
+    },
+    // ---
     ajv: {
       required: false,
       type: Object as PropType<Ajv>,
@@ -238,15 +241,25 @@ export default defineComponent({
       // if we are given an i18n object, use it
       // otherwise, if we have vue-i18n enabled, it will provide the$locale & $t function, use that
       // otherwise, return null
-      if (!isEmpty(this.i18n)) return this.i18n;
 
-      if (this?.$i18n?.locale && this?.$t)
-        return { locale: this.$i18n.locale, translate: this.$t };
+      const createTranslator = locale => (key, defaultMessage) => {
+        // console.debug(
+        //   `Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`
+        // );
 
-      // fallback to a simple object that just returns the value of the renderers
+        // If we have been given a translator function, use it
+        if (isFunction(this.translator)) return this.translator(key);
+
+        // otherwise, if we have vue-i18n enabled, it will provide the $locale & $t function, use that
+        if (this?.$t) return this?.$t(key);
+
+        // otherwise return the default message
+        return defaultMessage;
+      };
+
       return {
-        locale: "na",
-        translate: (key: string, value) => value,
+        locale: this.locale || this?.$i18n?.locale || "na",
+        translate: createTranslator(this.locale || this?.$i18n?.locale),
       };
     },
   },
