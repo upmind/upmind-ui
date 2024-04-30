@@ -6,27 +6,13 @@ import upmind from "./plugins/upmind";
 
 import App from "./App.vue";
 import router from "./router";
-
-// ---
-// this will loadd ALL Global locales from the project assets and map them correctly
-// ---
-import { reduce, last, merge } from "lodash-es";
-const messages = reduce(
-  import.meta.glob("@locales/**/*.json", { eager: true }),
-  (result, value, key) => {
-    const locale = last(key.split("/"))?.replace(".json", "");
-    if (!locale) return result;
-    merge(result, { [locale]: value?.default || {} });
-    return result;
-  },
-  {}
-);
+import { getGlobalMessages } from "./utils";
 
 const i18n = createI18n({
   // legacy: false, // you must set `false` to use Composition API
   locale: "en",
   fallbackLocale: "en",
-  messages,
+  messages: getGlobalMessages(),
 });
 
 const app = createApp(App);
