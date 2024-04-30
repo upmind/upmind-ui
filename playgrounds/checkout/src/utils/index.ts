@@ -46,15 +46,12 @@ export const useLocaleImporter = () => {
     path = trimStart(path, "/");
     path = trimEnd(path, "/");
 
-    const asyncImport = find(locales, (fn, localePath) => {
-      const found =
+    const asyncImport = find(
+      locales,
+      (fn, localePath) =>
         includes(localePath, `/${path}/`) &&
-        includes(localePath, `/${locale}.json`);
-
-      console.log("asyncImport", { locale, path, found, localePath });
-
-      return found;
-    });
+        includes(localePath, `/${locale}.json`)
+    );
 
     if (!asyncImport) {
       console.warn("locale", "import not found", {
