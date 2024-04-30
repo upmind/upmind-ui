@@ -4,6 +4,7 @@
   },
   "header": {
     "checkout": "Kasse",
-    "offers": "Angebote"
+    "offers": "Angebote",
+    "form": "Aufgabenformular"
   }
 }
