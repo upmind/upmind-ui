@@ -5,7 +5,7 @@
     :disabled="!control.enabled"
     :model-value="control.data"
     @change="onChange"
-    type="safeType"
+    :type="safeType"
   />
 </template>
 

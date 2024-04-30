@@ -1,0 +1,10 @@
+{
+  "app": {
+    "title": "Checkout v2"
+  },
+  "header": {
+    "checkout": "Checkout",
+    "offers": "Offers",
+    "form": "TEST Form"
+  }
+}

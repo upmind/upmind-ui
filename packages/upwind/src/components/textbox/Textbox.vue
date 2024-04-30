@@ -57,7 +57,7 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwCheckbox",
+  name: "UpwTextbox",
   inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {

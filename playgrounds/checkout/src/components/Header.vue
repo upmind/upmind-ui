@@ -12,8 +12,50 @@
         aria-label="Brand"
       >
         <logo class="h-full w-full" />
-        <span class="tracking-widest">Checkout&nbsp;v2</span>
+        <span class="text-nowrap tracking-widest">{{ $t("app.title") }}</span>
       </a>
+
+      <!-- TEMP -->
+      <div class="flex flex-1 items-center justify-start gap-4">
+        <upw-listbox
+          v-model="$i18n.locale"
+          v-if="$i18n?.locale"
+          label=""
+          :icon="{
+            path: 'flags',
+            name: $i18n.locale,
+          }"
+          :items="locales"
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-4">
+        <RouterLink
+          to="/"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.checkout") }}
+        </RouterLink>
+        <RouterLink
+          to="/offers"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.offers") }}
+        </RouterLink>
+        <RouterLink
+          to="/form"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.form") }}
+        </RouterLink>
+      </div>
+      <!-- #END TEMP -->
     </nav>
   </header>
 </template>
@@ -21,11 +63,25 @@
 <script>
 import { defineComponent } from "vue";
 import Logo from "@/assets/logo.svg";
+import { UpwListbox } from "@upmind/client";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
     Logo,
+    UpwListbox,
+  },
+  computed: {
+    locales() {
+      return this.$i18n.availableLocales.map(locale => ({
+        label: locale.toUpperCase(),
+        value: locale,
+        icon: {
+          path: "flags",
+          name: locale,
+        },
+      }));
+    },
   },
 });
 </script>

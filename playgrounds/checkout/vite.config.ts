@@ -23,6 +23,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@icons': fileURLToPath(new URL('./src/assets/icons', import.meta.url)),
       '@themes': fileURLToPath(new URL('./src/assets/themes', import.meta.url)),
+      '@locales': fileURLToPath(new URL('./src/assets/locales', import.meta.url)),
 
     }
   }

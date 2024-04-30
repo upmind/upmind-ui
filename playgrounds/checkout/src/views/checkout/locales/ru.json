@@ -1,0 +1,9 @@
+{
+  "checkout": {
+    "breadcrumb": "Раздел хлебных крошек (Breadcrumb)",
+    "overview": "Обзорный раздел",
+    "account": "Раздел учетной записи",
+    "payment": "Раздел оплаты",
+    "confirmation": "Раздел подтверждения"
+  }
+}
