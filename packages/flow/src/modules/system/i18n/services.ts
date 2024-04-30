@@ -4,7 +4,7 @@
 
 // --- types
 import type { i18nContext, i18nEvent } from "./types.d";
-import { trimEnd } from "lodash-es";
+import { trimEnd, trimStart } from "lodash-es";
 
 // --------------------------------------------------------
 // HELPERS
@@ -14,12 +14,15 @@ import { trimEnd } from "lodash-es";
 // Invoked by machines, providing context and event data
 
 async function fetchLocale(
-  _context: i18nContext,
+  { activeLocale }: i18nContext,
   { data: { path, locale } }: i18nEvent
 ) {
-  if (!path || !locale) return Promise.reject("No path or locale provided");
+  locale ??= activeLocale; // fallback to activeLocale if not provided
+  if (!path) return Promise.reject("No path provided");
 
   path = trimEnd(path, "/locales/");
+  path = trimStart(path, "@/");
+
   return import(`@/${path}/locales/${locale}.json`).then(
     ({ data }: any) => ({ key: locale, values: data }) as Record<string, Object>
   );

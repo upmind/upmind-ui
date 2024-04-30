@@ -6,7 +6,7 @@ import {
 } from "vue-router";
 
 // --- internal
-import CheckoutView from "@/views/Checkout.vue";
+import CheckoutView from "@/views/checkout/Checkout.vue";
 
 // --- utils
 import { get } from "lodash-es";
