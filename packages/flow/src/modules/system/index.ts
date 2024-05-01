@@ -4,7 +4,6 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- exports
 export * from "./upload";
-export * from "./i18n";
 
 // --- internal
 import systemMachine from "./system.machine";

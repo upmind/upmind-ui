@@ -4,7 +4,6 @@ import { useActor } from "@xstate/vue";
 
 // --- exports
 export * from "./upload";
-export * from "./i18n";
 
 // --- internal
 import { useSystem as useUpmindSystem } from "@upmind/flow";
