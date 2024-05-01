@@ -22,10 +22,6 @@ module.exports = {
     "no-constant-condition":
       process.env.NODE_ENV === "production" ? "error" : "off",
 
-    // i18n
-    // "@intlify/vue-i18n/no-raw-text": "off",
-    // "@intlify/vue-i18n/no-v-html": "off",
-
     // unused
     // note you must disable the base rule
     // as it can report incorrect errors
