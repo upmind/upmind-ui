@@ -1,9 +1,0 @@
-{
-  "checkout": {
-    "breadcrumb": "Breadcrumb-Abschnitt",
-    "overview": "Übersicht Abschnitt",
-    "account": "Kontoabschnitt",
-    "payment": "Zahlungsabschnitt",
-    "confirmation": "Bestätigungsabschnitt"
-  }
-}

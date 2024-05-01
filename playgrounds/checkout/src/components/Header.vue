@@ -12,7 +12,9 @@
         aria-label="Brand"
       >
         <logo class="h-full w-full" />
-        <span class="text-nowrap tracking-widest">{{ $t("app.title") }}</span>
+        <span class="text-nowrap tracking-widest">{{
+          $t("header.title")
+        }}</span>
       </a>
 
       <!-- TEMP -->

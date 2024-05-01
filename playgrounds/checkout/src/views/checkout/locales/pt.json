@@ -1,9 +1,0 @@
-{
-  "checkout": {
-    "breadcrumb": "Seção de Breadcrumb",
-    "overview": "Seção de Visão Geral",
-    "account": "Seção de Conta",
-    "payment": "Seção de Pagamento",
-    "confirmation": "Seção de Confirmação"
-  }
-}
