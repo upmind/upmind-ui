@@ -95,9 +95,14 @@ export const useLocaleImporter = () => {
 
 export function getGlobalMessages() {
   const messages = reduce(
-    import.meta.glob("@locales/**/*.json", { eager: true }),
+    import.meta.glob("@locales/**/[!_]*.json", { eager: true }),
     (result, value, key) => {
-      const locale = last(key.split("/"))?.replace(".json", "");
+      let locale = key.split("/");
+      debugger;
+      locale = locale[locale.length - 2];
+      debugger;
+      locale = locale?.replace(".json", "");
+
       if (!locale) return result;
       merge(result, { [locale]: value?.default || {} });
       return result;

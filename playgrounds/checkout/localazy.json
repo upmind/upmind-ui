@@ -1,9 +1,10 @@
 {
-  "readKey": "a8241857490697756502-31b2fa28f2b9db34a44d628e0eb0736493036a872fe7e68ff2b23b425f9a2b56",
-  "writeKey": "a8241857490697756502-87b02bb23d1115a23de735405a5a1da4def0124a629f188cd75bbbc2132676b4",
+  "readKey": "a7388292717217458717-f8858955fa4da50abdf339e04430bd00603d5e229813a94241307911ac0d89cd",
+  "writeKey": "a7388292717217458717-faab511aa20734e383427bc1b847f9efeff57ce1bc31567aebcb12b1dce5309c",
   "conversion": {},
   "download": {
-    "files": "src/assets/locales/${snakecase_lang}/${file}",
+    "folder": "./public/locales/",
+    "files": "${snakecase_lang}/${file}",
     "includeSourceLang": true
   },
   "transformations": [
@@ -14,38 +15,17 @@
     }
   ],
   "upload": {
-    "folder": "./public/languages/",
-    "filterSource": false,
+    "folder": "./src/",
+    "type": "json",
+    "deprecate": "project",
+    "importAsNew": false,
     "forceCurrent": false,
-    "deprecate": "file",
-    "features": [],
+    "forceSource": false,
     "files": [
       {
-        "group": "en",
-        "lang": "inherited",
-        "pattern": "en/*.json",
-        "type": "json"
-      },
-      {
-        "group": "existing",
-        "lang": "${autodetectLang}",
-        "pattern": "**/*.json",
-        "excludes": ["en/*.json"],
-        "type": "json"
-      },
-      {
-        "group": "fr",
-        "lang": "${autodetectLang}",
-        "pattern": "fr/*.json",
-        "excludes": ["en/*.json"],
-        "type": "json"
-      },
-      {
-        "group": "ro",
-        "lang": "${autodetectLang}",
-        "pattern": "ro/*.json",
-        "excludes": ["en/*.json"],
-        "type": "json"
+        "lang": "en",
+        "file": "${autodetectFile}",
+        "pattern": "/**/locales/*_en.json"
       }
     ]
   }

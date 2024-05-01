@@ -1,10 +1,8 @@
 {
-  "app": {
-    "title": "Pagamento v2"
-  },
   "header": {
     "checkout": "Pagamento",
+    "form": "Modulo attività",
     "offers": "Offerte",
-    "form": "Modulo attività"
+    "title": "Checkout v2"
   }
 }
