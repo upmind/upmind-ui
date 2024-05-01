@@ -46,14 +46,6 @@ setup(app => {
 
 const preview: Preview = {
   parameters: {
-    // backgrounds: {
-    //   disable: true,
-    //   grid: {
-    //     disable: true,
-    //   },
-    // },
-    // measure: { disable: true },
-    // outline: { disable: true },
     layout: "fullscreen",
     toolbar: {
       zoom: { hidden: true },
