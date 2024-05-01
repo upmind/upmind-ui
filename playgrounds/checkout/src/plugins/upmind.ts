@@ -17,7 +17,6 @@ const upmindPlugin: Plugin = {
     useSession();
 
     app.provide("upmind", api);
-    app.provide("i18n", i18n);
   },
 };
 
