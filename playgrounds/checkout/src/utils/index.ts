@@ -97,13 +97,13 @@ export function getGlobalMessages() {
   const messages = reduce(
     import.meta.glob("@locales/**/[!_]*.json", { eager: true }),
     (result, value, key) => {
+      // lets do some magic to get the locale
+      // our paths are like: @locales/en/xyz.json so the local is always the 2nd last part
       let locale = key.split("/");
-      debugger;
       locale = locale[locale.length - 2];
-      debugger;
-      locale = locale?.replace(".json", "");
-
+      // ---
       if (!locale) return result;
+      // ---
       merge(result, { [locale]: value?.default || {} });
       return result;
     },
