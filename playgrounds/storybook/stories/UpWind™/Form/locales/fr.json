@@ -81,6 +81,9 @@
         "custom": "Terminé doit être vrai ou faux"
       }
     },
+    "completion": {
+      "label": "État d'achèvement de la tâche"
+    },
     "submit": "Ajouter une tâche",
     "reset": "Réinitialiser le formulaire et effacer tous les champs"
   }
