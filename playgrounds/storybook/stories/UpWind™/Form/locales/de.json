@@ -1,7 +1,8 @@
 {
   "form": {
     "name": {
-      "label": "Wie ist Ihr Name?"
+      "label": "Wie ist Ihr Name?",
+      "description": "Bitte geben Sie Ihren vollständigen Namen ein"
     },
     "dob": {
       "label": "Was ist Ihr Geburtsdatum?"
@@ -16,7 +17,11 @@
       "label": "Wie groß sind Sie?"
     },
     "drivingSkill": {
-      "label": "Wie gut können Sie fahren?"
+      "label": "Wie gut können Sie fahren?",
+      "pro": "Ich bin ein Profi",
+      "okay": "Ich kann fahren",
+      "beginner": "Ich bin Anfänger",
+      "dont": "Ich fahre nicht"
     },
     "vegetarian": {
       "label": "Sind Sie Vegetarier?"

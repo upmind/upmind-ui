@@ -243,18 +243,20 @@ export default defineComponent({
       // otherwise, return null
 
       const createTranslator = locale => (key, defaultMessage) => {
+        let value = null;
         // console.debug(
         //   `Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`
         // );
 
         // If we have been given a translator function, use it
-        if (isFunction(this.translator)) return this.translator(key);
-
+        if (isFunction(this.translator)) value = this.translator(key);
         // otherwise, if we have vue-i18n enabled, it will provide the $locale & $t function, use that
-        if (this?.$t) return this?.$t(key);
+        else if (this?.$t) value = this?.$t(key);
 
         // otherwise return the default message
-        return defaultMessage;
+        if (!value || value == key) value = defaultMessage;
+
+        return value;
       };
 
       return {
