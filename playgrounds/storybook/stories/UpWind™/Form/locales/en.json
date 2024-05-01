@@ -1,5 +1,39 @@
 {
   "form": {
+    "name": {
+      "label": "What is your name?",
+      "description": "Please enter your full name"
+    },
+    "dob": {
+      "label": "What is your date of birth?"
+    },
+    "postalCode": {
+      "label": "What is your postal/zip code?"
+    },
+    "weight": {
+      "label": "How much do you weigh?"
+    },
+    "height": {
+      "label": "How tall are you?"
+    },
+    "drivingSkill": {
+      "label": "How good are you at driving?",
+      "pro": "I'm a pro",
+      "okay": "I'm okay",
+      "beginner": "I'm a beginner",
+      "dont": "I don't drive"
+    },
+    "vegetarian": {
+      "label": "Are you a vegetarian?"
+    },
+    "nationality": {
+      "label": "What is your nationality?"
+    },
+    "occupation": {
+      "label": "What is your occupation?"
+    }
+  },
+  "taskform": {
     "title": "This is a simple Task form",
     "model": "The Form is clean | The Form is valid | The Form is invalid",
     "label": {

@@ -1,5 +1,34 @@
 {
   "form": {
+    "name": {
+      "label": "¿Cuál es su nombre?"
+    },
+    "dob": {
+      "label": "¿Cuál es su fecha de nacimiento?"
+    },
+    "postalCode": {
+      "label": "¿Cuál es su código postal?"
+    },
+    "weight": {
+      "label": "¿Cuánto pesa?"
+    },
+    "height": {
+      "label": "¿Cuánto mide?"
+    },
+    "drivingSkill": {
+      "label": "¿Qué tan bien sabe conducir?"
+    },
+    "vegetarian": {
+      "label": "¿Eres vegetariano?"
+    },
+    "nationality": {
+      "label": "¿Cuál es su nacionalidad?"
+    },
+    "occupation": {
+      "label": "¿Cuál es su ocupación?"
+    }
+  },
+  "taskform": {
     "title": "Este es un formulario de tarea simple",
     "model": "El formulario está limpio | El formulario es válido | El formulario no es válido",
     "label": {
