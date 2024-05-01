@@ -1,0 +1,52 @@
+{
+  "readKey": "a8241857490697756502-31b2fa28f2b9db34a44d628e0eb0736493036a872fe7e68ff2b23b425f9a2b56",
+  "writeKey": "a8241857490697756502-87b02bb23d1115a23de735405a5a1da4def0124a629f188cd75bbbc2132676b4",
+  "conversion": {},
+  "download": {
+    "files": "src/assets/locales/${snakecase_lang}/${file}",
+    "includeSourceLang": true
+  },
+  "transformations": [
+    {
+      "name": "snakecase_lang",
+      "source": "${lang}",
+      "operations": "formatLang: LL, LL-RR, LL, LL-RR"
+    }
+  ],
+  "upload": {
+    "folder": "./public/languages/",
+    "filterSource": false,
+    "forceCurrent": false,
+    "deprecate": "file",
+    "features": [],
+    "files": [
+      {
+        "group": "en",
+        "lang": "inherited",
+        "pattern": "en/*.json",
+        "type": "json"
+      },
+      {
+        "group": "existing",
+        "lang": "${autodetectLang}",
+        "pattern": "**/*.json",
+        "excludes": ["en/*.json"],
+        "type": "json"
+      },
+      {
+        "group": "fr",
+        "lang": "${autodetectLang}",
+        "pattern": "fr/*.json",
+        "excludes": ["en/*.json"],
+        "type": "json"
+      },
+      {
+        "group": "ro",
+        "lang": "${autodetectLang}",
+        "pattern": "ro/*.json",
+        "excludes": ["en/*.json"],
+        "type": "json"
+      }
+    ]
+  }
+}
