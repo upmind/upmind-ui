@@ -43,11 +43,7 @@ const router = createRouter({
       name: "offers",
       component: () => import("@/views/offers/Offers.vue"),
     },
-    {
-      path: "/form",
-      name: "form",
-      component: () => import("@/views/form/Form.vue"),
-    },
+
     // ---
     ...routes,
   ],

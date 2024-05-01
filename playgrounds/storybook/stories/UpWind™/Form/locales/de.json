@@ -60,6 +60,9 @@
         "custom": "Das Wiederholungsintervall muss eine Zahl sein"
       }
     },
+    "completion": {
+      "label": "Status des Aufgabenabschlusses"
+    },
     "done": {
       "label": "Erledigt",
       "description": "Ist diese Aufgabe erledigt?",

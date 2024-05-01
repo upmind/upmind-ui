@@ -1,7 +1,7 @@
 // --- externals
 
 // --- internal
-import ThemeProvider from "../.storybook/ThemeProvider.vue";
+import ThemeProvider from "../.storybook/Provider.vue";
 
 // --- types
 import type { App, Plugin } from "vue";
@@ -10,7 +10,7 @@ import type { App, Plugin } from "vue";
 
 const upwindPlugin: Plugin = {
   install: (app: App): void => {
-    app.component("UpwThemeProvider", ThemeProvider);
+    app.component("UpwProvider", ThemeProvider);
   },
 };
 

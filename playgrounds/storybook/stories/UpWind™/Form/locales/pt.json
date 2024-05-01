@@ -65,6 +65,9 @@
         "custom": "Feito deve ser verdadeiro ou falso"
       }
     },
+    "completion": {
+      "label": "Status de Conclusão da Tarefa"
+    },
     "submit": "Adicionar Tarefa",
     "reset": "Reiniciar Formulário e limpar todos os campos"
   }

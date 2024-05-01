@@ -1,0 +1,10 @@
+{
+  "app": {
+    "title": "Confira v2"
+  },
+  "header": {
+    "checkout": "Confira",
+    "offers": "Ofertas",
+    "form": "Formulário de Tarefa"
+  }
+}

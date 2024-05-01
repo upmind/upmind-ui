@@ -65,6 +65,9 @@
         "custom": "Fatto deve essere vero o falso"
       }
     },
+    "completion": {
+      "label": "Stato di completamento attività"
+    },
     "submit": "Aggiungi attività",
     "reset": "Resetta modulo e cancella tutti i campi"
   }

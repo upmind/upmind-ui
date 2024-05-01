@@ -58,6 +58,9 @@
         "custom": "El intervalo de recurrencia debe ser un número"
       }
     },
+    "completion": {
+      "label": "Estado de finalización de la tarea"
+    },
     "done": {
       "label": "Terminado",
       "description": "¿Está esta tarea terminada?",

@@ -12,6 +12,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./stories', import.meta.url)),
       '@icons': fileURLToPath(new URL('./stories/assets/icons', import.meta.url)),
       '@themes': fileURLToPath(new URL('./stories/assets/themes', import.meta.url)),
+      '@locales': fileURLToPath(new URL('./stories/assets/locales', import.meta.url)),
     }
   }
 })

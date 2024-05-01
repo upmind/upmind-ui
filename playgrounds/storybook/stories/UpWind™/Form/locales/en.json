@@ -34,13 +34,6 @@
         "custom": "Impact must be between 1 and 10"
       }
     },
-    "dueDate": {
-      "label": "Due Date",
-      "description": "When does this task need to be completed?",
-      "error": {
-        "custom": "Due Date must be a valid date in the future"
-      }
-    },
     "recurrence": {
       "label": "Recurrs",
       "description": "Does this repeat?",
@@ -58,6 +51,16 @@
       "description": "How often does this task repeat?",
       "error": {
         "custom": "Recurrence Interval must be a number"
+      }
+    },
+    "completion": {
+      "label": "Task Completion Status"
+    },
+    "dueDate": {
+      "label": "Due Date",
+      "description": "When does this task need to be completed?",
+      "error": {
+        "custom": "Due Date must be a valid date in the future"
       }
     },
     "done": {
