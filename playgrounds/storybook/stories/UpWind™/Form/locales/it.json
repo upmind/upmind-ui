@@ -1,5 +1,34 @@
 {
   "form": {
+    "name": {
+      "label": "Qual è il tuo nome?"
+    },
+    "dob": {
+      "label": "Qual è la tua data di nascita?"
+    },
+    "postalCode": {
+      "label": "Qual è il tuo codice postale?"
+    },
+    "weight": {
+      "label": "Quanto pesi?"
+    },
+    "height": {
+      "label": "Quanto sei alto?"
+    },
+    "drivingSkill": {
+      "label": "Quanto sei bravo a guidare?"
+    },
+    "vegetarian": {
+      "label": "Sei vegetariano?"
+    },
+    "nationality": {
+      "label": "Qual è la tua nazionalità?"
+    },
+    "occupation": {
+      "label": "Qual è la tua professione?"
+    }
+  },
+  "taskform": {
     "title": "Questo è un semplice modulo di attività",
     "model": "Il modulo è pulito | Il modulo è valido | Il modulo non è valido",
     "label": {

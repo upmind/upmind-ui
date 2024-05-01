@@ -80,16 +80,19 @@ const meta: Meta<typeof UpwForm> = {
           minLength: 3,
           title: "What is your name?",
           description: "Please enter your full name",
+          i18n: "form.name",
         },
         dob: {
           type: "string",
           format: "date",
           title: "What is your date of birth?",
+          i18n: "form.dob",
         },
         postalCode: {
           type: "string",
           maxLength: 5,
           title: "What is your postal/zip code?",
+          i18n: "form.postalCode",
         },
 
         personalData: {
@@ -100,43 +103,53 @@ const meta: Meta<typeof UpwForm> = {
               minimum: 0,
               maximum: 250,
               title: "How much do you weigh?",
+              i18n: "form.weight",
             },
             height: {
               type: "integer",
               minimum: 120,
               maximum: 220,
               title: "How tall are you?",
+              i18n: "form.height",
             },
             drivingSkill: {
               type: "number",
               title: "How good are you at driving?",
+              i18n: "form.drivingSkill",
               oneOf: [
                 {
-                  title: "I'm a pro",
+                  title: "pro",
                   const: 3,
                 },
                 {
-                  title: "I'm okay",
+                  title: "okay",
                   const: 2,
                 },
                 {
-                  title: "I'm a beginner",
+                  title: "beginner",
                   const: 1,
+                },
+                {
+                  title: "dont",
+                  const: 0,
                 },
               ],
             },
             vegetarian: {
               type: "boolean",
               title: "Are you a vegetarian?",
+              i18n: "form.vegetarian",
             },
             nationality: {
               type: "string",
               enum: ["DE", "IT", "JP", "US", "RU", "Other"],
               title: "What is your nationality?",
+              i18n: "form.nationality",
             },
             occupation: {
               type: "string",
               title: "What is your occupation?",
+              i18n: "form.occupation",
             },
           },
           required: ["weight", "height"],
@@ -241,51 +254,51 @@ export const Task: Story = {
       properties: {
         name: {
           type: ["string"],
-          i18n: "form.name",
+          i18n: "taskform.name",
         },
 
         description: {
           type: ["string", "null"],
           maxLength: 140,
-          i18n: "form.description",
+          i18n: "taskform.description",
         },
 
         rating: {
           type: "integer",
           maximum: 5,
           minimum: 1,
-          i18n: "form.rating",
+          i18n: "taskform.rating",
         },
 
         impact: {
           type: "number",
           maximum: 10,
           minimum: 0,
-          i18n: "form.impact",
+          i18n: "taskform.impact",
         },
 
         dueDate: {
           type: ["string", "null"],
           format: "date",
           formatMinimum: new Date(Date.now()).toLocaleString(),
-          i18n: "form.dueDate",
+          i18n: "taskform.dueDate",
         },
 
         recurrence: {
           type: ["string", "null"],
-          i18n: "form.recurrence",
+          i18n: "taskform.recurrence",
           oneOf: [
             {
               const: "daily",
-              i18n: "form.recurrence.options.daily",
+              i18n: "taskform.recurrence.options.daily",
             },
             {
               const: "weekly",
-              i18n: "form.recurrence.options.weekly",
+              i18n: "taskform.recurrence.options.weekly",
             },
             {
               const: "monthly",
-              i18n: "form.recurrence.options.monthly",
+              i18n: "taskform.recurrence.options.monthly",
               title: "Monthly",
             },
           ],
@@ -295,13 +308,13 @@ export const Task: Story = {
           type: "integer",
           minimum: 1,
           maximum: 365,
-          i18n: "form.recurrenceInterval",
+          i18n: "taskform.recurrenceInterval",
         },
 
         done: {
           type: ["boolean", "null"],
           enum: [true, false, null],
-          i18n: "form.done",
+          i18n: "taskform.done",
         },
       },
     },
@@ -311,7 +324,7 @@ export const Task: Story = {
       elements: [
         {
           type: "Label",
-          i18n: "form.label",
+          i18n: "taskform.label",
         },
 
         {
@@ -410,7 +423,7 @@ export const Task: Story = {
         {
           type: "Group",
 
-          i18n: "form.completion",
+          i18n: "taskform.completion",
           elements: [
             {
               type: "Control",
