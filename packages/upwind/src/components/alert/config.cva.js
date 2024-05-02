@@ -28,9 +28,7 @@ export default {
           warning: "bg-warning-50 text-warning-900 border-warning",
           info: "bg-info-50 text-info-900 border-info",
         },
-        disabled: {
-          true: "!cursor-default opacity-50",
-        },
+
         block: {
           true: "flex w-full",
           false: "max-w-sm",
