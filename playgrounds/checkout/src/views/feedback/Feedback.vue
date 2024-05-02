@@ -1,68 +1,51 @@
 <template>
   <section class="feedback w-full">
-    <header
-      class="navbar sticky top-0 z-10 flex flex-wrap rounded bg-base p-4 shadow"
-    >
-      <div class="flex-none gap-2">
-        <h4 class="title m-0 text-wrap">
-          <span v-if="meta.isProcessing" class="text-primary">{{
-            activeCount
-          }}</span>
+    <header class="flex flex-wrap items-center gap-2">
+      <h2 class="title m-0 w-full text-wrap sm:flex-1">
+        <span v-if="meta.isProcessing" class="text-primary">{{
+          activeCount
+        }}</span>
 
-          Message{{ activeCount == 1 ? "" : "s" }}
+        Message{{ activeCount == 1 ? "" : "s" }}
 
-          <span v-if="meta.isProcessing">
-            {{ activeCount == 1 ? "is" : "are" }}
-            <span class="text-primary">Active</span>
-          </span>
-
-          <span v-if="hasScheduled">
-            , and
-            <span v-if="meta.isProcessing" class="text-secondary">{{
-              scheduledCount
-            }}</span>
-            {{ scheduledCount == 1 ? "is" : "are" }}
-            <span class="text-secondary">Scheduled</span>
-          </span>
-        </h4>
-
-        <!-- <span class="badge badge-secondary">
-          {{ notifications.length }}
+        <span v-if="meta.isProcessing">
+          {{ activeCount == 1 ? "is" : "are" }}
+          <span class="text-primary">Active</span>
         </span>
-        <span class="badge badge-accent">
-          {{ toasts.length }}
-        </span> -->
-      </div>
 
-      <div class="actions ml-auto flex flex-none flex-wrap items-center gap-4">
-        <slot name="actions">
-          <upw-button
-            variant="outlined"
-            size="sm"
-            @click="processMessages()"
-            :disabled="meta.isProcessing"
-            label="Add Mixed"
-          />
-        </slot>
-        <slot name="actions">
-          <upw-button
-            variant="outlined"
-            size="sm"
-            @click="processMessages('toast')"
-            :disabled="meta.isProcessing"
-            label="Add Toasts"
-          />
-        </slot>
-        <slot name="actions">
-          <upw-button
-            variant="outlined"
-            size="sm"
-            @click="processMessages('notification')"
-            :disabled="meta.isProcessing"
-            label="Add Banners"
-          />
-        </slot>
-      </div>
+        <span v-if="hasScheduled">
+          , and
+          <span v-if="meta.isProcessing" class="text-secondary">{{
+            scheduledCount
+          }}</span>
+          {{ scheduledCount == 1 ? "is" : "are" }}
+          <span class="text-secondary">Scheduled</span>
+        </span>
+      </h2>
+
+      <upw-button
+        variant="outlined"
+        size="sm"
+        @click="processMessages()"
+        :disabled="meta.isProcessing"
+        label="Add Mixed"
+      />
+
+      <upw-button
+        variant="outlined"
+        size="sm"
+        @click="processMessages('toast')"
+        :disabled="meta.isProcessing"
+        label="Add Toasts"
+      />
+
+      <upw-button
+        variant="outlined"
+        size="sm"
+        @click="processMessages('notification')"
+        :disabled="meta.isProcessing"
+        label="Add Banners"
+      />
     </header>
 
     <div class="my-8 flex flex-col gap-4 text-base-content">
