@@ -1,9 +1,9 @@
 <template>
   <header
-    class="fixed top-0 z-50 flex w-full flex-wrap border-b border-gray-200 bg-base py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start sm:py-4"
+    class="flex w-full flex-wrap border-b border-gray-200 bg-base py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start"
   >
     <nav
-      class="relative mx-auto flex w-full basis-full flex-wrap items-center gap-4 px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
+      class="relative mx-auto flex w-full flex-wrap items-center gap-4 px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-20"
       aria-label="Global"
     >
       <a
@@ -12,39 +12,52 @@
         aria-label="Brand"
       >
         <logo class="h-full w-full" />
-        <span class="tracking-widest">Checkout</span>
+        <span class="text-nowrap tracking-widest">{{
+          $t("header.title")
+        }}</span>
       </a>
 
-      <div class="ms-auto flex items-center justify-end sm:order-3 sm:ms-0">
-        <upm-theme-switcher />
-
-        <div class="ps-3 sm:ms-6 sm:border-s sm:border-gray-300 sm:ps-6">
-          <button
-            type="button"
-            :class="[
-              'hover:border-neutral-300',
-              'hover:shadow-lg',
-              // ---
-              'border',
-              'border-transparent',
-              // ---
-              'active:border-neutral-600',
-              'active:shadow-lg',
-              'active:border',
-              // ---
-              'transition-all',
-              'rounded',
-              'aspect-square',
-            ]"
-            data-hs-overlay="#navbar-secondary-content"
-            aria-controls="navbar-secondary-content"
-            aria-label="Toggle navigation"
-          >
-            <span class="sr-only">Toggle Navigation</span>
-            <upw-icon icon="navigation-menu" class="size-6" />
-          </button>
-        </div>
+      <!-- TEMP -->
+      <div class="flex flex-1 items-center justify-start gap-4">
+        <upw-listbox
+          v-model="$i18n.locale"
+          v-if="$i18n?.locale"
+          :label="$i18n.locale?.toUpperCase()"
+          :avatar="{
+            path: 'flags',
+            name: $i18n.locale,
+          }"
+          :items="locales"
+        />
       </div>
+
+      <div class="flex items-center justify-end gap-4">
+        <RouterLink
+          to="/"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.checkout") }}
+        </RouterLink>
+        <RouterLink
+          to="/offers"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.offers") }}
+        </RouterLink>
+        <RouterLink
+          to="/form"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.form") }}
+        </RouterLink>
+      </div>
+      <!-- #END TEMP -->
     </nav>
   </header>
 </template>
@@ -52,15 +65,25 @@
 <script>
 import { defineComponent } from "vue";
 import Logo from "@/assets/logo.svg";
-import { UpwIcon } from "@upmind/upwind";
-import UpmThemeSwitcher from "@/components/ThemeSwitcherDropdown.vue";
+import { UpwListbox } from "@upmind/client";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
     Logo,
-    UpwIcon,
-    UpmThemeSwitcher,
+    UpwListbox,
+  },
+  computed: {
+    locales() {
+      return this.$i18n.availableLocales.map(locale => ({
+        label: locale.toUpperCase(),
+        value: locale,
+        avatar: {
+          path: "flags",
+          name: locale,
+        },
+      }));
+    },
   },
 });
 </script>

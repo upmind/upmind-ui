@@ -168,8 +168,8 @@ export const Base: Story = {
           type: "Control",
           scope: "#/properties/number",
           options: {
-            prefix: "$",
-            suffix: ".00",
+            prependText: "$",
+            apendText: ".00",
             label: "Simple currency input",
           },
         },

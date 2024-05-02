@@ -32,6 +32,7 @@
       @input="onChange"
       :aria-invalid="meta.isInvalid"
     />
+    <slot name="actions" v-bind="{ styles: styles.textbox }"></slot>
   </upw-input>
 </template>
 
@@ -56,7 +57,7 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwCheckbox",
+  name: "UpwTextbox",
   inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {

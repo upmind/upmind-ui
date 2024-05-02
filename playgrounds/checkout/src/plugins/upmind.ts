@@ -1,5 +1,5 @@
 import type { App, Plugin } from "vue";
-import { useApi, useBrand, useSession, useSystem } from "@upmind/flow-vue";
+import { useApi, useBrand, useSession, useSystem } from "@upmind/client";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {

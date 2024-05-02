@@ -19,6 +19,7 @@ const meta: Meta<typeof UpwListbox> = {
   argTypes: {
     placement: useSystemArgTypes.placement,
     // size: useSystemArgTypes.size,
+    avatar: useSystemArgTypes.flag,
     icon: useSystemArgTypes.icon,
     iconSelected: useSystemArgTypes.icon,
     toggle: useSystemArgTypes.icon,
@@ -26,6 +27,7 @@ const meta: Meta<typeof UpwListbox> = {
   args: {
     label: "Select an Item..",
     // size: "md",
+    avatar: undefined,
     icon: undefined,
     iconSelected: "check",
     // ---
@@ -53,7 +55,7 @@ type Story = StoryObj<typeof UpwListbox>;
 
 const countries = {
   AF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "af",
     },
@@ -61,7 +63,7 @@ const countries = {
     value: "AF",
   },
   AX: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ax",
     },
@@ -69,7 +71,7 @@ const countries = {
     value: "AX",
   },
   AL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "al",
     },
@@ -77,7 +79,7 @@ const countries = {
     value: "AL",
   },
   DZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "dz",
     },
@@ -85,7 +87,7 @@ const countries = {
     value: "DZ",
   },
   AS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "as",
     },
@@ -93,7 +95,7 @@ const countries = {
     value: "AS",
   },
   AD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ad",
     },
@@ -101,7 +103,7 @@ const countries = {
     value: "AD",
   },
   AO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ao",
     },
@@ -109,7 +111,7 @@ const countries = {
     value: "AO",
   },
   AI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ai",
     },
@@ -117,7 +119,7 @@ const countries = {
     value: "AI",
   },
   AG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ag",
     },
@@ -125,7 +127,7 @@ const countries = {
     value: "AG",
   },
   AR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ar",
     },
@@ -133,7 +135,7 @@ const countries = {
     value: "AR",
   },
   AM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "am",
     },
@@ -141,7 +143,7 @@ const countries = {
     value: "AM",
   },
   AW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "aw",
     },
@@ -149,7 +151,7 @@ const countries = {
     value: "AW",
   },
   AU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "au",
     },
@@ -157,7 +159,7 @@ const countries = {
     value: "AU",
   },
   AT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "at",
     },
@@ -165,7 +167,7 @@ const countries = {
     value: "AT",
   },
   AZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "az",
     },
@@ -173,7 +175,7 @@ const countries = {
     value: "AZ",
   },
   BS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bs",
     },
@@ -181,7 +183,7 @@ const countries = {
     value: "BS",
   },
   BH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bh",
     },
@@ -189,7 +191,7 @@ const countries = {
     value: "BH",
   },
   BD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bd",
     },
@@ -197,7 +199,7 @@ const countries = {
     value: "BD",
   },
   BB: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bb",
     },
@@ -205,7 +207,7 @@ const countries = {
     value: "BB",
   },
   BY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "by",
     },
@@ -213,7 +215,7 @@ const countries = {
     value: "BY",
   },
   BE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "be",
     },
@@ -221,7 +223,7 @@ const countries = {
     value: "BE",
   },
   BZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bz",
     },
@@ -229,7 +231,7 @@ const countries = {
     value: "BZ",
   },
   BJ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bj",
     },
@@ -237,7 +239,7 @@ const countries = {
     value: "BJ",
   },
   BM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bm",
     },
@@ -245,7 +247,7 @@ const countries = {
     value: "BM",
   },
   BT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bt",
     },
@@ -253,7 +255,7 @@ const countries = {
     value: "BT",
   },
   BO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bo",
     },
@@ -261,7 +263,7 @@ const countries = {
     value: "BO",
   },
   BQ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bq",
     },
@@ -269,7 +271,7 @@ const countries = {
     value: "BQ",
   },
   BA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ba",
     },
@@ -277,7 +279,7 @@ const countries = {
     value: "BA",
   },
   BW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bw",
     },
@@ -285,7 +287,7 @@ const countries = {
     value: "BW",
   },
   BR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "br",
     },
@@ -293,7 +295,7 @@ const countries = {
     value: "BR",
   },
   IO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "io",
     },
@@ -301,7 +303,7 @@ const countries = {
     value: "IO",
   },
   BN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bn",
     },
@@ -309,7 +311,7 @@ const countries = {
     value: "BN",
   },
   BG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bg",
     },
@@ -317,7 +319,7 @@ const countries = {
     value: "BG",
   },
   BF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bf",
     },
@@ -325,7 +327,7 @@ const countries = {
     value: "BF",
   },
   BI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bi",
     },
@@ -333,7 +335,7 @@ const countries = {
     value: "BI",
   },
   CV: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cv",
     },
@@ -341,7 +343,7 @@ const countries = {
     value: "CV",
   },
   KH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kh",
     },
@@ -349,7 +351,7 @@ const countries = {
     value: "KH",
   },
   CM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cm",
     },
@@ -357,7 +359,7 @@ const countries = {
     value: "CM",
   },
   CA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ca",
     },
@@ -365,7 +367,7 @@ const countries = {
     value: "CA",
   },
   KY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ky",
     },
@@ -373,7 +375,7 @@ const countries = {
     value: "KY",
   },
   CF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cf",
     },
@@ -381,7 +383,7 @@ const countries = {
     value: "CF",
   },
   TD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "td",
     },
@@ -389,7 +391,7 @@ const countries = {
     value: "TD",
   },
   CL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cl",
     },
@@ -397,7 +399,7 @@ const countries = {
     value: "CL",
   },
   CN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cn",
     },
@@ -405,7 +407,7 @@ const countries = {
     value: "CN",
   },
   CX: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cx",
     },
@@ -413,7 +415,7 @@ const countries = {
     value: "CX",
   },
   CC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cc",
     },
@@ -421,7 +423,7 @@ const countries = {
     value: "CC",
   },
   CO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "co",
     },
@@ -429,7 +431,7 @@ const countries = {
     value: "CO",
   },
   KM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "km",
     },
@@ -437,7 +439,7 @@ const countries = {
     value: "KM",
   },
   CK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ck",
     },
@@ -445,7 +447,7 @@ const countries = {
     value: "CK",
   },
   CR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cr",
     },
@@ -453,7 +455,7 @@ const countries = {
     value: "CR",
   },
   HR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "hr",
     },
@@ -461,7 +463,7 @@ const countries = {
     value: "HR",
   },
   CU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cu",
     },
@@ -469,7 +471,7 @@ const countries = {
     value: "CU",
   },
   CW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cw",
     },
@@ -477,7 +479,7 @@ const countries = {
     value: "CW",
   },
   CY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cy",
     },
@@ -485,7 +487,7 @@ const countries = {
     value: "CY",
   },
   CZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cz",
     },
@@ -493,7 +495,7 @@ const countries = {
     value: "CZ",
   },
   CI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ci",
     },
@@ -501,7 +503,7 @@ const countries = {
     value: "CI",
   },
   CD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cd",
     },
@@ -509,7 +511,7 @@ const countries = {
     value: "CD",
   },
   DK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "dk",
     },
@@ -517,7 +519,7 @@ const countries = {
     value: "DK",
   },
   DJ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "dj",
     },
@@ -525,7 +527,7 @@ const countries = {
     value: "DJ",
   },
   DM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "dm",
     },
@@ -533,7 +535,7 @@ const countries = {
     value: "DM",
   },
   DO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "do",
     },
@@ -541,7 +543,7 @@ const countries = {
     value: "DO",
   },
   EC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ec",
     },
@@ -549,7 +551,7 @@ const countries = {
     value: "EC",
   },
   EG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "eg",
     },
@@ -557,7 +559,7 @@ const countries = {
     value: "EG",
   },
   SV: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sv",
     },
@@ -565,7 +567,7 @@ const countries = {
     value: "SV",
   },
   "GB:ENG": {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gb",
     },
@@ -573,7 +575,7 @@ const countries = {
     value: "GB",
   },
   GQ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gq",
     },
@@ -581,7 +583,7 @@ const countries = {
     value: "GQ",
   },
   ER: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "er",
     },
@@ -589,7 +591,7 @@ const countries = {
     value: "ER",
   },
   EE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ee",
     },
@@ -597,7 +599,7 @@ const countries = {
     value: "EE",
   },
   ET: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "et",
     },
@@ -605,7 +607,7 @@ const countries = {
     value: "ET",
   },
   FK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "fk",
     },
@@ -613,7 +615,7 @@ const countries = {
     value: "FK",
   },
   FO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "fo",
     },
@@ -621,7 +623,7 @@ const countries = {
     value: "FO",
   },
   FM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "fm",
     },
@@ -629,7 +631,7 @@ const countries = {
     value: "FM",
   },
   FJ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "fj",
     },
@@ -637,7 +639,7 @@ const countries = {
     value: "FJ",
   },
   FI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "fi",
     },
@@ -645,7 +647,7 @@ const countries = {
     value: "FI",
   },
   FR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "fr",
     },
@@ -653,7 +655,7 @@ const countries = {
     value: "FR",
   },
   GF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gf",
     },
@@ -661,7 +663,7 @@ const countries = {
     value: "GF",
   },
   PF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pf",
     },
@@ -669,7 +671,7 @@ const countries = {
     value: "PF",
   },
   TF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tf",
     },
@@ -677,7 +679,7 @@ const countries = {
     value: "TF",
   },
   GA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ga",
     },
@@ -685,7 +687,7 @@ const countries = {
     value: "GA",
   },
   GM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gm",
     },
@@ -693,7 +695,7 @@ const countries = {
     value: "GM",
   },
   GE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ge",
     },
@@ -701,7 +703,7 @@ const countries = {
     value: "GE",
   },
   DE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "de",
     },
@@ -709,7 +711,7 @@ const countries = {
     value: "DE",
   },
   GH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gh",
     },
@@ -717,7 +719,7 @@ const countries = {
     value: "GH",
   },
   GI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gi",
     },
@@ -725,7 +727,7 @@ const countries = {
     value: "GI",
   },
   GR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gr",
     },
@@ -733,7 +735,7 @@ const countries = {
     value: "GR",
   },
   GL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gl",
     },
@@ -741,7 +743,7 @@ const countries = {
     value: "GL",
   },
   GD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gd",
     },
@@ -749,7 +751,7 @@ const countries = {
     value: "GD",
   },
   GP: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gp",
     },
@@ -757,7 +759,7 @@ const countries = {
     value: "GP",
   },
   GU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gu",
     },
@@ -765,7 +767,7 @@ const countries = {
     value: "GU",
   },
   GT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gt",
     },
@@ -773,7 +775,7 @@ const countries = {
     value: "GT",
   },
   GG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gg",
     },
@@ -781,7 +783,7 @@ const countries = {
     value: "GG",
   },
   GN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gn",
     },
@@ -789,7 +791,7 @@ const countries = {
     value: "GN",
   },
   GW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gw",
     },
@@ -797,7 +799,7 @@ const countries = {
     value: "GW",
   },
   GY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gy",
     },
@@ -805,7 +807,7 @@ const countries = {
     value: "GY",
   },
   HT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ht",
     },
@@ -813,7 +815,7 @@ const countries = {
     value: "HT",
   },
   VA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "va",
     },
@@ -821,7 +823,7 @@ const countries = {
     value: "VA",
   },
   HN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "hn",
     },
@@ -829,7 +831,7 @@ const countries = {
     value: "HN",
   },
   HK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "hk",
     },
@@ -837,7 +839,7 @@ const countries = {
     value: "HK",
   },
   HU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "hu",
     },
@@ -845,7 +847,7 @@ const countries = {
     value: "HU",
   },
   IS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "is",
     },
@@ -853,7 +855,7 @@ const countries = {
     value: "IS",
   },
   IN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "in",
     },
@@ -861,7 +863,7 @@ const countries = {
     value: "IN",
   },
   ID: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "id",
     },
@@ -869,7 +871,7 @@ const countries = {
     value: "ID",
   },
   IR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ir",
     },
@@ -877,7 +879,7 @@ const countries = {
     value: "IR",
   },
   IQ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "iq",
     },
@@ -885,7 +887,7 @@ const countries = {
     value: "IQ",
   },
   IE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ie",
     },
@@ -893,7 +895,7 @@ const countries = {
     value: "IE",
   },
   IM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "im",
     },
@@ -901,7 +903,7 @@ const countries = {
     value: "IM",
   },
   IL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "il",
     },
@@ -909,7 +911,7 @@ const countries = {
     value: "IL",
   },
   IT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "it",
     },
@@ -917,7 +919,7 @@ const countries = {
     value: "IT",
   },
   JM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "jm",
     },
@@ -925,7 +927,7 @@ const countries = {
     value: "JM",
   },
   JP: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "jp",
     },
@@ -933,7 +935,7 @@ const countries = {
     value: "JP",
   },
   JE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "je",
     },
@@ -941,7 +943,7 @@ const countries = {
     value: "JE",
   },
   JO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "jo",
     },
@@ -949,7 +951,7 @@ const countries = {
     value: "JO",
   },
   KZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kz",
     },
@@ -957,7 +959,7 @@ const countries = {
     value: "KZ",
   },
   KE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ke",
     },
@@ -965,7 +967,7 @@ const countries = {
     value: "KE",
   },
   KI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ki",
     },
@@ -973,7 +975,7 @@ const countries = {
     value: "KI",
   },
   KW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kw",
     },
@@ -981,7 +983,7 @@ const countries = {
     value: "KW",
   },
   KG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kg",
     },
@@ -989,7 +991,7 @@ const countries = {
     value: "KG",
   },
   LA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "la",
     },
@@ -997,7 +999,7 @@ const countries = {
     value: "LA",
   },
   LV: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lv",
     },
@@ -1005,7 +1007,7 @@ const countries = {
     value: "LV",
   },
   LB: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lb",
     },
@@ -1013,7 +1015,7 @@ const countries = {
     value: "LB",
   },
   LS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ls",
     },
@@ -1021,7 +1023,7 @@ const countries = {
     value: "LS",
   },
   LR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lr",
     },
@@ -1029,7 +1031,7 @@ const countries = {
     value: "LR",
   },
   LY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ly",
     },
@@ -1037,7 +1039,7 @@ const countries = {
     value: "LY",
   },
   LI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "li",
     },
@@ -1045,7 +1047,7 @@ const countries = {
     value: "LI",
   },
   LT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lt",
     },
@@ -1053,7 +1055,7 @@ const countries = {
     value: "LT",
   },
   LU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lu",
     },
@@ -1061,7 +1063,7 @@ const countries = {
     value: "LU",
   },
   MO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mo",
     },
@@ -1069,7 +1071,7 @@ const countries = {
     value: "MO",
   },
   MG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mg",
     },
@@ -1077,7 +1079,7 @@ const countries = {
     value: "MG",
   },
   MW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mw",
     },
@@ -1085,7 +1087,7 @@ const countries = {
     value: "MW",
   },
   MY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "my",
     },
@@ -1093,7 +1095,7 @@ const countries = {
     value: "MY",
   },
   MV: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mv",
     },
@@ -1101,7 +1103,7 @@ const countries = {
     value: "MV",
   },
   ML: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ml",
     },
@@ -1109,7 +1111,7 @@ const countries = {
     value: "ML",
   },
   MT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mt",
     },
@@ -1117,7 +1119,7 @@ const countries = {
     value: "MT",
   },
   MH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mh",
     },
@@ -1125,7 +1127,7 @@ const countries = {
     value: "MH",
   },
   MQ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mq",
     },
@@ -1133,7 +1135,7 @@ const countries = {
     value: "MQ",
   },
   MR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mr",
     },
@@ -1141,7 +1143,7 @@ const countries = {
     value: "MR",
   },
   MU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mu",
     },
@@ -1149,7 +1151,7 @@ const countries = {
     value: "MU",
   },
   YT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "yt",
     },
@@ -1157,7 +1159,7 @@ const countries = {
     value: "YT",
   },
   MX: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mx",
     },
@@ -1165,7 +1167,7 @@ const countries = {
     value: "MX",
   },
   MD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "md",
     },
@@ -1173,7 +1175,7 @@ const countries = {
     value: "MD",
   },
   MC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mc",
     },
@@ -1181,7 +1183,7 @@ const countries = {
     value: "MC",
   },
   MN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mn",
     },
@@ -1189,7 +1191,7 @@ const countries = {
     value: "MN",
   },
   ME: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "me",
     },
@@ -1197,7 +1199,7 @@ const countries = {
     value: "ME",
   },
   MS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ms",
     },
@@ -1205,7 +1207,7 @@ const countries = {
     value: "MS",
   },
   MA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ma",
     },
@@ -1213,7 +1215,7 @@ const countries = {
     value: "MA",
   },
   MZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mz",
     },
@@ -1221,7 +1223,7 @@ const countries = {
     value: "MZ",
   },
   MM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mm",
     },
@@ -1229,7 +1231,7 @@ const countries = {
     value: "MM",
   },
   NA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "na",
     },
@@ -1237,7 +1239,7 @@ const countries = {
     value: "NA",
   },
   NR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "nr",
     },
@@ -1245,7 +1247,7 @@ const countries = {
     value: "NR",
   },
   NP: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "np",
     },
@@ -1253,7 +1255,7 @@ const countries = {
     value: "NP",
   },
   NL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "nl",
     },
@@ -1261,7 +1263,7 @@ const countries = {
     value: "NL",
   },
   NC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "nc",
     },
@@ -1269,7 +1271,7 @@ const countries = {
     value: "NC",
   },
   NZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "nz",
     },
@@ -1277,7 +1279,7 @@ const countries = {
     value: "NZ",
   },
   NI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ni",
     },
@@ -1285,7 +1287,7 @@ const countries = {
     value: "NI",
   },
   NE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ne",
     },
@@ -1293,7 +1295,7 @@ const countries = {
     value: "NE",
   },
   NG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ng",
     },
@@ -1301,7 +1303,7 @@ const countries = {
     value: "NG",
   },
   NU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "nu",
     },
@@ -1309,7 +1311,7 @@ const countries = {
     value: "NU",
   },
   NF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "nf",
     },
@@ -1317,7 +1319,7 @@ const countries = {
     value: "NF",
   },
   KP: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kp",
     },
@@ -1325,7 +1327,7 @@ const countries = {
     value: "KP",
   },
   MK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mk",
     },
@@ -1333,7 +1335,7 @@ const countries = {
     value: "MK",
   },
   "GB:NIR": {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gb",
     },
@@ -1341,7 +1343,7 @@ const countries = {
     value: "GB",
   },
   MP: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mp",
     },
@@ -1349,7 +1351,7 @@ const countries = {
     value: "MP",
   },
   NO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "no",
     },
@@ -1357,7 +1359,7 @@ const countries = {
     value: "NO",
   },
   OM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "om",
     },
@@ -1365,7 +1367,7 @@ const countries = {
     value: "OM",
   },
   PK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pk",
     },
@@ -1373,7 +1375,7 @@ const countries = {
     value: "PK",
   },
   PW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pw",
     },
@@ -1381,7 +1383,7 @@ const countries = {
     value: "PW",
   },
   PA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pa",
     },
@@ -1389,7 +1391,7 @@ const countries = {
     value: "PA",
   },
   PG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pg",
     },
@@ -1397,7 +1399,7 @@ const countries = {
     value: "PG",
   },
   PY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "py",
     },
@@ -1405,7 +1407,7 @@ const countries = {
     value: "PY",
   },
   PE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pe",
     },
@@ -1413,7 +1415,7 @@ const countries = {
     value: "PE",
   },
   PH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ph",
     },
@@ -1421,7 +1423,7 @@ const countries = {
     value: "PH",
   },
   PN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pn",
     },
@@ -1429,7 +1431,7 @@ const countries = {
     value: "PN",
   },
   PL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pl",
     },
@@ -1437,7 +1439,7 @@ const countries = {
     value: "PL",
   },
   PT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pt",
     },
@@ -1445,7 +1447,7 @@ const countries = {
     value: "PT",
   },
   PR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pr",
     },
@@ -1453,7 +1455,7 @@ const countries = {
     value: "PR",
   },
   QA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "qa",
     },
@@ -1461,7 +1463,7 @@ const countries = {
     value: "QA",
   },
   CG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "cg",
     },
@@ -1469,7 +1471,7 @@ const countries = {
     value: "CG",
   },
   RO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ro",
     },
@@ -1477,7 +1479,7 @@ const countries = {
     value: "RO",
   },
   RU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ru",
     },
@@ -1485,7 +1487,7 @@ const countries = {
     value: "RU",
   },
   RW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "rw",
     },
@@ -1493,7 +1495,7 @@ const countries = {
     value: "RW",
   },
   RE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "re",
     },
@@ -1501,7 +1503,7 @@ const countries = {
     value: "RE",
   },
   BL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "bl",
     },
@@ -1509,7 +1511,7 @@ const countries = {
     value: "BL",
   },
   SH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sh",
     },
@@ -1517,7 +1519,7 @@ const countries = {
     value: "SH",
   },
   KN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kn",
     },
@@ -1525,7 +1527,7 @@ const countries = {
     value: "KN",
   },
   LC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lc",
     },
@@ -1533,7 +1535,7 @@ const countries = {
     value: "LC",
   },
   MF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "mf",
     },
@@ -1541,7 +1543,7 @@ const countries = {
     value: "MF",
   },
   PM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "pm",
     },
@@ -1549,7 +1551,7 @@ const countries = {
     value: "PM",
   },
   VC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "vc",
     },
@@ -1557,7 +1559,7 @@ const countries = {
     value: "VC",
   },
   WS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ws",
     },
@@ -1565,7 +1567,7 @@ const countries = {
     value: "WS",
   },
   SM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sm",
     },
@@ -1573,7 +1575,7 @@ const countries = {
     value: "SM",
   },
   ST: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "st",
     },
@@ -1581,7 +1583,7 @@ const countries = {
     value: "ST",
   },
   SA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sa",
     },
@@ -1589,7 +1591,7 @@ const countries = {
     value: "SA",
   },
   "GB:SCT": {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gb",
     },
@@ -1597,7 +1599,7 @@ const countries = {
     value: "GB",
   },
   SN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sn",
     },
@@ -1605,7 +1607,7 @@ const countries = {
     value: "SN",
   },
   RS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "rs",
     },
@@ -1613,7 +1615,7 @@ const countries = {
     value: "RS",
   },
   SC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sc",
     },
@@ -1621,7 +1623,7 @@ const countries = {
     value: "SC",
   },
   SL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sl",
     },
@@ -1629,7 +1631,7 @@ const countries = {
     value: "SL",
   },
   SG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sg",
     },
@@ -1637,7 +1639,7 @@ const countries = {
     value: "SG",
   },
   SX: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sx",
     },
@@ -1645,7 +1647,7 @@ const countries = {
     value: "SX",
   },
   SK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sk",
     },
@@ -1653,7 +1655,7 @@ const countries = {
     value: "SK",
   },
   SI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "si",
     },
@@ -1661,7 +1663,7 @@ const countries = {
     value: "SI",
   },
   SB: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sb",
     },
@@ -1669,7 +1671,7 @@ const countries = {
     value: "SB",
   },
   SO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "so",
     },
@@ -1677,7 +1679,7 @@ const countries = {
     value: "SO",
   },
   ZA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "za",
     },
@@ -1685,7 +1687,7 @@ const countries = {
     value: "ZA",
   },
   GS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gs",
     },
@@ -1693,7 +1695,7 @@ const countries = {
     value: "GS",
   },
   KR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "kr",
     },
@@ -1701,7 +1703,7 @@ const countries = {
     value: "KR",
   },
   SS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ss",
     },
@@ -1709,7 +1711,7 @@ const countries = {
     value: "SS",
   },
   ES: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "es",
     },
@@ -1717,7 +1719,7 @@ const countries = {
     value: "ES",
   },
   LK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "lk",
     },
@@ -1725,7 +1727,7 @@ const countries = {
     value: "LK",
   },
   PS: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ps",
     },
@@ -1733,7 +1735,7 @@ const countries = {
     value: "PS",
   },
   SD: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sd",
     },
@@ -1741,7 +1743,7 @@ const countries = {
     value: "SD",
   },
   SR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sr",
     },
@@ -1749,7 +1751,7 @@ const countries = {
     value: "SR",
   },
   SJ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sj",
     },
@@ -1757,7 +1759,7 @@ const countries = {
     value: "SJ",
   },
   SZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sz",
     },
@@ -1765,7 +1767,7 @@ const countries = {
     value: "SZ",
   },
   SE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "se",
     },
@@ -1773,7 +1775,7 @@ const countries = {
     value: "SE",
   },
   CH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ch",
     },
@@ -1781,7 +1783,7 @@ const countries = {
     value: "CH",
   },
   SY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "sy",
     },
@@ -1789,7 +1791,7 @@ const countries = {
     value: "SY",
   },
   TW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tw",
     },
@@ -1797,7 +1799,7 @@ const countries = {
     value: "TW",
   },
   TJ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tj",
     },
@@ -1805,7 +1807,7 @@ const countries = {
     value: "TJ",
   },
   TZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tz",
     },
@@ -1813,7 +1815,7 @@ const countries = {
     value: "TZ",
   },
   TH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "th",
     },
@@ -1821,7 +1823,7 @@ const countries = {
     value: "TH",
   },
   TL: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tl",
     },
@@ -1829,7 +1831,7 @@ const countries = {
     value: "TL",
   },
   TG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tg",
     },
@@ -1837,7 +1839,7 @@ const countries = {
     value: "TG",
   },
   TK: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tk",
     },
@@ -1845,7 +1847,7 @@ const countries = {
     value: "TK",
   },
   TO: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "to",
     },
@@ -1853,7 +1855,7 @@ const countries = {
     value: "TO",
   },
   TT: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tt",
     },
@@ -1861,7 +1863,7 @@ const countries = {
     value: "TT",
   },
   TN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tn",
     },
@@ -1869,7 +1871,7 @@ const countries = {
     value: "TN",
   },
   TR: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tr",
     },
@@ -1877,7 +1879,7 @@ const countries = {
     value: "TR",
   },
   TM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tm",
     },
@@ -1885,7 +1887,7 @@ const countries = {
     value: "TM",
   },
   TC: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tc",
     },
@@ -1893,7 +1895,7 @@ const countries = {
     value: "TC",
   },
   TV: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "tv",
     },
@@ -1901,7 +1903,7 @@ const countries = {
     value: "TV",
   },
   UG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ug",
     },
@@ -1909,7 +1911,7 @@ const countries = {
     value: "UG",
   },
   UA: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ua",
     },
@@ -1917,7 +1919,7 @@ const countries = {
     value: "UA",
   },
   AE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ae",
     },
@@ -1925,7 +1927,7 @@ const countries = {
     value: "AE",
   },
   GB: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gb",
     },
@@ -1933,7 +1935,7 @@ const countries = {
     value: "GB",
   },
   UM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "um",
     },
@@ -1941,7 +1943,7 @@ const countries = {
     value: "UM",
   },
   US: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "us",
     },
@@ -1949,7 +1951,7 @@ const countries = {
     value: "US",
   },
   UY: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "uy",
     },
@@ -1957,7 +1959,7 @@ const countries = {
     value: "UY",
   },
   UZ: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "uz",
     },
@@ -1965,7 +1967,7 @@ const countries = {
     value: "UZ",
   },
   VU: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "vu",
     },
@@ -1973,7 +1975,7 @@ const countries = {
     value: "VU",
   },
   VE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ve",
     },
@@ -1981,7 +1983,7 @@ const countries = {
     value: "VE",
   },
   VN: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "vn",
     },
@@ -1989,7 +1991,7 @@ const countries = {
     value: "VN",
   },
   VG: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "vg",
     },
@@ -1997,7 +1999,7 @@ const countries = {
     value: "VG",
   },
   VI: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "vi",
     },
@@ -2005,7 +2007,7 @@ const countries = {
     value: "VI",
   },
   "GB:WLS": {
-    icon: {
+    avatar: {
       path: "flags",
       name: "gb",
     },
@@ -2013,7 +2015,7 @@ const countries = {
     value: "GB",
   },
   WF: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "wf",
     },
@@ -2021,7 +2023,7 @@ const countries = {
     value: "WF",
   },
   EH: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "eh",
     },
@@ -2029,7 +2031,7 @@ const countries = {
     value: "EH",
   },
   YE: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "ye",
     },
@@ -2037,7 +2039,7 @@ const countries = {
     value: "YE",
   },
   ZM: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "zm",
     },
@@ -2045,7 +2047,7 @@ const countries = {
     value: "ZM",
   },
   ZW: {
-    icon: {
+    avatar: {
       path: "flags",
       name: "zw",
     },

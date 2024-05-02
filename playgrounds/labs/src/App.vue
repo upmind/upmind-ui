@@ -158,10 +158,11 @@ import { useRouter, useRoute } from "vue-router";
 // --- internal
 import UpmDrawer from "@/components/Drawer.vue";
 import UpmHeader from "@/components/Header.vue";
-import themes from "@/assets/themes";
+import themes from "@themes";
+import { useThemes } from "@upmind/upwind";
 
 // --- utils
-import { startCase, set, find } from "lodash-es";
+import { startCase, set } from "lodash-es";
 
 // ---
 const router = useRouter();
@@ -172,22 +173,11 @@ const isEmbed = ref(true);
 
 // ---
 
-const activeTheme = ref("light");
-provide("activeTheme", activeTheme);
-
-// ---
-const upwindStyles = ref({});
-
-provide("upwind", upwindStyles);
-// ---
+const { activeTheme, updateTheme } = useThemes(themes);
 
 watch(route, () => {
   isEmbed.value = !!route?.query?.embed;
-  activeTheme.value = route?.query?.theme || activeTheme.value || "light";
-  if (themes) {
-    const theme = find(themes, ["id", activeTheme.value]);
-    upwindStyles.value = theme?.upwind || {};
-  }
+  if (route?.query?.theme) updateTheme(route.query.theme);
 });
 // ---
 
