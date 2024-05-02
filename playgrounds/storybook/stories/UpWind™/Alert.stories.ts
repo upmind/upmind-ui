@@ -62,4 +62,21 @@ const meta: Meta<typeof UpwAlert> = {
 export default meta;
 type Story = StoryObj<typeof UpwAlert>;
 
-export const Base: Story = {};
+export const Base: Story = {
+  render: (args, { updateArgs }) => ({
+    components: { UpwAlert },
+    setup() {
+      return {
+        args,
+      };
+    },
+    methods: {
+      doUpdate(value: boolean) {
+        updateArgs({ modelValue: value });
+      },
+    },
+    template: `
+        <upw-alert v-bind="args" @update:modelValue="doUpdate" />
+    `,
+  }),
+};

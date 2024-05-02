@@ -1,6 +1,11 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
-
+const defaultVariants = {
+  anchor: "none",
+  variant: "stacked",
+  color: "neutral",
+};
+// -----------------------------------------------------------------------------
 export default {
   alert: {
     root: cva("inline-flex gap-2  p-4 px-2 py-2", {
@@ -35,11 +40,7 @@ export default {
         },
       },
 
-      defaultVariants: {
-        anchor: "none",
-        variant: "stacked",
-        color: "info",
-      },
+      defaultVariants,
     }),
 
     icon: cva("size-6 p-1", {
@@ -57,6 +58,7 @@ export default {
           info: "text-info",
         },
       },
+      defaultVariants,
     }),
 
     content: cva("flex w-full flex-1 gap-2 overflow-hidden text-sm", {
@@ -66,7 +68,9 @@ export default {
           inline: "flex-row items-center",
         },
       },
+      defaultVariants,
     }),
+
     title: cva("m-0 font-medium leading-6 text-inherit", {
       variants: {
         variant: {
@@ -86,7 +90,9 @@ export default {
           info: "text-info",
         },
       },
+      defaultVariants,
     }),
+
     text: cva("m-0", {
       variants: {
         variant: {
@@ -94,7 +100,9 @@ export default {
           inline: "flex-1 truncate leading-6  ",
         },
       },
+      defaultVariants,
     }),
+
     data: cva("m-0 text-xs", {
       variants: {
         variant: {
@@ -102,7 +110,9 @@ export default {
           inline: "truncate leading-6",
         },
       },
+      defaultVariants,
     }),
+
     actions: cva("", {
       variants: {
         variant: {
@@ -110,7 +120,9 @@ export default {
           inline: "self-center",
         },
       },
+      defaultVariants,
     }),
+
     close: cva("!size-4 !rounded-full !p-3 [&>*>.icon]:!size-3"),
   },
 };
