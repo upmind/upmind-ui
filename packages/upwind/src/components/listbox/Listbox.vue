@@ -2,7 +2,6 @@
   <h-listbox :multiple="multiple" v-model="value" v-slot="{ open }">
     <div class="listbox" :class="styles.listbox.root">
       <h-listbox-button
-        class="listbox-btn"
         :class="[
           styles.listboxButton.root,
           open ? styles.listboxButton.active : '',
@@ -10,17 +9,19 @@
         ref="reference"
       >
         <upw-icon
-          v-if="icon"
-          :icon="icon"
-          class="btn-icon"
+          v-if="selectedAvatar"
+          class="avatar"
+          :class="styles.listboxButton.avatar"
+          :icon="selectedAvatar"
+        />
+
+        <upw-icon
+          v-if="selectedIcon"
+          :icon="selectedIcon"
           :class="styles.listboxButton.icon"
         />
 
-        <span
-          class="btn-label"
-          :class="styles.listboxButton.label"
-          v-if="label"
-        >
+        <span class="label" :class="styles.listboxButton.label" v-if="label">
           {{ selectedLabel }}
         </span>
 
@@ -73,6 +74,14 @@
                 selected ? styles.listboxItem.selected : '',
               ]"
             >
+              <upw-icon
+                v-if="item.avatar"
+                :icon="item.avatar"
+                class="avatar"
+                :class="styles.listboxItem.avatar"
+                aria-hidden="true"
+              />
+
               <upw-icon
                 v-if="item.icon"
                 :icon="item.icon"
@@ -149,6 +158,7 @@ export default defineComponent({
       default: "Select option...",
     },
     icon: { type: [String, Object], default: null },
+    avatar: { type: [String, Object], default: null },
 
     toggle: {
       type: String,
@@ -262,10 +272,18 @@ export default defineComponent({
     },
     selectedIcon() {
       if (this.multiple) {
-        return null;
+        return this.icon;
       } else {
         const selected = find(this.items, ["value", this.value]);
-        return selected?.icon;
+        return this.icon || selected?.icon;
+      }
+    },
+    selectedAvatar() {
+      if (this.multiple) {
+        return this.avatar;
+      } else {
+        const selected = find(this.items, ["value", this.value]);
+        return this.avatar || selected?.avatar;
       }
     },
     filteredItems() {

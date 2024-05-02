@@ -1,15 +1,8 @@
 import themer from "tailwindcss-themer";
 import typography from "@tailwindcss/typography";
 
-// --- utils
-import { find, omit } from "lodash-es";
-
 // --- Themes
-import themes from "./src/assets/themes";
-const defaultTheme = omit(find(themes, ["name", "Light"]), [
-  "selectors",
-  "mediaQuery",
-]);
+import theme from "./src/assets/theme";
 
 // -----------------------------------------------------------------------------
 
@@ -17,7 +10,7 @@ export default {
   darkMode: "media", // Honour the OS preference
   content: [
     "./src/**/*.{html,vue,js,tsx}",
-    "./src/components/prelineRenderers/styles/*.ts",
+    "../../packages/client/src/**/*.{html,vue,js,tsx,ts}",
     "../../packages/upwind/src/**/*.{html,vue,js,tsx,ts}",
   ],
   theme: {
@@ -64,8 +57,8 @@ export default {
   },
   plugins: [
     themer({
-      defaultTheme,
-      themes,
+      defaultTheme: theme,
+      themes: [theme],
     }),
     // ...
     typography,

@@ -40,8 +40,7 @@ export default defineComponent({
   emits: [],
   props: {},
   setup() {
-    const session = useSession();
-    return session;
+    return useSession();
   },
   computed: {},
   methods: {},

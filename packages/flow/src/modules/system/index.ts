@@ -2,8 +2,10 @@
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
-// --- internal
+// --- exports
 export * from "./upload";
+
+// --- internal
 import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 

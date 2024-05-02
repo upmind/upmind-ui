@@ -9,5 +9,5 @@
 
 <script setup>
 import { inject } from "vue";
-const activeTheme = inject("activeTheme");
+const { activeTheme } = inject("upwind");
 </script>

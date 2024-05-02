@@ -1,0 +1,10 @@
+{
+  "app": {
+    "title": "Paiement v2"
+  },
+  "header": {
+    "checkout": "Paiement",
+    "offers": "Offres",
+    "form": "Formulaire de tâche"
+  }
+}

@@ -13,6 +13,7 @@
     </slot>
 
     <json-forms
+      :i18n="safeI18n"
       :ajv="safeAjv"
       :data="model"
       :schema="schema"
@@ -53,6 +54,7 @@ import UpwSpinner from "../spinner/Spinner.vue";
 // --- local
 import config from "./config.cva";
 import { upwindRenderers } from "./renderers";
+// import { vanillaRenderers } from '@jsonforms/vue-vanilla';
 
 // --- utils
 
@@ -96,6 +98,13 @@ export default defineComponent({
   inheritAttrs: true,
 
   props: {
+    translator: {
+      type: Function,
+    },
+    locale: {
+      type: String,
+    },
+    // ---
     ajv: {
       required: false,
       type: Object as PropType<Ajv>,
@@ -226,6 +235,34 @@ export default defineComponent({
       return isDeepEmpty(this.model) || !this.isDirty
         ? "ValidateAndHide"
         : this.mode || "ValidateAndShow";
+    },
+
+    safeI18n() {
+      // if we are given an i18n object, use it
+      // otherwise, if we have vue-i18n enabled, it will provide the$locale & $t function, use that
+      // otherwise, return null
+
+      const createTranslator = locale => (key, defaultMessage) => {
+        let value = null;
+        // console.debug(
+        //   `Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`
+        // );
+
+        // If we have been given a translator function, use it
+        if (isFunction(this.translator)) value = this.translator(key);
+        // otherwise, if we have vue-i18n enabled, it will provide the $locale & $t function, use that
+        else if (this?.$t) value = this?.$t(key);
+
+        // otherwise return the default message
+        if (!value || value == key) value = defaultMessage;
+
+        return value;
+      };
+
+      return {
+        locale: this.locale || this?.$i18n?.locale || "na",
+        translate: createTranslator(this.locale || this?.$i18n?.locale),
+      };
     },
   },
 

@@ -26,10 +26,6 @@ module.exports = {
     "no-constant-condition":
       process.env.NODE_ENV === "production" ? "error" : "off",
 
-    // i18n
-    // "@intlify/vue-i18n/no-raw-text": "off",
-    // "@intlify/vue-i18n/no-v-html": "off",
-
     // unused
     // note you must disable the base rule
     // as it can report incorrect errors
@@ -70,9 +66,4 @@ module.exports = {
     // general
     "no-unsafe-optional-chaining": "off",
   },
-  // settings: {
-  //   "vue-i18n": {
-  //     localeDir: "./src/i18n/languages/*.json" // extention is glob formatting!
-  //   }
-  // }
 };

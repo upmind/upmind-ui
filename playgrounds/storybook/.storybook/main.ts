@@ -16,7 +16,14 @@ const config: StorybookConfig = {
   staticDirs: ["../public"],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@storybook/addon-essentials"),
+    {
+      name: getAbsolutePath("@storybook/addon-essentials"),
+      options: {
+        backgrounds: false,
+        measure: false,
+        outline: false,
+      },
+    },
     getAbsolutePath("@chromatic-com/storybook"),
     getAbsolutePath("@storybook/addon-interactions"),
     getAbsolutePath("@storybook/addon-themes"),

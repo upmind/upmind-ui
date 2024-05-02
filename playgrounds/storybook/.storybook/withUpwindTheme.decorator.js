@@ -5,7 +5,12 @@ import { reduce, set } from "lodash-es";
 const { initializeThemeState, pluckThemeFromContext, useThemeParameters } =
   DecoratorHelpers;
 
-export const withUpwindTheme = ({ themes, defaultTheme }) => {
+export const withUpwindTheme = ({
+  themes,
+  defaultTheme = "light",
+  locales,
+  defaultLocale = "en",
+}) => {
   const themeNames = reduce(
     themes,
     (acc, { id }) => {
@@ -22,22 +27,25 @@ export const withUpwindTheme = ({ themes, defaultTheme }) => {
     const { themeOverride } = useThemeParameters();
     const selected = themeOverride || selectedTheme || defaultTheme;
 
+    const locale = context.globals.locale || defaultLocale;
+
     useEffect(() => {
       // TODO: deprecate this in favour of a more robust solution
       // where the selected theme is applied to the template's theme provider
       // see https://github.com/storybookjs/storybook/issues/12840
-      const parentElement = document.querySelector("#theme-provider");
+      const parentElement = document.querySelector("#provider");
       parentElement?.setAttribute("data-theme", selected);
-    }, [themeOverride, selected]);
+      parentElement?.setAttribute("data-locale", locale);
+    }, [themeOverride, selected, locale]);
 
     return {
       components: { story },
       template: `
-      <upw-theme-provider theme="${selected}">
+      <upw-provider theme="${selected}" locale="${locale}">
         <div class="content bg-base p-4 sm:p-8 text-base-content prose max-w-full min-h-screen">
             <story />
         </div>
-      </upw-theme-provider>`,
+      </upw-provider>`,
     };
   };
 };
