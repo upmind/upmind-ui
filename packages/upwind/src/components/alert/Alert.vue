@@ -80,15 +80,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    // ---
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
+
     // ---
 
     anchor: {
@@ -125,8 +117,6 @@ export default defineComponent({
       // ---
       isInline: props.variant === "inline",
       isActive: props.modelValue,
-      isLoading: props.loading,
-      isDisabled: props.disabled,
     }));
 
     const styles = useStyles(["alert"], meta, config, props.upwindConfig);
