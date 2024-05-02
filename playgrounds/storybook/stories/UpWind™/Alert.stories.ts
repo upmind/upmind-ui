@@ -49,14 +49,12 @@ const meta: Meta<typeof UpwAlert> = {
     // Anim nulla et sit elit irure cupidatat ullamco commodo mollit id. Anim voluptate aliquip enim magna elit ea irure non in minim. Culpa aliquip veniam qui aliqua amet fugiat. Voluptate dolor esse id do ea aute amet culpa fugiat aliqua ipsum. Laborum laborum esse esse nulla sunt labore nostrud officia ea irure aute. Consequat dolore Lorem esse pariatur sunt magna sint qui aliquip culpa fugiat in ut adipisicing. Est esse irure esse sunt nisi nisi ex irure fugiat non.`,
     // ---
     anchor: "none",
-    variant: "inline",
+    variant: "stacked",
     color: "neutral",
     block: false,
     // ---
     icon: undefined,
     // ---
-    loading: false,
-    disabled: false,
     modelValue: true,
   },
 };
