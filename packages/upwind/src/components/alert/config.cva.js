@@ -17,16 +17,16 @@ export default {
           inline: "flex-nowrap items-center",
         },
         color: {
-          base: "bg-base-100 border-base text-base",
-          current: "text border-current bg-transparent",
-          primary: "bg-primary-100 text-primary border-primary",
-          secondary: "bg-secondary-100 text-secondary border-secondary",
-          accent: "bg-accent-100 text-accent border-accent",
-          neutral: "text-neutral border-neutral bg-neutral-100",
-          success: "bg-success-100 text-success border-success",
-          error: "bg-error-100 text-error border-error",
-          warning: "bg-warning-100 text-warning border-warning",
-          info: "bg-info-100 text-info border-info",
+          base: "bg-base-50 border-base text-base-900",
+          current: "bg-base-100 border-current text-current",
+          primary: "bg-primary-50 text-primary-900 border-primary",
+          secondary: "bg-secondary-50 text-secondary-900 border-secondary",
+          accent: "bg-accent-50 text-accent-900 border-accent",
+          neutral: "border-neutral bg-neutral-50 text-neutral-900",
+          success: "bg-success-50 text-success-900 border-success",
+          error: "bg-error-50 text-error-900 border-error",
+          warning: "bg-warning-50 text-warning-900 border-warning",
+          info: "bg-info-50 text-info-900 border-info",
         },
         disabled: {
           true: "!cursor-default opacity-50",
@@ -44,12 +44,27 @@ export default {
       },
     }),
 
-    icon: cva("size-6 p-1"),
+    icon: cva("size-6 p-1", {
+      variants: {
+        color: {
+          base: "text-base",
+          current: "text-current",
+          primary: "text-primary",
+          secondary: "text-secondary",
+          accent: "text-accent",
+          neutral: "text-neutral",
+          success: "text-success",
+          error: "text-error",
+          warning: "text-warning",
+          info: "text-info",
+        },
+      },
+    }),
 
     content: cva("flex w-full flex-1 gap-2 overflow-hidden text-sm", {
       variants: {
         variant: {
-          stacked: "flex-col items-start",
+          stacked: "flex-col items-start pb-2",
           inline: "flex-row items-center",
         },
       },
@@ -59,6 +74,18 @@ export default {
         variant: {
           stacked: "wrap",
           inline: "truncate",
+        },
+        color: {
+          base: "text-base",
+          current: "text-current",
+          primary: "text-primary",
+          secondary: "text-secondary",
+          accent: "text-accent",
+          neutral: "text-neutral",
+          success: "text-success",
+          error: "text-error",
+          warning: "text-warning",
+          info: "text-info",
         },
       },
     }),
