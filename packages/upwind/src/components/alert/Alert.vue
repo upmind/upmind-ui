@@ -1,5 +1,10 @@
 <template>
-  <div role="alert" :class="styles.alert.root" v-show="meta.isActive">
+  <div
+    role="alert"
+    class="alert"
+    :class="styles.alert.root"
+    v-show="meta.isActive"
+  >
     <upw-icon v-if="safeIcon" :icon="safeIcon" :class="styles.alert.icon" />
 
     <div :class="styles.alert.content">
@@ -18,7 +23,7 @@
 
     <div :class="styles.alert.actions">
       <upw-button
-        @click.prevent="$emit('update:modelValue', false)"
+        @click.prevent="doClose"
         variant="ghost"
         label="Close the alert"
         prependIcon="close"
@@ -55,7 +60,7 @@ export default defineComponent({
     UpwIcon,
     UpwButton,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "reject"],
   props: {
     title: {
       type: String,
@@ -140,6 +145,12 @@ export default defineComponent({
         default:
           return "information-circle";
       }
+    },
+  },
+  methods: {
+    doClose() {
+      this.$emit("update:modelValue", false);
+      this.$emit("reject");
     },
   },
 });

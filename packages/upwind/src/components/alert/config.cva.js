@@ -71,7 +71,7 @@ export default {
       variants: {
         variant: {
           stacked: "wrap",
-          inline: "truncate",
+          inline: "wrap flex-grow-1 flex-shrink-0",
         },
         color: {
           base: "text-base",
