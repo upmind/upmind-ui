@@ -1,11 +1,14 @@
 <template>
   <section class="feedback w-full">
-    <header class="navbar sticky top-0 z-10 flex rounded bg-base p-4 shadow">
+    <header
+      class="navbar sticky top-0 z-10 flex flex-wrap rounded bg-base p-4 shadow"
+    >
       <div class="flex-none gap-2">
-        <h2 class="title m-0">
+        <h4 class="title m-0 text-wrap">
           <span v-if="meta.isProcessing" class="text-primary">{{
             activeCount
           }}</span>
+
           Message{{ activeCount == 1 ? "" : "s" }}
 
           <span v-if="meta.isProcessing">
@@ -21,7 +24,7 @@
             {{ scheduledCount == 1 ? "is" : "are" }}
             <span class="text-secondary">Scheduled</span>
           </span>
-        </h2>
+        </h4>
 
         <!-- <span class="badge badge-secondary">
           {{ notifications.length }}
@@ -31,20 +34,38 @@
         </span> -->
       </div>
 
-      <div class="actions ml-auto flex flex-none items-center gap-4">
+      <div class="actions ml-auto flex flex-none flex-wrap items-center gap-4">
         <slot name="actions">
           <upw-button
             variant="outlined"
             size="sm"
-            @click="processMessages"
+            @click="processMessages()"
             :disabled="meta.isProcessing"
-            label="Add Random Messages"
+            label="Add Mixed"
+          />
+        </slot>
+        <slot name="actions">
+          <upw-button
+            variant="outlined"
+            size="sm"
+            @click="processMessages('toast')"
+            :disabled="meta.isProcessing"
+            label="Add Toasts"
+          />
+        </slot>
+        <slot name="actions">
+          <upw-button
+            variant="outlined"
+            size="sm"
+            @click="processMessages('notification')"
+            :disabled="meta.isProcessing"
+            label="Add Banners"
           />
         </slot>
       </div>
     </header>
 
-    <div class="my-8 grid grid-cols-1 gap-4 text-base-content">
+    <div class="my-8 flex flex-col gap-4 text-base-content">
       <upm-message
         v-for="message in messages"
         :key="message.id"
@@ -109,7 +130,7 @@ function getRandomDisplay() {
   return nth(["toast", "notification"], random(0, 1));
 }
 
-function processMessages() {
+function processMessages(display?: "toast" | "notification" | null) {
   const dummyMessages = Array(random(1, 10));
   forEach(dummyMessages, () => {
     const maxAge = getRandomMaxAge();
@@ -120,7 +141,7 @@ function processMessages() {
       delay: getRandomDelay(),
       maxAge,
       type: getRandomType(),
-      display: getRandomDisplay(),
+      display: display || getRandomDisplay(),
     };
     add(message);
   });

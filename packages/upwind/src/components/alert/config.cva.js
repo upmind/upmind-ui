@@ -36,7 +36,7 @@ export default {
 
         block: {
           true: "flex w-full",
-          false: "max-w-sm",
+          false: "w-full max-w-sm",
         },
       },
 
@@ -61,7 +61,7 @@ export default {
       defaultVariants,
     }),
 
-    content: cva("flex w-full flex-1 gap-2 overflow-hidden text-sm", {
+    content: cva("flex w-full flex-1 overflow-hidden", {
       variants: {
         variant: {
           stacked: "flex-col items-start pb-2",
@@ -93,7 +93,7 @@ export default {
       defaultVariants,
     }),
 
-    text: cva("m-0", {
+    text: cva("m-0 text-sm", {
       variants: {
         variant: {
           stacked: "",
@@ -123,6 +123,6 @@ export default {
       defaultVariants,
     }),
 
-    close: cva("!size-4 !rounded-full !p-3 [&>*>.icon]:!size-3"),
+    close: cva("!size-4 !rounded-full !p-3 [&>*>.icon]:!size-4 "),
   },
 };

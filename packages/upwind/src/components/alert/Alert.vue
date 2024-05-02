@@ -26,8 +26,8 @@
         @click.prevent="doClose"
         variant="ghost"
         label="Close the alert"
-        prependIcon="close"
-        :color="meta.isInline ? 'current' : color"
+        prependIcon="close-circle"
+        color="current"
         icon-only
         size="sm"
         :class="styles.alert.close"
