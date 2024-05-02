@@ -27,6 +27,7 @@ export default {
     active: cva("ring-base-500 border-base-500"),
     label: cva("flex-1 truncate leading-none"),
     icon: cva("size-[1em]"),
+    avatar: cva("size-[1.25em] overflow-hidden rounded-full"),
     toggle: cva("size-[0.75em] transition-all aria-checked:rotate-180"),
   },
   listboxSearch: {
@@ -43,7 +44,8 @@ export default {
     active: cva("bg-base-100 hover:bg-base-100"),
     selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
     label: cva("flex-1 truncate"),
-    icon: cva("size-[1.25em]"),
+    icon: cva("size-[1em]"),
+    avatar: cva("size-[1.25em] overflow-hidden rounded-full"),
   },
   listboxTransitionEnter: {
     active: cva("m-0 transition duration-100 ease-out"),

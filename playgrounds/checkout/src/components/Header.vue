@@ -22,8 +22,8 @@
         <upw-listbox
           v-model="$i18n.locale"
           v-if="$i18n?.locale"
-          label=""
-          :icon="{
+          :label="$i18n.locale?.toUpperCase()"
+          :avatar="{
             path: 'flags',
             name: $i18n.locale,
           }"
@@ -78,7 +78,7 @@ export default defineComponent({
       return this.$i18n.availableLocales.map(locale => ({
         label: locale.toUpperCase(),
         value: locale,
-        icon: {
+        avatar: {
           path: "flags",
           name: locale,
         },
