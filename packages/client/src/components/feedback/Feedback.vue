@@ -16,8 +16,7 @@
           :item="notification"
           :scheduled="scheduled"
           block
-          variant="inline"
-          anchor="left"
+          variant="stacked"
         />
       </transition-group>
     </aside>
@@ -38,7 +37,7 @@
           :item="toast"
           :scheduled="scheduled"
           variant="stacked"
-          anchor="right"
+          anchor="bottom"
         ></upm-message>
       </transition-group>
     </aside>
