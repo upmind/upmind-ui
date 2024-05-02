@@ -147,9 +147,8 @@ export default defineComponent({
         case "success":
           return "check-circle";
         case "info":
-          return "information-circle";
         default:
-          return null;
+          return "information-circle";
       }
     },
   },
