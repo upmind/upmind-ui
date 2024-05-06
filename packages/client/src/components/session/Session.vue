@@ -7,8 +7,9 @@
     <upm-auth
       v-if="!meta.isAuthenticated"
       :class="styles.session.content"
-      :show="show"
-    />
+      :model-value="show"
+    >
+    </upm-auth>
 
     <upm-profile v-else :class="styles.session.content" />
 
@@ -33,7 +34,8 @@ import UpmProfile from "./Profile.vue";
 
 // --- types
 import type { PropType } from "vue";
-import type { SessionProps } from "./types";
+import type { AuthProps } from "./types";
+import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -45,11 +47,11 @@ export default defineComponent({
   },
   props: {
     show: {
-      type: String as PropType<SessionProps["show"]>,
+      type: String as PropType<AuthProps["form"]>,
       default: "login",
     },
   },
-  setup(props) {
+  setup(props, { slots }) {
     const styles = useStyles(
       ["session", "sessionTransitionEnter", "sessionTransitionLeave"],
       props,

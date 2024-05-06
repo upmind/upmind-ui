@@ -6,14 +6,14 @@ export default {
     root: cva("flex flex-col gap-8"),
     header: cva("flex flex-col gap-2 "),
     footer: cva(
-      "font-sm flex flex-col gap-2 font-light leading-tight tracking-tight"
+      "text-sm flex flex-col gap-2 font-light leading-tight tracking-tight"
     ),
-    content: cva("my-8 rounded-box"),
+    content: cva("rounded-box"),
   },
 
   auth: {
     root: cva("flex flex-col gap-8"),
-    form: cva(""),
+    form: cva("place-items-start"),
   },
 
   profile: {
