@@ -2,8 +2,10 @@
   <article class="flex flex-col gap-4">
     <upm-session show="login">
       <template #header="{ meta }">
-        <span class="block">Already have an Account?</span>
-        <h1 class="m-0">Sign in for a faster checkout.</h1>
+        <template v-if="!meta.isAuthenticated">
+          <span class="block">Already have an Account?</span>
+          <h1 class="m-0">Sign in for a faster checkout.</h1>
+        </template>
       </template>
       <template #footer="{ meta }">
         <template v-if="meta.showRegisterForm">
