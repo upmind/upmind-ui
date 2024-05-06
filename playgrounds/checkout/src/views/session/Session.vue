@@ -1,12 +1,15 @@
 <template>
   <article class="flex flex-col gap-4">
-    <upm-session show="login">
+    <upm-session show="login" class="max-w-3xl">
       <template #header="{ meta }">
         <template v-if="!meta.isAuthenticated">
-          <span class="block">Already have an Account?</span>
-          <h1 class="m-0">Sign in for a faster checkout.</h1>
+          <span class="text-lg font-light leading-7 text-base-700"
+            >Already have an Account?</span
+          >
+          <h1>Sign in for a faster checkout.</h1>
         </template>
       </template>
+
       <template #footer="{ meta }">
         <template v-if="meta.showRegisterForm">
           <p class="m-0">
