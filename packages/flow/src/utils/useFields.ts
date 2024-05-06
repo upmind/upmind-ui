@@ -127,65 +127,66 @@ export const useFieldsSchemaParser = (data: any) => {
 };
 
 export const useFieldsUischemaParser = (data: any) => {
-  const schema = {
-    type: "VerticalLayout",
-    elements: map(data, field => {
-      let type = null;
-      let multi = false;
-      const options = field?.options || {};
+  if (!data?.length) {
+    return [];
+  }
 
-      // lets map our field types...
-      switch (field.type_code) {
-        case "textarea":
-        case "text_area":
-          multi = true;
-          break;
+  const schema = map(data, field => {
+    let type = null;
+    let multi = false;
+    const options = field?.options || {};
 
-        case "input_number":
-        case "number":
-          type = "number";
-          break;
+    // lets map our server field types to jsonforms field types...
+    switch (field.type_code) {
+      case "textarea":
+      case "text_area":
+        multi = true;
+        break;
 
-        case "input_date":
-        case "date":
-          type = "date";
-          break;
+      case "input_number":
+      case "number":
+        type = "number";
+        break;
 
-        case "input_datetime":
-        case "datetime":
-          type = "datetime-local";
-          break;
+      case "input_date":
+      case "date":
+        type = "date";
+        break;
 
-        case "input_email":
-        case "email":
-          type = "email";
-          break;
+      case "input_datetime":
+      case "datetime":
+        type = "datetime-local";
+        break;
 
-        case "input_password":
-        case "password":
-          type = "password";
-          break;
+      case "input_email":
+      case "email":
+        type = "email";
+        break;
 
-        case "input_file":
-        case "image":
-          type = "file";
-          break;
-      }
+      case "input_password":
+      case "password":
+        type = "password";
+        break;
 
-      return {
-        type: "Control",
-        scope: `#/properties/custom_fields/properties/${field.code}`,
-        options: {
-          label: useTranslateField(field, "name"),
-          description: useTranslateField(field, "description"),
-          placeholder: useTranslateField(field, "placeholder"),
-          multi,
-          type,
-          ...options,
-        },
-      };
-    }),
-  };
+      case "input_file":
+      case "image":
+        type = "file";
+        break;
+    }
+
+    return {
+      type: "Control",
+      scope: `#/properties/custom_fields/properties/${field.code}`,
+      options: {
+        label: useTranslateField(field, "name"),
+        description: useTranslateField(field, "description"),
+        placeholder: useTranslateField(field, "placeholder"),
+        multi,
+        type,
+        ...options,
+      },
+    };
+  });
 
   return schema;
 };
