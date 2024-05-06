@@ -47,11 +47,11 @@ import UpwIcon from "../icon/Icon.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { CheckboxProps } from "./types";
+import type { LabelProps } from "./types";
 
 // ----------------------------------------------
 
@@ -81,7 +81,7 @@ export default defineComponent({
     invalid: { type: Boolean },
     disabled: { type: Boolean },
     // ---
-    size: { type: String as PropType<CheckboxProps["size"]> },
+    size: { type: String as PropType<LabelProps["size"]> },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object] },
   },
