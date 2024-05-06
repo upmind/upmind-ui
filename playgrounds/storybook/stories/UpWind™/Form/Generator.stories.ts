@@ -60,12 +60,9 @@ const meta: Meta<typeof UpwForm> = {
       />
 
       <div class="w-full flex-1 self-stretch rounded-lg bg-base-100 p-4 mt-8">
-      <strong class="font-mono uppercase">{{
-        $tc("form.model", formStatus)
-      }}</strong>
-
-      <pre class="sticky top-0 text-wrap">{{ model }}</pre>
-    </div>
+        <strong class="font-mono uppercase">{{$tc("form.model", formStatus)}}</strong>
+        <pre class="sticky top-0 text-wrap">{{ model }}</pre>
+      </div>
     `,
   }),
   argTypes: {},
