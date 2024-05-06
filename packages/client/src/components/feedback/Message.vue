@@ -43,10 +43,6 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    debugging: {
-      type: Boolean,
-      default: false,
-    },
     anchor: {
       type: String,
     },

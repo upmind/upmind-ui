@@ -66,10 +66,6 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    debugging: {
-      type: Boolean,
-      default: false,
-    },
   },
   setup(props) {
     const styles = useStyles(
