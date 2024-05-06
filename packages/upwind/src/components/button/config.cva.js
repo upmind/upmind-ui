@@ -40,7 +40,6 @@ export default {
           disabled: {
             true: "!cursor-default opacity-50",
           },
-
           block: {
             true: "flex w-full",
           },
