@@ -1,72 +1,15 @@
 <template>
   <div class="auth" :class="styles.auth.root">
-    <div v-if="!meta.isAuthenticated">
-      <div class="stats border w-full">
-        <div
-          class="stat bg-primary bg-opacity-10 indicator"
-          @click.prevent="showRegister"
-        >
-          <span
-            v-if="meta.showRegisterForm"
-            class="indicator-item bg-primary text-primary-content aspect-square rounded-full p-1 m-4"
-          >
-            <check-icon class="w-5 h-5" />
-          </span>
-
-          <div class="stat-figure text-primary flex">
-            <plus-icon class="w-8 h-8 -mr-4" />
-            <user-icon class="w-16 h-16" />
-          </div>
-          <div class="stat-value text-xl text-primary whitespace-normal">
-            New Customer
-          </div>
-          <div class="stat-title max-w-sm whitespace-normal">
-            Create an account for faster checkout and access your orders.
-          </div>
-          <div class="stat-actions">
-            <button class="btn btn-sm btn-primary">Register</button>
-          </div>
-        </div>
-
-        <div
-          class="stat bg-secondary bg-opacity-10 indicator"
-          @click.prevent="showLogin"
-        >
-          <span
-            v-if="meta.showLoginForm"
-            class="indicator-item bg-secondary text-secondary-content aspect-square rounded-full p-1 m-4"
-          >
-            <check-icon class="w-5 h-5" />
-          </span>
-
-          <div class="stat-figure text-secondary flex">
-            <check-icon class="w-8 h-8 -mr-4" />
-            <user-icon class="w-16 h-16" />
-          </div>
-          <div class="stat-value text-xl text-secondary whitespace-normal">
-            Existing Customer
-          </div>
-          <div class="stat-title max-w-sm whitespace-normal">
-            Login to your account for a faster checkout and shopping experience.
-          </div>
-          <div class="stat-actions">
-            <button class="btn btn-sm btn-secondary">Login</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- <button @click="getUser" v-if="meta.isAuthenticated">get user</button> -->
-      <button
-        class="btn btn-ghost join-item"
-        type="reset"
-        @click.prevent="logout"
-        v-if="meta.isAuthenticated"
-      >
-        logout
-      </button>
-    </div>
+    <upw-tabs
+      v-if="!meta.isAuthenticated"
+      :tabs="tabs"
+      v-model="active"
+      @update:modelValue="toggleForm"
+      size="sm"
+    />
 
     <upw-form
+      :key="active"
       :loading="meta.isFormLoading"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -79,35 +22,54 @@
       :actions="authActions"
       v-if="meta.showLoginForm || meta.showRegisterForm || meta.show2fa"
     >
+      <template #footer>
+        <slot name="login.footer"></slot>
+        <slot name="register.footer"></slot>
+        <slot name="forgot.footer"></slot>
+        <slot></slot>
+      </template>
     </upw-form>
+
+    <upw-button
+      variant="ghost"
+      block
+      type="reset"
+      @click.prevent="logout"
+      v-if="meta.isAuthenticated"
+    >
+      logout
+    </upw-button>
   </div>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm, UpwTabs, UpwButton } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
+// --- types
+import type { PropType } from "vue";
+import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "Auth",
-  components: { UpwForm },
+  components: { UpwForm, UpwTabs, UpwButton },
   inheritAttrs: true,
   customOptions: {},
-  emits: [],
+  emits: ["update:modelValue"],
   props: {
-    show: {
-      type: String as PropType<SessionProps["show"]>,
+    modelValue: {
+      type: String as PropType<AuthProps["form"]>,
       default: "login",
     },
   },
-  setup() {
+  setup(props) {
     const session = useSession();
 
     const styles = useStyles(["auth"], session.meta, config);
@@ -115,11 +77,12 @@ export default defineComponent({
     return {
       ...session,
       styles,
+      active: ref(props.modelValue),
     };
   },
   computed: {
     authActions() {
-      return {
+      const actions = {
         submit: {
           type: "submit",
           label: this.meta.showLoginForm
@@ -128,14 +91,54 @@ export default defineComponent({
               ? "Create new account"
               : "Continue",
           block: true,
-          disabled: !this.meta.isValid || this.meta.isProcessing,
-          action: this.resolve,
+          needsValid: true,
         },
       };
+
+      if (this.meta.showLoginForm) {
+        actions.forgot = {
+          label: "forgot password",
+          block: true,
+          variant: "link",
+          size: "sm",
+          action: () => this.toggleForm("forgot"),
+        };
+      }
+
+      return actions;
+    },
+    tabs() {
+      return [
+        {
+          id: "register",
+          label: "New customer",
+        },
+        {
+          id: "login",
+          label: "Existing customer",
+        },
+      ];
+    },
+  },
+  methods: {
+    toggleForm(type: AuthProps.form) {
+      switch (type) {
+        case "login":
+          if (!this.meta.showLoginForm) this.showLogin();
+          break;
+        case "register":
+          if (!this.meta.showRegisterForm) this.showRegister();
+          break;
+        case "2fa":
+          if (!this.meta.show2fa) this.show2fa();
+          break;
+      }
+      this.active = type;
+      this.$emit("update:modelValue", type);
     },
   },
   mounted() {
-    if (this.show === "register") {
+    if (this.modelValue === "register") {
       this.showRegister();
     } else {
       this.showLogin();
