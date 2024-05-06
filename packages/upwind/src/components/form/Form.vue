@@ -25,6 +25,8 @@
       :class="styles.form.content"
     />
 
+    <slot name="footer" v-bind="{ meta }"></slot>
+
     <!-- actions -->
     <div v-if="safeActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
@@ -32,7 +34,12 @@
           v-for="(action, key) in safeActions"
           :key="key"
           v-bind="action"
-          @click.prevent="doAction(action, $event)"
+          :disabled="
+            meta.isProcessing ||
+            action?.disabled ||
+            (action.needsValid && !meta.isValid)
+          "
+          @click="doAction(action, $event)"
         />
       </slot>
     </div>
@@ -67,6 +74,7 @@ import {
   mapValues,
   map,
   isNil,
+  includes,
 } from "lodash-es";
 
 function safeValue(value: String | Object | Function, context?: any) {
@@ -164,7 +172,7 @@ export default defineComponent({
     },
   },
 
-  emits: ["reject", "resolve", "update:modelValue", "valid"],
+  emits: ["reject", "resolve", "update:modelValue", "valid", "click"],
 
   customOptions: {},
 
@@ -216,7 +224,7 @@ export default defineComponent({
           },
         };
       } else if (this.actions) {
-        return safeValue(this.actions, this);
+        return this.actions;
       }
       return null;
     },
@@ -292,17 +300,25 @@ export default defineComponent({
         return;
       }
 
+      if (!includes(["submit", "reset"], item?.type)) {
+        // dont propagate the form if we are have an action that is not submit or reset
+        $event.preventDefault();
+      }
+
       if (isFunction(item.action)) {
-        item.action(this);
+        item.action({ model: this.model.value, meta: this.meta.value });
         return;
       }
 
       if (item.action) {
-        this.$emit(item.action);
+        this.$emit(item.action, {
+          model: this.model.value,
+          meta: this.meta.value,
+        });
         return;
       }
 
-      this.$emit("click", item);
+      this.$emit("click", { model: this.model.value, meta: this.meta.value });
     },
 
     doSubmit() {
