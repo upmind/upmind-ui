@@ -1,3 +1,3 @@
-export interface SessionProps {
-  show: "login" | "register" | "forgot" | "reset" | "profile";
+export interface AuthProps {
+  form: "login" | "register" | "forgot" | "reset" | "profile";
 }
