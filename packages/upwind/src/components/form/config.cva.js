@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   form: {
-    root: cva("relative mx-auto flex w-full max-w-2xl flex-col gap-8"),
+    root: cva("relative flex w-full max-w-2xl flex-col gap-8"),
     spinner: cva(
       "absolute bottom-0 left-0 right-0 top-0 mx-auto size-6 opacity-80"
     ),
