@@ -1,7 +1,7 @@
 <template>
   <button
     :class="styles.tab.root"
-    :disabled="meta.isDisabled"
+    :disabled="disabled"
     :aria-controls="id"
     role="tab"
   >
@@ -68,6 +68,10 @@ export default defineComponent({
       type: String as PropType<TabProps["size"]>,
       default: null,
     },
+    stretch: {
+      type: Boolean,
+      default: false,
+    },
 
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
@@ -81,6 +85,8 @@ export default defineComponent({
       size: props.size,
       // ---
       isActive: props.active,
+      isStretched: props.stretch,
+      isDisabled: props.disabled,
     }));
 
     const styles = useStyles("tab", meta, config, props.upwindConfig);
