@@ -6,8 +6,17 @@ import { UpwTabs } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-
+import { keys } from "lodash-es";
 // -----------------------------------------------------------------------------
+
+enum alignments {
+  start = "start",
+  center = "center",
+  end = "end",
+  between = "between",
+  around = "around",
+  evenly = "evenly",
+}
 
 const meta: Meta<typeof UpwTabs> = {
   parameters: {
@@ -18,16 +27,26 @@ const meta: Meta<typeof UpwTabs> = {
   component: UpwTabs,
   argTypes: {
     size: useSystemArgTypes.size,
+    align: {
+      options: keys(alignments),
+      control: {
+        type: "radio",
+        labels: alignments,
+      },
+      if: { arg: "block", truthy: true },
+    },
   },
   args: {
     size: "md",
     disabled: false,
-    modelValue: "item4",
+    block: false,
+    stretch: false,
+    modelValue: "item3",
+    align: "start",
     tabs: [
-      { id: "item1", label: "Item 1" },
-      { id: "item2", label: "Item 2" },
-      { id: "item3", label: "Item 3" },
-      { id: "item4", label: "Item 4" },
+      { id: "item1", label: "Mollit", disabled: true },
+      { id: "item2", label: "Lorem ex Lorem" },
+      { id: "item3", label: "Veniam aliqua quis" },
     ],
   },
 };
