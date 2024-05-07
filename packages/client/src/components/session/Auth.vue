@@ -1,16 +1,16 @@
 <template>
-  <div class="auth" :class="styles.auth.root">
+  <div class="auth" :class="styles.auth.root" v-if="!meta.isAuthenticated">
     <upw-tabs
-      v-if="!meta.isAuthenticated"
       :tabs="tabs"
       v-model="active"
       @update:modelValue="toggleForm"
       size="sm"
+      v-if="meta.canShowForms || meta.showLoginForm || meta.showRegisterForm"
     />
 
     <upw-form
       :key="active"
-      :loading="meta.isFormLoading"
+      :loading="meta.isLoading"
       :processing="meta.isProcessing"
       :model-value="model"
       :schema="schema"
@@ -20,26 +20,12 @@
       @resolve="resolve"
       :class="styles.auth.form"
       :actions="authActions"
-      v-if="meta.showLoginForm || meta.showRegisterForm || meta.show2fa"
     >
-      <template #footer>
-        <slot name="login.footer"></slot>
-        <slot name="register.footer"></slot>
-        <slot name="forgot.footer"></slot>
-        <slot></slot>
-      </template>
     </upw-form>
-
-    <upw-button
-      variant="ghost"
-      block
-      type="reset"
-      @click.prevent="logout"
-      v-if="meta.isAuthenticated"
-    >
-      logout
-    </upw-button>
   </div>
+  <upw-button variant="ghost" block type="reset" @click.prevent="logout" v-else>
+    logout
+  </upw-button>
 </template>
 
 <script lang="ts">
@@ -133,16 +119,20 @@ export default defineComponent({
           if (!this.meta.show2fa) this.show2fa();
           break;
       }
+
       this.active = type;
       this.$emit("update:modelValue", type);
     },
   },
   mounted() {
-    if (this.modelValue === "register") {
-      this.showRegister();
-    } else {
-      this.showLogin();
-    }
+    this.toggleForm(this.active);
+  },
+  watch: {
+    meta({ canShowForms }) {
+      if (canShowForms) {
+        this.toggleForm(this.active);
+      }
+    },
   },
 });
 </script>
