@@ -3,7 +3,7 @@
   "writeKey": "a7388292717217458717-faab511aa20734e383427bc1b847f9efeff57ce1bc31567aebcb12b1dce5309c",
   "conversion": {},
   "download": {
-    "folder": "./public/locales/",
+    "folder": "./src/locales/",
     "files": "${snakecase_lang}/${file}",
     "includeSourceLang": true
   },
@@ -25,7 +25,7 @@
       {
         "lang": "en",
         "file": "${autodetectFile}",
-        "pattern": "/**/locales/*_en.json"
+        "pattern": "/**/i18n/*.json"
       }
     ]
   }
