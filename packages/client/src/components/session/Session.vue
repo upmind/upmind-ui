@@ -1,7 +1,7 @@
 <template>
   <section class="session" :class="styles.session.root">
     <header :class="styles.session.header">
-      <slot name="header" v-bind="{ meta }"></slot>
+      <slot name="header" v-bind="{ meta, user }"></slot>
     </header>
 
     <upm-auth
@@ -14,7 +14,7 @@
     <upm-profile v-else :class="styles.session.content" />
 
     <footer :class="styles.session.footer">
-      <slot name="footer" v-bind="{ meta }"></slot>
+      <slot name="footer" v-bind="{ meta, user }"> </slot>
     </footer>
   </section>
 </template>
