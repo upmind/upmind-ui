@@ -7,9 +7,9 @@
     <slot
       v-if="meta.isLoading"
       name="loading"
-      v-bind="{ styles: styles.form.spinner }"
+      v-bind="{ styles: styles.form.loading }"
     >
-      <upw-spinner :class="styles.form.spinner" class="loading" />
+      <upw-skeleton :class="styles.form.loading" class="loading" />
     </slot>
 
     <json-forms
@@ -57,7 +57,7 @@ import type { ErrorObject } from "ajv";
 // --- components
 import { JsonForms } from "@jsonforms/vue";
 import UpwButton from "../button/Button.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import UpwSkeleton from "../skeleton/SkeletonForm.vue";
 
 // --- local
 import config from "./config.cva";
@@ -101,7 +101,7 @@ export default defineComponent({
   components: {
     JsonForms,
     UpwButton,
-    UpwSpinner,
+    UpwSkeleton,
   },
 
   inheritAttrs: true,
