@@ -6,7 +6,7 @@ import {
 } from "vue-router";
 
 // --- internal
-import CheckoutView from "@/views/checkout/Checkout.vue";
+import HomeView from "@/views/Index.vue";
 
 // --- utils
 import { get } from "lodash-es";
@@ -14,7 +14,7 @@ import { get } from "lodash-es";
 // -----------------------------------------------------
 // Dynamic Routes
 
-const importedRoutes = import.meta.glob<Object>("@/modules/**/routes/*.ts", {
+const importedRoutes = import.meta.glob<Object>("@/views/**/routes.ts", {
   import: "default",
   eager: true,
 });
@@ -35,25 +35,9 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "checkout",
-      component: CheckoutView,
+      name: "home",
+      component: HomeView,
     },
-    {
-      path: "/offers",
-      name: "offers",
-      component: () => import("@/views/offers/Offers.vue"),
-    },
-    {
-      path: "/session",
-      name: "session",
-      component: () => import("@/views/session/Session.vue"),
-    },
-    {
-      path: "/feedback",
-      name: "feedback",
-      component: () => import("@/views/feedback/Feedback.vue"),
-    },
-
     // ---
     ...routes,
   ],
