@@ -35,7 +35,6 @@ import UpmProfile from "./Profile.vue";
 // --- types
 import type { PropType } from "vue";
 import type { AuthProps } from "./types";
-import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
