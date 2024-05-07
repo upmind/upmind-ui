@@ -15,6 +15,7 @@ export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
 export { default as UpwTabs } from "./components/tabs/Tabs.vue";
 export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
 export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
+export { default as UpwTabs } from "./components/tabs/Tabs.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
 
 // ---
