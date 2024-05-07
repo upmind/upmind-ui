@@ -8,7 +8,7 @@ export default {
     footer: cva(
       "text-sm flex flex-col gap-2 font-light leading-tight tracking-tight"
     ),
-    content: cva("rounded-box"),
+    content: cva("rounded-box items-start"),
   },
 
   auth: {
