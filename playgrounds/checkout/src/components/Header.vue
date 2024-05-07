@@ -33,28 +33,32 @@
 
       <div class="flex items-center justify-end gap-4">
         <RouterLink
-          to="/"
+          to="/checkout"
           class="hover:underline"
-          activeClass="text-primary-500"
-          exactActiveClass="text-primary-700 underline"
+          exactActiveClass="text-primary underline"
         >
           {{ $t("header.checkout") }}
         </RouterLink>
         <RouterLink
           to="/offers"
           class="hover:underline"
-          activeClass="text-primary-500"
-          exactActiveClass="text-primary-700 underline"
+          exactActiveClass="text-primary underline"
         >
           {{ $t("header.offers") }}
         </RouterLink>
         <RouterLink
           to="/session"
           class="hover:underline"
-          activeClass="text-primary-500"
-          exactActiveClass="text-primary-700 underline"
+          exactActiveClass="text-primary underline"
         >
           {{ $t("header.session") }}
+        </RouterLink>
+        <RouterLink
+          to="/client"
+          class="hover:underline"
+          exactActiveClass="text-primary underline"
+        >
+          {{ $t("header.client") }}
         </RouterLink>
       </div>
       <!-- #END TEMP -->
