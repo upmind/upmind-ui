@@ -3,6 +3,8 @@
     "checkout": "Checkout",
     "form": "Task Form",
     "offers": "Offers",
-    "title": "Checkout v2"
+    "title": "Checkout v2",
+    "session": "Session",
+    "client": "Client Area"
   }
 }

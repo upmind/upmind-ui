@@ -36,11 +36,12 @@
 
 <script>
 import { defineComponent } from "vue";
-// import * as messages from "./locales";
 import { UpmSession } from "@upmind/client";
+import { getLocalMessages } from "@/utils";
+
 export default defineComponent({
   name: "Session",
-  // i18n: { messages },
+  i18n: { messages: getLocalMessages("session") },
   components: { UpmSession },
 });
 </script>

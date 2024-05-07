@@ -46,7 +46,7 @@ export const useCompositionI18n = () => {
 export function getGlobalMessages(debug = import.meta.env.DEV) {
   let files;
   if (debug) {
-    files = import.meta.glob(`@/**/[!_]*_en.json`, { eager: true });
+    files = import.meta.glob(`@/**/i18n/[!_]*.json`, { eager: true });
   } else {
     files = import.meta.glob("@locales/**/[!_]*.json", { eager: true });
   }
@@ -71,7 +71,7 @@ export function getGlobalMessages(debug = import.meta.env.DEV) {
 export function getLocalMessages(name, debug = import.meta.env.DEV) {
   let files;
   if (debug) {
-    files = import.meta.glob(`@/**/_*_en.json`, { eager: true });
+    files = import.meta.glob(`@/**/i18n/_*.json`, { eager: true });
   } else {
     files = import.meta.glob(`@locales/**/_*.json`, { eager: true });
   }
