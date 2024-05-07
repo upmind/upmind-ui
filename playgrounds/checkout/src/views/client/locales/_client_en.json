@@ -1,0 +1,24 @@
+{
+  "client": {
+    "title": "My Client Area",
+    "nav": {
+      "home": "Home",
+      "addresses": "Addresses",
+      "emails": "Emails",
+      "phones": "Phones",
+      "companies": "Companies"
+    },
+    "emails": {
+      "title": "My saved Emails"
+    },
+    "phones": {
+      "title": "My saved Phone Numbers"
+    },
+    "addresses": {
+      "title": "My saved Addresses"
+    },
+    "companies": {
+      "title": "My saved Companies"
+    }
+  }
+}

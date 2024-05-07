@@ -1,4 +1,5 @@
 // --- utils
+import { format } from "path";
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
@@ -107,11 +108,14 @@ export const useLoginSchemaParser = () => {
       email: {
         type: "string",
         title: "Your email address",
+        i18n: "auth.email",
+        format: "email",
       },
       password: {
         type: "string",
         format: "password",
         title: "Your password",
+        i18n: "auth.password",
       },
     },
   };
@@ -133,7 +137,6 @@ export const useLoginUischemaParser = () => {
         type: "Control",
         scope: "#/properties/password",
         options: {
-          type: "password",
           autocomplete: "current-password",
           placeholder: "password or passphrase",
         },

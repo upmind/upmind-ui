@@ -3,6 +3,7 @@
     "title": "Checkout v2",
     "checkout": "Checkout",
     "offers": "Offers",
-    "session": "session"
+    "session": "Session",
+    "client": "Client Area"
   }
 }
