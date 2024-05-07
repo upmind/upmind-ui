@@ -1,5 +1,4 @@
 // --- utils
-import { format } from "path";
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
@@ -19,22 +18,27 @@ export const useRegisterSchemaParser = (data: any) => {
       firstname: {
         type: "string",
         title: "Your first name",
+        i18n: "auth.firstname",
       },
       lastname: {
         type: "string",
         title: "Your last name",
+        i18n: "auth.lastname",
       },
       email: {
         type: "string",
         title: "Your email address",
         format: "email",
+        i18n: "auth.email",
       },
       password: {
         type: "string",
         title: "Your password",
         minLength: 8,
+        format: "password",
+        i18n: "auth.password",
       },
-      custom_fields: useFieldsSchemaParser(data),
+      custom_fields: useFieldsSchemaParser(data, "auth"),
     },
   };
 
@@ -109,7 +113,7 @@ export const useLoginSchemaParser = () => {
         type: "string",
         title: "Your email address",
         i18n: "auth.email",
-        format: "email",
+        // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {
         type: "string",
