@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   form: {
     root: cva("relative flex w-full flex-col gap-8"),
-    spinner: cva("size-6"),
+    loading: cva(""),
     content: cva("transition-opacity duration-300", {
       variants: {
         processing: {
