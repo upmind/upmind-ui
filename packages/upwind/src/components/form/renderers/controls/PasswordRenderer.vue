@@ -10,7 +10,11 @@
     :type="unmask ? 'input' : 'password'"
   >
     <template #actions="{ styles }">
-      <button :class="styles?.button" @click.prevent="unmask = !unmask">
+      <button
+        type="button"
+        :class="styles?.button"
+        @click.prevent="unmask = !unmask"
+      >
         {{ !unmask ? "Show" : "Hide" }}
       </button>
     </template>
