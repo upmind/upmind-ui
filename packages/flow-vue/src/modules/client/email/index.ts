@@ -80,7 +80,7 @@ export const useClientEmails = () => {
       isEmpty: !state.value.context?.items?.length,
       canFilter:
         !["editing", "loading"].some(state.value.matches) &&
-        state.value.context?.items?.length > 1,
+        state.value.context?.raw?.length > 1,
     })),
     // ---
     items: computed(() =>
