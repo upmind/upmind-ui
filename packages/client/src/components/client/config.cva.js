@@ -22,7 +22,7 @@ export default {
     form: cva("max-w-xl"),
   },
   clientCard: {
-    root: cva("border p-2 rounded-lg flex items-center gap-4", {
+    root: cva("border p-2 rounded-lg flex  items-center gap-4", {
       variants: {
         isEditing: {
           true: "bg-base-200",
@@ -43,11 +43,11 @@ export default {
       ],
     }),
     content: cva("flex-1"),
-    header: cva("flex gap-4 items-center justify-start"),
-    avatar: cva("size-6 mt-2"),
+    header: cva("flex gap-4 items-center justify-start text-xs text-base-500"),
     icon: cva("size-4"),
-    title: cva("text-inherit m-0 leading-none"),
-    meta: cva("text-xs text-base-500 m-0"),
+    avatar: cva("size-6 rounded-full border overflow-hidden "),
+    title: cva("m-0 leading-none text-sm text-base-content"),
+    meta: cva("m-0"),
     verified: cva("", {
       variants: {
         isVerified: {

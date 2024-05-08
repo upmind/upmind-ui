@@ -14,16 +14,6 @@
     />
     <div :class="styles.clientCard.content">
       <header :class="styles.clientCard.header">
-        <p :class="[styles.clientCard.meta, styles.clientCard.verified]">
-          <upw-icon
-            :icon="meta.isVerified ? 'email-check' : 'email-warning'"
-            :class="styles.clientCard.avatar"
-          />
-          <span class="sr-only">
-            {{ meta.isVerified ? "Verified" : "Unverified" }}
-          </span>
-        </p>
-
         <h4 :class="styles.clientCard.title">
           {{ title }}
         </h4>
@@ -40,6 +30,16 @@
         v-if="meta.isDefault"
         :class="styles.clientCard.default"
       ></upw-icon>
+
+      <span :class="styles.clientCard.verified">
+        <upw-icon
+          :icon="meta.isVerified ? 'check-circle' : 'alert-triangle'"
+          :class="styles.clientCard.icon"
+        />
+        <span class="sr-only">
+          {{ meta.isVerified ? "Verified" : "Unverified" }}
+        </span>
+      </span>
 
       <upw-dropdown
         toggle="navigation-menu-vertical"
@@ -66,7 +66,6 @@ import { UpwIcon, UpwCheckbox, UpwDropdown } from "@upmind/upwind";
 // --- utils
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
-import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 

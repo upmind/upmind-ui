@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import { getLocalMessages } from "@/utils";
 import { UpmClientEmails } from "@upmind/client";
 
