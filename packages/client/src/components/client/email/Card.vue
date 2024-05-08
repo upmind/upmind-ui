@@ -124,8 +124,17 @@ export default defineComponent({
       // ---
       actions: [
         {
+          label: "Set as default",
+          disabled:
+            clientEmail.meta.value.isDefault ||
+            !clientEmail.meta.value.isVerified,
+          action: () => {
+            open.value = false;
+            clientEmail.setDefault();
+          },
+        },
+        {
           label: "Edit",
-          icon: "edit",
           action: () => {
             open.value = false;
             clientEmail.edit();
@@ -133,28 +142,22 @@ export default defineComponent({
         },
         {
           label: "Remove",
-          icon: "remove",
+          disabled: !clientEmail.meta.value.canRemove,
           action: () => {
             open.value = false;
             clientEmail.remove();
           },
         },
         {
-          label: "Set as default",
-          icon: "star",
-          disabled: true, //clientEmail.meta.isDefault || clientEmail.meta.isVerified,
+          label: copied.value ? "Copied!" : "Copy to clipboard",
+          disabled: !isSupported.value,
           action: () => {
             open.value = false;
-            clientEmail.setDefault();
+            copy(description.value);
           },
         },
       ],
       //  ---
-      copy: () => {
-        copy(description.value);
-      },
-      canCopy: isSupported,
-      copied,
     };
   },
 });
