@@ -7,9 +7,9 @@
     <slot
       v-if="meta.isLoading"
       name="loading"
-      v-bind="{ styles: styles.form.spinner }"
+      v-bind="{ styles: styles.form.loading }"
     >
-      <upw-spinner :class="styles.form.spinner" class="loading" />
+      <upw-skeleton :class="styles.form.loading" class="loading" />
     </slot>
 
     <json-forms
@@ -25,6 +25,8 @@
       :class="styles.form.content"
     />
 
+    <slot name="footer" v-bind="{ meta }"></slot>
+
     <!-- actions -->
     <div v-if="safeActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
@@ -32,7 +34,13 @@
           v-for="(action, key) in safeActions"
           :key="key"
           v-bind="action"
-          @click.prevent="doAction(action, $event)"
+          :loading="meta.isProcessing || meta.isLoading"
+          :disabled="
+            meta.isProcessing ||
+            action?.disabled ||
+            (action.needsValid && !meta.isValid)
+          "
+          @click="doAction(action, $event)"
         />
       </slot>
     </div>
@@ -49,7 +57,7 @@ import type { ErrorObject } from "ajv";
 // --- components
 import { JsonForms } from "@jsonforms/vue";
 import UpwButton from "../button/Button.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import UpwSkeleton from "../skeleton/SkeletonForm.vue";
 
 // --- local
 import config from "./config.cva";
@@ -67,6 +75,7 @@ import {
   mapValues,
   map,
   isNil,
+  includes,
 } from "lodash-es";
 
 function safeValue(value: String | Object | Function, context?: any) {
@@ -92,7 +101,7 @@ export default defineComponent({
   components: {
     JsonForms,
     UpwButton,
-    UpwSpinner,
+    UpwSkeleton,
   },
 
   inheritAttrs: true,
@@ -164,7 +173,7 @@ export default defineComponent({
     },
   },
 
-  emits: ["reject", "resolve", "update:modelValue", "valid"],
+  emits: ["reject", "resolve", "update:modelValue", "valid", "click"],
 
   customOptions: {},
 
@@ -216,7 +225,7 @@ export default defineComponent({
           },
         };
       } else if (this.actions) {
-        return safeValue(this.actions, this);
+        return this.actions;
       }
       return null;
     },
@@ -292,17 +301,25 @@ export default defineComponent({
         return;
       }
 
+      if (!includes(["submit", "reset"], item?.type)) {
+        // dont propagate the form if we are have an action that is not submit or reset
+        $event.preventDefault();
+      }
+
       if (isFunction(item.action)) {
-        item.action(this);
+        item.action({ model: this.model.value, meta: this.meta.value });
         return;
       }
 
       if (item.action) {
-        this.$emit(item.action);
+        this.$emit(item.action, {
+          model: this.model.value,
+          meta: this.meta.value,
+        });
         return;
       }
 
-      this.$emit("click", item);
+      this.$emit("click", { model: this.model.value, meta: this.meta.value });
     },
 
     doSubmit() {

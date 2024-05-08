@@ -36,7 +36,13 @@ export const useSession = (inspector?: Function) => {
   //const messages= computed(() => state.value.context?.messages);
   // ---
   const meta = computed(() => ({
-    isLoading: state.value.matches("starting"),
+    isLoading:
+      !client.value?.matches ||
+      [
+        "unauthenticated.login.loading",
+        "unauthenticated.register.loading",
+      ].some(client.value.matches),
+
     isProcessing:
       state.value.matches("client.processing") ||
       (client.value?.matches &&
@@ -57,10 +63,6 @@ export const useSession = (inspector?: Function) => {
     showReCaptcha: client.value?.matches(
       "unauthenticated.register.challenging"
     ),
-    canShowForms:
-      state.value?.matches("guest.idle") &&
-      !client.value?.matches("unauthenticated.login") &&
-      !client.value?.matches("unauthenticated.register"),
 
     showLoginForm: client.value?.matches("unauthenticated.login"),
     // show2fa: client.value?.matches("unauthenticated.login.challenging"),
@@ -71,13 +73,14 @@ export const useSession = (inspector?: Function) => {
         "unauthenticated.login.challenging",
         "unauthenticated.login.verifying",
       ].some(client.value.matches),
+
     showRegisterForm: client.value?.matches("unauthenticated.register"),
-    isFormLoading:
-      client.value?.matches &&
-      [
-        "unauthenticated.login.loading",
-        "unauthenticated.register.loading",
-      ].some(client.value.matches),
+
+    // ---
+    canShowForms:
+      state.value?.matches("guest.idle") &&
+      !client.value?.matches("unauthenticated.login") &&
+      !client.value?.matches("unauthenticated.register"),
   }));
 
   const user = computed(() => state.value?.context?.user);
