@@ -48,6 +48,14 @@
         >
           {{ $t("header.offers") }}
         </RouterLink>
+        <RouterLink
+          to="/session"
+          class="hover:underline"
+          activeClass="text-primary-500"
+          exactActiveClass="text-primary-700 underline"
+        >
+          {{ $t("header.session") }}
+        </RouterLink>
       </div>
       <!-- #END TEMP -->
     </nav>

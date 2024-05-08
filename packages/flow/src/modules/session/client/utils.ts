@@ -16,20 +16,20 @@ export const useRegisterSchemaParser = (data: any) => {
     required: ["firstname", "lastname", "email", "password"],
     properties: {
       firstname: {
-        type: ["string", "null"],
+        type: "string",
         title: "Your first name",
       },
       lastname: {
-        type: ["string", "null"],
+        type: "string",
         title: "Your last name",
       },
       email: {
-        type: ["string", "null"],
+        type: "string",
         title: "Your email address",
         format: "email",
       },
       password: {
-        type: ["string", "null"],
+        type: "string",
         title: "Your password",
         minLength: 8,
       },
@@ -78,7 +78,7 @@ export const useRegisterUischemaParser = (data: any) => {
           placeholder: "Use a strong password or passphrase",
         },
       },
-      useFieldsUischemaParser(data),
+      ...useFieldsUischemaParser(data),
     ],
   };
 
@@ -87,10 +87,10 @@ export const useRegisterUischemaParser = (data: any) => {
 
 export const useRegisterModelParser = (data: any) => {
   const model = {
-    firstname: null,
-    lastname: null,
-    email: null,
-    password: null,
+    firstname: undefined,
+    lastname: undefined,
+    email: undefined,
+    password: undefined,
     custom_fields: useFieldsModelParser(data),
   };
 
@@ -105,11 +105,11 @@ export const useLoginSchemaParser = () => {
     required: ["email", "password"],
     properties: {
       email: {
-        type: ["string"],
+        type: "string",
         title: "Your email address",
       },
       password: {
-        type: ["string"],
+        type: "string",
         format: "password",
         title: "Your password",
       },
@@ -144,8 +144,8 @@ export const useLoginUischemaParser = () => {
 
 export const useLoginModelParser = () => {
   return {
-    email: null,
-    password: null,
+    email: undefined,
+    password: undefined,
   };
 };
 // ---
@@ -184,6 +184,6 @@ export const use2faUischemaParser = () => {
 
 export const use2faModelParser = () => {
   return {
-    token: null,
+    token: undefined,
   };
 };

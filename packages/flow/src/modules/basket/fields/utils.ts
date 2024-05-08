@@ -47,7 +47,7 @@ export const useUischema = ({ fields }: FieldsContext) => {
           placeholder: "Add notes here...",
         },
       },
-      useFieldsUischemaParser(
+      ...useFieldsUischemaParser(
         map(fields, field => {
           if (["input_file", "image"].includes(field.type_code)) {
             field.options ??= {};
