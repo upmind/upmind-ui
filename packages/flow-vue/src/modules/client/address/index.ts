@@ -10,7 +10,7 @@ import { get, isEmpty, map, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientAddress = item => {
+export const useClientAddress = (item, context?: Object) => {
   const { service } = useUpmindClientAddresses();
 
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
@@ -21,10 +21,14 @@ export const useClientAddress = item => {
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.error),
+    errors: computed(() => state.value.context?.error?.message),
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
+      isDisabled: context?.disabled,
+      isSelected: context?.selected,
+      isHidden: context?.hidden,
+      // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: [
         "error",
@@ -40,6 +44,7 @@ export const useClientAddress = item => {
       hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
       canRemove: state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
+      isVerified: !!state.value?.context?.model?.verified,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
@@ -82,8 +87,13 @@ export const useClientAddresses = () => {
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
+      isProcessing: ["filtering", "processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isEditing: ["editing"].some(state.value.matches),
+      isEmpty: !state.value.context?.items?.length,
+      canFilter:
+        !["editing", "loading"].some(state.value.matches) &&
+        state.value.context?.raw?.length > 1,
     })),
     // ---
     items: computed(() =>
@@ -108,8 +118,8 @@ export const useClientAddresses = () => {
 
       send({ type: "SELECT", data: id });
     },
+    filter: debounce(data => send({ type: "FILTER", data }), 300),
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
   };
 };
