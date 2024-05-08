@@ -1,10 +1,8 @@
 <template>
   <div
-    class="divide-base-200 border-base-200 flex w-full max-w-md animate-pulse space-y-4 divide-y rounded border p-4 shadow md:p-6"
+    class="divide-base-200 border-base-200 flex w-full animate-pulse flex-col space-y-4 divide-y rounded border p-4 md:p-6"
     role="status"
   >
-    <span class="sr-only">Loading List...</span>
-
     <div class="flex items-center justify-between">
       <div>
         <div class="bg-base-300 mb-2.5 h-2.5 w-24 rounded-full"></div>
@@ -40,6 +38,8 @@
       </div>
       <div class="bg-base-300 h-2.5 w-12 rounded-full"></div>
     </div>
+
+    <span class="sr-only">Loading List...</span>
   </div>
 </template>
 
