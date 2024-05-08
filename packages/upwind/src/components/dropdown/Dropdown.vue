@@ -36,12 +36,12 @@
       >
         <template v-for="(item, key) in items" :key="key">
           <!-- grouped items -->
-          <div v-if="item?.children" :class="styles.dropdownGroup.root">
+          <div v-if="item?.children">
             <!-- group title -->
             <upw-dropdown-item
               v-if="item?.label || item?.icon"
               v-bind="item"
-              :styles="styles.dropdownGroupItem"
+              group="true"
             />
 
             <!-- group items -->
@@ -49,16 +49,11 @@
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
-              :styles="styles.dropdownItem"
             />
           </div>
 
           <!-- items -->
-          <upw-dropdown-item
-            v-else
-            v-bind="item"
-            :styles="styles.dropdownItem"
-          />
+          <upw-dropdown-item v-else v-bind="item" />
         </template>
       </h-menu-items>
     </transition>
@@ -77,8 +72,6 @@ import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
 import config from "./config.cva";
-
-// --- utils
 import { useStyles } from "../../utils";
 
 // --- types

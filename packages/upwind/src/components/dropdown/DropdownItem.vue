@@ -1,45 +1,64 @@
 <template>
   <h-menu-item as="template" v-slot="{ active }">
     <a
-      v-if="href"
+      v-if="href && !disabled && !group"
       :href="href"
       :target="target"
-      :class="[styles.root, active ? styles.active : '']"
+      :class="[
+        styles.dropdownItem.root,
+        active ? styles.dropdownItem.active : '',
+      ]"
     >
-      <upw-icon v-if="icon" :icon="icon" :upwind-config="styles.icon" />
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        :upwind-config="styles.dropdownItem.icon"
+      />
 
-      <span :class="styles.label">{{ label }}</span>
+      <span :class="styles.dropdownItem.label">{{ label }}</span>
     </a>
 
     <router-link
-      v-else-if="to"
+      v-else-if="to && !disabled && !group"
       :to="to"
-      :class="[styles.root, active ? styles.active : '']"
+      :class="[
+        styles.dropdownItem.root,
+        active ? styles.dropdownItem.active : '',
+      ]"
     >
-      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
+      <upw-icon v-if="icon" :icon="icon" :class="styles.dropdownItem.icon" />
 
-      <span :class="styles.label">{{ label }}</span>
+      <span :class="styles.dropdownItem.label">{{ label }}</span>
     </router-link>
 
     <button
-      v-else-if="isFunction(action)"
+      v-else-if="isFunction(action) && !disabled && !group"
       @click="action"
-      :class="[styles.root, active ? styles.active : '']"
+      :class="[
+        styles.dropdownItem.root,
+        active ? styles.dropdownItem.active : '',
+      ]"
     >
-      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
-      <span :class="styles.label">{{ label }}</span>
+      <upw-icon v-if="icon" :icon="icon" :class="styles.dropdownItem.icon" />
+      <span :class="styles.dropdownItem.label">{{ label }}</span>
     </button>
 
-    <span v-else :class="[styles.root, active ? styles.active : '']">
-      <upw-icon v-if="icon" :icon="icon" :class="styles.icon" />
-      <span :class="styles.label">{{ label }}</span>
+    <span
+      v-else
+      :class="[
+        styles.dropdownItem.root,
+        active ? styles.dropdownItem.active : '',
+      ]"
+    >
+      <upw-icon v-if="icon" :icon="icon" :class="styles.dropdownItem.icon" />
+      <span :class="styles.dropdownItem.label">{{ label }}</span>
     </span>
   </h-menu-item>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, toRefs } from "vue";
 
 // --- components
 import { MenuItem } from "@headlessui/vue";
@@ -47,6 +66,9 @@ import UpwIcon from "../icon/Icon.vue";
 import { RouterLink } from "vue-router";
 
 // --- local
+// --- local
+import config from "./config.cva";
+import { useStyles } from "../../utils";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -60,6 +82,10 @@ export default defineComponent({
     UpwIcon,
   },
   props: {
+    group: {
+      type: Boolean,
+      default: false,
+    },
     to: {
       type: [String, Object],
       default: "",
@@ -82,6 +108,10 @@ export default defineComponent({
       type: Function,
       default: null,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     // --- Provide precalculated styles from parent. This is to avoid recalculating styles for each item.
     styles: {
       type: Object,
@@ -89,8 +119,11 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const styles = useStyles(["dropdownItem"], toRefs(props), config);
+
     return {
       isFunction,
+      styles,
     };
   },
 });

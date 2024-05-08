@@ -142,6 +142,7 @@ export default defineComponent({
         {
           label: "Set as default",
           icon: "star",
+          disabled: true, //clientEmail.meta.isDefault || clientEmail.meta.isVerified,
           action: () => {
             open.value = false;
             clientEmail.setDefault();
