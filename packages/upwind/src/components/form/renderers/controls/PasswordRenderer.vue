@@ -9,7 +9,7 @@
     @change="onChange"
     :type="unmask ? 'input' : 'password'"
   >
-    <template #actions="{ styles }">
+    <template #append="{ styles }">
       <button
         type="button"
         :class="styles?.button"

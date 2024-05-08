@@ -159,7 +159,6 @@ export default defineComponent({
     },
     icon: { type: [String, Object], default: null },
     avatar: { type: [String, Object], default: null },
-
     toggle: {
       type: String,
       default: "arrow-up-down",
@@ -197,6 +196,10 @@ export default defineComponent({
       type: String,
       default: null,
     },
+    grouped: {
+      type: Boolean,
+      default: false,
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -206,7 +209,7 @@ export default defineComponent({
   setup(props, { emit }) {
     // --- initial value with correct type and value
     const fallbackValue = props.multiple ? [] : "";
-    let initialValue = get(props, "value", fallbackValue);
+    let initialValue = get(props, "modelValue", fallbackValue);
 
     initialValue = props.multiple
       ? isArray(initialValue)
