@@ -6,18 +6,22 @@
       </h2>
     </header>
 
-    <router-view />
+    <upm-client-emails class="my-4" />
   </section>
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { getLocalMessages } from "@/utils";
+import { UpmClientEmails } from "@upmind/client";
 
 export default defineComponent({
   name: "ClientEmails",
   i18n: {
     messages: getLocalMessages("client"),
+  },
+  components: {
+    UpmClientEmails,
   },
 });
 </script>
