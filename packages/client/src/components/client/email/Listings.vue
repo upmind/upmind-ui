@@ -9,27 +9,24 @@
       <upw-textbox
         @input="filter($event?.currentTarget?.value)"
         placeholder="Filter by..."
-        v-if="
-          !meta.isEditing && !meta.isLoading && !processing && !!items?.length
-        "
+        v-if="meta.canFilter && !processing"
       />
 
-      <!-- <upm-card
+      <upm-card
         v-for="item in items"
         :key="item.id"
         :item="item"
         :selected="item.id === selected?.id"
         @select="select"
-        :class="[
-          meta.isEditing || processing
-            ? 'hidden opacity-50 pointer-events-none'
-            : '',
-          {
-            'border-primary': item.id === selected?.id,
-            // 'col-span-full': item.id === selected?.id && meta.isEditing
-          },
-        ]"
-      /> -->
+        :loading="processing"
+        :hidden="meta.isEditing && item.id === selected?.id"
+      />
+
+      <upm-empty
+        v-if="!items.length && !meta.isLoading"
+        :icon="meta.icon"
+        :message="meta.message"
+      ></upm-empty>
 
       <upm-form :item="selected" v-if="meta.isEditing" :key="selected.id" />
 
@@ -37,7 +34,13 @@
         :class="styles.clientListings.actions"
         v-if="!meta.isEditing && !meta.isLoading && !processing"
       >
-        <upw-button block icon="plus" label="Add new" @click="add" />
+        <upw-button
+          block
+          icon="plus"
+          label="Add new"
+          variant="ghost"
+          @click="add"
+        />
       </div>
     </template>
   </div>
@@ -55,6 +58,7 @@ import config from "../config.cva";
 // --- components
 import UpmCard from "./Card.vue";
 import UpmForm from "./Form.vue";
+import UpmEmpty from "./Empty.vue";
 import { UpwTextbox, UpwButton, UpwSkeletonList } from "@upmind/upwind";
 
 // --- utils
@@ -69,6 +73,7 @@ export default defineComponent({
     UpwButton,
     UpmCard,
     UpmForm,
+    UpmEmpty,
     UpwSkeletonList,
   },
   emits: ["update:modelValue"],

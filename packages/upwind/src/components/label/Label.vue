@@ -65,10 +65,7 @@ export default defineComponent({
 
   props: {
     id: { type: String },
-    text: {
-      required: true,
-      type: String,
-    },
+    text: { type: String },
     altText: { type: String },
     requiredText: { type: String, default: "Required" },
     optionalText: { type: String },

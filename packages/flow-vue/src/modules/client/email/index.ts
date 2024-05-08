@@ -10,9 +10,8 @@ import { get, map, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientEmail = item => {
+export const useClientEmail = (item, context?: Object) => {
   const { service } = useUpmindClientEmails();
-
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
   const { state, send } = item;
 
@@ -21,10 +20,14 @@ export const useClientEmail = item => {
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.error),
+    errors: computed(() => state.value.context?.error?.message),
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
+      isDisabled: context?.disabled,
+      isSelected: context?.selected,
+      isHidden: context?.hidden,
+      // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isProcessing: ["checking", "processing"].some(state.value.matches),
@@ -74,6 +77,10 @@ export const useClientEmails = () => {
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isEditing: ["editing"].some(state.value.matches),
+      isEmpty: !state.value.context?.items?.length,
+      canFilter:
+        !["editing", "loading"].some(state.value.matches) &&
+        state.value.context?.items?.length > 1,
     })),
     // ---
     items: computed(() =>

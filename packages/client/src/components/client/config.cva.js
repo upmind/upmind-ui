@@ -5,7 +5,7 @@ export default {
   clientListings: {
     root: cva("grid gap-4 grid-cols-card w-full"),
     loading: cva(),
-    actions: cva(""),
+    actions: cva(),
   },
   clientForm: {
     root: cva("border rounded-lg shadow-lg p-4 flex flex-col gap-4", {
@@ -22,6 +22,50 @@ export default {
     form: cva("max-w-xl"),
   },
   clientCard: {
-    root: cva(""),
+    root: cva("border p-2 rounded-lg flex items-center gap-4", {
+      variants: {
+        isEditing: {
+          true: "bg-base-200",
+        },
+        isHidden: {
+          true: "hidden opacity-50 pointer-events-none",
+        },
+        hasErrors: {
+          true: "border-error",
+        },
+      },
+      compoundVariants: [
+        {
+          hasErrors: false,
+          isSelected: true,
+          class: "border-primary",
+        },
+      ],
+    }),
+    content: cva("flex-1"),
+    header: cva("flex gap-4 items-center justify-start"),
+    avatar: cva("size-6 mt-2"),
+    icon: cva("size-4"),
+    title: cva("text-inherit m-0 leading-none"),
+    meta: cva("text-xs text-base-500 m-0"),
+    verified: cva("", {
+      variants: {
+        isVerified: {
+          true: "text-success",
+          false: "text-warning",
+        },
+      },
+    }),
+    default: cva("size-6 text-primary"),
+    errors: cva("text-error text-sm m-0"),
+    actions: cva("flex gap-4 items-center justify-end"),
+  },
+  clientEmpty: {
+    root: cva(
+      "flex flex-col items-center justify-center gap-4 p-4 bg-base-100 rounded-lg"
+    ),
+    title: cva("text-inherit m-0"),
+    text: cva("text-base-700 text-center m-0"),
+    icon: cva("size-8 text-base-500"),
   },
 };
