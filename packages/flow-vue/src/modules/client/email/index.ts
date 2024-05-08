@@ -75,6 +75,7 @@ export const useClientEmails = () => {
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
+      isProcessing: ["filtering", "processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isEditing: ["editing"].some(state.value.matches),
       isEmpty: !state.value.context?.items?.length,
@@ -105,8 +106,8 @@ export const useClientEmails = () => {
 
       send({ type: "SELECT", data: id });
     },
+    filter: debounce(data => send({ type: "FILTER", data }), 300),
     edit: id => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
   };
 };
