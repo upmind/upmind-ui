@@ -12,6 +12,7 @@ import type { EmailEvent, EmailContext } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
+const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -160,4 +161,6 @@ export default {
   update,
   remove,
   filter: filterItems,
+  authSubscription,
+  isAuthenticated,
 };

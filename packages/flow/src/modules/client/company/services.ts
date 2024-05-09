@@ -18,6 +18,8 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
 
+const { authSubscription, isAuthenticated } = useSession();
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -217,4 +219,6 @@ export default {
   update,
   remove,
   filter: filterItems,
+  authSubscription,
+  isAuthenticated,
 };
