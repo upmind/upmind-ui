@@ -1,6 +1,8 @@
 <template>
   <div tabindex="0" ref="form" :class="styles.clientForm.root">
-    <h4 :class="styles.clientForm.title">{{ model?.name || "New Phone" }}</h4>
+    <h4 :class="styles.clientForm.title">
+      {{ $tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0) }}
+    </h4>
 
     <upw-form
       :class="styles.clientForm.form"
@@ -16,7 +18,7 @@
     />
   </div>
 
-  <pre>{{ meta }}</pre>
+  <pre>{{ model }}</pre>
 </template>
 
 <script>
@@ -32,13 +34,14 @@ import { UpwForm } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmPhoneForm",
+  name: "UpmClientForm",
   components: { UpwForm },
   props: {
     item: {
       type: Object, // xstate actor
       required: true,
     },
+    i18nKey: { type: String, required: true },
   },
   setup(props) {
     const useClient = inject("client");

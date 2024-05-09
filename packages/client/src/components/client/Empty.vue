@@ -21,7 +21,7 @@ import config from "./config.cva";
 export default defineComponent({
   name: "UpmEmailEmpty",
   props: {
-    i18nKey: { type: String },
+    i18nKey: { type: String, required: true },
   },
   setup() {
     const styles = useStyles(["clientEmpty"], {}, config);

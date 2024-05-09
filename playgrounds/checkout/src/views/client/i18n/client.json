@@ -1,0 +1,85 @@
+{
+  "client": {
+    "title": "My client area",
+    "unavailable": "Please login to access your client area.",
+    "nav": {
+      "home": "Home",
+      "addresses": "Addresses",
+      "emails": "Emails",
+      "phones": "Phones",
+      "companies": "Companies"
+    },
+    "emails": {
+      "title": "My email addresses",
+      "empty": {
+        "title": "Cant see your email addresses..",
+        "description": "Add an email address to get started"
+      },
+      "actions": {
+        "add": "Add email address",
+        "filter": "Filter by email address",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Email Address | Edit Email Address"
+      }
+    },
+    "phones": {
+      "title": "My phone numbers",
+      "empty": {
+        "title": "Cant see your phone numbers..",
+        "description": "Add a phone number to get started"
+      },
+      "actions": {
+        "add": "Add phone number",
+        "filter": "Filter by phone number or country code",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Phone Number | Edit Phone Number"
+      }
+    },
+    "addresses": {
+      "title": "My addresses",
+      "empty": {
+        "title": "Cant see your addresses..",
+        "description": "Add an address to get started"
+      },
+      "actions": {
+        "add": "Add address",
+        "filter": "Filter by address",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Address | Edit Address"
+      }
+    },
+    "companies": {
+      "title": "My companies",
+      "empty": {
+        "title": "Cant see your companies..",
+        "description": "Add a company to get started"
+      },
+      "actions": {
+        "add": "Add company",
+        "filter": "Filter by company name or VAT number",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Company | Edit Company"
+      }
+    }
+  }
+}
