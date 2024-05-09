@@ -38,7 +38,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
 import config from "./config.cva";
@@ -49,8 +49,10 @@ import UpwButton from "../button/Button.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
+import { isNil } from "lodash-es";
 
 // --- types
+import type { PropType } from "vue";
 import type { AlertProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -62,28 +64,23 @@ export default defineComponent({
   },
   emits: ["update:modelValue", "reject"],
   props: {
+    modelValue: {
+      type: Boolean,
+      default: true,
+    },
+    // ---
     title: {
       type: String,
-      default: null,
     },
     text: {
       type: String,
-      default: null,
     },
     data: {
       type: String,
-      default: null,
     },
 
     icon: {
       type: [String, Object],
-      default: null,
-    },
-
-    // ---
-    modelValue: {
-      type: Boolean,
-      default: false,
     },
 
     // ---
@@ -113,7 +110,17 @@ export default defineComponent({
       default: null,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
+    // --- model
+    const open = ref(props.modelValue);
+    watch(
+      () => props.modelValue,
+      value => {
+        open.value = value;
+      }
+    );
+    // ---
+
     const meta = computed(() => ({
       variant: props.variant,
       color: props.color,
@@ -126,9 +133,20 @@ export default defineComponent({
 
     const styles = useStyles(["alert"], meta, config, props.upwindConfig);
 
+    function toggleModal(value) {
+      debugger;
+      open.value = isNil(value) ? !open.value : value;
+      emit("update:modelValue", value);
+
+      if (!open.value) {
+        emit("reject");
+      }
+    }
+
     return {
       meta,
       styles,
+      doClose: () => toggleModal(false),
     };
   },
   computed: {
@@ -145,12 +163,6 @@ export default defineComponent({
         default:
           return "information-circle";
       }
-    },
-  },
-  methods: {
-    doClose() {
-      this.$emit("update:modelValue", false);
-      this.$emit("reject");
     },
   },
 });

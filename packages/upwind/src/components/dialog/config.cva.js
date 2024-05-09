@@ -34,15 +34,17 @@ export default {
     ),
 
     panel: cva(
-      "bg-base text-base-content relative w-full transform overflow-hidden rounded-lg  text-left align-middle shadow-xl transition-all",
+      "bg-base text-base-content relative transform overflow-hidden rounded-lg  text-left align-middle shadow-xl transition-all",
       {
         variants: {
           size: {
-            sm: "max-w-sm",
-            md: "max-w-md",
-            lg: "max-w-lg",
-            xl: "max-w-xl",
-            "2xl": "max-w-4xl",
+            auto: "max-w-none",
+            full: "w-full max-w-full",
+            sm: "w-full max-w-sm",
+            md: "w-full max-w-md",
+            lg: "w-full max-w-lg",
+            xl: "w-full max-w-xl",
+            "2xl": "w-full max-w-4xl",
           },
         },
         defaultVariants: {
