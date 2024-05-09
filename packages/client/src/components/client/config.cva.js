@@ -11,7 +11,7 @@ export default {
     actions: cva(""),
   },
   clientForm: {
-    root: cva("border rounded-lg shadow-lg p-4 flex flex-col gap-4", {
+    root: cva("w-full mt-4", {
       variants: {
         hasErrors: {
           true: "border-error",

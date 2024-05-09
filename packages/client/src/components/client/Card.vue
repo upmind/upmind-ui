@@ -131,7 +131,9 @@ export default defineComponent({
       styles,
       ...clientCard,
       // ---
-
+      isSupported,
+      copy,
+      copied,
       //  ---
     };
   },
