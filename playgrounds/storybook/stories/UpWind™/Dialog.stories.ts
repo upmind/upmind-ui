@@ -9,6 +9,15 @@ import { UpwDialog, UpwButton, UpwForm } from "@upmind/upwind";
 import { keys } from "lodash-es";
 
 // --- types
+enum sizes {
+  auto = "auto",
+  full = "full",
+  sm = "sm",
+  md = "md",
+  lg = "lg",
+  xl = "xl",
+  xxl = "2xl",
+}
 enum skrims {
   none = "none",
   dark = "dark",
@@ -55,6 +64,12 @@ const schema = {
 const meta: Meta<typeof UpwDialog> = {
   component: UpwDialog,
   argTypes: {
+    size: {
+      options: keys(sizes),
+      control: {
+        labels: sizes,
+      },
+    },
     skrim: {
       options: keys(skrims),
       control: {
@@ -69,6 +84,7 @@ const meta: Meta<typeof UpwDialog> = {
     // Anim nulla et sit elit irure cupidatat ullamco commodo mollit id. Anim voluptate aliquip enim magna elit ea irure non in minim. Culpa aliquip veniam qui aliqua amet fugiat. Voluptate dolor esse id do ea aute amet culpa fugiat aliqua ipsum. Laborum laborum esse esse nulla sunt labore nostrud officia ea irure aute. Consequat dolore Lorem esse pariatur sunt magna sint qui aliquip culpa fugiat in ut adipisicing. Est esse irure esse sunt nisi nisi ex irure fugiat non.`,
     // ---
     modelValue: true,
+    size: "md",
     skrim: "normal",
   },
 };
@@ -130,6 +146,7 @@ export const Hero: Story = {
   }),
   args: {
     title: undefined,
+    size: "full",
   },
 };
 
@@ -165,5 +182,6 @@ export const Form: Story = {
   }),
   args: {
     title: "A simple form within a dialog",
+    size: "xl",
   },
 };

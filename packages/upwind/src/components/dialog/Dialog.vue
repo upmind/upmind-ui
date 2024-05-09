@@ -67,7 +67,7 @@
 
 <script lang="ts">
 // --- external
-import { computed, defineComponent, toRef } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
 import config from "./config.cva";
@@ -87,6 +87,7 @@ import { isNil } from "lodash-es";
 import { useStyles } from "../../utils";
 
 // --- types
+import type { PropType } from "vue";
 import type { DialogProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -100,11 +101,11 @@ export default defineComponent({
     HDialogPanel: DialogPanel,
     HDialogTitle: DialogTitle,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "reject"],
   props: {
     modelValue: {
       type: Boolean,
-      required: true,
+      default: true,
     },
     // ---
     title: {
@@ -115,6 +116,11 @@ export default defineComponent({
     },
     data: {
       type: String,
+    },
+    // ---
+    size: {
+      type: String as PropType<DialogProps["size"]>,
+      default: "md",
     },
     skrim: {
       type: String as PropType<DialogProps["skrim"]>,
@@ -127,9 +133,18 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const open = toRef(props, "modelValue");
+    // --- model
+    const open = ref(props.modelValue);
+    watch(
+      () => props.modelValue,
+      value => {
+        open.value = value;
+      }
+    );
+    // ---
 
     const meta = computed(() => ({
+      size: props.size,
       skrim: props.skrim,
       // ---
       isActive: open.value,
@@ -149,8 +164,13 @@ export default defineComponent({
     );
 
     function toggleModal(value) {
+      debugger;
       open.value = isNil(value) ? !open.value : value;
       emit("update:modelValue", value);
+
+      if (!open.value) {
+        emit("reject");
+      }
     }
 
     return {
