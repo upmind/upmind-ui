@@ -3,9 +3,12 @@ import { cva } from "class-variance-authority";
 
 export default {
   clientListings: {
-    root: cva("grid gap-4 grid-cols-card w-full"),
-    loading: cva(),
-    actions: cva(),
+    root: cva("w-full py-4 flex flex-col gap-4"),
+    header: cva(""),
+    footer: cva(""),
+    items: cva("grid gap-4 grid-cols-3"),
+    loading: cva(""),
+    actions: cva(""),
   },
   clientForm: {
     root: cva("border rounded-lg shadow-lg p-4 flex flex-col gap-4", {

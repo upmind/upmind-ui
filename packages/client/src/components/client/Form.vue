@@ -1,6 +1,6 @@
 <template>
   <div tabindex="0" ref="form" :class="styles.clientForm.root">
-    <h4 :class="styles.clientForm.title">{{ model?.name || "New Email" }}</h4>
+    <h4 :class="styles.clientForm.title">{{ model?.name || "New Phone" }}</h4>
 
     <upw-form
       :class="styles.clientForm.form"
@@ -15,23 +15,24 @@
       @resolve="update"
     />
   </div>
+
+  <pre>{{ meta }}</pre>
 </template>
 
 <script>
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent, inject, ref } from "vue";
 
 // --- internal
-import { useClientEmail } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
-import config from "../config.cva";
+import config from "./config.cva";
 
 // --- components
 import { UpwForm } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmEmailForm",
+  name: "UpmPhoneForm",
   components: { UpwForm },
   props: {
     item: {
@@ -40,13 +41,14 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const clientEmail = useClientEmail(props.item);
-    const styles = useStyles(["clientForm"], clientEmail.meta, config);
+    const useClient = inject("client");
+    const clientForm = useClient(props.item);
+    const styles = useStyles(["clientForm"], clientForm.meta, config);
 
     return {
       form: ref(),
       styles,
-      ...clientEmail,
+      ...clientForm,
     };
   },
 
