@@ -1,10 +1,12 @@
 export interface DialogProps {
   skrim?:
     | "none"
+    | "dark"
+    | "light"
     | "normal"
     | "primary"
     | "secondary"
-    | "tertiary"
+    | "accent"
     | "neutral"
     | "success"
     | "error"

@@ -4,8 +4,29 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
   dialog: {
-    root: cva(""),
-    icon: cva("size-6 p-1"),
+    root: cva("relative z-10"),
+    skrim: cva("fixed inset-0", {
+      variants: {
+        skrim: {
+          none: "bg-transparent",
+          normal: "bg-black/25",
+          dark: "bg-black/50",
+          light: "bg-white/25",
+          primary: "bg-primary/25",
+          secondary: "bg-secondary/25",
+          accent: "bg-accent/25",
+          neutral: "bg-neutral/25",
+          success: "bg-success/25",
+          error: "bg-error/25",
+          warning: "bg-warning/25",
+          info: "bg-info/25",
+        },
+      },
+      defaultVariants: {
+        skrim: "default",
+      },
+    }),
+
     wrapper: cva("fixed inset-0 overflow-y-auto"),
 
     content: cva(
@@ -45,5 +66,27 @@ export default {
     close: cva(
       "!absolute right-0 top-0 !size-4 !rounded-full !p-3 [&>*>.icon]:!size-4 "
     ),
+  },
+
+  dialogTransitionEnter: {
+    active: cva("duration-300 ease-out"),
+    from: cva("scale-95 opacity-0"),
+    to: cva("scale-100 opacity-100"),
+  },
+  dialogTransitionLeave: {
+    active: cva("duration-200 ease-in"),
+    from: cva("scale-100 opacity-100"),
+    to: cva("scale-95 opacity-0"),
+  },
+
+  skrimTransitionEnter: {
+    active: cva("duration-300 ease-out"),
+    from: cva("opacity-0"),
+    to: cva("opacity-100"),
+  },
+  skrimTransitionLeave: {
+    active: cva("duration-200 ease-in"),
+    from: cva("opacity-100"),
+    to: cva("opacity-0"),
   },
 };
