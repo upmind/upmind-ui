@@ -83,6 +83,7 @@ export default defineComponent({
       type: Object, // xstate actor
       required: true,
     },
+    i18nKey: { type: String, required: true },
     // ---
     selected: { type: Boolean },
     loading: { type: Boolean },
@@ -130,43 +131,49 @@ export default defineComponent({
       styles,
       ...clientCard,
       // ---
-      actions: [
-        {
-          label: "Set as default",
-          disabled:
-            clientCard.meta.value.isDefault ||
-            !clientCard.meta.value.isVerified,
-          action: () => {
-            open.value = false;
-            clientCard.setDefault();
-          },
-        },
-        {
-          label: "Edit",
-          action: () => {
-            open.value = false;
-            clientCard.edit();
-          },
-        },
-        {
-          label: "Remove",
-          disabled: !clientCard.meta.value.canRemove,
-          action: () => {
-            open.value = false;
-            clientCard.remove();
-          },
-        },
-        {
-          label: copied.value ? "Copied!" : "Copy to clipboard",
-          disabled: !isSupported.value,
-          action: () => {
-            open.value = false;
-            copy(clientCard.description.value);
-          },
-        },
-      ],
+
       //  ---
     };
+  },
+  computed: {
+    actions() {
+      return [
+        {
+          label: this.$tc(`client.${this.i18nKey}.actions.select`),
+          disabled: this.meta.isDefault, //|| !this.meta.isVerified,
+          action: () => {
+            this.open = false;
+            this.setDefault();
+          },
+        },
+        {
+          label: this.$tc(`client.${this.i18nKey}.actions.edit`),
+          action: () => {
+            this.open = false;
+            this.edit();
+          },
+        },
+        {
+          label: this.$tc(`client.${this.i18nKey}.actions.delete`),
+          disabled: !this.meta.canRemove,
+          action: () => {
+            this.open = false;
+            this.remove();
+          },
+        },
+        {
+          label: this.$tc(
+            `client.${this.i18nKey}.actions.copy`,
+            this.copied ? 0 : 1
+          ),
+          disabled: !this.isSupported,
+          action: () => {
+            this.open = false;
+            this.copy(this.description);
+          },
+        },
+      ];
+    },
   },
 });
 </script>

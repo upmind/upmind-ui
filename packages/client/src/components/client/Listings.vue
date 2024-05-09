@@ -29,6 +29,7 @@
           @select="select"
           :loading="processing"
           :hidden="meta.isEditing && item.id === selected?.id"
+          :i18nKey="type"
         />
       </div>
 
@@ -36,7 +37,12 @@
         <upm-empty :i18nKey="type" />
       </slot>
 
-      <upm-form :item="selected" v-if="meta.isEditing" :key="selected.id" />
+      <upm-form
+        :item="selected"
+        v-if="meta.isEditing"
+        :key="selected.id"
+        :i18nKey="type"
+      />
 
       <div
         :class="styles.clientListings.actions"
