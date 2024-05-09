@@ -3,17 +3,16 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientPhones as useUpmindClientPhones } from "@upmind/flow";
+import { useClientEmails as useUpmindClientEmails } from "@upmind/flow";
 
 // --- utils
 import { get, map, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientPhone = (item, context?: Object) => {
-  const { service } = useUpmindClientPhones();
-
-  // this will change to be a manager of ALL phones, for now its a single instance (add/update)
+export const useClientEmail = (item, context?: Object) => {
+  const { service } = useUpmindClientEmails();
+  // this will change to be a manager of ALL emails, for now its a single instance (add/update)
   const { state, send } = item;
 
   // --------------------------------------------------------
@@ -43,7 +42,6 @@ export const useClientPhone = (item, context?: Object) => {
     // ---
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
-    country: computed(() => state.value.context?.country),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
@@ -61,10 +59,10 @@ export const useClientPhone = (item, context?: Object) => {
   };
 };
 
-export const useClientPhones = () => {
-  // this will change to be a manager of ALL phones, for now its a single instance (add/update)
+export const useClientEmails = () => {
+  // this will change to be a manager of ALL emails, for now its a single instance (add/update)
 
-  const { service } = useUpmindClientPhones();
+  const { service } = useUpmindClientEmails();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
@@ -76,13 +74,20 @@ export const useClientPhones = () => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: ["loading"].some(state.value.matches),
-      isProcessing: ["filtering", "processing"].some(state.value.matches),
+      isAvailable: ["available"].some(state.value.matches),
+      isLoading: ["subscribing", "checking", "available.loading"].some(
+        state.value.matches
+      ),
+      isProcessing: ["available.filtering", "available.processing"].some(
+        state.value.matches
+      ),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches),
-      isEmpty: !state.value.context?.items?.length,
+      isEditing: ["available.editing"].some(state.value.matches),
+      isEmpty:
+        state.value.matches("available") && !state.value.context?.items?.length,
       canFilter:
-        !["editing", "loading"].some(state.value.matches) &&
+        state.value.matches("available") &&
+        !["available.editing", "available.loading"].some(state.value.matches) &&
         state.value.context?.raw?.length > 1,
     })),
     // ---

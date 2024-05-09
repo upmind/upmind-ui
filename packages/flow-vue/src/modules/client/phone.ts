@@ -3,17 +3,17 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientCompanies as useUpmindClientCompanies } from "@upmind/flow";
+import { useClientPhones as useUpmindClientPhones } from "@upmind/flow";
 
 // --- utils
 import { get, map, debounce } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientCompany = (item, context?: Object) => {
-  const { service } = useUpmindClientCompanies();
+export const useClientPhone = (item, context?: Object) => {
+  const { service } = useUpmindClientPhones();
 
-  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
+  // this will change to be a manager of ALL phones, for now its a single instance (add/update)
   const { state, send } = item;
 
   // --------------------------------------------------------
@@ -43,6 +43,7 @@ export const useClientCompany = (item, context?: Object) => {
     // ---
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
+    country: computed(() => state.value.context?.country),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
@@ -60,10 +61,10 @@ export const useClientCompany = (item, context?: Object) => {
   };
 };
 
-export const useClientCompanies = () => {
-  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
+export const useClientPhones = () => {
+  // this will change to be a manager of ALL phones, for now its a single instance (add/update)
 
-  const { service } = useUpmindClientCompanies();
+  const { service } = useUpmindClientPhones();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
@@ -75,13 +76,20 @@ export const useClientCompanies = () => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: ["loading"].some(state.value.matches),
-      isProcessing: ["filtering", "processing"].some(state.value.matches),
+      isAvailable: ["available"].some(state.value.matches),
+      isLoading: ["subscribing", "checking", "available.loading"].some(
+        state.value.matches
+      ),
+      isProcessing: ["available.filtering", "available.processing"].some(
+        state.value.matches
+      ),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches),
-      isEmpty: !state.value.context?.items?.length,
+      isEditing: ["available.editing"].some(state.value.matches),
+      isEmpty:
+        state.value.matches("available") && !state.value.context?.items?.length,
       canFilter:
-        !["editing", "loading"].some(state.value.matches) &&
+        state.value.matches("available") &&
+        !["available.editing", "available.loading"].some(state.value.matches) &&
         state.value.context?.raw?.length > 1,
     })),
     // ---

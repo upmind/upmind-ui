@@ -1,6 +1,7 @@
 {
   "client": {
     "title": "My Client Area",
+    "unavailable": "Please login to access your client area.",
     "nav": {
       "home": "Home",
       "addresses": "Addresses",

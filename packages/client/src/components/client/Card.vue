@@ -1,9 +1,4 @@
 <template>
-  <!-- <sub
-        v-if="meta.isLoading && !meta.hasErrors"
-        class="loading loading-dots loading-xs"
-      ></sub>
-       -->
   <article :class="styles.clientCard.root">
     <upw-checkbox
       :class="{ 'checkbox-primary': selected }"
@@ -27,7 +22,6 @@
           <h4 :class="styles.clientCard.title">
             {{ title }}
           </h4>
-
           <span>{{ description }}</span>
         </div>
       </header>
@@ -66,12 +60,11 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref, toRefs } from "vue";
+import { defineComponent, inject, ref, toRefs } from "vue";
 
 // --- internal
-import { useClientPhone } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
-import config from "../config.cva";
+import config from "./config.cva";
 
 // --- components
 import { UpwIcon, UpwCheckbox, UpwDropdown } from "@upmind/upwind";
@@ -83,7 +76,7 @@ import { useClipboard } from "@vueuse/core";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmPhone",
+  name: "UpmClientCard",
   components: { UpwIcon, UpwCheckbox, UpwDropdown },
   props: {
     item: {
@@ -97,14 +90,17 @@ export default defineComponent({
     disabled: { type: Boolean },
   },
   setup(props) {
+    const useClient = inject("client") as Function;
+
     const { selected, loading, hidden, disabled } = toRefs(props);
-    const clientPhone = useClientPhone(props.item, {
+    const clientCard = useClient(props.item, {
       selected,
       loading,
       hidden,
       disabled,
     });
-    const styles = useStyles(["clientCard"], clientPhone.meta, config);
+
+    const styles = useStyles(["clientCard"], clientCard.meta, config);
 
     // ------------------------------------------------
 
@@ -132,32 +128,32 @@ export default defineComponent({
       doToggle,
       // ---
       styles,
-      ...clientPhone,
+      ...clientCard,
       // ---
       actions: [
         {
           label: "Set as default",
           disabled:
-            clientPhone.meta.value.isDefault ||
-            !clientPhone.meta.value.isVerified,
+            clientCard.meta.value.isDefault ||
+            !clientCard.meta.value.isVerified,
           action: () => {
             open.value = false;
-            clientPhone.setDefault();
+            clientCard.setDefault();
           },
         },
         {
           label: "Edit",
           action: () => {
             open.value = false;
-            clientPhone.edit();
+            clientCard.edit();
           },
         },
         {
           label: "Remove",
-          disabled: !clientPhone.meta.value.canRemove,
+          disabled: !clientCard.meta.value.canRemove,
           action: () => {
             open.value = false;
-            clientPhone.remove();
+            clientCard.remove();
           },
         },
         {
@@ -165,7 +161,7 @@ export default defineComponent({
           disabled: !isSupported.value,
           action: () => {
             open.value = false;
-            copy(description.value);
+            copy(clientCard.description.value);
           },
         },
       ],

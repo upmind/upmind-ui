@@ -3,16 +3,17 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientEmails as useUpmindClientEmails } from "@upmind/flow";
+import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce } from "lodash-es";
+import { get, isEmpty, map, debounce, some } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientEmail = (item, context?: Object) => {
-  const { service } = useUpmindClientEmails();
-  // this will change to be a manager of ALL emails, for now its a single instance (add/update)
+export const useClientAddress = (item, context?: Object) => {
+  const { service } = useUpmindClientAddresses();
+
+  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
 
   // --------------------------------------------------------
@@ -29,10 +30,18 @@ export const useClientEmail = (item, context?: Object) => {
       isHidden: context?.hidden,
       // ---
       isLoading: ["loading"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
-      isProcessing: ["checking", "processing"].some(state.value.matches),
+      hasErrors: [
+        "error",
+        "loading.constants.error",
+        "loading.autocomplete.error",
+      ].some(state.value.matches),
+      isSearching: ["searching"].some(state.value.matches),
+      isProcessing: ["populating", "checking", "processing"].some(
+        state.value.matches
+      ),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
+      hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
       canRemove: state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
@@ -40,8 +49,10 @@ export const useClientEmail = (item, context?: Object) => {
         state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
     // ---
+    filters: computed(() => state.value.context?.filters),
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
+    autocomplete: computed(() => state.value?.context?.autocomplete),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
@@ -49,6 +60,7 @@ export const useClientEmail = (item, context?: Object) => {
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
+    search: model => send({ type: "SEARCH", data: model }),
     update: () => send({ type: "UPDATE" }),
     remove: () => send({ type: "REMOVE" }),
     setDefault: () => send({ type: "DEFAULT" }),
@@ -59,10 +71,10 @@ export const useClientEmail = (item, context?: Object) => {
   };
 };
 
-export const useClientEmails = () => {
-  // this will change to be a manager of ALL emails, for now its a single instance (add/update)
+export const useClientAddresses = () => {
+  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const { service } = useUpmindClientEmails();
+  const { service } = useUpmindClientAddresses();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
@@ -74,13 +86,20 @@ export const useClientEmails = () => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: ["loading"].some(state.value.matches),
-      isProcessing: ["filtering", "processing"].some(state.value.matches),
+      isAvailable: ["available"].some(state.value.matches),
+      isLoading: ["subscribing", "checking", "available.loading"].some(
+        state.value.matches
+      ),
+      isProcessing: ["available.filtering", "available.processing"].some(
+        state.value.matches
+      ),
       hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches),
-      isEmpty: !state.value.context?.items?.length,
+      isEditing: ["available.editing"].some(state.value.matches),
+      isEmpty:
+        state.value.matches("available") && !state.value.context?.items?.length,
       canFilter:
-        !["editing", "loading"].some(state.value.matches) &&
+        state.value.matches("available") &&
+        !["available.editing", "available.loading"].some(state.value.matches) &&
         state.value.context?.raw?.length > 1,
     })),
     // ---

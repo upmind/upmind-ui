@@ -1,19 +1,21 @@
 <template>
-  <section class="client w-full">
-    <header class="flex w-full flex-wrap">
-      <h2 class="m-0 text-nowrap">
-        {{ $t("client.phones.title") }}
+  <upm-client-listings type="phones" class="my-4">
+    <template #header="{ meta }">
+      <h2>
+        {{
+          meta.isAvailable
+            ? $t("client.phones.title")
+            : $t("client.unavailable")
+        }}
       </h2>
-    </header>
-
-    <upm-client-phones class="my-4" />
-  </section>
+    </template>
+  </upm-client-listings>
 </template>
 
 <script>
 import { defineComponent } from "vue";
 import { getLocalMessages } from "@/utils";
-import { UpmClientPhones } from "@upmind/client";
+import { UpmClientListings } from "@upmind/client";
 
 export default defineComponent({
   name: "ClientPhones",
@@ -21,7 +23,7 @@ export default defineComponent({
     messages: getLocalMessages("client"),
   },
   components: {
-    UpmClientPhones,
+    UpmClientListings,
   },
 });
 </script>
