@@ -15,7 +15,7 @@ export function test() {
 
 // --------------------------------------------------------
 
-if (debugging)
+if (debugging || true)
   inspect({
     // url: "https://stately.ai/registry/editor/inspect",
     // url: "https://statecharts.io/inspect",

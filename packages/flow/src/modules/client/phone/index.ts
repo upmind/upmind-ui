@@ -21,7 +21,7 @@ import { find } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
+  devTools: true,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -30,7 +30,12 @@ export const useClientPhones = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    isReady: async () => waitFor(service, state => !state.matches("loading")),
+    isReady: async () =>
+      waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ),
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getSelected: () => state?.context?.selected,
