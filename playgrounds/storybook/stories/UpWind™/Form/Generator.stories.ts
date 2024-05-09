@@ -7,11 +7,9 @@ import * as messages from "./locales";
 
 // --- components
 import { UpwForm } from "@upmind/upwind";
-import { on } from "events";
 
 // --- utils
 import { isEmpty, omitBy } from "lodash";
-import { useSystemArgTypes } from "../../../utils";
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UpwForm> = {
