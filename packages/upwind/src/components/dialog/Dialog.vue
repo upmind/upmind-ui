@@ -1,17 +1,17 @@
 <template>
   <h-transition-root appear :show="meta.isActive" as="template">
-    <h-dialog as="aside" @close="doClose" class="relative z-10">
+    <h-dialog as="aside" @close="doClose" :class="styles.dialog.root">
       <!-- skrim -->
       <h-transition-child
         as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
+        :enter="styles.skrimTransitionEnter.active"
+        :enter-from="styles.skrimTransitionEnter.from"
+        :enter-to="styles.skrimTransitionEnter.to"
+        :leave="styles.skrimTransitionLeave.active"
+        :leave-from="styles.skrimTransitionLeave.from"
+        :leave-to="styles.skrimTransitionLeave.to"
       >
-        <div class="fixed inset-0 bg-black/25" />
+        <div :class="styles.dialog.skrim" />
       </h-transition-child>
 
       <!-- content -->
@@ -19,12 +19,12 @@
         <div :class="styles.dialog.content">
           <h-transition-child
             as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
+            :enter="styles.dialogTransitionEnter.active"
+            :enter-from="styles.dialogTransitionEnter.from"
+            :enter-to="styles.dialogTransitionEnter.to"
+            :leave="styles.dialogTransitionLeave.active"
+            :leave-from="styles.dialogTransitionLeave.from"
+            :leave-to="styles.dialogTransitionLeave.to"
           >
             <h-dialog-panel :class="styles.dialog.panel">
               <div :class="styles.dialog.panelContent">
@@ -47,7 +47,6 @@
                 </slot>
               </div>
               <upw-button
-                tabindex="0"
                 type="button"
                 variant="ghost"
                 label="Close the dialog"
@@ -136,7 +135,18 @@ export default defineComponent({
       isActive: open.value,
     }));
 
-    const styles = useStyles(["dialog"], meta, config, props.upwindConfig);
+    const styles = useStyles(
+      [
+        "dialog",
+        "dialogTransitionEnter",
+        "dialogTransitionLeave",
+        "skrimTransitionEnter",
+        "skrimTransitionLeave",
+      ],
+      meta,
+      config,
+      props.upwindConfig
+    );
 
     function toggleModal(value) {
       open.value = isNil(value) ? !open.value : value;
