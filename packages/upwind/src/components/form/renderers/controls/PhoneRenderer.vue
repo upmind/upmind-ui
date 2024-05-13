@@ -11,7 +11,7 @@
       <upw-listbox
         class="self-center"
         :disabled="!control.enabled"
-        :model-value="control.data?.country || defaultCountry.code"
+        :model-value="control.data?.country || defaultCountryCode"
         :items="countries"
         has-search
         icon-only
@@ -38,7 +38,7 @@ import UpwListbox from "../../../listbox/Listbox.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { set, reduce, keys } from "lodash-es";
+import { get, set, reduce, keys } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -57,9 +57,10 @@ export default defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const renderer = useUpwindRenderer(useJsonFormsControl(props), () => phone);
 
-    const defaultCountry = renderer.appliedOptions.value?.defaultCountry || {
-      code: "US",
-    };
+    const defaultCountryCode = get(
+      renderer,
+      "control.value.schema.isPhoneNumber"
+    ); //DEPRECATED: renderer.appliedOptions.value?.defaultCountry || {code: "US",}
 
     const phone = ref({ ...renderer.control.value.data });
 
@@ -115,7 +116,7 @@ export default defineComponent({
         );
         return parsed;
       }),
-      defaultCountry,
+      defaultCountryCode,
     };
   },
 });
