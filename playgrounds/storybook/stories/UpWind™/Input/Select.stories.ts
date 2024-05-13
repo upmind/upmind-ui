@@ -22,10 +22,8 @@ const meta: Meta<typeof UpwSelect> = {
     // ---
     prependAvatar: useSystemArgTypes.flag,
     prependIcon: useSystemArgTypes.icon,
-    // ---
     appendAvatar: useSystemArgTypes.flag,
     appendIcon: useSystemArgTypes.icon,
-    // ---
     feedbackIcon: useSystemArgTypes.icon,
   },
   args: {
