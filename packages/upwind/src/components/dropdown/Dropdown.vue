@@ -122,6 +122,10 @@ export default defineComponent({
       type: Object as PropType<DropdownProps["items"]>,
       default: () => {},
     },
+    grouped: {
+      type: Boolean,
+      default: false,
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,

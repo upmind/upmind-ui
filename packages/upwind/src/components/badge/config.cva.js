@@ -13,7 +13,7 @@ export default {
             tonal: "border-transparent",
           },
           color: {
-            base: "text-base-content bg-base",
+            base: "text-base-50 bg-base-800",
             primary: "bg-primary text-primary-content",
             secondary: "bg-secondary text-secondary-content",
             accent: "bg-accent text-accent-content",
@@ -34,7 +34,7 @@ export default {
           {
             color: "base",
             variant: "tonal",
-            class: "bg-base-50 text-base-content",
+            class: "bg-base-100 text-base-content",
           },
 
           // ---primary + variant ---
@@ -145,7 +145,7 @@ export default {
 
     label: cva("font-semibold", {
       variants: {
-        loading: {
+        isLoading: {
           true: "invisible opacity-0",
         },
       },

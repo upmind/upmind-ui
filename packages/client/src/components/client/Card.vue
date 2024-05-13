@@ -1,30 +1,20 @@
 <template>
   <article :class="styles.clientCard.root">
-    <upw-checkbox
+    <upw-radio
       :class="{ 'checkbox-primary': selected }"
-      v-model="selected"
+      :model-value="selected"
       @input="select"
       no-feedback
       no-status
     />
     <div :class="styles.clientCard.content">
       <header :class="styles.clientCard.header">
-        <upw-icon
-          :class="styles.clientCard.avatar"
-          v-if="country?.code"
-          :icon="{
-            path: 'flags',
-            name: country?.code?.toLowerCase(),
-          }"
-        />
-
-        <div>
-          <h4 :class="styles.clientCard.title">
-            {{ title }}
-          </h4>
-          <span>{{ description }}</span>
-        </div>
+        <h4 :class="styles.clientCard.title">
+          {{ title }}
+        </h4>
       </header>
+
+      <span :class="styles.clientCard.text">{{ description }}</span>
 
       <p v-if="meta.hasErrors" :class="styles.clientCard.errors">
         {{ errors }}
@@ -32,27 +22,18 @@
     </div>
 
     <footer :class="styles.clientCard.actions">
-      <upw-icon
-        icon="star"
+      <upw-badge
+        variant="tonal"
+        color="base"
         v-if="meta.isDefault"
-        :class="styles.clientCard.default"
-      ></upw-icon>
-
-      <!-- <span :class="styles.clientCard.verified">
-        <upw-icon
-          :icon="meta.isVerified ? 'check-circle' : 'alert-triangle'"
-          :class="styles.clientCard.icon"
-        />
-        <span class="sr-only">
-          {{ meta.isVerified ? "Verified" : "Unverified" }}
-        </span>
-      </span> -->
-
+        label="Default"
+      />
       <upw-dropdown
         toggle="navigation-menu-vertical"
         :toggle-rotate="false"
         :items="actions"
         size="sm"
+        grouped
       />
     </footer>
   </article>
@@ -67,7 +48,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwIcon, UpwCheckbox, UpwDropdown } from "@upmind/upwind";
+import { UpwIcon, UpwRadio, UpwDropdown, UpwBadge } from "@upmind/upwind";
 
 // --- utils
 import { onClickOutside } from "@vueuse/core";
@@ -77,7 +58,7 @@ import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmClientCard",
-  components: { UpwIcon, UpwCheckbox, UpwDropdown },
+  components: { UpwIcon, UpwRadio, UpwDropdown, UpwBadge },
   props: {
     item: {
       type: Object, // xstate actor

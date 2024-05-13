@@ -2,6 +2,7 @@
   <upw-dialog
     @reject="cancel"
     :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
+    size="lg"
   >
     <div tabindex="0" ref="form" :class="styles.clientForm.root">
       <upw-form
@@ -15,7 +16,6 @@
         @update:modelValue="input"
         @reject="cancel"
         @resolve="update"
-        size="sm"
       />
     </div>
   </upw-dialog>
