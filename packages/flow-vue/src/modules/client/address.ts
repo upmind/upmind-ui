@@ -6,13 +6,12 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, isEmpty, map, debounce, some } from "lodash-es";
+import { get, map, debounce, startsWith, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
 export const useClientAddress = (item, context?: Object) => {
   const { service } = useUpmindClientAddresses();
-
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
 
@@ -94,6 +93,9 @@ export const useClientAddresses = () => {
         state.value.matches
       ),
       hasErrors: ["error"].some(state.value.matches),
+      isAdding:
+        ["available.editing"].some(state.value.matches) &&
+        startsWith(state.value.context.selected?.id, "item_"),
       isEditing: ["available.editing"].some(state.value.matches),
       isEmpty:
         state.value.matches("available") && !state.value.context?.items?.length,

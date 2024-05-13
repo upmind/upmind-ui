@@ -28,7 +28,8 @@
           :selected="item.id === selected?.id"
           @select="select"
           :loading="processing"
-          :hidden="meta.isEditing && item.id === selected?.id"
+          :hidden="meta.isAdding && item.id === selected?.id"
+          :disabled="meta.isEditing && item.id === selected?.id"
           :i18nKey="type"
         />
       </div>
@@ -38,8 +39,8 @@
       </slot>
 
       <upm-form
-        :item="selected"
         v-if="meta.isEditing"
+        :item="selected"
         :key="selected.id"
         :i18nKey="type"
       />
@@ -62,9 +63,6 @@
       <slot name="footer" v-bind="{ meta }"></slot>
     </footer>
   </section>
-
-  <pre>{{ state }}</pre>
-  <pre>{{ meta }}</pre>
 </template>
 
 <script>
@@ -90,7 +88,6 @@ import UpmAuth from "../session/Auth.vue";
 import UpmEmpty from "./Empty.vue";
 import UpmCard from "./Card.vue";
 import UpmForm from "./Form.vue";
-
 import { UpwTextbox, UpwButton, UpwSkeletonList } from "@upmind/upwind";
 
 // --- utils
