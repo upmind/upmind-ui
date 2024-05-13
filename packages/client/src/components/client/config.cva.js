@@ -21,7 +21,8 @@ export default {
         },
       },
     }),
-    title: cva("text-inherit m-0"),
+    title: cva("text-inherit m-0 flex-1"),
+    text: cva("text-xs m-0 flex-1"),
     form: cva("max-w-xl"),
   },
   clientCard: {
@@ -45,8 +46,8 @@ export default {
         },
       ],
     }),
-    content: cva("flex-1"),
-    header: cva("flex gap-4 items-center justify-start text-xs text-base-500"),
+    content: cva("flex-1 text-xs text-base-500"),
+    header: cva("flex gap-4 items-center justify-start"),
     icon: cva("size-4"),
     avatar: cva("size-6 rounded-full border overflow-hidden "),
     title: cva("m-0 leading-none text-sm text-base-content"),
@@ -59,9 +60,8 @@ export default {
         },
       },
     }),
-    default: cva("size-4 text-primary"),
     errors: cva("text-error text-sm m-0"),
-    actions: cva("flex gap-4 items-center justify-end"),
+    actions: cva("flex gap-2 items-center justify-end self-start"),
   },
   clientEmpty: {
     root: cva(

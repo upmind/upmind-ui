@@ -37,7 +37,7 @@ import type { BadgeProps, IconProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "Upwbadge",
+  name: "UpwBadge",
   components: {
     UpwSpinner,
     UpwIcon,
@@ -79,15 +79,13 @@ export default defineComponent({
 
   setup(props) {
     const meta = computed(() => ({
+      color: props.color,
+      variant: props.variant,
+      // ---
       isLoading: props.loading,
     }));
 
-    const styles = useStyles(
-      "badge",
-      toRefs(props),
-      config,
-      props.upwindConfig
-    );
+    const styles = useStyles("badge", meta, config, props.upwindConfig);
 
     return {
       meta,
