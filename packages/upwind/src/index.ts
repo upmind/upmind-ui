@@ -1,7 +1,9 @@
 export { default as UpwAlert } from "./components/alert/Alert.vue";
+export { default as UpwBadge } from "./components/badge/Badge.vue";
 export { default as UpwButton } from "./components/button/Button.vue";
 export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
 export { default as UpwCheckboxList } from "./components/checkbox/CheckboxList.vue";
+export { default as UpwCombobox } from "./components/combobox/Combobox.vue";
 export { default as UpwDialog } from "./components/dialog/Dialog.vue";
 export { default as UpwDropdown } from "./components/dropdown/Dropdown.vue";
 export { default as UpwForm } from "./components/form/Form.vue";
