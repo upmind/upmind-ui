@@ -1,5 +1,6 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import listingsMachine from "../listings.machine";
@@ -7,6 +8,7 @@ import services from "./services";
 import { actions } from "./actions";
 
 // --- utils
+import { debounce } from "lodash-es";
 
 // --- types
 
@@ -19,7 +21,7 @@ import { actions } from "./actions";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
+  devTools: true,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -28,10 +30,24 @@ export const usePlaces = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
+    isReady: async () =>
+      waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ),
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getSelected: () => state?.context?.selected,
     getDefault: () => null, // we have no default in this machine,
+    search: async data => {
+      service.send({ type: "FILTER", data });
+      return waitFor(service, state =>
+        state.matches("available.filtered")
+      ).then(() => {
+        return state.context.items;
+      });
+    },
     getPlaceDetails: id =>
       services.parse(state?.context, { data: { place: id } }),
     reset: () => service.send("REFRESH"),

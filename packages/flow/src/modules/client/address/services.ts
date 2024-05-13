@@ -1,5 +1,4 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useApi, useSystem, useSession } from "../../";
@@ -55,9 +54,7 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const clientId = await getUserId();
 
@@ -77,22 +74,18 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
-
   const countries = await fetchCountries();
   const defaultCountry = getCountry();
-  const regions = await fetchRegions(model?.country_id);
-
+  const regions = await fetchRegions(model?.country_id || defaultCountry?.id);
   const baseModel = {
     ...model,
     country_id: defaultCountry?.id,
     type: first(AddressTypes)?.key,
   };
-
   // ---
   // set up our autocomplete places
   const places = usePlaces();
-  // lets wait for them to be ready and loaded before we continue
-  await waitFor(places.service, state => !state.matches("loading"));
+  await places.isReady();
   places.reset();
 
   // ---
@@ -103,7 +96,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
         regions,
         baseModel,
         types: AddressTypes,
-        places: usePlaces,
+        places,
       });
     } else {
       reject("Failed to load countries and regions");

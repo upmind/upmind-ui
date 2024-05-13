@@ -99,12 +99,13 @@ export const useSession = () => {
     getUserId,
     authSubscription,
     isAuthenticated: () => {
+      const authenticated = state.matches("client");
+
       return new Promise((resolve, reject) => {
-        const authenticated = ["client"].some(state.matches);
         if (authenticated) {
-          resolve(true);
+          resolve(state.context.user);
         } else {
-          reject(false);
+          reject({ title: "Unauthorized", code: 401 });
         }
       });
     },

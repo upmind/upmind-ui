@@ -30,7 +30,12 @@ export const useClientCompanies = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    isReady: async () => waitFor(service, state => !state.matches("loading")),
+    isReady: async () =>
+      waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ),
     getSnapshot: () => state,
     getItems: () => state?.context?.items,
     getItem: id => find(state?.context?.items, ["id", id]),

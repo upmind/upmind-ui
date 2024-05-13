@@ -2,6 +2,7 @@
 import { Loader } from "@googlemaps/js-api-loader";
 
 // --- internal
+import { useSession } from "../../";
 
 // --- utils
 import { usePlaceParser, usePredictionsParser } from "./utils";
@@ -11,30 +12,27 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
 //  ENUMS
+// --------------------------------------------------------
 
+const { authSubscription } = useSession();
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(
-  _context: ClientListingsContext,
-  _event: ClientListingsEvents
-) {
+function load(_context: ClientListingsContext, _event: ClientListingsEvents) {
   const loader = new Loader({
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
     version: "weekly",
   });
 
-  const api = await loader.importLibrary("places").catch(error => {
-    return Promise.reject(error);
-  });
-
-  return Promise.resolve({
-    places: new api.PlacesService(document.createElement("div")),
-    service: new api.AutocompleteService(),
-    AutocompleteSessionToken: api.AutocompleteSessionToken,
-    sessionToken: new api.AutocompleteSessionToken(),
-    statuses: api.PlacesServiceStatus,
+  return loader.importLibrary("places").then(api => {
+    return {
+      places: new api.PlacesService(document.createElement("div")),
+      service: new api.AutocompleteService(),
+      AutocompleteSessionToken: api.AutocompleteSessionToken,
+      sessionToken: new api.AutocompleteSessionToken(),
+      statuses: api.PlacesServiceStatus,
+    };
   });
 }
 
@@ -47,6 +45,7 @@ async function filterItems(
 
     // if we dont have any data, then just return an empty array
     if (!data?.length) resolve([]);
+
     service.getPlacePredictions(
       {
         input: data,
@@ -112,4 +111,6 @@ export default {
   load,
   parse,
   filter: filterItems,
+  authSubscription,
+  isAuthenticated: () => Promise.resolve(), // we dont need authentication for this service
 };

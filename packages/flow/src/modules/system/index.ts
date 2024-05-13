@@ -24,7 +24,7 @@ import { isArray } from "xstate/lib/utils";
 
 let state = null;
 
-const service = interpret(systemMachine, { devTools: false }).onTransition(
+const service = interpret(systemMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -114,10 +114,8 @@ export const useSystem = () => {
 
     if (isEmpty(country)) {
       // ensure we have our brand settings loaded before we try to get the default country
-      if (!["settings.complete"].some(brandService.state.matches)) {
-        await waitFor(brandService, state =>
-          ["settings.complete"].some(state.matches)
-        );
+      if (!brandService.getSnapshot().matches("complete")) {
+        await waitFor(brandService, state => state.matches("complete"));
       }
 
       country = getDefaultCountry();

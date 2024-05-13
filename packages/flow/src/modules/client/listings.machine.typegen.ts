@@ -9,13 +9,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.checking:invocation[0]": {
-      type: "done.invoke.checking:invocation[0]";
+    "done.invoke.clientListingsManager.available.filtering:invocation[0]": {
+      type: "done.invoke.clientListingsManager.available.filtering:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.clientListingsManager.available.filtering:invocation[0]": {
-      type: "done.invoke.clientListingsManager.available.filtering:invocation[0]";
+    "done.invoke.clientListingsManager.checking:invocation[0]": {
+      type: "done.invoke.clientListingsManager.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -41,7 +41,7 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
     filter: "done.invoke.clientListingsManager.available.filtering:invocation[0]";
-    isAuthenticated: "done.invoke.checking:invocation[0]";
+    isAuthenticated: "done.invoke.clientListingsManager.checking:invocation[0]";
     load: "done.invoke.loading:invocation[0]";
   };
   missingImplementations: {
@@ -59,7 +59,7 @@ export interface Typegen0 {
       | "FILTER"
       | "REFRESH"
       | "UNAUTHENTICATED"
-      | "done.invoke.checking:invocation[0]";
+      | "done.invoke.clientListingsManager.checking:invocation[0]";
     clearItems:
       | "ADD"
       | "AUTHENTICATED"
@@ -67,7 +67,7 @@ export interface Typegen0 {
       | "FILTER"
       | "REFRESH"
       | "UNAUTHENTICATED"
-      | "done.invoke.checking:invocation[0]";
+      | "done.invoke.clientListingsManager.checking:invocation[0]";
     clearSelected: "error.platform.loading:invocation[0]";
     resetFiltered:
       | "done.invoke.loading:invocation[0]"
@@ -91,14 +91,14 @@ export interface Typegen0 {
   eventsCausingServices: {
     authSubscription: "STOP" | "UNAUTHENTICATED" | "xstate.init";
     filter: "FILTER";
-    isAuthenticated: never;
+    isAuthenticated: "SESSION";
     load:
       | "ADD"
       | "AUTHENTICATED"
       | "EDIT"
       | "FILTER"
       | "REFRESH"
-      | "done.invoke.checking:invocation[0]";
+      | "done.invoke.clientListingsManager.checking:invocation[0]";
   };
   matchesStates:
     | "available"

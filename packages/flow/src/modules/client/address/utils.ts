@@ -21,10 +21,6 @@ export const useSchema = ({
   baseModel,
   places,
 }: AddressContext) => {
-  const choices = {
-    places: places().getItems(),
-  };
-
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -40,8 +36,10 @@ export const useSchema = ({
       place: {
         type: ["string", "null"],
         title: "Search for Place",
-        enum: !choices?.places?.length ? undefined : map(choices?.places, "id"),
-        lookup: places,
+        lookup: {
+          search: places.search,
+          results: places.getItems,
+        },
       },
 
       // ---
