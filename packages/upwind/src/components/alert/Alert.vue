@@ -134,7 +134,6 @@ export default defineComponent({
     const styles = useStyles(["alert"], meta, config, props.upwindConfig);
 
     function toggleModal(value) {
-      debugger;
       open.value = isNil(value) ? !open.value : value;
       emit("update:modelValue", value);
 

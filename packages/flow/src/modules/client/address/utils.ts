@@ -40,7 +40,6 @@ export const useSchema = ({
       place: {
         type: ["string", "null"],
         title: "Search for Place",
-        // isLookup: places,
         enum: !choices?.places?.length ? undefined : map(choices?.places, "id"),
         lookup: places,
       },

@@ -43,7 +43,6 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
       address_id: {
         type: ["string", "null"],
         title: "Address",
-        // isLookup: addresses,
         default: baseModel.address_id,
         enum: !choices?.addresses?.length
           ? undefined
@@ -54,7 +53,6 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
       email_id: {
         type: ["string", "null"],
         title: "Email",
-        // isLookup: emails,
         default: baseModel.email_id,
         enum: !choices?.emails?.length ? undefined : map(choices?.emails, "id"),
         lookup: emails,
@@ -63,7 +61,6 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
       phone_id: {
         type: ["string", "null"],
         title: "Phone",
-        // isLookup: phones,
         default: baseModel.phone_id,
         enum: !choices?.phones?.length ? undefined : map(choices?.phones, "id"),
         lookup: phones,
