@@ -15,7 +15,7 @@ const maybeActor = item =>
   item?.state ? { id: item.id, ...item.state.context } : item;
 // --------------------------------------------------------
 
-export function useLookup(lookup) {
+export function useLookup(lookup: Function) {
   const { service } = lookup();
   const { state, send } = useActor(service);
 

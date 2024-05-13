@@ -164,7 +164,6 @@ export default defineComponent({
     );
 
     function toggleModal(value) {
-      debugger;
       open.value = isNil(value) ? !open.value : value;
       emit("update:modelValue", value);
 
