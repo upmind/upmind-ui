@@ -25,9 +25,7 @@ async function load(
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const clientId = await getUserId();
 

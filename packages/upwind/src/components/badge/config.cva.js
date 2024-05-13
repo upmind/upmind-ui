@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   badge: {
     root: cva(
-      "relative inline-flex items-center gap-x-1.5 rounded-full px-3 py-1.5 text-xs font-medium leading-normal transition-all",
+      "relative inline-flex items-center gap-x-1.5 rounded-full px-2 text-xs font-medium leading-normal transition-all",
       {
         variants: {
           variant: {
@@ -34,7 +34,7 @@ export default {
           {
             color: "base",
             variant: "tonal",
-            class: "bg-base-100 text-base-content",
+            class: "bg-base-200 text-base-content",
           },
 
           // ---primary + variant ---
@@ -143,7 +143,7 @@ export default {
 
     icon: cva("size-[1.5em]"),
 
-    label: cva("font-semibold", {
+    label: cva("font-normal", {
       variants: {
         isLoading: {
           true: "invisible opacity-0",

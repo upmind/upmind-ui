@@ -1,5 +1,4 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useClientAddresses } from "../address";
@@ -41,9 +40,7 @@ async function load(
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const clientId = await getUserId();
 
@@ -64,21 +61,11 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
   const phones = useClientPhones();
   const emails = useClientEmails();
 
-  // lets wait for them to be ready and loaded before we continue
-  const addressesReady = waitFor(
-    addresses.service,
-    state => !["loading", "processing"].some(state.matches)
-  );
-  const phonesReady = waitFor(
-    phones.service,
-    state => !["loading", "processing"].some(state.matches)
-  );
-  const emailsReady = waitFor(
-    emails.service,
-    state => !["loading", "processing"].some(state.matches)
-  );
-
-  return Promise.all([addressesReady, phonesReady, emailsReady]).then(() => ({
+  return Promise.all([
+    addresses.isReady(),
+    phones.isReady(),
+    emails.isReady(),
+  ]).then(() => ({
     emails: useClientEmails,
     addresses: useClientAddresses,
     phones: useClientPhones,

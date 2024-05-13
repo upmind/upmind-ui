@@ -47,6 +47,9 @@ export async function usePredictionsParser(results: any) {
       id: result.place_id,
       title: result.description,
       description: null,
+      // ---
+      label: result.description,
+      value: result.place_id,
     };
 
     return value;

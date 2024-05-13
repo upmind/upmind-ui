@@ -142,7 +142,7 @@ import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { filter, find, isEmpty, isNil } from "lodash-es";
+import { filter, find, isEmpty, isNil, debounce } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -222,8 +222,9 @@ export default defineComponent({
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const value = ref(props.modelValue || "");
+    const search = ref("");
     // ---
     const reference = ref(null);
     const floating = ref(null);
@@ -262,11 +263,16 @@ export default defineComponent({
     return {
       meta,
       value,
-      search: ref(),
+      search,
       styles,
       reference,
       floating,
       floatingStyles,
+      doSearch: debounce(event => {
+        debugger;
+        search.value = event.target.value;
+        emit("search", search.value);
+      }, 500),
     };
   },
 
@@ -295,12 +301,7 @@ export default defineComponent({
       );
     },
   },
-  methods: {
-    doSearch(event) {
-      this.search = event.target.value;
-      this.$emit("search", this.search);
-    },
-  },
+
   watch: {
     value(value) {
       const item = find(this.items, ["value", value]);

@@ -12,6 +12,8 @@ import EnumRenderer, { tester as enumTest } from "./EnumRenderer.vue";
 
 import HiddenRenderer, { tester as hiddenTest } from "./ConstRenderer.vue";
 
+import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
+
 import MultiStringRenderer, {
   tester as multiStringTest,
 } from "./MultilineRenderer.vue";
@@ -39,6 +41,7 @@ export const controlRenderers = [
   registerEntry(EmailRenderer, emailTest),
   registerEntry(EnumRenderer, enumTest),
   registerEntry(HiddenRenderer, hiddenTest),
+  registerEntry(LookupRenderer, lookupTest),
   registerEntry(MultiStringRenderer, multiStringTest),
   registerEntry(NumberRenderer, numberTest),
   registerEntry(OneOfRadioRenderer, oneOfRadioTest),

@@ -19,7 +19,6 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      initial: "subscribing",
       raw: [], // spawned actors
       items: [], // filtered actors
       filters: undefined,
@@ -36,12 +35,11 @@ export default createMachine(
           src: "authSubscription",
         },
         on: {
-          SESSION: { target: "unavailable" },
+          SESSION: { target: "checking" },
         },
       },
 
       checking: {
-        id: "checking",
         invoke: {
           src: "isAuthenticated",
           onDone: { target: "available" },

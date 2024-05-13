@@ -1,16 +1,22 @@
 <template>
   <article :class="styles.clientCard.root">
     <upw-radio
-      :class="{ 'checkbox-primary': selected }"
       :model-value="selected"
       @input="select"
       no-feedback
       no-status
+      size="sm"
     />
     <div :class="styles.clientCard.content">
       <header :class="styles.clientCard.header">
         <h4 :class="styles.clientCard.title">
           {{ title }}
+          <upw-badge
+            variant="tonal"
+            color="base"
+            v-if="meta.isDefault"
+            label="Default"
+          />
         </h4>
       </header>
 
@@ -22,13 +28,8 @@
     </div>
 
     <footer :class="styles.clientCard.actions">
-      <upw-badge
-        variant="tonal"
-        color="base"
-        v-if="meta.isDefault"
-        label="Default"
-      />
       <upw-dropdown
+        v-if="!noActions"
         toggle="navigation-menu-vertical"
         :toggle-rotate="false"
         :items="actions"
@@ -53,6 +54,7 @@ import { UpwIcon, UpwRadio, UpwDropdown, UpwBadge } from "@upmind/upwind";
 // --- utils
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
+import actions from "../../../../flow/src/modules/paymentDetails/gateways/card/actions";
 
 // -----------------------------------------------------------------------------
 
@@ -70,6 +72,7 @@ export default defineComponent({
     loading: { type: Boolean },
     hidden: { type: Boolean },
     disabled: { type: Boolean },
+    noActions: { type: Boolean, default: false },
   },
   setup(props) {
     const useClient = inject("client") as Function;
@@ -109,6 +112,7 @@ export default defineComponent({
       open,
       doToggle,
       // ---
+      config,
       styles,
       ...clientCard,
       // ---
