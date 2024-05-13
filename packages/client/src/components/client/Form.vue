@@ -1,24 +1,24 @@
 <template>
-  <div tabindex="0" ref="form" :class="styles.clientForm.root">
-    <h4 :class="styles.clientForm.title">
-      {{ $tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0) }}
-    </h4>
-
-    <upw-form
-      :class="styles.clientForm.form"
-      tabindex="1"
-      :loading="meta.isLoading"
-      :processing="meta.isProcessing"
-      :model-value="model"
-      :schema="schema"
-      :uischema="uischema"
-      @update:modelValue="input"
-      @reject="cancel"
-      @resolve="update"
-    />
-  </div>
-
-  <pre>{{ model }}</pre>
+  <upw-dialog
+    @reject="cancel"
+    :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
+  >
+    <div tabindex="0" ref="form" :class="styles.clientForm.root">
+      <upw-form
+        :class="styles.clientForm.form"
+        tabindex="1"
+        :loading="meta.isLoading"
+        :processing="meta.isProcessing"
+        :model-value="model"
+        :schema="schema"
+        :uischema="uischema"
+        @update:modelValue="input"
+        @reject="cancel"
+        @resolve="update"
+        size="sm"
+      />
+    </div>
+  </upw-dialog>
 </template>
 
 <script>
@@ -30,12 +30,12 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm, UpwDialog } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClientForm",
-  components: { UpwForm },
+  components: { UpwForm, UpwDialog },
   props: {
     item: {
       type: Object, // xstate actor

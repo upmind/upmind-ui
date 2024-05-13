@@ -6,13 +6,12 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientCompanies as useUpmindClientCompanies } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce } from "lodash-es";
+import { get, map, debounce, startsWith } from "lodash-es";
 
 // --------------------------------------------------------
 
 export const useClientCompany = (item, context?: Object) => {
   const { service } = useUpmindClientCompanies();
-
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
   const { state, send } = item;
 
@@ -83,6 +82,9 @@ export const useClientCompanies = () => {
         state.value.matches
       ),
       hasErrors: ["error"].some(state.value.matches),
+      isAdding:
+        ["available.editing"].some(state.value.matches) &&
+        startsWith(state.value.context.selected?.id, "item_"),
       isEditing: ["available.editing"].some(state.value.matches),
       isEmpty:
         state.value.matches("available") && !state.value.context?.items?.length,

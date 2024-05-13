@@ -38,7 +38,7 @@
         :class="styles.clientCard.default"
       ></upw-icon>
 
-      <span :class="styles.clientCard.verified">
+      <!-- <span :class="styles.clientCard.verified">
         <upw-icon
           :icon="meta.isVerified ? 'check-circle' : 'alert-triangle'"
           :class="styles.clientCard.icon"
@@ -46,7 +46,7 @@
         <span class="sr-only">
           {{ meta.isVerified ? "Verified" : "Unverified" }}
         </span>
-      </span>
+      </span> -->
 
       <upw-dropdown
         toggle="navigation-menu-vertical"

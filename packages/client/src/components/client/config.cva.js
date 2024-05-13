@@ -59,7 +59,7 @@ export default {
         },
       },
     }),
-    default: cva("size-6 text-primary"),
+    default: cva("size-4 text-primary"),
     errors: cva("text-error text-sm m-0"),
     actions: cva("flex gap-4 items-center justify-end"),
   },
