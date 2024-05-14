@@ -6,6 +6,7 @@
       no-feedback
       no-status
       size="sm"
+      v-if="selectable"
     />
     <div :class="styles.clientCard.content">
       <header :class="styles.clientCard.header">
@@ -54,7 +55,6 @@ import { UpwIcon, UpwRadio, UpwDropdown, UpwBadge } from "@upmind/upwind";
 // --- utils
 import { onClickOutside } from "@vueuse/core";
 import { useClipboard } from "@vueuse/core";
-import actions from "../../../../flow/src/modules/paymentDetails/gateways/card/actions";
 
 // -----------------------------------------------------------------------------
 
@@ -73,11 +73,13 @@ export default defineComponent({
     hidden: { type: Boolean },
     disabled: { type: Boolean },
     noActions: { type: Boolean, default: false },
+    selectable: { type: Boolean, default: true },
   },
   setup(props) {
     const useClient = inject("client") as Function;
 
     const { selected, loading, hidden, disabled } = toRefs(props);
+
     const clientCard = useClient(props.item, {
       selected,
       loading,

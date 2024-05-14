@@ -35,7 +35,7 @@ export const useSchema = ({
 
       place: {
         type: ["string", "null"],
-        title: "Search for Place",
+        title: "Address",
         lookup: places.search,
       },
 
@@ -188,6 +188,9 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/manualPlace",
+        options: {
+          noStatus: true,
+        },
         rule: {
           effect: "HIDE",
           condition: {

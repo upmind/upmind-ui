@@ -49,6 +49,18 @@
         "edit": "Edit company",
         "delete": "Delete company"
       }
+    },
+    "details": {
+      "title": "Your address",
+      "empty": {
+        "title": "Cant see your details..",
+        "description": "Add your details to get started"
+      },
+      "actions": {
+        "add": "Add details",
+        "edit": "Edit details",
+        "delete": "Delete details"
+      }
     }
   }
 }

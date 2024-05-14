@@ -1,24 +1,25 @@
 <template>
-  <upw-dialog
+  <component
+    :is="modal ? 'upw-dialog' : 'div'"
     @reject="cancel"
     :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
     size="lg"
   >
-    <div tabindex="0" ref="form" :class="styles.clientForm.root">
-      <upw-form
-        :class="styles.clientForm.form"
-        tabindex="1"
-        :loading="meta.isLoading"
-        :processing="meta.isProcessing"
-        :model-value="model"
-        :schema="schema"
-        :uischema="uischema"
-        @update:modelValue="input"
-        @reject="cancel"
-        @resolve="update"
-      />
-    </div>
-  </upw-dialog>
+    <upw-form
+      tabindex="1"
+      ref="form"
+      :class="styles.clientForm.root"
+      :loading="meta.isLoading"
+      :processing="meta.isProcessing"
+      :model-value="model"
+      :schema="schema"
+      :uischema="uischema"
+      @update:modelValue="input"
+      @reject="cancel"
+      @resolve="update"
+      :actions="actions"
+    />
+  </component>
 </template>
 
 <script>
@@ -42,6 +43,7 @@ export default defineComponent({
       required: true,
     },
     i18nKey: { type: String, required: true },
+    modal: { type: Boolean, default: true },
   },
   setup(props) {
     const useClient = inject("client");
@@ -55,7 +57,27 @@ export default defineComponent({
     };
   },
 
-  computed: {},
+  computed: {
+    actions() {
+      const actions = {
+        submit: {
+          type: "submit",
+          label: "Save",
+          disabled: !this.meta.isValid || this.meta.isProcessing,
+        },
+      };
+
+      if (this.modal) {
+        actions.cancel = {
+          label: "Cancel",
+          variant: "ghost",
+          disabled: this.meta.isProcessing,
+        };
+      }
+
+      return actions;
+    },
+  },
   mounted() {
     this.$nextTick(() => {
       const yOffset = -108;

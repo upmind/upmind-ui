@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce, startsWith, isEmpty } from "lodash-es";
+import { get, map, debounce, startsWith, isEmpty, find } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -73,8 +73,16 @@ export const useClientAddress = (item, context?: Object) => {
 export const useClientAddresses = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const { service } = useUpmindClientAddresses();
+  const { service, isReady, getSelected } = useUpmindClientAddresses();
   const { state, send } = useActor(service);
+
+  // --------------------------------------------------------
+  const items = computed(() =>
+    map(state.value.context.items, item => ({
+      id: item.id,
+      ...useActor(item),
+    }))
+  );
 
   // --------------------------------------------------------
 
@@ -105,12 +113,7 @@ export const useClientAddresses = () => {
         state.value.context?.raw?.length > 1,
     })),
     // ---
-    items: computed(() =>
-      map(state.value.context.items, item => ({
-        id: item.id,
-        ...useActor(item),
-      }))
-    ),
+    items,
     selected: computed(() =>
       state.value.context?.selected
         ? {
@@ -119,10 +122,22 @@ export const useClientAddresses = () => {
           }
         : null
     ),
+    default: computed(() => {
+      const item = find(
+        items.value,
+        item => item.state?.value?.context?.model?.default
+      );
+      return item;
+    }),
     // ---
+    isReady,
+    getSelected,
     select: async id => {
-      if (state.value.matches("loading")) {
-        await waitFor(service, newstate => !newstate.matches("loading"));
+      if (state.value.matches("available.loading")) {
+        await waitFor(
+          service,
+          newstate => !newstate.matches("available.loading")
+        );
       }
 
       send({ type: "SELECT", data: id });

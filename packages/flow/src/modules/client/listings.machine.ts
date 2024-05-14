@@ -6,7 +6,7 @@ import { createMachine, assign } from "xstate";
 // --- utils
 import { find, forEach, isEmpty, last, every } from "lodash-es";
 
-// ---types
+// - --types
 import type { ClientListingsContext, ClientListingsEvents } from "./types.d";
 
 // --------------------------------------------------------

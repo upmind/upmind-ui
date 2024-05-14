@@ -4,10 +4,11 @@ export * from "@upmind/flow-vue";
 export * from "@upmind/upwind";
 
 // --- expose our modules & components
-// ---system
+// --- system
 export { default as UpmFeedback } from "./components/feedback/Feedback.vue";
 // --- session
 export { default as UpmSession } from "./components/session/Session.vue";
 export { default as UpmAuth } from "./components/session/Auth.vue";
 export { default as UpmProfile } from "./components/session/Profile.vue";
+export { default as UpmClientDetails } from "./components/client/Details.vue";
 export { default as UpmClientListings } from "./components/client/Listings.vue";
