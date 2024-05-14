@@ -5,7 +5,7 @@ import { inspect } from "@xstate/inspect";
 
 // --------------------------------------------------------
 
-const debugging = import.meta.env.VITE_DEBUG === "true" || true;
+const debugging = import.meta.env.VITE_DEBUG === "true";
 
 // --------------------------------------------------------
 
