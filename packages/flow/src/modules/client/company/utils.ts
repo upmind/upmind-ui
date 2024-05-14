@@ -17,9 +17,9 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export const useSchema = ({ addresses, emails, phones, baseModel }) => {
   const choices = {
-    addresses: addresses().getItems(),
-    emails: emails().getItems(),
-    phones: phones().getItems(),
+    addresses: addresses.getItems(),
+    emails: emails.getItems(),
+    phones: phones.getItems(),
   };
 
   const schema = {
@@ -36,34 +36,53 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
 
       // ---
       name: {
-        type: ["string", "null"],
+        type: "string",
         title: "Name",
       },
 
       address_id: {
-        type: ["string", "null"],
+        type: "string",
         title: "Address",
         default: baseModel.address_id,
-        enum: !choices?.addresses?.length
+        oneOf: !choices?.addresses?.length
           ? undefined
-          : map(choices?.addresses, "id"),
-        lookup: addresses,
+          : map(choices.addresses, item => {
+              return {
+                const: item.id,
+                title: item.name,
+              };
+            }),
+        lookup: addresses.search,
       },
 
       email_id: {
-        type: ["string", "null"],
+        type: "string",
         title: "Email",
         default: baseModel.email_id,
-        enum: !choices?.emails?.length ? undefined : map(choices?.emails, "id"),
-        lookup: emails,
+        oneOf: !choices?.emails?.length
+          ? undefined
+          : map(choices.emails, item => {
+              return {
+                const: item.id,
+                title: item.name,
+              };
+            }),
+        lookup: emails.search,
       },
 
       phone_id: {
-        type: ["string", "null"],
+        type: "string",
         title: "Phone",
         default: baseModel.phone_id,
-        enum: !choices?.phones?.length ? undefined : map(choices?.phones, "id"),
-        lookup: phones,
+        oneOf: !choices?.phones?.length
+          ? undefined
+          : map(choices.phones, item => {
+              return {
+                const: item.id,
+                title: item.name,
+              };
+            }),
+        lookup: phones.search,
       },
 
       reg_number: {

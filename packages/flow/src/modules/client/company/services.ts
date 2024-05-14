@@ -66,9 +66,9 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
     phones.isReady(),
     emails.isReady(),
   ]).then(() => ({
-    emails: useClientEmails,
-    addresses: useClientAddresses,
-    phones: useClientPhones,
+    emails,
+    addresses,
+    phones,
     baseModel: {
       ...model,
       address_id: addresses.getDefault()?.id,
