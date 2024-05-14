@@ -13,7 +13,7 @@ import { useSystemArgTypes } from "../../../utils";
 
 const meta: Meta<typeof UpwCombobox> = {
   parameters: {
-    controls: { exclude: ["size"] },
+    controls: { exclude: ["size", "search"] },
   },
   component: UpwCombobox,
   subcomponents: { UpwInput },
@@ -2090,12 +2090,45 @@ const countries = {
 
 // -----------------------------------------------------------------------------
 
-export const Base: Story = {};
+export const Base: Story = {
+  render: (args, { updateArgs }) => ({
+    components: { UpwCombobox },
+    setup() {
+      return {
+        args,
+      };
+    },
+    methods: {
+      doUpdate(value: string) {
+        updateArgs({ modelValue: value });
+      },
+    },
+    template: `
+        <upw-combobox v-bind="args" @update:modelValue="doUpdate" />
+    `,
+  }),
+};
 
 export const Countries: Story = {
   parameters: {
-    controls: { exclude: ["label", "items", "size"] },
+    controls: { exclude: ["label", "items"] },
   },
+  render: (args, { updateArgs }) => ({
+    components: { UpwCombobox },
+    setup() {
+      return {
+        args,
+      };
+    },
+    methods: {
+      doUpdate(value: string) {
+        updateArgs({ modelValue: value });
+      },
+    },
+    template: `
+        <upw-combobox v-bind="args" @update:modelValue="doUpdate" />
+    `,
+  }),
   args: {
     label: "Select a Country",
     items: countries,

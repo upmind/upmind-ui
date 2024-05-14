@@ -4,17 +4,16 @@
     :id="control.id + '-lookup'"
     :disabled="!control.enabled"
     :model-value="control.data"
-    :items="items"
-    :processing="isSearching"
+    :items="control.options"
+    :search="search"
     @change="onChange"
-    @search="onSearch"
   >
   </upw-combobox>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import { schemaMatches, uiTypeIs, and } from "@jsonforms/core";
 import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 
@@ -23,7 +22,7 @@ import UpwCombobox from "../../../combobox/Combobox.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { has, isFunction, get } from "lodash-es";
+import { has, get } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -44,23 +43,10 @@ export default defineComponent({
       target => (target.selectedIndex === 0 ? undefined : target.value)
     );
 
-    debugger;
-    const { search, results } = get(renderer.control.value, "schema.lookup");
-    const items = ref([results()]);
-    const isSearching = ref(false);
-    debugger;
+    const { search } = get(renderer.control.value, "schema.lookup");
+
     return {
-      items,
-      ...renderer,
-      onSearch: async value => {
-        debugger;
-        isSearching.value = true;
-        search(value).then(results => {
-          debugger;
-          items.value = results;
-          isSearching.value = false;
-        });
-      },
+      search,
     };
   },
 });
