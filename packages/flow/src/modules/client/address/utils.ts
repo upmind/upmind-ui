@@ -36,10 +36,7 @@ export const useSchema = ({
       place: {
         type: ["string", "null"],
         title: "Search for Place",
-        lookup: {
-          search: places.search,
-          results: places.getItems,
-        },
+        lookup: places.search,
       },
 
       // ---

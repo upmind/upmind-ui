@@ -1,6 +1,6 @@
 <template>
   <label :for="id" :class="styles.label.root">
-    <span v-if="text" :class="styles.label.text">
+    <span :class="styles.label.text">
       {{ text }}
     </span>
 

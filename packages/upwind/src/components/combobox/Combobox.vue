@@ -29,8 +29,8 @@
         <h-combobox-input
           :class="styles.combobox.input"
           :displayValue="value => displayValue || value?.label"
-          @change="doSearch"
-          @input="event => (processing = !!event.target.value.length)"
+          @input="onSearch"
+          @change="event => (processing = !!event.target.value.length)"
           prependIcon="search"
           autocomplete="off"
         />
@@ -126,6 +126,9 @@
 // --- external
 import { defineComponent, ref, computed } from "vue";
 
+// --- local
+import config from "./config.cva";
+
 // --- components
 import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 import {
@@ -138,9 +141,6 @@ import {
 import UpwInput from "../input/Input.vue";
 import UpwIcon from "../icon/Icon.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
-
-// --- local
-import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -163,6 +163,8 @@ import type { InputProps, IconProps } from "../input/types";
 
 export default defineComponent({
   name: "UpwCombobox",
+  inheritAttrs: false,
+  emits: ["update:modelValue", "change"],
   components: {
     HCombobox: Combobox,
     HComboboxButton: ComboboxButton,
@@ -173,7 +175,6 @@ export default defineComponent({
     UpwInput,
     UpwSpinner,
   },
-  emits: ["update:modelValue"],
   props: {
     id: {
       type: String,
@@ -213,10 +214,7 @@ export default defineComponent({
     emptySearchText: { type: String, default: "Start typing to search" },
 
     // ---
-    modelValue: {
-      type: [String, Array] as PropType<string[]>,
-      default: "",
-    },
+    modelValue: { type: String },
 
     items: {
       type: Object as PropType<ComboboxItems>,
@@ -285,7 +283,8 @@ export default defineComponent({
 
       const value = event.target.value;
       if (!value) {
-        results.value = props.items;
+        // do nothing
+        // results.value ??= props.items;
       } else if (isFunction(props.search)) {
         // --- now do the provided search
         results.value = await props.search(value);
@@ -315,15 +314,15 @@ export default defineComponent({
       reference,
       floating,
       floatingStyles,
-      doSearch: debounce(safeSearch, 500),
+      onSearch: debounce(safeSearch, 500),
     };
   },
 
   computed: {
     displayValue() {
-      const selected = find(this.items, ["value", this.value]);
+      const selected = find(this.results, ["value", this.value]);
       if (selected) return selected?.label;
-      return "";
+      return ""; //this.value;
     },
     displayIcon() {
       const selected = find(this.items, ["value", this.value]);
@@ -337,11 +336,11 @@ export default defineComponent({
 
   watch: {
     value(value) {
-      debugger;
       this.$emit("update:modelValue", value);
 
-      // const item = find(this.items, ["value", value]);
-      // this.$emit("update:modelValue", item?.value || undefined);
+      // forward the event to our form renderer that will trigger the update
+      // NB: this is not a DOM event so we need to fake one for the renderer
+      this.$emit("change", { currentTarget: { value } });
     },
   },
 });
