@@ -92,6 +92,8 @@ async function parse(
 
         if (status === statuses.OK) {
           usePlaceParser(result).then(place => {
+            debugger;
+            // remove any empty fields to ensure validation is accurate
             resolve(place);
           });
         } else if (status === statuses.ZERO_RESULTS) {

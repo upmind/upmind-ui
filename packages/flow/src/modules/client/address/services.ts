@@ -181,7 +181,10 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
 }
 
 // --------------------------------------------------------
-async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
+async function parse(
+  { schema, model, regions }: AddressContext,
+  _event: AddressEvent
+) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions } = useSystem();
 
@@ -205,6 +208,13 @@ async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
     // otherwise the region_id is reset to null
     const region = find(regions, ["id", model?.region_id]);
     model.region_id = get(region, "id", undefined);
+
+    // finally lets force a manual place if we are invalid:
+    const isValid = await validate({ schema, model }, _event)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!isValid) model.manualPlace = true;
   }
 
   return Promise.resolve({ model, regions });
