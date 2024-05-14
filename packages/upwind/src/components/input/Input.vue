@@ -58,7 +58,7 @@
 
       <!-- conditionally add our label for inline inputs -->
       <upw-label
-        v-if="meta.isInline && !!label"
+        v-if="meta.isInline"
         :id="id"
         :text="label"
         :requiredText="requiredText"

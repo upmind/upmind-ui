@@ -183,7 +183,6 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
 // --------------------------------------------------------
 async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
-
   const { fetchRegions } = useSystem();
 
   if (!isEmpty(model)) {
