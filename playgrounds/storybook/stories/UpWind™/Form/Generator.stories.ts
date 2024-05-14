@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
-// ---internal
+// --- internal
 import * as messages from "./locales";
 
 // --- components

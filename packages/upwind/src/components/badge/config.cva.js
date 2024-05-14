@@ -25,7 +25,7 @@ export default {
           },
         },
         compoundVariants: [
-          // ---base + variant ---
+          // --- base + variant ---
           {
             color: "base",
             variant: "outlined",
@@ -37,7 +37,7 @@ export default {
             class: "bg-base-200 text-base-content",
           },
 
-          // ---primary + variant ---
+          // --- primary + variant ---
           {
             color: "primary",
             variant: "outlined",
@@ -49,7 +49,7 @@ export default {
             class: "bg-primary-50 text-primary",
           },
 
-          // ---secondary + variant ---
+          // --- secondary + variant ---
           {
             color: "secondary",
             variant: "outlined",
@@ -61,7 +61,7 @@ export default {
             class: "bg-secondary-50 text-secondary",
           },
 
-          // ---accent + variant ---
+          // --- accent + variant ---
           {
             color: "accent",
             variant: "outlined",
@@ -73,7 +73,7 @@ export default {
             class: "bg-accent-50 text-accent",
           },
 
-          // ---neutral + variant ---
+          // --- neutral + variant ---
           {
             color: "neutral",
             variant: "outlined",
@@ -85,7 +85,7 @@ export default {
             class: "text-neutral bg-neutral-50",
           },
 
-          // ---success + variant ---
+          // --- success + variant ---
           {
             color: "success",
             variant: "outlined",
@@ -97,7 +97,7 @@ export default {
             class: "bg-success-50 text-success",
           },
 
-          // ---error + variant ---
+          // --- error + variant ---
           {
             color: "error",
             variant: "outlined",
@@ -109,7 +109,7 @@ export default {
             class: "bg-error-50 text-error",
           },
 
-          // ---warning + variant ---
+          // --- warning + variant ---
           {
             color: "warning",
             variant: "outlined",
@@ -121,7 +121,7 @@ export default {
             class: "bg-warning-50 text-warning",
           },
 
-          // ---info + variant ---
+          // --- info + variant ---
           {
             color: "info",
             variant: "outlined",

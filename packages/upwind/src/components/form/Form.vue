@@ -208,7 +208,6 @@ export default defineComponent({
             type: "submit",
             label: "Save",
             // color: "accent",
-            variant: "elevated",
             disabled: !this.meta.isValid || this.meta.isProcessing,
             action: () => {
               this?.doSubmit();

@@ -1,4 +1,4 @@
-// ---utils
+// --- utils
 import { keys, last, reduce, includes, startCase, set } from "lodash-es";
 
 const iconsImport = import.meta.glob(`@icons/**/*.svg`, {

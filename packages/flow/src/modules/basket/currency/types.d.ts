@@ -1,7 +1,7 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---internal
+// --- internal
 export type { ICurrency } from "../../system/types.d";
 // --------------------------------------------------------
 // ENUMS
