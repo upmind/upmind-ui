@@ -42,6 +42,7 @@ export const useSchema = ({
       manualPlace: {
         type: ["boolean", "null"],
         title: "Can't see your address?",
+        default: baseModel?.manualPlace,
       },
 
       // ---
@@ -174,10 +175,28 @@ export const useUischema = () => {
           placeholder: "Select a place ...",
           noAdd: true,
         },
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["id"],
+            },
+          },
+        },
       },
       {
         type: "Control",
         scope: "#/properties/manualPlace",
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["id"],
+            },
+          },
+        },
       },
       // ---
       {

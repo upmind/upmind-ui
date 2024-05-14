@@ -79,6 +79,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   const regions = await fetchRegions(model?.country_id || defaultCountry?.id);
   const baseModel = {
     ...model,
+    manualPlace: !!model?.id,
     country_id: defaultCountry?.id,
     type: first(AddressTypes)?.key,
   };
@@ -214,7 +215,9 @@ async function parse(
       .then(() => true)
       .catch(() => false);
 
-    if (!isValid) model.manualPlace = true;
+    // force the manual place if we are invalid OR editing an existing address
+    debugger;
+    if (!isValid || !model?.id) model.manualPlace = true;
   }
 
   return Promise.resolve({ model, regions });
