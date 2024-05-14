@@ -30,6 +30,7 @@
           :class="styles.combobox.input"
           :displayValue="value => displayValue || value?.label"
           @change="doSearch"
+          @input="event => (processing = !!event.target.value.length)"
           prependIcon="search"
           autocomplete="off"
         />
@@ -59,21 +60,21 @@
           ref="floating"
           :style="floatingStyles"
         >
-          <h-combobox-option v-if="!filteredItems?.length">
-            <li
-              :class="[
-                styles.comboboxItem.root,
-                active ? styles.comboboxItem.active : '',
-                selected ? styles.comboboxItem.selected : '',
-              ]"
-            >
-              No items found that match your search
-            </li>
-          </h-combobox-option>
+          <li :class="styles.comboboxItem.root" v-if="meta.isProcessing">
+            <upw-spinner :class="styles.comboboxItem.avatar" />
+          </li>
+
+          <li :class="styles.comboboxItem.root" v-else-if="!input?.length">
+            {{ emptySearchText }}
+          </li>
+
+          <li :class="styles.comboboxItem.root" v-else-if="!results?.length">
+            {{ emptyText }}
+          </li>
 
           <h-combobox-option
             v-else
-            v-for="(item, key) in filteredItems"
+            v-for="(item, key) in results"
             :key="key"
             as="template"
             v-slot="{ active, selected }"
@@ -136,17 +137,27 @@ import {
 } from "@headlessui/vue";
 import UpwInput from "../input/Input.vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
 import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { filter, find, isEmpty, isNil, debounce } from "lodash-es";
+import {
+  filter,
+  find,
+  isEmpty,
+  isNil,
+  debounce,
+  includes,
+  isFunction,
+} from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
 import type { ComboboxItems, ComboboxPosition } from "./types";
+import type { InputProps, IconProps } from "../input/types";
 
 // ----------------------------------------------
 
@@ -160,8 +171,9 @@ export default defineComponent({
     HComboboxInput: ComboboxInput,
     UpwIcon,
     UpwInput,
+    UpwSpinner,
   },
-  emits: ["update:modelValue", "search"],
+  emits: ["update:modelValue"],
   props: {
     id: {
       type: String,
@@ -197,6 +209,8 @@ export default defineComponent({
       type: [Object, String] as PropType<IconProps["icon"]>,
       default: "check-square",
     },
+    emptyText: { type: String, default: "No results found" },
+    emptySearchText: { type: String, default: "Start typing to search" },
 
     // ---
     modelValue: {
@@ -207,6 +221,9 @@ export default defineComponent({
     items: {
       type: Object as PropType<ComboboxItems>,
       default: () => {},
+    },
+    search: {
+      type: [Function, Promise],
     },
     // ---
     required: { type: Boolean },
@@ -222,9 +239,11 @@ export default defineComponent({
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
-  setup(props, { emit }) {
+  setup(props) {
     const value = ref(props.modelValue || "");
-    const search = ref("");
+    const input = ref(null);
+    const processing = ref(false);
+    const results = ref(props.items);
     // ---
     const reference = ref(null);
     const floating = ref(null);
@@ -244,6 +263,7 @@ export default defineComponent({
       isDirty: !isNil(props.modelValue),
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && !isNil(props.modelValue),
+      isProcessing: processing.value,
     }));
 
     const styles = useStyles(
@@ -257,22 +277,45 @@ export default defineComponent({
       config,
       props.upwindConfig
     );
+    // ---
+
+    async function safeSearch(event) {
+      processing.value = true;
+      input.value = event.target.value;
+
+      const value = event.target.value;
+      if (!value) {
+        results.value = props.items;
+      } else if (isFunction(props.search)) {
+        // --- now do the provided search
+        results.value = await props.search(value);
+      } else {
+        // --- if no search function is provided, just filter the items
+        results.value = filter(
+          props.items,
+          item =>
+            includes(item.label.toLowerCase(), value.toLowerCase()) ||
+            includes(item.value.toLowerCase(), value.toLowerCase())
+        );
+      }
+
+      processing.value = false;
+    }
 
     // ---
 
     return {
       meta,
+      input,
       value,
-      search,
+      results,
+      processing,
+      // ---
       styles,
       reference,
       floating,
       floatingStyles,
-      doSearch: debounce(event => {
-        debugger;
-        search.value = event.target.value;
-        emit("search", search.value);
-      }, 500),
+      doSearch: debounce(safeSearch, 500),
     };
   },
 
@@ -290,22 +333,15 @@ export default defineComponent({
       const selected = find(this.items, ["value", this.value]);
       return this.prependAvatar || selected?.avatar;
     },
-    filteredItems() {
-      if (!this.search) return this.items;
-
-      return filter(
-        this.items,
-        item =>
-          item?.label?.toLowerCase()?.includes(this.search?.toLowerCase()) ||
-          item?.value?.toLowerCase()?.includes(this.search?.toLowerCase())
-      );
-    },
   },
 
   watch: {
     value(value) {
-      const item = find(this.items, ["value", value]);
-      this.$emit("update:modelValue", item?.value || undefined);
+      debugger;
+      this.$emit("update:modelValue", value);
+
+      // const item = find(this.items, ["value", value]);
+      // this.$emit("update:modelValue", item?.value || undefined);
     },
   },
 });

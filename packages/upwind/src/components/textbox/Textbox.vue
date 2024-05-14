@@ -40,7 +40,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- local
 import config from "./config.cva";
