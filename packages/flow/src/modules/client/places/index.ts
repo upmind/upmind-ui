@@ -37,7 +37,8 @@ export const usePlaces = () => {
           state.matches("available") && !state.matches("available.loading")
       ),
     getSnapshot: () => state,
-    getItems: () => state?.context?.items,
+    getItemsSnapshot: () => state?.context?.items,
+    getItems: () => map(state?.context?.items, "state.context.model"),
     getSelected: () => state?.context?.selected,
     getDefault: () => null, // we have no default in this machine,
     search: async data => {

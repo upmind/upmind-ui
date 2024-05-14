@@ -34,7 +34,7 @@ export default {
     ),
 
     panel: cva(
-      "bg-base text-base-content relative transform overflow-hidden rounded-lg  text-left align-middle shadow-xl transition-all",
+      "bg-base text-base-content relative transform  rounded-lg  text-left align-middle shadow-xl transition-all",
       {
         variants: {
           size: {
