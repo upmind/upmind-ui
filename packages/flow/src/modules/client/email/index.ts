@@ -8,7 +8,7 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, map } from "lodash-es";
 
 // --- types
 
@@ -37,7 +37,8 @@ export const useClientEmails = () => {
           state.matches("available") && !state.matches("available.loading")
       ),
     getSnapshot: () => state,
-    getItems: () => state?.context?.items,
+    getItemsSnapshot: () => state?.context?.items,
+    getItems: () => map(state?.context?.items, "state.context.model"),
     getItem: id => find(state?.context?.items, ["id", id]),
     getSelected: () => state?.context?.selected,
     getDefault: () =>

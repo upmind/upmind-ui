@@ -64,7 +64,7 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
           : map(choices.emails, item => {
               return {
                 const: item.id,
-                title: item.name,
+                title: item.email,
               };
             }),
         lookup: emails.search,
@@ -79,7 +79,7 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
           : map(choices.phones, item => {
               return {
                 const: item.id,
-                title: item.name,
+                title: item.full_phone,
               };
             }),
         lookup: phones.search,

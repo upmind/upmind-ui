@@ -36,8 +36,13 @@
         />
 
         <h-combobox-button :class="styles.combobox.button">
+          <upw-spinner
+            :class="styles.comboboxItem.avatar"
+            v-if="meta.isProcessing"
+          />
+
           <upw-icon
-            v-if="toggleIcon"
+            v-else-if="toggleIcon && items?.length"
             :icon="toggleIcon"
             :class="styles.combobox.toggle"
             :aria-checked="open && toggleRotate"
@@ -61,10 +66,13 @@
           :style="floatingStyles"
         >
           <li :class="styles.comboboxItem.root" v-if="meta.isProcessing">
-            <upw-spinner :class="styles.comboboxItem.avatar" />
+            <!-- empty when processing -->
           </li>
 
-          <li :class="styles.comboboxItem.root" v-else-if="!input?.length">
+          <li
+            :class="styles.comboboxItem.root"
+            v-else-if="!input?.length && !results?.length"
+          >
             {{ emptySearchText }}
           </li>
 
@@ -271,7 +279,7 @@ export default defineComponent({
         "comboboxTransitionEnter",
         "comboboxTransitionLeave",
       ],
-      props,
+      meta,
       config,
       props.upwindConfig
     );

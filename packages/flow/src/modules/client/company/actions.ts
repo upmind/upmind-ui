@@ -4,7 +4,7 @@ import { assign } from "xstate";
 // --- utils
 import { useModelParser } from "../../../utils";
 import { useSchema, useUischema, spawnItem } from "./utils";
-import { find, map, compact, get } from "lodash-es";
+import { find, map, compact, get, isFunction } from "lodash-es";
 
 // --- types
 import type { CompanyContext, CompanyEvent } from "./types.d";
@@ -40,8 +40,7 @@ export const ItemActions = {
     ) => {
       let address = null;
       if (addresses && model?.address_id) {
-        const addressService = addresses();
-        address = addressService?.getItem(model.address_id);
+        address = addresses?.getItem(model.address_id);
       }
       return compact([
         // get(address, "state.context.title"),
