@@ -6,6 +6,11 @@ export default {
       component: () => import("./Client.vue"),
       children: [
         {
+          path: "",
+          name: "Client Details",
+          component: () => import("./Details.vue"),
+        },
+        {
           path: "addresses",
           name: "Client Addresses",
           component: () => import("./Addresses.vue"),

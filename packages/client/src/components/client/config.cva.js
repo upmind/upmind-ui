@@ -2,16 +2,23 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export default {
+  client: {
+    root: cva("w-full py-4 flex flex-col gap-4"),
+    header: cva(""),
+    footer: cva(""),
+    loading: cva(""),
+    actions: cva(""),
+  },
   clientListings: {
     root: cva("w-full py-4 flex flex-col gap-4"),
     header: cva(""),
     footer: cva(""),
-    items: cva("grid gap-4 grid-cols-3"),
+    items: cva("grid gap-4 grid-cols-3 my-4"),
     loading: cva(""),
     actions: cva(""),
   },
   clientForm: {
-    root: cva("w-full mt-4", {
+    root: cva("w-full mt-4 max-w-xl", {
       variants: {
         hasErrors: {
           true: "border-error",
@@ -23,7 +30,6 @@ export default {
     }),
     title: cva("text-inherit m-0 flex-1"),
     text: cva("text-xs m-0 flex-1"),
-    form: cva("max-w-xl"),
   },
   clientCard: {
     root: cva("rounded-lg flex items-start gap-2", {
@@ -50,7 +56,9 @@ export default {
     header: cva("flex gap-4 items-center justify-start"),
     icon: cva("size-4"),
     avatar: cva("size-6 rounded-full border overflow-hidden "),
-    title: cva("m-0 leading-none text-sm text-base-content gap-2 inline-flex"),
+    title: cva(
+      "m-0 leading-none text-sm text-base-content gap-2 inline-flex font-medium"
+    ),
     meta: cva("m-0"),
     verified: cva("", {
       variants: {
@@ -81,5 +89,14 @@ export default {
         },
       }),
     },
+  },
+  clientDetails: {
+    root: cva("w-full py-4 flex flex-col gap-4"),
+    header: cva(""),
+    loading: cva(""),
+    footer: cva(""),
+    title: cva("flex justify-between items-center gap-4"),
+    content: cva("flex flex-col gap-4 border border-base-200 rounded-lg p-4"),
+    actions: cva(""),
   },
 };

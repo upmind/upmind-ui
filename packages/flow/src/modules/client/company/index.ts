@@ -37,12 +37,25 @@ export const useClientCompanies = () => {
           state.matches("available") && !state.matches("available.loading")
       ),
     getSnapshot: () => state,
-    getItems: () => state?.context?.items,
+    getItemsSnapshot: () => state?.context?.items,
+    getItems: () => map(state?.context?.items, "state.context.model"),
     getItem: id => find(state?.context?.items, ["id", id]),
-    getSelected: () => state?.context?.selected,
+    getSelected: () => {
+      return waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ).then(() => {
+        return (
+          state?.context?.selected ||
+          find(state?.context?.items, item => {
+            return item.state?.context?.model?.default;
+          })
+        );
+      });
+    },
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
-
     search: async data => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>

@@ -18,6 +18,7 @@
         @input="filter($event?.currentTarget?.value)"
         :placeholder="$t(`client.${type}.actions.filter`)"
         v-if="meta.canFilter && !processing"
+        size="sm"
       />
 
       <div :class="styles.clientListings.items">
@@ -59,7 +60,7 @@
       </div>
     </template>
 
-    <footer :class="styles.clientListings.header">
+    <footer :class="styles.clientListings.footer">
       <slot name="footer" v-bind="{ meta }"></slot>
     </footer>
   </section>
