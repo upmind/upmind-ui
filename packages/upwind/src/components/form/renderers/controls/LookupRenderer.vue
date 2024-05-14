@@ -15,7 +15,7 @@
 // --- external
 import { defineComponent } from "vue";
 import { schemaMatches, uiTypeIs, and } from "@jsonforms/core";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { rendererProps, useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 
 // --- components
 import UpwCombobox from "../../../combobox/Combobox.vue";
@@ -39,7 +39,7 @@ export default defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
+      useJsonFormsOneOfEnumControl(props),
       target => target.value || undefined
     );
     return {

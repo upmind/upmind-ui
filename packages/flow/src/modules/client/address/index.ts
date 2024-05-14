@@ -42,5 +42,13 @@ export const useClientAddresses = () => {
     getSelected: () => state?.context?.selected,
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
+    search: async data => {
+      service.send({ type: "FILTER", data });
+      return waitFor(service, state =>
+        state.matches("available.filtered")
+      ).then(() => {
+        return state.context.items;
+      });
+    },
   };
 };
