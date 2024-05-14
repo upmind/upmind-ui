@@ -39,9 +39,14 @@ export const useSchema = ({
         lookup: places.search,
       },
 
+      manualPlace: {
+        type: ["boolean", "null"],
+        title: "Can't see your address?",
+      },
+
       // ---
       address_1: {
-        type: ["string", "null"],
+        type: "string",
         title: "Address Line 1",
       },
       address_2: {
@@ -49,11 +54,11 @@ export const useSchema = ({
         title: "Address Line 2",
       },
       city: {
-        type: ["string", "null"],
+        type: "string",
         title: "City",
       },
       postcode: {
-        type: ["string", "null"],
+        type: "string",
         title: "Postcode",
       },
       region_id: {
@@ -76,7 +81,7 @@ export const useSchema = ({
       },
 
       country_id: {
-        type: ["string", "null"],
+        type: "string",
         title: "Country",
         default: baseModel?.country_id,
         oneOf: !countries?.length
@@ -103,7 +108,7 @@ export const useSchema = ({
       },
 
       type: {
-        type: ["number", "null"],
+        type: "number",
         title: "Address Type",
         default: baseModel?.type,
         oneOf: map(types, item => {
@@ -170,67 +175,84 @@ export const useUischema = () => {
           noAdd: true,
         },
       },
-      // ---
       {
         type: "Control",
-        scope: "#/properties/address_1",
-        label: "Address", // ensure we  show the title for BOTH address fields
-        options: {
-          focus: true,
-          autocomplete: "address-line1",
-          placeholder: "Address first line...",
-        },
+        scope: "#/properties/manualPlace",
       },
-      {
-        type: "Control",
-        scope: "#/properties/address_2",
-        label: "", // ensure we DON'T show the title
-        options: {
-          autocomplete: "address-line2",
-          placeholder: "Address second line...",
-          class: "-mt-8",
-        },
-      },
-
       // ---
       {
-        type: "HorizontalLayout",
+        type: "VerticalLayout",
         elements: [
           {
             type: "Control",
-            scope: "#/properties/city",
+            scope: "#/properties/address_1",
+            label: "Address", // ensure we  show the title for BOTH address fields
             options: {
-              autocomplete: "address-level2",
-              placeholder: "City...",
+              focus: true,
+              autocomplete: "address-line1",
+              placeholder: "Address first line...",
             },
           },
           {
             type: "Control",
-            scope: "#/properties/postcode",
+            scope: "#/properties/address_2",
+            label: "", // ensure we DON'T show the title
             options: {
-              autocomplete: "postal-code",
-              placeholder: "Postcode...",
+              autocomplete: "address-line2",
+              placeholder: "Address second line...",
+              class: "-mt-8",
+            },
+          },
+
+          // ---
+          {
+            type: "HorizontalLayout",
+            elements: [
+              {
+                type: "Control",
+                scope: "#/properties/city",
+                options: {
+                  autocomplete: "address-level2",
+                  placeholder: "City...",
+                },
+              },
+              {
+                type: "Control",
+                scope: "#/properties/postcode",
+                options: {
+                  autocomplete: "postal-code",
+                  placeholder: "Postcode...",
+                },
+              },
+            ],
+          },
+          // ---
+          {
+            type: "Control",
+            scope: "#/properties/region_id",
+            options: {
+              autocomplete: "address-level1",
+              placeholder: "Please select a Region...",
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/country_id",
+            options: {
+              autocomplete: "country",
+              placeholder: "Please select a Country...",
             },
           },
         ],
-      },
-      // ---
-      {
-        type: "Control",
-        scope: "#/properties/region_id",
-        options: {
-          autocomplete: "address-level1",
-          placeholder: "Please select a Region...",
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/manualPlace",
+            schema: { const: true },
+          },
         },
       },
-      {
-        type: "Control",
-        scope: "#/properties/country_id",
-        options: {
-          autocomplete: "country",
-          placeholder: "Please select a Country...",
-        },
-      },
+
       // ---
       // We dont ever show this field as it is set by an action
       // {

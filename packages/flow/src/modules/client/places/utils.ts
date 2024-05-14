@@ -4,7 +4,7 @@
 import { useSystem } from "../..";
 
 // --- utils
-import { some, get, find, includes, map } from "lodash-es";
+import { some, get, find, includes, map, compact } from "lodash-es";
 
 // --- types
 import type { IAddress } from "../address/types.d";
@@ -60,12 +60,12 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
   const name = get(result, "name");
   const address = get(result, "address_components", []);
 
-  const address_1 = [
+  const address_1 = compact([
     parseValue(address, ["street_number"]),
     parseValue(address, ["route"]),
-  ];
+  ]);
 
-  const address_2 = [parseValue(address, ["sublocality"])];
+  const address_2 = compact([parseValue(address, ["sublocality"])]);
 
   const postcode = parseValue(address, ["postal_code"]);
 
@@ -83,15 +83,16 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
     country
   );
 
+  debugger;
   const value = {
     name,
-    address_1: address_1.join(" "),
-    address_2: address_2.join(" "),
+    address_1: address_1.length ? address_1.join(" ") : undefined,
+    address_2: address_2.length ? address_2.join(" ") : undefined,
     postcode,
     city,
     country_id: get(country, "id"),
     region_id: get(region, "id"),
   };
-
+  debugger;
   return value as IAddress;
 }
