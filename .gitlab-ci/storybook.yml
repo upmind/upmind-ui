@@ -53,7 +53,7 @@ stop preview:
   extends: .dependencies
   stage: stop
   script:
-    - npx firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}"
+    - npx firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
   environment:
     name: storybook/preview/${CI_COMMIT_REF_SLUG}
     action: stop
