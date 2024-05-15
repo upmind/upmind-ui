@@ -172,8 +172,16 @@ export const useUischema = () => {
         scope: "#/properties/place",
         options: {
           autocomplete: "off",
-          placeholder: "Select a place ...",
-          noAdd: true,
+          placeholder: "Search for address ...",
+          items: [
+            {
+              label: "Enter manually",
+              value: "manual",
+              as: "button",
+              variant: "link",
+              size: "sm",
+            },
+          ],
         },
         rule: {
           effect: "HIDE",
@@ -185,22 +193,23 @@ export const useUischema = () => {
           },
         },
       },
-      {
-        type: "Control",
-        scope: "#/properties/manualPlace",
-        options: {
-          noStatus: true,
-        },
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["id"],
-            },
-          },
-        },
-      },
+      // {
+      //   type: "Control",
+      //   scope: "#/properties/manualPlace",
+      //   options: {
+      //     noStatus: true,
+      //     type: "button",
+      //   },
+      //   rule: {
+      //     effect: "HIDE",
+      //     condition: {
+      //       scope: "#",
+      //       schema: {
+      //         required: ["id"],
+      //       },
+      //     },
+      //   },
+      // },
       // ---
       {
         type: "VerticalLayout",

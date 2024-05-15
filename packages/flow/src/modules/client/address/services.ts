@@ -216,7 +216,8 @@ async function parse(
       .catch(() => false);
 
     // force the manual place if we are invalid OR editing an existing address
-    if (!isValid || !!model?.id) model.manualPlace = true;
+    if (!isValid || !!model?.id || model.place == false)
+      model.manualPlace = true;
   }
 
   return Promise.resolve({ model, regions });
