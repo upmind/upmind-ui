@@ -60,6 +60,8 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
   const name = get(result, "name");
   const address = get(result, "address_components", []);
 
+  // console.debug("usePlaceParser", result);
+
   const address_1 = compact([
     parseValue(address, ["street_number"]),
     parseValue(address, ["route"]),

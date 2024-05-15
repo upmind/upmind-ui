@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientCompanies as useUpmindClientCompanies } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce, startsWith, find } from "lodash-es";
+import { get, map, debounce, startsWith, find, reject } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -27,6 +27,7 @@ export const useClientCompany = (item, context?: Object) => {
       isDisabled: context?.disabled,
       isSelected: context?.selected,
       isHidden: context?.hidden,
+      isSelectable: context?.selectable,
       // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
@@ -93,9 +94,14 @@ export const useClientCompanies = () => {
       isAdding:
         ["available.editing"].some(state.value.matches) &&
         startsWith(state.value.context.selected?.id, "item_"),
-      isEditing: ["available.editing"].some(state.value.matches),
+      isEditing:
+        ["available.editing"].some(state.value.matches) &&
+        !startsWith(state.value.context.selected?.id, "item_"),
       isEmpty:
-        state.value.matches("available") && !state.value.context?.items?.length,
+        state.value.matches("available") &&
+        !reject(state.value.context?.items, item =>
+          startsWith(item.id, "item_")
+        )?.length,
       canFilter:
         state.value.matches("available") &&
         !["available.editing", "available.loading"].some(state.value.matches) &&

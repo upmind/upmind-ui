@@ -203,20 +203,21 @@ export default defineComponent({
   },
   computed: {
     safeActions() {
-      if (isNil(this.actions)) {
-        return {
-          reject: {
-            label: "Cancel",
-            variant: "link",
-            action: () => {
-              this.doReject();
-            },
-          },
-        };
-      } else if (this.actions) {
-        return this.actions;
-      }
-      return null;
+      return this.actions;
+      // if (isNil(this.actions)) {
+      //   return {
+      //     reject: {
+      //       label: "Cancel",
+      //       variant: "link",
+      //       action: () => {
+      //         this.doReject();
+      //       },
+      //     },
+      //   };
+      // } else if (this.actions) {
+      //   return this.actions;
+      // }
+      // return null;
     },
   },
   methods: {
@@ -250,6 +251,7 @@ export default defineComponent({
     },
 
     doReject() {
+      this.$emit("reject");
       this.toggleModal(false);
     },
   },

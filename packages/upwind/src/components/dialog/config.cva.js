@@ -60,7 +60,7 @@ export default {
     ),
 
     panelContent: cva(
-      "flex max-h-[70vh] w-full flex-col items-start justify-start gap-4 overflow-y-auto px-6 py-8"
+      "flex max-h-[70vh] w-full flex-col items-start justify-start gap-4 overflow-y-auto px-6 py-6"
     ),
 
     panelActions: cva(

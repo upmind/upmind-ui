@@ -1,8 +1,8 @@
 <template>
-  <article :class="styles.clientCard.root" @click="select">
+  <article :class="styles.clientCard.root" @click="onSelect">
     <upw-radio
-      :model-value="selected"
-      @input="select"
+      :model-value="!!modelValue"
+      @input="onSelect"
       no-feedback
       no-status
       size="sm"
@@ -66,6 +66,7 @@ import { useClipboard } from "@vueuse/core";
 export default defineComponent({
   name: "UpmClientCard",
   components: { UpwIcon, UpwRadio, UpwDropdown, UpwBadge },
+  emits: ["update:modelValue"],
   props: {
     item: {
       type: Object, // xstate actor
@@ -73,7 +74,7 @@ export default defineComponent({
     },
     i18nKey: { type: String, required: true },
     // ---
-    selected: { type: Boolean },
+    modelValue: { type: Boolean },
     loading: { type: Boolean },
     hidden: { type: Boolean },
     disabled: { type: Boolean },
@@ -83,7 +84,13 @@ export default defineComponent({
   setup(props) {
     const useClient = inject("client") as Function;
 
-    const { selected, loading, hidden, disabled, selectable } = toRefs(props);
+    const {
+      modelValue: selected,
+      loading,
+      hidden,
+      disabled,
+      selectable,
+    } = toRefs(props);
 
     const clientCard = useClient(props.item, {
       selected,
@@ -168,6 +175,12 @@ export default defineComponent({
           },
         },
       ];
+    },
+  },
+  methods: {
+    onSelect() {
+      this.$emit("update:modelValue", this.item);
+      this.select();
     },
   },
 });

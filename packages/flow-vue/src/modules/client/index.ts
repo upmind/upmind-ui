@@ -12,7 +12,7 @@ import { useClientAddresses, useClientAddress } from "./address";
 import { useClientCompanies, useClientCompany } from "./company";
 
 // --- utils
-import { every, some } from "lodash-es";
+import { every, isEmpty, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export const useClient = () => {
@@ -33,6 +33,7 @@ export const useClient = () => {
       isLoading: some(services, "meta.value.isLoading"),
       isAdding: some(services, "meta.value.isAdding"),
       isEditing: some(services, "meta.value.isEditing"),
+      isEmpty: every(services, "meta.value.isEmpty"),
     })),
     // ---
     getSelected: async () => await addresses.getSelected(),

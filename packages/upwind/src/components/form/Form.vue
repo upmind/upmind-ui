@@ -28,7 +28,7 @@
     <slot name="footer" v-bind="{ meta }"></slot>
 
     <!-- actions -->
-    <div v-if="safeActions" :class="styles.form.actions">
+    <div v-if="safeActions && !noActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <upw-button
           v-for="(action, key) in safeActions"
@@ -134,6 +134,10 @@ export default defineComponent({
         Boolean | Record<string, { label: string; action: Function }>
       >,
       default: null,
+    },
+    noActions: {
+      type: Boolean,
+      default: false,
     },
     // ---
 

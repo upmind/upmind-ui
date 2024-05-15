@@ -6,7 +6,15 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce, startsWith, isEmpty, find } from "lodash-es";
+import {
+  get,
+  map,
+  debounce,
+  startsWith,
+  isEmpty,
+  find,
+  reject,
+} from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -105,9 +113,14 @@ export const useClientAddresses = () => {
       isAdding:
         ["available.editing"].some(state.value.matches) &&
         startsWith(state.value.context.selected?.id, "item_"),
-      isEditing: ["available.editing"].some(state.value.matches),
+      isEditing:
+        ["available.editing"].some(state.value.matches) &&
+        !startsWith(state.value.context.selected?.id, "item_"),
       isEmpty:
-        state.value.matches("available") && !state.value.context?.items?.length,
+        state.value.matches("available") &&
+        !reject(state.value.context?.items, item =>
+          startsWith(item.id, "item_")
+        )?.length,
       canFilter:
         state.value.matches("available") &&
         !["available.editing", "available.loading"].some(state.value.matches) &&

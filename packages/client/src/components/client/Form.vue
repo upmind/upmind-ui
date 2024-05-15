@@ -4,6 +4,7 @@
     @reject="cancel"
     :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
     size="xl"
+    :actions="actions"
   >
     <upw-form
       tabindex="1"
@@ -17,6 +18,7 @@
       @reject="cancel"
       @resolve="update"
       :actions="actions"
+      :no-actions="dialog"
     />
   </component>
 </template>
@@ -57,22 +59,24 @@ export default defineComponent({
 
   computed: {
     actions() {
-      const actions = {
-        submit: {
-          type: "submit",
-          label: "Save",
-          disabled: !this.meta.isValid || this.meta.isProcessing,
-        },
-      };
+      const actions = {};
 
       if (this.dialog) {
         actions.cancel = {
           label: "Cancel",
-          variant: "ghost",
+          variant: "link",
           disabled: this.meta.isProcessing,
-          action: this.cancel,
+          action: () => this.cancel(),
         };
       }
+
+      actions.submit = {
+        type: "submit",
+        variant: this.dialog ? "flat" : "link",
+        label: "Confirm Address",
+        disabled: !this.meta.isValid || this.meta.isProcessing,
+        action: ({ model }) => this.update(model),
+      };
 
       return actions;
     },
