@@ -3,6 +3,9 @@
 // --- internal
 import { useApi, useSystem, useSession } from "../../";
 import { usePlaces } from "../places";
+import { useClientAddresses } from "../address";
+import { useClientPhones } from "../phone";
+import { useClientEmails } from "../email";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -77,31 +80,57 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   const countries = await fetchCountries();
   const defaultCountry = getCountry();
   const regions = await fetchRegions(model?.country_id || defaultCountry?.id);
-  const baseModel = {
-    ...model,
-    manualPlace: !!model?.id,
-    country_id: defaultCountry?.id,
-    type: first(AddressTypes)?.key,
-  };
-  // ---
-  // set up our autocomplete places
-  const places = usePlaces();
-  await places.isReady();
-  places.reset();
+
+  if (!countries || !regions) {
+    return Promise.reject("Failed to load countries and regions");
+  }
 
   // ---
-  return new Promise((resolve, reject) => {
-    if (countries && regions) {
-      resolve({
-        countries,
-        regions,
-        baseModel,
-        types: AddressTypes,
-        places,
-      });
-    } else {
-      reject("Failed to load countries and regions");
-    }
+  // lets start up/use our dependencies
+  const addresses = useClientAddresses();
+  const phones = useClientPhones();
+  const emails = useClientEmails();
+  const places = usePlaces();
+
+  return Promise.all([
+    addresses.isReady(),
+    phones.isReady(),
+    emails.isReady(),
+    places.isReady(),
+  ]).then(() => {
+    places.reset();
+
+    const address = addresses.getDefault()?.state?.context?.model;
+    const email = emails.getDefault()?.state?.context?.model;
+    const phone = phones.getDefault()?.state?.context?.model;
+    debugger;
+
+    return {
+      countries,
+      regions,
+      types: AddressTypes,
+      places,
+      // ---
+      emails,
+      addresses,
+      phones,
+      // ---
+      baseModel: {
+        ...model,
+        manualPlace: !!model?.id,
+        addBusinessDetails: false,
+        type: first(AddressTypes)?.key,
+        phone: phone?.full_phone,
+        email: email?.email,
+        address_1: address?.address_1,
+        address_2: address?.address_2,
+        city: address?.city,
+        postcode: address?.postcode,
+        region_id: address?.region_id,
+        state: address?.state,
+        country_id: address?.country_id || defaultCountry?.id,
+      },
+    };
   });
 }
 

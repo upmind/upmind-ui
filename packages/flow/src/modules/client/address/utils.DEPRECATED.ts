@@ -11,7 +11,6 @@ import { get, set, map, reduce, defaultsDeep, uniqueId } from "lodash-es";
 // --- types
 import type { IAddress, AddressContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { read } from "fs";
 
 // --------------------------------------------------------
 
@@ -20,31 +19,12 @@ export const useSchema = ({
   regions,
   types,
   baseModel,
-  // ---
   places,
-  addresses,
-  emails,
-  phones,
 }: AddressContext) => {
-  const choices = {
-    addresses: addresses.getItems(),
-    emails: emails.getItems(),
-    phones: phones.getItems(),
-  };
-
   const schema = {
     type: "object",
     title: "Address Fields",
     required: ["address_1", "city", "country_id", "postcode", "type"],
-    // --- conditionally required fields
-    if: {
-      properties: {
-        addBusinessDetails: { const: true },
-      },
-      required: ["addBusinessDetails"],
-    },
-    then: { required: ["name", "email", "reg_number"] },
-    // ---
     properties: {
       id: {
         type: ["string", "null"],
@@ -63,38 +43,28 @@ export const useSchema = ({
         type: ["boolean", "null"],
         title: "Can't see your address?",
         default: baseModel?.manualPlace,
-        readOnly: true,
       },
 
       // ---
       address_1: {
         type: "string",
         title: "Address Line 1",
-        default: baseModel?.address_1,
       },
-
       address_2: {
         type: ["string", "null"],
         title: "Address Line 2",
-        default: baseModel?.address_2,
       },
-
       city: {
         type: "string",
         title: "City",
-        default: baseModel?.city,
       },
-
       postcode: {
         type: "string",
         title: "Postcode",
-        default: baseModel?.postcode,
       },
-
       region_id: {
         type: ["string", "null"],
         title: "Region",
-        default: baseModel?.region_id,
         oneOf: !regions?.length
           ? undefined
           : map(regions, item => {
@@ -109,7 +79,6 @@ export const useSchema = ({
       state: {
         type: ["string", "null"],
         title: "State",
-        default: baseModel?.state,
       },
 
       country_id: {
@@ -127,66 +96,16 @@ export const useSchema = ({
       },
 
       // ---
-      addBusinessDetails: {
-        type: ["boolean", "null"],
-        title: "Add business details",
-        default: baseModel?.addBusinessDetails,
-      },
-
-      name: {
-        type: "string",
-        title: "Name",
-      },
-
-      email: {
-        type: "string",
-        title: "Email",
-        default: baseModel.email,
-        oneOf: !choices?.emails?.length
-          ? undefined
-          : map(choices.emails, item => {
-              return {
-                const: item.id,
-                title: item.email,
-              };
-            }),
-        lookup: emails.search,
-      },
-
-      phone: {
-        type: "string",
-        title: "Phone",
-        default: baseModel.phone,
-        oneOf: !choices?.phones?.length
-          ? undefined
-          : map(choices.phones, item => {
-              return {
-                const: item.id,
-                title: item.full_phone,
-              };
-            }),
-        lookup: phones.search,
-      },
-
-      reg_number: {
-        type: ["string", "null"],
-        title: "Registration number",
-      },
-
-      vat_number: {
-        type: ["string", "null"],
-        title: "Registered tax/VAT id",
-      },
-
-      vat_percent: {
-        type: ["string", "null"],
-        title: "VAT percent",
-      },
-      // ---
 
       default: {
         type: ["boolean", "null"],
         title: "Make this the default address?",
+      },
+
+      name: {
+        type: ["string", "null"],
+        title: "Reference Name",
+        default: baseModel?.name,
       },
 
       type: {
