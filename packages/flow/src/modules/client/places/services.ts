@@ -79,8 +79,9 @@ async function parse(
     if (!service) reject("Autocomplete service not configured");
 
     // if we dont have any data, then just return an empty array
-    if (!data?.place?.length) reject(null);
+    if (!data?.place?.length) return reject(null);
 
+    if (data.place == "manual") return resolve(null); // special case for entry when a place is to be manually entered
     places.getDetails(
       {
         placeId: data?.place,
