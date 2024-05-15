@@ -37,11 +37,9 @@ export const useClient = () => {
     // ---
     getSelected: async () => await addresses.getSelected(),
     selected: computed(
-      () =>
-        addresses.selected.value ||
-        companies.selected.value ||
-        addresses.default.value ||
-        companies.default.value
+      () => addresses.selected.value || addresses.default.value
+      //||  companies.selected.value
+      //||  companies.default.value
     ),
     // ---
     isReady: async () => Promise.all([addresses.isReady, companies.isReady]),

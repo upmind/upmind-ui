@@ -53,7 +53,7 @@
         <upw-button
           :label="$t(`client.${type}.actions.add`)"
           variant="ghost"
-          @click="add"
+          @click="onAdd"
           size="sm"
         />
       </div>
@@ -110,7 +110,7 @@ export default defineComponent({
     UpmCard,
     UpmForm,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "add"],
   props: {
     type: {
       type: String, //as PropType<"addresses" | "emails" | "phones" | "companies">,
@@ -173,6 +173,12 @@ export default defineComponent({
       ) {
         this.$emit("update:modelValue", newValue);
       }
+    },
+  },
+  methods: {
+    onAdd() {
+      this.$emit("add");
+      this.add();
     },
   },
 });
