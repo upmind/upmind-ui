@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="dialog ? 'upw-dialog' : 'div'"
+    :is="dialog ? 'upw-dialog' : 'section'"
     @reject="cancel"
     :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
     size="xl"
@@ -41,7 +41,7 @@ export default defineComponent({
   name: "UpmClientForm",
   components: { UpwForm, UpwDialog },
   props: {
-    item: {
+    modelValue: {
       type: Object, // xstate actor
       required: true,
     },
@@ -50,7 +50,7 @@ export default defineComponent({
   },
   setup(props) {
     const useClient = inject("client");
-    const clientForm = useClient(props.item);
+    const clientForm = useClient(props.modelValue);
     const styles = useStyles(["clientForm"], clientForm.meta, config);
 
     return {
@@ -87,7 +87,6 @@ export default defineComponent({
     maybeSubmit(value) {
       if (!this.dialog && value && !isEmpty(this.model)) {
         this.$nextTick(() => {
-          console.log("maybeSubmit", true, this.meta);
           this.update(this.model);
         });
       }

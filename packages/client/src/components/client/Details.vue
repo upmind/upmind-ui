@@ -17,7 +17,7 @@
     <upm-form
       v-if="!meta.isLoading && meta.isAdding && !activeDialog"
       i18nKey="addresses"
-      :item="selected"
+      :model-value="selected"
       :dialog="!meta.isEmpty"
     />
 
@@ -35,7 +35,7 @@
 
       <upm-card
         i18nKey="addresses"
-        :item="selected"
+        :model-value="selected"
         selected
         :selectable="false"
         no-actions
@@ -53,22 +53,13 @@
       </div>
     </div>
 
-    <upw-dialog
+    <upm-listings
       v-model="activeDialog"
-      size="xl"
-      title="Change"
-      :actions="actions"
-    >
-      <!-- <upw-tabs v-model="activeTab" :tabs="tabs" block stretch /> -->
-      <upm-listings
-        :type="activeTab"
-        no-filter
-        :key="activeTab"
-        :model-value="selected?.id"
-        @add="onClose"
-        @select="onClose"
-      />
-    </upw-dialog>
+      type="addresses"
+      i18nKey="addresses"
+      dialog
+      no-filter
+    />
 
     <footer :class="styles.clientDetails.footer">
       <slot name="footer" v-bind="{ meta }"></slot>
@@ -161,34 +152,7 @@ export default defineComponent({
       ],
     };
   },
-  computed: {
-    actions() {
-      return {
-        // reject: {
-        //   label: "Cancel",
-        //   variant: "link",
-        //   action: () => {
-        //     this.activeDialog = false;
-        //   },
-        // },
-        // resolve: {
-        //   label: "Use this address",
-        //   action: () => {
-        //     this.activeDialog = false;
-        //   },
-        // },
-        add: {
-          label: this?.$t(`client.addresses.actions.add`),
-          variant: "flat",
-          block: true,
-          action: () => {
-            this.activeDialog = false;
-            this.add();
-          },
-        },
-      };
-    },
-  },
+
   methods: {
     onChange() {
       this.activeDialog = true;

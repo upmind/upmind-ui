@@ -1,73 +1,84 @@
 <template>
-  <section :class="styles.clientListings.root">
-    <header :class="styles.clientListings.header">
-      <slot name="header" v-bind="{ meta }"></slot>
-    </header>
+  <component
+    :is="dialog ? 'upw-dialog' : 'section'"
+    @reject="onClose"
+    size="xl"
+    :actions="actions"
+    title="Change address"
+    :model-value="modelValue"
+    @update:modelValue="onClose"
+  >
+    <section :class="styles.clientListings.root">
+      <header :class="styles.clientListings.header">
+        <slot name="header" v-bind="{ meta }"></slot>
+      </header>
 
-    <div v-if="!meta.isAvailable">
-      <upm-auth no-tabs />
-    </div>
-
-    <upw-skeleton-list
-      :class="styles.clientListings.loading"
-      v-else-if="meta.isLoading"
-    />
-
-    <template v-else>
-      <upw-textbox
-        v-if="!noFilter && meta.canFilter"
-        @input="filter($event?.currentTarget?.value)"
-        :placeholder="$t(`client.${type}.actions.filter`)"
-        size="sm"
-      />
-
-      <div :class="styles.clientListings.items">
-        <upm-card
-          v-for="item in sortedItems"
-          :key="item.id"
-          :item="item"
-          :model-value="item.id === selected?.id"
-          @update:modelValue="onSelect"
-          :hidden="meta.isAdding && item.id === selected?.id"
-          :disabled="meta.isEditing && item.id === selected?.id"
-          :i18nKey="type"
-          :no-actions="noActions"
-        />
+      <div v-if="!meta.isAvailable">
+        <upm-auth no-tabs />
       </div>
 
-      <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <upm-empty :i18nKey="type" />
-      </slot>
-
-      <upm-form
-        v-if="meta.isEditing"
-        :item="selected"
-        :key="selected?.id"
-        :i18nKey="type"
+      <upw-skeleton-list
+        :class="styles.clientListings.loading"
+        v-else-if="meta.isLoading"
       />
 
-      <div
-        :class="styles.clientListings.actions"
-        v-if="!meta.isEditing && !meta.isLoading && !noActions"
-      >
-        <upw-button
-          :label="$t(`client.${type}.actions.add`)"
-          variant="ghost"
-          @click="onAdd"
-          block
+      <template v-else>
+        <upw-textbox
+          v-if="!noFilter && meta.canFilter"
+          @input="filter($event?.currentTarget?.value)"
+          :placeholder="$t(`client.${type}.actions.filter`)"
+          size="sm"
         />
-      </div>
-    </template>
 
-    <footer :class="styles.clientListings.footer">
-      <slot name="footer" v-bind="{ meta }"></slot>
-    </footer>
-  </section>
+        <div :class="styles.clientListings.items">
+          <upm-card
+            v-for="item in sortedItems"
+            :key="item.id"
+            :model-value="item"
+            :selected="item.id === selected?.id"
+            @update:modelValue="onSelect"
+            :hidden="meta.isAdding && item.id === selected?.id"
+            :disabled="meta.isEditing && item.id === selected?.id"
+            :i18nKey="i18nKey"
+            :no-actions="noActions"
+            @click:action="onClose"
+          />
+        </div>
+
+        <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
+          <upm-empty :i18nKey="type" />
+        </slot>
+
+        <upm-form
+          v-if="meta.isEditing"
+          :model-value="selected"
+          :key="selected?.id"
+          :i18nKey="i18nKey"
+        />
+
+        <div
+          :class="styles.clientListings.actions"
+          v-if="!meta.isAdding && !meta.isEditing && !meta.isLoading && !dialog"
+        >
+          <upw-button
+            :label="$t(`client.${type}.actions.add`)"
+            variant="ghost"
+            @click="onAdd"
+            block
+          />
+        </div>
+      </template>
+
+      <footer :class="styles.clientListings.footer">
+        <slot name="footer" v-bind="{ meta }"></slot>
+      </footer>
+    </section>
+  </component>
 </template>
 
 <script>
 // --- external
-import { defineComponent, provide } from "vue";
+import { defineComponent, provide, ref } from "vue";
 
 // --- internal
 import {
@@ -88,10 +99,15 @@ import UpmAuth from "../session/Auth.vue";
 import UpmEmpty from "./Empty.vue";
 import UpmCard from "./Card.vue";
 import UpmForm from "./Form.vue";
-import { UpwTextbox, UpwButton, UpwSkeletonList } from "@upmind/upwind";
+import {
+  UpwTextbox,
+  UpwButton,
+  UpwSkeletonList,
+  UpwDialog,
+} from "@upmind/upwind";
+import { initial } from "lodash-es";
 
 // --- utils
-import { isEqual } from "lodash-es";
 
 // --- types
 // import type { PropType } from "vue";
@@ -103,6 +119,7 @@ export default defineComponent({
     UpwTextbox,
     UpwButton,
     UpwSkeletonList,
+    UpwDialog,
     // ---
     UpmAuth,
     // ---
@@ -116,7 +133,9 @@ export default defineComponent({
       type: String, //as PropType<"addresses" | "emails" | "phones" | "companies">,
       required: true,
     },
-    modelValue: { type: String },
+    i18nKey: { type: String, required: true },
+    modelValue: { type: Boolean },
+    dialog: { type: Boolean, default: true },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
@@ -160,40 +179,50 @@ export default defineComponent({
 
     return {
       ...clientListings,
+      initial: ref(null),
       styles,
     };
   },
-  mounted() {
-    this.select(this.modelValue);
-  },
-  watch: {
-    selected(newValue, oldValue) {
-      if (
-        !isEqual(newValue?.id, oldValue?.id) &&
-        !isEqual(newValue?.id, this.modelValue)
-      ) {
-        this.$emit("update:modelValue", newValue);
-      }
-    },
-  },
+
   computed: {
+    actions() {
+      return {
+        add: {
+          label: this?.$t(`client.addresses.actions.add`),
+          variant: "flat",
+          block: true,
+          action: () => {
+            this.$emit("update:modelValue", false);
+            this.add();
+          },
+        },
+      };
+    },
     sortedItems() {
-      // if we are provided a modelValue, we want to sort the items so that the selected item is always on top
+      // if we may have an initial 'selected', and we want to sort the items so that the selected item is always on top
       // we dont do this to the  reactive 'selected' to prevent jank re-ordering
       // we use the inital value as opposed to the reactive value
       return this.items.sort((x, y) =>
-        x.id == this.modelValue ? -1 : y.id == this.modelValue ? 1 : 0
+        x.id == this.initial?.id ? -1 : y.id == this.initial?.id ? 1 : 0
       );
     },
   },
   methods: {
+    onClose() {
+      this.$emit("update:modelValue", false);
+    },
     onAdd() {
-      this.$emit("add");
+      this.$emit("update:modelValue", false);
       this.add();
     },
     onSelect(item) {
       this.select(item.id);
-      this.$emit("select", item.id);
+      this.$emit("update:modelValue", false);
+    },
+  },
+  watch: {
+    selected(value) {
+      if (!this.initial && !!value) this.initial = value;
     },
   },
 });

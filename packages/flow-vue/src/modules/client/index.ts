@@ -12,7 +12,7 @@ import { useClientAddresses, useClientAddress } from "./address";
 import { useClientCompanies, useClientCompany } from "./company";
 
 // --- utils
-import { every, isEmpty, some } from "lodash-es";
+import { every, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export const useClient = () => {
