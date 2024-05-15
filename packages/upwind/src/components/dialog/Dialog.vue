@@ -1,6 +1,6 @@
 <template>
   <h-transition-root appear :show="meta.isActive" as="template">
-    <h-dialog as="aside" @close="doClose" :class="styles.dialog.root">
+    <h-dialog as="aside" @close="doReject" :class="styles.dialog.root">
       <!-- skrim -->
       <h-transition-child
         as="template"
@@ -26,37 +26,57 @@
             :leave-from="styles.dialogTransitionLeave.from"
             :leave-to="styles.dialogTransitionLeave.to"
           >
-            <h-dialog-panel :class="styles.dialog.panel">
-              <div :class="styles.dialog.panelContent">
-                <h-dialog-title
-                  v-if="title"
-                  as="h4"
-                  :class="styles.dialog.title"
+            <h-dialog-panel :class="styles.dialog.panelWrapper">
+              <aside :class="styles.dialog.panel">
+                <header :class="styles.dialog.panelHeader">
+                  <h-dialog-title
+                    v-if="title"
+                    as="h4"
+                    :class="styles.dialog.title"
+                  >
+                    <slot name="title">{{ title }}</slot>
+                  </h-dialog-title>
+                  <upw-button
+                    type="button"
+                    variant="link"
+                    label="Close the dialog"
+                    prependIcon="close"
+                    color="current"
+                    icon-only
+                    size="sm"
+                    @click="doReject"
+                    :class="styles.dialog.close"
+                  />
+                </header>
+
+                <div :class="styles.dialog.panelContent">
+                  <slot>
+                    <p :class="styles.dialog.text" v-if="text">
+                      {{ text }}
+                    </p>
+
+                    <p :class="styles.dialog.data" v-if="data">
+                      {{ data }}
+                    </p>
+                  </slot>
+                </div>
+
+                <footer
+                  :class="styles.dialog.panelActions"
+                  v-if="$slots.actions || safeActions"
                 >
-                  <slot name="title">{{ title }}</slot>
-                </h-dialog-title>
-
-                <slot>
-                  <p :class="styles.dialog.text" v-if="text">
-                    {{ text }}
-                  </p>
-
-                  <p :class="styles.dialog.data" v-if="data">
-                    {{ data }}
-                  </p>
-                </slot>
-              </div>
-              <upw-button
-                type="button"
-                variant="ghost"
-                label="Close the dialog"
-                prependIcon="close-circle"
-                color="current"
-                icon-only
-                size="sm"
-                @click="doClose"
-                :class="styles.dialog.close"
-              />
+                  <slot name="actions" v-bind="{ meta, doReject, doResolve }">
+                    <upw-button
+                      v-for="(action, key) in safeActions"
+                      :key="key"
+                      v-bind="action"
+                      :loading="action.loading"
+                      :disabled="action?.disabled"
+                      @click="doAction(action, $event)"
+                    />
+                  </slot>
+                </footer>
+              </aside>
             </h-dialog-panel>
           </h-transition-child>
         </div>
@@ -83,7 +103,8 @@ import {
 } from "@headlessui/vue";
 
 // --- utils
-import { isNil } from "lodash-es";
+import { isFunction, isNil, includes } from "lodash-es";
+
 import { useStyles } from "../../utils";
 
 // --- types
@@ -101,7 +122,7 @@ export default defineComponent({
     HDialogPanel: DialogPanel,
     HDialogTitle: DialogTitle,
   },
-  emits: ["update:modelValue", "reject"],
+  emits: ["update:modelValue", "reject", "resolve", "click"],
   props: {
     modelValue: {
       type: Boolean,
@@ -116,6 +137,12 @@ export default defineComponent({
     },
     data: {
       type: String,
+    },
+    actions: {
+      type: [Boolean, Object] as PropType<
+        Boolean | Record<string, { label: string; action: Function }>
+      >,
+      default: null,
     },
     // ---
     size: {
@@ -166,17 +193,65 @@ export default defineComponent({
     function toggleModal(value) {
       open.value = isNil(value) ? !open.value : value;
       emit("update:modelValue", value);
-
-      if (!open.value) {
-        emit("reject");
-      }
     }
 
     return {
       meta,
       styles,
-      doClose: () => toggleModal(false),
+      toggleModal,
     };
+  },
+  computed: {
+    safeActions() {
+      if (isNil(this.actions)) {
+        return {
+          reject: {
+            label: "Cancel",
+            variant: "link",
+            action: () => {
+              this.doReject();
+            },
+          },
+        };
+      } else if (this.actions) {
+        return this.actions;
+      }
+      return null;
+    },
+  },
+  methods: {
+    doAction(item, $event) {
+      if (!includes(["submit", "reset"], item?.type)) {
+        // dont propagate the form if we are have an action that is not submit or reset
+        $event.preventDefault();
+      }
+
+      if (isFunction(item.action)) {
+        item.action(this.modelValue);
+        return;
+      }
+
+      if (item.type == "submit") {
+        this.doResolve();
+        return;
+      }
+
+      if (item.type == "reset") {
+        this.doReject();
+        return;
+      }
+
+      this.$emit("click", this.modelValue);
+    },
+
+    doResolve() {
+      this.$emit("resolve");
+      this.toggleModal(false);
+    },
+
+    doReject() {
+      this.toggleModal(false);
+    },
   },
 });
 </script>

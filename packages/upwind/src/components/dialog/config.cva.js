@@ -33,7 +33,7 @@ export default {
       "flex min-h-full w-full flex-col items-center justify-center p-4 text-center"
     ),
 
-    panel: cva(
+    panelWrapper: cva(
       "bg-base text-base-content relative transform  rounded-lg  text-left align-middle shadow-xl transition-all",
       {
         variants: {
@@ -53,21 +53,27 @@ export default {
       }
     ),
 
-    panelContent: cva(
-      "flex w-full flex-col items-start justify-start gap-4 p-6"
+    panel: cva("flex w-full flex-col items-start justify-start"),
+
+    panelHeader: cva(
+      "border-base-300 flex w-full items-center justify-between gap-2 border-b p-6"
     ),
 
-    title: cva("m-0 font-medium leading-6 text-inherit"),
-    // text-lg font-medium leading-6 text-gray-900
+    panelContent: cva(
+      "flex max-h-[70vh] w-full flex-col items-start justify-start gap-4 overflow-y-auto px-6 py-8"
+    ),
+
+    panelActions: cva(
+      "border-base-300 flex w-full items-center justify-between gap-2 border-t p-6"
+    ),
+
+    title: cva("m-0 text-lg font-medium leading-6 text-inherit"),
+
     text: cva("m-0 text-sm"),
 
     data: cva("m-0 text-xs"),
 
-    actions: cva(""),
-
-    close: cva(
-      "!absolute right-0 top-0 !size-4 !rounded-full !p-3 [&>*>.icon]:!size-4 "
-    ),
+    close: cva("!size-6 [&>*>.icon]:!size-4 "),
   },
 
   dialogTransitionEnter: {
