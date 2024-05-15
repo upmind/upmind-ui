@@ -52,7 +52,7 @@
         "description": "Add an address to get started"
       },
       "actions": {
-        "add": "Add address",
+        "add": "Add new address",
         "filter": "Filter by address",
         "edit": "Edit",
         "delete": "Delete",

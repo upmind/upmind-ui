@@ -27,6 +27,7 @@ export const useClientAddress = (item, context?: Object) => {
       isDisabled: context?.disabled,
       isSelected: context?.selected,
       isHidden: context?.hidden,
+      isSelectable: context?.selectable,
       // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: [

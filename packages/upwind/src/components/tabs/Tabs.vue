@@ -3,9 +3,9 @@
     <upw-tab
       v-for="tab in tabs"
       v-bind="tab"
-      :key="tab.id"
-      :active="active == tab.id"
-      @click="doChange(tab.id)"
+      :key="tab.value"
+      :active="active == tab.value"
+      @click="doChange(tab.value)"
       :disabled="meta.isDisabled || tab?.disabled"
       :size="size"
       :stretch="stretch"
@@ -70,16 +70,16 @@ export default defineComponent({
     return {
       meta,
       styles,
-      active: ref(props.modelValue || first(props.tabs)?.id),
+      active: ref(props.modelValue || first(props.tabs)?.value),
     };
   },
 
   computed: {},
 
   methods: {
-    doChange(id: string) {
-      this.active = id;
-      this.$emit("update:modelValue", id);
+    doChange(value: string) {
+      this.active = value;
+      this.$emit("update:modelValue", value);
     },
   },
 });

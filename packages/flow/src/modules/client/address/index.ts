@@ -21,7 +21,7 @@ import { find, map } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
+  devTools: true,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -46,12 +46,19 @@ export const useClientAddresses = () => {
         state =>
           state.matches("available") && !state.matches("available.loading")
       ).then(() => {
-        return (
-          state?.context?.selected ||
-          find(state?.context?.items, item => {
-            return item.state?.context?.model?.default;
-          })
-        );
+        // first try to get the selected address from the context
+        if (state?.context?.selected) return state.context.selected;
+
+        // if no selected address, try to get the default address
+        const defaultAddress = find(state?.context?.items, item => {
+          return item.state?.context?.model?.default;
+        });
+
+        // if we have a default address, select it
+        if (defaultAddress) {
+          service.send({ type: "SELECT", data: defaultAddress.id });
+          return defaultAddress;
+        }
       });
     },
     getDefault: () =>

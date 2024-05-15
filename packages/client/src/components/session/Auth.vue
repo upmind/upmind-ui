@@ -100,11 +100,11 @@ export default defineComponent({
     tabs() {
       return [
         {
-          id: "register",
+          value: "register",
           label: "New customer",
         },
         {
-          id: "login",
+          value: "login",
           label: "Existing customer",
         },
       ];

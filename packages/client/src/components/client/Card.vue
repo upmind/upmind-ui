@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.clientCard.root">
+  <article :class="styles.clientCard.root" @click="select">
     <upw-radio
       :model-value="selected"
       @input="select"
@@ -78,13 +78,14 @@ export default defineComponent({
   setup(props) {
     const useClient = inject("client") as Function;
 
-    const { selected, loading, hidden, disabled } = toRefs(props);
+    const { selected, loading, hidden, disabled, selectable } = toRefs(props);
 
     const clientCard = useClient(props.item, {
       selected,
       loading,
       hidden,
       disabled,
+      selectable,
     });
 
     const styles = useStyles(["clientCard"], clientCard.meta, config);
