@@ -21,7 +21,7 @@ import { find, map } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
+  devTools: true,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
@@ -63,6 +63,7 @@ export const useClientAddresses = () => {
     },
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
+
     search: async data => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>
