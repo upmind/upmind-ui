@@ -3,17 +3,31 @@ import { cva } from "class-variance-authority";
 
 export default {
   client: {
-    root: cva("w-full py-4 flex flex-col gap-4"),
+    root: cva("w-full flex flex-col gap-4"),
     header: cva(""),
     footer: cva(""),
     loading: cva(""),
     actions: cva(""),
   },
   clientListings: {
-    root: cva("w-full py-4 flex flex-col gap-4"),
+    root: cva("w-full flex flex-col gap-4 "),
     header: cva(""),
     footer: cva(""),
-    items: cva("grid gap-4 grid-cols-3 my-4"),
+    items: cva("grid gap-4", {
+      variants: {
+        cols: {
+          full: "grid-cols-1",
+          1: "grid-cols-1",
+          2: "grid-cols-2",
+          3: "grid-cols-3",
+          4: "grid-cols-4",
+          6: "grid-cols-6",
+        },
+      },
+      defaultVariants: {
+        cols: 1,
+      },
+    }),
     loading: cva(""),
     actions: cva(""),
   },
@@ -32,8 +46,12 @@ export default {
     text: cva("text-xs m-0 flex-1"),
   },
   clientCard: {
-    root: cva("rounded-lg flex items-start gap-2", {
+    root: cva("rounded-lg flex items-start gap-2 border border-transparent", {
       variants: {
+        isSelectable: {
+          true: "cursor-pointer p-2",
+        },
+
         isEditing: {
           true: "bg-base-200",
         },
@@ -47,12 +65,18 @@ export default {
       compoundVariants: [
         {
           hasErrors: false,
+          isSelectable: true,
           isSelected: true,
           class: "border-primary",
         },
+        {
+          isSelected: false,
+          isSelectable: true,
+          class: "hover:border-base-100 hover:bg-base-100 hover:bg-opacity-50",
+        },
       ],
     }),
-    content: cva("flex-1 text-xs text-base-500 flex flex-col gap-1"),
+    content: cva("flex-1 text-xs text-base-500 flex flex-col gap-1", {}),
     header: cva("flex gap-4 items-center justify-start"),
     icon: cva("size-4"),
     avatar: cva("size-6 rounded-full border overflow-hidden "),
@@ -91,7 +115,7 @@ export default {
     },
   },
   clientDetails: {
-    root: cva("w-full py-4 flex flex-col gap-4"),
+    root: cva("w-full flex flex-col gap-4"),
     header: cva(""),
     loading: cva(""),
     footer: cva(""),

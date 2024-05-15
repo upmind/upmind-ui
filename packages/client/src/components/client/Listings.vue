@@ -15,9 +15,9 @@
 
     <template v-else>
       <upw-textbox
+        v-if="!noFilter && meta.canFilter"
         @input="filter($event?.currentTarget?.value)"
         :placeholder="$t(`client.${type}.actions.filter`)"
-        v-if="meta.canFilter && !processing"
         size="sm"
       />
 
@@ -28,10 +28,10 @@
           :item="item"
           :selected="item.id === selected?.id"
           @select="select"
-          :loading="processing"
           :hidden="meta.isAdding && item.id === selected?.id"
           :disabled="meta.isEditing && item.id === selected?.id"
           :i18nKey="type"
+          :no-actions="noActions"
         />
       </div>
 
@@ -48,14 +48,13 @@
 
       <div
         :class="styles.clientListings.actions"
-        v-if="!meta.isEditing && !meta.isLoading && !processing"
+        v-if="!meta.isEditing && !meta.isLoading"
       >
         <upw-button
-          block
-          icon="plus"
           :label="$t(`client.${type}.actions.add`)"
           variant="ghost"
           @click="add"
+          size="sm"
         />
       </div>
     </template>
@@ -118,7 +117,9 @@ export default defineComponent({
       required: true,
     },
     modelValue: { type: String },
-    processing: { type: Boolean },
+    // ---
+    noActions: { type: Boolean },
+    noFilter: { type: Boolean },
   },
   setup(props) {
     let clientListings, client;

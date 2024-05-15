@@ -10,18 +10,18 @@
 
     <upw-skeleton-list
       :class="styles.clientDetails.loading"
-      v-else-if="meta.isLoading"
+      v-else-if="meta.isLoading || (meta.isAdding && activeDialog)"
     />
 
-    <!-- otherwise render a form for a new address -->
+    <!-- If we dont have any default or selected :- render a form for a new address -->
     <upm-form
-      v-else-if="meta.isAdding"
+      v-else-if="meta.isAdding && !activeDialog"
       i18nKey="addresses"
       :item="selected"
-      :modal="false"
+      :dialog="false"
     />
 
-    <!-- If we have a default address or company then render the card -->
+    <!-- otherwise show the default address as a card -->
     <div :class="styles.clientDetails.content" v-else-if="selected">
       <h5 :class="styles.clientDetails.title">
         {{ $t("client.details.title") }}
@@ -39,6 +39,7 @@
         selected
         :selectable="false"
         no-actions
+        :key="selected?.id"
       />
 
       <div :class="styles.clientDetails.actions">
@@ -52,6 +53,17 @@
       </div>
     </div>
 
+    <upw-dialog v-model="activeDialog" size="xl">
+      <upw-tabs v-model="activeTab" :tabs="tabs" block stretch />
+      <upm-listings
+        :type="activeTab"
+        no-actions
+        no-filter
+        :key="activeTab"
+        :model-value="selected?.id"
+      />
+    </upw-dialog>
+
     <footer :class="styles.clientDetails.footer">
       <slot name="footer" v-bind="{ meta }"></slot>
     </footer>
@@ -60,7 +72,7 @@
 
 <script>
 // --- external
-import { defineComponent, provide } from "vue";
+import { defineComponent, provide, ref } from "vue";
 
 // --- internal
 import { useClient } from "@upmind/flow-vue";
@@ -71,17 +83,23 @@ import config from "./config.cva";
 import UpmAuth from "../session/Auth.vue";
 import UpmForm from "./Form.vue";
 import UpmCard from "./Card.vue";
-import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
+import UpmListings from "./Listings.vue";
+import { UpwSkeletonList, UpwButton, UpwTabs, UpwDialog } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClientDetails",
   components: {
     UpwSkeletonList,
+    UpwButton,
+    UpwTabs,
+    UpwDialog,
+    // ---
     UpmAuth,
+    // ---
     UpmForm,
     UpmCard,
-    UpwButton,
+    UpmListings,
   },
   props: {
     i18nKey: { type: String },
@@ -120,10 +138,25 @@ export default defineComponent({
       styles,
       addresses,
       companies,
+      // ---
+      activeTab: ref("addresses"),
+      activeDialog: ref(false),
+      tabs: [
+        {
+          value: "addresses",
+          label: "Address",
+        },
+        {
+          value: "companies",
+          label: "Business",
+        },
+      ],
     };
   },
   methods: {
-    onChange() {},
+    onChange() {
+      this.activeDialog = true;
+    },
     onEdit() {
       this.selectedClient(this.selected).edit();
     },

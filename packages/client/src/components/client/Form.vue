@@ -1,13 +1,12 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
+    :is="dialog ? 'upw-dialog' : 'div'"
     @reject="cancel"
     :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
     size="lg"
   >
     <upw-form
       tabindex="1"
-      ref="form"
       :class="styles.clientForm.root"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
@@ -24,7 +23,7 @@
 
 <script>
 // --- external
-import { defineComponent, inject, ref } from "vue";
+import { defineComponent, inject } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
@@ -43,7 +42,7 @@ export default defineComponent({
       required: true,
     },
     i18nKey: { type: String, required: true },
-    modal: { type: Boolean, default: true },
+    dialog: { type: Boolean, default: true },
   },
   setup(props) {
     const useClient = inject("client");
@@ -51,7 +50,6 @@ export default defineComponent({
     const styles = useStyles(["clientForm"], clientForm.meta, config);
 
     return {
-      form: ref(),
       styles,
       ...clientForm,
     };
@@ -67,7 +65,7 @@ export default defineComponent({
         },
       };
 
-      if (this.modal) {
+      if (this.dialog) {
         actions.cancel = {
           label: "Cancel",
           variant: "ghost",
@@ -77,16 +75,6 @@ export default defineComponent({
 
       return actions;
     },
-  },
-  mounted() {
-    this.$nextTick(() => {
-      const yOffset = -108;
-      const y =
-        this.form.getBoundingClientRect().top + window.scrollY + yOffset;
-
-      window.scrollTo({ top: y, behavior: "smooth" });
-      this.form.focus();
-    });
   },
 });
 </script>

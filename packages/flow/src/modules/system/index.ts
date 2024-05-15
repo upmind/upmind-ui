@@ -24,7 +24,7 @@ import { isArray } from "xstate/lib/utils";
 
 let state = null;
 
-const service = interpret(systemMachine, { devTools: true }).onTransition(
+const service = interpret(systemMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------

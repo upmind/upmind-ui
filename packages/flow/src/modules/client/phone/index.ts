@@ -21,7 +21,7 @@ import { find, map } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: true,
+  devTools: false,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------

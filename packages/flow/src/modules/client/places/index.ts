@@ -8,7 +8,6 @@ import services from "./services";
 import { actions } from "./actions";
 
 // --- utils
-import { debounce } from "lodash-es";
 
 // --- types
 
@@ -21,7 +20,7 @@ import { debounce } from "lodash-es";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: true,
+  devTools: false,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------
