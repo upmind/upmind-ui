@@ -16,17 +16,6 @@
       <span v-else-if="meta.showAsOptional" :class="styles.label.optional">
         {{ optionalText }}
       </span>
-
-      <upw-icon
-        v-if="meta.isInvalid"
-        :class="styles.label.icon"
-        icon="alert-circle"
-      />
-      <upw-icon
-        v-else-if="meta.isValid"
-        :class="styles.label.icon"
-        icon="check-circle"
-      />
     </span>
 
     <span v-if="altText" :class="styles.label.alt">
