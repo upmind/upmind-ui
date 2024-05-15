@@ -27,6 +27,7 @@
         ref="reference"
       >
         <h-combobox-input
+          v-bind="safeAttrs"
           :class="styles.combobox.input"
           :displayValue="value => displayValue || value?.label"
           @input="onSearch"
@@ -80,50 +81,68 @@
             {{ emptyText }}
           </li>
 
-          <h-combobox-option
-            v-else
-            v-for="(item, key) in results"
-            :key="key"
-            as="template"
-            v-slot="{ active, selected }"
-            :value="item.value"
-            :disabled="item?.disabled"
-          >
-            <li
-              :class="[
-                styles.comboboxItem.root,
-                active ? styles.comboboxItem.active : '',
-                selected ? styles.comboboxItem.selected : '',
-              ]"
+          <template v-else v-for="(item, key) in results" :key="key">
+            <hr v-if="item.as == 'separator'" />
+
+            <h-combobox-option
+              v-else-if="item.as == 'button'"
+              as="template"
+              v-slot="{ active, selected }"
+              :value="item.value"
+              :disabled="item?.disabled"
             >
-              <upw-icon
-                v-if="item.avatar"
-                :icon="item.avatar"
-                class="avatar"
-                :class="styles.comboboxItem.avatar"
-                aria-hidden="true"
-              />
-
-              <upw-icon
-                v-if="item.icon"
-                :icon="item.icon"
-                :class="styles.comboboxItem.icon"
-                aria-hidden="true"
-              />
-
-              <span :class="styles.comboboxItem.label">{{ item.label }}</span>
-
-              <upw-icon
-                v-if="selectedIcon"
-                :icon="selectedIcon"
+              <li :class="styles.comboboxItem.root">
+                <upw-button
+                  v-bind="item"
+                  :prepend-avatar="item.avatar"
+                  :prepend-icon="item.icon"
+                  :disabled="selected"
+                />
+              </li>
+            </h-combobox-option>
+            <h-combobox-option
+              v-else
+              as="template"
+              v-slot="{ active, selected }"
+              :value="item.value"
+              :disabled="item?.disabled"
+            >
+              <li
                 :class="[
-                  styles.comboboxItem.icon,
-                  { invisible: !selected, 'pointer-events-none': !selected },
+                  styles.comboboxItem.root,
+                  active ? styles.comboboxItem.active : '',
+                  selected ? styles.comboboxItem.selected : '',
                 ]"
-                aria-hidden="true"
-              />
-            </li>
-          </h-combobox-option>
+              >
+                <upw-icon
+                  v-if="item.avatar"
+                  :icon="item.avatar"
+                  class="avatar"
+                  :class="styles.comboboxItem.avatar"
+                  aria-hidden="true"
+                />
+
+                <upw-icon
+                  v-if="item.icon"
+                  :icon="item.icon"
+                  :class="styles.comboboxItem.icon"
+                  aria-hidden="true"
+                />
+
+                <span :class="styles.comboboxItem.label">{{ item.label }}</span>
+
+                <upw-icon
+                  v-if="selectedIcon"
+                  :icon="selectedIcon"
+                  :class="[
+                    styles.comboboxItem.icon,
+                    { invisible: !selected, 'pointer-events-none': !selected },
+                  ]"
+                  aria-hidden="true"
+                />
+              </li>
+            </h-combobox-option>
+          </template>
         </h-combobox-options>
       </transition>
     </div>
@@ -146,6 +165,7 @@ import {
   ComboboxOption,
   ComboboxInput,
 } from "@headlessui/vue";
+import UpwButton from "../button/Button.vue";
 import UpwInput from "../input/Input.vue";
 import UpwIcon from "../icon/Icon.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
@@ -160,6 +180,7 @@ import {
   debounce,
   includes,
   isFunction,
+  omit,
 } from "lodash-es";
 
 // --- types
@@ -182,6 +203,7 @@ export default defineComponent({
     UpwIcon,
     UpwInput,
     UpwSpinner,
+    UpwButton,
   },
   props: {
     id: {
@@ -296,6 +318,10 @@ export default defineComponent({
       } else if (isFunction(props.search)) {
         // --- now do the provided search
         results.value = await props.search(value);
+        if (props.items.length > 0) {
+          if (results.value.length) results.value.push({ as: "separator" });
+          results.value.push(...props.items);
+        }
       } else {
         // --- if no search function is provided, just filter the items
         results.value = filter(
@@ -327,6 +353,10 @@ export default defineComponent({
   },
 
   computed: {
+    safeAttrs() {
+      // TODO: maybe whitelist input attributes
+      return omit(this.$attrs, ["layout", "variant"]);
+    },
     displayValue() {
       const selected = find(this.results, ["value", this.value]);
       if (selected) return selected?.label;

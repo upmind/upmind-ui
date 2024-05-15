@@ -59,10 +59,9 @@
       title="Change"
       :actions="actions"
     >
-      <upw-tabs v-model="activeTab" :tabs="tabs" block stretch />
+      <!-- <upw-tabs v-model="activeTab" :tabs="tabs" block stretch /> -->
       <upm-listings
         :type="activeTab"
-        no-actions
         no-filter
         :key="activeTab"
         :model-value="selected?.id"

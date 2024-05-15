@@ -15,6 +15,7 @@
       :schema="schema"
       :uischema="uischema"
       @update:modelValue="input"
+      @valid="maybeSubmit"
       @reject="cancel"
       @resolve="update"
       :actions="actions"
@@ -33,6 +34,7 @@ import config from "./config.cva";
 
 // --- components
 import { UpwForm, UpwDialog } from "@upmind/upwind";
+import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -68,17 +70,27 @@ export default defineComponent({
           disabled: this.meta.isProcessing,
           action: () => this.cancel(),
         };
+
+        actions.submit = {
+          type: "submit",
+          variant: this.dialog ? "flat" : "link",
+          label: "Confirm Address",
+          disabled: !this.meta.isValid || this.meta.isProcessing,
+          action: ({ model }) => this.update(model),
+        };
       }
 
-      actions.submit = {
-        type: "submit",
-        variant: this.dialog ? "flat" : "link",
-        label: "Confirm Address",
-        disabled: !this.meta.isValid || this.meta.isProcessing,
-        action: ({ model }) => this.update(model),
-      };
-
       return actions;
+    },
+  },
+  methods: {
+    maybeSubmit(value) {
+      if (!this.dialog && value && !isEmpty(this.model)) {
+        this.$nextTick(() => {
+          console.log("maybeSubmit", true, this.meta);
+          this.update(this.model);
+        });
+      }
     },
   },
 });

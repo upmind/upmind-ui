@@ -4,7 +4,7 @@
     :id="control.id + '-lookup'"
     :disabled="!control.enabled"
     :model-value="control.data"
-    :items="control.options"
+    :items="control.options || appliedOptions.items"
     :search="search"
     @change="onChange"
   >

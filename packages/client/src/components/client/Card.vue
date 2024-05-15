@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.clientCard.root" @click="onSelect">
+  <article :class="styles.clientCard.root">
     <upw-radio
       :model-value="!!modelValue"
       @input="onSelect"
@@ -8,7 +8,7 @@
       size="sm"
       v-if="selectable"
     />
-    <div :class="styles.clientCard.content">
+    <div :class="styles.clientCard.content" @click="onSelect">
       <header :class="styles.clientCard.header">
         <h4 :class="styles.clientCard.title">
           {{ title }}
