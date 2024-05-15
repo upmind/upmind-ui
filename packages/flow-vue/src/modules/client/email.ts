@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientEmails as useUpmindClientEmails } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce, startsWith } from "lodash-es";
+import { get, map, debounce, startsWith, find, reject } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -27,6 +27,7 @@ export const useClientEmail = (item, context?: Object) => {
       isDisabled: context?.disabled,
       isSelected: context?.selected,
       isHidden: context?.hidden,
+      isSelectable: context?.selectable,
       // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
@@ -62,8 +63,16 @@ export const useClientEmail = (item, context?: Object) => {
 export const useClientEmails = () => {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
 
-  const { service } = useUpmindClientEmails();
+  const { service, isReady, getSelected } = useUpmindClientEmails();
   const { state, send } = useActor(service);
+
+  // --------------------------------------------------------
+  const items = computed(() =>
+    map(state.value.context.items, item => ({
+      id: item.id,
+      ...useActor(item),
+    }))
+  );
 
   // --------------------------------------------------------
 
@@ -85,21 +94,21 @@ export const useClientEmails = () => {
       isAdding:
         ["available.editing"].some(state.value.matches) &&
         startsWith(state.value.context.selected?.id, "item_"),
-      isEditing: ["available.editing"].some(state.value.matches),
+      isEditing:
+        ["available.editing"].some(state.value.matches) &&
+        !startsWith(state.value.context.selected?.id, "item_"),
       isEmpty:
-        state.value.matches("available") && !state.value.context?.items?.length,
+        state.value.matches("available") &&
+        !reject(state.value.context?.items, item =>
+          startsWith(item.id, "item_")
+        )?.length,
       canFilter:
         state.value.matches("available") &&
         !["available.editing", "available.loading"].some(state.value.matches) &&
         state.value.context?.raw?.length > 1,
     })),
     // ---
-    items: computed(() =>
-      map(state.value.context.items, item => ({
-        id: item.id,
-        ...useActor(item),
-      }))
-    ),
+    items,
     selected: computed(() =>
       state.value.context?.selected
         ? {
@@ -108,10 +117,22 @@ export const useClientEmails = () => {
           }
         : null
     ),
+    default: computed(() => {
+      const item = find(
+        items.value,
+        item => item.state?.value?.context?.model?.default
+      );
+      return item;
+    }),
     // ---
+    isReady,
+    getSelected,
     select: async id => {
-      if (state.value.matches("loading")) {
-        await waitFor(service, newstate => !newstate.matches("loading"));
+      if (state.value.matches("available.loading")) {
+        await waitFor(
+          service,
+          newstate => !newstate.matches("available.loading")
+        );
       }
 
       send({ type: "SELECT", data: id });

@@ -18,7 +18,7 @@
       v-if="!meta.isLoading && meta.isAdding && !activeDialog"
       i18nKey="addresses"
       :item="selected"
-      :dialog="meta.isEmpty"
+      :dialog="!meta.isEmpty"
     />
 
     <!-- otherwise show the default address as a card -->
@@ -66,7 +66,8 @@
         no-filter
         :key="activeTab"
         :model-value="selected?.id"
-        @add="onAdd"
+        @add="onClose"
+        @select="onClose"
       />
     </upw-dialog>
 
@@ -138,6 +139,7 @@ export default defineComponent({
     // ---
 
     return {
+      add,
       selected,
       selectedClient,
       meta,
@@ -163,18 +165,26 @@ export default defineComponent({
   computed: {
     actions() {
       return {
-        reject: {
-          label: "Cancel",
-          variant: "link",
+        // reject: {
+        //   label: "Cancel",
+        //   variant: "link",
+        //   action: () => {
+        //     this.activeDialog = false;
+        //   },
+        // },
+        // resolve: {
+        //   label: "Use this address",
+        //   action: () => {
+        //     this.activeDialog = false;
+        //   },
+        // },
+        add: {
+          label: this?.$t(`client.addresses.actions.add`),
+          variant: "flat",
+          block: true,
           action: () => {
             this.activeDialog = false;
-            this.getDefault();
-          },
-        },
-        resolve: {
-          label: "Use this address",
-          action: () => {
-            this.activeDialog = false;
+            this.add();
           },
         },
       };
@@ -187,7 +197,7 @@ export default defineComponent({
     onEdit() {
       this.selectedClient(this.selected).edit();
     },
-    onAdd() {
+    onClose() {
       this.activeDialog = false;
     },
   },

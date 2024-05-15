@@ -40,7 +40,27 @@ export const useClientEmails = () => {
     getItemsSnapshot: () => state?.context?.items,
     getItems: () => map(state?.context?.items, "state.context.model"),
     getItem: id => find(state?.context?.items, ["id", id]),
-    getSelected: () => state?.context?.selected,
+    getSelected: () => {
+      return waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ).then(() => {
+        // first try to get the selected address from the context
+        if (state?.context?.selected) return state.context.selected;
+
+        // if no selected address, try to get the default address
+        const defaultAddress = find(state?.context?.items, item => {
+          return item.state?.context?.model?.default;
+        });
+
+        // if we have a default address, select it
+        if (defaultAddress) {
+          service.send({ type: "SELECT", data: defaultAddress.id });
+          return defaultAddress;
+        }
+      });
+    },
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
   };

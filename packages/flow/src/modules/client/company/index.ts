@@ -46,23 +46,22 @@ export const useClientCompanies = () => {
         state =>
           state.matches("available") && !state.matches("available.loading")
       ).then(() => {
-        return (
-          state?.context?.selected ||
-          find(state?.context?.items, item => {
-            return item.state?.context?.model?.default;
-          })
-        );
+        // first try to get the selected address from the context
+        if (state?.context?.selected) return state.context.selected;
+
+        // if no selected address, try to get the default address
+        const defaultAddress = find(state?.context?.items, item => {
+          return item.state?.context?.model?.default;
+        });
+
+        // if we have a default address, select it
+        if (defaultAddress) {
+          service.send({ type: "SELECT", data: defaultAddress.id });
+          return defaultAddress;
+        }
       });
     },
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
-    search: async data => {
-      service.send({ type: "FILTER", data });
-      return waitFor(service, state =>
-        state.matches("available.filtered")
-      ).then(() => {
-        return state.context.items;
-      });
-    },
   };
 };

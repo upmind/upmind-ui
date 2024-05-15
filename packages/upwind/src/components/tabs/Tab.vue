@@ -2,7 +2,7 @@
   <button
     :class="styles.tab.root"
     :disabled="disabled"
-    :aria-controls="id"
+    :aria-controls="value"
     role="tab"
   >
     <slot v-bind="{ meta, label }">
@@ -42,7 +42,7 @@ export default defineComponent({
   },
 
   props: {
-    id: {
+    value: {
       type: String,
       required: true,
     },

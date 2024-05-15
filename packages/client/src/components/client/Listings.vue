@@ -23,11 +23,11 @@
 
       <div :class="styles.clientListings.items">
         <upm-card
-          v-for="item in items"
+          v-for="item in sortedItems"
           :key="item.id"
           :item="item"
-          :selected="item.id === selected?.id"
-          @select="select"
+          :model-value="item.id === selected?.id"
+          @update:modelValue="onSelect"
           :hidden="meta.isAdding && item.id === selected?.id"
           :disabled="meta.isEditing && item.id === selected?.id"
           :i18nKey="type"
@@ -42,19 +42,19 @@
       <upm-form
         v-if="meta.isEditing"
         :item="selected"
-        :key="selected.id"
+        :key="selected?.id"
         :i18nKey="type"
       />
 
       <div
         :class="styles.clientListings.actions"
-        v-if="!meta.isEditing && !meta.isLoading"
+        v-if="!meta.isEditing && !meta.isLoading && !noActions"
       >
         <upw-button
           :label="$t(`client.${type}.actions.add`)"
           variant="ghost"
           @click="onAdd"
-          size="sm"
+          block
         />
       </div>
     </template>
@@ -110,7 +110,7 @@ export default defineComponent({
     UpmCard,
     UpmForm,
   },
-  emits: ["update:modelValue", "add"],
+  emits: ["update:modelValue", "add", "select"],
   props: {
     type: {
       type: String, //as PropType<"addresses" | "emails" | "phones" | "companies">,
@@ -120,6 +120,7 @@ export default defineComponent({
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
+    cols: { type: [String, Number] },
   },
   setup(props) {
     let clientListings, client;
@@ -175,10 +176,24 @@ export default defineComponent({
       }
     },
   },
+  computed: {
+    sortedItems() {
+      // if we are provided a modelValue, we want to sort the items so that the selected item is always on top
+      // we dont do this to the  reactive 'selected' to prevent jank re-ordering
+      // we use the inital value as opposed to the reactive value
+      return this.items.sort((x, y) =>
+        x.id == this.modelValue ? -1 : y.id == this.modelValue ? 1 : 0
+      );
+    },
+  },
   methods: {
     onAdd() {
       this.$emit("add");
       this.add();
+    },
+    onSelect(item) {
+      this.select(item.id);
+      this.$emit("select", item.id);
     },
   },
 });

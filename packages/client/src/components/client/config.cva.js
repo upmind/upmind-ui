@@ -46,36 +46,45 @@ export default {
     text: cva("text-xs m-0 flex-1"),
   },
   clientCard: {
-    root: cva("rounded-lg flex items-start gap-2 border border-transparent", {
-      variants: {
-        isSelectable: {
-          true: "cursor-pointer p-2",
-        },
+    root: cva(
+      "rounded-lg flex items-start gap-2 border border-transparent transition",
+      {
+        variants: {
+          isSelectable: {
+            true: "cursor-pointer p-2",
+          },
 
-        isEditing: {
-          true: "bg-base-200",
+          isEditing: {
+            true: "bg-base-200",
+          },
+          isHidden: {
+            true: "hidden opacity-50 pointer-events-none",
+          },
+          hasErrors: {
+            true: "border-error",
+          },
         },
-        isHidden: {
-          true: "hidden opacity-50 pointer-events-none",
-        },
-        hasErrors: {
-          true: "border-error",
-        },
-      },
-      compoundVariants: [
-        {
-          hasErrors: false,
-          isSelectable: true,
-          isSelected: true,
-          class: "border-base-100 bg-base-100 bg-opacity-50",
-        },
-        {
-          isSelected: false,
-          isSelectable: true,
-          class: "hover:border-base-100 hover:bg-base-100 hover:bg-opacity-50",
-        },
-      ],
-    }),
+        compoundVariants: [
+          {
+            hasErrors: false,
+            isSelectable: true,
+            isSelected: true,
+            class: "border-primary border-2",
+          },
+          {
+            hasErrors: false,
+            isSelectable: true,
+            isSelected: false,
+            class: "p-[9px]", // HACK: (p2 + 1px) to prevent bounce on the border size changing
+          },
+          {
+            isSelected: false,
+            isSelectable: true,
+            class: "hover:border-base-100 hover:bg-base-100",
+          },
+        ],
+      }
+    ),
     content: cva("flex-1 text-xs text-base-500 flex flex-col gap-1", {}),
     header: cva("flex gap-4 items-center justify-start"),
     icon: cva("size-4"),
