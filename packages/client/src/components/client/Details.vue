@@ -10,15 +10,15 @@
 
     <upw-skeleton-list
       :class="styles.clientDetails.loading"
-      v-else-if="meta.isLoading || (meta.isAdding && activeDialog)"
+      v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     />
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <upm-form
-      v-else-if="meta.isAdding && !activeDialog"
+      v-if="!meta.isLoading && meta.isAdding && !activeDialog"
       i18nKey="addresses"
       :item="selected"
-      :dialog="false"
+      :dialog="meta.isEmpty"
     />
 
     <!-- otherwise show the default address as a card -->
@@ -53,7 +53,12 @@
       </div>
     </div>
 
-    <upw-dialog v-model="activeDialog" size="xl">
+    <upw-dialog
+      v-model="activeDialog"
+      size="xl"
+      title="Change"
+      :actions="actions"
+    >
       <upw-tabs v-model="activeTab" :tabs="tabs" block stretch />
       <upm-listings
         :type="activeTab"
@@ -61,6 +66,7 @@
         no-filter
         :key="activeTab"
         :model-value="selected?.id"
+        @add="onAdd"
       />
     </upw-dialog>
 
@@ -119,7 +125,7 @@ export default defineComponent({
       company,
       meta,
     } = client;
-    const selectedClient = address || company; // TODo provide the appropriat eone base don the type of default address or company
+    const selectedClient = address; // TODo provide the appropriat eone base don the type of default address or company
     // Provide the selected client to the form/card components
     provide("client", selectedClient);
 
@@ -139,6 +145,7 @@ export default defineComponent({
       addresses,
       companies,
       // ---
+      inlineForm: ref(true),
       activeTab: ref("addresses"),
       activeDialog: ref(false),
       tabs: [
@@ -153,12 +160,35 @@ export default defineComponent({
       ],
     };
   },
+  computed: {
+    actions() {
+      return {
+        reject: {
+          label: "Cancel",
+          variant: "link",
+          action: () => {
+            this.activeDialog = false;
+            this.getDefault();
+          },
+        },
+        resolve: {
+          label: "Use this address",
+          action: () => {
+            this.activeDialog = false;
+          },
+        },
+      };
+    },
+  },
   methods: {
     onChange() {
       this.activeDialog = true;
     },
     onEdit() {
       this.selectedClient(this.selected).edit();
+    },
+    onAdd() {
+      this.activeDialog = false;
     },
   },
 });

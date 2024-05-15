@@ -67,7 +67,7 @@ export default {
           hasErrors: false,
           isSelectable: true,
           isSelected: true,
-          class: "border-primary",
+          class: "border-base-100 bg-base-100 bg-opacity-50",
         },
         {
           isSelected: false,
@@ -83,7 +83,7 @@ export default {
     title: cva(
       "m-0 leading-none text-sm text-base-content gap-2 inline-flex font-medium"
     ),
-    meta: cva("m-0"),
+    text: cva("leading-tight "),
     verified: cva("", {
       variants: {
         isVerified: {

@@ -21,7 +21,12 @@
         </h4>
       </header>
 
-      <span :class="styles.clientCard.text">{{ description }}</span>
+      <span
+        v-for="(line, index) in description?.split(',')"
+        :class="styles.clientCard.text"
+        :key="`line-${index}`"
+        >{{ line }}</span
+      >
 
       <p v-if="meta.hasErrors" :class="styles.clientCard.errors">
         {{ errors }}

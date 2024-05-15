@@ -3,7 +3,7 @@
     :is="dialog ? 'upw-dialog' : 'div'"
     @reject="cancel"
     :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
-    size="lg"
+    size="xl"
   >
     <upw-form
       tabindex="1"
@@ -70,6 +70,7 @@ export default defineComponent({
           label: "Cancel",
           variant: "ghost",
           disabled: this.meta.isProcessing,
+          action: this.cancel,
         };
       }
 
