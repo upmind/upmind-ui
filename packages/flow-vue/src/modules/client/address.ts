@@ -69,7 +69,18 @@ export const useClientAddress = (item, context?: Object) => {
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
     search: model => send({ type: "SEARCH", data: model }),
-    update: () => send({ type: "UPDATE" }),
+    update: () => {
+      // avoid race conditions and wait for the selected item to be valid
+      if (!state.value.matches("valid")) {
+        waitFor(service.getSnapshot()?.context?.selected, newstate =>
+          newstate.matches("valid")
+        ).then(() => {
+          send({ type: "UPDATE" });
+        });
+      } else {
+        send({ type: "UPDATE" });
+      }
+    },
     remove: () => send({ type: "REMOVE" }),
     setDefault: () => send({ type: "DEFAULT" }),
     // ---
