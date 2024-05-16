@@ -82,10 +82,32 @@
           </li>
 
           <template v-else v-for="(item, key) in results" :key="key">
-            <hr v-if="item.as == 'separator'" />
+            <li
+              v-if="item?.as == 'separator'"
+              :class="styles.comboboxItem.separator"
+            >
+              <upw-icon
+                v-if="item.avatar"
+                :icon="item.avatar"
+                class="avatar"
+                :class="styles.comboboxItem.avatar"
+                aria-hidden="true"
+              />
+
+              <upw-icon
+                v-if="item.icon"
+                :icon="item.icon"
+                :class="styles.comboboxItem.icon"
+                aria-hidden="true"
+              />
+
+              <span :class="styles.comboboxItem.label" v-if="item?.label">{{
+                item.label
+              }}</span>
+            </li>
 
             <h-combobox-option
-              v-else-if="item.as == 'button'"
+              v-else-if="item?.as == 'button'"
               as="template"
               v-slot="{ active, selected }"
               :value="item.value"
@@ -100,6 +122,7 @@
                 />
               </li>
             </h-combobox-option>
+
             <h-combobox-option
               v-else
               as="template"
@@ -151,7 +174,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -181,6 +204,7 @@ import {
   includes,
   isFunction,
   omit,
+  reject,
 } from "lodash-es";
 
 // --- types
@@ -271,7 +295,7 @@ export default defineComponent({
     const value = ref(props.modelValue || "");
     const input = ref(null);
     const processing = ref(false);
-    const results = ref(props.items);
+    const results = ref(props.items || []);
     // ---
     const reference = ref(null);
     const floating = ref(null);
@@ -307,33 +331,37 @@ export default defineComponent({
     );
     // ---
 
-    async function safeSearch(event) {
-      processing.value = true;
-      input.value = event.target.value;
+    async function safeSearch(event?: Event) {
+      input.value = event?.target?.value;
+      processing.value = !!input.value;
 
-      const value = event.target.value;
-      if (!value) {
-        // do nothing
-        // results.value ??= props.items;
+      if (!input.value) {
+        results.value = reject(props.items, "persist");
       } else if (isFunction(props.search)) {
-        // --- now do the provided search
-        results.value = await props.search(value);
-        if (props.items.length > 0) {
-          if (results.value.length) results.value.push({ as: "separator" });
-          results.value.push(...props.items);
-        }
+        results.value = await props.search(input.value);
       } else {
         // --- if no search function is provided, just filter the items
         results.value = filter(
           props.items,
           item =>
-            includes(item.label.toLowerCase(), value.toLowerCase()) ||
-            includes(item.value.toLowerCase(), value.toLowerCase())
+            includes(item.label.toLowerCase(), input.value.toLowerCase()) ||
+            includes(item.value.toLowerCase(), input.value.toLowerCase())
         );
+      }
+
+      const presistedItems = filter(props.items, "persist");
+
+      if (presistedItems.length > 0) {
+        if (results.value.length) results.value.push({ as: "separator" });
+        results.value.push(...presistedItems);
       }
 
       processing.value = false;
     }
+
+    onMounted(() => {
+      safeSearch();
+    });
 
     // ---
 

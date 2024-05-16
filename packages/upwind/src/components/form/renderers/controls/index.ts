@@ -4,6 +4,10 @@ import { registerEntry } from "../utils";
 
 import BooleanRenderer, { tester as booleanTest } from "./BooleanRenderer.vue";
 
+import ButtonToggleRenderer, {
+  tester as buttonToggleTest,
+} from "./ButtonToggleRenderer.vue";
+
 import DateRenderer, { tester as dateTest } from "./DateRenderer.vue";
 
 import EmailRenderer, { tester as emailTest } from "./EmailRenderer.vue";
@@ -37,6 +41,7 @@ import UrlRenderer, { tester as urlTest } from "./UrlRenderer.vue";
 
 export const controlRenderers = [
   registerEntry(BooleanRenderer, booleanTest),
+  registerEntry(ButtonToggleRenderer, buttonToggleTest),
   registerEntry(DateRenderer, dateTest),
   registerEntry(EmailRenderer, emailTest),
   registerEntry(EnumRenderer, enumTest),

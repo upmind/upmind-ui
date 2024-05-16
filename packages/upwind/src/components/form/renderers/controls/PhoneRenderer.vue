@@ -70,7 +70,7 @@ export default defineComponent({
       // forward the event to the input control that will trigger the update
       // NB: this is not a DOM event so we need to fake one for the renderer
       renderer.onChange({
-        target: { currentTarget: { value: phone.value.number } },
+        currentTarget: { value: phone.value.number },
       });
     }
 
