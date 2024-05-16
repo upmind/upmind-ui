@@ -38,6 +38,11 @@ setup(app => {
     locale: "en",
     fallbackLocale: "en",
     messages: getGlobalMessages(),
+    // ---
+    missingWarn: false,
+    fallbackWarn: false,
+    silentTranslationWarn: true,
+    silentFallbackWarn: true,
   });
   app.use(i18n);
 
