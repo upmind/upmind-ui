@@ -15,7 +15,7 @@
         :items="countries"
         has-search
         icon-only
-        @update:model-value="onChangeCountry"
+        @update:modelValue="onChangeCountry"
         grouped
         size="sm"
       />
@@ -55,31 +55,34 @@ export default defineComponent({
   },
 
   setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(useJsonFormsControl(props), () => phone);
+    const renderer = useUpwindRenderer(
+      useJsonFormsControl(props),
+      target => target?.value
+    );
 
     const defaultCountryCode = get(
       renderer,
       "control.value.schema.isPhoneNumber"
-    ); //DEPRECATED: renderer.appliedOptions.value?.defaultCountry || {code: "US",}
+    );
 
     const phone = ref({ ...renderer.control.value.data });
 
     function onChangeCountry(value: string) {
-      // set the new country
       set(phone.value, "country", value);
       // forward the event to the input control that will trigger the update
       // NB: this is not a DOM event so we need to fake one for the renderer
       renderer.onChange({
-        currentTarget: { value: phone.value.number },
+        currentTarget: { value: phone.value },
       });
     }
 
     function onChange(target: Event) {
-      // set the new  number ( without the country dailing code)
       set(phone.value, "number", target.currentTarget.value);
-
       // forward the event to the input control that will trigger the update
-      renderer.onChange(target);
+      // NB: this is not a DOM event so we need to fake one for the renderer
+      renderer.onChange({
+        currentTarget: { value: phone.value },
+      });
     }
 
     // ------------------------------------------------
