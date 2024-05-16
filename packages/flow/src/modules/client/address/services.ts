@@ -122,8 +122,9 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
         manualPlace: !!model?.id,
         addBusinessDetails: false,
         type: first(AddressTypes)?.key,
-        phone: phone?.full_phone,
-        email: email?.email,
+        phone: phone?.phone,
+        email: email?.id,
+        place: address?.id,
         // address_1: address?.address_1,
         // address_2: address?.address_2,
         // city: address?.city,
@@ -214,7 +215,7 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
 
 // --------------------------------------------------------
 async function parse(
-  { schema, model, regions, country }: AddressContext,
+  { addresses, schema, model, regions, country, places }: AddressContext,
   _event: AddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -222,11 +223,26 @@ async function parse(
 
   if (!isEmpty(model)) {
     // let scheck to see if weve been given a place to lookup
-    // if we have, then get the place details and update the model
+    // if we have:
+    //  1: get the place from our existing addressess by placeId
+    //  2: get the place details from google
+    //  4: update the model with the place details
     if (model?.place) {
-      const { getPlaceDetails } = usePlaces();
-      const place = await getPlaceDetails(model.place);
-      model = defaultsDeep(place, model);
+      const existing = addresses.getItem(model.place);
+      if (existing) {
+        model.name ??= existing.name; // only update it if weve not already got a value
+        model.address_1 = existing.address_1;
+        model.address_2 = existing.address_2;
+        model.city = existing.city;
+        model.postcode = existing.postcode;
+        model.region_id = existing.region_id;
+        model.state = existing.state;
+        model.country_id = existing.country_id;
+      } else {
+        const { getPlaceDetails } = places;
+        const place = await getPlaceDetails(model.place);
+        model = defaultsDeep(place, model);
+      }
     }
 
     // lets check if the country has changed, ie: the regions dont match

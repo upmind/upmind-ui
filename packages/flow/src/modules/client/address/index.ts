@@ -39,7 +39,9 @@ export const useClientAddresses = () => {
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,
     getItems: () => compact(map(state?.context?.items, "state.context.model")),
-    getItem: id => find(state?.context?.items, ["id", id]),
+    getItemSnapshot: id => find(state?.context?.items, ["id", id]),
+    getItem: id =>
+      find(state?.context?.items, ["id", id])?.state?.context?.model,
     getSelected: () => {
       return waitFor(
         service,

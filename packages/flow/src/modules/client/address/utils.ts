@@ -28,12 +28,10 @@ export const useSchema = ({
   regions,
   types,
   baseModel,
-  model,
   // ---
   places,
+  emails,
 }: AddressContext) => {
-  console.log("address", "useSchema", { model, baseModel, country });
-
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -59,6 +57,7 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Address",
         lookup: places.search,
+        default: baseModel?.companyDetails && baseModel?.place,
       },
 
       manualPlace: {
@@ -139,6 +138,7 @@ export const useSchema = ({
         type: "string",
         title: "Email",
         default: baseModel.email,
+        lookup: emails.search,
       },
 
       phone: {
@@ -161,13 +161,13 @@ export const useSchema = ({
           countryCallingCode: {
             type: ["string", "null"],
             title: "Country calling code",
-            default: country?.phone?.code,
+            default: baseModel?.phone?.nationalCallingCode,
           },
 
           country: {
             type: ["string", "null"],
             title: "Country",
-            default: country?.code,
+            default: baseModel?.phone?.country,
           },
         },
       },
@@ -391,11 +391,6 @@ export const useUischema = ({ addresses, emails, phones }) => {
       {
         type: "Control",
         scope: "#/properties/companyDetails",
-        options: {
-          // format: "button",
-          // variant: "link",
-          // size: "sm",
-        },
         rule: {
           effect: "SHOW",
           condition: {
@@ -452,10 +447,9 @@ export const useUischema = ({ addresses, emails, phones }) => {
             scope: "#/properties/email",
             options: {
               autocomplete: "email",
-              items: map(lookups.emails, item => ({
-                value: item.id,
-                label: item.email,
-              })),
+              itemLabel: "email",
+              itemValue: "id",
+              items: lookups.emails,
             },
           },
           {
