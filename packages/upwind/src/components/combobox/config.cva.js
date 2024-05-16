@@ -65,7 +65,7 @@ export default {
       },
     }),
     items: cva(
-      "[&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 w-full min-w-60 space-y-0.5 overflow-hidden overflow-y-auto rounded-lg  p-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2",
+      "[&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 m-0 mt-2 max-h-72 w-full min-w-60 space-y-0.5 overflow-hidden overflow-y-auto rounded-lg p-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2",
       {
         variants: {
           isProcessing: {
@@ -92,13 +92,13 @@ export default {
   },
 
   comboboxTransitionEnter: {
-    active: cva("m-0 transition duration-100 ease-out"),
-    from: cva("scale-95 transform opacity-0"),
-    to: cva("scale-100 transform opacity-100"),
+    active: cva("transition duration-200 ease-out"),
+    from: cva("-translate-y-5 transform opacity-0"),
+    to: cva("translate-y-0 transform opacity-100"),
   },
   comboboxTransitionLeave: {
     active: cva("transition duration-75 ease-in"),
-    from: cva("scale-100 transform opacity-100"),
-    to: cva("scale-95 transform opacity-0"),
+    from: cva("translate-y-0 transform opacity-100"),
+    to: cva("-translate-y-5 transform opacity-0"),
   },
 };
