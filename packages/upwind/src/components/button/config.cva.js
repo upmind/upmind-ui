@@ -276,7 +276,7 @@ export default {
         size: "md",
       },
     }),
-    label: cva("font-semibold", {
+    label: cva("text-nowrap font-semibold", {
       variants: {
         iconOnly: {
           true: "sr-only",

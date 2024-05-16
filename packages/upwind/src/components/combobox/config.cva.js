@@ -81,6 +81,9 @@ export default {
     root: cva(
       "text-base-800 focus:bg-base-100 flex w-full cursor-pointer items-center justify-between gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none"
     ),
+    separator: cva(
+      "text-base-500 border-base-200 mb-2 flex w-full items-center justify-between gap-x-4 text-nowrap border-b px-4 py-2 text-left text-xs font-medium no-underline"
+    ),
     active: cva("bg-base-100 hover:bg-base-100"),
     selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
     label: cva("flex-1 truncate"),
