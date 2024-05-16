@@ -63,9 +63,9 @@
 <script lang="ts">
 // --- external
 import { defineComponent, ref } from "vue";
+import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 
 // --- components
-import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
 import UpwDropdownItem from "./DropdownItem.vue";

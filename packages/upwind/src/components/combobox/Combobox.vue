@@ -24,7 +24,6 @@
         :persist-feedback="persistFeedback"
         layout="stacked"
         variant="outlined"
-        ref="reference"
       >
         <h-combobox-input
           v-bind="safeAttrs"
@@ -63,8 +62,6 @@
         <h-combobox-options
           class="combobox-options"
           :class="styles.combobox.items"
-          ref="floating"
-          :style="floatingStyles"
         >
           <li :class="styles.comboboxItem.root" v-if="meta.isProcessing">
             <!-- empty when processing -->
@@ -180,7 +177,6 @@ import { defineComponent, ref, computed, onMounted } from "vue";
 import config from "./config.cva";
 
 // --- components
-import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 import {
   Combobox,
   ComboboxButton,
@@ -296,13 +292,6 @@ export default defineComponent({
     const input = ref(null);
     const processing = ref(false);
     const results = ref(props.items || []);
-    // ---
-    const reference = ref(null);
-    const floating = ref(null);
-    const { floatingStyles } = useFloating(reference, floating, {
-      placement: props.placement,
-      middleware: [offset(10), flip(), shift()],
-    });
 
     // ---
     const meta = computed(() => ({
@@ -373,9 +362,6 @@ export default defineComponent({
       processing,
       // ---
       styles,
-      reference,
-      floating,
-      floatingStyles,
       onSearch: debounce(safeSearch, 500),
     };
   },

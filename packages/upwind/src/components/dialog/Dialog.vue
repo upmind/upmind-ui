@@ -51,9 +51,12 @@
 
                 <div :class="styles.dialog.panelContent">
                   <slot>
-                    <p :class="styles.dialog.text" v-if="text">
+                    <h-dialog-description
+                      :class="styles.dialog.text"
+                      v-if="text"
+                    >
                       {{ text }}
-                    </p>
+                    </h-dialog-description>
 
                     <p :class="styles.dialog.data" v-if="data">
                       {{ data }}
@@ -100,10 +103,11 @@ import {
   Dialog,
   DialogPanel,
   DialogTitle,
+  DialogDescription,
 } from "@headlessui/vue";
 
 // --- utils
-import { isFunction, isNil, includes } from "lodash-es";
+import { isFunction, isNil, includes, isEmpty } from "lodash-es";
 
 import { useStyles } from "../../utils";
 
@@ -121,6 +125,7 @@ export default defineComponent({
     HDialog: Dialog,
     HDialogPanel: DialogPanel,
     HDialogTitle: DialogTitle,
+    HDialogDescription: DialogDescription,
   },
   emits: ["update:modelValue", "reject", "resolve", "click"],
   props: {
@@ -159,7 +164,7 @@ export default defineComponent({
       default: null,
     },
   },
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     // --- model
     const open = ref(props.modelValue);
     watch(
@@ -175,6 +180,7 @@ export default defineComponent({
       skrim: props.skrim,
       // ---
       isActive: open.value,
+      hasActions: !isEmpty(props.actions) || !!slots.actions,
     }));
 
     const styles = useStyles(
