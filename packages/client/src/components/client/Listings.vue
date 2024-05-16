@@ -49,7 +49,7 @@
           <upm-empty :i18nKey="type" />
         </slot>
 
-        <upm-form
+        <upm-item
           v-if="meta.isEditing"
           :model-value="selected"
           :key="selected?.id"
@@ -98,14 +98,13 @@ import config from "./config.cva";
 import UpmAuth from "../session/Auth.vue";
 import UpmEmpty from "./Empty.vue";
 import UpmCard from "./Card.vue";
-import UpmForm from "./Form.vue";
+import UpmItem from "./Item.vue";
 import {
   UpwTextbox,
   UpwButton,
   UpwSkeletonList,
   UpwDialog,
 } from "@upmind/upwind";
-import { initial } from "lodash-es";
 
 // --- utils
 
@@ -125,7 +124,7 @@ export default defineComponent({
     // ---
     UpmEmpty,
     UpmCard,
-    UpmForm,
+    UpmItem,
   },
   emits: ["update:modelValue", "add", "select"],
   props: {

@@ -6,31 +6,33 @@ import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
 // --- utils
-import { get, set, map, reduce, defaultsDeep, uniqueId } from "lodash-es";
+import {
+  get,
+  set,
+  map,
+  reduce,
+  defaultsDeep,
+  uniqueId,
+  compact,
+} from "lodash-es";
 
 // --- types
 import type { IAddress, AddressContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { read } from "fs";
 
 // --------------------------------------------------------
 
 export const useSchema = ({
+  country,
   countries,
   regions,
   types,
   baseModel,
+  model,
   // ---
   places,
-  addresses,
-  emails,
-  phones,
 }: AddressContext) => {
-  const choices = {
-    addresses: addresses.getItems(),
-    emails: emails.getItems(),
-    phones: phones.getItems(),
-  };
+  console.log("address", "useSchema", { model, baseModel, country });
 
   const schema = {
     type: "object",
@@ -39,9 +41,9 @@ export const useSchema = ({
     // --- conditionally required fields
     if: {
       properties: {
-        addBusinessDetails: { const: true },
+        companyDetails: { const: true },
       },
-      required: ["addBusinessDetails"],
+      required: ["companyDetails"],
     },
     then: { required: ["name", "email", "reg_number"] },
     // ---
@@ -70,31 +72,26 @@ export const useSchema = ({
       address_1: {
         type: "string",
         title: "Address Line 1",
-        default: baseModel?.address_1,
       },
 
       address_2: {
         type: ["string", "null"],
         title: "Address Line 2",
-        default: baseModel?.address_2,
       },
 
       city: {
         type: "string",
         title: "City",
-        default: baseModel?.city,
       },
 
       postcode: {
         type: "string",
         title: "Postcode",
-        default: baseModel?.postcode,
       },
 
       region_id: {
         type: ["string", "null"],
         title: "Region",
-        default: baseModel?.region_id,
         oneOf: !regions?.length
           ? undefined
           : map(regions, item => {
@@ -115,7 +112,6 @@ export const useSchema = ({
       country_id: {
         type: "string",
         title: "Country",
-        default: baseModel?.country_id,
         oneOf: !countries?.length
           ? undefined
           : map(countries, item => {
@@ -127,10 +123,11 @@ export const useSchema = ({
       },
 
       // ---
-      addBusinessDetails: {
+
+      companyDetails: {
         type: ["boolean", "null"],
         title: "Add business details",
-        default: baseModel?.addBusinessDetails,
+        default: baseModel?.companyDetails,
       },
 
       name: {
@@ -142,30 +139,37 @@ export const useSchema = ({
         type: "string",
         title: "Email",
         default: baseModel.email,
-        oneOf: !choices?.emails?.length
-          ? undefined
-          : map(choices.emails, item => {
-              return {
-                const: item.id,
-                title: item.email,
-              };
-            }),
-        lookup: emails.search,
       },
 
       phone: {
-        type: "string",
+        type: "object",
         title: "Phone",
-        default: baseModel.phone,
-        oneOf: !choices?.phones?.length
-          ? undefined
-          : map(choices.phones, item => {
-              return {
-                const: item.id,
-                title: item.full_phone,
-              };
-            }),
-        lookup: phones.search,
+        isPhoneNumber: country?.code,
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Phone number ( with dailing code )",
+            default: baseModel?.phone?.number,
+          },
+
+          nationalNumber: {
+            type: ["string", "null"],
+            title: "Phone number",
+            default: baseModel?.phone?.nationalNumber,
+          },
+
+          countryCallingCode: {
+            type: ["string", "null"],
+            title: "Country calling code",
+            default: country?.phone?.code,
+          },
+
+          country: {
+            type: ["string", "null"],
+            title: "Country",
+            default: country?.code,
+          },
+        },
       },
 
       reg_number: {
@@ -179,7 +183,7 @@ export const useSchema = ({
       },
 
       vat_percent: {
-        type: ["string", "null"],
+        type: ["integer", "null"],
         title: "VAT percent",
       },
       // ---
@@ -211,21 +215,27 @@ export const useSchema = ({
   return schema as JsonSchema;
 };
 
-export const useUischema = () => {
+export const useUischema = ({ addresses, emails, phones }) => {
+  const lookups = {
+    addresses: addresses.getItems(),
+    emails: emails.getItems(),
+    phones: phones.getItems(),
+  };
+
   const schema = {
     type: "VerticalLayout",
     elements: [
       {
         type: "HorizontalLayout",
         elements: [
-          {
-            type: "Control",
-            scope: "#/properties/type",
-            options: {
-              autocomplete: "off",
-              placeholder: "Select an address type...",
-            },
-          },
+          // {
+          //   type: "Control",
+          //   scope: "#/properties/type",
+          //   options: {
+          //     autocomplete: "off",
+          //     placeholder: "Select an address type...",
+          //   },
+          // },
           {
             type: "Control",
             scope: "#/properties/name",
@@ -242,6 +252,9 @@ export const useUischema = () => {
             scope: "#",
             schema: {
               required: ["id"],
+              properties: {
+                companyDetails: { const: false },
+              },
             },
           },
         },
@@ -254,43 +267,53 @@ export const useUischema = () => {
         options: {
           autocomplete: "off",
           placeholder: "Search for address ...",
-          items: [
+          items: compact([
+            lookups.addresses?.length
+              ? {
+                  label: "Your saved addreses",
+                  as: "separator",
+                }
+              : null,
+
+            ...map(lookups.addresses, item => {
+              return {
+                value: item.id,
+                label: [
+                  item.name,
+                  item.address_1,
+                  item.address_2,
+                  item.city,
+                  item.postcode,
+                ].join(", "),
+              };
+            }),
             {
               label: "Enter manually",
               value: "manual",
               as: "button",
               variant: "link",
               size: "sm",
+              persist: true,
             },
-          ],
+          ]),
         },
         rule: {
           effect: "HIDE",
           condition: {
             scope: "#",
             schema: {
-              required: ["id"],
+              anyOf: [
+                { required: ["id"] },
+                {
+                  required: ["place"],
+                  properties: { place: { const: "manual" } },
+                },
+              ],
             },
           },
         },
       },
-      // {
-      //   type: "Control",
-      //   scope: "#/properties/manualPlace",
-      //   options: {
-      //     noStatus: true,
-      //     type: "button",
-      //   },
-      //   rule: {
-      //     effect: "HIDE",
-      //     condition: {
-      //       scope: "#",
-      //       schema: {
-      //         required: ["id"],
-      //       },
-      //     },
-      //   },
-      // },
+
       // ---
       {
         type: "VerticalLayout",
@@ -360,6 +383,93 @@ export const useUischema = () => {
           effect: "SHOW",
           condition: {
             scope: "#/properties/manualPlace",
+            schema: { const: true },
+          },
+        },
+      },
+      // --- company details
+      {
+        type: "Control",
+        scope: "#/properties/companyDetails",
+        options: {
+          // format: "button",
+          // variant: "link",
+          // size: "sm",
+        },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              // properties: { companyDetails: { not: { const: true } } },
+              anyOf: [
+                { required: ["id"] },
+                { required: ["name"] },
+                { properties: { manualPlace: { const: true } } },
+              ],
+            },
+          },
+        },
+      },
+
+      {
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/name",
+            options: {
+              focus: true,
+              autocomplete: "organization",
+              placeholder: "My Company Name (PTY) LTD",
+              label: "Company Name",
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/reg_number",
+            options: {},
+          },
+          {
+            type: "HorizontalLayout",
+            elements: [
+              {
+                type: "Control",
+                scope: "#/properties/vat_number",
+                options: {},
+              },
+              {
+                type: "Control",
+                scope: "#/properties/vat_percent",
+                options: {
+                  appendText: "%",
+                },
+              },
+            ],
+          },
+          {
+            type: "Control",
+            scope: "#/properties/email",
+            options: {
+              autocomplete: "email",
+              items: map(lookups.emails, item => ({
+                value: item.id,
+                label: item.email,
+              })),
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/phone",
+            options: {
+              autocomplete: "tel",
+            },
+          },
+        ],
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/companyDetails",
             schema: { const: true },
           },
         },

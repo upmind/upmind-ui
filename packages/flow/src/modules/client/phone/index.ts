@@ -8,7 +8,7 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
-import { find, map } from "lodash-es";
+import { find, map, first } from "lodash-es";
 
 // --- types
 
@@ -62,6 +62,7 @@ export const useClientPhones = () => {
       });
     },
     getDefault: () =>
-      find(state?.context?.items, "state.context.model.default"),
+      find(state?.context?.items, "state.context.model.default") ||
+      first(state?.context?.items),
   };
 };
