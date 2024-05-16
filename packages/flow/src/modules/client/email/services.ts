@@ -5,7 +5,7 @@ import { useApi, useSession } from "../../";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { includes, filter } from "lodash-es";
+import { includes, reduce, get } from "lodash-es";
 
 // --- types
 import type { EmailEvent, EmailContext } from "./types.d";
@@ -52,14 +52,27 @@ async function filterItems(
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
 
-  const filteredItems = filter(
+  const filteredItems = reduce(
     raw,
-    item =>
-      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
-      includes(
-        item.state.context?.description?.toLowerCase(),
-        data?.toLowerCase()
-      )
+    (result, item) => {
+      const matches =
+        includes(
+          item.state.context?.title?.toLowerCase(),
+          data?.toLowerCase()
+        ) ||
+        includes(
+          item.state.context?.description?.toLowerCase(),
+          data?.toLowerCase()
+        );
+
+      if (matches) {
+        const model = get(item, "state.context.model");
+        result.push(model);
+      }
+
+      return result;
+    },
+    []
   );
 
   return Promise.resolve(filteredItems);

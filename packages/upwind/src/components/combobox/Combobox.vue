@@ -98,8 +98,8 @@
                 aria-hidden="true"
               />
 
-              <span :class="styles.comboboxItem.label" v-if="item?.label">{{
-                item.label
+              <span :class="styles.comboboxItem.label" v-if="item[itemLabel]">{{
+                item[itemLabel]
               }}</span>
             </li>
 
@@ -107,7 +107,7 @@
               v-else-if="item?.as == 'button'"
               as="template"
               v-slot="{ active, selected }"
-              :value="item.value"
+              :value="item[itemValue]"
               :disabled="item?.disabled"
             >
               <li :class="styles.comboboxItem.root">
@@ -124,7 +124,7 @@
               v-else
               as="template"
               v-slot="{ active, selected }"
-              :value="item.value"
+              :value="item[itemValue]"
               :disabled="item?.disabled"
             >
               <li
@@ -149,7 +149,9 @@
                   aria-hidden="true"
                 />
 
-                <span :class="styles.comboboxItem.label">{{ item.label }}</span>
+                <span :class="styles.comboboxItem.label">{{
+                  item[itemLabel]
+                }}</span>
 
                 <upw-icon
                   v-if="selectedIcon"
@@ -201,6 +203,7 @@ import {
   isFunction,
   omit,
   reject,
+  get,
 } from "lodash-es";
 
 // --- types
@@ -270,6 +273,15 @@ export default defineComponent({
       type: Object as PropType<ComboboxItems>,
       default: () => {},
     },
+    itemLabel: {
+      type: String,
+      default: "label",
+    },
+    itemValue: {
+      type: String,
+      default: "value",
+    },
+
     search: {
       type: [Function, Promise],
     },
@@ -333,8 +345,11 @@ export default defineComponent({
         results.value = filter(
           props.items,
           item =>
-            includes(item.label.toLowerCase(), input.value.toLowerCase()) ||
-            includes(item.value.toLowerCase(), input.value.toLowerCase())
+            includes(
+              item[itemLabel].toLowerCase(),
+              input.value.toLowerCase()
+            ) ||
+            includes(item[itemValue].toLowerCase(), input.value.toLowerCase())
         );
       }
 
@@ -372,9 +387,9 @@ export default defineComponent({
       return omit(this.$attrs, ["layout", "variant"]);
     },
     displayValue() {
-      const selected = find(this.results, ["value", this.value]);
-      if (selected) return selected?.label;
-      return ""; //this.value;
+      const selected = find(this.results, [this.itemValue, this.value]);
+      const value = get(selected, this.itemLabel, "");
+      return value;
     },
     displayIcon() {
       const selected = find(this.items, ["value", this.value]);
@@ -387,6 +402,9 @@ export default defineComponent({
   },
 
   watch: {
+    modelValue(value) {
+      this.value = value;
+    },
     value(value) {
       this.$emit("update:modelValue", value);
 
