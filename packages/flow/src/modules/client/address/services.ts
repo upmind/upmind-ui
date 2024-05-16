@@ -1,4 +1,5 @@
 // --- external
+import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import { useApi, useSystem, useSession } from "../../";
@@ -18,6 +19,7 @@ import {
   includes,
   filter,
   defaultsDeep,
+  isString,
 } from "lodash-es";
 
 // --- types
@@ -78,8 +80,8 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
   const countries = await fetchCountries();
-  const defaultCountry = getCountry();
-  const regions = await fetchRegions(model?.country_id || defaultCountry?.id);
+  const country = getCountry(model?.country_id);
+  const regions = await fetchRegions(model?.country_id || country?.id);
 
   if (!countries || !regions) {
     return Promise.reject("Failed to load countries and regions");
@@ -103,13 +105,13 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
     const address = addresses.getDefault()?.state?.context?.model;
     const email = emails.getDefault()?.state?.context?.model;
     const phone = phones.getDefault()?.state?.context?.model;
-    debugger;
 
     return {
       countries,
       regions,
       types: AddressTypes,
       places,
+      country,
       // ---
       emails,
       addresses,
@@ -122,13 +124,13 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
         type: first(AddressTypes)?.key,
         phone: phone?.full_phone,
         email: email?.email,
-        address_1: address?.address_1,
-        address_2: address?.address_2,
-        city: address?.city,
-        postcode: address?.postcode,
-        region_id: address?.region_id,
-        state: address?.state,
-        country_id: address?.country_id || defaultCountry?.id,
+        // address_1: address?.address_1,
+        // address_2: address?.address_2,
+        // city: address?.city,
+        // postcode: address?.postcode,
+        // region_id: address?.region_id,
+        // state: address?.state,
+        country_id: address?.country_id || country?.id,
       },
     };
   });
@@ -212,11 +214,11 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
 
 // --------------------------------------------------------
 async function parse(
-  { schema, model, regions }: AddressContext,
+  { schema, model, regions, country }: AddressContext,
   _event: AddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
-  const { fetchRegions } = useSystem();
+  const { fetchRegions, getCountry } = useSystem();
 
   if (!isEmpty(model)) {
     // let scheck to see if weve been given a place to lookup
@@ -229,8 +231,12 @@ async function parse(
 
     // lets check if the country has changed, ie: the regions dont match
     // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country fro mthe address
+    // this will in turn update the phone schema to match the country
     if (!some(regions, ["country_id", model.country_id])) {
       regions = await fetchRegions(model.country_id);
+
+      country = getCountry(model.country_id);
     }
 
     // now lets check our regions list to see if we have a match
@@ -239,17 +245,44 @@ async function parse(
     const region = find(regions, ["id", model?.region_id]);
     model.region_id = get(region, "id", undefined);
 
+    // now lets check our phone number
+    if (model?.phone) {
+      const phonenumber = isString(model.phone)
+        ? model?.phone
+        : model?.phone?.number || model?.phone?.nationalNumber || "";
+
+      const countryCode =
+        model?.phone?.country || model?.phone_country_code || country?.code;
+      const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
+
+      // now map the phone number to the model in the correct format with fallbacks
+      model.phone = {
+        number: phone?.number || model.phone?.number,
+        nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
+        countryCallingCode:
+          phone?.countryCallingCode || model.phone?.countryCallingCode,
+        country: countryCode,
+      };
+    }
+
     // finally lets force a manual place if we are invalid:
     const isValid = await validate({ schema, model }, _event)
       .then(() => true)
       .catch(() => false);
 
-    // force the manual place if we are invalid OR editing an existing address
-    if (!isValid || !!model?.id || model.place == false)
+    // force the manual place if we are have a place && are invalid
+    // OR editing an existing address
+    // OR the place value is our reserved word 'manual'
+    if (
+      (!model.place?.length && !isValid) ||
+      !!model?.id ||
+      model.place == "manual"
+    ) {
       model.manualPlace = true;
+    }
   }
 
-  return Promise.resolve({ model, regions });
+  return Promise.resolve({ model, regions, country });
 }
 
 async function validate(

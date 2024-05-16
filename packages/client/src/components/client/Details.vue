@@ -14,11 +14,12 @@
     />
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
-    <upm-form
+    <upm-item
       v-if="!meta.isLoading && meta.isAdding && !activeDialog"
       i18nKey="addresses"
       :model-value="selected"
       :dialog="!meta.isEmpty"
+      :autosave="meta.isEmpty"
     />
 
     <!-- otherwise show the default address as a card -->
@@ -78,7 +79,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmAuth from "../session/Auth.vue";
-import UpmForm from "./Form.vue";
+import UpmItem from "./Item.vue";
 import UpmCard from "./Card.vue";
 import UpmListings from "./Listings.vue";
 import { UpwSkeletonList, UpwButton, UpwTabs, UpwDialog } from "@upmind/upwind";
@@ -89,12 +90,10 @@ export default defineComponent({
   components: {
     UpwSkeletonList,
     UpwButton,
-    UpwTabs,
-    UpwDialog,
     // ---
     UpmAuth,
     // ---
-    UpmForm,
+    UpmItem,
     UpmCard,
     UpmListings,
   },

@@ -47,6 +47,7 @@ export default defineComponent({
     },
     i18nKey: { type: String, required: true },
     dialog: { type: Boolean, default: true },
+    autosave: { type: Boolean, default: false },
   },
   setup(props) {
     const useClient = inject("client");
@@ -84,8 +85,8 @@ export default defineComponent({
     },
   },
   methods: {
-    maybeSubmit(value) {
-      if (!this.dialog && value && !isEmpty(this.model)) {
+    maybeSubmit(isValid) {
+      if (this.autosave && isValid && !isEmpty(this.model)) {
         this.$nextTick(() => {
           this.update(this.model);
         });

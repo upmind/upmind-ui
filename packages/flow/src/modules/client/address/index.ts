@@ -8,7 +8,7 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
-import { find, map } from "lodash-es";
+import { find, map, compact } from "lodash-es";
 
 // --- types
 
@@ -38,7 +38,7 @@ export const useClientAddresses = () => {
       ),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,
-    getItems: () => map(state?.context?.items, "state.context.model"),
+    getItems: () => compact(map(state?.context?.items, "state.context.model")),
     getItem: id => find(state?.context?.items, ["id", id]),
     getSelected: () => {
       return waitFor(
