@@ -55,6 +55,7 @@
     </div>
 
     <upm-listings
+      v-if="activeDialog"
       v-model="activeDialog"
       type="addresses"
       i18nKey="addresses"
@@ -140,9 +141,7 @@ export default defineComponent({
       this.useClientAddress(this.selected).edit();
     },
     onClose() {
-      debugger;
       this.activeDialog = false;
-      this.getSelected();
     },
   },
 });

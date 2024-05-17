@@ -207,7 +207,6 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
       baseModel: {
         ...model,
         manualPlace: !!model?.id,
-        companyDetails: false,
         type: first(AddressTypes)?.key,
         phone: phone?.phone,
         email: email?.id,
@@ -308,7 +307,7 @@ async function parse(
     }
 
     // force the type as company if we have added company details
-    if (model.companyDetails) model.type = 4; // company
+    if (model.company_id) model.type = 4; // company
   }
 
   return Promise.resolve({ model, regions, country });

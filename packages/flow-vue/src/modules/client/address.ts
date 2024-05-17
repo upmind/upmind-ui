@@ -147,20 +147,11 @@ export const useClientAddresses = () => {
           }
         : null
     ),
-    default: computed(() => {
-      const item = find(
-        items.value,
-        item => item.state?.value?.context?.model?.default
-      );
-      return item;
-    }),
+    initial: computed(() => state.value.context?.initial),
+
     // ---
     isReady,
-    getSelected: async () => {
-      const selected = await getSelected();
-      send({ type: "SELECT", data: selected?.id });
-      return selected;
-    },
+    getSelected,
     select: async id => {
       if (state.value.matches("available.loading")) {
         await waitFor(

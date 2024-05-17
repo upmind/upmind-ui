@@ -4,7 +4,7 @@ import { createMachine, assign } from "xstate";
 // --- internal
 
 // --- utils
-import { find, forEach, isEmpty, last, every } from "lodash-es";
+import { find, forEach, isEmpty, last, every, isString } from "lodash-es";
 
 // - --types
 import type { ClientListingsContext, ClientListingsEvents } from "./types.d";
@@ -204,9 +204,14 @@ export default createMachine(
 
       setInitial: assign({
         initial: (
-          _context: ClientListingsContext,
+          { raw, initial }: ClientListingsContext,
           { data }: ClientListingsEvents
-        ) => data,
+        ) => {
+          if (isString(data) && !isEmpty(data)) return data; // if weve explicitly been given an id, use it. eg when we add a new item and its not yet in the raw list
+
+          // otherwise use our existing initial value or the default
+          return initial || find(raw, "state.context.model.default")?.id;
+        },
         selected: (
           { raw, initial }: ClientListingsContext,
           _event: ClientListingsEvents
@@ -214,7 +219,7 @@ export default createMachine(
       }),
 
       setSelected: assign({
-        initial: undefined,
+        initial: ({ selected, initial }) => selected?.id || initial,
         // filters: undefined,
         // items: ({ raw }, _event) => raw,
         selected: (
@@ -224,7 +229,7 @@ export default createMachine(
       }),
 
       setSelectedNew: assign({
-        initial: undefined,
+        initial: ({ selected, initial }) => selected?.id || initial,
         filters: undefined,
         items: ({ raw }, _event) => raw,
         selected: (
