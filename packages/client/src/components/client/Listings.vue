@@ -221,7 +221,15 @@ export default defineComponent({
   },
   watch: {
     selected(value) {
-      if (!this.initial && !!value) this.initial = value;
+      if (!this.initial && !!value) {
+        this.initial = value;
+      } else if (this.initial && !value) {
+        // if we dont have a value, select our inital
+        this.select(this.initial?.id);
+      } else if (!this.initial && !value) {
+        // we dont ever want to NOT have a selected item, so get the 'default'
+        this.getSelected();
+      }
     },
   },
 });

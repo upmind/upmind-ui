@@ -14,11 +14,13 @@ import {
   defaultsDeep,
   uniqueId,
   compact,
+  pick,
 } from "lodash-es";
 
 // --- types
 import type { IAddress, AddressContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { isArray } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
@@ -523,4 +525,59 @@ export const spawnItem = (model?: IAddress) => {
   } catch (err) {
     console.error("AddressListings", "spawnItem", { model });
   }
+};
+
+export const parseAddress = (address: IAddress | Array<IAddress>) => {
+  // we could get a plain address OR a company with and address
+  // so we normalize the data to always be an array of addresses
+  // this is to allow for a 'unfied' way of handling addresses
+  const listings = isArray(address) ? address : [address];
+
+  return map(listings, item => {
+    // 1 check if we have  companyDetails or just an address
+    if (item?.address) {
+      debugger;
+      const mappedItem = {
+        id: item?.id,
+        default: false, //we dont want a company to be default. the address object default is preferred
+        // ---
+        name: item?.name,
+        address_1: item?.address?.address_1,
+        address_2: item?.address?.address_2,
+        city: item?.address?.city,
+        postcode: item?.address?.postcode,
+        region_id: item?.address?.region_id,
+        country_id: item?.address?.country_id,
+        // ---
+        companyDetails: true,
+        type: item?.type || 4, // default to 4 = company
+        // ---
+        email: item?.email?.email,
+        phone: {
+          number: item?.phone?.number,
+          nationalNumber: item?.phone?.nationalNumber,
+          countryCallingCode: item?.phone?.countryCallingCode,
+          country: item?.phone?.country,
+        },
+        reg_number: item?.reg_number,
+        vat_number: item?.vat_number,
+        vat_percent: item?.vat_percent,
+      };
+      debugger;
+      return mappedItem;
+    } else {
+      return pick(item, [
+        "id",
+        "name",
+        "address_1",
+        "address_2",
+        "city",
+        "postcode",
+        "region_id",
+        "country_id",
+        "default",
+        "type",
+      ]);
+    }
+  });
 };

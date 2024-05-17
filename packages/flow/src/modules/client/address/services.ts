@@ -10,6 +10,7 @@ import { useClientEmails } from "../email";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { parseAddress } from "./utils";
 import {
   some,
   first,
@@ -36,6 +37,7 @@ export const AddressTypes = [
   { key: 1, value: "Home" },
   { key: 2, value: "Office" },
   { key: 3, value: "Holiday" },
+  { key: 4, value: "Company" },
 ];
 // --------------------------------------------------------
 
@@ -63,77 +65,22 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
 
   const clientId = await getUserId();
 
-  return get({
-    url: useUrl(`clients/${clientId}/addresses`, {
-      // with: ["country", "region"].join(),
-      limit: 0,
-    }),
+  const addresses = get({
+    url: useUrl(`clients/${clientId}/addresses`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => data);
-}
+  }).then(({ data }) => parseAddress(data));
 
-async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
-  const { fetchCountries, fetchRegions, getCountry } = useSystem();
+  const companies = get({
+    url: useUrl(`clients/${clientId}/companies`, { limit: 0 }),
+    withAccessToken: true,
+    useCache: true,
+    refresh: true,
+  }).then(({ data }) => parseAddress(data));
 
-  // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
-  const countries = await fetchCountries();
-  const country = getCountry(model?.country_id);
-  const regions = await fetchRegions(model?.country_id || country?.id);
-
-  if (!countries || !regions) {
-    return Promise.reject("Failed to load countries and regions");
-  }
-
-  // ---
-  // lets start up/use our dependencies
-  const addresses = useClientAddresses();
-  const phones = useClientPhones();
-  const emails = useClientEmails();
-  const places = usePlaces();
-
-  return Promise.all([
-    addresses.isReady(),
-    phones.isReady(),
-    emails.isReady(),
-    places.isReady(),
-  ]).then(() => {
-    places.reset();
-
-    const address = addresses.getDefault()?.state?.context?.model;
-    const email = emails.getDefault()?.state?.context?.model;
-    const phone = phones.getDefault()?.state?.context?.model;
-
-    return {
-      countries,
-      regions,
-      types: AddressTypes,
-      places,
-      country,
-      // ---
-      emails,
-      addresses,
-      phones,
-      // ---
-      baseModel: {
-        ...model,
-        manualPlace: !!model?.id,
-        addBusinessDetails: false,
-        type: first(AddressTypes)?.key,
-        phone: phone?.phone,
-        email: email?.id,
-        place: address?.id,
-        // address_1: address?.address_1,
-        // address_2: address?.address_2,
-        // city: address?.city,
-        // postcode: address?.postcode,
-        // region_id: address?.region_id,
-        // state: address?.state,
-        country_id: address?.country_id || country?.id,
-      },
-    };
+  return Promise.all([addresses, companies]).then(([addresses, companies]) => {
+    return [...addresses, ...companies];
   });
 }
 
@@ -185,6 +132,18 @@ async function update({ model }: AddressesContext, _event: AddressesEvents) {
   }).then(({ data }) => data);
 }
 
+async function remove({ model }: AddressesContext, _event: AddressesEvents) {
+  const { del, useUrl } = useApi();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return del({
+    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
 async function setDefault(
   { model }: AddressesContext,
   _event: AddressesEvents
@@ -200,20 +159,71 @@ async function setDefault(
     withAccessToken: true,
   }).then(({ data }) => data);
 }
+// --------------------------------------------------------
 
-async function remove({ model }: AddressesContext, _event: AddressesEvents) {
-  const { del, useUrl } = useApi();
-  const { getUserId } = useSession();
+async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
+  const { fetchCountries, fetchRegions, getCountry } = useSystem();
 
-  const clientId = await getUserId();
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so theres no worry about performance
+  const countries = await fetchCountries();
+  const country = getCountry(model?.country_id);
+  const regions = await fetchRegions(model?.country_id || country?.id);
 
-  return del({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }) => data);
+  if (!countries || !regions) {
+    return Promise.reject("Failed to load countries and regions");
+  }
+
+  // ---
+  // lets start up/use our dependencies
+  const addresses = useClientAddresses();
+  const phones = useClientPhones();
+  const emails = useClientEmails();
+  const places = usePlaces();
+
+  return Promise.all([
+    addresses.isReady(),
+    phones.isReady(),
+    emails.isReady(),
+    places.isReady(),
+  ]).then(() => {
+    places.reset();
+
+    const address = addresses.getDefault()?.state?.context?.model;
+    const email = emails.getDefault()?.state?.context?.model;
+    const phone = phones.getDefault()?.state?.context?.model;
+
+    return {
+      countries,
+      regions,
+      types: AddressTypes,
+      places,
+      country,
+      // ---
+      emails,
+      addresses,
+      phones,
+      // ---
+      baseModel: {
+        ...model,
+        manualPlace: !!model?.id,
+        companyDetails: false,
+        type: first(AddressTypes)?.key,
+        phone: phone?.phone,
+        email: email?.id,
+        place: address?.id,
+        // address_1: address?.address_1,
+        // address_2: address?.address_2,
+        // city: address?.city,
+        // postcode: address?.postcode,
+        // region_id: address?.region_id,
+        // state: address?.state,
+        country_id: address?.country_id || country?.id,
+      },
+    };
+  });
 }
 
-// --------------------------------------------------------
 async function parse(
   { addresses, schema, model, regions, country, places }: AddressContext,
   _event: AddressEvent
@@ -296,6 +306,9 @@ async function parse(
     ) {
       model.manualPlace = true;
     }
+
+    // force the type as company if we have added company details
+    if (model.companyDetails) model.type = 4; // company
   }
 
   return Promise.resolve({ model, regions, country });

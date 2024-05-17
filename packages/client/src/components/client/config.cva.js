@@ -5,12 +5,23 @@ export default {
   client: {
     root: cva("w-full flex flex-col gap-4"),
     header: cva(""),
-    footer: cva(""),
     loading: cva(""),
+    footer: cva(""),
+    title: cva("flex justify-between items-center gap-4"),
+    content: cva("flex flex-col gap-4 border border-base-200 rounded-lg p-4"),
     actions: cva(""),
   },
   clientListings: {
-    root: cva("w-full flex flex-col gap-4 "),
+    root: cva("w-full", {
+      variants: {
+        dialog: {
+          false: "flex flex-col gap-4",
+        },
+      },
+      defaultVariants: {
+        dialog: false,
+      },
+    }),
     header: cva(""),
     footer: cva(""),
     items: cva("grid gap-4", {
@@ -122,14 +133,5 @@ export default {
         },
       }),
     },
-  },
-  clientDetails: {
-    root: cva("w-full flex flex-col gap-4"),
-    header: cva(""),
-    loading: cva(""),
-    footer: cva(""),
-    title: cva("flex justify-between items-center gap-4"),
-    content: cva("flex flex-col gap-4 border border-base-200 rounded-lg p-4"),
-    actions: cva(""),
   },
 };
