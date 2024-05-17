@@ -1,7 +1,16 @@
 {
   "client": {
-    "title": "My client area",
+    "title": "Your address",
     "unavailable": "Please login to access your client area.",
+    "empty": {
+      "title": "Cant see your details..",
+      "description": "Add your details to get started"
+    },
+    "actions": {
+      "add": "Add details",
+      "edit": "Change address details",
+      "change": "Change"
+    },
     "nav": {
       "home": "Home",
       "addresses": "Addresses",
@@ -79,18 +88,6 @@
       },
       "form": {
         "title": "New Company | Edit Company"
-      }
-    },
-    "details": {
-      "title": "Your address",
-      "empty": {
-        "title": "Cant see your details..",
-        "description": "Add your details to get started"
-      },
-      "actions": {
-        "add": "Add details",
-        "edit": "Change address details",
-        "change": "Change"
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
-  <section :class="styles.clientDetails.root">
-    <header :class="styles.clientDetails.header">
+  <section :class="styles.client.root">
+    <header :class="styles.client.header">
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
@@ -9,7 +9,7 @@
     </div>
 
     <upw-skeleton-list
-      :class="styles.clientDetails.loading"
+      :class="styles.client.loading"
       v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     />
 
@@ -23,12 +23,12 @@
     />
 
     <!-- otherwise show the default address as a card -->
-    <div :class="styles.clientDetails.content" v-else-if="selected">
-      <h5 :class="styles.clientDetails.title">
-        {{ $t("client.details.title") }}
+    <div :class="styles.client.content" v-else-if="selected">
+      <h5 :class="styles.client.title">
+        {{ $t("client.title") }}
         <upw-button
           variant="link"
-          :label="$t('client.details.actions.change')"
+          :label="$t('client.actions.change')"
           size="sm"
           @click="onChange"
         />
@@ -43,11 +43,11 @@
         :key="selected?.id"
       />
 
-      <div :class="styles.clientDetails.actions">
+      <div :class="styles.client.actions">
         <!--
               <upw-button
               variant="link"
-              :label="$t('client.details.actions.edit')"
+              :label="$t('client.actions.edit')"
               size="sm"
               @click="onEdit"
             /> -->
@@ -62,7 +62,7 @@
       no-filter
     />
 
-    <footer :class="styles.clientDetails.footer">
+    <footer :class="styles.client.footer">
       <slot name="footer" v-bind="{ meta }"></slot>
     </footer>
   </section>
@@ -73,7 +73,7 @@
 import { defineComponent, provide, ref } from "vue";
 
 // --- internal
-import { useClient } from "@upmind/flow-vue";
+import { useClientAddress, useClientAddresses } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -82,11 +82,11 @@ import UpmAuth from "../session/Auth.vue";
 import UpmItem from "./Item.vue";
 import UpmCard from "./Card.vue";
 import UpmListings from "./Listings.vue";
-import { UpwSkeletonList, UpwButton, UpwTabs, UpwDialog } from "@upmind/upwind";
+import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmClientDetails",
+  name: "Upmclient",
   components: {
     UpwSkeletonList,
     UpwButton,
@@ -101,23 +101,14 @@ export default defineComponent({
     i18nKey: { type: String },
   },
   setup() {
-    const client = useClient();
-    const styles = useStyles(["clientDetails"], client.meta, config);
+    const client = useClientAddresses();
+    const styles = useStyles(["client"], client.meta, config);
     // ---
 
-    const {
-      selected,
-      getSelected,
-      addresses,
-      companies,
-      add,
-      address,
-      company,
-      meta,
-    } = client;
-    const selectedClient = address; // TODo provide the appropriat eone base don the type of default address or company
-    // Provide the selected client to the form/card components
-    provide("client", selectedClient);
+    const { selected, getSelected, addresses, add, meta } = client;
+
+    // Provide the client to the form/card components
+    provide("client", useClientAddress);
 
     // ---
     // check if we have a selected client, if we dont then we are creating a new one
@@ -130,25 +121,14 @@ export default defineComponent({
     return {
       add,
       selected,
-      selectedClient,
+      useClientAddress,
       meta,
       styles,
       addresses,
-      companies,
       // ---
       inlineForm: ref(true),
       activeTab: ref("addresses"),
       activeDialog: ref(false),
-      tabs: [
-        {
-          value: "addresses",
-          label: "Address",
-        },
-        {
-          value: "companies",
-          label: "Business",
-        },
-      ],
     };
   },
 
@@ -157,10 +137,12 @@ export default defineComponent({
       this.activeDialog = true;
     },
     onEdit() {
-      this.selectedClient(this.selected).edit();
+      this.useClientAddress(this.selected).edit();
     },
     onClose() {
+      debugger;
       this.activeDialog = false;
+      this.getSelected();
     },
   },
 });

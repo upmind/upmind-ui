@@ -156,7 +156,11 @@ export const useClientAddresses = () => {
     }),
     // ---
     isReady,
-    getSelected,
+    getSelected: async () => {
+      const selected = await getSelected();
+      send({ type: "SELECT", data: selected?.id });
+      return selected;
+    },
     select: async id => {
       if (state.value.matches("available.loading")) {
         await waitFor(
