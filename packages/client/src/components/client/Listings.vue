@@ -176,9 +176,16 @@ export default defineComponent({
     // provide the correct composable to our child components
     provide("client", client);
 
+    const initial = ref(clientListings.selected.value);
+
+    // safetycheck to ensure we have a selected item
+    clientListings
+      .isReady()
+      .then(() => (initial.value = clientListings.selected.value));
+
     return {
       ...clientListings,
-      initial: ref(null),
+      initial,
       styles,
     };
   },
@@ -217,19 +224,6 @@ export default defineComponent({
     onSelect(item) {
       this.select(item.id);
       this.$emit("update:modelValue", false);
-    },
-  },
-  watch: {
-    selected(value) {
-      if (!this.initial && !!value) {
-        this.initial = value;
-      } else if (this.initial && !value) {
-        // if we dont have a value, select our inital
-        this.select(this.initial?.id);
-      } else if (!this.initial && !value) {
-        // we dont ever want to NOT have a selected item, so get the 'default'
-        this.getSelected();
-      }
     },
   },
 });

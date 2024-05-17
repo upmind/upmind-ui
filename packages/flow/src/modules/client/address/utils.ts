@@ -536,9 +536,11 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
   return map(listings, item => {
     // 1 check if we have  companyDetails or just an address
     if (item?.address) {
-      debugger;
       const mappedItem = {
         id: item?.id,
+        address_id: item?.address.id, // add the address id as the unified id representing the actual address
+        companyDetails: true, // our flag to show company details
+        type: item?.type || 4, // default to 4 = company
         default: false, //we dont want a company to be default. the address object default is preferred
         // ---
         name: item?.name,
@@ -548,9 +550,6 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
         postcode: item?.address?.postcode,
         region_id: item?.address?.region_id,
         country_id: item?.address?.country_id,
-        // ---
-        companyDetails: true,
-        type: item?.type || 4, // default to 4 = company
         // ---
         email: item?.email?.email,
         phone: {
@@ -563,10 +562,9 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
         vat_number: item?.vat_number,
         vat_percent: item?.vat_percent,
       };
-      debugger;
       return mappedItem;
     } else {
-      return pick(item, [
+      const mappedItem = pick(item, [
         "id",
         "name",
         "address_1",
@@ -578,6 +576,11 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
         "default",
         "type",
       ]);
+
+      mappedItem.companyDetails = false;
+      mappedItem.address_id = item.id;
+
+      return mappedItem;
     }
   });
 };
