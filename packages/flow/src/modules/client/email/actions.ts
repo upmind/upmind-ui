@@ -2,8 +2,7 @@
 import { assign } from "xstate";
 
 // --- utils
-import { useModelParser } from "../../../utils";
-import { useSchema, useUischema, spawnItem } from "./utils";
+import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map } from "lodash-es";
 
 // --- types
