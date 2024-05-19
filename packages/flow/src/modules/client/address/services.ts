@@ -266,10 +266,17 @@ async function remove({ model }: AddressContext, _event: AddressEvent) {
 
   const clientId = await getUserId();
 
-  return del({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }) => data);
+  if (!model?.company_id) {
+    return del({
+      url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  } else {
+    return del({
+      url: useUrl(`clients/${clientId}/companies/${model.id}`),
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  }
 }
 
 async function setDefault({ model }: AddressContext, _event: AddressEvent) {
