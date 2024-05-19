@@ -78,7 +78,6 @@ export interface Typegen0 {
     setInitial: "REFRESH" | "done.invoke.loading:invocation[0]";
     setItems: "done.invoke.loading:invocation[0]";
     setSelected: "EDIT" | "SELECT";
-    setSelectedNew: "ADD";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {

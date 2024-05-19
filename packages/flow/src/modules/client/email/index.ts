@@ -8,9 +8,10 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
-import { find, map, first } from "lodash-es";
+import { find, map, compact } from "lodash-es";
 
 // --- types
+import type { IEmail } from "./types";
 
 // --------------------------------------------------------
 // create a global instance of the system machine
@@ -38,8 +39,10 @@ export const useClientEmails = () => {
       ),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,
-    getItems: () => map(state?.context?.items, "state.context.model"),
-    getItem: id => find(state?.context?.items, ["id", id]),
+    getItems: () => compact(map(state?.context?.items, "state.context.model")),
+    getItemSnapshot: id => find(state?.context?.items, ["id", id]),
+    getItem: id =>
+      find(state?.context?.items, ["id", id])?.state?.context?.model,
     getSelected: () => {
       return waitFor(
         service,
@@ -62,8 +65,8 @@ export const useClientEmails = () => {
       });
     },
     getDefault: () =>
-      find(state?.context?.items, "state.context.model.default") ||
-      first(state?.context?.items),
+      find(state?.context?.items, "state.context.model.default"),
+
     search: async data => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>
@@ -72,5 +75,7 @@ export const useClientEmails = () => {
         return state.context.items;
       });
     },
+    find: (data: string) => services.find(state.context, { data }),
+    add: (data: IEmail) => services.add(state.context, { data }),
   };
 };

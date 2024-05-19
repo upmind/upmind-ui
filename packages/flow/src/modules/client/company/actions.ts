@@ -14,10 +14,12 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 export const ListingActions = {
   add: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) => {
-      const machine = spawnItem(data); // spawn an actor for the new raw
-      raw.push(machine);
-      return raw;
+    initial: ({ selected, initial }) => selected?.id || initial,
+    selected: (
+      _context: ClientListingsContext,
+      { data }: ClientListingsEvents
+    ) => {
+      return spawnItem(data); // spawn an actor for the new raw
     },
   }),
   setItems: assign({

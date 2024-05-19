@@ -11,6 +11,7 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
+import type { IAddressData } from "./types";
 
 // --------------------------------------------------------
 // create a global instance of the system machine
@@ -74,5 +75,6 @@ export const useClientAddresses = () => {
         return state.context.items;
       });
     },
+    find: (data: IAddressData) => services.find(state.context, { data }),
   };
 };

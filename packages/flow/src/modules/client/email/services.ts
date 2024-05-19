@@ -5,7 +5,7 @@ import { useApi, useSession } from "../../";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { includes, reduce, get } from "lodash-es";
+import { includes, reduce, get, isEmpty, isEqual, find } from "lodash-es";
 
 // --- types
 import type { EmailEvent, EmailContext } from "./types.d";
@@ -40,11 +40,6 @@ async function load(
   }).then(({ data }) => data);
 }
 
-async function loadLookups(_context: EmailContext, _event: EmailEvent) {
-  // we dont have any lookups for emails, so just return null
-  return Promise.resolve(null);
-}
-
 async function filterItems(
   { raw }: ClientListingsContext,
   { data }: ClientListingsEvents
@@ -77,6 +72,24 @@ async function filterItems(
 
   return Promise.resolve(filteredItems);
 }
+
+async function findItem(
+  { raw }: ClientListingsContext,
+  { data }: { data: string }
+) {
+  if (isEmpty(data))
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const found = find(raw, item =>
+    isEqual(item.state.context.model.email, data)
+  );
+
+  return new Promise((resolve, reject) => {
+    if (!found) reject();
+    resolve(found);
+  });
+}
+
 // --------------------------------------------------------
 
 async function add({ model }: EmailContext, _event: EmailEvent) {
@@ -111,6 +124,18 @@ async function update({ model }: EmailContext, _event: EmailEvent) {
   }).then(({ data }) => data);
 }
 
+async function remove({ model }: EmailContext, _event: EmailEvent) {
+  const { del, useUrl } = useApi();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return del({
+    url: useUrl(`clients/${clientId}/emails/${model.id}`),
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
 async function setDefault({ model }: EmailContext, _event: EmailEvent) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -124,19 +149,12 @@ async function setDefault({ model }: EmailContext, _event: EmailEvent) {
   }).then(({ data }) => data);
 }
 
-async function remove({ model }: EmailContext, _event: EmailEvent) {
-  const { del, useUrl } = useApi();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }) => data);
-}
-
 // --------------------------------------------------------
+
+async function loadLookups(_context: EmailContext, _event: EmailEvent) {
+  // we dont have any lookups for emails, so just return null
+  return Promise.resolve(null);
+}
 
 async function parse({ model }: EmailContext, _event: EmailEvent) {
   // ---
@@ -163,6 +181,7 @@ async function validate({ schema, model }: EmailContext, _event: EmailEvent) {
 // EXPORTS
 
 export default {
+  find: findItem,
   load,
   loadLookups,
   parse,
