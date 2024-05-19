@@ -7,7 +7,7 @@ import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map, get, compact } from "lodash-es";
 
 // --- types
-import type { AddressContext, AddressEvent } from "./types.d";
+import type { UnifiedAddressContext, UnifiedAddressEvent } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
@@ -35,11 +35,11 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
-    title: ({ model }: AddressContext, _event: AddressEvent) =>
+    title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
       model?.name || "New Address",
     description: (
-      { model, countries, regions }: AddressContext,
-      _event: AddressEvent
+      { model, countries, regions }: UnifiedAddressContext,
+      _event: UnifiedAddressEvent
     ) => {
       const country = find(countries, ["id", get(model, "country_id")]);
       const region = find(regions, ["id", get(model, "region_id")]);
@@ -56,14 +56,16 @@ export const ItemActions = {
   }),
 
   setSchemas: assign({
-    schema: (context: AddressContext, _event: AddressEvent) =>
+    schema: (context: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
       useSchema(context),
-    uischema: (context: AddressContext, _event: AddressEvent) =>
+    uischema: (context: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
       useUischema(context),
   }),
 
   setModel: assign({
-    model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
-      useModelParser(schema, data, baseModel),
+    model: (
+      { schema, baseModel }: UnifiedAddressContext,
+      { data }: UnifiedAddressEvent
+    ) => useModelParser(schema, data, baseModel),
   }),
 };

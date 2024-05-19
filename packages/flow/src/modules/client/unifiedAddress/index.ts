@@ -27,7 +27,7 @@ const service = interpret(listingsMachine.withConfig({ actions, services }), {
 
 // --------------------------------------------------------
 
-export const useClientAddresses = () => {
+export const useUnifiedClientAddresses = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
