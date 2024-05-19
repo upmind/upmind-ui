@@ -27,21 +27,17 @@ import {
 
 // --- types
 import type {
-  AddressEvent,
-  AddressContext,
-  AddressesEvents,
-  AddressesContext,
-  IAddressData,
+  UnifiedAddressEvent,
+  UnifiedAddressContext,
+  UnifiedAddressesEvents,
+  UnifiedAddressesContext,
 } from "./types.d";
+import type { IAddressData } from "../address/types";
+import { AddressTypes } from "../address/services";
 
 // --------------------------------------------------------
 // ENUMS
-export const AddressTypes = [
-  { key: 1, value: "Home" },
-  { key: 2, value: "Office" },
-  { key: 3, value: "Holiday" },
-  { key: 4, value: "Company" },
-];
+
 // --------------------------------------------------------
 
 const { authSubscription, isAuthenticated } = useSession();
@@ -50,7 +46,7 @@ const { authSubscription, isAuthenticated } = useSession();
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// async function getEnums({ field }: AddressContext, _event: AddressEvent) {
+// async function getEnums({ field }: UnifiedAddressContext, _event: UnifiedAddressEvent) {
 //   const { getConfig } = useBrand();
 
 //   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
@@ -60,7 +56,10 @@ const { authSubscription, isAuthenticated } = useSession();
 //   );
 // }
 
-async function load(_context: AddressesContext, _event: AddressesEvents) {
+async function load(
+  _context: UnifiedAddressesContext,
+  _event: UnifiedAddressesEvents
+) {
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
@@ -146,8 +145,8 @@ async function findItem(
 // --------------------------------------------------------
 
 async function add(
-  { model, addresses, phones, emails }: AddressContext,
-  _event?: AddressEvent
+  { model, addresses, phones, emails }: UnifiedAddressContext,
+  _event?: UnifiedAddressEvent
 ) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -195,7 +194,7 @@ async function add(
 
 async function update(
   { model, addresses, phones, emails }: c,
-  _event: AddressEvent
+  _event: UnifiedAddressEvent
 ) {
   const { post, put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -260,7 +259,10 @@ async function update(
   }
 }
 
-async function remove({ model }: AddressContext, _event: AddressEvent) {
+async function remove(
+  { model }: UnifiedAddressContext,
+  _event: UnifiedAddressEvent
+) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -279,7 +281,10 @@ async function remove({ model }: AddressContext, _event: AddressEvent) {
   }
 }
 
-async function setDefault({ model }: AddressContext, _event: AddressEvent) {
+async function setDefault(
+  { model }: UnifiedAddressContext,
+  _event: UnifiedAddressEvent
+) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -298,7 +303,7 @@ async function ensureDependencies({
   addresses,
   emails,
   phones,
-}: AddressContext) {
+}: UnifiedAddressContext) {
   const address = pick(model, [
     "address_1",
     "address_2",
@@ -338,7 +343,10 @@ async function ensureDependencies({
   return Promise.all(dependencies);
 }
 
-async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
+async function loadLookups(
+  { model }: UnifiedAddressContext,
+  _event: UnifiedAddressEvent
+) {
   const { fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
@@ -397,8 +405,8 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
 }
 
 async function parse(
-  { addresses, schema, model, regions, country, places }: AddressContext,
-  _event: AddressEvent
+  { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
+  _event: UnifiedAddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -487,8 +495,8 @@ async function parse(
 }
 
 async function validate(
-  { schema, model }: AddressContext,
-  _event: AddressEvent
+  { schema, model }: UnifiedAddressContext,
+  _event: UnifiedAddressEvent
 ) {
   // ---
 
