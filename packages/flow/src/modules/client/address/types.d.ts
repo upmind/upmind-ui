@@ -34,6 +34,17 @@ interface IAddress {
   verified: number | null;
 }
 
+interface IAddressData {
+  address_1: string | null;
+  address_2: string | null;
+  city: string | null;
+  postcode: string | null;
+  country_id: ICountry["id"];
+  country?: ICountry; // Requires relation
+  region_id?: IRegion["id"] | null;
+  state: string | null;
+}
+
 // --------------------------------------------------------
 // Contexts
 

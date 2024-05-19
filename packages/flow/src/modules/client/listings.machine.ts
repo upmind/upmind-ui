@@ -139,7 +139,7 @@ export default createMachine(
 
           ADD: {
             target: "available.editing",
-            actions: ["add", "setSelectedNew"],
+            actions: ["add"],
           },
 
           EDIT: {
@@ -226,16 +226,6 @@ export default createMachine(
           { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
         ) => find(raw, ["id", data]), // || find(raw, "state.context.model.default")
-      }),
-
-      setSelectedNew: assign({
-        initial: ({ selected, initial }) => selected?.id || initial,
-        filters: undefined,
-        items: ({ raw }, _event) => raw,
-        selected: (
-          { raw }: ClientListingsContext,
-          _event: ClientListingsEvents
-        ) => last(raw),
       }),
 
       clearSelected: assign({
