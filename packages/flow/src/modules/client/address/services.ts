@@ -174,11 +174,8 @@ async function add(
       emails,
       phones,
     }).catch(error => {
-      debugger;
       Promise.reject(error);
     });
-
-    debugger;
 
     return post({
       url: useUrl(`clients/${clientId}/companies`),
@@ -226,11 +223,9 @@ async function update(
       emails,
       phones,
     }).catch(error => {
-      debugger;
       Promise.reject(error);
     });
 
-    debugger;
     // if we have a company_id then we are updating an existing company with the ensureDependencies
     if (model.company_id) {
       return put({
