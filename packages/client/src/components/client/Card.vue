@@ -19,6 +19,9 @@
             label="Default"
           />
         </h4>
+
+        <!-- <pre>{{ meta }}</pre>
+        <pre>{{ model }}</pre> -->
       </header>
 
       <span
@@ -130,10 +133,6 @@ export default defineComponent({
         {
           label: this.$tc(`client.${this.i18nKey}.actions.edit`),
           action: () => {
-            // this.$emit("click:action", {
-            //   action: "edit",
-            //   value: this.modelValue,
-            // });
             this.open = false;
             this.edit();
           },
@@ -142,10 +141,6 @@ export default defineComponent({
           label: this.$tc(`client.${this.i18nKey}.actions.delete`),
           disabled: !this.meta.canRemove,
           action: () => {
-            // this.$emit("click:action", {
-            //   action: "remove",
-            //   value: this.modelValue,
-            // });
             this.open = false;
             this.remove();
           },

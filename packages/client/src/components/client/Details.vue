@@ -15,7 +15,9 @@
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <upm-item
-      v-if="!meta.isLoading && meta.isAdding && !activeDialog"
+      v-if="
+        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
+      "
       i18nKey="addresses"
       :model-value="selected"
       :dialog="!meta.isEmpty"
@@ -44,13 +46,16 @@
       />
 
       <div :class="styles.client.actions">
-        <!--
-              <upw-button
-              variant="link"
-              :label="$t('client.actions.edit')"
-              size="sm"
-              @click="onEdit"
-            /> -->
+        <upw-button
+          :key="selected?.id"
+          variant="link"
+          :label="$t('client.actions.convert')"
+          size="sm"
+          @click="onEdit"
+          v-if="!selected?.state?.value?.context?.model.company_details"
+        />
+
+        <!-- <pre>{{ selected?.state?.value?.context?.model }}</pre> -->
       </div>
     </div>
 
@@ -138,7 +143,11 @@ export default defineComponent({
       this.activeDialog = true;
     },
     onEdit() {
-      this.useClientAddress(this.selected).edit();
+      const client = this.useClientAddress(this.selected);
+      const model = client.model.value;
+      client.edit();
+      // force the company details to be shown
+      client.input({ ...model, company_details: true });
     },
     onClose() {
       this.activeDialog = false;

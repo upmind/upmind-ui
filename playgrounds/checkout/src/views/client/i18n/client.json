@@ -8,6 +8,7 @@
     },
     "actions": {
       "add": "Add details",
+      "convert": "Add business details",
       "edit": "Change address details",
       "change": "Change"
     },
@@ -25,6 +26,7 @@
         "description": "Add an email address to get started"
       },
       "actions": {
+        "cancel": "Cancel",
         "add": "Add email address",
         "filter": "Filter by email address",
         "edit": "Edit",
@@ -43,6 +45,7 @@
         "description": "Add a phone number to get started"
       },
       "actions": {
+        "cancel": "Cancel",
         "add": "Add phone number",
         "filter": "Filter by phone number or country code",
         "edit": "Edit",
@@ -61,6 +64,8 @@
         "description": "Add an address to get started"
       },
       "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm address | Confirm business details",
         "add": "Add new address",
         "filter": "Filter by address",
         "edit": "Edit",
@@ -79,6 +84,7 @@
         "description": "Add a company to get started"
       },
       "actions": {
+        "cancel": "Cancel",
         "add": "Add company",
         "filter": "Filter by company name or VAT number",
         "edit": "Edit",

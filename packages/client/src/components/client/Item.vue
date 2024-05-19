@@ -1,10 +1,12 @@
 <template>
   <component
     :is="dialog ? 'upw-dialog' : 'section'"
-    @reject="cancel"
-    :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
+    @reject="onClose"
     size="xl"
     :actions="actions"
+    :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
+    :model-value="dialog"
+    @update:modelValue="onClose"
   >
     <upw-form
       tabindex="1"
@@ -16,8 +18,8 @@
       :uischema="uischema"
       @update:modelValue="input"
       @valid="maybeSubmit"
-      @reject="cancel"
-      @resolve="update"
+      @reject="onClose"
+      @resolve="onUpdate"
       :actions="actions"
       :no-actions="dialog"
     />
@@ -62,29 +64,38 @@ export default defineComponent({
 
   computed: {
     actions() {
-      const actions = {};
-
-      if (this.dialog) {
-        actions.cancel = {
-          label: "Cancel",
+      const actions = {
+        cancel: {
+          label: this?.$t(`client.${this.i18nKey}.actions.cancel`),
           variant: "link",
           disabled: this.meta.isProcessing,
           action: () => this.cancel(),
-        };
+        },
 
-        actions.submit = {
+        submit: {
           type: "submit",
           variant: this.dialog ? "flat" : "link",
-          label: "Confirm Address",
+          label: this?.$tc(
+            `client.${this.i18nKey}.actions.submit`,
+            this.model?.company_details ? 0 : 1
+          ),
           disabled: !this.meta.isValid || this.meta.isProcessing,
           action: ({ model }) => this.update(model),
-        };
-      }
+        },
+      };
 
-      return actions;
+      return this.dialog ? actions : null;
     },
   },
   methods: {
+    onClose() {
+      this.$emit("update:modelValue", false);
+    },
+    onUpdate(model) {
+      this.$emit("update:modelValue", false);
+      this.update(model);
+    },
+
     maybeSubmit(isValid) {
       if (this.autosave && isValid && !isEmpty(this.model)) {
         this.$nextTick(() => {

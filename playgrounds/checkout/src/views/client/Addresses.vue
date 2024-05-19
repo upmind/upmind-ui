@@ -1,5 +1,10 @@
 <template>
-  <upm-client-listings type="addresses" class="my-4" cols="2">
+  <upm-client-listings
+    type="addresses"
+    i18nKey="addresses"
+    class="my-4"
+    cols="2"
+  >
     <template #header="{ meta }">
       <h2>
         {{
@@ -8,6 +13,8 @@
             : $t("client.unavailable")
         }}
       </h2>
+
+      <pre>{{ meta }}</pre>
     </template>
   </upm-client-listings>
 </template>

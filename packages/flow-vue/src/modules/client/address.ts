@@ -6,15 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import {
-  get,
-  map,
-  debounce,
-  startsWith,
-  isEmpty,
-  find,
-  reject,
-} from "lodash-es";
+import { get, map, debounce, isEmpty, find } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -50,9 +42,10 @@ export const useClientAddress = (item, context?: Object) => {
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
       hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
-      canRemove: state.value?.context?.model?.can_delete,
+      canRemove: !!state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
+      hasCompanyDetails: !!state.value?.context?.model?.company_details,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
@@ -123,15 +116,12 @@ export const useClientAddresses = () => {
       hasErrors: ["error"].some(state.value.matches),
       isAdding:
         ["available.editing"].some(state.value.matches) &&
-        startsWith(state.value.context.selected?.id, "item_"),
+        !state.value.context.selected?.state.context?.model?.id,
       isEditing:
         ["available.editing"].some(state.value.matches) &&
-        !startsWith(state.value.context.selected?.id, "item_"),
+        !!state.value.context.selected?.state.context?.model?.id,
       isEmpty:
-        state.value.matches("available") &&
-        !reject(state.value.context?.items, item =>
-          startsWith(item.id, "item_")
-        )?.length,
+        state.value.matches("available") && isEmpty(state.value.context?.items),
       canFilter:
         state.value.matches("available") &&
         !["available.editing", "available.loading"].some(state.value.matches) &&
