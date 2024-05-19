@@ -54,6 +54,13 @@ export interface AddressContext {
   types?: IAddressType[];
   baseModel?: IAddress;
 
+  // --- our internal lookup objects
+  countries: Object;
+  places: Object;
+  addresses: Object;
+  phones: Object;
+  emails: Object;
+
   // ---
   autocomplete?: {
     schema?: JsonSchema;

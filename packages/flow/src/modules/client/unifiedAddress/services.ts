@@ -1,12 +1,16 @@
 // --- external
+import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import { useApi, useSystem, useSession } from "../../";
 import { usePlaces } from "../places";
 import { useClientAddresses } from "../address";
+import { useClientPhones } from "../phone";
+import { useClientEmails } from "../email";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { parseAddress } from "./utils";
 import {
   some,
   first,
@@ -16,6 +20,7 @@ import {
   includes,
   filter,
   defaultsDeep,
+  isString,
   pick,
   isEqual,
 } from "lodash-es";
@@ -63,12 +68,23 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
 
   const clientId = await getUserId();
 
-  return get({
+  const addresses = get({
     url: useUrl(`clients/${clientId}/addresses`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => data);
+  }).then(({ data }) => parseAddress(data));
+
+  const companies = get({
+    url: useUrl(`clients/${clientId}/companies`, { limit: 0 }),
+    withAccessToken: true,
+    useCache: true,
+    refresh: true,
+  }).then(({ data }) => parseAddress(data));
+
+  return Promise.all([addresses, companies]).then(([addresses, companies]) => {
+    return [...addresses, ...companies];
+  });
 }
 
 async function filterItems(
@@ -129,30 +145,119 @@ async function findItem(
 
 // --------------------------------------------------------
 
-async function add({ model }: AddressContext, _event: AddressEvent) {
+async function add(
+  { model, addresses, phones, emails }: AddressContext,
+  _event?: AddressEvent
+) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return post({
-    url: useUrl(`clients/${clientId}/addresses`),
-    data: model,
-    withAccessToken: true,
-  }).then(({ data }) => data);
+  // for the unified address we need to check if we have company details or jsut an address.
+  if (!model?.company_details) {
+    // If we dont then we can just create the address as normal...simple
+    return post({
+      url: useUrl(`clients/${clientId}/addresses`),
+      data: model,
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  } else {
+    // if we do then we need to :
+    // check if the address provided already exists in our addresses or if we need to create a new one
+    // check if the phone number provided already exists in our phones or if we need to create a new one
+    // check if the email provided already exists in our emails or if we need to create a new one
+    // thhen create the address, email and phone as necessary and use the ids to create the company
+    const [address, email, phone] = await ensureDependencies({
+      model,
+      addresses,
+      emails,
+      phones,
+    }).catch(error => {
+      Promise.reject(error);
+    });
+
+    return post({
+      url: useUrl(`clients/${clientId}/companies`),
+      data: {
+        name: model.name,
+        address_id: address?.id,
+        email_id: email?.id,
+        phone_id: phone?.id,
+        reg_number: model.reg_number,
+        vat_number: model.vat_number,
+        vat_percent: model.vat_percent,
+      },
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  }
 }
 
-async function update({ model }: AddressContext, _event: AddressEvent) {
-  const { put, useUrl } = useApi();
+async function update(
+  { model, addresses, phones, emails }: c,
+  _event: AddressEvent
+) {
+  const { post, put, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-    data: model,
-    withAccessToken: true,
-  }).then(({ data }) => data);
+  // for the unified address we need to check if we have company details, and existing company or just an address.
+  //
+
+  if (!model?.company_id && !model?.company_details) {
+    return put({
+      url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+      data: model,
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  } else {
+    // if we do then we need to :
+    // check if the address provided already exists in our addresses or if we need to create a new one
+    // check if the phone number provided already exists in our phones or if we need to create a new one
+    // check if the email provided already exists in our emails or if we need to create a new one
+    // thhen create the address, email and phone as necessary and use the ids to the company
+    const [address, email, phone] = await ensureDependencies({
+      model,
+      addresses,
+      emails,
+      phones,
+    }).catch(error => {
+      Promise.reject(error);
+    });
+
+    // if we have a company_id then we are updating an existing company with the ensureDependencies
+    if (model.company_id) {
+      return put({
+        url: useUrl(`clients/${clientId}/companies/${model.id}`),
+        data: {
+          name: model.name,
+          address_id: address?.id,
+          email_id: email?.id,
+          phone_id: phone?.id,
+          reg_number: model.reg_number,
+          vat_number: model.vat_number,
+          vat_percent: model.vat_percent,
+        },
+        withAccessToken: true,
+      }).then(({ data }) => data);
+    } else {
+      // if we dont have a company_id then we are creating a new company with the ensureDependencies
+      return post({
+        url: useUrl(`clients/${clientId}/companies`),
+        data: {
+          name: model.name,
+          address_id: address?.id,
+          email_id: email?.id,
+          phone_id: phone?.id,
+          reg_number: model.reg_number,
+          vat_number: model.vat_number,
+          vat_percent: model.vat_percent,
+        },
+        withAccessToken: true,
+      }).then(({ data }) => data);
+    }
+  }
 }
 
 async function remove({ model }: AddressContext, _event: AddressEvent) {
@@ -161,10 +266,17 @@ async function remove({ model }: AddressContext, _event: AddressEvent) {
 
   const clientId = await getUserId();
 
-  return del({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }) => data);
+  if (!model?.company_id) {
+    return del({
+      url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  } else {
+    return del({
+      url: useUrl(`clients/${clientId}/companies/${model.id}`),
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  }
 }
 
 async function setDefault({ model }: AddressContext, _event: AddressEvent) {
@@ -180,6 +292,51 @@ async function setDefault({ model }: AddressContext, _event: AddressEvent) {
   }).then(({ data }) => data);
 }
 // --------------------------------------------------------
+
+async function ensureDependencies({
+  model,
+  addresses,
+  emails,
+  phones,
+}: AddressContext) {
+  const address = pick(model, [
+    "address_1",
+    "address_2",
+    "city",
+    "postcode",
+    "region_id",
+    "country_id",
+  ]);
+
+  // for our dependencies we need to check if the they already exists by finding them in their respective stores
+  // if they do then we can just return the id
+  // if they dont then we return a promise of the add method
+  // NB: for each new dependency we force type to be 4 = company
+  const dependencies = [
+    addresses
+      .find(address)
+      .then(item => item?.state?.context?.model)
+      .catch(() =>
+        addresses.add({ model: { ...address, type: 4, name: model.name } })
+      ),
+
+    !model?.email
+      ? Promise.resolve(null)
+      : emails
+          .find(model.email)
+          .then(item => item?.state?.context?.model)
+          .catch(() => emails.add({ model: { email: model.email, type: 4 } })),
+
+    !model?.phone
+      ? Promise.resolve(null)
+      : phones
+          .find(model.phone)
+          .then(item => item?.state?.context?.model)
+          .catch(() => phones.add({ model: { phone: model.phone, type: 4 } })),
+  ];
+
+  return Promise.all(dependencies);
+}
 
 async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   const { fetchCountries, fetchRegions, getCountry } = useSystem();
@@ -197,11 +354,22 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   // ---
   // lets start up/use our dependencies
   const addresses = useClientAddresses();
+  const phones = useClientPhones();
+  const emails = useClientEmails();
   const places = usePlaces();
 
-  return Promise.all([addresses.isReady(), places.isReady()])
+  return Promise.all([
+    addresses.isReady(),
+    phones.isReady(),
+    emails.isReady(),
+    places.isReady(),
+  ])
     .then(() => {
       places.reset();
+
+      const address = addresses.getDefault()?.state?.context?.model;
+      const email = emails.getDefault()?.state?.context?.model;
+      const phone = phones.getDefault()?.state?.context?.model;
 
       return {
         countries,
@@ -210,14 +378,18 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
         places,
         country,
         // ---
+        emails,
         addresses,
+        phones,
         // ---
         baseModel: {
           ...model,
           manualPlace: !!model?.id,
           type: first(AddressTypes)?.key,
-          place: null,
-          country_id: country?.id,
+          phone: phone?.phone,
+          email: email?.id,
+          place: address?.id,
+          country_id: address?.country_id || country?.id,
         },
       };
     })
@@ -271,6 +443,26 @@ async function parse(
     const region = find(regions, ["id", model?.region_id]);
     model.region_id = get(region, "id", undefined);
 
+    // now lets check our phone number
+    if (model?.phone) {
+      const phonenumber = isString(model.phone)
+        ? model?.phone
+        : model?.phone?.number || model?.phone?.nationalNumber || "";
+
+      const countryCode =
+        model?.phone?.country || model?.phone_country_code || country?.code;
+      const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
+
+      // now map the phone number to the model in the correct format with fallbacks
+      model.phone = {
+        number: phone?.number || model.phone?.number,
+        nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
+        countryCallingCode:
+          phone?.countryCallingCode || model.phone?.countryCallingCode,
+        country: countryCode,
+      };
+    }
+
     // finally lets force a manual place if we are invalid:
     const isValid = await validate({ schema, model }, _event)
       .then(() => true)
@@ -286,6 +478,9 @@ async function parse(
     ) {
       model.manualPlace = true;
     }
+
+    // force the type as company if we have added company details
+    if (model.company_id) model.type = 4; // company
   }
 
   return Promise.resolve({ model, regions, country });
