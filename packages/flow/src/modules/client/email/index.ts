@@ -76,6 +76,6 @@ export const useClientEmails = () => {
       });
     },
     find: (data: string) => services.find(state.context, { data }),
-    add: (data: IEmail) => services.add(state.context, { data }),
+    add: (data: IEmail) => services.add(data),
   };
 };

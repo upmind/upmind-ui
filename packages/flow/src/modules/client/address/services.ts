@@ -171,8 +171,8 @@ async function add(
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
-      phones,
       emails,
+      phones,
     }).catch(error => {
       debugger;
       Promise.reject(error);
@@ -196,33 +196,73 @@ async function add(
   }
 }
 
-async function update({ model }: AddressContext, _event: AddressEvent) {
-  const { put, useUrl } = useApi();
+async function update(
+  { model, addresses, phones, emails }: AddressContext,
+  _event: AddressEvent
+) {
+  const { post, put, useUrl } = useApi();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  // if (!model?.company_id) {
-  //   return put({
-  //     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-  //     data: model,
-  //     withAccessToken: true,
-  //   }).then(({ data }) => data);
-  // } else {
-  //   return put({
-  //     url: useUrl(`clients/${clientId}/companies/${model.id}`),
-  //     data: {
-  //       name: model.name,
-  //       address_id: model.address_id,
-  //       email_id: model.email_id,
-  //       phone_id: model.phone_id,
-  //       reg_number: model.reg_number,
-  //       vat_number: model.vat_number,
-  //       vat_percent: model.vat_percent,
-  //     },
-  //     withAccessToken: true,
-  //   }).then(({ data }) => data);
-  // }
+  // for the unified address we need to check if we have company details, and existing company or just an address.
+  //
+
+  if (!model?.company_id && !model?.company_details) {
+    return put({
+      url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+      data: model,
+      withAccessToken: true,
+    }).then(({ data }) => data);
+  } else {
+    // if we do then we need to :
+    // check if the address provided already exists in our addresses or if we need to create a new one
+    // check if the phone number provided already exists in our phones or if we need to create a new one
+    // check if the email provided already exists in our emails or if we need to create a new one
+    // thhen create the address, email and phone as necessary and use the ids to the company
+    const [address, email, phone] = await ensureDependencies({
+      model,
+      addresses,
+      emails,
+      phones,
+    }).catch(error => {
+      debugger;
+      Promise.reject(error);
+    });
+
+    debugger;
+    // if we have a company_id then we are updating an existing company with the ensureDependencies
+    if (model.company_id) {
+      return put({
+        url: useUrl(`clients/${clientId}/companies/${model.id}`),
+        data: {
+          name: model.name,
+          address_id: address?.id,
+          email_id: email?.id,
+          phone_id: phone?.id,
+          reg_number: model.reg_number,
+          vat_number: model.vat_number,
+          vat_percent: model.vat_percent,
+        },
+        withAccessToken: true,
+      }).then(({ data }) => data);
+    } else {
+      // if we dont have a company_id then we are creating a new company with the ensureDependencies
+      return post({
+        url: useUrl(`clients/${clientId}/companies`),
+        data: {
+          name: model.name,
+          address_id: address?.id,
+          email_id: email?.id,
+          phone_id: phone?.id,
+          reg_number: model.reg_number,
+          vat_number: model.vat_number,
+          vat_percent: model.vat_percent,
+        },
+        withAccessToken: true,
+      }).then(({ data }) => data);
+    }
+  }
 }
 
 async function remove({ model }: AddressContext, _event: AddressEvent) {
@@ -254,8 +294,8 @@ async function setDefault({ model }: AddressContext, _event: AddressEvent) {
 async function ensureDependencies({
   model,
   addresses,
-  phones,
   emails,
+  phones,
 }: AddressContext) {
   const address = pick(model, [
     "address_1",
@@ -269,12 +309,13 @@ async function ensureDependencies({
   // for our dependencies we need to check if the they already exists by finding them in their respective stores
   // if they do then we can just return the id
   // if they dont then we return a promise of the add method
+  // NB: for each new dependency we force type to be 4 = company
   const dependencies = [
     addresses
       .find(address)
       .then(item => item?.state?.context?.model)
-      .catch(
-        () => add({ model: { ...address, type: 4, name: model.name } }) // force type to be 4 = company
+      .catch(() =>
+        addresses.add({ model: { ...address, type: 4, name: model.name } })
       ),
 
     !model?.email
@@ -282,26 +323,14 @@ async function ensureDependencies({
       : emails
           .find(model.email)
           .then(item => item?.state?.context?.model)
-          .catch(
-            () => emails.add({ model: { email: model.email } }) // force type to be 4 = company
-          ),
+          .catch(() => emails.add({ model: { email: model.email, type: 4 } })),
 
     !model?.phone
       ? Promise.resolve(null)
       : phones
           .find(model.phone)
           .then(item => item?.state?.context?.model)
-          .catch(
-            () =>
-              emails.add({
-                model: {
-                  phone: model.phone.nationalNumber, // without the country code
-                  phone_code: `+${model.phone.countryCallingCode}`,
-                  phone_country_code: model.phone.country,
-                  type: 4,
-                },
-              }) // force type to be 4 = company
-          ),
+          .catch(() => phones.add({ model: { phone: model.phone, type: 4 } })),
   ];
 
   return Promise.all(dependencies);

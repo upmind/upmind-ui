@@ -11,7 +11,6 @@ import {
   isString,
   keyBy,
   filter,
-  pick,
   find,
   isEmpty,
   isEqual,
@@ -50,7 +49,6 @@ async function load(
 
   return get({
     url: useUrl(`clients/${clientId}/phones`, {
-      // with: [].join(),
       limit: 0,
     }),
     withAccessToken: true,
@@ -90,17 +88,9 @@ async function findItem(
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
 
-  debugger;
-  const found = find(raw, item => {
-    debugger;
-    const phone = {
-      nationalNumber: item.state.context.model.phone,
-      countryCallingCode: item.state.context.model.phone_code,
-      country: item.state.context.model.phone_country_code,
-    };
-    debugger;
-    return isEqual(phone, data);
-  });
+  const found = find(raw, item =>
+    isEqual(item.state.context.model.phone, data)
+  );
 
   return new Promise((resolve, reject) => {
     if (!found) reject();
