@@ -235,7 +235,28 @@ export const useSchema = ({
 
 export const useUischema = ({ addresses, emails, phones }) => {
   const lookups = {
-    addresses: addresses.getItems(),
+    addresses: reduce(
+      addresses.getItems(),
+      (result, item) => {
+        // Only return actual addresses, NOT companies
+        if (!item.company_details) {
+          result.push({
+            value: item.id,
+            label: [
+              item.name,
+              item.address_1,
+              item.address_2,
+              item.city,
+              item.postcode,
+            ].join(", "),
+          });
+        }
+
+        return result;
+      },
+      []
+    ),
+
     emails: emails.getItems(),
     phones: phones.getItems(),
   };
@@ -279,19 +300,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
                   as: "separator",
                 }
               : null,
-
-            ...map(lookups.addresses, item => {
-              return {
-                value: item.id,
-                label: [
-                  item.name,
-                  item.address_1,
-                  item.address_2,
-                  item.city,
-                  item.postcode,
-                ].join(", "),
-              };
-            }),
+            ...lookups.addresses,
             {
               label: "Enter manually",
               value: "manual",
@@ -462,9 +471,10 @@ export const useUischema = ({ addresses, emails, phones }) => {
             type: "Control",
             scope: "#/properties/email",
             options: {
+              suggestions: true,
               autocomplete: "email",
               itemLabel: "email",
-              itemValue: "id",
+              itemValue: "email",
               items: lookups.emails,
             },
           },
@@ -473,6 +483,10 @@ export const useUischema = ({ addresses, emails, phones }) => {
             scope: "#/properties/phone",
             options: {
               autocomplete: "tel",
+              suggestions: true,
+              itemLabel: "number",
+              itemValue: "number",
+              items: lookups.phones,
             },
           },
         ],
@@ -602,6 +616,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
 
       mappedItem.company_details = false;
       mappedItem.address_id = item.id;
+      mappedItem.place = null;
 
       return mappedItem;
     }

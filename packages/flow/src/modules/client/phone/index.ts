@@ -76,6 +76,6 @@ export const useClientPhones = () => {
       });
     },
     find: (data: IPhoneData) => services.find(state.context, { data }),
-    add: (data: IPhone) => services.add(state.context, { data }),
+    add: (data: IPhone) => services.add(data),
   };
 };

@@ -31,7 +31,6 @@ async function load(
 
   return get({
     url: useUrl(`clients/${clientId}/emails`, {
-      // with: [].join(),
       limit: 0,
     }),
     withAccessToken: true,
