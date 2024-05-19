@@ -50,7 +50,7 @@
         </slot>
 
         <upm-item
-          v-if="meta.isEditing"
+          v-if="meta.isEditing || meta.isAdding"
           :model-value="selected"
           :key="selected?.id"
           :i18nKey="i18nKey"
@@ -134,11 +134,11 @@ export default defineComponent({
     },
     i18nKey: { type: String, required: true },
     modelValue: { type: Boolean },
-    dialog: { type: Boolean, default: true },
+    dialog: { type: Boolean, default: false },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
-    cols: { type: [String, Number] },
+    cols: { type: [String, Number], default: 1 },
   },
   setup(props) {
     let clientListings, client;
@@ -147,27 +147,18 @@ export default defineComponent({
       case "addresses":
         clientListings = useClientAddresses();
         client = useClientAddress;
-        // UpmCard = defineAsyncComponent(() => import(`./address/Card.vue`));
-        // UpmForm = defineAsyncComponent(() => import(`./address/Form.vue`));
         break;
       case "emails":
         clientListings = useClientEmails();
         client = useClientEmail;
-        // UpmCard = defineAsyncComponent(() => import(`./email/Card.vue`));
-        // UpmForm = defineAsyncComponent(() => import(`./email/Form.vue`));
         break;
       case "phones":
         clientListings = useClientPhones();
         client = useClientPhone;
-        // UpmCard = defineAsyncComponent(() => import(`./phone/Card.vue`));
-        // UpmForm = defineAsyncComponent(() => import(`./phone/Form.vue`));
         break;
       case "companies":
         clientListings = useClientCompanies();
         client = useClientCompany;
-        // UpmCard = defineAsyncComponent(() => import(`./company/Card.vue`));
-        // UpmForm = defineAsyncComponent(() => import(`./company/Form.vue`));
-
         break;
     }
 

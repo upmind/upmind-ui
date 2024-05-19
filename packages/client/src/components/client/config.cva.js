@@ -43,7 +43,7 @@ export default {
     actions: cva(""),
   },
   clientForm: {
-    root: cva("w-full mt-4 max-w-xl", {
+    root: cva("w-full max-w-xl", {
       variants: {
         hasErrors: {
           true: "border-error",
