@@ -1,4 +1,4 @@
-import { toNumber, isBoolean, toString } from "lodash-es";
+import { toNumber, isBoolean, toString, pick } from "lodash-es";
 
 export const useTokenParser = (data: any) => {
   return {
@@ -12,4 +12,40 @@ export const useTokenParser = (data: any) => {
       : data?.isBoolean === "true",
     token_type: toString(data?.token_type),
   };
+};
+
+async function useAvatarParser(url) {
+  if (!url?.length) return false;
+  url = url.replace("?d=blank", "?d=404");
+  const response = await fetch(url);
+  return response.ok ? url : null;
+}
+
+function useInitialsParser(user) {
+  if (!user) return "";
+
+  return user?.display
+    ?.split(" ")
+    ?.map(word => word[0])
+    ?.join("");
+}
+
+export const useUserParser = async (data: any) => {
+  const user = pick(data, [
+    "id",
+    "email",
+    "username",
+    "full_name",
+    "first_name",
+    "last_name",
+    "image_url",
+  ]);
+
+  user.display = data?.public_name || data?.first_name || data?.email;
+  user.avatar = {
+    initials: useInitialsParser(user),
+    url: await useAvatarParser(user.image_url),
+  };
+
+  return user;
 };

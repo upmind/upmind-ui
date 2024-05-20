@@ -3,6 +3,9 @@ import { useApi } from "../api";
 
 // --- utils
 import { get } from "lodash-es";
+import { useUserParser } from "./utils";
+
+// --- types
 import { type SessionContext } from "./types.d";
 
 // --------------------------------------------------------
@@ -61,7 +64,9 @@ async function getUser(_context: SessionContext, _event: any) {
       ].join(),
     }),
     withAccessToken: true,
-  }).then(({ data }) => data?.actor);
+  })
+    .then(({ data }) => useUserParser(data?.actor))
+    .then(data => data);
 
   // const self = await dispatch(
   //   "api/call",

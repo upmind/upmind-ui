@@ -19,7 +19,7 @@
           >
             <template #[`name`]>
               <strong :class="styles.session.name">
-                {{ user?.public_name || user?.firstname }}
+                {{ user?.display }}
               </strong>
             </template>
           </i18n-t>
