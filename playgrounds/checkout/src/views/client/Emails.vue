@@ -1,5 +1,5 @@
 <template>
-  <upm-client-listings type="emails" class="my-4">
+  <upm-client-listings type="emails" i18nKey="emails" class="my-4" cols="2">
     <template #header="{ meta }">
       <h2>
         {{

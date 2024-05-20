@@ -2,7 +2,7 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useApi, useSystem, useSession } from "../../";
+import { useApi, useSystem, useSession } from "../..";
 import { usePlaces } from "../places";
 import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
@@ -31,7 +31,7 @@ import type {
   UnifiedAddressContext,
   UnifiedAddressesEvents,
   UnifiedAddressesContext,
-} from "./types.d";
+} from "./types";
 import type { IAddressData } from "../address/types";
 import { AddressTypes } from "../address/services";
 

@@ -19,7 +19,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IAddress, AddressContext } from "./types.d";
+import type { IAddress, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
