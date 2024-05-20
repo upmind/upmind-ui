@@ -1,5 +1,46 @@
 <template>
-  <aside
+  <h-menu
+    as="div"
+    :class="styles.profile.root"
+    v-slot="{ open }"
+    v-if="meta.isAuthenticated"
+  >
+    <h-menu-button :class="styles.profileButton.root" ref="reference">
+      <figure class="avatar" :class="styles.profileButton.avatar">
+        <img
+          v-if="user.image_url"
+          :src="user.image_url"
+          alt="user profile avatar "
+          :class="styles.profileButton.image"
+        />
+      </figure>
+
+      <span class="label" :class="styles.profileButton.label">
+        {{ user?.public_name || user?.first_name || user?.email || "Profile" }}
+      </span>
+    </h-menu-button>
+
+    <transition
+      :enter-active-class="styles.profileTransitionEnter.active"
+      :enter-from-class="styles.profileTransitionEnter.from"
+      :enter-to-class="styles.profileTransitionEnter.to"
+      :leave-active-class="styles.profileTransitionLeave.active"
+      :leave-from-class="styles.profileTransitionLeave.from"
+      :leave-to-class="styles.profileTransitionLeave.to"
+    >
+      <h-menu-items
+        :class="styles.profile.items"
+        ref="floating"
+        :style="floatingStyles"
+      >
+        <template v-for="(item, key) in items" :key="key">
+          <upm-profile-item v-bind="item" />
+        </template>
+      </h-menu-items>
+    </transition>
+  </h-menu>
+
+  <!-- <aside
     class="profile"
     :class="styles.profile.root"
     v-if="meta.isClient && !meta.isProcessing"
@@ -34,16 +75,20 @@
         />
       </div>
     </div>
-  </aside>
+  </aside> -->
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
+import { useFloating, offset, flip, shift } from "@floating-ui/vue";
+
+// --- components
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
+import UpmProfileItem from "./ProfileItem.vue";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
-import { UpwButton } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -51,20 +96,68 @@ import config from "./config.cva";
 
 export default defineComponent({
   name: "Profile",
-  components: { UpwButton },
+  components: {
+    HMenu: Menu,
+    HMenuButton: MenuButton,
+    HMenuItems: MenuItems,
+    UpmProfileItem,
+  },
   inheritAttrs: true,
   customOptions: {},
   emits: [],
-  props: {},
-  setup() {
+  props: {
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["sm", "md", "lg"].includes(value),
+    },
+    placement: {
+      type: String as PropType<DropdownProps["position"]>,
+      default: "bottom-end",
+    },
+  },
+  setup(props) {
     const session = useSession();
 
-    const styles = useStyles(["profile"], session.meta, config);
+    const reference = ref(null);
+    const floating = ref(null);
+    const { floatingStyles } = useFloating(reference, floating, {
+      placement: props.placement,
+      middleware: [offset(10), flip(), shift()],
+    });
+
+    const styles = useStyles(
+      [
+        "profile",
+        "profileButton",
+        "profileItem",
+        "profileTransitionEnter",
+        "profileTransitionLeave",
+      ],
+      session.meta,
+      config
+    );
 
     return {
       ...session,
       styles,
+      reference,
+      floating,
+      floatingStyles,
     };
+  },
+  computed: {
+    items() {
+      if (!this.meta.isAuthenticated) return [];
+
+      return [
+        {
+          label: "Logout",
+          icon: "logout",
+          action: this.logout,
+        },
+      ];
+    },
   },
 });
 </script>
