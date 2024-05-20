@@ -88,8 +88,11 @@ async function findItem(
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
 
-  const found = find(raw, item =>
-    isEqual(item.state.context.model.phone, data)
+  const found = find(
+    raw,
+    item =>
+      isEqual(item.state.context.model.id, data) ||
+      isEqual(item.state.context.model.phone, data)
   );
 
   return new Promise((resolve, reject) => {

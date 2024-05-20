@@ -60,9 +60,8 @@
     </div>
 
     <upm-listings
-      v-if="activeDialog"
       v-model="activeDialog"
-      type="addresses"
+      type="unified"
       i18nKey="addresses"
       dialog
       no-filter

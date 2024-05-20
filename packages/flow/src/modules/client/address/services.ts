@@ -107,18 +107,21 @@ async function findItem(
     "country_id",
   ]);
 
-  const found = find(raw, item =>
-    isEqual(
-      pick(item.state.context.model, [
-        "address_1",
-        "address_2",
-        "city",
-        "postcode",
-        "region_id",
-        "country_id",
-      ]),
-      value
-    )
+  const found = find(
+    raw,
+    item =>
+      isEqual(item.state.context.model.id, data) ||
+      isEqual(
+        pick(item.state.context.model, [
+          "address_1",
+          "address_2",
+          "city",
+          "postcode",
+          "region_id",
+          "country_id",
+        ]),
+        value
+      )
   );
 
   return new Promise((resolve, reject) => {

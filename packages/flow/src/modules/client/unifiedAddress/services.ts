@@ -321,23 +321,29 @@ async function ensureDependencies({
     addresses
       .find(address)
       .then(item => item?.state?.context?.model)
-      .catch(() =>
-        addresses.add({ model: { ...address, type: 4, name: model.name } })
-      ),
+      .catch(() => {
+        return addresses.add({
+          model: { ...address, type: 4, name: model.name },
+        });
+      }),
 
     !model?.email
       ? Promise.resolve(null)
       : emails
           .find(model.email)
           .then(item => item?.state?.context?.model)
-          .catch(() => emails.add({ model: { email: model.email, type: 4 } })),
+          .catch(() => {
+            return emails.add({ model: { email: model.email, type: 4 } });
+          }),
 
     !model?.phone
       ? Promise.resolve(null)
       : phones
           .find(model.phone)
           .then(item => item?.state?.context?.model)
-          .catch(() => phones.add({ model: { phone: model.phone, type: 4 } })),
+          .catch(() => {
+            return phones.add({ model: { phone: model.phone, type: 4 } });
+          }),
   ];
 
   return Promise.all(dependencies);
@@ -401,7 +407,9 @@ async function loadLookups(
         },
       };
     })
-    .catch(() => Promise.reject("Failed to load lookups"));
+    .catch(() => {
+      Promise.reject("Failed to load lookups");
+    });
 }
 
 async function parse(
