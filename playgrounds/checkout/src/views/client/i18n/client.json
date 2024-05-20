@@ -63,7 +63,7 @@
       "title": "My addresses",
       "empty": {
         "title": "Cant see your addresses..",
-        "description": "Add an address to get started"
+        "text": "Add an address to get started"
       },
       "actions": {
         "cancel": "Cancel",

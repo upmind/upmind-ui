@@ -573,7 +573,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
         company_id: item?.id, // add the company id as the unified id representing the actual address
         company_details: true, // our flag to show company details
         type: item?.type || 4, // default to 4 = company
-        default: false, //we dont want a company to be default. the address object default is preferred
+        default: item?.default,
         can_delete: item?.can_delete,
         verified: item?.verified,
 
