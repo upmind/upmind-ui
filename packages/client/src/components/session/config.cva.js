@@ -49,13 +49,12 @@ export default {
         },
       }
     ),
-    active: cva("ring-primary-500 border-primary-500"),
-    label: cva("flex-1 leading-none sr-only"),
+    loading: cva("size-8 bg-base-200 text-base-300"),
+    label: cva("sr-only"),
     avatar: cva(
-      "bg-base-200 size-[2em] flex-shrink-0 overflow-hidden rounded-full"
+      "bg-base-200 size-8 flex-shrink-0 overflow-hidden rounded-full flex items-center justify-center"
     ),
     image: cva("h-full w-full object-cover"),
-    toggle: cva("size-[0.75em] transition-all aria-checked:rotate-180"),
   },
 
   profileItem: {

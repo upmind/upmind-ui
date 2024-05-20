@@ -3,20 +3,31 @@
     as="div"
     :class="styles.profile.root"
     v-slot="{ open }"
-    v-if="meta.isAuthenticated"
+    v-if="meta.isAuthenticated || meta.isProcessing"
   >
     <h-menu-button :class="styles.profileButton.root" ref="reference">
-      <figure class="avatar" :class="styles.profileButton.avatar">
+      <upw-spinner
+        :class="styles.profileButton.loading"
+        v-if="meta.isProcessing"
+      />
+
+      <figure v-else class="avatar" :class="styles.profileButton.avatar">
         <img
-          v-if="user.image_url"
-          :src="user.image_url"
+          v-if="user?.avatar?.url"
+          :src="user.avatar.url"
           alt="user profile avatar "
           :class="styles.profileButton.image"
         />
+        <figcaption
+          :class="styles.profileButton.caption"
+          v-else-if="user?.avatar?.initials"
+        >
+          {{ user.avatar.initials }}
+        </figcaption>
       </figure>
 
       <span class="label" :class="styles.profileButton.label">
-        {{ user?.public_name || user?.first_name || user?.email || "Profile" }}
+        {{ user?.display }}
       </span>
     </h-menu-button>
 
@@ -39,52 +50,16 @@
       </h-menu-items>
     </transition>
   </h-menu>
-
-  <!-- <aside
-    class="profile"
-    :class="styles.profile.root"
-    v-if="meta.isClient && !meta.isProcessing"
-  >
-    <figure :class="styles.profile.avatar">
-      <img
-        v-if="user.image_url"
-        :src="user.image_url"
-        alt="uploaded image thumbnail "
-        :class="styles.profile.image"
-      />
-    </figure>
-    <div :class="styles.profile.content">
-      <span :class="styles.profile.meta">You're currently logged in as</span>
-      <h4 :class="styles.profile.title">{{ user.fullname }}</h4>
-      <h5 :class="styles.profile.text">{{ user.email }}</h5>
-
-      <div :class="styles.profile.actions">
-        <upw-button
-          variant="ghost"
-          size="sm"
-          to="/"
-          icon="profile"
-          label="My Account"
-        />
-        <upw-button
-          variant="ghost"
-          size="sm"
-          @click.prevent="logout"
-          icon="logout"
-          label="Logout"
-        />
-      </div>
-    </div>
-  </aside> -->
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 
 // --- components
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
+import { UpwSpinner } from "@upmind/upwind";
 import UpmProfileItem from "./ProfileItem.vue";
 
 // --- internal
@@ -101,6 +76,7 @@ export default defineComponent({
     HMenuButton: MenuButton,
     HMenuItems: MenuItems,
     UpmProfileItem,
+    UpwSpinner,
   },
   inheritAttrs: true,
   customOptions: {},
