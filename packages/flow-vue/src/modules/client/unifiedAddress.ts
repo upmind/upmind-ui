@@ -39,6 +39,10 @@ export const useClientUnifiedAddress = (item, context?: Object) => {
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches),
+      // ---
+      type: state.value?.context?.model?.company_details
+        ? "company"
+        : "address",
     })),
     // ---
     filters: computed(() => state.value.context?.filters),

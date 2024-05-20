@@ -208,7 +208,6 @@ export default createMachine(
           { data }: ClientListingsEvents
         ) => {
           if (isString(data) && !isEmpty(data)) return data; // if weve explicitly been given an id, use it. eg when we add a new item and its not yet in the raw list
-          debugger;
           // otherwise use our existing initial value or the default
           return initial || find(raw, "state.context.model.default")?.id;
         },

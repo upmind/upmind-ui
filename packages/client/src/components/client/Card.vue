@@ -12,11 +12,11 @@
       <header :class="styles.clientCard.header">
         <h4 :class="styles.clientCard.title">
           {{ title }}
+
           <upw-badge
-            variant="tonal"
-            color="base"
-            v-if="meta.isDefault"
-            label="Default"
+            v-for="(badge, index) in badges"
+            :key="`badge-${index}`"
+            v-bind="badge"
           />
         </h4>
 
@@ -116,6 +116,23 @@ export default defineComponent({
     };
   },
   computed: {
+    badges() {
+      debugger;
+      return [
+        {
+          label: this.$t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
+          variant: "tonal",
+          color: "base",
+          visible: !!this.meta?.type,
+        },
+        {
+          label: this.$t(`client.${this.i18nKey}.badges.default`),
+          variant: "tonal",
+          color: "primary",
+          visible: this.meta.isDefault,
+        },
+      ];
+    },
     actions() {
       return [
         {
