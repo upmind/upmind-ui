@@ -2,7 +2,7 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useApi, useSystem, useSession } from "../..";
+import { useApi, useSystem, useSession } from "../../";
 import { usePlaces } from "../places";
 import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
@@ -31,7 +31,7 @@ import type {
   UnifiedAddressContext,
   UnifiedAddressesEvents,
   UnifiedAddressesContext,
-} from "./types";
+} from "./types.d";
 import type { IAddressData } from "../address/types";
 import { AddressTypes } from "../address/services";
 
@@ -81,9 +81,9 @@ async function load(
     refresh: true,
   }).then(({ data }) => parseAddress(data));
 
-  return Promise.all([addresses, companies]).then(([addresses, companies]) => {
-    return [...addresses, ...companies];
-  });
+  return Promise.all([addresses, companies]).then(
+    ([addresses, companies]) => [...companies, ...addresses] // we prioritise/return the companies first so they are at the top of the list
+  );
 }
 
 async function filterItems(

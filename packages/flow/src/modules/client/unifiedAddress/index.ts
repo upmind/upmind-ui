@@ -53,9 +53,10 @@ export const useClientUnifiedAddresses = () => {
         if (state?.context?.selected) return state.context.selected;
 
         // if no selected address, try to get the default address
-        const defaultAddress = find(state?.context?.items, item => {
-          return item.state?.context?.model?.default;
-        });
+        const defaultAddress = find(
+          state?.context?.items,
+          item => item.state?.context?.model?.default
+        );
 
         // if we have a default address, select it
         if (defaultAddress) {
