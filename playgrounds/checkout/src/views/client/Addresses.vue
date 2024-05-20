@@ -13,8 +13,6 @@
             : $t("client.unavailable")
         }}
       </h2>
-
-      <pre>{{ meta }}</pre>
     </template>
   </upm-client-listings>
 </template>

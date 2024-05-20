@@ -7,8 +7,8 @@ export default {
       children: [
         {
           path: "",
-          name: "Client Details",
-          component: () => import("./Details.vue"),
+          name: "Client Basket",
+          component: () => import("./Basket.vue"),
         },
         {
           path: "addresses",

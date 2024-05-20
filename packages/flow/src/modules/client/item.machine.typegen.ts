@@ -115,7 +115,6 @@ export interface Typegen0 {
       | "CLEAR"
       | "DEFAULT"
       | "REMOVE"
-      | "SET"
       | "done.invoke.clientItemManager.checking.parsing:invocation[0]"
       | "done.invoke.clientItemManager.loading:invocation[0]"
       | "xstate.init";
@@ -142,7 +141,7 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     add: "UPDATE";
-    loadLookups: "CLEAR" | "DEFAULT" | "REMOVE" | "SET" | "xstate.init";
+    loadLookups: "CLEAR" | "DEFAULT" | "REMOVE" | "xstate.init";
     parse:
       | "CLEAR"
       | "SET"

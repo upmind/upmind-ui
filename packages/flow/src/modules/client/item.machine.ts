@@ -80,6 +80,10 @@ export default createMachine(
       valid: {
         id: "valid",
         on: {
+          SET: {
+            target: "checking",
+            actions: ["setModel"],
+          },
           UPDATE: [
             {
               target: "processing.adding",
@@ -94,6 +98,12 @@ export default createMachine(
 
       invalid: {
         id: "invalid",
+        on: {
+          SET: {
+            target: "checking",
+            actions: ["setModel"],
+          },
+        },
       },
 
       processing: {
@@ -184,12 +194,14 @@ export default createMachine(
       },
 
       complete: {
-        entry: sendParent(
-          ({ model }: ClientItemContext, _event: ClientItemEvent) => ({
-            type: "REFRESH",
-            data: model?.id,
-          })
-        ),
+        entry: [
+          sendParent(
+            ({ model }: ClientItemContext, _event: ClientItemEvent) => ({
+              type: "REFRESH",
+              data: model?.id,
+            })
+          ),
+        ],
         type: "final",
       },
 
@@ -207,10 +219,7 @@ export default createMachine(
         target: "checking",
         actions: ["clearModel"],
       },
-      SET: {
-        target: "checking",
-        actions: ["setModel"],
-      },
+
       // ---
       REMOVE: {
         target: "processing.removing",

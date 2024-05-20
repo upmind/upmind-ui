@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientAddresses as useUpmindClientAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce, isEmpty, find } from "lodash-es";
+import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -30,22 +30,13 @@ export const useClientAddress = (item, context?: Object) => {
       isSelectable: context?.selectable,
       // ---
       isLoading: ["loading"].some(state.value.matches),
-      hasErrors: [
-        "error",
-        "loading.constants.error",
-        "loading.autocomplete.error",
-      ].some(state.value.matches),
-      isSearching: ["searching"].some(state.value.matches),
-      isProcessing: ["populating", "checking", "processing"].some(
-        state.value.matches
-      ),
+      hasErrors: ["error"].some(state.value.matches),
+      isProcessing: ["checking", "processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
-      hasAutocomplete: !isEmpty(state.value.context?.autocomplete),
       canRemove: !!state.value?.context?.model?.can_delete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
-      hasCompanyDetails: !!state.value?.context?.model?.company_details,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
@@ -53,7 +44,7 @@ export const useClientAddress = (item, context?: Object) => {
     filters: computed(() => state.value.context?.filters),
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
-    autocomplete: computed(() => state.value?.context?.autocomplete),
+    country: computed(() => state.value.context?.country),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
@@ -61,7 +52,6 @@ export const useClientAddress = (item, context?: Object) => {
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
-    search: model => send({ type: "SEARCH", data: model }),
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {

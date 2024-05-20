@@ -3,16 +3,16 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientCompanies as useUpmindClientCompanies } from "@upmind/flow";
+import { useClientUnifiedAddresses as useUpmindClientUnifiedAddresses } from "@upmind/flow";
 
 // --- utils
-import { get, map, debounce, isEmpty, find } from "lodash-es";
+import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientCompany = (item, context?: Object) => {
-  const { service } = useUpmindClientCompanies();
-  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
+export const useClientUnifiedAddress = (item, context?: Object) => {
+  const { service } = useUpmindClientUnifiedAddresses();
+  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
 
   // --------------------------------------------------------
@@ -73,10 +73,10 @@ export const useClientCompany = (item, context?: Object) => {
   };
 };
 
-export const useClientCompanies = () => {
-  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
+export const useClientUnifiedAddresses = () => {
+  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const { service, isReady, getSelected } = useUpmindClientCompanies();
+  const { service, isReady, getSelected } = useUpmindClientUnifiedAddresses();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------

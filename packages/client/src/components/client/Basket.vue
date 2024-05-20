@@ -79,7 +79,10 @@
 import { defineComponent, provide, ref } from "vue";
 
 // --- internal
-import { useClientAddress, useClientAddresses } from "@upmind/flow-vue";
+import {
+  useClientUnifiedAddress,
+  useClientUnifiedAddresses,
+} from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -107,14 +110,14 @@ export default defineComponent({
     i18nKey: { type: String },
   },
   setup() {
-    const client = useClientAddresses();
+    const client = useClientUnifiedAddresses();
     const styles = useStyles(["client"], client.meta, config);
     // ---
 
     const { selected, getSelected, addresses, add, meta } = client;
 
     // Provide the client to the form/card components
-    provide("client", useClientAddress);
+    provide("client", useClientUnifiedAddress);
 
     // ---
     // check if we have a selected client, if we dont then we are creating a new one
@@ -127,7 +130,7 @@ export default defineComponent({
     return {
       add,
       selected,
-      useClientAddress,
+      useClientUnifiedAddress,
       meta,
       styles,
       addresses,
@@ -143,7 +146,7 @@ export default defineComponent({
       this.activeDialog = true;
     },
     onEdit() {
-      const client = this.useClientAddress(this.selected);
+      const client = this.useClientUnifiedAddress(this.selected);
       const model = client.model.value;
       client.edit();
       // force the company details to be shown
