@@ -27,6 +27,7 @@
       },
       "actions": {
         "cancel": "Cancel",
+        "submit": "Confirm email address",
         "add": "Add email address",
         "filter": "Filter by email address",
         "edit": "Edit",
@@ -42,10 +43,11 @@
       "title": "My phone numbers",
       "empty": {
         "title": "Cant see your phone numbers..",
-        "description": "Add a phone number to get started"
+        "text": "Add a phone number to get started"
       },
       "actions": {
         "cancel": "Cancel",
+        "submit": "Confirm phone number",
         "add": "Add phone number",
         "filter": "Filter by phone number or country code",
         "edit": "Edit",
@@ -81,10 +83,11 @@
       "title": "My companies",
       "empty": {
         "title": "Cant see your companies..",
-        "description": "Add a company to get started"
+        "text": "Add a company to get started"
       },
       "actions": {
         "cancel": "Cancel",
+        "submit": "Confirm business details",
         "add": "Add company",
         "filter": "Filter by company name or VAT number",
         "edit": "Edit",

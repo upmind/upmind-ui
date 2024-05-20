@@ -1,5 +1,10 @@
 <template>
-  <upm-client-listings type="companies" class="my-4">
+  <upm-client-listings
+    type="companies"
+    i18nKey="companies"
+    class="my-4"
+    cols="2"
+  >
     <template #header="{ meta }">
       <h2>
         {{

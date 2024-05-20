@@ -25,7 +25,7 @@
       </header>
 
       <span
-        v-for="(line, index) in description?.split(',')"
+        v-for="(line, index) in description?.split(';')"
         :class="styles.clientCard.text"
         :key="`line-${index}`"
         >{{ line }}</span

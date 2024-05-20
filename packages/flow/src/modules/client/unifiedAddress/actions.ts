@@ -7,8 +7,8 @@ import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map, get, compact } from "lodash-es";
 
 // --- types
-import type { UnifiedAddressContext, UnifiedAddressEvent } from "./types.d";
-import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
+import type { UnifiedAddressContext, UnifiedAddressEvent } from "./types";
+import type { ClientListingsEvents, ClientListingsContext } from "../types";
 
 // --------------------------------------------------------
 
@@ -43,7 +43,7 @@ export const ItemActions = {
     ) => {
       const country = find(countries, ["id", get(model, "country_id")]);
       const region = find(regions, ["id", get(model, "region_id")]);
-      return compact([
+      const address = compact([
         get(model, "address_1"),
         get(model, "address_2"),
         get(model, "street"),
@@ -52,6 +52,14 @@ export const ItemActions = {
         get(region, "name"),
         get(country, "name"),
       ]).join(", ");
+
+      const company = compact([
+        model?.reg_number ? `Reg #: ${get(model, "reg_number")}` : null,
+        model?.vat_number ? `Tax #: ${get(model, "vat_number")}` : null,
+        model?.vat_percent ? `Tax %: ${get(model, "vat_percent")}` : null,
+      ]).join(";");
+
+      return compact([address, company]).join(";");
     },
   }),
 
