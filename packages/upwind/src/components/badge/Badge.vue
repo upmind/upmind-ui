@@ -1,5 +1,5 @@
 <template>
-  <span class="badge" :class="styles.badge.root">
+  <span class="badge" :class="styles.badge.root" v-if="visible">
     <slot v-if="meta.isLoading" name="loading" v-bind="{ meta }">
       <upw-spinner :class="styles.badge.spinner" class="loading" />
     </slot>
@@ -60,6 +60,10 @@ export default defineComponent({
       default: false,
     },
 
+    visible: {
+      type: Boolean,
+      default: true,
+    },
     // ---
     variant: {
       type: String as PropType<BadgeProps["variant"]>,

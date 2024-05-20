@@ -84,7 +84,7 @@ export default defineComponent({
         },
       };
 
-      return this.dialog ? actions : null;
+      return this.dialog ? actions : [];
     },
   },
   methods: {

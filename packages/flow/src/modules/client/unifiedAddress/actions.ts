@@ -51,7 +51,7 @@ export const ItemActions = {
         get(model, "postcode"),
         get(region, "name"),
         get(country, "name"),
-      ]).join(model?.company_details ? ", " : "; ");
+      ]).join(", ");
 
       const company = compact([
         model?.reg_number ? `Reg #: ${get(model, "reg_number")}` : null,

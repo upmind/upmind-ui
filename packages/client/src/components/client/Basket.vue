@@ -18,7 +18,7 @@
       v-if="
         !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
       "
-      i18nKey="addresses"
+      i18nKey="unified"
       :model-value="selected"
       :dialog="!meta.isEmpty"
       :autosave="meta.isEmpty"
@@ -37,7 +37,7 @@
       </h5>
 
       <upm-card
-        i18nKey="addresses"
+        i18nKey="unified"
         :model-value="selected"
         selected
         :selectable="false"
@@ -62,7 +62,7 @@
     <upm-listings
       v-model="activeDialog"
       type="unified"
-      i18nKey="addresses"
+      i18nKey="unified"
       dialog
       no-filter
     />
@@ -134,8 +134,6 @@ export default defineComponent({
       styles,
       addresses,
       // ---
-      inlineForm: ref(true),
-      activeTab: ref("addresses"),
       activeDialog: ref(false),
     };
   },

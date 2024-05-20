@@ -292,6 +292,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
         type: "Control",
         scope: "#/properties/place",
         options: {
+          prependIcon: "search",
           autocomplete: "off",
           placeholder: "Search for address ...",
           items: compact([

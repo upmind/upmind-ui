@@ -25,6 +25,7 @@
         "title": "Cant see your email addresses..",
         "description": "Add an email address to get started"
       },
+      "badge": "Default",
       "actions": {
         "cancel": "Cancel",
         "submit": "Confirm email address",
@@ -45,6 +46,7 @@
         "title": "Cant see your phone numbers..",
         "text": "Add a phone number to get started"
       },
+      "badge": "Default",
       "actions": {
         "cancel": "Cancel",
         "submit": "Confirm phone number",
@@ -65,9 +67,10 @@
         "title": "Cant see your addresses..",
         "text": "Add an address to get started"
       },
+      "badge": "Default",
       "actions": {
         "cancel": "Cancel",
-        "submit": "Confirm address | Confirm business details",
+        "submit": "Confirm address",
         "add": "Add new address",
         "filter": "Filter by address",
         "edit": "Edit",
@@ -85,6 +88,7 @@
         "title": "Cant see your companies..",
         "text": "Add a company to get started"
       },
+      "badge": "Default",
       "actions": {
         "cancel": "Cancel",
         "submit": "Confirm business details",
@@ -97,6 +101,31 @@
       },
       "form": {
         "title": "New Company | Edit Company"
+      }
+    },
+    "unified": {
+      "title": "My addresses",
+      "empty": {
+        "title": "Cant see your addresses..",
+        "text": "Add an address to get started"
+      },
+      "badges": {
+        "address": "Address",
+        "company": " Business",
+        "default": "Default {type}"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "submit": "Confirm address | Confirm business details",
+        "add": "Add new address",
+        "filter": "Filter by address or business name",
+        "edit": "Edit",
+        "delete": "Delete",
+        "select": "Set as default",
+        "copy": "Copy to clipboard | Copied!"
+      },
+      "form": {
+        "title": "New Address | Edit Address"
       }
     }
   }
