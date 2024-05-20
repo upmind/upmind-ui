@@ -14,7 +14,7 @@
             class="hover:underline"
             exactActiveClass="text-primary underline"
           >
-            {{ $t("client.nav.home") }}
+            {{ $t("client.nav.basket") }}
           </RouterLink>
 
           <RouterLink

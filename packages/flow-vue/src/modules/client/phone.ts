@@ -41,6 +41,7 @@ export const useClientPhone = (item, context?: Object) => {
         state.value.done || ["processed", "complete"].some(state.value.matches),
     })),
     // ---
+    filters: computed(() => state.value.context?.filters),
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
     country: computed(() => state.value.context?.country),
@@ -51,7 +52,18 @@ export const useClientPhone = (item, context?: Object) => {
     // ---
     clear: () => send({ type: "CLEAR" }),
     input: model => send({ type: "SET", data: model }),
-    update: () => send({ type: "UPDATE" }),
+    update: () => {
+      // avoid race conditions and wait for the selected item to be valid
+      if (!state.value.matches("valid")) {
+        waitFor(service.getSnapshot()?.context?.selected, newstate =>
+          newstate.matches("valid")
+        ).then(() => {
+          send({ type: "UPDATE" });
+        });
+      } else {
+        send({ type: "UPDATE" });
+      }
+    },
     remove: () => send({ type: "REMOVE" }),
     setDefault: () => send({ type: "DEFAULT" }),
     // ---
@@ -115,13 +127,8 @@ export const useClientPhones = () => {
           }
         : null
     ),
-    default: computed(() => {
-      const item = find(
-        items.value,
-        item => item.state?.value?.context?.model?.default
-      );
-      return item;
-    }),
+    initial: computed(() => state.value.context?.initial),
+
     // ---
     isReady,
     getSelected,
