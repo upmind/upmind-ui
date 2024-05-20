@@ -44,7 +44,6 @@ export const useClientPhone = (item, context?: Object) => {
     filters: computed(() => state.value.context?.filters),
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
-    country: computed(() => state.value.context?.country),
     // ---
     model: computed(() => state.value?.context?.model),
     schema: computed(() => state.value?.context?.schema),
