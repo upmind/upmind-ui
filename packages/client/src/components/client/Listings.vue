@@ -54,6 +54,7 @@
           :model-value="selected"
           :key="selected?.id"
           :i18nKey="i18nKey"
+          @reject="onClose"
         />
 
         <div
@@ -63,7 +64,7 @@
           <upw-button
             :label="$t(`client.${type}.actions.add`)"
             variant="ghost"
-            @click="onAdd"
+            @click="add"
             block
           />
         </div>
@@ -90,6 +91,8 @@ import {
   useClientAddress,
   useClientCompanies,
   useClientCompany,
+  useClientUnifiedAddresses,
+  useClientUnifiedAddress,
 } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
@@ -160,6 +163,10 @@ export default defineComponent({
         clientListings = useClientCompanies();
         client = useClientCompany;
         break;
+      case "unified":
+        clientListings = useClientUnifiedAddresses();
+        client = useClientUnifiedAddress;
+        break;
     }
 
     const styles = useStyles(["clientListings"], clientListings.meta, config);
@@ -167,16 +174,16 @@ export default defineComponent({
     // provide the correct composable to our child components
     provide("client", client);
 
-    const initial = ref(clientListings.selected.value);
+    const active = ref(clientListings.selected.value);
 
     // safetycheck to ensure we have a selected item
     clientListings
       .isReady()
-      .then(() => (initial.value = clientListings.selected.value));
+      .then(() => (active.value = clientListings.selected.value));
 
     return {
       ...clientListings,
-      initial,
+      active,
       styles,
     };
   },
@@ -196,11 +203,11 @@ export default defineComponent({
       };
     },
     sortedItems() {
-      // if we may have an initial 'selected', and we want to sort the items so that the selected item is always on top
+      // if we may have an active 'selected', and we want to sort the items so that the selected item is always on top
       // we dont do this to the  reactive 'selected' to prevent jank re-ordering
       // we use the inital value as opposed to the reactive value
       return this.items.sort((x, y) =>
-        x.id == this.initial?.id ? -1 : y.id == this.initial?.id ? 1 : 0
+        x.id == this.active?.id ? -1 : y.id == this.active?.id ? 1 : 0
       );
     },
   },
@@ -208,10 +215,7 @@ export default defineComponent({
     onClose() {
       this.$emit("update:modelValue", false);
     },
-    onAdd() {
-      this.$emit("update:modelValue", false);
-      this.add();
-    },
+
     onSelect(item) {
       this.select(item.id);
       this.$emit("update:modelValue", false);

@@ -90,6 +90,7 @@ export default defineComponent({
   methods: {
     onClose() {
       this.$emit("update:modelValue", false);
+      this.cancel();
     },
     onUpdate(model) {
       this.$emit("update:modelValue", false);
