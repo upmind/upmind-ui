@@ -3,12 +3,15 @@ import { cva } from "class-variance-authority";
 
 export default {
   session: {
-    root: cva("flex flex-col gap-8"),
+    root: cva(""),
     header: cva("flex flex-col gap-2 "),
+    title: cva("m-0 text-inherit w-full text-5xl font-light"),
+    name: cva("font-normal"),
+    text: cva("m-0 text-lg font-light text-base-700 leading-7"),
     footer: cva(
       "text-sm flex flex-col gap-2 font-light leading-tight tracking-tight"
     ),
-    content: cva("rounded-box items-start"),
+    content: cva("rounded-box items-start my-8"),
   },
 
   auth: {
@@ -17,14 +20,11 @@ export default {
   },
 
   profile: {
-    root: cva("bg-base-100 border rounded"),
-    avatar: cva("relative m-0 sm:w-1/2 md:w-36 aspect-square"),
-    image: cva(
-      "object-cover w-full h-full rounded-t aspect-square w-full h-full"
-    ),
-    content: cva("card-body py-2 px-4"),
-    title: cva("m-0 text-inherit"),
-    text: cva("m-0 text-inherit text-sm italic"),
+    root: cva(""),
+    content: cva("flex flex-wrap py-2 px-4"),
+    title: cva("m-0 text-inherit w-full text-5xl font-light"),
+    name: cva("font-normal"),
+    text: cva("m-0 font-light leading-7 text-base-700"),
     meta: cva("text-sm font-light italic block"),
     actions: cva("flex justify-end mt-auto"),
   },

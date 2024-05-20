@@ -1,7 +1,30 @@
 <template>
   <section class="session" :class="styles.session.root">
     <header :class="styles.session.header">
-      <slot name="header" v-bind="{ meta, user }"></slot>
+      <slot name="header" v-bind="{ meta, user }">
+        <template v-if="!meta.isAuthenticated">
+          <span :class="styles.session.text">
+            {{ $t("session.unauthenticated.header.text") }}
+          </span>
+          <h1 :class="styles.session.title">
+            {{ $t("session.unauthenticated.header.title") }}
+          </h1>
+        </template>
+
+        <template v-if="meta.isAuthenticated">
+          <i18n-t
+            :class="styles.session.title"
+            keypath="session.authenticated.header.title"
+            tag="h3"
+          >
+            <template #[`name`]>
+              <strong :class="styles.session.name">
+                {{ user?.public_name || user?.firstname }}
+              </strong>
+            </template>
+          </i18n-t>
+        </template>
+      </slot>
     </header>
 
     <upm-auth
@@ -11,10 +34,24 @@
     >
     </upm-auth>
 
-    <upm-profile v-else :class="styles.session.content" />
-
     <footer :class="styles.session.footer">
-      <slot name="footer" v-bind="{ meta, user }"> </slot>
+      <slot name="footer" v-bind="{ meta, user }">
+        <template v-if="meta.isAuthenticated">
+          <i18n-t
+            :class="styles.session.text"
+            keypath="session.authenticated.footer.text"
+            tag="p"
+          >
+            <template #[`action`]>
+              <upw-button
+                variant="link"
+                @click.prevent="logout"
+                :label="$t('session.authenticated.footer.action')"
+              />
+            </template>
+          </i18n-t>
+        </template>
+      </slot>
     </footer>
   </section>
 </template>
@@ -30,7 +67,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmAuth from "./Auth.vue";
-import UpmProfile from "./Profile.vue";
+import { UpwButton } from "@upmind/upwind";
 
 // --- types
 import type { PropType } from "vue";
@@ -42,7 +79,7 @@ export default defineComponent({
   name: "UpmSession",
   components: {
     UpmAuth,
-    UpmProfile,
+    UpwButton,
   },
   props: {
     show: {
