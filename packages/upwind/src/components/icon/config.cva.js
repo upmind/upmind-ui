@@ -7,9 +7,9 @@ export default {
       variants: {
         size: {
           auto: "",
-          sm: "size-6",
-          md: "size-8",
-          lg: "size-12",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {

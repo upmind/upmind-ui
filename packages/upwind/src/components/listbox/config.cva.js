@@ -5,59 +5,19 @@ export default {
   listbox: {
     root: cva("relative inline-flex"),
     items: cva(
-      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full space-y-0.5 overflow-hidden overflow-y-auto rounded-lg border shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
+      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
     ),
-  },
-  listboxButton: {
-    root: cva(
-      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center text-nowrap rounded-lg  border text-start before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
+    item: cva(
+      "text-base-800 !m-0 flex  min-w-full cursor-pointer items-center justify-start gap-3 text-nowrap px-2 text-left text-sm no-underline focus:outline-none",
       {
         variants: {
           size: {
-            sm: "gap-x-2 px-3 py-2 text-sm",
-            md: "gap-x-3 px-3 py-3",
-            lg: "gap-x-4 px-3 py-4 text-lg",
-          },
-          disabled: {
-            true: "pointer-events-none opacity-50",
-          },
-          grouped: {
-            false: "border-base-200",
-            true: "border-transparent",
-          },
-        },
-        defaultVariants: {
-          size: "md",
-          grouped: false,
-        },
-      }
-    ),
-    loading: cva("text-base-300"),
-    active: cva("ring-primary-500 border-primary-500"),
-    label: cva("flex-1 truncate leading-none"),
-    icon: cva(""),
-    avatar: cva(""),
-    toggle: cva("size-2 transition-all aria-checked:rotate-180"),
-  },
-  listboxSearch: {
-    input: cva(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-20"
-    ),
-    root: cva("bg-base sticky top-[-0.25rem] -m-1 p-2 text-sm shadow-sm"),
-  },
-
-  listboxItem: {
-    root: cva(
-      "text-base-800 flex min-w-full cursor-pointer items-center justify-start text-nowrap text-left text-sm no-underline focus:outline-none",
-      {
-        variants: {
-          size: {
-            sm: "gap-x-2 px-3 py-2 text-sm",
-            md: "gap-x-3 px-3 py-3",
-            lg: "gap-x-4 px-3 py-4 text-lg",
+            sm: "text-sm leading-5",
+            md: "leading-6",
+            lg: "text-lg leading-7",
           },
           group: {
-            true: "text-base-500 cursor-default gap-x-3.5 px-3 text-xs font-medium",
+            true: "text-base-500 cursor-default text-xs font-medium",
           },
           disabled: {
             true: "pointer-events-none opacity-50",
@@ -69,23 +29,139 @@ export default {
         },
       }
     ),
-    active: cva("bg-base-100 hover:bg-base-100", {
+    activeItem: cva("bg-base-100 hover:bg-base-100", {
       variants: {
         group: {
           true: "bg-base hover:bg-base",
         },
       },
     }),
-    selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none "),
-    label: cva("block max-w-60 flex-1 truncate", {
+    selectedItem: cva(
+      "bg-base-100 hover:bg-base-100 cursor-default select-none"
+    ),
+    trigger: cva(
+      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border px-2 text-start before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
+      {
+        variants: {
+          size: {
+            sm: "text-sm leading-5",
+            md: "leading-6",
+            lg: "text-lg leading-7",
+          },
+          disabled: {
+            true: "pointer-events-none opacity-50",
+          },
+          grouped: {
+            false: "border-base-300",
+            true: "border-transparent",
+          },
+        },
+        defaultVariants: {
+          size: "md",
+          grouped: false,
+        },
+      }
+    ),
+    group: cva(
+      "border-base-200 mb-2 w-full border-b pb-2 first:pt-0 last:mb-0 last:border-b-0 last:pb-0"
+    ),
+    loading: cva("text-base-300", {
       variants: {
+        size: {
+          sm: "my-2 size-5",
+          md: "my-3 size-6",
+          lg: "my-4 size-7",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
+    active: cva("!border-primary ring-primary ring-4 ring-opacity-20", {}),
+    label: cva("flex-1 truncate leading-none", {
+      variants: {
+        size: {
+          sm: "px-3 py-2 leading-5",
+          md: "px-3 py-3 leading-6",
+          lg: "px-3 py-4 leading-7",
+        },
         group: {
-          true: "uppercase ",
+          true: "pb-0 pl-1",
+        },
+      },
+
+      defaultVariants: {
+        size: "md",
+      },
+    }),
+    icon: cva("", {
+      variants: {
+        size: {
+          sm: "my-2 size-5",
+          md: "my-3 size-6",
+          lg: "my-4 size-7",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
+    avatar: cva("", {
+      variants: {
+        size: {
+          sm: "my-2 size-5",
+          md: "my-3 size-6",
+          lg: "my-4 size-7",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
+    toggle: cva("mr-2 transition-all aria-checked:rotate-180", {
+      variants: {
+        size: {
+          sm: "size-2",
+          md: "size-3",
+          lg: "size-4",
         },
       },
     }),
-    icon: cva("ml-2 size-3 flex-shrink-0"),
+    prepend: cva(
+      "border-base-300 -ml-2 flex items-start self-stretch rounded-s-lg border-r ",
+      {
+        variants: {
+          size: {
+            sm: "px-3 py-2 leading-5",
+            md: "px-3 py-3 leading-6",
+            lg: "px-3 py-4 leading-7",
+          },
+        },
+
+        defaultVariants: {
+          size: "md",
+        },
+      }
+    ),
+
+    append: cva(
+      "border-base-300 -ml-2 flex items-start self-stretch rounded-e-lg border-l ",
+      {
+        variants: {
+          size: {
+            sm: "px-3 py-2 leading-5",
+            md: "px-3 py-3 leading-6",
+            lg: "px-3 py-4 leading-7",
+          },
+        },
+
+        defaultVariants: {
+          size: "md",
+        },
+      }
+    ),
   },
+
   listboxTransitionEnter: {
     active: cva("m-0 transition duration-100 ease-out"),
     from: cva("scale-95 transform opacity-0"),

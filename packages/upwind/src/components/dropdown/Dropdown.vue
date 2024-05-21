@@ -1,42 +1,92 @@
 <template>
   <h-menu as="div" :class="styles.dropdown.root" v-slot="{ open }">
     <h-menu-button
-      :class="[
-        styles.dropdownButton.root,
-        open ? styles.dropdownButton.active : '',
-      ]"
+      :class="[styles.dropdown.trigger, open ? styles.dropdown.active : '']"
       ref="reference"
       :disabled="disabled"
     >
-      <slot name="trigger" v-bind="{ label, icon, toggle, toggleRotate, open }">
+      <!-- prepend slot-->
+      <slot
+        name="prepend"
+        v-bind="{
+          styles: styles.dropdown,
+          prependIcon,
+          prependAvatar,
+          prependText,
+          size,
+          label,
+          open,
+          disabled,
+          loading,
+        }"
+      >
+        <span v-if="prependText" :class="styles.dropdown.prepend">
+          {{ prependText }}
+        </span>
+
         <upw-avatar
-          v-if="avatar"
-          :avatar="avatar"
-          :class="styles.dropdownButton.avatar"
-          :size="size"
+          v-if="prependAvatar"
+          :class="styles.dropdown.avatar"
+          :avatar="prependAvatar"
         />
 
         <upw-icon
-          v-if="icon"
-          :icon="icon"
-          :class="styles.dropdownButton.icon"
-          :size="size"
+          v-if="prependIcon"
+          :class="styles.dropdown.icon"
+          :icon="prependIcon"
+        />
+      </slot>
+
+      <!-- default 'slot' -->
+      <span :class="styles.dropdown.label" v-if="label">
+        {{ label }}
+      </span>
+
+      <!-- append slot -->
+      <slot
+        name="append"
+        v-bind="{
+          styles: styles.dropdown,
+          appendIcon,
+          appendAvatar,
+          appendText,
+          size,
+          label,
+          toggle,
+          toggleRotate,
+          open,
+          disabled,
+          loading,
+        }"
+      >
+        <upw-icon
+          v-if="appendIcon"
+          :class="styles.dropdown.icon"
+          :icon="appendIcon"
         />
 
-        <span class="label" :class="styles.dropdownButton.label" v-if="label">
-          {{ label }}
+        <upw-avatar
+          v-if="appendAvatar"
+          class="avatar"
+          :class="styles.dropdown.avatar"
+          :avatar="appendAvatar"
+        />
+
+        <span :class="styles.dropdown.append" v-if="appendText">
+          {{ appendText }}
         </span>
 
+        <!-- loading / toggle -->
         <upw-spinner
-          :class="styles.dropdownButton.loading"
+          :class="styles.dropdown.loading"
           v-if="loading"
-          :size="size"
+          aria-hidden="true"
         />
 
         <upw-icon
           v-else-if="toggle"
           :icon="toggle"
-          :class="styles.dropdownButton.toggle"
+          :class="styles.dropdown.toggle"
           :aria-checked="open && toggleRotate"
           aria-hidden="true"
         />
@@ -129,14 +179,19 @@ export default defineComponent({
       default: "",
     },
 
-    icon: {
-      type: [String, Object] as PropType<DropdownProps["icon"]>,
-      default: null,
+    // ---
+    appendAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
     },
-    avatar: {
-      type: [String, Object] as PropType<DropdownProps["avatar"]>,
-      default: null,
+    appendIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    appendText: { type: String },
+    // ---
+    prependAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
     },
+    prependIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    prependText: { type: String },
+    // ---
 
     toggle: {
       type: String,
@@ -182,15 +237,7 @@ export default defineComponent({
     });
 
     const styles = useStyles(
-      [
-        "dropdown",
-        "dropdownButton",
-        "dropdownGroup",
-        "dropdownGroupItem",
-        "dropdownItem",
-        "dropdownTransitionEnter",
-        "dropdownTransitionLeave",
-      ],
+      ["dropdown", "dropdownTransitionEnter", "dropdownTransitionLeave"],
       toRefs(props),
       config,
       props.upwindConfig
