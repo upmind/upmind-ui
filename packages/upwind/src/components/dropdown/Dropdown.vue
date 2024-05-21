@@ -6,19 +6,32 @@
       :disabled="disabled"
     >
       <slot name="trigger" v-bind="{ label, icon, toggle, toggleRotate, open }">
+        <upw-avatar
+          v-if="avatar"
+          :avatar="avatar"
+          :class="styles.dropdownButton.avatar"
+          :size="size"
+        />
+
         <upw-icon
           v-if="icon"
           :icon="icon"
-          class="btn-icon"
           :class="styles.dropdownButton.icon"
+          :size="size"
         />
 
         <span class="label" :class="styles.dropdownButton.label" v-if="label">
           {{ label }}
         </span>
 
+        <upw-spinner
+          :class="styles.dropdownButton.loading"
+          v-if="loading"
+          :size="size"
+        />
+
         <upw-icon
-          v-if="toggle"
+          v-else-if="toggle"
           :icon="toggle"
           :class="styles.dropdownButton.toggle"
           :aria-checked="open && toggleRotate"
@@ -74,6 +87,8 @@ import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 // --- components
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
+import UpwAvatar from "../avatar/Avatar.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
@@ -93,6 +108,8 @@ export default defineComponent({
     HMenuButton: MenuButton,
     HMenuItems: MenuItems,
     UpwIcon,
+    UpwAvatar,
+    UpwSpinner,
     UpwDropdownItem,
   },
   props: {
@@ -109,6 +126,10 @@ export default defineComponent({
 
     icon: {
       type: [String, Object] as PropType<DropdownProps["icon"]>,
+      default: null,
+    },
+    avatar: {
+      type: [String, Object] as PropType<DropdownProps["avatar"]>,
       default: null,
     },
 
@@ -133,6 +154,10 @@ export default defineComponent({
       default: false,
     },
     // ---
+    loading: {
+      type: Boolean,
+      default: false,
+    },
     disabled: {
       type: Boolean,
       default: false,

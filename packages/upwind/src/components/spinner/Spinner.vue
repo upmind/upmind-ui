@@ -11,7 +11,7 @@
 
 <script>
 // -- global
-import { defineComponent } from "vue";
+import { defineComponent, toRefs } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -24,6 +24,11 @@ import { useStyles } from "../../utils";
 export default defineComponent({
   name: "UpwSpinner",
   props: {
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["xs", "sm", "md", "lg"].includes(value),
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -31,7 +36,12 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles("spinner", props, config, props.upwindConfig);
+    const styles = useStyles(
+      "spinner",
+      toRefs(props),
+      config,
+      props.upwindConfig
+    );
 
     return {
       styles,

@@ -1,7 +1,9 @@
 import type { IconProps } from "../icon/types";
+import type { AvatarProps } from "../avatar/types";
 // --------------------------------------------
 
 export interface DropdownProps {
+  avatar: AvatarProps["avatar"];
   icon: IconProps["icon"];
   position:
     | "top"

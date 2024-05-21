@@ -11,14 +11,19 @@ export default {
   },
   dropdownButton: {
     root: cva(
-      "hover:bg-base-50 relative inline-flex w-full cursor-pointer items-center gap-x-4 text-nowrap rounded-lg border bg-transparent px-4 py-3 text-start text-sm font-medium text-current before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
+      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center text-nowrap rounded-lg  border text-start before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
       {
         variants: {
+          size: {
+            sm: "gap-x-2 px-3 py-2 text-sm",
+            md: "gap-x-3 px-3 py-3",
+            lg: "gap-x-4 px-3 py-4 text-lg",
+          },
           disabled: {
             true: "pointer-events-none opacity-50",
           },
           grouped: {
-            false: "border-base-200 shadow-sm",
+            false: "border-base-200",
             true: "border-transparent",
           },
         },
@@ -27,10 +32,12 @@ export default {
         },
       }
     ),
+    loading: cva("text-base-300"),
     active: cva("ring-primary-500 border-primary-500"),
     label: cva("flex-1 leading-none"),
-    icon: cva("size-[1em]"),
-    toggle: cva("size-[0.75em] transition-all aria-checked:rotate-180"),
+    icon: cva(""),
+    avatar: cva(""),
+    toggle: cva("size-2 transition-all aria-checked:rotate-180"),
   },
   dropdownGroup: {
     root: cva(
