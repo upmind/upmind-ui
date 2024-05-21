@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import { cx } from "class-variance-authority";
 import theme from "./useThemes";
 
-// ---utils
+// --- utils
 import {
   forEach,
   get,

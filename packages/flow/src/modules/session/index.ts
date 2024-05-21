@@ -15,7 +15,7 @@ import sessionMachine from "./session.machine";
 
 let state = null;
 
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
+const service = interpret(sessionMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
@@ -99,12 +99,13 @@ export const useSession = () => {
     getUserId,
     authSubscription,
     isAuthenticated: () => {
+      const authenticated = state.matches("client");
+
       return new Promise((resolve, reject) => {
-        const authenticated = ["client"].some(state.matches);
         if (authenticated) {
-          resolve(true);
+          resolve(state.context.user);
         } else {
-          reject(false);
+          reject({ title: "Unauthorized", code: 401 });
         }
       });
     },

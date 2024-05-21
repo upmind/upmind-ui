@@ -29,7 +29,7 @@ export const useValidation = () => {
       return isValidPhoneNumber(value, country);
     },
     error: {
-      message: cxt => `must be a valid ${cxt.schema} phone number`,
+      message: cxt => "invalid phone number format",
     },
   });
 

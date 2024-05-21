@@ -4,9 +4,9 @@ import { createMachine, assign } from "xstate";
 // --- internal
 
 // --- utils
-import { find, forEach, isEmpty, last, every } from "lodash-es";
+import { find, forEach, isEmpty, last, every, isString } from "lodash-es";
 
-// ---types
+// - --types
 import type { ClientListingsContext, ClientListingsEvents } from "./types.d";
 
 // --------------------------------------------------------
@@ -17,9 +17,8 @@ export default createMachine(
     tsTypes: {} as import("./listings.machine.typegen").Typegen0,
     id: "clientListingsManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {
-      initial: undefined,
       raw: [], // spawned actors
       items: [], // filtered actors
       filters: undefined,
@@ -28,100 +27,141 @@ export default createMachine(
       error: undefined,
     },
     states: {
-      loading: {
-        entry: ["clearError", "clearItems"],
+      // Subscribe to changes in auth and listen for a valid Authenticated client,
+      // we will also wait for a session before we can continue
+      subscribing: {
         invoke: {
-          src: "load",
-          onDone: [
-            {
-              target: "processing",
-              actions: ["setItems", "resetFiltered", "setInitial"],
-              cond: (_context, { data }) => data,
-            },
-            {
-              target: "available",
-              actions: ["setItems", "resetFiltered"],
-            },
-          ],
-          onError: {
-            target: "error",
-            actions: ["setError", "clearSelected"],
-          },
+          id: "authCallback",
+          src: "authSubscription",
+        },
+        on: {
+          SESSION: { target: "checking" },
         },
       },
-      processing: {
-        always: [{ target: "available", cond: "isNotProcessing" }],
+
+      checking: {
+        invoke: {
+          src: "isAuthenticated",
+          onDone: { target: "available" },
+          onError: { target: "unavailable" },
+        },
       },
-      empty: {
-        always: [{ target: "available", cond: "hasItems" }],
+
+      unavailable: {
+        on: {
+          AUTHENTICATED: { target: "available" },
+        },
       },
+
       available: {
-        always: [{ target: "empty", cond: "hasNoItems" }],
-      },
-      filtering: {
-        invoke: {
-          src: "filter",
-          onDone: {
-            target: "filtered",
-            actions: ["setFiltered"],
-          },
-          onError: {
-            target: "filtered",
-            actions: ["resetFiltered"],
-          },
-        },
-      },
-      filtered: {
-        initial: "empty",
+        initial: "loading",
         states: {
-          empty: {
-            always: [
-              {
-                target: "available",
-                cond: "hasFilteredItems",
+          loading: {
+            id: "loading",
+            entry: ["clearError", "clearItems"],
+            invoke: {
+              src: "load",
+              onDone: [
+                {
+                  target: "processing",
+                  actions: ["setItems", "resetFiltered", "setInitial"],
+                  cond: (_context, { data }) => data,
+                },
+                {
+                  target: "idle",
+                  actions: ["setItems", "resetFiltered"],
+                },
+              ],
+              onError: {
+                target: "#error",
+                actions: ["setError", "clearSelected"],
               },
-            ],
+            },
           },
-          available: {
-            always: [
-              {
-                target: "empty",
-                cond: "hasNoFilteredItems",
+          idle: {
+            always: [{ target: "empty", cond: "hasNoItems" }],
+          },
+
+          processing: {
+            always: [{ target: "idle", cond: "isNotProcessing" }],
+          },
+          empty: {
+            always: [{ target: "idle", cond: "hasItems" }],
+          },
+
+          filtering: {
+            invoke: {
+              src: "filter",
+              onDone: {
+                target: "filtered",
+                actions: ["setFiltered"],
               },
-            ],
+              onError: {
+                target: "filtered",
+                actions: ["resetFiltered"],
+              },
+            },
+          },
+          filtered: {
+            initial: "empty",
+            states: {
+              empty: {
+                always: [
+                  {
+                    target: "available",
+                    cond: "hasFilteredItems",
+                  },
+                ],
+              },
+              available: {
+                always: [
+                  {
+                    target: "empty",
+                    cond: "hasNoFilteredItems",
+                  },
+                ],
+              },
+            },
+          },
+          editing: {},
+        },
+        on: {
+          REFRESH: {
+            target: "available",
+            actions: ["setInitial"],
+          },
+
+          SELECT: {
+            actions: ["setSelected"],
+          },
+
+          FILTER: [{ target: "available.filtering", actions: ["setFilters"] }],
+
+          ADD: {
+            target: "available.editing",
+            actions: ["add"],
+          },
+
+          EDIT: {
+            target: "available.editing",
+            actions: ["setSelected"],
           },
         },
       },
-      editing: {},
+
       error: { id: "error" },
       complete: {
         type: "final",
       },
     },
     on: {
-      REFRESH: {
-        target: "loading",
-        actions: ["setInitial"],
-      },
-
-      SELECT: {
-        actions: ["setSelected"],
-        target: "available",
-      },
-
-      FILTER: [{ target: "filtering", actions: ["setFilters"] }],
-      ADD: {
-        target: "editing",
-        actions: ["add", "setSelectedNew"],
-      },
-
-      EDIT: {
-        target: "editing",
-        actions: ["setSelected"],
-      },
-
       STOP: {
         target: "complete",
+      },
+
+      UNAUTHENTICATED: {
+        target: "unavailable",
+        actions: ["clearError", "clearItems"],
       },
     },
   },
@@ -164,33 +204,30 @@ export default createMachine(
 
       setInitial: assign({
         initial: (
-          _context: ClientListingsContext,
+          { raw, initial }: ClientListingsContext,
           { data }: ClientListingsEvents
-        ) => data,
+        ) => {
+          if (isString(data) && !isEmpty(data)) return data; // if weve explicitly been given an id, use it. eg when we add a new item and its not yet in the raw list
+          // otherwise use our existing initial value or the default
+          return initial || find(raw, "state.context.model.default")?.id;
+        },
         selected: (
           { raw, initial }: ClientListingsContext,
           _event: ClientListingsEvents
-        ) => find(raw, ["id", initial]), //|| find(raw, "state.context.model.default")
+        ) => {
+          initial ??= find(raw, "state.context.model.default")?.id;
+          return find(raw, ["id", initial]); //|| find(raw, "state.context.model.default")
+        },
       }),
 
       setSelected: assign({
-        initial: undefined,
-        filters: undefined,
-        items: ({ raw }, _event) => raw,
+        initial: ({ selected, initial }) => selected?.id || initial,
+        // filters: undefined,
+        // items: ({ raw }, _event) => raw,
         selected: (
           { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
         ) => find(raw, ["id", data]), // || find(raw, "state.context.model.default")
-      }),
-
-      setSelectedNew: assign({
-        initial: undefined,
-        filters: undefined,
-        items: ({ raw }, _event) => raw,
-        selected: (
-          { raw }: ClientListingsContext,
-          _event: ClientListingsEvents
-        ) => last(raw),
       }),
 
       clearSelected: assign({

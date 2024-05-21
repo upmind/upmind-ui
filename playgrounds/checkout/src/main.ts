@@ -10,9 +10,14 @@ import { getGlobalMessages } from "./utils";
 
 const i18n = createI18n({
   // legacy: false, // you must set `false` to use Composition API
+  // missingWarn: false,
+  // fallbackWarn: false,
   locale: "en",
   fallbackLocale: "en",
   messages: getGlobalMessages(),
+  // ---
+  silentTranslationWarn: true,
+  silentFallbackWarn: true,
 });
 
 const app = createApp(App);

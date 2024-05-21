@@ -28,6 +28,12 @@ interface IPhone {
   verified: number | null;
 }
 
+interface IPhoneData {
+  nationalNumber: string;
+  countryCallingCode: string;
+  country: string;
+}
+
 // --------------------------------------------------------
 // Contexts
 

@@ -1,6 +1,6 @@
 <template>
   <label :for="id" :class="styles.label.root">
-    <span v-if="text" :class="styles.label.text">
+    <span :class="styles.label.text">
       {{ text }}
     </span>
 
@@ -16,17 +16,6 @@
       <span v-else-if="meta.showAsOptional" :class="styles.label.optional">
         {{ optionalText }}
       </span>
-
-      <upw-icon
-        v-if="meta.isInvalid"
-        :class="styles.label.icon"
-        icon="alert-circle"
-      />
-      <upw-icon
-        v-else-if="meta.isValid"
-        :class="styles.label.icon"
-        icon="check-circle"
-      />
     </span>
 
     <span v-if="altText" :class="styles.label.alt">
@@ -65,10 +54,7 @@ export default defineComponent({
 
   props: {
     id: { type: String },
-    text: {
-      required: true,
-      type: String,
-    },
+    text: { type: String },
     altText: { type: String },
     requiredText: { type: String, default: "Required" },
     optionalText: { type: String },

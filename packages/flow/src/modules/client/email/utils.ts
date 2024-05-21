@@ -8,6 +8,7 @@ import services from "./services";
 
 // --- utils
 import { get, uniqueId } from "lodash-es";
+export { useModelParser } from "../../../utils";
 
 // --- types
 import type { IEmail } from "./types.d";

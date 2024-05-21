@@ -1,0 +1,9 @@
+{
+  "header": {
+    "title": "Checkout v2",
+    "checkout": "Checkout",
+    "offers": "Offers",
+    "session": "Session",
+    "client": "Client Area"
+  }
+}

@@ -1,5 +1,4 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useClientAddresses } from "../address";
@@ -17,6 +16,8 @@ import type { CompanyEvent, CompanyContext } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
+
+const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -39,9 +40,7 @@ async function load(
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const clientId = await getUserId();
 
@@ -62,24 +61,14 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
   const phones = useClientPhones();
   const emails = useClientEmails();
 
-  // lets wait for them to be ready and loaded before we continue
-  const addressesReady = waitFor(
-    addresses.service,
-    state => !["loading", "processing"].some(state.matches)
-  );
-  const phonesReady = waitFor(
-    phones.service,
-    state => !["loading", "processing"].some(state.matches)
-  );
-  const emailsReady = waitFor(
-    emails.service,
-    state => !["loading", "processing"].some(state.matches)
-  );
-
-  return Promise.all([addressesReady, phonesReady, emailsReady]).then(() => ({
-    emails: useClientEmails,
-    addresses: useClientAddresses,
-    phones: useClientPhones,
+  return Promise.all([
+    addresses.isReady(),
+    phones.isReady(),
+    emails.isReady(),
+  ]).then(() => ({
+    emails,
+    addresses,
+    phones,
     baseModel: {
       ...model,
       address_id: addresses.getDefault()?.id,
@@ -217,4 +206,6 @@ export default {
   update,
   remove,
   filter: filterItems,
+  authSubscription,
+  isAuthenticated,
 };

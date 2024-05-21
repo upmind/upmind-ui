@@ -4,10 +4,12 @@ import { forEach, get, isNil, map, omitBy, set } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useFieldsSchemaParser = (data: any) => {
+export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
+  i18nPrefix = i18nPrefix ? `${i18nPrefix}.fields` : "fields";
   const schema = {
     type: "object",
     title: "Fields",
+    i18n: i18nPrefix,
     required: [],
     properties: {},
   };
@@ -104,6 +106,7 @@ export const useFieldsSchemaParser = (data: any) => {
             contentEncoding,
             title: useTranslateField(field, "name"),
             description: useTranslateField(field, "description"),
+            i18n: `${i18nPrefix}.${field.code}`,
             default: field.default,
             const: field.const,
             enum: !field.options?.length ? undefined : field.options,

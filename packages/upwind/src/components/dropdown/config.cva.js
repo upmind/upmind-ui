@@ -11,7 +11,18 @@ export default {
   },
   dropdownButton: {
     root: cva(
-      "bg-base text-base-content border-base-200 hover:bg-base-50 relative inline-flex w-full cursor-pointer items-center gap-x-4 text-nowrap rounded-lg border px-4 py-3 text-start text-sm font-medium shadow-sm before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none disabled:opacity-50"
+      "hover:bg-base-50 relative inline-flex w-full cursor-pointer items-center gap-x-4 text-nowrap rounded-lg border bg-transparent px-4 py-3 text-start text-sm font-medium text-current  before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none disabled:opacity-50",
+      {
+        variants: {
+          disabled: {
+            true: "pointer-events-none opacity-50",
+          },
+          grouped: {
+            false: "border-base-200 shadow-sm",
+            true: "border-transparent",
+          },
+        },
+      }
     ),
     active: cva("ring-primary-500 border-primary-500"),
     label: cva("flex-1 leading-none"),
@@ -23,21 +34,43 @@ export default {
       "border-base-200 mb-2 w-full border-b pb-2 first:pt-0 last:mb-0 last:border-b-0 last:pb-0"
     ),
   },
-  dropdownGroupItem: {
-    root: cva(
-      "text-base-500 flex w-full items-center gap-x-3.5 px-3 py-2 text-xs font-medium"
-    ),
-    label: cva("uppercase"),
-    icon: cva("size-[1.5em] flex-shrink-0"),
-  },
+
   dropdownItem: {
     root: cva(
-      "text-base-800 focus:bg-base-100 flex w-full cursor-pointer items-center justify-start gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none"
+      "text-base-800 flex w-full cursor-pointer items-center justify-start gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none",
+      {
+        variants: {
+          group: {
+            true: "text-base-500 cursor-default gap-x-3.5 px-3 text-xs font-medium",
+          },
+          disabled: {
+            true: "pointer-events-none opacity-50",
+          },
+        },
+      }
     ),
-    active: cva("bg-base-100 hover:bg-base-100"),
+    active: cva("bg-base-100 hover:bg-base-100", {
+      variants: {
+        group: {
+          true: "bg-base hover:bg-base",
+        },
+      },
+    }),
     selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
-    label: cva("flex-1 truncate"),
-    icon: cva("size-[1.25em]"),
+    label: cva("flex-1 truncate", {
+      variants: {
+        group: {
+          true: "uppercase ",
+        },
+      },
+    }),
+    icon: cva("size-[1.25em]  flex-shrink-0", {
+      variants: {
+        group: {
+          true: "size-[1.5em]",
+        },
+      },
+    }),
   },
   dropdownTransitionEnter: {
     active: cva("m-0 transition duration-100 ease-out"),

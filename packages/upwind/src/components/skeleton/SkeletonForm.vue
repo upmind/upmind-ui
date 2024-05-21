@@ -1,13 +1,4 @@
 <template>
-  <!-- <div
-    class="spinner"
-    :class="styles.spinner.root"
-    role="status"
-    aria-label="animated loading icon"
-  >
-    <span class="sr-only">Loading...</span>
-  </div> -->
-
   <div class="flex w-full animate-pulse" role="status">
     <span class="sr-only">Loading Form...</span>
 

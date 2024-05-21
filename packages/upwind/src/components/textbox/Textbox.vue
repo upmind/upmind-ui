@@ -23,6 +23,8 @@
     layout="stacked"
     variant="outlined"
   >
+    <slot name="prepend" v-bind="{ styles: styles.textbox }"></slot>
+
     <input
       :id="id"
       v-bind="safeAttrs"
@@ -32,13 +34,13 @@
       @input="onChange"
       :aria-invalid="meta.isInvalid"
     />
-    <slot name="actions" v-bind="{ styles: styles.textbox }"></slot>
+    <slot name="append" v-bind="{ styles: styles.textbox }"></slot>
   </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- local
 import config from "./config.cva";
