@@ -13,7 +13,7 @@
       :class="styles.avatar.image"
     />
 
-    <figcaption :class="styles.avatar.caption" v-else-if="hasCaption">
+    <figcaption :class="styles.caption" v-else-if="hasCaption">
       {{ avatar.caption }}
     </figcaption>
   </figure>

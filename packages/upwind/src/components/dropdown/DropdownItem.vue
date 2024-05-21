@@ -9,6 +9,20 @@
         active ? styles.dropdownItem.active : '',
       ]"
     >
+      <upw-avatar
+        v-if="avatar"
+        :avatar="avatar"
+        :class="styles.dropdownItem.avatar"
+        size="sm"
+      />
+
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        :class="styles.dropdownItem.icon"
+        size="sm"
+      />
+
       <upw-icon
         v-if="icon"
         :icon="icon"
@@ -26,7 +40,19 @@
         active ? styles.dropdownItem.active : '',
       ]"
     >
-      <upw-icon v-if="icon" :icon="icon" :class="styles.dropdownItem.icon" />
+      <upw-avatar
+        v-if="avatar"
+        :avatar="avatar"
+        :class="styles.dropdownItem.avatar"
+        size="sm"
+      />
+
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        :class="styles.dropdownItem.icon"
+        size="sm"
+      />
 
       <span :class="styles.dropdownItem.label">{{ label }}</span>
     </router-link>
@@ -39,7 +65,20 @@
         active ? styles.dropdownItem.active : '',
       ]"
     >
-      <upw-icon v-if="icon" :icon="icon" :class="styles.dropdownItem.icon" />
+      <upw-avatar
+        v-if="avatar"
+        :avatar="avatar"
+        :class="styles.dropdownItem.avatar"
+        size="sm"
+      />
+
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        :class="styles.dropdownItem.icon"
+        size="sm"
+      />
+
       <span :class="styles.dropdownItem.label">{{ label }}</span>
     </button>
 
@@ -50,7 +89,19 @@
         active ? styles.dropdownItem.active : '',
       ]"
     >
-      <upw-icon v-if="icon" :icon="icon" :class="styles.dropdownItem.icon" />
+      <upw-avatar
+        v-if="avatar"
+        :avatar="avatar"
+        :class="styles.dropdownItem.avatar"
+        size="sm"
+      />
+
+      <upw-icon
+        v-if="icon"
+        :icon="icon"
+        :class="styles.dropdownItem.icon"
+        size="sm"
+      />
       <span :class="styles.dropdownItem.label">{{ label }}</span>
     </span>
   </h-menu-item>
@@ -63,6 +114,7 @@ import { defineComponent, toRefs } from "vue";
 // --- components
 import { MenuItem } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwAvatar from "../avatar/Avatar.vue";
 import { RouterLink } from "vue-router";
 
 // --- local
@@ -80,6 +132,7 @@ export default defineComponent({
     RouterLink,
     HMenuItem: MenuItem,
     UpwIcon,
+    UpwAvatar,
   },
   props: {
     group: {
@@ -98,7 +151,14 @@ export default defineComponent({
       type: String,
       default: "_self",
     },
-    icon: { type: [String, Object], default: null },
+    icon: {
+      type: [String, Object] as PropType<DropdownProps["icon"]>,
+      default: null,
+    },
+    avatar: {
+      type: [String, Object] as PropType<DropdownProps["avatar"]>,
+      default: null,
+    },
 
     label: {
       type: String,
