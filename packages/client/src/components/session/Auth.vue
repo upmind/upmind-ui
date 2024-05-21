@@ -47,7 +47,7 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "Auth",
+  name: "UpmAuth",
   components: { UpwForm, UpwTabs, UpwButton },
   inheritAttrs: true,
   customOptions: {},

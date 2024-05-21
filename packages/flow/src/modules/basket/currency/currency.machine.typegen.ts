@@ -88,6 +88,7 @@ export interface Typegen0 {
     wait: "done.invoke.basketCurrencyManager.processing:invocation[0]";
   };
   eventsCausingGuards: {
+    hasBasket: "UPDATE";
     isDirty: "done.invoke.basketCurrencyManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {

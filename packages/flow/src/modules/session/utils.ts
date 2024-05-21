@@ -43,8 +43,8 @@ export const useUserParser = async (data: any) => {
 
   user.display = data?.public_name || data?.first_name || data?.email;
   user.avatar = {
-    initials: useInitialsParser(user),
-    url: await useAvatarParser(user.image_url),
+    caption: useInitialsParser(user),
+    src: await useAvatarParser(user.image_url),
   };
 
   return user;
