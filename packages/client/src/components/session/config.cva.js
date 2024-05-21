@@ -32,7 +32,7 @@ export default {
   },
 
   profile: {
-    root: cva(),
+    root: cva(""),
     loading: cva("size-8 bg-base-200 text-base-300"),
     label: cva("sr-only"),
     avatar: cva(
