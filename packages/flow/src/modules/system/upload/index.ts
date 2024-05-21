@@ -21,7 +21,7 @@ export const useSystemUpload = (field?: Object) => {
   };
 
   const service = interpret(uploadMachine.withContext(context), {
-    devTools: true,
+    devTools: false,
   })
     .onTransition(newState => (state = newState))
     .start();

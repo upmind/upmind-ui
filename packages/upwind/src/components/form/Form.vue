@@ -9,7 +9,7 @@
       name="loading"
       v-bind="{ styles: styles.form.loading }"
     >
-      <upw-skeleton :class="styles.form.loading" class="loading" />
+      <upw-skeleton-form :class="styles.form.loading" />
     </slot>
 
     <json-forms
@@ -28,7 +28,7 @@
     <slot name="footer" v-bind="{ meta }"></slot>
 
     <!-- actions -->
-    <div v-if="safeActions" :class="styles.form.actions">
+    <div v-if="safeActions && !noActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <upw-button
           v-for="(action, key) in safeActions"
@@ -57,7 +57,7 @@ import type { ErrorObject } from "ajv";
 // --- components
 import { JsonForms } from "@jsonforms/vue";
 import UpwButton from "../button/Button.vue";
-import UpwSkeleton from "../skeleton/SkeletonForm.vue";
+import UpwSkeletonForm from "../skeleton/SkeletonForm.vue";
 
 // --- local
 import config from "./config.cva";
@@ -101,7 +101,7 @@ export default defineComponent({
   components: {
     JsonForms,
     UpwButton,
-    UpwSkeleton,
+    UpwSkeletonForm,
   },
 
   inheritAttrs: true,
@@ -134,6 +134,10 @@ export default defineComponent({
         Boolean | Record<string, { label: string; action: Function }>
       >,
       default: null,
+    },
+    noActions: {
+      type: Boolean,
+      default: false,
     },
     // ---
 
@@ -208,7 +212,6 @@ export default defineComponent({
             type: "submit",
             label: "Save",
             // color: "accent",
-            variant: "elevated",
             disabled: !this.meta.isValid || this.meta.isProcessing,
             action: () => {
               this?.doSubmit();

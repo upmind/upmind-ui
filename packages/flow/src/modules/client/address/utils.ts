@@ -6,7 +6,17 @@ import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
 // --- utils
-import { get, set, map, reduce, defaultsDeep, uniqueId } from "lodash-es";
+import {
+  get,
+  set,
+  map,
+  reduce,
+  defaultsDeep,
+  uniqueId,
+  compact,
+  pick,
+  isArray,
+} from "lodash-es";
 
 // --- types
 import type { IAddress, AddressContext } from "./types.d";
@@ -15,16 +25,14 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 
 export const useSchema = ({
+  country,
   countries,
   regions,
   types,
   baseModel,
+  // ---
   places,
 }: AddressContext) => {
-  const choices = {
-    places: places().getItems(),
-  };
-
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -37,31 +45,42 @@ export const useSchema = ({
         readOnly: true,
       },
 
+      // ---
+
       place: {
         type: ["string", "null"],
-        title: "Search for Place",
-        // isLookup: places,
-        enum: !choices?.places?.length ? undefined : map(choices?.places, "id"),
-        lookup: places,
+        title: "Address",
+        lookup: places.search,
+      },
+
+      manualPlace: {
+        type: ["boolean", "null"],
+        title: "Can't see your address?",
+        default: baseModel?.manualPlace,
+        readOnly: true,
       },
 
       // ---
       address_1: {
-        type: ["string", "null"],
+        type: "string",
         title: "Address Line 1",
       },
+
       address_2: {
         type: ["string", "null"],
         title: "Address Line 2",
       },
+
       city: {
-        type: ["string", "null"],
+        type: "string",
         title: "City",
       },
+
       postcode: {
-        type: ["string", "null"],
+        type: "string",
         title: "Postcode",
       },
+
       region_id: {
         type: ["string", "null"],
         title: "Region",
@@ -82,7 +101,7 @@ export const useSchema = ({
       },
 
       country_id: {
-        type: ["string", "null"],
+        type: "string",
         title: "Country",
         default: baseModel?.country_id,
         oneOf: !countries?.length
@@ -97,19 +116,20 @@ export const useSchema = ({
 
       // ---
 
+      name: {
+        type: ["string", "null"],
+        title: "Name",
+        default: baseModel?.name,
+      },
+      // ---
+
       default: {
         type: ["boolean", "null"],
         title: "Make this the default address?",
       },
 
-      name: {
-        type: ["string", "null"],
-        title: "Reference Name",
-        default: baseModel?.name,
-      },
-
       type: {
-        type: ["number", "null"],
+        type: "number",
         title: "Address Type",
         default: baseModel?.type,
         oneOf: map(types, item => {
@@ -135,26 +155,13 @@ export const useUischema = () => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "HorizontalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/type",
-            options: {
-              autocomplete: "off",
-              placeholder: "Select an address type...",
-            },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/name",
-            options: {
-              focus: true,
-              autocomplete: "off",
-              placeholder: "My home address, etc...",
-            },
-          },
-        ],
+        type: "Control",
+        scope: "#/properties/name",
+        options: {
+          focus: true,
+          autocomplete: "off",
+          placeholder: "My home address, etc...",
+        },
         rule: {
           effect: "SHOW",
           condition: {
@@ -172,71 +179,109 @@ export const useUischema = () => {
         scope: "#/properties/place",
         options: {
           autocomplete: "off",
-          placeholder: "Select a place ...",
-          noAdd: true,
+          placeholder: "Search for address ...",
+          items: [
+            {
+              label: "Enter manually",
+              value: "manual",
+              as: "button",
+              variant: "link",
+              size: "sm",
+              persist: true,
+            },
+          ],
         },
-      },
-      // ---
-      {
-        type: "Control",
-        scope: "#/properties/address_1",
-        label: "Address", // ensure we  show the title for BOTH address fields
-        options: {
-          focus: true,
-          autocomplete: "address-line1",
-          placeholder: "Address first line...",
-        },
-      },
-      {
-        type: "Control",
-        scope: "#/properties/address_2",
-        label: "", // ensure we DON'T show the title
-        options: {
-          autocomplete: "address-line2",
-          placeholder: "Address second line...",
-          class: "-mt-8",
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              anyOf: [
+                { required: ["id"] },
+                {
+                  required: ["place"],
+                  properties: { place: { const: "manual" } },
+                },
+              ],
+            },
+          },
         },
       },
 
       // ---
       {
-        type: "HorizontalLayout",
+        type: "VerticalLayout",
         elements: [
           {
             type: "Control",
-            scope: "#/properties/city",
+            scope: "#/properties/address_1",
+            label: "Address", // ensure we  show the title for BOTH address fields
             options: {
-              autocomplete: "address-level2",
-              placeholder: "City...",
+              focus: true,
+              autocomplete: "address-line1",
+              placeholder: "Address first line...",
             },
           },
           {
             type: "Control",
-            scope: "#/properties/postcode",
+            scope: "#/properties/address_2",
+            label: "", // ensure we DON'T show the title
             options: {
-              autocomplete: "postal-code",
-              placeholder: "Postcode...",
+              autocomplete: "address-line2",
+              placeholder: "Address second line...",
+              class: "-mt-8",
+            },
+          },
+
+          // ---
+          {
+            type: "HorizontalLayout",
+            elements: [
+              {
+                type: "Control",
+                scope: "#/properties/city",
+                options: {
+                  autocomplete: "address-level2",
+                  placeholder: "City...",
+                },
+              },
+              {
+                type: "Control",
+                scope: "#/properties/postcode",
+                options: {
+                  autocomplete: "postal-code",
+                  placeholder: "Postcode...",
+                },
+              },
+            ],
+          },
+          // ---
+          {
+            type: "Control",
+            scope: "#/properties/region_id",
+            options: {
+              autocomplete: "address-level1",
+              placeholder: "Please select a Region...",
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/country_id",
+            options: {
+              autocomplete: "country",
+              placeholder: "Please select a Country...",
             },
           },
         ],
-      },
-      // ---
-      {
-        type: "Control",
-        scope: "#/properties/region_id",
-        options: {
-          autocomplete: "address-level1",
-          placeholder: "Please select a Region...",
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/manualPlace",
+            schema: { const: true },
+          },
         },
       },
-      {
-        type: "Control",
-        scope: "#/properties/country_id",
-        options: {
-          autocomplete: "country",
-          placeholder: "Please select a Country...",
-        },
-      },
+
       // ---
       // We dont ever show this field as it is set by an action
       // {

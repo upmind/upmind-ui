@@ -7,7 +7,7 @@ export interface TabsProps {
 }
 
 export interface TabProps {
-  id: string;
+  value: string;
   label: string;
   icon?: IconProps;
   size?: "sm" | "md" | "lg";

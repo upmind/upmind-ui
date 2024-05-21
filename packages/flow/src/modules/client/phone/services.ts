@@ -6,10 +6,18 @@ import { useApi, useSystem, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { includes, isString, keyBy, filter } from "lodash-es";
+import {
+  includes,
+  isString,
+  keyBy,
+  filter,
+  find,
+  isEmpty,
+  isEqual,
+} from "lodash-es";
 
 // --- types
-import type { PhoneEvent, PhoneContext } from "./types.d";
+import type { PhoneEvent, PhoneContext, IPhoneData } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
@@ -18,8 +26,11 @@ export const PhoneTypes: any[] = [
   { key: 1, value: "Mobile" },
   { key: 2, value: "Home" },
   { key: 3, value: "Office" },
-  { key: 4, value: "Personal" },
+  { key: 4, value: "Company" },
 ];
+
+// --------------------------------------------------------
+const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -32,31 +43,18 @@ async function load(
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const clientId = await getUserId();
 
   return get({
     url: useUrl(`clients/${clientId}/phones`, {
-      // with: [].join(),
       limit: 0,
     }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
   }).then(({ data }) => data);
-}
-
-async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
-  // we dont have any lookups for emails, so just return null
-  const { getCountry, fetchCountries } = useSystem();
-  await fetchCountries();
-  return Promise.resolve({
-    types: keyBy(PhoneTypes, "key"),
-    country: getCountry(),
-  });
 }
 
 async function filterItems(
@@ -81,6 +79,26 @@ async function filterItems(
   );
 
   return Promise.resolve(filteredItems);
+}
+
+async function findItem(
+  { raw }: ClientListingsContext,
+  { data }: { data: IPhoneData }
+) {
+  if (isEmpty(data))
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const found = find(
+    raw,
+    item =>
+      isEqual(item.state.context.model.id, data) ||
+      isEqual(item.state.context.model.phone, data)
+  );
+
+  return new Promise((resolve, reject) => {
+    if (!found) reject();
+    resolve(found);
+  });
 }
 
 // --------------------------------------------------------
@@ -121,6 +139,18 @@ async function update({ model }: PhoneContext, _event: PhoneEvent) {
   }).then(({ data }) => data);
 }
 
+async function remove({ model }: PhoneContext, _event: PhoneEvent) {
+  const { del, useUrl } = useApi();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return del({
+    url: useUrl(`clients/${clientId}/phones/${model.id}`),
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
 async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -134,19 +164,17 @@ async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
   }).then(({ data }) => data);
 }
 
-async function remove({ model }: PhoneContext, _event: PhoneEvent) {
-  const { del, useUrl } = useApi();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }) => data);
-}
-
 // --------------------------------------------------------
+
+async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
+  // we dont have any lookups for emails, so just return null
+  const { getCountry, fetchCountries } = useSystem();
+  await fetchCountries();
+  return Promise.resolve({
+    types: keyBy(PhoneTypes, "key"),
+    country: getCountry(),
+  });
+}
 
 async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
   // ---
@@ -199,6 +227,7 @@ async function validate({ schema, model }: PhoneContext, _event: PhoneEvent) {
 // EXPORTS
 
 export default {
+  find: findItem,
   load,
   loadLookups,
   parse,
@@ -208,4 +237,6 @@ export default {
   update,
   remove,
   filter: filterItems,
+  authSubscription,
+  isAuthenticated,
 };

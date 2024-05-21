@@ -135,7 +135,7 @@ export default defineComponent({
   computed: {
     safeAttrs() {
       // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return omit(this.$attrs, ["layout", "variant", "options"]);
     },
   },
 });

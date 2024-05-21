@@ -16,7 +16,7 @@ export default {
             flat: "border-transparent",
             outlined: "border bg-opacity-0 hover:bg-opacity-100",
             ghost: "border-transparent bg-opacity-0 hover:bg-opacity-100",
-            link: "!bg-transparent hover:underline",
+            link: "!bg-transparent !p-0 hover:underline",
           },
           color: {
             current:
@@ -92,7 +92,7 @@ export default {
             color: "info",
             class: "hover:bg-info",
           },
-          // ---current + variant ---
+          // --- current + variant ---
           {
             color: "current",
             variant: "outlined",
@@ -108,7 +108,7 @@ export default {
             variant: "link",
             class: "text-current",
           },
-          // ---primary + variant ---
+          // --- primary + variant ---
           {
             color: "primary",
             variant: "outlined",
@@ -124,7 +124,7 @@ export default {
             variant: "link",
             class: "text-primary",
           },
-          // ---secondary + variant ---
+          // --- secondary + variant ---
           {
             color: "secondary",
             variant: "outlined",
@@ -140,7 +140,7 @@ export default {
             variant: "link",
             class: "text-secondary",
           },
-          // ---accent + variant ---
+          // --- accent + variant ---
           {
             color: "accent",
             variant: "outlined",
@@ -156,7 +156,7 @@ export default {
             variant: "link",
             class: "text-accent",
           },
-          // ---neutral + variant ---
+          // --- neutral + variant ---
           {
             color: "neutral",
             variant: "outlined",
@@ -172,7 +172,7 @@ export default {
             variant: "link",
             class: "text-neutral",
           },
-          // ---success + variant ---
+          // --- success + variant ---
           {
             color: "success",
             variant: "outlined",
@@ -188,7 +188,7 @@ export default {
             variant: "link",
             class: "text-success",
           },
-          // ---error + variant ---
+          // --- error + variant ---
           {
             color: "error",
             variant: "outlined",
@@ -204,7 +204,7 @@ export default {
             variant: "link",
             class: "text-error",
           },
-          // ---warning + variant ---
+          // --- warning + variant ---
           {
             color: "warning",
             variant: "outlined",
@@ -220,7 +220,7 @@ export default {
             variant: "link",
             class: "text-warning",
           },
-          // ---info + variant ---
+          // --- info + variant ---
           {
             color: "info",
             variant: "outlined",
@@ -258,6 +258,10 @@ export default {
     icon: cva("size-[1.5em]"),
     content: cva("mx-auto flex items-center gap-x-3", {
       variants: {
+        variant: {
+          link: "!p-0",
+        },
+
         loading: {
           true: "invisible opacity-0",
         },
@@ -267,11 +271,12 @@ export default {
           lg: "px-5",
         },
       },
+
       defaultVariants: {
         size: "md",
       },
     }),
-    label: cva("font-semibold", {
+    label: cva("text-nowrap font-semibold", {
       variants: {
         iconOnly: {
           true: "sr-only",

@@ -20,10 +20,10 @@
 
 <script>
 import { defineComponent } from "vue";
-import * as messages from "./locales";
+import { getLocalMessages } from "@/utils";
 
 export default defineComponent({
   name: "Checkout",
-  i18n: { messages },
+  i18n: { messages: getLocalMessages("checkout") },
 });
 </script>

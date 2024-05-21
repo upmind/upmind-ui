@@ -29,7 +29,7 @@ import {
 
 // --- local
 import config from "./config.cva";
-// ---utils
+// --- utils
 import { useUpwindLayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 

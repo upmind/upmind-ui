@@ -13,7 +13,6 @@ import { useTime, useValidationParser } from "../../utils";
 // --- types
 import type { PaymentContext, PaymentEvent } from "./types.d";
 import { isEmpty } from "lodash-es";
-import { parse } from "path";
 
 // --------------------------------------------------------
 

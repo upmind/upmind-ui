@@ -47,5 +47,5 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 3, controlType: isBooleanControl };
+export const tester = { rank: 2, controlType: isBooleanControl };
 </script>

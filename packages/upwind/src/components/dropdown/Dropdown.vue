@@ -36,12 +36,12 @@
       >
         <template v-for="(item, key) in items" :key="key">
           <!-- grouped items -->
-          <div v-if="item?.children" :class="styles.dropdownGroup.root">
+          <div v-if="item?.children">
             <!-- group title -->
             <upw-dropdown-item
               v-if="item?.label || item?.icon"
               v-bind="item"
-              :styles="styles.dropdownGroupItem"
+              group="true"
             />
 
             <!-- group items -->
@@ -49,16 +49,11 @@
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
-              :styles="styles.dropdownItem"
             />
           </div>
 
           <!-- items -->
-          <upw-dropdown-item
-            v-else
-            v-bind="item"
-            :styles="styles.dropdownItem"
-          />
+          <upw-dropdown-item v-else v-bind="item" />
         </template>
       </h-menu-items>
     </transition>
@@ -68,17 +63,15 @@
 <script lang="ts">
 // --- external
 import { defineComponent, ref } from "vue";
+import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 
 // --- components
-import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
 import config from "./config.cva";
-
-// --- utils
 import { useStyles } from "../../utils";
 
 // --- types
@@ -128,6 +121,10 @@ export default defineComponent({
     items: {
       type: Object as PropType<DropdownProps["items"]>,
       default: () => {},
+    },
+    grouped: {
+      type: Boolean,
+      default: false,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {

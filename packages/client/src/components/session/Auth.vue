@@ -5,7 +5,10 @@
       v-model="active"
       @update:modelValue="toggleForm"
       size="sm"
-      v-if="meta.canShowForms || meta.showLoginForm || meta.showRegisterForm"
+      v-if="
+        !noTabs &&
+        (meta.canShowForms || meta.showLoginForm || meta.showRegisterForm)
+      "
     />
 
     <upw-form
@@ -54,6 +57,7 @@ export default defineComponent({
       type: String as PropType<AuthProps["form"]>,
       default: "login",
     },
+    noTabs: { type: Boolean, default: false },
   },
   setup(props) {
     const session = useSession();
@@ -96,11 +100,11 @@ export default defineComponent({
     tabs() {
       return [
         {
-          id: "register",
+          value: "register",
           label: "New customer",
         },
         {
-          id: "login",
+          value: "login",
           label: "Existing customer",
         },
       ];

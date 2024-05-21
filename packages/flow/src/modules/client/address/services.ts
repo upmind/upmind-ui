@@ -1,9 +1,9 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useApi, useSystem, useSession } from "../../";
 import { usePlaces } from "../places";
+import { useClientAddresses } from "../address";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -16,6 +16,8 @@ import {
   includes,
   filter,
   defaultsDeep,
+  pick,
+  isEqual,
 } from "lodash-es";
 
 // --- types
@@ -24,6 +26,7 @@ import type {
   AddressContext,
   AddressesEvents,
   AddressesContext,
+  IAddressData,
 } from "./types.d";
 
 // --------------------------------------------------------
@@ -32,8 +35,11 @@ export const AddressTypes = [
   { key: 1, value: "Home" },
   { key: 2, value: "Office" },
   { key: 3, value: "Holiday" },
+  { key: 4, value: "Company" },
 ];
 // --------------------------------------------------------
+
+const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -53,60 +59,16 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
   const { get, useUrl } = useApi();
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const clientId = await getUserId();
 
   return get({
-    url: useUrl(`clients/${clientId}/addresses`, {
-      // with: ["country", "region"].join(),
-      limit: 0,
-    }),
+    url: useUrl(`clients/${clientId}/addresses`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
   }).then(({ data }) => data);
-}
-
-async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
-  const { fetchCountries, fetchRegions, getCountry } = useSystem();
-
-  // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
-
-  const countries = await fetchCountries();
-  const defaultCountry = getCountry();
-  const regions = await fetchRegions(model?.country_id);
-
-  const baseModel = {
-    ...model,
-    country_id: defaultCountry?.id,
-    type: first(AddressTypes)?.key,
-  };
-
-  // ---
-  // set up our autocomplete places
-  const places = usePlaces();
-  // lets wait for them to be ready and loaded before we continue
-  await waitFor(places.service, state => !state.matches("loading"));
-  places.reset();
-
-  // ---
-  return new Promise((resolve, reject) => {
-    if (countries && regions) {
-      resolve({
-        countries,
-        regions,
-        baseModel,
-        types: AddressTypes,
-        places: usePlaces,
-      });
-    } else {
-      reject("Failed to load countries and regions");
-    }
-  });
 }
 
 async function filterItems(
@@ -129,9 +91,48 @@ async function filterItems(
   return Promise.resolve(filteredItems);
 }
 
+async function findItem(
+  { raw }: ClientListingsContext,
+  { data }: { data: IAddressData }
+) {
+  if (isEmpty(data))
+    return Promise.reject({ error: "No data provided for filtering" });
+
+  const value = pick(data, [
+    "address_1",
+    "address_2",
+    "city",
+    "postcode",
+    "region_id",
+    "country_id",
+  ]);
+
+  const found = find(
+    raw,
+    item =>
+      isEqual(item.state.context.model.id, data) ||
+      isEqual(
+        pick(item.state.context.model, [
+          "address_1",
+          "address_2",
+          "city",
+          "postcode",
+          "region_id",
+          "country_id",
+        ]),
+        value
+      )
+  );
+
+  return new Promise((resolve, reject) => {
+    if (!found) reject();
+    resolve(found);
+  });
+}
+
 // --------------------------------------------------------
 
-async function add({ model }: AddressesContext, _event: AddressesEvents) {
+async function add({ model }: AddressContext, _event: AddressEvent) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -144,7 +145,7 @@ async function add({ model }: AddressesContext, _event: AddressesEvents) {
   }).then(({ data }) => data);
 }
 
-async function update({ model }: AddressesContext, _event: AddressesEvents) {
+async function update({ model }: AddressContext, _event: AddressEvent) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -157,23 +158,7 @@ async function update({ model }: AddressesContext, _event: AddressesEvents) {
   }).then(({ data }) => data);
 }
 
-async function setDefault(
-  { model }: AddressesContext,
-  _event: AddressesEvents
-) {
-  const { put, useUrl } = useApi();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
-    data: { default: true },
-    withAccessToken: true,
-  }).then(({ data }) => data);
-}
-
-async function remove({ model }: AddressesContext, _event: AddressesEvents) {
+async function remove({ model }: AddressContext, _event: AddressEvent) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -185,25 +170,102 @@ async function remove({ model }: AddressesContext, _event: AddressesEvents) {
   }).then(({ data }) => data);
 }
 
-// --------------------------------------------------------
-async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
-  // We need to check and potentially update the regions list based on the selected country ( if its changed )
+async function setDefault({ model }: AddressContext, _event: AddressEvent) {
+  const { put, useUrl } = useApi();
+  const { getUserId } = useSession();
 
-  const { fetchRegions } = useSystem();
+  const clientId = await getUserId();
+
+  return put({
+    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+    data: { default: true },
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+// --------------------------------------------------------
+
+async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
+  const { fetchCountries, fetchRegions, getCountry } = useSystem();
+
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so theres no worry about performance
+  const countries = await fetchCountries();
+  const country = getCountry(model?.country_id);
+  const regions = await fetchRegions(model?.country_id || country?.id);
+
+  if (!countries || !regions) {
+    return Promise.reject("Failed to load countries and regions");
+  }
+
+  // ---
+  // lets start up/use our dependencies
+  const addresses = useClientAddresses();
+  const places = usePlaces();
+
+  return Promise.all([addresses.isReady(), places.isReady()])
+    .then(() => {
+      places.reset();
+
+      return {
+        countries,
+        regions,
+        types: AddressTypes,
+        places,
+        country,
+        // ---
+        addresses,
+        // ---
+        baseModel: {
+          ...model,
+          manualPlace: !!model?.id,
+          type: first(AddressTypes)?.key,
+          place: null,
+          country_id: country?.id,
+        },
+      };
+    })
+    .catch(() => Promise.reject("Failed to load lookups"));
+}
+
+async function parse(
+  { addresses, schema, model, regions, country, places }: AddressContext,
+  _event: AddressEvent
+) {
+  // We need to check and potentially update the regions list based on the selected country ( if its changed )
+  const { fetchRegions, getCountry } = useSystem();
 
   if (!isEmpty(model)) {
     // let scheck to see if weve been given a place to lookup
-    // if we have, then get the place details and update the model
+    // if we have:
+    //  1: get the place from our existing addressess by placeId
+    //  2: get the place details from google
+    //  4: update the model with the place details
     if (model?.place) {
-      const { getPlaceDetails } = usePlaces();
-      const place = await getPlaceDetails(model.place);
-      model = defaultsDeep(place, model);
+      const existing = addresses.getItem(model.place);
+      if (existing) {
+        model.name ??= existing.name; // only update it if weve not already got a value
+        model.address_1 = existing.address_1;
+        model.address_2 = existing.address_2;
+        model.city = existing.city;
+        model.postcode = existing.postcode;
+        model.region_id = existing.region_id;
+        model.state = existing.state;
+        model.country_id = existing.country_id;
+      } else {
+        const { getPlaceDetails } = places;
+        const place = await getPlaceDetails(model.place);
+        model = defaultsDeep(place, model);
+      }
     }
 
     // lets check if the country has changed, ie: the regions dont match
     // if so, then we need to fetch the regions for the new country
+    // AND update our 'default' country to match the country fro mthe address
+    // this will in turn update the phone schema to match the country
     if (!some(regions, ["country_id", model.country_id])) {
       regions = await fetchRegions(model.country_id);
+
+      country = getCountry(model.country_id);
     }
 
     // now lets check our regions list to see if we have a match
@@ -211,9 +273,25 @@ async function parse({ model, regions }: AddressContext, _event: AddressEvent) {
     // otherwise the region_id is reset to null
     const region = find(regions, ["id", model?.region_id]);
     model.region_id = get(region, "id", undefined);
+
+    // finally lets force a manual place if we are invalid:
+    const isValid = await validate({ schema, model }, _event)
+      .then(() => true)
+      .catch(() => false);
+
+    // force the manual place if we are have a place && are invalid
+    // OR editing an existing address
+    // OR the place value is our reserved word 'manual'
+    if (
+      (!!model.place?.length && !isValid) ||
+      !!model?.id ||
+      model.place == "manual"
+    ) {
+      model.manualPlace = true;
+    }
   }
 
-  return Promise.resolve({ model, regions });
+  return Promise.resolve({ model, regions, country });
 }
 
 async function validate(
@@ -239,6 +317,7 @@ async function validate(
 // EXPORTS
 
 export default {
+  find: findItem,
   load,
   loadLookups,
   validate,
@@ -248,4 +327,6 @@ export default {
   update,
   remove,
   filter: filterItems,
+  authSubscription,
+  isAuthenticated,
 };

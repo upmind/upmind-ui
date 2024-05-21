@@ -98,7 +98,7 @@ export const useSystem = () => {
         "departments.error",
       ].some(state.value.matches),
     })),
-    // ---?
+    // ---
     fetch: async (key: string, value?: any) => {
       let values;
 

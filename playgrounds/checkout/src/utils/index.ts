@@ -39,76 +39,69 @@ export const useCompositionI18n = () => {
   const { t } = useI18n({ messages });
 };
 
-export const useLocaleImporter = () => {
-  const messages = ref({});
+// ---
+// this will load ALL Global locales from the project assets and map them correctly
+// global locales do NOT start with an underscore
 
-  function load(path, locale) {
-    path = trimStart(path, "/");
-    path = trimEnd(path, "/");
-
-    const asyncImport = find(
-      locales,
-      (fn, localePath) =>
-        includes(localePath, `/${path}/`) &&
-        includes(localePath, `/${locale}.json`)
-    );
-
-    if (!asyncImport) {
-      console.warn("locale", "import not found", {
-        path,
-        locale,
-        locales,
-      });
-
-      return;
-    }
-
-    return asyncImport()
-      .then(values => {
-        const oldMessages = toRaw(unref(messages));
-        const newMessages = set({}, locale, values);
-        messages.value = merge(oldMessages, newMessages);
-        return messages;
-      })
-      .catch(error => {
-        console.warn("locale", "import error", {
-          path,
-          locale,
-          error,
-          locales,
-        });
-
-        return {};
-      });
+export function getGlobalMessages(debug = import.meta.env.DEV) {
+  let files;
+  if (debug) {
+    files = import.meta.glob(`@/**/i18n/[!_]*.json`, { eager: true });
+  } else {
+    files = import.meta.glob("@locales/**/[!_]*.json", { eager: true });
   }
 
-  // -----------------------------------------------------------------------------
-  return {
-    load,
-    messages,
-  };
-};
-
-// ---
-// this will loadd ALL Global locales from the project assets and map them correctly
-// ---
-
-export function getGlobalMessages() {
-  const messages = reduce(
-    import.meta.glob("@locales/**/[!_]*.json", { eager: true }),
+  return reduce(
+    files,
     (result, value, key) => {
-      // lets do some magic to get the locale
-      // our paths are like: @locales/en/xyz.json so the local is always the 2nd last part
-      let locale = key.split("/");
-      locale = locale[locale.length - 2];
-      // ---
+      const locale = parseLocale(key, value?.default, debug);
+
       if (!locale) return result;
-      // ---
-      merge(result, { [locale]: value?.default || {} });
+
+      merge(result, locale);
       return result;
     },
     {}
   );
+}
 
-  return messages;
+// ---
+// this will load the locales for a specific component/view base don the given name
+// if we are debugging (on by default in DEV mode), we will load the source english version of the locales
+export function getLocalMessages(name, debug = import.meta.env.DEV) {
+  let files;
+  if (debug) {
+    files = import.meta.glob(`@/**/i18n/_*.json`, { eager: true });
+  } else {
+    files = import.meta.glob(`@locales/**/_*.json`, { eager: true });
+  }
+
+  return reduce(
+    files,
+    (result, value, key) => {
+      if (!includes(key, name)) return result;
+      const locale = parseLocale(key, value?.default, debug);
+      if (!locale) return result;
+      merge(result, locale);
+      return result;
+    },
+    {}
+  );
+}
+
+function parseLocale(key, value, debug) {
+  let locale;
+
+  if (debug) {
+    // we are in debug mode, so we will always load the english version
+    locale = "en";
+  } else {
+    // lets do some magic to get the locale
+    // our paths are like: @locales/en/xyz.json so the local is always the 2nd last part
+    locale = key.split("/");
+    locale = locale[locale.length - 2];
+  }
+  if (!locale || !value) return null;
+
+  return { [locale]: value };
 }

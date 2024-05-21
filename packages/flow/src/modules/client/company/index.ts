@@ -8,7 +8,7 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, map } from "lodash-es";
 
 // --- types
 
@@ -30,12 +30,46 @@ export const useClientCompanies = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    isReady: async () => waitFor(service, state => !state.matches("loading")),
+    isReady: async () =>
+      waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ),
     getSnapshot: () => state,
-    getItems: () => state?.context?.items,
+    getItemsSnapshot: () => state?.context?.items,
+    getItems: () => map(state?.context?.items, "state.context.model"),
     getItem: id => find(state?.context?.items, ["id", id]),
-    getSelected: () => state?.context?.selected,
+    getSelected: () => {
+      return waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ).then(() => {
+        // first try to get the selected address from the context
+        if (state?.context?.selected) return state.context.selected;
+
+        // if no selected address, try to get the default address
+        const defaultAddress = find(state?.context?.items, item => {
+          return item.state?.context?.model?.default;
+        });
+
+        // if we have a default address, select it
+        if (defaultAddress) {
+          service.send({ type: "SELECT", data: defaultAddress.id });
+          return defaultAddress;
+        }
+      });
+    },
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
+    search: async data => {
+      service.send({ type: "FILTER", data });
+      return waitFor(service, state =>
+        state.matches("available.filtered")
+      ).then(() => {
+        return state.context.items;
+      });
+    },
   };
 };

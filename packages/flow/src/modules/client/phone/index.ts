@@ -8,9 +8,10 @@ import services from "./services";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, map, compact } from "lodash-es";
 
 // --- types
+import type { IPhoneData } from "./types";
 
 // --------------------------------------------------------
 // create a global instance of the system machine
@@ -30,12 +31,51 @@ export const useClientPhones = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    isReady: async () => waitFor(service, state => !state.matches("loading")),
+    isReady: async () =>
+      waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ),
     getSnapshot: () => state,
-    getItems: () => state?.context?.items,
-    getSelected: () => state?.context?.selected,
-    getItem: id => find(state?.context?.items, ["id", id]),
+    getItemsSnapshot: () => state?.context?.items,
+    getItems: () => compact(map(state?.context?.items, "state.context.model")),
+    getItemSnapshot: id => find(state?.context?.items, ["id", id]),
+    getItem: id =>
+      find(state?.context?.items, ["id", id])?.state?.context?.model,
+    getSelected: () => {
+      return waitFor(
+        service,
+        state =>
+          state.matches("available") && !state.matches("available.loading")
+      ).then(() => {
+        // first try to get the selected address from the context
+        if (state?.context?.selected) return state.context.selected;
+
+        // if no selected address, try to get the default address
+        const defaultAddress = find(state?.context?.items, item => {
+          return item.state?.context?.model?.default;
+        });
+
+        // if we have a default address, select it
+        if (defaultAddress) {
+          service.send({ type: "SELECT", data: defaultAddress.id });
+          return defaultAddress;
+        }
+      });
+    },
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
+
+    search: async data => {
+      service.send({ type: "FILTER", data });
+      return waitFor(service, state =>
+        state.matches("available.filtered")
+      ).then(() => {
+        return state.context.items;
+      });
+    },
+    find: (data: IPhoneData) => services.find(state.context, { data }),
+    add: (data: IPhone) => services.add(data),
   };
 };

@@ -4,7 +4,7 @@ import { assign } from "xstate";
 // --- utils
 import { useModelParser } from "../../../utils";
 import { useSchema, useUischema, spawnItem } from "./utils";
-import { find, map, compact, get } from "lodash-es";
+import { find, map, compact, get, isFunction } from "lodash-es";
 
 // --- types
 import type { CompanyContext, CompanyEvent } from "./types.d";
@@ -14,10 +14,12 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 export const ListingActions = {
   add: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) => {
-      const machine = spawnItem(data); // spawn an actor for the new raw
-      raw.push(machine);
-      return raw;
+    initial: ({ selected, initial }) => selected?.id || initial,
+    selected: (
+      _context: ClientListingsContext,
+      { data }: ClientListingsEvents
+    ) => {
+      return spawnItem(data); // spawn an actor for the new raw
     },
   }),
   setItems: assign({
@@ -40,8 +42,7 @@ export const ItemActions = {
     ) => {
       let address = null;
       if (addresses && model?.address_id) {
-        const addressService = addresses();
-        address = addressService?.getItem(model.address_id);
+        address = addresses?.getItemSnapshot(model.address_id);
       }
       return compact([
         // get(address, "state.context.title"),

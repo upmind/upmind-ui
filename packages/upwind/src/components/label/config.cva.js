@@ -15,10 +15,10 @@ export default {
       {
         variants: {
           isValid: {
-            true: "text-success",
+            true: "hidden",
           },
           isInvalid: {
-            true: "text-error",
+            // true: "text-error",
           },
         },
       }
