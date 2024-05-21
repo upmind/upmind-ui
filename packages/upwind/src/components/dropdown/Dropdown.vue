@@ -61,6 +61,7 @@
               v-if="item?.label || item?.icon"
               v-bind="item"
               group="true"
+              :size="size"
             />
 
             <!-- group items -->
@@ -68,11 +69,12 @@
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
+              :size="size"
             />
           </div>
 
           <!-- items -->
-          <upw-dropdown-item v-else v-bind="item" />
+          <upw-dropdown-item v-else v-bind="item" :size="size" />
         </template>
       </h-menu-items>
     </transition>

@@ -6,7 +6,7 @@ export default {
   dropdown: {
     root: cva("relative inline-flex"),
     items: cva(
-      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 w-full min-w-60 space-y-0.5 overflow-hidden overflow-y-auto rounded-lg border p-1 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
+      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full space-y-0.5 overflow-hidden overflow-y-auto rounded-lg border shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
     ),
   },
   dropdownButton: {
@@ -47,15 +47,24 @@ export default {
 
   dropdownItem: {
     root: cva(
-      "text-base-800 flex w-full cursor-pointer items-center justify-start gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none",
+      "text-base-800 flex min-w-full cursor-pointer items-center justify-start text-nowrap rounded-lg text-left text-sm no-underline focus:outline-none",
       {
         variants: {
+          size: {
+            sm: "gap-x-2 px-3 py-2 text-sm",
+            md: "gap-x-3 px-3 py-3",
+            lg: "gap-x-4 px-3 py-4 text-lg",
+          },
           group: {
             true: "text-base-500 cursor-default gap-x-3.5 px-3 text-xs font-medium",
           },
           disabled: {
             true: "pointer-events-none opacity-50",
           },
+        },
+        defaultVariants: {
+          size: "md",
+          group: false,
         },
       }
     ),
@@ -67,7 +76,7 @@ export default {
       },
     }),
     selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
-    label: cva("flex-1 truncate", {
+    label: cva("block max-w-60 flex-1 truncate", {
       variants: {
         group: {
           true: "uppercase ",
