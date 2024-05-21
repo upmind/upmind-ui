@@ -1,24 +1,30 @@
 <template>
   <h-menu as="div" :class="styles.dropdown.root" v-slot="{ open }">
-    <h-menu-button :class="styles.dropdownButton.root" ref="reference">
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        class="btn-icon"
-        :class="styles.dropdownButton.icon"
-      />
+    <h-menu-button
+      :class="styles.dropdownButton.root"
+      ref="reference"
+      :disabled="disabled"
+    >
+      <slot name="trigger" v-bind="{ label, icon, toggle, toggleRotate, open }">
+        <upw-icon
+          v-if="icon"
+          :icon="icon"
+          class="btn-icon"
+          :class="styles.dropdownButton.icon"
+        />
 
-      <span class="label" :class="styles.dropdownButton.label" v-if="label">
-        {{ label }}
-      </span>
+        <span class="label" :class="styles.dropdownButton.label" v-if="label">
+          {{ label }}
+        </span>
 
-      <upw-icon
-        v-if="toggle"
-        :icon="toggle"
-        :class="styles.dropdownButton.toggle"
-        :aria-checked="open && toggleRotate"
-        aria-hidden="true"
-      />
+        <upw-icon
+          v-if="toggle"
+          :icon="toggle"
+          :class="styles.dropdownButton.toggle"
+          :aria-checked="open && toggleRotate"
+          aria-hidden="true"
+        />
+      </slot>
     </h-menu-button>
 
     <transition
@@ -62,7 +68,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, toRefs } from "vue";
 import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 
 // --- components
@@ -90,6 +96,11 @@ export default defineComponent({
     UpwDropdownItem,
   },
   props: {
+    density: {
+      type: String,
+      default: "normal",
+      validator: value => ["compact", "normal", "comfortable"].includes(value),
+    },
     size: {
       type: String,
       default: "md",
@@ -126,6 +137,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    // ---
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -150,7 +166,7 @@ export default defineComponent({
         "dropdownTransitionEnter",
         "dropdownTransitionLeave",
       ],
-      props,
+      toRefs(props),
       config,
       props.upwindConfig
     );

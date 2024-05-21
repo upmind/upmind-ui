@@ -1,81 +1,59 @@
 <template>
-  <h-menu
-    as="div"
-    :class="styles.profile.root"
-    v-slot="{ open }"
+  <upw-dropdown
     v-if="meta.isAuthenticated || meta.isProcessing"
+    :items="items"
+    :size="size"
+    :placement="placement"
+    density="compact"
+    grouped
+    :disabled="meta.isProcessing"
   >
-    <h-menu-button :class="styles.profileButton.root" ref="reference">
-      <upw-spinner
-        :class="styles.profileButton.loading"
-        v-if="meta.isProcessing"
-      />
+    <template #trigger="">
+      <upw-spinner :class="styles.profile.loading" v-if="meta.isProcessing" />
 
-      <figure v-else class="avatar" :class="styles.profileButton.avatar">
+      <figure v-else class="avatar" :class="styles.profile.avatar">
         <img
           v-if="user?.avatar?.url"
           :src="user.avatar.url"
           alt="user profile avatar "
-          :class="styles.profileButton.image"
+          :class="styles.profile.image"
         />
         <figcaption
-          :class="styles.profileButton.caption"
+          :class="styles.profile.caption"
           v-else-if="user?.avatar?.initials"
         >
           {{ user.avatar.initials }}
         </figcaption>
       </figure>
 
-      <span class="label" :class="styles.profileButton.label">
+      <span class="label" :class="styles.profile.label">
         {{ user?.display }}
       </span>
-    </h-menu-button>
-
-    <transition
-      :enter-active-class="styles.profileTransitionEnter.active"
-      :enter-from-class="styles.profileTransitionEnter.from"
-      :enter-to-class="styles.profileTransitionEnter.to"
-      :leave-active-class="styles.profileTransitionLeave.active"
-      :leave-from-class="styles.profileTransitionLeave.from"
-      :leave-to-class="styles.profileTransitionLeave.to"
-    >
-      <h-menu-items
-        :class="styles.profile.items"
-        ref="floating"
-        :style="floatingStyles"
-      >
-        <template v-for="(item, key) in items" :key="key">
-          <upm-profile-item v-bind="item" />
-        </template>
-      </h-menu-items>
-    </transition>
-  </h-menu>
+    </template>
+  </upw-dropdown>
 </template>
 
-<script lang="ts">
+<script>
 // --- external
-import { defineComponent, ref, watch } from "vue";
-import { useFloating, offset, flip, shift } from "@floating-ui/vue";
+import { defineComponent, ref } from "vue";
 
 // --- components
-import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
-import { UpwSpinner } from "@upmind/upwind";
-import UpmProfileItem from "./ProfileItem.vue";
+import { UpwSpinner, UpwDropdown } from "@upmind/upwind";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
+// --- types
+//import type { PropType } from "vue";
+
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "Profile",
   components: {
-    HMenu: Menu,
-    HMenuButton: MenuButton,
-    HMenuItems: MenuItems,
-    UpmProfileItem,
+    UpwDropdown,
     UpwSpinner,
   },
   inheritAttrs: true,
@@ -88,38 +66,18 @@ export default defineComponent({
       validator: value => ["sm", "md", "lg"].includes(value),
     },
     placement: {
-      type: String as PropType<DropdownProps["position"]>,
+      type: String, //as PropType<DropdownProps["position"]>,
       default: "bottom-end",
     },
   },
-  setup(props) {
+  setup() {
     const session = useSession();
 
-    const reference = ref(null);
-    const floating = ref(null);
-    const { floatingStyles } = useFloating(reference, floating, {
-      placement: props.placement,
-      middleware: [offset(10), flip(), shift()],
-    });
-
-    const styles = useStyles(
-      [
-        "profile",
-        "profileButton",
-        "profileItem",
-        "profileTransitionEnter",
-        "profileTransitionLeave",
-      ],
-      session.meta,
-      config
-    );
+    const styles = useStyles(["profile"], session.meta, config);
 
     return {
       ...session,
       styles,
-      reference,
-      floating,
-      floatingStyles,
     };
   },
   computed: {

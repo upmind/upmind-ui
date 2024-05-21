@@ -32,56 +32,12 @@ export default {
   },
 
   profile: {
-    root: cva("relative inline-flex"),
-    items: cva(
-      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 w-full min-w-60 space-y-0.5 overflow-hidden overflow-y-auto rounded-lg border p-1 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
-    ),
-  },
-
-  profileButton: {
-    root: cva(
-      "hover:bg-base-50 relative inline-flex w-full cursor-pointer items-center gap-x-4 text-nowrap rounded-full bg-transparent",
-      {
-        variants: {
-          disabled: {
-            true: "pointer-events-none opacity-50",
-          },
-        },
-      }
-    ),
+    root: cva(),
     loading: cva("size-8 bg-base-200 text-base-300"),
     label: cva("sr-only"),
     avatar: cva(
       "bg-base-200 size-8 flex-shrink-0 overflow-hidden rounded-full flex items-center justify-center"
     ),
     image: cva("h-full w-full object-cover"),
-  },
-
-  profileItem: {
-    root: cva(
-      "text-base-800 flex w-full cursor-pointer items-center justify-start gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none",
-      {
-        variants: {
-          disabled: {
-            true: "pointer-events-none opacity-50",
-          },
-        },
-      }
-    ),
-    active: cva("bg-base-100 hover:bg-base-100"),
-    selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
-    label: cva("flex-1 truncate"),
-    icon: cva("size-[1.25em]  flex-shrink-0"),
-  },
-
-  profileTransitionEnter: {
-    active: cva("m-0 transition duration-100 ease-out"),
-    from: cva("scale-95 transform opacity-0"),
-    to: cva("scale-100 transform opacity-100"),
-  },
-  profileTransitionLeave: {
-    active: cva("transition duration-75 ease-in"),
-    from: cva("scale-100 transform opacity-100"),
-    to: cva("scale-95 transform opacity-0"),
   },
 };
