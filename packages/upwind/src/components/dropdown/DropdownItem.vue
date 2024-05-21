@@ -7,6 +7,7 @@
       :class="[
         styles.dropdownItem.root,
         active ? styles.dropdownItem.active : '',
+        selected ? styles.dropdownItem.selected : '',
       ]"
     >
       <upw-avatar
@@ -38,6 +39,7 @@
       :class="[
         styles.dropdownItem.root,
         active ? styles.dropdownItem.active : '',
+        selected ? styles.dropdownItem.selected : '',
       ]"
     >
       <upw-avatar
@@ -63,6 +65,7 @@
       :class="[
         styles.dropdownItem.root,
         active ? styles.dropdownItem.active : '',
+        selected ? styles.dropdownItem.selected : '',
       ]"
     >
       <upw-avatar
@@ -87,6 +90,7 @@
       :class="[
         styles.dropdownItem.root,
         active ? styles.dropdownItem.active : '',
+        selected ? styles.dropdownItem.selected : '',
       ]"
     >
       <upw-avatar
@@ -172,6 +176,11 @@ export default defineComponent({
     action: {
       type: Function,
       default: null,
+    },
+    // ---
+    selected: {
+      type: Boolean,
+      default: false,
     },
     disabled: {
       type: Boolean,
