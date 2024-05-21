@@ -1,6 +1,5 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 
 export default {
   dropdown: {
@@ -28,13 +27,14 @@ export default {
           },
         },
         defaultVariants: {
+          size: "md",
           grouped: false,
         },
       }
     ),
     loading: cva("text-base-300"),
     active: cva("ring-primary-500 border-primary-500"),
-    label: cva("flex-1 leading-none"),
+    label: cva("flex-1 truncate leading-none"),
     icon: cva(""),
     avatar: cva(""),
     toggle: cva("size-2 transition-all aria-checked:rotate-180"),
@@ -47,7 +47,7 @@ export default {
 
   dropdownItem: {
     root: cva(
-      "text-base-800 flex min-w-full cursor-pointer items-center justify-start text-nowrap rounded-lg text-left text-sm no-underline focus:outline-none",
+      "text-base-800 flex min-w-full cursor-pointer items-center justify-start text-nowrap text-left text-sm no-underline focus:outline-none",
       {
         variants: {
           size: {

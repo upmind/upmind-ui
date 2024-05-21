@@ -19,7 +19,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- components
-import { UpwSpinner, UpwDropdown } from "@upmind/upwind";
+import {  UpwDropdown } from "@upmind/upwind";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
@@ -35,7 +35,7 @@ export default defineComponent({
   name: "UpmProfile",
   components: {
     UpwDropdown,
-    UpwSpinner,
+    ,
   },
   inheritAttrs: true,
   customOptions: {},
@@ -48,7 +48,7 @@ export default defineComponent({
     },
     placement: {
       type: String, //as PropType<DropdownProps["position"]>,
-      default: "bottom-end",
+      default: "bottom-start",
     },
   },
   setup() {

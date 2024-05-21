@@ -1,18 +1,13 @@
 <template>
   <upw-dropdown
     v-if="currencies?.length > 1 || meta.isLoading"
+    :label="`${model?.prefix || model?.suffix || ''}${model ? ' ' : ''}${model?.code || ''}`"
     :items="currencies"
     :size="size"
     :placement="placement"
     :disabled="meta.isLoading || meta.isProcessing"
     :upwind-config="{ listboxButton: config.currency }"
     :loading="meta.isLoading || meta.isProcessing"
-    :label="model?.code"
-    :avatar="{
-      name: (model?.code || model?.prefix || model?.suffix)?.toLowerCase(),
-      path: 'currencies',
-      caption: model?.prefix || model?.suffix,
-    }"
   >
   </upw-dropdown>
 </template>
@@ -52,7 +47,7 @@ export default defineComponent({
       validator: value => ["sm", "md", "lg"].includes(value),
     },
     placement: {
-      type: String as PropType<DropdownProps["position"]>,
+      type: String,
       default: "bottom-start",
     },
   },
@@ -67,16 +62,10 @@ export default defineComponent({
       config,
       currencies: computed(() => {
         return map(basketCurrency.currencies.value, currency => ({
-          label: currency.code,
-          avatar: {
-            name: (
-              currency.code ||
-              currency.prefix ||
-              currency.suffix
-            )?.toLowerCase(),
-            path: "currencies",
-            caption: currency.prefix || currency.suffix,
-          },
+          label: `${currency.prefix || currency.suffix} ${currency.code}`,
+          value: currency.code,
+          selected: currency.code === basketCurrency.model.value.code,
+
           action: () => basketCurrency.update(currency),
         }));
       }),

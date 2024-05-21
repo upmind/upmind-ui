@@ -1,5 +1,10 @@
 <template>
-  <h-listbox :multiple="multiple" v-model="value" v-slot="{ open }">
+  <h-listbox
+    :multiple="multiple"
+    :class="styles.listbox.root"
+    v-model="value"
+    v-slot="{ open }"
+  >
     <div class="listbox" :class="styles.listbox.root">
       <h-listbox-button
         :class="[
@@ -8,17 +13,18 @@
         ]"
         ref="reference"
       >
-        <upw-icon
+        <upw-avatar
           v-if="selectedAvatar"
-          class="avatar"
+          :avatar="selectedAvatar"
           :class="styles.listboxButton.avatar"
-          :icon="selectedAvatar"
+          :size="size"
         />
 
         <upw-icon
           v-if="selectedIcon"
           :icon="selectedIcon"
           :class="styles.listboxButton.icon"
+          :size="size"
         />
 
         <span class="label" :class="styles.listboxButton.label" v-if="label">
@@ -74,12 +80,13 @@
                 selected ? styles.listboxItem.selected : '',
               ]"
             >
-              <upw-icon
+              <upw-avatar
                 v-if="item.avatar"
-                :icon="item.avatar"
+                :avatar="item.avatar"
                 class="avatar"
                 :class="styles.listboxItem.avatar"
                 aria-hidden="true"
+                :size="size"
               />
 
               <upw-icon
@@ -87,6 +94,7 @@
                 :icon="item.icon"
                 :class="styles.listboxItem.icon"
                 aria-hidden="true"
+                :size="size"
               />
 
               <span :class="styles.listboxItem.label">{{ item.label }}</span>
@@ -121,6 +129,7 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwAvatar from "../avatar/Avatar.vue";
 
 // --- local
 import config from "./config.cva";
@@ -144,6 +153,7 @@ export default defineComponent({
     HListboxOptions: ListboxOptions,
     HListboxOption: ListboxOption,
     UpwIcon,
+    UpwAvatar,
   },
   emits: ["update:modelValue"],
   props: {

@@ -1,7 +1,10 @@
 <template>
   <h-menu as="div" :class="styles.dropdown.root" v-slot="{ open }">
     <h-menu-button
-      :class="styles.dropdownButton.root"
+      :class="[
+        styles.dropdownButton.root,
+        open ? styles.dropdownButton.active : '',
+      ]"
       ref="reference"
       :disabled="disabled"
     >
