@@ -11,7 +11,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref, watchEffect } from "vue";
+import { defineComponent, ref, watchEffect, toRefs } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -28,6 +28,11 @@ import type { IconProps } from "./types";
 export default defineComponent({
   name: "UpwIcon",
   props: {
+    size: {
+      type: String,
+      default: "auto",
+      validator: value => ["auto", "sm", "md", "lg"].includes(value),
+    },
     icon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
       required: true,
@@ -39,7 +44,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles("icon", props, config, props.upwindConfig);
+    const styles = useStyles("icon", toRefs(props), config, props.upwindConfig);
 
     const icons = import.meta.glob("@icons/**/*.svg", {
       as: "raw",
