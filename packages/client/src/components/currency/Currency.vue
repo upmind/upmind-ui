@@ -9,8 +9,8 @@
     :loading="meta.isLoading || meta.isProcessing"
     :label="model?.code"
     :avatar="{
-      // name: (model?.code || model?.prefix || model?.suffix)?.toLowerCase(),
-      // path: 'currencies',
+      name: (model?.code || model?.prefix || model?.suffix)?.toLowerCase(),
+      path: 'currencies',
       caption: model?.prefix || model?.suffix,
     }"
   >
@@ -69,8 +69,12 @@ export default defineComponent({
         return map(basketCurrency.currencies.value, currency => ({
           label: currency.code,
           avatar: {
-            // name: (currency.code || currency.prefix || currency.suffix)?.toLowerCase(),
-            // path: "currencies",
+            name: (
+              currency.code ||
+              currency.prefix ||
+              currency.suffix
+            )?.toLowerCase(),
+            path: "currencies",
             caption: currency.prefix || currency.suffix,
           },
           action: () => basketCurrency.update(currency),

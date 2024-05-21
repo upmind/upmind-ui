@@ -13,14 +13,14 @@
         v-if="avatar"
         :avatar="avatar"
         :class="styles.dropdownItem.avatar"
-        size="sm"
+        :size="size"
       />
 
       <upw-icon
         v-if="icon"
         :icon="icon"
         :class="styles.dropdownItem.icon"
-        size="sm"
+        :size="size"
       />
 
       <upw-icon
@@ -44,14 +44,14 @@
         v-if="avatar"
         :avatar="avatar"
         :class="styles.dropdownItem.avatar"
-        size="sm"
+        :size="size"
       />
 
       <upw-icon
         v-if="icon"
         :icon="icon"
         :class="styles.dropdownItem.icon"
-        size="sm"
+        :size="size"
       />
 
       <span :class="styles.dropdownItem.label">{{ label }}</span>
@@ -69,14 +69,14 @@
         v-if="avatar"
         :avatar="avatar"
         :class="styles.dropdownItem.avatar"
-        size="sm"
+        :size="size"
       />
 
       <upw-icon
         v-if="icon"
         :icon="icon"
         :class="styles.dropdownItem.icon"
-        size="sm"
+        :size="size"
       />
 
       <span :class="styles.dropdownItem.label">{{ label }}</span>
@@ -93,14 +93,14 @@
         v-if="avatar"
         :avatar="avatar"
         :class="styles.dropdownItem.avatar"
-        size="sm"
+        :size="size"
       />
 
       <upw-icon
         v-if="icon"
         :icon="icon"
         :class="styles.dropdownItem.icon"
-        size="sm"
+        :size="size"
       />
       <span :class="styles.dropdownItem.label">{{ label }}</span>
     </span>
@@ -135,6 +135,11 @@ export default defineComponent({
     UpwAvatar,
   },
   props: {
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["sm", "md", "lg"].includes(value),
+    },
     group: {
       type: Boolean,
       default: false,
