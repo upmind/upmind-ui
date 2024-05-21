@@ -1,113 +1,100 @@
 <template>
   <h-menu-item as="template" v-slot="{ active }">
-    <a
-      v-if="href && !disabled && !group"
-      :href="href"
-      :target="target"
-      :class="[
-        styles.dropdownItem.root,
-        active ? styles.dropdownItem.active : '',
-        selected ? styles.dropdownItem.selected : '',
-      ]"
-    >
-      <upw-avatar
-        v-if="avatar"
-        :avatar="avatar"
-        :class="styles.dropdownItem.avatar"
-        :size="size"
-      />
-
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.dropdownItem.icon"
-        :size="size"
-      />
-
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :upwind-config="styles.dropdownItem.icon"
-      />
-
-      <span :class="styles.dropdownItem.label">{{ label }}</span>
-    </a>
-
-    <router-link
-      v-else-if="to && !disabled && !group"
-      :to="to"
-      :class="[
-        styles.dropdownItem.root,
-        active ? styles.dropdownItem.active : '',
-        selected ? styles.dropdownItem.selected : '',
-      ]"
-    >
-      <upw-avatar
-        v-if="avatar"
-        :avatar="avatar"
-        :class="styles.dropdownItem.avatar"
-        :size="size"
-      />
-
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.dropdownItem.icon"
-        :size="size"
-      />
-
-      <span :class="styles.dropdownItem.label">{{ label }}</span>
-    </router-link>
-
-    <button
-      v-else-if="isFunction(action) && !disabled && !group"
+    <component
+      :is="safeComponent"
+      v-bind="safeAttrs"
       @click="action"
       :class="[
-        styles.dropdownItem.root,
-        active ? styles.dropdownItem.active : '',
-        selected ? styles.dropdownItem.selected : '',
+        styles.dropdown.item,
+        active ? styles.dropdown.activeItem : '',
+        selected ? styles.dropdown.selectedItem : '',
       ]"
     >
-      <upw-avatar
-        v-if="avatar"
-        :avatar="avatar"
-        :class="styles.dropdownItem.avatar"
-        :size="size"
-      />
+      <!-- prepend slot-->
+      <slot
+        name="prepend"
+        v-bind="{
+          styles: styles.dropdown,
+          prependIcon,
+          prependAvatar,
+          prependText,
+          size,
+          label,
+          selected,
+          disabled,
+          loading,
+        }"
+      >
+        <span
+          class="prependText"
+          :class="styles.dropdown.prepend"
+          v-if="prependText"
+        >
+          {{ prependText }}
+        </span>
 
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.dropdownItem.icon"
-        :size="size"
-      />
+        <upw-avatar
+          v-if="prependAvatar"
+          :class="styles.dropdown.avatar"
+          :avatar="prependAvatar"
+        />
 
-      <span :class="styles.dropdownItem.label">{{ label }}</span>
-    </button>
+        <upw-icon
+          v-if="prependIcon"
+          :class="styles.dropdown.icon"
+          :icon="prependIcon"
+        />
+      </slot>
 
-    <span
-      v-else
-      :class="[
-        styles.dropdownItem.root,
-        active ? styles.dropdownItem.active : '',
-        selected ? styles.dropdownItem.selected : '',
-      ]"
-    >
-      <upw-avatar
-        v-if="avatar"
-        :avatar="avatar"
-        :class="styles.dropdownItem.avatar"
-        :size="size"
-      />
+      <!-- default 'slot' -->
+      <span class="label" :class="styles.dropdown.label" v-if="label">
+        {{ label }}
+      </span>
 
-      <upw-icon
-        v-if="icon"
-        :icon="icon"
-        :class="styles.dropdownItem.icon"
-        :size="size"
-      />
-      <span :class="styles.dropdownItem.label">{{ label }}</span>
-    </span>
+      <!-- append slot -->
+      <slot
+        name="append"
+        v-bind="{
+          styles: styles.dropdown,
+          appendIcon,
+          appendAvatar,
+          appendText,
+          size,
+          label,
+          selected,
+          disabled,
+          loading,
+        }"
+      >
+        <upw-icon
+          v-if="appendIcon"
+          :class="styles.dropdown.icon"
+          :icon="appendIcon"
+        />
+
+        <upw-avatar
+          v-if="appendAvatar"
+          class="avatar"
+          :class="styles.dropdown.avatar"
+          :avatar="appendAvatar"
+        />
+
+        <span
+          class="appendText"
+          :class="styles.dropdown.append"
+          v-if="appendText"
+        >
+          {{ appendText }}
+        </span>
+
+        <!-- loading  -->
+        <upw-spinner
+          :class="styles.dropdown.loading"
+          v-if="loading"
+          :size="size"
+        />
+      </slot>
+    </component>
   </h-menu-item>
 </template>
 
@@ -116,18 +103,24 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
+import { RouterLink } from "vue-router";
 import { MenuItem } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
 import UpwAvatar from "../avatar/Avatar.vue";
-import { RouterLink } from "vue-router";
+import UpwSpinner from "../spinner/Spinner.vue";
 
-// --- local
 // --- local
 import config from "./config.cva";
 import { useStyles } from "../../utils";
 
 // --- utils
 import { isFunction } from "lodash-es";
+
+// --- types
+import type { PropType } from "vue";
+import type { DropdownProps } from "./types";
+
+// -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpwDropdownItem",
@@ -137,13 +130,9 @@ export default defineComponent({
     HMenuItem: MenuItem,
     UpwIcon,
     UpwAvatar,
+    UpwSpinner,
   },
   props: {
-    size: {
-      type: String,
-      default: "md",
-      validator: value => ["sm", "md", "lg"].includes(value),
-    },
     group: {
       type: Boolean,
       default: false,
@@ -160,19 +149,30 @@ export default defineComponent({
       type: String,
       default: "_self",
     },
-    icon: {
-      type: [String, Object] as PropType<DropdownProps["icon"]>,
-      default: null,
+    // ---
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["sm", "md", "lg"].includes(value),
     },
-    avatar: {
-      type: [String, Object] as PropType<DropdownProps["avatar"]>,
-      default: null,
-    },
-
+    // ---
     label: {
       type: String,
       default: "",
     },
+    // ---
+    appendAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
+    },
+    appendIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    appendText: { type: String },
+    // ---
+    prependAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
+    },
+    prependIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    prependText: { type: String },
+    // ---
     action: {
       type: Function,
       default: null,
@@ -186,19 +186,61 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    // --- Provide precalculated styles from parent. This is to avoid recalculating styles for each item.
-    styles: {
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: {
       type: Object,
       default: null,
     },
   },
   setup(props) {
-    const styles = useStyles(["dropdownItem"], toRefs(props), config);
+    const styles = useStyles(
+      ["dropdown"],
+      toRefs(props),
+      config,
+      props.upwindConfig
+    );
 
     return {
       isFunction,
       styles,
     };
+  },
+  computed: {
+    safeComponent() {
+      // external link
+      if (this?.href && !this.disabled && !this.group) return "a";
+
+      // internal link
+      if (this?.to && !this.disabled && !this.group) return "RouterLink";
+
+      // button
+      if (isFunction(this.action) && !this.disabled && !this.group)
+        return "button";
+
+      // fallback
+      return "span";
+    },
+    safeAttrs() {
+      if (this?.href && !this.disabled && !this.group)
+        return {
+          href: this.href,
+          target: this?.target,
+        };
+
+      // internal link
+      if (this?.to && !this.disabled && !this.group) return { to: this.to };
+
+      // button
+      if (isFunction(this.action) && !this.disabled && !this.group) return {};
+
+      // fallback
+      return {};
+    },
   },
 });
 </script>

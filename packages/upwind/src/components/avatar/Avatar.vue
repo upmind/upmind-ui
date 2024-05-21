@@ -13,7 +13,7 @@
       :class="styles.avatar.image"
     />
 
-    <figcaption :class="styles.caption" v-else-if="hasCaption">
+    <figcaption :class="styles.avatar.caption" v-else-if="hasCaption">
       {{ avatar.caption }}
     </figcaption>
   </figure>
@@ -46,8 +46,8 @@ export default defineComponent({
   props: {
     size: {
       type: String,
-      default: "md",
-      validator: value => ["sm", "md", "lg"].includes(value),
+      default: "auto",
+      validator: value => ["auto", "sm", "md", "lg"].includes(value),
     },
     avatar: {
       type: [String, Object] as PropType<AvatarProps["avatar"]>,

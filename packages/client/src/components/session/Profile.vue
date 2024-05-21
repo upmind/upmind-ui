@@ -6,9 +6,9 @@
     :placement="placement"
     grouped
     :disabled="meta.isProcessing"
-    :upwind-config="{ dropdownButton: config.profile }"
+    :upwind-config="{ dropdown: config.profile }"
     :loading="meta.isProcessing"
-    :avatar="user?.avatar"
+    :prepend-avatar="user?.avatar"
     :label="user?.display"
     :toggle="null"
   />
@@ -19,7 +19,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- components
-import {  UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind/upwind";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
@@ -27,7 +27,6 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- types
-//import type { PropType } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -35,7 +34,6 @@ export default defineComponent({
   name: "UpmProfile",
   components: {
     UpwDropdown,
-    ,
   },
   inheritAttrs: true,
   customOptions: {},

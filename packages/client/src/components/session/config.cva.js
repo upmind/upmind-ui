@@ -32,12 +32,9 @@ export default {
   },
 
   profile: {
-    root: cva("p-0"),
-    loading: cva("size-8 bg-base-200 text-base-300"),
+    trigger: cva("p-0 rounded-full"),
+    loading: cva(""),
     label: cva("sr-only"),
-    avatar: cva(
-      "bg-base-200 size-8 flex-shrink-0 overflow-hidden rounded-full flex items-center justify-center"
-    ),
-    image: cva("h-full w-full object-cover"),
+    avatar: cva("size-8 my-0"),
   },
 };

@@ -1,13 +1,14 @@
 <template>
   <upw-dropdown
     v-if="currencies?.length > 1 || meta.isLoading"
-    :label="`${model?.prefix || model?.suffix || ''}${model ? ' ' : ''}${model?.code || ''}`"
+    :label="model?.code"
     :items="currencies"
     :size="size"
     :placement="placement"
     :disabled="meta.isLoading || meta.isProcessing"
     :upwind-config="{ listboxButton: config.currency }"
     :loading="meta.isLoading || meta.isProcessing"
+    :prepend-text="model?.prefix || model?.suffix"
   >
   </upw-dropdown>
 </template>
@@ -28,7 +29,6 @@ import config from "./config.cva";
 import { map } from "lodash-es";
 
 // --- types
-import type { PropType } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -62,7 +62,8 @@ export default defineComponent({
       config,
       currencies: computed(() => {
         return map(basketCurrency.currencies.value, currency => ({
-          label: `${currency.prefix || currency.suffix} ${currency.code}`,
+          prependText: currency?.prefix || currency?.suffix,
+          label: currency.code,
           value: currency.code,
           selected: currency.code === basketCurrency.model.value.code,
 
