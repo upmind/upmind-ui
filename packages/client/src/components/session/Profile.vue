@@ -4,9 +4,9 @@
     :items="items"
     :size="size"
     :placement="placement"
-    density="compact"
     grouped
     :disabled="meta.isProcessing"
+    :upwind-config="{ dropdownButton: config.profile }"
   >
     <template #trigger="">
       <upw-spinner :class="styles.profile.loading" v-if="meta.isProcessing" />
@@ -78,6 +78,7 @@ export default defineComponent({
     return {
       ...session,
       styles,
+      config,
     };
   },
   computed: {

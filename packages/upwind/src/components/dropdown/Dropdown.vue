@@ -96,11 +96,6 @@ export default defineComponent({
     UpwDropdownItem,
   },
   props: {
-    density: {
-      type: String,
-      default: "normal",
-      validator: value => ["compact", "normal", "comfortable"].includes(value),
-    },
     size: {
       type: String,
       default: "md",
