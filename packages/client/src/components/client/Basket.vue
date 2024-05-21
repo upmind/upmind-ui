@@ -94,7 +94,7 @@ import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "Upmclient",
+  name: "UpmClient",
   components: {
     UpwSkeletonList,
     UpwButton,

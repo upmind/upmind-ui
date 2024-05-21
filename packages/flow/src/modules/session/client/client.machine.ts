@@ -357,14 +357,19 @@ export default createMachine(
       }),
       // ---
       setError: assign({
-        error: (_context, { data: { error } }) => {
+        error: (_context, event) => {
+          // TEMP: try catch the race condition on refresh token
+          debugger;
+          const { data } = event;
+          debugger;
           if (error?.code == 422) {
+            debugger;
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            return useValidationParser(error);
+            return useValidationParser(data?.error);
           }
-
-          return error;
+          debugger;
+          return ata?.error;
         },
       }),
       escalateError: escalate(({ error }) => error),

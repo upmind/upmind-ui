@@ -7,30 +7,11 @@
     grouped
     :disabled="meta.isProcessing"
     :upwind-config="{ dropdownButton: config.profile }"
-  >
-    <template #trigger="">
-      <upw-spinner :class="styles.profile.loading" v-if="meta.isProcessing" />
-
-      <figure v-else class="avatar" :class="styles.profile.avatar">
-        <img
-          v-if="user?.avatar?.url"
-          :src="user.avatar.url"
-          alt="user profile avatar "
-          :class="styles.profile.image"
-        />
-        <figcaption
-          :class="styles.profile.caption"
-          v-else-if="user?.avatar?.initials"
-        >
-          {{ user.avatar.initials }}
-        </figcaption>
-      </figure>
-
-      <span class="label" :class="styles.profile.label">
-        {{ user?.display }}
-      </span>
-    </template>
-  </upw-dropdown>
+    :loading="meta.isProcessing"
+    :avatar="user?.avatar"
+    :label="user?.display"
+    :toggle="null"
+  />
 </template>
 
 <script>
@@ -51,7 +32,7 @@ import config from "./config.cva";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "Profile",
+  name: "UpmProfile",
   components: {
     UpwDropdown,
     UpwSpinner,

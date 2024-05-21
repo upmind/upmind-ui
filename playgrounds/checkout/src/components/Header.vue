@@ -63,6 +63,7 @@
       </div>
       <!-- #END TEMP -->
 
+      <upm-currency />
       <upm-profile />
     </nav>
   </header>
@@ -71,7 +72,7 @@
 <script>
 import { defineComponent } from "vue";
 import Logo from "@/assets/logo.svg";
-import { UpwListbox, UpmProfile } from "@upmind/client";
+import { UpwListbox, UpmProfile, UpmCurrency } from "@upmind/client";
 
 export default defineComponent({
   name: "UpmHeader",
@@ -79,6 +80,7 @@ export default defineComponent({
     Logo,
     UpwListbox,
     UpmProfile,
+    UpmCurrency,
   },
   computed: {
     locales() {
