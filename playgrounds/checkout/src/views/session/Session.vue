@@ -4,8 +4,8 @@
       <template #footer="{ meta }">
         <template v-if="meta.showRegisterForm">
           <p class="m-0">
-            This form is protected by reCAPTCHA and Google's 
-            <a href="#"> Privacy policy</a> and 
+            This form is protected by reCAPTCHA and Google's
+            <a href="#"> Privacy policy</a> and
             <a href="#">Terms of service</a> apply.
           </p>
           <p class="m-0">
@@ -21,7 +21,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { UpmSession } from "@upmind/client";
+import { UpmSession } from "@upmind/client-vue";
 import { getLocalMessages } from "@/utils";
 
 export default defineComponent({

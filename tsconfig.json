@@ -27,7 +27,7 @@
     { "path": "packages/flow" },
     { "path": "packages/flow" },
     { "path": "packages/flow-vue" },
-    { "path": "packages/client" },
+    { "path": "packages/client-vue" },
     { "path": "packages/upwind" }
   ],
   "exclude": ["node_modules", "dist", "*.d.ts"]
