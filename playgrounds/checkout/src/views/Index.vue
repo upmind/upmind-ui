@@ -89,10 +89,9 @@
 // --- external
 
 // --- internal
-import { useBasket } from "@upmind/flow-vue";
 
 // ---components
-import { UpwDropdown, UpwButton } from "@upmind/client-vue";
+import { useBasket, UpwDropdown, UpwButton } from "@upmind/client-vue";
 
 // --- utils
 // ---------------------------------------------------
