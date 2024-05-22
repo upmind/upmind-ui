@@ -17,9 +17,10 @@ export { default as UpwSelect } from "./components/select/Select.vue";
 export { default as UpwSkeletonForm } from "./components/skeleton/SkeletonForm.vue";
 export { default as UpwSkeletonList } from "./components/skeleton/SkeletonList.vue";
 export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
+export { default as UpwSteps } from "./components/steps/Steps.vue";
 export { default as UpwTabs } from "./components/tabs/Tabs.vue";
 export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
 export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
 // ---
-export { useStyles, useThemes } from "./utils";
+export { useStyles, useThemes, useScrollSpy } from "./utils";

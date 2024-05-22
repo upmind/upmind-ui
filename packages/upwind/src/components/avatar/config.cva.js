@@ -23,7 +23,7 @@ export default {
     ),
     icon: cva("m-1 h-full w-full object-cover"),
     image: cva("h-full w-full object-cover"),
-    caption: cva("m-0 text-current transition", {
+    caption: cva("m-0 text-current", {
       variants: {
         size: {
           xs: "text-xs",
