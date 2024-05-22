@@ -4,6 +4,7 @@
       <h-listbox-button
         :class="[styles.listbox.trigger, open ? styles.listbox.active : '']"
         ref="reference"
+        :disabled="disabled || loading"
       >
         <!-- prepend slot-->
         <slot

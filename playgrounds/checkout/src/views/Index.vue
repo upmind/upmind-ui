@@ -1,29 +1,104 @@
 <template>
   <article class="flex flex-col items-center justify-center gap-4">
-    <h1>Loading Basket...</h1>
+    <h1 class="flex justify-center gap-4">
+      <span>Basket</span>
+
+      <span v-if="meta.isLoading">
+        is <span class="text-primary">Loading</span>
+      </span>
+
+      <span v-if="meta.isProcessing">
+        is <span class="text-primary">Updating</span>
+      </span>
+
+      <template v-if="!meta.isLoading && !meta.isProcessing">
+        <!-- Main Statuses -->
+        <span v-if="meta.isComplete">
+          is <span class="text-primary">Paid and Complete!</span>
+        </span>
+
+        <span v-else-if="meta.isPaying">
+          is <span class="text-primary">Attempting Payment</span>
+        </span>
+
+        <span v-else-if="meta.isConverting">
+          is <span class="text-primary">Converting to an Order</span>
+        </span>
+
+        <span v-else-if="meta.isCheckout">
+          is <span class="text-primary">Gathering Payment Details</span>
+        </span>
+
+        <span v-else-if="meta.isReadyForCheckout">
+          is <span class="text-primary">Ready for Checkout</span>
+        </span>
+
+        <!-- ----- -->
+        <!-- Shopping Statuses -->
+        <span v-else-if="!meta.isAvailable">
+          is <span class="text-primary">Empty</span>
+        </span>
+
+        <span v-else-if="meta.needsUpdating">
+          needs <span class="text-primary">Updating</span>
+        </span>
+
+        <span v-else-if="!meta.hasProducts">
+          needs <span class="text-warning">Configuring</span>
+        </span>
+
+        <!-- <span v-else-if="meta.hasErrors">
+          needs <span class="text-warning">Attention</span>
+        </span> -->
+
+        <span v-else>
+          is <span class="text-warning">NOT</span> Ready for Checkout
+        </span>
+      </template>
+    </h1>
+
     <section>
       <upw-dropdown
         v-if="productCatalogue.length >= 1"
-        label="Select Product to Add to Basket"
-        :prepend-avatar="plus"
+        label="Add to Basket"
+        prepend-icon="add-to-basket"
         :items="productCatalogue"
+        :loading="meta.isLoading || meta.isProcessing"
       />
     </section>
+
+    <h3 v-if="meta.isAvailable" class="font-medium">
+      There {{ items.length > 1 ? "are" : "is" }}
+      <span class="text-primary">
+        {{ items.length }}
+      </span>
+      <span> product{{ items.length > 1 ? "s" : "" }} </span>
+      in the Basket
+    </h3>
+
+    <upw-button
+      v-if="meta.isAvailable"
+      label="Proceed to Checkout"
+      append-icon="arrow-right"
+      @click="() => $router.push({ name: 'checkout' })"
+    />
+
+    <pre>{{ meta }}</pre>
   </article>
 </template>
 
 <script setup>
 // --- external
-import { ref } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
 
 // ---components
-import { UpwDropdown } from "@upmind/client-vue";
+import { UpwDropdown, UpwButton } from "@upmind/client-vue";
 
+// --- utils
 // ---------------------------------------------------
-const { meta, addProduct } = useBasket();
+const { items, meta, addProduct } = useBasket();
 
 const productCatalogue = [
   {
@@ -31,7 +106,13 @@ const productCatalogue = [
     children: [
       {
         label: "Logo Design ( 99.99 )",
-        value: "47d73824-8507-9315-345f-81e642d59e06",
+        action: () => {
+          debugger;
+          addProduct({
+            product_id: "47d73824-8507-9315-345f-81e642d59e06",
+            quantity: 1,
+          });
+        },
       },
     ],
   },
@@ -40,7 +121,11 @@ const productCatalogue = [
     children: [
       {
         label: "Blocks ( 1500 )",
-        value: "3de78642-de53-9714-542c-21208469530d",
+        action: () =>
+          addProduct({
+            product_id: "3de78642-de53-9714-542c-21208469530d",
+            quantity: 1,
+          }),
       },
     ],
   },
@@ -49,15 +134,27 @@ const productCatalogue = [
     children: [
       {
         label: "Domain ( Terms Apply )",
-        value: "78985742-6489-7012-096c-21e325d0ed36",
+        action: () =>
+          addProduct({
+            product_id: "78985742-6489-7012-096c-21e325d0ed36",
+            quantity: 1,
+          }),
       },
       {
         label: "Meeting ( FREE )",
-        value: "47d73824-8507-9315-385b-81e642d59e06",
+        action: () =>
+          addProduct({
+            product_id: "47d73824-8507-9315-385b-81e642d59e06",
+            quantity: 1,
+          }),
       },
       {
         label: "Consulting Block ( 1500 )",
-        value: "5952098d-3de4-0917-e88b-31578626e347",
+        action: () =>
+          addProduct({
+            product_id: "5952098d-3de4-0917-e88b-31578626e347",
+            quantity: 1,
+          }),
       },
     ],
   },
@@ -66,14 +163,13 @@ const productCatalogue = [
     children: [
       {
         label: "Starter Hosting ( 5.00   )",
-        value: "5d085e69-d562-3719-7d6f-218e940d4237",
+        action: () =>
+          addProduct({
+            product_id: "5d085e69-d562-3719-7d6f-218e940d4237",
+            quantity: 1,
+          }),
       },
     ],
   },
 ];
-
-const model = ref({
-  product_id: null,
-  quantity: 1,
-});
 </script>

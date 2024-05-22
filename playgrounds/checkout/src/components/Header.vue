@@ -6,16 +6,16 @@
       class="relative mx-auto flex w-full flex-wrap items-center gap-4 px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-20"
       aria-label="Global"
     >
-      <a
+      <router-link
         class="flex h-10 w-auto items-center justify-between gap-3 text-xl font-semibold"
-        href="/"
+        to="/"
         aria-label="Brand"
       >
         <logo class="h-full w-full" />
         <span class="text-nowrap tracking-widest">{{
           $t("header.title")
         }}</span>
-      </a>
+      </router-link>
 
       <!-- TEMP -->
       <div class="flex flex-1 items-center justify-start gap-4">

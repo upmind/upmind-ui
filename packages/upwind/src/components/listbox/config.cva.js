@@ -86,7 +86,7 @@ export default {
           lg: "py-4 leading-7",
         },
         group: {
-          true: "pb-0 pl-1",
+          true: "pb-0",
         },
       },
 
