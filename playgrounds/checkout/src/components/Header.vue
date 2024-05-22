@@ -24,9 +24,9 @@
           size="sm"
           v-model="$i18n.locale"
           :label="$i18n.locale?.toUpperCase()"
-          :avatar="{
+          :prepend-avatar="{
             path: 'flags',
-            name: $i18n.locale,
+            name: $i18n.locale.toLowerCase(),
           }"
           :items="locales"
         />
@@ -88,7 +88,7 @@ export default defineComponent({
       return this.$i18n.availableLocales.map(locale => ({
         label: locale.toUpperCase(),
         value: locale,
-        avatar: {
+        prependAvatar: {
           path: "flags",
           name: locale,
         },

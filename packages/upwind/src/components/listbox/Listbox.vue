@@ -413,7 +413,7 @@ export default defineComponent({
 
       return this.label;
     },
-    selectedPependIcon() {
+    selectedPrependIcon() {
       if (this.multiple) {
         return this.prependIcon;
       } else {
@@ -421,7 +421,7 @@ export default defineComponent({
         return this.prependIcon || selected?.prependIcon;
       }
     },
-    selectedPependAvatar() {
+    selectedPrependAvatar() {
       if (this.multiple) {
         return this.prependAvatar;
       } else {
@@ -429,7 +429,7 @@ export default defineComponent({
         return this.prependAvatar || selected?.prependAvatar;
       }
     },
-    selectedPependText() {
+    selectedPrependText() {
       if (this.multiple) {
         return this.prependText;
       } else {

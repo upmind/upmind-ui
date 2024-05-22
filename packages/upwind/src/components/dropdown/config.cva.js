@@ -5,7 +5,7 @@ export default {
   dropdown: {
     root: cva("relative inline-flex"),
     items: cva(
-      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
+      "bg-base border-base-200 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border !p-0 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
     ),
     item: cva(
       "text-base-800 !m-0 flex  min-w-full cursor-pointer items-center justify-start gap-3 text-nowrap px-2 text-left text-sm no-underline focus:outline-none",
@@ -81,9 +81,9 @@ export default {
     label: cva("flex-1 truncate leading-none", {
       variants: {
         size: {
-          sm: "px-3 py-2 leading-5",
-          md: "px-3 py-3 leading-6",
-          lg: "px-3 py-4 leading-7",
+          sm: "py-2 leading-5",
+          md: "py-3 leading-6",
+          lg: "py-4 leading-7",
         },
         group: {
           true: "pb-0 pl-1",
@@ -159,13 +159,6 @@ export default {
         },
       }
     ),
-  },
-
-  listboxSearch: {
-    input: cva(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-20"
-    ),
-    root: cva("bg-base sticky top-[-0.25rem] -m-1 p-2 text-sm shadow-sm"),
   },
 
   dropdownTransitionEnter: {
