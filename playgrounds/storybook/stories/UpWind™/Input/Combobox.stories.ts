@@ -6,7 +6,7 @@ import { UpwCombobox, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
-import countries from "../../utils/countries";
+import countries from "../../../utils/countries";
 
 // --- types
 
