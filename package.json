@@ -61,7 +61,7 @@
     "packages/flow",
     "packages/flow-vue",
     "packages/upwind",
-    "packages/client",
+    "packages/client-vue",
     "playgrounds/labs",
     "playgrounds/checkout",
     "playgrounds/storybook"

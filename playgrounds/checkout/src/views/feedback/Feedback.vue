@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useFeedback, UpwButton } from "@upmind/client";
+import { useFeedback, UpwButton } from "@upmind/client-vue";
 import UpmMessage from "./MessageLog.vue";
 import { useTimestamp } from "@vueuse/core";
 import { forEach, random, nth, some, filter } from "lodash-es";

@@ -5,7 +5,7 @@ import {
   useSession,
   useSystem,
   useBasket,
-} from "@upmind/client";
+} from "@upmind/client-vue";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
