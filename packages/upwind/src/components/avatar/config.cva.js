@@ -8,9 +8,12 @@ export default {
       {
         variants: {
           size: {
-            sm: "size-6",
-            md: "size-8",
+            xs: "size-6",
+            sm: "size-8",
+            md: "size-10",
             lg: "size-12",
+            xl: "size-14",
+            "2xl": "size-16",
           },
         },
         defaultVariants: {
@@ -23,9 +26,12 @@ export default {
     caption: cva("m-0", {
       variants: {
         size: {
+          xs: "text-xs",
           sm: "text-xs",
           md: "text-md",
           lg: "text-lg",
+          xl: "text-xl",
+          "2xl": "text-2xl",
         },
       },
       defaultVariants: {

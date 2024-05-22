@@ -15,7 +15,7 @@ const meta: Meta<typeof UpwAvatar> = {
   component: UpwAvatar,
   argTypes: {
     avatar: useSystemArgTypes.flag,
-    size: useSystemArgTypes.size,
+    size: useSystemArgTypes.allSizes,
   },
   args: {
     avatar: { caption: "DC" },
