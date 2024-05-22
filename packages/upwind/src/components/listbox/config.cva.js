@@ -154,7 +154,7 @@ export default {
       }
     ),
     append: cva(
-      "border-base-300 -ml-2 flex items-start self-stretch rounded-e-lg border-l ",
+      "border-base-300 -mr-2 flex items-start self-stretch rounded-e-lg border-l ",
       {
         variants: {
           size: {

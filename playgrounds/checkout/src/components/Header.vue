@@ -35,12 +35,11 @@
         <RouterLink
           to="/checkout"
           class="relative inline-flex items-center gap-2 pr-3 text-base-700 hover:text-base-content"
-          exactActiveClass="text-primary underline"
         >
           <upw-avatar
             :key="items?.length"
             v-if="items?.length"
-            class="animate-once absolute -top-2 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
+            class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
           >
             {{ items.length }}
           </upw-avatar>

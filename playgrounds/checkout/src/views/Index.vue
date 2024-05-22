@@ -107,7 +107,6 @@ const productCatalogue = [
       {
         label: "Logo Design ( 99.99 )",
         action: () => {
-          debugger;
           addProduct({
             product_id: "47d73824-8507-9315-345f-81e642d59e06",
             quantity: 1,

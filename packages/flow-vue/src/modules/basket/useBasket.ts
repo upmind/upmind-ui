@@ -124,7 +124,10 @@ export const useBasket = () => {
 
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
-        hasAccount: stateMatches(state, ["shopping.account.complete"]),
+        hasAccount: stateMatches(state, [
+          "shopping.account.complete",
+          "checkout",
+        ]),
 
         // ---
 

@@ -1,21 +1,19 @@
 <template>
-  <figure
-    class="avatar"
-    :class="styles.avatar.root"
-    v-if="hasIcon || hasImage || hasCaption"
-  >
-    <upw-icon v-if="hasIcon" :icon="avatar" :class="styles.avatar.icon" />
+  <figure class="avatar" :class="styles.avatar.root">
+    <slot>
+      <upw-icon v-if="hasIcon" :icon="avatar" :class="styles.avatar.icon" />
 
-    <img
-      v-else-if="hasImage"
-      :src="avatar.src"
-      alt="avatar"
-      :class="styles.avatar.image"
-    />
+      <img
+        v-else-if="hasImage"
+        :src="avatar.src"
+        alt="avatar"
+        :class="styles.avatar.image"
+      />
 
-    <figcaption :class="styles.avatar.caption" v-else-if="hasCaption">
-      {{ avatar.caption }}
-    </figcaption>
+      <figcaption :class="styles.avatar.caption" v-else-if="hasCaption">
+        {{ avatar.caption }}
+      </figcaption>
+    </slot>
   </figure>
 </template>
 
@@ -47,12 +45,11 @@ export default defineComponent({
     size: {
       type: String,
       default: "auto",
-      validator: value =>
+      validator: (value: string) =>
         ["auto", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
     },
     avatar: {
       type: [String, Object] as PropType<AvatarProps["avatar"]>,
-      required: true,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
