@@ -4,7 +4,7 @@
       <span>Basket</span>
 
       <span v-if="meta.isLoading">
-        is <span class="text-primary">Loading</span>
+        is <span class="text-primary">Loading&hellip;</span>
       </span>
 
       <span v-if="meta.isProcessing">
@@ -59,11 +59,11 @@
 
     <section>
       <upw-dropdown
-        v-if="productCatalogue.length >= 1"
+        v-if="!meta.isLoading && productCatalogue.length >= 1"
         label="Add to Basket"
         prepend-icon="add-to-basket"
         :items="productCatalogue"
-        :loading="meta.isLoading || meta.isProcessing"
+        :loading="meta.isProcessing"
       />
     </section>
 
@@ -82,8 +82,6 @@
       append-icon="arrow-right"
       @click="() => $router.push({ name: 'checkout' })"
     />
-
-    <pre>{{ meta }}</pre>
   </article>
 </template>
 
