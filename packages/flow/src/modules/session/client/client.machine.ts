@@ -257,6 +257,7 @@ export default createMachine(
           // if we are unauthorized (refresh token has expired),
           // we will clear the token and go back to our unauthenticated state
           // which will generate a new token
+          // TODO: If the refresh token is expired, we should prompt the user to login again
           refreshing: {
             invoke: {
               src: "refreshToken",
@@ -358,18 +359,23 @@ export default createMachine(
       // ---
       setError: assign({
         error: (_context, event) => {
-          // TEMP: try catch the race condition on refresh token
-          debugger;
           const { data } = event;
-          debugger;
-          if (error?.code == 422) {
-            debugger;
+
+          if (data?.error?.code == responseCodes.Unauthorized) {
+            // Usually because the refresh token has expired.
+            return {
+              code: responseCodes.Unauthorized,
+              message: data.error.message || "Unauthorized",
+            };
+          }
+
+          if (data?.error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(data?.error);
           }
-          debugger;
-          return ata?.error;
+
+          return data?.error;
         },
       }),
       escalateError: escalate(({ error }) => error),

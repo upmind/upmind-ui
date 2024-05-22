@@ -26,7 +26,7 @@ const meta: Meta<typeof UpwDropdown> = {
     toggle: useSystemArgTypes.icon,
   },
   args: {
-    label: "Select an option..",
+    label: "Menu of actions",
     size: "md",
     prependText: undefined,
     prependAvatar: undefined,
