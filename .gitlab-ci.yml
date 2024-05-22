@@ -1,0 +1,31 @@
+variables:
+  NODE_IMAGE: node:20.11.0-alpine3.19
+
+stages:
+  - deploy
+  - stop
+
+include:
+  - local: .gitlab-ci/storybook.yml
+    rules:
+      - changes:
+          paths:
+            - ./playgrounds/storybook/**
+
+      - if: $CI_FORCE_STORYBOOK == "true"
+
+workflow:
+  rules:
+    # Prefer MR pipelines; fall back to branch pipelines; but no duplicates!
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+# This is needed due to some weirdness with gitlab-ci include and rules
+dummy job:
+  stage: deploy
+  rules:
+    - when: never
+  script:
+    - echo 'This job should not run'
