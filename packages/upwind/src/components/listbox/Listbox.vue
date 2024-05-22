@@ -211,7 +211,7 @@
                   v-if="iconSelected"
                   :icon="iconSelected"
                   :class="[
-                    styles.listbox.toggle,
+                    styles.listbox.selected,
                     { invisible: !selected, 'pointer-events-none': !selected },
                   ]"
                   aria-hidden="true"
