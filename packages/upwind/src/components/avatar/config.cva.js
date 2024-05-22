@@ -21,7 +21,7 @@ export default {
         },
       }
     ),
-    icon: cva("h-full w-full object-cover"),
+    icon: cva("m-1 h-full w-full object-cover"),
     image: cva("h-full w-full object-cover"),
     caption: cva("m-0 text-current transition", {
       variants: {

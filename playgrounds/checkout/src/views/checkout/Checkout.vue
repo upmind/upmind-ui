@@ -1,16 +1,17 @@
 <template>
   <article class="flex flex-col">
     <upm-breadcrumb />
+
+    <pre>{{ meta }}</pre>
+
     <section
       id="overview"
-      class="min-h-[70vh] border border-dashed py-20 text-center"
+      class="flex min-h-[70vh] flex-col items-center justify-center gap-8 border border-dashed py-20 text-center"
     >
       {{ $t("checkout.overview") }}
 
-      <div class="mt-8 flex items-center justify-center">
-        <span
-          class="relative inline-flex items-center gap-2 pr-3 text-base-700 hover:text-base-content"
-        >
+      <div class="flex items-center justify-center">
+        <span class="relative inline-flex items-center gap-2 pr-3">
           <upw-avatar
             :key="items?.length"
             v-if="items?.length"
@@ -66,10 +67,11 @@ export default defineComponent({
   i18n: { messages: getLocalMessages("checkout") },
   components: { UpmBreadcrumb, UpmSession, UpwIcon, UpwAvatar },
   setup() {
-    const { items } = useBasket();
+    const { items, meta } = useBasket();
 
     return {
       items,
+      meta,
     };
   },
   mounted() {

@@ -11,7 +11,7 @@ export default {
     footer: cva(
       "text-sm flex flex-col gap-2 font-light leading-tight tracking-tight"
     ),
-    content: cva("rounded-box items-start my-8"),
+    content: cva("rounded-box items-start my-8 max-w-3xl"),
   },
 
   sessionTransitionEnter: {
