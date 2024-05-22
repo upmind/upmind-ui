@@ -1,16 +1,50 @@
 <template>
-  <article class="flex flex-col gap-4">
+  <article class="flex flex-col">
     <upm-breadcrumb />
-    <section id="overview" class="min-h-screen border border-dashed">
+    <section
+      id="overview"
+      class="min-h-[70vh] border border-dashed py-20 text-center"
+    >
       {{ $t("checkout.overview") }}
+
+      <div class="mt-8 flex items-center justify-center">
+        <span
+          class="relative inline-flex items-center gap-2 pr-3 text-base-700 hover:text-base-content"
+        >
+          <upw-avatar
+            :key="items?.length"
+            v-if="items?.length"
+            size="xs"
+            class="absolute -top-2 right-0 bg-primary text-xs text-primary-content"
+          >
+            {{ items.length }}
+          </upw-avatar>
+
+          <upw-icon icon="basket" size="2xl" />
+
+          <span class="sr-only">{{ $t("header.checkout") }}</span>
+        </span>
+      </div>
     </section>
-    <section id="account" class="min-h-screen border border-dashed">
-      {{ $t("checkout.account") }}
+
+    <section
+      id="account"
+      class="flex min-h-[70vh] flex-col items-start justify-start py-20"
+    >
+      <upm-session />
     </section>
-    <section id="payment" class="min-h-screen border border-dashed">
+
+    <section
+      id="payment"
+      class="min-h-72 min-h-[70vh] border border-dashed py-20"
+    >
       {{ $t("checkout.payment") }}
     </section>
-    <section id="confirmation" class="min-h-screen border border-dashed">
+
+    <section
+      id="confirmation"
+      class="min-h-72 min-h-[70vh] border border-dashed py-20"
+    >
       {{ $t("checkout.confirmation") }}
     </section>
   </article>
@@ -22,7 +56,7 @@ import { defineComponent } from "vue";
 
 // -- components
 import UpmBreadcrumb from "./components/Breadcrumb.vue";
-
+import { UpmSession, useBasket, UpwIcon, UpwAvatar } from "@upmind/client-vue";
 // -- utils
 import { getLocalMessages } from "@/utils";
 
@@ -30,9 +64,13 @@ import { getLocalMessages } from "@/utils";
 export default defineComponent({
   name: "Checkout",
   i18n: { messages: getLocalMessages("checkout") },
-  components: { UpmBreadcrumb },
+  components: { UpmBreadcrumb, UpmSession, UpwIcon, UpwAvatar },
   setup() {
-    return {};
+    const { items } = useBasket();
+
+    return {
+      items,
+    };
   },
   mounted() {
     // force the route to have a hash of the first step

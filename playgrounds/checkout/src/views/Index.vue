@@ -43,16 +43,18 @@
           needs <span class="text-primary">Updating</span>
         </span>
 
-        <span v-else-if="!meta.hasProducts">
+        <!-- <span v-else-if="!meta.hasProducts">
           needs <span class="text-warning">Configuring</span>
-        </span>
+        </span> -->
 
         <!-- <span v-else-if="meta.hasErrors">
           needs <span class="text-warning">Attention</span>
         </span> -->
 
         <span v-else>
-          is <span class="text-warning">NOT</span> Ready for Checkout
+          needs <span class="text-warning">Configuring</span>
+
+          <!-- is <span class="text-warning">NOT</span> Ready for Checkout -->
         </span>
       </template>
     </h1>
@@ -61,7 +63,7 @@
       <upw-dropdown
         v-if="!meta.isLoading && productCatalogue.length >= 1"
         label="Add to Basket"
-        prepend-icon="add-to-basket"
+        prepend-icon="basket-plus"
         :items="productCatalogue"
         :loading="meta.isProcessing"
       />
@@ -79,6 +81,7 @@
     <upw-button
       v-if="meta.isAvailable"
       label="Proceed to Checkout"
+      prepend-icon="basket"
       append-icon="arrow-right"
       @click="() => $router.push({ name: 'checkout' })"
     />

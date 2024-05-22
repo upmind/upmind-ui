@@ -17,8 +17,7 @@
         }}</span>
       </router-link>
 
-      <!-- TEMP -->
-      <div class="flex flex-1 items-center justify-start gap-4">
+      <div class="flex flex-1 items-center justify-end gap-8">
         <upw-listbox
           v-if="$i18n?.locale && locales.length >= 1"
           size="sm"
@@ -30,42 +29,29 @@
           }"
           :items="locales"
         />
-      </div>
 
-      <div class="flex items-center justify-end gap-4">
+        <upm-currency />
+
         <RouterLink
           to="/checkout"
-          class="hover:underline"
+          class="relative inline-flex items-center gap-2 pr-3 text-base-700 hover:text-base-content"
           exactActiveClass="text-primary underline"
         >
-          {{ $t("header.checkout") }}
-        </RouterLink>
-        <RouterLink
-          to="/offers"
-          class="hover:underline"
-          exactActiveClass="text-primary underline"
-        >
-          {{ $t("header.offers") }}
-        </RouterLink>
-        <RouterLink
-          to="/session"
-          class="hover:underline"
-          exactActiveClass="text-primary underline"
-        >
-          {{ $t("header.session") }}
-        </RouterLink>
-        <RouterLink
-          to="/client"
-          class="hover:underline"
-          exactActiveClass="text-primary underline"
-        >
-          {{ $t("header.client") }}
-        </RouterLink>
-      </div>
-      <!-- #END TEMP -->
+          <upw-avatar
+            :key="items?.length"
+            v-if="items?.length"
+            class="animate-once absolute -top-2 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
+          >
+            {{ items.length }}
+          </upw-avatar>
 
-      <upm-currency />
-      <upm-profile />
+          <upw-icon icon="basket" size="sm" />
+
+          <span class="sr-only">{{ $t("header.checkout") }}</span>
+        </RouterLink>
+
+        <upm-profile />
+      </div>
     </nav>
   </header>
 </template>
@@ -73,15 +59,31 @@
 <script>
 import { defineComponent } from "vue";
 import Logo from "@/assets/logo.svg";
-import { UpwListbox, UpmProfile, UpmCurrency } from "@upmind/client-vue";
+import {
+  useBasket,
+  UpwListbox,
+  UpmProfile,
+  UpmCurrency,
+  UpwAvatar,
+  UpwIcon,
+} from "@upmind/client-vue";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
     Logo,
+    UpwAvatar,
+    UpwIcon,
     UpwListbox,
     UpmProfile,
     UpmCurrency,
+  },
+  setup() {
+    const { items } = useBasket();
+
+    return {
+      items,
+    };
   },
   computed: {
     locales() {
@@ -97,3 +99,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped lang="scss">
+.animate-once {
+  animation-iteration-count: 1 !important;
+}
+</style>
