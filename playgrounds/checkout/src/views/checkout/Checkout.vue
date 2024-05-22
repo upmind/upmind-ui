@@ -74,9 +74,27 @@ export default defineComponent({
       meta,
     };
   },
+  watch: {
+    meta: "scrollTo",
+  },
   mounted() {
-    // force the route to have a hash of the first step
-    if (!this.$route?.hash) this.$router.push({ hash: "#overview" });
+    this.scrollTo();
+  },
+
+  methods: {
+    scrollTo() {
+      // force the route to have a hash of the appropriate step
+
+      if (!this.$route?.hash && !this.meta.isLoading) {
+        if (!this.meta.hasProducts || !this.meta.hasFields) {
+          this.$router.push({ hash: "#overview" });
+        } else if (!this.meta.hasAccount) {
+          this.$router.push({ hash: "#account" });
+        } else {
+          this.$router.push({ hash: "#payment" });
+        }
+      }
+    },
   },
 });
 </script>

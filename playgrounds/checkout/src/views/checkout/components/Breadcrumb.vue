@@ -7,20 +7,22 @@
         :is="step.disabled ? 'button' : 'router-link'"
         :to="step.disabled ? null : { hash: step.hash }"
         :disabled="step.disabled"
-        class="m-0 flex items-center gap-3 border-b-2 border-transparent py-8 font-light leading-none no-underline transition disabled:pointer-events-none disabled:opacity-50"
+        class="t m-0 flex items-center gap-3 border-b-2 border-transparent py-8 font-light leading-none no-underline transition disabled:pointer-events-none disabled:opacity-50"
         :class="[
           {
             'font-medium': step.hash == $route?.hash || step.complete,
-            'text-primary': step.complete,
+            'text-base-content': step.complete,
             '!border-primary': step.hash == $route?.hash,
           },
         ]"
       >
+        <upw-spinner v-if="meta.isLoading" size="xs" class="text-primary" />
+
         <upw-avatar
-          v-if="step.complete"
+          v-else-if="step.complete"
           avatar="check-circle"
           size="xs"
-          class="bg-primary-content"
+          class="bg-primary-content text-primary"
         />
 
         <upw-avatar
@@ -37,6 +39,15 @@
         <span>{{ step.label }}</span>
       </component>
     </template>
+
+    <upw-button
+      :disabled="!meta.isReadyForCheckout || meta.isProcessing"
+      @click.prevent="doCheckout"
+      color="primary"
+      class="ml-auto"
+    >
+      Submit order and pay
+    </upw-button>
   </nav>
 </template>
 
@@ -45,11 +56,16 @@
 import { defineComponent, computed } from "vue";
 
 // -- components
-import { useBasket, UpwAvatar } from "@upmind/client-vue";
+import {
+  useBasket,
+  UpwAvatar,
+  UpwButton,
+  UpwSpinner,
+} from "@upmind/client-vue";
 const { meta, checkout } = useBasket();
 
 export default defineComponent({
-  components: { UpwAvatar },
+  components: { UpwAvatar, UpwButton, UpwSpinner },
   props: {},
   setup() {
     return {
