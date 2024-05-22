@@ -118,6 +118,16 @@ export default {
         size: "md",
       },
     }),
+    selected: cva("mr-2", {
+      variants: {
+        size: {
+          sm: "size-3",
+          md: "size-4",
+          lg: "size-5",
+        },
+      },
+    }),
+
     toggle: cva("mr-2 transition-all aria-checked:rotate-180", {
       variants: {
         size: {
