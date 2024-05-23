@@ -20,16 +20,18 @@ export default {
       heading: cva(
         "font-light m-0 flex gap-2 items-center flex-1 col-span-2 group"
       ),
+
       text: cva(
-        "text-left m-0 text-sm inline-flex items-start gap-2 leading-tight"
+        "text-left m-0 text-sm inline-flex items-start gap-2 leading-normal"
       ),
       value: cva("text-right m-0 flex-0"),
-      icon: cva("size-5 flex-0 leading-6"),
+      total: cva("font-medium "),
+      icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),
       tooltip: cva("m-0 text-xs hidden group-hover:block leading-tight"),
 
-      footer: cva("font-light grid grid-cols-2 gap-2"),
-      actions: cva("col-span-2 mb-4"),
+      footer: cva("font-light flex flex-wrap gap-2 text-center justify-center"),
+      actions: cva("mb-4 w-full"),
     },
 
     coupons: {

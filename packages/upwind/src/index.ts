@@ -23,4 +23,4 @@ export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
 export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
 // ---
-export { useStyles, useThemes, useScrollSpy } from "./utils";
+export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";

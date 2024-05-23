@@ -26,10 +26,6 @@
       },
       "footer": [
         {
-          "icon": "history",
-          "text": "30 day money back guarantee"
-        },
-        {
           "icon": "lock",
           "text": "Encrypted and secure payments"
         }
