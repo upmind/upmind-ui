@@ -25,13 +25,14 @@ export default {
         "text-left m-0 text-sm inline-flex items-start gap-2 leading-normal"
       ),
       value: cva("text-right m-0 flex-0"),
+      product: cva("font-medium"),
       total: cva("font-medium "),
       icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),
       tooltip: cva("m-0 text-xs hidden group-hover:block leading-tight"),
 
-      footer: cva("font-light flex flex-wrap gap-2 text-center justify-center"),
-      actions: cva("mb-4 w-full"),
+      footer: cva("font-light flex flex-wrap gap-4 text-center justify-center"),
+      actions: cva("w-full flex gap-2 justify-end"),
     },
 
     coupons: {

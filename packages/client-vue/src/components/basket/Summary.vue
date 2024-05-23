@@ -1,5 +1,5 @@
 <template>
-  <aside :class="styles.basket.summary.root">
+  <aside :class="styles.basket.summary.root" v-if="meta.isAvailable">
     <div :class="styles.basket.summary.content">
       <header :class="styles.basket.summary.header">
         <h3 :class="styles.basket.summary.title">
@@ -9,11 +9,47 @@
 
       <!-- items -->
       <dl :class="styles.basket.summary.list">
-        <dt :class="styles.basket.summary.heading">
-          {{ $tc("basket.summary.items.title", items.length) }}
-        </dt>
+        <template v-for="product in summary.products" :key="product.id">
+          <dt
+            :class="
+              mergeStyles(
+                styles.basket.summary.heading,
+                styles.basket.summary.product
+              )
+            "
+          >
+            {{ product?.name }}
+          </dt>
 
-        <dd :class="styles.basket.summary.value">{{ items.length }}</dd>
+          <dd
+            :class="
+              mergeStyles(
+                styles.basket.summary.value,
+                styles.basket.summary.actions
+              )
+            "
+          >
+            <upw-button
+              type="button"
+              size="icon"
+              color="current"
+              icon-only
+              label="modify product"
+              prependIcon="edit"
+              @click="$emit('edit', product.id)"
+              disabled
+            />
+            <upw-button
+              type="button"
+              size="icon"
+              color="current"
+              icon-only
+              label="remove product"
+              prependIcon="remove"
+              @click="removeItem(product.id)"
+            />
+          </dd>
+        </template>
       </dl>
 
       <!-- coupons -->
@@ -127,10 +163,10 @@ export default defineComponent({
   name: "UpmBasket.summary",
   components: { UpwButton, UpwIcon },
   customOptions: {},
-  emits: [],
+  emits: ["edit"],
   props: {},
   setup() {
-    const { meta, checkout, items, summary } = useBasket();
+    const { meta, checkout, removeItem, items, summary } = useBasket();
 
     const styles = useStyles(["basket.summary"], meta, config);
 
@@ -139,6 +175,7 @@ export default defineComponent({
       items,
       summary,
       checkout,
+      removeItem,
       // ---
       styles,
       mergeStyles,
