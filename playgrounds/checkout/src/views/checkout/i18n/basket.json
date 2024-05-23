@@ -1,12 +1,15 @@
 {
-  "checkout": {
-    "breadcrumb": "TODO: Breadcrumb Section",
-    "overview": "TODO: Overview Section",
-    "account": "TODO: Account Section",
-    "payment": "TODO: Payment Section",
-    "confirmation": "TODO: Confirmation Section"
-  },
   "basket": {
+    "discount": {
+      "title": "Have a discount code?",
+      "tooltip": "Discount applied",
+      "actions": {
+        "submit": "Apply"
+      },
+      "active": {
+        "title": "Active discounts"
+      }
+    },
     "summary": {
       "title": "Order Summary",
       "items": {

@@ -2,7 +2,7 @@
 import { useApi } from "../api";
 
 // --- utils
-import { get } from "lodash-es";
+import { get, isEmpty } from "lodash-es";
 import { useUserParser } from "./utils";
 
 // --- types
@@ -66,7 +66,10 @@ async function getUser(_context: SessionContext, _event: any) {
     withAccessToken: true,
   })
     .then(({ data }) => useUserParser(data?.actor))
-    .then(data => data);
+    .then(data => {
+      if (isEmpty(data)) debugger;
+      return data;
+    });
 
   // const self = await dispatch(
   //   "api/call",

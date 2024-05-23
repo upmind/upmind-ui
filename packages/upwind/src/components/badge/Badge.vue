@@ -1,24 +1,26 @@
 <template>
   <span class="badge" :class="styles.badge.root" v-if="visible">
-    <slot v-if="meta.isLoading" name="loading" v-bind="{ meta }">
+    <slot v-if="loading" name="loading" v-bind="{ isLoading: loading }">
       <upw-spinner :class="styles.badge.spinner" class="loading" />
     </slot>
 
-    <slot name="prepend-icon" v-bind="{ meta, icon }">
+    <slot name="prepend" v-bind="{ icon }">
       <upw-icon v-if="icon" :class="styles.badge.icon" :icon="icon" />
     </slot>
 
-    <slot v-bind="{ meta, label }">
+    <slot v-bind="{ isLoading: loading, label }">
       <span :class="styles.badge.label" v-if="label" class="label">
         {{ label }}
       </span>
     </slot>
+
+    <slot name="append" v-bind="{ isLoading: loading, icon }"> </slot>
   </span>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, toRefs } from "vue";
+import { defineComponent, toRefs } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -82,17 +84,14 @@ export default defineComponent({
   },
 
   setup(props) {
-    const meta = computed(() => ({
-      color: props.color,
-      variant: props.variant,
-      // ---
-      isLoading: props.loading,
-    }));
-
-    const styles = useStyles("badge", meta, config, props.upwindConfig);
+    const styles = useStyles(
+      "badge",
+      toRefs(props),
+      config,
+      props.upwindConfig
+    );
 
     return {
-      meta,
       styles,
     };
   },

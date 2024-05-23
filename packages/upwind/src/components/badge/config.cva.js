@@ -145,7 +145,7 @@ export default {
 
     label: cva("font-normal", {
       variants: {
-        isLoading: {
+        loading: {
           true: "invisible opacity-0",
         },
       },
