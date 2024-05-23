@@ -54,10 +54,26 @@
 
       <!-- total -->
       <dl :class="styles.basket.summary.list">
-        <dt :class="styles.basket.summary.heading">
+        <dt
+          :class="
+            mergeStyles(
+              styles.basket.summary.heading,
+              styles.basket.summary.total
+            )
+          "
+        >
           {{ $t("basket.summary.total") }}
         </dt>
-        <dd :class="styles.basket.summary.value">{{ summary?.total }}</dd>
+        <dd
+          :class="
+            mergeStyles(
+              styles.basket.summary.value,
+              styles.basket.summary.total
+            )
+          "
+        >
+          {{ summary?.total }}
+        </dd>
       </dl>
     </div>
 
@@ -98,7 +114,7 @@ import { UpwButton, UpwIcon } from "@upmind/upwind";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
-import { useStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- utils
@@ -125,6 +141,7 @@ export default defineComponent({
       checkout,
       // ---
       styles,
+      mergeStyles,
     };
   },
   methods: {},

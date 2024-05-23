@@ -7,14 +7,17 @@
       @update:model-value="isScrolling = true"
     >
       <template #actions>
-        <upw-button
-          :disabled="!meta.isReadyForCheckout || meta.isProcessing"
-          @click.prevent="doCheckout"
-          color="primary"
-          class="ml-auto"
-        >
-          {{ $t("basket.summary.actions.submit") }}
-        </upw-button>
+        <div class="ml-auto w-full max-w-sm">
+          <upw-button
+            :disabled="!meta.isReadyForCheckout || meta.isProcessing"
+            @click.prevent="doCheckout"
+            color="primary"
+            class="ml-auto"
+            block
+          >
+            {{ $t("basket.summary.actions.submit") }}
+          </upw-button>
+        </div>
       </template>
     </upw-steps>
 
@@ -58,7 +61,7 @@
       id="payment"
       :class="[styles.checkout.section.root]"
       class="justify-between border border-dashed bg-base-100"
-      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      v-intersection-observer="[scrollSpy, { threshold: 0.1 }]"
     >
       <!-- <header :class="styles.checkout.section.header">
         <slot name="header" v-bind="{ meta }"></slot>
