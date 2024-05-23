@@ -22,7 +22,7 @@
 
     <section
       id="overview"
-      :class="[styles.section.root, styles.section.centered]"
+      :class="[styles.checkout.section.root, styles.checkout.section.centered]"
       class="border border-dashed bg-base-100"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
@@ -48,7 +48,7 @@
 
     <section
       id="account"
-      :class="styles.section.root"
+      :class="styles.checkout.section.root"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
       <upm-session />
@@ -56,28 +56,38 @@
 
     <section
       id="payment"
-      :class="[styles.section.root, styles.section.centered]"
-      class="border border-dashed bg-base-100"
+      :class="[styles.checkout.section.root]"
+      class="justify-between border border-dashed bg-base-100"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
-      {{ $t("checkout.payment") }}
-
-      <header :class="styles.section.header">
+      <!-- <header :class="styles.checkout.section.header">
         <slot name="header" v-bind="{ meta }"></slot>
-      </header>
+      </header> -->
 
-      <div :class="styles.section.content">
-        <upm-basket-summary />
+      <div :class="styles.checkout.section.content" class="max-w-xl flex-1">
+        {{ $t("checkout.payment") }}
+
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br />
       </div>
 
-      <footer :class="styles.section.footer">
+      <upm-basket-summary :class="styles.checkout.summary" />
+
+      <!-- <footer :class="styles.checkout.section.footer">
         <slot name="footer" v-bind="{ meta }"></slot>
-      </footer>
+      </footer> -->
     </section>
 
     <section
       id="confirmation"
-      :class="[styles.section.root, styles.section.centered]"
+      :class="[styles.checkout.section.root, styles.checkout.section.centered]"
       class="border border-dashed bg-base-100"
     >
       {{ $t("checkout.confirmation") }}
@@ -129,7 +139,7 @@ export default defineComponent({
     const { items, meta } = useBasket();
     const { isScrolling, scrollIntoView } = useScrollSpy();
 
-    const styles = useStyles(["section"], meta, config);
+    const styles = useStyles(["checkout", "checkout.section"], meta, config);
 
     return {
       styles,

@@ -84,7 +84,7 @@ export default defineComponent({
     selectable: { type: Boolean, default: true },
   },
   setup(props) {
-    const useClient = inject("client") as Function;
+    const useClient = inject("client");
 
     const { selected, loading, hidden, disabled, selectable } = toRefs(props);
 
