@@ -9,6 +9,8 @@ export const useScrollSpy = () => {
   function scrollIntoView(id, offset) {
     const element = document.getElementById(id);
 
+    if (!element) return; // bail if no element
+
     target.value = element.getBoundingClientRect().top - offset;
 
     const offsetPosition = (target.value + window.pageYOffset).toFixed();

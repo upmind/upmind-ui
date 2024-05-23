@@ -35,7 +35,6 @@ export default defineComponent({
   components: {
     UpwDropdown,
   },
-  inheritAttrs: true,
   customOptions: {},
   emits: [],
   props: {

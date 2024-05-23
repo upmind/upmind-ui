@@ -49,7 +49,7 @@
   </article>
 </template>
 
-<script lang="ts">
+<script>
 // --- external
 import { defineComponent, inject, toRefs } from "vue";
 

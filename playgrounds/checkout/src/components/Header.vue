@@ -19,7 +19,7 @@
 
       <div class="flex flex-1 items-center justify-end gap-8">
         <upw-listbox
-          v-if="$i18n?.locale && locales.length >= 1"
+          v-if="$i18n?.locale && locales.length > 1"
           size="sm"
           v-model="$i18n.locale"
           :label="$i18n.locale?.toUpperCase()"
