@@ -52,7 +52,7 @@
         </span> -->
 
         <span v-else>
-          needs <span class="text-warning">Configuring</span>
+          needs <span class="text-warning">Information</span>
 
           <!-- is <span class="text-warning">NOT</span> Ready for Checkout -->
         </span>
