@@ -1,26 +1,92 @@
 <template>
   <h-menu as="div" :class="styles.dropdown.root" v-slot="{ open }">
     <h-menu-button
-      :class="styles.dropdownButton.root"
+      :class="[styles.dropdown.trigger, open ? styles.dropdown.active : '']"
       ref="reference"
       :disabled="disabled"
     >
-      <slot name="trigger" v-bind="{ label, icon, toggle, toggleRotate, open }">
-        <upw-icon
-          v-if="icon"
-          :icon="icon"
-          class="btn-icon"
-          :class="styles.dropdownButton.icon"
-        />
-
-        <span class="label" :class="styles.dropdownButton.label" v-if="label">
-          {{ label }}
+      <!-- prepend slot-->
+      <slot
+        name="prepend"
+        v-bind="{
+          styles: styles.dropdown,
+          prependIcon,
+          prependAvatar,
+          prependText,
+          size,
+          label,
+          open,
+          disabled,
+          loading,
+        }"
+      >
+        <span v-if="prependText" :class="styles.dropdown.prepend">
+          {{ prependText }}
         </span>
 
+        <upw-avatar
+          v-if="prependAvatar"
+          :class="styles.dropdown.avatar"
+          :avatar="prependAvatar"
+        />
+
         <upw-icon
-          v-if="toggle"
+          v-if="prependIcon"
+          :class="styles.dropdown.icon"
+          :icon="prependIcon"
+        />
+      </slot>
+
+      <!-- default 'slot' -->
+      <span :class="styles.dropdown.label" v-if="label">
+        {{ label }}
+      </span>
+
+      <!-- append slot -->
+      <slot
+        name="append"
+        v-bind="{
+          styles: styles.dropdown,
+          appendIcon,
+          appendAvatar,
+          appendText,
+          size,
+          label,
+          toggle,
+          toggleRotate,
+          open,
+          disabled,
+          loading,
+        }"
+      >
+        <upw-icon
+          v-if="appendIcon"
+          :class="styles.dropdown.icon"
+          :icon="appendIcon"
+        />
+
+        <upw-avatar
+          v-if="appendAvatar"
+          class="avatar"
+          :class="styles.dropdown.avatar"
+          :avatar="appendAvatar"
+        />
+
+        <span :class="styles.dropdown.append" v-if="appendText">
+          {{ appendText }}
+        </span>
+
+        <!-- loading / toggle -->
+        <upw-spinner
+          :class="styles.dropdown.loading"
+          v-if="loading"
+          aria-hidden="true"
+        />
+
+        <upw-icon
+          v-else-if="toggle"
           :icon="toggle"
-          :class="styles.dropdownButton.toggle"
+          :class="styles.dropdown.toggle"
           :aria-checked="open && toggleRotate"
           aria-hidden="true"
         />
@@ -48,6 +114,7 @@
               v-if="item?.label || item?.icon"
               v-bind="item"
               group="true"
+              :size="size"
             />
 
             <!-- group items -->
@@ -55,11 +122,12 @@
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
+              :size="size"
             />
           </div>
 
           <!-- items -->
-          <upw-dropdown-item v-else v-bind="item" />
+          <upw-dropdown-item v-else v-bind="item" :size="size" />
         </template>
       </h-menu-items>
     </transition>
@@ -74,6 +142,8 @@ import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 // --- components
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwAvatar from "../avatar/Avatar.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
@@ -93,6 +163,8 @@ export default defineComponent({
     HMenuButton: MenuButton,
     HMenuItems: MenuItems,
     UpwIcon,
+    UpwAvatar,
+    UpwSpinner,
     UpwDropdownItem,
   },
   props: {
@@ -107,10 +179,19 @@ export default defineComponent({
       default: "",
     },
 
-    icon: {
-      type: [String, Object] as PropType<DropdownProps["icon"]>,
-      default: null,
+    // ---
+    appendAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
     },
+    appendIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    appendText: { type: String },
+    // ---
+    prependAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
+    },
+    prependIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    prependText: { type: String },
+    // ---
 
     toggle: {
       type: String,
@@ -133,6 +214,10 @@ export default defineComponent({
       default: false,
     },
     // ---
+    loading: {
+      type: Boolean,
+      default: false,
+    },
     disabled: {
       type: Boolean,
       default: false,
@@ -152,15 +237,7 @@ export default defineComponent({
     });
 
     const styles = useStyles(
-      [
-        "dropdown",
-        "dropdownButton",
-        "dropdownGroup",
-        "dropdownGroupItem",
-        "dropdownItem",
-        "dropdownTransitionEnter",
-        "dropdownTransitionLeave",
-      ],
+      ["dropdown", "dropdownTransitionEnter", "dropdownTransitionLeave"],
       toRefs(props),
       config,
       props.upwindConfig

@@ -6,31 +6,12 @@
     :placement="placement"
     grouped
     :disabled="meta.isProcessing"
-    :upwind-config="{ dropdownButton: config.profile }"
-  >
-    <template #trigger="">
-      <upw-spinner :class="styles.profile.loading" v-if="meta.isProcessing" />
-
-      <figure v-else class="avatar" :class="styles.profile.avatar">
-        <img
-          v-if="user?.avatar?.url"
-          :src="user.avatar.url"
-          alt="user profile avatar "
-          :class="styles.profile.image"
-        />
-        <figcaption
-          :class="styles.profile.caption"
-          v-else-if="user?.avatar?.initials"
-        >
-          {{ user.avatar.initials }}
-        </figcaption>
-      </figure>
-
-      <span class="label" :class="styles.profile.label">
-        {{ user?.display }}
-      </span>
-    </template>
-  </upw-dropdown>
+    :upwind-config="{ dropdown: config.profile }"
+    :loading="meta.isProcessing"
+    :prepend-avatar="user?.avatar"
+    :label="user?.display"
+    :toggle="null"
+  />
 </template>
 
 <script>
@@ -38,7 +19,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- components
-import { UpwSpinner, UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind/upwind";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
@@ -46,15 +27,13 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- types
-//import type { PropType } from "vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "Profile",
+  name: "UpmProfile",
   components: {
     UpwDropdown,
-    UpwSpinner,
   },
   inheritAttrs: true,
   customOptions: {},
@@ -67,7 +46,7 @@ export default defineComponent({
     },
     placement: {
       type: String, //as PropType<DropdownProps["position"]>,
-      default: "bottom-end",
+      default: "bottom-start",
     },
   },
   setup() {

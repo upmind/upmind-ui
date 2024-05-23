@@ -19,7 +19,7 @@ import config from "./config.cva";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmEmailEmpty",
+  name: "UpmClientEmpty",
   props: {
     i18nKey: { type: String, required: true },
   },

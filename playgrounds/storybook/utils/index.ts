@@ -26,6 +26,14 @@ enum sizes {
   md = "Medium",
   lg = "Large",
 }
+enum allSizes {
+  xs = "Extra Small",
+  sm = "Small",
+  md = "Medium",
+  lg = "Large",
+  xl = "Extra Large",
+  "2xl" = "2 Extra Large",
+}
 
 enum placements {
   "top" = "Top",
@@ -63,6 +71,13 @@ export const useSystemArgTypes = {
     control: {
       type: "radio",
       labels: sizes,
+    },
+  },
+  allSizes: {
+    options: keys(allSizes),
+    control: {
+      type: "radio",
+      labels: allSizes,
     },
   },
   icon: {

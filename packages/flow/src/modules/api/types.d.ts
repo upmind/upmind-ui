@@ -10,6 +10,7 @@ export enum responseCodes {
   "Not_Found" = 404,
   "Conflict" = 409,
   "Too_Many_Requests" = 429,
+  "Unprocessable_Entity" = 422,
 }
 
 // --------------------------------------------------------

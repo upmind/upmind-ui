@@ -1,4 +1,5 @@
 export { default as UpwAlert } from "./components/alert/Alert.vue";
+export { default as UpwAvatar } from "./components/avatar/Avatar.vue";
 export { default as UpwBadge } from "./components/badge/Badge.vue";
 export { default as UpwButton } from "./components/button/Button.vue";
 export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
