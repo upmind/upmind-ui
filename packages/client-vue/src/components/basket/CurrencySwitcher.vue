@@ -6,14 +6,14 @@
     :size="size"
     :placement="placement"
     :disabled="meta.isLoading || meta.isProcessing"
-    :upwind-config="{ listboxButton: config.currency }"
+    :upwind-config="{ listboxButton: config.currencySwitcher }"
     :loading="meta.isLoading || meta.isProcessing"
     :prepend-text="model?.prefix || model?.suffix"
   >
   </upw-dropdown>
 </template>
 
-<script lang="ts">
+<script>
 // --- external
 import { defineComponent, computed } from "vue";
 
@@ -37,7 +37,7 @@ export default defineComponent({
   components: {
     UpwDropdown,
   },
-  inheritAttrs: true,
+
   customOptions: {},
   emits: [],
   props: {
@@ -54,7 +54,7 @@ export default defineComponent({
   setup() {
     const basketCurrency = useBasketCurrency();
 
-    const styles = useStyles(["currency"], basketCurrency.meta, config);
+    const styles = useStyles(["currencySwitcher"], basketCurrency.meta, config);
 
     return {
       ...basketCurrency,
