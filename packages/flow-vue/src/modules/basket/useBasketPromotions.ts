@@ -22,10 +22,10 @@ import type { TActor } from "./types";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketPromotions = (actor?: TActor<any>) => {
+  const { service } = useBasket();
   const promotions = ref(actor);
 
   if (!actor) {
-    const { service } = useBasket();
     waitFor(service, newstate =>
       ["checkout", "shopping.promotions"].some(newstate.matches)
     ).then(validState => {
