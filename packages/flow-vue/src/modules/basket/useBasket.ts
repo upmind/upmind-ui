@@ -175,7 +175,7 @@ export const useBasket = () => {
       });
     },
 
-    removeItem: ({ itemId }) => {
+    removeItem: itemId => {
       send({ type: "REMOVE", data: { itemId } });
     },
 

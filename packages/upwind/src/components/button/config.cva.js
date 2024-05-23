@@ -8,6 +8,7 @@ export default {
       {
         variants: {
           size: {
+            icon: "rounded-full",
             sm: "px-3 py-2 text-sm",
             md: "px-3 py-3",
             lg: "px-3 py-4 text-lg",
