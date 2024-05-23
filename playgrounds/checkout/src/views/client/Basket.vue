@@ -5,7 +5,7 @@
 <script>
 import { defineComponent } from "vue";
 import { getLocalMessages } from "@/utils";
-import { UpmClientBasket } from "@upmind/client";
+import { UpmClientBasket } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "ClientBasket",

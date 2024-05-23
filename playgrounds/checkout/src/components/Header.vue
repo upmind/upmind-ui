@@ -73,7 +73,7 @@
 <script>
 import { defineComponent } from "vue";
 import Logo from "@/assets/logo.svg";
-import { UpwListbox, UpmProfile, UpmCurrency } from "@upmind/client";
+import { UpwListbox, UpmProfile, UpmCurrency } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "UpmHeader",

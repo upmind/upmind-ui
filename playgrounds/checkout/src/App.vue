@@ -25,7 +25,7 @@
 import { useRoute } from "vue-router";
 
 // --- internal
-import { UpmFeedback, useThemes } from "@upmind/client";
+import { UpmFeedback, useThemes } from "@upmind/client-vue";
 import theme from "@/assets/theme";
 
 // --- components

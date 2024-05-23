@@ -15,7 +15,7 @@
 <script>
 import { defineComponent } from "vue";
 import { getLocalMessages } from "@/utils";
-import { UpmClientListings } from "@upmind/client";
+import { UpmClientListings } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "ClientPhones",
