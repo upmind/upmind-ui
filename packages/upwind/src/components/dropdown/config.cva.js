@@ -11,7 +11,7 @@ export default {
   },
   dropdownButton: {
     root: cva(
-      "hover:bg-base-50 relative inline-flex w-full cursor-pointer items-center gap-x-4 text-nowrap rounded-lg border bg-transparent px-4 py-3 text-start text-sm font-medium text-current  before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none disabled:opacity-50",
+      "hover:bg-base-50 relative inline-flex w-full cursor-pointer items-center gap-x-4 text-nowrap rounded-lg border bg-transparent px-4 py-3 text-start text-sm font-medium text-current before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
       {
         variants: {
           disabled: {
@@ -21,6 +21,9 @@ export default {
             false: "border-base-200 shadow-sm",
             true: "border-transparent",
           },
+        },
+        defaultVariants: {
+          grouped: false,
         },
       }
     ),

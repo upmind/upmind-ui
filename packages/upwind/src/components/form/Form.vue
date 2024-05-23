@@ -34,7 +34,7 @@
           v-for="(action, key) in safeActions"
           :key="key"
           v-bind="action"
-          :loading="meta.isProcessing || meta.isLoading"
+          :loading="action.needsValid && (meta.isProcessing || meta.isLoading)"
           :disabled="
             meta.isProcessing ||
             action?.disabled ||
