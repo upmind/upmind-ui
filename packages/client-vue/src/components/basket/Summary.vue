@@ -8,7 +8,7 @@
       </header>
 
       <!-- items -->
-      <dl :class="styles.basket.summary.list">
+      <dl :class="styles.basket.summary.list" v-if="summary?.products?.length">
         <template v-for="product in summary.products" :key="product.id">
           <dt
             :class="
