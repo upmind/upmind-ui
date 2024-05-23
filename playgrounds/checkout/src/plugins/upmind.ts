@@ -1,5 +1,11 @@
 import type { App, Plugin } from "vue";
-import { useApi, useBrand, useSession, useSystem } from "@upmind/client";
+import {
+  useApi,
+  useBrand,
+  useSession,
+  useSystem,
+  useBasket,
+} from "@upmind/client";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
@@ -15,6 +21,7 @@ const upmindPlugin: Plugin = {
     useSystem();
     useBrand();
     useSession();
+    useBasket();
 
     app.provide("upmind", api);
   },

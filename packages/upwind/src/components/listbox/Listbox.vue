@@ -2,36 +2,95 @@
   <h-listbox :multiple="multiple" v-model="value" v-slot="{ open }">
     <div class="listbox" :class="styles.listbox.root">
       <h-listbox-button
-        :class="[
-          styles.listboxButton.root,
-          open ? styles.listboxButton.active : '',
-        ]"
+        :class="[styles.listbox.trigger, open ? styles.listbox.active : '']"
         ref="reference"
       >
-        <upw-icon
-          v-if="selectedAvatar"
-          class="avatar"
-          :class="styles.listboxButton.avatar"
-          :icon="selectedAvatar"
-        />
+        <!-- prepend slot-->
+        <slot
+          name="prepend"
+          v-bind="{
+            styles: styles.dropdown,
+            prependIcon: selectedPrependIcon,
+            prependAvatar: selectedPrependAvatar,
+            prependText: selectedPrependText,
+            size,
+            label: selectedLabel,
+            open,
+            disabled,
+            loading,
+          }"
+        >
+          <span v-if="selectedPrependText" :class="styles.listbox.prepend">
+            {{ selectedPrependText }}
+          </span>
 
-        <upw-icon
-          v-if="selectedIcon"
-          :icon="selectedIcon"
-          :class="styles.listboxButton.icon"
-        />
+          <upw-avatar
+            v-if="selectedPrependAvatar"
+            :class="styles.listbox.avatar"
+            :avatar="selectedPrependAvatar"
+          />
 
-        <span class="label" :class="styles.listboxButton.label" v-if="label">
+          <upw-icon
+            v-if="selectedPrependIcon"
+            :class="styles.listbox.icon"
+            :icon="selectedPrependIcon"
+          />
+        </slot>
+
+        <!-- default 'slot' -->
+        <span :class="styles.listbox.label" v-if="selectedLabel">
           {{ selectedLabel }}
         </span>
 
-        <upw-icon
-          v-if="toggle"
-          :icon="toggle"
-          :class="styles.listboxButton.toggle"
-          :aria-checked="open && toggleRotate"
-          aria-hidden="true"
-        />
+        <!-- append slot -->
+        <slot
+          name="append"
+          v-bind="{
+            styles: styles.dropdown,
+            appendIcon: selectedAppendIcon,
+            appendAvatar: selectedAppendAvatar,
+            appendText: selectedAppendText,
+            size,
+            label,
+            toggle,
+            toggleRotate,
+            open,
+            disabled,
+            loading,
+          }"
+        >
+          <upw-icon
+            v-if="selectedAppendIcon"
+            :class="styles.listbox.icon"
+            :icon="selectedAppendIcon"
+          />
+
+          <upw-avatar
+            v-if="selectedAppendAvatar"
+            class="avatar"
+            :class="styles.listbox.avatar"
+            :avatar="selectedAppendAvatar"
+          />
+
+          <span :class="styles.listbox.append" v-if="selectedAppendText">
+            {{ selectedAppendText }}
+          </span>
+
+          <!-- loading / toggle -->
+          <upw-spinner
+            :class="styles.listbox.loading"
+            v-if="loading"
+            aria-hidden="true"
+          />
+
+          <upw-icon
+            v-else-if="toggle"
+            :icon="toggle"
+            :class="styles.listbox.toggle"
+            :aria-checked="open && toggleRotate"
+            aria-hidden="true"
+          />
+        </slot>
       </h-listbox-button>
 
       <transition
@@ -69,37 +128,95 @@
           >
             <li
               :class="[
-                styles.listboxItem.root,
-                active ? styles.listboxItem.active : '',
-                selected ? styles.listboxItem.selected : '',
+                styles.listbox.item,
+                active ? styles.listbox.activeItem : '',
+                selected ? styles.listbox.selectedItem : '',
               ]"
             >
-              <upw-icon
-                v-if="item.avatar"
-                :icon="item.avatar"
-                class="avatar"
-                :class="styles.listboxItem.avatar"
-                aria-hidden="true"
-              />
+              <!-- prepend slot-->
+              <slot
+                name="prepend"
+                v-bind="{
+                  styles: styles.dropdown,
+                  ...item,
+                }"
+              >
+                <span
+                  class="prependText"
+                  :class="styles.listbox.prepend"
+                  v-if="item.prependText"
+                >
+                  {{ item.prependText }}
+                </span>
 
-              <upw-icon
-                v-if="item.icon"
-                :icon="item.icon"
-                :class="styles.listboxItem.icon"
-                aria-hidden="true"
-              />
+                <upw-avatar
+                  v-if="item.prependAvatar"
+                  :class="styles.listbox.avatar"
+                  :avatar="item.prependAvatar"
+                />
 
-              <span :class="styles.listboxItem.label">{{ item.label }}</span>
+                <upw-icon
+                  v-if="item.prependIcon"
+                  :class="styles.listbox.icon"
+                  :icon="item.prependIcon"
+                />
+              </slot>
 
-              <upw-icon
-                v-if="iconSelected"
-                :icon="iconSelected"
-                :class="[
-                  styles.listboxItem.icon,
-                  { invisible: !selected, 'pointer-events-none': !selected },
-                ]"
-                aria-hidden="true"
-              />
+              <!-- default 'slot' -->
+              <span
+                class="label"
+                :class="styles.listbox.label"
+                v-if="item.label"
+              >
+                {{ item.label }}
+              </span>
+
+              <!-- append slot -->
+              <slot
+                name="append"
+                v-bind="{
+                  styles: styles.dropdown,
+                  ...item,
+                }"
+              >
+                <upw-icon
+                  v-if="item.appendIcon"
+                  :class="styles.listbox.icon"
+                  :icon="item.appendIcon"
+                />
+
+                <upw-avatar
+                  v-if="item.appendAvatar"
+                  class="avatar"
+                  :class="styles.listbox.avatar"
+                  :avatar="item.appendAvatar"
+                />
+
+                <span
+                  v-if="item.appendText"
+                  class="appendText"
+                  :class="styles.listbox.append"
+                >
+                  {{ item.appendText }}
+                </span>
+
+                <!-- loading  -->
+                <upw-spinner
+                  :class="styles.listbox.loading"
+                  v-if="item.loading"
+                  :size="size"
+                />
+
+                <upw-icon
+                  v-if="iconSelected"
+                  :icon="iconSelected"
+                  :class="[
+                    styles.listbox.selected,
+                    { invisible: !selected, 'pointer-events-none': !selected },
+                  ]"
+                  aria-hidden="true"
+                />
+              </slot>
             </li>
           </h-listbox-option>
         </h-listbox-options>
@@ -110,10 +227,10 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, ref, watch, toRefs } from "vue";
+import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 
 // --- components
-import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 import {
   Listbox,
   ListboxButton,
@@ -121,6 +238,8 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
+import UpwAvatar from "../avatar/Avatar.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
 import config from "./config.cva";
@@ -144,6 +263,8 @@ export default defineComponent({
     HListboxOptions: ListboxOptions,
     HListboxOption: ListboxOption,
     UpwIcon,
+    UpwAvatar,
+    UpwSpinner,
   },
   emits: ["update:modelValue"],
   props: {
@@ -155,10 +276,26 @@ export default defineComponent({
     // ---
     label: {
       type: String,
-      default: "Select option...",
+      default: "",
     },
-    icon: { type: [String, Object], default: null },
-    avatar: { type: [String, Object], default: null },
+
+    // ---
+    appendAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
+    },
+    appendIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    appendText: { type: String },
+    // ---
+    prependAvatar: {
+      type: [Object, String] as PropType<DropdownProps["avatar"]>,
+    },
+    prependIcon: { type: [Object, String] as PropType<DropdownProps["icon"]> },
+    prependText: { type: String },
+    // ---
+    iconSelected: {
+      type: String,
+      default: "check-square",
+    },
     toggle: {
       type: String,
       default: "arrow-up-down",
@@ -168,10 +305,6 @@ export default defineComponent({
       default: false,
     },
 
-    iconSelected: {
-      type: String,
-      default: "check-square",
-    },
     placement: {
       type: String as PropType<ListboxPosition>,
       default: "bottom-start",
@@ -197,6 +330,15 @@ export default defineComponent({
       default: null,
     },
     grouped: {
+      type: Boolean,
+      default: false,
+    },
+    // ---
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },
@@ -231,13 +373,11 @@ export default defineComponent({
     const styles = useStyles(
       [
         "listbox",
-        "listboxButton",
         "listboxSearch",
-        "listboxItem",
         "listboxTransitionEnter",
         "listboxTransitionLeave",
       ],
-      props,
+      toRefs(props),
       config,
       props.upwindConfig
     );
@@ -273,20 +413,53 @@ export default defineComponent({
 
       return this.label;
     },
-    selectedIcon() {
+    selectedPrependIcon() {
       if (this.multiple) {
-        return this.icon;
+        return this.prependIcon;
       } else {
         const selected = find(this.items, ["value", this.value]);
-        return this.icon || selected?.icon;
+        return this.prependIcon || selected?.prependIcon;
       }
     },
-    selectedAvatar() {
+    selectedPrependAvatar() {
       if (this.multiple) {
-        return this.avatar;
+        return this.prependAvatar;
       } else {
         const selected = find(this.items, ["value", this.value]);
-        return this.avatar || selected?.avatar;
+        return this.prependAvatar || selected?.prependAvatar;
+      }
+    },
+    selectedPrependText() {
+      if (this.multiple) {
+        return this.prependText;
+      } else {
+        const selected = find(this.items, ["value", this.value]);
+        return this.prependText || selected?.prependText;
+      }
+    },
+
+    selectedAppendIcon() {
+      if (this.multiple) {
+        return this.appendIcon;
+      } else {
+        const selected = find(this.items, ["value", this.value]);
+        return this.appendIcon || selected?.appendIcon;
+      }
+    },
+    selectedAppendAvatar() {
+      if (this.multiple) {
+        return this.appendAvatar;
+      } else {
+        const selected = find(this.items, ["value", this.value]);
+        return this.appendAvatar || selected?.appendAvatar;
+      }
+    },
+    selectedAppendText() {
+      if (this.multiple) {
+        return this.appendText;
+      } else {
+        const selected = find(this.items, ["value", this.value]);
+        return this.appendText || selected?.appendText;
       }
     },
     filteredItems() {

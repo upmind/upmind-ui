@@ -12,20 +12,28 @@ import { useSystemArgTypes } from "../../utils";
 const meta: Meta<typeof UpwDropdown> = {
   parameters: {
     controls: {
-      exclude: ["size"],
+      exclude: [],
     },
   },
   component: UpwDropdown,
   argTypes: {
+    size: useSystemArgTypes.size,
     placement: useSystemArgTypes.placement,
-    // size: useSystemArgTypes.size,
-    icon: useSystemArgTypes.icon,
+    prependAvatar: useSystemArgTypes.flag,
+    prependIcon: useSystemArgTypes.icon,
+    appendIcon: useSystemArgTypes.icon,
+    appendAvatar: useSystemArgTypes.flag,
     toggle: useSystemArgTypes.icon,
   },
   args: {
-    label: "Select an option..",
-    // size: "md",
-    icon: undefined,
+    label: "Menu of actions",
+    size: "md",
+    prependText: undefined,
+    prependAvatar: undefined,
+    prependIcon: undefined,
+    appendIcon: undefined,
+    appendAvatar: undefined,
+    appendText: undefined,
     // ---
     toggle: undefined,
     toggleRotate: true,
