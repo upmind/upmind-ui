@@ -62,6 +62,8 @@
         </RouterLink>
       </div>
       <!-- #END TEMP -->
+
+      <upm-profile />
     </nav>
   </header>
 </template>
@@ -69,13 +71,14 @@
 <script>
 import { defineComponent } from "vue";
 import Logo from "@/assets/logo.svg";
-import { UpwListbox } from "@upmind/client";
+import { UpwListbox, UpmProfile } from "@upmind/client";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
     Logo,
     UpwListbox,
+    UpmProfile,
   },
   computed: {
     locales() {

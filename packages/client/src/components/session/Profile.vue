@@ -1,61 +1,75 @@
 <template>
-  <aside
-    class="profile"
-    :class="styles.profile.root"
-    v-if="meta.isClient && !meta.isProcessing"
+  <upw-dropdown
+    v-if="meta.isAuthenticated || meta.isProcessing"
+    :items="items"
+    :size="size"
+    :placement="placement"
+    grouped
+    :disabled="meta.isProcessing"
+    :upwind-config="{ dropdownButton: config.profile }"
   >
-    <figure :class="styles.profile.avatar">
-      <img
-        v-if="user.image_url"
-        :src="user.image_url"
-        alt="uploaded image thumbnail "
-        :class="styles.profile.image"
-      />
-    </figure>
-    <div :class="styles.profile.content">
-      <span :class="styles.profile.meta">You're currently logged in as</span>
-      <h4 :class="styles.profile.title">{{ user.fullname }}</h4>
-      <h5 :class="styles.profile.text">{{ user.email }}</h5>
+    <template #trigger="">
+      <upw-spinner :class="styles.profile.loading" v-if="meta.isProcessing" />
 
-      <div :class="styles.profile.actions">
-        <upw-button
-          variant="ghost"
-          size="sm"
-          to="/"
-          icon="profile"
-          label="My Account"
+      <figure v-else class="avatar" :class="styles.profile.avatar">
+        <img
+          v-if="user?.avatar?.url"
+          :src="user.avatar.url"
+          alt="user profile avatar "
+          :class="styles.profile.image"
         />
-        <upw-button
-          variant="ghost"
-          size="sm"
-          @click.prevent="logout"
-          icon="logout"
-          label="Logout"
-        />
-      </div>
-    </div>
-  </aside>
+        <figcaption
+          :class="styles.profile.caption"
+          v-else-if="user?.avatar?.initials"
+        >
+          {{ user.avatar.initials }}
+        </figcaption>
+      </figure>
+
+      <span class="label" :class="styles.profile.label">
+        {{ user?.display }}
+      </span>
+    </template>
+  </upw-dropdown>
 </template>
 
-<script lang="ts">
+<script>
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
+
+// --- components
+import { UpwSpinner, UpwDropdown } from "@upmind/upwind";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
-import { UpwButton } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
+
+// --- types
+//import type { PropType } from "vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "Profile",
-  components: { UpwButton },
+  components: {
+    UpwDropdown,
+    UpwSpinner,
+  },
   inheritAttrs: true,
   customOptions: {},
   emits: [],
-  props: {},
+  props: {
+    size: {
+      type: String,
+      default: "md",
+      validator: value => ["sm", "md", "lg"].includes(value),
+    },
+    placement: {
+      type: String, //as PropType<DropdownProps["position"]>,
+      default: "bottom-end",
+    },
+  },
   setup() {
     const session = useSession();
 
@@ -64,7 +78,21 @@ export default defineComponent({
     return {
       ...session,
       styles,
+      config,
     };
+  },
+  computed: {
+    items() {
+      if (!this.meta.isAuthenticated) return [];
+
+      return [
+        {
+          label: "Logout",
+          icon: "logout",
+          action: this.logout,
+        },
+      ];
+    },
   },
 });
 </script>

@@ -117,7 +117,6 @@ export default defineComponent({
   },
   computed: {
     badges() {
-      debugger;
       return [
         {
           label: this.$t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
