@@ -26,7 +26,7 @@
             $tc("basket.summary.discount.title", items.length)
           }}</span>
           <upw-icon
-            :class="styles.basket.summary.icon"
+            :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
@@ -41,7 +41,7 @@
             $tc("basket.summary.taxes.title", items.length)
           }}</span>
           <upw-icon
-            :class="styles.basket.summary.icon"
+            :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">

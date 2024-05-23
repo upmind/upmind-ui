@@ -8,7 +8,7 @@ export default {
     root: cva(),
 
     summary: {
-      root: cva("w-full flex flex-col gap-8 text-left max-w-sm"),
+      root: cva("w-full flex flex-col gap-8 text-left"),
       header: cva(""),
       title: cva("text-lg font-medium m-0 text-xl tracking-tight"),
       content: cva(
@@ -25,6 +25,7 @@ export default {
       ),
       value: cva("text-right m-0 flex-0"),
       icon: cva("size-5 flex-0 leading-6"),
+      tooltipIcon: cva("size-4 flex-0 leading-6"),
       tooltip: cva("m-0 text-xs hidden group-hover:block leading-tight"),
 
       footer: cva("font-light grid grid-cols-2 gap-2"),
