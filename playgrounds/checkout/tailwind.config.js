@@ -10,7 +10,7 @@ export default {
   darkMode: "media", // Honour the OS preference
   content: [
     "./src/**/*.{html,vue,js,tsx}",
-    "../../packages/client/src/**/*.{html,vue,js,tsx,ts}",
+    "../../packages/client-vue/src/**/*.{html,vue,js,tsx,ts}",
     "../../packages/upwind/src/**/*.{html,vue,js,tsx,ts}",
   ],
   theme: {
