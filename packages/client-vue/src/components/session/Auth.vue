@@ -49,7 +49,6 @@ import type { AuthProps } from "./types";
 export default defineComponent({
   name: "UpmAuth",
   components: { UpwForm, UpwTabs, UpwButton },
-  inheritAttrs: true,
   customOptions: {},
   emits: ["update:modelValue"],
   props: {
