@@ -13,16 +13,17 @@
           color="primary"
           class="ml-auto"
         >
-          Submit order and pay
+          {{ $t("basket.summary.actions.submit") }}
         </upw-button>
       </template>
     </upw-steps>
 
-    <pre>{{ meta }}</pre>
+    <!-- <pre>{{ meta }}</pre> -->
 
     <section
       id="overview"
-      class="flex min-h-[70vh] flex-col items-center justify-center gap-8 border border-dashed py-20 text-center"
+      :class="[styles.section.root, styles.section.centered]"
+      class="border border-dashed bg-base-100"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
       {{ $t("checkout.overview") }}
@@ -47,7 +48,7 @@
 
     <section
       id="account"
-      class="flex min-h-[70vh] flex-col items-start justify-start py-20"
+      :class="styles.section.root"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
       <upm-session />
@@ -55,13 +56,30 @@
 
     <section
       id="payment"
-      class="min-h-[70vh] border border-dashed py-20"
+      :class="[styles.section.root, styles.section.centered]"
+      class="border border-dashed bg-base-100"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
       {{ $t("checkout.payment") }}
+
+      <header :class="styles.section.header">
+        <slot name="header" v-bind="{ meta }"></slot>
+      </header>
+
+      <div :class="styles.section.content">
+        <upm-basket-summary />
+      </div>
+
+      <footer :class="styles.section.footer">
+        <slot name="footer" v-bind="{ meta }"></slot>
+      </footer>
     </section>
 
-    <section id="confirmation" class="min-h-[70vh] border border-dashed py-20">
+    <section
+      id="confirmation"
+      :class="[styles.section.root, styles.section.centered]"
+      class="border border-dashed bg-base-100"
+    >
       {{ $t("checkout.confirmation") }}
     </section>
   </article>
@@ -71,13 +89,20 @@
 // --- external
 import { defineComponent, ref, computed } from "vue";
 
+// --- internal
+import { useStyles } from "@upmind/upwind";
+import config from "./config.cva";
+
 // -- components
 import {
-  UpmSession,
+  useScrollSpy,
   useBasket,
+  // ---
+  UpmSession,
+  UpmBasketSummary,
+  // ---
   UpwIcon,
   UpwAvatar,
-  useScrollSpy,
   UpwSteps,
   UpwButton,
 } from "@upmind/client-vue";
@@ -90,12 +115,24 @@ import { getLocalMessages } from "@/utils";
 export default defineComponent({
   name: "Checkout",
   i18n: { messages: getLocalMessages("checkout") },
-  components: { UpwSteps, UpmSession, UpwIcon, UpwAvatar, UpwButton },
+  components: {
+    UpmSession,
+    UpmBasketSummary,
+    // ---
+    UpwSteps,
+    UpwIcon,
+    UpwAvatar,
+    UpwButton,
+  },
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
     const { items, meta } = useBasket();
     const { isScrolling, scrollIntoView } = useScrollSpy();
+
+    const styles = useStyles(["section"], meta, config);
+
     return {
+      styles,
       items,
       meta,
       activeSection: ref(null),
@@ -125,10 +162,10 @@ export default defineComponent({
     };
   },
   watch: {
-    meta: "scrollTo",
+    meta: "scrollTo", // if we have new data, scroll to the appropriate section
   },
   mounted() {
-    this.scrollTo();
+    this.scrollTo(); // scroll to the appropriate section when the component is mounted
   },
 
   methods: {
