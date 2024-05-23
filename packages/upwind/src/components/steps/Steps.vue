@@ -8,7 +8,7 @@
         :to="step.disabled ? null : { hash: step.hash }"
         @click="step.disabled ? null : $emit('update:modelValue', step.hash)"
         :disabled="step.disabled"
-        class="t m-0 flex items-center gap-3 border-b-2 border-transparent py-8 font-light leading-none no-underline transition disabled:pointer-events-none disabled:opacity-50"
+        class="m-0 flex items-center gap-3 border-b-2 border-transparent py-8 font-light leading-none no-underline transition disabled:pointer-events-none disabled:opacity-50"
         :class="[
           {
             'font-medium': step.hash == selectedHash || step.complete,
@@ -17,7 +17,11 @@
           },
         ]"
       >
-        <upw-spinner v-if="loading" size="xs" class="text-primary" />
+        <upw-spinner
+          v-if="loading"
+          size="xs"
+          class="bg-base-200 text-current"
+        />
 
         <upw-avatar
           v-else-if="step.complete"

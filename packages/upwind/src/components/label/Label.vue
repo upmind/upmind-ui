@@ -61,6 +61,7 @@ export default defineComponent({
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
+    noLabel: { type: Boolean },
     // ---
     required: { type: Boolean },
     dirty: { type: Boolean },
@@ -76,6 +77,7 @@ export default defineComponent({
     const meta = computed(() => ({
       isValid: !props.invalid && props.dirty,
       isInvalid: props.invalid,
+      showLabel: !props.noLabel,
       showAsRequired: props.required && !props.noRequired,
       showAsOptional:
         !props.required && !props.noRequired && !isEmpty(props.optionalText),

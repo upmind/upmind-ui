@@ -31,7 +31,8 @@
           >
             <upw-button
               type="button"
-              size="icon"
+              size="sm"
+              class="!p-0"
               color="current"
               icon-only
               label="modify product"
@@ -41,7 +42,8 @@
             />
             <upw-button
               type="button"
-              size="icon"
+              size="sm"
+              class="!p-0"
               color="current"
               icon-only
               label="remove product"
@@ -52,8 +54,8 @@
         </template>
       </dl>
 
-      <!-- coupons -->
-      <!-- <dl :class="styles.basket.summary.list"></dl> -->
+      <!-- promotions -->
+      <upm-promotions :class="styles.basket.summary.form" />
 
       <!-- subtotals -->
       <dl :class="styles.basket.summary.list">
@@ -147,7 +149,7 @@ import { defineComponent } from "vue";
 
 // --- components
 import { UpwButton, UpwIcon } from "@upmind/upwind";
-
+import UpmPromotions from "./Promotions.vue";
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -161,7 +163,7 @@ import config from "./config.cva";
 
 export default defineComponent({
   name: "UpmBasket.summary",
-  components: { UpwButton, UpwIcon },
+  components: { UpwButton, UpwIcon, UpmPromotions },
   customOptions: {},
   emits: ["edit"],
   props: {},

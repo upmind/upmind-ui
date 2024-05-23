@@ -8,7 +8,8 @@ export default {
       {
         variants: {
           size: {
-            icon: "rounded-full",
+            badge: "rounded-full px-2 text-xs",
+            xs: "px-2 py-1 text-xs",
             sm: "px-3 py-2 text-sm",
             md: "px-3 py-3",
             lg: "px-3 py-4 text-lg",
@@ -22,6 +23,7 @@ export default {
           color: {
             current:
               "hover:bg-base-100 text-content border-transparent bg-transparent",
+            base: "bg-base-200 hover:bg-base-300 text-base-content border-transparent",
             primary:
               "bg-primary hover:bg-primary-800 text-primary-content border-transparent",
             secondary:
@@ -50,6 +52,11 @@ export default {
           {
             disabled: true,
             color: "current",
+            class: "hover:bg-transparent",
+          },
+          {
+            disabled: true,
+            color: "base",
             class: "hover:bg-transparent",
           },
 
@@ -108,6 +115,22 @@ export default {
             color: "current",
             variant: "link",
             class: "text-current",
+          },
+          // --- base + variant ---
+          {
+            color: "base",
+            variant: "outlined",
+            class: "border-base-200 hover:bg-base-200 text-base-content",
+          },
+          {
+            color: "base",
+            variant: "ghost",
+            class: "hover:bg-base-200 text-base-content",
+          },
+          {
+            color: "base",
+            variant: "link",
+            class: "text-base-content",
           },
           // --- primary + variant ---
           {
@@ -256,7 +279,17 @@ export default {
         },
       },
     }),
-    icon: cva("size-[1.5em]"),
+    icon: cva("", {
+      variants: {
+        size: {
+          badge: "size-2",
+          xs: "size-3",
+          sm: "size-4",
+          md: "size-5",
+          lg: "size-6",
+        },
+      },
+    }),
     content: cva("mx-auto flex items-center gap-x-3", {
       variants: {
         variant: {
@@ -267,6 +300,8 @@ export default {
           true: "invisible opacity-0",
         },
         size: {
+          badge: "px-0",
+          xs: "px-0",
           sm: "px-1",
           medium: "px-3",
           lg: "px-5",

@@ -14,6 +14,10 @@ export default {
       content: cva(
         "grid space-y-4 rounded-lg border border-base-300 shadow-md p-6 bg-base text-base-content "
       ),
+      form: cva(
+        "border-t border-base-300 first:pt-0 first:border-t-0 pt-4 text-sm m-0"
+      ),
+
       list: cva(
         "grid grid-cols-3 gap-0 border-t border-base-300 first:pt-0 first:border-t-0 pt-4 text-sm m-0"
       ),
@@ -35,12 +39,17 @@ export default {
       actions: cva("w-full flex gap-2 justify-end"),
     },
 
-    coupons: {
-      root: cva(),
+    promotions: {
+      root: cva("w-full flex flex-col gap-2 text-left"),
       header: cva(),
-      title: cva("text-lg font-medium"),
+      title: cva("sr-only"),
       content: cva(),
       footer: cva(),
+
+      form: {
+        root: cva("flex-row gap-2"),
+        actions: cva("items-center w-auto"),
+      },
     },
   },
 };

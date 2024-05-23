@@ -18,7 +18,6 @@ export const useSchema = (_context: PromotionsContext) => {
     properties: {
       code: {
         type: ["string", "null"],
-        title: "Code",
       },
     },
   };
@@ -36,16 +35,11 @@ export const useUischema = (_context: PromotionsContext) => {
         options: {
           focus: true,
           autocomplete: "off",
-          placeholder: "Enter code...",
-          styles: {
-            control: {
-              label: {
-                root: "label sr-only",
-                text: "label-text",
-              },
-              input: "input input-bordered w-full ",
-            },
-          },
+          placeholder: "Enter code here",
+          label: "",
+          noStatus: true,
+          noRequired: true,
+          noLabel: true,
         },
       },
     ],

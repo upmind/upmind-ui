@@ -4,7 +4,14 @@ import { cva } from "class-variance-authority";
 export default {
   label: {
     root: cva(
-      "flex w-full flex-wrap items-center justify-between gap-x-3 text-current outline-none"
+      "flex w-full flex-wrap items-center justify-between gap-x-3 text-current outline-none",
+      {
+        variants: {
+          showLabel: {
+            false: "sr-only",
+          },
+        },
+      }
     ),
     text: cva("w flex-1 truncate text-[0.875em]"),
     alt: cva("text-base-500 w-full text-xs"),
