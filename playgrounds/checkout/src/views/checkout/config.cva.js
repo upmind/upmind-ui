@@ -13,20 +13,15 @@ export default {
         "min-h-[70vh] flex-col items-center justify-center text-center"
       ),
       disabled: cva("pointer-events-none opacity-50"),
-      header: cva("w-full"),
-      title: cva("flex items-center justify-between gap-4"),
+      header: cva("flex w-full flex-col gap-2 "),
+
+      title: cva(
+        "m-0 flex w-full items-center justify-between gap-4 text-5xl font-light leading-tight  text-inherit"
+      ),
+      text: cva("m-0 text-lg font-light leading-7 text-base-700"),
       loading: cva(""),
       content: cva("relative flex w-full items-start gap-4 p-4"),
       footer: cva("w-full"),
-    },
-
-    payment: {
-      root: cva(
-        "relative flex grid min-h-[70vh] w-full grid-cols-5 items-start justify-start gap-8 py-20"
-      ),
-      header: cva("col-span-3"),
-      content: cva("col-span-3"),
-      summary: cva("col-span-2 row-span-3 items-start sm:sticky sm:top-40"),
     },
   },
 };

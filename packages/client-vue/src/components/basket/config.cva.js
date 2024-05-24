@@ -53,8 +53,30 @@ export default {
       },
     },
 
-    paymentDetails: {
-      root: cva(""),
+    orderDetails: {
+      root: cva(
+        "relative flex grid min-h-[70vh] w-full grid-cols-5 items-start justify-start gap-8 py-20",
+        {
+          variants: {
+            isDisabled: {
+              true: "pointer-events-none opacity-50",
+            },
+          },
+          compoundVariants: [
+            {
+              hasProducts: false,
+              hasAccount: false,
+              class: "pointer-events-none opacity-50",
+            },
+          ],
+        }
+      ),
+      header: cva("col-span-3 flex flex-col gap-2 "),
+      title: cva(
+        "m-0 flex w-full items-center justify-between gap-4 text-5xl font-light leading-tight  text-inherit"
+      ),
+      content: cva("col-span-3"),
+      summary: cva("col-span-2 row-span-3 items-start sm:sticky sm:top-40"),
     },
   },
 };

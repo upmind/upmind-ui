@@ -6,12 +6,27 @@
           <span :class="styles.session.text">
             {{ $t("session.unauthenticated.header.text") }}
           </span>
+
           <h1 :class="styles.session.title">
             {{ $t("session.unauthenticated.header.title") }}
           </h1>
         </template>
 
         <template v-if="meta.isAuthenticated">
+          <i18n-t
+            :class="styles.session.text"
+            keypath="session.authenticated.footer.text"
+            tag="p"
+          >
+            <template #[`action`]>
+              <upw-button
+                variant="link"
+                @click.prevent="logout"
+                :label="$t('session.authenticated.footer.action')"
+              />
+            </template>
+          </i18n-t>
+
           <i18n-t
             :class="styles.session.title"
             keypath="session.authenticated.header.title"
@@ -35,23 +50,7 @@
     </upm-auth>
 
     <footer :class="styles.session.footer">
-      <slot name="footer" v-bind="{ meta, user }">
-        <template v-if="meta.isAuthenticated">
-          <i18n-t
-            :class="styles.session.text"
-            keypath="session.authenticated.footer.text"
-            tag="p"
-          >
-            <template #[`action`]>
-              <upw-button
-                variant="link"
-                @click.prevent="logout"
-                :label="$t('session.authenticated.footer.action')"
-              />
-            </template>
-          </i18n-t>
-        </template>
-      </slot>
+      <slot name="footer" v-bind="{ meta, user }"> </slot>
     </footer>
   </section>
 </template>
