@@ -48,53 +48,18 @@
     </section>
 
     <!-- account -->
-    <section
+    <upm-session
       id="account"
       :class="styles.checkout.section.root"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-    >
-      <upm-session />
-    </section>
+    />
 
     <!-- payment -->
-    <section
+    <upw-order-details
       id="payment"
-      :class="
-        mergeStyles(
-          styles.checkout.payment.root,
-          !meta.hasProducts || !meta.hasAccount
-            ? styles.checkout.section.disabled
-            : {}
-        )
-      "
-      class="justify-between"
-      v-intersection-observer="[scrollSpy, { threshold: 0.1 }]"
-      :disabled="!meta.hasProducts || !meta.hasAccount"
-    >
-      <header :class="styles.checkout.payment.header">
-        <span :class="styles.checkout.section.text">
-          {{ $t("basket.payment.text") }}
-        </span>
-
-        <h1 :class="styles.checkout.section.title">
-          {{ $t("basket.payment.title", { total: "$0.00" }) }}
-        </h1>
-      </header>
-
-      <upm-basket-summary :class="styles.checkout.payment.summary" no-actions />
-
-      <div :class="styles.checkout.payment.content">
-        <!-- <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /> -->
-      </div>
-
-      <!-- <footer :class="styles.checkout.section.footer">
-        <slot name="footer" v-bind="{ meta }"></slot>
-      </footer> -->
-    </section>
+      :class="styles.checkout.section.root"
+      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+    />
 
     <!-- confirmation -->
     <section
@@ -122,7 +87,7 @@ import {
   useBasket,
   // ---
   UpmSession,
-  UpmBasketSummary,
+  UpwOrderDetails,
   // ---
   UpwIcon,
   UpwAvatar,
@@ -140,7 +105,7 @@ export default defineComponent({
   i18n: { messages: getLocalMessages("checkout") },
   components: {
     UpmSession,
-    UpmBasketSummary,
+    UpwOrderDetails,
     // ---
     UpwSteps,
     UpwIcon,
@@ -152,11 +117,7 @@ export default defineComponent({
     const { items, meta } = useBasket();
     const { isScrolling, scrollIntoView } = useScrollSpy();
 
-    const styles = useStyles(
-      ["checkout", "checkout.section", "checkout.payment"],
-      meta,
-      config
-    );
+    const styles = useStyles(["checkout", "checkout.section"], meta, config);
 
     return {
       mergeStyles,

@@ -34,7 +34,7 @@
         }
       ]
     },
-    "payment": {
+    "orderDetails": {
       "title": "Your bag total is {total}",
       "text": "Let's complete your order"
     }
