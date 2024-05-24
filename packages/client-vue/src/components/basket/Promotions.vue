@@ -76,7 +76,7 @@ import config from "./config.cva";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasket.summary",
+  name: "UpmBasketPromotions",
   components: { UpwButton, UpwIcon, UpwForm, UpwBadge },
   customOptions: {},
   emits: ["edit"],
