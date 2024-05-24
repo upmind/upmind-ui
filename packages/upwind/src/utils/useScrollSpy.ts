@@ -1,5 +1,5 @@
 import { ref, onBeforeMount, onBeforeUnmount } from "vue";
-
+import { trimStart } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export const useScrollSpy = () => {
@@ -7,17 +7,20 @@ export const useScrollSpy = () => {
   const target = ref(null);
 
   function scrollIntoView(id, offset) {
+    if (isScrolling.value) return; // bail if already scrolling
+
+    id = trimStart(id, "#"); // remove hash
+
     const element = document.getElementById(id);
 
     if (!element) return; // bail if no element
 
-    target.value = element.getBoundingClientRect().top - offset;
-
-    const offsetPosition = (target.value + window.pageYOffset).toFixed();
+    target.value =
+      element.getBoundingClientRect().top - offset + window.pageYOffset;
 
     isScrolling.value = true;
     window.scrollTo({
-      top: offsetPosition,
+      top: target.value,
       behavior: "smooth",
     });
   }
@@ -28,6 +31,11 @@ export const useScrollSpy = () => {
     if (window.pageYOffset.toFixed() === target.value?.toFixed()) {
       isScrolling.value = false;
       target.value = null;
+    } else {
+      console.debug("scrolling", {
+        target: target.value?.toFixed(),
+        window: window.pageYOffset.toFixed(),
+      });
     }
   }
 

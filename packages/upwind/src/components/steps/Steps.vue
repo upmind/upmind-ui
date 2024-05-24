@@ -9,6 +9,7 @@
       :loading="loading"
       :selected="step.hash == selectedHash"
       :caption="`${index + 1}`"
+      @update:modelValue="$emit('update:modelValue', $event)"
     >
     </upw-step>
 
