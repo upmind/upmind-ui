@@ -53,7 +53,7 @@ export default {
       },
     },
 
-    orderDetails: {
+    details: {
       root: cva(
         "relative flex grid min-h-[70vh] w-full grid-cols-5 items-start justify-start gap-8 py-20",
         {

@@ -15,4 +15,4 @@ export { default as UpmClientBasket } from "./components/client/Basket.vue";
 export { default as UpmCurrency } from "./components/basket/CurrencySwitcher.vue";
 // ---
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
-export { default as UpwOrderDetails } from "./components/basket/OrderDetails.vue";
+export { default as UpwBasketDetails } from "./components/basket/Details.vue";

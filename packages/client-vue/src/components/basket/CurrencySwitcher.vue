@@ -33,7 +33,7 @@ import { map } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmCurrency",
+  name: "UpmCurrencySwitcher",
   components: {
     UpwDropdown,
   },

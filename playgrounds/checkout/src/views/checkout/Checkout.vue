@@ -55,7 +55,7 @@
     />
 
     <!-- payment -->
-    <upw-order-details
+    <upw-basket-details
       id="payment"
       :class="styles.checkout.section.root"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
@@ -87,7 +87,7 @@ import {
   useBasket,
   // ---
   UpmSession,
-  UpwOrderDetails,
+  UpwBasketDetails,
   // ---
   UpwIcon,
   UpwAvatar,
@@ -105,7 +105,7 @@ export default defineComponent({
   i18n: { messages: getLocalMessages("checkout") },
   components: {
     UpmSession,
-    UpwOrderDetails,
+    UpwBasketDetails,
     // ---
     UpwSteps,
     UpwIcon,

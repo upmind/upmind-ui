@@ -1,33 +1,30 @@
 <template>
   <section
-    :class="styles.basket.orderDetails.root"
+    :class="styles.basket.details.root"
     :disabled="!meta.hasProducts || !meta.hasAccount"
   >
-    <header :class="styles.basket.orderDetails.header">
+    <header :class="styles.basket.details.header">
       <slot name="header" v-bind="{ meta }">
-        <span :class="styles.basket.orderDetails.text">
-          {{ $t("basket.orderDetails.text") }}
+        <span :class="styles.basket.details.text">
+          {{ $t("basket.details.text") }}
         </span>
 
-        <h1 :class="styles.basket.orderDetails.title">
-          {{ $t("basket.orderDetails.title", summary) }}
+        <h1 :class="styles.basket.details.title">
+          {{ $t("basket.details.title", summary) }}
         </h1>
       </slot>
     </header>
 
     <!-- <upw-skeleton-list
-      :class="styles.basket.orderDetails.loading"
+      :class="styles.basket.details.loading"
       v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     /> -->
 
-    <upm-basket-summary
-      :class="styles.basket.orderDetails.summary"
-      no-actions
-    />
+    <upm-basket-summary :class="styles.basket.details.summary" no-actions />
 
-    <div :class="styles.basket.orderDetails.content"></div>
+    <div :class="styles.basket.details.content"></div>
 
-    <footer :class="styles.basket.orderDetails.footer">
+    <footer :class="styles.basket.details.footer">
       <slot name="footer" v-bind="{ meta }"></slot>
     </footer>
   </section>
@@ -52,7 +49,7 @@ import UpmBasketSummary from "./Summary.vue";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmClient",
+  name: "UpmBasketDetails",
   components: {
     UpmBasketSummary,
   },
@@ -60,10 +57,10 @@ export default defineComponent({
   setup() {
     const { meta, summary } = useBasket();
 
-    // const orderDetails = useBasketPaymentDetails();
+    // const details = useBasketPaymentDetails();
     // const billingDetails = useBasketBillingDetails();
 
-    const styles = useStyles(["basket.orderDetails"], meta, config);
+    const styles = useStyles(["basket.details"], meta, config);
 
     // ---
 
