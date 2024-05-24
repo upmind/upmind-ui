@@ -22,7 +22,11 @@
 
     <upm-basket-summary :class="styles.basket.details.summary" no-actions />
 
-    <div :class="styles.basket.details.content"></div>
+    <div :class="styles.basket.details.content">
+      <!-- billingDetails -->
+
+      <!-- fields -->
+    </div>
 
     <footer :class="styles.basket.details.footer">
       <slot name="footer" v-bind="{ meta }"></slot>

@@ -1,9 +1,10 @@
 <template>
-  <component
-    :is="disabled ? 'span' : 'router-link'"
-    :to="disabled ? null : { hash }"
+  <button
+    type="button"
+    :disabled="disabled"
     @click="disabled ? null : $emit('update:modelValue', hash)"
     :class="styles.step.root"
+    replace
   >
     <upw-spinner v-if="loading" size="xs" :class="styles.step.loading" />
 
@@ -15,7 +16,7 @@
     />
 
     <span :class="styles.step.label">{{ label }}</span>
-  </component>
+  </button>
 </template>
 
 <script>

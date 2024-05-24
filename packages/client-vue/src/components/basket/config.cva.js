@@ -9,7 +9,7 @@ export default {
 
     summary: {
       root: cva("w-full flex flex-col gap-8 text-left"),
-      header: cva(""),
+      header: cva("w-full"),
       title: cva("text-lg font-medium m-0 text-xl tracking-tight"),
       content: cva(
         "grid space-y-4 rounded-lg border border-base-300 shadow-md p-6 bg-base text-base-content w-full"
@@ -35,7 +35,9 @@ export default {
       tooltipIcon: cva("size-4 flex-0 leading-6"),
       tooltip: cva("m-0 text-xs hidden group-hover:block leading-tight"),
 
-      footer: cva("font-light flex flex-wrap gap-4 text-center justify-center"),
+      footer: cva(
+        "font-light flex flex-wrap gap-4 text-center justify-center w-full"
+      ),
       actions: cva("w-full flex gap-2 justify-end"),
     },
 
@@ -71,12 +73,13 @@ export default {
           ],
         }
       ),
-      header: cva("col-span-3 flex flex-col gap-2 "),
+      header: cva("w-full col-span-3 flex flex-col gap-2 "),
       title: cva(
         "m-0 flex w-full items-center justify-between gap-4 text-5xl font-light leading-tight  text-inherit"
       ),
       content: cva("col-span-3"),
       summary: cva("col-span-2 row-span-3 items-start sm:sticky sm:top-40"),
+      footer: cva("w-full"),
     },
   },
 };

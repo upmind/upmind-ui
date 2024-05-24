@@ -4,7 +4,7 @@
       :model-value="activeSection"
       :steps="steps"
       :loading="meta.isLoading"
-      @update:model-value="isScrolling = true"
+      @update:model-value="scrollTo"
     >
       <template #append>
         <div class="ml-auto w-full max-w-sm text-right">
@@ -98,6 +98,7 @@ import {
 // -- utils
 import { vIntersectionObserver } from "@vueuse/components";
 import { getLocalMessages } from "@/utils";
+import { trimStart } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -152,7 +153,12 @@ export default defineComponent({
     };
   },
   watch: {
-    meta: "scrollTo", // if we have new data, scroll to the appropriate section
+    meta: {
+      immediate: true,
+      handler() {
+        this.scrollTo();
+      },
+    },
   },
   mounted() {
     this.scrollTo(); // scroll to the appropriate section when the component is mounted
@@ -168,13 +174,17 @@ export default defineComponent({
       }
     },
 
-    scrollTo() {
-      if (this.isScrolling) return; // safety check to prevent multiple scrolls
+    scrollTo(hash) {
+      const current = this.activeSection;
+
+      // fallback to the route hash if set
+      hash ??= this.$route?.hash;
 
       // scroll to the appropriate step when the basket has loaded
       // but only if the route has no hash, ie user has not navigated to a specific step
-
-      if (!this.$route?.hash && !this.meta.isLoading) {
+      if (hash) {
+        this.activeSection = trimStart(hash, "#");
+      } else if (!this.meta.isLoading) {
         if (!this.meta.hasProducts || !this.meta.hasFields) {
           this.activeSection = "overview";
         } else if (!this.meta.hasAccount) {
@@ -182,12 +192,10 @@ export default defineComponent({
         } else {
           this.activeSection = "payment";
         }
-        // ---
-        this.isScrolling = true;
+      }
+
+      if (this.activeSection && this.activeSection != current) {
         this.scrollIntoView(this.activeSection, 108);
-        // this.$router.push({ hash: `#${this.activeSection}` });
-      } else {
-        this.activeSection = this.$route.hash;
       }
     },
 
