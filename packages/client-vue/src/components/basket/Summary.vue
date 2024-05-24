@@ -1,5 +1,5 @@
 <template>
-  <aside :class="styles.basket.summary.root" v-if="meta.isAvailable">
+  <aside :class="styles.basket.summary.root">
     <div :class="styles.basket.summary.content">
       <header :class="styles.basket.summary.header">
         <h3 :class="styles.basket.summary.title">
@@ -29,27 +29,35 @@
               )
             "
           >
-            <upw-button
-              type="button"
-              size="sm"
-              class="!p-0"
-              color="current"
-              icon-only
-              label="modify product"
-              prependIcon="edit"
-              @click="$emit('edit', product.id)"
-              disabled
-            />
-            <upw-button
-              type="button"
-              size="sm"
-              class="!p-0"
-              color="current"
-              icon-only
-              label="remove product"
-              prependIcon="remove"
-              @click="removeItem(product.id)"
-            />
+            <slot name="actions" v-bind="{ ...$props, product }">
+              <span v-if="noActions">
+                <small>x</small>{{ product.quantity }}
+              </span>
+
+              <template v-else>
+                <upw-button
+                  type="button"
+                  size="sm"
+                  class="!p-0"
+                  color="current"
+                  icon-only
+                  label="modify product"
+                  prependIcon="edit"
+                  @click="$emit('edit', product.id)"
+                  disabled
+                />
+                <upw-button
+                  type="button"
+                  size="sm"
+                  class="!p-0"
+                  color="current"
+                  icon-only
+                  label="remove product"
+                  prependIcon="remove"
+                  @click="removeItem(product.id)"
+                />
+              </template>
+            </slot>
           </dd>
         </template>
       </dl>
@@ -166,7 +174,12 @@ export default defineComponent({
   components: { UpwButton, UpwIcon, UpmPromotions },
   customOptions: {},
   emits: ["edit"],
-  props: {},
+  props: {
+    noActions: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { meta, checkout, removeItem, items, summary } = useBasket();
 
