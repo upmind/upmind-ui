@@ -7,13 +7,12 @@
       @update:model-value="isScrolling = true"
     >
       <template #append>
-        <div class="ml-auto w-full max-w-sm">
+        <div class="ml-auto w-full max-w-sm text-right">
           <upw-button
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
             @click.prevent="doCheckout"
             color="primary"
             class="ml-auto"
-            block
           >
             {{ $t("basket.summary.actions.submit") }}
           </upw-button>
@@ -62,44 +61,35 @@
       id="payment"
       :class="
         mergeStyles(
-          styles.checkout.section.root,
+          styles.checkout.payment.root,
           !meta.hasProducts || !meta.hasAccount
             ? styles.checkout.section.disabled
             : {}
         )
       "
-      class="justify-between border border-dashed bg-base-100"
+      class="justify-between"
       v-intersection-observer="[scrollSpy, { threshold: 0.1 }]"
       :disabled="!meta.hasProducts || !meta.hasAccount"
     >
-      <!-- <header :class="styles.checkout.section.header">
-        <slot name="header" v-bind="{ meta }"></slot>
-      </header> -->
+      <header :class="styles.checkout.payment.header">
+        <span :class="styles.checkout.section.text">
+          {{ $t("basket.payment.text") }}
+        </span>
 
-      <div :class="styles.checkout.section.content" class="max-w-xl flex-1">
-        {{ $t("checkout.payment") }}
+        <h1 :class="styles.checkout.section.title">
+          {{ $t("basket.payment.title", { total: "$0.00" }) }}
+        </h1>
+      </header>
 
+      <upm-basket-summary :class="styles.checkout.payment.summary" no-actions />
+
+      <div :class="styles.checkout.payment.content">
+        <!-- <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /> -->
       </div>
-
-      <upm-basket-summary :class="styles.checkout.summary" />
 
       <!-- <footer :class="styles.checkout.section.footer">
         <slot name="footer" v-bind="{ meta }"></slot>
@@ -162,7 +152,11 @@ export default defineComponent({
     const { items, meta } = useBasket();
     const { isScrolling, scrollIntoView } = useScrollSpy();
 
-    const styles = useStyles(["checkout", "checkout.section"], meta, config);
+    const styles = useStyles(
+      ["checkout", "checkout.section", "checkout.payment"],
+      meta,
+      config
+    );
 
     return {
       mergeStyles,
