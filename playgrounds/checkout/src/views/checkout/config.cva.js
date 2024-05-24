@@ -4,19 +4,29 @@ import { cva } from "class-variance-authority";
 export default {
   checkout: {
     root: cva(),
-    summary: cva("max-w-sm sm:sticky sm:top-40"),
 
     section: {
       root: cva(
-        "relative flex min-h-[70vh] w-full flex-wrap flex-wrap items-start justify-start gap-8 py-20"
+        "relative flex w-full flex-wrap flex-wrap items-start justify-start gap-8 py-20"
       ),
-      centered: cva("flex-col items-center justify-center text-center"),
+      centered: cva(
+        "min-h-[70vh] flex-col items-center justify-center text-center"
+      ),
       disabled: cva("pointer-events-none opacity-50"),
       header: cva("w-full"),
       title: cva("flex items-center justify-between gap-4"),
       loading: cva(""),
       content: cva("relative flex w-full items-start gap-4 p-4"),
       footer: cva("w-full"),
+    },
+
+    payment: {
+      root: cva(
+        "relative flex grid min-h-[70vh] w-full grid-cols-5 items-start justify-start gap-8 py-20"
+      ),
+      header: cva("col-span-3"),
+      content: cva("col-span-3"),
+      summary: cva("col-span-2 row-span-3 items-start sm:sticky sm:top-40"),
     },
   },
 };
