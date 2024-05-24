@@ -1,7 +1,6 @@
 // --- external
 import { computed, ref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
-import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow";
@@ -72,8 +71,10 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
     update(model) {
       // first check if our currency has change, ie: model.code has changed
 
+      const { code } = contextValue(currency.value?.state, "model");
+
       // if it has not then bail
-      if (model?.code == this.model.value?.code) return;
+      if (model?.code == code) return;
 
       // if it has then send the new model to the machine
       currency.value?.send({ type: "SET", data: model });
