@@ -12,7 +12,7 @@ export default {
       header: cva(""),
       title: cva("text-lg font-medium m-0 text-xl tracking-tight"),
       content: cva(
-        "grid space-y-4 rounded-lg border border-base-300 shadow-md p-6 bg-base text-base-content "
+        "grid space-y-4 rounded-lg border border-base-300 shadow-md p-6 bg-base text-base-content w-full"
       ),
       form: cva(
         "border-t border-base-300 first:pt-0 first:border-t-0 pt-4 text-sm m-0"
@@ -40,8 +40,9 @@ export default {
     },
 
     promotions: {
-      root: cva("w-full flex flex-col gap-2 text-left"),
+      root: cva("w-full flex flex-col gap-3 text-left"),
       header: cva(),
+      toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       title: cva("sr-only"),
       content: cva(),
       footer: cva(),
@@ -50,6 +51,10 @@ export default {
         root: cva("flex-row gap-2"),
         actions: cva("items-center w-auto"),
       },
+    },
+
+    paymentDetails: {
+      root: cva(""),
     },
   },
 };

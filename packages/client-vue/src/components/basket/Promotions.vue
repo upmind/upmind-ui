@@ -6,8 +6,18 @@
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
+        appendIcon=""
       >
         {{ $t("basket.discount.title") }}
+
+        <template #append-icon>
+          <upw-icon
+            icon="arrow-down"
+            :class="styles.basket.promotions.toggle"
+            :aria-checked="toggle"
+            aria-hidden="true"
+          />
+        </template>
       </upw-button>
     </header>
 
@@ -37,7 +47,6 @@
       <upw-button
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
-        prependIcon="tag"
         variant="flat"
         color="base"
         :label="promotion.promotion.code"
