@@ -6,7 +6,7 @@
       :loading="meta.isLoading"
       @update:model-value="isScrolling = true"
     >
-      <template #actions>
+      <template #append>
         <div class="ml-auto w-full max-w-sm">
           <upw-button
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
@@ -21,8 +21,7 @@
       </template>
     </upw-steps>
 
-    <!-- <pre>{{ meta }}</pre> -->
-
+    <!-- overview -->
     <section
       id="overview"
       :class="[styles.checkout.section.root, styles.checkout.section.centered]"
@@ -49,6 +48,7 @@
       </div>
     </section>
 
+    <!-- account -->
     <section
       id="account"
       :class="styles.checkout.section.root"
@@ -57,11 +57,20 @@
       <upm-session />
     </section>
 
+    <!-- payment -->
     <section
       id="payment"
-      :class="[styles.checkout.section.root]"
+      :class="
+        mergeStyles(
+          styles.checkout.section.root,
+          !meta.hasProducts || !meta.hasAccount
+            ? styles.checkout.section.disabled
+            : {}
+        )
+      "
       class="justify-between border border-dashed bg-base-100"
       v-intersection-observer="[scrollSpy, { threshold: 0.1 }]"
+      :disabled="!meta.hasProducts || !meta.hasAccount"
     >
       <!-- <header :class="styles.checkout.section.header">
         <slot name="header" v-bind="{ meta }"></slot>
@@ -71,14 +80,23 @@
         {{ $t("checkout.payment") }}
 
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br />
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br />
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
       </div>
 
       <upm-basket-summary :class="styles.checkout.summary" />
@@ -88,7 +106,9 @@
       </footer> -->
     </section>
 
+    <!-- confirmation -->
     <section
+      v-if="meta.isComplete"
       id="confirmation"
       :class="[styles.checkout.section.root, styles.checkout.section.centered]"
       class="border border-dashed bg-base-100"
@@ -103,7 +123,7 @@
 import { defineComponent, ref, computed } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // -- components
@@ -145,6 +165,7 @@ export default defineComponent({
     const styles = useStyles(["checkout", "checkout.section"], meta, config);
 
     return {
+      mergeStyles,
       styles,
       items,
       meta,
@@ -166,6 +187,7 @@ export default defineComponent({
           {
             label: "Payment",
             hash: "#payment",
+            disabled: !meta.value.hasProducts || !meta.value.hasAccount,
             complete:
               meta.value.hasBillingDetails && meta.value.hasPaymentDetails,
           },

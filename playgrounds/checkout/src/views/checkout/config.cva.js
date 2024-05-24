@@ -11,7 +11,7 @@ export default {
         "relative flex min-h-[70vh] w-full flex-wrap flex-wrap items-start justify-start gap-8 py-20"
       ),
       centered: cva("flex-col items-center justify-center text-center"),
-
+      disabled: cva("pointer-events-none opacity-50"),
       header: cva("w-full"),
       title: cva("flex items-center justify-between gap-4"),
       loading: cva(""),
