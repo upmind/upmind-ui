@@ -20,8 +20,6 @@
       v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     /> -->
 
-    <upm-basket-summary :class="styles.basket.details.summary" no-actions />
-
     <div :class="styles.basket.details.content">
       <upm-billing-details
         v-if="!billingDetailsMeta.isLoading"
@@ -48,7 +46,9 @@
     </div>
 
     <footer :class="styles.basket.details.footer">
-      <slot name="footer" v-bind="{ meta }"></slot>
+      <slot name="footer" v-bind="{ meta }">
+        <upm-basket-summary no-actions />
+      </slot>
     </footer>
   </section>
 </template>

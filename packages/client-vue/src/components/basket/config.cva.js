@@ -33,7 +33,7 @@ export default {
       total: cva("font-medium "),
       icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),
-      tooltip: cva("m-0 text-xs hidden group-hover:block leading-tight"),
+      tooltip: cva("m-0 text-xs hidden group-hover:block leading-tight "),
 
       footer: cva(
         "font-light flex flex-wrap gap-4 text-center justify-center w-full"
@@ -56,30 +56,26 @@ export default {
     },
 
     details: {
-      root: cva(
-        "relative flex grid min-h-[70vh] w-full grid-cols-5 items-start justify-start gap-8 py-20",
-        {
-          variants: {
-            isDisabled: {
-              true: "pointer-events-none opacity-50",
-            },
+      root: cva("gap-16 ", {
+        variants: {
+          isDisabled: {
+            true: "pointer-events-none opacity-50",
           },
-          compoundVariants: [
-            {
-              hasProducts: false,
-              hasAccount: false,
-              class: "pointer-events-none opacity-50",
-            },
-          ],
-        }
-      ),
-      header: cva("w-full col-span-3 flex flex-col gap-2 "),
+        },
+        compoundVariants: [
+          {
+            hasProducts: false,
+            hasAccount: false,
+            class: "pointer-events-none opacity-50",
+          },
+        ],
+      }),
+      header: cva("w-full flex flex-col gap-2 "),
       title: cva(
-        "m-0 flex w-full items-center justify-between gap-4 text-5xl font-light leading-tight  text-inherit"
+        "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
-      content: cva("col-span-3 flex flex-col gap-8"),
-      summary: cva("col-span-2 row-span-3 items-start sm:sticky sm:top-40"),
-      footer: cva("w-full"),
+      content: cva("w-full flex-1 flex flex-col gap-6"),
+      footer: cva("max-w-xs w-full items-start sm:sticky sm:top-40 order-last"),
     },
   },
 };

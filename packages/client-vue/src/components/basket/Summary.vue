@@ -31,7 +31,8 @@
           >
             <slot name="actions" v-bind="{ ...$props, product }">
               <span v-if="noActions">
-                <small>x</small>{{ product.quantity }}
+                {{ product.total }}<br />
+                <!-- <small>{{ product.quantity }}</small> -->
               </span>
 
               <template v-else>
@@ -71,13 +72,14 @@
           <span :class="styles.basket.summary.text">{{
             $tc("basket.summary.discount.title", items.length)
           }}</span>
-          <upw-icon
+          <!-- TODO -->
+          <!-- <upw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
             {{ $t("basket.summary.discount.tooltip") }}
-          </p>
+          </p> -->
         </dt>
 
         <dd :class="styles.basket.summary.value">{{ summary?.discount }}</dd>
@@ -86,13 +88,14 @@
           <span :class="styles.basket.summary.text">{{
             $tc("basket.summary.taxes.title", items.length)
           }}</span>
-          <upw-icon
+          <!-- TODO -->
+          <!-- <upw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
             {{ $t("basket.summary.taxes.tooltip") }}
-          </p>
+          </p> -->
         </dt>
 
         <dd :class="styles.basket.summary.value">{{ summary?.taxes }}</dd>
@@ -130,9 +133,8 @@
           @click.prevent="checkout"
           color="primary"
           block
-        >
-          {{ $t("basket.summary.actions.submit") }}
-        </upw-button>
+          :label="$t('basket.summary.actions.submit')"
+        />
       </div>
 
       <p

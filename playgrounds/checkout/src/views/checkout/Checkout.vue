@@ -1,5 +1,5 @@
 <template>
-  <article class="flex flex-col">
+  <article :class="styles.checkout.root">
     <upw-steps
       :model-value="activeSection"
       :steps="steps"
@@ -7,15 +7,15 @@
       @update:model-value="scrollTo"
     >
       <template #append>
-        <div class="ml-auto w-full max-w-sm text-right">
+        <div class="ml-auto w-full max-w-xs text-right">
           <upw-button
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
             @click.prevent="doCheckout"
             color="primary"
             class="ml-auto"
-          >
-            {{ $t("basket.summary.actions.submit") }}
-          </upw-button>
+            :label="$t('basket.summary.actions.submit')"
+            block
+          />
         </div>
       </template>
     </upw-steps>
@@ -201,15 +201,15 @@ export default defineComponent({
 
     doCheckout: async () => {
       checkout();
-      await nextTick();
+      // await nextTick();
 
-      const yOffset = -108;
-      const y =
-        paymentProcess.value?.getBoundingClientRect().top +
-        window.scrollY +
-        yOffset;
+      // const yOffset = -108;
+      // const y =
+      //   paymentProcess.value?.getBoundingClientRect().top +
+      //   window.scrollY +
+      //   yOffset;
 
-      window.scrollTo({ top: y, behavior: "smooth" });
+      // window.scrollTo({ top: y, behavior: "smooth" });
     },
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <section :class="styles.basket.promotions.root" tabindex="0">
+  <section :class="styles.basket.promotions.root">
     <header :class="styles.basket.promotions.header">
       <upw-button
         variant="link"
@@ -7,9 +7,8 @@
         @click="toggle = !toggle"
         size="sm"
         appendIcon=""
+        :label="$t('basket.discount.title')"
       >
-        {{ $t("basket.discount.title") }}
-
         <template #append-icon>
           <upw-icon
             icon="arrow-down"
@@ -24,7 +23,6 @@
     <upw-form
       v-if="toggle"
       :class="styles.basket.promotions.content"
-      tabindex="1"
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
       :model-value="model"

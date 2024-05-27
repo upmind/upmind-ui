@@ -1,6 +1,5 @@
 <template>
   <section
-    tabindex="0"
     ref="form"
     :class="[
       meta.hasErrors ? 'border-error' : '',
@@ -9,7 +8,6 @@
     ]"
   >
     <upw-form
-      tabindex="1"
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
       :model-value="model"
@@ -23,12 +21,7 @@
     >
     </upw-form>
 
-    <upm-payment-gateway
-      v-if="gateway"
-      :key="gateway?.id"
-      tabindex="2"
-      :actor="gateway"
-    />
+    <upm-payment-gateway v-if="gateway" :key="gateway?.id" />
   </section>
 </template>
 

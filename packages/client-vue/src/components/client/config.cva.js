@@ -96,12 +96,12 @@ export default {
         ],
       }
     ),
-    content: cva("flex-1 text-xs text-base-500 flex flex-col gap-1", {}),
+    content: cva("flex-1 text-sm text-base-500 flex flex-col gap-1", {}),
     header: cva("flex gap-4 items-center justify-start"),
     icon: cva("size-4"),
     avatar: cva("size-6 rounded-full border overflow-hidden "),
     title: cva(
-      "m-0 leading-none text-sm text-base-content gap-2 inline-flex font-medium"
+      "m-0 leading-none text-md text-base-content gap-2 inline-flex font-normal"
     ),
     text: cva("leading-tight "),
     verified: cva("", {
