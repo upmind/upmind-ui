@@ -80,6 +80,11 @@ export default {
 
     paymentDetails: {
       root: cva(""),
+      render: cva(""),
+    },
+    paymentGateway: {
+      root: cva("flex flex-col gap-6 py-6 "),
+      render: cva("empty:hidden p-6 rounded-lg border border-base-300"),
     },
   },
 };

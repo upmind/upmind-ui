@@ -101,26 +101,48 @@ export default {
     root: cva("m-0 grid w-full list-none gap-2 p-0", {
       variants: {
         layout: {
-          grid: "grid-cols-3",
+          grid: "!auto-cols-fr grid-cols-3",
           stacked: "grid-flow-row grid-cols-1",
           inline: "grid-flow-col grid-rows-1 ",
-        },
-        isStretched: {
-          true: "auto-cols-fr",
-          false: "",
         },
       },
       defaultVariants: {
         layout: "vertical",
-        isBlock: true,
         isStretched: false,
       },
+      compoundVariants: [
+        {
+          layout: "inline",
+          isStretched: true,
+          class: "",
+        },
+        {
+          layout: "inline",
+          isStretched: false,
+          class: "auto-cols-max",
+        },
+      ],
     }),
     item: cva("m-0 p-0", {
-      variants: {},
+      variants: {
+        layout: {
+          grid: "",
+        },
+      },
       defaultVariants: {
+        layout: "vertical",
         isStretched: false,
       },
     }),
+
+    radio: {
+      wrapper: cva("", {
+        variants: {
+          layout: {
+            grid: "py-6",
+          },
+        },
+      }),
+    },
   },
 };
