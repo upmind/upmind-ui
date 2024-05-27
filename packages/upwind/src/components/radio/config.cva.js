@@ -123,7 +123,7 @@ export default {
         },
       ],
     }),
-    item: cva("m-0 p-0", {
+    item: cva("m-0 cursor-pointer p-0", {
       variants: {
         layout: {
           grid: "",

@@ -27,6 +27,7 @@
         v-for="(item, index) in items"
         :key="item.value"
         :class="styles.radiolist.item"
+        @click="onClick(item.value)"
       >
         <upw-radio
           :upwind-config="{ input: config.radiolist.radio }"
@@ -155,6 +156,14 @@ export default defineComponent({
       meta,
       styles,
       config,
+      onClick: value => {
+        emit("update:modelValue", value);
+        // forward the event to the input control that will trigger the update
+        // NB: this is not a DOM event so we need to fake one for the renderer
+        emit("change", {
+          currentTarget: { value },
+        });
+      },
       onChange: event => {
         emit("update:modelValue", event.target.value);
       },
