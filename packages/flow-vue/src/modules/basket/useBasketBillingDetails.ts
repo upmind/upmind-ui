@@ -85,9 +85,9 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
       if (
         model?.address_id == selected?.address_id &&
         model.company_id == selected?.company_id
-      )
+      ) {
         return;
-
+      }
       // if it has then send the new model to the machine
       billing_details.value?.send({ type: "SET", data: model });
 

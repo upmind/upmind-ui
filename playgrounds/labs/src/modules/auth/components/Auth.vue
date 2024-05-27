@@ -109,7 +109,7 @@ export default defineComponent({
   name: "Auth",
   components: { UpwForm, UserIcon, PlusIcon, CheckIcon },
   inheritAttrs: true,
-  customOptions: {},
+
   emits: [],
   props: {},
   setup() {

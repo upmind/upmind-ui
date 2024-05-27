@@ -46,7 +46,6 @@ export const useUischema = ({ fields }: FieldsContext) => {
           autosize: true,
           autocomplete: "off",
           placeholder: "Add notes here...",
-          size: "sm",
         },
       },
       ...useFieldsUischemaParser(

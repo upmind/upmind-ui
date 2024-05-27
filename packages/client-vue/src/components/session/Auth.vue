@@ -49,7 +49,7 @@ import type { AuthProps } from "./types";
 export default defineComponent({
   name: "UpmAuth",
   components: { UpwForm, UpwTabs, UpwButton },
-  customOptions: {},
+
   emits: ["update:modelValue"],
   props: {
     modelValue: {

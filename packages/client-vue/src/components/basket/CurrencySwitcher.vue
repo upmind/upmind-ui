@@ -38,7 +38,6 @@ export default defineComponent({
     UpwDropdown,
   },
 
-  customOptions: {},
   emits: [],
   props: {
     size: {
