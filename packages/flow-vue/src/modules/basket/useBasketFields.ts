@@ -19,8 +19,6 @@ import type { TActor } from "./types";
 import { isEqual } from "lodash-es";
 
 // --------------------------------------------------------
-
-// --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 

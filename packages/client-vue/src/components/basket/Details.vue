@@ -24,6 +24,7 @@
 
     <div :class="styles.basket.details.content">
       <upm-billing-details
+        v-if="!billingDetailsMeta.isLoading"
         :model-value="billingDetailsModel"
         @update:modelValue="billingDetailsUpdate"
       />
@@ -42,6 +43,8 @@
         no-actions
         autosave
       />
+
+      <upm-payment-details />
     </div>
 
     <footer :class="styles.basket.details.footer">
@@ -67,6 +70,7 @@ import config from "./config.cva";
 // --- components
 import UpmBasketSummary from "./Summary.vue";
 import UpmBillingDetails from "../client/Basket.vue";
+import UpmPaymentDetails from "./PaymentDetails.vue";
 import { UpwForm } from "@upmind/upwind";
 
 // --- types
@@ -77,6 +81,7 @@ export default defineComponent({
   components: {
     UpmBasketSummary,
     UpmBillingDetails,
+    UpmPaymentDetails,
     UpwForm,
   },
   props: {},
@@ -94,6 +99,7 @@ export default defineComponent({
       meta,
       billingDetailsModel: billingDetails.model,
       billingDetailsUpdate: billingDetails.update,
+      billingDetailsMeta: billingDetails.meta,
       // ---
       fieldsMeta: fields.meta,
       fieldsModel: fields.model,

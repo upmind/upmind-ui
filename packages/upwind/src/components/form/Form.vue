@@ -182,8 +182,6 @@ export default defineComponent({
 
   emits: ["reject", "resolve", "update:modelValue", "valid", "click"],
 
-  customOptions: {},
-
   setup(props) {
     const { ajv } = useValidation();
 

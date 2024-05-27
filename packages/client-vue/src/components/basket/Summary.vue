@@ -172,7 +172,7 @@ import config from "./config.cva";
 export default defineComponent({
   name: "UpmBasketSummary",
   components: { UpwButton, UpwIcon, UpmPromotions },
-  customOptions: {},
+
   emits: ["edit"],
   props: {
     noActions: {
