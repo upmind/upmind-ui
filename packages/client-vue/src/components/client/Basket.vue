@@ -92,6 +92,9 @@ import UpmCard from "./Card.vue";
 import UpmListings from "./Listings.vue";
 import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
 
+// --- utils
+import { get, isEmpty } from "lodash";
+
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClient",
@@ -105,15 +108,17 @@ export default defineComponent({
     UpmCard,
     UpmListings,
   },
+  emits: ["update:modelValue"],
   props: {
     i18nKey: { type: String },
+    modelValue: { type: Object },
   },
   setup() {
     const client = useClientUnifiedAddresses();
     const styles = useStyles(["client"], client.meta, config);
     // ---
 
-    const { selected, getSelected, addresses, add, meta } = client;
+    const { select, selected, getSelected, addresses, add, meta } = client;
 
     // Provide the client to the form/card components
     provide("client", useClientUnifiedAddress);
@@ -129,6 +134,7 @@ export default defineComponent({
     return {
       add,
       selected,
+      select,
       useClientUnifiedAddress,
       meta,
       styles,
@@ -151,6 +157,25 @@ export default defineComponent({
     },
     onClose() {
       this.activeDialog = false;
+    },
+  },
+
+  watch: {
+    modelValue: {
+      immediate: true,
+      handler(model) {
+        if (isEmpty(model)) return;
+        const id = model?.company_id || model?.address_id;
+        this.select(id);
+      },
+    },
+    selected: {
+      immediate: true,
+      handler(value) {
+        const model = get(value?.state?.value, "context.model", {});
+        if (isEmpty(model)) return;
+        this.$emit("update:modelValue", model);
+      },
     },
   },
 });

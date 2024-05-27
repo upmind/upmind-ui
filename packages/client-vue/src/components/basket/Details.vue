@@ -23,7 +23,10 @@
     <upm-basket-summary :class="styles.basket.details.summary" no-actions />
 
     <div :class="styles.basket.details.content">
-      <!-- billingDetails -->
+      <upm-billing-details
+        :model-value="modelBillingDetails"
+        @update:modelValue="updateBillingDetails"
+      />
 
       <!-- fields -->
     </div>
@@ -41,8 +44,8 @@ import { defineComponent } from "vue";
 // --- internal
 import {
   useBasket,
+  useBasketBillingDetails,
   // useBasketPaymentDetails,
-  // useBasketBillingDetails,
   // useBasketFields
 } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -50,19 +53,20 @@ import config from "./config.cva";
 
 // --- components
 import UpmBasketSummary from "./Summary.vue";
-
+import UpmBillingDetails from "../client/Basket.vue";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketDetails",
   components: {
     UpmBasketSummary,
+    UpmBillingDetails,
   },
   props: {},
   setup() {
     const { meta, summary } = useBasket();
+    const billingDetails = useBasketBillingDetails();
 
     // const details = useBasketPaymentDetails();
-    // const billingDetails = useBasketBillingDetails();
 
     const styles = useStyles(["basket.details"], meta, config);
 
@@ -70,7 +74,10 @@ export default defineComponent({
 
     return {
       meta,
+      modelBillingDetails: billingDetails?.model,
+      updateBillingDetails: billingDetails?.update,
       summary,
+      // ---
       styles,
       mergeStyles,
     };
