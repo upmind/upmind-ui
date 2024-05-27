@@ -77,7 +77,7 @@ export default {
       title: cva(
         "m-0 flex w-full items-center justify-between gap-4 text-5xl font-light leading-tight  text-inherit"
       ),
-      content: cva("col-span-3"),
+      content: cva("col-span-3 flex flex-col gap-8"),
       summary: cva("col-span-2 row-span-3 items-start sm:sticky sm:top-40"),
       footer: cva("w-full"),
     },

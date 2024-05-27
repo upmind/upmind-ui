@@ -43,8 +43,10 @@ export const useUischema = ({ fields }: FieldsContext) => {
         options: {
           multi: true,
           focus: true,
+          autosize: true,
           autocomplete: "off",
           placeholder: "Add notes here...",
+          size: "sm",
         },
       },
       ...useFieldsUischemaParser(
