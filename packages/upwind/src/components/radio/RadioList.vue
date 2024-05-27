@@ -29,6 +29,7 @@
         :class="styles.radiolist.item"
       >
         <upw-radio
+          :upwind-config="{ input: config.radiolist.radio }"
           v-bind="safeAttrs"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
@@ -153,6 +154,7 @@ export default defineComponent({
     return {
       meta,
       styles,
+      config,
       onChange: event => {
         emit("update:modelValue", event.target.value);
       },

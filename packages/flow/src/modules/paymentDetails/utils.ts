@@ -71,7 +71,10 @@ export const useSchema = ({
 
 // --------------------------------------------------------
 
-export const useUischema = ({ gateways }: PaymentDetailsContext) => {
+export const useUischema = ({
+  payment_types,
+  gateways,
+}: PaymentDetailsContext) => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
@@ -80,8 +83,9 @@ export const useUischema = ({ gateways }: PaymentDetailsContext) => {
         scope: "#/properties/type",
         options: {
           format: "radio",
-          layout: "inline",
+          // layout: "inline",
           stretch: true,
+          layout: payment_types?.length >= 3 ? "grid" : "inline",
         },
       },
       {
@@ -89,9 +93,9 @@ export const useUischema = ({ gateways }: PaymentDetailsContext) => {
         scope: "#/properties/gateway_id",
         options: {
           format: "radio",
-          layout: "inline",
-          // layout: gateways?.length > 3 ? "grid" : "inline",
-          // stretch: true,
+          // layout: "inline",
+          stretch: true,
+          layout: gateways?.length >= 3 ? "grid" : "inline",
         },
         rule: {
           effect: "SHOW",

@@ -1,33 +1,24 @@
 <template>
-  <section
-    ref="form"
-    class=""
-    :class="[
-      meta.hasErrors ? ' border-error' : '',
-      !meta.isRenderless ? '' : '',
-    ]"
-  >
-    <div class="">
-      <!-- gateway Render Content (* IF Provided) -->
-      <div ref="container"></div>
+  <div ref="form" :class="styles.basket.paymentGateway.root">
+    <!-- gateway Render Content (* IF Provided) -->
+    <div ref="container" :class="styles.basket.paymentGateway.render"></div>
 
-      <!-- gateway Form (* IF Provided) -->
-      <upw-form
-        v-if="schema && uischema"
-        :additional-errors="errors?.data"
-        :loading="meta.isLoading"
-        :model-value="model"
-        :processing="meta.isProcessing"
-        :schema="schema"
-        :uischema="uischema"
-        @reject="clear"
-        @resolve="update"
-        @update:modelValue="input"
-        no-actions
-      >
-      </upw-form>
-    </div>
-  </section>
+    <!-- gateway Form (* IF Provided) -->
+    <upw-form
+      v-if="schema && uischema"
+      :additional-errors="errors?.data"
+      :loading="meta.isLoading"
+      :model-value="model"
+      :processing="meta.isProcessing"
+      :schema="schema"
+      :uischema="uischema"
+      @reject="clear"
+      @resolve="update"
+      @update:modelValue="input"
+      no-actions
+    >
+    </upw-form>
+  </div>
 </template>
 
 <script lang="ts">
@@ -36,6 +27,8 @@ import { defineComponent, onMounted, watch, ref } from "vue";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind/flow-vue";
+import { useStyles, mergeStyles } from "@upmind/upwind";
+import config from "./config.cva";
 
 // --- components
 import { UpwForm } from "@upmind/upwind";
@@ -48,8 +41,8 @@ export default defineComponent({
   props: {},
   setup(props) {
     const {
-      errors,
       meta,
+      errors,
       model,
       schema,
       uischema,
@@ -59,6 +52,8 @@ export default defineComponent({
       update,
       render,
     } = useBasketPaymentGateway();
+
+    const styles = useStyles(["basket.paymentGateway"], meta, config);
 
     const container = ref();
     // wait till we mount then try to render the gateway if it's provided
@@ -71,8 +66,8 @@ export default defineComponent({
     return {
       container,
 
-      errors,
       meta,
+      errors,
       model,
       schema,
       uischema,
@@ -81,6 +76,9 @@ export default defineComponent({
       input,
       update,
       render,
+      // ---
+      styles,
+      mergeStyles,
     };
   },
 });

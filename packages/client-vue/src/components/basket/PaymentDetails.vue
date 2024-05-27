@@ -49,6 +49,7 @@ export default defineComponent({
       input,
       update,
     } = useBasketPaymentDetails();
+
     const styles = useStyles(["basket.paymentDetails"], meta, config);
     return {
       meta,
