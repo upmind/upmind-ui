@@ -73,7 +73,7 @@ import type { RadioListProps } from "./types";
 export default defineComponent({
   name: "UpwRadioList",
   inheritAttrs: false,
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change"],
   components: {
     UpwInput,
     UpwRadio,
