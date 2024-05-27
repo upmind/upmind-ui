@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   client: {
-    root: cva("w-full flex flex-col gap-4"),
+    root: cva("w-full flex flex-col"),
     header: cva(""),
     loading: cva(""),
     footer: cva(""),
