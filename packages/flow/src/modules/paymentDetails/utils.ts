@@ -89,8 +89,9 @@ export const useUischema = ({ gateways }: PaymentDetailsContext) => {
         scope: "#/properties/gateway_id",
         options: {
           format: "radio",
-          layout: gateways?.length > 3 ? "grid" : "inline",
-          stretch: true,
+          layout: "inline",
+          // layout: gateways?.length > 3 ? "grid" : "inline",
+          // stretch: true,
         },
         rule: {
           effect: "SHOW",

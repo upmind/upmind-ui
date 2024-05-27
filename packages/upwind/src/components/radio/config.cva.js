@@ -107,7 +107,7 @@ export default {
         },
         isStretched: {
           true: "auto-cols-fr",
-          false: "auto-cols-min",
+          false: "",
         },
       },
       defaultVariants: {

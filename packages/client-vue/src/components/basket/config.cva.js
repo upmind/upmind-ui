@@ -79,7 +79,7 @@ export default {
     },
 
     paymentDetails: {
-      root: cva("overflow-hidden"),
+      root: cva(""),
     },
   },
 };
