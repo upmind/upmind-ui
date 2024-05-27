@@ -55,8 +55,15 @@
     />
 
     <!-- payment -->
-    <upw-basket-details
+    <upm-basket-details
       id="payment"
+      :class="styles.checkout.section.root"
+      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+    />
+
+    <!-- confirmation -->
+    <upm-basket-confirmation
+      id="confirmation"
       :class="styles.checkout.section.root"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     />
@@ -87,7 +94,8 @@ import {
   useBasket,
   // ---
   UpmSession,
-  UpwBasketDetails,
+  UpmBasketDetails,
+  UpmBasketConfirmation,
   // ---
   UpwIcon,
   UpwAvatar,
@@ -106,7 +114,8 @@ export default defineComponent({
   i18n: { messages: getLocalMessages("checkout") },
   components: {
     UpmSession,
-    UpwBasketDetails,
+    UpmBasketDetails,
+    UpmBasketConfirmation,
     // ---
     UpwSteps,
     UpwIcon,
@@ -147,7 +156,16 @@ export default defineComponent({
             complete:
               meta.value.hasBillingDetails && meta.value.hasPaymentDetails,
           },
-          // { label: "Confirmation", hash: "#confirmation", disabled: true },
+          {
+            label: "Confirmation",
+            hash: "#confirmation",
+            disabled:
+              !meta.isCheckout ||
+              !meta.isConverting ||
+              !meta.isPaying ||
+              !meta.isComplete,
+            complete: meta.isComplete,
+          },
         ];
       }),
     };
@@ -175,7 +193,10 @@ export default defineComponent({
     },
 
     scrollTo(hash) {
+      if (!this.meta.isLoading && !this.meta.isProcessing) return;
+
       const current = this.activeSection;
+      let target = null;
 
       // fallback to the route hash if set
       hash ??= this.$route?.hash;
@@ -183,33 +204,27 @@ export default defineComponent({
       // scroll to the appropriate step when the basket has loaded
       // but only if the route has no hash, ie user has not navigated to a specific step
       if (hash) {
-        this.activeSection = trimStart(hash, "#");
-      } else if (!this.meta.isLoading) {
+        target = trimStart(hash, "#");
+      } else if (!current) {
+        // only do this section if weve not scrolled to a section yet
         if (!this.meta.hasProducts || !this.meta.hasFields) {
-          this.activeSection = "overview";
+          target = "overview";
         } else if (!this.meta.hasAccount) {
-          this.activeSection = "account";
+          target = "account";
         } else {
-          this.activeSection = "payment";
+          target = "payment";
         }
       }
 
-      if (this.activeSection && this.activeSection != current) {
+      if (target && target != current) {
+        this.activeSection = target;
         this.scrollIntoView(this.activeSection, 108);
       }
     },
 
     doCheckout: async () => {
-      checkout();
-      // await nextTick();
-
-      // const yOffset = -108;
-      // const y =
-      //   paymentProcess.value?.getBoundingClientRect().top +
-      //   window.scrollY +
-      //   yOffset;
-
-      // window.scrollTo({ top: y, behavior: "smooth" });
+      // TODO: implement the checkout progress modal
+      this.checkout();
     },
   },
 });

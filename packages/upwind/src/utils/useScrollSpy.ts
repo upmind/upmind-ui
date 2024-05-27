@@ -32,10 +32,10 @@ export const useScrollSpy = () => {
       isScrolling.value = false;
       target.value = null;
     } else {
-      console.debug("scrolling", {
-        target: target.value?.toFixed(),
-        window: window.pageYOffset.toFixed(),
-      });
+      // console.debug("scrolling", {
+      //   target: target.value?.toFixed(),
+      //   window: window.pageYOffset.toFixed(),
+      // });
     }
   }
 

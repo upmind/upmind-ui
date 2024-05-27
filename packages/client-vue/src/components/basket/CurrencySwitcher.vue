@@ -53,7 +53,6 @@ export default defineComponent({
   setup() {
     const {
       state,
-      context,
       meta,
       model,
       schema,
@@ -65,14 +64,6 @@ export default defineComponent({
     } = useBasketCurrency();
 
     const styles = useStyles(["currencySwitcher"], meta, config);
-
-    watchEffect(() => {
-      console.log("currencySwitcher", {
-        state: state.value,
-        code: model.value?.code,
-        context: context.value,
-      });
-    });
 
     return {
       state,

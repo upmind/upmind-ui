@@ -19,9 +19,6 @@
             v-bind="badge"
           />
         </h4>
-
-        <!-- <pre>{{ meta }}</pre>
-        <pre>{{ model }}</pre> -->
       </header>
 
       <span
