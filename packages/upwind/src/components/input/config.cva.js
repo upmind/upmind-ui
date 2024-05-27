@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   input: {
-    root: cva("relative flex h-full flex-col gap-1", {
+    root: cva("relative flex min-h-full flex-col gap-1", {
       variants: {
         size: {
           sm: "text-sm",
@@ -17,7 +17,7 @@ export default {
     }),
 
     wrapper: cva(
-      "group flex h-full w-full items-start items-center gap-3 rounded-lg ring-0",
+      "group flex min-h-full w-full items-start items-center gap-3 rounded-lg ring-0",
       {
         variants: {
           variant: {
