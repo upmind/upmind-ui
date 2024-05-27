@@ -54,8 +54,6 @@
           @click="onEdit"
           v-if="!selected?.state?.value?.context?.model.company_details"
         />
-
-        <!-- <pre>{{ selected?.state?.value?.context?.model }}</pre> -->
       </div>
     </div>
 

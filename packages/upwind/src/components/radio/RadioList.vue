@@ -183,7 +183,6 @@ export default defineComponent({
     selected: {
       immediate: true,
       handler(value) {
-        debugger;
         this.$emit("update:modelValue", value);
         // forward the event to the input control that will trigger the update
         // NB: this is not a DOM event so we need to fake one for the renderer
