@@ -77,5 +77,9 @@ export default {
       content: cva("w-full flex-1 flex flex-col gap-6"),
       footer: cva("max-w-xs w-full items-start sm:sticky sm:top-40 order-last"),
     },
+
+    paymentDetails: {
+      root: cva("overflow-hidden"),
+    },
   },
 };

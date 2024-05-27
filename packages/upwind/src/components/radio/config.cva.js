@@ -98,7 +98,29 @@ export default {
   },
   // ---------------------------------------------------------------------------
   radiolist: {
-    root: cva("m-0 flex w-full list-none flex-col gap-2 p-0"),
-    item: cva("m-0 p-0"),
+    root: cva("m-0 grid w-full list-none gap-2 p-0", {
+      variants: {
+        layout: {
+          grid: "grid-cols-3",
+          stacked: "grid-flow-row grid-cols-1",
+          inline: "grid-flow-col grid-rows-1 ",
+        },
+        isStretched: {
+          true: "auto-cols-fr",
+          false: "auto-cols-min",
+        },
+      },
+      defaultVariants: {
+        layout: "vertical",
+        isBlock: true,
+        isStretched: false,
+      },
+    }),
+    item: cva("m-0 p-0", {
+      variants: {},
+      defaultVariants: {
+        isStretched: false,
+      },
+    }),
   },
 };
