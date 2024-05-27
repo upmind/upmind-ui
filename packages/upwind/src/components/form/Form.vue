@@ -1,6 +1,5 @@
 <template>
   <form
-    tabindex="0"
     :class="styles.form.root"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"

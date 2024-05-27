@@ -1,6 +1,5 @@
 <template>
   <section
-    tabindex="0"
     ref="form"
     class=""
     :class="[
@@ -15,7 +14,6 @@
       <!-- gateway Form (* IF Provided) -->
       <upw-form
         v-if="schema && uischema"
-        tabindex="1"
         :additional-errors="errors?.data"
         :loading="meta.isLoading"
         :model-value="model"
@@ -66,8 +64,8 @@ export default defineComponent({
     // wait till we mount then try to render the gateway if it's provided
     // otherwise watch in case it's provided later
     onMounted(() => {
-      gateway.render(container.value);
-      watch(gateway.renderer, () => gateway.render(container.value));
+      render(container.value);
+      watch(renderer, () => render(container.value));
     });
 
     return {

@@ -65,8 +65,8 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
     uischema: computed(() =>
       contextValue(payment_gateway.value?.state, "uischema")
     ),
-    gateway: computed(() =>
-      contextActor(payment_gateway.value?.state, "actors.gateway")
+    renderer: computed(() =>
+      contextValue(payment_gateway.value?.state, "renderer")
     ),
 
     // ---
@@ -91,6 +91,7 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
         newstate.matches("valid")
       ).then(() => payment_gateway.value?.send({ type: "UPDATE" }));
     },
+
     render(container: HTMLElement | null = null) {
       const renderer = contextValue(payment_gateway.value?.state, "renderer");
 
