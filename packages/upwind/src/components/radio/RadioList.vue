@@ -22,14 +22,16 @@
     :persist-feedback="persistFeedback"
     variant="flat"
   >
-    <ul :class="styles.radiolist.root">
-      <li
+    <h-radio-group v-model="selected" as="ul" :class="styles.radiolist.root">
+      <h-radio-group-option
+        as="li"
         v-for="(item, index) in items"
         :key="item.value"
         :class="styles.radiolist.item"
-        @click="onClick(item.value)"
+        :value="item.value"
       >
         <upw-radio
+          tabindex="-1"
           :upwind-config="{ input: config.radiolist.radio }"
           v-bind="safeAttrs"
           :id="`${id}-option-${index}`"
@@ -41,16 +43,15 @@
           :model-value="isSelected(item.value)"
           no-status
           no-feedback
-          @change="onChange"
         />
-      </li>
-    </ul>
+      </h-radio-group-option>
+    </h-radio-group>
   </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -58,10 +59,10 @@ import config from "./config.cva";
 // --- components
 import UpwInput from "../input/Input.vue";
 import UpwRadio from "../radio/Radio.vue";
-
+import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isNil, omit } from "lodash-es";
+import { isEmpty, isNil, omit, values } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -77,6 +78,8 @@ export default defineComponent({
   components: {
     UpwInput,
     UpwRadio,
+    HRadioGroup: RadioGroup,
+    HRadioGroupOption: RadioGroupOption,
   },
 
   props: {
@@ -152,23 +155,14 @@ export default defineComponent({
 
     const styles = useStyles("radiolist", meta, config, props.upwindConfig);
 
+    const selected = ref(props.modelValue);
     return {
       meta,
       styles,
       config,
-      onClick: value => {
-        emit("update:modelValue", value);
-        // forward the event to the input control that will trigger the update
-        // NB: this is not a DOM event so we need to fake one for the renderer
-        emit("change", {
-          currentTarget: { value },
-        });
-      },
-      onChange: event => {
-        emit("update:modelValue", event.target.value);
-      },
+      selected,
       isSelected: value => {
-        return props.modelValue == value;
+        return selected.value == value;
       },
     };
   },
@@ -176,6 +170,27 @@ export default defineComponent({
     safeAttrs() {
       // TODO: maybe whitelist input attributes
       return omit(this.$attrs, ["layout", "variant"]);
+    },
+  },
+  watch: {
+    modelValue: {
+      immediate: true,
+      handler(value, oldValue) {
+        if (value === oldValue) return;
+        this.selected = value;
+      },
+    },
+    selected: {
+      immediate: true,
+      handler(value) {
+        debugger;
+        this.$emit("update:modelValue", value);
+        // forward the event to the input control that will trigger the update
+        // NB: this is not a DOM event so we need to fake one for the renderer
+        this.$emit("change", {
+          currentTarget: { value },
+        });
+      },
     },
   },
 });
