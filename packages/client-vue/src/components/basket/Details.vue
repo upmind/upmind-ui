@@ -24,11 +24,24 @@
 
     <div :class="styles.basket.details.content">
       <upm-billing-details
-        :model-value="modelBillingDetails"
-        @update:modelValue="updateBillingDetails"
+        :model-value="billingDetailsModel"
+        @update:modelValue="billingDetailsUpdate"
       />
 
-      <!-- fields -->
+      <upw-form
+        v-if="!fieldsMeta.isLoading"
+        :additional-errors="fieldsErrors?.data"
+        :loading="fieldsMeta.isLoading"
+        :model-value="fieldsModel"
+        :processing="fieldsMeta.isProcessing"
+        :schema="fieldsSchema"
+        :uischema="fieldsUischema"
+        @reject="fieldsClear"
+        @resolve="fieldsUpdate"
+        @update:modelValue="fieldsInput"
+        no-actions
+        autosave
+      />
     </div>
 
     <footer :class="styles.basket.details.footer">
@@ -46,7 +59,7 @@ import {
   useBasket,
   useBasketBillingDetails,
   // useBasketPaymentDetails,
-  // useBasketFields
+  useBasketFields,
 } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
@@ -54,18 +67,23 @@ import config from "./config.cva";
 // --- components
 import UpmBasketSummary from "./Summary.vue";
 import UpmBillingDetails from "../client/Basket.vue";
+import { UpwForm } from "@upmind/upwind";
+
+// --- types
+
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketDetails",
   components: {
     UpmBasketSummary,
     UpmBillingDetails,
+    UpwForm,
   },
   props: {},
   setup() {
     const { meta, summary } = useBasket();
     const billingDetails = useBasketBillingDetails();
-
+    const fields = useBasketFields();
     // const details = useBasketPaymentDetails();
 
     const styles = useStyles(["basket.details"], meta, config);
@@ -74,8 +92,18 @@ export default defineComponent({
 
     return {
       meta,
-      modelBillingDetails: billingDetails?.model,
-      updateBillingDetails: billingDetails?.update,
+      billingDetailsModel: billingDetails.model,
+      billingDetailsUpdate: billingDetails.update,
+      // ---
+      fieldsMeta: fields.meta,
+      fieldsModel: fields.model,
+      fieldsSchema: fields.schema,
+      fieldsUischema: fields.uischema,
+      fieldsErrors: fields.errors,
+      fieldsInput: fields.input,
+      fieldsUpdate: fields.update,
+      fieldsClear: fields.clear,
+      // ---
       summary,
       // ---
       styles,

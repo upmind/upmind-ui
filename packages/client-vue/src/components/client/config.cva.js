@@ -8,7 +8,7 @@ export default {
     loading: cva(""),
     footer: cva(""),
     title: cva("flex justify-between items-center gap-4"),
-    content: cva("flex flex-col gap-4 border border-base-200 rounded-lg p-4"),
+    content: cva("flex flex-col gap-4 border border-base-300 rounded-lg p-4"),
     actions: cva(""),
   },
   clientListings: {
