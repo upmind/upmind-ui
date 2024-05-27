@@ -1,12 +1,5 @@
 <template>
-  <section
-    ref="form"
-    :class="[
-      meta.hasErrors ? 'border-error' : '',
-      meta.isComplete || meta.isValid ? 'border-primary' : '',
-      !meta.isComplete && !meta.isValid ? 'border-warning' : '',
-    ]"
-  >
+  <section ref="form" :class="styles.basket.paymentDetails.root">
     <upw-form
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
@@ -56,7 +49,7 @@ export default defineComponent({
       input,
       update,
     } = useBasketPaymentDetails();
-    const styles = useStyles(["basket.details"], meta, config);
+    const styles = useStyles(["basket.paymentDetails"], meta, config);
     return {
       meta,
       errors,

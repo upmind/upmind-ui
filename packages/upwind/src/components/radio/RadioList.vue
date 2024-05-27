@@ -48,7 +48,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -64,6 +64,7 @@ import { isEmpty, isNil, omit } from "lodash-es";
 // --- types
 import type { PropType } from "vue";
 import type { InputProps, IconProps } from "../input/types";
+import type { RadioListProps } from "./types";
 
 // ----------------------------------------------
 
@@ -88,6 +89,11 @@ export default defineComponent({
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]>, default: null },
+    layout: {
+      type: String as PropType<RadioListProps["layout"]>,
+      default: "stacked",
+    },
+    stretch: { type: Boolean, default: false },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -127,6 +133,11 @@ export default defineComponent({
   setup(props, { emit }) {
     const meta = computed(() => ({
       size: props.size,
+      layout: props.layout,
+      align: props.align,
+      // ---
+      isBlock: props.block,
+      isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,
       isVisible: props.visible,
