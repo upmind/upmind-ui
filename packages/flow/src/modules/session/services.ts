@@ -67,7 +67,7 @@ async function getUser(_context: SessionContext, _event: any) {
   })
     .then(({ data }) => useUserParser(data?.actor))
     .then(data => {
-      if (isEmpty(data)) debugger;
+      // if (isEmpty(data)) debugger; //TODO try trace a race condition on refresh token
       return data;
     });
 
