@@ -289,6 +289,9 @@ export default {
           lg: "size-6",
         },
       },
+      defaultVariants: {
+        size: "md",
+      },
     }),
     content: cva("mx-auto flex items-center gap-x-3", {
       variants: {

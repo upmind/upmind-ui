@@ -69,6 +69,14 @@
         "text": "Your order is complete. You will receive an email confirmation shortly.",
         "avatar": "paying"
       }
+    },
+    "empty": {
+      "title": "Your bag is empty",
+      "text": "Looks like you haven't added anything to your bag yet.",
+      "avatar": "basket",
+      "actions": {
+        "continue": "Continue shopping"
+      }
     }
   }
 }
