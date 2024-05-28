@@ -7,18 +7,25 @@ export const useScrollSpy = () => {
   const target = ref(null);
 
   function scrollIntoView(id, offset) {
-    if (isScrolling.value) return; // bail if already scrolling
+    if (isScrolling.value) {
+      console.warn("Already scrolling");
+      return; // bail if already scrolling
+    }
 
     id = trimStart(id, "#"); // remove hash
 
     const element = document.getElementById(id);
 
-    if (!element) return; // bail if no element
+    if (!element) {
+      console.warn(`Element with id "${id}" not found`);
+      return; // bail if no element
+    }
 
     target.value =
       element.getBoundingClientRect().top - offset + window.pageYOffset;
 
     isScrolling.value = true;
+
     window.scrollTo({
       top: target.value,
       behavior: "smooth",
