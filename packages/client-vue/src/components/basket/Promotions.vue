@@ -6,7 +6,6 @@
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
-        appendIcon=""
         :label="$t('basket.discount.title')"
       >
         <template #append-icon>

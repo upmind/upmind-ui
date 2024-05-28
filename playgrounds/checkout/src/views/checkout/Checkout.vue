@@ -21,31 +21,11 @@
     </upw-steps>
 
     <!-- overview -->
-    <section
+    <upm-basket-items
       id="overview"
-      :class="[styles.checkout.section.root, styles.checkout.section.centered]"
-      class="border border-dashed bg-base-100"
+      :class="styles.checkout.section.root"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-    >
-      TODO: Overview Section
-
-      <div class="flex items-center justify-center">
-        <span class="relative inline-flex items-center gap-2 pr-3">
-          <upw-avatar
-            :key="items?.length"
-            v-if="items?.length"
-            size="xs"
-            class="absolute -top-2 right-0 bg-primary text-xs text-primary-content"
-          >
-            {{ items.length }}
-          </upw-avatar>
-
-          <upw-icon icon="basket" size="2xl" />
-
-          <span class="sr-only">{{ $t("header.checkout") }}</span>
-        </span>
-      </div>
-    </section>
+    />
 
     <!-- account -->
     <upm-session
@@ -96,6 +76,7 @@ import {
   useScrollSpy,
   useBasket,
   // ---
+  UpmBasketItems,
   UpmSession,
   UpmBasketDetails,
   UpmBasketConfirmation,
@@ -117,6 +98,7 @@ export default defineComponent({
   name: "Checkout",
   i18n: { messages: getLocalMessages("checkout") },
   components: {
+    UpmBasketItems,
     UpmSession,
     UpmBasketDetails,
     UpmBasketConfirmation,
@@ -129,7 +111,7 @@ export default defineComponent({
   },
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
-    const { items, meta } = useBasket();
+    const { meta, itemsPending } = useBasket();
     const { isScrolling, scrollIntoView } = useScrollSpy();
 
     const styles = useStyles(["checkout", "checkout.section"], meta, config);
@@ -137,7 +119,7 @@ export default defineComponent({
     return {
       mergeStyles,
       styles,
-      items,
+      itemsPending,
       meta,
       activeSection: ref(null),
       isScrolling,
@@ -196,7 +178,7 @@ export default defineComponent({
       }
     },
 
-    scrollTo(hash) {
+    scrollTo(hash = this.$route.hash) {
       if (this.meta.isLoading || this.meta.isProcessing || this.isScrolling)
         return;
 
@@ -209,7 +191,7 @@ export default defineComponent({
       // and only if weve never had a target before, ie on first load
       if (!target && !current) {
         // only do this section if weve not scrolled to a section yet
-        if (!this.meta.hasProducts) {
+        if (!this.meta.hasProducts || this.itemsPending?.length) {
           target = "overview";
         } else if (!this.meta.hasAccount) {
           target = "account";

@@ -18,7 +18,7 @@ import {
   useContextActor,
   useState,
 } from "../../utils";
-import { isEmpty, some } from "lodash-es";
+import { isEmpty, some, reject, filter } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -159,6 +159,18 @@ export const useBasket = () => {
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
     items: useContextActor(state, "items", []),
+    itemsPending: computed(() => {
+      const items = contextActor(state, "items", []);
+      debugger;
+      return reject(items, item => machineMatches(item, ["configured"]));
+    }),
+
+    itemsConfigured: computed(() => {
+      const items = contextActor(state, "items", []);
+      debugger;
+      return filter(items, item => machineMatches(item, ["configured"]));
+    }),
+
     products: useContext(state, "basket.products", []),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),

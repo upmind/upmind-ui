@@ -7,7 +7,7 @@
         </h3>
       </header>
 
-      <!-- items -->
+      <!-- products -->
       <dl :class="styles.basket.summary.list" v-if="summary?.products?.length">
         <template v-for="product in summary.products" :key="product.id">
           <dt
@@ -70,7 +70,7 @@
       <dl :class="styles.basket.summary.list">
         <dt :class="styles.basket.summary.heading">
           <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.discount.title", items.length)
+            $tc("basket.summary.discount.title", products.length)
           }}</span>
           <!-- TODO -->
           <!-- <upw-icon
@@ -86,7 +86,7 @@
 
         <dt :class="styles.basket.summary.heading">
           <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.taxes.title", items.length)
+            $tc("basket.summary.taxes.title", products.length)
           }}</span>
           <!-- TODO -->
           <!-- <upw-icon
@@ -183,13 +183,13 @@ export default defineComponent({
     },
   },
   setup() {
-    const { meta, checkout, removeItem, items, summary } = useBasket();
+    const { meta, checkout, removeItem, products, summary } = useBasket();
 
     const styles = useStyles(["basket.summary"], meta, config);
 
     return {
       meta,
-      items,
+      products,
       summary,
       checkout,
       removeItem,

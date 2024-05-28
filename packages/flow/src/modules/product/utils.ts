@@ -346,7 +346,11 @@ export const useProvisioningParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data: any) => {
+  console.log("useSummaryParser", { data });
   const summary = {
+    base: data?.base_price,
+    baseFormatted: data?.base_price_formatted,
+
     discount: data?.configuration_total_discount_amount_converted,
     discountFormatted: data?.configuration_total_discount_amount_formatted,
 
@@ -354,8 +358,8 @@ export const useSummaryParser = (data: any) => {
     subtotalFormatted: data?.configuration_total_amount_formatted,
 
     // TODO: use the correc ttotals when discoutns are applied!
-    total: data?.configuration_selling_price_discounted_converted,
-    totalFormatted: data?.configuration_net_selling_price_formatted,
+    total: data?.configuration_total_discounted_amount_converted,
+    totalFormatted: data?.configuration_total_discounted_amount_formatted,
   };
 
   return summary;
