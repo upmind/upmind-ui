@@ -11,7 +11,7 @@ export default {
           none: "bg-transparent",
           normal: "bg-black/25",
           dark: "bg-black/50",
-          light: "bg-white/25",
+          light: "bg-white/75",
           primary: "bg-primary/25",
           secondary: "bg-secondary/25",
           accent: "bg-accent/25",

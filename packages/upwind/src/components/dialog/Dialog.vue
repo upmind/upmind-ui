@@ -226,6 +226,7 @@ export default defineComponent({
       meta,
       styles,
       toggleModal,
+      open,
     };
   },
   computed: {},

@@ -68,14 +68,17 @@
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     />
 
-    <!-- confirmation -->
+    <!-- empty -->
+    <upm-basket-empty id="empty" :class="styles.checkout.section.root" />
+
+    <!-- order -->
     <section
       v-if="meta.isComplete"
-      id="confirmation"
+      id="order"
       :class="[styles.checkout.section.root, styles.checkout.section.centered]"
       class="border border-dashed bg-base-100"
     >
-      {{ $t("checkout.confirmation") }}
+      {{ $t("checkout.order") }}
     </section>
   </article>
 </template>
@@ -96,6 +99,7 @@ import {
   UpmSession,
   UpmBasketDetails,
   UpmBasketConfirmation,
+  UpmBasketEmpty,
   // ---
   UpwIcon,
   UpwAvatar,
@@ -116,6 +120,7 @@ export default defineComponent({
     UpmSession,
     UpmBasketDetails,
     UpmBasketConfirmation,
+    UpmBasketEmpty,
     // ---
     UpwSteps,
     UpwIcon,
@@ -143,11 +148,13 @@ export default defineComponent({
             label: "Overview",
             hash: "#overview",
             complete: meta.value.hasProducts && meta.value.hasFields,
+            disabled: !meta.value.isAvailable,
           },
           {
             label: "Account",
             hash: "#account",
             complete: meta.value.hasAccount,
+            disabled: !meta.value.isAvailable,
           },
           {
             label: "Payment",

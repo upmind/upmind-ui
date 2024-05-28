@@ -2,6 +2,7 @@
   <section
     :class="styles.basket.details.root"
     :disabled="!meta.hasProducts || !meta.hasAccount"
+    v-if="meta.isAvailable"
   >
     <header :class="styles.basket.details.header">
       <slot name="header" v-bind="{ meta }">
