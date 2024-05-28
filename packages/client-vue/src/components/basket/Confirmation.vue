@@ -44,13 +44,7 @@ export default defineComponent({
     return {
       meta,
       open: computed(() => {
-        const value =
-          meta.value.isComplete ||
-          meta.value.needsApproval ||
-          meta.value.isConverting ||
-          meta.value.isPaying ||
-          meta.value.isCheckout;
-
+        const value = meta.value.isProcessingOrder || meta.value.isComplete;
         return value;
       }),
 

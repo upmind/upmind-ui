@@ -191,7 +191,10 @@ export default defineComponent({
 
   methods: {
     scrollSpy([section]) {
-      if (!this.activeSection || this.isScrolling) return; // safety check to prevent multiple scrolls
+      if (!this.activeSection || this.isScrolling) {
+        debugger;
+        return; // safety check to prevent multiple scrolls
+      }
 
       // if we have manually scrolled to a section, update the active section
       if (section.isIntersecting && section.target?.id) {
@@ -200,7 +203,7 @@ export default defineComponent({
     },
 
     scrollTo(hash) {
-      if (!this.meta.isLoading && !this.meta.isProcessing) return;
+      // if (this.meta.isLoading || this.meta.isProcessing) return;
 
       const current = this.activeSection;
       let target = null;
@@ -213,6 +216,7 @@ export default defineComponent({
       if (hash) {
         target = trimStart(hash, "#");
       } else if (!current) {
+        debugger;
         // only do this section if weve not scrolled to a section yet
         if (!this.meta.hasProducts || !this.meta.hasFields) {
           target = "overview";
@@ -222,8 +226,8 @@ export default defineComponent({
           target = "payment";
         }
       }
-
       if (target && target != current) {
+        debugger;
         this.activeSection = target;
         this.scrollIntoView(this.activeSection, 108);
       }
