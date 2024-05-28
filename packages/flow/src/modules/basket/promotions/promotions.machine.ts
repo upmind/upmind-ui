@@ -99,6 +99,7 @@ export default createMachine(
           },
           UPDATE: {
             target: "processing",
+            cond: "hasBasket",
           },
         },
       },
@@ -259,6 +260,7 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
+      hasBasket: ({ basket_id }, _event) => !!basket_id,
     },
 
     delays: {
