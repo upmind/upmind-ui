@@ -27,7 +27,7 @@
       class="border border-dashed bg-base-100"
       v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     >
-      {{ $t("checkout.overview") }}
+      TODO: Overview Section
 
       <div class="flex items-center justify-center">
         <span class="relative inline-flex items-center gap-2 pr-3">
@@ -78,7 +78,7 @@
       :class="[styles.checkout.section.root, styles.checkout.section.centered]"
       class="border border-dashed bg-base-100"
     >
-      {{ $t("checkout.order") }}
+      TODO: Order Section
     </section>
   </article>
 </template>
