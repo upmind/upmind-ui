@@ -45,6 +45,12 @@ export const useProductConfig = item => {
     isNew: state.value.context.isNew,
     isDirty: state.value.context.isDirty,
     hasErrors: state.value.matches("error") || !isEmpty(errors.value),
+    isConfigurable:
+      // !isEmpty(state.value?.context?.available?.terms) ||
+      !isEmpty(state.value?.context?.available?.attributes) ||
+      !isEmpty(state.value?.context?.available?.options) ||
+      !isEmpty(state.value?.context?.available?.provision_fields?.properties),
+
     isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
     isCalculating: state.value.matches("calculating"),
@@ -302,17 +308,18 @@ export const useProductConfig = item => {
 
   return {
     state,
-    available,
+    // context,
+    errors,
+    meta,
     // ---
+    available,
     availableProduct,
     availableTerms,
     availableOptions,
     availableAttributes,
     availableFields,
     // ---
-    errors,
     model,
-    meta,
     summary,
     // ---
     clearErrors,

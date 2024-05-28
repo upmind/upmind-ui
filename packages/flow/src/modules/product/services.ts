@@ -250,10 +250,6 @@ async function checkTerm(
     }
   }
 
-  // now just return the billing_cycle_months, if we have one
-  // term = get(term, "billing_cycle_months", null);
-  term = pick(term, ["billing_cycle_months", "price"]);
-
   return new Promise((resolve, reject) => {
     if (!isNil(term)) resolve(term);
     else reject("Invalid Term Selected");

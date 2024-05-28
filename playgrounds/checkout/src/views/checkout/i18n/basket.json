@@ -1,5 +1,28 @@
 {
   "basket": {
+    "items": {
+      "title": "Now lets personalise your order",
+      "text": " Great | Great choice | Great Choices",
+      "invalid": {
+        "title": "Before we continue, we require additional details from you."
+      }
+    },
+    "item": {
+      "image": "/fallback-image-1.svg",
+      "free": "Free",
+      "promotion": "On promotion",
+      "trail": "Free trial",
+      "term": "billed {billing_cycle_name}",
+      "taxes": {
+        "included": "Taxes included",
+        "excluded": "Taxes excluded"
+      },
+      "more": "Show more"
+    },
+    "details": {
+      "title": "Your bag total is {total}",
+      "text": "Let's complete your order"
+    },
     "discount": {
       "title": "Have a discount code?",
       "tooltip": "Discount applied",
@@ -33,10 +56,6 @@
           "text": "Encrypted and secure payments"
         }
       ]
-    },
-    "details": {
-      "title": "Your bag total is {total}",
-      "text": "Let's complete your order"
     },
     "confirmation": {
       "invalid": {
