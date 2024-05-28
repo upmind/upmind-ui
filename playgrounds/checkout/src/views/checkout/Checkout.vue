@@ -178,11 +178,8 @@ export default defineComponent({
     };
   },
   watch: {
-    meta: {
-      immediate: true,
-      handler() {
-        this.scrollTo();
-      },
+    meta() {
+      this.scrollTo();
     },
   },
   mounted() {
@@ -191,10 +188,7 @@ export default defineComponent({
 
   methods: {
     scrollSpy([section]) {
-      if (!this.activeSection || this.isScrolling) {
-        debugger;
-        return; // safety check to prevent multiple scrolls
-      }
+      if (!this.activeSection || this.isScrolling) return; // safety check to prevent multiple scrolls
 
       // if we have manually scrolled to a section, update the active section
       if (section.isIntersecting && section.target?.id) {
@@ -203,22 +197,19 @@ export default defineComponent({
     },
 
     scrollTo(hash) {
-      // if (this.meta.isLoading || this.meta.isProcessing) return;
+      if (this.meta.isLoading || this.meta.isProcessing || this.isScrolling)
+        return;
 
       const current = this.activeSection;
-      let target = null;
-
       // fallback to the route hash if set
-      hash ??= this.$route?.hash;
+      let target = trimStart(hash, "#");
 
       // scroll to the appropriate step when the basket has loaded
-      // but only if the route has no hash, ie user has not navigated to a specific step
-      if (hash) {
-        target = trimStart(hash, "#");
-      } else if (!current) {
-        debugger;
+      // but only if we dont already have no target, ie user has not navigated to a specific step
+      // and only if weve never had a target before, ie on first load
+      if (!target && !current) {
         // only do this section if weve not scrolled to a section yet
-        if (!this.meta.hasProducts || !this.meta.hasFields) {
+        if (!this.meta.hasProducts) {
           target = "overview";
         } else if (!this.meta.hasAccount) {
           target = "account";
@@ -226,8 +217,8 @@ export default defineComponent({
           target = "payment";
         }
       }
+
       if (target && target != current) {
-        debugger;
         this.activeSection = target;
         this.scrollIntoView(this.activeSection, 108);
       }
