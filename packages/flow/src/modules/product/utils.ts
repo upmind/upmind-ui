@@ -427,9 +427,21 @@ export const useSummaryParser = (data: any) => {
     );
   }
 
-  // if (data?.provision_fields) {
-  //   summary.details.push({ provision_fields: data.provision_fields });
-  // }
+  if (data?.provision_fields) {
+    debugger;
+    reduce(
+      data.provision_fields,
+      (result, value, field) => {
+        result.push({
+          key: `provision_field.${field}`,
+          category: field, // todo get field name
+          name: value,
+        });
+        return result;
+      },
+      summary.details
+    );
+  }
 
   return summary;
 };
