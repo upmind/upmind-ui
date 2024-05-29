@@ -96,12 +96,12 @@ export default {
         ],
       }
     ),
-    content: cva("flex-1 text-sm text-base-500 flex flex-col gap-1", {}),
+    content: cva("flex-1 text-sm text-base-700 flex flex-col gap-1", {}),
     header: cva("flex gap-4 items-center justify-start"),
     icon: cva("size-4"),
     avatar: cva("size-6 rounded-full border overflow-hidden "),
     title: cva(
-      "m-0 leading-none text-md text-base-content gap-2 inline-flex font-normal"
+      "m-0 leading-none text-md text-base-content gap-1 inline-flex font-normal"
     ),
     text: cva("leading-tight "),
     verified: cva("", {
@@ -121,7 +121,7 @@ export default {
     ),
     title: cva("text-inherit m-0"),
     text: cva("text-base-700 text-center m-0"),
-    icon: cva("size-8 text-base-500"),
+    icon: cva("size-8 text-base-700"),
   },
   clientRadio: {
     radio: {

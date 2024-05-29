@@ -15,48 +15,39 @@
       </slot>
     </header>
 
-    <div :class="styles.basket.items.content">
-      <aside
-        :class="styles.basket.items.invalid.root"
-        v-if="!meta.isLoading && itemsPending?.length"
-      >
-        <header :class="styles.basket.items.invalid.header">
-          {{ $t("basket.items.invalid.title") }}
-        </header>
+    <!-- pending items -->
+    <aside
+      :class="
+        mergeStyles(
+          styles.basket.items.content,
+          styles.basket.items.pending.root
+        )
+      "
+      v-if="!meta.isLoading && itemsPending?.length"
+    >
+      <header :class="styles.basket.items.pending.header">
+        {{ $t("basket.items.pending.title") }}
+      </header>
 
+      <div :class="styles.basket.items.pending.content">
         <upm-basket-item
           v-for="item in itemsPending"
           :key="item.id"
           :model-value="item.id"
           :item="item"
-          :loading="meta.isLoading"
-          :processing="meta.isProcessing"
-          @reject="removeItem(item.id)"
-          @resolve="updateItem(item.id)"
-          @update:attributes="updateAttributes"
-          @update:options="updateOptions"
-          @update:provisioning="updateProvisioning"
-          @update:quantity="updateQuantity"
-          @update:term="updateTerm"
+          :class="styles.basket.items.pending.item"
         />
-        <footer :class="styles.basket.items.invalid.footer"></footer>
-      </aside>
+      </div>
+    </aside>
 
+    <!-- configured items -->
+    <div :class="styles.basket.items.content">
       <template v-if="!meta.isLoading && itemsConfigured?.length">
         <upm-basket-item
           v-for="item in itemsConfigured"
           :key="item.id"
           :model-value="item.id"
           :item="item"
-          :loading="meta.isLoading"
-          :processing="meta.isProcessing"
-          @reject="removeItem(item.id)"
-          @resolve="updateItem(item.id)"
-          @update:attributes="updateAttributes"
-          @update:options="updateOptions"
-          @update:provisioning="updateProvisioning"
-          @update:quantity="updateQuantity"
-          @update:term="updateTerm"
         />
       </template>
     </div>
@@ -77,7 +68,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmBasketItem from "./ItemCard.vue";
+import UpmBasketItem from "./Item.vue";
 
 // --- types
 
@@ -87,22 +78,10 @@ export default defineComponent({
   components: { UpmBasketItem },
   props: {},
   setup() {
-    const {
-      meta,
-      items,
-      itemsPending,
-      itemsConfigured,
-      removeItem,
-      updateAttributes,
-      updateItem,
-      updateOptions,
-      updateProvisioning,
-      updateQuantity,
-      updateTerm,
-    } = useBasket();
+    const { meta, items, itemsPending, itemsConfigured } = useBasket();
 
     const styles = useStyles(
-      ["basket.items", "basket.items.invalid"],
+      ["basket.items", "basket.items.pending"],
       meta,
       config
     );
@@ -114,13 +93,6 @@ export default defineComponent({
       items,
       itemsPending,
       itemsConfigured,
-      removeItem,
-      updateAttributes,
-      updateItem,
-      updateOptions,
-      updateProvisioning,
-      updateQuantity,
-      updateTerm,
       // ---
       styles,
       mergeStyles,

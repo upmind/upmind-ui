@@ -1,90 +1,96 @@
 <template>
   <article class="flex flex-col items-center justify-center gap-4">
-    <h1 class="flex justify-center gap-4">
-      <span>Basket</span>
+    <header>
+      <h1 class="flex justify-center gap-4">
+        <span>Basket</span>
 
-      <span v-if="meta.isLoading">
-        is <span class="text-primary">Loading&hellip;</span>
-      </span>
-
-      <span v-if="meta.isProcessing">
-        is <span class="text-primary">Updating</span>
-      </span>
-
-      <template v-if="!meta.isLoading && !meta.isProcessing">
-        <!-- Main Statuses -->
-        <span v-if="meta.isComplete">
-          is <span class="text-primary">Paid and Complete!</span>
+        <span v-if="meta.isLoading">
+          is <span class="text-primary">Loading&hellip;</span>
         </span>
 
-        <span v-else-if="meta.isPaying">
-          is <span class="text-primary">Attempting Payment</span>
+        <span v-if="meta.isProcessing">
+          is <span class="text-primary">Updating</span>
         </span>
 
-        <span v-else-if="meta.isConverting">
-          is <span class="text-primary">Converting to an Order</span>
-        </span>
+        <template v-if="!meta.isLoading && !meta.isProcessing">
+          <!-- Main Statuses -->
+          <span v-if="meta.isComplete">
+            is <span class="text-primary">Paid and Complete!</span>
+          </span>
 
-        <span v-else-if="meta.isCheckout">
-          is <span class="text-primary">Gathering Payment Details</span>
-        </span>
+          <span v-else-if="meta.isPaying">
+            is <span class="text-primary">Attempting Payment</span>
+          </span>
 
-        <span v-else-if="meta.isReadyForCheckout">
-          is <span class="text-primary">Ready for Checkout</span>
-        </span>
+          <span v-else-if="meta.isConverting">
+            is <span class="text-primary">Converting to an Order</span>
+          </span>
 
-        <!-- ----- -->
-        <!-- Shopping Statuses -->
-        <span v-else-if="!meta.isAvailable">
-          is <span class="text-primary">Empty</span>
-        </span>
+          <span v-else-if="meta.isCheckout">
+            is <span class="text-primary">Gathering Payment Details</span>
+          </span>
 
-        <span v-else-if="meta.needsUpdating">
-          needs <span class="text-primary">Updating</span>
-        </span>
+          <span v-else-if="meta.isReadyForCheckout">
+            is <span class="text-primary">Ready for Checkout</span>
+          </span>
 
-        <!-- <span v-else-if="!meta.hasProducts">
+          <!-- ----- -->
+          <!-- Shopping Statuses -->
+          <span v-else-if="!meta.isAvailable">
+            is <span class="text-primary">Empty</span>
+          </span>
+
+          <span v-else-if="meta.needsUpdating">
+            needs <span class="text-primary">Updating</span>
+          </span>
+
+          <!-- <span v-else-if="!meta.hasProducts">
           needs <span class="text-warning">Configuring</span>
         </span> -->
 
-        <!-- <span v-else-if="meta.hasErrors">
+          <!-- <span v-else-if="meta.hasErrors">
           needs <span class="text-warning">Attention</span>
         </span> -->
 
-        <span v-else>
-          needs <span class="text-warning">Information</span>
+          <span v-else>
+            needs <span class="text-warning">Information</span>
 
-          <!-- is <span class="text-warning">NOT</span> Ready for Checkout -->
+            <!-- is <span class="text-warning">NOT</span> Ready for Checkout -->
+          </span>
+        </template>
+      </h1>
+    </header>
+
+    <upm-auth v-if="meta.needsAuth" class="w-full max-w-xl" />
+
+    <template v-else>
+      <section>
+        <upw-dropdown
+          v-if="!meta.isLoading && productCatalogue.length >= 1"
+          label="Add to Basket"
+          prepend-icon="basket-plus"
+          :items="productCatalogue"
+          :loading="meta.isProcessing"
+        />
+      </section>
+
+      <h3 v-if="meta.isAvailable" class="font-medium">
+        There {{ items.length > 1 ? "are" : "is" }}
+        <span class="text-primary">
+          {{ items.length }}
         </span>
-      </template>
-    </h1>
+        <span> product{{ items.length > 1 ? "s" : "" }} </span>
+        in the Basket
+      </h3>
 
-    <section>
-      <upw-dropdown
-        v-if="!meta.isLoading && productCatalogue.length >= 1"
-        label="Add to Basket"
-        prepend-icon="basket-plus"
-        :items="productCatalogue"
-        :loading="meta.isProcessing"
+      <upw-button
+        v-if="meta.isAvailable"
+        label="Proceed to Checkout"
+        prepend-icon="basket"
+        append-icon="arrow-right"
+        @click="() => $router.push({ name: 'checkout' })"
       />
-    </section>
-
-    <h3 v-if="meta.isAvailable" class="font-medium">
-      There {{ items.length > 1 ? "are" : "is" }}
-      <span class="text-primary">
-        {{ items.length }}
-      </span>
-      <span> product{{ items.length > 1 ? "s" : "" }} </span>
-      in the Basket
-    </h3>
-
-    <upw-button
-      v-if="meta.isAvailable"
-      label="Proceed to Checkout"
-      prepend-icon="basket"
-      append-icon="arrow-right"
-      @click="() => $router.push({ name: 'checkout' })"
-    />
+    </template>
   </article>
 </template>
 
@@ -94,7 +100,7 @@
 // --- internal
 
 // ---components
-import { useBasket, UpwDropdown, UpwButton } from "@upmind/client-vue";
+import { useBasket, UpwDropdown, UpwButton, UpmAuth } from "@upmind/client-vue";
 
 // --- utils
 // ---------------------------------------------------

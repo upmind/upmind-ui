@@ -124,7 +124,7 @@ export default defineComponent({
         {
           label: this.$t(`client.${this.i18nKey}.badges.default`),
           variant: "tonal",
-          color: "primary",
+          color: "base",
           visible: this.meta.isDefault,
         },
       ];

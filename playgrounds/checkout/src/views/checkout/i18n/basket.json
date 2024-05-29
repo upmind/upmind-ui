@@ -3,7 +3,7 @@
     "items": {
       "title": "Now lets personalise your order",
       "text": " Great | Great choice | Great Choices",
-      "invalid": {
+      "pending": {
         "title": "Before we continue, we require additional details from you."
       }
     },
@@ -12,12 +12,12 @@
       "free": "Free",
       "promotion": "On promotion",
       "trail": "Free trial",
-      "term": "billed {billing_cycle_name}",
+      "term": "billed {name}",
       "taxes": {
         "included": "Taxes included",
         "excluded": "Taxes excluded"
       },
-      "more": "Show more"
+      "more": "Show more | Show less"
     },
     "details": {
       "title": "Your bag total is {total}",
@@ -34,7 +34,7 @@
       }
     },
     "summary": {
-      "title": "Order Summary",
+      "title": "Order summary",
       "items": {
         "title": "Items"
       },

@@ -12,7 +12,6 @@
             :disabled="!meta.isReadyForCheckout || meta.isProcessing"
             @click.prevent="doCheckout"
             color="primary"
-            class="ml-auto"
             :label="$t('basket.summary.actions.submit')"
             block
           />
@@ -179,9 +178,6 @@ export default defineComponent({
     },
 
     scrollTo(hash = this.$route.hash) {
-      if (this.meta.isLoading || this.meta.isProcessing || this.isScrolling)
-        return;
-
       const current = this.activeSection;
       // fallback to the route hash if set
       let target = trimStart(hash, "#");
@@ -189,7 +185,7 @@ export default defineComponent({
       // scroll to the appropriate step when the basket has loaded
       // but only if we dont already have no target, ie user has not navigated to a specific step
       // and only if weve never had a target before, ie on first load
-      if (!target && !current) {
+      if (!target && !current && !this.meta.isLoading) {
         // only do this section if weve not scrolled to a section yet
         if (!this.meta.hasProducts || this.itemsPending?.length) {
           target = "overview";
@@ -201,6 +197,7 @@ export default defineComponent({
       }
 
       if (target && target != current) {
+        this.isScrolling = false;
         this.activeSection = target;
         this.scrollIntoView(this.activeSection, 108);
       }

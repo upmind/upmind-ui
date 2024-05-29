@@ -112,7 +112,11 @@ export const useSummaryParser = (data?: any) => {
       id: product?.id,
       name: product?.product_name,
       quantity: product?.quantity,
-      total: product?.configuration_net_selling_price_formatted,
+      total: product?.configuration_total_amount_formatted,
+
+      // total: data?.selling_price_formatted,
+      // total: data?.configuration_total_amount_formatted,
+      // total: data?.configuration_total_discounted_amount_formatted,
     })),
     discount: data?.net_discount_amount_formatted, // total_discount_amount
     subtotal: data?.net_amount_formatted || "", // total_amount

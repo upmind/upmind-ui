@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex w-full flex-wrap border-b border-gray-200 bg-base py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start"
+    class="flex w-full flex-wrap border-b border-base-300 bg-base py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start"
   >
     <nav
       class="relative mx-auto flex w-full flex-wrap items-center gap-4 px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-20"
@@ -17,7 +17,7 @@
         }}</span>
       </router-link>
 
-      <div class="flex flex-1 items-center justify-end gap-8">
+      <div class="flex flex-1 items-center justify-end gap-4">
         <upw-listbox
           v-if="$i18n?.locale && locales.length > 1"
           size="sm"
@@ -32,22 +32,23 @@
 
         <upm-currency />
 
-        <RouterLink
+        <upw-button
           to="/checkout"
-          class="relative inline-flex items-center gap-2 pr-3 text-base-700 hover:text-base-content"
+          class="relative"
+          append-icon="basket"
+          color="base"
+          variant="ghost"
         >
-          <upw-avatar
-            :key="items?.length"
-            v-if="items?.length"
-            class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
-          >
-            {{ items.length }}
-          </upw-avatar>
-
-          <upw-icon icon="basket" size="sm" />
-
-          <span class="sr-only">{{ $t("header.checkout") }}</span>
-        </RouterLink>
+          <template #append-avatar>
+            <upw-avatar
+              :key="items?.length"
+              v-if="items?.length"
+              class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
+            >
+              {{ items.length }}
+            </upw-avatar>
+          </template>
+        </upw-button>
 
         <upm-profile />
       </div>
@@ -64,6 +65,7 @@ import {
   UpmProfile,
   UpmCurrency,
   UpwAvatar,
+  UpwButton,
   UpwIcon,
 } from "@upmind/client-vue";
 
@@ -74,6 +76,7 @@ export default defineComponent({
     UpwAvatar,
     UpwIcon,
     UpwListbox,
+    UpwButton,
     UpmProfile,
     UpmCurrency,
   },

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="divide-base-200 border-base-200 flex w-full animate-pulse flex-col space-y-4 divide-y rounded border p-4 md:p-6"
+    class="divide-base-200 border-base-300 flex w-full animate-pulse flex-col space-y-4 divide-y rounded border p-4 md:p-6"
     role="status"
   >
     <div class="flex items-center justify-between">

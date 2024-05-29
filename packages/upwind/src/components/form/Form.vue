@@ -140,7 +140,7 @@ export default defineComponent({
       default: false,
     },
     autosave: { type: Boolean },
-
+    size: { type: String },
     // ---
 
     loading: {

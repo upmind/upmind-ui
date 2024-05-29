@@ -120,7 +120,7 @@ export default {
           {
             color: "base",
             variant: "outlined",
-            class: "border-base-200 hover:bg-base-200 text-base-content",
+            class: "border-base-300 hover:bg-base-200 text-base-content",
           },
           {
             color: "base",
