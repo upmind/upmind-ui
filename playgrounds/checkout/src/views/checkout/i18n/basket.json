@@ -8,7 +8,7 @@
       }
     },
     "item": {
-      "image": "/fallback-image-1.svg",
+      "image": "/fallback-image.svg",
       "free": "Free",
       "promotion": "On promotion",
       "trail": "Free trial",

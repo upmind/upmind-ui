@@ -70,6 +70,7 @@ export default {
       title: cva(
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
+      text: cva("m-0 text-lg font-light text-base-700 leading-7"),
       content: cva("w-full flex-1 flex flex-col gap-6"),
       footer: cva("max-w-xs w-full items-start sm:sticky sm:top-40 order-last"),
     },
@@ -89,16 +90,18 @@ export default {
       title: cva(
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
+      text: cva("m-0 text-lg font-light text-base-700 leading-7"),
+
       // ---
       pending: {
         root: cva(
           "bg-error text-error-content border border-error rounded-lg gap-0"
         ),
         header: cva(
-          "flex items-center gap-2 px-6 py-1 text-center justify-center tetx-sm"
+          "flex items-center gap-2 px-6 py-1 text-center justify-center text-sm"
         ),
         content: cva("flex flex-col rounded-lg"),
-        item: cva("rounded-none border-b-0 last:rounded-b-lg last:border-b"),
+        item: cva("rounded-none border-b-0 last:rounded-b-lg"),
         footer: cva("empty:hidden flex gap-2 justify-end p-4"),
       },
     },
