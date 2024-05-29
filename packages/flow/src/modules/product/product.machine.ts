@@ -333,6 +333,36 @@ export default (values, currency_id, promotions) => {
     },
     {
       actions: {
+        // ---
+        setAvailable: assign({
+          available: (_context, { data }) => {
+            return {
+              product: useProductParser(data),
+              terms: useTermsParser(data.prices),
+              attributes: useAttributesParser(data.products_attributes),
+              options: useOptionsParser(data.products_options),
+              provision_fields: useProvisioningParser(
+                data.products_provisioning
+              ),
+            };
+          },
+
+          summary: ({ summary, isNew }, { data }) => {
+            if (!isNew) return summary;
+
+            // if we have a new product thats not yet configured, the summary should just show the base price
+            return {
+              // the base price without any discounts or configuration
+              price: data?.display_price,
+              price_formatted: data?.display_price,
+
+              // the total price after the discount
+              total: data?.display_price,
+              total_formatted: data?.display_price,
+            };
+          },
+        }),
+
         setValues: assign({
           currency_id: ({ currency_id }, { data }) =>
             data?.currency_id || currency_id,
@@ -437,21 +467,6 @@ export default (values, currency_id, promotions) => {
           isDirty: false,
           needsCalculating: false,
           error: null,
-        }),
-
-        // ---
-        setAvailable: assign({
-          available: (_context, { data }) => {
-            return {
-              product: useProductParser(data),
-              terms: useTermsParser(data.prices),
-              attributes: useAttributesParser(data.products_attributes),
-              options: useOptionsParser(data.products_options),
-              provision_fields: useProvisioningParser(
-                data.products_provisioning
-              ),
-            };
-          },
         }),
 
         // ---

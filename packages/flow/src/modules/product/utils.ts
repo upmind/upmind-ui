@@ -347,7 +347,6 @@ export const useProvisioningParser = (data: any) => {
 
 export const useSummaryParser = (data: any) => {
   const { getBillingCycle } = useSystem();
-  console.log("useSummaryParser", { data });
 
   const summary = {
     // the base price without any discounts or configuration
@@ -428,7 +427,6 @@ export const useSummaryParser = (data: any) => {
   }
 
   if (data?.provision_fields) {
-    debugger;
     reduce(
       data.provision_fields,
       (result, value, field) => {
