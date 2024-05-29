@@ -10,26 +10,22 @@ export default {
     summary: {
       root: cva("w-full flex flex-col gap-8 text-left"),
       header: cva("w-full"),
-      title: cva("text-lg font-medium m-0 text-xl tracking-tight"),
+      title: cva("text-lg font-normal m-0 text-xl tracking-tight"),
       content: cva(
         "grid space-y-4 rounded-lg border border-base-300 shadow-md p-6 bg-base text-base-content w-full"
       ),
       form: cva(
         "border-t border-base-300 first:pt-0 first:border-t-0 pt-4 text-sm m-0"
       ),
-
       list: cva(
-        "grid grid-cols-3 gap-0 border-t border-base-300 first:pt-0 first:border-t-0 pt-4 text-sm m-0"
+        "grid grid-cols-2 gap-0 border-t border-base-300 first-of-type:pt-0 first-of-type:border-t-0 pt-4 text-sm m-0"
       ),
-      heading: cva(
-        "font-light m-0 flex gap-2 items-center flex-1 col-span-2 group"
-      ),
-
+      heading: cva("font-light m-0 flex gap-2 items-center flex-1 group"),
       text: cva(
-        "text-left m-0 text-sm inline-flex items-start gap-2 leading-normal"
+        "text-left m-0 text-sm inline-flex items-start gap-2 leading-normal font-normal text-base-700"
       ),
-      value: cva("text-right m-0 flex-0"),
-      product: cva("font-medium"),
+      bold: cva("font-medium text-base-content"),
+      value: cva("text-right m-0 flex-0 text-base-content font-medium"),
       total: cva("font-medium "),
       icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),
@@ -47,10 +43,10 @@ export default {
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       title: cva("sr-only"),
       content: cva(),
-      footer: cva(),
+      footer: cva("flex gap-1 items-center"),
 
       form: {
-        root: cva("flex-row gap-2"),
+        root: cva("flex-row gap-0"),
         actions: cva("items-center w-auto"),
       },
     },
@@ -94,13 +90,15 @@ export default {
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
       // ---
-      invalid: {
+      pending: {
         root: cva(
-          "bg-error text-error-content border border-error rounded-lg flex flex-col"
+          "bg-error text-error-content border border-error rounded-lg gap-0"
         ),
         header: cva(
           "flex items-center gap-2 px-6 py-1 text-center justify-center tetx-sm"
         ),
+        content: cva("flex flex-col rounded-lg"),
+        item: cva("rounded-none border-b-0 last:rounded-b-lg last:border-b"),
         footer: cva("empty:hidden flex gap-2 justify-end p-4"),
       },
     },
@@ -114,23 +112,24 @@ export default {
               true: "pointer-events-none opacity-50",
             },
 
-            isNew: {
-              true: "border-error",
-            },
+            // isNew: {
+            //   true: "rounded-none border-none",
+            // },
           },
 
-          compoundVariants: [
-            {
-              isLoading: false,
-              hasErrors: true,
-              class: "border-error",
-            },
-            {
-              isLoading: false,
-              isConfigured: false,
-              class: "border-error",
-            },
-          ],
+          // compoundVariants: [
+          //   {
+          //     isLoading: false,
+          //     hasErrors: true,
+          //     class: "border-error",
+          //   },
+          //   {
+          //     isLoading: false,
+          //     isConfigured: false,
+          //     class: "rounded-none border-none",
+          //   },
+          // ],
+
           defaultVariants: {
             isDisabled: false,
             hasErrors: false,
@@ -138,6 +137,7 @@ export default {
           },
         }
       ),
+      wrapper: cva("gap-6 flex flex-wrap items-stretch w-full flex-1"),
       media: cva("flex-none size-20 rounded-lg overflow-hidden m-0 p-0", {
         variants: {
           filled: {
@@ -149,27 +149,40 @@ export default {
         "flex-1 flex flex-col justify-center text-left items-start gap-2 "
       ),
       content: cva(
-        "w-full flex-none flex flex-wrap gap-6 order-last empty:hidden border-t border-base-300 pt-2 "
+        "w-full flex-none flex flex-wrap gap-6 order-last empty:hidden border-t border-base-300 pt-4 "
       ),
       collapsible: cva(
         "transition max-h-0 opacity-0 aria-expanded:opacity-100 aria-expanded:max-h-fit overflow-hidden aria-hidden:hidden"
       ),
-      footer: cva("flex max-w-xs flex-1 items-center text-right justify-end"),
+      footer: cva(
+        "flex max-w-xs flex-1 items-center text-right justify-end gap-6"
+      ),
       // ---
       title: cva("w-full m-0 text-2xl font-normal leading-none tracking-wide"),
-      details: cva(
-        "w-full flex gap-2 items-center text-left lowercase m-0 text-sm leading-snug"
+      meta: cva(
+        "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
       ),
-      text: cva("w-full text-left m-0 mt-3 text-sm leading-normal"),
-      total: cva("font-semibold text-2xl leading-snug tracking-wide"),
+      text: cva("w-full text-left m-0 text-sm leading-normal"),
+      bold: cva("font-medium "),
+      total: cva("font-medium text-2xl leading-snug tracking-wide"),
       discount: cva(
-        "font-normal text-md leading-snug tracking-wide line-through"
+        "font-normal text-md leading-snug tracking-wide line-through text-base-700"
       ),
       // ---
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       image: cva("h-full w-full object-cover"),
-      actions: cva(""),
+      actions: cva("flex gap-2 items-center"),
       summary: cva("inline-flex flex-col"),
+      // ---
+      details: {
+        root: cva("grid grid-cols-4 gap-6 py-4 px-0 m-0 list-none w-full"),
+        item: cva("p-0 m-0 flex flex-col gap-0 "),
+        full: cva("col-span-4"),
+        title: cva(
+          "font-normal text-base-500 m-0 text-sm tracking-wide m-0 p-0 "
+        ),
+        text: cva("m-0 text-sm tracking-wide m-0 p-0 "),
+      },
     },
 
     paymentDetails: {

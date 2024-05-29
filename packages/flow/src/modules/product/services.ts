@@ -539,11 +539,11 @@ async function calculateSummary(
       const newSummary = {
         currency_id: summary?.currency_id,
         subtotal: subtotal?.total,
-        subtotalFormatted: subtotal?.total_formatted,
+        subtotal_formatted: subtotal?.total_formatted,
         discount: discount?.total,
-        discountFormatted: discount?.total_formatted,
+        discount_formatted: discount?.total_formatted,
         total: total?.total,
-        totalFormatted: total?.total_formatted,
+        total_formatted: total?.total_formatted,
       };
       return newSummary;
     }

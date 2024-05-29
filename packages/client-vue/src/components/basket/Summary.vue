@@ -14,7 +14,7 @@
             :class="
               mergeStyles(
                 styles.basket.summary.heading,
-                styles.basket.summary.product
+                styles.basket.summary.text
               )
             "
           >
@@ -30,10 +30,10 @@
             "
           >
             <slot name="actions" v-bind="{ ...$props, product }">
-              <span v-if="noActions">
+              <strong :class="styles.basket.summary.bold" v-if="noActions">
                 {{ product.total }}<br />
                 <!-- <small>{{ product.quantity }}</small> -->
-              </span>
+              </strong>
 
               <template v-else>
                 <upw-button

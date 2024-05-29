@@ -1,6 +1,7 @@
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket as useUpmindBasket } from "@upmind/flow";
@@ -18,7 +19,7 @@ import {
   useContextActor,
   useState,
 } from "../../utils";
-import { isEmpty, some, reject, filter } from "lodash-es";
+import { isEmpty, some, reject, filter, last } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -161,13 +162,11 @@ export const useBasket = () => {
     items: useContextActor(state, "items", []),
     itemsPending: computed(() => {
       const items = contextActor(state, "items", []);
-      debugger;
       return reject(items, item => machineMatches(item, ["configured"]));
     }),
 
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
-      debugger;
       return filter(items, item => machineMatches(item, ["configured"]));
     }),
 
@@ -186,11 +185,22 @@ export const useBasket = () => {
     // Item Methods
 
     addProduct: ({ id, product_id, quantity, term, attributes, options }) => {
-      // const { product_id, quantity, term, attributes, options } = unref(model);
+      // lets add the new product base don the provided config to the basket
       send({
         type: "ADD",
         data: { id, product_id, quantity, term, attributes, options },
       });
+
+      // then wait/check for the new product actor to be configured
+      // then send the update event to the basket
+      const item = last(contextValue(state, "items"));
+      waitFor(item, newstate => newstate.matches("configured"))
+        .then(() => {
+          send({ type: "UPDATE", data: item });
+        })
+        .catch(() => {
+          // do nothing, it just means the item needs additional configuration
+        });
     },
 
     removeItem: itemId => {
