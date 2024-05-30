@@ -2,7 +2,7 @@
   <label
     :for="id"
     :class="styles.label.root"
-    v-if="!noRequired && !noStatus && !noLabel"
+    v-if="!noRequired || !noStatus || !noLabel"
   >
     <span :class="styles.label.text" v-if="text">
       {{ text }}

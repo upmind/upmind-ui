@@ -1,8 +1,15 @@
 <template>
-  <section
+  <upw-input
     v-if="hasBillingCycle"
     :class="styles.product.config.terms.root"
+    :label="$t('product.terms.label')"
     :disabled="disabled"
+    :required="true"
+    no-required
+    no-feedback
+    no-status
+    variant="flat"
+    layout="stacked"
   >
     <h-radio-group
       :model-value="modelValue"
@@ -42,7 +49,7 @@
             <upw-badge
               v-if="term.saving"
               color="primary"
-              :label="$t('product.save', term)"
+              :label="$t('product.terms.save', term)"
             />
 
             <!-- monthly -->
@@ -51,7 +58,7 @@
               v-if="term?.monthly_price_from && term.billing_cycle_months > 1"
             >
               {{
-                $t("product.cycle", {
+                $t("product.terms.cycle", {
                   value: term?.monthly_price_from_discounted
                     ? term.monthly_price_from_discounted_formatted
                     : term.monthly_price_from_formatted,
@@ -62,19 +69,24 @@
 
           <div :class="styles.product.config.term.footer">
             <strong :class="styles.product.config.term.total">
-              {{ term?.price ? term.price_formatted : $t("product.free") }}
+              {{
+                term?.price
+                  ? term.price_discounted_formatted
+                  : $t("product.free")
+              }}
             </strong>
+
             <span
               :class="styles.product.config.term.discount"
               v-if="term?.price_discounted"
             >
-              {{ term.price_discounted_formatted }}
+              {{ term.price_formatted }}
             </span>
           </div>
         </li>
       </h-radio-group-option>
     </h-radio-group>
-  </section>
+  </upw-input>
 </template>
 
 <script lang="ts">
@@ -87,7 +99,7 @@ import config from "./config.cva";
 
 // --- components
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { UpwRadio, UpwBadge } from "@upmind/upwind";
+import { UpwRadio, UpwBadge, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { isEqual, isNil } from "lodash-es";
@@ -96,6 +108,7 @@ import { isEqual, isNil } from "lodash-es";
 export default defineComponent({
   name: "UpmProductConfigTerms",
   components: {
+    UpwInput,
     UpwRadio,
     UpwBadge,
     HRadioGroup: RadioGroup,
