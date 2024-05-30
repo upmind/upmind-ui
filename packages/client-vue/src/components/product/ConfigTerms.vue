@@ -152,7 +152,6 @@ export default defineComponent({
   },
   methods: {
     doResolve(term) {
-      debugger;
       if (this.disabled) return;
 
       this.$emit("update:modelValue", term);

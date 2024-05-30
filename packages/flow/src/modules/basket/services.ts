@@ -189,13 +189,12 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
 // to achieve this we simply take the 1st  item and process it
 // and then return the  new basket AND the internal id/machine of the item that was processed
 
-async function updateItem({ basket, items, queue }, { data }: BasketEvent) {
+async function updateItem({ basket, items }, { data }: BasketEvent) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-  const item = find(queue, ["id", data.itemId]);
+  const item = find(items, ["id", data.itemId]);
 
-  if (!item)
-    return Promise.reject(`No such item in the queue : ${data.itemid}`);
+  if (!item) return Promise.reject(`No such item : ${data.itemid}`);
 
   const isNew = get(item.state, "context.isNew");
   const config = get(item.state, "context.config");
