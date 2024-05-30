@@ -70,9 +70,11 @@
           <div :class="styles.product.config.term.footer">
             <strong :class="styles.product.config.term.total">
               {{
-                term?.price
+                term?.price_discounted
                   ? term.price_discounted_formatted
-                  : $t("product.free")
+                  : term?.price
+                    ? term.price_formatted
+                    : $t("product.free")
               }}
             </strong>
 

@@ -44,11 +44,11 @@
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
-          <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="xs" />
+          <upw-spinner v-if="loading || meta.isCalculating" size="xs" />
 
           <upw-quantitybox
             v-if="availableProduct?.canChangeQuantity"
-            :disabled="meta.isProcessing"
+            :disabled="processing"
             :min="availableProduct?.min_order_quantity"
             :max="availableProduct?.max_order_quantity"
             :step="availableProduct?.unit_quantity"
@@ -79,7 +79,7 @@
         <!-- terms -->
 
         <upm-config-terms
-          :disabled="meta.isProcessing || meta.isCalculating"
+          :disabled="processing || meta.isCalculating"
           :terms="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
@@ -98,7 +98,7 @@
       <!-- actions -->
       <upw-button
         :label="$t('product.actions.reject')"
-        :disabled="meta.isLoading || meta.isProcessing"
+        :disabled="loading || processing"
         @click="doReject"
         color="current"
         variant="link"
@@ -106,8 +106,8 @@
 
       <upw-button
         :label="$t('product.actions.resolve')"
-        :loading="meta.isProcessing"
-        :disabled="meta.isLoading"
+        :loading="processing"
+        :disabled="loading"
         @click="doResolve"
       />
     </footer>
@@ -154,6 +154,19 @@ export default defineComponent({
     item: {
       type: Object, // xstate actor
       required: true,
+    },
+    // ---
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    processing: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, { emit }) {

@@ -2,8 +2,10 @@
   <upm-product-config
     v-if="open"
     v-bind="$props"
+    :loading="meta.isLoading"
+    :processing="meta.isProcessing"
     @reject="open = false"
-    @resolve="updateItem(modelValue)"
+    @resolve="doResolve"
     @update:attributes="updateAttributes"
     @update:options="updateOptions"
     @update:provisioning="updateProvisioning"
@@ -85,6 +87,13 @@ export default defineComponent({
     };
   },
   computed: {},
+  methods: {
+    async doResolve() {
+      this.updateItem(this.modelValue).then(() => {
+        this.open = false;
+      });
+    },
+  },
 });
 </script>
 .
