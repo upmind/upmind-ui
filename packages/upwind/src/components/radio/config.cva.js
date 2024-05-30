@@ -48,7 +48,7 @@ export default {
             isValid: false,
             isDisabled: false,
             class:
-              " focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
           },
 
           {
@@ -56,14 +56,14 @@ export default {
             isInvalid: true,
             isDisabled: false,
             class:
-              " focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
           {
             variant: "outlined",
             isValid: true,
             isDisabled: false,
             class:
-              " focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
           },
         ],
         defaultVariants: {

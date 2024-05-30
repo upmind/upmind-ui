@@ -91,7 +91,7 @@
   </upw-input>
 </template>
 
-<script lang="ts">
+<script>
 // --- external
 import { defineComponent, toRefs } from "vue";
 
@@ -142,7 +142,6 @@ export default defineComponent({
     return {
       styles,
       mergeStyles,
-      isSelected: term => isEqual(term.billing_cycle_months, props.modelValue),
     };
   },
   computed: {
@@ -151,6 +150,9 @@ export default defineComponent({
     },
   },
   methods: {
+    isSelected(term) {
+      return isEqual(term.billing_cycle_months, this.modelValue);
+    },
     doResolve(term) {
       if (this.disabled) return;
 

@@ -65,10 +65,8 @@
               {{ summary?.subtotal_formatted }}
             </span>
 
-            <strong :class="styles.product.config.total">
-              {{
-                summary?.total ? summary?.total_formatted : $t("product.free")
-              }}
+            <strong :class="styles.product.config.total" v-if="summary?.total">
+              {{ summary?.total_formatted }}
             </strong>
           </span>
         </div>
@@ -77,19 +75,40 @@
       <!-- content -->
       <div :class="mergeStyles(styles.product.config.content)">
         <!-- terms -->
-
         <upm-config-terms
-          :disabled="processing || meta.isCalculating"
+          :disabled="processing || meta.isLoading || meta.isCalculating"
           :terms="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
         />
 
         <!-- attributes -->
+        <upm-config-attributes
+          :disabled="processing || meta.isLoading || meta.isCalculating"
+          :attributes="availableAttributes"
+          :model-value="model?.attributes"
+          @update:modelValue="selectAttribute"
+          @update:quantity:increment="incrementAttribute"
+          @update:quantity:decrement="decrementAttribute"
+        />
 
         <!-- options -->
+        <upm-config-options
+          :disabled="processing || meta.isLoading || meta.isCalculating"
+          :options="availableOptions"
+          :model-value="model?.options"
+          @update:modelValue="selectOption"
+          @update:quantity:increment="incrementOption"
+          @update:quantity:decrement="decrementOption"
+        />
 
         <!-- provisional fields -->
+        <!-- <upm-config-terms
+          :disabled="processing || meta.isCalculating"
+          :terms="availableTerms"
+          :model-value="model?.term?.billing_cycle_months || 0"
+          @update:modelValue="updateTerm"
+        /> -->
       </div>
     </div>
 
@@ -131,6 +150,8 @@ import {
   UpwSpinner,
 } from "@upmind/upwind";
 import UpmConfigTerms from "./ConfigTerms.vue";
+import UpmConfigAttributes from "./ConfigAttributes.vue";
+import UpmConfigOptions from "./ConfigOptions.vue";
 
 // --- utils
 
@@ -143,8 +164,10 @@ export default defineComponent({
     UpwBadge,
     UpwButton,
     UpwQuantitybox,
-    UpmConfigTerms,
     UpwSpinner,
+    UpmConfigTerms,
+    UpmConfigAttributes,
+    UpmConfigOptions,
   },
   props: {
     modelValue: {
@@ -187,18 +210,14 @@ export default defineComponent({
       clearErrors,
       // ---
       updateQuantity,
-      // ---
       updateTerm,
-      isSelectedTerm,
       // ---
       updateAttributes,
-      isSelectedAttribute,
       selectAttribute,
       incrementAttribute,
       decrementAttribute,
       // ---
       updateOptions,
-      isSelectedOption,
       selectOption,
       incrementOption,
       decrementOption,
@@ -230,18 +249,14 @@ export default defineComponent({
       clearErrors,
       // ---
       updateQuantity,
-      // ---
       updateTerm,
-      isSelectedTerm,
       // ---
       updateAttributes,
-      isSelectedAttribute,
       selectAttribute,
       incrementAttribute,
       decrementAttribute,
       // ---
       updateOptions,
-      isSelectedOption,
       selectOption,
       incrementOption,
       decrementOption,
