@@ -48,7 +48,7 @@
             <upw-badge
               v-if="value.saving"
               color="primary"
-              :label="$t('product.items.save', value)"
+              :label="$t('product.save', { value: item.saving_formatted })"
             />
 
             <!-- monthly -->
@@ -66,24 +66,42 @@
             </span>
           </div>
 
-          <!-- price / qty -->
+          <!-- footer -->
           <div
             :class="styles.product.config.list.item.footer"
             v-if="value?.price"
           >
-            <strong :class="styles.product.config.list.item.total">
-              {{
-                value.price?.price_discounted
-                  ? value.price.price_discounted_formatted
-                  : value.price.price_formatted
-              }}
-            </strong>
+            <upw-spinner v-if="loading || processing" size="xs" />
 
-            <span
-              :class="styles.product.config.list.item.discount"
-              v-if="value.price?.price_discounted"
-            >
-              {{ value.price.price_formatted }}
+            <upw-quantitybox
+              v-if="value.canChangeQuantity"
+              :disabled="processing"
+              :min="value?.min_order_quantity"
+              :max="value?.max_order_quantity"
+              :step="value?.unit_quantity"
+              :model-value="
+                modelValue[item.id][value.id]?.unit_quantity ||
+                value?.unit_quantity
+              "
+              @update:modelValue="doUpdateQuantity"
+              size="sm"
+            />
+
+            <span :class="styles.product.config.list.item.price">
+              <strong :class="styles.product.config.list.item.total">
+                {{
+                  value.price?.price_discounted
+                    ? value.price.price_discounted_formatted
+                    : value.price.price_formatted
+                }}
+              </strong>
+
+              <span
+                :class="styles.product.config.list.item.discount"
+                v-if="value.price?.price_discounted"
+              >
+                {{ value.price.price_formatted }}
+              </span>
             </span>
           </div>
         </label>
@@ -101,10 +119,17 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwRadio, UpwCheckbox, UpwBadge, UpwInput } from "@upmind/upwind";
+import {
+  UpwRadio,
+  UpwCheckbox,
+  UpwBadge,
+  UpwInput,
+  UpwQuantitybox,
+  UpwSpinner,
+} from "@upmind/upwind";
 
 // --- utils
-import { isNil, some } from "lodash-es";
+import { some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -114,12 +139,10 @@ export default defineComponent({
     UpwRadio,
     UpwCheckbox,
     UpwBadge,
+    UpwQuantitybox,
+    UpwSpinner,
   },
-  emits: [
-    "update:modelValue",
-    "update:quantity:increment",
-    "update:quantity:decrement",
-  ],
+  emits: ["update:modelValue", "update:quantity"],
   props: {
     disabled: {
       type: Boolean,
@@ -157,6 +180,11 @@ export default defineComponent({
     isSelected(itemId, value) {
       return some(this.modelValue?.[itemId], [this.itemKey, value]);
     },
+
+    doUpdateQuantity(value, $event) {
+      this.$emit("update:quantity", item, value, $event);
+    },
+
     doResolve(item, value, $event) {
       if (this.disabled || this.processing) return;
 

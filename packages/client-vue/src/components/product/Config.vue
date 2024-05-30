@@ -99,8 +99,7 @@
           :items="availableOptions"
           :model-value="model?.options"
           @update:modelValue="selectOption"
-          @update:quantity:increment="incrementOption"
-          @update:quantity:decrement="decrementOption"
+          @update:quantity="updateOptionQuantity"
           itemKey="product_id"
         />
 
@@ -212,13 +211,10 @@ export default defineComponent({
       // ---
       updateAttributes,
       selectAttribute,
-      incrementAttribute,
-      decrementAttribute,
       // ---
       updateOptions,
       selectOption,
-      incrementOption,
-      decrementOption,
+      updateOptionQuantity,
       // ---
       getProvisioningFields,
       setProvisioningFields,
@@ -251,13 +247,10 @@ export default defineComponent({
       // ---
       updateAttributes,
       selectAttribute,
-      incrementAttribute,
-      decrementAttribute,
       // ---
       updateOptions,
       selectOption,
-      incrementOption,
-      decrementOption,
+      updateOptionQuantity,
       // ---
       getProvisioningFields,
       setProvisioningFields,

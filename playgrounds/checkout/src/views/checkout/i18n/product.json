@@ -5,10 +5,10 @@
     "promotion": "On promotion",
     "trail": "Free trial",
     "term": "billed {name}",
+    "save": "Save {value}",
     "terms": {
       "label": "Billing terms",
-      "cycle": "{value}/mo",
-      "save": "Save {saving_formatted}"
+      "cycle": "{value}/mo"
     },
     "quantity": "Quantity",
     "taxes": {
