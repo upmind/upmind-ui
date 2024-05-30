@@ -29,7 +29,7 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
 
   if (!actor) {
     waitFor(service, newstate =>
-      ["checkout", "shopping.currency"].some(newstate.matches)
+      ["checkout", "shopping"].some(newstate.matches)
     ).then(validState => {
       currency.value = contextActor(validState, "actors.currency");
     });

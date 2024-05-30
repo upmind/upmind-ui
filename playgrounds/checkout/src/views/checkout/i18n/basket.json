@@ -7,18 +7,6 @@
         "title": "Before we continue, we require additional details from you."
       }
     },
-    "item": {
-      "image": "/fallback-image.svg",
-      "free": "Free",
-      "promotion": "On promotion",
-      "trail": "Free trial",
-      "term": "billed {name}",
-      "taxes": {
-        "included": "Taxes included",
-        "excluded": "Taxes excluded"
-      },
-      "more": "Show more | Show less"
-    },
     "details": {
       "title": "Your bag total is {total}",
       "text": "Let's complete your order"

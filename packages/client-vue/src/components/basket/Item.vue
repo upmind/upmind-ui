@@ -1,5 +1,5 @@
 <template>
-  <upm-basket-item-config
+  <upm-product-config
     v-if="open"
     v-bind="$props"
     @reject="open = false"
@@ -10,7 +10,7 @@
     @update:quantity="updateQuantity"
     @update:term="updateTerm"
   />
-  <upm-basket-item-card
+  <upm-product-card
     v-else
     v-bind="$props"
     @reject="removeItem(modelValue)"
@@ -28,15 +28,15 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmBasketItemCard from "./ItemCard.vue";
-import UpmBasketItemConfig from "./ItemConfig.vue";
+import UpmProductCard from "../product/Card.vue";
+import UpmProductConfig from "../product/Config.vue";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketItem",
-  components: { UpmBasketItemCard, UpmBasketItemConfig },
+  components: { UpmProductCard, UpmProductConfig },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

@@ -17,6 +17,7 @@ import {
   useValuesParser,
   useSummaryParser,
   useValidationParser,
+  useDisplayPriceParser,
 } from "./utils";
 
 import { get, set, map, toNumber, find, merge, isEqual } from "lodash-es";
@@ -347,20 +348,8 @@ export default (values, currency_id, promotions) => {
             };
           },
 
-          summary: ({ summary, isNew }, { data }) => {
-            if (!isNew) return summary;
-
-            // if we have a new product thats not yet configured, the summary should just show the base price
-            return {
-              // the base price without any discounts or configuration
-              price: data?.display_price,
-              price_formatted: data?.display_price,
-
-              // the total price after the discount
-              total: data?.display_price,
-              total_formatted: data?.display_price,
-            };
-          },
+          summary: ({ summary, isNew }, { data }) =>
+            !isNew ? summary : useDisplayPriceParser(data),
         }),
 
         setValues: assign({
