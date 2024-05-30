@@ -110,7 +110,9 @@
         <!-- actions -->
         <div :class="styles.product.card.actions">
           <upw-button
-            :disabled="!meta.isConfigurable"
+            :disabled="
+              !meta.isConfigurable && !availableProduct?.canChangeQuantity
+            "
             :label="$t('product.actions.configure')"
             @click="doResolve"
             color="current"

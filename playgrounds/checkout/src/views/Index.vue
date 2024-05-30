@@ -68,7 +68,7 @@
         <upw-dropdown
           v-if="!meta.isLoading && productCatalogue.length >= 1"
           label="Add to Basket"
-          prepend-icon="basket-plus"
+          prepend-icon="basket-add"
           :items="productCatalogue"
           :loading="meta.isProcessing"
         />

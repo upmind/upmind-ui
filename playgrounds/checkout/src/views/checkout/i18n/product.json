@@ -5,6 +5,7 @@
     "promotion": "On promotion",
     "trail": "Free trial",
     "term": "billed {name}",
+    "quantity": "Quantity",
     "taxes": {
       "included": "Taxes included",
       "excluded": "Taxes excluded"

@@ -1,6 +1,10 @@
 <template>
-  <label :for="id" :class="styles.label.root">
-    <span :class="styles.label.text">
+  <label
+    :for="id"
+    :class="styles.label.root"
+    v-if="!noRequired && !noStatus && !noLabel"
+  >
+    <span :class="styles.label.text" v-if="text">
       {{ text }}
     </span>
 

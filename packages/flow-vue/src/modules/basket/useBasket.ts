@@ -162,12 +162,12 @@ export const useBasket = () => {
     items: useContextActor(state, "items", []),
     itemsPending: computed(() => {
       const items = contextActor(state, "items", []);
-      return reject(items, item => machineMatches(item, ["configured"]));
+      return filter(items, item => contextMatches(item?.state, ["isNew"]));
     }),
 
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(items, item => machineMatches(item, ["configured"]));
+      return filter(items, item => !contextMatches(item?.state, ["isNew"]));
     }),
 
     products: useContext(state, "basket.products", []),
