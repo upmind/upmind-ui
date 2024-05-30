@@ -13,7 +13,7 @@
     layout="stacked"
   >
     <ul :class="styles.product.config.attributes.items">
-      <li v-for="value in attribute.values" :key="value.id" :value="value.id">
+      <li v-for="value in attribute.values" :key="value.id">
         <label
           :for="`attributes[${attribute.id}][${value.id}]`"
           :class="
@@ -101,11 +101,10 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { UpwRadio, UpwCheckbox, UpwBadge, UpwInput } from "@upmind/upwind";
 
 // --- utils
-import { isEqual, isNil, some } from "lodash-es";
+import { isNil, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -115,8 +114,6 @@ export default defineComponent({
     UpwRadio,
     UpwCheckbox,
     UpwBadge,
-    HRadioGroup: RadioGroup,
-    HRadioGroupOption: RadioGroupOption,
   },
   emits: [
     "update:modelValue",
