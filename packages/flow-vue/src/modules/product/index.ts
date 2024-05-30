@@ -78,7 +78,6 @@ export const useProductConfig = item => {
 
   // --- QUANTITY
   const updateQuantity = (value?: number) => {
-    debugger;
     send({
       type: "UPDATE.QUANTITY",
       data: {

@@ -176,28 +176,12 @@ export default defineComponent({
     doIncrement() {
       let value = this.modelValue + this.step;
       if (this.max) value = Math.min(value, this.max);
-      debugger;
       this.$emit("update:modelValue", value);
-      this.$emit("update:increment", {
-        oldValue: this.modelValue,
-        value,
-        min: this.min,
-        max: this.max,
-        step: this.step,
-      });
     },
     doDecrement() {
       let value = this.modelValue - this.step;
       if (this.min) value = Math.max(value, this.min);
-      debugger;
       this.$emit("update:modelValue", value);
-      this.$emit("update:decrement", {
-        oldValue: this.modelValue,
-        value,
-        min: this.min,
-        max: this.max,
-        step: this.step,
-      });
     },
   },
 });
