@@ -207,8 +207,11 @@ export const useBasket = () => {
       send({ type: "REMOVE", data: { itemId } });
     },
 
-    updateItem: itemId => {
+    updateItem: async itemId => {
       send({ type: "UPDATE", data: { itemId } });
+      return waitFor(service, newstate =>
+        newstate.matches("shopping.items.processed")
+      );
     },
 
     updateTerm: ({ itemId, term }) =>
