@@ -116,7 +116,9 @@ export default {
       header: cva("w-full flex items-end gap-10"),
       headerContent: cva("w-full flex flex-wrap items-start gap-2 "),
 
-      content: cva("w-full flex-none flex flex-wrap gap-6 empty:hidden "),
+      content: cva(
+        "w-full flex-none flex flex-wrap gap-6 empty:hidden items-start "
+      ),
 
       footer: cva(
         "border-t border-base-300 px-6 py-4 flex w-full items-center justify-between gap-6"
@@ -128,14 +130,71 @@ export default {
       ),
       text: cva("w-full text-left m-0 leading-normal text-base-700"),
       bold: cva("font-medium "),
-      total: cva("font-medium text-2xl leading-snug tracking-wide"),
-      discount: cva(
-        "font-normal text-md leading-snug tracking-wide line-through text-base-700"
+      // ---
+      total: cva(
+        "block font-medium text-2xl leading-snug tracking-wide text-right",
+        {
+          variants: {
+            isCalculating: {
+              true: "text-base-300",
+            },
+          },
+        }
       ),
+      discount: cva(
+        "block font-normal text-md leading-snug tracking-wide line-through text-base-700 text-right",
+        {
+          variants: {
+            isCalculating: {
+              true: "text-base-300",
+            },
+          },
+        }
+      ),
+      price: cva(),
       // ---
       image: cva("h-full w-full object-cover"),
       actions: cva("flex gap-2 items-center"),
-      summary: cva("inline-flex items-center gap-6"),
+      summary: cva("inline-flex items-center gap-y-6 gap-x-6", {
+        variants: {
+          isCalculating: {
+            true: "text-base-300",
+          },
+        },
+      }),
+
+      // ---
+      terms: {
+        root: cva("w-full p-0", {
+          variants: {
+            disabled: {
+              true: "pointer-events-none opacity-50",
+            },
+          },
+        }),
+        items: cva("p-0 m-0 list-none grid grid-cols-3 w-full gap-3"),
+      },
+      term: {
+        root: cva(
+          "flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
+        ),
+        selected: cva("border-primary"),
+        input: cva("!min-h-0 text-primary"),
+        header: cva(
+          "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
+        ),
+        footer: cva("w-full flex-none flex flex-col gap-1 self-end"),
+        // ---
+        title: cva("m-0 text-md font-normal"),
+        text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
+        total: cva("font-medium text-2xl leading-snug tracking-wide"),
+        discount: cva(
+          "font-normal text-md leading-snug tracking-wide line-through text-base-700"
+        ),
+      },
+      options: {},
+      attributes: {},
+      fields: {},
     },
   },
 };

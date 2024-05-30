@@ -28,7 +28,7 @@ export default {
             true: "bg-base-100",
           },
           isChecked: {
-            true: `bg-base-content border-base-content text-base`,
+            true: `border-current bg-current text-base`,
           },
         },
         compoundVariants: [
