@@ -178,6 +178,7 @@ export default defineComponent({
     },
 
     scrollTo(hash = this.$route.hash) {
+      // return;
       const current = this.activeSection;
       // fallback to the route hash if set
       let target = trimStart(hash, "#");

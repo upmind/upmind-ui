@@ -9,12 +9,12 @@
       :optionalText="optionalText"
       :noRequired="noRequired"
       :noStatus="noStatus"
+      :noLabel="noLabel"
       :required="meta.isRequired"
       :dirty="meta.isDirty"
       :invalid="meta.isInvalid"
       :disabled="meta.isDisabled"
       :size="size"
-      :noLabel="noLabel"
       :upwindConfig="[config, upwindConfig]"
     />
 
