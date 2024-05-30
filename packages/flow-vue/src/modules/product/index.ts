@@ -155,11 +155,11 @@ export const useProductConfig = item => {
       set(model.value.attributes, attribute.id, {}); // reset all previous attributes
 
     if (target.checked) {
-      set(model.value.attributes, [attribute.id, value], {
-        product_id: value,
+      set(model.value.attributes, [attribute.id, value.id], {
+        product_id: value.id,
       });
     } else {
-      unset(model.value.attributes, [attribute.id, value]);
+      unset(model.value.attributes, [attribute.id, value.id]);
     }
 
     // emit the event
@@ -186,11 +186,11 @@ export const useProductConfig = item => {
       set(model.value.options, option.id, {}); // reset all previous options
 
     if (target.checked) {
-      set(model.value.options, [option.id, value], {
-        product_id: value,
+      set(model.value.options, [option.id, value.id], {
+        product_id: value.id,
       });
     } else {
-      unset(model.value.options, [option.id, value]);
+      unset(model.value.options, [option.id, value.id]);
     }
 
     // emit the event
@@ -198,6 +198,8 @@ export const useProductConfig = item => {
   }
 
   function updateOptionQuantity(option, value, qty) {
+    debugger;
+
     // sanity check
     if (!value?.canChangeQuantity) return;
 
