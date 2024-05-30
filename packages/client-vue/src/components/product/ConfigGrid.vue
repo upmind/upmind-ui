@@ -48,7 +48,7 @@
             <upw-badge
               v-if="item.saving"
               color="primary"
-              :label="$t('product.items.save', item)"
+              :label="$t('product.save', { value: item.saving_formatted })"
             />
 
             <!-- monthly -->
