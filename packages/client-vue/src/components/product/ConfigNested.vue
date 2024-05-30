@@ -33,7 +33,7 @@
             :model-value="isSelected(item.id, value.id)"
             :value="value.id"
             :required="item.required"
-            @change="doResolve(item, value.id, $event)"
+            @change="doResolve(item, value, $event)"
             no-feedback
             no-status
             variant="flat"
@@ -74,7 +74,9 @@
             <upw-spinner v-if="loading || processing" size="xs" />
 
             <upw-quantitybox
-              v-if="value.canChangeQuantity"
+              v-if="
+                value.canChangeQuantity && modelValue?.[item.id]?.[value.id]
+              "
               :disabled="processing"
               :min="value?.min_order_quantity"
               :max="value?.max_order_quantity"
@@ -83,7 +85,7 @@
                 modelValue[item.id][value.id]?.unit_quantity ||
                 value?.unit_quantity
               "
-              @update:modelValue="doUpdateQuantity"
+              @update:modelValue="doUpdateQuantity(item, value, $event)"
               size="sm"
             />
 
@@ -148,6 +150,14 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    processing: {
+      type: Boolean,
+      default: false,
+    },
     items: {
       type: Array,
       default: () => [],
@@ -181,7 +191,8 @@ export default defineComponent({
       return some(this.modelValue?.[itemId], [this.itemKey, value]);
     },
 
-    doUpdateQuantity(value, $event) {
+    doUpdateQuantity(item, value, $event) {
+      debugger;
       this.$emit("update:quantity", item, value, $event);
     },
 

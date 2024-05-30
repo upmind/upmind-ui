@@ -103,7 +103,7 @@ import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { UpwRadio, UpwBadge, UpwInput } from "@upmind/upwind";
 
 // --- utils
-import { isEqual, isNil } from "lodash-es";
+import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -118,6 +118,14 @@ export default defineComponent({
   emits: ["update:modelValue"],
   props: {
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    processing: {
       type: Boolean,
       default: false,
     },
