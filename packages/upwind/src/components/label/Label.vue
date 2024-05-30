@@ -50,7 +50,7 @@ import type { LabelProps } from "./types";
 
 export default defineComponent({
   name: "UpwLabel",
-  inheritAttrs: false,
+
   emits: ["update:modelValue", "change"],
   components: {
     UpwIcon,

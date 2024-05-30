@@ -124,7 +124,7 @@ import type { DropdownProps } from "./types";
 
 export default defineComponent({
   name: "UpwDropdownItem",
-  inheritAttrs: false,
+
   components: {
     RouterLink,
     HMenuItem: MenuItem,
