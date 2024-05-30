@@ -76,14 +76,15 @@ export const useProductConfig = item => {
   };
 
   // --- QUANTITY
-  const updateQuantity = (value?: number) =>
+  const updateQuantity = (value?: number) => {
+    debugger;
     send({
       type: "UPDATE.QUANTITY",
       data: {
         quantity: value || model.value.quantity,
       },
     });
-  //emit("update:quantity",{itemId: props.id,...);
+  };
 
   function incrementQuantity() {
     // sanity check

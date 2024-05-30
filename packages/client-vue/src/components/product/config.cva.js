@@ -113,7 +113,7 @@ export default {
         "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 pl-0 "
       ),
 
-      header: cva("w-full flex items-start gap-10"),
+      header: cva("w-full flex items-end gap-10"),
       headerContent: cva("w-full flex flex-wrap items-start gap-2 "),
 
       content: cva("w-full flex-none flex flex-wrap gap-6 empty:hidden "),
@@ -122,7 +122,7 @@ export default {
         "border-t border-base-300 px-6 py-4 flex w-full items-center justify-between gap-6"
       ),
       // ---
-      title: cva("w-full m-0 text-2xl font-normal leading-none tracking-wide"),
+      title: cva("w-full m-0 text-4xl font-normal leading-none tracking-wide"),
       meta: cva(
         "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
       ),
@@ -135,7 +135,7 @@ export default {
       // ---
       image: cva("h-full w-full object-cover"),
       actions: cva("flex gap-2 items-center"),
-      summary: cva("inline-flex flex-col"),
+      summary: cva("inline-flex items-center gap-6"),
     },
   },
 };

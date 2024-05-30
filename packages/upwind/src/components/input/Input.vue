@@ -14,6 +14,7 @@
       :invalid="meta.isInvalid"
       :disabled="meta.isDisabled"
       :size="size"
+      :noLabel="noLabel"
       :upwindConfig="[config, upwindConfig]"
     />
 
@@ -70,6 +71,7 @@
         :invalid="meta.isInvalid"
         :disabled="meta.isDisabled"
         :size="size"
+        :noLabel="noLabel"
         :upwindConfig="[config, upwindConfig]"
       />
 
@@ -189,6 +191,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     dirty: { type: Boolean },
     // ---
+    noLabel: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },

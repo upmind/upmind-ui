@@ -78,6 +78,12 @@ export const useProductParser = (data: any) => {
     "provision_blueprint_id",
   ]);
 
+  // ---
+  // Ensure min values
+  product.unit_quantity = product.unit_quantity || 1;
+  product.min_order_quantity =
+    product.min_order_quantity || product.unit_quantity;
+  // ---
   // --------------------------------------------------------
   // then add some syntactic sugar / computed properties
 

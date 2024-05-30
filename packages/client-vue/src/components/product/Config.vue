@@ -44,6 +44,16 @@
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
+          <upw-quantitybox
+            v-if="availableProduct?.canChangeQuantity"
+            :processing="meta.isProcessing"
+            :min="availableProduct?.min_order_quantity"
+            :max="availableProduct?.max_order_quantity"
+            :step="availableProduct?.unit_quantity"
+            :model-value="model?.quantity || availableProduct?.unit_quantity"
+            @update:modelValue="updateQuantity"
+          />
+
           <span
             v-if="!!summary?.discount"
             :class="styles.product.config.discount"
@@ -100,14 +110,14 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwBadge, UpwButton, UpwIcon } from "@upmind/upwind";
+import { UpwBadge, UpwButton, UpwIcon, UpwQuantitybox } from "@upmind/upwind";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductConfig",
-  components: { UpwBadge, UpwButton, UpwIcon },
+  components: { UpwBadge, UpwButton, UpwIcon, UpwQuantitybox },
   props: {
     modelValue: {
       type: String,
@@ -144,8 +154,6 @@ export default defineComponent({
       clearErrors,
       // ---
       updateQuantity,
-      incrementQuantity,
-      decrementQuantity,
       // ---
       updateTerm,
       isSelectedTerm,
@@ -189,8 +197,6 @@ export default defineComponent({
       clearErrors,
       // ---
       updateQuantity,
-      incrementQuantity,
-      decrementQuantity,
       // ---
       updateTerm,
       isSelectedTerm,
