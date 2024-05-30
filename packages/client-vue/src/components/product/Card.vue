@@ -93,7 +93,7 @@
       </div>
 
       <!-- footer -->
-      <footer :class="styles.product.card.footer">
+      <footer :class="styles.product.card.footer" v-show="!meta.isLoading">
         <div :class="styles.product.card.summary">
           <span
             v-if="!!summary?.discount"
@@ -103,31 +103,28 @@
           </span>
 
           <strong :class="styles.product.card.total">
-            {{
-              summary?.total
-                ? summary?.total_formatted
-                : $t("product.card.free")
-            }}
+            {{ summary?.total ? summary?.total_formatted : $t("product.free") }}
           </strong>
         </div>
 
         <!-- actions -->
         <div :class="styles.product.card.actions">
           <upw-button
-            type="button"
+            :disabled="!meta.isConfigurable"
+            :label="$t('product.actions.configure')"
+            @click="doResolve"
             color="current"
             icon-only
             prependIcon="edit"
-            @click="doResolve"
-            :label="$t('product.actions.configure')"
+            type="button"
           />
           <upw-button
-            type="button"
+            :label="$t('product.actions.remove')"
+            @click="doReject"
             color="current"
             icon-only
             prependIcon="remove"
-            :label="$t('product.actions.remove')"
-            @click="doReject"
+            type="button"
           />
         </div>
       </footer>
