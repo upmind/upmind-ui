@@ -444,6 +444,18 @@ export const useSummaryParser = (data: any) => {
   return summary;
 };
 
+export const useDisplayPriceParser = (data: any) => {
+  // the base price without any discounts or configuration
+  return {
+    price: data?.display_price,
+    price_formatted: data?.display_price,
+
+    // the total price after the discount
+    total: data?.display_price,
+    total_formatted: data?.display_price,
+  };
+};
+
 // --------------------------------------------------------
 //  Setting Values for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
