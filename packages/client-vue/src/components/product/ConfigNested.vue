@@ -1,9 +1,9 @@
 <template>
   <upw-input
-    v-for="attribute in attributes"
-    :key="attribute.id"
-    :class="styles.product.config.attributes.root"
-    :label="attribute.name"
+    v-for="item in items"
+    :key="item.id"
+    :class="styles.product.config.list.root"
+    :label="item.name"
     :disabled="disabled"
     :required="true"
     no-required
@@ -12,51 +12,52 @@
     variant="flat"
     layout="stacked"
   >
-    <ul :class="styles.product.config.attributes.items">
-      <li v-for="value in attribute.values" :key="value.id">
+    <ul :class="styles.product.config.list.items">
+      <li v-for="value in item.values" :key="value.id">
         <label
-          :for="`attributes[${attribute.id}][${value.id}]`"
+          :for="`items[${item.id}][${value.id}]`"
           :class="
             mergeStyles(
-              styles.product.config.attribute.root,
-              isSelected(attribute.id, value.id)
-                ? styles.product.config.attribute.selected
+              styles.product.config.list.item.root,
+              isSelected(item.id, value.id)
+                ? styles.product.config.list.item.selected
                 : null
             )
           "
         >
           <component
-            :is="attribute.multiple ? 'upw-checkbox' : 'upw-radio'"
-            :id="`attributes[${attribute.id}][${value.id}]`"
-            :name="`attributes[${attribute.id}]`"
-            :class="styles.product.config.attribute.input"
-            :model-value="isSelected(attribute.id, value.id)"
+            :is="item.multiple ? 'upw-checkbox' : 'upw-radio'"
+            :id="`items[${item.id}][${value.id}]`"
+            :name="`items[${item.id}]`"
+            :class="styles.product.config.list.item.input"
+            :model-value="isSelected(item.id, value.id)"
             :value="value.id"
-            :required="attribute.required"
-            @change="doResolve(attribute, value.id, $event)"
+            :required="item.required"
+            @change="doResolve(item, value.id, $event)"
             no-feedback
             no-status
             variant="flat"
           />
 
-          <div :class="styles.product.config.attribute.header">
-            <h4 :class="styles.product.config.attribute.title">
+          <!-- content -->
+          <div :class="styles.product.config.list.item.header">
+            <h4 :class="styles.product.config.list.item.title">
               {{ value.name }}
             </h4>
 
             <upw-badge
               v-if="value.saving"
               color="primary"
-              :label="$t('product.attributes.save', value)"
+              :label="$t('product.items.save', value)"
             />
 
             <!-- monthly -->
             <span
-              :class="styles.product.config.attribute.text"
+              :class="styles.product.config.list.item.text"
               v-if="value?.monthly_price_from && value.billing_cycle_months > 1"
             >
               {{
-                $t("product.attributes.cycle", {
+                $t("product.items.cycle", {
                   value: value?.monthly_price_from_discounted
                     ? value.monthly_price_from_discounted_formatted
                     : value.monthly_price_from_formatted,
@@ -65,25 +66,24 @@
             </span>
           </div>
 
+          <!-- price / qty -->
           <div
-            :class="styles.product.config.attribute.footer"
+            :class="styles.product.config.list.item.footer"
             v-if="value?.price"
           >
-            <strong :class="styles.product.config.attribute.total">
+            <strong :class="styles.product.config.list.item.total">
               {{
-                value?.price_discounted
-                  ? value.price_discounted_formatted
-                  : value?.price
-                    ? value.price_formatted
-                    : ""
+                value.price?.price_discounted
+                  ? value.price.price_discounted_formatted
+                  : value.price.price_formatted
               }}
             </strong>
 
             <span
-              :class="styles.product.config.attribute.discount"
-              v-if="value?.price_discounted"
+              :class="styles.product.config.list.item.discount"
+              v-if="value.price?.price_discounted"
             >
-              {{ value.price_formatted }}
+              {{ value.price.price_formatted }}
             </span>
           </div>
         </label>
@@ -108,7 +108,7 @@ import { isNil, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigAttributes",
+  name: "UpmProductConfigList",
   components: {
     UpwInput,
     UpwRadio,
@@ -125,7 +125,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    attributes: {
+    items: {
       type: Array,
       default: () => [],
       required: true,
@@ -134,11 +134,15 @@ export default defineComponent({
       type: Object,
       required: true,
     },
+    itemKey: {
+      type: String,
+      required: true,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
     const styles = useStyles(
-      ["product.config.attributes", "product.config.attribute"],
+      ["product.config.list", "product.config.list.item"],
       toRefs(props),
       config
     );
@@ -148,19 +152,15 @@ export default defineComponent({
       mergeStyles,
     };
   },
-  computed: {
-    has() {
-      return !isNil(this.modelValue) && this.attributes?.length > 1;
-    },
-  },
+  computed: {},
   methods: {
-    isSelected(attributeId, value) {
-      return some(this.modelValue?.[attributeId], ["product_id", value]);
+    isSelected(itemId, value) {
+      return some(this.modelValue?.[itemId], [this.itemKey, value]);
     },
-    doResolve(attribute, value, $event) {
+    doResolve(item, value, $event) {
       if (this.disabled || this.processing) return;
 
-      this.$emit("update:modelValue", attribute, value, $event);
+      this.$emit("update:modelValue", item, value, $event);
     },
   },
 });

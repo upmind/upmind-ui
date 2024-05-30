@@ -75,31 +75,33 @@
       <!-- content -->
       <div :class="mergeStyles(styles.product.config.content)">
         <!-- terms -->
-        <upm-config-terms
+        <upm-config-grid
           :disabled="processing || meta.isLoading || meta.isCalculating"
-          :terms="availableTerms"
+          :items="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
+          :label="$t('product.terms.label')"
+          itemKey="billing_cycle_months"
         />
 
         <!-- attributes -->
-        <upm-config-attributes
+        <upm-config-nested
           :disabled="processing || meta.isLoading || meta.isCalculating"
-          :attributes="availableAttributes"
+          :items="availableAttributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
-          @update:quantity:increment="incrementAttribute"
-          @update:quantity:decrement="decrementAttribute"
+          itemKey="product_id"
         />
 
         <!-- options -->
-        <upm-config-options
+        <upm-config-nested
           :disabled="processing || meta.isLoading || meta.isCalculating"
-          :options="availableOptions"
+          :items="availableOptions"
           :model-value="model?.options"
           @update:modelValue="selectOption"
           @update:quantity:increment="incrementOption"
           @update:quantity:decrement="decrementOption"
+          itemKey="product_id"
         />
 
         <!-- provisional fields -->
@@ -149,13 +151,10 @@ import {
   UpwQuantitybox,
   UpwSpinner,
 } from "@upmind/upwind";
-import UpmConfigTerms from "./ConfigTerms.vue";
-import UpmConfigAttributes from "./ConfigAttributes.vue";
-import UpmConfigOptions from "./ConfigOptions.vue";
+import UpmConfigGrid from "./ConfigGrid.vue";
+import UpmConfigNested from "./ConfigNested.vue";
 
 // --- utils
-
-// --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -165,9 +164,8 @@ export default defineComponent({
     UpwButton,
     UpwQuantitybox,
     UpwSpinner,
-    UpmConfigTerms,
-    UpmConfigAttributes,
-    UpmConfigOptions,
+    UpmConfigGrid,
+    UpmConfigNested,
   },
   props: {
     modelValue: {
