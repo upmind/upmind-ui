@@ -45,7 +45,6 @@ import { UpwForm } from "@upmind/upwind";
 export default defineComponent({
   name: "AuthForm",
   components: { UpwForm },
-  inheritAttrs: false,
 
   emits: [],
   props: {},
