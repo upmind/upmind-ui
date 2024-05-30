@@ -8,6 +8,7 @@ import {
   add,
   get,
   isEmpty,
+  isObject,
   isEqual,
   omitBy,
   reduce,
@@ -128,7 +129,7 @@ export const useProductConfig = item => {
     send({
       type: "UPDATE.TERM",
       data: {
-        term: term.billing_cycle_months,
+        term: isObject(term) ? term.billing_cycle_months : term,
       },
     });
   //emit("update:term",{itemId: props.id,...);

@@ -44,32 +44,46 @@
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
+          <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="xs" />
+
           <upw-quantitybox
             v-if="availableProduct?.canChangeQuantity"
-            :processing="meta.isProcessing"
+            :disabled="meta.isProcessing"
             :min="availableProduct?.min_order_quantity"
             :max="availableProduct?.max_order_quantity"
             :step="availableProduct?.unit_quantity"
             :model-value="model?.quantity || availableProduct?.unit_quantity"
             @update:modelValue="updateQuantity"
+            size="lg"
           />
 
-          <span
-            v-if="!!summary?.discount"
-            :class="styles.product.config.discount"
-          >
-            {{ summary?.subtotal_formatted }}
-          </span>
+          <span :class="styles.product.config.price">
+            <span
+              v-if="!!summary?.discount"
+              :class="styles.product.config.discount"
+            >
+              {{ summary?.subtotal_formatted }}
+            </span>
 
-          <strong :class="styles.product.config.total">
-            {{ summary?.total ? summary?.total_formatted : $t("product.free") }}
-          </strong>
+            <strong :class="styles.product.config.total">
+              {{
+                summary?.total ? summary?.total_formatted : $t("product.free")
+              }}
+            </strong>
+          </span>
         </div>
       </header>
 
       <!-- content -->
       <div :class="mergeStyles(styles.product.config.content)">
         <!-- terms -->
+
+        <upm-config-terms
+          :disabled="meta.isProcessing || meta.isCalculating"
+          :terms="availableTerms"
+          :model-value="model?.term?.billing_cycle_months || 0"
+          @update:modelValue="updateTerm"
+        />
 
         <!-- attributes -->
 
@@ -84,7 +98,7 @@
       <!-- actions -->
       <upw-button
         :label="$t('product.actions.reject')"
-        :disabled="loading || processing"
+        :disabled="meta.isLoading || meta.isProcessing"
         @click="doReject"
         color="current"
         variant="link"
@@ -92,8 +106,8 @@
 
       <upw-button
         :label="$t('product.actions.resolve')"
-        :loading="processing"
-        :disabled="loading"
+        :loading="meta.isProcessing"
+        :disabled="meta.isLoading"
         @click="doResolve"
       />
     </footer>
@@ -110,14 +124,28 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwBadge, UpwButton, UpwIcon, UpwQuantitybox } from "@upmind/upwind";
+import {
+  UpwBadge,
+  UpwButton,
+  UpwQuantitybox,
+  UpwSpinner,
+} from "@upmind/upwind";
+import UpmConfigTerms from "./ConfigTerms.vue";
+
+// --- utils
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductConfig",
-  components: { UpwBadge, UpwButton, UpwIcon, UpwQuantitybox },
+  components: {
+    UpwBadge,
+    UpwButton,
+    UpwQuantitybox,
+    UpmConfigTerms,
+    UpwSpinner,
+  },
   props: {
     modelValue: {
       type: String,
@@ -126,14 +154,6 @@ export default defineComponent({
     item: {
       type: Object, // xstate actor
       required: true,
-    },
-    processing: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
     },
   },
   setup(props, { emit }) {
