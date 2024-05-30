@@ -1,8 +1,8 @@
 <template>
   <upw-input
-    v-if="hasBillingCycle"
-    :class="styles.product.config.terms.root"
-    :label="$t('product.terms.label')"
+    v-if="hasItems"
+    :class="styles.product.config.grid.root"
+    :label="label"
     :disabled="disabled"
     :required="true"
     no-required
@@ -15,74 +15,73 @@
       :model-value="modelValue"
       @update:model-value="doResolve"
       as="ul"
-      :class="styles.product.config.terms.items"
+      :class="styles.product.config.grid.items"
     >
       <h-radio-group-option
         as="template"
-        v-for="term in terms"
-        :key="term.billing_cycle_months"
-        :value="term.billing_cycle_months"
+        v-for="(item, index) in items"
+        :key="`item-${index}`"
+        :value="item[itemKey]"
         v-slot="{ checked }"
       >
         <li
           :class="
             mergeStyles(
-              styles.product.config.term.root,
-              checked ? styles.product.config.term.selected : null
+              styles.product.config.grid.item.root,
+              checked ? styles.product.config.grid.item.selected : null
             )
           "
         >
           <upw-radio
-            :class="styles.product.config.term.input"
+            :class="styles.product.config.grid.item.input"
             :model-value="checked"
-            :value="term.billing_cycle_months"
             no-feedback
             no-status
             variant="flat"
           />
 
-          <div :class="styles.product.config.term.header">
-            <h4 :class="styles.product.config.term.title">
-              {{ term.billing_cycle_name }}
+          <div :class="styles.product.config.grid.item.header">
+            <h4 :class="styles.product.config.grid.item.title">
+              {{ item.billing_cycle_name }}
             </h4>
 
             <upw-badge
-              v-if="term.saving"
+              v-if="item.saving"
               color="primary"
-              :label="$t('product.terms.save', term)"
+              :label="$t('product.items.save', item)"
             />
 
             <!-- monthly -->
             <span
-              :class="styles.product.config.term.text"
-              v-if="term?.monthly_price_from && term.billing_cycle_months > 1"
+              :class="styles.product.config.grid.item.text"
+              v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
             >
               {{
-                $t("product.terms.cycle", {
-                  value: term?.monthly_price_from_discounted
-                    ? term.monthly_price_from_discounted_formatted
-                    : term.monthly_price_from_formatted,
+                $t("product.items.cycle", {
+                  value: item?.monthly_price_from_discounted
+                    ? item.monthly_price_from_discounted_formatted
+                    : item.monthly_price_from_formatted,
                 })
               }}
             </span>
           </div>
 
-          <div :class="styles.product.config.term.footer">
-            <strong :class="styles.product.config.term.total">
+          <div :class="styles.product.config.grid.item.footer">
+            <strong :class="styles.product.config.grid.item.total">
               {{
-                term?.price_discounted
-                  ? term.price_discounted_formatted
-                  : term?.price
-                    ? term.price_formatted
+                item?.price_discounted
+                  ? item.price_discounted_formatted
+                  : item?.price
+                    ? item.price_formatted
                     : $t("product.free")
               }}
             </strong>
 
             <span
-              :class="styles.product.config.term.discount"
-              v-if="term?.price_discounted"
+              :class="styles.product.config.grid.item.discount"
+              v-if="item?.price_discounted"
             >
-              {{ term.price_formatted }}
+              {{ item.price_formatted }}
             </span>
           </div>
         </li>
@@ -108,7 +107,7 @@ import { isEqual, isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigTerms",
+  name: "UpmProductConfigitems",
   components: {
     UpwInput,
     UpwRadio,
@@ -122,7 +121,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    terms: {
+    items: {
       type: Array,
       required: true,
     },
@@ -130,11 +129,18 @@ export default defineComponent({
       type: Number,
       required: true,
     },
+    itemKey: {
+      type: String,
+      required: true,
+    },
+    label: {
+      type: String,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
     const styles = useStyles(
-      ["product.config.terms", "product.config.term"],
+      ["product.config.grid", "product.config.grid.item"],
       toRefs(props),
       config
     );
@@ -145,18 +151,15 @@ export default defineComponent({
     };
   },
   computed: {
-    hasBillingCycle() {
-      return !isNil(this.modelValue) && this.terms?.length > 1;
+    hasItems() {
+      return !isNil(this.modelValue) && this.items?.length > 1;
     },
   },
   methods: {
-    isSelected(term) {
-      return isEqual(term.billing_cycle_months, this.modelValue);
-    },
-    doResolve(term) {
+    doResolve(item) {
       if (this.disabled) return;
 
-      this.$emit("update:modelValue", term);
+      this.$emit("update:modelValue", item);
     },
   },
 });

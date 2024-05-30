@@ -164,7 +164,7 @@ export default {
       }),
 
       // ---
-      terms: {
+      grid: {
         root: cva("w-full p-0 !min-h-0 ", {
           variants: {
             disabled: {
@@ -173,27 +173,28 @@ export default {
           },
         }),
         items: cva("p-0 m-0 list-none grid grid-cols-3 w-full gap-3"),
+        item: {
+          root: cva(
+            "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
+          ),
+          selected: cva("border-primary"),
+          input: cva("!min-h-0 text-primary"),
+          header: cva(
+            "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
+          ),
+          footer: cva("w-full flex-none flex flex-col gap-1 self-end"),
+          // ---
+          title: cva("m-0 text-md font-normal"),
+          text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
+          total: cva("font-medium text-2xl leading-snug tracking-wide"),
+          discount: cva(
+            "font-normal text-md leading-snug tracking-wide line-through text-base-700"
+          ),
+        },
       },
-      term: {
-        root: cva(
-          "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
-        ),
-        selected: cva("border-primary"),
-        input: cva("!min-h-0 text-primary"),
-        header: cva(
-          "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
-        ),
-        footer: cva("w-full flex-none flex flex-col gap-1 self-end"),
-        // ---
-        title: cva("m-0 text-md font-normal"),
-        text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
-        total: cva("font-medium text-2xl leading-snug tracking-wide"),
-        discount: cva(
-          "font-normal text-md leading-snug tracking-wide line-through text-base-700"
-        ),
-      },
+
       // ---
-      attributes: {
+      list: {
         root: cva("w-full p-0 !min-h-0 ", {
           variants: {
             disabled: {
@@ -202,27 +203,29 @@ export default {
           },
         }),
         items: cva("p-0 m-0 list-none grid grid-cols-1 w-full gap-0"),
+        item: {
+          root: cva(
+            "flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer m-0 px-4 py-3 rounded-lg border "
+          ),
+          selected: cva("border-primary"),
+          input: cva("!min-h-0 text-primary"),
+          header: cva(
+            "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
+          ),
+          footer: cva("w-full flex-none flex flex-col gap-1 self-end"),
+          // ---
+          title: cva("m-0 text-md font-normal"),
+          text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
+          total: cva("font-medium text-2xl leading-snug tracking-wide"),
+          discount: cva(
+            "font-normal text-md leading-snug tracking-wide line-through text-base-700"
+          ),
+        },
       },
-      attribute: {
-        root: cva(
-          "flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer m-0 px-4 py-3 rounded-lg border "
-        ),
-        selected: cva("border-primary"),
-        input: cva("!min-h-0 text-primary"),
-        header: cva(
-          "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
-        ),
-        footer: cva("w-full flex-none flex flex-col gap-1 self-end"),
-        // ---
-        title: cva("m-0 text-md font-normal"),
-        text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
-        total: cva("font-medium text-2xl leading-snug tracking-wide"),
-        discount: cva(
-          "font-normal text-md leading-snug tracking-wide line-through text-base-700"
-        ),
-      },
+
       // ---
-      options: {},
+
+      // ---
       fields: {},
     },
   },
