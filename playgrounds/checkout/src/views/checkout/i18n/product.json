@@ -10,6 +10,7 @@
     "terms": {
       "label": "Billing terms"
     },
+    "total": "Item total",
     "quantity": "Quantity",
     "taxes": {
       "included": "Taxes included",
