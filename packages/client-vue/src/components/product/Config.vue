@@ -26,20 +26,6 @@
           <h3 :class="styles.product.config.title">
             {{ availableProduct?.name }}
           </h3>
-
-          <p
-            v-if="availableProduct?.description"
-            :class="styles.product.config.text"
-          >
-            {{ availableProduct.description }}
-          </p>
-
-          <p
-            v-if="availableProduct?.short_description"
-            :class="styles.product.config.text"
-          >
-            {{ availableProduct.short_description }}
-          </p>
         </div>
         <div :class="styles.product.config.summary">
           <!-- quantity -->
@@ -70,6 +56,20 @@
             </strong>
           </span>
         </div>
+
+        <p
+          v-if="availableProduct?.description"
+          :class="styles.product.config.text"
+        >
+          {{ availableProduct.description }}
+        </p>
+
+        <p
+          v-if="availableProduct?.short_description"
+          :class="styles.product.config.text"
+        >
+          {{ availableProduct.short_description }}
+        </p>
       </header>
 
       <!-- content -->
@@ -104,12 +104,13 @@
         />
 
         <!-- provisional fields -->
-        <!-- <upm-config-terms
+        <upm-config-form
           :disabled="processing || meta.isCalculating"
-          :terms="availableTerms"
-          :model-value="model?.term?.billing_cycle_months || 0"
-          @update:modelValue="updateTerm"
-        /> -->
+          :additional-errors="errors?.data"
+          :fields="getProvisioningFields()"
+          :model-value="model.provision_fields"
+          @update:modelValue="setProvisioningFields"
+        />
       </div>
     </div>
 
@@ -117,6 +118,7 @@
     <footer :class="styles.product.config.footer">
       <!-- actions -->
       <upw-button
+        tabindex="1"
         :label="$t('product.actions.reject')"
         :disabled="loading || processing"
         @click="doReject"
@@ -125,9 +127,10 @@
       />
 
       <upw-button
+        tabindex="0"
         :label="$t('product.actions.resolve')"
         :loading="processing"
-        :disabled="loading"
+        :disabled="loading || !meta.isConfigured"
         @click="doResolve"
       />
     </footer>
@@ -152,6 +155,7 @@ import {
 } from "@upmind/upwind";
 import UpmConfigGrid from "./ConfigGrid.vue";
 import UpmConfigNested from "./ConfigNested.vue";
+import UpmConfigForm from "./ConfigForm.vue";
 
 // --- utils
 
@@ -165,6 +169,7 @@ export default defineComponent({
     UpwSpinner,
     UpmConfigGrid,
     UpmConfigNested,
+    UpmConfigForm,
   },
   props: {
     modelValue: {

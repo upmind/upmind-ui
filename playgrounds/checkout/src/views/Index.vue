@@ -61,36 +61,32 @@
       </h1>
     </header>
 
-    <upm-auth v-if="meta.needsAuth" class="w-full max-w-xl" />
-
-    <template v-else>
-      <section>
-        <upw-dropdown
-          v-if="!meta.isLoading && productCatalogue.length >= 1"
-          label="Add to Basket"
-          prepend-icon="basket-add"
-          :items="productCatalogue"
-          :loading="meta.isProcessing"
-        />
-      </section>
-
-      <h3 v-if="meta.isAvailable" class="font-medium">
-        There {{ items.length > 1 ? "are" : "is" }}
-        <span class="text-primary">
-          {{ items.length }}
-        </span>
-        <span> product{{ items.length > 1 ? "s" : "" }} </span>
-        in the Basket
-      </h3>
-
-      <upw-button
-        v-if="meta.isAvailable"
-        label="Proceed to Checkout"
-        prepend-icon="basket"
-        append-icon="arrow-right"
-        @click="() => $router.push({ name: 'checkout' })"
+    <section>
+      <upw-dropdown
+        v-if="!meta.isLoading && productCatalogue.length >= 1"
+        label="Add to Basket"
+        prepend-icon="basket-add"
+        :items="productCatalogue"
+        :loading="meta.isProcessing"
       />
-    </template>
+    </section>
+
+    <h3 v-if="meta.isAvailable" class="font-medium">
+      There {{ items.length > 1 ? "are" : "is" }}
+      <span class="text-primary">
+        {{ items.length }}
+      </span>
+      <span> product{{ items.length > 1 ? "s" : "" }} </span>
+      in the Basket
+    </h3>
+
+    <upw-button
+      v-if="meta.isAvailable"
+      label="Proceed to Checkout"
+      prepend-icon="basket"
+      append-icon="arrow-right"
+      @click="() => $router.push({ name: 'checkout' })"
+    />
   </article>
 </template>
 
@@ -100,7 +96,7 @@
 // --- internal
 
 // ---components
-import { useBasket, UpwDropdown, UpwButton, UpmAuth } from "@upmind/client-vue";
+import { useBasket, UpwDropdown, UpwButton } from "@upmind/client-vue";
 
 // --- utils
 // ---------------------------------------------------

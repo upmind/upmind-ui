@@ -57,7 +57,7 @@
               v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
             >
               {{
-                $t("product.items.cycle", {
+                $t("product.cycle", {
                   value: item?.monthly_price_from_discounted
                     ? item.monthly_price_from_discounted_formatted
                     : item.monthly_price_from_formatted,

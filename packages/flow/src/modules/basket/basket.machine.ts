@@ -795,6 +795,10 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
+        debugger;
+        if (!error) return;
+        debugger;
+
         addError({
           title: error?.title || "We experienced an error updating the basket",
           copy: error?.message,
@@ -806,6 +810,8 @@ export default createMachine(
         error: (context, { data }) => {
           const { items, newItems } = data;
           let { error } = data;
+
+          console.error("Basket Error", error);
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
