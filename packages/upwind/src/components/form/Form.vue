@@ -104,7 +104,7 @@ export default defineComponent({
     UpwSkeletonForm,
   },
 
-  inheritAttrs: true,
+  inheritAttrs: false,
 
   props: {
     translator: {
