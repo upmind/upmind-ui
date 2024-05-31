@@ -85,6 +85,7 @@ export const useBasket = () => {
             )),
 
         // ---
+        isEmpty: stateMatches(state, ["shopping.items.empty"]),
 
         isAvailable:
           stateMatches(state, [

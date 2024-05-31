@@ -113,8 +113,17 @@ export default {
         "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 pl-0 "
       ),
 
-      header: cva("w-full flex items-start gap-10"),
-      headerContent: cva("w-full flex flex-wrap items-start gap-2 "),
+      header: cva("w-full flex flex-wrap items-end gap-x-10 gap-y-4"),
+
+      headerContent: cva("w-full flex-1 flex flex-wrap items-start gap-2 "),
+
+      summary: cva("inline-flex items-end gap-y-6 gap-x-6", {
+        variants: {
+          isCalculating: {
+            true: "text-base-300",
+          },
+        },
+      }),
 
       content: cva(
         "w-full flex-none flex flex-wrap gap-x-6 gap-y-16 empty:hidden items-start "
@@ -142,7 +151,7 @@ export default {
         }
       ),
       discount: cva(
-        "block font-normal text-md leading-snug tracking-wide line-through text-base-700 text-right",
+        "block font-normal text-md leading-snug tracking-wide line-through text-base-700 text-right w-full",
         {
           variants: {
             isCalculating: {
@@ -155,17 +164,10 @@ export default {
       // ---
       image: cva("h-full w-full object-cover"),
       actions: cva("flex gap-2 items-center"),
-      summary: cva("inline-flex items-end gap-y-6 gap-x-6", {
-        variants: {
-          isCalculating: {
-            true: "text-base-300",
-          },
-        },
-      }),
 
       // ---
       grid: {
-        root: cva("w-full p-0 !min-h-0 ", {
+        root: cva("w-full p-0 ", {
           variants: {
             disabled: {
               true: "pointer-events-none opacity-50",
@@ -178,7 +180,7 @@ export default {
             "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
           ),
           selected: cva("border-primary"),
-          input: cva("!min-h-0 text-primary"),
+          input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
           ),
@@ -194,7 +196,7 @@ export default {
       },
       // ---
       list: {
-        root: cva("w-full p-0 !min-h-0 ", {
+        root: cva("w-full p-0 ", {
           variants: {
             disabled: {
               true: "pointer-events-none opacity-50",
@@ -207,7 +209,7 @@ export default {
             "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer m-0 px-4 py-3 rounded-lg border "
           ),
           selected: cva("border-primary"),
-          input: cva("!min-h-0 text-primary"),
+          input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
           ),
@@ -227,7 +229,16 @@ export default {
         },
       },
       // ---
-      form: {},
+      form: {
+        root: cva("w-full p-0", {
+          variants: {
+            disabled: {
+              true: "pointer-events-none opacity-50",
+            },
+          },
+        }),
+        form: cva(""),
+      },
     },
   },
 };

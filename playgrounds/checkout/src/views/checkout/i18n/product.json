@@ -6,9 +6,9 @@
     "trail": "Free trial",
     "term": "billed {name}",
     "save": "Save {value}",
+    "cycle": "{value}/mo",
     "terms": {
-      "label": "Billing terms",
-      "cycle": "{value}/mo"
+      "label": "Billing terms"
     },
     "quantity": "Quantity",
     "taxes": {

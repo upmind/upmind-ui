@@ -198,8 +198,6 @@ export const useProductConfig = item => {
   }
 
   function updateOptionQuantity(option, value, qty) {
-    debugger;
-
     // sanity check
     if (!value?.canChangeQuantity) return;
 

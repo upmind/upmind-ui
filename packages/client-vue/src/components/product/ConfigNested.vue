@@ -192,7 +192,6 @@ export default defineComponent({
     },
 
     doUpdateQuantity(item, value, $event) {
-      debugger;
       this.$emit("update:quantity", item, value, $event);
     },
 

@@ -133,29 +133,31 @@ async function update({ basket, items }: BasketContext, _event: BasketEvent) {
   const productConfigs = map(validItems, item => item.state.context.config);
   // get returns a promise so we can pass it directly back to the machine
 
-  return put({
-    url: useUrl(`/orders/${basket.id}`),
-    data: {
-      products: productConfigs,
-    },
-    withAccessToken: true,
-  })
-    .then(useBasketParser)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, validItems, "id");
-      return { basket, items: validItems, newItems };
+  return new Promise((resolve, reject) => {
+    put({
+      url: useUrl(`/orders/${basket.id}`),
+      data: {
+        products: productConfigs,
+      },
+      withAccessToken: true,
     })
-    .then(updateItemProvisioningFields)
-    .catch(err => {
-      // pass the basket, items, newItems to the error
-      // as we may stll need to process them despite the error
-      // if they have not already been set by a previous error
-      // we will set them here with the current basket, items, NO newItems
-      const newItems = differenceBy(basket.products, validItems, "id");
-
-      merge(err, { basket, items: validItems, newItems });
-      throw new Error(err);
-    });
+      .then(useBasketParser)
+      .then(basket => {
+        const newItems = differenceBy(basket.products, validItems, "id");
+        return { basket, items: validItems, newItems };
+      })
+      .then(updateItemProvisioningFields)
+      .then(resolve)
+      .catch(err => {
+        // pass the basket, items, newItems to the error
+        // as we may stll need to process them despite the error
+        // if they have not already been set by a previous error
+        // we will set them here with the current basket, items, NO newItems
+        const newItems = differenceBy(basket.products, validItems, "id");
+        merge(err, { basket, items: validItems, newItems });
+        reject(err);
+      });
+  });
 }
 
 async function refresh({ items }: BasketContext, _event: BasketEvent) {
@@ -203,26 +205,29 @@ async function updateItem({ basket, items }, { data }: BasketEvent) {
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${item.id}`;
 
-  return action({
-    url: useUrl(`/orders/${basket.id}/products${suffix}`),
-    data: config,
-    withAccessToken: true,
-  })
-    .then(useBasketParser)
-    .then(basket => {
-      const newItems = differenceBy(basket.products, items, "id");
-      return { basket, items: [item], newItems };
+  return new Promise((resolve, reject) => {
+    action({
+      url: useUrl(`/orders/${basket.id}/products${suffix}`),
+      data: config,
+      withAccessToken: true,
     })
-    .then(updateItemProvisioningFields)
-    .catch(err => {
-      // pass the basket, items, newItems  to the error
-      // as we may stll need to process them despite the error
-      // if they have not already been set by a previous error
-      // we will set them here with the current basket, items, NO newItems
-      const newItems = differenceBy(basket.products, items, "id");
-      merge(err, { basket, items: [item], newItems });
-      throw new Error(err);
-    });
+      .then(useBasketParser)
+      .then(basket => {
+        const newItems = differenceBy(basket.products, items, "id");
+        return { basket, items: [item], newItems };
+      })
+      .then(updateItemProvisioningFields)
+      .then(resolve)
+      .catch(err => {
+        // pass the basket, items, newItems  to the error
+        // as we may stll need to process them despite the error
+        // if they have not already been set by a previous error
+        // we will set them here with the current basket, items, NO newItems
+        const newItems = differenceBy(basket.products, items, "id");
+        merge(err, { basket, items: [item], newItems });
+        reject(err);
+      });
+  });
 }
 
 async function updateItemProvisioningFields({ basket, items, newItems }) {
@@ -272,25 +277,19 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
     []
   );
 
-  let error = null;
-  const response = await Promise.all(promises)
-    .then(() => ({ basket, items, newItems }))
-    .catch(err => {
-      // pass the basket, items, newItems  to the err
-      // as we may stll need to process them despite the err
-      err.basket = basket;
-      err.items = items;
-      err.newItems = newItems;
-
-      error = err;
-    });
-
   return new Promise((resolve, reject) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(response);
-    }
+    Promise.all(promises)
+      .then(() => ({ basket, items, newItems }))
+      .then(resolve)
+      .catch(err => {
+        // pass the basket, items, newItems  to the err
+        // as we may stll need to process them despite the err
+        err.basket = basket;
+        err.items = items;
+        err.newItems = newItems;
+
+        reject(err);
+      });
   });
 }
 
