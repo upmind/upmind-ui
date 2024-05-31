@@ -30,7 +30,10 @@
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
-          <upw-spinner v-if="loading || meta.isCalculating" size="xs" />
+          <upw-spinner
+            v-if="loading || meta.isCalculating"
+            :class="styles.product.config.loading"
+          />
 
           <upw-quantitybox
             v-if="availableProduct?.canChangeQuantity"
