@@ -139,6 +139,7 @@ export default {
         "border-t border-base-300 px-6 mt-6 py-4 flex w-full items-center justify-between gap-x-10"
       ),
       // ---
+      loading: cva("size-7"),
       title: cva("w-full m-0 text-4xl font-normal leading-none tracking-wide"),
       meta: cva(
         "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"

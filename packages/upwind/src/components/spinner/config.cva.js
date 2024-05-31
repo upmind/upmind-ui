@@ -9,6 +9,7 @@ export default {
       {
         variants: {
           size: {
+            auto: "border-[0.1em]",
             xs: "size-6 border-[0.1em]",
             sm: "size-8 border-[0.1em]",
             md: "size-10 border-[0.2em]",
