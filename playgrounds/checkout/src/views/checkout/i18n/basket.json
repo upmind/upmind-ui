@@ -1,0 +1,82 @@
+{
+  "basket": {
+    "discount": {
+      "title": "Have a discount code?",
+      "tooltip": "Discount applied",
+      "actions": {
+        "submit": "Apply"
+      },
+      "active": {
+        "title": "Active discounts"
+      }
+    },
+    "summary": {
+      "title": "Order Summary",
+      "items": {
+        "title": "Items"
+      },
+      "discount": {
+        "title": "Discount",
+        "tooltip": "Discount applied"
+      },
+      "taxes": {
+        "title": "Taxes & fees",
+        "tooltip": "Taxes applied"
+      },
+      "total": "Total",
+      "actions": {
+        "submit": "Submit order and pay"
+      },
+      "footer": [
+        {
+          "icon": "lock",
+          "text": "Encrypted and secure payments"
+        }
+      ]
+    },
+    "details": {
+      "title": "Your bag total is {total}",
+      "text": "Let's complete your order"
+    },
+    "confirmation": {
+      "invalid": {
+        "title": "Unable to complete you order",
+        "text": "Please check your payment details to complete the purchase.",
+        "avatar": "paying"
+      },
+      "default": {
+        "title": "Checking you payment details...",
+        "text": "We're verifying your payment information. This should only take a moment",
+        "avatar": "paying"
+      },
+      "paying": {
+        "title": "Processing your payment...",
+        "text": "We're processing your payment. This should only take a moment",
+        "avatar": "paying"
+      },
+      "converting": {
+        "title": "Converting your order...",
+        "text": "We're converting your order. This should only take a moment",
+        "avatar": "paying"
+      },
+      "approval": {
+        "title": "Waiting for approval...",
+        "text": "We're waiting for approval. This should only take a moment",
+        "avatar": "paying"
+      },
+      "complete": {
+        "title": "Order complete",
+        "text": "Your order is complete. You will receive an email confirmation shortly.",
+        "avatar": "paying"
+      }
+    },
+    "empty": {
+      "title": "Your bag is empty",
+      "text": "Looks like you haven't added anything to your bag yet.",
+      "avatar": "basket",
+      "actions": {
+        "continue": "Continue shopping"
+      }
+    }
+  }
+}

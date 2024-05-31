@@ -8,6 +8,8 @@ export default {
       {
         variants: {
           size: {
+            badge: "rounded-full px-2 text-xs",
+            xs: "px-2 py-1 text-xs",
             sm: "px-3 py-2 text-sm",
             md: "px-3 py-3",
             lg: "px-3 py-4 text-lg",
@@ -16,11 +18,12 @@ export default {
             flat: "border-transparent",
             outlined: "border bg-opacity-0 hover:bg-opacity-100",
             ghost: "border-transparent bg-opacity-0 hover:bg-opacity-100",
-            link: "!bg-transparent !p-0 hover:underline",
+            link: "!bg-transparent !p-0 underline",
           },
           color: {
             current:
               "hover:bg-base-100 text-content border-transparent bg-transparent",
+            base: "bg-base-200 hover:bg-base-300 text-base-content border-transparent",
             primary:
               "bg-primary hover:bg-primary-800 text-primary-content border-transparent",
             secondary:
@@ -49,6 +52,11 @@ export default {
           {
             disabled: true,
             color: "current",
+            class: "hover:bg-transparent",
+          },
+          {
+            disabled: true,
+            color: "base",
             class: "hover:bg-transparent",
           },
 
@@ -106,7 +114,23 @@ export default {
           {
             color: "current",
             variant: "link",
-            class: "text-current",
+            class: "hover:text-base-800 text-current",
+          },
+          // --- base + variant ---
+          {
+            color: "base",
+            variant: "outlined",
+            class: "border-base-200 hover:bg-base-200 text-base-content",
+          },
+          {
+            color: "base",
+            variant: "ghost",
+            class: "hover:bg-base-200 text-base-content",
+          },
+          {
+            color: "base",
+            variant: "link",
+            class: "text-base-content hover:text-base-800",
           },
           // --- primary + variant ---
           {
@@ -122,7 +146,7 @@ export default {
           {
             color: "primary",
             variant: "link",
-            class: "text-primary",
+            class: "text-primary hover:text-primary-800",
           },
           // --- secondary + variant ---
           {
@@ -138,7 +162,7 @@ export default {
           {
             color: "secondary",
             variant: "link",
-            class: "text-secondary",
+            class: "text-secondary hover:text-secondary-800",
           },
           // --- accent + variant ---
           {
@@ -154,7 +178,7 @@ export default {
           {
             color: "accent",
             variant: "link",
-            class: "text-accent",
+            class: "text-accent hover:text-accent-800",
           },
           // --- neutral + variant ---
           {
@@ -170,7 +194,7 @@ export default {
           {
             color: "neutral",
             variant: "link",
-            class: "text-neutral",
+            class: "text-neutral hover:text-neutral-800",
           },
           // --- success + variant ---
           {
@@ -186,7 +210,7 @@ export default {
           {
             color: "success",
             variant: "link",
-            class: "text-success",
+            class: "text-success hover:text-success-800",
           },
           // --- error + variant ---
           {
@@ -202,7 +226,7 @@ export default {
           {
             color: "error",
             variant: "link",
-            class: "text-error",
+            class: "text-error hover:text-error-800",
           },
           // --- warning + variant ---
           {
@@ -218,7 +242,7 @@ export default {
           {
             color: "warning",
             variant: "link",
-            class: "text-warning",
+            class: "text-warning hover:text-warning-800",
           },
           // --- info + variant ---
           {
@@ -234,7 +258,7 @@ export default {
           {
             color: "info",
             variant: "link",
-            class: "text-info",
+            class: "text-info hover:text-info-800",
           },
         ],
         defaultVariants: {
@@ -255,7 +279,20 @@ export default {
         },
       },
     }),
-    icon: cva("size-[1.5em]"),
+    icon: cva("", {
+      variants: {
+        size: {
+          badge: "size-2",
+          xs: "size-3",
+          sm: "size-4",
+          md: "size-5",
+          lg: "size-6",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
     content: cva("mx-auto flex items-center gap-x-3", {
       variants: {
         variant: {
@@ -266,6 +303,8 @@ export default {
           true: "invisible opacity-0",
         },
         size: {
+          badge: "px-0",
+          xs: "px-0",
           sm: "px-1",
           medium: "px-3",
           lg: "px-5",

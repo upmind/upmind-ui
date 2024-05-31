@@ -4,14 +4,16 @@ import { cva } from "class-variance-authority";
 export default {
   session: {
     root: cva(""),
-    header: cva("flex flex-col gap-2 "),
-    title: cva("m-0 text-inherit w-full text-5xl font-light"),
+    header: cva("w-full flex flex-col gap-2 "),
+    title: cva(
+      "m-0 flex w-full items-center start-between gap-4 text-5xl font-light text-inherit leading-tight"
+    ),
     name: cva("font-normal"),
     text: cva("m-0 text-lg font-light text-base-700 leading-7"),
     footer: cva(
       "text-sm flex flex-col gap-2 font-light leading-tight tracking-tight"
     ),
-    content: cva("rounded-box items-start my-8"),
+    content: cva("w-full rounded-box items-start my-8 max-w-3xl"),
   },
 
   sessionTransitionEnter: {

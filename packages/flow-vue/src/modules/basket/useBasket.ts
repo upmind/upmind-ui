@@ -18,7 +18,7 @@ import {
   useContextActor,
   useState,
 } from "../../utils";
-import { some } from "lodash-es";
+import { isEmpty, some } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -124,15 +124,24 @@ export const useBasket = () => {
 
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
-        hasAccount: stateMatches(state, ["shopping.account.complete"]),
+        hasAccount: stateMatches(state, [
+          "shopping.account.complete",
+          "checkout",
+        ]),
 
         // ---
-
         isReadyForCheckout: stateMatches(state, ["checkout.available"]),
         isCheckout: stateMatches(state, ["checkout.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
+
+        isProcessingOrder:
+          machineMatches(payment, ["approving"]) ||
+          stateMatches(state, ["converting"]) ||
+          stateMatches(state, ["paying"]) ||
+          stateMatches(state, ["checkout.processing"]),
+
         isComplete: stateMatches(state, ["complete"]),
 
         hasErrors:
@@ -172,7 +181,7 @@ export const useBasket = () => {
       });
     },
 
-    removeItem: ({ itemId }) => {
+    removeItem: itemId => {
       send({ type: "REMOVE", data: { itemId } });
     },
 

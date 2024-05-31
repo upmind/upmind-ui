@@ -5,6 +5,7 @@
 // --- utils
 
 // --- types
+import { read } from "fs";
 import { QUERY_PARAMS } from "./types.d";
 import { GatewayStoreType } from "./types.d";
 import type { GatewayContext, IGateway } from "./types.d";
@@ -47,7 +48,7 @@ export function generateUrls({
       btoa(
         JSON.stringify(
           gateway?.gateway_provider?.external_payment
-            ? { invoiceId: order.id }
+            ? { invoiceId: order?.id }
             : undefined
         )
       )
@@ -76,6 +77,12 @@ export const useSchema = (context: GatewayContext) => {
         type: "string",
         title: "Gateway ID",
         const: context.gateway.id,
+      },
+      // a helper for the ui to not show the checkboxes if the gateway does not support storing
+      can_store: {
+        type: "boolean",
+        const: context.can_store,
+        readOnly: true,
       },
       store_on_payment: {
         type: "boolean",
@@ -127,6 +134,14 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         scope: "#/properties/store_on_payment",
         options: {
           autocomplete: "off",
+        },
+        // only show this field if we have the store_on_payment flag
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/can_store",
+            schema: { const: true },
+          },
         },
       },
       {

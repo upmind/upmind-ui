@@ -139,6 +139,8 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    autosave: { type: Boolean },
+
     // ---
 
     loading: {
@@ -178,8 +180,6 @@ export default defineComponent({
   },
 
   emits: ["reject", "resolve", "update:modelValue", "valid", "click"],
-
-  customOptions: {},
 
   setup(props) {
     const { ajv } = useValidation();
@@ -296,6 +296,8 @@ export default defineComponent({
       }
 
       this.$emit("valid", !this.errors?.length);
+
+      if (!this.errors?.length && this.autosave) this.doSubmit();
     },
 
     doAction(item, $event) {
@@ -326,6 +328,9 @@ export default defineComponent({
     },
 
     doSubmit() {
+      if (!this.meta.isDirty || !this.meta.isValid || this.meta.isProcessing)
+        return; // safety check
+
       this.$emit("resolve", this.model);
       this.isDirty = false;
     },

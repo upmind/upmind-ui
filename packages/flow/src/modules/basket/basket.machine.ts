@@ -551,8 +551,8 @@ export default createMachine(
       updateBasket: assign({
         basket: ({ basket }: BasketContext, { data }: BasketEvent) =>
           get(data, "basket", basket),
-        summary: ({ basket }: BasketContext, _event: BasketEvent) =>
-          useSummaryParser(basket),
+        summary: ({ basket }: BasketContext, { data }: BasketEvent) =>
+          useSummaryParser(get(data, "basket", basket)),
         error: undefined,
         muted: false,
       }),
@@ -728,10 +728,9 @@ export default createMachine(
       }),
 
       refreshItems: assign({
-        items: ({ items }, { data }) => {
+        items: ({ items, basket }, { data }) => {
           const promotions = data?.basket?.promotions || [];
           const currency_id = data?.basket?.currency_id;
-
           forEach(data?.items, (item, index) => {
             const itemId = item.id;
             const newId = get(data?.newItems, [index, "id"]);

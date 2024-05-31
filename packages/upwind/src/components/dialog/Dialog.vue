@@ -1,6 +1,12 @@
 <template>
   <h-transition-root appear :show="meta.isActive" as="template">
-    <h-dialog as="aside" @close="doReject" :class="styles.dialog.root">
+    <h-dialog
+      as="aside"
+      @close="doReject"
+      :class="styles.dialog.root"
+      :open="open"
+      :static="persistent"
+    >
       <!-- skrim -->
       <h-transition-child
         as="template"
@@ -28,7 +34,7 @@
           >
             <h-dialog-panel :class="styles.dialog.panelWrapper">
               <aside :class="styles.dialog.panel">
-                <header :class="styles.dialog.panelHeader">
+                <header :class="styles.dialog.panelHeader" v-if="meta.hasTitle">
                   <h-dialog-title
                     v-if="title"
                     as="h4"
@@ -36,6 +42,7 @@
                   >
                     <slot name="title">{{ title }}</slot>
                   </h-dialog-title>
+
                   <upw-button
                     type="button"
                     variant="link"
@@ -66,11 +73,11 @@
 
                 <footer
                   :class="styles.dialog.panelActions"
-                  v-if="$slots.actions || safeActions"
+                  v-if="meta.hasActions"
                 >
                   <slot name="actions" v-bind="{ meta, doReject, doResolve }">
                     <upw-button
-                      v-for="(action, key) in safeActions"
+                      v-for="(action, key) in actions"
                       :key="key"
                       v-bind="action"
                       :loading="action.loading"
@@ -158,6 +165,17 @@ export default defineComponent({
       type: String as PropType<DialogProps["skrim"]>,
       default: "normal",
     },
+    // ---
+    persistent: {
+      type: Boolean,
+      default: false,
+    },
+
+    noActions: {
+      type: Boolean,
+      default: false,
+    },
+
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
       type: Object,
@@ -176,11 +194,14 @@ export default defineComponent({
     // ---
 
     const meta = computed(() => ({
+      open,
       size: props.size,
       skrim: props.skrim,
       // ---
       isActive: open.value,
-      hasActions: !isEmpty(props.actions) || !!slots.actions,
+      hasTitle: props.persistent ? !!props.title : true,
+      hasActions:
+        !props.noActions && (!isEmpty(props.actions) || !!slots.actions),
     }));
 
     const styles = useStyles(
@@ -197,7 +218,7 @@ export default defineComponent({
     );
 
     function toggleModal(value) {
-      open.value = isNil(value) ? !open.value : value;
+      value = isNil(value) ? !open.value : value;
       emit("update:modelValue", value);
     }
 
@@ -205,27 +226,10 @@ export default defineComponent({
       meta,
       styles,
       toggleModal,
+      open,
     };
   },
-  computed: {
-    safeActions() {
-      return this.actions;
-      // if (isNil(this.actions)) {
-      //   return {
-      //     reject: {
-      //       label: "Cancel",
-      //       variant: "link",
-      //       action: () => {
-      //         this.doReject();
-      //       },
-      //     },
-      //   };
-      // } else if (this.actions) {
-      //   return this.actions;
-      // }
-      // return null;
-    },
-  },
+  computed: {},
   methods: {
     doAction(item, $event) {
       if (!includes(["submit", "reset"], item?.type)) {

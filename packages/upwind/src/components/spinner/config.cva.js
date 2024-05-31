@@ -9,9 +9,12 @@ export default {
       {
         variants: {
           size: {
-            sm: "size-4 border-[0.1em]",
-            md: "size-6 border-[0.2em]",
-            lg: "size-8 border-[0.4em]",
+            xs: "size-6 border-[0.1em]",
+            sm: "size-8 border-[0.1em]",
+            md: "size-10 border-[0.2em]",
+            lg: "size-12 border-[0.4em]",
+            xl: "size-14 border-[0.6em]",
+            "2xl": "size-16 border-[0.8em]",
           },
         },
         defaultVariants: {
