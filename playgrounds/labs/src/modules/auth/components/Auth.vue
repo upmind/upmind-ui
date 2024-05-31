@@ -108,7 +108,7 @@ import { useSession } from "@upmind/flow-vue";
 export default defineComponent({
   name: "Auth",
   components: { UpwForm, UserIcon, PlusIcon, CheckIcon },
-  inheritAttrs: true,
+  inheritAttrs: false,
 
   emits: [],
   props: {},

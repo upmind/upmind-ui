@@ -795,9 +795,7 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
-        debugger;
-        if (!error) return;
-        debugger;
+        if (!error || error?.code == 422) return;
 
         addError({
           title: error?.title || "We experienced an error updating the basket",

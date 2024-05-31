@@ -53,8 +53,7 @@ import { UpwIcon } from "@upmind/upwind";
 export default defineComponent({
   name: "UpmInspctor",
   components: { UpwIcon },
-  inheritAttrs: true,
-
+  inheritAttrs: false,
   inject: ["inspectors"],
   props: {
     flow: { type: String, required: true },
