@@ -35,7 +35,7 @@ import { first } from "lodash-es";
 
 export default defineComponent({
   name: "UpwLabel",
-
+  inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {
     UpwTab,

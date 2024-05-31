@@ -60,7 +60,7 @@ import type { InputProps, IconProps } from "../input/types";
 
 export default defineComponent({
   name: "UpwTextbox",
-
+  inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {
     UpwInput,

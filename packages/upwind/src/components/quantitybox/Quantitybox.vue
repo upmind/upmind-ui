@@ -87,7 +87,7 @@ import type { InputProps, IconProps } from "../input/types";
 
 export default defineComponent({
   name: "UpwQuantitybox",
-
+  inheritAttrs: false,
   emits: ["update:modelValue", "update:increment", "update:decrement"],
   components: {
     UpwInput,
