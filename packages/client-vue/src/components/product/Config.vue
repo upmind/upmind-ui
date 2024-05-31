@@ -126,6 +126,13 @@
         variant="link"
       />
 
+      <span :class="styles.product.config.itemtotal" v-if="summary?.total">
+        <span>{{ $t("product.total") }}</span>
+        <strong :class="styles.product.config.bold">
+          {{ summary?.total_formatted }}
+        </strong>
+      </span>
+
       <upw-button
         tabindex="0"
         :label="$t('product.actions.resolve')"

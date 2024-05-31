@@ -67,7 +67,13 @@ export default {
         "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
       ),
       text: cva("w-full text-left m-0 text-sm leading-normal"),
-      bold: cva("font-medium "),
+      bold: cva("font-medium", {
+        variants: {
+          isCalculating: {
+            true: "text-base-300",
+          },
+        },
+      }),
       total: cva("font-medium text-2xl leading-snug tracking-wide"),
       discount: cva(
         "font-normal text-md leading-snug tracking-wide line-through text-base-700"
@@ -130,7 +136,7 @@ export default {
       ),
 
       footer: cva(
-        "border-t border-base-300 px-6 mt-6 py-4 flex w-full items-center justify-between gap-6"
+        "border-t border-base-300 px-6 mt-6 py-4 flex w-full items-center justify-between gap-x-10"
       ),
       // ---
       title: cva("w-full m-0 text-4xl font-normal leading-none tracking-wide"),
@@ -138,10 +144,26 @@ export default {
         "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
       ),
       text: cva("w-full text-left m-0 leading-normal text-base-700"),
-      bold: cva("font-medium "),
+      bold: cva("font-medium", {
+        variants: {
+          isCalculating: {
+            true: "text-base-300",
+          },
+        },
+      }),
       // ---
       total: cva(
         "block font-medium text-2xl leading-snug tracking-wide text-right",
+        {
+          variants: {
+            isCalculating: {
+              true: "text-base-300",
+            },
+          },
+        }
+      ),
+      itemtotal: cva(
+        "w-full justify-end m-0 leading-normal text-base-700 flex gap-2 items-end",
         {
           variants: {
             isCalculating: {
