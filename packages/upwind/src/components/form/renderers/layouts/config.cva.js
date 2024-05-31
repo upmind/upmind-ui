@@ -8,10 +8,10 @@ export default {
     item: cva(""),
   },
   layout: {
-    root: cva("flex w-full gap-4", {
+    root: cva("flex w-full gap-6", {
       variants: {
         isHorizontal: {
-          true: "flex-row flex-wrap gap-x-4",
+          true: "flex-row flex-wrap",
           false: "flex-col",
         },
       },

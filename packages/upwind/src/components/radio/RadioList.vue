@@ -22,13 +22,17 @@
     :persist-feedback="persistFeedback"
     variant="flat"
   >
-    <ul :class="styles.radiolist.root">
-      <li
+    <h-radio-group v-model="selected" as="ul" :class="styles.radiolist.root">
+      <h-radio-group-option
+        as="li"
         v-for="(item, index) in items"
         :key="item.value"
         :class="styles.radiolist.item"
+        :value="item.value"
       >
         <upw-radio
+          tabindex="-1"
+          :upwind-config="{ input: config.radiolist.radio }"
           v-bind="safeAttrs"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
@@ -39,10 +43,9 @@
           :model-value="isSelected(item.value)"
           no-status
           no-feedback
-          @change="onChange"
         />
-      </li>
-    </ul>
+      </h-radio-group-option>
+    </h-radio-group>
   </upw-input>
 </template>
 
@@ -56,24 +59,27 @@ import config from "./config.cva";
 // --- components
 import UpwInput from "../input/Input.vue";
 import UpwRadio from "../radio/Radio.vue";
-
+import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isNil, omit } from "lodash-es";
+import { isEmpty, isNil, omit, values } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
 import type { InputProps, IconProps } from "../input/types";
+import type { RadioListProps } from "./types";
 
 // ----------------------------------------------
 
 export default defineComponent({
   name: "UpwRadioList",
   inheritAttrs: false,
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change"],
   components: {
     UpwInput,
     UpwRadio,
+    HRadioGroup: RadioGroup,
+    HRadioGroupOption: RadioGroupOption,
   },
 
   props: {
@@ -88,6 +94,11 @@ export default defineComponent({
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]>, default: null },
+    layout: {
+      type: String as PropType<RadioListProps["layout"]>,
+      default: "stacked",
+    },
+    stretch: { type: Boolean, default: false },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -127,6 +138,11 @@ export default defineComponent({
   setup(props, { emit }) {
     const meta = computed(() => ({
       size: props.size,
+      layout: props.layout,
+      align: props.align,
+      // ---
+      isBlock: props.block,
+      isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,
       isVisible: props.visible,
@@ -139,14 +155,14 @@ export default defineComponent({
 
     const styles = useStyles("radiolist", meta, config, props.upwindConfig);
 
+    const selected = ref(props.modelValue);
     return {
       meta,
       styles,
-      onChange: event => {
-        emit("update:modelValue", event.target.value);
-      },
+      config,
+      selected,
       isSelected: value => {
-        return props.modelValue == value;
+        return selected.value == value;
       },
     };
   },
@@ -154,6 +170,26 @@ export default defineComponent({
     safeAttrs() {
       // TODO: maybe whitelist input attributes
       return omit(this.$attrs, ["layout", "variant"]);
+    },
+  },
+  watch: {
+    modelValue: {
+      immediate: true,
+      handler(value, oldValue) {
+        if (value === oldValue) return;
+        this.selected = value;
+      },
+    },
+    selected: {
+      immediate: true,
+      handler(value) {
+        this.$emit("update:modelValue", value);
+        // forward the event to the input control that will trigger the update
+        // NB: this is not a DOM event so we need to fake one for the renderer
+        this.$emit("change", {
+          currentTarget: { value },
+        });
+      },
     },
   },
 });

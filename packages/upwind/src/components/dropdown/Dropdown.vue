@@ -3,7 +3,7 @@
     <h-menu-button
       :class="[styles.dropdown.trigger, open ? styles.dropdown.active : '']"
       ref="reference"
-      :disabled="disabled"
+      :disabled="disabled || loading"
     >
       <!-- prepend slot-->
       <slot
@@ -113,7 +113,7 @@
             <upw-dropdown-item
               v-if="item?.label || item?.icon"
               v-bind="item"
-              group="true"
+              group
               :size="size"
             />
 

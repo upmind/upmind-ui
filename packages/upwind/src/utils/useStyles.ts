@@ -93,3 +93,7 @@ export function useStyles(
     return styles;
   });
 }
+
+export function mergeStyles(...styles: Array<String>) {
+  return twMerge(...styles);
+}

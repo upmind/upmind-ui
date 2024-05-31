@@ -46,7 +46,7 @@ export default defineComponent({
   name: "AuthForm",
   components: { UpwForm },
   inheritAttrs: false,
-  customOptions: {},
+
   emits: [],
   props: {},
   setup() {

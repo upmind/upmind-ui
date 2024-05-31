@@ -36,7 +36,7 @@ export default defineComponent({
   name: "Profile",
   components: {},
   inheritAttrs: true,
-  customOptions: {},
+
   emits: [],
   props: {},
   setup() {

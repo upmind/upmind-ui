@@ -9,7 +9,6 @@
     @update:modelValue="onClose"
   >
     <upw-form
-      tabindex="1"
       :class="styles.clientForm.root"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"

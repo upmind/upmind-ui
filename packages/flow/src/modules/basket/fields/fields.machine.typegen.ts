@@ -88,6 +88,7 @@ export interface Typegen0 {
     wait: "done.invoke.basketFieldsManager.processing:invocation[0]";
   };
   eventsCausingGuards: {
+    hasBasket: "UPDATE";
     isDirty: "done.invoke.basketFieldsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {

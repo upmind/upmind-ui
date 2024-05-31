@@ -1,5 +1,10 @@
 <template>
-  <button :class="styles.button.root" :disabled="disabled">
+  <component
+    :is="safeComponent"
+    v-bind="safeAttrs"
+    :class="styles.button.root"
+    :disabled="disabled"
+  >
     <slot v-if="meta.isLoading" name="loading" v-bind="{ meta }">
       <upw-spinner :class="styles.button.spinner" class="loading" />
     </slot>
@@ -57,7 +62,7 @@
         :icon="appendAvatar"
       />
     </slot>
-  </button>
+  </component>
 </template>
 
 <script lang="ts">
@@ -88,6 +93,15 @@ export default defineComponent({
   },
 
   props: {
+    to: {
+      type: String,
+      default: null,
+    },
+    href: {
+      type: String,
+      default: null,
+    },
+    // ---
     label: {
       type: String,
       default: null,
@@ -163,6 +177,31 @@ export default defineComponent({
       meta,
       styles,
     };
+  },
+  computed: {
+    safeComponent() {
+      // external link
+      if (this?.href && !this.disabled) return "a";
+
+      // internal link
+      if (this?.to && !this.disabled) return "RouterLink";
+
+      // fallback/defauly
+      return "button";
+    },
+    safeAttrs() {
+      if (this?.href && !this.disabled)
+        return {
+          href: this.href,
+          target: this?.target,
+        };
+
+      // internal link
+      if (this?.to && !this.disabled) return { to: this.to };
+
+      // fallback/fallback
+      return {};
+    },
   },
 });
 </script>

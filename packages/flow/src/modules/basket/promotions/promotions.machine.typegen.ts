@@ -107,6 +107,7 @@ export interface Typegen0 {
       | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
   };
   eventsCausingGuards: {
+    hasBasket: "UPDATE";
     isDirty:
       | "done.invoke.basketPromotionsManager.checking.validating:invocation[0]"
       | "error.platform.basketPromotionsManager.checking.validating:invocation[0]";

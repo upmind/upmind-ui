@@ -54,7 +54,7 @@ export default defineComponent({
   name: "UpmInspctor",
   components: { UpwIcon },
   inheritAttrs: true,
-  customOptions: {},
+
   inject: ["inspectors"],
   props: {
     flow: { type: String, required: true },

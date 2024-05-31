@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 // -- global
 import { defineComponent, toRefs } from "vue";
 
@@ -27,7 +27,8 @@ export default defineComponent({
     size: {
       type: String,
       default: "md",
-      validator: value => ["xs", "sm", "md", "lg"].includes(value),
+      validator: (value: string) =>
+        ["auto", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {

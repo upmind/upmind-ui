@@ -14,22 +14,26 @@ import {
   contextActor,
 } from "../../utils";
 
+// ---types
+import type { TActor } from "./types";
+
 // --------------------------------------------------------
 
 // --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
-//  with some state helpers
+// a composable that provides a simple interface to the api requests machinewith some state helpers
+// We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketCurrency = () => {
+export const useBasketCurrency = (actor?: TActor<any>) => {
   const { service } = useBasket();
+  const currency = ref(actor);
 
-  const currency = ref(null);
-
-  waitFor(service, newstate => newstate.matches("shopping.currency")).then(
-    validState => {
+  if (!actor) {
+    waitFor(service, newstate =>
+      ["checkout", "shopping.currency"].some(newstate.matches)
+    ).then(validState => {
       currency.value = contextActor(validState, "actors.currency");
-    }
-  );
+    });
+  }
 
   // --------------------------------------------------------
 
@@ -67,8 +71,10 @@ export const useBasketCurrency = () => {
     update(model) {
       // first check if our currency has change, ie: model.code has changed
 
+      const { code } = contextValue(currency.value?.state, "model");
+
       // if it has not then bail
-      if (model?.code == this.model.value?.code) return;
+      if (model?.code == code) return;
 
       // if it has then send the new model to the machine
       currency.value?.send({ type: "SET", data: model });

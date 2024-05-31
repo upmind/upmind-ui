@@ -6,10 +6,12 @@ export default {
     root: cva("flex flex-shrink-0", {
       variants: {
         size: {
-          auto: "",
-          sm: "size-5",
-          md: "size-6",
-          lg: "size-7",
+          xs: "size-6",
+          sm: "size-8",
+          md: "size-10",
+          lg: "size-12",
+          xl: "size-14",
+          "2xl": "size-16",
         },
       },
       defaultVariants: {

@@ -19,9 +19,6 @@
             v-bind="badge"
           />
         </h4>
-
-        <!-- <pre>{{ meta }}</pre>
-        <pre>{{ model }}</pre> -->
       </header>
 
       <span
@@ -49,7 +46,7 @@
   </article>
 </template>
 
-<script lang="ts">
+<script>
 // --- external
 import { defineComponent, inject, toRefs } from "vue";
 
@@ -84,7 +81,7 @@ export default defineComponent({
     selectable: { type: Boolean, default: true },
   },
   setup(props) {
-    const useClient = inject("client") as Function;
+    const useClient = inject("client");
 
     const { selected, loading, hidden, disabled, selectable } = toRefs(props);
 
