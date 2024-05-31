@@ -215,7 +215,7 @@ import type { InputProps, IconProps } from "../input/types";
 
 export default defineComponent({
   name: "UpwCombobox",
-
+  inheritAttrs: false,
   emits: ["update:modelValue", "change"],
   components: {
     HCombobox: Combobox,

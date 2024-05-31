@@ -67,7 +67,7 @@ import type { InputProps, IconProps } from "../input/types";
 
 export default defineComponent({
   name: "UpwRadio",
-
+  inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {
     UpwInput,
