@@ -1,106 +1,53 @@
 <template>
   <article class="flex flex-col items-center justify-center gap-4">
-    <header>
-      <h1 class="flex justify-center gap-4">
-        <span>Basket</span>
-
-        <span v-if="meta.isLoading">
-          is <span class="text-primary">Loading&hellip;</span>
-        </span>
-
-        <span v-if="meta.isProcessing">
-          is <span class="text-primary">Updating</span>
-        </span>
-
-        <template v-if="!meta.isLoading && !meta.isProcessing">
-          <!-- Main Statuses -->
-          <span v-if="meta.isComplete">
-            is <span class="text-primary">Paid and Complete!</span>
-          </span>
-
-          <span v-else-if="meta.isPaying">
-            is <span class="text-primary">Attempting Payment</span>
-          </span>
-
-          <span v-else-if="meta.isConverting">
-            is <span class="text-primary">Converting to an Order</span>
-          </span>
-
-          <span v-else-if="meta.isCheckout">
-            is <span class="text-primary">Gathering Payment Details</span>
-          </span>
-
-          <span v-else-if="meta.isReadyForCheckout">
-            is <span class="text-primary">Ready for Checkout</span>
-          </span>
-
-          <!-- ----- -->
-          <!-- Shopping Statuses -->
-          <span v-else-if="!meta.isAvailable">
-            is <span class="text-primary">Empty</span>
-          </span>
-
-          <span v-else-if="meta.needsUpdating">
-            needs <span class="text-primary">Updating</span>
-          </span>
-
-          <!-- <span v-else-if="!meta.hasProducts">
-          needs <span class="text-warning">Configuring</span>
-        </span> -->
-
-          <!-- <span v-else-if="meta.hasErrors">
-          needs <span class="text-warning">Attention</span>
-        </span> -->
-
-          <span v-else>
-            needs <span class="text-warning">Information</span>
-
-            <!-- is <span class="text-warning">NOT</span> Ready for Checkout -->
-          </span>
-        </template>
-      </h1>
-    </header>
-
-    <section>
-      <upw-dropdown
-        v-if="!meta.isLoading && productCatalogue.length >= 1"
-        label="Add to Basket"
-        prepend-icon="basket-add"
-        :items="productCatalogue"
-        :loading="meta.isProcessing"
-      />
-    </section>
-
-    <h3 v-if="meta.isAvailable" class="font-medium">
-      There {{ items.length > 1 ? "are" : "is" }}
-      <span class="text-primary">
-        {{ items.length }}
-      </span>
-      <span> product{{ items.length > 1 ? "s" : "" }} </span>
-      in the Basket
-    </h3>
-
-    <upw-button
-      v-if="meta.isAvailable"
-      label="Proceed to Checkout"
-      prepend-icon="basket"
-      append-icon="arrow-right"
-      @click="() => $router.push({ name: 'checkout' })"
+    <img
+      src="/background.svg"
+      alt="page background"
+      class="absolute bottom-0 left-0 right-0 top-9 z-0 object-cover"
     />
+
+    <upm-basket-empty v-if="meta.isEmpty" />
+    <template v-else>
+      <upm-basket-loading />
+
+      <!-- safety check in case anything goes wrong  -->
+      <footer v-if="showActions">
+        <h3 v-if="meta.isAvailable" class="font-medium">
+          {{ $tc("basket.loading.count", items.length) }}
+        </h3>
+
+        <upw-button
+          v-if="meta.isAvailable"
+          block
+          :label="$t('basket.loading.actions.checkout')"
+          prepend-icon="basket"
+          append-icon="arrow-right"
+          @click="() => $router.push({ name: 'checkout' })"
+        />
+      </footer>
+    </template>
   </article>
 </template>
 
 <script setup>
 // --- external
+import { useRoute, useRouter } from "vue-router";
 
 // --- internal
 
 // ---components
-import { useBasket, UpwDropdown, UpwButton } from "@upmind/client-vue";
+import {
+  useBasket,
+  UpwButton,
+  UpmBasketEmpty,
+  UpmBasketLoading,
+} from "@upmind/client-vue";
+import { forEach, isArray, get } from "lodash-es";
+import { ref } from "vue";
 
 // --- utils
 // ---------------------------------------------------
-const { items, meta, addProduct } = useBasket();
+const { items, meta, addProduct, updateBasket, isReady } = useBasket();
 
 const productCatalogue = [
   {
@@ -173,4 +120,38 @@ const productCatalogue = [
     ],
   },
 ];
+
+// check if weve been given a product to add to the basket via route query params
+const route = useRoute();
+const router = useRouter();
+
+const product = get(route.query, "product");
+const products = ref([]);
+
+const showActions = ref(false);
+
+function gotoCheckout() {
+  if (!meta.value.isEmpty) router.push({ name: "checkout" });
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+isReady()
+  .then(() => {
+    if (product) {
+      forEach(isArray(product) ? product : [product], product_id => {
+        products.value.push(addProduct({ product_id, quantity: 1 }));
+      });
+
+      return Promise.all(products.value).then(updateBasket);
+    }
+  })
+  .then(() => gotoCheckout())
+  .finally(() => {
+    // as a failsafe we show the actions if the basket is available and we havenot for some reason redirected
+    // add a delay to prevent fout
+    delay(1000).then(() => (showActions.value = meta.value.isAvailable));
+  });
 </script>

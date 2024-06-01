@@ -170,11 +170,6 @@ export default defineComponent({
         "onBlur",
       ]);
 
-      console.debug({
-        attrs: this.$attrs,
-        safe,
-      });
-
       return safe;
     },
     computedIcon() {

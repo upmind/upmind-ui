@@ -19,3 +19,4 @@ export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketDetails } from "./components/basket/Details.vue";
 export { default as UpmBasketConfirmation } from "./components/basket/Confirmation.vue";
 export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
+export { default as UpmBasketLoading } from "./components/basket/Loading.vue";

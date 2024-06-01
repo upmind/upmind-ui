@@ -8,7 +8,7 @@
       }
     },
     "details": {
-      "title": "Your bag total is {total}",
+      "title": "Your basket total is {total}",
       "text": "Let's complete your order"
     },
     "discount": {
@@ -78,11 +78,24 @@
       }
     },
     "empty": {
-      "title": "Your bag is empty",
-      "text": "Looks like you haven't added anything to your bag yet.",
+      "title": "Your basket is empty",
+      "text": "Looks like you haven't added anything to your basket yet.",
       "avatar": "basket",
       "actions": {
         "continue": "Continue shopping"
+      }
+    },
+    "loading": {
+      "title": "Something exciting is around the corner...",
+      "text": "Almost there! Getting things ready for you.",
+      "avatar": "basket",
+      "count": "There are {count} products in your basket | There is {count} product in your basket| There are {count} products in your basket",
+      "actions": {
+        "add": "Add to basket",
+        "remove": "Remove",
+        "clear": "Clear basket",
+        "continue": "Continue shopping",
+        "checkout": "Proceed to Checkout"
       }
     }
   }
