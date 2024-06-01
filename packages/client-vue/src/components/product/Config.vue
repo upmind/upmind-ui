@@ -12,13 +12,13 @@
       <header :class="styles.product.config.header">
         <div :class="styles.product.config.headerContent">
           <upw-badge
-            color="primary"
+            color="secondary"
             v-if="availableProduct?.hasFreeTrial"
             :label="$t('product.trail')"
           />
 
           <upw-badge
-            color="primary"
+            color="secondary"
             v-if="availableProduct?.isOnPromotion"
             :label="$t('product.promotion')"
           />

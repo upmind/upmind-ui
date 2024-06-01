@@ -13,17 +13,22 @@
     layout="stacked"
   >
     <ul :class="styles.product.config.list.items">
-      <li v-for="value in item.values" :key="value.id">
+      <li
+        v-for="value in item.values"
+        :key="value.id"
+        :aria-selected="isSelected(item.id, value.id)"
+        :class="
+          mergeStyles(
+            styles.product.config.list.item.root,
+            isSelected(item.id, value.id)
+              ? styles.product.config.list.item.selected
+              : null
+          )
+        "
+      >
         <label
           :for="`items[${item.id}][${value.id}]`"
-          :class="
-            mergeStyles(
-              styles.product.config.list.item.root,
-              isSelected(item.id, value.id)
-                ? styles.product.config.list.item.selected
-                : null
-            )
-          "
+          :class="styles.product.config.list.item.wrapper"
         >
           <component
             :is="item.multiple ? 'upw-checkbox' : 'upw-radio'"
@@ -47,7 +52,7 @@
 
             <upw-badge
               v-if="value.saving"
-              color="primary"
+              color="secondary"
               :label="$t('product.save', { value: item.saving_formatted })"
             />
 

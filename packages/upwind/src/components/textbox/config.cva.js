@@ -14,7 +14,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "md",
+          size: "sm",
         },
       }
     ),
@@ -27,7 +27,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
   },

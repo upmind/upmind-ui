@@ -202,7 +202,9 @@ export default {
           root: cva(
             "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
           ),
-          selected: cva("border-primary"),
+          selected: cva(
+            "border border-primary ring-primary ring-4 ring-opacity-20"
+          ),
           input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
@@ -229,9 +231,14 @@ export default {
         items: cva("p-0 m-0 list-none grid grid-cols-1 w-full gap-0"),
         item: {
           root: cva(
-            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer m-0 px-4 py-3 rounded-lg border "
+            "m-0 p-0 first-of-type:rounded-t-lg border border-b-0 last-of-type:rounded-b-lg last-of-type:border-b"
           ),
-          selected: cva("border-primary"),
+          wrapper: cva(
+            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 "
+          ),
+          selected: cva(
+            "border border-primary ring-primary ring-4 ring-opacity-20"
+          ),
           input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"

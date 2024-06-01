@@ -57,7 +57,7 @@ import UpwIcon from "../icon/Icon.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty, omit } from "lodash-es";
+import { isNil, isEmpty, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -151,8 +151,31 @@ export default defineComponent({
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      // return this.$attrs;
+
+      const safe = pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
+
+      console.debug({
+        attrs: this.$attrs,
+        safe,
+      });
+
+      return safe;
     },
     computedIcon() {
       return this.meta.isChecked ? this.checkedIcon : this.uncheckedIcon;

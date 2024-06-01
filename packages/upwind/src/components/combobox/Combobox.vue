@@ -201,7 +201,7 @@ import {
   debounce,
   includes,
   isFunction,
-  omit,
+  pick,
   reject,
   get,
 } from "lodash-es";
@@ -383,8 +383,18 @@ export default defineComponent({
 
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
     displayValue() {
       const selected = find(this.results, [this.itemValue, this.value]);

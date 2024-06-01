@@ -27,7 +27,6 @@ export default {
             primary: "bg-primary text-primary-content border-transparent",
             secondary: "bg-secondary text-secondary-content border-transparent",
             accent: "bg-accent text-accent-content border-transparent",
-            neutral: "bg-neutral text-neutral-content border-transparent",
             success: "bg-success text-success-content border-transparent",
             error: "bg-error text-error-content border-transparent",
             warning: "bg-warning text-warning-content border-transparent",
@@ -67,11 +66,6 @@ export default {
             disabled: false,
             color: "accent",
             class: "hover:bg-accent-800",
-          },
-          {
-            disabled: false,
-            color: "neutral",
-            class: "hover:bg-neutral-800",
           },
           {
             disabled: false,
@@ -234,34 +228,7 @@ export default {
             variant: "link",
             class: "hover:text-accent-800",
           },
-          // --- neutral + variant ---
-          {
-            color: "neutral",
-            variant: "outlined",
-            class: "border-neutral text-neutral",
-          },
-          {
-            color: "neutral",
-            variant: "ghost",
-            class: "text-neutral",
-          },
-          {
-            color: "neutral",
-            variant: "link",
-            class: "text-neutral",
-          },
-          {
-            disabled: false,
-            color: "neutral",
-            variant: ["outlined", "ghost"],
-            class: "hover:bg-neutral-50",
-          },
-          {
-            disabled: false,
-            color: "neutral",
-            variant: "link",
-            class: "hover:text-neutral-800",
-          },
+
           // --- success + variant ---
           {
             color: "success",
@@ -377,7 +344,7 @@ export default {
         ],
         defaultVariants: {
           variant: "flat",
-          color: "primary",
+          color: "accent",
           size: "md",
         },
       }

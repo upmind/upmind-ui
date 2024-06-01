@@ -55,7 +55,7 @@ import UpwInput from "../input/Input.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty, omit } from "lodash-es";
+import { isNil, isEmpty, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -134,8 +134,18 @@ export default defineComponent({
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant", "options"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
   },
 });

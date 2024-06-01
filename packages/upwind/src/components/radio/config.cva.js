@@ -12,11 +12,11 @@ export default {
         },
       },
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
     input: cva(
-      "border-base-300 cursor-pointer appearance-none rounded-[100%] border outline-none ring-0",
+      "border-base-300 cursor-pointer appearance-none rounded-[100%] border text-inherit outline-none ring-0",
       {
         variants: {
           size: {
@@ -28,7 +28,7 @@ export default {
             true: "bg-base-100",
           },
           isChecked: {
-            true: `border-current bg-current text-base`,
+            true: `border-current bg-current`,
           },
         },
         compoundVariants: [
@@ -67,7 +67,7 @@ export default {
           },
         ],
         defaultVariants: {
-          size: "md",
+          size: "sm",
         },
       }
     ),
@@ -88,7 +88,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "md",
+          size: "sm",
         },
       }
     ),

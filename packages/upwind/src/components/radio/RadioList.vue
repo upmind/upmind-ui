@@ -62,7 +62,7 @@ import UpwRadio from "../radio/Radio.vue";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isNil, omit, values } from "lodash-es";
+import { isEmpty, isNil, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -168,8 +168,18 @@ export default defineComponent({
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
   },
   watch: {
