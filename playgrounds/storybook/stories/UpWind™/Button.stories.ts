@@ -286,7 +286,7 @@ export const SolidColorVariants: Story = {
         <upw-button v-bind="args" variant="flat" color="primary" label="Primary" />
         <upw-button v-bind="args" variant="flat" color="secondary" label="Secondary" />
         <upw-button v-bind="args" variant="flat" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="flat" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" variant="flat" color="base" label="Base" />
         <upw-button v-bind="args" variant="flat" color="info" label="Info" />
         <upw-button v-bind="args" variant="flat" color="success" label="Success" />
         <upw-button v-bind="args" variant="flat" color="error" label="Error" />
@@ -313,7 +313,7 @@ export const OutlinedColorVariants: Story = {
         <upw-button v-bind="args" variant="outlined" color="primary" label="Primary" />
         <upw-button v-bind="args" variant="outlined" color="secondary" label="Secondary" />
         <upw-button v-bind="args" variant="outlined" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="outlined" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" variant="outlined" color="base" label="Base" />
         <upw-button v-bind="args" variant="outlined" color="info" label="Info" />
         <upw-button v-bind="args" variant="outlined" color="success" label="Success" />
         <upw-button v-bind="args" variant="outlined" color="error" label="Error" />
@@ -340,7 +340,7 @@ export const GhostColorVariants: Story = {
         <upw-button v-bind="args" variant="ghost" color="primary" label="Primary" />
         <upw-button v-bind="args" variant="ghost" color="secondary" label="Secondary" />
         <upw-button v-bind="args" variant="ghost" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="ghost" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" variant="ghost" color="base" label="Base" />
         <upw-button v-bind="args" variant="ghost" color="info" label="Info" />
         <upw-button v-bind="args" variant="ghost" color="success" label="Success" />
         <upw-button v-bind="args" variant="ghost" color="error" label="Error" />
@@ -367,7 +367,7 @@ export const LinkColorVariants: Story = {
         <upw-button v-bind="args" variant="link" color="primary" label="Primary" />
         <upw-button v-bind="args" variant="link" color="secondary" label="Secondary" />
         <upw-button v-bind="args" variant="link" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="link" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" variant="link" color="base" label="Base" />
         <upw-button v-bind="args" variant="link" color="info" label="Info" />
         <upw-button v-bind="args" variant="link" color="success" label="Success" />
         <upw-button v-bind="args" variant="link" color="error" label="Error" />
@@ -392,7 +392,7 @@ export const LoadingColorVariants: Story = {
         <upw-button v-bind="args" color="primary" label="Primary" />
         <upw-button v-bind="args" color="secondary" label="Secondary" />
         <upw-button v-bind="args" color="accent" label="Accent" />
-        <upw-button v-bind="args" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" color="base" label="Base" />
         <upw-button v-bind="args" color="info" label="Info" />
         <upw-button v-bind="args" color="success" label="Success" />
         <upw-button v-bind="args" color="error" label="Error" />
@@ -420,7 +420,7 @@ export const DisabledColorVariants: Story = {
         <upw-button v-bind="args" color="primary" label="Primary" />
         <upw-button v-bind="args" color="secondary" label="Secondary" />
         <upw-button v-bind="args" color="accent" label="Accent" />
-        <upw-button v-bind="args" color="neutral" label="Neutral" />
+        <upw-button v-bind="args" color="base" label="Base" />
         <upw-button v-bind="args" color="info" label="Info" />
         <upw-button v-bind="args" color="success" label="Success" />
         <upw-button v-bind="args" color="error" label="Error" />

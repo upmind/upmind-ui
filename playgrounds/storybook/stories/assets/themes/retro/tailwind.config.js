@@ -16,7 +16,7 @@ For a full list of options, see the official Tailwind CSS documentation: https:/
 |-------------------------------------------------------------------------------
 |
 | Here you can specify the colors used in your project.
-| We generally dont specify colors here, only the theme colors. eg: primary, secondary, tertiary, accent, neutral
+| We generally dont specify colors here, only the theme colors. eg: primary, secondary, tertiary, accent
 | To get you started, we've provided our base palette of great looking colors that are perfect
 | for your Upmind store, but don't hesitate to change them for your project.
 | You own these colors, nothing will break if you change everything about them.
@@ -43,22 +43,6 @@ export default {
     transparent: "transparent",
     black: "#282425",
     white: "#ece3ca",
-
-    gray: {
-      DEFAULT: "#6d6d6d",
-      50: "#faf8f2",
-      100: "#f4efe0",
-      200: "#ece3ca",
-      300: "#dac697",
-      400: "#caaa6d",
-      500: "#be9451",
-      600: "#b18045",
-      700: "#93673b",
-      800: "#775335",
-      900: "#61442d",
-      950: "#342316",
-      content: "#282425",
-    },
 
     // ---
 
@@ -126,22 +110,6 @@ export default {
       900: "#762e11",
       950: "#441604",
       content: "#fffaeb",
-    },
-
-    neutral: {
-      DEFAULT: "#4f3834",
-      50: "#f6f3f0",
-      100: "#e9e1d8",
-      200: "#d4c5b4",
-      300: "#bba289",
-      400: "#a78568",
-      500: "#98745a",
-      600: "#825f4c",
-      700: "#6d4c41",
-      800: "#5a3f39",
-      900: "#4f3834",
-      950: "#2c1e1c",
-      content: "#ede6d4",
     },
 
     // ---

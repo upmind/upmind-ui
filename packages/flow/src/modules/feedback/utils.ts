@@ -22,7 +22,7 @@ export function generateHash(message: Message) {
 export const useMessageParser = (data: Object) => {
   const defaultMessage = {
     display: messageDisplays.TOAST,
-    type: messageTypes.NEUTRAL,
+    type: messageTypes.BASE,
     title: null,
     copy: null,
     data: null,

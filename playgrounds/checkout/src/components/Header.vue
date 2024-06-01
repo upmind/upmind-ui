@@ -11,10 +11,17 @@
         to="/"
         aria-label="Brand"
       >
-        <logo class="h-full w-full" />
-        <span class="text-nowrap tracking-widest">{{
-          $t("header.title")
-        }}</span>
+        <picture class="h-full w-full">
+          <source srcset="/logo.png" type="image/png" />
+          <img src="/logo.svg" class="h-full w-full" />
+          <caption class="sr-only text-nowrap tracking-widest">
+            {{
+              $t("header.title")
+            }}
+          </caption>
+        </picture>
+
+        <!-- <img src="/logo.svg" class="h-full w-full" /> -->
       </router-link>
 
       <div class="flex flex-1 items-center justify-end gap-4">
@@ -43,7 +50,7 @@
             <upw-avatar
               :key="items?.length"
               v-if="items?.length"
-              class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
+              class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-content"
             >
               {{ items.length }}
             </upw-avatar>
@@ -58,7 +65,6 @@
 
 <script>
 import { defineComponent } from "vue";
-import Logo from "@/assets/logo.svg";
 import {
   useBasket,
   UpwListbox,
@@ -66,15 +72,12 @@ import {
   UpmCurrency,
   UpwAvatar,
   UpwButton,
-  UpwIcon,
 } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
-    Logo,
     UpwAvatar,
-    UpwIcon,
     UpwListbox,
     UpwButton,
     UpmProfile,

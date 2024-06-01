@@ -24,7 +24,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "md",
+          size: "sm",
           group: false,
         },
       }
@@ -57,7 +57,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "md",
+          size: "sm",
           grouped: false,
         },
       }
@@ -74,7 +74,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
     active: cva("!border-primary ring-primary ring-4 ring-opacity-20", {}),
@@ -91,7 +91,7 @@ export default {
       },
 
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
     icon: cva("", {
@@ -103,7 +103,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
     avatar: cva("", {
@@ -115,7 +115,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
     selected: cva("mr-2", {
@@ -149,7 +149,7 @@ export default {
         },
 
         defaultVariants: {
-          size: "md",
+          size: "sm",
         },
       }
     ),
@@ -165,7 +165,7 @@ export default {
         },
 
         defaultVariants: {
-          size: "md",
+          size: "sm",
         },
       }
     ),

@@ -62,7 +62,7 @@ import { useStyles } from "../../utils";
 import {
   isEmpty,
   isNil,
-  omit,
+  pick,
   includes,
   remove,
   uniq,
@@ -167,8 +167,18 @@ export default defineComponent({
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
   },
 });

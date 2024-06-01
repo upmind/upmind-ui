@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 const defaultVariants = {
   anchor: "none",
   variant: "stacked",
-  color: "neutral",
+  color: "base",
 };
 // -----------------------------------------------------------------------------
 export default {
@@ -27,7 +27,6 @@ export default {
           primary: "bg-primary-50 text-primary-900 border-primary",
           secondary: "bg-secondary-50 text-secondary-900 border-secondary",
           accent: "bg-accent-50 text-accent-900 border-accent",
-          neutral: "border-neutral bg-neutral-50 text-neutral-900",
           success: "bg-success-50 text-success-900 border-success",
           error: "bg-error-50 text-error-900 border-error",
           warning: "bg-warning-50 text-warning-900 border-warning",
@@ -51,7 +50,6 @@ export default {
           primary: "text-primary",
           secondary: "text-secondary",
           accent: "text-accent",
-          neutral: "text-neutral",
           success: "text-success",
           error: "text-error",
           warning: "text-warning",
@@ -83,7 +81,6 @@ export default {
           primary: "text-primary",
           secondary: "text-secondary",
           accent: "text-accent",
-          neutral: "text-neutral",
           success: "text-success",
           error: "text-error",
           warning: "text-warning",

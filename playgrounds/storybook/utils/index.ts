@@ -13,7 +13,7 @@ enum colors {
   primary = "Primary",
   secondary = "Secondary",
   accent = "Accent",
-  neutral = "Neutral",
+  base = "Base",
   success = "Success",
   error = "Error",
   warning = "Warning",

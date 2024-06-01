@@ -12,7 +12,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
 
@@ -48,7 +48,7 @@ export default {
           {
             layout: "inline",
             variant: "outlined",
-            size: "md",
+            size: "sm",
             class: "px-3 py-3 leading-6",
           },
           {
@@ -94,7 +94,7 @@ export default {
         defaultVariants: {
           variant: "outlined",
           layout: "stacked",
-          size: "md",
+          size: "sm",
         },
       }
     ),
@@ -114,7 +114,7 @@ export default {
           class: "my-2",
         },
         {
-          size: "md",
+          size: "sm",
           layout: "stacked",
           class: "my-3",
         },
@@ -125,7 +125,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
 
@@ -144,7 +144,7 @@ export default {
           class: "my-2",
         },
         {
-          size: "md",
+          size: "sm",
           layout: "stacked",
           class: "my-3",
         },
@@ -155,7 +155,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
 
@@ -181,7 +181,7 @@ export default {
           class: "px-3 py-2",
         },
         {
-          size: "md",
+          size: "sm",
           layout: "stacked",
           class: "px-3 py-3",
         },
@@ -192,7 +192,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
 
@@ -218,7 +218,7 @@ export default {
           class: "px-3 py-2",
         },
         {
-          size: "md",
+          size: "sm",
           layout: "stacked",
           class: "px-3 py-3",
         },
@@ -229,7 +229,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "md",
+        size: "sm",
       },
     }),
   },

@@ -195,13 +195,7 @@ export const useBasket = () => {
       // then wait/check for the new product actor to be configured
       // then send the update event to the basket
       const item = last(contextValue(state, "items"));
-      waitFor(item, newstate => newstate.matches("configured"))
-        .then(() => {
-          send({ type: "UPDATE", data: item });
-        })
-        .catch(() => {
-          // do nothing, it just means the item needs additional configuration
-        });
+      return item;
     },
 
     removeItem: itemId => {

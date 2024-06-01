@@ -104,7 +104,7 @@ function getRandomMaxAge() {
 
 function getRandomType() {
   return nth(
-    ["error", "info", "neutral", "primary", "secondary", "success", "warning"],
+    ["error", "info", "base", "primary", "secondary", "success", "warning"],
     random(0, 6)
   );
 }

@@ -19,7 +19,7 @@ export default {
 |-------------------------------------------------------------------------------
 |
 | Here you can specify the colors used in your project.
-| We generally dont specify colors here, only the theme colors. eg: primary, secondary, tertiary, accent, neutral
+| We generally dont specify colors here, only the theme colors. eg: primary, secondary, tertiary, accent
 | To get you started, we've provided our base palette of great looking colors that are perfect
 | for your Upmind store, but don't hesitate to change them for your project.
 | You own these colors, nothing will break if you change everything about them.
@@ -47,22 +47,6 @@ export default {
       900: "#1e1e1e",
       950: "#000000",
       content: "#000000",
-    },
-
-    gray: {
-      DEFAULT: "#6d6d6d",
-      50: "#f6f6f6",
-      100: "#e7e7e7",
-      200: "#d1d1d1",
-      300: "#b0b0b0",
-      400: "#888888",
-      500: "#6d6d6d",
-      600: "#5d5d5d",
-      700: "#4f4f4f",
-      800: "#424242",
-      900: "#3d3d3d",
-      950: "#262626",
-      content: "#e7e7e7",
     },
 
     // ---
@@ -112,22 +96,6 @@ export default {
       900: "#66099a",
       950: "#470074",
       content: "#ffffff",
-    },
-
-    neutral: {
-      DEFAULT: "#2b4779",
-      50: "#f4f6fb",
-      100: "#e8ecf6",
-      200: "#cbd8ec",
-      300: "#9db6dc",
-      400: "#6990c7",
-      500: "#4672b1",
-      600: "#345995",
-      700: "#2b4779",
-      800: "#273e65",
-      900: "#253555",
-      950: "#111827",
-      content: "#f4f6fb",
     },
 
     // ---

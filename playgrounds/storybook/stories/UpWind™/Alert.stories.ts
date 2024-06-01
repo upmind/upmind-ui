@@ -50,7 +50,7 @@ const meta: Meta<typeof UpwAlert> = {
     // ---
     anchor: "none",
     variant: "stacked",
-    color: "neutral",
+    color: "base",
     block: false,
     // ---
     icon: undefined,

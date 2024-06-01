@@ -47,7 +47,7 @@
 
             <upw-badge
               v-if="item.saving"
-              color="primary"
+              color="secondary"
               :label="$t('product.save', { value: item.saving_formatted })"
             />
 
