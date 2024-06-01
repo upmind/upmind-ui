@@ -104,26 +104,26 @@ export default defineComponent({
 
     avatar() {
       if (this.meta.isComplete) {
-        return this.$t("basket.confirmation.complete.avatar");
+        return this.$tm("basket.confirmation.complete.avatar");
       }
 
       if (this.meta.needsApproval) {
-        return this.$t("basket.confirmation.approval.avatar");
+        return this.$tm("basket.confirmation.approval.avatar");
       }
 
       if (this.meta.isConverting) {
-        return this.$t("basket.confirmation.converting.avatar");
+        return this.$tm("basket.confirmation.converting.avatar");
       }
 
       if (this.meta.isPaying) {
-        return this.$t("basket.confirmation.paying.avatar");
+        return this.$tm("basket.confirmation.paying.avatar");
       }
 
       if (this.meta.isCheckout) {
-        return this.$t("basket.confirmation.default.avatar");
+        return this.$tm("basket.confirmation.default.avatar");
       }
 
-      return this.$t("basket.confirmation.invalid.avatar");
+      return this.$tm("basket.confirmation.invalid.avatar");
     },
   },
 });

@@ -1,5 +1,12 @@
 <template>
-  <upw-dialog size="xl" :model-value="open" no-actions persistent skrim="light">
+  <component
+    :is="modal ? 'upw-dialog' : 'div'"
+    size="xl"
+    :model-value="open"
+    no-actions
+    persistent
+    skrim="light"
+  >
     <section :class="styles.basket.empty.root">
       <upw-avatar :avatar="avatar" :class="styles.basket.empty.avatar" />
 
@@ -19,7 +26,7 @@
         />
       </footer>
     </section>
-  </upw-dialog>
+  </component>
 </template>
 
 <script>
@@ -44,7 +51,12 @@ export default defineComponent({
     UpwAvatar,
     UpwButton,
   },
-  props: {},
+  props: {
+    modal: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { meta } = useBasket();
 
@@ -74,7 +86,7 @@ export default defineComponent({
     },
 
     avatar() {
-      return this.$t("basket.empty.avatar");
+      return this.$tm("basket.empty.avatar");
     },
   },
 });

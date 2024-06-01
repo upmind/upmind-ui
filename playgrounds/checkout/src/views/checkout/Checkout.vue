@@ -48,7 +48,7 @@
     />
 
     <!-- empty -->
-    <upm-basket-empty id="empty" :class="styles.checkout.section.root" />
+    <upm-basket-empty id="empty" :class="styles.checkout.section.root" modal />
 
     <!-- order -->
     <section
