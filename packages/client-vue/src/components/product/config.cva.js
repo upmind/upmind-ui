@@ -203,7 +203,7 @@ export default {
             "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
           ),
           selected: cva(
-            "border border-primary ring-primary ring-4 ring-opacity-20"
+            "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
           ),
           input: cva("text-primary"),
           header: cva(
@@ -237,7 +237,7 @@ export default {
             "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 "
           ),
           selected: cva(
-            "border border-primary ring-primary ring-4 ring-opacity-20"
+            "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
           ),
           input: cva("text-primary"),
           header: cva(
