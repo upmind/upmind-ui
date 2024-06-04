@@ -161,7 +161,7 @@ export default createMachine(
                 invoke: {
                   src: "refresh",
                   onDone: {
-                    target: "complete",
+                    target: ["complete", "#shopping.items"],
                     actions: ["refreshItems", "updateBasket", "refreshActors"],
                   },
                   onError: { target: "#error" },
