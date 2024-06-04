@@ -12,7 +12,7 @@ export default {
       centered: cva(
         "min-h-[70vh] flex-col items-center justify-center text-center"
       ),
-      disabled: cva("pointer-events-none opacity-50"),
+      disabled: cva("pointer-events-none"),
       header: cva("flex w-full flex-col gap-2 "),
       title: cva(
         "m-0 flex w-full items-center justify-between gap-4 text-5xl font-light leading-tight  text-inherit"

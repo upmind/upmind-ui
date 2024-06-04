@@ -22,7 +22,7 @@
 
 <script>
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
@@ -49,6 +49,10 @@ export default defineComponent({
       type: Object, // xstate actor
       required: true,
     },
+    selected: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, { emit }) {
     const {
@@ -67,7 +71,16 @@ export default defineComponent({
       meta,
       config
     );
+    // ---
 
+    const open = ref(props.selected);
+    // make props reactive to open
+    watch(
+      () => props.selected,
+      value => {
+        open.value = value;
+      }
+    );
     // ---
 
     return {
@@ -80,7 +93,7 @@ export default defineComponent({
       updateQuantity,
       updateTerm,
       // ---
-      open: ref(false),
+      open,
       // ---
       styles,
       mergeStyles,

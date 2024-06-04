@@ -22,13 +22,11 @@
 
     <div :class="styles.basket.details.content">
       <upm-billing-details
-        v-if="!billingDetailsMeta.isLoading"
         :model-value="billingDetailsModel"
         @update:modelValue="billingDetailsUpdate"
       />
 
       <upw-form
-        v-if="!fieldsMeta.isLoading"
         :additional-errors="fieldsErrors?.data"
         :loading="fieldsMeta.isLoading"
         :model-value="fieldsModel"
@@ -69,7 +67,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmBasketSummary from "./Summary.vue";
-import UpmBillingDetails from "../client/Basket.vue";
+import UpmBillingDetails from "./BillingDetails.vue";
 import UpmPaymentDetails from "./PaymentDetails.vue";
 import { UpwForm } from "@upmind/upwind";
 

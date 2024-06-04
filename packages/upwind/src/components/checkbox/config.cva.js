@@ -76,9 +76,9 @@ export default {
       {
         variants: {
           size: {
-            sm: "size-2",
-            md: "size-3",
-            lg: "size-4",
+            sm: "size-5",
+            md: "size-5",
+            lg: "size-5",
           },
           isDisabled: {
             true: "text-base-content",

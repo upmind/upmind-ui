@@ -142,19 +142,6 @@ export default createMachine(
         },
       },
 
-      // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
-      refreshing: {
-        id: "refreshing",
-        invoke: {
-          src: "refresh",
-          onDone: {
-            target: "shopping",
-            actions: ["refreshItems", "updateBasket", "refreshActors"],
-          },
-          onError: { target: "#error" },
-        },
-      },
-
       // We are now ready to start accepting items into the basket
       // items are effectively products that are not yet added to the basket OR products that are being changed
       // regardles, these items require configuring
@@ -165,6 +152,27 @@ export default createMachine(
         id: "shopping",
         type: "parallel",
         states: {
+          // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
+          refreshing: {
+            initial: "complete",
+            states: {
+              processing: {
+                id: "refreshing",
+                invoke: {
+                  src: "refresh",
+                  onDone: {
+                    target: "complete",
+                    actions: ["refreshItems", "updateBasket", "refreshActors"],
+                  },
+                  onError: { target: "#error" },
+                },
+              },
+              complete: {
+                type: "final",
+              },
+            },
+          },
+
           account: {
             initial: "checking",
             states: {
@@ -523,7 +531,7 @@ export default createMachine(
       // }
 
       REFRESH: {
-        target: "refreshing",
+        target: "#refreshing",
         actions: "muteBasket",
         cond: "isNotMuted",
       },

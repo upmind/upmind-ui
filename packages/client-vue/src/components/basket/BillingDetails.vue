@@ -13,17 +13,6 @@
       v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     />
 
-    <!-- If we dont have any default or selected :- render a form for a new address -->
-    <upm-item
-      v-if="
-        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
-      "
-      i18nKey="unified"
-      :model-value="selected"
-      :dialog="!meta.isEmpty"
-      :autosave="meta.isEmpty"
-    />
-
     <!-- otherwise show the default address as a card -->
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
@@ -57,6 +46,17 @@
       </div>
     </div>
 
+    <!-- If we dont have any default or selected :- render a form for a new address -->
+    <upm-item
+      v-else-if="
+        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
+      "
+      i18nKey="unified"
+      :model-value="selected"
+      :dialog="!meta.isEmpty"
+      :autosave="meta.isEmpty"
+    />
+
     <upm-listings
       v-model="activeDialog"
       type="unified"
@@ -81,13 +81,13 @@ import {
   useClientUnifiedAddresses,
 } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
-import config from "./config.cva";
+import config from "../client/config.cva";
 
 // --- components
 import UpmAuth from "../session/Auth.vue";
-import UpmItem from "./Item.vue";
-import UpmCard from "./Card.vue";
-import UpmListings from "./Listings.vue";
+import UpmItem from "../Client/Item.vue";
+import UpmCard from "../Client/Card.vue";
+import UpmListings from "../Client/Listings.vue";
 import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
 
 // --- utils
@@ -147,11 +147,11 @@ export default defineComponent({
       this.activeDialog = true;
     },
     onEdit() {
-      const client = this.useClientUnifiedAddress(this.selected);
-      const model = client.model.value;
-      client.edit();
-      // force the company details to be shown
-      client.input({ ...model, company_details: true });
+      // const client = this.useClientUnifiedAddress(this.selected);
+      // const model = client.model.value;
+      // client.edit();
+      // // force the company details to be shown
+      // client.input({ ...model, company_details: true });
     },
     onClose() {
       this.activeDialog = false;
@@ -169,9 +169,12 @@ export default defineComponent({
     },
     selected: {
       immediate: true,
-      handler(value) {
+      handler(value, oldValue) {
+        if (value?.id === oldValue?.id) return;
+
         const model = get(value?.state?.value, "context.model", {});
         if (isEmpty(model)) return;
+
         this.$emit("update:modelValue", model);
       },
     },

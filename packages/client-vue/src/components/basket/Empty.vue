@@ -17,13 +17,7 @@
       <p :class="styles.basket.empty.text">{{ text }}</p>
 
       <footer>
-        <upw-button
-          :label="$t('basket.empty.actions.continue')"
-          block
-          prepend-icon="arrow-left"
-          to="/"
-          variant="ghost"
-        />
+        <upw-button v-if="action" v-bind="action" block variant="ghost" />
       </footer>
     </section>
   </component>
@@ -87,6 +81,9 @@ export default defineComponent({
 
     avatar() {
       return this.$tm("basket.empty.avatar");
+    },
+    action() {
+      return this.$tm("basket.empty.actions.continue");
     },
   },
 });

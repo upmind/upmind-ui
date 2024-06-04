@@ -227,11 +227,11 @@ export interface Typegen0 {
     isAuthenticated:
       | ""
       | "CLEAR"
+      | "REFRESH"
       | "REMOVE"
       | "UPDATE"
       | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.refreshing:invocation[0]";
+      | "done.invoke.generating:invocation[0]";
     load: "SESSION" | "UNAUTHENTICATED";
     payment: "done.invoke.converting:invocation[0]";
     refresh: "REFRESH" | "xstate.after(wait)#processed";
@@ -253,7 +253,6 @@ export interface Typegen0 {
     | "loading.actors"
     | "loading.basket"
     | "paying"
-    | "refreshing"
     | "shopping"
     | "shopping.account"
     | "shopping.account.checking"
@@ -281,6 +280,9 @@ export interface Typegen0 {
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
+    | "shopping.refreshing"
+    | "shopping.refreshing.complete"
+    | "shopping.refreshing.processing"
     | "subscribing"
     | {
         checkout?: "available" | "configuring" | "processing";
@@ -292,6 +294,7 @@ export interface Typegen0 {
           | "custom_fields"
           | "items"
           | "promotions"
+          | "refreshing"
           | {
               account?: "checking" | "complete" | "configuring";
               billing_details?: "complete" | "configuring";
@@ -311,6 +314,7 @@ export interface Typegen0 {
                       | "updating";
                   };
               promotions?: "complete" | "configuring";
+              refreshing?: "complete" | "processing";
             };
       };
   tags: never;

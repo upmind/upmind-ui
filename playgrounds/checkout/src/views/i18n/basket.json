@@ -74,7 +74,14 @@
       "complete": {
         "title": "Order complete",
         "text": "Your order is complete. You will receive an email confirmation shortly.",
-        "avatar": "paying"
+        "avatar": "paying",
+        "actions": {
+          "continue": {
+            "appendIcon": "arrow-right",
+            "label": "View Invoice",
+            "to": "/"
+          }
+        }
       }
     },
     "empty": {
@@ -82,7 +89,11 @@
       "text": "Looks like you haven't added anything to your basket yet.",
       "avatar": "basket",
       "actions": {
-        "continue": "Continue shopping"
+        "continue": {
+          "prependIcon": "arrow-left",
+          "label": "Continue shopping",
+          "to": "/"
+        }
       }
     },
     "loading": {

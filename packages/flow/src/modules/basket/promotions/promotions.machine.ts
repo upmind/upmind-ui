@@ -11,6 +11,7 @@ const { addError, addSuccess } = useFeedback();
 
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { xorBy } from "lodash";
 
 // --- types
 import type { PromotionsContext, PromotionsEvent } from "./types.d";
@@ -181,6 +182,7 @@ export default createMachine(
       REFRESH: {
         target: "checking",
         actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
@@ -261,6 +263,8 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasChanged: ({ promotions }, { data }) =>
+        !!xorBy(promotions, data?.promotions, "id")?.length,
     },
 
     delays: {

@@ -89,6 +89,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasBasket: "UPDATE";
+    hasChanged: "REFRESH";
     isDirty: "done.invoke.billingDetailsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {

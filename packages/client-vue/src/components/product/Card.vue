@@ -1,9 +1,12 @@
 <template>
   <article :class="styles.product.card.root">
     <!-- thumb -->
-    <figure :class="styles.product.card.media">
+    <figure
+      :class="styles.product.card.media"
+      v-if="availableProduct?.image?.full_url"
+    >
       <img
-        :src="availableProduct?.image?.full_url || $t('product.image')"
+        :src="availableProduct?.image?.full_url"
         :alt="`${availableProduct?.name} thumbnail`"
         :class="styles.product.card.image"
       />
@@ -29,9 +32,7 @@
         </h3>
 
         <div :class="styles.product.card.meta">
-          <span
-            v-if="model.term?.billing_cycle_months && summary.details?.length"
-          >
+          <span v-if="summary.details?.length">
             <strong :class="styles.product.card.bold">{{
               summary.details[0].formatted
             }}</strong>

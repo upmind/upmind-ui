@@ -31,7 +31,8 @@
 
       <div :class="styles.basket.items.pending.content">
         <upm-basket-item
-          v-for="item in itemsPending"
+          v-for="(item, index) in itemsPending"
+          :selected="index === 0"
           :key="item.id"
           :model-value="item.id"
           :item="item"

@@ -52,9 +52,9 @@ export default {
     toggle: cva("size-[0.75em] transition-all", {
       variants: {
         size: {
-          sm: "size-2 leading-5",
-          md: "size-3 leading-6",
-          lg: "size-4 leading-7",
+          sm: "size-4 leading-5",
+          md: "size-5 leading-6",
+          lg: "size-6 leading-7",
         },
         toggleRotate: {
           true: "aria-checked:rotate-180",

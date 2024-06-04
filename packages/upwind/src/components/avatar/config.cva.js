@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   avatar: {
     root: cva(
-      "bg-base-200 m-0 flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full transition",
+      "bg-base-200 relative m-0 flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full transition",
       {
         variants: {
           size: {
@@ -21,6 +21,7 @@ export default {
         },
       }
     ),
+    loading: cva("absolute left-0 top-0 h-full w-full"),
     icon: cva("m-1 h-full w-full object-cover"),
     image: cva("h-full w-full object-cover"),
     caption: cva("m-0 text-current", {

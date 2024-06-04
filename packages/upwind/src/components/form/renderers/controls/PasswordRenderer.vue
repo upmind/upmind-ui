@@ -7,7 +7,7 @@
     :min="safeMin"
     :model-value="control.data"
     @change="onChange"
-    :type="unmask ? 'input' : 'password'"
+    :type="unmask ? 'text' : 'password'"
   >
     <template #append="{ styles }">
       <button

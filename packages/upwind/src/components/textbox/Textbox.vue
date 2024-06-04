@@ -129,6 +129,7 @@ export default defineComponent({
   computed: {
     safeAttrs() {
       return pick(this.$attrs, [
+        "type",
         "class",
         "value",
         "readonly",

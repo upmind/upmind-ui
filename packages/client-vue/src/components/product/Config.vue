@@ -1,8 +1,11 @@
 <template>
   <aside :class="styles.product.config.root">
-    <figure :class="styles.product.config.media">
+    <figure
+      :class="styles.product.config.media"
+      v-if="availableProduct?.image?.full_url"
+    >
       <img
-        :src="availableProduct?.image?.full_url || $t('product.image')"
+        :src="availableProduct?.image?.full_url"
         :alt="`${availableProduct?.name} thumbnail`"
         :class="styles.product.config.image"
       />
