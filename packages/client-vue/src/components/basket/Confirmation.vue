@@ -1,13 +1,21 @@
 <template>
   <upw-dialog size="xl" :model-value="open" no-actions persistent skrim="light">
     <section :class="styles.basket.confirmation.root">
-      <upw-avatar :avatar="avatar" :class="styles.basket.confirmation.avatar" />
+      <upw-avatar
+        :avatar="avatar"
+        :class="styles.basket.confirmation.avatar"
+        :loading="!this.meta.isComplete"
+      />
 
       <h3 :class="styles.basket.confirmation.title">
         {{ title }}
       </h3>
 
       <p :class="styles.basket.confirmation.text">{{ text }}</p>
+
+      <footer>
+        <upw-button v-if="action" v-bind="action" block variant="ghost" />
+      </footer>
     </section>
   </upw-dialog>
 </template>
@@ -22,7 +30,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar } from "@upmind/upwind";
+import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
 
 // --- types
 
@@ -32,6 +40,7 @@ export default defineComponent({
   components: {
     UpwDialog,
     UpwAvatar,
+    UpwButton,
   },
   props: {},
   setup() {
@@ -124,6 +133,30 @@ export default defineComponent({
       }
 
       return this.$tm("basket.confirmation.invalid.avatar");
+    },
+
+    action() {
+      if (this.meta.isComplete) {
+        return this.$tm("basket.confirmation.complete.actions.continue");
+      }
+
+      if (this.meta.needsApproval) {
+        return this.$tm("basket.confirmation.approval.actions.continue");
+      }
+
+      if (this.meta.isConverting) {
+        return this.$tm("basket.confirmation.converting.actions.continue");
+      }
+
+      if (this.meta.isPaying) {
+        return this.$tm("basket.confirmation.paying.actions.continue");
+      }
+
+      if (this.meta.isCheckout) {
+        return this.$tm("basket.confirmation.default.actions.continue");
+      }
+
+      return this.$tm("basket.confirmation.invalid.actions.complete");
     },
   },
 });

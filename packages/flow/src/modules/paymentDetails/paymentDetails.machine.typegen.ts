@@ -64,7 +64,10 @@ export interface Typegen0 {
       | "done.invoke.paymentDetailsManager.loading:invocation[0]";
   };
   eventsCausingDelays: {};
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    hasBasket: "CHECKOUT";
+    hasChanged: "REFRESH";
+  };
   eventsCausingServices: {
     load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:

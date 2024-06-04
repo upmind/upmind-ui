@@ -236,6 +236,7 @@ export default (values, currency_id, promotions) => {
             REFRESH: {
               target: "loading",
               actions: ["setValues", "setClean"],
+              cond: "hasChanged",
             },
             UPDATE: {
               target: "processed",
@@ -273,6 +274,7 @@ export default (values, currency_id, promotions) => {
             REFRESH: {
               target: "loading",
               actions: ["setValues", "setClean"],
+              cond: "hasChanged",
             },
             // ---
             UPDATE: {

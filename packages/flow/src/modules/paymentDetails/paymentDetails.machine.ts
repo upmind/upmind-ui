@@ -32,6 +32,9 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      basket_id: undefined,
+      currency: undefined,
+      // ---
       fields: undefined,
       schema: undefined,
       uischema: undefined,
@@ -98,7 +101,7 @@ export default createMachine(
       valid: {
         id: "valid",
         on: {
-          CHECKOUT: { target: "processing" },
+          CHECKOUT: { target: "processing", cond: "hasBasket" },
           "xstate.update": {
             target: "checking",
           },
@@ -146,6 +149,7 @@ export default createMachine(
       REFRESH: {
         target: "loading",
         actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
@@ -266,7 +270,11 @@ export default createMachine(
       clearError: assign({ error: null }),
     },
 
-    guards: {},
+    guards: {
+      hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasChanged: ({ currency }, { data }) =>
+        currency?.id !== data?.currency_id,
+    },
 
     delays: {
       error: () => useTime().ERROR,

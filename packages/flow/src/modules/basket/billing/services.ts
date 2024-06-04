@@ -64,7 +64,7 @@ async function update(
       company_id: model?.company_id || null,
     },
     withAccessToken: true,
-  });
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------

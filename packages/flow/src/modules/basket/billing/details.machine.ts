@@ -157,6 +157,7 @@ export default createMachine(
       REFRESH: {
         target: "loading",
         actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
@@ -245,6 +246,12 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasChanged: ({ model }, { data }) => {
+        return (
+          model?.address_id !== data?.address_id ||
+          model?.company_id !== data?.company_id
+        );
+      },
     },
 
     delays: {

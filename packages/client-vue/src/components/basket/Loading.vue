@@ -1,13 +1,26 @@
 <template>
-  <section :class="styles.basket.loading.root">
-    <upw-avatar :avatar="avatar" :class="styles.basket.loading.avatar" />
+  <component
+    :is="modal ? 'upw-dialog' : 'div'"
+    size="xl"
+    :model-value="open"
+    no-actions
+    persistent
+    skrim="light"
+  >
+    <section :class="styles.basket.loading.root">
+      <upw-avatar
+        :avatar="avatar"
+        :class="styles.basket.loading.avatar"
+        loading
+      />
 
-    <h1 :class="styles.basket.loading.title">
-      {{ title }}
-    </h1>
+      <h1 :class="styles.basket.loading.title">
+        {{ title }}
+      </h1>
 
-    <p :class="styles.basket.loading.text">{{ text }}</p>
-  </section>
+      <p :class="styles.basket.loading.text">{{ text }}</p>
+    </section>
+  </component>
 </template>
 
 <script>
@@ -30,7 +43,12 @@ export default defineComponent({
   components: {
     UpwAvatar,
   },
-  props: {},
+  props: {
+    modal: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { meta } = useBasket();
 
@@ -61,6 +79,9 @@ export default defineComponent({
 
     avatar() {
       return this.$tm("basket.loading.avatar");
+    },
+    action() {
+      return this.$tm("basket.loading.actions.continue");
     },
   },
 });

@@ -131,9 +131,9 @@ export default {
     toggle: cva("mr-2 transition-all aria-checked:rotate-180", {
       variants: {
         size: {
-          sm: "size-2",
-          md: "size-3",
-          lg: "size-4",
+          sm: "size-4",
+          md: "size-5",
+          lg: "size-6",
         },
       },
     }),

@@ -97,7 +97,7 @@ export default {
 
     config: {
       root: cva(
-        "bg-base text-base-content border rounded-lg border-base-300 gap-x-12 flex flex-wrap items-start",
+        "bg-base text-base-content border rounded-lg border-base-300 gap-x-2 flex flex-wrap items-start",
         {
           variants: {
             isDisabled: {
@@ -116,7 +116,7 @@ export default {
       }),
 
       wrapper: cva(
-        "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 pl-0 "
+        "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 "
       ),
 
       header: cva("w-full flex flex-wrap items-end gap-x-10 gap-y-4"),
