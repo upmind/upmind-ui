@@ -364,7 +364,7 @@ export default {
       variants: {
         size: {
           square: "size-[1em]",
-          badge: "size-2",
+          badge: "size-4",
           xs: "size-3",
           sm: "size-4",
           md: "size-5",
