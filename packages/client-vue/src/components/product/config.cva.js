@@ -13,7 +13,7 @@ export default {
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none opacity-50",
+              true: "pointer-events-none ",
             },
 
             // isNew: {
@@ -101,7 +101,7 @@ export default {
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none opacity-50",
+              true: "pointer-events-none",
             },
           },
         }
@@ -193,7 +193,7 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none opacity-50",
+              true: "pointer-events-none",
             },
           },
         }),
@@ -224,7 +224,7 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none opacity-50",
+              true: "pointer-events-none ",
             },
           },
         }),
@@ -263,7 +263,7 @@ export default {
         root: cva("w-full p-0", {
           variants: {
             disabled: {
-              true: "pointer-events-none opacity-50",
+              true: "pointer-events-none ",
             },
           },
         }),

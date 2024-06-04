@@ -4,7 +4,6 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
-    :disabled="disabled"
     :required="true"
     no-required
     no-feedback
@@ -16,11 +15,21 @@
       <li
         v-for="value in item.values"
         :key="value.id"
-        :aria-selected="isSelected(item.id, value.id)"
+        :aria-selected="
+          isSelected(
+            item.id,
+            value.id,
+            item.values?.length == 1 && item.required
+          )
+        "
         :class="
           mergeStyles(
             styles.product.config.list.item.root,
-            isSelected(item.id, value.id)
+            isSelected(
+              item.id,
+              value.id,
+              item.values?.length == 1 && item.required
+            )
               ? styles.product.config.list.item.selected
               : null
           )
@@ -31,17 +40,28 @@
           :class="styles.product.config.list.item.wrapper"
         >
           <component
-            :is="item.multiple ? 'upw-checkbox' : 'upw-radio'"
+            :is="
+              item.multiple || item.values?.length == 1
+                ? 'upw-checkbox'
+                : 'upw-radio'
+            "
             :id="`items[${item.id}][${value.id}]`"
             :name="`items[${item.id}]`"
             :class="styles.product.config.list.item.input"
-            :model-value="isSelected(item.id, value.id)"
+            :model-value="
+              isSelected(
+                item.id,
+                value.id,
+                item.values?.length == 1 && item.required
+              )
+            "
             :value="value.id"
             :required="item.required"
             @change="doResolve(item, value, $event)"
             no-feedback
             no-status
             variant="flat"
+            size="md"
           />
 
           <!-- content -->
@@ -192,8 +212,9 @@ export default defineComponent({
   },
   computed: {},
   methods: {
-    isSelected(itemId, value) {
-      return some(this.modelValue?.[itemId], [this.itemKey, value]);
+    isSelected(item, value, autoselect = false) {
+      debugger;
+      return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
 
     doUpdateQuantity(item, value, $event) {
