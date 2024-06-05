@@ -3,7 +3,6 @@
     v-if="hasItems"
     :class="styles.product.config.grid.root"
     :label="label"
-    :disabled="disabled"
     :required="true"
     no-required
     no-feedback
@@ -28,6 +27,7 @@
           :class="
             mergeStyles(
               styles.product.config.grid.item.root,
+              disabled ? styles.product.config.grid.item.disabled : null,
               checked ? styles.product.config.grid.item.selected : null
             )
           "
@@ -107,7 +107,7 @@ import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigitems",
+  name: "UpmProductConfigGrid",
   components: {
     UpwInput,
     UpwRadio,

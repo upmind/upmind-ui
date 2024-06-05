@@ -58,10 +58,12 @@ export default {
             true: "pointer-events-none",
           },
         },
+        defaultVariants: {
+          isDisabled: false,
+        },
         compoundVariants: [
           {
-            hasProducts: false,
-            hasAccount: false,
+            isAvailable: false,
             class: "pointer-events-none",
           },
         ],
@@ -72,7 +74,9 @@ export default {
       ),
       text: cva("m-0 text-lg font-light text-base-700 leading-7"),
       content: cva("w-full flex-1 flex flex-col gap-6"),
-      footer: cva("max-w-xs w-full items-start sm:sticky sm:top-40 order-last"),
+      footer: cva(
+        "max-w-xs w-full items-start sm:sticky sm:top-40 order-last z-10"
+      ),
     },
 
     items: {
@@ -95,7 +99,7 @@ export default {
       // ---
       pending: {
         root: cva(
-          "bg-error text-error-content border border-error rounded-lg gap-0"
+          "bg-accent text-accent-content border border-accent rounded-lg gap-0"
         ),
         header: cva(
           "flex items-center gap-2 px-6 py-1 text-center justify-center text-sm"

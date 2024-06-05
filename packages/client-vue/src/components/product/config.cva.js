@@ -13,7 +13,7 @@ export default {
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none ",
+              true: "pointer-events-none",
             },
 
             // isNew: {
@@ -132,7 +132,7 @@ export default {
       }),
 
       content: cva(
-        "w-full flex-none flex flex-wrap gap-x-6 gap-y-16 empty:hidden items-start "
+        "w-full flex-none flex flex-wrap gap-x-6 gap-y-8 empty:hidden items-start "
       ),
 
       footer: cva(
@@ -193,7 +193,7 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none",
+              true: "pointer-events-none !cursor-wait",
             },
           },
         }),
@@ -205,6 +205,8 @@ export default {
           selected: cva(
             "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
           ),
+          disabled: cva("pointer-events-none"),
+
           input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
@@ -224,7 +226,7 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none ",
+              true: "pointer-events-none",
             },
           },
         }),
@@ -236,6 +238,9 @@ export default {
           wrapper: cva(
             "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 "
           ),
+
+          disabled: cva("pointer-events-none"),
+
           selected: cva(
             "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
           ),
@@ -263,7 +268,7 @@ export default {
         root: cva("w-full p-0", {
           variants: {
             disabled: {
-              true: "pointer-events-none ",
+              true: "pointer-events-none",
             },
           },
         }),

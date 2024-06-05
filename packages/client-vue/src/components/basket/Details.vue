@@ -1,8 +1,5 @@
 <template>
-  <section
-    :class="styles.basket.details.root"
-    :disabled="!meta.hasProducts || !meta.hasAccount"
-  >
+  <section :class="styles.basket.details.root">
     <header :class="styles.basket.details.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.details.text">
@@ -21,12 +18,16 @@
     /> -->
 
     <div :class="styles.basket.details.content">
+      <!-- billing details -->
       <upm-billing-details
         :model-value="billingDetailsModel"
         @update:modelValue="billingDetailsUpdate"
       />
 
+      <!-- custom fields  -->
+
       <upw-form
+        v-if="!meta.needsAuth"
         :additional-errors="fieldsErrors?.data"
         :loading="fieldsMeta.isLoading"
         :model-value="fieldsModel"
@@ -40,6 +41,7 @@
         autosave
       />
 
+      <!-- payment details -->
       <upm-payment-details />
     </div>
 

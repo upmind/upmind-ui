@@ -41,7 +41,7 @@
         <upm-currency />
 
         <upw-button
-          to="/checkout"
+          to="/"
           class="relative"
           append-icon="basket"
           color="base"

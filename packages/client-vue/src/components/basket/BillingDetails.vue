@@ -4,13 +4,9 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <div v-if="!meta.isAvailable">
-      <upm-auth no-tabs />
-    </div>
-
     <upw-skeleton-list
       :class="styles.client.loading"
-      v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
+      v-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     />
 
     <!-- otherwise show the default address as a card -->
