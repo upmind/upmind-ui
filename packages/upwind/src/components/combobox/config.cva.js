@@ -15,7 +15,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "sm",
+          size: "md",
         },
       }
     ),
@@ -30,7 +30,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "sm",
+          size: "md",
         },
       }
     ),
@@ -45,7 +45,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "sm",
+          size: "md",
         },
       }
     ),
@@ -61,7 +61,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
     items: cva(

@@ -24,7 +24,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "sm",
+          size: "md",
           group: false,
         },
       }
@@ -40,7 +40,7 @@ export default {
       "bg-base-100 hover:bg-base-100 cursor-default select-none"
     ),
     trigger: cva(
-      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border px-2 text-start before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
+      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border px-2 text-start before:absolute before:inset-0 before:z-[1]",
       {
         variants: {
           size: {
@@ -57,7 +57,7 @@ export default {
           },
         },
         defaultVariants: {
-          size: "sm",
+          size: "md",
           grouped: false,
         },
       }
@@ -74,7 +74,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
     active: cva("!border-primary ring-primary ring-4 ring-opacity-20", {}),
@@ -91,7 +91,7 @@ export default {
       },
 
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
     icon: cva("", {
@@ -103,7 +103,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
     avatar: cva("", {
@@ -115,7 +115,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
     selected: cva("mr-2", {
@@ -149,7 +149,7 @@ export default {
         },
 
         defaultVariants: {
-          size: "sm",
+          size: "md",
         },
       }
     ),
@@ -165,7 +165,7 @@ export default {
         },
 
         defaultVariants: {
-          size: "sm",
+          size: "md",
         },
       }
     ),

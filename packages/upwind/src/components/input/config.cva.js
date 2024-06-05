@@ -12,7 +12,7 @@ export default {
         },
       },
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
 
@@ -42,13 +42,13 @@ export default {
           {
             layout: "inline",
             variant: "outlined",
-            size: "sm",
+            size: "md",
             class: "px-3 py-2 text-sm leading-5",
           },
           {
             layout: "inline",
             variant: "outlined",
-            size: "sm",
+            size: "md",
             class: "px-3 py-3 leading-6",
           },
           {
@@ -94,7 +94,7 @@ export default {
         defaultVariants: {
           variant: "outlined",
           layout: "stacked",
-          size: "sm",
+          size: "md",
         },
       }
     ),
@@ -109,12 +109,12 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "my-2",
         },
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "my-3",
         },
@@ -125,7 +125,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
 
@@ -139,12 +139,12 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "my-2",
         },
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "my-3",
         },
@@ -155,7 +155,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
 
@@ -176,12 +176,12 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "px-3 py-2",
         },
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "px-3 py-3",
         },
@@ -192,7 +192,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
 
@@ -213,12 +213,12 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "px-3 py-2",
         },
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "px-3 py-3",
         },
@@ -229,7 +229,7 @@ export default {
         },
       ],
       defaultVariants: {
-        size: "sm",
+        size: "md",
       },
     }),
   },

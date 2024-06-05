@@ -82,6 +82,7 @@
       <div :class="mergeStyles(styles.product.config.content)">
         <!-- terms -->
         <upm-config-grid
+          v-if="availableTerms?.length && model?.term"
           :disabled="processing || meta.isLoading || meta.isCalculating"
           :items="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
@@ -92,6 +93,7 @@
 
         <!-- attributes -->
         <upm-config-nested
+          v-if="availableAttributes?.length && model?.attributes"
           :disabled="processing || meta.isLoading || meta.isCalculating"
           :items="availableAttributes"
           :model-value="model?.attributes"
@@ -101,6 +103,7 @@
 
         <!-- options -->
         <upm-config-nested
+          v-if="availableOptions?.length && model?.options"
           :disabled="processing || meta.isLoading || meta.isCalculating"
           :items="availableOptions"
           :model-value="model?.options"
@@ -111,7 +114,8 @@
 
         <!-- provisional fields -->
         <upm-config-form
-          :disabled="processing || meta.isCalculating"
+          v-if="availableFields?.length && model?.provision_fields"
+          :disabled="processing || meta.isLoading"
           :additional-errors="errors?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"

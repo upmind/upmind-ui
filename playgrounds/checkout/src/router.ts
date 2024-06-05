@@ -6,7 +6,7 @@ import {
 } from "vue-router";
 
 // --- internal
-import HomeView from "@/views/Index.vue";
+import CheckoutView from "@/views/checkout/Checkout.vue";
 
 // --- utils
 import { get } from "lodash-es";
@@ -36,7 +36,7 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: HomeView,
+      component: CheckoutView,
     },
     // ---
     ...routes,

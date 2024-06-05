@@ -25,6 +25,7 @@
         :class="
           mergeStyles(
             styles.product.config.list.item.root,
+            disabled ? styles.product.config.list.item.disabled : null,
             isSelected(
               item.id,
               value.id,
@@ -213,7 +214,6 @@ export default defineComponent({
   computed: {},
   methods: {
     isSelected(item, value, autoselect = false) {
-      debugger;
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
 

@@ -1,8 +1,5 @@
 <template>
-  <section
-    :class="styles.basket.items.root"
-    :disabled="!meta.hasProducts || !meta.hasAccount"
-  >
+  <section :class="styles.basket.items.root">
     <header :class="styles.basket.items.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.items.text">
