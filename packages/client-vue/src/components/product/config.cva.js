@@ -13,7 +13,7 @@ export default {
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none",
+              // true: "pointer-events-none",
             },
 
             // isNew: {
@@ -193,11 +193,13 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none !cursor-wait",
+              true: "cursor-wait",
             },
           },
         }),
-        items: cva("p-0 m-0 list-none grid grid-cols-3 w-full gap-3"),
+        items: cva(
+          "p-0 m-0 list-none grid w-full gap-3 grid-cols-[repeat(auto-fit,_minmax(14rem,_auto))]"
+        ),
         item: {
           root: cva(
             "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
@@ -205,7 +207,7 @@ export default {
           selected: cva(
             "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
           ),
-          disabled: cva("pointer-events-none"),
+          disabled: cva("cursor-wait"),
 
           input: cva("text-primary"),
           header: cva(
@@ -226,7 +228,7 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none",
+              // true: "pointer-events-none",
             },
           },
         }),
@@ -236,10 +238,15 @@ export default {
             "m-0 p-0 first-of-type:rounded-t-lg border border-b-0 last-of-type:rounded-b-lg last-of-type:border-b"
           ),
           wrapper: cva(
-            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 "
+            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 ",
+            {
+              variants: {
+                disabled: {
+                  true: "cursor-wait",
+                },
+              },
+            }
           ),
-
-          disabled: cva("pointer-events-none"),
 
           selected: cva(
             "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
@@ -268,7 +275,7 @@ export default {
         root: cva("w-full p-0", {
           variants: {
             disabled: {
-              true: "pointer-events-none",
+              // true: "pointer-events-none",
             },
           },
         }),

@@ -25,7 +25,6 @@
         :class="
           mergeStyles(
             styles.product.config.list.item.root,
-            disabled ? styles.product.config.list.item.disabled : null,
             isSelected(
               item.id,
               value.id,
@@ -39,6 +38,7 @@
         <label
           :for="`items[${item.id}][${value.id}]`"
           :class="styles.product.config.list.item.wrapper"
+          :disabled="disabled || processing"
         >
           <component
             :is="

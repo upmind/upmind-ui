@@ -55,6 +55,19 @@ export const useProductConfig = item => {
     isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
     isCalculating: state.value.matches("calculating"),
+    // ---
+    hasProvisioning:
+      !isEmpty(state.value.context.available.provision_fields?.properties) &&
+      state.value?.context?.values?.provision_fields,
+    hasAttributes:
+      !isEmpty(state.value.context.available.attributes) &&
+      state.value?.context?.values?.attributes,
+    hasOptions:
+      !isEmpty(state.value.context.available.options) &&
+      state.value?.context?.values?.options,
+    hasTerms:
+      !isEmpty(state.value.context.available.terms) &&
+      state.value?.context?.values?.term,
   }));
 
   const summary = computed(() => state.value.context.summary);

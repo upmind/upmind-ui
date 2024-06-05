@@ -3,11 +3,11 @@ import { cva } from "class-variance-authority";
 
 export default {
   checkout: {
-    root: cva("flex flex-col !gap-0"),
+    root: cva(" flex-col !gap-0"),
 
     section: {
       root: cva(
-        "relative flex w-full flex-wrap flex-wrap items-start justify-start gap-6 py-20"
+        "relative mx-auto flex flex w-full max-w-screen-2xl flex-wrap flex-wrap items-start justify-start gap-6 py-20"
       ),
       centered: cva(
         "min-h-[70vh] flex-col items-center justify-center text-center"

@@ -20,6 +20,7 @@
     <div :class="styles.basket.details.content">
       <!-- billing details -->
       <upm-billing-details
+        v-if="!meta.needsAuth"
         :model-value="billingDetailsModel"
         @update:modelValue="billingDetailsUpdate"
       />
