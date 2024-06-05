@@ -1,19 +1,21 @@
 <template>
   <nav :class="styles.steps.root">
-    <slot name="prepend"></slot>
+    <div :class="styles.steps.wrapper">
+      <slot name="prepend"></slot>
 
-    <upw-step
-      v-for="(step, index) in steps"
-      :key="step.hash"
-      v-bind="step"
-      :loading="loading"
-      :selected="step.hash == selectedHash"
-      :caption="`${index + 1}`"
-      @update:modelValue="$emit('update:modelValue', $event)"
-    >
-    </upw-step>
+      <upw-step
+        v-for="(step, index) in steps"
+        :key="step.hash"
+        v-bind="step"
+        :loading="loading"
+        :selected="step.hash == selectedHash"
+        :caption="`${index + 1}`"
+        @update:modelValue="$emit('update:modelValue', $event)"
+      >
+      </upw-step>
 
-    <slot name="append"></slot>
+      <slot name="append"></slot>
+    </div>
   </nav>
 </template>
 
