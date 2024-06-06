@@ -126,9 +126,6 @@ export default defineComponent({
           color: "secondary",
           disabled:
             !this.meta.isDirty || !this.meta.isValid || this.meta.isProcessing,
-          action: () => {
-            this?.doSubmit();
-          },
         },
       };
     },
