@@ -217,7 +217,14 @@ export default createMachine(
 
       setFeedbackError: ({ error }, _event) => {
         // dont show any unauthorized errors
-        if (error?.code == responseCodes.Unauthorized) return;
+        if (
+          !error ||
+          error?.code == responseCodes.Unprocessable_Entity ||
+          error?.code == responseCodes.Unauthorized
+        )
+          return;
+
+        debugger;
 
         addError({
           title:

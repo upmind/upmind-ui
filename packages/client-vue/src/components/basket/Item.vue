@@ -103,7 +103,7 @@ export default defineComponent({
   methods: {
     async doResolve() {
       this.updateItem(this.modelValue).then(() => {
-        this.open = false;
+        // this.open = !this.meta.hasErrors;
       });
     },
   },

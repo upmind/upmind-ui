@@ -17,8 +17,8 @@ export default {
           },
           variant: {
             flat: "border-transparent",
-            outlined: "border bg-opacity-0 hover:bg-opacity-100",
-            ghost: "border-transparent bg-opacity-0 hover:bg-opacity-100",
+            outlined: "border bg-opacity-0 ",
+            ghost: "border-transparent bg-opacity-0",
             link: "!bg-transparent !p-0 underline",
           },
           color: {
@@ -40,6 +40,12 @@ export default {
           },
         },
         compoundVariants: [
+          // disabled + variant
+          {
+            variant: ["outlined", "ghost"],
+            disabled: false,
+            class: "hover:bg-opacity-100",
+          },
           // disabled + color
           {
             disabled: false,

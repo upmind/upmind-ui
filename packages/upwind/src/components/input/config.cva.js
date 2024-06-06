@@ -30,7 +30,7 @@ export default {
           },
 
           isDisabled: {
-            true: "bg-base-100 pointer-events-none opacity-50",
+            true: "",
           },
         },
         compoundVariants: [

@@ -38,6 +38,8 @@ import {
 
 // --- types
 import type { BasketContext, BasketEvent } from "./types.d";
+import { responseCodes } from "../api";
+
 import { PaymentTypes } from "../paymentDetails/types.d";
 import { GatewayTypes } from "../paymentDetails/gateways/types.d";
 
@@ -221,11 +223,7 @@ export default createMachine(
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setFeedbackSuccess",
-                        ],
+                        actions: ["refreshItems", "updateBasket"],
                       },
                       onError: {
                         target: "#processed",
@@ -244,15 +242,11 @@ export default createMachine(
                     invoke: {
                       src: "updateItem",
                       onDone: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setFeedbackSuccess",
-                        ],
+                        target: "error",
+                        actions: ["refreshItems", "updateBasket"],
                       },
                       onError: {
-                        target: "#error",
+                        target: "#processed",
                         actions: [
                           "refreshItems",
                           "updateBasket",
@@ -269,11 +263,7 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: [
-                          "removeItem",
-                          "updateBasket",
-                          "setFeedbackSuccess",
-                        ],
+                        actions: ["removeItem", "updateBasket"],
                       },
                       onError: {
                         target: "#processed",
@@ -803,7 +793,7 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == 422) return;
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
 
         addError({
           title: error?.title || "We experienced an error updating the basket",

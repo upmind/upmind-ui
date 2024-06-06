@@ -5,7 +5,6 @@ import { createMachine, assign, sendParent, pure } from "xstate";
 import services from "./services";
 import { useFeedback } from "../feedback";
 const { addError } = useFeedback();
-import { responseCodes } from "../api";
 
 import { spawnGateway } from "./utils";
 
@@ -16,7 +15,7 @@ import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
 
 // --- types
-
+import { responseCodes } from "../api";
 import type {
   PaymentDetailsContext,
   PaymentDetailsEvent,
@@ -243,7 +242,12 @@ export default createMachine(
 
       setFeedbackError: ({ error }, _event) => {
         // dont show any unauthorized errors
-        if (error?.code == responseCodes.Unauthorized) return;
+        if (
+          !error ||
+          error?.code == responseCodes.Unprocessable_Entity ||
+          error?.code == responseCodes.Unauthorized
+        )
+          return;
 
         addError({
           title:

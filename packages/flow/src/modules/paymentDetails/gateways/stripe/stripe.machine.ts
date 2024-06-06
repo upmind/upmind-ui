@@ -17,6 +17,7 @@ import { useSchema, useUischema } from "./utils";
 // --- types
 import type { StripeContext, StripeEvent } from "./types.d";
 import { GatewayCtx } from "../types.d";
+import { responseCodes } from "../../../api";
 
 // --------------------------------------------------------
 
@@ -279,6 +280,7 @@ export default createMachine(
 
       // ---
       setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
             error?.title || "We experienced an error processing your payment",

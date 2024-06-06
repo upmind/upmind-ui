@@ -9,10 +9,11 @@ const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useApprovalParser } from "./utils";
 import { useTime, useValidationParser } from "../../utils";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { PaymentContext, PaymentEvent } from "./types.d";
-import { isEmpty } from "lodash-es";
+import { responseCodes } from "../api";
 
 // --------------------------------------------------------
 
@@ -176,6 +177,7 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }: PaymentContext, _event: PaymentEvent) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
             error?.title || "We experienced an error processing your payment",

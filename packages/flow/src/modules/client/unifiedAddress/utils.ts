@@ -240,7 +240,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
       addresses.getItems(),
       (result, item) => {
         // Only return actual addresses, NOT companies
-        if (!item.company_details) {
+        if (!item?.company_details) {
           result.push({
             value: item.id,
             label: [

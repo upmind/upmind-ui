@@ -127,6 +127,8 @@ async function claim({ basket }: BasketContext, _event: BasketEvent) {
 }
 
 async function update({ basket, items }: BasketContext, _event: BasketEvent) {
+  if (!has(basket, "id")) return Promise.reject("No basket provided/available");
+
   const { put, useUrl } = useApi();
 
   const validItems = filter(items, item => item.state.matches("configured"));
@@ -225,7 +227,7 @@ async function updateItem({ basket, items }, { data }: BasketEvent) {
         // we will set them here with the current basket, items, NO newItems
         const newItems = differenceBy(basket.products, items, "id");
         merge(err, { basket, items: [item], newItems });
-        reject(err);
+        return reject(err);
       });
   });
 }
@@ -288,7 +290,7 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
         err.items = items;
         err.newItems = newItems;
 
-        reject(err);
+        return reject(err);
       });
   });
 }

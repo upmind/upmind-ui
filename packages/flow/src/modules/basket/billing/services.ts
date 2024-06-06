@@ -38,14 +38,7 @@ async function load(
   return Promise.all([isAddressesReady(), isCompaniesReady()]).then(() => {
     const addresses = getAddresses();
     const companies = getCompanies();
-
-    return new Promise((resolve, reject) => {
-      if (addresses?.length || companies?.length) {
-        resolve({ addresses, companies });
-      } else {
-        reject("No Companies or Addresses Available");
-      }
-    });
+    return { addresses, companies };
   });
 }
 

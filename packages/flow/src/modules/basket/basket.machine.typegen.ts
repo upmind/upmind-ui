@@ -165,10 +165,6 @@ export interface Typegen0 {
       | "error.platform.payment"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
-    setFeedbackSuccess:
-      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "done.invoke.removing:invocation[0]"
-      | "done.invoke.updating:invocation[0]";
     setPayment: "done.invoke.payment";
     setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
@@ -183,12 +179,13 @@ export interface Typegen0 {
       | "error.platform.updating:invocation[0]";
   };
   eventsCausingDelays: {
+    error: "done.invoke.updating:invocation[0]";
     wait:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.removing:invocation[0]"
-      | "done.invoke.updating:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
+      | "error.platform.updating:invocation[0]"
       | "xstate.after(error)#basketManager.shopping.items.processing.error";
   };
   eventsCausingGuards: {
