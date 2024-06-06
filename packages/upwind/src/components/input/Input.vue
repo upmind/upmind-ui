@@ -176,7 +176,7 @@ export default defineComponent({
       default: "information-circle",
     },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: "md" },
+    size: { type: String as PropType<InputProps["size"]> },
     layout: {
       type: String as PropType<InputProps["layout"]>,
       default: "stacked",

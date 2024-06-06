@@ -95,7 +95,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
