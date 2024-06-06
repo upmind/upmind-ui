@@ -47,7 +47,7 @@ export default {
 
       form: {
         root: cva("flex-row gap-0"),
-        actions: cva("items-center w-auto"),
+        actions: cva("items-start w-auto"),
       },
     },
 

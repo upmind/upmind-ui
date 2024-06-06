@@ -44,6 +44,9 @@ export interface Typegen0 {
       type: "error.platform.basketPromotionsManager.processing.update:invocation[0]";
       data: unknown;
     };
+    "xstate.after(error)#basketPromotionsManager.processing.error": {
+      type: "xstate.after(error)#basketPromotionsManager.processing.error";
+    };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
@@ -102,6 +105,7 @@ export interface Typegen0 {
       | "done.invoke.basketPromotionsManager.loading:invocation[0]";
   };
   eventsCausingDelays: {
+    error: "error.platform.basketPromotionsManager.processing.update:invocation[0]";
     wait:
       | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
       | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
@@ -136,9 +140,13 @@ export interface Typegen0 {
     | "loading"
     | "processed"
     | "processing"
+    | "processing.error"
     | "processing.remove"
     | "processing.update"
     | "valid"
-    | { checking?: "parsing" | "validating"; processing?: "remove" | "update" };
+    | {
+        checking?: "parsing" | "validating";
+        processing?: "error" | "remove" | "update";
+      };
   tags: never;
 }

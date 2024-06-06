@@ -122,7 +122,7 @@ export default createMachine(
                 actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
               },
               onError: {
-                target: "#error",
+                target: "error",
                 actions: ["setError", "setFeedbackError"],
               },
             },
@@ -138,6 +138,11 @@ export default createMachine(
                 target: "#error",
                 actions: ["setError", "setFeedbackError"],
               },
+            },
+          },
+          error: {
+            after: {
+              error: "#invalid",
             },
           },
         },
@@ -255,7 +260,6 @@ export default createMachine(
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
-
           return error || data;
         },
       }),
