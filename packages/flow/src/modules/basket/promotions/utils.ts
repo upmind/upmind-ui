@@ -41,7 +41,6 @@ export const useUischema = (_context: PromotionsContext) => {
           noStatus: true,
           noRequired: true,
           noLabel: true,
-          size: "sm",
         },
       },
     ],

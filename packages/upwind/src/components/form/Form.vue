@@ -49,12 +49,13 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, unref, toRaw, toRefs } from "vue";
+import { defineComponent, unref, toRaw, toRefs, watch } from "vue";
 import type Ajv from "ajv";
 
 import type { ErrorObject } from "ajv";
 
 // --- components
+import { iterateSchema } from "@jsonforms/core";
 import { JsonForms } from "@jsonforms/vue";
 import UpwButton from "../button/Button.vue";
 import UpwSkeletonForm from "../skeleton/SkeletonForm.vue";
@@ -89,6 +90,7 @@ function safeValue(value: String | Object | Function, context?: any) {
 import type { PropType } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type {
+  IterateCallback,
   ValidationMode,
   JsonSchema,
   UISchemaElement,
@@ -140,6 +142,7 @@ export default defineComponent({
       default: false,
     },
     autosave: { type: Boolean },
+    // ---
     size: { type: String },
     // ---
 
@@ -183,7 +186,14 @@ export default defineComponent({
 
   setup(props) {
     const { ajv } = useValidation();
-
+    // --- apply global settings to the ui schema + watch for changes
+    watch(props, ({ size }) => {
+      iterateSchema(props.uischema, (child: UISchemaElement) => {
+        child.options ??= {}; //safety check
+        child.options.size ??= size; // only set if not already set
+      });
+    });
+    // ---
     const styles = useStyles(
       ["form", "formButton"],
       toRefs(props),
