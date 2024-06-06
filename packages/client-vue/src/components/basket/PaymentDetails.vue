@@ -11,8 +11,7 @@
       @resolve="update"
       @update:modelValue="input"
       no-actions
-    >
-    </upw-form>
+    />
 
     <upm-payment-gateway v-if="gateway" :key="gateway?.id" />
   </section>
