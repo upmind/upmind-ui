@@ -95,6 +95,18 @@ export default {
   },
   label: {
     root: cva("cursor-pointer"),
+    text: cva("", {
+      variants: {
+        size: {
+          sm: "text-sm",
+          md: "text-md",
+          lg: "text-lg",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
   },
   // ---------------------------------------------------------------------------
   radiolist: {

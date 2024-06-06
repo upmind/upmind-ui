@@ -79,6 +79,8 @@ export default defineComponent({
 
   setup(props) {
     const meta = computed(() => ({
+      size: props.size,
+      // ---
       isValid: !props.invalid && props.dirty,
       isInvalid: props.invalid,
       showLabel: !props.noLabel,

@@ -46,7 +46,7 @@ export default {
       footer: cva("flex gap-1 items-center"),
 
       form: {
-        root: cva("flex-row gap-0"),
+        root: cva("flex-row gap-1"),
         actions: cva("items-start w-auto"),
       },
     },

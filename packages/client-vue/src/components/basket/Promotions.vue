@@ -123,7 +123,7 @@ export default defineComponent({
           label: this.$t("basket.discount.actions.submit"),
           size: "sm",
           variant: "ghost",
-          color: "secondary",
+          needsValid: true,
           disabled:
             !this.meta.isDirty || !this.meta.isValid || this.meta.isProcessing,
         },
