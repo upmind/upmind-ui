@@ -126,7 +126,6 @@
 
     <!-- footer -->
     <footer :class="styles.product.config.footer">
-      <!-- actions -->
       <upw-button
         tabindex="1"
         :label="$t('product.actions.reject')"

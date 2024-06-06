@@ -4,7 +4,7 @@
       v-if="meta.isLoading || meta.isEmpty"
       src="/background.svg"
       alt="page background"
-      class="absolute left-0 top-0 z-0 h-full w-full object-contain"
+      class="absolute bottom-0 left-0 right-0 top-0 z-0 min-h-full min-w-full object-contain"
     />
 
     <upm-basket-loading
@@ -91,8 +91,6 @@ import {
   UpmBasketEmpty,
   UpmBasketLoading,
   // ---
-  UpwIcon,
-  UpwAvatar,
   UpwSteps,
   UpwButton,
 } from "@upmind/client-vue";
@@ -136,8 +134,6 @@ export default defineComponent({
         forEach(isArray(product) ? product : [product], product_id => {
           products.value.push(addProduct({ product_id, quantity: 1 }));
         });
-
-        return Promise.all(products.value).then(updateBasket);
       }
     });
     // ---------------------------------------------------
@@ -193,7 +189,9 @@ export default defineComponent({
     };
   },
   watch: {
-    meta() {
+    meta(meta) {
+      if (!meta.isLoading || meta.isEmpty) return;
+
       this.scrollTo();
     },
   },

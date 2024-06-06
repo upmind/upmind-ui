@@ -9,6 +9,17 @@
       v-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
     />
 
+    <!-- If we dont have any default or selected :- render a form for a new address -->
+    <upm-item
+      v-else-if="
+        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
+      "
+      i18nKey="unified"
+      :model-value="selected"
+      :dialog="!meta.isEmpty"
+      :autosave="meta.isEmpty"
+    />
+
     <!-- otherwise show the default address as a card -->
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
@@ -37,21 +48,10 @@
           :label="$t('client.actions.convert')"
           size="sm"
           @click="onEdit"
-          v-if="!selected?.state?.value?.context?.model.company_details"
+          v-if="!selected?.state?.value?.context?.model?.company_details"
         />
       </div>
     </div>
-
-    <!-- If we dont have any default or selected :- render a form for a new address -->
-    <upm-item
-      v-else-if="
-        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
-      "
-      i18nKey="unified"
-      :model-value="selected"
-      :dialog="!meta.isEmpty"
-      :autosave="meta.isEmpty"
-    />
 
     <upm-listings
       v-model="activeDialog"

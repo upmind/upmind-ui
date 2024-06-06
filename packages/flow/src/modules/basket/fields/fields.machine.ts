@@ -14,6 +14,7 @@ import { useBasketFieldsModelParser } from "../utils";
 
 // --- types
 import type { FieldsContext, FieldsEvent } from "./types.d";
+import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
@@ -210,6 +211,8 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+
         addError({
           title:
             error?.title ||

@@ -11,6 +11,7 @@ import { useTime, useValidationParser } from "../../utils";
 
 // --- types
 import type { ClientItemContext, ClientItemEvent } from "./types.d";
+import { responseCodes } from "../api";
 
 // --------------------------------------------------------
 
@@ -270,6 +271,8 @@ export default createMachine(
       clearError: assign({ error: null }),
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+
         addError({
           title: error?.title || "We experienced an error with this item",
           copy: error?.message,
