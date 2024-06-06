@@ -21,7 +21,8 @@
     </header>
 
     <upw-form
-      v-if="toggle"
+      v-show="toggle"
+      size="sm"
       :class="styles.basket.promotions.content"
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
