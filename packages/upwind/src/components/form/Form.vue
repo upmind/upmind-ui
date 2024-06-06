@@ -324,6 +324,15 @@ export default defineComponent({
         return;
       }
 
+      // fallback for submit/reset
+      if (item.type === "submit") {
+        this.doSubmit();
+        return;
+      } else if (item.type === "reset") {
+        this.doReject();
+        return;
+      }
+
       this.$emit("click", { model: this.model.value, meta: this.meta.value });
     },
 
