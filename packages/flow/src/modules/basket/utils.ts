@@ -38,7 +38,6 @@ export function spawnConfiguration(
 }
 
 export function spawnBillingDetails(basket: IBasket) {
-  if (!basket?.id) return;
   return spawn(
     billingDetailsMachine.withContext({
       basket_id: basket?.id,
@@ -62,7 +61,6 @@ export function spawnCurrency(basket: IBasket) {
 }
 
 export function spawnCustomFields(basket: IBasket) {
-  if (!basket?.id) return;
   return spawn(
     customFieldsMachine.withContext({
       basket_id: basket?.id,
@@ -73,7 +71,6 @@ export function spawnCustomFields(basket: IBasket) {
 }
 
 export function spawnPaymentDetails(basket: IBasket) {
-  if (!basket?.id) return;
   return spawn(
     paymentDetailsMachine.withContext({
       basket_id: basket?.id,

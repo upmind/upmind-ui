@@ -901,13 +901,15 @@ export default createMachine(
       },
 
       paymentDetailsValid: ({ actors }) => {
-        return actors.payment_details?.state?.matches("valid");
+        return actors.payment_details?.state?.matches("available.valid");
       },
 
       paymentConfiguring: ({ actors }) => {
-        return ["invalid", "checking", "loading"].some(
-          actors.payment_details?.state?.matches
-        );
+        return [
+          "available.invalid",
+          "available.checking",
+          "available.loading",
+        ].some(actors.payment_details?.state?.matches);
       },
 
       paymentDetailsComplete: ({ actors }, { data }) => {
@@ -942,8 +944,11 @@ export default createMachine(
 
       isNotLoading: ({ items, actors }) => {
         return (
-          every(actors, actor => !actor?.state.matches("loading")) &&
-          every(items, actor => !actor?.state.matches("loading"))
+          every(
+            actors,
+            actor =>
+              !["loading", "available.loading"].some(actor?.state.matches)
+          ) && every(items, actor => !actor?.state.matches("loading"))
         );
       },
 

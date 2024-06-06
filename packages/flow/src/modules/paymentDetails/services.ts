@@ -2,8 +2,6 @@
 
 // --- internal
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
-const { authSubscription, isAuthenticated } = useSession();
-
 // --- utils
 import { useValidation } from "../../utils";
 import { unset, get, sortBy, find, forEach } from "lodash-es";
@@ -16,6 +14,10 @@ import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
 // ENUMS
 
 // --------------------------------------------------------
+
+const { authSubscription, isAuthenticated } = useSession();
+
+// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -25,9 +27,7 @@ async function load(
 ) {
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
   const { get: getRequest, useUrl } = useApi();

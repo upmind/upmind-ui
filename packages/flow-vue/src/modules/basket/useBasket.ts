@@ -119,8 +119,8 @@ export const useBasket = () => {
 
         hasPaymentDetails: machineMatches(actors.value.paymentDetails, [
           "complete",
-          "valid",
-          "processing",
+          "available.valid",
+          "available.processing",
         ]),
 
         hasFields: machineMatches(actors.value.customFields, ["complete"]),

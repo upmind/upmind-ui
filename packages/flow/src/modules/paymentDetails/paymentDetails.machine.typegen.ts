@@ -3,46 +3,68 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]": {
-      type: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
+    "done.invoke.authCallback": {
+      type: "done.invoke.authCallback";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.paymentDetailsManager.loading:invocation[0]": {
-      type: "done.invoke.paymentDetailsManager.loading:invocation[0]";
+    "done.invoke.loading:invocation[0]": {
+      type: "done.invoke.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.paymentDetailsManager.checking.validating:invocation[0]": {
-      type: "error.platform.paymentDetailsManager.checking.validating:invocation[0]";
+    "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]": {
+      type: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.paymentDetailsManager.checking:invocation[0]": {
+      type: "done.invoke.paymentDetailsManager.checking:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "error.platform.authCallback": {
+      type: "error.platform.authCallback";
       data: unknown;
     };
-    "error.platform.paymentDetailsManager.loading:invocation[0]": {
-      type: "error.platform.paymentDetailsManager.loading:invocation[0]";
+    "error.platform.loading:invocation[0]": {
+      type: "error.platform.loading:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]": {
+      type: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
     "xstate.update": { type: "xstate.update" };
   };
   invokeSrcNameMap: {
-    load: "done.invoke.paymentDetailsManager.loading:invocation[0]";
-    parse: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
-    validate: "done.invoke.paymentDetailsManager.checking.validating:invocation[0]";
+    authSubscription: "done.invoke.authCallback";
+    isAuthenticated: "done.invoke.paymentDetailsManager.checking:invocation[0]";
+    load: "done.invoke.loading:invocation[0]";
+    parse: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
+    validate: "done.invoke.paymentDetailsManager.available.checking.validating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "load" | "parse" | "validate";
+    services:
+      | "authSubscription"
+      | "isAuthenticated"
+      | "load"
+      | "parse"
+      | "validate";
   };
   eventsCausingActions: {
     clearError:
+      | "AUTHENTICATED"
       | "CLEAR"
       | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
-      | "done.invoke.paymentDetailsManager.loading:invocation[0]"
-      | "xstate.init"
+      | "done.invoke.loading:invocation[0]"
+      | "done.invoke.paymentDetailsManager.checking:invocation[0]"
       | "xstate.update";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
@@ -50,18 +72,18 @@ export interface Typegen0 {
     providePaymentDetails: "PAYMENT_DETAILS";
     refreshContext: "REFRESH";
     setContext:
-      | "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]"
-      | "done.invoke.paymentDetailsManager.loading:invocation[0]";
+      | "done.invoke.loading:invocation[0]"
+      | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     setError:
-      | "error.platform.paymentDetailsManager.checking.validating:invocation[0]"
-      | "error.platform.paymentDetailsManager.loading:invocation[0]";
-    setFeedbackError: "error.platform.paymentDetailsManager.loading:invocation[0]";
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
+    setFeedbackError: "error.platform.loading:invocation[0]";
     setModel: "SET";
     setPaymentDetails: "PAYMENT_DETAILS";
     setSchemas:
       | "REFRESH"
-      | "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]"
-      | "done.invoke.paymentDetailsManager.loading:invocation[0]";
+      | "done.invoke.loading:invocation[0]"
+      | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
@@ -69,24 +91,43 @@ export interface Typegen0 {
     hasChanged: "REFRESH";
   };
   eventsCausingServices: {
-    load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
+    authSubscription: "UNAUTHENTICATED" | "xstate.init";
+    isAuthenticated: "SESSION";
+    load:
+      | "AUTHENTICATED"
+      | "CLEAR"
+      | "REFRESH"
+      | "SET"
+      | "done.invoke.paymentDetailsManager.checking:invocation[0]";
     parse:
       | "CLEAR"
       | "SET"
-      | "done.invoke.paymentDetailsManager.loading:invocation[0]"
+      | "done.invoke.loading:invocation[0]"
       | "xstate.update";
-    validate: "done.invoke.paymentDetailsManager.checking.parsing:invocation[0]";
+    validate: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
   };
   matchesStates:
+    | "available"
+    | "available.checking"
+    | "available.checking.parsing"
+    | "available.checking.validating"
+    | "available.invalid"
+    | "available.loading"
+    | "available.processing"
+    | "available.valid"
     | "checking"
-    | "checking.parsing"
-    | "checking.validating"
     | "complete"
     | "error"
-    | "invalid"
-    | "loading"
-    | "processing"
-    | "valid"
-    | { checking?: "parsing" | "validating" };
+    | "subscribing"
+    | "unavailable"
+    | {
+        available?:
+          | "checking"
+          | "invalid"
+          | "loading"
+          | "processing"
+          | "valid"
+          | { checking?: "parsing" | "validating" };
+      };
   tags: never;
 }

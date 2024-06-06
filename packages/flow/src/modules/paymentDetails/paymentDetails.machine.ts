@@ -1,26 +1,26 @@
 // --- external
-import { createMachine, assign, sendParent, pure } from "xstate";
+import { createMachine, assign, actions } from "xstate";
+const { sendParent, pure } = actions;
 
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
 const { addError } = useFeedback();
 
-import { spawnGateway } from "./utils";
-
 // --- utils
+import { spawnGateway } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
 
 // --- types
-import { responseCodes } from "../api";
 import type {
   PaymentDetailsContext,
   PaymentDetailsEvent,
   RefreshEvent,
 } from "./types.d";
+import { responseCodes } from "../api";
 
 // --------------------------------------------------------
 
@@ -29,7 +29,7 @@ export default createMachine(
     tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {
       basket_id: undefined,
       currency: undefined,
@@ -46,109 +46,139 @@ export default createMachine(
       error: null,
     } as PaymentDetailsContext,
     states: {
-      loading: {
-        entry: ["clearError"],
+      // Subscribe to changes in auth and listen for a valid Authenticated client,
+      // we will also wait for a session before we can continue
+      subscribing: {
         invoke: {
-          src: "load",
-          onDone: {
-            target: "checking",
-            actions: ["setContext", "setSchemas"],
-          },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"],
-          },
+          id: "authCallback",
+          src: "authSubscription",
+        },
+        on: {
+          SESSION: { target: "checking" },
         },
       },
-      // ---
+
       checking: {
-        entry: ["clearError"],
-        id: "checking",
-        initial: "parsing",
+        invoke: {
+          src: "isAuthenticated",
+          onDone: { target: "available" },
+          onError: { target: "unavailable" },
+        },
+      },
+
+      unavailable: {
+        on: {
+          AUTHENTICATED: { target: "available" },
+        },
+      },
+
+      available: {
+        initial: "loading",
         states: {
-          parsing: {
+          loading: {
+            id: "loading",
+            entry: ["clearError"],
             invoke: {
-              src: "parse",
+              src: "load",
               onDone: {
-                target: "validating",
+                target: "checking",
                 actions: ["setContext", "setSchemas"],
               },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"],
+              },
             },
           },
-          validating: {
-            invoke: {
-              src: "validate",
-              onDone: { target: "#valid" },
-              onError: {
-                target: "#invalid",
-                actions: ["setError"],
+
+          // ---
+          checking: {
+            entry: ["clearError"],
+            id: "checking",
+            initial: "parsing",
+            states: {
+              parsing: {
+                invoke: {
+                  src: "parse",
+                  onDone: {
+                    target: "validating",
+                    actions: ["setContext", "setSchemas"],
+                  },
+                },
+              },
+              validating: {
+                invoke: {
+                  src: "validate",
+                  onDone: { target: "#valid" },
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"],
+                  },
+                },
+              },
+            },
+          },
+
+          invalid: {
+            id: "invalid",
+            on: {
+              "xstate.update": {
+                target: "checking",
+              },
+            },
+          },
+
+          valid: {
+            id: "valid",
+            on: {
+              CHECKOUT: { target: "processing", cond: "hasBasket" },
+              "xstate.update": {
+                target: "checking",
+              },
+            },
+          },
+
+          processing: {
+            entry: ["forwardCheckout"],
+            // ths is the return from the gateway
+            on: {
+              PAYMENT_DETAILS: {
+                target: "#complete",
+                actions: ["setPaymentDetails", "providePaymentDetails"],
               },
             },
           },
         },
-      },
-
-      invalid: {
-        id: "invalid",
         on: {
-          "xstate.update": {
-            target: "checking",
+          CLEAR: {
+            target: "#checking",
+            actions: ["clearModel"],
+          },
+          SET: {
+            target: "#checking",
+            actions: ["setModel"],
+          },
+
+          REFRESH: {
+            target: "#loading",
+            actions: ["refreshContext", "setSchemas"],
+            cond: "hasChanged",
           },
         },
       },
 
-      valid: {
-        id: "valid",
-        on: {
-          CHECKOUT: { target: "processing", cond: "hasBasket" },
-          "xstate.update": {
-            target: "checking",
-          },
-        },
-      },
-
-      processing: {
-        entry: ["forwardCheckout"],
-        // ths is the return from the gateway
-        on: {
-          PAYMENT_DETAILS: {
-            target: "complete",
-            actions: ["setPaymentDetails", "providePaymentDetails"],
-          },
-        },
-      },
-
+      // ---
+      error: { id: "error" },
       complete: {
         id: "complete",
         type: "final",
         data: ({ paymentDetails }, _event) => paymentDetails,
       },
-
-      // ---
-
-      error: {
-        id: "error",
-      },
     },
     on: {
-      CLEAR: {
-        target: "#checking",
-        actions: ["clearModel"],
-      },
-      SET: {
-        target: "#checking",
-        actions: ["setModel"],
-      },
-
       UNAUTHENTICATED: {
-        target: "loading",
+        target: "unavailable",
         actions: ["clearError", "clearModel", "clearSchemas"],
-      },
-
-      REFRESH: {
-        target: "loading",
-        actions: ["refreshContext", "setSchemas"],
-        cond: "hasChanged",
       },
     },
   },
@@ -259,7 +289,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }, node) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data
