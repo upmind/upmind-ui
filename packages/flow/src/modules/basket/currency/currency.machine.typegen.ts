@@ -75,7 +75,6 @@ export interface Typegen0 {
     setFeedbackError:
       | "error.platform.basketCurrencyManager.loading:invocation[0]"
       | "error.platform.basketCurrencyManager.processing:invocation[0]";
-    setFeedbackSuccess: "done.invoke.basketCurrencyManager.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.basketCurrencyManager.processing:invocation[0]";
