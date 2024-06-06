@@ -35,8 +35,7 @@
       @update:modelValue="input"
       :actions="actions"
       :upwind-config="{ form: config.basket.promotions.form }"
-    >
-    </upw-form>
+    />
 
     <footer :class="styles.basket.promotions.footer" v-if="meta.hasPromotions">
       <h4 :class="styles.basket.promotions.title">

@@ -16,8 +16,7 @@
       @resolve="update"
       @update:modelValue="input"
       no-actions
-    >
-    </upw-form>
+    />
   </div>
 </template>
 
