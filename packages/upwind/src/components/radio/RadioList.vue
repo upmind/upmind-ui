@@ -93,7 +93,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     layout: {
       type: String as PropType<RadioListProps["layout"]>,
       default: "stacked",
