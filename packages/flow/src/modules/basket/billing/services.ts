@@ -16,6 +16,8 @@ import type { BillingDetailsEvent, BillingDetailsContext } from "./types.d";
 
 // --------------------------------------------------------
 
+const { authSubscription, isAuthenticated } = useSession();
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -24,10 +26,9 @@ async function load(
   _context: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  const { isAuthenticated } = useSession();
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const { isReady: isAddressesReady, getItems: getAddresses } =
     useClientAddresses();
@@ -98,4 +99,7 @@ export default {
   parse,
   validate,
   update,
+  // ---
+  authSubscription,
+  isAuthenticated,
 };

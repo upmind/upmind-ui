@@ -43,7 +43,7 @@
       />
 
       <!-- payment details -->
-      <upm-payment-details />
+      <upm-payment-details v-if="!meta.needsAuth" />
     </div>
 
     <footer :class="styles.basket.details.footer">
