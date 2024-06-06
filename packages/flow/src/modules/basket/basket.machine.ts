@@ -942,8 +942,8 @@ export default createMachine(
 
       isNotLoading: ({ items, actors }) => {
         return (
-          every(actors, ({ state }) => !state.matches("loading")) &&
-          every(items, ({ state }) => !state.matches("loading"))
+          every(actors, actor => !actor?.state.matches("loading")) &&
+          every(items, actor => !actor?.state.matches("loading"))
         );
       },
 
