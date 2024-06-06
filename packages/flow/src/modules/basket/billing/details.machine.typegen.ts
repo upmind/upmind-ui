@@ -75,7 +75,6 @@ export interface Typegen0 {
     setFeedbackError:
       | "error.platform.billingDetailsManager.loading:invocation[0]"
       | "error.platform.billingDetailsManager.processing:invocation[0]";
-    setFeedbackSuccess: "done.invoke.billingDetailsManager.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.billingDetailsManager.processing:invocation[0]";

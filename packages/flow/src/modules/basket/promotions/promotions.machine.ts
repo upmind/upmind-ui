@@ -119,7 +119,7 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
+                actions: ["setModel", "clearDirty"],
               },
               onError: {
                 target: "error",
@@ -132,7 +132,7 @@ export default createMachine(
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
+                actions: ["setModel", "clearDirty"],
               },
               onError: {
                 target: "#error",

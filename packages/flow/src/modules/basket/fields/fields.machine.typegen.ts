@@ -75,7 +75,6 @@ export interface Typegen0 {
     setFeedbackError:
       | "error.platform.basketFieldsManager.loading:invocation[0]"
       | "error.platform.basketFieldsManager.processing:invocation[0]";
-    setFeedbackSuccess: "done.invoke.basketFieldsManager.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.basketFieldsManager.processing:invocation[0]";

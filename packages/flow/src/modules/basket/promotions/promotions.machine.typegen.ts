@@ -92,9 +92,6 @@ export interface Typegen0 {
       | "error.platform.basketPromotionsManager.loading:invocation[0]"
       | "error.platform.basketPromotionsManager.processing.remove:invocation[0]"
       | "error.platform.basketPromotionsManager.processing.update:invocation[0]";
-    setFeedbackSuccess:
-      | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
-      | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"

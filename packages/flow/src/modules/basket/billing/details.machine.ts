@@ -107,7 +107,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
+            actions: ["setModel", "clearDirty"],
           },
           onError: {
             target: "error",
@@ -223,8 +223,6 @@ export default createMachine(
           error?.code == responseCodes.Unauthorized
         )
           return;
-
-        debugger;
 
         addError({
           title:
