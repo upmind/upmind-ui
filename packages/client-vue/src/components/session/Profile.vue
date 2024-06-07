@@ -16,7 +16,7 @@
 
 <script>
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 
 // --- components
 import { UpwDropdown } from "@upmind/upwind";
@@ -65,7 +65,7 @@ export default defineComponent({
 
       return [
         {
-          label: "Logout",
+          label: this.$t("auth.actions.logout"),
           icon: "logout",
           action: this.logout,
         },
