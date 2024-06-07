@@ -49,7 +49,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, unref, toRaw, toRefs, watch } from "vue";
+import { defineComponent, unref, toRaw, toRefs, ref } from "vue";
 import type Ajv from "ajv";
 
 import type { ErrorObject } from "ajv";
@@ -77,6 +77,8 @@ import {
   map,
   isNil,
   includes,
+  forEach,
+  set,
 } from "lodash-es";
 
 function safeValue(value: String | Object | Function, context?: any) {
@@ -90,7 +92,6 @@ function safeValue(value: String | Object | Function, context?: any) {
 import type { PropType } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type {
-  IterateCallback,
   ValidationMode,
   JsonSchema,
   UISchemaElement,
@@ -173,6 +174,13 @@ export default defineComponent({
   },
 
   watch: {
+    $props: {
+      handler() {
+        this.updateUischema();
+      },
+      immediate: true,
+      deep: true,
+    },
     modelValue: {
       handler(value) {
         this.model = toRaw(unref(value)) || {};
@@ -186,13 +194,7 @@ export default defineComponent({
 
   setup(props) {
     const { ajv } = useValidation();
-    // --- apply global settings to the ui schema + watch for changes
-    watch(props, ({ size }) => {
-      iterateSchema(props.uischema, (child: UISchemaElement) => {
-        child.options ??= {}; //safety check
-        child.options.size ??= size; // only set if not already set
-      });
-    });
+
     // ---
     const styles = useStyles(
       ["form", "formButton"],
@@ -206,13 +208,12 @@ export default defineComponent({
       styles,
       safeValue,
       safeAjv: props.ajv || ajv,
+      // ---
+      model: ref({}),
+      errors: ref([]),
+      isDirty: ref(false),
     };
   },
-  data: () => ({
-    model: {},
-    errors: [],
-    isDirty: false,
-  }),
 
   computed: {
     safeActions() {
@@ -287,7 +288,6 @@ export default defineComponent({
       };
     },
   },
-
   methods: {
     onChange({ data, errors }: JsonFormsChangeEvent) {
       this.errors = errors;
@@ -359,6 +359,24 @@ export default defineComponent({
       this.isDirty = false;
       this.$emit("update:modelValue", this.model);
       this.$emit("reject");
+    },
+
+    updateUischema() {
+      iterateSchema(this.uischema, (child: UISchemaElement) => {
+        child.options ??= {}; //safety check
+        debugger;
+        child.options.size ??= this.size; // only set if not already set
+
+        // map additional i18n, json forms just does title & description
+        if (child.i18n) {
+          const values = this?.$tm(child.i18n);
+          forEach(values, (value, key) => {
+            set(child.options, key, value);
+          });
+        }
+      });
+
+      debugger;
     },
   },
 });

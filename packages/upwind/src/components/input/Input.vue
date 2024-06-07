@@ -119,10 +119,10 @@
     >
       <div
         class="feedback"
-        :class="styles.inputFeedback.root"
+        :class="styles.input.feedback.root"
         v-if="!noFeedback"
       >
-        <upw-icon :class="styles.inputFeedback.icon" :icon="feedbackIcon" />
+        <upw-icon :class="styles.input.feedback.icon" :icon="feedbackIcon" />
         <span>{{ errors || description }}</span>
       </div>
     </slot>
@@ -195,7 +195,7 @@ export default defineComponent({
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: Object },
   },
@@ -206,6 +206,7 @@ export default defineComponent({
       size: props.size,
       // ---
       isInline: props.layout == "inline",
+      isPersisted: props.persistFeedback || !isEmpty(props.errors),
       // ---
       isInvalid: !isEmpty(props.errors),
       isValid: isEmpty(props.errors) && props.dirty,
@@ -219,7 +220,7 @@ export default defineComponent({
     }));
 
     const styles = useStyles(
-      ["input", "inputFeedback"],
+      ["input", "input.feedback"],
       meta,
       config,
       props.upwindConfig

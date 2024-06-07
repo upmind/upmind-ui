@@ -127,7 +127,7 @@ export default defineComponent({
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -172,6 +172,7 @@ export default defineComponent({
         "value",
         "readonly",
         "autofocus",
+        "placeholder",
         "tabindex",
         "maxlength",
         "name",

@@ -18,6 +18,7 @@ export const useSchema = (_context: PromotionsContext) => {
     required: ["promocode"],
     properties: {
       promocode: {
+        title: "Promo code",
         type: ["string", "null"],
       },
     },
@@ -33,11 +34,11 @@ export const useUischema = (_context: PromotionsContext) => {
       {
         type: "Control",
         scope: "#/properties/promocode",
+        i18n: "basket.promotions.promocode",
         options: {
           focus: true,
           autocomplete: "off",
           placeholder: "Enter code here",
-          label: "",
           noStatus: true,
           noRequired: true,
           noLabel: true,

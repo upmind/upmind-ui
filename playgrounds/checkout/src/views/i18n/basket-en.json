@@ -11,7 +11,7 @@
       "title": "Your basket total is {total}",
       "text": "Let's complete your order"
     },
-    "discount": {
+    "promotions": {
       "title": "Have a discount code?",
       "tooltip": "Discount applied",
       "actions": {
@@ -19,6 +19,12 @@
       },
       "active": {
         "title": "Active discounts"
+      },
+      "promocode": {
+        "label": "",
+        "error": "Invalid promo code",
+        "description": "",
+        "placeholder": "Enter code hererrrrr"
       }
     },
     "summary": {
