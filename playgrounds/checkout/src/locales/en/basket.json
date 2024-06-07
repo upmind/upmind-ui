@@ -1,5 +1,15 @@
 {
   "basket": {
+    "billing_details": {
+      "address_id": {
+        "label": "Use address",
+        "placeholder": "Select address"
+      },
+      "company_id": {
+        "label": "Use Company",
+        "placeholder": "Select company"
+      }
+    },
     "confirmation": {
       "approval": {
         "avatar": "paying",
@@ -39,6 +49,12 @@
         "title": "Processing your payment..."
       }
     },
+    "currency": {
+      "code": {
+        "label": "Currency",
+        "placeholder": "Select currency"
+      }
+    },
     "details": {
       "text": "Let's complete your order",
       "title": "Your basket total is {total}"
@@ -54,6 +70,12 @@
       "avatar": "basket",
       "text": "Looks like you haven't added anything to your basket yet.",
       "title": "Your basket is empty"
+    },
+    "fields": {
+      "notes": {
+        "label": "Order notes",
+        "placeholder": "Add notes here..."
+      }
     },
     "items": {
       "pending": {
@@ -74,6 +96,14 @@
       "count": "There are {count} products in your basket | There is {count} product in your basket| There are {count} products in your basket",
       "text": "Almost there! Getting things ready for you.",
       "title": "Something exciting is around the corner..."
+    },
+    "payment_details": {
+      "type": {
+        "PARTIAL_PAYMENT": "Pay in instalments",
+        "PAY_IN_FULL": "Pay in full",
+        "PAY_LATER": "Pay later",
+        "label": "Payment type"
+      }
     },
     "promotions": {
       "actions": {
@@ -114,6 +144,48 @@
       },
       "title": "Order summary",
       "total": "Total"
+    }
+  },
+  "payment": {
+    "cancel_url": {
+      "description": "The URL to redirect to after the payment is cancelled.",
+      "label": "Cancel URL",
+      "placeholder": "Enter URL"
+    },
+    "card_cvv": {
+      "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+      "label": "CVV",
+      "placeholder": "CVC"
+    },
+    "card_expiry": {
+      "description": "Expiry Date of the card. Date Format: MM/YY",
+      "label": "Expiry date",
+      "placeholder": "MM/YY"
+    },
+    "card_num": {
+      "description": "The 16 digit number on the front of your card.",
+      "label": "Card number",
+      "placeholder": "1234 1234 1234 1234"
+    },
+    "cardholder_name": {
+      "label": "Cardholder name",
+      "placeholder": "Enter cardholder name"
+    },
+    "external": {
+      "label": "Use external payment gateway"
+    },
+    "return_url": {
+      "description": "The URL to redirect to after the payment is completed.",
+      "label": "Return URL",
+      "placeholder": "Enter URL"
+    },
+    "store_on_payment": {
+      "description": "",
+      "label": "Save payment details"
+    },
+    "store_on_payment_auto_payment": {
+      "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
+      "label": "Allow auto payment"
     }
   }
 }

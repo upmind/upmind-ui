@@ -124,7 +124,84 @@
         "title": "Cant see your addresses.."
       },
       "form": {
-        "title": "New Address | Edit Address"
+        "address_1": {
+          "label": "Address",
+          "placeholder": "Street, house number, etc..."
+        },
+        "address_2": {
+          "label": "",
+          "placeholder": "Apartment, floor, etc..."
+        },
+        "city": {
+          "label": "City",
+          "placeholder": "City, town, etc..."
+        },
+        "company_details": {
+          "label": "Add business details"
+        },
+        "country_id": {
+          "label": "Country",
+          "placeholder": "Select country"
+        },
+        "default": {
+          "label": "Make this the default address?"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "name@email.com"
+        },
+        "fields": {
+          "manual": "Enter address manually",
+          "manualPlace": {
+            "label": "Can't see your address?"
+          },
+          "place": {
+            "label": "Address",
+            "placeholder": "Search for address ..."
+          },
+          "saved": "Saved addresses"
+        },
+        "name": {
+          "label": "Name",
+          "placeholder": "My home address, etc... "
+        },
+        "namr": {
+          "label": "Name",
+          "placeholder": "My company, etc..."
+        },
+        "phone": {
+          "label": "Phone",
+          "placeholder": "+1234567890"
+        },
+        "postcode": {
+          "label": "Postcode",
+          "placeholder": "12345"
+        },
+        "reg_number": {
+          "label": "Registration number",
+          "placeholder": "12345678"
+        },
+        "region_id": {
+          "label": "Region",
+          "placeholder": "Select region"
+        },
+        "state": {
+          "label": "State",
+          "placeholder": "State, province, etc..."
+        },
+        "title": "New Address | Edit Address",
+        "type": {
+          "label": "Address Type",
+          "placeholder": "Select type"
+        },
+        "vat_number": {
+          "label": "Registered tax/VAT id",
+          "placeholder": "GB123456789"
+        },
+        "vat_percentage": {
+          "label": "VAT percentage",
+          "placeholder": "20"
+        }
       },
       "title": "My addresses"
     }

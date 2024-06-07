@@ -40,18 +40,12 @@
 
         <upm-currency />
 
-        <upw-button
-          to="/"
-          class="relative"
-          append-icon="basket"
-          color="base"
-          variant="ghost"
-        >
+        <upw-button to="/" append-icon="basket" color="base" variant="ghost">
           <template #append-avatar>
             <upw-avatar
               :key="items?.length"
               v-if="items?.length"
-              class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-content"
+              class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-content"
             >
               {{ items.length }}
             </upw-avatar>
