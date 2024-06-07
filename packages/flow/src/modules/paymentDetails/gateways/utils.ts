@@ -86,13 +86,11 @@ export const useSchema = (context: GatewayContext) => {
       },
       store_on_payment: {
         type: "boolean",
-        title: "Save payment details",
       },
       store_on_payment_auto_payment: {
         type: "boolean",
-        title: "Allow auto payment",
-        description:
-          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
+        title: "",
+        description: "",
       },
       return_url: {
         type: "string",
@@ -132,6 +130,7 @@ export const useUischema = ({ can_store }: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/store_on_payment",
+        i18n: "payment.store_on_payment",
         options: {
           autocomplete: "off",
         },
@@ -147,6 +146,7 @@ export const useUischema = ({ can_store }: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/store_on_payment_auto_payment",
+        i18n: "payment.store_on_payment_auto_payment",
         options: {
           autocomplete: "off",
         },

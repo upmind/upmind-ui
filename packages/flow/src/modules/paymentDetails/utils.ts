@@ -81,6 +81,7 @@ export const useUischema = ({
       {
         type: "Control",
         scope: "#/properties/type",
+        i18n: "basket.payment_details.type",
         options: {
           format: "radio",
           // layout: "inline",
