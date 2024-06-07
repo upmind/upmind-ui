@@ -364,7 +364,6 @@ export default defineComponent({
     updateUischema() {
       iterateSchema(this.uischema, (child: UISchemaElement) => {
         child.options ??= {}; //safety check
-        debugger;
         child.options.size ??= this.size; // only set if not already set
 
         // map additional i18n, json forms just does title & description
@@ -375,8 +374,6 @@ export default defineComponent({
           });
         }
       });
-
-      debugger;
     },
   },
 });
