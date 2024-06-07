@@ -128,7 +128,7 @@ export default {
       },
     }),
 
-    toggle: cva("mr-2 transition-all aria-checked:rotate-180", {
+    toggle: cva("transition-all aria-checked:rotate-180", {
       variants: {
         size: {
           sm: "size-4",

@@ -1,5 +1,5 @@
 <template>
-  <aside :class="styles.product.config.root">
+  <form :class="styles.product.config.root" @submit.prevent="doResolve">
     <figure
       :class="styles.product.config.media"
       v-if="availableProduct?.image?.full_url"
@@ -127,6 +127,7 @@
     <!-- footer -->
     <footer :class="styles.product.config.footer">
       <upw-button
+        type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
         :disabled="loading || processing"
@@ -143,14 +144,14 @@
       </span>
 
       <upw-button
+        type="submit"
         tabindex="0"
         :label="$t('product.actions.resolve')"
         :loading="processing"
         :disabled="loading || !meta.isConfigured"
-        @click="doResolve"
       />
     </footer>
-  </aside>
+  </form>
 </template>
 
 <script>
@@ -178,6 +179,7 @@ import UpmConfigForm from "./ConfigForm.vue";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductConfig",
+  inheritAttrs: false,
   components: {
     UpwBadge,
     UpwButton,

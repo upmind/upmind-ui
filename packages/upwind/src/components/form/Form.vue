@@ -1,5 +1,6 @@
 <template>
-  <form
+  <component
+    :is="as"
     :class="styles.form.root"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
@@ -44,7 +45,7 @@
         />
       </slot>
     </div>
-  </form>
+  </component>
 </template>
 
 <script lang="ts">
@@ -110,6 +111,10 @@ export default defineComponent({
   inheritAttrs: false,
 
   props: {
+    as: {
+      type: String,
+      default: "form",
+    },
     translator: {
       type: Function,
     },
