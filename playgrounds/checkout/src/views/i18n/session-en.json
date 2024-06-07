@@ -1,5 +1,7 @@
 {
   "auth": {
+    "register": "New customer",
+    "login": "Existing customer",
     "email": {
       "label": "Your email address",
       "placeholder": "name@email.com",

@@ -19,6 +19,7 @@
     :no-required="noRequired"
     :no-feedback="noFeedback"
     :no-status="noStatus"
+    :no-label="noLabel"
     :persist-feedback="persistFeedback"
     layout="stacked"
     variant="outlined"
@@ -104,8 +105,9 @@ export default defineComponent({
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
+    noLabel: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -139,6 +141,7 @@ export default defineComponent({
         "value",
         "readonly",
         "autofocus",
+        "placeholder",
         "tabindex",
         "maxlength",
         "name",

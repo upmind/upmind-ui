@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   input: {
-    root: cva("relative flex flex-col gap-1", {
+    root: cva("group relative flex flex-col gap-1", {
       variants: {
         size: {
           sm: "text-sm",
@@ -232,21 +232,40 @@ export default {
         size: "md",
       },
     }),
-  },
-  inputFeedback: {
-    root: cva(
-      "text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
-      {
-        variants: {
-          hasFeedback: {
-            false: "invisible hidden w-0 overflow-hidden text-nowrap opacity-0",
+
+    feedback: {
+      root: cva(
+        "text-base-500 flex items-center gap-x-2 overflow-hidden text-xs transition-opacity duration-300",
+        {
+          variants: {
+            hasFeedback: {
+              false: "invisible w-0 text-nowrap opacity-0",
+            },
+            isInvalid: {
+              true: "text-error",
+            },
           },
-          isInvalid: {
-            true: "text-error",
+          compoundVariants: [
+            {
+              isPersisted: false,
+              hasFeedback: true,
+              class:
+                "invisible w-0 text-nowrap opacity-0 group-focus-within:visible group-focus-within:w-auto group-focus-within:text-wrap group-focus-within:opacity-100",
+            },
+            {
+              isPersisted: true,
+              hasFeedback: true,
+              class: "opacity-100",
+            },
+          ],
+          defaultVariants: {
+            isPersisted: false,
+            hasFeedback: true,
+            isInvalid: false,
           },
-        },
-      }
-    ),
-    icon: cva("size-4"),
+        }
+      ),
+      icon: cva("size-4"),
+    },
   },
 };

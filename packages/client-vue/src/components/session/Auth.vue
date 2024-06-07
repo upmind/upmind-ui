@@ -100,11 +100,11 @@ export default defineComponent({
       return [
         {
           value: "register",
-          label: "New customer",
+          label: this.$t("auth.register"),
         },
         {
           value: "login",
-          label: "Existing customer",
+          label: this.$t("auth.login"),
         },
       ];
     },

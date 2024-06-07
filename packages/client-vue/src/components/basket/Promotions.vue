@@ -7,7 +7,7 @@
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
-        :label="$t('basket.discount.title')"
+        :label="$t('basket.promotions.title')"
       >
         <template #append-icon>
           <upw-icon
@@ -39,7 +39,7 @@
 
     <footer :class="styles.basket.promotions.footer" v-if="meta.hasPromotions">
       <h4 :class="styles.basket.promotions.title">
-        {{ $t("basket.discount.active.title") }}
+        {{ $t("basket.promotions.active.title") }}
       </h4>
 
       <upw-button
@@ -120,7 +120,7 @@ export default defineComponent({
       return {
         submit: {
           type: "submit",
-          label: this.$t("basket.discount.actions.submit"),
+          label: this.$t("basket.promotions.actions.submit"),
           size: "sm",
           variant: "ghost",
           needsValid: true,

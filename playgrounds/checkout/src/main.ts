@@ -16,7 +16,7 @@ const i18n = createI18n({
   fallbackLocale: "en",
   messages: getGlobalMessages(),
   // ---
-  silentTranslationWarn: true,
+  silentTranslationWarn: false,
   silentFallbackWarn: true,
 });
 
