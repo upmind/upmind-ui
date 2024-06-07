@@ -21,7 +21,6 @@ export const useSchema = (_context: BillingDetailsContext) => {
         properties: {
           address_id: {
             type: ["string", "null"],
-            title: "Use Address",
           },
         },
       },
@@ -31,7 +30,6 @@ export const useSchema = (_context: BillingDetailsContext) => {
         properties: {
           company_id: {
             type: ["string", "null"],
-            title: "Use Company",
           },
         },
       },
@@ -48,19 +46,19 @@ export const useUischema = (_context: BillingDetailsContext) => {
       {
         type: "Control",
         scope: "#/properties/address_id",
+        i18n: "basket.billing_details.address_id",
         options: {
           focus: true,
           autocomplete: "off",
-          placeholder: "Select Address",
         },
       },
       {
         type: "Control",
         scope: "#/properties/company_id",
+        i18n: "basket.billing_details.company_id",
         options: {
           focus: true,
           autocomplete: "off",
-          placeholder: "Select Company",
         },
       },
     ],

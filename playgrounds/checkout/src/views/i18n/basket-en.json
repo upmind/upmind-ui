@@ -114,6 +114,78 @@
         "continue": "Continue shopping",
         "checkout": "Proceed to Checkout"
       }
+    },
+    "currency": {
+      "code": {
+        "label": "Currency",
+        "placeholder": "Select currency"
+      }
+    },
+    "fields": {
+      "notes": {
+        "label": "Order notes",
+        "placeholder": "Add notes here..."
+      }
+    },
+    "billing_details": {
+      "address_id": {
+        "label": "Use address",
+        "placeholder": "Select address"
+      },
+      "company_id": {
+        "label": "Use Company",
+        "placeholder": "Select company"
+      }
+    },
+    "payment_details": {
+      "type": {
+        "label": "Payment type",
+        "PAY_IN_FULL": "Pay in full",
+        "PARTIAL_PAYMENT": "Pay in instalments",
+        "PAY_LATER": "Pay later"
+      }
+    }
+  },
+  "payment": {
+    "store_on_payment": {
+      "label": "Save payment details",
+      "description": ""
+    },
+    "store_on_payment_auto_payment": {
+      "label": "Allow auto payment",
+      "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice."
+    },
+    "return_url": {
+      "label": "Return URL",
+      "description": "The URL to redirect to after the payment is completed.",
+      "placeholder": "Enter URL"
+    },
+    "cancel_url": {
+      "label": "Cancel URL",
+      "description": "The URL to redirect to after the payment is cancelled.",
+      "placeholder": "Enter URL"
+    },
+    "cardholder_name": {
+      "label": "Cardholder name",
+      "placeholder": "Enter cardholder name"
+    },
+    "card_num": {
+      "label": "Card number",
+      "description": "The 16 digit number on the front of your card.",
+      "placeholder": "1234 1234 1234 1234"
+    },
+    "card_expiry": {
+      "label": "Expiry date",
+      "description": "Expiry Date of the card. Date Format: MM/YY",
+      "placeholder": "MM/YY"
+    },
+    "card_cvv": {
+      "label": "CVV",
+      "description": "card security code found on the back of your card that provides an additional measure of credit card security.",
+      "placeholder": "CVC"
+    },
+    "external": {
+      "label": "Use external payment gateway"
     }
   }
 }
