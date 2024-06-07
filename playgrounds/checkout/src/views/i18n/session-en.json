@@ -30,6 +30,13 @@
         "label": "What is your favourite?",
         "description": "Could be your favourite sports team, band, or anything else you're passionate about."
       }
+    },
+    "actions": {
+      "register": "Create new account",
+      "login": "Log into my account",
+      "continue": "Continue",
+      "logout": "Log out",
+      "forgot": "Forgot password"
     }
   },
   "session": {

@@ -1,0 +1,119 @@
+{
+  "basket": {
+    "confirmation": {
+      "approval": {
+        "avatar": "paying",
+        "text": "We're waiting for approval. This should only take a moment",
+        "title": "Waiting for approval..."
+      },
+      "complete": {
+        "actions": {
+          "continue": {
+            "appendIcon": "arrow-right",
+            "label": "View Invoice",
+            "to": "/"
+          }
+        },
+        "avatar": "paying",
+        "text": "Your order is complete. You will receive an email confirmation shortly.",
+        "title": "Order complete"
+      },
+      "converting": {
+        "avatar": "paying",
+        "text": "We're converting your order. This should only take a moment",
+        "title": "Converting your order..."
+      },
+      "default": {
+        "avatar": "paying",
+        "text": "We're verifying your payment information. This should only take a moment",
+        "title": "Checking you payment details..."
+      },
+      "invalid": {
+        "avatar": "paying",
+        "text": "Please check your payment details to complete the purchase.",
+        "title": "Unable to complete you order"
+      },
+      "paying": {
+        "avatar": "paying",
+        "text": "We're processing your payment. This should only take a moment",
+        "title": "Processing your payment..."
+      }
+    },
+    "details": {
+      "text": "Let's complete your order",
+      "title": "Your basket total is {total}"
+    },
+    "empty": {
+      "actions": {
+        "continue": {
+          "label": "Continue shopping",
+          "prependIcon": "arrow-left",
+          "to": "/"
+        }
+      },
+      "avatar": "basket",
+      "text": "Looks like you haven't added anything to your basket yet.",
+      "title": "Your basket is empty"
+    },
+    "items": {
+      "pending": {
+        "title": "Before we continue, we require additional details from you."
+      },
+      "text": " Great | Great choice | Great Choices",
+      "title": "Now lets personalise your order"
+    },
+    "loading": {
+      "actions": {
+        "add": "Add to basket",
+        "checkout": "Proceed to Checkout",
+        "clear": "Clear basket",
+        "continue": "Continue shopping",
+        "remove": "Remove"
+      },
+      "avatar": "basket",
+      "count": "There are {count} products in your basket | There is {count} product in your basket| There are {count} products in your basket",
+      "text": "Almost there! Getting things ready for you.",
+      "title": "Something exciting is around the corner..."
+    },
+    "promotions": {
+      "actions": {
+        "submit": "Apply"
+      },
+      "active": {
+        "title": "Active discounts"
+      },
+      "promocode": {
+        "description": "",
+        "error": "Invalid promo code",
+        "label": "",
+        "placeholder": "Enter code here"
+      },
+      "title": "Have a discount code?",
+      "tooltip": "Discount applied"
+    },
+    "summary": {
+      "actions": {
+        "submit": "Submit order and pay"
+      },
+      "discount": {
+        "title": "Discount",
+        "tooltip": "Discount applied"
+      },
+      "footer": [
+        {
+          "icon": "lock",
+          "text": "Encrypted and secure payments"
+        }
+      ],
+      "items": {
+        "title": "Items"
+      },
+      "taxes": {
+        "title": "Taxes & fees",
+        "tooltip": "Taxes applied"
+      },
+      "title": "Order summary",
+      "total": "Total"
+    }
+  }
+}

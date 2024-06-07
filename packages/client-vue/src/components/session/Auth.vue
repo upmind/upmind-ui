@@ -75,10 +75,10 @@ export default defineComponent({
         submit: {
           type: "submit",
           label: this.meta.showLoginForm
-            ? "Log into my account"
+            ? this.$t("auth.actions.login")
             : this.meta.showRegisterForm
-              ? "Create new account"
-              : "Continue",
+              ? this.$t("auth.actions.register")
+              : this.$t("auth.actions.continue"),
           block: true,
           needsValid: true,
         },
@@ -86,7 +86,7 @@ export default defineComponent({
 
       if (this.meta.showLoginForm) {
         actions.forgot = {
-          label: "forgot password",
+          label: this.$t("auth.actions.forgot"),
           block: true,
           variant: "link",
           size: "sm",
