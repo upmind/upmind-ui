@@ -122,8 +122,12 @@
         :class="styles.input.feedback.root"
         v-if="!noFeedback"
       >
-        <upw-icon :class="styles.input.feedback.icon" :icon="feedbackIcon" />
-        <span>{{ errors || description }}</span>
+        <upw-icon
+          :class="styles.input.feedback.icon"
+          :icon="feedbackIcon"
+          v-if="meta.hasFeedback"
+        />
+        <span v-if="meta.hasFeedback">{{ errors || description }}</span>
       </div>
     </slot>
   </div>
@@ -215,7 +219,7 @@ export default defineComponent({
       isVisible: props.visible,
       isDisabled: props.disabled,
       hasFeedback:
-        (isEmpty(props.errors) && !isNil(props.description)) ||
+        (isEmpty(props.errors) && !isEmpty(props.description)) ||
         !isEmpty(props.errors),
     }));
 
