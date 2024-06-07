@@ -19,6 +19,7 @@
       :additional-errors="additionalErrors"
       @update:modelValue="doResolve"
       no-actions
+      as="fieldset"
     />
   </upw-input>
 </template>
