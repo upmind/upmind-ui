@@ -38,35 +38,8 @@ async function load(
 
   const client_id = await getUserId();
   const brand_id = getBrandId();
-  const store_payment_options = {
-    force_auto_payment: false,
-    force_card_storage: false,
-  };
+
   currency_id ??= getCurrencyId();
-
-  // ---
-  // checkif our brand allows or restricts certain payment types
-
-  // function forceCardStorage(): boolean {
-  //   return (
-  //     (this.$store.getters["brand/config"][
-  //       BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE
-  //     ] ??
-  //       false) ||
-  //     (this.brandGateway.gateway?.store_on_payment_force ?? false)
-  //   );
-  // }
-  // /**
-  //  * @name forceAutoPayment
-  //  * @desc Returns true if auto-payment is enforced by the brand
-  //  */
-  // function forceAutoPayment(): boolean {
-  //   return (
-  //     this.$store.getters["brand/config"][
-  //       BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
-  //     ] ?? false
-  //   );
-  // }
 
   await getConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
@@ -170,6 +143,7 @@ async function validate(
   return new Promise((resolve, reject) => {
     //
     const errors = validate(schema, model) || [];
+    console.debug("paymentDetails", "validate", errors);
 
     // ALSO check if any of our actors are in an invalid state
     forEach(actors, actor => {

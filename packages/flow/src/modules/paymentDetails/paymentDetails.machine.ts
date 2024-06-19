@@ -199,12 +199,12 @@ export default createMachine(
           { currency }: PaymentDetailsContext,
           { data }: PaymentDetailsEvent
         ) => {
-          // if we are provided a gateway,
+          // if we are provided a gateway AND we have an amount,
           // lets spawn it if it doesnt exist or if it is different
           // otherwise stop the old one if it exists
           // THIS HAS TO BE DONE IN AN ASSIGN!
 
-          if (!data?.gateway) {
+          if (!data?.amount || !data?.gateway) {
             if (data?.actors?.gateway)
               !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
             unset(data, "actors.gateway");
