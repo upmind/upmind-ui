@@ -270,8 +270,10 @@ export default createMachine(
 
       clearError: assign({ error: null }),
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }, _event, _state) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+
+        console.log("item", "setFeedbackError", "error", error);
 
         addError({
           title: error?.title || "We experienced an error with this item",

@@ -216,12 +216,14 @@ export const useSchema = ({
         type: "number",
         title: "Address Type",
         default: baseModel?.type,
-        oneOf: map(types, item => {
-          return {
-            const: item.key,
-            title: item.value,
-          };
-        }),
+        oneOf: !types?.length
+          ? undefined
+          : map(types, item => {
+              return {
+                const: item.key,
+                title: item.value,
+              };
+            }),
       },
     },
   };

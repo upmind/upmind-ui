@@ -78,6 +78,12 @@ export const useSchema = (context: GatewayContext) => {
         title: "Gateway ID",
         const: context.gateway.id,
       },
+      amount: {
+        type: "number",
+        title: "Amount",
+        readOnly: true,
+        exclusiveMinimum: 0,
+      },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
       can_store: {
         type: "boolean",

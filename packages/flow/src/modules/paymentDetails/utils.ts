@@ -36,23 +36,28 @@ export const useSchema = ({
         type: "number",
         title: "Amount",
         readOnly: true,
+        exclusiveMinimum: 0,
       },
       type: {
         type: "string",
         title: "Payment type",
         default: PaymentTypes.PAY_IN_FULL,
-        oneOf: map(payment_types, (value, key) => ({
-          const: value,
-          title: key,
-        })),
+        oneOf: !payment_types
+          ? undefined
+          : map(payment_types, (value, key) => ({
+              const: value,
+              title: key,
+            })),
       },
       gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
-        oneOf: map(gateways, ({ gateway_id, gateway }) => ({
-          const: gateway_id,
-          title: gateway.name,
-        })),
+        oneOf: !gateways?.length
+          ? undefined
+          : map(gateways, ({ gateway_id, gateway }) => ({
+              const: gateway_id,
+              title: gateway.name,
+            })),
       },
     },
 
@@ -88,6 +93,13 @@ export const useUischema = ({
           stretch: true,
           layout: payment_types?.length >= 3 ? "grid" : "inline",
         },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/amount",
+            schema: { not: { const: 0 } },
+          },
+        },
       },
       {
         type: "Control",
@@ -101,8 +113,12 @@ export const useUischema = ({
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/type",
-            schema: { const: PaymentTypes.PAY_IN_FULL },
+            scope: "#",
+            schema: {
+              required: ["type", "amount"],
+              amount: { not: { const: 0 } },
+              type: { const: PaymentTypes.PAY_IN_FULL },
+            },
           },
         },
       },

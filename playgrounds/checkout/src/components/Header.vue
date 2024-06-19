@@ -99,7 +99,6 @@ export default defineComponent({
   },
   computed: {
     isBasketView() {
-      debugger;
       return this.$route.name === "basket";
     },
     locales() {

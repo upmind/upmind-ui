@@ -60,12 +60,14 @@ export const useSchema = ({ country }: PhoneContext) => {
       type: {
         type: ["number", "null"],
         title: "Type",
-        oneOf: map(PhoneTypes, ({ value, key }) => {
-          return {
-            const: key,
-            title: value,
-          };
-        }),
+        oneOf: !PhoneTypes?.length
+          ? undefined
+          : map(PhoneTypes, ({ value, key }) => {
+              return {
+                const: key,
+                title: value,
+              };
+            }),
       },
 
       // ---
