@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   input: {
-    root: cva("group relative flex flex-col gap-1", {
+    root: cva("group relative flex flex-col gap-x-1", {
       variants: {
         size: {
           sm: "text-sm",
