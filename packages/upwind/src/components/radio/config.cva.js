@@ -22,7 +22,7 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 cursor-pointer appearance-none rounded-[100%] border text-inherit outline-none ring-0",
+      "border-base-300 appearance-none rounded-[100%] border text-inherit outline-none ring-0",
       {
         variants: {
           size: {
@@ -31,7 +31,10 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "bg-base-100 ",
+            true: "bg-base-100 cursor-not-allowed ",
+          },
+          isProcessing: {
+            true: "cursor-wait",
           },
           isChecked: {
             true: `border-current bg-current`,
@@ -42,14 +45,14 @@ export default {
             isInvalid: true,
             isDisabled: false,
             isProcessing: false,
-            class: "border-error-300",
+            class: "border-error-300 cursor-pointer",
           },
           {
             isValid: true,
             isDisabled: false,
             isProcessing: false,
 
-            class: "",
+            class: "cursor-pointer",
           },
           {
             variant: "outlined",

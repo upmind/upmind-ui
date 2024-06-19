@@ -8,7 +8,7 @@ export default {
     item: cva(""),
   },
   layout: {
-    root: cva("flex w-full gap-6", {
+    root: cva("flex w-full gap-2", {
       variants: {
         isHorizontal: {
           true: "flex-row flex-wrap",
