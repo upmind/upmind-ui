@@ -84,15 +84,16 @@ export default defineComponent({
         },
       };
 
-      if (this.meta.showLoginForm) {
-        actions.forgot = {
-          label: this.$t("auth.actions.forgot"),
-          block: true,
-          variant: "link",
-          size: "sm",
-          action: () => this.toggleForm("forgot"),
-        };
-      }
+      // TODO: implement forgot password flow
+      // if (this.meta.showLoginForm) {
+      //   actions.forgot = {
+      //     label: this.$t("auth.actions.forgot"),
+      //     block: true,
+      //     variant: "link",
+      //     size: "sm",
+      //     action: () => this.toggleForm("forgot"),
+      //   };
+      // }
 
       return actions;
     },
