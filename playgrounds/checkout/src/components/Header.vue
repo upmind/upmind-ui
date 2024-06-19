@@ -40,7 +40,13 @@
 
         <upm-currency />
 
-        <upw-button to="/" append-icon="basket" color="base" variant="ghost">
+        <upw-button
+          to="/"
+          append-icon="basket"
+          color="base"
+          variant="ghost"
+          v-if="!isBasketView"
+        >
           <template #append-avatar>
             <upw-avatar
               :key="items?.length"
@@ -92,6 +98,10 @@ export default defineComponent({
     };
   },
   computed: {
+    isBasketView() {
+      debugger;
+      return this.$route.name === "basket";
+    },
     locales() {
       return this.$i18n.availableLocales.map(locale => ({
         label: locale.toUpperCase(),
