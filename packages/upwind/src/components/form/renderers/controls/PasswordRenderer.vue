@@ -15,6 +15,7 @@
   >
     <template #append="{ styles }">
       <button
+        tabindex="-1"
         type="button"
         :class="styles?.button"
         @click.prevent="unmask = !unmask"
