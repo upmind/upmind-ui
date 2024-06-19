@@ -31,16 +31,17 @@
         :value="item.value"
       >
         <upw-radio
-          tabindex="-1"
-          :upwind-config="{ input: config.radiolist.radio }"
           v-bind="safeAttrs"
+          variant="outlined"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
-          variant="outlined"
+          :disabled="meta.isDisabled"
+          :processing="meta.isProcessing"
           :label="item.label"
           :value="item.value"
           :model-value="isSelected(item.value)"
+          :upwind-config="{ input: config.radiolist.radio }"
           no-status
           no-feedback
         />
@@ -126,6 +127,7 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -145,6 +147,7 @@ export default defineComponent({
       isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -194,6 +197,8 @@ export default defineComponent({
     selected: {
       immediate: true,
       handler(value) {
+        if (this.disabled || this.processing) return;
+
         this.$emit("update:modelValue", value);
         // forward the event to the input control that will trigger the update
         // NB: this is not a DOM event so we need to fake one for the renderer

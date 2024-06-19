@@ -10,6 +10,12 @@ export default {
           md: "size-6",
           lg: "size-7",
         },
+        isDisabled: {
+          true: "cursor-not-allowed",
+        },
+        isProcessing: {
+          true: "cursor-wait",
+        },
       },
       defaultVariants: {
         size: "md",
@@ -25,7 +31,7 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "bg-base-100",
+            true: "bg-base-100 ",
           },
           isChecked: {
             true: `border-current bg-current`,
@@ -35,11 +41,14 @@ export default {
           {
             isInvalid: true,
             isDisabled: false,
+            isProcessing: false,
             class: "border-error-300",
           },
           {
             isValid: true,
             isDisabled: false,
+            isProcessing: false,
+
             class: "",
           },
           {
@@ -47,6 +56,8 @@ export default {
             isInvalid: false,
             isValid: false,
             isDisabled: false,
+            isProcessing: false,
+
             class:
               "focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
           },
@@ -55,6 +66,8 @@ export default {
             variant: "outlined",
             isInvalid: true,
             isDisabled: false,
+            isProcessing: false,
+
             class:
               "focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
@@ -62,6 +75,8 @@ export default {
             variant: "outlined",
             isValid: true,
             isDisabled: false,
+            isProcessing: false,
+
             class:
               "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
           },

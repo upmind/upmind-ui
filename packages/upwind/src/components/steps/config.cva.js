@@ -24,7 +24,10 @@ export default {
             true: "text-base-content font-normal",
           },
           disabled: {
-            true: "pointer-events-none cursor-not-allowed opacity-50",
+            true: "cursor-not-allowed opacity-50",
+          },
+          processing: {
+            true: "cursor-wait",
           },
         },
         defaultVariants: {
