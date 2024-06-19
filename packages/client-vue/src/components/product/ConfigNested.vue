@@ -38,7 +38,7 @@
         <label
           :for="`items[${item.id}][${value.id}]`"
           :class="styles.product.config.list.item.wrapper"
-          :disabled="disabled || processing"
+          :disabled="disabled"
         >
           <component
             :is="
@@ -58,6 +58,8 @@
             "
             :value="value.id"
             :required="item.required"
+            :disabled="disabled"
+            :processing="processing"
             @change="doResolve(item, value, $event)"
             no-feedback
             no-status
@@ -97,7 +99,7 @@
             :class="styles.product.config.list.item.footer"
             v-if="value?.price"
           >
-            <upw-spinner v-if="loading || processing" size="xs" />
+            <upw-spinner v-if="loading" size="xs" />
 
             <upw-quantitybox
               v-if="
@@ -172,18 +174,9 @@ export default defineComponent({
   },
   emits: ["update:modelValue", "update:quantity"],
   props: {
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    processing: {
-      type: Boolean,
-      default: false,
-    },
+    disabled: { type: Boolean },
+    loading: { type: Boolean },
+    processing: { type: Boolean },
     items: {
       type: Array,
       default: () => [],
@@ -222,6 +215,14 @@ export default defineComponent({
     },
 
     doResolve(item, value, $event) {
+      console.log("configNested", "doResolve", {
+        item,
+        value,
+        $event,
+        disabled: this.disabled,
+        processing: this.processing,
+      });
+
       if (this.disabled || this.processing) return;
 
       this.$emit("update:modelValue", item, value, $event);

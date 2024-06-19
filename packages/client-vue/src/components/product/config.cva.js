@@ -242,6 +242,9 @@ export default {
             {
               variants: {
                 disabled: {
+                  true: "cursor-not-allowed",
+                },
+                processing: {
                   true: "cursor-wait",
                 },
               },

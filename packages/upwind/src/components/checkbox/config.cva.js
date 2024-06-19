@@ -81,7 +81,10 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "text-base-content",
+            true: "text-base-content cursor-not-allowed",
+          },
+          isProcessing: {
+            true: "cursor-wait",
           },
           isChecked: {
             true: `text-base`,

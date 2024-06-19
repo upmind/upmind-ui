@@ -96,6 +96,7 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -115,6 +116,7 @@ export default defineComponent({
       // ---
       isFocused: focused.value,
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -146,6 +148,7 @@ export default defineComponent({
         resize();
       },
       onChange: event => {
+        if (props.disabled || props.processing) return;
         resize();
         emit("update:modelValue", event.target.value);
       },

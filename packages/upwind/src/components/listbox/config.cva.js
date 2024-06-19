@@ -20,7 +20,10 @@ export default {
             true: "text-base-500 cursor-default text-xs font-medium",
           },
           disabled: {
-            true: "pointer-events-none opacity-50",
+            true: "cursor-not-allowed opacity-50",
+          },
+          processing: {
+            true: "cursor-wait",
           },
         },
         defaultVariants: {
@@ -49,7 +52,10 @@ export default {
             lg: "text-lg leading-7",
           },
           disabled: {
-            true: "pointer-events-none opacity-50",
+            true: "cursor-not-allowed",
+          },
+          processing: {
+            true: "cursor-wait",
           },
           grouped: {
             false: "border-base-300",

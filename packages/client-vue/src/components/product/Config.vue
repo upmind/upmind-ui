@@ -83,7 +83,7 @@
         <!-- terms -->
         <upm-config-grid
           v-if="meta.hasTerms"
-          :disabled="processing || meta.isLoading || meta.isCalculating"
+          :processing="processing || meta.isLoading || meta.isCalculating"
           :items="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
@@ -94,7 +94,7 @@
         <!-- attributes -->
         <upm-config-nested
           v-if="meta.hasAttributes"
-          :disabled="processing || meta.isLoading || meta.isCalculating"
+          :processing="processing || meta.isLoading || meta.isCalculating"
           :items="availableAttributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
@@ -104,7 +104,7 @@
         <!-- options -->
         <upm-config-nested
           v-if="meta.hasOptions"
-          :disabled="processing || meta.isLoading || meta.isCalculating"
+          :processing="processing || meta.isLoading || meta.isCalculating"
           :items="availableOptions"
           :model-value="model?.options"
           @update:modelValue="selectOption"
@@ -115,7 +115,7 @@
         <!-- provisional fields -->
         <upm-config-form
           v-if="meta.hasProvisioning"
-          :disabled="processing || meta.isLoading"
+          :processing="processing || meta.isLoading"
           :additional-errors="errors?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"

@@ -28,7 +28,7 @@
       <input
         :id="id"
         v-bind="safeAttrs"
-        type="radio"
+        type="checkbox"
         :disabled="disabled"
         :checked="modelValue"
         :class="styles.radio.input"
@@ -116,6 +116,7 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -130,6 +131,7 @@ export default defineComponent({
       size: props.size,
       // ---
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -145,32 +147,26 @@ export default defineComponent({
       styles,
       config,
       onChange: event => {
+        if (props.disabled || props.processing) return;
         emit("update:modelValue", event.target.value);
       },
     };
   },
   computed: {
     safeAttrs() {
-      // return this.$attrs;
-
-      const safe = pick(this.$attrs, [
+      return pick(this.$attrs, [
         "class",
         "value",
         "readonly",
         "autofocus",
+        "placeholder",
         "tabindex",
         "maxlength",
         "name",
         "onChange",
         "onFocus",
         "onBlur",
-        "name",
-        "onChange",
-        "onFocus",
-        "onBlur",
       ]);
-
-      return safe;
     },
     computedIcon() {
       return this.meta.isChecked ? this.checkedIcon : this.uncheckedIcon;

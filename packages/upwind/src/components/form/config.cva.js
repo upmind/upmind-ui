@@ -7,18 +7,24 @@ export default {
     loading: cva(""),
     content: cva("transition-opacity duration-300", {
       variants: {
+        disabled: {
+          true: "cursor-not-allowed",
+        },
         processing: {
-          true: "pointer-events-none duration-0",
+          true: "cursor-wait duration-0",
         },
         loading: {
-          true: "pointer-events-none invisible opacity-0 duration-0",
+          true: "invisible opacity-0 duration-0",
         },
       },
     }),
     actions: cva("flex w-full flex-wrap gap-2 transition-all duration-300", {
       variants: {
+        disabled: {
+          true: "cursor-not-allowed",
+        },
         processing: {
-          true: "pointer-events-none",
+          true: "cursor-wait",
         },
         loading: {
           true: "invisible opacity-0 duration-0",

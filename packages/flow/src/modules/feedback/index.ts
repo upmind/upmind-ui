@@ -30,6 +30,7 @@ export const useFeedback = () => {
   // methods
 
   function add(message: Message) {
+    console.debug("add message", message);
     service.send({ type: "ADD", data: message });
   }
 
