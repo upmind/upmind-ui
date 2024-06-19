@@ -46,6 +46,8 @@ export const useFeedback = () => {
     delay?: number = 0,
     maxAge?: number = useTime().SECOND * 6
   ) {
+    console.debug("add error message", message);
+
     if (!message) return; // bail if no message
 
     return add({

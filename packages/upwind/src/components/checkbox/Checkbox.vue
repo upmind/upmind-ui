@@ -111,7 +111,7 @@ export default defineComponent({
     },
     indeterminateIcon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
-      default: "subtract",
+      default: "minus",
     },
     // ---
     modelValue: { type: Boolean },
