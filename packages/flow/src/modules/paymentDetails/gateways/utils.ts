@@ -48,7 +48,7 @@ export function generateUrls({
       btoa(
         JSON.stringify(
           gateway?.gateway_provider?.external_payment
-            ? { invoiceId: order?.id }
+            ? { invoiceId: basket_id }
             : undefined
         )
       )
