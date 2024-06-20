@@ -143,7 +143,6 @@ async function validate(
   return new Promise((resolve, reject) => {
     //
     const errors = validate(schema, model) || [];
-    console.debug("paymentDetails", "validate", errors);
 
     // ALSO check if any of our actors are in an invalid state
     forEach(actors, actor => {

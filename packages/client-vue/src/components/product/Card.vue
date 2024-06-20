@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.product.card.root">
+  <article :class="styles.product.card.root" v-if="!meta.isLoading">
     <!-- thumb -->
     <figure
       :class="styles.product.card.media"
@@ -32,12 +32,12 @@
         </h3>
 
         <div :class="styles.product.card.meta">
-          <span v-if="summary.details?.length">
+          <span v-if="termSummary">
             <strong :class="styles.product.card.bold">{{
-              summary.details[0].formatted
+              termSummary.formatted
             }}</strong>
 
-            {{ $t(`product.${summary.details[0].key}`, summary.details[0]) }}
+            {{ $t(`product.${termSummary.key}`, termSummary) }}
           </span>
 
           <upw-button
@@ -100,7 +100,11 @@
             v-if="!!summary?.discount"
             :class="styles.product.card.discount"
           >
-            {{ summary?.subtotal_formatted }}
+            {{
+              summary?.subtotal
+                ? summary?.subtotal_formatted
+                : $t("product.free")
+            }}
           </span>
 
           <strong :class="styles.product.card.total">
@@ -147,6 +151,8 @@ import config from "./config.cva";
 // --- components
 import { UpwBadge, UpwButton, UpwIcon } from "@upmind/upwind";
 
+// --- utils
+import { isNil } from "lodash-es";
 // --- types
 
 // -----------------------------------------------------------------------------
@@ -189,9 +195,15 @@ export default defineComponent({
       // ---
       styles,
       mergeStyles,
+      // ---
+      isNil,
     };
   },
-  computed: {},
+  computed: {
+    termSummary() {
+      return this.summary.details.find(detail => detail.key === "term");
+    },
+  },
 });
 </script>
 .

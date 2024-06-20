@@ -96,8 +96,13 @@ export const useUischema = ({
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/amount",
-            schema: { not: { const: 0 } },
+            scope: "#",
+            schema: {
+              required: ["amount"],
+              properties: {
+                amount: { not: { const: 0 } },
+              },
+            },
           },
         },
       },
@@ -116,8 +121,10 @@ export const useUischema = ({
             scope: "#",
             schema: {
               required: ["type", "amount"],
-              amount: { not: { const: 0 } },
-              type: { const: PaymentTypes.PAY_IN_FULL },
+              properties: {
+                amount: { not: { const: 0 } },
+                type: { const: PaymentTypes.PAY_IN_FULL },
+              },
             },
           },
         },

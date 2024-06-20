@@ -22,6 +22,7 @@
     no-label
     no-status
     no-required
+    no-feedback
   >
     <slot name="prepend" v-bind="{ styles: styles.quantitybox }">
       <upw-button

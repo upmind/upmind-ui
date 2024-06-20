@@ -189,7 +189,6 @@ export interface Typegen0 {
       | "xstate.after(error)#basketManager.shopping.items.processing.error";
   };
   eventsCausingGuards: {
-    allConfigured: "";
     billingComplete: "";
     billingConfiguring: "";
     currencyComplete: "";
@@ -201,6 +200,7 @@ export interface Typegen0 {
     hasNoItems: "";
     isNotLoading: "";
     isNotMuted: "REFRESH";
+    itemsConfigured: "";
     needsPayment: "done.invoke.converting:invocation[0]";
     paymentConfiguring: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";

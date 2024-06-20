@@ -110,10 +110,16 @@ export default createMachine(
                 invoke: {
                   src: "validate",
                   onDone: { target: "#valid" },
-                  onError: {
-                    target: "#invalid",
-                    actions: ["setError"],
-                  },
+                  onError: [
+                    {
+                      target: "#complete",
+                      cond: "isFree",
+                    },
+                    {
+                      target: "#invalid",
+                      actions: ["setError"],
+                    },
+                  ],
                 },
               },
             },
@@ -204,7 +210,7 @@ export default createMachine(
           // otherwise stop the old one if it exists
           // THIS HAS TO BE DONE IN AN ASSIGN!
 
-          if (!data?.amount || !data?.gateway) {
+          if (!data.model?.amount || !data?.gateway) {
             if (data?.actors?.gateway)
               !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
             unset(data, "actors.gateway");
@@ -308,6 +314,7 @@ export default createMachine(
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       hasChanged: ({ currency }, { data }) =>
         currency?.id !== data?.currency_id,
+      isFree: ({ model }, _event) => !model?.amount,
     },
 
     delays: {

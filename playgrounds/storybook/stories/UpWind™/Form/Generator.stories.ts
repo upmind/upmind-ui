@@ -9,7 +9,7 @@ import * as messages from "./locales";
 import { UpwForm } from "@upmind/upwind";
 
 // --- utils
-import { isEmpty, omitBy } from "lodash";
+import { isEmpty, omitBy } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UpwForm> = {

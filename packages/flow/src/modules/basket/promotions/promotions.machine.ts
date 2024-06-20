@@ -11,7 +11,7 @@ const { addError, addSuccess } = useFeedback();
 
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { xorBy } from "lodash";
+import { xorBy } from "lodash-es";
 
 // --- types
 import type { PromotionsContext, PromotionsEvent } from "./types.d";
