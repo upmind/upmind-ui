@@ -76,7 +76,6 @@ export default createMachine(
         initial: "loading",
         states: {
           loading: {
-            id: "loading",
             entry: ["clearError"],
             invoke: {
               src: "load",
@@ -102,7 +101,7 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setContext", "setSchemas"],
+                    actions: ["setContext", "setGateway", "setSchemas"],
                   },
                 },
               },
@@ -173,9 +172,8 @@ export default createMachine(
           },
 
           REFRESH: {
-            target: "#loading",
-            actions: ["refreshContext", "setSchemas"],
-            cond: "hasChanged",
+            target: "#checking",
+            actions: ["refreshBasket", "setSchemas"],
           },
         },
       },
@@ -197,45 +195,7 @@ export default createMachine(
   },
   {
     actions: {
-      refreshContext: assign(
-        (_context: PaymentDetailsContext, { data: basket }: RefreshEvent) => ({
-          basket_id: basket?.id,
-          currency: basket?.currency,
-          model: {
-            amount: basket?.unpaid_amount_converted || 0.0,
-          },
-        })
-      ),
-
-      setContext: assign(
-        (
-          { currency }: PaymentDetailsContext,
-          { data }: PaymentDetailsEvent
-        ) => {
-          // if we are provided a gateway AND we have an amount,
-          // lets spawn it if it doesnt exist or if it is different
-          // otherwise stop the old one if it exists
-          // THIS HAS TO BE DONE IN AN ASSIGN!
-
-          if (!data.model?.amount || !data?.gateway) {
-            if (data?.actors?.gateway)
-              !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
-            unset(data, "actors.gateway");
-          } else if (data.actors?.gateway?.id != data?.gateway?.id) {
-            if (data?.actors?.gateway)
-              !data.actors.gateway?.state?.done && data.actors.gateway?.stop();
-            const actor = spawnGateway({
-              basket_id: data.basket_id,
-              gateway: data.gateway,
-              amount: data.model?.amount,
-              currency,
-            });
-            set(data, "actors.gateway", actor);
-          }
-
-          return data;
-        }
-      ),
+      setContext: assign((_context, { data }: any) => data),
 
       setSchemas: assign({
         schema: context => useSchema(context),
@@ -252,8 +212,46 @@ export default createMachine(
         model: ({ schema, model }, { data }) =>
           useModelParser(schema, data || model),
       }),
+
       clearModel: assign({
         model: undefined,
+      }),
+
+      setGateway: assign({
+        // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
+        actors: ({ basket_id, currency, model, gateway, actors }, _event) => {
+          actors ??= {}; //sanity check
+
+          // stop any existing gateways if they are different and not done/complete
+          if (actors?.gateway?.id != gateway?.id) {
+            if (actors?.gateway && !actors.gateway?.state?.done)
+              actors.gateway?.stop();
+            unset(actors, "gateway");
+          }
+
+          // if we are provided a gateway AND dont have one spawned yet,
+          if (!actors?.gateway && gateway) {
+            const actor = spawnGateway({
+              basket_id,
+              gateway: gateway,
+              amount: model?.amount,
+              currency,
+            });
+            set(actors, "gateway", actor);
+          }
+
+          return actors;
+        },
+      }),
+
+      refreshBasket: assign((_context, { data: basket }: RefreshEvent) => {
+        return {
+          basket_id: basket?.id,
+          currency: basket?.currency,
+          model: {
+            amount: basket?.unpaid_amount_converted || 0.0,
+          },
+        };
       }),
 
       // ---
@@ -319,8 +317,6 @@ export default createMachine(
 
     guards: {
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ currency }, { data }) =>
-        currency?.id !== data?.currency_id,
       isFree: ({ model }, _event) => !model?.amount,
     },
 
