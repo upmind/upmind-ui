@@ -17,7 +17,13 @@
       <p :class="styles.basket.empty.text">{{ text }}</p>
 
       <footer>
-        <upw-button v-if="action" v-bind="action" block variant="ghost" />
+        <upw-button
+          v-if="action"
+          v-bind="action"
+          block
+          variant="ghost"
+          :href="storefrontUrl"
+        />
       </footer>
     </section>
   </component>
@@ -84,6 +90,9 @@ export default defineComponent({
     },
     action() {
       return this.$tm("basket.empty.actions.continue");
+    },
+    storefrontUrl() {
+      return import.meta.env.VITE_APP_UPMIND_STOREFRONT;
     },
   },
 });

@@ -84,8 +84,7 @@
         "actions": {
           "continue": {
             "appendIcon": "arrow-right",
-            "label": "View Invoice",
-            "to": "/"
+            "label": "View Invoice"
           }
         }
       }
@@ -97,8 +96,7 @@
       "actions": {
         "continue": {
           "prependIcon": "arrow-left",
-          "label": "Continue shopping",
-          "to": "/"
+          "label": "Continue shopping"
         }
       }
     },
