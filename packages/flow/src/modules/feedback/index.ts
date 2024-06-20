@@ -30,7 +30,6 @@ export const useFeedback = () => {
   // methods
 
   function add(message: Message) {
-    console.log("add message", message);
     service.send({ type: "ADD", data: message });
   }
 
@@ -46,8 +45,6 @@ export const useFeedback = () => {
     delay?: number = 0,
     maxAge?: number = useTime().SECOND * 6
   ) {
-    console.log("add error message", message);
-
     if (!message) return; // bail if no message
 
     return add({
