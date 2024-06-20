@@ -44,6 +44,8 @@ export interface PaymentDetailsContext {
   payment_types?: PaymentTypes;
   payment_details?: Array<IPaymentDetail>;
   balance?: IWalletBalance;
+  gateway?: IGateway;
+  // ---
 
   schema?: JsonSchema;
   uischema?: UISchemaElement;

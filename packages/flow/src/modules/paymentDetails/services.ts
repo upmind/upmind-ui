@@ -132,7 +132,7 @@ async function update({ model, basket_id, currency }: PaymentDetailsContext) {
 // --------------------------------------------------------
 
 async function parse(
-  { model, actors, gateways }: PaymentDetailsContext,
+  { model, gateways }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   // ---
@@ -150,7 +150,7 @@ async function parse(
     })?.gateway; // we dont need the full brand gateway, just the actual gateway;
   }
 
-  return Promise.resolve({ model, gateway, actors });
+  return Promise.resolve({ model, gateway });
 }
 
 async function validate(
