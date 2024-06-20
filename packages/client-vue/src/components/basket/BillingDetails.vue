@@ -80,7 +80,6 @@ import { useStyles } from "@upmind/upwind";
 import config from "../client/config.cva";
 
 // --- components
-import UpmAuth from "../session/Auth.vue";
 import UpmItem from "../Client/Item.vue";
 import UpmCard from "../Client/Card.vue";
 import UpmListings from "../Client/Listings.vue";
@@ -95,8 +94,6 @@ export default defineComponent({
   components: {
     UpwSkeletonList,
     UpwButton,
-    // ---
-    UpmAuth,
     // ---
     UpmItem,
     UpmCard,

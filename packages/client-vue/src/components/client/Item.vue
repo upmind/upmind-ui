@@ -97,7 +97,12 @@ export default defineComponent({
     },
 
     maybeSubmit(isValid) {
-      if (this.autosave && isValid && !isEmpty(this.model)) {
+      if (
+        this.autosave &&
+        isValid &&
+        !isEmpty(this.model) &&
+        !this.model.manualPlace
+      ) {
         this.$nextTick(() => {
           this.update(this.model);
         });
