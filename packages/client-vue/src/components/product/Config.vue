@@ -12,6 +12,7 @@
     </figure>
 
     <div :class="styles.product.config.wrapper">
+      <!-- header -->
       <header :class="styles.product.config.header">
         <div :class="styles.product.config.headerContent">
           <upw-badge
@@ -30,11 +31,12 @@
             {{ availableProduct?.name }}
           </h3>
         </div>
+
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
           <upw-spinner
-            v-if="loading || meta.isCalculating"
+            v-if="meta.isLoading || meta.isCalculating"
             :class="styles.product.config.loading"
           />
 
@@ -54,11 +56,20 @@
               v-if="!!summary?.discount"
               :class="styles.product.config.discount"
             >
-              {{ summary?.subtotal_formatted }}
+              {{
+                summary?.subtotal
+                  ? summary?.subtotal_formatted
+                  : $t("product.free")
+              }}
             </span>
 
-            <strong :class="styles.product.config.total" v-if="summary?.total">
-              {{ summary?.total_formatted }}
+            <strong
+              :class="styles.product.config.total"
+              v-if="!isNil(summary?.total)"
+            >
+              {{
+                summary?.total ? summary?.total_formatted : $t("product.free")
+              }}
             </strong>
           </span>
         </div>
@@ -125,12 +136,12 @@
     </div>
 
     <!-- footer -->
-    <footer :class="styles.product.config.footer">
+    <footer :class="styles.product.config.footer" v-if="!meta.isLoading">
       <upw-button
         type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
-        :disabled="loading || processing"
+        :disabled="processing"
         @click="doReject"
         color="current"
         variant="link"
@@ -148,7 +159,7 @@
         tabindex="0"
         :label="$t('product.actions.resolve')"
         :loading="processing"
-        :disabled="loading || !meta.isConfigured"
+        :disabled="meta.isLoading || !meta.isConfigured"
       />
     </footer>
   </form>
@@ -175,6 +186,7 @@ import UpmConfigNested from "./ConfigNested.vue";
 import UpmConfigForm from "./ConfigForm.vue";
 
 // --- utils
+import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -200,10 +212,6 @@ export default defineComponent({
     },
     // ---
     disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
       type: Boolean,
       default: false,
     },
@@ -284,6 +292,8 @@ export default defineComponent({
       doResolve: () => emit("resolve", { id: props.modelValue }), // ---
       styles,
       mergeStyles,
+      // ---
+      isNil,
     };
   },
   computed: {},

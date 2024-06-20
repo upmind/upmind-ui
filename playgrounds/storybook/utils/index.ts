@@ -3,7 +3,7 @@ export * from "./useIcons";
 
 // --- utils
 import { useIcons } from "./useIcons";
-import { keys } from "lodash";
+import { keys } from "lodash-es";
 // ----------------------------------------------------------------------------
 
 const flags = useIcons("flags");

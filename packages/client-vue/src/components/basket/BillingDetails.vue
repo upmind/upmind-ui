@@ -87,7 +87,7 @@ import UpmListings from "../Client/Listings.vue";
 import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
 
 // --- utils
-import { get, isEmpty } from "lodash";
+import { get, isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({

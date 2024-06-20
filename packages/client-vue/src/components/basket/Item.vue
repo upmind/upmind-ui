@@ -2,7 +2,6 @@
   <upm-product-config
     v-if="open"
     v-bind="$props"
-    :loading="meta.isLoading"
     :processing="meta.isProcessing"
     @reject="open = false"
     @resolve="doResolve"

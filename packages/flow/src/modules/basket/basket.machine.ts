@@ -201,7 +201,7 @@ export default createMachine(
               empty: {
                 always: [
                   { target: "configuring", cond: "someConfiguring" },
-                  { target: "complete", cond: "allConfigured" },
+                  { target: "complete", cond: "itemsConfigured" },
                 ],
               },
 
@@ -209,7 +209,7 @@ export default createMachine(
                 id: "configuring",
                 always: [
                   { target: "empty", cond: "hasNoItems" },
-                  { target: "complete", cond: "allConfigured" },
+                  { target: "complete", cond: "itemsConfigured" },
                 ],
               },
 
@@ -585,7 +585,7 @@ export default createMachine(
 
       refreshActors: pure(({ basket, actors }: BasketContext) => {
         forEach(actors, actor => {
-          if (actor?.send) {
+          if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
         });
@@ -901,7 +901,10 @@ export default createMachine(
       },
 
       paymentDetailsValid: ({ actors }) => {
-        return actors.payment_details?.state?.matches("available.valid");
+        return (
+          actors.payment_details?.state?.done ||
+          actors.payment_details?.state?.matches("available.valid")
+        );
       },
 
       paymentConfiguring: ({ actors }) => {
@@ -914,21 +917,23 @@ export default createMachine(
 
       paymentDetailsComplete: ({ actors }, { data }) => {
         return (
-          actors.payment_details?.state?.matches("complete") && !isEmpty(data)
+          (actors.payment_details?.state?.done ||
+            actors.payment_details?.state?.matches("complete")) &&
+          !isEmpty(data)
         );
       },
 
       // --- Configuration Guards
 
-      allConfigured: ({ items }) => {
-        const allConfigured = every(
+      itemsConfigured: ({ items }) => {
+        const itemsConfigured = every(
           items,
           ({ state }) =>
             state?.matches("configured") &&
             state.context.isDirty !== true &&
             state.context.isNew !== true
         );
-        return items?.length && allConfigured; //&& !bin?.length;
+        return items?.length && itemsConfigured; //&& !bin?.length;
       },
 
       someConfiguring: ({ items }) =>
@@ -954,32 +959,7 @@ export default createMachine(
 
       hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
-      hasItems: ({ items }) => !isEmpty(items),
-
       hasNoItems: ({ items }) => isEmpty(items),
-
-      hasNewItems: ({ items }) => {
-        const value = some(items, ({ state }) => {
-          const isConfigured = state.matches("configured");
-          const isNew = get(state, "context.isNew");
-          return isConfigured && isNew;
-        });
-
-        return value;
-      },
-
-      hasBinnedItems: ({ bin }) => !isEmpty(bin),
-
-      hasDirtyItems: ({ items }) => {
-        return some(items, ({ state }) => {
-          const isConfigured = state.matches("configured");
-          const isDirty = get(state, "context.isDirty");
-          const isNew = get(state, "context.isNew");
-          return isConfigured && !isNew && isDirty;
-        });
-      },
-
-      hasProducts: ({ basket }) => !!basket?.products?.length,
     },
 
     delays: {

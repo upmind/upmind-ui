@@ -38,6 +38,7 @@
             no-feedback
             no-status
             variant="flat"
+            no-label
           />
 
           <div :class="styles.product.config.grid.item.header">

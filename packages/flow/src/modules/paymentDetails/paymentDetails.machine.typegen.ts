@@ -89,6 +89,7 @@ export interface Typegen0 {
   eventsCausingGuards: {
     hasBasket: "CHECKOUT";
     hasChanged: "REFRESH";
+    isFree: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
   };
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";

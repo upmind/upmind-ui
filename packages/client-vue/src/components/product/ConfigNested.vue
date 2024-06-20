@@ -215,14 +215,6 @@ export default defineComponent({
     },
 
     doResolve(item, value, $event) {
-      console.log("configNested", "doResolve", {
-        item,
-        value,
-        $event,
-        disabled: this.disabled,
-        processing: this.processing,
-      });
-
       if (this.disabled || this.processing) return;
 
       this.$emit("update:modelValue", item, value, $event);
