@@ -273,9 +273,6 @@ export default createMachine(
 
       setFeedbackError: ({ error }, _event, _state) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
-
-        console.log("item", "setFeedbackError", "error", error);
-
         addError({
           title: isString(error)
             ? error
