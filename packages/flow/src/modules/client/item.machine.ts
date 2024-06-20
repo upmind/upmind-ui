@@ -12,6 +12,7 @@ import { useTime, useValidationParser } from "../../utils";
 // --- types
 import type { ClientItemContext, ClientItemEvent } from "./types.d";
 import { responseCodes } from "../api";
+import { isString } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
@@ -276,7 +277,9 @@ export default createMachine(
         console.log("item", "setFeedbackError", "error", error);
 
         addError({
-          title: error?.title || "We experienced an error with this item",
+          title: isString(error)
+            ? error
+            : error?.title || "We experienced an error with this item",
           copy: error?.message,
           data: error?.data,
         });

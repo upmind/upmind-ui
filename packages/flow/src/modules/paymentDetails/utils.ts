@@ -141,7 +141,15 @@ export const useUischema = ({
 export function spawnGateway({ basket_id, gateway, amount, currency }) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
-
+  if (!amount) {
+    return spawnGenericGateway(GatewayTypes.FREE, {
+      basket_id,
+      gateway,
+      amount,
+      currency,
+      renderless: true,
+    });
+  }
   if (isStripe(gateway))
     return spawnStripe({ basket_id, gateway, amount, currency });
 
@@ -243,7 +251,7 @@ export function spawnGenericGateway(
       type,
       renderless,
     }),
-    { name: gateway.id, sync: true }
+    { name: gateway?.id, sync: true }
   );
 }
 

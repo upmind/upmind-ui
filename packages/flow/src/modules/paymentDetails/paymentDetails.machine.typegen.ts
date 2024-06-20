@@ -18,6 +18,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.paymentDetailsManager.available.processing:invocation[0]": {
+      type: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.paymentDetailsManager.checking:invocation[0]": {
       type: "done.invoke.paymentDetailsManager.checking:invocation[0]";
       data: unknown;
@@ -43,6 +48,7 @@ export interface Typegen0 {
     isAuthenticated: "done.invoke.paymentDetailsManager.checking:invocation[0]";
     load: "done.invoke.loading:invocation[0]";
     parse: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
+    update: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     validate: "done.invoke.paymentDetailsManager.available.checking.validating:invocation[0]";
   };
   missingImplementations: {
@@ -54,6 +60,7 @@ export interface Typegen0 {
       | "isAuthenticated"
       | "load"
       | "parse"
+      | "update"
       | "validate";
   };
   eventsCausingActions: {
@@ -69,7 +76,9 @@ export interface Typegen0 {
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     forwardCheckout: "CHECKOUT";
-    providePaymentDetails: "PAYMENT_DETAILS";
+    providePaymentDetails:
+      | "PAYMENT_DETAILS"
+      | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     refreshContext: "REFRESH";
     setContext:
       | "done.invoke.loading:invocation[0]"
@@ -79,7 +88,9 @@ export interface Typegen0 {
       | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
     setFeedbackError: "error.platform.loading:invocation[0]";
     setModel: "SET";
-    setPaymentDetails: "PAYMENT_DETAILS";
+    setPaymentDetails:
+      | "PAYMENT_DETAILS"
+      | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     setSchemas:
       | "REFRESH"
       | "done.invoke.loading:invocation[0]"
@@ -105,6 +116,7 @@ export interface Typegen0 {
       | "SET"
       | "done.invoke.loading:invocation[0]"
       | "xstate.update";
+    update: "CHECKOUT";
     validate: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
   };
   matchesStates:
