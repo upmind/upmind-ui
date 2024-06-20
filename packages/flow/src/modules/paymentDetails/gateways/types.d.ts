@@ -54,6 +54,7 @@ export enum QUERY_PARAMS {
 }
 
 export enum GatewayTypes {
+  FREE = 0,
   CARD = 1,
   BANK_TRANSFER = 2,
   DIRECT_DEBIT = 3,

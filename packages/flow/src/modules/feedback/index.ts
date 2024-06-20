@@ -6,7 +6,7 @@ import feedbackMachine from "./feedback.machine";
 
 // --- utils
 import { useTime } from "../../utils";
-import { get } from "lodash-es";
+import { get, isString } from "lodash-es";
 
 // --- types
 import { messageTypes } from "./types.d";
@@ -54,7 +54,7 @@ export const useFeedback = () => {
       type: messageTypes.ERROR,
       title: message?.title,
       subtitle: message?.subtitle,
-      copy: message?.copy || message,
+      copy: isString(message) ? message : message?.copy,
       data: message?.data,
       display,
       delay,
@@ -74,7 +74,7 @@ export const useFeedback = () => {
       type: messageTypes.SUCCESS,
       title: message?.title,
       subtitle: message?.subtitle,
-      copy: message?.copy || message,
+      copy: isString(message) ? message : message?.copy,
       data: message?.data,
       display,
       delay,

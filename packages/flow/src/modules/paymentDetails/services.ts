@@ -108,6 +108,28 @@ async function load(
 }
 
 // --------------------------------------------------------
+// PAYMENT METHODS
+
+/**
+ * @name getPaymentData
+ * @desc Here we create a new payment detail ID we have a free basket, ie Amount = 0, and NO gateway provided
+ *       Otherwise we reject this update and defer to the payment gateway
+ */
+async function update({ model, basket_id, currency }: PaymentDetailsContext) {
+  return new Promise((resolve, reject) => {
+    if (model?.amount == 0 && !model?.gateway_id) {
+      resolve({
+        basket_id: basket_id,
+        amount: model.amount,
+        currency,
+      });
+    } else {
+      reject();
+    }
+  });
+}
+
+// --------------------------------------------------------
 
 async function parse(
   { model, actors, gateways }: PaymentDetailsContext,
@@ -166,6 +188,7 @@ export default {
   load,
   parse,
   validate,
+  update,
   // ---
   authSubscription,
   isAuthenticated,

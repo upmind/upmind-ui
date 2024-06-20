@@ -112,7 +112,7 @@ export default createMachine(
                   onDone: { target: "#valid" },
                   onError: [
                     {
-                      target: "#complete",
+                      target: "#valid",
                       cond: "isFree",
                     },
                     {
@@ -146,8 +146,15 @@ export default createMachine(
 
           processing: {
             entry: ["forwardCheckout"],
-            // ths is the return from the gateway
+            invoke: {
+              src: "update",
+              onDone: {
+                target: "#complete",
+                actions: ["setPaymentDetails", "providePaymentDetails"],
+              },
+            },
             on: {
+              // ths is the response from the gateway
               PAYMENT_DETAILS: {
                 target: "#complete",
                 actions: ["setPaymentDetails", "providePaymentDetails"],

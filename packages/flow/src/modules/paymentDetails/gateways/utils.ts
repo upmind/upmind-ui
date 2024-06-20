@@ -5,7 +5,6 @@
 // --- utils
 
 // --- types
-import { read } from "fs";
 import { QUERY_PARAMS } from "./types.d";
 import { GatewayStoreType } from "./types.d";
 import type { GatewayContext, IGateway } from "./types.d";
@@ -174,6 +173,8 @@ export const useUischema = ({ can_store }: GatewayContext) => {
 // --------------------------------------------------------
 
 export function canBeStored(gateway: IGateway) {
+  if (!gateway) return false;
+
   const {
     is_stored,
     gateway_provider,

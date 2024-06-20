@@ -571,7 +571,7 @@ export default createMachine(
 
       // --- Spawned Actors Actions
       spawnActors: assign({
-        actors: ({ actors, basket }: BasketContext) => {
+        actors: ({ actors, basket }) => {
           // only spawn if we have not already spawned
           actors.billing_details ??= spawnBillingDetails(basket);
           actors.currency ??= spawnCurrency(basket);
@@ -583,7 +583,7 @@ export default createMachine(
         },
       }),
 
-      refreshActors: pure(({ basket, actors }: BasketContext) => {
+      refreshActors: pure(({ basket, actors }) => {
         forEach(actors, actor => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
@@ -591,7 +591,7 @@ export default createMachine(
         });
       }),
 
-      updateActors: pure(({ actors }: BasketContext) => {
+      updateActors: pure(({ actors }) => {
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "UPDATE" });
@@ -599,7 +599,7 @@ export default createMachine(
         });
       }),
 
-      checkoutActors: pure(({ actors }: BasketContext) => {
+      checkoutActors: pure(({ actors }) => {
         // for Now  only the payment details is affected by checkout
         actors?.payment_details?.send({ type: "CHECKOUT" });
       }),
@@ -840,9 +840,11 @@ export default createMachine(
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
       needsPayment: ({ paymentDetails }) => {
-        const hasOustandingBalance = paymentDetails?.amount >= 0;
+        const hasOustandingBalance = paymentDetails?.amount > 0;
+
         const payingNow =
           paymentDetails?.payment_type != PaymentTypes.PAY_LATER;
+
         const manualPayment = includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
           paymentDetails?.gateway?.type

@@ -36,12 +36,12 @@
       "default": {
         "avatar": "paying",
         "text": "We're verifying your payment information. This should only take a moment",
-        "title": "Checking you payment details..."
+        "title": "Checking your payment details..."
       },
       "invalid": {
         "avatar": "paying",
         "text": "Please check your payment details to complete the purchase.",
-        "title": "Unable to complete you order"
+        "title": "Unable to complete your order"
       },
       "paying": {
         "avatar": "paying",
