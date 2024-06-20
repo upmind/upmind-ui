@@ -80,8 +80,8 @@
 
         <!-- loading / toggle -->
         <upw-spinner
-          :class="styles.dropdown.loading"
           v-if="loading"
+          :class="styles.dropdown.loading"
           aria-hidden="true"
         />
 

@@ -12,15 +12,15 @@ export default {
       {
         variants: {
           size: {
-            sm: "text-sm leading-5",
-            md: "leading-6",
-            lg: "text-lg leading-7",
+            sm: "py-2 text-sm leading-5",
+            md: "py-3 leading-6",
+            lg: "py-4 text-lg leading-7",
           },
           group: {
             true: "text-base-500 cursor-default text-xs font-medium",
           },
           disabled: {
-            true: "cursor-not-allowed opacity-50",
+            true: "cursor-not-allowed",
           },
           processing: {
             true: "cursor-wait",
@@ -47,12 +47,12 @@ export default {
       {
         variants: {
           size: {
-            sm: "text-sm leading-5",
-            md: "leading-6",
-            lg: "text-lg leading-7",
+            sm: "py-2 text-sm leading-5",
+            md: "py-3 leading-6",
+            lg: "py-4 text-lg leading-7",
           },
           disabled: {
-            true: "cursor-not-allowed",
+            true: "cursor-not-allowed opacity-50",
           },
           processing: {
             true: "cursor-wait",
@@ -74,9 +74,9 @@ export default {
     loading: cva("text-base-300", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {
@@ -87,9 +87,9 @@ export default {
     label: cva("flex-1 truncate leading-none", {
       variants: {
         size: {
-          sm: "py-2 leading-5",
-          md: "py-3 leading-6",
-          lg: "py-4 leading-7",
+          sm: "leading-5",
+          md: "leading-6",
+          lg: "leading-7",
         },
         group: {
           true: "pb-0",
@@ -103,9 +103,9 @@ export default {
     icon: cva("", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {
@@ -115,9 +115,9 @@ export default {
     avatar: cva("", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {

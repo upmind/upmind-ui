@@ -3,7 +3,16 @@ import { cva } from "class-variance-authority";
 
 export default {
   checkout: {
-    root: cva(" flex-col !gap-0"),
+    root: cva(" flex-col !gap-0 bg-cover bg-no-repeat", {
+      variants: {
+        isLoading: {
+          true: "bg-[url('/background.svg')] ",
+        },
+        isEmpty: {
+          true: "bg-[url('/background.svg')]",
+        },
+      },
+    }),
 
     section: {
       root: cva(

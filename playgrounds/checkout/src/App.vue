@@ -1,7 +1,7 @@
 <template>
   <suspense>
     <div
-      class="flex min-h-screen flex-col items-start bg-base text-base-content antialiased subpixel-antialiased"
+      class="relative flex min-h-screen flex-col items-start bg-base text-base-content antialiased"
       :data-theme="activeTheme"
     >
       <upm-header no-home></upm-header>

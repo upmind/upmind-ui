@@ -21,8 +21,6 @@
             }}
           </caption>
         </picture>
-
-        <!-- <img src="/logo.svg" class="h-full w-full" /> -->
       </component>
 
       <div class="flex flex-1 items-center justify-end gap-4">

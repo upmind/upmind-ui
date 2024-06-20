@@ -1,12 +1,5 @@
 <template>
   <article :class="styles.checkout.root">
-    <img
-      v-if="meta.isLoading || meta.isEmpty"
-      src="/background.svg"
-      alt="page background"
-      class="absolute bottom-0 left-0 right-0 top-0 z-0 min-h-full min-w-full object-contain"
-    />
-
     <upm-basket-loading
       id="loading"
       v-if="meta.isLoading"
