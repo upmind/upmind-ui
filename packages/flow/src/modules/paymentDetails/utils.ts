@@ -28,7 +28,7 @@ export const useSchema = ({
 }: PaymentDetailsContext) => {
   const schema = {
     type: "object",
-    title: "Payment Details",
+    title: "Payment details",
     required: ["amount", "type"],
 
     properties: {
@@ -39,7 +39,7 @@ export const useSchema = ({
       },
       type: {
         type: "string",
-        title: "Payment Type",
+        title: "Payment type",
         default: PaymentTypes.PAY_IN_FULL,
         oneOf: map(payment_types, (value, key) => ({
           const: value,

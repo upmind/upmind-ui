@@ -7,14 +7,14 @@
         </h3>
       </header>
 
-      <!-- items -->
+      <!-- products -->
       <dl :class="styles.basket.summary.list" v-if="summary?.products?.length">
         <template v-for="product in summary.products" :key="product.id">
           <dt
             :class="
               mergeStyles(
                 styles.basket.summary.heading,
-                styles.basket.summary.product
+                styles.basket.summary.text
               )
             "
           >
@@ -30,10 +30,10 @@
             "
           >
             <slot name="actions" v-bind="{ ...$props, product }">
-              <span v-if="noActions">
+              <strong :class="styles.basket.summary.bold" v-if="noActions">
                 {{ product.total }}<br />
                 <!-- <small>{{ product.quantity }}</small> -->
-              </span>
+              </strong>
 
               <template v-else>
                 <upw-button
@@ -70,7 +70,7 @@
       <dl :class="styles.basket.summary.list">
         <dt :class="styles.basket.summary.heading">
           <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.discount.title", items.length)
+            $tc("basket.summary.discount.title", products.length)
           }}</span>
           <!-- TODO -->
           <!-- <upw-icon
@@ -86,7 +86,7 @@
 
         <dt :class="styles.basket.summary.heading">
           <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.taxes.title", items.length)
+            $tc("basket.summary.taxes.title", products.length)
           }}</span>
           <!-- TODO -->
           <!-- <upw-icon
@@ -183,13 +183,13 @@ export default defineComponent({
     },
   },
   setup() {
-    const { meta, checkout, removeItem, items, summary } = useBasket();
+    const { meta, checkout, removeItem, products, summary } = useBasket();
 
     const styles = useStyles(["basket.summary"], meta, config);
 
     return {
       meta,
-      items,
+      products,
       summary,
       checkout,
       removeItem,

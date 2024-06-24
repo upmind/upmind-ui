@@ -104,7 +104,7 @@ export default defineComponent({
     UpwSkeletonForm,
   },
 
-  inheritAttrs: true,
+  inheritAttrs: false,
 
   props: {
     translator: {
@@ -140,7 +140,7 @@ export default defineComponent({
       default: false,
     },
     autosave: { type: Boolean },
-
+    size: { type: String },
     // ---
 
     loading: {

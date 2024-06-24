@@ -14,6 +14,7 @@ export { default as UpmClientListings } from "./components/client/Listings.vue";
 export { default as UpmClientBasket } from "./components/client/Basket.vue";
 export { default as UpmCurrency } from "./components/basket/CurrencySwitcher.vue";
 // ---
+export { default as UpmBasketItems } from "./components/basket/ItemListings.vue";
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketDetails } from "./components/basket/Details.vue";
 export { default as UpmBasketConfirmation } from "./components/basket/Confirmation.vue";

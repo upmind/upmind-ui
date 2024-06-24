@@ -30,7 +30,6 @@ import {
   includes,
   isEmpty,
   omit,
-  reject,
   remove,
   some,
   trimStart,
@@ -56,7 +55,6 @@ export default createMachine(
       // ---
       items: [],
       bin: [],
-      queue: [],
       // ---
       actors: {
         billing_details: undefined,
@@ -240,14 +238,13 @@ export default createMachine(
                       onDone: {
                         target: "#processed",
                         actions: [
-                          "removeFromQueue",
                           "refreshItems",
                           "updateBasket",
                           "setFeedbackSuccess",
                         ],
                       },
                       onError: {
-                        target: "#configuring",
+                        target: "#error",
                         actions: [
                           "refreshItems",
                           "updateBasket",
@@ -501,13 +498,11 @@ export default createMachine(
       UPDATE: [
         {
           target: "#shopping.items.processing.everything",
-          actions: ["clearQueue"],
+          actions: ["clearBin"],
           cond: "hasNoItem",
         }, // update everything
         {
           target: "#shopping.items.processing.updating",
-          actions: ["queueItem"],
-          cond: "isNotQueued",
         },
       ],
       CLEAR: {
@@ -535,7 +530,7 @@ export default createMachine(
 
       UNAUTHENTICATED: {
         target: "#loading",
-        actions: ["clearError", "clearBasket", "removeAllItems", "clearQueue"],
+        actions: ["clearError", "clearBasket", "removeAllItems", "clearBin"],
       },
     },
   },
@@ -649,27 +644,6 @@ export default createMachine(
         error: undefined,
       }),
 
-      queueItem: assign({
-        queue: ({ items, queue }, { data }) => {
-          // bail if we dont have an itemId
-          if (!data?.itemId) {
-            console.warn("queueItem", "no itemId", data);
-            return queue;
-          }
-          // ---
-          const itemId = data.itemId;
-          const found = find(items, ["id", itemId]);
-          if (found) queue.push(found); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
-          return queue;
-        },
-        error: undefined,
-      }),
-
-      removeFromQueue: assign({
-        queue: ({ queue }, { data }) => reject(queue, ["id", data.id]),
-        error: undefined,
-      }),
-
       binItem: assign({
         bin: ({ items, bin }, { data }) => {
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
@@ -680,9 +654,8 @@ export default createMachine(
         error: undefined,
       }),
 
-      clearQueue: assign({
+      clearBin: assign({
         bin: [],
-        queue: [],
       }),
 
       removeAllItems: assign({
@@ -694,7 +667,6 @@ export default createMachine(
           return [];
         },
         bin: [],
-        queue: [],
         error: undefined,
       }),
 
@@ -716,12 +688,6 @@ export default createMachine(
             item => !item?.state?.done && item?.stop && item?.stop()
           ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
           return bin;
-        },
-        queue: ({ queue }, { data }, _event) => {
-          // me may be given a name, but if not we can determine it from the event type
-          const itemId = data?.itemId;
-          remove(queue, ["id", itemId]);
-          return queue;
         },
 
         error: undefined,
@@ -813,7 +779,6 @@ export default createMachine(
           return items;
         },
         bin: [],
-        queue: [],
         error: undefined,
       }),
 
@@ -830,6 +795,8 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == 422) return;
+
         addError({
           title: error?.title || "We experienced an error updating the basket",
           copy: error?.message,
@@ -841,6 +808,8 @@ export default createMachine(
         error: (context, { data }) => {
           const { items, newItems } = data;
           let { error } = data;
+
+          console.error("Basket Error", error);
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {
@@ -972,9 +941,6 @@ export default createMachine(
         ),
 
       // --- Item Guards
-      isNotQueued: ({ queue }, { data }) => {
-        return !!data?.itemId && !some(queue, ["id", data.itemId]);
-      },
 
       isNotLoading: ({ items, actors }) => {
         return (

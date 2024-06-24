@@ -1,0 +1,27 @@
+{
+  "product": {
+    "image": "/fallback-image.svg",
+    "free": "Free",
+    "promotion": "On promotion",
+    "trail": "Free trial",
+    "term": "billed {name}",
+    "save": "Save {value}",
+    "cycle": "{value}/mo",
+    "terms": {
+      "label": "Billing terms"
+    },
+    "total": "Item total",
+    "quantity": "Quantity",
+    "taxes": {
+      "included": "Taxes included",
+      "excluded": "Taxes excluded"
+    },
+    "actions": {
+      "more": "Show more | Show less",
+      "remove": "Remove",
+      "configure": "Configure",
+      "resolve": "Confirm and proceed",
+      "reject": "Cancel"
+    }
+  }
+}

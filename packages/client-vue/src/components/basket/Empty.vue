@@ -55,10 +55,7 @@ export default defineComponent({
     return {
       meta,
       open: computed(() => {
-        const value =
-          !meta.value.isLoading &&
-          !meta.value.isAvailable &&
-          !(meta.value.isProcessingOrder || meta.value.isComplete);
+        const value = meta.value.isEmpty;
         return value;
       }),
 

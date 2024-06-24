@@ -3,7 +3,7 @@ import type { IconProps } from "../icon/types";
 // --------------------------------------------
 
 export interface ButtonProps {
-  size?: "badge" | "xs" | "sm" | "md" | "lg";
+  size?: "square | badge" | "xs" | "sm" | "md" | "lg";
   variant?: "flat" | "outlined" | "ghost" | "link";
   color?:
     | "current"

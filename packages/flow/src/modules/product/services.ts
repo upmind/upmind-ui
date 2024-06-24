@@ -250,10 +250,6 @@ async function checkTerm(
     }
   }
 
-  // now just return the billing_cycle_months, if we have one
-  // term = get(term, "billing_cycle_months", null);
-  term = pick(term, ["billing_cycle_months", "price"]);
-
   return new Promise((resolve, reject) => {
     if (!isNil(term)) resolve(term);
     else reject("Invalid Term Selected");
@@ -543,11 +539,11 @@ async function calculateSummary(
       const newSummary = {
         currency_id: summary?.currency_id,
         subtotal: subtotal?.total,
-        subtotalFormatted: subtotal?.total_formatted,
+        subtotal_formatted: subtotal?.total_formatted,
         discount: discount?.total,
-        discountFormatted: discount?.total_formatted,
+        discount_formatted: discount?.total_formatted,
         total: total?.total,
-        totalFormatted: total?.total_formatted,
+        total_formatted: total?.total_formatted,
       };
       return newSummary;
     }

@@ -11,6 +11,7 @@ export { default as UpwForm } from "./components/form/Form.vue";
 export { default as UpwIcon } from "./components/icon/Icon.vue";
 export { default as UpwInput } from "./components/input/Input.vue";
 export { default as UpwListbox } from "./components/listbox/Listbox.vue";
+export { default as UpwQuantitybox } from "./components/quantitybox/Quantitybox.vue";
 export { default as UpwRadio } from "./components/radio/Radio.vue";
 export { default as UpwRadioList } from "./components/radio/RadioList.vue";
 export { default as UpwSelect } from "./components/select/Select.vue";

@@ -35,7 +35,7 @@ import { useSession } from "@upmind/flow-vue";
 export default defineComponent({
   name: "Profile",
   components: {},
-  inheritAttrs: true,
+  inheritAttrs: false,
 
   emits: [],
   props: {},

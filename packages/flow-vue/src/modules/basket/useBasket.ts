@@ -1,6 +1,7 @@
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket as useUpmindBasket } from "@upmind/flow";
@@ -18,7 +19,7 @@ import {
   useContextActor,
   useState,
 } from "../../utils";
-import { isEmpty, some } from "lodash-es";
+import { isEmpty, some, reject, filter, last } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -84,6 +85,7 @@ export const useBasket = () => {
             )),
 
         // ---
+        isEmpty: stateMatches(state, ["shopping.items.empty"]),
 
         isAvailable:
           stateMatches(state, [
@@ -159,6 +161,16 @@ export const useBasket = () => {
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
     items: useContextActor(state, "items", []),
+    itemsPending: computed(() => {
+      const items = contextActor(state, "items", []);
+      return filter(items, item => contextMatches(item?.state, ["isNew"]));
+    }),
+
+    itemsConfigured: computed(() => {
+      const items = contextActor(state, "items", []);
+      return filter(items, item => !contextMatches(item?.state, ["isNew"]));
+    }),
+
     products: useContext(state, "basket.products", []),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
@@ -174,19 +186,33 @@ export const useBasket = () => {
     // Item Methods
 
     addProduct: ({ id, product_id, quantity, term, attributes, options }) => {
-      // const { product_id, quantity, term, attributes, options } = unref(model);
+      // lets add the new product base don the provided config to the basket
       send({
         type: "ADD",
         data: { id, product_id, quantity, term, attributes, options },
       });
+
+      // then wait/check for the new product actor to be configured
+      // then send the update event to the basket
+      const item = last(contextValue(state, "items"));
+      waitFor(item, newstate => newstate.matches("configured"))
+        .then(() => {
+          send({ type: "UPDATE", data: item });
+        })
+        .catch(() => {
+          // do nothing, it just means the item needs additional configuration
+        });
     },
 
     removeItem: itemId => {
       send({ type: "REMOVE", data: { itemId } });
     },
 
-    updateItem: itemId => {
+    updateItem: async itemId => {
       send({ type: "UPDATE", data: { itemId } });
+      return waitFor(service, newstate =>
+        newstate.matches("shopping.items.processed")
+      );
     },
 
     updateTerm: ({ itemId, term }) =>
