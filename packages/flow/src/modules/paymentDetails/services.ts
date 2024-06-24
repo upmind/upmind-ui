@@ -4,7 +4,7 @@
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
 // --- utils
 import { useValidation } from "../../utils";
-import { unset, get, sortBy, find, forEach } from "lodash-es";
+import { unset, get, sortBy, find, forEach, filter, includes } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -13,6 +13,14 @@ import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
 // --------------------------------------------------------
 // ENUMS
 
+const whitelistGatewayProviders =
+  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS.split(",");
+// Array<string> = [
+//   "73de7864-2de5-3971-4ef2-1208469530d0",
+//   "72040386-96e5-4721-d9b5-18d9305e7d23",
+//   "20403869-6e54-721d-59a5-18d9305e7d23",
+//   // "5952098d-3de4-0917-e6c3-1578626e347e",
+// ];
 // --------------------------------------------------------
 
 const { authSubscription, isAuthenticated } = useSession();
@@ -93,7 +101,18 @@ async function load(
     }),
     withAccessToken: true,
     useCache: false,
-  }).then(({ data }) => sortBy(data, ["order"]));
+  }).then(({ data }) => {
+    // Whitelist payment gateways if provided
+    if (whitelistGatewayProviders.length) {
+      data = filter(data, ({ gateway }) => {
+        return includes(
+          whitelistGatewayProviders,
+          gateway.gateway_provider.code
+        );
+      });
+    }
+    return sortBy(data, ["order"]);
+  });
 
   // ----
 
