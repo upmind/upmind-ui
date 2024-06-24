@@ -21,12 +21,12 @@
       }
     },
     "firstname": {
-      "description": "Please enter your first name.",
+      "description": null,
       "error": "Your first name is required",
       "label": "First name"
     },
     "lastname": {
-      "description": "Please enter your last name.",
+      "description": null,
       "error": "Your last name is required",
       "label": "Last name"
     },

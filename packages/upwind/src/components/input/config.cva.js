@@ -234,7 +234,7 @@ export default {
         {
           variants: {
             hasFeedback: {
-              false: "invisible w-0 text-nowrap opacity-0",
+              false: "invisible h-0 w-0 text-nowrap opacity-0",
             },
             isInvalid: {
               true: "text-control-error",
@@ -245,7 +245,7 @@ export default {
               isPersisted: false,
               hasFeedback: true,
               class:
-                "invisible w-0 text-nowrap opacity-0 group-focus-within:visible group-focus-within:w-auto group-focus-within:text-wrap group-focus-within:opacity-100",
+                "invisible h-0 w-0 text-nowrap opacity-0 group-focus-within:visible group-focus-within:h-auto group-focus-within:w-auto group-focus-within:text-wrap group-focus-within:opacity-100",
             },
             {
               isPersisted: true,

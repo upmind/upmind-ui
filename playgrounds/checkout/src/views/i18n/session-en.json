@@ -17,12 +17,12 @@
     "firstname": {
       "label": "First name",
       "error": "Your first name is required",
-      "description": "Please enter your first name."
+      "description": null
     },
     "lastname": {
       "label": "Last name",
       "error": "Your last name is required",
-      "description": "Please enter your last name."
+      "description": null
     },
     "fields": {
       "label": "Custom fields",
