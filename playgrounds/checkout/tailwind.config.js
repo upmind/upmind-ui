@@ -13,29 +13,11 @@ export default {
     "../../packages/client-vue/src/**/*.{html,vue,js,tsx,ts}",
     "../../packages/upwind/src/**/*.{html,vue,js,tsx,ts}",
   ],
-  theme: {
-    extend: {
-      typography: ({ theme }) => ({
-        DEFAULT: {
-          css: {
-            "--tw-prose-body": theme("colors.base[800]"),
-            "--tw-prose-headings": theme("colors.base[900]"),
-            "--tw-prose-lead": theme("colors.base[700]"),
-            "--tw-prose-links": theme("colors.base[900]"),
-            "--tw-prose-code": theme("colors.base[900]"),
-            "--tw-prose-pre-code": theme("colors.base[100]"),
-            "--tw-prose-pre-bg": theme("colors.base[900]"),
-          },
-        },
-      }),
-    },
-  },
   plugins: [
     themer({
       defaultTheme: theme,
       themes: [theme],
     }),
-    // ...
     typography,
   ],
 };
