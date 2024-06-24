@@ -14,10 +14,10 @@ export default {
     "../../packages/upwind/src/**/*.{html,vue,js,tsx,ts}",
   ],
   plugins: [
+    typography,
     themer({
       defaultTheme: theme,
       themes: [theme],
     }),
-    typography,
   ],
 };

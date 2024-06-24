@@ -205,11 +205,11 @@ export default {
             "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
           ),
           selected: cva(
-            "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
+            "focus-within:border focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20"
           ),
           disabled: cva("cursor-wait"),
 
-          input: cva("text-primary"),
+          // input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
           ),
@@ -252,9 +252,9 @@ export default {
           ),
 
           selected: cva(
-            "border border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20"
+            "focus-within:border focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20"
           ),
-          input: cva("text-primary"),
+          // input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
           ),

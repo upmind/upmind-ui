@@ -61,35 +61,30 @@ export default {
           {
             isInvalid: true,
             isDisabled: false,
-            class: "border-error-300",
-          },
-          {
-            isValid: true,
-            isDisabled: false,
-            class: "",
+            class: "border-control-error",
           },
           {
             variant: "outlined",
             isInvalid: false,
-            isValid: false,
             isDisabled: false,
             class:
-              " focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20",
           },
           {
             variant: "outlined",
             isInvalid: true,
             isDisabled: false,
             class:
-              " focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
-          {
-            variant: "outlined",
-            isValid: true,
-            isDisabled: false,
-            class:
-              " focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
-          },
+          // DEprecated the success variant
+          // {
+          //   variant: "outlined",
+          //   isValid: true,
+          //   isDisabled: false,
+          //   class:
+          //     " focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
+          // },
         ],
         defaultVariants: {
           variant: "outlined",
@@ -242,7 +237,7 @@ export default {
               false: "invisible w-0 text-nowrap opacity-0",
             },
             isInvalid: {
-              true: "text-error",
+              true: "text-control-error",
             },
           },
           compoundVariants: [
