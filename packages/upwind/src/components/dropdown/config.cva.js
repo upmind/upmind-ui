@@ -83,7 +83,10 @@ export default {
         size: "md",
       },
     }),
-    active: cva("!border-primary ring-primary ring-4 ring-opacity-20", {}),
+    active: cva(
+      "!border-control-active ring-control-active ring-4 ring-opacity-20",
+      {}
+    ),
     label: cva("flex-1 truncate leading-none", {
       variants: {
         size: {

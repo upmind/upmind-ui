@@ -83,7 +83,10 @@ export default {
         size: "md",
       },
     }),
-    active: cva("!border-primary ring-primary ring-4 ring-opacity-20", {}),
+    active: cva(
+      "!border-control-active ring-control-active ring-4 ring-opacity-20",
+      {}
+    ),
     label: cva("flex-1 truncate leading-none", {
       variants: {
         size: {
@@ -179,9 +182,11 @@ export default {
 
   listboxSearch: {
     input: cva(
-      "border-base-300 focus-within:border-primary focus-within:ring-primary group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-20"
+      "border-base-300 focus-within:border-control-active focus-within:ring-control-active group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-20"
     ),
-    root: cva("bg-base sticky top-[-0.25rem] mb-2 px-2 py-2 text-sm shadow-sm"),
+    root: cva(
+      "bg-base sticky top-[-0.25rem] z-10 mb-2 px-2 py-2 text-sm shadow-sm"
+    ),
   },
   listboxTransitionEnter: {
     active: cva("m-0 transition duration-100 ease-out"),
