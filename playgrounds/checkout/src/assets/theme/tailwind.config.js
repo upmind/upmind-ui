@@ -36,6 +36,13 @@ export default {
       content: "#000000",
     },
 
+    control: {
+      DEFAULT: "#ffffff",
+      content: "#000000",
+      active: "#5E36E8",
+      error: "#EF4444",
+    },
+
     // ---
     primary: {
       DEFAULT: "#21CB66",
@@ -154,7 +161,7 @@ export default {
 
   fontFamily: {
     body: defaultTheme.fontFamily.sans.toString(","),
-    display: "Urbanist, sans-serif",
+    display: ["Urbanist", ...defaultTheme.fontFamily.sans].toString(","),
   },
 
   fontSize: {
@@ -170,34 +177,32 @@ export default {
     "5xl": "3rem", // 48px
   },
 
-  typography: ({ theme }) => {
-    return {
-      DEFAULT: {
-        css: {
-          fontFamily: theme("fontFamily.body"),
+  typography: ({ theme }) => ({
+    DEFAULT: {
+      css: {
+        fontFamily: theme("fontFamily.body"),
 
-          h1: {
-            fontFamily: theme("fontFamily.display"),
-            fontWeight: theme("fontWeight.light"),
-            fontSize: theme("fontSize.5xl"),
-          },
-          h2: {
-            fontFamily: theme("fontFamily.display"),
-          },
-          h3: {
-            fontFamily: theme("fontFamily.display"),
-          },
-          h4: {
-            fontFamily: theme("fontFamily.display"),
-          },
-          h5: {
-            fontFamily: theme("fontFamily.display"),
-          },
-          h6: {
-            fontFamily: theme("fontFamily.display"),
-          },
+        h1: {
+          fontFamily: theme("fontFamily.display"),
+          fontWeight: theme("fontWeight.light"),
+          fontSize: theme("fontSize.5xl"),
+        },
+        h2: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h3: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h4: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h5: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h6: {
+          fontFamily: theme("fontFamily.display"),
         },
       },
-    };
-  },
+    },
+  }),
 };

@@ -37,7 +37,7 @@ export default {
             true: "cursor-wait",
           },
           isChecked: {
-            true: `border-current bg-current`,
+            true: `border-control-active bg-control-active`,
           },
         },
         compoundVariants: [
@@ -45,24 +45,16 @@ export default {
             isInvalid: true,
             isDisabled: false,
             isProcessing: false,
-            class: "border-error-300 cursor-pointer",
-          },
-          {
-            isValid: true,
-            isDisabled: false,
-            isProcessing: false,
-
-            class: "cursor-pointer",
+            class: "border-control-error-300 cursor-pointer",
           },
           {
             variant: "outlined",
             isInvalid: false,
-            isValid: false,
             isDisabled: false,
             isProcessing: false,
 
             class:
-              "focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-control-active focus-within:ring-control-active cursor-pointer focus-within:ring-4 focus-within:ring-opacity-20",
           },
 
           {
@@ -72,17 +64,18 @@ export default {
             isProcessing: false,
 
             class:
-              "focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
-          {
-            variant: "outlined",
-            isValid: true,
-            isDisabled: false,
-            isProcessing: false,
+          // deprecated success variant
+          // {
+          //   variant: "outlined",
+          //   isValid: true,
+          //   isDisabled: false,
+          //   isProcessing: false,
 
-            class:
-              "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
-          },
+          //   class:
+          //     "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
+          // },
         ],
         defaultVariants: {
           size: "md",
@@ -153,17 +146,7 @@ export default {
         },
       ],
     }),
-    item: cva("m-0 cursor-pointer p-0", {
-      variants: {
-        layout: {
-          grid: "",
-        },
-      },
-      defaultVariants: {
-        layout: "vertical",
-        isStretched: false,
-      },
-    }),
+    item: cva("m-0 cursor-pointer p-0"),
 
     radio: {
       wrapper: cva("", {
