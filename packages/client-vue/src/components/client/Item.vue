@@ -20,7 +20,7 @@
       @reject="onClose"
       @resolve="onUpdate"
       :actions="actions"
-      :no-actions="dialog"
+      :no-actions="dialog && !this.model.manualPlace"
     />
   </component>
 </template>
