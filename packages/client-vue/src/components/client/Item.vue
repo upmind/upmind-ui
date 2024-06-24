@@ -20,7 +20,7 @@
       @reject="onClose"
       @resolve="onUpdate"
       :actions="actions"
-      :no-actions="dialog && !this.model.manualPlace"
+      :no-actions="hideActions"
     />
   </component>
 </template>
@@ -35,7 +35,7 @@ import config from "./config.cva";
 
 // --- components
 import { UpwForm, UpwDialog } from "@upmind/upwind";
-import { isEmpty } from "lodash-es";
+import { isEmpty, omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -73,7 +73,7 @@ export default defineComponent({
 
         submit: {
           type: "submit",
-          variant: this.dialog ? "flat" : "link",
+          variant: "flat",
           label: this?.$tc(
             `client.${this.i18nKey}.actions.submit`,
             this.model?.company_details ? 0 : 1
@@ -83,7 +83,18 @@ export default defineComponent({
         },
       };
 
-      return this.dialog ? actions : [];
+      return this.dialog ? actions : omit(actions, "cancel");
+    },
+    hideActions() {
+      // always hide actions in dialog,
+      // always show the actions if we are not autosaving
+      // otherwise, if we have autosave,
+      //            and the user chooses to manually enter the address,
+      //            or the place is missing info (e.g. no street address)
+      // then show the actions
+      if (this.dialog) return true;
+      if (!this.autosave) return false;
+      return !this.model?.manualPlace;
     },
   },
   methods: {
