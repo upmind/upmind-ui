@@ -115,7 +115,24 @@ export default {
 
     paymentGateway: {
       root: cva("flex flex-col gap-6 py-6 "),
-      render: cva("empty:hidden p-6 rounded-lg border border-base-300"),
+      wrapper: cva(
+        "empty:hidden flex gap-6 flex-col p-6 rounded-lg border border-base-300 justify-center items-center"
+      ),
+      render: cva("empty:hidden w-full"),
+      form: cva("w-full"),
+      transition: {
+        enter: {
+          active: cva("m-0 transition duration-300 ease-out"),
+          from: cva("-translate-y-10 transform opacity-0"),
+          to: cva("translate-y-0 transform opacity-100"),
+        },
+
+        leave: {
+          active: cva("transition duration-100 ease-in absolute"),
+          from: cva("translate-y-0 transform opacity-100"),
+          to: cva("-translate-y-1 transform opacity-0"),
+        },
+      },
     },
 
     loading: {
