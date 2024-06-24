@@ -153,13 +153,13 @@ export default {
   },
 
   fontFamily: {
-    sans: ["Urbanist", "sans-serif", ...defaultTheme.fontFamily.sans],
-    serif: ["Urbanist", "sans-serif", ...defaultTheme.fontFamily.serif],
+    body: defaultTheme.fontFamily.sans.toString(","),
+    display: "Urbanist, sans-serif",
   },
 
   fontSize: {
-    xs: ".75rem", // 12px
-    sm: ".875rem", // 14px
+    xs: ".875rem", // 14px,
+    sm: "0.938rem", //15px,
     base: "1rem", // 16px
     md: "1rem", // 16px
     lg: "1.125rem", // 18px
@@ -169,16 +169,35 @@ export default {
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
   },
-  // ---------------------------------------------------------------------------
-  typography: ({ theme }) => ({
-    DEFAULT: {
-      css: {
-        h1: {
-          fontWeight: theme("fontWeight.light"),
-          fontSize: theme("fontSize.5xl"),
-          color: "red",
+
+  typography: ({ theme }) => {
+    return {
+      DEFAULT: {
+        css: {
+          fontFamily: theme("fontFamily.body"),
+
+          h1: {
+            fontFamily: theme("fontFamily.display"),
+            fontWeight: theme("fontWeight.light"),
+            fontSize: theme("fontSize.5xl"),
+          },
+          h2: {
+            fontFamily: theme("fontFamily.display"),
+          },
+          h3: {
+            fontFamily: theme("fontFamily.display"),
+          },
+          h4: {
+            fontFamily: theme("fontFamily.display"),
+          },
+          h5: {
+            fontFamily: theme("fontFamily.display"),
+          },
+          h6: {
+            fontFamily: theme("fontFamily.display"),
+          },
         },
       },
-    },
-  }),
+    };
+  },
 };
