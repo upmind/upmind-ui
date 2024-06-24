@@ -122,11 +122,10 @@ export interface Typegen0 {
     binItem: "REMOVE";
     checkoutActors: "CHECKOUT";
     clearBasket: "UNAUTHENTICATED";
+    clearBin: "UNAUTHENTICATED" | "UPDATE";
     clearError: "UNAUTHENTICATED";
-    clearQueue: "UNAUTHENTICATED" | "UPDATE";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     muteBasket: "CLEAR" | "REFRESH" | "REMOVE" | "UPDATE";
-    queueItem: "UPDATE";
     refreshActors:
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
@@ -139,7 +138,6 @@ export interface Typegen0 {
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
     removeAllItems: "CLEAR" | "UNAUTHENTICATED";
-    removeFromQueue: "done.invoke.updating:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     sendToItem:
       | "UPDATE.ATTRIBUTES"
@@ -206,7 +204,6 @@ export interface Typegen0 {
     hasNoItems: "";
     isNotLoading: "";
     isNotMuted: "REFRESH";
-    isNotQueued: "UPDATE";
     needsPayment: "done.invoke.converting:invocation[0]";
     paymentConfiguring: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";

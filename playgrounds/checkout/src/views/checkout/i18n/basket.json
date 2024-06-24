@@ -1,5 +1,16 @@
 {
   "basket": {
+    "items": {
+      "title": "Now lets personalise your order",
+      "text": " Great | Great choice | Great Choices",
+      "pending": {
+        "title": "Before we continue, we require additional details from you."
+      }
+    },
+    "details": {
+      "title": "Your bag total is {total}",
+      "text": "Let's complete your order"
+    },
     "discount": {
       "title": "Have a discount code?",
       "tooltip": "Discount applied",
@@ -11,7 +22,7 @@
       }
     },
     "summary": {
-      "title": "Order Summary",
+      "title": "Order summary",
       "items": {
         "title": "Items"
       },
@@ -33,10 +44,6 @@
           "text": "Encrypted and secure payments"
         }
       ]
-    },
-    "details": {
-      "title": "Your bag total is {total}",
-      "text": "Let's complete your order"
     },
     "confirmation": {
       "invalid": {

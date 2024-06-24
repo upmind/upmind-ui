@@ -9,15 +9,15 @@ export default {
   },
   step: {
     root: cva(
-      "m-0 flex items-center gap-3 border-b-2 py-8 font-light leading-none no-underline transition",
+      "m-0 flex items-center gap-3 border-b-2 py-6 font-light leading-none no-underline transition",
       {
         variants: {
           selected: {
-            true: "border-primary font-medium",
+            true: "border-primary font-normal",
             false: "border-transparent",
           },
           complete: {
-            true: "text-base-content font-medium",
+            true: "text-base-content font-normal",
           },
           disabled: {
             true: "pointer-events-none cursor-not-allowed opacity-50",

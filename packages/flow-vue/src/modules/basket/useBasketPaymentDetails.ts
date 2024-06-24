@@ -28,7 +28,7 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
 
   if (!actor) {
     waitFor(service, newstate =>
-      ["checkout", "shopping.payment_details"].some(newstate.matches)
+      ["checkout", "shopping"].some(newstate.matches)
     ).then(validState => {
       payment_details.value = contextActor(
         validState,

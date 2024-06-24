@@ -8,8 +8,10 @@ import {
   add,
   get,
   isEmpty,
+  isObject,
   isEqual,
   omitBy,
+  reduce,
   set,
   some,
   subtract,
@@ -45,6 +47,12 @@ export const useProductConfig = item => {
     isNew: state.value.context.isNew,
     isDirty: state.value.context.isDirty,
     hasErrors: state.value.matches("error") || !isEmpty(errors.value),
+    isConfigurable:
+      // !isEmpty(state.value?.context?.available?.terms) ||
+      !isEmpty(state.value?.context?.available?.attributes) ||
+      !isEmpty(state.value?.context?.available?.options) ||
+      !isEmpty(state.value?.context?.available?.provision_fields?.properties),
+
     isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
     isCalculating: state.value.matches("calculating"),
@@ -69,14 +77,14 @@ export const useProductConfig = item => {
   };
 
   // --- QUANTITY
-  const updateQuantity = (value?: number) =>
+  const updateQuantity = (value?: number) => {
     send({
       type: "UPDATE.QUANTITY",
       data: {
         quantity: value || model.value.quantity,
       },
     });
-  //emit("update:quantity",{itemId: props.id,...);
+  };
 
   function incrementQuantity() {
     // sanity check
@@ -120,7 +128,7 @@ export const useProductConfig = item => {
     send({
       type: "UPDATE.TERM",
       data: {
-        term: term.billing_cycle_months,
+        term: isObject(term) ? term.billing_cycle_months : term,
       },
     });
   //emit("update:term",{itemId: props.id,...);
@@ -147,47 +155,13 @@ export const useProductConfig = item => {
       set(model.value.attributes, attribute.id, {}); // reset all previous attributes
 
     if (target.checked) {
-      set(model.value.attributes, [attribute.id, value], {
-        product_id: value,
+      set(model.value.attributes, [attribute.id, value.id], {
+        product_id: value.id,
       });
     } else {
-      unset(model.value.attributes, [attribute.id, value]);
+      unset(model.value.attributes, [attribute.id, value.id]);
     }
 
-    // emit the event
-    updateAttributes();
-  }
-
-  function incrementAttribute(attributeId, value) {
-    // sanity check
-    if (!value?.canChangeQuantity) return;
-    const qty = get(
-      model.value.attributes,
-      [attributeId, value.id, "unit_quantity"],
-      0
-    );
-    set(
-      model.value.attributes,
-      [attributeId, value.id, "unit_quantity"],
-      add(qty, value?.min_order_quantity || 1)
-    );
-    // emit the event
-    updateAttributes();
-  }
-
-  function decrementAttribute(attributeId, value) {
-    // sanity check
-    if (!value?.canChangeQuantity) return;
-    const qty = get(
-      model.value.attributes,
-      [attributeId, value.id, "unit_quantity"],
-      0
-    );
-    set(
-      model.value.attributes,
-      [attributeId, value.id, "unit_quantity"],
-      subtract(qty, value?.min_order_quantity || 1)
-    );
     // emit the event
     updateAttributes();
   }
@@ -212,46 +186,56 @@ export const useProductConfig = item => {
       set(model.value.options, option.id, {}); // reset all previous options
 
     if (target.checked) {
-      set(model.value.options, [option.id, value], {
-        product_id: value,
+      set(model.value.options, [option.id, value.id], {
+        product_id: value.id,
       });
     } else {
-      unset(model.value.options, [option.id, value]);
+      unset(model.value.options, [option.id, value.id]);
     }
 
     // emit the event
     updateOptions();
   }
 
-  function incrementOption(optionId, value) {
+  function updateOptionQuantity(option, value, qty) {
+    // sanity check
+    if (!value?.canChangeQuantity) return;
+
+    set(model.value.options, [option.id, value.id, "unit_quantity"], qty);
+
+    // emit the event
+    updateOptions();
+  }
+
+  function incrementOption(option, value) {
     // sanity check
     if (!value?.canChangeQuantity) return;
 
     const qty = get(
       model.value.options,
-      [optionId, value.id, "unit_quantity"],
+      [option.id, value.id, "unit_quantity"],
       0
     );
     set(
       model.value.options,
-      [optionId, value.id, "unit_quantity"],
+      [option.id, value.id, "unit_quantity"],
       add(qty, value?.min_order_quantity || 1)
     );
     // emit the event
     updateOptions();
   }
 
-  function decrementOption(optionId, value) {
+  function decrementOption(option, value) {
     // sanity check
     if (!value?.canChangeQuantity) return;
     const qty = get(
       model.value.options,
-      [optionId, value.id, "unit_quantity"],
+      [option.id, value.id, "unit_quantity"],
       0
     );
     set(
       model.value.options,
-      [optionId, value.id, "unit_quantity"],
+      [option.id, value.id, "unit_quantity"],
       subtract(qty, value?.min_order_quantity || 1)
     );
     // emit the event
@@ -302,17 +286,18 @@ export const useProductConfig = item => {
 
   return {
     state,
-    available,
+    // context,
+    errors,
+    meta,
     // ---
+    available,
     availableProduct,
     availableTerms,
     availableOptions,
     availableAttributes,
     availableFields,
     // ---
-    errors,
     model,
-    meta,
     summary,
     // ---
     clearErrors,
@@ -327,12 +312,11 @@ export const useProductConfig = item => {
     updateAttributes,
     isSelectedAttribute,
     selectAttribute,
-    incrementAttribute,
-    decrementAttribute,
     // ---
     updateOptions,
     isSelectedOption,
     selectOption,
+    updateOptionQuantity,
     incrementOption,
     decrementOption,
     // ---

@@ -17,6 +17,7 @@ import {
   useValuesParser,
   useSummaryParser,
   useValidationParser,
+  useDisplayPriceParser,
 } from "./utils";
 
 import { get, set, map, toNumber, find, merge, isEqual } from "lodash-es";
@@ -333,6 +334,24 @@ export default (values, currency_id, promotions) => {
     },
     {
       actions: {
+        // ---
+        setAvailable: assign({
+          available: (_context, { data }) => {
+            return {
+              product: useProductParser(data),
+              terms: useTermsParser(data.prices),
+              attributes: useAttributesParser(data.products_attributes),
+              options: useOptionsParser(data.products_options),
+              provision_fields: useProvisioningParser(
+                data.products_provisioning
+              ),
+            };
+          },
+
+          summary: ({ summary, isNew }, { data }) =>
+            !isNew ? summary : useDisplayPriceParser(data),
+        }),
+
         setValues: assign({
           currency_id: ({ currency_id }, { data }) =>
             data?.currency_id || currency_id,
@@ -437,21 +456,6 @@ export default (values, currency_id, promotions) => {
           isDirty: false,
           needsCalculating: false,
           error: null,
-        }),
-
-        // ---
-        setAvailable: assign({
-          available: (_context, { data }) => {
-            return {
-              product: useProductParser(data),
-              terms: useTermsParser(data.prices),
-              attributes: useAttributesParser(data.products_attributes),
-              options: useOptionsParser(data.products_options),
-              provision_fields: useProvisioningParser(
-                data.products_provisioning
-              ),
-            };
-          },
         }),
 
         // ---

@@ -358,8 +358,10 @@ export default createMachine(
       }),
       // ---
       setError: assign({
-        error: (_context, event) => {
-          const { data } = event;
+        error: (_context, event, state) => {
+          console.error("session", "client", "error", { event, state });
+
+          const data = event?.data;
 
           if (data?.error?.code == responseCodes.Unauthorized) {
             // Usually because the refresh token has expired.
@@ -375,7 +377,7 @@ export default createMachine(
             return useValidationParser(data?.error);
           }
 
-          return data?.error;
+          return data?.error || data || event?.error || event || null;
         },
       }),
       escalateError: escalate(({ error }) => error),

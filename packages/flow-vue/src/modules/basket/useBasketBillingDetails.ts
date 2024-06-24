@@ -29,7 +29,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
 
   if (!actor) {
     waitFor(service, newstate =>
-      ["checkout", "shopping.billing_details"].some(newstate.matches)
+      ["checkout", "shopping"].some(newstate.matches)
     ).then(validState => {
       billing_details.value = contextActor(
         validState,

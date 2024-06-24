@@ -78,6 +78,12 @@ export const useProductParser = (data: any) => {
     "provision_blueprint_id",
   ]);
 
+  // ---
+  // Ensure min values
+  product.unit_quantity = product.unit_quantity || 1;
+  product.min_order_quantity =
+    product.min_order_quantity || product.unit_quantity;
+  // ---
   // --------------------------------------------------------
   // then add some syntactic sugar / computed properties
 
@@ -93,6 +99,7 @@ export const useProductParser = (data: any) => {
   product.hasMixedPromotions = some(data.prices, "mixed_promotions");
   product.isOnPromotion = product.hasSavings || product.hasMixedPromotions;
 
+  product.category = translateName(data.category);
   return product;
 };
 
@@ -101,7 +108,6 @@ export const useTermsParser = (data: any) => {
 
   // 1. sort the terms by billing_cycle_months
   const terms = orderBy(data, "billing_cycle_months");
-  getBillingCycle;
 
   return map(terms, rawTerm => {
     // Pick only the properties we need
@@ -346,19 +352,114 @@ export const useProvisioningParser = (data: any) => {
 // ---
 
 export const useSummaryParser = (data: any) => {
+  const { getBillingCycle } = useSystem();
+
   const summary = {
-    discount: data?.configuration_total_discount_amount_converted,
-    discountFormatted: data?.configuration_total_discount_amount_formatted,
+    // the base price without any discounts or configuration
+    price: data?.selling_price,
+    price_formatted: data?.selling_price_formatted,
 
+    // the price based on the configuration
     subtotal: data?.configuration_total_amount_converted,
-    subtotalFormatted: data?.configuration_total_amount_formatted,
+    subtotal_formatted: data?.configuration_total_amount_formatted,
 
-    // TODO: use the correc ttotals when discoutns are applied!
-    total: data?.configuration_selling_price_discounted_converted,
-    totalFormatted: data?.configuration_net_selling_price_formatted,
+    // the total discount applied
+    discount: data?.configuration_total_discount_amount_converted,
+    discount_formatted: data?.configuration_total_discount_amount_formatted,
+
+    // the total price after the discount
+    total: data?.configuration_total_discounted_amount_converted,
+    total_formatted: data?.configuration_total_discounted_amount_formatted,
   };
 
+  // this is an array of  key value pairs that can be used to display a summary of the configuration
+  //  typically used in the basket or checkout
+  // it is in this format to preserve the order of the configuration
+  // asd allow for easy i18n
+  summary.details = [];
+
+  // MAYBE: only add terms if its NOT a one-off product, ie has a billing cycle
+  // if (data?.billing_cycle_months) {
+  summary.details.push({
+    key: "term",
+    category: "Billing Cycle",
+    name: getBillingCycle(data.billing_cycle_months)?.name,
+    cycle: data.billing_cycle_months,
+    quantity: data.quantity,
+    value: data.total_amount,
+    discount: data.total_discount_amount_formatted,
+    formatted: data.total_amount_formatted,
+  });
+  // }
+
+  if (data?.attributes) {
+    reduce(
+      data.attributes,
+      (result, attribute) => {
+        result.push({
+          key: "attribute",
+          category: translateName(attribute.product.category),
+          name: translateName(attribute.product),
+          cycle: attribute.billing_cycle_months,
+          quantity: attribute.unit_quantity,
+          value: attribute.total_amount,
+          discount: attribute.total_discount_amount_formatted,
+          formatted: attribute.total_amount_formatted,
+        });
+        return result;
+      },
+      summary.details
+    );
+  }
+
+  if (data?.options) {
+    reduce(
+      data.options,
+      (result, option) => {
+        result.push({
+          key: "option",
+          category: translateName(option.product.category),
+          name: translateName(option.product),
+          cycle: option.billing_cycle_months,
+          quantity: option.unit_quantity,
+          value: option.total_amount,
+          discount: option.total_discount_amount_formatted,
+          formatted: option.total_amount_formatted,
+        });
+        return result;
+      },
+      summary.details
+    );
+  }
+
+  if (data?.provision_fields) {
+    reduce(
+      data.provision_fields,
+      (result, value, field) => {
+        result.push({
+          key: `provision_field.${field}`,
+          category: field, // todo get field name
+          name: value,
+        });
+        return result;
+      },
+      summary.details
+    );
+  }
+
   return summary;
+};
+
+export const useDisplayPriceParser = (data: any) => {
+  // the base price without any discounts or configuration
+  return {
+    price: data?.display_price,
+    price_formatted: data?.display_price,
+
+    // the total price after the discount
+    total: data?.display_price,
+    total_formatted: data?.display_price,
+  };
 };
 
 // --------------------------------------------------------
