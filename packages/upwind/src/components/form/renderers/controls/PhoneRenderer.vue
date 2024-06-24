@@ -29,8 +29,8 @@ import { computed, defineComponent, ref } from "vue";
 import { schemaMatches, and, isObjectControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 // ---
-import isoCountries from "i18n-iso-countries";
-import enCountries from "i18n-iso-countries/langs/en.json";
+
+import { countries } from "country-data";
 
 // --- components
 import UpwTextbox from "../../../textbox/Textbox.vue";
@@ -87,31 +87,23 @@ export default defineComponent({
 
     // ------------------------------------------------
 
-    isoCountries.registerLocale(enCountries);
-
-    // ------------------------------------------------
-
     return {
       ...renderer,
       onChangeCountry,
       onChange,
       countries: computed(() => {
-        const raw =
-          renderer.appliedOptions.value?.countries ||
-          keys(isoCountries.getNames("en", { select: "alias" }));
-
+        const raw = renderer.appliedOptions.value?.countries || countries.all;
         const parsed = reduce(
           raw,
           (result, value) => {
             const country = {
-              avatar: {
+              prependAvatar: {
                 path: "flags",
-                name: (value?.code || value).toLowerCase(),
+                name: (value?.alpha2 || value).toLowerCase(),
               },
-              label: value?.name || value,
-              value: value?.code || value,
+              label: value?.alpha2 || value,
+              value: value?.alpha2 || value,
             };
-
             result.push(country);
             return result;
           },
