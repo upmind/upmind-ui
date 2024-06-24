@@ -4,7 +4,6 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <pre>{{ { activeDialog, meta } }}</pre>
     <upw-skeleton-list
       :class="styles.client.loading"
       v-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
