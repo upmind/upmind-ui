@@ -50,12 +50,13 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
       isComplete:
         stateValue(payment_gateway.value?.state, "done", false) ||
         stateMatches(payment_gateway.value?.state, ["processed", "complete"]),
-      isRenderless:
-        contextMatches(payment_gateway.value?.state, ["renderless"]) ||
-        !contextMatches(payment_gateway.value?.state, [
-          "schema.properties",
-          "renderer",
-        ]),
+      isRenderless: contextMatches(payment_gateway.value?.state, [
+        "renderless",
+      ]),
+      // !contextMatches(payment_gateway.value?.state, [
+      //   "schema.properties",
+      //   "renderer",
+      // ]),
     })),
     // ---
     model: computed(() => contextValue(payment_gateway.value?.state, "model")),
