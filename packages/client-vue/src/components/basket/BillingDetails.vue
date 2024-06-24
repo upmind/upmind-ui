@@ -4,6 +4,7 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
+    <pre>{{ { activeDialog, meta } }}</pre>
     <upw-skeleton-list
       :class="styles.client.loading"
       v-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
@@ -11,7 +12,7 @@
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <upm-item
-      v-else-if="
+      v-if="
         !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
       "
       i18nKey="unified"
@@ -140,11 +141,11 @@ export default defineComponent({
       this.activeDialog = true;
     },
     onEdit() {
-      // const client = this.useClientUnifiedAddress(this.selected);
-      // const model = client.model.value;
-      // client.edit();
-      // // force the company details to be shown
-      // client.input({ ...model, company_details: true });
+      const client = this.useClientUnifiedAddress(this.selected);
+      const model = client.model.value;
+      client.edit();
+      // force the company details to be shown
+      client.input({ ...model, company_details: true });
     },
     onClose() {
       this.activeDialog = false;

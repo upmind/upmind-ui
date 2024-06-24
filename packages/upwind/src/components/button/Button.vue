@@ -101,6 +101,9 @@ export default defineComponent({
       type: String,
       default: null,
     },
+    target: {
+      type: String,
+    },
     // ---
     label: {
       type: String,
