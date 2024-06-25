@@ -2,6 +2,7 @@ import "./assets/main.css";
 
 import { createApp } from "vue";
 import { createI18n } from "vue-i18n";
+
 import upmind from "./plugins/upmind";
 
 import App from "./App.vue";

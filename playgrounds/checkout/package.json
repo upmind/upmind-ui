@@ -7,7 +7,7 @@
     "start": "npm run dev",
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
+    "preview": "vite build && vite preview",
     "test": "vitest",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
@@ -21,6 +21,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
     "@floating-ui/vue": "^1.0.6",
+    "@gtm-support/vue-gtm": "^3.0.1",
     "@jsonforms/core": "^3.2.1",
     "@jsonforms/vue": "^3.2.1",
     "@jsonforms/vue-vanilla": "^3.2.1",
