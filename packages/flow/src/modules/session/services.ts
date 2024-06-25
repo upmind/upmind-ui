@@ -94,6 +94,14 @@ async function getUser(_context: SessionContext, _event: any) {
   // );
 }
 
+async function transfer(_context: SessionContext, _event: any) {
+  const { post, useUrl } = useApi();
+
+  return post({
+    url: useUrl("auth_code"),
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
 // --------------------------------------------------------
 // EXPORTS
 
@@ -103,4 +111,5 @@ export default <Object>{
   dumpGuestToken,
   dumpClientToken,
   getUser,
+  transfer,
 };

@@ -52,7 +52,7 @@ async function doFetch({ url, init }: RequestContext) {
       return data;
     })
     .catch(error => {
-      console.warn("doFetch response.json error", error);
+      // console.warn("doFetch response.json error", error);
       return {
         data: null,
       };

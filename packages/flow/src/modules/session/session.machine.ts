@@ -39,6 +39,7 @@ export default createMachine(
       history: [],
       user: {},
       refresh: false,
+      transfer: null,
       error: null,
     } as SessionContext,
     states: {
@@ -166,6 +167,11 @@ export default createMachine(
                 target: "processing",
               },
             ],
+            on: {
+              TRANSFER: {
+                target: "transferring",
+              },
+            },
           },
           processing: {
             invoke: {
@@ -177,6 +183,38 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: ["setError"],
+              },
+            },
+          },
+
+          transferring: {
+            initial: "initiating",
+            states: {
+              initiating: {
+                invoke: {
+                  src: "transfer",
+                  onDone: {
+                    target: "available",
+                    actions: ["setTransfer"],
+                  },
+                  onError: {
+                    target: "unavailable",
+                    actions: ["setError"],
+                  },
+                },
+              },
+
+              available: {
+                after: {
+                  expired: {
+                    target: "unavailable",
+                    actions: ["clearTransfer"],
+                  },
+                },
+              },
+
+              unavailable: {
+                after: { error: "#client.idle" },
               },
             },
           },
@@ -226,6 +264,9 @@ export default createMachine(
       setRefresh: assign({ refresh: true }),
       clearRefresh: assign({ refresh: false }),
       // ---
+      setTransfer: assign({ transfer: (_context, { data }) => data }),
+      clearTransfer: assign({ transfer: null }),
+      // ---
       setHistory: assign({
         history: (context, { data }) => {
           if (isEqual(context.token, data)) return context.history;
@@ -269,6 +310,7 @@ export default createMachine(
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
+      expired: () => useTime().MINUTE * 5,
     },
     services,
   }

@@ -85,7 +85,7 @@ async function load(
       // with_staged_imports: 1
     }),
     withAccessToken: true,
-    useCache: false,
+    useCache: true,
   }).then(({ data }) => data);
 
   // ---
@@ -100,7 +100,7 @@ async function load(
       with: ["gateway.gateway_provider", "gateway.card_types"].join(),
     }),
     withAccessToken: true,
-    useCache: false,
+    useCache: true,
   }).then(({ data }) => {
     // Whitelist payment gateways if provided
     if (whitelistGatewayProviders.length) {
