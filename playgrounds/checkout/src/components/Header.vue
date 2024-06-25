@@ -14,7 +14,7 @@
       >
         <picture class="h-full w-full">
           <source srcset="/logo.png" type="image/png" />
-          <img src="/logo.svg" class="h-full w-full" />
+          <img src="/logo.svg" class="h-full w-auto" />
           <caption class="sr-only text-nowrap tracking-widest">
             {{
               $t("header.title")
