@@ -6,8 +6,10 @@ import { useActor } from "@xstate/vue";
 import { useBrand as useUpmindBrand } from "@upmind/flow";
 
 // --- utils
-import { isArray, isObject, reduce, set } from "lodash-es";
+import { isArray, isObject, reduce, set, get } from "lodash-es";
 
+// ---
+import { BrandConfigKeys } from "@upmind/flow";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
@@ -66,5 +68,19 @@ export const useBrand = () => {
         "currencies.error",
       ].some(state.value.matches),
     })),
+
+    isReady: brand.isReady,
+    getConfig: brand.getConfig,
+    getAnayltics: async () =>
+      brand
+        .isReady()
+        .then(() =>
+          brand
+            .getConfig([
+              BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
+              BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
+            ])
+            .then(data => data?.analytics)
+        ),
   };
 };

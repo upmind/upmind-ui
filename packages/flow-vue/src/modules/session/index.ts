@@ -1,5 +1,5 @@
 // --- external
-import { computed, unref, watch, toRaw } from "vue";
+import { computed, unref, watch, toRaw, inject } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -15,6 +15,8 @@ import { isEmpty, isFunction } from "lodash-es";
 export const useSession = (inspector?: Function) => {
   const { service } = useUpmindSession();
   const { state, send } = useActor(service);
+
+  const gtm = inject("gtm");
 
   // We can create reactive refs to the child machines,
   // so that when they are invoked we can listen to their state changes
@@ -117,6 +119,16 @@ export const useSession = (inspector?: Function) => {
       type: "AUTHENTICATE",
       data: unref(model),
     });
+
+    if (gtm?.trackEvent)
+      waitFor(service, state => state.value.matches("client")).then(() => {
+        gtm.trackEvent({
+          event: "login",
+          upmind: {
+            user_id: state.value?.context?.token?.actor_id,
+          },
+        });
+      });
   }
 
   function verify2fa({ token }) {
@@ -144,6 +156,14 @@ export const useSession = (inspector?: Function) => {
     send({
       type: "LOGOUT",
     });
+
+    if (gtm?.trackEvent)
+      gtm.trackEvent({
+        event: "upmind.logout",
+        upmind: {
+          user_id: null,
+        },
+      });
   }
 
   async function transfer() {
