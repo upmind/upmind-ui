@@ -82,6 +82,8 @@ export interface Basket {
 
 export interface BasketContext {
   basket?: Basket;
+  invoice?: Object;
+  // ---
   items?: Array; // Array of actors
   bin?: Array;
   queue?: Array;
