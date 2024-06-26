@@ -231,20 +231,42 @@ export default (values, currency_id, promotions) => {
                 },
               },
             },
+            summary: {
+              initial: "calculating",
+              states: {
+                calculating: {
+                  id: "calculating",
+                  invoke: {
+                    src: "calculateSummary",
+                    onDone: {
+                      target: "complete",
+                      actions: ["setSummary", "clearCalculating"],
+                    },
+                    onError: {
+                      target: "complete",
+                      actions: ["setError"],
+                    },
+                  },
+                },
+                complete: {
+                  type: "final",
+                },
+              },
+            },
           },
           on: {
             REFRESH: {
               target: "loading",
-              actions: ["setValues", "setClean"],
+              actions: ["setCurrency", "setPromotions", "setClean"],
               cond: "hasChanged",
             },
             UPDATE: {
-              target: "processed",
+              target: "configuring",
               actions: ["setValues", "setDirty", "setCalculating"],
             },
             PUT: [
               {
-                target: "processed",
+                target: "configuring",
                 actions: ["mergeValues", "setDirty", "setCalculating"],
                 cond: "hasChanged",
               },
@@ -274,7 +296,7 @@ export default (values, currency_id, promotions) => {
             REFRESH: [
               {
                 target: "loading",
-                actions: ["setValues", "setClean"],
+                actions: ["setCurrency", "setPromotions", "setClean"],
                 cond: "hasChanged",
               },
               {
@@ -283,12 +305,12 @@ export default (values, currency_id, promotions) => {
             ],
             // ---
             UPDATE: {
-              target: "processed",
+              target: "configuring",
               actions: ["setValues", "setDirty", "setCalculating"],
             },
             PUT: [
               {
-                target: "processed",
+                target: "configuring",
                 actions: ["mergeValues", "setDirty", "setCalculating"],
                 cond: "hasChanged",
               },
@@ -359,9 +381,16 @@ export default (values, currency_id, promotions) => {
             !isNew ? summary : useDisplayPriceParser(data),
         }),
 
-        setValues: assign({
-          currency_id: ({ currency_id }, { data }) =>
-            data?.currency_id || currency_id,
+        setCurrency: assign({
+          currency_id: ({ currency_id }, { data }) => {
+            console.log("setCurrency", {
+              currency_id: data?.currency_id || currency_id,
+            });
+            return data?.currency_id || currency_id;
+          },
+        }),
+
+        setPromotions: assign({
           promotions: ({ promotions }, { data }) =>
             data?.promotions || promotions || [],
           values: (_context, { data }) => useValuesParser(data?.product),
