@@ -5,7 +5,7 @@ import { cva } from "class-variance-authority";
 export default {
   spinner: {
     root: cva(
-      "inline-block animate-spin rounded-[100%] border-current border-t-transparent text-current",
+      "inline-block animate-spin rounded-[100%] border-current !border-t-transparent text-current",
       {
         variants: {
           size: {

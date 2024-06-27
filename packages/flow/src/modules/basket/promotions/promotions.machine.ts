@@ -11,9 +11,11 @@ const { addError, addSuccess } = useFeedback();
 
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { xorBy } from "lodash-es";
 
 // --- types
 import type { PromotionsContext, PromotionsEvent } from "./types.d";
+import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
@@ -117,10 +119,10 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
+                actions: ["setModel", "clearDirty"],
               },
               onError: {
-                target: "#error",
+                target: "error",
                 actions: ["setError", "setFeedbackError"],
               },
             },
@@ -130,12 +132,17 @@ export default createMachine(
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
+                actions: ["setModel", "clearDirty"],
               },
               onError: {
                 target: "#error",
                 actions: ["setError", "setFeedbackError"],
               },
+            },
+          },
+          error: {
+            after: {
+              error: "#invalid",
             },
           },
         },
@@ -181,6 +188,7 @@ export default createMachine(
       REFRESH: {
         target: "checking",
         actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
@@ -233,6 +241,8 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+
         addError({
           title:
             error?.title ||
@@ -250,7 +260,6 @@ export default createMachine(
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
-
           return error || data;
         },
       }),
@@ -261,6 +270,8 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasChanged: ({ promotions }, { data }) =>
+        !!xorBy(promotions, data?.promotions, "id")?.length,
     },
 
     delays: {

@@ -36,23 +36,28 @@ export const useSchema = ({
         type: "number",
         title: "Amount",
         readOnly: true,
+        exclusiveMinimum: 0,
       },
       type: {
         type: "string",
         title: "Payment type",
         default: PaymentTypes.PAY_IN_FULL,
-        oneOf: map(payment_types, (value, key) => ({
-          const: value,
-          title: key,
-        })),
+        oneOf: !payment_types
+          ? undefined
+          : map(payment_types, (value, key) => ({
+              const: value,
+              title: key,
+            })),
       },
       gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
-        oneOf: map(gateways, ({ gateway_id, gateway }) => ({
-          const: gateway_id,
-          title: gateway.name,
-        })),
+        oneOf: !gateways?.length
+          ? undefined
+          : map(gateways, ({ gateway_id, gateway }) => ({
+              const: gateway_id,
+              title: gateway.name,
+            })),
       },
     },
 
@@ -81,11 +86,24 @@ export const useUischema = ({
       {
         type: "Control",
         scope: "#/properties/type",
+        i18n: "basket.payment_details.type",
         options: {
           format: "radio",
           // layout: "inline",
           stretch: true,
           layout: payment_types?.length >= 3 ? "grid" : "inline",
+        },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["amount"],
+              properties: {
+                amount: { not: { const: 0 } },
+              },
+            },
+          },
         },
       },
       {
@@ -100,8 +118,14 @@ export const useUischema = ({
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/type",
-            schema: { const: PaymentTypes.PAY_IN_FULL },
+            scope: "#",
+            schema: {
+              required: ["type", "amount"],
+              properties: {
+                amount: { not: { const: 0 } },
+                type: { const: PaymentTypes.PAY_IN_FULL },
+              },
+            },
           },
         },
       },
@@ -117,7 +141,15 @@ export const useUischema = ({
 export function spawnGateway({ basket_id, gateway, amount, currency }) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
-
+  if (!amount) {
+    return spawnGenericGateway(GatewayTypes.FREE, {
+      basket_id,
+      gateway,
+      amount,
+      currency,
+      renderless: true,
+    });
+  }
   if (isStripe(gateway))
     return spawnStripe({ basket_id, gateway, amount, currency });
 
@@ -219,7 +251,7 @@ export function spawnGenericGateway(
       type,
       renderless,
     }),
-    { name: gateway.id, sync: true }
+    { name: gateway?.id, sync: true }
   );
 }
 

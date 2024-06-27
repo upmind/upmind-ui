@@ -1,16 +1,21 @@
 <template>
   <upw-textbox
-    v-bind="{ ...control, ...appliedOptions }"
+    v-bind="{
+      ...control,
+      ...appliedOptions,
+    }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"
     :max="safeMax"
     :min="safeMin"
     :model-value="control.data"
     @change="onChange"
-    :type="unmask ? 'input' : 'password'"
+    :type="unmask ? 'text' : 'password'"
+    autocomplete="current-password"
   >
     <template #append="{ styles }">
       <button
+        tabindex="-1"
         type="button"
         :class="styles?.button"
         @click.prevent="unmask = !unmask"

@@ -38,6 +38,8 @@ import {
 
 // --- types
 import type { BasketContext, BasketEvent } from "./types.d";
+import { responseCodes } from "../api";
+
 import { PaymentTypes } from "../paymentDetails/types.d";
 import { GatewayTypes } from "../paymentDetails/gateways/types.d";
 
@@ -142,19 +144,6 @@ export default createMachine(
         },
       },
 
-      // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
-      refreshing: {
-        id: "refreshing",
-        invoke: {
-          src: "refresh",
-          onDone: {
-            target: "shopping",
-            actions: ["refreshItems", "updateBasket", "refreshActors"],
-          },
-          onError: { target: "#error" },
-        },
-      },
-
       // We are now ready to start accepting items into the basket
       // items are effectively products that are not yet added to the basket OR products that are being changed
       // regardles, these items require configuring
@@ -165,6 +154,27 @@ export default createMachine(
         id: "shopping",
         type: "parallel",
         states: {
+          // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
+          refreshing: {
+            initial: "complete",
+            states: {
+              processing: {
+                id: "refreshing",
+                invoke: {
+                  src: "refresh",
+                  onDone: {
+                    target: ["complete", "#shopping.items"],
+                    actions: ["refreshItems", "updateBasket", "refreshActors"],
+                  },
+                  onError: { target: "#error" },
+                },
+              },
+              complete: {
+                type: "final",
+              },
+            },
+          },
+
           account: {
             initial: "checking",
             states: {
@@ -191,7 +201,7 @@ export default createMachine(
               empty: {
                 always: [
                   { target: "configuring", cond: "someConfiguring" },
-                  { target: "complete", cond: "allConfigured" },
+                  { target: "complete", cond: "itemsConfigured" },
                 ],
               },
 
@@ -199,7 +209,7 @@ export default createMachine(
                 id: "configuring",
                 always: [
                   { target: "empty", cond: "hasNoItems" },
-                  { target: "complete", cond: "allConfigured" },
+                  { target: "complete", cond: "itemsConfigured" },
                 ],
               },
 
@@ -213,11 +223,7 @@ export default createMachine(
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setFeedbackSuccess",
-                        ],
+                        actions: ["refreshItems", "updateBasket"],
                       },
                       onError: {
                         target: "#processed",
@@ -236,15 +242,11 @@ export default createMachine(
                     invoke: {
                       src: "updateItem",
                       onDone: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setFeedbackSuccess",
-                        ],
+                        target: "error",
+                        actions: ["refreshItems", "updateBasket"],
                       },
                       onError: {
-                        target: "#error",
+                        target: "#processed",
                         actions: [
                           "refreshItems",
                           "updateBasket",
@@ -261,11 +263,7 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: [
-                          "removeItem",
-                          "updateBasket",
-                          "setFeedbackSuccess",
-                        ],
+                        actions: ["removeItem", "updateBasket"],
                       },
                       onError: {
                         target: "#processed",
@@ -523,7 +521,7 @@ export default createMachine(
       // }
 
       REFRESH: {
-        target: "refreshing",
+        target: "#refreshing",
         actions: "muteBasket",
         cond: "isNotMuted",
       },
@@ -573,7 +571,7 @@ export default createMachine(
 
       // --- Spawned Actors Actions
       spawnActors: assign({
-        actors: ({ actors, basket }: BasketContext) => {
+        actors: ({ actors, basket }) => {
           // only spawn if we have not already spawned
           actors.billing_details ??= spawnBillingDetails(basket);
           actors.currency ??= spawnCurrency(basket);
@@ -585,15 +583,15 @@ export default createMachine(
         },
       }),
 
-      refreshActors: pure(({ basket, actors }: BasketContext) => {
+      refreshActors: pure(({ basket, actors }) => {
         forEach(actors, actor => {
-          if (actor?.send) {
+          if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
         });
       }),
 
-      updateActors: pure(({ actors }: BasketContext) => {
+      updateActors: pure(({ actors }) => {
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "UPDATE" });
@@ -601,7 +599,7 @@ export default createMachine(
         });
       }),
 
-      checkoutActors: pure(({ actors }: BasketContext) => {
+      checkoutActors: pure(({ actors }) => {
         // for Now  only the payment details is affected by checkout
         actors?.payment_details?.send({ type: "CHECKOUT" });
       }),
@@ -795,7 +793,7 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == 422) return;
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
 
         addError({
           title: error?.title || "We experienced an error updating the basket",
@@ -842,9 +840,11 @@ export default createMachine(
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
       needsPayment: ({ paymentDetails }) => {
-        const hasOustandingBalance = paymentDetails?.amount >= 0;
+        const hasOustandingBalance = paymentDetails?.amount > 0;
+
         const payingNow =
           paymentDetails?.payment_type != PaymentTypes.PAY_LATER;
+
         const manualPayment = includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
           paymentDetails?.gateway?.type
@@ -903,32 +903,39 @@ export default createMachine(
       },
 
       paymentDetailsValid: ({ actors }) => {
-        return actors.payment_details?.state?.matches("valid");
+        return (
+          actors.payment_details?.state?.done ||
+          actors.payment_details?.state?.matches("available.valid")
+        );
       },
 
       paymentConfiguring: ({ actors }) => {
-        return ["invalid", "checking", "loading"].some(
-          actors.payment_details?.state?.matches
-        );
+        return [
+          "available.invalid",
+          "available.checking",
+          "available.loading",
+        ].some(actors.payment_details?.state?.matches);
       },
 
       paymentDetailsComplete: ({ actors }, { data }) => {
         return (
-          actors.payment_details?.state?.matches("complete") && !isEmpty(data)
+          (actors.payment_details?.state?.done ||
+            actors.payment_details?.state?.matches("complete")) &&
+          !isEmpty(data)
         );
       },
 
       // --- Configuration Guards
 
-      allConfigured: ({ items }) => {
-        const allConfigured = every(
+      itemsConfigured: ({ items }) => {
+        const itemsConfigured = every(
           items,
           ({ state }) =>
             state?.matches("configured") &&
             state.context.isDirty !== true &&
             state.context.isNew !== true
         );
-        return items?.length && allConfigured; //&& !bin?.length;
+        return items?.length && itemsConfigured; //&& !bin?.length;
       },
 
       someConfiguring: ({ items }) =>
@@ -944,39 +951,17 @@ export default createMachine(
 
       isNotLoading: ({ items, actors }) => {
         return (
-          every(actors, ({ state }) => !state.matches("loading")) &&
-          every(items, ({ state }) => !state.matches("loading"))
+          every(
+            actors,
+            actor =>
+              !["loading", "available.loading"].some(actor?.state.matches)
+          ) && every(items, actor => !actor?.state.matches("loading"))
         );
       },
 
       hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
-      hasItems: ({ items }) => !isEmpty(items),
-
       hasNoItems: ({ items }) => isEmpty(items),
-
-      hasNewItems: ({ items }) => {
-        const value = some(items, ({ state }) => {
-          const isConfigured = state.matches("configured");
-          const isNew = get(state, "context.isNew");
-          return isConfigured && isNew;
-        });
-
-        return value;
-      },
-
-      hasBinnedItems: ({ bin }) => !isEmpty(bin),
-
-      hasDirtyItems: ({ items }) => {
-        return some(items, ({ state }) => {
-          const isConfigured = state.matches("configured");
-          const isDirty = get(state, "context.isDirty");
-          const isNew = get(state, "context.isNew");
-          return isConfigured && !isNew && isDirty;
-        });
-      },
-
-      hasProducts: ({ basket }) => !!basket?.products?.length,
     },
 
     delays: {

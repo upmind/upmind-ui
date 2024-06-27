@@ -70,7 +70,7 @@ export const useSession = () => {
         // The subscriber has unsubscribed from this service
         // typically when the transitioning out of the state node
         // we dont need to do anything here as we are consuming a global service
-        // console.info('clientStore', 'checkClient', 'unsubscribed');
+        // console.debug('clientStore', 'checkClient', 'unsubscribed');
       };
     };
 

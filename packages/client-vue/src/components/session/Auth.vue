@@ -75,24 +75,25 @@ export default defineComponent({
         submit: {
           type: "submit",
           label: this.meta.showLoginForm
-            ? "Log into my account"
+            ? this.$t("auth.actions.login")
             : this.meta.showRegisterForm
-              ? "Create new account"
-              : "Continue",
+              ? this.$t("auth.actions.register")
+              : this.$t("auth.actions.continue"),
           block: true,
           needsValid: true,
         },
       };
 
-      if (this.meta.showLoginForm) {
-        actions.forgot = {
-          label: "forgot password",
-          block: true,
-          variant: "link",
-          size: "sm",
-          action: () => this.toggleForm("forgot"),
-        };
-      }
+      // TODO: implement forgot password flow
+      // if (this.meta.showLoginForm) {
+      //   actions.forgot = {
+      //     label: this.$t("auth.actions.forgot"),
+      //     block: true,
+      //     variant: "link",
+      //     size: "sm",
+      //     action: () => this.toggleForm("forgot"),
+      //   };
+      // }
 
       return actions;
     },
@@ -100,11 +101,11 @@ export default defineComponent({
       return [
         {
           value: "register",
-          label: "New customer",
+          label: this.$t("auth.register"),
         },
         {
           value: "login",
-          label: "Existing customer",
+          label: this.$t("auth.login"),
         },
       ];
     },

@@ -1,21 +1,27 @@
 <template>
   <header
-    class="flex w-full flex-wrap border-b border-base-300 bg-base py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start"
+    class="flex w-full flex-wrap border-b border-base-300 bg-base px-4 py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
   >
     <nav
-      class="relative mx-auto flex w-full flex-wrap items-center gap-4 px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-20"
+      class="relative mx-auto flex w-full max-w-screen-2xl flex-row flex-wrap items-center justify-start gap-4 sm:flex sm:items-center sm:justify-between"
       aria-label="Global"
     >
-      <router-link
+      <component
+        :is="noHome ? 'a' : 'router-link'"
         class="flex h-10 w-auto items-center justify-between gap-3 text-xl font-semibold"
         to="/"
         aria-label="Brand"
       >
-        <logo class="h-full w-full" />
-        <span class="text-nowrap tracking-widest">{{
-          $t("header.title")
-        }}</span>
-      </router-link>
+        <picture class="h-full w-full">
+          <source srcset="/logo.png" type="image/png" />
+          <img src="/logo.svg" class="h-full w-auto" />
+          <caption class="sr-only text-nowrap tracking-widest">
+            {{
+              $t("header.title")
+            }}
+          </caption>
+        </picture>
+      </component>
 
       <div class="flex flex-1 items-center justify-end gap-4">
         <upw-listbox
@@ -33,17 +39,17 @@
         <upm-currency />
 
         <upw-button
-          to="/checkout"
-          class="relative"
+          to="/"
           append-icon="basket"
           color="base"
           variant="ghost"
+          v-if="!isBasketView"
         >
           <template #append-avatar>
             <upw-avatar
               :key="items?.length"
               v-if="items?.length"
-              class="animate-once absolute -top-1 right-0 size-4 animate-ping bg-primary text-xs text-primary-content"
+              class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-content"
             >
               {{ items.length }}
             </upw-avatar>
@@ -58,7 +64,6 @@
 
 <script>
 import { defineComponent } from "vue";
-import Logo from "@/assets/logo.svg";
 import {
   useBasket,
   UpwListbox,
@@ -66,19 +71,22 @@ import {
   UpmCurrency,
   UpwAvatar,
   UpwButton,
-  UpwIcon,
 } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
-    Logo,
     UpwAvatar,
-    UpwIcon,
     UpwListbox,
     UpwButton,
     UpmProfile,
     UpmCurrency,
+  },
+  props: {
+    noHome: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup() {
     const { items } = useBasket();
@@ -88,6 +96,9 @@ export default defineComponent({
     };
   },
   computed: {
+    isBasketView() {
+      return this.$route.name === "basket";
+    },
     locales() {
       return this.$i18n.availableLocales.map(locale => ({
         label: locale.toUpperCase(),

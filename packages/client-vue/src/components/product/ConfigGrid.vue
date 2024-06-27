@@ -3,7 +3,6 @@
     v-if="hasItems"
     :class="styles.product.config.grid.root"
     :label="label"
-    :disabled="disabled"
     :required="true"
     no-required
     no-feedback
@@ -28,6 +27,7 @@
           :class="
             mergeStyles(
               styles.product.config.grid.item.root,
+              disabled ? styles.product.config.grid.item.disabled : null,
               checked ? styles.product.config.grid.item.selected : null
             )
           "
@@ -38,6 +38,7 @@
             no-feedback
             no-status
             variant="flat"
+            no-label
           />
 
           <div :class="styles.product.config.grid.item.header">
@@ -47,7 +48,7 @@
 
             <upw-badge
               v-if="item.saving"
-              color="primary"
+              color="secondary"
               :label="$t('product.save', { value: item.saving_formatted })"
             />
 
@@ -107,7 +108,7 @@ import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigitems",
+  name: "UpmProductConfigGrid",
   components: {
     UpwInput,
     UpwRadio,

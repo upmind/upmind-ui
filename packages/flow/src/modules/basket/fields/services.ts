@@ -39,7 +39,7 @@ async function update(
     url: useUrl(`/orders/${basket_id}`),
     data,
     withAccessToken: true,
-  });
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------

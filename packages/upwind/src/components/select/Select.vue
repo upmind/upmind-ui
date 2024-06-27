@@ -19,6 +19,7 @@
     :no-required="noRequired"
     :no-feedback="noFeedback"
     :no-status="noStatus"
+    :no-label="noLabel"
     :persist-feedback="persistFeedback"
     layout="stacked"
     variant="outlined"
@@ -55,7 +56,7 @@ import UpwInput from "../input/Input.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty, omit } from "lodash-es";
+import { isNil, isEmpty, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -81,7 +82,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -101,11 +102,13 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
+    noLabel: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -115,6 +118,7 @@ export default defineComponent({
       size: props.size,
       // ---
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -128,14 +132,26 @@ export default defineComponent({
       meta,
       styles,
       onChange: event => {
+        if (props.disabled || props.processing) return;
         emit("update:modelValue", event.target.value);
       },
     };
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant", "options"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "placeholder",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
   },
 });

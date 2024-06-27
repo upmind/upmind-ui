@@ -16,6 +16,8 @@ import type { BillingDetailsEvent, BillingDetailsContext } from "./types.d";
 
 // --------------------------------------------------------
 
+const { authSubscription, isAuthenticated } = useSession();
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -24,10 +26,9 @@ async function load(
   _context: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  const { isAuthenticated } = useSession();
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  const { isAuthenticated, getUserId } = useSession();
+
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const { isReady: isAddressesReady, getItems: getAddresses } =
     useClientAddresses();
@@ -38,14 +39,7 @@ async function load(
   return Promise.all([isAddressesReady(), isCompaniesReady()]).then(() => {
     const addresses = getAddresses();
     const companies = getCompanies();
-
-    return new Promise((resolve, reject) => {
-      if (addresses?.length || companies?.length) {
-        resolve({ addresses, companies });
-      } else {
-        reject("No Companies or Addresses Available");
-      }
-    });
+    return { addresses, companies };
   });
 }
 
@@ -64,7 +58,7 @@ async function update(
       company_id: model?.company_id || null,
     },
     withAccessToken: true,
-  });
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------
@@ -105,4 +99,7 @@ export default {
   parse,
   validate,
   update,
+  // ---
+  authSubscription,
+  isAuthenticated,
 };

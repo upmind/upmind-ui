@@ -8,7 +8,6 @@ export interface DialogProps {
     | "primary"
     | "secondary"
     | "accent"
-    | "neutral"
     | "success"
     | "error"
     | "warning"

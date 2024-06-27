@@ -2,7 +2,7 @@
   <label
     :for="id"
     :class="styles.label.root"
-    v-if="!noRequired || !noStatus || !noLabel"
+    v-if="!noRequired || !noStatus || (!noLabel && !!text)"
   >
     <span :class="styles.label.text" v-if="text">
       {{ text }}
@@ -79,6 +79,8 @@ export default defineComponent({
 
   setup(props) {
     const meta = computed(() => ({
+      size: props.size,
+      // ---
       isValid: !props.invalid && props.dirty,
       isInvalid: props.invalid,
       showLabel: !props.noLabel,

@@ -32,12 +32,8 @@ async function load({ model }: CurrencyContext, _event: CurrencyEvent) {
     model = baseModel;
   }
 
-  return new Promise((resolve, reject) => {
-    if (currencies?.length) {
-      resolve({ currencies, baseModel, model });
-    } else {
-      reject("No Currencies Available");
-    }
+  return new Promise(resolve => {
+    resolve({ currencies, baseModel, model });
   });
 }
 

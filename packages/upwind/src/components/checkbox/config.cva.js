@@ -16,7 +16,7 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 cursor-pointer appearance-none rounded border outline-none ring-0",
+      "border-base-300 cursor-inherit appearance-none rounded border text-inherit outline-none ring-0",
       {
         variants: {
           size: {
@@ -25,46 +25,49 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "bg-base-100",
+            true: "bg-base-100 cursor-not-allowed",
+          },
+          isProcessing: {
+            true: "cursor-wait",
           },
           isChecked: {
-            true: `border-current bg-current text-base`,
+            true: `border-control-active bg-control-active`,
           },
         },
         compoundVariants: [
           {
             isInvalid: true,
             isDisabled: false,
-            class: "border-error-300",
+            isProcessing: false,
+            class: "border-control-error-300 cursor-pointer",
           },
-          {
-            isValid: true,
-            isDisabled: false,
-            class: "",
-          },
+
           {
             variant: "outlined",
             isInvalid: false,
-            isValid: false,
             isDisabled: false,
+            isProcessing: false,
             class:
-              "focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-control-active focus-within:ring-control-active cursor-pointer focus-within:ring-4 focus-within:ring-opacity-20",
           },
 
           {
             variant: "outlined",
             isInvalid: true,
             isDisabled: false,
+            isProcessing: false,
             class:
-              "focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
-          {
-            variant: "outlined",
-            isValid: true,
-            isDisabled: false,
-            class:
-              "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
-          },
+          // deprecated success variant
+          // {
+          //   variant: "outlined",
+          //   isValid: true,
+          //   isDisabled: false,
+          //   isProcessing: false,
+          //   class:
+          //     "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
+          // },
         ],
         defaultVariants: {
           size: "md",
@@ -76,12 +79,15 @@ export default {
       {
         variants: {
           size: {
-            sm: "size-2",
-            md: "size-3",
-            lg: "size-4",
+            sm: "size-4",
+            md: "size-5",
+            lg: "size-6",
           },
           isDisabled: {
-            true: "text-base-content",
+            true: "text-base-content cursor-not-allowed",
+          },
+          isProcessing: {
+            true: "cursor-wait",
           },
           isChecked: {
             true: `text-base`,

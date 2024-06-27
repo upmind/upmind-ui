@@ -16,15 +16,13 @@
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
     :required="meta.isRequired"
-    :no-required="noRequired"
-    :no-feedback="noFeedback"
-    :no-status="noStatus"
     :persist-feedback="persistFeedback"
     layout="stacked"
     variant="flat"
     no-label
     no-status
-    noRequired
+    no-required
+    no-feedback
   >
     <slot name="prepend" v-bind="{ styles: styles.quantitybox }">
       <upw-button
@@ -102,7 +100,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -134,11 +132,9 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
     // ---
-    noRequired: { type: Boolean },
-    noStatus: { type: Boolean },
-    noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -148,6 +144,7 @@ export default defineComponent({
       size: props.size,
       // ---
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -162,6 +159,7 @@ export default defineComponent({
       styles,
 
       onChange: event => {
+        if (props.disabled || props.processing) return;
         emit("update:modelValue", event.target.value);
       },
     };

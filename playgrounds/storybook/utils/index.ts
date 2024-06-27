@@ -3,7 +3,7 @@ export * from "./useIcons";
 
 // --- utils
 import { useIcons } from "./useIcons";
-import { keys } from "lodash";
+import { keys } from "lodash-es";
 // ----------------------------------------------------------------------------
 
 const flags = useIcons("flags");
@@ -13,7 +13,7 @@ enum colors {
   primary = "Primary",
   secondary = "Secondary",
   accent = "Accent",
-  neutral = "Neutral",
+  base = "Base",
   success = "Success",
   error = "Error",
   warning = "Warning",

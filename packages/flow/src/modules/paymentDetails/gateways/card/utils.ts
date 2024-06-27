@@ -32,33 +32,26 @@ export const useSchema = (context: GatewayContext) => {
     properties: {
       ...(defaultSchema?.properties || {}), // NB Always include the default schema properties
 
-      cardholder_name: { type: "string", title: "Cardholder Name" },
+      cardholder_name: { type: "string" },
       card_num: {
         type: "string",
-        title: "Card Number",
-        description: "The 16 digit number on the front of your card.",
         minLength: 0,
         maxLength: 22,
         pattern: "[0-9]*",
       },
       card_expiry: {
         type: "string",
-        description: 'Expiry Date of the card. Date Format: MM/YY"',
         title: "Expiry Date",
         pattern: "^(0[1-9]|1[0-2])/[0-9]{2}$",
       },
       card_cvv: {
         type: "string",
-        title: "CVV",
-        description:
-          "card security code found on the back of your card that provides an additional measure of credit card security.",
         pattern: "^[0-9]*$",
         minLength: 3,
         maxLength: 5,
       }, // TODO: get from gateway card type cvv_length
       external: {
         type: "boolean",
-        title: "Use external payment gateway",
         const: false,
       },
     },
@@ -83,6 +76,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/cardholder_name",
+        i18n: "payment.cardholder_name",
         options: {
           autocomplete: "cc-name",
         },
@@ -99,6 +93,7 @@ export const useUischema = (context: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/card_num",
+        i18n: "payment.card_num",
         options: {
           autocomplete: "cc-number",
         },
@@ -109,6 +104,7 @@ export const useUischema = (context: GatewayContext) => {
           {
             type: "Control",
             scope: "#/properties/card_expiry",
+            i18n: "payment.card_expiry",
             options: {
               autocomplete: "cc-exp",
               trim: true,
@@ -117,6 +113,7 @@ export const useUischema = (context: GatewayContext) => {
           {
             type: "Control",
             scope: "#/properties/card_cvv",
+            i18n: "payment.card_cvv",
             options: {
               autocomplete: "cc-csc",
               trim: true,

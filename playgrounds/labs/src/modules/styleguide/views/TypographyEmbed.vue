@@ -106,7 +106,7 @@
       <p>Acronym / a word formed from the initial letters of other words</p>
       <p>
         Sample acronyms:
-        <acronym title="eXtensible HyperText Markup Language">XHTML</acronym>
+        <abbr title="eXtensible HyperText Markup Language">XHTML</abbr>
       </p>
       <h3>q</h3>
       <p>Inline quotation</p>

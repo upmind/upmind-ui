@@ -21,6 +21,7 @@
         :no-required="noRequired"
         :no-feedback="noFeedback"
         :no-status="noStatus"
+        :no-label="noLabel"
         :persist-feedback="persistFeedback"
         layout="stacked"
         variant="outlined"
@@ -201,7 +202,7 @@ import {
   debounce,
   includes,
   isFunction,
-  omit,
+  pick,
   reject,
   get,
 } from "lodash-es";
@@ -237,7 +238,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     placement: {
       type: String as PropType<ComboboxPosition>,
       default: "bottom-end",
@@ -292,8 +293,9 @@ export default defineComponent({
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
+    noLabel: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     toggleRotate: { type: Boolean, default: false },
 
     // --- Provide a way to add custom styles for a specific instance of the component
@@ -383,8 +385,19 @@ export default defineComponent({
 
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "placeholder",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
     displayValue() {
       const selected = find(this.results, [this.itemValue, this.value]);

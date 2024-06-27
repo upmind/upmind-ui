@@ -48,6 +48,7 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
     //messages: computed(()=> contextValue(payment_details.value?.state, 'messages')),
     // ---
     meta: computed(() => ({
+      isFree: !contextValue(payment_details.value?.state, "model.amount"),
       isLoading:
         !payment_details.value?.state ||
         stateMatches(payment_details.value?.state, ["loading"]),
@@ -59,6 +60,7 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
       isValid: stateMatches(payment_details.value?.state, ["valid"]),
       isDirty: contextMatches(payment_details.value?.state, ["dirty"]),
       isComplete:
+        !contextValue(payment_details.value?.state, "model.amount") ||
         stateValue(payment_details.value?.state, "done", false) ||
         stateMatches(payment_details.value?.state, ["processed", "complete"]),
     })),
@@ -93,7 +95,7 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
       // then wait for the payment_details actor to be valid
       // then send the update event to the payment_details actor
       waitFor(service.state.context.actors.payment_details, newstate =>
-        newstate.matches("valid")
+        newstate.matches("available.valid")
       ).then(() => payment_details.value?.send({ type: "UPDATE" }));
     },
   };

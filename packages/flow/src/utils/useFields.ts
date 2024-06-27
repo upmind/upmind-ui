@@ -129,7 +129,7 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
   return schema;
 };
 
-export const useFieldsUischemaParser = (data: any) => {
+export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
   if (!data?.length) {
     return [];
   }
@@ -180,6 +180,7 @@ export const useFieldsUischemaParser = (data: any) => {
     return {
       type: "Control",
       scope: `#/properties/custom_fields/properties/${field.code}`,
+      i18n: `${i18nKey}.${field.code}`,
       options: {
         label: useTranslateField(field, "name"),
         description: useTranslateField(field, "description"),

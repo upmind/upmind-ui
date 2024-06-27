@@ -30,10 +30,12 @@
       >
         <upw-checkbox
           v-bind="safeAttrs"
+          variant="outlined"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
-          variant="outlined"
+          :disabled="meta.isDisabled"
+          :processing="meta.isProcessing"
           :label="item.label"
           :value="item.value"
           :model-value="isSelected(item.value)"
@@ -62,7 +64,7 @@ import { useStyles } from "../../utils";
 import {
   isEmpty,
   isNil,
-  omit,
+  pick,
   includes,
   remove,
   uniq,
@@ -95,7 +97,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -123,11 +125,13 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
+
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -137,6 +141,7 @@ export default defineComponent({
       size: props.size,
       // ---
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -151,6 +156,7 @@ export default defineComponent({
       meta,
       styles,
       onChange: event => {
+        if (props.disabled || props.processing) return;
         const selected = props.modelValue || [];
         const checked = event.target.checked;
         const value = event.target.value;
@@ -167,8 +173,19 @@ export default defineComponent({
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "placeholder",
+        "tabindex",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
   },
 });

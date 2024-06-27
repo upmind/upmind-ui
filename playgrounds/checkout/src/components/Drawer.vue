@@ -18,10 +18,10 @@
     tabindex="-1"
   >
     <div class="flex items-center justify-between border-b px-4 py-3">
-      <h3 class="font-bold text-gray-800">{{ title }}</h3>
+      <h3 class="font-bold text-base-800">{{ title }}</h3>
       <button
         type="button"
-        class="inline-flex size-8 flex-shrink-0 items-center justify-center rounded-lg text-sm text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white"
+        class="inline-flex size-8 flex-shrink-0 items-center justify-center rounded-lg text-sm text-base-500 hover:text-base-700 focus:outline-none focus:ring-2 focus:ring-base-400 focus:ring-offset-2 focus:ring-offset-white"
       >
         <span class="sr-only">Close drawer</span>
         <svg

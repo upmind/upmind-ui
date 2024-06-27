@@ -94,7 +94,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
       // then wait for the billing_details actor to be valid
       // then send the update event to the billing_details actor
       waitFor(service.state.context.actors.billing_details, newstate =>
-        newstate.matches("valid")
+        newstate.matches("available.valid")
       ).then(() => billing_details.value?.send({ type: "UPDATE" }));
     },
   };

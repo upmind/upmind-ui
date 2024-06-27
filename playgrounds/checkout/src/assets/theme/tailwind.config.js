@@ -36,85 +36,60 @@ export default {
       content: "#000000",
     },
 
-    gray: {
-      DEFAULT: "#6d6d6d",
-      50: "#f6f6f6",
-      100: "#e7e7e7",
-      200: "#d1d1d1",
-      300: "#b0b0b0",
-      400: "#888888",
-      500: "#6d6d6d",
-      600: "#5d5d5d",
-      700: "#4f4f4f",
-      800: "#424242",
-      900: "#3d3d3d",
-      950: "#262626",
-      content: "#e7e7e7",
+    control: {
+      DEFAULT: "#ffffff",
+      content: "#000000",
+      active: "#5E36E8",
+      error: "#EF4444",
     },
 
     // ---
     primary: {
-      DEFAULT: "#018ffd",
-      50: "#edfbff",
-      100: "#d6f5ff",
-      200: "#b6f0ff",
-      300: "#83e9ff",
-      400: "#49daff",
-      500: "#1fbfff",
-      600: "#07a3ff",
-      700: "#018ffd",
-      800: "#086dc5",
-      900: "#0e5c9a",
-      950: "#0e385d",
+      DEFAULT: "#21CB66",
+      50: "#f0fdf4",
+      100: "#dcfce8",
+      200: "#baf8d2",
+      300: "#85f0b0",
+      400: "#48e086",
+      500: "#21cb66",
+      600: "#15a44f",
+      700: "#148141",
+      800: "#156637",
+      900: "#13542f",
+      950: "#052e18",
       content: "#ffffff",
     },
 
     secondary: {
-      DEFAULT: "#05c3de",
-      50: "#ecfeff",
-      100: "#cffbfe",
-      200: "#a4f5fd",
-      300: "#66ecfa",
-      400: "#21d8ef",
-      500: "#05c3de",
-      600: "#0796b3",
-      700: "#0d7791",
-      800: "#146076",
-      900: "#165063",
-      950: "#083444",
+      DEFAULT: "#5E36E8",
+      50: "#f3f3ff",
+      100: "#eae9fe",
+      200: "#d9d7fd",
+      300: "#bbb7fb",
+      400: "#998ef7",
+      500: "#7760f2",
+      600: "#5e36e8",
+      700: "#562cd5",
+      800: "#4724b3",
+      900: "#3d2092",
+      950: "#231263",
       content: "#ffffff",
     },
 
     accent: {
-      DEFAULT: "#8b04de",
-      50: "#fbf3ff",
-      100: "#f5e4ff",
-      200: "#edceff",
-      300: "#dfa7ff",
-      400: "#cc6fff",
-      500: "#ba39ff",
-      600: "#a913ff",
-      700: "#8b04de",
-      800: "#7c0abf",
-      900: "#66099a",
-      950: "#470074",
+      DEFAULT: "#303035",
+      50: "#f7f7f8",
+      100: "#eeeef0",
+      200: "#d9d9de",
+      300: "#b9bac0",
+      400: "#92939e",
+      500: "#757682",
+      600: "#5e5e6b",
+      700: "#4d4d57",
+      800: "#42424a",
+      900: "#3a3a40",
+      950: "#303035",
       content: "#ffffff",
-    },
-
-    neutral: {
-      DEFAULT: "#2b4779",
-      50: "#f4f6fb",
-      100: "#e8ecf6",
-      200: "#cbd8ec",
-      300: "#9db6dc",
-      400: "#6990c7",
-      500: "#4672b1",
-      600: "#345995",
-      700: "#2b4779",
-      800: "#273e65",
-      900: "#253555",
-      950: "#111827",
-      content: "#f4f6fb",
     },
 
     // ---
@@ -182,23 +157,16 @@ export default {
       950: "#450a0a",
       content: "#ffebee",
     },
-
-    disabled: {
-      DEFAULT: "#9e9e9e",
-      content: "#eeeeee",
-    },
-    // ---
   },
 
   fontFamily: {
-    sans: ["Inter", "sans-serif", ...defaultTheme.fontFamily.sans],
-    serif: ["Inter", "sans-serif", ...defaultTheme.fontFamily.serif],
-    mono: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.mono],
+    body: defaultTheme.fontFamily.sans.toString(","),
+    display: ["Urbanist", ...defaultTheme.fontFamily.sans].toString(","),
   },
 
   fontSize: {
-    xs: ".75rem", // 12px
-    sm: ".875rem", // 14px
+    xs: ".875rem", // 14px,
+    sm: "0.938rem", //15px,
     base: "1rem", // 16px
     md: "1rem", // 16px
     lg: "1.125rem", // 18px
@@ -208,14 +176,31 @@ export default {
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
   },
-  // ---------------------------------------------------------------------------
+
   typography: ({ theme }) => ({
     DEFAULT: {
       css: {
+        fontFamily: theme("fontFamily.body"),
+
         h1: {
+          fontFamily: theme("fontFamily.display"),
           fontWeight: theme("fontWeight.light"),
           fontSize: theme("fontSize.5xl"),
-          color: "red",
+        },
+        h2: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h3: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h4: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h5: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h6: {
+          fontFamily: theme("fontFamily.display"),
         },
       },
     },

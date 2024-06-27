@@ -216,12 +216,14 @@ export const useSchema = ({
         type: "number",
         title: "Address Type",
         default: baseModel?.type,
-        oneOf: map(types, item => {
-          return {
-            const: item.key,
-            title: item.value,
-          };
-        }),
+        oneOf: !types?.length
+          ? undefined
+          : map(types, item => {
+              return {
+                const: item.key,
+                title: item.value,
+              };
+            }),
       },
     },
   };
@@ -240,7 +242,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
       addresses.getItems(),
       (result, item) => {
         // Only return actual addresses, NOT companies
-        if (!item.company_details) {
+        if (!item?.company_details) {
           result.push({
             value: item.id,
             label: [
@@ -291,20 +293,22 @@ export const useUischema = ({ addresses, emails, phones }) => {
       {
         type: "Control",
         scope: "#/properties/place",
+        i18n: "client.unified.form.fields.place",
         options: {
           prependIcon: "search",
           autocomplete: "off",
-          placeholder: "Search for address ...",
           items: compact([
             lookups.addresses?.length
               ? {
                   label: "Your saved addreses",
+                  i18n: "client.unified.form.fields.saved",
                   as: "separator",
                 }
               : null,
             ...lookups.addresses,
             {
               label: "Enter manually",
+              i18n: "client.unified.form.fields.manual",
               value: "manual",
               as: "button",
               variant: "link",
@@ -337,21 +341,18 @@ export const useUischema = ({ addresses, emails, phones }) => {
           {
             type: "Control",
             scope: "#/properties/address_1",
-            label: "Address", // ensure we  show the title for BOTH address fields
+            i18n: "client.unified.form.fields.address_1",
             options: {
               focus: true,
               autocomplete: "address-line1",
-              placeholder: "Address first line...",
             },
           },
           {
             type: "Control",
             scope: "#/properties/address_2",
-            label: "", // ensure we DON'T show the title
+            i18n: "client.unified.form.fields.address_2",
             options: {
               autocomplete: "address-line2",
-              placeholder: "Address second line...",
-              class: "-mt-8",
             },
           },
 
@@ -362,17 +363,17 @@ export const useUischema = ({ addresses, emails, phones }) => {
               {
                 type: "Control",
                 scope: "#/properties/city",
+                i18n: "client.unified.form.fields.city",
                 options: {
                   autocomplete: "address-level2",
-                  placeholder: "City...",
                 },
               },
               {
                 type: "Control",
                 scope: "#/properties/postcode",
+                i18n: "client.unified.form.fields.postcode",
                 options: {
                   autocomplete: "postal-code",
-                  placeholder: "Postcode...",
                 },
               },
             ],
@@ -381,6 +382,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
           {
             type: "Control",
             scope: "#/properties/region_id",
+            i18n: "client.unified.form.fields.region_id",
             options: {
               autocomplete: "address-level1",
               placeholder: "Please select a Region...",
@@ -389,6 +391,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
           {
             type: "Control",
             scope: "#/properties/country_id",
+            i18n: "client.unified.form.fields.country_id",
             options: {
               autocomplete: "country",
               placeholder: "Please select a Country...",
@@ -407,6 +410,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
       {
         type: "Control",
         scope: "#/properties/company_details",
+        i18n: "client.unified.form.fields.company_details",
         rule: {
           effect: "SHOW",
           condition: {
@@ -440,6 +444,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
           {
             type: "Control",
             scope: "#/properties/name",
+            i18n: "client.unified.form.fields.name",
             options: {
               focus: true,
               autocomplete: "organization",
@@ -448,30 +453,26 @@ export const useUischema = ({ addresses, emails, phones }) => {
             },
           },
           {
-            type: "Control",
-            scope: "#/properties/reg_number",
-            options: {},
-          },
-          {
             type: "HorizontalLayout",
             elements: [
               {
                 type: "Control",
-                scope: "#/properties/vat_number",
+                scope: "#/properties/reg_number",
+                i18n: "client.unified.form.fields.reg_number",
                 options: {},
               },
               {
                 type: "Control",
-                scope: "#/properties/vat_percent",
-                options: {
-                  appendText: "%",
-                },
+                scope: "#/properties/vat_number",
+                i18n: "client.unified.form.fields.vat_number",
+                options: {},
               },
             ],
           },
           {
             type: "Control",
             scope: "#/properties/email",
+            i18n: "client.unified.form.fields.email",
             options: {
               suggestions: true,
               autocomplete: "email",
@@ -483,6 +484,7 @@ export const useUischema = ({ addresses, emails, phones }) => {
           {
             type: "Control",
             scope: "#/properties/phone",
+            i18n: "client.unified.form.fields.phone",
             options: {
               autocomplete: "tel",
               suggestions: true,
