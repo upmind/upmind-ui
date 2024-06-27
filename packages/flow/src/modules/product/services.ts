@@ -214,6 +214,7 @@ async function checkTerm(
   const subtotal = values.quantity * term?.price || 0;
   const total = values.quantity * term?.price_discounted || 0;
   const discount = total ? subtotal - total : 0;
+  debugger;
   prices.term.discount = discount;
   prices.term.subtotal = discount ? subtotal : 0;
   prices.term.total = discount ? total : subtotal; // cater for no discount
@@ -392,6 +393,8 @@ async function checkOptions(
     {}
   );
 
+  debugger;
+
   prices.options = reduce(
     options,
     (result, option) => {
@@ -407,7 +410,6 @@ async function checkOptions(
   );
 
   return new Promise((resolve, reject) => {
-    debugger;
     if (errors?.length) reject(errors);
     else resolve({ options, prices });
   });
