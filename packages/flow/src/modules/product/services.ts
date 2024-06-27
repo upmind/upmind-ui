@@ -210,14 +210,20 @@ async function checkTerm(
 
   // ---
   // only calculate the term price if we dont have any price overrides
-  // if (!useHasPriceOverride(values.options, available.options)) {
-  const subtotal = values.quantity * term?.price || 0;
-  const total = values.quantity * term?.price_discounted || 0;
-  const discount = total ? subtotal - total : 0;
-  debugger;
-  prices.term.discount = discount;
-  prices.term.subtotal = discount ? subtotal : 0;
-  prices.term.total = discount ? total : subtotal; // cater for no discount
+  if (!useHasPriceOverride(values.options, available.options)) {
+    const subtotal = values.quantity * term?.price || 0;
+    const total = values.quantity * term?.price_discounted || 0;
+    const discount = total ? subtotal - total : 0;
+    prices.term.discount = discount;
+    prices.term.subtotal = discount ? subtotal : 0;
+    prices.term.total = discount ? total : subtotal; // cater for no discount
+    prices.term.formatted = term?.price_formatted;
+  } else {
+    prices.term.discount = 0;
+    prices.term.subtotal = 0;
+    prices.term.total = 0;
+    prices.term.formatted = null;
+  }
 
   return new Promise((resolve, reject) => {
     if (!isNil(term)) resolve({ term, prices });
@@ -369,7 +375,8 @@ async function checkOptions(
             value.billing_cycle_months,
           ]);
 
-          value.total = value.unit_quantity * (value.price?.price || 0);
+          value.total =
+            value.unit_quantity * (value.price?.price || 0) * values.quantity;
 
           value.total_discounted =
             value.unit_quantity * (value.price?.price_discounted || 0);
@@ -392,8 +399,6 @@ async function checkOptions(
     },
     {}
   );
-
-  debugger;
 
   prices.options = reduce(
     options,

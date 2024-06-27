@@ -31,7 +31,14 @@
           >
             <slot name="actions" v-bind="{ ...$props, product }">
               <strong :class="styles.basket.summary.bold" v-if="noActions">
-                {{ product.total }}<br />
+                <del
+                  :class="styles.basket.summary.discount"
+                  v-if="!!product.discount"
+                >
+                  {{ product.subtotal }}
+                  <!-- <small>{{ product.quantity }}</small> -->
+                </del>
+                {{ product.total }}
                 <!-- <small>{{ product.quantity }}</small> -->
               </strong>
 
