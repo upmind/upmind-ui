@@ -102,7 +102,6 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]";
     setAvailable: "done.invoke.load";
-    setCalculating: "UPDATE.QUANTITY";
     setClean: "REFRESH";
     setConfig:
       | "PROCESSING"

@@ -279,7 +279,7 @@ export default (values, currency_id, promotions) => {
             // PROCESSING: { target: "configured.processing" },
             "UPDATE.QUANTITY": {
               target: "configuring.quantity",
-              actions: ["setQuantity", "setCalculating"],
+              actions: ["setQuantity"],
             },
             UPDATE: {
               target: "configuring",
@@ -474,7 +474,6 @@ export default (values, currency_id, promotions) => {
             set(values, "quantity", Math.max(1, quantity)); //TODO: min check? step check
             return values;
           },
-          needsCalculating: (_context, { data }) => !!data,
         }),
 
         setTerm: assign({
