@@ -35,14 +35,11 @@
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
-          <upw-spinner
-            v-if="meta.isLoading || meta.isCalculating"
-            :class="styles.product.config.loading"
-          />
+          <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
 
           <upw-quantitybox
             v-if="availableProduct?.canChangeQuantity"
-            :disabled="processing"
+            :disabled="meta.isProcessing"
             :min="availableProduct?.min_order_quantity"
             :max="availableProduct?.max_order_quantity"
             :step="availableProduct?.unit_quantity"
@@ -94,7 +91,9 @@
         <!-- terms -->
         <upm-config-grid
           v-if="meta.hasTerms"
-          :processing="processing || meta.isLoading || meta.isCalculating"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
           :items="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
@@ -105,7 +104,9 @@
         <!-- attributes -->
         <upm-config-nested
           v-if="meta.hasAttributes"
-          :processing="processing || meta.isLoading || meta.isCalculating"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
           :items="availableAttributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
@@ -115,7 +116,9 @@
         <!-- options -->
         <upm-config-nested
           v-if="meta.hasOptions"
-          :processing="processing || meta.isLoading || meta.isCalculating"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
           :items="availableOptions"
           :model-value="model?.options"
           @update:modelValue="selectOption"
@@ -126,7 +129,7 @@
         <!-- provisional fields -->
         <upm-config-form
           v-if="meta.hasProvisioning"
-          :processing="processing || meta.isLoading"
+          :processing="meta.isProcessing || meta.isLoading"
           :additional-errors="errors?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"
@@ -141,7 +144,7 @@
         type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
-        :disabled="processing"
+        :disabled="meta.isProcessing"
         @click="doReject"
         color="current"
         variant="link"
@@ -158,7 +161,7 @@
         type="submit"
         tabindex="0"
         :label="$t('product.actions.resolve')"
-        :loading="processing"
+        :loading="meta.isProcessing"
         :disabled="meta.isLoading || !meta.isConfigured"
       />
     </footer>
@@ -212,10 +215,6 @@ export default defineComponent({
     },
     // ---
     disabled: {
-      type: Boolean,
-      default: false,
-    },
-    processing: {
       type: Boolean,
       default: false,
     },
