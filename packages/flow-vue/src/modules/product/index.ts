@@ -52,9 +52,10 @@ export const useProductConfig = item => {
       !isEmpty(state.value?.context?.available?.options) ||
       !isEmpty(state.value?.context?.available?.provision_fields?.properties),
 
-    isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
-    isCalculating: state.value.matches("calculating"),
+    isCalculating: state.value.matches("configuring.summary.calculating"),
+    isProcessing: state.value.matches("configured.processing"),
+    isUnavailable: state.value.matches("unavailable"),
     // ---
     hasProvisioning:
       !isEmpty(state.value.context.available.provision_fields?.properties) &&

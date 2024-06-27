@@ -12,6 +12,9 @@ export default {
         "p-6 bg-base text-base-content border rounded-lg border-base-300 gap-6 flex flex-wrap items-stretch ",
         {
           variants: {
+            isUnavailable: {
+              true: "pointer-events-none opacity-50",
+            },
             isDisabled: {
               // true: "pointer-events-none",
             },
@@ -62,10 +65,12 @@ export default {
         "flex max-w-xs flex-1 items-center text-right justify-end gap-6"
       ),
       // ---
+      loading: cva("size-7"),
       title: cva("w-full m-0 text-2xl font-normal leading-none tracking-wide"),
       meta: cva(
         "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
       ),
+
       text: cva("w-full text-left m-0 text-sm leading-normal"),
       bold: cva("font-medium", {
         variants: {

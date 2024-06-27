@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -17,10 +17,18 @@ import {
   useValuesParser,
   useSummaryParser,
   useValidationParser,
-  useDisplayPriceParser,
 } from "./utils";
 
-import { get, set, map, toNumber, find, merge, isEqual } from "lodash-es";
+import {
+  get,
+  set,
+  map,
+  toNumber,
+  find,
+  merge,
+  isEqual,
+  isNil,
+} from "lodash-es";
 
 import { useBrand } from "../brand";
 
@@ -35,6 +43,7 @@ export default (values, currency_id, promotions) => {
       predictableActionArguments: true,
       initial: "loading",
       context: {
+        raw: null, // the raw data from the api
         // ---
         // the model use dto generate our coonfig,
         // but with better structure / more detail to make ut easier for any ui to consume,
@@ -58,11 +67,15 @@ export default (values, currency_id, promotions) => {
         },
 
         // ---
-        // the generated summary of the configuration,
-        // including the totals formatted for display
-        summary: useSummaryParser(values),
-
-        // use any applied promotions when fetching the product to get the correct prices
+        // the generated summary/pricing/details of the configuration,
+        config: null,
+        summary: null,
+        prices: {
+          term: { subtotal: 0, total: 0, discount: 0 },
+          attributes: { subtotal: 0, total: 0, discount: 0 },
+          options: { subtotal: 0, total: 0, discount: 0 },
+        },
+        // ---
         promotions,
         currency_id: validateCurrency(currency_id),
         // ---
@@ -72,251 +85,304 @@ export default (values, currency_id, promotions) => {
         // first load our product, we do this even if we are given a configured set of values
         //  as we need the additional 'with' properties
         loading: {
+          id: "loading",
           invoke: {
             id: "load",
-            src: "getProduct",
-            onDone: [{ target: "processed", actions: ["setAvailable"] }],
+            src: "load",
+            onDone: [{ target: "configuring", actions: ["setAvailable"] }],
             onError: {
               target: "#error",
-              actions: ["setError", "escalateError"],
+              actions: ["setError"],
             },
-          },
-        },
-
-        processed: {
-          after: {
-            wait: "configuring",
           },
         },
 
         // The product requires configuration
         configuring: {
           id: "configuring",
-          type: "parallel",
+          initial: "quantity",
           states: {
             quantity: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkQuantity",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setQuantity", "setConfig"],
-                    },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setError", "escalateError"],
-                    },
-                  },
+              invoke: {
+                src: "checkQuantity",
+                onDone: {
+                  target: "values",
+                  actions: ["setQuantity", "setConfig"],
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.QUANTITY": {
-                  target: "quantity.checking",
-                  actions: ["setQuantity", "setCalculating"],
+                onError: {
+                  actions: ["setError"],
                 },
               },
             },
-            term: {
-              initial: "checking",
+            values: {
+              type: "parallel",
               states: {
-                checking: {
-                  invoke: {
-                    src: "checkTerm",
-                    onDone: { target: "valid", actions: ["setTerm"] },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setError", "escalateError"],
+                term: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkTerm",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setTerm", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setError"],
+                        },
+                      },
+                    },
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.TERM": {
+                      target: "term.checking",
+                      actions: ["setTerm"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.TERM": {
-                  target: "term.checking",
-                  actions: ["setTerm", "setConfig", "setCalculating"],
-                },
-              },
-            },
-            attributes: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkAttributes",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setAttributes", "setConfig"],
+                attributes: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkAttributes",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setAttributes", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setAttributes", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setAttributes", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.ATTRIBUTES": {
+                      target: "attributes.checking",
+                      actions: ["setAttributes"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.ATTRIBUTES": {
-                  target: "attributes.checking",
-                  actions: ["setAttributes"],
-                },
-              },
-            },
-            options: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkOptions",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setOptions", "setConfig"],
+                options: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkOptions",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setOptions", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setOptions", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setOptions", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.OPTIONS": {
+                      target: "options.checking",
+                      actions: ["setOptions"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.OPTIONS": {
-                  target: "options.checking",
-                  actions: ["setOptions", "setCalculating"],
-                },
-              },
-            },
-            provisioning: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkProvisioning",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setProvisioning", "setConfig"],
+                provisioning: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkProvisioning",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setProvisioning", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setProvisioning", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setProvisioning", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.PROVISIONING": {
+                      target: "provisioning.checking",
+                      actions: ["setProvisioning"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
+                summary: {
+                  initial: "idle",
+                  states: {
+                    idle: {
+                      always: [
+                        { target: "calculating", cond: "needsRecalculating" },
+                      ],
+                    },
+                    calculating: {
+                      id: "calculating",
+                      invoke: {
+                        src: "calculateSummary",
+                        onDone: {
+                          target: "complete",
+                          actions: ["setSummary", "clearCalculating"],
+                        },
+                        onError: {
+                          target: "idle",
+                          actions: ["setError"],
+                        },
+                      },
+                    },
+                    complete: {
+                      type: "final",
+                    },
+                  },
                 },
               },
-              on: {
-                "UPDATE.PROVISIONING": {
-                  target: "provisioning.checking",
-                  actions: ["setProvisioning"],
-                },
-              },
+              onDone: "#configured",
             },
           },
-          on: {
-            REFRESH: {
-              target: "loading",
-              actions: ["setValues", "setClean"],
-              cond: "hasChanged",
-            },
-            UPDATE: {
-              target: "processed",
-              actions: ["setValues", "setDirty", "setCalculating"],
-            },
-            PUT: [
-              {
-                target: "processed",
-                actions: ["mergeValues", "setDirty", "setCalculating"],
-                cond: "hasChanged",
-              },
-            ],
-          },
-          onDone: [
-            { target: "calculating", cond: "needsRecalculating" },
-            { target: "configured" },
-          ],
-        },
-
-        calculating: {
-          invoke: {
-            src: "calculateSummary",
-            onDone: {
-              target: "configured",
-              actions: ["setSummary", "clearCalculating"],
-            },
-            // onError: { target: "error", actions: ["setError"] }
-          },
-        },
-
-        // this is our state where we are all good and can add/update this configuration to the basket
-        configured: {
-          entry: ["setConfig", "sendConfig"],
           on: {
             REFRESH: [
               {
                 target: "loading",
-                actions: ["setValues", "setClean"],
+                actions: ["setCurrency", "setPromotions"],
+                cond: "isNewCurrency",
+              },
+              {
+                target: "loading",
+                actions: ["setCurrency", "setPromotions", "setClean"],
                 cond: "hasChanged",
               },
               {
                 actions: ["setClean"],
               },
             ],
-            // ---
+            // PROCESSING: { target: "configured.processing" },
+            "UPDATE.QUANTITY": {
+              target: "configuring.quantity",
+              actions: ["setQuantity", "setCalculating"],
+            },
             UPDATE: {
-              target: "processed",
-              actions: ["setValues", "setDirty", "setCalculating"],
+              target: "configuring",
+              actions: ["setValues", "setDirty"],
             },
             PUT: [
               {
-                target: "processed",
-                actions: ["mergeValues", "setDirty", "setCalculating"],
+                target: "configuring",
+                actions: ["mergeValues", "setDirty"],
+                cond: "hasChanged",
+              },
+            ],
+          },
+          onDone: [
+            { target: "#calculating", cond: "needsRecalculating" },
+            { target: "configured" },
+          ],
+        },
+
+        // this is our state where we are all good and can add/update this configuration to the basket
+        configured: {
+          id: "configured",
+          entry: ["setConfig", "sendConfig"],
+          initial: "idle",
+          states: {
+            idle: {},
+            // this is a state where we have been processed from a parent machine
+            processing: {
+              type: "final",
+              on: {
+                REFRESH: {
+                  target: "#loading",
+                  actions: ["setCurrency", "setPromotions"],
+                },
+              },
+            },
+          },
+
+          on: {
+            REFRESH: [
+              {
+                target: "loading",
+                actions: ["setCurrency", "setPromotions"],
+                cond: "isNewCurrency",
+              },
+              {
+                target: "loading",
+                actions: ["setCurrency", "setPromotions", "setClean"],
+                cond: "hasChanged",
+              },
+
+              {
+                actions: ["setClean"],
+              },
+            ],
+            PROCESSING: { target: "configured.processing" },
+
+            // ---
+            UPDATE: {
+              target: "configuring",
+              actions: ["setValues", "setDirty"],
+            },
+            PUT: [
+              {
+                target: "configuring",
+                actions: ["mergeValues", "setDirty"],
                 cond: "hasChanged",
               },
             ],
 
             "UPDATE.QUANTITY": {
-              target: "configuring.quantity.checking",
-              actions: ["setQuantity", "setDirty", "setCalculating"],
+              target: "configuring.quantity",
+              actions: ["setQuantity", "setDirty"],
             },
             "UPDATE.TERM": {
-              target: "configuring.term.checking",
-              actions: ["setTerm", "setDirty", "setCalculating"],
+              target: "configuring.values.term.checking",
+              actions: ["setTerm", "setDirty"],
             },
             "UPDATE.ATTRIBUTES": {
-              target: "configuring.attributes.checking",
+              target: "configuring.values.attributes.checking",
               actions: ["setAttributes", "setDirty"],
             },
             "UPDATE.OPTIONS": {
-              target: "configuring.options.checking",
-              actions: ["setOptions", "setDirty", "setCalculating"],
+              target: "configuring.values.options.checking",
+              actions: ["setOptions", "setDirty"],
             },
             "UPDATE.PROVISIONING": {
-              target: "configuring.provisioning.checking",
+              target: "configuring.values.provisioning.checking",
               actions: ["setProvisioning", "setDirty"],
             },
           },
         },
 
+        // this is a state where we hav ebeen deleted or are no longer available from a parent machine
+        unavailable: {
+          on: {
+            REFRESH: {
+              target: "loading",
+              actions: ["setCurrency", "setPromotions", "setClean"],
+              cond: "hasChanged",
+            },
+          },
+        },
         // Handle errors
         error: {
           id: "error",
@@ -335,6 +401,7 @@ export default (values, currency_id, promotions) => {
         },
       },
       on: {
+        BIN: { target: "unavailable" },
         ERROR: { target: "#error", actions: ["setError"] },
         "CLEAR.ERRORS": { actions: ["clearError"] },
       },
@@ -343,6 +410,7 @@ export default (values, currency_id, promotions) => {
       actions: {
         // ---
         setAvailable: assign({
+          raw: (_context, { data }) => data,
           available: (_context, { data }) => {
             return {
               product: useProductParser(data),
@@ -354,18 +422,20 @@ export default (values, currency_id, promotions) => {
               ),
             };
           },
+        }),
 
-          summary: ({ summary, isNew }, { data }) =>
-            !isNew ? summary : useDisplayPriceParser(data),
+        setCurrency: assign({
+          currency_id: ({ currency_id }, { data }) =>
+            data?.currency_id || currency_id,
+        }),
+
+        setPromotions: assign({
+          promotions: ({ promotions }, { data }) =>
+            data?.promotions || promotions || [],
         }),
 
         setValues: assign({
-          currency_id: ({ currency_id }, { data }) =>
-            data?.currency_id || currency_id,
-          promotions: ({ promotions }, { data }) =>
-            data?.promotions || promotions || [],
           values: (_context, { data }) => useValuesParser(data?.product),
-          summary: (_context, { data }) => useSummaryParser(data?.product),
         }),
 
         mergeValues: assign({
@@ -388,7 +458,14 @@ export default (values, currency_id, promotions) => {
 
         // ---
         setSummary: assign({
-          summary: (_context, { data }) => data,
+          summary: ({ prices, values, raw }, { data }) => {
+            return useSummaryParser({
+              summary: data,
+              prices,
+              values,
+              raw,
+            });
+          },
         }),
 
         setQuantity: assign({
@@ -397,6 +474,7 @@ export default (values, currency_id, promotions) => {
             set(values, "quantity", Math.max(1, quantity)); //TODO: min check? step check
             return values;
           },
+          needsCalculating: (_context, { data }) => !!data,
         }),
 
         setTerm: assign({
@@ -405,6 +483,7 @@ export default (values, currency_id, promotions) => {
             set(values, "term", term);
             return values;
           },
+          prices: ({ prices }, { data }) => get(data, "prices", prices),
           available: ({ available }, { data }) => {
             // set the price for the available options based on the term selected
             const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
@@ -421,6 +500,7 @@ export default (values, currency_id, promotions) => {
             });
             return available;
           },
+          needsCalculating: (_context, { data }) => !!data?.term,
         }),
 
         setAttributes: assign({
@@ -429,6 +509,7 @@ export default (values, currency_id, promotions) => {
             set(values, "attributes", attributes);
             return values;
           },
+          prices: ({ prices }, { data }) => get(data, "prices", prices),
         }),
 
         setOptions: assign({
@@ -437,6 +518,8 @@ export default (values, currency_id, promotions) => {
             set(values, "options", options);
             return values;
           },
+          prices: ({ prices }, { data }) => get(data, "prices", prices),
+          needsCalculating: (_context, { data }) => !!data?.options,
         }),
 
         setProvisioning: assign({
@@ -450,10 +533,10 @@ export default (values, currency_id, promotions) => {
         // ---
 
         setCalculating: assign({
-          needsCalculating: (_context, _event) => {
+          needsCalculating: (_context, { data }) => {
             // TODO: a more comprehensive check to see if values have actually changed.
             // For now we will always set this to true, as we need to recalculate the summary
-            return true;
+            return isNil(data) ? true : !!data;
           },
         }),
 
@@ -469,7 +552,7 @@ export default (values, currency_id, promotions) => {
 
         setError: assign({
           error: (context, { data }) => {
-            let error = data?.error;
+            let error = data?.error || data;
             if (error?.code == 422) {
               // lets parse/override our error message and data
               // this is to generate valid json schema validation errors
@@ -480,19 +563,15 @@ export default (values, currency_id, promotions) => {
           },
         }),
 
-        escalateError: escalate(({ error }) => {
-          if (error) {
-            error.title = "We experienced an error configuring the product";
-          }
-          return error;
-        }),
-
         clearError: assign({ error: null }),
       },
       services,
       guards: {
         needsRecalculating: ({ needsCalculating }) => needsCalculating,
-        hasChanged: ({ values }, { data }) => {
+        isNewCurrency: ({ values, currency_id }, { data }) => {
+          return currency_id !== data?.currency_id;
+        },
+        hasChanged: ({ values, currency_id }, { data }) => {
           const newValues = merge({}, values, useValuesParser(data));
           return !isEqual(newValues, values);
         },

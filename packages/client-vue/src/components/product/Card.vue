@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.product.card.root" v-if="!meta.isLoading">
+  <article :class="styles.product.card.root">
     <!-- thumb -->
     <figure
       :class="styles.product.card.media"
@@ -46,7 +46,8 @@
             size="sm"
             color="current"
             :label="$tc('product.actions.more', toggle ? 0 : 1)"
-            v-if="meta.isConfigurable && meta.isConfigured"
+            :class="styles.product.card.more"
+            v-if="hasSummaryDetails"
           >
             <template #append-icon>
               <upw-icon
@@ -75,7 +76,7 @@
       >
         <ul :class="styles.product.card.details.root">
           <template
-            v-for="(detail, index) in summary.details"
+            v-for="(detail, index) in summary?.details"
             :key="`summary-detail-${index}`"
           >
             <li
@@ -94,7 +95,8 @@
       </div>
 
       <!-- footer -->
-      <footer :class="styles.product.card.footer" v-show="!meta.isLoading">
+      <footer :class="styles.product.card.footer">
+        <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
             v-if="!!summary?.discount"
@@ -107,7 +109,10 @@
             }}
           </span>
 
-          <strong :class="styles.product.card.total">
+          <strong
+            :class="styles.product.card.total"
+            v-if="!isNil(summary?.total)"
+          >
             {{ summary?.total ? summary?.total_formatted : $t("product.free") }}
           </strong>
         </div>
@@ -132,6 +137,7 @@
             icon-only
             prependIcon="remove"
             type="button"
+            :loading="meta.isUnavailable"
           />
         </div>
       </footer>
@@ -149,16 +155,16 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwBadge, UpwButton, UpwIcon } from "@upmind/upwind";
+import { UpwBadge, UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
 
 // --- utils
-import { isNil } from "lodash-es";
+import { isNil, find, reject } from "lodash-es";
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwBadge, UpwButton, UpwIcon },
+  components: { UpwBadge, UpwButton, UpwIcon, UpwSpinner },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
@@ -201,7 +207,10 @@ export default defineComponent({
   },
   computed: {
     termSummary() {
-      return this.summary.details.find(detail => detail.key === "term");
+      return find(this?.summary?.details, detail => detail.key === "term");
+    },
+    hasSummaryDetails() {
+      return reject(this?.summary?.details, ["key", "term"])?.length > 1;
     },
   },
 });
