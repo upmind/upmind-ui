@@ -19,18 +19,21 @@ export function generateHash(message: Message) {
   return hash;
 }
 
-export const useMessageParser = (data: Object) => {
+export const useMessageParser = (data?: Object) => {
   const defaultMessage = {
     display: messageDisplays.TOAST,
-    type: messageTypes.BASE,
+    type: messageTypes.INFO,
     title: null,
     copy: null,
     data: null,
     delay: 0,
     maxAge: 0,
+    created: Date.now(),
   };
   // TODO: pars einto a message format
   const message = defaultsDeep(data, defaultMessage);
+  message.scheduled = Date.now() + (message?.delay || 0);
+
   unset(message, "id");
 
   return message;

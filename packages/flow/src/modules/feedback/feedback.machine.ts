@@ -65,16 +65,12 @@ export default createMachine(
           // check if we already have a feedback with the same id
           const message = find(messages, ["id", id]);
 
-          // if we dont then spawn a new messages machine
-          // and send the messages to it
+          // if we dont then spawn an actor for the new message
           if (!message) {
-            // spawn an actor for the new messages
-            const machine = spawn(messageMachine(useMessageParser(data)), {
-              name: id,
-              sync: true,
-            });
-
-            // for now well just add the new machine to our list
+            const machine = spawn(
+              messageMachine.withContext(useMessageParser(data)),
+              { name: id, sync: true }
+            );
             messages.push(machine);
           }
 

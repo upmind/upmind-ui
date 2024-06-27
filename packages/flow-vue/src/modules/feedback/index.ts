@@ -13,7 +13,8 @@ import { map, reduce, isEmpty, sortBy } from "lodash-es";
 //  with some state helpers
 
 export const useFeedback = () => {
-  const { service, dismiss, add, addError, addSuccess } = useUpmindFeedback();
+  const { service, dismiss, add, addError, addSuccess, trackEvent } =
+    useUpmindFeedback();
   const { state } = useActor(service);
 
   // --------------------------------------------------------
@@ -63,12 +64,32 @@ export const useFeedback = () => {
     )
   );
 
+  const events = computed(() =>
+    sortBy(
+      reduce(
+        state.value.context.messages,
+        (result, item) => {
+          if (item.state.context.type === "event") {
+            result.push({
+              id: item.id,
+              ...useActor(item),
+            });
+          }
+          return result;
+        },
+        []
+      ),
+      ["state.value.context.scheduled"]
+    )
+  );
+
   // ---
   const meta = computed(() => ({
     isProcessing: ["processing"].some(state.value.matches),
     isEmpty: ["empty"].some(state.value.matches),
     hasNotifications: !isEmpty(notifications.value),
     hasToasts: !isEmpty(toasts.value),
+    hasEvents: !isEmpty(events.value),
   }));
 
   // --------------------------------------------------------
@@ -78,12 +99,14 @@ export const useFeedback = () => {
     messages,
     notifications,
     toasts,
+    events,
     // ---
     meta,
     // ---
     add: data => add(unref(data)),
     addError,
     addSuccess,
+    trackEvent,
     dismiss,
     // ---
     useTime: utils.useTime,
