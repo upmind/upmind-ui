@@ -8,7 +8,7 @@ import type { SessionContext } from "./types.d";
 import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
+const { addError, trackEvent } = useFeedback();
 
 // --- utils
 import { useTokenParser } from "./utils";
@@ -222,7 +222,7 @@ export default createMachine(
           error: {},
         },
         on: {
-          LOGOUT: { target: "#clearing" },
+          LOGOUT: { target: "#clearing", actions: "trackLogout" },
           REFRESH: {
             target: "#starting",
             actions: "setRefresh",
@@ -283,7 +283,6 @@ export default createMachine(
       setSuccess: (_context, _event) => {
         // addSuccess("Successfully logged in");
       },
-
       setError: assign({
         error: (context, { data }) => {
           addError({
@@ -295,8 +294,15 @@ export default createMachine(
           return data;
         },
       }),
-
       clearError: assign({ error: null }),
+      trackLogout: (_context, _event) => {
+        trackEvent({
+          event: "upmind.logout",
+          upmind: {
+            user_id: null,
+          },
+        });
+      },
     },
     guards: {
       hasError: ({ error }) => !!error,

@@ -20,7 +20,7 @@ import { messageDisplays, type Message } from "./types.d";
 
 let state = null;
 
-const service = interpret(feedbackMachine, { devTools: false }).onTransition(
+const service = interpret(feedbackMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -79,6 +79,15 @@ export const useFeedback = () => {
     } as Message);
   }
 
+  function trackEvent(data: Object) {
+    const message: Message = {
+      type: messageTypes.EVENT,
+      display: messageDisplays.SILENT,
+      data,
+    };
+
+    return add(message);
+  }
   // maybe?
   // function addDebug(message: string) {
   //   const message: Message = {
@@ -107,6 +116,7 @@ export const useFeedback = () => {
     add,
     addError,
     addSuccess,
+    trackEvent,
     dismiss,
   };
 };

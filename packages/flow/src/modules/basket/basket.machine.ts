@@ -6,7 +6,7 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 
 import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError, addSuccess, trackEvent } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
@@ -704,6 +704,29 @@ export default createMachine(
           const removed = find(items, ["id", itemId]);
           if (removed) bin.push(removed);
           removed.send({ type: "BIN" });
+
+          trackEvent({ ecommerce: null });
+          // trackEvent({
+          //   event: "remove_from_cart",
+          //   ecommerce: {
+          //     currency: removed?.state.context.currency_id,
+          //     value:
+          //       basketProduct.configuration_net_amount_discounted_converted,
+          //     items: [
+          //       {
+          //         item_id: removed?.state?.context?.config.product_id,
+          //         item_name: removed?.state?.context?.available.product.name, // For reporting purposes we intentionally pass untranslated product name
+          //         item_category:
+          //           removed?.state?.context?.available.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+          //         quantity: removed?.state?.context?.config.quantity,
+          //         discount:
+          //           removed?.state?.context?.available
+          //             .configuration_net_amount_discount_converted,
+          //         price: removed?.state?.context?.summary.total,
+          //       },
+          //     ],
+          //   },
+          // });
           return bin;
         },
         error: undefined,
