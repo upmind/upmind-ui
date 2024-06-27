@@ -175,7 +175,7 @@ export default createMachine(
                 actions: ["setUser"],
               },
               onError: {
-                target: "error",
+                target: "idle",
                 actions: ["setError"],
               },
             },
