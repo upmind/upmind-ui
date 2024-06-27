@@ -357,6 +357,7 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
   // an d allow for easy i18n
   const details = [];
 
+  // term
   details.push({
     key: "term",
     category: "Billing Cycle",
@@ -366,6 +367,7 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
     ...prices.term,
   });
 
+  // attributes
   reduce(
     item?.attributes,
     (result, attribute) => {
@@ -392,6 +394,7 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
     details
   );
 
+  // options
   reduce(
     item?.options,
     (result, option) => {
@@ -415,20 +418,21 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
     details
   );
 
-  if (item?.provision_fields) {
-    reduce(
-      item.provision_fields,
-      (result, value, field) => {
-        result.push({
-          key: `provision_field.${field}`,
-          category: field, // todo get field name
-          name: value,
-        });
-        return result;
-      },
-      details
-    );
-  }
+  // provision fields
+  reduce(
+    item.provision_fields,
+    (result, value, field) => {
+      debugger;
+      if (field.shabba) return result;
+      result.push({
+        key: `provision_field.${field}`,
+        category: field, // todo get field name
+        name: value,
+      });
+      return result;
+    },
+    details
+  );
 
   return { ...summary, details };
 };
