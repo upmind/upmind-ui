@@ -93,7 +93,10 @@ export interface Typegen0 {
     clearCalculating: "done.invoke.calculating:invocation[0]";
     clearError: "CLEAR.ERRORS";
     mergeValues: "PUT";
-    sendConfig: "PROCESSING" | "done.state.configuring";
+    sendConfig:
+      | "PROCESSING"
+      | "done.state.configuring"
+      | "done.state.productConfigurator.configuring.values";
     setAttributes:
       | "UPDATE.ATTRIBUTES"
       | "done.invoke.productConfigurator.configuring.values.attributes.checking:invocation[0]"
@@ -109,6 +112,7 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
       | "done.state.configuring"
+      | "done.state.productConfigurator.configuring.values"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]";

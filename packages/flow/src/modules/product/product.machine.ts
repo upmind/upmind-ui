@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -43,6 +43,7 @@ export default (values, currency_id, promotions) => {
       predictableActionArguments: true,
       initial: "loading",
       context: {
+        raw: null, // the raw data from the api
         // ---
         // the model use dto generate our coonfig,
         // but with better structure / more detail to make ut easier for any ui to consume,
@@ -66,15 +67,15 @@ export default (values, currency_id, promotions) => {
         },
 
         // ---
-        // the generated summary of the configuration,
-        // including the totals formatted for display
-        summary: null, // useSummaryParser(values),
+        // the generated summary/pricing/details of the configuration,
+        config: null,
+        summary: null,
         prices: {
           term: { subtotal: 0, total: 0, discount: 0 },
           attributes: { subtotal: 0, total: 0, discount: 0 },
           options: { subtotal: 0, total: 0, discount: 0 },
         },
-        // use any applied promotions when fetching the product to get the correct prices
+        // ---
         promotions,
         currency_id: validateCurrency(currency_id),
         // ---
@@ -84,6 +85,7 @@ export default (values, currency_id, promotions) => {
         // first load our product, we do this even if we are given a configured set of values
         //  as we need the additional 'with' properties
         loading: {
+          id: "loading",
           invoke: {
             id: "load",
             src: "load",
@@ -255,6 +257,7 @@ export default (values, currency_id, promotions) => {
                   },
                 },
               },
+              onDone: "#configured",
             },
           },
           on: {
@@ -298,12 +301,21 @@ export default (values, currency_id, promotions) => {
 
         // this is our state where we are all good and can add/update this configuration to the basket
         configured: {
+          id: "configured",
           entry: ["setConfig", "sendConfig"],
           initial: "idle",
           states: {
             idle: {},
             // this is a state where we have been processed from a parent machine
-            processing: {},
+            processing: {
+              type: "final",
+              on: {
+                REFRESH: {
+                  target: "#loading",
+                  actions: ["setCurrency", "setPromotions"],
+                },
+              },
+            },
           },
 
           on: {
@@ -318,6 +330,7 @@ export default (values, currency_id, promotions) => {
                 actions: ["setCurrency", "setPromotions", "setClean"],
                 cond: "hasChanged",
               },
+
               {
                 actions: ["setClean"],
               },
@@ -397,6 +410,7 @@ export default (values, currency_id, promotions) => {
       actions: {
         // ---
         setAvailable: assign({
+          raw: (_context, { data }) => data,
           available: (_context, { data }) => {
             return {
               product: useProductParser(data),
@@ -444,9 +458,13 @@ export default (values, currency_id, promotions) => {
 
         // ---
         setSummary: assign({
-          summary: (_context, { data }) => {
-            //  useSummaryParser(data?.product),
-            return data;
+          summary: ({ prices, values, raw }, { data }) => {
+            return useSummaryParser({
+              summary: data,
+              prices,
+              values,
+              raw,
+            });
           },
         }),
 

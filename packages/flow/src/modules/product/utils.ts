@@ -17,7 +17,6 @@ import {
   reduce,
   set,
   some,
-  toNumber,
   values,
 } from "lodash-es";
 // --------------------------------------------------------
@@ -232,7 +231,6 @@ export const useOptionsParser = (data: any) => {
         ])
       );
       option.name = translateName(rawOption.category);
-
       // get the prev values...if there are any
       const values = get(option, "values", []);
 
@@ -352,93 +350,74 @@ export const useProvisioningParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = (data: any) => {
-  const { getBillingCycle } = useSystem();
-
-  const summary = {
-    // the base price without any discounts or configuration
-    price: data?.selling_price,
-    price_formatted: data?.selling_price_formatted,
-
-    // the price based on the configuration
-    subtotal: data?.configuration_total_amount_converted,
-    subtotal_formatted: data?.configuration_total_amount_formatted,
-
-    // the total discount applied
-    discount: data?.configuration_total_discount_amount_converted,
-    discount_formatted: data?.configuration_total_discount_amount_formatted,
-
-    // the total price after the discount
-    total:
-      data?.configuration_total_discounted_amount_converted ||
-      data?.configuration_total_amount_converted,
-
-    total_formatted: data?.configuration_total_discounted_amount_formatted,
-  };
-
+export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
-  //  typically used in the basket or checkout
+  // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
-  // asd allow for easy i18n
-  summary.details = [];
+  // an d allow for easy i18n
+  const details = [];
 
-  // MAYBE: only add terms if its NOT a one-off product, ie has a billing cycle (data?.billing_cycle_months)
-  if (summary.total) {
-    summary.details.push({
-      key: "term",
-      category: "Billing Cycle",
-      name: getBillingCycle(data.billing_cycle_months)?.name,
-      cycle: data.billing_cycle_months,
-      quantity: data.quantity,
-      value: data.configuration_net_amount_discounted_converted,
-      discount: data.configuration_net_amount_discount_converted,
-      formatted: data.configuration_net_selling_price_discounted_formatted,
-    });
-  }
+  details.push({
+    key: "term",
+    category: "Billing Cycle",
+    name: item.term.billing_cycle_name,
+    cycle: item.term.billing_cycle_months,
+    quantity: item.quantity,
+    ...prices.term,
+  });
 
-  if (data?.attributes) {
+  reduce(
+    item?.attributes,
+    (result, attribute) => {
+      if ((attribute, key)) {
+        const selected = values(
+          mapValues(attribute, choice => {
+            const value = find(raw.products_attributes, [
+              "id",
+              choice.product_id,
+            ]);
+            return {
+              key: "attribute",
+              category: translateName(value.category),
+              name: translateName(value),
+              cycle: value.billing_cycle_months,
+              quantity: value.unit_quantity,
+            };
+          })
+        );
+        result.push(...selected);
+      }
+      return result;
+    },
+    details
+  );
+
+  reduce(
+    item?.options,
+    (result, option) => {
+      if (option) {
+        const selected = values(
+          mapValues(option, choice => {
+            const value = find(raw.products_options, ["id", choice.product_id]);
+            return {
+              key: "option",
+              category: translateName(value.category),
+              name: translateName(value),
+              cycle: value.billing_cycle_months,
+              quantity: value.unit_quantity,
+            };
+          })
+        );
+        result.push(...selected);
+      }
+      return result;
+    },
+    details
+  );
+
+  if (item?.provision_fields) {
     reduce(
-      data.attributes,
-      (result, attribute) => {
-        result.push({
-          key: "attribute",
-          category: translateName(attribute.product.category),
-          name: translateName(attribute.product),
-          cycle: attribute.billing_cycle_months,
-          quantity: attribute.unit_quantity,
-          value: attribute.total_amount,
-          discount: attribute.total_discount_amount_formatted,
-          formatted: attribute.total_amount_formatted,
-        });
-        return result;
-      },
-      summary.details
-    );
-  }
-
-  if (data?.options) {
-    reduce(
-      data.options,
-      (result, option) => {
-        result.push({
-          key: "option",
-          category: translateName(option.product.category),
-          name: translateName(option.product),
-          cycle: option.billing_cycle_months,
-          quantity: option.unit_quantity,
-          value: option.total_amount,
-          discount: option.total_discount_amount_formatted,
-          formatted: option.total_amount_formatted,
-        });
-        return result;
-      },
-      summary.details
-    );
-  }
-
-  if (data?.provision_fields) {
-    reduce(
-      data.provision_fields,
+      item.provision_fields,
       (result, value, field) => {
         result.push({
           key: `provision_field.${field}`,
@@ -447,23 +426,11 @@ export const useSummaryParser = (data: any) => {
         });
         return result;
       },
-      summary.details
+      details
     );
   }
 
-  return summary;
-};
-
-export const useDisplayPriceParser = (data: any) => {
-  // the base price without any discounts or configuration
-  return {
-    price: Number(data?.display_price?.replace(/[^0-9.-]+/g, "")),
-    price_formatted: data?.display_price,
-
-    // the total price after the discount
-    total: Number(data?.display_price?.replace(/[^0-9.-]+/g, "")),
-    total_formatted: data?.display_price,
-  };
+  return { ...summary, details };
 };
 
 // --------------------------------------------------------
