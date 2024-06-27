@@ -68,7 +68,7 @@ export default (values, currency_id, promotions) => {
         // ---
         // the generated summary of the configuration,
         // including the totals formatted for display
-        summary: useSummaryParser(values),
+        summary: null, // useSummaryParser(values),
         prices: {
           term: { subtotal: 0, total: 0, discount: 0 },
           attributes: { subtotal: 0, total: 0, discount: 0 },
@@ -98,172 +98,161 @@ export default (values, currency_id, promotions) => {
         // The product requires configuration
         configuring: {
           id: "configuring",
-          type: "parallel",
+          initial: "quantity",
           states: {
             quantity: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkQuantity",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setQuantity", "setConfig"],
-                    },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setError"],
-                    },
-                  },
+              invoke: {
+                src: "checkQuantity",
+                onDone: {
+                  target: "values",
+                  actions: ["setQuantity", "setConfig"],
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.QUANTITY": {
-                  target: "quantity.checking",
-                  actions: ["setQuantity", "setCalculating"],
+                onError: {
+                  actions: ["setError"],
                 },
               },
             },
-            term: {
-              initial: "checking",
+            values: {
+              type: "parallel",
               states: {
-                checking: {
-                  invoke: {
-                    src: "checkTerm",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setTerm", "setConfig"],
+                term: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkTerm",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setTerm", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.TERM": {
+                      target: "term.checking",
+                      actions: ["setTerm"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.TERM": {
-                  target: "term.checking",
-                  actions: ["setTerm"],
-                },
-              },
-            },
-            attributes: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkAttributes",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setAttributes", "setConfig"],
+                attributes: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkAttributes",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setAttributes", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setAttributes", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setAttributes", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.ATTRIBUTES": {
+                      target: "attributes.checking",
+                      actions: ["setAttributes"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.ATTRIBUTES": {
-                  target: "attributes.checking",
-                  actions: ["setAttributes"],
-                },
-              },
-            },
-            options: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkOptions",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setOptions", "setConfig"],
+                options: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkOptions",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setOptions", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setOptions", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setOptions", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.OPTIONS": {
+                      target: "options.checking",
+                      actions: ["setOptions"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.OPTIONS": {
-                  target: "options.checking",
-                  actions: ["setOptions"],
-                },
-              },
-            },
-            provisioning: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkProvisioning",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setProvisioning", "setConfig"],
+                provisioning: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      invoke: {
+                        src: "checkProvisioning",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setProvisioning", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setProvisioning", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setProvisioning", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.PROVISIONING": {
+                      target: "provisioning.checking",
+                      actions: ["setProvisioning"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.PROVISIONING": {
-                  target: "provisioning.checking",
-                  actions: ["setProvisioning"],
-                },
-              },
-            },
-            summary: {
-              initial: "idle",
-              states: {
-                idle: {
-                  always: [
-                    { target: "calculating", cond: "needsRecalculating" },
-                  ],
-                },
-                calculating: {
-                  id: "calculating",
-                  invoke: {
-                    src: "calculateSummary",
-                    onDone: {
-                      target: "complete",
-                      actions: ["setSummary", "clearCalculating"],
+                summary: {
+                  initial: "idle",
+                  states: {
+                    idle: {
+                      always: [
+                        { target: "calculating", cond: "needsRecalculating" },
+                      ],
                     },
-                    onError: {
-                      target: "idle",
-                      actions: ["setError"],
+                    calculating: {
+                      id: "calculating",
+                      invoke: {
+                        src: "calculateSummary",
+                        onDone: {
+                          target: "complete",
+                          actions: ["setSummary", "clearCalculating"],
+                        },
+                        onError: {
+                          target: "idle",
+                          actions: ["setError"],
+                        },
+                      },
+                    },
+                    complete: {
+                      type: "final",
                     },
                   },
-                },
-                complete: {
-                  type: "final",
                 },
               },
             },
@@ -285,6 +274,10 @@ export default (values, currency_id, promotions) => {
               },
             ],
             // PROCESSING: { target: "configured.processing" },
+            "UPDATE.QUANTITY": {
+              target: "configuring.quantity",
+              actions: ["setQuantity", "setCalculating"],
+            },
             UPDATE: {
               target: "configuring",
               actions: ["setValues", "setDirty"],
@@ -345,23 +338,23 @@ export default (values, currency_id, promotions) => {
             ],
 
             "UPDATE.QUANTITY": {
-              target: "configuring.quantity.checking",
+              target: "configuring.quantity",
               actions: ["setQuantity", "setDirty"],
             },
             "UPDATE.TERM": {
-              target: "configuring.term.checking",
+              target: "configuring.values.term.checking",
               actions: ["setTerm", "setDirty"],
             },
             "UPDATE.ATTRIBUTES": {
-              target: "configuring.attributes.checking",
+              target: "configuring.values.attributes.checking",
               actions: ["setAttributes", "setDirty"],
             },
             "UPDATE.OPTIONS": {
-              target: "configuring.options.checking",
+              target: "configuring.values.options.checking",
               actions: ["setOptions", "setDirty"],
             },
             "UPDATE.PROVISIONING": {
-              target: "configuring.provisioning.checking",
+              target: "configuring.values.provisioning.checking",
               actions: ["setProvisioning", "setDirty"],
             },
           },

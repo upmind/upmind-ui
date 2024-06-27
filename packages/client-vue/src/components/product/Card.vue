@@ -76,7 +76,7 @@
       >
         <ul :class="styles.product.card.details.root">
           <template
-            v-for="(detail, index) in summary.details"
+            v-for="(detail, index) in summary?.details"
             :key="`summary-detail-${index}`"
           >
             <li
