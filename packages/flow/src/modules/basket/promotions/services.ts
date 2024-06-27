@@ -31,7 +31,7 @@ async function add(
 
   return post({
     url: useUrl(`/orders/${basket_id}/promotions`),
-    data: { promocode: model?.code },
+    data: { promocode: model?.promocode },
     withAccessToken: true,
   });
 }

@@ -530,6 +530,7 @@ async function calculateSummary(
         prices.term.total,
         prices.attributes.total,
         prices.options.total,
+        0, // we dont need to include the discount in the total calculation
       ],
     },
   }).then(response => response?.data);
@@ -538,11 +539,11 @@ async function calculateSummary(
     ([subtotal, discount, total]) => {
       const newSummary = {
         currency_id: summary?.currency_id,
-        subtotal: subtotal?.total,
+        subtotal: subtotal?.total || 0,
         subtotal_formatted: subtotal?.total_formatted,
-        discount: discount?.total,
+        discount: discount?.total || 0,
         discount_formatted: discount?.total_formatted,
-        total: total?.total,
+        total: total?.total || 0,
         total_formatted: total?.total_formatted,
       };
       return newSummary;

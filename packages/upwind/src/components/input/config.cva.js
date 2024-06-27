@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   input: {
-    root: cva("relative flex flex-col gap-1", {
+    root: cva("group relative flex flex-col gap-1", {
       variants: {
         size: {
           sm: "text-sm",
@@ -30,7 +30,7 @@ export default {
           },
 
           isDisabled: {
-            true: "bg-base-100 pointer-events-none opacity-50",
+            true: "",
           },
         },
         compoundVariants: [
@@ -42,7 +42,7 @@ export default {
           {
             layout: "inline",
             variant: "outlined",
-            size: "sm",
+            size: "md",
             class: "px-3 py-2 text-sm leading-5",
           },
           {
@@ -61,35 +61,30 @@ export default {
           {
             isInvalid: true,
             isDisabled: false,
-            class: "border-error-300",
-          },
-          {
-            isValid: true,
-            isDisabled: false,
-            class: "",
+            class: "border-control-error",
           },
           {
             variant: "outlined",
             isInvalid: false,
-            isValid: false,
             isDisabled: false,
             class:
-              " focus-within:border-primary focus-within:ring-primary focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20",
           },
           {
             variant: "outlined",
             isInvalid: true,
             isDisabled: false,
             class:
-              " focus-within:border-error focus-within:ring-error focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
-          {
-            variant: "outlined",
-            isValid: true,
-            isDisabled: false,
-            class:
-              " focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
-          },
+          // DEprecated the success variant
+          // {
+          //   variant: "outlined",
+          //   isValid: true,
+          //   isDisabled: false,
+          //   class:
+          //     " focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
+          // },
         ],
         defaultVariants: {
           variant: "outlined",
@@ -109,7 +104,7 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "my-2",
         },
@@ -139,7 +134,7 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "my-2",
         },
@@ -176,7 +171,7 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "px-3 py-2",
         },
@@ -213,7 +208,7 @@ export default {
       },
       compoundVariants: [
         {
-          size: "sm",
+          size: "md",
           layout: "stacked",
           class: "px-3 py-2",
         },
@@ -232,21 +227,40 @@ export default {
         size: "md",
       },
     }),
-  },
-  inputFeedback: {
-    root: cva(
-      "text-base-500 flex items-center gap-x-2 text-xs transition-opacity duration-300",
-      {
-        variants: {
-          hasFeedback: {
-            false: "invisible hidden w-0 overflow-hidden text-nowrap opacity-0",
+
+    feedback: {
+      root: cva(
+        "text-base-500 flex items-center gap-x-2 overflow-hidden text-xs transition-opacity duration-300",
+        {
+          variants: {
+            hasFeedback: {
+              false: "invisible h-0 w-0 text-nowrap opacity-0",
+            },
+            isInvalid: {
+              true: "text-control-error",
+            },
           },
-          isInvalid: {
-            true: "text-error",
+          compoundVariants: [
+            {
+              isPersisted: false,
+              hasFeedback: true,
+              class:
+                "invisible h-0 w-0 text-nowrap opacity-0 group-focus-within:visible group-focus-within:h-auto group-focus-within:w-auto group-focus-within:text-wrap group-focus-within:opacity-100",
+            },
+            {
+              isPersisted: true,
+              hasFeedback: true,
+              class: "opacity-100",
+            },
+          ],
+          defaultVariants: {
+            isPersisted: false,
+            hasFeedback: true,
+            isInvalid: false,
           },
-        },
-      }
-    ),
-    icon: cva("size-4"),
+        }
+      ),
+      icon: cva("size-4"),
+    },
   },
 };

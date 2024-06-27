@@ -4,7 +4,7 @@
       <h-listbox-button
         :class="[styles.listbox.trigger, open ? styles.listbox.active : '']"
         ref="reference"
-        :disabled="disabled || loading"
+        :disabled="disabled || loading || processing"
       >
         <!-- prepend slot-->
         <slot
@@ -18,6 +18,7 @@
             label: selectedLabel,
             open,
             disabled,
+            processing,
             loading,
           }"
         >
@@ -57,6 +58,7 @@
             toggleRotate,
             open,
             disabled,
+            processing,
             loading,
           }"
         >
@@ -301,10 +303,7 @@ export default defineComponent({
       type: String,
       default: "arrow-up-down",
     },
-    toggleRotate: {
-      type: Boolean,
-      default: false,
-    },
+    toggleRotate: { type: Boolean },
 
     placement: {
       type: String as PropType<ListboxPosition>,
@@ -318,36 +317,16 @@ export default defineComponent({
       type: [String, Array] as PropType<string[]>,
       default: "",
     },
-    multiple: {
-      type: Boolean,
-      default: false,
-    },
-    hasSearch: {
-      type: Boolean,
-      default: false,
-    },
-    counter: {
-      type: String,
-      default: null,
-    },
-    grouped: {
-      type: Boolean,
-      default: false,
-    },
+    multiple: { type: Boolean },
+    hasSearch: { type: Boolean },
+    counter: { type: String },
+    grouped: { type: Boolean },
     // ---
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
+    loading: { type: Boolean },
+    disabled: { type: Boolean },
+    processing: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: Object },
   },
   setup(props, { emit }) {
     // --- initial value with correct type and value

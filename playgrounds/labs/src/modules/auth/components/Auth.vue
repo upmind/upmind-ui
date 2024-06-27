@@ -92,9 +92,11 @@
           type="submit"
           :disabled="!formMeta.isValid || formMeta.isProcessing"
         >
-          <span v-if="meta.showLoginForm">Log into my account</span>
-          <span v-else-if="meta.showRegisterForm">Create my account</span>
-          <span v-else>Continue</span>
+          <span v-if="meta.showLoginForm">{{ $t("auth.actions.login") }}</span>
+          <span v-else-if="meta.showRegisterForm">{{
+            $t("auth.actions.register")
+          }}</span>
+          <span v-else>{{ $t("auth.actions.continue") }}</span>
         </button>
       </template>
     </upw-form>

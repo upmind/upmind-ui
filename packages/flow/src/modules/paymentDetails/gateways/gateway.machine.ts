@@ -12,6 +12,7 @@ import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { GatewayContext, GatewayEvent } from "./types.d";
+import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
@@ -173,6 +174,7 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
             error?.title || "We experienced an error processing your payment",

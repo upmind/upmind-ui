@@ -75,7 +75,6 @@ export interface Typegen0 {
     setFeedbackError:
       | "error.platform.basketCurrencyManager.loading:invocation[0]"
       | "error.platform.basketCurrencyManager.processing:invocation[0]";
-    setFeedbackSuccess: "done.invoke.basketCurrencyManager.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.basketCurrencyManager.processing:invocation[0]";
@@ -89,6 +88,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasBasket: "UPDATE";
+    hasChanged: "REFRESH";
     isDirty: "done.invoke.basketCurrencyManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {

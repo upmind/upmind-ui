@@ -75,7 +75,6 @@ export interface Typegen0 {
     setFeedbackError:
       | "error.platform.basketFieldsManager.loading:invocation[0]"
       | "error.platform.basketFieldsManager.processing:invocation[0]";
-    setFeedbackSuccess: "done.invoke.basketFieldsManager.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.basketFieldsManager.processing:invocation[0]";
@@ -89,6 +88,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasBasket: "UPDATE";
+    hasChanged: "REFRESH";
     isDirty: "done.invoke.basketFieldsManager.checking.validating:invocation[0]";
   };
   eventsCausingServices: {

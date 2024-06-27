@@ -1,10 +1,10 @@
 <template>
   <suspense>
     <div
-      class="flex min-h-screen flex-col items-start bg-base text-base-content"
+      class="relative flex min-h-screen flex-col items-start bg-base text-base-content antialiased"
       :data-theme="activeTheme"
     >
-      <upm-header></upm-header>
+      <upm-header no-home></upm-header>
 
       <main class="prose flex w-full max-w-none flex-1 flex-col">
         <upm-feedback />

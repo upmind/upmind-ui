@@ -33,6 +33,9 @@ const service = interpret(basketMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 
+// --------------------------------------------------------
+// methods
+// --------------------------------------------------------
 const exists = (items = [], mapping, context = null) => {
   context = context ? `${context}.` : "";
   return some(items, item =>
@@ -43,28 +46,24 @@ const exists = (items = [], mapping, context = null) => {
     })
   );
 };
-// --------------------------------------------------------
+
+const findItem = mapping =>
+  find(state?.context?.items, basketItem =>
+    every(mapping, (value, key) => {
+      if (key == "id") {
+        return basketItem.id == value;
+      } else {
+        return get(basketItem, `state.context.values.${key}`) == value;
+      }
+    })
+  );
 
 export const useBasket = () => {
-  // --------------------------------------------------------
-  // methods
-
-  const findItem = mapping =>
-    find(state?.context?.items, basketItem =>
-      every(mapping, (value, key) => {
-        if (key == "id") {
-          return basketItem.id == value;
-        } else {
-          return get(basketItem, `state.context.values.${key}`) == value;
-        }
-      })
-    );
-
-  // --------------------------------------------------------
-
   return {
     service: service.start(),
     // ---
+    isReady: async () =>
+      waitFor(service, state => ["shopping", "checkout"].some(state.matches)),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items || [],
     findItem,

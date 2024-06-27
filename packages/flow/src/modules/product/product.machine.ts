@@ -45,7 +45,7 @@ export default (values, currency_id, promotions) => {
         // once we have finished configuring it
         isNew: !values?.id,
         isDirty: false,
-        needsCalculating: !values?.invoice_total_amount, //if we have been given totals, the nwe dont need to calculate
+        needsCalculating: false,
 
         // ---
         // the various lookups that we are using in our configuation
@@ -236,6 +236,7 @@ export default (values, currency_id, promotions) => {
             REFRESH: {
               target: "loading",
               actions: ["setValues", "setClean"],
+              cond: "hasChanged",
             },
             UPDATE: {
               target: "processed",
@@ -270,10 +271,16 @@ export default (values, currency_id, promotions) => {
         configured: {
           entry: ["setConfig", "sendConfig"],
           on: {
-            REFRESH: {
-              target: "loading",
-              actions: ["setValues", "setClean"],
-            },
+            REFRESH: [
+              {
+                target: "loading",
+                actions: ["setValues", "setClean"],
+                cond: "hasChanged",
+              },
+              {
+                actions: ["setClean"],
+              },
+            ],
             // ---
             UPDATE: {
               target: "processed",

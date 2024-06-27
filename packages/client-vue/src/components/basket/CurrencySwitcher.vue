@@ -14,7 +14,7 @@
 
 <script>
 // --- external
-import { defineComponent, computed, watchEffect } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- components
 import { UpwDropdown } from "@upmind/upwind";
@@ -23,7 +23,7 @@ import { UpwDropdown } from "@upmind/upwind";
 import { useBasketCurrency } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
-import currencyIcons from "./currencyIcons";
+import currencyMap from "./currencies";
 
 // --- utils
 import { map } from "lodash-es";
@@ -84,7 +84,7 @@ export default defineComponent({
         return {
           label: code,
           prependAvatar: {
-            name: currencyIcons[code.toLowerCase()],
+            name: currencyMap[code?.toUpperCase()]?.country_code?.toLowerCase(),
             path: "flags",
           },
         };
@@ -94,7 +94,9 @@ export default defineComponent({
         return map(currencies.value, currency => ({
           // prependText: currency?.prefix || currency?.suffix,
           prependAvatar: {
-            name: currencyIcons[currency?.code.toLowerCase()],
+            name: currencyMap[
+              currency?.code?.toUpperCase()
+            ]?.country_code?.toLowerCase(),
             path: "flags",
           },
           label: currency.code,

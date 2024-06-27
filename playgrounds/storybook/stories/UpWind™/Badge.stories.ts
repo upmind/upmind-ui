@@ -85,7 +85,7 @@ export const SolidColorVariants: Story = {
         <upw-badge v-bind="args" variant="flat" color="primary" label="Primary" />
         <upw-badge v-bind="args" variant="flat" color="secondary" label="Secondary" />
         <upw-badge v-bind="args" variant="flat" color="accent" label="Accent" />
-        <upw-badge v-bind="args" variant="flat" color="neutral" label="Neutral" />
+        <upw-badge v-bind="args" variant="flat" color="base" label="Base" />
         <upw-badge v-bind="args" variant="flat" color="info" label="Info" />
         <upw-badge v-bind="args" variant="flat" color="success" label="Success" />
         <upw-badge v-bind="args" variant="flat" color="error" label="Error" />
@@ -112,7 +112,7 @@ export const OutlinedColorVariants: Story = {
         <upw-badge v-bind="args" variant="outlined" color="primary" label="Primary" />
         <upw-badge v-bind="args" variant="outlined" color="secondary" label="Secondary" />
         <upw-badge v-bind="args" variant="outlined" color="accent" label="Accent" />
-        <upw-badge v-bind="args" variant="outlined" color="neutral" label="Neutral" />
+        <upw-badge v-bind="args" variant="outlined" color="base" label="Base" />
         <upw-badge v-bind="args" variant="outlined" color="info" label="Info" />
         <upw-badge v-bind="args" variant="outlined" color="success" label="Success" />
         <upw-badge v-bind="args" variant="outlined" color="error" label="Error" />
@@ -139,7 +139,7 @@ export const TonalColorVariants: Story = {
         <upw-badge v-bind="args" variant="tonal" color="primary" label="Primary" />
         <upw-badge v-bind="args" variant="tonal" color="secondary" label="Secondary" />
         <upw-badge v-bind="args" variant="tonal" color="accent" label="Accent" />
-        <upw-badge v-bind="args" variant="tonal" color="neutral" label="Neutral" />
+        <upw-badge v-bind="args" variant="tonal" color="base" label="Base" />
         <upw-badge v-bind="args" variant="tonal" color="info" label="Info" />
         <upw-badge v-bind="args" variant="tonal" color="success" label="Success" />
         <upw-badge v-bind="args" variant="tonal" color="error" label="Error" />
@@ -164,7 +164,7 @@ export const LoadingColorVariants: Story = {
         <upw-badge v-bind="args" color="primary" label="Primary" />
         <upw-badge v-bind="args" color="secondary" label="Secondary" />
         <upw-badge v-bind="args" color="accent" label="Accent" />
-        <upw-badge v-bind="args" color="neutral" label="Neutral" />
+        <upw-badge v-bind="args" color="base" label="Base" />
         <upw-badge v-bind="args" color="info" label="Info" />
         <upw-badge v-bind="args" color="success" label="Success" />
         <upw-badge v-bind="args" color="error" label="Error" />

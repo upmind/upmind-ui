@@ -14,6 +14,7 @@ import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { CurrencyContext, CurrencyEvent } from "./types.d";
+import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
@@ -106,7 +107,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
+            actions: ["setModel", "clearDirty"],
           },
           onError: {
             target: "error",
@@ -156,6 +157,7 @@ export default createMachine(
       REFRESH: {
         target: "loading",
         actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
@@ -208,6 +210,7 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
             error?.title ||
@@ -236,6 +239,7 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasChanged: ({ model }, { data }) => model?.id !== data?.currency_id,
     },
 
     delays: {

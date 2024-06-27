@@ -1,11 +1,11 @@
 <template>
-  <upm-client-basket class="my-4" />
+  <Upm-Billing-Details class="my-4" />
 </template>
 
 <script>
 import { defineComponent } from "vue";
 import { getLocalMessages } from "@/utils";
-import { UpmClientBasket } from "@upmind/client-vue";
+import { UpmBillingDetails } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "ClientBasket",
@@ -13,7 +13,7 @@ export default defineComponent({
     messages: getLocalMessages("client"),
   },
   components: {
-    UpmClientBasket,
+    UpmBillingDetails,
   },
 });
 </script>

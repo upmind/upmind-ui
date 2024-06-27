@@ -1,8 +1,5 @@
 <template>
-  <section
-    :class="styles.basket.items.root"
-    :disabled="!meta.hasProducts || !meta.hasAccount"
-  >
+  <section :class="styles.basket.items.root">
     <header :class="styles.basket.items.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.items.text">
@@ -31,7 +28,8 @@
 
       <div :class="styles.basket.items.pending.content">
         <upm-basket-item
-          v-for="item in itemsPending"
+          v-for="(item, index) in itemsPending"
+          :selected="index === 0"
           :key="item.id"
           :model-value="item.id"
           :item="item"

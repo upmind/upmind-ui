@@ -1,14 +1,15 @@
 import { ref, provide } from "vue";
-import { find, reduce, set, lowerCase, isArray } from "lodash-es";
+import { find, reduce, set, lowerCase, isArray, first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const activeTheme = ref();
 const config = ref({});
 const providedThemes = ref();
 
-export const useThemes = (themes?: Array<Object>, defaultTheme = "light") => {
+export const useThemes = (themes?: Array<Object>, defaultTheme?: string) => {
   // safety checks
   themes ??= [];
+  defaultTheme ??= isArray(themes) ? first(themes)?.id : themes?.id;
   themes = isArray(themes) ? themes : [themes];
 
   // ---

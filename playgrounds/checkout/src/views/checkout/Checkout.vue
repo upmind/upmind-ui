@@ -1,70 +1,72 @@
 <template>
   <article :class="styles.checkout.root">
-    <upw-steps
-      :model-value="activeSection"
-      :steps="steps"
-      :loading="meta.isLoading"
-      @update:model-value="scrollTo"
-    >
-      <template #append>
-        <div class="ml-auto w-full max-w-xs text-right">
-          <upw-button
-            :disabled="!meta.isReadyForCheckout || meta.isProcessing"
-            @click.prevent="doCheckout"
-            color="primary"
-            :label="$t('basket.summary.actions.submit')"
-            block
-          />
-        </div>
-      </template>
-    </upw-steps>
-
-    <!-- overview -->
-    <upm-basket-items
-      id="overview"
+    <upm-basket-loading
+      id="loading"
+      v-if="meta.isLoading"
       :class="styles.checkout.section.root"
-      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     />
 
-    <!-- account -->
-    <upm-session
-      id="account"
+    <upm-basket-empty
+      id="empty"
+      v-else-if="meta.isEmpty"
       :class="styles.checkout.section.root"
-      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
     />
 
-    <!-- payment -->
-    <upm-basket-details
-      id="payment"
-      :class="styles.checkout.section.root"
-      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-    />
+    <template v-else>
+      <upw-steps
+        :model-value="activeSection"
+        :steps="steps"
+        :loading="meta.isLoading"
+        @update:model-value="scrollTo"
+      >
+        <template #append>
+          <div class="ml-auto w-full max-w-xs text-right">
+            <upw-button
+              :disabled="!meta.isReadyForCheckout || meta.isProcessing"
+              @click.prevent="doCheckout"
+              color="primary"
+              :label="$t('basket.summary.actions.submit')"
+              block
+            />
+          </div>
+        </template>
+      </upw-steps>
 
-    <!-- confirmation -->
-    <upm-basket-confirmation
-      id="confirmation"
-      :class="styles.checkout.section.root"
-      v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-    />
+      <!-- overview -->
+      <upm-basket-items
+        id="overview"
+        :class="styles.checkout.section.root"
+        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      />
 
-    <!-- empty -->
-    <upm-basket-empty id="empty" :class="styles.checkout.section.root" />
+      <!-- account -->
+      <upm-session
+        id="account"
+        :class="styles.checkout.section.root"
+        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      />
 
-    <!-- order -->
-    <section
-      v-if="meta.isComplete"
-      id="order"
-      :class="[styles.checkout.section.root, styles.checkout.section.centered]"
-      class="border border-dashed bg-base-100"
-    >
-      TODO: Order Section
-    </section>
+      <!-- payment -->
+      <upm-basket-details
+        id="payment"
+        :class="styles.checkout.section.root"
+        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      />
+
+      <!-- confirmation -->
+      <upm-basket-confirmation
+        id="confirmation"
+        :class="styles.checkout.section.root"
+        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      />
+    </template>
   </article>
 </template>
 
 <script>
 // --- external
 import { defineComponent, ref, computed } from "vue";
+import { useRoute } from "vue-router";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -80,9 +82,8 @@ import {
   UpmBasketDetails,
   UpmBasketConfirmation,
   UpmBasketEmpty,
+  UpmBasketLoading,
   // ---
-  UpwIcon,
-  UpwAvatar,
   UpwSteps,
   UpwButton,
 } from "@upmind/client-vue";
@@ -90,7 +91,7 @@ import {
 // -- utils
 import { vIntersectionObserver } from "@vueuse/components";
 import { getLocalMessages } from "@/utils";
-import { trimStart } from "lodash-es";
+import { trimStart, get, forEach, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -102,22 +103,44 @@ export default defineComponent({
     UpmBasketDetails,
     UpmBasketConfirmation,
     UpmBasketEmpty,
+    UpmBasketLoading,
     // ---
     UpwSteps,
-    UpwIcon,
-    UpwAvatar,
     UpwButton,
   },
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
-    const { meta, itemsPending } = useBasket();
+    const { meta, itemsPending, addProduct, updateBasket, isReady } =
+      useBasket();
+
+    // ---------------------------------------------------
+    // --- basket setup
+    const { query } = useRoute();
+    const product = get(query, "product");
+    const products = ref([]);
+
+    isReady().then(() => {
+      // add the product to the basket if the basket is empty
+      if (!meta.value.isEmpty) return;
+
+      if (product) {
+        forEach(isArray(product) ? product : [product], product_id => {
+          products.value.push(addProduct({ product_id, quantity: 1 }));
+        });
+      }
+    });
+    // ---------------------------------------------------
+
     const { isScrolling, scrollIntoView } = useScrollSpy();
 
     const styles = useStyles(["checkout", "checkout.section"], meta, config);
 
+    // ---------------------------------------------------
+
     return {
       mergeStyles,
       styles,
+      // ---
       itemsPending,
       meta,
       activeSection: ref(null),
@@ -159,14 +182,12 @@ export default defineComponent({
     };
   },
   watch: {
-    meta() {
+    meta(meta) {
+      if (!meta.isLoading || meta.isEmpty) return;
+
       this.scrollTo();
     },
   },
-  mounted() {
-    this.scrollTo(); // scroll to the appropriate section when the component is mounted
-  },
-
   methods: {
     scrollSpy([section]) {
       if (!this.activeSection || this.isScrolling) return; // safety check to prevent multiple scrolls

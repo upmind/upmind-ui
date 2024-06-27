@@ -5,6 +5,7 @@
 // --- utils
 
 // --- types
+import { size } from "lodash-es";
 import type { PromotionsContext } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
@@ -14,9 +15,10 @@ export const useSchema = (_context: PromotionsContext) => {
   const schema = {
     type: "object",
     title: "Promotions",
-    required: ["code"],
+    required: ["promocode"],
     properties: {
-      code: {
+      promocode: {
+        title: "Promo code",
         type: ["string", "null"],
       },
     },
@@ -31,12 +33,12 @@ export const useUischema = (_context: PromotionsContext) => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/code",
+        scope: "#/properties/promocode",
+        i18n: "basket.promotions.promocode",
         options: {
           focus: true,
           autocomplete: "off",
           placeholder: "Enter code here",
-          label: "",
           noStatus: true,
           noRequired: true,
           noLabel: true,

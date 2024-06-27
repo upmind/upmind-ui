@@ -17,8 +17,8 @@ export default {
           },
           variant: {
             flat: "border-transparent",
-            outlined: "border bg-opacity-0 hover:bg-opacity-100",
-            ghost: "border-transparent bg-opacity-0 hover:bg-opacity-100",
+            outlined: "border bg-opacity-0 ",
+            ghost: "border-transparent bg-opacity-0",
             link: "!bg-transparent !p-0 underline",
           },
           color: {
@@ -27,7 +27,6 @@ export default {
             primary: "bg-primary text-primary-content border-transparent",
             secondary: "bg-secondary text-secondary-content border-transparent",
             accent: "bg-accent text-accent-content border-transparent",
-            neutral: "bg-neutral text-neutral-content border-transparent",
             success: "bg-success text-success-content border-transparent",
             error: "bg-error text-error-content border-transparent",
             warning: "bg-warning text-warning-content border-transparent",
@@ -41,6 +40,12 @@ export default {
           },
         },
         compoundVariants: [
+          // disabled + variant
+          {
+            variant: ["outlined", "ghost"],
+            disabled: false,
+            class: "hover:bg-opacity-100",
+          },
           // disabled + color
           {
             disabled: false,
@@ -67,11 +72,6 @@ export default {
             disabled: false,
             color: "accent",
             class: "hover:bg-accent-800",
-          },
-          {
-            disabled: false,
-            color: "neutral",
-            class: "hover:bg-neutral-800",
           },
           {
             disabled: false,
@@ -234,34 +234,7 @@ export default {
             variant: "link",
             class: "hover:text-accent-800",
           },
-          // --- neutral + variant ---
-          {
-            color: "neutral",
-            variant: "outlined",
-            class: "border-neutral text-neutral",
-          },
-          {
-            color: "neutral",
-            variant: "ghost",
-            class: "text-neutral",
-          },
-          {
-            color: "neutral",
-            variant: "link",
-            class: "text-neutral",
-          },
-          {
-            disabled: false,
-            color: "neutral",
-            variant: ["outlined", "ghost"],
-            class: "hover:bg-neutral-50",
-          },
-          {
-            disabled: false,
-            color: "neutral",
-            variant: "link",
-            class: "hover:text-neutral-800",
-          },
+
           // --- success + variant ---
           {
             color: "success",
@@ -377,7 +350,7 @@ export default {
         ],
         defaultVariants: {
           variant: "flat",
-          color: "primary",
+          color: "accent",
           size: "md",
         },
       }
@@ -397,7 +370,7 @@ export default {
       variants: {
         size: {
           square: "size-[1em]",
-          badge: "size-2",
+          badge: "size-4",
           xs: "size-3",
           sm: "size-4",
           md: "size-5",

@@ -12,6 +12,12 @@ export default {
             md: "text-md placeholder:text-md px-3 py-3 leading-6",
             lg: "px-3 py-4 text-lg leading-7 placeholder:text-lg",
           },
+          isDisabled: {
+            true: "bg-base-100 cursor-not-allowed",
+          },
+          isProcessing: {
+            true: "cursor-wait",
+          },
         },
         defaultVariants: {
           size: "md",

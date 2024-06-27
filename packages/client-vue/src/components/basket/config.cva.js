@@ -46,8 +46,8 @@ export default {
       footer: cva("flex gap-1 items-center"),
 
       form: {
-        root: cva("flex-row gap-0"),
-        actions: cva("items-center w-auto"),
+        root: cva("flex-row gap-1"),
+        actions: cva("items-start w-auto"),
       },
     },
 
@@ -55,14 +55,16 @@ export default {
       root: cva("!gap-16 ", {
         variants: {
           isDisabled: {
-            true: "pointer-events-none opacity-50",
+            true: "pointer-events-none",
           },
+        },
+        defaultVariants: {
+          isDisabled: false,
         },
         compoundVariants: [
           {
-            hasProducts: false,
-            hasAccount: false,
-            class: "pointer-events-none opacity-50",
+            isAvailable: false,
+            class: "pointer-events-none",
           },
         ],
       }),
@@ -79,7 +81,7 @@ export default {
       root: cva("!gap-16 ", {
         variants: {
           isDisabled: {
-            true: "pointer-events-none opacity-50",
+            true: "pointer-events-none",
           },
         },
       }),
@@ -95,7 +97,7 @@ export default {
       // ---
       pending: {
         root: cva(
-          "bg-error text-error-content border border-error rounded-lg gap-0"
+          "bg-accent text-accent-content border border-accent rounded-lg gap-0"
         ),
         header: cva(
           "flex items-center gap-2 px-6 py-1 text-center justify-center text-sm"
@@ -113,7 +115,36 @@ export default {
 
     paymentGateway: {
       root: cva("flex flex-col gap-6 py-6 "),
-      render: cva("empty:hidden p-6 rounded-lg border border-base-300"),
+      wrapper: cva(
+        "empty:hidden flex gap-6 flex-col p-6 rounded-lg border border-base-300 justify-center items-center"
+      ),
+      render: cva("empty:hidden w-full"),
+      form: cva("w-full"),
+      transition: {
+        enter: {
+          active: cva("m-0 transition duration-300 ease-out"),
+          from: cva("-translate-y-10 transform opacity-0"),
+          to: cva("translate-y-0 transform opacity-100"),
+        },
+
+        leave: {
+          active: cva("transition duration-100 ease-in absolute"),
+          from: cva("translate-y-0 transform opacity-100"),
+          to: cva("-translate-y-1 transform opacity-0"),
+        },
+      },
+    },
+
+    loading: {
+      // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
+      root: cva(
+        "relative flex w-full flex-wrap flex-wrap items-start justify-start gap-6 py-16 flex-col justify-center items-center"
+      ),
+      title: cva("text-3xl font-light m-0 text-center text-inherit"),
+      text: cva(
+        "text-sm  leading-5 tracking-tight text-center m-0 text-base-500"
+      ),
+      avatar: cva("size-20 bg-primary text-primary-content p-2 border-error"),
     },
 
     confirmation: {
@@ -134,10 +165,7 @@ export default {
     empty: {
       // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
       root: cva(
-        "relative flex w-full flex-wrap flex-wrap items-start justify-start gap-6 py-16 flex-col justify-center items-center",
-        {
-          variants: {},
-        }
+        "relative flex w-full flex-wrap flex-wrap items-start justify-start gap-6 py-16 flex-col justify-center items-center"
       ),
       title: cva("text-3xl font-light m-0 text-center text-inherit"),
       text: cva(

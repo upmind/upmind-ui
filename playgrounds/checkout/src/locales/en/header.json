@@ -1,10 +1,9 @@
 {
   "header": {
     "checkout": "Checkout",
-    "form": "Task Form",
+    "client": "Client Area",
     "offers": "Offers",
-    "title": "Checkout v2",
     "session": "Session",
-    "client": "Client Area"
+    "title": "Doteasy Checkout"
   }
 }
