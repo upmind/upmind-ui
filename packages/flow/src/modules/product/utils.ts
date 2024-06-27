@@ -378,9 +378,11 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
               "id",
               choice.product_id,
             ]);
+            console.log("summary", "attributes", value);
+            if (!value) return;
             return {
               key: "attribute",
-              category: translateName(value.category),
+              category: translateName(value?.category),
               name: translateName(value),
               cycle: value.billing_cycle_months,
               quantity: value.unit_quantity,
@@ -402,6 +404,8 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
         const selected = values(
           mapValues(option, choice => {
             const value = find(raw.products_options, ["id", choice.product_id]);
+            console.log("summary", "options", value);
+            if (!value) return;
             return {
               key: "option",
               category: translateName(value.category),
@@ -422,8 +426,6 @@ export const useSummaryParser = ({ summary, prices, values: item, raw }) => {
   reduce(
     item.provision_fields,
     (result, value, field) => {
-      debugger;
-      if (field.shabba) return result;
       result.push({
         key: `provision_field.${field}`,
         category: field, // todo get field name
