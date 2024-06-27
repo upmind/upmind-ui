@@ -77,29 +77,30 @@ async function refreshToken(_context: RequestContext, _event: any) {
 
   // start by getting the current service and state
   // kick off the auth process
-  let state = getSnapshot();
+  // let state = getSnapshot();
 
   sessionService.send("REFRESH");
 
-  state = getSnapshot();
+  // state = getSnapshot();
 
   // wait for the service to complete
-  await waitFor(sessionService, newState =>
-    ["client.idle", "guest.idle", "client.error", "guest.error"].some(
-      newState.matches
-    )
-  );
+  await waitFor(sessionService, newState => {
+    console.info("refreshToken", newState?.value);
+    return ["client", "guest"].some(newState.matches);
+  }).catch(error => {
+    console.error("refreshToken failed", { error });
+  });
 
   // .catch(error => {
   //   return Promise.reject(error);
   // });
 
-  state = getSnapshot();
-
   // return the token or error
   return new Promise((resolve, reject) => {
     // get the current state
-    if (["client.idle", "guest.idle"].some(state.matches)) {
+    const state = getSnapshot();
+
+    if (["client", "guest"].some(state.matches)) {
       resolve(state.context.token);
     } else {
       const error = get(state, "context.error");

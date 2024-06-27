@@ -102,6 +102,15 @@ async function refreshToken(context: ClientContext) {
       refresh_token,
     },
   });
+  // for debugging purposes
+  // .then(response => {
+  //   console.log("refresh succeeded", response);
+  //   return response;
+  // })
+  // .catch(error => {
+  //   console.error("refresh failed", error);
+  //   Promise.reject(error);
+  // });
 }
 
 async function persistToken(context: ClientContext, _event: any) {
