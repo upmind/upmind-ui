@@ -165,7 +165,7 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
-                    actions: ["refreshItems", "updateBasket", "refreshActors"],
+                    actions: ["updateBasket", "refreshActors"],
                   },
                   onError: { target: "#error" },
                 },
@@ -497,10 +497,11 @@ export default createMachine(
       UPDATE: [
         {
           target: "#shopping.items.processing.everything",
-          actions: ["clearBin"],
+          actions: ["updateItems", "clearBin"],
           cond: "hasNoItem",
         }, // update everything
         {
+          actions: ["updateItem"],
           target: "#shopping.items.processing.updating",
         },
       ],
@@ -610,11 +611,25 @@ export default createMachine(
         },
       }),
 
-      refreshActors: pure(({ basket, actors }) => {
+      refreshActors: pure(({ basket, actors, items }) => {
         forEach(actors, actor => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
+        });
+
+        forEach(items, item => {
+          const product =
+            find(basket?.products, ["id", item?.id]) ||
+            item.state.context.values;
+          item.send({
+            type: "REFRESH",
+            data: {
+              product,
+              currency_id: basket?.currency_id,
+              promotions: basket?.promotions || [],
+            },
+          });
         });
       }),
 
@@ -669,11 +684,26 @@ export default createMachine(
         error: undefined,
       }),
 
+      updateItem: pure(({ items }, { data }) => {
+        const itemId = data?.itemId;
+        const item = find(items, ["id", itemId]);
+        item.send({ type: "PROCESSING" });
+      }),
+
+      updateItems: pure(({ items }, { data }) => {
+        forEach(items, item => {
+          if (item.state.matches("configured")) {
+            item.send({ type: "PROCESSING" });
+          }
+        });
+      }),
+
       binItem: assign({
         bin: ({ items, bin }, { data }) => {
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
-          const removed = remove(items, ["id", itemId]);
-          if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          const removed = find(items, ["id", itemId]);
+          if (removed) bin.push(removed);
+          removed.send({ type: "BIN" });
           return bin;
         },
         error: undefined,
@@ -727,17 +757,8 @@ export default createMachine(
             const newId = get(data?.newItems, [index, "id"]);
             const product = find(data?.basket?.products, ["id", itemId]);
 
-            // Check if the item still Exists in the basket
-            if (product) {
-              // Exists..
-              // we need to refresh it
-              item.send({
-                type: "REFRESH",
-                data: { product, currency_id, promotions },
-              });
-            }
             // if not, we need to check if its been Replaced
-            else if (newId) {
+            if (!product && newId) {
               // Replaced...
               // we need to replace it with a new machine and stop the old one
               // NB: its safe to assume that the items array is in the same order as the newItems
@@ -787,16 +808,12 @@ export default createMachine(
           // but weve not updated the basket yet
           // and perhaps weve changed currency or added a promotion
           // we need to ensure all the items are up to date
-          // const dangling = differenceBy(
-          //   items,
-          //   [...data?.basket?.products, ...data.newItems],
-          //   "id"
-          // );
-          // forEach(dangling, (item, index) => {
+          // const dangling = differenceBy(items, data.newItems, "id");
+          // forEach(dangling, item => {
           //   const product = item.state.context.config;
           //   item.send({
           //     type: "REFRESH",
-          //     data: { product, currency_id, promotions }
+          //     data: { product, currency_id, promotions },
           //   });
           // });
 

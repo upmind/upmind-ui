@@ -484,7 +484,7 @@ export const useValuesParser = (data: any) => {
   // ---
   // handle existing products that have been added to the basket
   if (data?.id) {
-    set(values, "id", data.id);
+    // set(values, "id", data.id);
     set(values, "term", data.billing_cycle_months);
     set(values, "product_id", data.product_id);
     set(values, "attributes", useAddedAttributesParser(data.attributes));

@@ -12,6 +12,9 @@ export default {
         "p-6 bg-base text-base-content border rounded-lg border-base-300 gap-6 flex flex-wrap items-stretch ",
         {
           variants: {
+            isUnavailable: {
+              true: "pointer-events-none opacity-50",
+            },
             isDisabled: {
               // true: "pointer-events-none",
             },
@@ -67,6 +70,7 @@ export default {
       meta: cva(
         "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
       ),
+
       text: cva("w-full text-left m-0 text-sm leading-normal"),
       bold: cva("font-medium", {
         variants: {
