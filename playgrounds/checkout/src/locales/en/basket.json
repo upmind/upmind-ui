@@ -99,7 +99,7 @@
     },
     "payment_details": {
       "type": {
-        "PARTIAL_PAYMENT": "Pay in instalments",
+        "PARTIAL_PAYMENT": "Make a partial payment",
         "PAY_IN_FULL": "Pay in full",
         "PAY_LATER": "Pay later",
         "label": "Payment type"

@@ -7,7 +7,7 @@ import { useBrand, BrandConfigKeys } from "../brand";
 import type { ProductConfigContext } from "./types.d";
 
 // --- utils
-import { useTime } from "../../utils";
+import { useTime, useValidation } from "../../utils";
 import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
@@ -67,12 +67,6 @@ async function calculateBillingTerm(
 
   let term;
 
-  const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
-    BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-  ).then(response =>
-    get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
-  );
-
   switch (period) {
     case DefaultPaymentPeriod.HIGHEST_PRICE:
       term = maxBy(availableTerms, "price");
@@ -84,7 +78,16 @@ async function calculateBillingTerm(
       term = minBy(availableTerms, "monthly_price_from");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = await calculateBillingTerm(brandPaymentPeriod, availableTerms);
+      term = await getConfig(
+        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+      ).then(config => {
+        const period = get(
+          config,
+          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+        );
+        return calculateBillingTerm(period, availableTerms);
+      });
+
       break;
 
     default:
@@ -99,7 +102,7 @@ async function calculateBillingTerm(
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function getProduct(
+async function load(
   { values, currency_id, promotions }: ProductConfigContext,
   _event: any
 ) {
@@ -141,7 +144,7 @@ async function getProduct(
   }).then(({ data }) => data);
 
   // lets get our provision_fields fields early, so we can make them available
-  const provisioningPromise = getProvisioningFields({ values }, _event);
+  const provisioningPromise = loadProvisioningFields(product_id);
 
   return Promise.all([productPromise, provisioningPromise]).then(
     ([product, provision_fields]) => {
@@ -151,82 +154,37 @@ async function getProduct(
   );
 }
 
-// ---
-
-async function getProvisioningFields(
-  { values }: ProductConfigContext,
-  _event: any
-) {
+async function loadProvisioningFields(product_id) {
   const { get, useUrl } = useApi();
-  const { product_id } = values;
+
+  if (!product_id) return Promise.reject("No Product ID provided");
 
   // we dont cache provision_fields fields, as they can change with diferent options/attributes being selected
   return get({
     url: useUrl(`basket/products/${product_id}/provision_fields`),
-    useCache: false,
+    useCache: true,
     withAccessToken: true,
   }).then(({ data }) => data);
 }
-
-async function checkProvisioning(
-  { available, values }: ProductConfigContext,
-  _event: any
-) {
-  // safety check, resolve if we have no attributes to check
-  if (isEmpty(available?.provision_fields?.properties)) {
-    return Promise.resolve([]);
-  }
-
-  const errors = [];
-  const provision_fields = reduce(
-    available.provision_fields.properties,
-    (result, field, key) => {
-      const selected = get(values, `provision_fields.${key}`, null);
-
-      // TODO: validation via ajv
-
-      // ---
-      set(result, key, selected);
-      return result;
-    },
-    {}
-  );
-
-  return new Promise((resolve, reject) => {
-    if (errors?.length) reject({ provision_fields, errors });
-    else resolve(provision_fields);
-  });
-}
-
 // ---
 
 async function checkQuantity(
   { available, values }: ProductConfigContext,
-  _event: any
+  { data }: any
 ) {
   const { product } = available;
-  let { quantity } = values;
+  let quantity = data?.quantity || values?.quantity;
   // ---
   quantity = useQuantityParser(quantity, product);
 
   return new Promise((resolve, reject) => {
-    if (isNumber(quantity)) resolve(quantity);
+    if (isNumber(quantity)) resolve({ quantity });
     else reject("Invalid Quantity Selected");
   });
 }
 
-/**
- * This Checks if the Product has any/multiple Term/Billing Cycle
- * If there is no/one option, it will automatically select it
- * We will also check that any values option is valid
- * @param context
- * @param _event
- * @returns {Promise<void>}
- * We Reject any invalid or empty selections
- * We Resolve the valid Selected option
- */
 async function checkTerm(
-  { available, values }: ProductConfigContext,
+  { available, values, prices }: ProductConfigContext,
   _event: any
 ) {
   let term;
@@ -250,19 +208,36 @@ async function checkTerm(
     }
   }
 
+  // ---
+  // only calculate the term price if we dont have any price overrides
+  if (!useHasPriceOverride(values.options, available.options)) {
+    const subtotal = values.quantity * term?.price || 0;
+    const total = values.quantity * term?.price_discounted || 0;
+    const discount = total ? subtotal - total : 0;
+    prices.term.discount = discount;
+    prices.term.subtotal = discount ? subtotal : 0;
+    prices.term.total = discount ? total : subtotal; // cater for no discount
+    prices.term.formatted = term?.price_formatted;
+  } else {
+    prices.term.discount = 0;
+    prices.term.subtotal = 0;
+    prices.term.total = 0;
+    prices.term.formatted = null;
+  }
+
   return new Promise((resolve, reject) => {
-    if (!isNil(term)) resolve(term);
+    if (!isNil(term)) resolve({ term, prices });
     else reject("Invalid Term Selected");
   });
 }
 
 async function checkAttributes(
-  { available, values }: ProductConfigContext,
+  { available, values, prices }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
   if (!available?.attributes?.length) {
-    return Promise.resolve([]);
+    return Promise.resolve(null);
   }
 
   const errors = [];
@@ -340,18 +315,18 @@ async function checkAttributes(
   );
 
   return new Promise((resolve, reject) => {
-    if (errors?.length) reject({ attributes, errors });
-    else resolve(attributes);
+    if (errors?.length) reject(errors);
+    else resolve({ attributes, prices });
   });
 }
 
 async function checkOptions(
-  { available, values }: ProductConfigContext,
+  { available, values, prices }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
   if (!available?.options?.length) {
-    return Promise.resolve([]);
+    return Promise.resolve(null);
   }
 
   const errors = [];
@@ -400,7 +375,8 @@ async function checkOptions(
             value.billing_cycle_months,
           ]);
 
-          value.total = value.unit_quantity * (value.price?.price || 0);
+          value.total =
+            value.unit_quantity * (value.price?.price || 0) * values.quantity;
 
           value.total_discounted =
             value.unit_quantity * (value.price?.price_discounted || 0);
@@ -424,9 +400,50 @@ async function checkOptions(
     {}
   );
 
+  prices.options = reduce(
+    options,
+    (result, option) => {
+      const subtotal = sumBy(objectValues(option), "total") || 0;
+      const total = sumBy(objectValues(option), "total_discounted") || 0;
+      const discount = total ? subtotal - total : 0;
+      result.discount += discount;
+      result.subtotal += discount ? subtotal : 0;
+      result.total += discount ? total : subtotal; // cater for no discount
+      return result;
+    },
+    { subtotal: 0, total: 0, discount: 0 }
+  );
+
   return new Promise((resolve, reject) => {
-    if (errors?.length) reject({ options, errors });
-    else resolve(options);
+    if (errors?.length) reject(errors);
+    else resolve({ options, prices });
+  });
+}
+
+async function checkProvisioning(
+  { available, values }: ProductConfigContext,
+  _event: any
+) {
+  // safety check, resolve if we have no attributes to check
+  if (isEmpty(available?.provision_fields?.properties)) {
+    return Promise.resolve([]);
+  }
+
+  const provision_fields = reduce(
+    available.provision_fields.properties,
+    (result, field, key) => {
+      const selected = get(values, `provision_fields.${key}`, null);
+      set(result, key, selected);
+      return result;
+    },
+    {}
+  );
+
+  const { validate } = useValidation();
+  const errors = validate(provision_fields, available.provision_fields);
+  return new Promise((resolve, reject) => {
+    if (errors?.length) reject(errors);
+    else resolve(provision_fields);
   });
 }
 
@@ -441,87 +458,62 @@ async function checkOptions(
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
 async function calculateSummary(
-  { available, values, summary, currency_id }: BasketContext,
+  { currency_id, prices }: BasketContext,
   _event: any
 ) {
   const { post, useUrl } = useApi();
-  // ---
-  const prices = {
-    term: { subtotal: 0, total: 0, discount: 0 },
-    attributes: { subtotal: 0, total: 0, discount: 0 },
-    options: { subtotal: 0, total: 0, discount: 0 },
-  };
-  // ---
-  // only calculate the term price if we dont have any price overrides
-  if (!useHasPriceOverride(values.options, available.options)) {
-    const term = find(available.terms, [
-      "billing_cycle_months",
-      values.term?.billing_cycle_months,
-    ]);
-    const subtotal = values.quantity * term?.price || 0;
-    const total = values.quantity * term?.price_discounted || 0;
-    const discount = total ? subtotal - total : 0;
-    prices.term.discount += discount;
-    prices.term.subtotal += discount ? subtotal : 0;
-    prices.term.total += discount ? total : subtotal; // cater for no discount
+
+  // no prices to calculate, so bail out
+  if (
+    prices.term.total > 0 &&
+    prices.attributes.total > 0 &&
+    prices.options.total > 0
+  ) {
+    return Promise.reject("No prices to calculate");
   }
-  //  ---
-  prices.attributes = reduce(
-    values.attributes,
-    (result, attribute) => {
-      const subtotal = sumBy(objectValues(attribute), "total") || 0;
-      const total = sumBy(objectValues(attribute), "total_discounted") || 0;
-      const discount = subtotal - total;
-      result.discount += discount;
-      result.subtotal += discount ? subtotal : 0;
-      result.total += discount ? total : subtotal; // cater for no discount
-      return result;
-    },
-    { subtotal: 0, total: 0, discount: 0 }
-  );
-  // ---
-  prices.options = reduce(
-    values.options,
-    (result, option) => {
-      const subtotal = sumBy(objectValues(option), "total") || 0;
-      const total = sumBy(objectValues(option), "total_discounted") || 0;
-      const discount = total ? subtotal - total : 0;
-      result.discount += discount;
-      result.subtotal += discount ? subtotal : 0;
-      result.total += discount ? total : subtotal; // cater for no discount
-      return result;
-    },
-    { subtotal: 0, total: 0, discount: 0 }
-  );
 
   // ---
-  const subtotalPromise = await post({
-    url: useUrl("cart/calculate", {}),
-    withAccessToken: true,
-    data: {
-      currency_id,
-      prices: [
-        prices.term.subtotal,
-        prices.attributes.subtotal,
-        prices.options.subtotal,
-      ],
-    },
-  }).then(response => response?.data);
+  const hasSubtotal =
+    prices.term.subtotal > 0 &&
+    prices.attributes.subtotal > 0 &&
+    prices.options.subtotal > 0;
+  const subtotalPromise = !hasSubtotal
+    ? Promise.resolve(0)
+    : post({
+        url: useUrl("cart/calculate", {}),
+        withAccessToken: true,
+        data: {
+          currency_id,
+          prices: [
+            prices.term.subtotal,
+            prices.attributes.subtotal,
+            prices.options.subtotal,
+          ],
+        },
+      }).then(response => response?.data);
 
-  const discountPromise = await post({
-    url: useUrl("cart/calculate", {}),
-    withAccessToken: true,
-    data: {
-      currency_id,
-      prices: [
-        prices.term.discount,
-        prices.attributes.discount,
-        prices.options.discount,
-      ],
-    },
-  }).then(response => response?.data);
+  // ---
+  const hasDiscount =
+    prices.term.discount > 0 &&
+    prices.attributes.discount > 0 &&
+    prices.options.discount > 0;
+  const discountPromise = !hasDiscount
+    ? Promise.resolve(0)
+    : post({
+        url: useUrl("cart/calculate", {}),
+        withAccessToken: true,
+        data: {
+          currency_id,
+          prices: [
+            prices.term.discount,
+            prices.attributes.discount,
+            prices.options.discount,
+          ],
+        },
+      }).then(response => response?.data);
 
-  const totalPromise = await post({
+  // ---
+  const totalPromise = post({
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
@@ -538,7 +530,7 @@ async function calculateSummary(
   return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
     ([subtotal, discount, total]) => {
       const newSummary = {
-        currency_id: summary?.currency_id,
+        currency_id,
         subtotal: subtotal?.total || 0,
         subtotal_formatted: subtotal?.total_formatted,
         discount: discount?.total || 0,
@@ -555,7 +547,7 @@ async function calculateSummary(
 // EXPORTS
 
 export default <Object>{
-  getProduct,
+  load,
   // ---
   checkQuantity,
   checkTerm,
