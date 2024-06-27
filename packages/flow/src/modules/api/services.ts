@@ -88,12 +88,9 @@ async function refreshToken(_context: RequestContext, _event: any) {
     console.info("refreshToken", newState?.value);
     return ["client", "guest"].some(newState.matches);
   }).catch(error => {
+    // prevent the error from bubbling up
     console.error("refreshToken failed", { error });
   });
-
-  // .catch(error => {
-  //   return Promise.reject(error);
-  // });
 
   // return the token or error
   return new Promise((resolve, reject) => {
