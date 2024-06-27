@@ -84,10 +84,9 @@ async function refreshToken(_context: RequestContext, _event: any) {
   // state = getSnapshot();
 
   // wait for the service to complete
-  await waitFor(sessionService, newState => {
-    console.info("refreshToken", newState?.value);
-    return ["client", "guest"].some(newState.matches);
-  }).catch(error => {
+  await waitFor(sessionService, newState =>
+    ["client", "guest"].some(newState.matches)
+  ).catch(error => {
     // prevent the error from bubbling up
     console.error("refreshToken failed", { error });
   });
