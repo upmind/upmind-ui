@@ -15,7 +15,6 @@ export default {
           primary: "bg-primary/25",
           secondary: "bg-secondary/25",
           accent: "bg-accent/25",
-          neutral: "bg-neutral/25",
           success: "bg-success/25",
           error: "bg-error/25",
           warning: "bg-warning/25",

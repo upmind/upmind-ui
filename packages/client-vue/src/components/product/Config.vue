@@ -1,24 +1,28 @@
 <template>
-  <aside :class="styles.product.config.root">
-    <figure :class="styles.product.config.media">
+  <form :class="styles.product.config.root" @submit.prevent="doResolve">
+    <figure
+      :class="styles.product.config.media"
+      v-if="availableProduct?.image?.full_url"
+    >
       <img
-        :src="availableProduct?.image?.full_url || $t('product.image')"
+        :src="availableProduct?.image?.full_url"
         :alt="`${availableProduct?.name} thumbnail`"
         :class="styles.product.config.image"
       />
     </figure>
 
     <div :class="styles.product.config.wrapper">
+      <!-- header -->
       <header :class="styles.product.config.header">
         <div :class="styles.product.config.headerContent">
           <upw-badge
-            color="primary"
+            color="secondary"
             v-if="availableProduct?.hasFreeTrial"
             :label="$t('product.trail')"
           />
 
           <upw-badge
-            color="primary"
+            color="secondary"
             v-if="availableProduct?.isOnPromotion"
             :label="$t('product.promotion')"
           />
@@ -27,11 +31,12 @@
             {{ availableProduct?.name }}
           </h3>
         </div>
+
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
           <upw-spinner
-            v-if="loading || meta.isCalculating"
+            v-if="meta.isLoading || meta.isCalculating"
             :class="styles.product.config.loading"
           />
 
@@ -51,11 +56,20 @@
               v-if="!!summary?.discount"
               :class="styles.product.config.discount"
             >
-              {{ summary?.subtotal_formatted }}
+              {{
+                summary?.subtotal
+                  ? summary?.subtotal_formatted
+                  : $t("product.free")
+              }}
             </span>
 
-            <strong :class="styles.product.config.total" v-if="summary?.total">
-              {{ summary?.total_formatted }}
+            <strong
+              :class="styles.product.config.total"
+              v-if="!isNil(summary?.total)"
+            >
+              {{
+                summary?.total ? summary?.total_formatted : $t("product.free")
+              }}
             </strong>
           </span>
         </div>
@@ -79,7 +93,8 @@
       <div :class="mergeStyles(styles.product.config.content)">
         <!-- terms -->
         <upm-config-grid
-          :disabled="processing || meta.isLoading || meta.isCalculating"
+          v-if="meta.hasTerms"
+          :processing="processing || meta.isLoading || meta.isCalculating"
           :items="availableTerms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
@@ -89,7 +104,8 @@
 
         <!-- attributes -->
         <upm-config-nested
-          :disabled="processing || meta.isLoading || meta.isCalculating"
+          v-if="meta.hasAttributes"
+          :processing="processing || meta.isLoading || meta.isCalculating"
           :items="availableAttributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
@@ -98,7 +114,8 @@
 
         <!-- options -->
         <upm-config-nested
-          :disabled="processing || meta.isLoading || meta.isCalculating"
+          v-if="meta.hasOptions"
+          :processing="processing || meta.isLoading || meta.isCalculating"
           :items="availableOptions"
           :model-value="model?.options"
           @update:modelValue="selectOption"
@@ -108,7 +125,8 @@
 
         <!-- provisional fields -->
         <upm-config-form
-          :disabled="processing || meta.isCalculating"
+          v-if="meta.hasProvisioning"
+          :processing="processing || meta.isLoading"
           :additional-errors="errors?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"
@@ -118,12 +136,12 @@
     </div>
 
     <!-- footer -->
-    <footer :class="styles.product.config.footer">
-      <!-- actions -->
+    <footer :class="styles.product.config.footer" v-if="!meta.isLoading">
       <upw-button
+        type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
-        :disabled="loading || processing"
+        :disabled="processing"
         @click="doReject"
         color="current"
         variant="link"
@@ -137,14 +155,14 @@
       </span>
 
       <upw-button
+        type="submit"
         tabindex="0"
         :label="$t('product.actions.resolve')"
         :loading="processing"
-        :disabled="loading || !meta.isConfigured"
-        @click="doResolve"
+        :disabled="meta.isLoading || !meta.isConfigured"
       />
     </footer>
-  </aside>
+  </form>
 </template>
 
 <script>
@@ -168,10 +186,12 @@ import UpmConfigNested from "./ConfigNested.vue";
 import UpmConfigForm from "./ConfigForm.vue";
 
 // --- utils
+import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductConfig",
+  inheritAttrs: false,
   components: {
     UpwBadge,
     UpwButton,
@@ -192,10 +212,6 @@ export default defineComponent({
     },
     // ---
     disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
       type: Boolean,
       default: false,
     },
@@ -276,6 +292,8 @@ export default defineComponent({
       doResolve: () => emit("resolve", { id: props.modelValue }), // ---
       styles,
       mergeStyles,
+      // ---
+      isNil,
     };
   },
   computed: {},

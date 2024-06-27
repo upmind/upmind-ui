@@ -11,7 +11,6 @@ export interface ButtonProps {
     | "primary"
     | "secondary"
     | "tertiary"
-    | "neutral"
     | "success"
     | "error"
     | "warning"

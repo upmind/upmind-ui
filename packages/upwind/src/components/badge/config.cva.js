@@ -17,7 +17,6 @@ export default {
             primary: "bg-primary text-primary-content",
             secondary: "bg-secondary text-secondary-content",
             accent: "bg-accent text-accent-content",
-            neutral: "bg-neutral text-neutral-content",
             success: "bg-success text-success-content",
             error: "bg-error text-error-content",
             warning: "bg-warning text-warning-content",
@@ -71,18 +70,6 @@ export default {
             color: "accent",
             variant: "tonal",
             class: "bg-accent-50 text-accent",
-          },
-
-          // --- neutral + variant ---
-          {
-            color: "neutral",
-            variant: "outlined",
-            class: "border-neutral text-neutral",
-          },
-          {
-            color: "neutral",
-            variant: "tonal",
-            class: "text-neutral bg-neutral-50",
           },
 
           // --- success + variant ---

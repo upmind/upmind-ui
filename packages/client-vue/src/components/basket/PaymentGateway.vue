@@ -1,23 +1,47 @@
 <template>
-  <div ref="form" :class="styles.basket.paymentGateway.root">
-    <!-- gateway Render Content (* IF Provided) -->
-    <div ref="container" :class="styles.basket.paymentGateway.render"></div>
-
-    <!-- gateway Form (* IF Provided) -->
-    <upw-form
-      v-if="schema && uischema"
-      :additional-errors="errors?.data"
-      :loading="meta.isLoading"
-      :model-value="model"
-      :processing="meta.isProcessing"
-      :schema="schema"
-      :uischema="uischema"
-      @reject="clear"
-      @resolve="update"
-      @update:modelValue="input"
-      no-actions
+  <div
+    ref="form"
+    :class="styles.basket.paymentGateway.root"
+    v-if="!meta.isRenderless"
+  >
+    <transition-group
+      tag="div"
+      :class="styles.basket.paymentGateway.wrapper"
+      :enter-active-class="styles.basket.paymentGateway.transition.enter.active"
+      :enter-from-class="styles.basket.paymentGateway.transition.enter.from"
+      :enter-to-class="styles.basket.paymentGateway.transition.enter.to"
+      :leave-active-class="styles.basket.paymentGateway.transition.leave.active"
+      :leave-from-class="styles.basket.paymentGateway.transition.leave.from"
+      :leave-to-class="styles.basket.paymentGateway.transition.leave.to"
+      appear
     >
-    </upw-form>
+      <upw-spinner size="xs" v-if="meta.isLoading" key="spinner" />
+
+      <!-- gateway Render Content (* IF Provided) -->
+      <div
+        ref="container"
+        :class="styles.basket.paymentGateway.render"
+        v-show="!meta.isLoading"
+        key="render"
+      ></div>
+
+      <!-- gateway Form (* IF Provided) -->
+      <upw-form
+        key="form"
+        v-if="schema && uischema"
+        v-show="!meta.isLoading"
+        :class="styles.basket.paymentGateway.form"
+        :additional-errors="errors?.data"
+        :model-value="model"
+        :processing="meta.isProcessing"
+        :schema="schema"
+        :uischema="uischema"
+        @reject="clear"
+        @resolve="update"
+        @update:modelValue="input"
+        no-actions
+      />
+    </transition-group>
   </div>
 </template>
 
@@ -31,13 +55,13 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm, UpwSpinner } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmBasketPaymentGateway",
-  components: { UpwForm },
+  components: { UpwForm, UpwSpinner },
   props: {},
   setup(props) {
     const {
@@ -53,7 +77,15 @@ export default defineComponent({
       render,
     } = useBasketPaymentGateway();
 
-    const styles = useStyles(["basket.paymentGateway"], meta, config);
+    const styles = useStyles(
+      [
+        "basket.paymentGateway",
+        "basket.paymentGateway.transition.enter",
+        "basket.paymentGateway.transition.leave",
+      ],
+      meta,
+      config
+    );
 
     const container = ref();
     // wait till we mount then try to render the gateway if it's provided

@@ -3,7 +3,7 @@
     <h-menu-button
       :class="[styles.dropdown.trigger, open ? styles.dropdown.active : '']"
       ref="reference"
-      :disabled="disabled || loading"
+      :disabled="disabled || loading || processing"
     >
       <!-- prepend slot-->
       <slot
@@ -17,6 +17,7 @@
           label,
           open,
           disabled,
+          processing,
           loading,
         }"
       >
@@ -56,6 +57,7 @@
           toggleRotate,
           open,
           disabled,
+          processing,
           loading,
         }"
       >
@@ -78,8 +80,8 @@
 
         <!-- loading / toggle -->
         <upw-spinner
-          :class="styles.dropdown.loading"
           v-if="loading"
+          :class="styles.dropdown.loading"
           aria-hidden="true"
         />
 
@@ -209,24 +211,13 @@ export default defineComponent({
       type: Object as PropType<DropdownProps["items"]>,
       default: () => {},
     },
-    grouped: {
-      type: Boolean,
-      default: false,
-    },
+    grouped: { type: Boolean },
     // ---
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
+    loading: { type: Boolean },
+    disabled: { type: Boolean },
+    processing: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: Object },
   },
   setup(props) {
     const reference = ref(null);

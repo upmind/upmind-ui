@@ -6,7 +6,6 @@ export interface AlertProps {
     | "primary"
     | "secondary"
     | "tertiary"
-    | "neutral"
     | "success"
     | "error"
     | "warning"

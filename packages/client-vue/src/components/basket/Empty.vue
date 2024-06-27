@@ -1,5 +1,12 @@
 <template>
-  <upw-dialog size="xl" :model-value="open" no-actions persistent skrim="light">
+  <component
+    :is="modal ? 'upw-dialog' : 'div'"
+    size="xl"
+    :model-value="open"
+    no-actions
+    persistent
+    skrim="light"
+  >
     <section :class="styles.basket.empty.root">
       <upw-avatar :avatar="avatar" :class="styles.basket.empty.avatar" />
 
@@ -11,15 +18,15 @@
 
       <footer>
         <upw-button
-          :label="$t('basket.empty.actions.continue')"
+          v-if="action"
+          v-bind="action"
           block
-          prepend-icon="arrow-left"
-          to="/"
           variant="ghost"
+          :href="storefrontUrl"
         />
       </footer>
     </section>
-  </upw-dialog>
+  </component>
 </template>
 
 <script>
@@ -44,7 +51,12 @@ export default defineComponent({
     UpwAvatar,
     UpwButton,
   },
-  props: {},
+  props: {
+    modal: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { meta } = useBasket();
 
@@ -74,7 +86,13 @@ export default defineComponent({
     },
 
     avatar() {
-      return this.$t("basket.empty.avatar");
+      return this.$tm("basket.empty.avatar");
+    },
+    action() {
+      return this.$tm("basket.empty.actions.continue");
+    },
+    storefrontUrl() {
+      return import.meta.env.VITE_APP_UPMIND_STOREFRONT;
     },
   },
 });

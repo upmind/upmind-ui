@@ -218,7 +218,7 @@ export default defineComponent({
 
     onSelect(item) {
       this.select(item.id);
-      this.$emit("update:modelValue", false);
+      this.$emit("update:modelValue", true);
     },
   },
 });

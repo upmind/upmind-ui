@@ -13,7 +13,7 @@ export default {
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none opacity-50",
+              // true: "pointer-events-none",
             },
 
             // isNew: {
@@ -97,11 +97,11 @@ export default {
 
     config: {
       root: cva(
-        "bg-base text-base-content border rounded-lg border-base-300 gap-x-12 flex flex-wrap items-start",
+        "bg-base text-base-content border rounded-lg border-base-300 gap-x-2 flex flex-wrap items-start",
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none opacity-50",
+              true: "pointer-events-none",
             },
           },
         }
@@ -116,7 +116,7 @@ export default {
       }),
 
       wrapper: cva(
-        "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 pl-0 "
+        "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 "
       ),
 
       header: cva("w-full flex flex-wrap items-end gap-x-10 gap-y-4"),
@@ -132,7 +132,7 @@ export default {
       }),
 
       content: cva(
-        "w-full flex-none flex flex-wrap gap-x-6 gap-y-16 empty:hidden items-start "
+        "w-full flex-none flex flex-wrap gap-x-6 gap-y-8 empty:hidden items-start "
       ),
 
       footer: cva(
@@ -193,17 +193,23 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none opacity-50",
+              true: "cursor-wait",
             },
           },
         }),
-        items: cva("p-0 m-0 list-none grid grid-cols-3 w-full gap-3"),
+        items: cva(
+          "p-0 m-0 list-none grid w-full gap-3 grid-cols-[repeat(auto-fit,_minmax(14rem,_auto))]"
+        ),
         item: {
           root: cva(
             "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
           ),
-          selected: cva("border-primary"),
-          input: cva("text-primary"),
+          selected: cva(
+            "focus-within:border focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20"
+          ),
+          disabled: cva("cursor-wait"),
+
+          // input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
           ),
@@ -222,17 +228,33 @@ export default {
         root: cva("w-full p-0 ", {
           variants: {
             disabled: {
-              true: "pointer-events-none opacity-50",
+              // true: "pointer-events-none",
             },
           },
         }),
         items: cva("p-0 m-0 list-none grid grid-cols-1 w-full gap-0"),
         item: {
           root: cva(
-            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer m-0 px-4 py-3 rounded-lg border "
+            "m-0 p-0 first-of-type:rounded-t-lg border border-b-0 last-of-type:rounded-b-lg last-of-type:border-b"
           ),
-          selected: cva("border-primary"),
-          input: cva("text-primary"),
+          wrapper: cva(
+            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 ",
+            {
+              variants: {
+                disabled: {
+                  true: "cursor-not-allowed",
+                },
+                processing: {
+                  true: "cursor-wait",
+                },
+              },
+            }
+          ),
+
+          selected: cva(
+            "focus-within:border focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20"
+          ),
+          // input: cva("text-primary"),
           header: cva(
             "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
           ),
@@ -256,7 +278,7 @@ export default {
         root: cva("w-full p-0", {
           variants: {
             disabled: {
-              true: "pointer-events-none opacity-50",
+              // true: "pointer-events-none",
             },
           },
         }),

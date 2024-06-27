@@ -159,7 +159,7 @@ export interface Typegen0 {
     wait: "PUT" | "UPDATE" | "done.invoke.load";
   };
   eventsCausingGuards: {
-    hasChanged: "PUT";
+    hasChanged: "PUT" | "REFRESH";
     needsRecalculating: "done.state.configuring";
   };
   eventsCausingServices: {

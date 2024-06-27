@@ -204,9 +204,9 @@ const requests = [
 forEach(requests, request => {
   delay(
     ({ url, init, useCache, maxAge }) => {
-      console.info("fetching...", request.url, request.delay);
+      console.debug("fetching...", request.url, request.delay);
       get({ url, init, useCache, maxAge }).then(({ data }) =>
-        console.info("fetched", request.url, request.delay)
+        console.debug("fetched", request.url, request.delay)
       );
     },
     request.delay,

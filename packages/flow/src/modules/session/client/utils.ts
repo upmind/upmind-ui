@@ -18,25 +18,21 @@ export const useRegisterSchemaParser = (data: any) => {
       firstname: {
         type: "string",
         title: "Your first name",
-        i18n: "auth.firstname",
       },
       lastname: {
         type: "string",
         title: "Your last name",
-        i18n: "auth.lastname",
       },
       email: {
         type: "string",
         title: "Your email address",
         format: "email",
-        i18n: "auth.email",
       },
       password: {
         type: "string",
         title: "Your password",
         minLength: 8,
         format: "password",
-        i18n: "auth.password",
       },
       custom_fields: useFieldsSchemaParser(data, "auth"),
     },
@@ -52,6 +48,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/firstname",
+        i18n: "auth.firstname",
         options: {
           focus: true,
           autocomplete: "given-name",
@@ -61,6 +58,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/lastname",
+        i18n: "auth.lastname",
         options: {
           autocomplete: "family-name",
           placeholder: "Doe, Smith, ...",
@@ -69,6 +67,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/email",
+        i18n: "auth.email",
         options: {
           autocomplete: "email",
           placeholder: "name@email.com",
@@ -77,6 +76,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/password",
+        i18n: "auth.password",
         options: {
           type: "password",
           autocomplete: "current-password",
@@ -112,14 +112,12 @@ export const useLoginSchemaParser = () => {
       email: {
         type: "string",
         title: "Your email address",
-        i18n: "auth.email",
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {
         type: "string",
         format: "password",
         title: "Your password",
-        i18n: "auth.password",
       },
     },
   };
@@ -132,6 +130,7 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/email",
+        i18n: "auth.email",
         options: {
           autocomplete: "email",
           placeholder: "name@email.com",
@@ -140,6 +139,7 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/password",
+        i18n: "auth.password",
         options: {
           autocomplete: "current-password",
           placeholder: "password or passphrase",

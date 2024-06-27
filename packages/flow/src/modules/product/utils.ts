@@ -17,6 +17,7 @@ import {
   reduce,
   set,
   some,
+  toNumber,
   values,
 } from "lodash-es";
 // --------------------------------------------------------
@@ -368,7 +369,10 @@ export const useSummaryParser = (data: any) => {
     discount_formatted: data?.configuration_total_discount_amount_formatted,
 
     // the total price after the discount
-    total: data?.configuration_total_discounted_amount_converted,
+    total:
+      data?.configuration_total_discounted_amount_converted ||
+      data?.configuration_total_amount_converted,
+
     total_formatted: data?.configuration_total_discounted_amount_formatted,
   };
 
@@ -378,19 +382,19 @@ export const useSummaryParser = (data: any) => {
   // asd allow for easy i18n
   summary.details = [];
 
-  // MAYBE: only add terms if its NOT a one-off product, ie has a billing cycle
-  // if (data?.billing_cycle_months) {
-  summary.details.push({
-    key: "term",
-    category: "Billing Cycle",
-    name: getBillingCycle(data.billing_cycle_months)?.name,
-    cycle: data.billing_cycle_months,
-    quantity: data.quantity,
-    value: data.total_amount,
-    discount: data.total_discount_amount_formatted,
-    formatted: data.total_amount_formatted,
-  });
-  // }
+  // MAYBE: only add terms if its NOT a one-off product, ie has a billing cycle (data?.billing_cycle_months)
+  if (summary.total) {
+    summary.details.push({
+      key: "term",
+      category: "Billing Cycle",
+      name: getBillingCycle(data.billing_cycle_months)?.name,
+      cycle: data.billing_cycle_months,
+      quantity: data.quantity,
+      value: data.configuration_net_amount_discounted_converted,
+      discount: data.configuration_net_amount_discount_converted,
+      formatted: data.configuration_net_selling_price_discounted_formatted,
+    });
+  }
 
   if (data?.attributes) {
     reduce(
@@ -453,11 +457,11 @@ export const useSummaryParser = (data: any) => {
 export const useDisplayPriceParser = (data: any) => {
   // the base price without any discounts or configuration
   return {
-    price: data?.display_price,
+    price: Number(data?.display_price?.replace(/[^0-9.-]+/g, "")),
     price_formatted: data?.display_price,
 
     // the total price after the discount
-    total: data?.display_price,
+    total: Number(data?.display_price?.replace(/[^0-9.-]+/g, "")),
     total_formatted: data?.display_price,
   };
 };

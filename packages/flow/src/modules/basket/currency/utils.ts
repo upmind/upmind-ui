@@ -19,7 +19,6 @@ export const useSchema = ({ currencies, baseModel }: CurrencyContext) => {
     properties: {
       code: {
         type: ["string", "null"],
-        title: "Currency",
         default: baseModel?.code,
         oneOf: map(currencies, item => ({
           const: item.code,
@@ -39,6 +38,7 @@ export const useUischema = (_context: CurrencyContext) => {
       {
         type: "Control",
         scope: "#/properties/code",
+        i18n: "basket.currency.code",
         options: {
           focus: true,
           autocomplete: "off",

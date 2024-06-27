@@ -40,12 +40,12 @@ export const useUischema = ({ fields }: FieldsContext) => {
       {
         type: "Control",
         scope: "#/properties/notes",
+        i18n: "basket.fields.notes",
         options: {
           multi: true,
           focus: true,
           autosize: true,
           autocomplete: "off",
-          placeholder: "Add notes here...",
         },
       },
       ...useFieldsUischemaParser(
@@ -61,7 +61,8 @@ export const useUischema = ({ fields }: FieldsContext) => {
           }
 
           return field;
-        })
+        }),
+        "basket.fields"
       ),
     ],
   };
