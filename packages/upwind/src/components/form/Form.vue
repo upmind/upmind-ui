@@ -1,5 +1,6 @@
 <template>
-  <form
+  <component
+    :is="as"
     :class="styles.form.root"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
@@ -44,17 +45,18 @@
         />
       </slot>
     </div>
-  </form>
+  </component>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, unref, toRaw, toRefs } from "vue";
+import { defineComponent, unref, toRaw, toRefs, ref } from "vue";
 import type Ajv from "ajv";
 
 import type { ErrorObject } from "ajv";
 
 // --- components
+import { iterateSchema } from "@jsonforms/core";
 import { JsonForms } from "@jsonforms/vue";
 import UpwButton from "../button/Button.vue";
 import UpwSkeletonForm from "../skeleton/SkeletonForm.vue";
@@ -76,6 +78,8 @@ import {
   map,
   isNil,
   includes,
+  forEach,
+  set,
 } from "lodash-es";
 
 function safeValue(value: String | Object | Function, context?: any) {
@@ -107,6 +111,10 @@ export default defineComponent({
   inheritAttrs: false,
 
   props: {
+    as: {
+      type: String,
+      default: "form",
+    },
     translator: {
       type: Function,
     },
@@ -140,6 +148,7 @@ export default defineComponent({
       default: false,
     },
     autosave: { type: Boolean },
+    // ---
     size: { type: String },
     // ---
 
@@ -170,6 +179,13 @@ export default defineComponent({
   },
 
   watch: {
+    $props: {
+      handler() {
+        this.updateUischema();
+      },
+      immediate: true,
+      deep: true,
+    },
     modelValue: {
       handler(value) {
         this.model = toRaw(unref(value)) || {};
@@ -184,6 +200,7 @@ export default defineComponent({
   setup(props) {
     const { ajv } = useValidation();
 
+    // ---
     const styles = useStyles(
       ["form", "formButton"],
       toRefs(props),
@@ -196,13 +213,12 @@ export default defineComponent({
       styles,
       safeValue,
       safeAjv: props.ajv || ajv,
+      // ---
+      model: ref({}),
+      errors: ref([]),
+      isDirty: ref(false),
     };
   },
-  data: () => ({
-    model: {},
-    errors: [],
-    isDirty: false,
-  }),
 
   computed: {
     safeActions() {
@@ -277,7 +293,6 @@ export default defineComponent({
       };
     },
   },
-
   methods: {
     onChange({ data, errors }: JsonFormsChangeEvent) {
       this.errors = errors;
@@ -324,6 +339,15 @@ export default defineComponent({
         return;
       }
 
+      // fallback for submit/reset
+      if (item.type === "submit") {
+        this.doSubmit();
+        return;
+      } else if (item.type === "reset") {
+        this.doReject();
+        return;
+      }
+
       this.$emit("click", { model: this.model.value, meta: this.meta.value });
     },
 
@@ -340,6 +364,21 @@ export default defineComponent({
       this.isDirty = false;
       this.$emit("update:modelValue", this.model);
       this.$emit("reject");
+    },
+
+    updateUischema() {
+      iterateSchema(this.uischema, (child: UISchemaElement) => {
+        child.options ??= {}; //safety check
+        child.options.size ??= this.size; // only set if not already set
+
+        // map additional i18n, json forms just does title & description
+        if (child.i18n) {
+          const values = this?.$tm(child.i18n);
+          forEach(values, (value, key) => {
+            set(child.options, key, value);
+          });
+        }
+      });
     },
   },
 });

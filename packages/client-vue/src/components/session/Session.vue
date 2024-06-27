@@ -2,13 +2,23 @@
   <section class="session" :class="styles.session.root">
     <header :class="styles.session.header">
       <slot name="header" v-bind="{ meta, user }">
-        <template v-if="!meta.isAuthenticated">
+        <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
-            {{ $t("session.unauthenticated.header.text") }}
+            {{ $t("session.unauthenticated.header.register.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ $t("session.unauthenticated.header.title") }}
+            {{ $t("session.unauthenticated.header.register.title") }}
+          </h1>
+        </template>
+
+        <template v-if="!meta.isAuthenticated && meta.showLoginForm">
+          <span :class="styles.session.text">
+            {{ $t("session.unauthenticated.header.login.text") }}
+          </span>
+
+          <h1 :class="styles.session.title">
+            {{ $t("session.unauthenticated.header.login.title") }}
           </h1>
         </template>
 
@@ -83,7 +93,7 @@ export default defineComponent({
   props: {
     show: {
       type: String as PropType<AuthProps["form"]>,
-      default: "login",
+      default: "register",
     },
   },
   setup(props, { slots }) {

@@ -2,11 +2,9 @@
 
 // --- internal
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
-const { authSubscription, isAuthenticated } = useSession();
-
 // --- utils
 import { useValidation } from "../../utils";
-import { unset, get, sortBy, find, forEach } from "lodash-es";
+import { unset, get, sortBy, find, forEach, filter, includes } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -14,6 +12,18 @@ import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
+
+const whitelistGatewayProviders =
+  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS.split(",");
+// Array<string> = [
+//   "73de7864-2de5-3971-4ef2-1208469530d0",
+//   "72040386-96e5-4721-d9b5-18d9305e7d23",
+//   "20403869-6e54-721d-59a5-18d9305e7d23",
+//   // "5952098d-3de4-0917-e6c3-1578626e347e",
+// ];
+// --------------------------------------------------------
+
+const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -25,9 +35,7 @@ async function load(
 ) {
   const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
   const { get: getRequest, useUrl } = useApi();
@@ -38,35 +46,8 @@ async function load(
 
   const client_id = await getUserId();
   const brand_id = getBrandId();
-  const store_payment_options = {
-    force_auto_payment: false,
-    force_card_storage: false,
-  };
+
   currency_id ??= getCurrencyId();
-
-  // ---
-  // checkif our brand allows or restricts certain payment types
-
-  // function forceCardStorage(): boolean {
-  //   return (
-  //     (this.$store.getters["brand/config"][
-  //       BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE
-  //     ] ??
-  //       false) ||
-  //     (this.brandGateway.gateway?.store_on_payment_force ?? false)
-  //   );
-  // }
-  // /**
-  //  * @name forceAutoPayment
-  //  * @desc Returns true if auto-payment is enforced by the brand
-  //  */
-  // function forceAutoPayment(): boolean {
-  //   return (
-  //     this.$store.getters["brand/config"][
-  //       BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
-  //     ] ?? false
-  //   );
-  // }
 
   await getConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
@@ -120,7 +101,18 @@ async function load(
     }),
     withAccessToken: true,
     useCache: false,
-  }).then(({ data }) => sortBy(data, ["order"]));
+  }).then(({ data }) => {
+    // Whitelist payment gateways if provided
+    if (whitelistGatewayProviders.length) {
+      data = filter(data, ({ gateway }) => {
+        return includes(
+          whitelistGatewayProviders,
+          gateway.gateway_provider.code
+        );
+      });
+    }
+    return sortBy(data, ["order"]);
+  });
 
   // ----
 
@@ -135,9 +127,31 @@ async function load(
 }
 
 // --------------------------------------------------------
+// PAYMENT METHODS
+
+/**
+ * @name getPaymentData
+ * @desc Here we create a new payment detail ID we have a free basket, ie Amount = 0, and NO gateway provided
+ *       Otherwise we reject this update and defer to the payment gateway
+ */
+async function update({ model, basket_id, currency }: PaymentDetailsContext) {
+  return new Promise((resolve, reject) => {
+    if (model?.amount == 0 && !model?.gateway_id) {
+      resolve({
+        basket_id: basket_id,
+        amount: model.amount,
+        currency,
+      });
+    } else {
+      reject();
+    }
+  });
+}
+
+// --------------------------------------------------------
 
 async function parse(
-  { model, actors, gateways }: PaymentDetailsContext,
+  { model, gateways }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   // ---
@@ -155,7 +169,7 @@ async function parse(
     })?.gateway; // we dont need the full brand gateway, just the actual gateway;
   }
 
-  return Promise.resolve({ model, gateway, actors });
+  return Promise.resolve({ model, gateway });
 }
 
 async function validate(
@@ -193,6 +207,7 @@ export default {
   load,
   parse,
   validate,
+  update,
   // ---
   authSubscription,
   isAuthenticated,

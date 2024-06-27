@@ -4,7 +4,6 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
-    :disabled="disabled"
     :required="true"
     no-required
     no-feedback
@@ -13,30 +12,59 @@
     layout="stacked"
   >
     <ul :class="styles.product.config.list.items">
-      <li v-for="value in item.values" :key="value.id">
+      <li
+        v-for="value in item.values"
+        :key="value.id"
+        :aria-selected="
+          isSelected(
+            item.id,
+            value.id,
+            item.values?.length == 1 && item.required
+          )
+        "
+        :class="
+          mergeStyles(
+            styles.product.config.list.item.root,
+            isSelected(
+              item.id,
+              value.id,
+              item.values?.length == 1 && item.required
+            )
+              ? styles.product.config.list.item.selected
+              : null
+          )
+        "
+      >
         <label
           :for="`items[${item.id}][${value.id}]`"
-          :class="
-            mergeStyles(
-              styles.product.config.list.item.root,
-              isSelected(item.id, value.id)
-                ? styles.product.config.list.item.selected
-                : null
-            )
-          "
+          :class="styles.product.config.list.item.wrapper"
+          :disabled="disabled"
         >
           <component
-            :is="item.multiple ? 'upw-checkbox' : 'upw-radio'"
+            :is="
+              item.multiple || item.values?.length == 1
+                ? 'upw-checkbox'
+                : 'upw-radio'
+            "
             :id="`items[${item.id}][${value.id}]`"
             :name="`items[${item.id}]`"
             :class="styles.product.config.list.item.input"
-            :model-value="isSelected(item.id, value.id)"
+            :model-value="
+              isSelected(
+                item.id,
+                value.id,
+                item.values?.length == 1 && item.required
+              )
+            "
             :value="value.id"
             :required="item.required"
+            :disabled="disabled"
+            :processing="processing"
             @change="doResolve(item, value, $event)"
             no-feedback
             no-status
             variant="flat"
+            size="md"
           />
 
           <!-- content -->
@@ -47,7 +75,7 @@
 
             <upw-badge
               v-if="value.saving"
-              color="primary"
+              color="secondary"
               :label="$t('product.save', { value: item.saving_formatted })"
             />
 
@@ -71,7 +99,7 @@
             :class="styles.product.config.list.item.footer"
             v-if="value?.price"
           >
-            <upw-spinner v-if="loading || processing" size="xs" />
+            <upw-spinner v-if="loading" size="xs" />
 
             <upw-quantitybox
               v-if="
@@ -146,18 +174,9 @@ export default defineComponent({
   },
   emits: ["update:modelValue", "update:quantity"],
   props: {
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    processing: {
-      type: Boolean,
-      default: false,
-    },
+    disabled: { type: Boolean },
+    loading: { type: Boolean },
+    processing: { type: Boolean },
     items: {
       type: Array,
       default: () => [],
@@ -187,8 +206,8 @@ export default defineComponent({
   },
   computed: {},
   methods: {
-    isSelected(itemId, value) {
-      return some(this.modelValue?.[itemId], [this.itemKey, value]);
+    isSelected(item, value, autoselect = false) {
+      return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
 
     doUpdateQuantity(item, value, $event) {

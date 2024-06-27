@@ -8,7 +8,6 @@ import { useFeedback } from "../../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
-
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 
@@ -23,7 +22,7 @@ export default createMachine(
     tsTypes: {} as import("./details.machine.typegen").Typegen0,
     id: "billingDetailsManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {
       basket_id: undefined,
       // ---
@@ -35,128 +34,164 @@ export default createMachine(
       error: null,
     } as BillingDetailsContext,
     states: {
-      loading: {
-        entry: ["clearError"],
+      // Subscribe to changes in auth and listen for a valid Authenticated client,
+      // we will also wait for a session before we can continue
+      subscribing: {
         invoke: {
-          src: "load",
-          onDone: {
-            target: "checking",
-            actions: ["setContext", "setSchemas"],
-          },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"],
-          },
+          id: "authCallback",
+          src: "authSubscription",
+        },
+        on: {
+          SESSION: { target: "checking" },
         },
       },
-      // ---
 
       checking: {
-        entry: ["clearError"],
-        id: "checking",
-        initial: "parsing",
+        invoke: {
+          src: "isAuthenticated",
+          onDone: { target: "available" },
+          onError: { target: "unavailable" },
+        },
+      },
+
+      unavailable: {
+        on: {
+          AUTHENTICATED: { target: "available" },
+        },
+      },
+
+      available: {
+        initial: "loading",
         states: {
-          parsing: {
+          loading: {
+            id: "loading",
+            entry: ["clearError"],
             invoke: {
-              src: "parse",
+              src: "load",
               onDone: {
-                target: "validating",
+                target: "checking",
                 actions: ["setContext", "setSchemas"],
               },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"],
+              },
             },
           },
-          validating: {
+
+          // ---
+          checking: {
+            entry: ["clearError"],
+            id: "checking",
+            initial: "parsing",
+            states: {
+              parsing: {
+                invoke: {
+                  src: "parse",
+                  onDone: {
+                    target: "validating",
+                    actions: ["setContext", "setSchemas"],
+                  },
+                },
+              },
+              validating: {
+                invoke: {
+                  src: "validate",
+                  onDone: [
+                    {
+                      target: "#valid",
+                      cond: "isDirty",
+                    },
+                    {
+                      target: "#complete",
+                    },
+                  ],
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"],
+                  },
+                },
+              },
+            },
+          },
+
+          invalid: {
+            id: "invalid",
+          },
+
+          valid: {
+            id: "valid",
+            on: {
+              UPDATE: {
+                target: "processing",
+                cond: "hasBasket",
+              },
+            },
+          },
+
+          processing: {
+            id: "processing",
+            entry: ["clearError"],
+
             invoke: {
-              src: "validate",
-              onDone: [
-                {
-                  target: "#valid",
-                  cond: "isDirty",
-                },
-                {
-                  target: "#complete",
-                },
-              ],
+              src: "update",
+              onDone: {
+                target: "processed",
+                actions: ["setModel", "clearDirty"],
+              },
               onError: {
-                target: "#invalid",
-                actions: ["setError"],
+                target: "#error",
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
+          },
+
+          processed: {
+            id: "processed",
+            entry: sendParent({ type: "REFRESH" }),
+            after: {
+              wait: {
+                target: "#complete",
               },
             },
           },
         },
-      },
-
-      valid: {
-        id: "valid",
         on: {
-          UPDATE: {
-            target: "processing",
-            cond: "hasBasket",
+          CLEAR: {
+            target: "#checking",
+            actions: ["clearModel", "setDirty"],
+          },
+          SET: {
+            target: "#checking",
+            actions: ["setModel", "setDirty"],
+          },
+
+          REFRESH: {
+            target: "#loading",
+            actions: ["refreshContext", "setSchemas"],
+            cond: "hasChanged",
           },
         },
       },
 
-      invalid: {
-        id: "invalid",
-      },
-
-      processing: {
-        entry: ["clearError"],
-
-        invoke: {
-          src: "update",
-          onDone: {
-            target: "processed",
-            actions: ["setModel", "setFeedbackSuccess", "clearDirty"],
-          },
-          onError: {
-            target: "error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
-      },
-
-      processed: {
-        id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
-        after: {
-          wait: {
-            target: "complete",
-          },
-        },
-      },
-
-      complete: {
-        id: "complete",
-        // type: "final"
-      },
-
+      // ---
       error: {
         id: "error",
         on: {
           RETRY: {
-            target: "processing",
+            target: "#processing",
           },
         },
       },
+      complete: {
+        id: "complete",
+        // type: "final"
+      },
     },
     on: {
-      CLEAR: {
-        target: "checking",
-        actions: ["clearModel", "setDirty"],
-      },
-      SET: {
-        target: "checking",
-        actions: ["setModel", "setDirty"],
-      },
-
       UNAUTHENTICATED: {
-        target: "loading",
+        target: "unavailable",
         actions: ["clearError", "clearModel", "clearSchemas"],
-      },
-      REFRESH: {
-        target: "loading",
-        actions: ["refreshContext", "setSchemas"],
       },
     },
   },
@@ -216,7 +251,12 @@ export default createMachine(
 
       setFeedbackError: ({ error }, _event) => {
         // dont show any unauthorized errors
-        if (error?.code == responseCodes.Unauthorized) return;
+        if (
+          !error ||
+          error?.code == responseCodes.Unprocessable_Entity ||
+          error?.code == responseCodes.Unauthorized
+        )
+          return;
 
         addError({
           title:
@@ -245,6 +285,12 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasChanged: ({ model }, { data }) => {
+        return (
+          model?.address_id !== data?.address_id ||
+          model?.company_id !== data?.company_id
+        );
+      },
     },
 
     delays: {

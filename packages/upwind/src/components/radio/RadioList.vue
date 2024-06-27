@@ -31,16 +31,17 @@
         :value="item.value"
       >
         <upw-radio
-          tabindex="-1"
-          :upwind-config="{ input: config.radiolist.radio }"
           v-bind="safeAttrs"
+          variant="outlined"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
-          variant="outlined"
+          :disabled="meta.isDisabled"
+          :processing="meta.isProcessing"
           :label="item.label"
           :value="item.value"
           :model-value="isSelected(item.value)"
+          :upwind-config="{ input: config.radiolist.radio }"
           no-status
           no-feedback
         />
@@ -62,7 +63,7 @@ import UpwRadio from "../radio/Radio.vue";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isNil, omit, values } from "lodash-es";
+import { isEmpty, isNil, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -93,7 +94,7 @@ export default defineComponent({
     description: { type: String },
     errors: { type: String },
     // ---
-    size: { type: String as PropType<InputProps["size"]>, default: null },
+    size: { type: String as PropType<InputProps["size"]> },
     layout: {
       type: String as PropType<RadioListProps["layout"]>,
       default: "stacked",
@@ -126,11 +127,12 @@ export default defineComponent({
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
+    processing: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
-    persistFeedback: { type: Boolean, default: true },
+    persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Array, Object], default: null },
   },
@@ -145,6 +147,7 @@ export default defineComponent({
       isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,
+      isProcessing: props.processing,
       isVisible: props.visible,
       isRequired: props.required,
       isDirty: !isNil(props.modelValue),
@@ -168,8 +171,19 @@ export default defineComponent({
   },
   computed: {
     safeAttrs() {
-      // TODO: maybe whitelist input attributes
-      return omit(this.$attrs, ["layout", "variant"]);
+      return pick(this.$attrs, [
+        "class",
+        "value",
+        "readonly",
+        "autofocus",
+        "tabindex",
+        "placeholder",
+        "maxlength",
+        "name",
+        "onChange",
+        "onFocus",
+        "onBlur",
+      ]);
     },
   },
   watch: {
@@ -183,6 +197,8 @@ export default defineComponent({
     selected: {
       immediate: true,
       handler(value) {
+        if (this.disabled || this.processing) return;
+
         this.$emit("update:modelValue", value);
         // forward the event to the input control that will trigger the update
         // NB: this is not a DOM event so we need to fake one for the renderer

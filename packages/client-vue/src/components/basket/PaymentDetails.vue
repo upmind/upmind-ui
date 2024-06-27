@@ -2,7 +2,7 @@
   <section ref="form" :class="styles.basket.paymentDetails.root">
     <upw-form
       :additional-errors="errors?.data"
-      :loading="meta.isLoading"
+      :loading="meta.isLoading && false"
       :model-value="model"
       :processing="meta.isProcessing"
       :schema="schema"
@@ -11,8 +11,7 @@
       @resolve="update"
       @update:modelValue="input"
       no-actions
-    >
-    </upw-form>
+    />
 
     <upm-payment-gateway v-if="gateway" :key="gateway?.id" />
   </section>

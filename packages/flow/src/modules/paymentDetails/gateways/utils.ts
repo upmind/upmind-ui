@@ -5,7 +5,6 @@
 // --- utils
 
 // --- types
-import { read } from "fs";
 import { QUERY_PARAMS } from "./types.d";
 import { GatewayStoreType } from "./types.d";
 import type { GatewayContext, IGateway } from "./types.d";
@@ -48,7 +47,7 @@ export function generateUrls({
       btoa(
         JSON.stringify(
           gateway?.gateway_provider?.external_payment
-            ? { invoiceId: order?.id }
+            ? { invoiceId: basket_id }
             : undefined
         )
       )
@@ -78,6 +77,12 @@ export const useSchema = (context: GatewayContext) => {
         title: "Gateway ID",
         const: context.gateway.id,
       },
+      amount: {
+        type: "number",
+        title: "Amount",
+        readOnly: true,
+        exclusiveMinimum: 0,
+      },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
       can_store: {
         type: "boolean",
@@ -86,13 +91,11 @@ export const useSchema = (context: GatewayContext) => {
       },
       store_on_payment: {
         type: "boolean",
-        title: "Save payment details",
       },
       store_on_payment_auto_payment: {
         type: "boolean",
-        title: "Allow auto payment",
-        description:
-          "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
+        title: "",
+        description: "",
       },
       return_url: {
         type: "string",
@@ -132,6 +135,7 @@ export const useUischema = ({ can_store }: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/store_on_payment",
+        i18n: "payment.store_on_payment",
         options: {
           autocomplete: "off",
         },
@@ -147,6 +151,7 @@ export const useUischema = ({ can_store }: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/store_on_payment_auto_payment",
+        i18n: "payment.store_on_payment_auto_payment",
         options: {
           autocomplete: "off",
         },
@@ -168,6 +173,8 @@ export const useUischema = ({ can_store }: GatewayContext) => {
 // --------------------------------------------------------
 
 export function canBeStored(gateway: IGateway) {
+  if (!gateway) return false;
+
   const {
     is_stored,
     gateway_provider,

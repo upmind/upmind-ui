@@ -185,7 +185,10 @@ export default createMachine(
         },
         on: {
           LOGOUT: { target: "#clearing" },
-          REFRESH: { target: "#starting", actions: "setRefresh" },
+          REFRESH: {
+            target: "#starting",
+            actions: "setRefresh",
+          },
           KILL: { target: "#clearing" },
           CANCEL: { target: "#starting", actions: ["clearError"] },
         },

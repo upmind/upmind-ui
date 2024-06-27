@@ -12,15 +12,18 @@ export default {
       {
         variants: {
           size: {
-            sm: "text-sm leading-5",
-            md: "leading-6",
-            lg: "text-lg leading-7",
+            sm: "py-2 text-sm leading-5",
+            md: "py-3 leading-6",
+            lg: "py-4 text-lg leading-7",
           },
           group: {
             true: "text-base-500 cursor-default text-xs font-medium",
           },
           disabled: {
-            true: "pointer-events-none opacity-50",
+            true: "cursor-not-allowed",
+          },
+          processing: {
+            true: "cursor-wait",
           },
         },
         defaultVariants: {
@@ -40,16 +43,19 @@ export default {
       "bg-base-100 hover:bg-base-100 cursor-default select-none"
     ),
     trigger: cva(
-      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border px-2 text-start before:absolute before:inset-0 before:z-[1] disabled:pointer-events-none",
+      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border px-2 text-start before:absolute before:inset-0 before:z-[1]",
       {
         variants: {
           size: {
-            sm: "text-sm leading-5",
-            md: "leading-6",
-            lg: "text-lg leading-7",
+            sm: "py-2 text-sm leading-5",
+            md: "py-3 leading-6",
+            lg: "py-4 text-lg leading-7",
           },
           disabled: {
-            true: "pointer-events-none opacity-50",
+            true: "cursor-not-allowed opacity-50",
+          },
+          processing: {
+            true: "cursor-wait",
           },
           grouped: {
             false: "border-base-300",
@@ -68,22 +74,25 @@ export default {
     loading: cva("text-base-300", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {
         size: "md",
       },
     }),
-    active: cva("!border-primary ring-primary ring-4 ring-opacity-20", {}),
+    active: cva(
+      "!border-control-active ring-control-active ring-4 ring-opacity-20",
+      {}
+    ),
     label: cva("flex-1 truncate leading-none", {
       variants: {
         size: {
-          sm: "py-2 leading-5",
-          md: "py-3 leading-6",
-          lg: "py-4 leading-7",
+          sm: "leading-5",
+          md: "leading-6",
+          lg: "leading-7",
         },
         group: {
           true: "pb-0",
@@ -97,9 +106,9 @@ export default {
     icon: cva("", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {
@@ -109,21 +118,21 @@ export default {
     avatar: cva("", {
       variants: {
         size: {
-          sm: "my-2 size-5",
-          md: "my-3 size-6",
-          lg: "my-4 size-7",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
         },
       },
       defaultVariants: {
         size: "md",
       },
     }),
-    toggle: cva("mr-2 transition-all aria-checked:rotate-180", {
+    toggle: cva("transition-all aria-checked:rotate-180", {
       variants: {
         size: {
-          sm: "size-2",
-          md: "size-3",
-          lg: "size-4",
+          sm: "size-4",
+          md: "size-5",
+          lg: "size-6",
         },
       },
     }),

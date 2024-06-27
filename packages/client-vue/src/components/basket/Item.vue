@@ -2,7 +2,6 @@
   <upm-product-config
     v-if="open"
     v-bind="$props"
-    :loading="meta.isLoading"
     :processing="meta.isProcessing"
     @reject="open = false"
     @resolve="doResolve"
@@ -22,7 +21,7 @@
 
 <script>
 // --- external
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
@@ -49,6 +48,10 @@ export default defineComponent({
       type: Object, // xstate actor
       required: true,
     },
+    selected: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, { emit }) {
     const {
@@ -67,7 +70,16 @@ export default defineComponent({
       meta,
       config
     );
+    // ---
 
+    const open = ref(props.selected);
+    // make props reactive to open
+    watch(
+      () => props.selected,
+      value => {
+        open.value = value;
+      }
+    );
     // ---
 
     return {
@@ -80,7 +92,7 @@ export default defineComponent({
       updateQuantity,
       updateTerm,
       // ---
-      open: ref(false),
+      open,
       // ---
       styles,
       mergeStyles,
@@ -90,7 +102,7 @@ export default defineComponent({
   methods: {
     async doResolve() {
       this.updateItem(this.modelValue).then(() => {
-        this.open = false;
+        // this.open = !this.meta.hasErrors;
       });
     },
   },

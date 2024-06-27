@@ -26,7 +26,6 @@ enum skrims {
   primary = "primary",
   secondary = "secondary",
   accent = "accent",
-  neutral = "neutral",
   success = "success",
   error = "error",
   warning = "warning",

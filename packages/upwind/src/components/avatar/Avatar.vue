@@ -1,6 +1,8 @@
 <template>
   <figure class="avatar" :class="styles.avatar.root">
     <slot>
+      <upw-spinner v-if="loading" :class="styles.avatar.loading" />
+
       <upw-icon v-if="hasIcon" :icon="avatar" :class="styles.avatar.icon" />
 
       <img
@@ -23,6 +25,7 @@ import { defineComponent, toRefs } from "vue";
 
 // --- components
 import UpwIcon from "../icon/Icon.vue";
+import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
 import config from "./config.cva";
@@ -40,6 +43,7 @@ export default defineComponent({
   name: "UpwAvatar",
   components: {
     UpwIcon,
+    UpwSpinner,
   },
   props: {
     size: {
@@ -50,6 +54,10 @@ export default defineComponent({
     },
     avatar: {
       type: [String, Object] as PropType<AvatarProps["avatar"]>,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {

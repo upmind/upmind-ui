@@ -10,7 +10,18 @@ export default {
         },
       },
     }),
-    text: cva("flex-1 truncate text-[0.875em]"),
+    text: cva("flex-1 truncate", {
+      variants: {
+        size: {
+          sm: "text-xs",
+          md: "text-sm",
+          lg: "text-md",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
     alt: cva("text-base-500 w-full text-xs"),
     required: cva(""),
     optional: cva(""),

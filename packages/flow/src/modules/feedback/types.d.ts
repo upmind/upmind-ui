@@ -11,9 +11,9 @@ export enum messageDisplays {
 
 export enum messageTypes {
   // DEBUG = "debug",
+  BASE = "base",
   ERROR = "error",
   INFO = "info",
-  NEUTRAL = "neutral",
   PRIMARY = "primary",
   SECONDARY = "secondary",
   SUCCESS = "success",

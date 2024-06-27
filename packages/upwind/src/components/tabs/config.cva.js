@@ -20,7 +20,10 @@ export default {
             false: "inline-flex",
           },
           isDisabled: {
-            true: "pointer-events-none !cursor-default opacity-50",
+            true: "cursor-not-allowed opacity-50",
+          },
+          isProcessing: {
+            true: "cursor-wait",
           },
         },
         defaultVariants: { align: "start", isBlock: false },

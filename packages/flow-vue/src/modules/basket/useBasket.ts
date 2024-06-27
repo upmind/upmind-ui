@@ -28,7 +28,7 @@ import { isEmpty, some, reject, filter, last } from "lodash-es";
 //  with some state helpers
 
 export const useBasket = () => {
-  const { service } = useUpmindBasket();
+  const { service, isReady } = useUpmindBasket();
   // --------------------------------------------------------
   // we need this for reactive state
   const { state, send } = useActor(service);
@@ -57,13 +57,19 @@ export const useBasket = () => {
     // ---
     meta: computed(() => {
       return {
-        isLoading: stateMatches(state, ["loading"]),
+        isLoading: stateMatches(state, ["loading"]), //
+        // || machineMatches(actors.value.currency, ["loading"])
+        // || machineMatches(actors.value.customFields, ["loading"])
+        // || machineMatches(actors.value.promotions, ["loading"]),
+        // || some(contextValue(state, "items"), item =>
+        //   machineMatches(item, ["loading"])
+        // ),
 
         isProcessing:
           stateMatches(state, [
-            "refreshing",
             "generating",
             "claiming",
+            "shopping.refreshing.processing",
             "shopping.items.processing",
           ]) ||
           machineMatches(actors.value.currency, ["processing"]) ||
@@ -91,7 +97,6 @@ export const useBasket = () => {
           stateMatches(state, [
             "claiming",
             "generating",
-            "refreshing",
             "shopping",
             "checkout.configuring",
             "checkout.available",
@@ -120,8 +125,8 @@ export const useBasket = () => {
 
         hasPaymentDetails: machineMatches(actors.value.paymentDetails, [
           "complete",
-          "valid",
-          "processing",
+          "available.valid",
+          "available.processing",
         ]),
 
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
@@ -165,12 +170,10 @@ export const useBasket = () => {
       const items = contextActor(state, "items", []);
       return filter(items, item => contextMatches(item?.state, ["isNew"]));
     }),
-
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
       return filter(items, item => !contextMatches(item?.state, ["isNew"]));
     }),
-
     products: useContext(state, "basket.products", []),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
@@ -178,14 +181,34 @@ export const useBasket = () => {
     // ---
     actors,
     // ---
-    updateBasket: () => send({ type: "UPDATE" }),
+    isReady,
+    updateBasket: async () => {
+      send({ type: "UPDATE" });
+      return waitFor(service, newstate =>
+        newstate.matches("shopping.items.processed")
+      );
+    },
     clearBasket: () => send({ type: "CLEAR" }),
     clearErrors: () => send({ type: "CLEAR.ERRORS" }),
     checkout: () => send({ type: "CHECKOUT" }),
     // ---
     // Item Methods
 
-    addProduct: ({ id, product_id, quantity, term, attributes, options }) => {
+    addProduct: async ({
+      id,
+      product_id,
+      quantity,
+      term,
+      attributes,
+      options,
+    }) => {
+      // lets wait for our basket  to be ready for shopping
+      await waitFor(service, newstate => newstate.matches("shopping")).catch(
+        () => {
+          return; // bail if we have an error
+        }
+      );
+
       // lets add the new product base don the provided config to the basket
       send({
         type: "ADD",
@@ -195,13 +218,7 @@ export const useBasket = () => {
       // then wait/check for the new product actor to be configured
       // then send the update event to the basket
       const item = last(contextValue(state, "items"));
-      waitFor(item, newstate => newstate.matches("configured"))
-        .then(() => {
-          send({ type: "UPDATE", data: item });
-        })
-        .catch(() => {
-          // do nothing, it just means the item needs additional configuration
-        });
+      return item;
     },
 
     removeItem: itemId => {
