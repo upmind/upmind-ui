@@ -69,7 +69,6 @@ export interface Typegen0 {
     clearError:
       | "AUTHENTICATED"
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
       | "done.invoke.paymentDetailsManager.available.loading:invocation[0]"
@@ -83,23 +82,21 @@ export interface Typegen0 {
       | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     refreshBasket: "REFRESH";
     setAutoUpdate: "SET";
-    setContext:
-      | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]"
-      | "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    setContext: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     setDirty: "CLEAR" | "SET";
     setError:
       | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]"
       | "error.platform.paymentDetailsManager.available.loading:invocation[0]";
     setFeedbackError: "error.platform.paymentDetailsManager.available.loading:invocation[0]";
     setGateway: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
+    setLookups: "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
     setModel: "SET";
     setPaymentDetails:
       | "PAYMENT_DETAILS"
       | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     setSchemas:
       | "REFRESH"
-      | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]"
-      | "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+      | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     trackPaymentDetails: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
   };
   eventsCausingDelays: {};
@@ -114,12 +111,10 @@ export interface Typegen0 {
     load:
       | "AUTHENTICATED"
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]";
     parse:
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "done.invoke.paymentDetailsManager.available.loading:invocation[0]"
       | "xstate.update";
