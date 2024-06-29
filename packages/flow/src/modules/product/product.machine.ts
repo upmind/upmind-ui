@@ -26,7 +26,7 @@ import {
   find,
   merge,
   isEqual,
-  isNil,
+  unset,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
@@ -74,7 +74,7 @@ export default (model, currency_id, promotions) => {
           options: { subtotal: 0, total: 0, discount: 0 },
         },
         // ---
-        error: null,
+        error: {},
       },
       states: {
         // first load our product, we do this even if we are given a configured set of values
@@ -110,12 +110,14 @@ export default (model, currency_id, promotions) => {
               },
             },
             values: {
+              entry: "clearError",
               type: "parallel",
               states: {
                 term: {
                   initial: "checking",
                   states: {
                     checking: {
+                      entry: ({ error }) => unset(error, "term"),
                       invoke: {
                         src: "checkTerm",
                         onDone: {
@@ -124,7 +126,7 @@ export default (model, currency_id, promotions) => {
                         },
                         onError: {
                           target: "invalid",
-                          actions: ["setTerm", "setConfig", "setError"],
+                          actions: ["setTerm", "setConfig"],
                         },
                       },
                     },
@@ -144,6 +146,7 @@ export default (model, currency_id, promotions) => {
                   initial: "checking",
                   states: {
                     checking: {
+                      entry: ({ error }) => unset(error, "attributes"),
                       invoke: {
                         src: "checkAttributes",
                         onDone: {
@@ -172,6 +175,7 @@ export default (model, currency_id, promotions) => {
                   initial: "checking",
                   states: {
                     checking: {
+                      entry: ({ error }) => unset(error, "options"),
                       invoke: {
                         src: "checkOptions",
                         onDone: {
@@ -200,6 +204,7 @@ export default (model, currency_id, promotions) => {
                   initial: "checking",
                   states: {
                     checking: {
+                      entry: ({ error }) => unset(error, "provision_fields"),
                       invoke: {
                         src: "checkProvisioning",
                         onDone: {
@@ -517,25 +522,26 @@ export default (model, currency_id, promotions) => {
         setClean: assign({
           isDirty: false,
           needsCalculating: false,
-          error: null,
+          error: {},
         }),
 
         // ---
 
         setError: assign({
-          error: (context, { data }) => {
-            let error = data?.error || data;
-            if (error?.code == 422) {
+          error: ({ error }, { data }) => {
+            let err = data?.error || data;
+
+            if (err?.code == 422) {
               // lets parse/override our error message and data
               // this is to generate valid json schema validation errors
-              error = useValidationParser(error);
+              err = useValidationParser(error);
             }
 
-            return error;
+            return err;
           },
         }),
 
-        clearError: assign({ error: null }),
+        clearError: assign({ error: {} }),
       },
       services,
       guards: {

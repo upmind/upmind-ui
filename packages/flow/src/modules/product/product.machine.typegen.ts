@@ -91,7 +91,14 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clearCalculating: "done.invoke.calculating:invocation[0]";
-    clearError: "CLEAR.ERRORS";
+    clearError:
+      | "CLEAR.ERRORS"
+      | "UPDATE.ATTRIBUTES"
+      | "UPDATE.OPTIONS"
+      | "UPDATE.PROVISIONING"
+      | "UPDATE.TERM"
+      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
+      | "done.state.configuring";
     mergeModel: "PUT";
     sendConfig:
       | "PROCESSING"
@@ -131,8 +138,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.quantity:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
+      | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]";
     setLookups: "done.invoke.load";
     setModel: "UPDATE";
     setOptions:
