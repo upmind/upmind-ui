@@ -171,7 +171,6 @@ export default createMachine(
           { basket_id, model }: CurrencyContext,
           { data: basket }: CurrencyEvent
         ) => {
-          debugger;
           return {
             basket_id: basket?.id,
             model: basket?.currency,
