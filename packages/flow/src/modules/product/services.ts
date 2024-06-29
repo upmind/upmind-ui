@@ -187,6 +187,7 @@ async function checkTerm(
   _event: any
 ) {
   let term;
+  const error = [];
 
   if (!lookups?.terms?.length) {
     return Promise.reject("No Terms lookups");
@@ -207,6 +208,8 @@ async function checkTerm(
     }
   }
 
+  if (!isNil(term)) error.push({ message: "Valid Term is required" });
+
   // ---
   // only calculate the term price if we dont have any price overrides
   if (!useHasPriceOverride(model.options, lookups.options)) {
@@ -225,8 +228,10 @@ async function checkTerm(
   }
 
   return new Promise((resolve, reject) => {
-    if (!isNil(term)) resolve({ term, prices });
-    else reject("Invalid Term Selected");
+    if (error?.length) reject({ term, prices, error });
+    else {
+      resolve({ term, prices });
+    }
   });
 }
 
@@ -239,7 +244,7 @@ async function checkAttributes(
     return Promise.resolve(null);
   }
 
-  const errors = [];
+  const error = [];
 
   // ---
   // for attributes we have to check a few things:
@@ -300,11 +305,11 @@ async function checkAttributes(
 
       // check if we are missing required attribute
       if (attribute?.required && isEmpty(selected))
-        errors.push({ message: "Is required", attribute });
+        error.push({ message: "Is required", attribute });
 
       // check if we values too many values for this attribute
       if (!attribute?.multiple && keys(selected)?.length > 1) {
-        errors.push({ message: "Multiple choice not allowed", attribute });
+        error.push({ message: "Multiple choice not allowed", attribute });
       }
       // ---
       set(result, attribute.id, selected);
@@ -314,7 +319,7 @@ async function checkAttributes(
   );
 
   return new Promise((resolve, reject) => {
-    if (errors?.length) reject(errors);
+    if (error?.length) reject({ attributes, prices, error });
     else resolve({ attributes, prices });
   });
 }
@@ -328,7 +333,7 @@ async function checkOptions(
     return Promise.resolve(null);
   }
 
-  const errors = [];
+  const error = [];
 
   const options = reduce(
     lookups.options,
@@ -385,11 +390,11 @@ async function checkOptions(
 
       // check if we are missing required option
       if (option?.required && isEmpty(selected))
-        errors.push({ message: "Is required", option });
+        error.push({ message: "Is required", option });
 
       // check if we values too many values for this option
       if (!option?.multiple && keys(selected)?.length > 1) {
-        errors.push({ message: "Multiple choice not allowed", option });
+        error.push({ message: "Multiple choice not allowed", option });
       }
       // ---
       set(result, option.id, selected);
@@ -413,7 +418,7 @@ async function checkOptions(
   );
 
   return new Promise((resolve, reject) => {
-    if (errors?.length) reject(errors);
+    if (error?.length) reject({ options, prices, error });
     else resolve({ options, prices });
   });
 }
@@ -438,10 +443,10 @@ async function checkProvisioning(
   );
 
   const { validate } = useValidation();
-  const errors = validate(provision_fields, lookups.provision_fields);
+  const error = validate(provision_fields, lookups.provision_fields);
   return new Promise((resolve, reject) => {
-    if (errors?.length) reject(errors);
-    else resolve(provision_fields);
+    if (error?.length) reject({ provision_fields, error });
+    else resolve({ provision_fields });
   });
 }
 

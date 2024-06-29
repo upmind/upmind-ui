@@ -84,7 +84,7 @@ export default (model, currency_id, promotions) => {
           invoke: {
             id: "load",
             src: "load",
-            onDone: [{ target: "configuring", actions: ["setAvailable"] }],
+            onDone: [{ target: "configuring", actions: ["setLookups"] }],
             onError: {
               target: "#error",
               actions: ["setError"],
@@ -124,7 +124,7 @@ export default (model, currency_id, promotions) => {
                         },
                         onError: {
                           target: "invalid",
-                          actions: ["setError"],
+                          actions: ["setTerm", "setConfig", "setError"],
                         },
                       },
                     },
@@ -259,11 +259,6 @@ export default (model, currency_id, promotions) => {
             REFRESH: [
               {
                 target: "loading",
-                actions: ["setCurrency", "setPromotions"],
-                cond: "isNewCurrency",
-              },
-              {
-                target: "loading",
                 actions: ["setCurrency", "setPromotions", "setClean"],
                 cond: "hasChanged",
               },
@@ -315,11 +310,6 @@ export default (model, currency_id, promotions) => {
 
           on: {
             REFRESH: [
-              {
-                target: "loading",
-                actions: ["setCurrency", "setPromotions"],
-                cond: "isNewCurrency",
-              },
               {
                 target: "loading",
                 actions: ["setCurrency", "setPromotions", "setClean"],
@@ -404,7 +394,7 @@ export default (model, currency_id, promotions) => {
     {
       actions: {
         // ---
-        setAvailable: assign({
+        setLookups: assign({
           lookups: (_context, { data }) => {
             return {
               product: useProductParser(data),
@@ -469,14 +459,14 @@ export default (model, currency_id, promotions) => {
 
         setTerm: assign({
           model: ({ model }, { data }) => {
-            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
+            const term = get(data, "term");
             set(model, "term", term);
             return model;
           },
           prices: ({ prices }, { data }) => get(data, "prices", prices),
           lookups: ({ lookups }, { data }) => {
             // set the price for the lookups options based on the term selected
-            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
+            const term = get(data, "term");
             lookups.options = map(lookups.options, option => {
               option.values = map(option.values, value => {
                 value.price = find(value.prices, [
@@ -495,7 +485,7 @@ export default (model, currency_id, promotions) => {
 
         setAttributes: assign({
           model: ({ model }, { data }) => {
-            const attributes = get(data, "attributes", data); // workaround to allow the same action to be used for different event sources
+            const attributes = get(data, "attributes");
             set(model, "attributes", attributes);
             return model;
           },
@@ -504,7 +494,7 @@ export default (model, currency_id, promotions) => {
 
         setOptions: assign({
           model: ({ model }, { data }) => {
-            const options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
+            const options = get(data, "options");
             set(model, "options", options);
             return model;
           },
@@ -514,21 +504,13 @@ export default (model, currency_id, promotions) => {
 
         setProvisioning: assign({
           model: ({ model }, { data }) => {
-            const provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
+            const provision_fields = get(data, "provision_fields");
             set(model, "provision_fields", provision_fields);
             return model;
           },
         }),
 
         // ---
-
-        setCalculating: assign({
-          needsCalculating: (_context, { data }) => {
-            // TODO: a more comprehensive check to see if model has actually changed.
-            // For now we will always set this to true, as we need to recalculate the summary
-            return isNil(data) ? true : !!data;
-          },
-        }),
 
         clearCalculating: assign({ needsCalculating: false }),
         setDirty: assign({ isDirty: true }),
@@ -558,12 +540,14 @@ export default (model, currency_id, promotions) => {
       services,
       guards: {
         needsRecalculating: ({ needsCalculating }) => needsCalculating,
-        isNewCurrency: ({ currency_id }, { data }) => {
-          return currency_id !== data?.currency_id;
-        },
-        hasChanged: ({ model }, { data }) => {
+
+        hasChanged: ({ model, basket_id, currency_id }, { data }) => {
           const newModel = merge({}, model, useModelParser(data));
-          return !isEqual(newModel, model);
+          return (
+            !isEqual(newModel, model) ||
+            basket_id !== data?.id ||
+            currency_id !== data?.currency_id
+          );
         },
       },
       delays: {

@@ -101,7 +101,6 @@ export interface Typegen0 {
       | "UPDATE.ATTRIBUTES"
       | "done.invoke.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]";
-    setAvailable: "done.invoke.load";
     setClean: "REFRESH";
     setConfig:
       | "PROCESSING"
@@ -114,7 +113,8 @@ export interface Typegen0 {
       | "done.state.productConfigurator.configuring.values"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]";
+      | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
     setCurrency: "REFRESH";
     setDirty:
       | "PUT"
@@ -133,6 +133,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
+    setLookups: "done.invoke.load";
     setModel: "UPDATE";
     setOptions:
       | "UPDATE.OPTIONS"
@@ -149,14 +150,14 @@ export interface Typegen0 {
     setSummary: "done.invoke.calculating:invocation[0]";
     setTerm:
       | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]";
+      | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
   };
   eventsCausingDelays: {
     error: "ERROR" | "error.platform.load";
   };
   eventsCausingGuards: {
     hasChanged: "PUT" | "REFRESH";
-    isNewCurrency: "REFRESH";
     needsRecalculating: "" | "done.state.configuring";
   };
   eventsCausingServices: {
