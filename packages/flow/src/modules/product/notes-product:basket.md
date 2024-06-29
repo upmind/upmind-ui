@@ -61,7 +61,7 @@ payload:
 https://api.staging.upmind.io/api/orders/8d632507-9806-5d1e-342b-8174e234e98d/products/3de78642-de53-9714-77db-21208469530d
 
 // check provisioning fields: PATCH
-https://api.staging.upmind.io/api/orders/8d632507-9806-5d1e-342b-8174e234e98d/provision_fields/values/check
+https://api.staging.upmind.io/api/orders/8d632507-9806-5d1e-342b-8174e234e98d/provision_fields/model/check
 
 // needsProvisioning: ({ product }) => {
 // // provision_setup_field_defer_mode; hidden | inherit | none | optional
