@@ -5,7 +5,7 @@ const { sendParent, pure } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
+const { addError, trackEvent } = useFeedback();
 
 // --- utils
 import { spawnGateway } from "./utils";
@@ -158,6 +158,7 @@ export default createMachine(
                   "setPaymentDetails",
                   "providePaymentDetails",
                   "clearAutoUpdate",
+                  "trackPaymentDetails",
                 ],
               },
             },
@@ -293,6 +294,10 @@ export default createMachine(
 
       // ---
 
+      trackPaymentDetails: (_context, _event) => {
+        trackEvent({ ecommerce: null });
+        trackEvent({ event: "add_payment_info" });
+      },
       // ---
 
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {

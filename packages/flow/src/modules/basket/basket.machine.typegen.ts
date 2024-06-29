@@ -167,6 +167,7 @@ export interface Typegen0 {
     setPayment: "done.invoke.payment";
     setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
+    trackPayment: "done.invoke.payment";
     updateActors: "CLEAR" | "REMOVE" | "UPDATE";
     updateBasket:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
