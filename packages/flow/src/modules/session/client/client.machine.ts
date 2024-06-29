@@ -209,7 +209,10 @@ export default createMachine(
               registering: {
                 invoke: {
                   src: "register",
-                  onDone: { target: "authenticating", actions: ["setToken"] },
+                  onDone: {
+                    target: "authenticating",
+                    actions: ["setToken", "trackRegister"],
+                  },
                   onError: {
                     target: "error",
                     actions: ["setError", "escalateError"],
@@ -219,7 +222,10 @@ export default createMachine(
               authenticating: {
                 invoke: {
                   src: "authenticate",
-                  onDone: { target: "#authenticated", actions: ["setToken"] },
+                  onDone: {
+                    target: "#authenticated",
+                    actions: ["setToken"],
+                  },
                   onError: {
                     target: "error",
                     actions: ["setError", "escalateError"],
@@ -361,6 +367,14 @@ export default createMachine(
         token: {},
       }),
       // ---
+      trackRegister: (_context, { data }) => {
+        trackEvent({
+          event: "sign_up",
+          upmind: {
+            user_id: data?.actor_id,
+          },
+        });
+      },
       trackLogin: (_context, { data }) => {
         trackEvent({
           event: "login",

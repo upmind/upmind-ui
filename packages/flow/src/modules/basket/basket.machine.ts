@@ -29,6 +29,7 @@ import {
   get,
   includes,
   isEmpty,
+  map,
   omit,
   remove,
   some,
@@ -456,7 +457,7 @@ export default createMachine(
           }),
           onDone: {
             target: "#complete",
-            actions: ["setPayment"],
+            actions: ["setPayment", "trackPayment"],
           },
           onError: {
             actions: ["setError", "setFeedbackError"],
@@ -567,10 +568,6 @@ export default createMachine(
           data,
       }),
 
-      setPayment: assign({
-        payment: (_context: BasketContext, { data }: BasketEvent) => data,
-      }),
-
       setInvoice: assign({
         invoice: (_context: BasketContext, { data }: BasketEvent) => data,
         basket: undefined,
@@ -596,6 +593,33 @@ export default createMachine(
         },
         error: undefined,
       }),
+
+      setPayment: assign({
+        payment: (_context: BasketContext, { data }: BasketEvent) => data,
+      }),
+
+      trackPayment: ({ invoice }, { data }) => {
+        trackEvent({
+          event: "payment",
+          upmind: {
+            user_id: data?.actor_id,
+            ecommerce: {
+              currency: invoice.currency.code,
+              tax: invoice.tax_amount_converted,
+              value: invoice.net_amount_converted,
+              transaction_id: invoice.number,
+              items: map(invoice.products, product => ({
+                item_id: product.product.id,
+                item_name: product.product.name, // For reporting purposes we intentionally pass untranslated product name
+                item_category: product.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                quantity: product.quantity,
+                discount: product.configuration_net_amount_discount_converted,
+                price: product.configuration_net_amount_converted,
+              })),
+            },
+          },
+        });
+      },
 
       // --- Spawned Actors Actions
       spawnActors: assign({
@@ -702,30 +726,33 @@ export default createMachine(
         bin: ({ basket, items, bin }, { data }) => {
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
           const removed = find(items, ["id", itemId]);
-          if (removed) bin.push(removed);
-          removed.send({ type: "BIN" });
+          if (removed) {
+            bin.push(removed);
+            removed.send({ type: "BIN" });
 
-          trackEvent({ ecommerce: null });
-          trackEvent({
-            event: "remove_from_cart",
-            ecommerce: {
-              currency: basket?.currency?.code,
-              value: removed?.state?.context?.summary.total,
-              items: [
-                {
-                  item_id: removed?.state?.context?.config.product_id,
-                  item_name: removed?.state?.context?.available.product.name, // For reporting purposes we intentionally pass untranslated product name
-                  item_category:
-                    removed?.state?.context?.available.product.category.name, // For reporting purposes we intentionally pass untranslated category name
-                  quantity: removed?.state?.context?.config.quantity,
-                  discount:
-                    removed?.state?.context?.available
-                      .configuration_net_amount_discount_converted,
-                  price: removed?.state?.context?.summary.total,
-                },
-              ],
-            },
-          });
+            // track the removal using the BasketProduct data
+            const basketProduct = find(basket?.products, ["id", itemId]);
+            trackEvent({ ecommerce: null });
+            trackEvent({
+              event: "remove_from_cart",
+              ecommerce: {
+                currency: basketProduct.base_currency_code,
+                value:
+                  basketProduct.configuration_net_amount_discounted_converted,
+                items: [
+                  {
+                    item_id: basketProduct.product.id,
+                    item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
+                    item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                    quantity: basketProduct.quantity,
+                    discount:
+                      basketProduct.configuration_net_amount_discount_converted,
+                    price: basketProduct.configuration_net_amount_converted,
+                  },
+                ],
+              },
+            });
+          }
           return bin;
         },
         error: undefined,
@@ -787,17 +814,39 @@ export default createMachine(
               // so we can use the index to match the items
               if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
               const currentIndex = findIndex(items, ["id", itemId]);
-              const newProduct = find(data?.basket?.products, ["id", newId]);
-              if (newProduct) {
+              const basketProduct = find(data?.basket?.products, ["id", newId]);
+              if (basketProduct) {
                 const machine = spawnConfiguration(
                   newId,
-                  newProduct,
+                  basketProduct,
                   currency_id,
                   promotions
                 );
                 // now put the item(s) back into the items array,
                 // at the same index so that we dont have any ui jank
                 items.splice(currentIndex, 1, machine);
+
+                // track the addition of the new product  using the BasketProduct data
+                trackEvent({ ecommerce: null });
+                trackEvent({
+                  event: "add_to_cart",
+                  ecommerce: {
+                    currency: basketProduct.base_currency_code,
+                    value:
+                      basketProduct.configuration_net_amount_discounted_converted,
+                    items: [
+                      {
+                        item_id: basketProduct.product.id,
+                        item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
+                        item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                        quantity: basketProduct.quantity,
+                        discount:
+                          basketProduct.configuration_net_amount_discount_converted,
+                        price: basketProduct.configuration_net_amount_converted,
+                      },
+                    ],
+                  },
+                });
               } else {
                 console.warn(
                   "Replacing old item",
@@ -872,8 +921,6 @@ export default createMachine(
         error: (context, { data }) => {
           const { items, newItems } = data;
           let { error } = data;
-
-          console.error("Basket Error", error);
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {

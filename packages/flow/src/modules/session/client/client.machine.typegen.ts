@@ -169,6 +169,7 @@ export interface Typegen0 {
       | "done.invoke.client.unauthenticated.register.registering:invocation[0]"
       | "done.invoke.loading:invocation[0]";
     trackLogin: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
+    trackRegister: "done.invoke.client.unauthenticated.register.registering:invocation[0]";
   };
   eventsCausingDelays: {
     error:

@@ -100,6 +100,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    trackPaymentDetails: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
