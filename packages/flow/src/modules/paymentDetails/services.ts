@@ -64,17 +64,6 @@ async function load(
 
   // ---
 
-  const balance = getRequest({
-    url: useUrl(`wallet/balance`, {
-      currency_id,
-      // with_staged_imports=1
-    }),
-    withAccessToken: true,
-    useCache: false,
-  }).then(({ data }) => data);
-
-  // ---
-
   const payment_details = getRequest({
     url: useUrl(`clients/${client_id}/payment_details`, {
       limit: 0,
@@ -116,9 +105,8 @@ async function load(
 
   // ----
 
-  return Promise.all([balance, payment_details, gateways]).then(
-    ([balance, payment_details, gateways]) => ({
-      balance,
+  return Promise.all([payment_details, gateways]).then(
+    ([payment_details, gateways]) => ({
       payment_details,
       gateways,
       payment_types: PaymentTypes,
@@ -193,7 +181,7 @@ async function validate(
     });
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject({ error: errors, model });
     } else {
       resolve(model);
     }

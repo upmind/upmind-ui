@@ -12,7 +12,7 @@ import { spawnGateway } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
-import { set, unset, forEach } from "lodash-es";
+import { get, set, unset, forEach } from "lodash-es";
 
 // --- types
 import type {
@@ -38,6 +38,10 @@ export default createMachine(
       schema: undefined,
       uischema: undefined,
       model: undefined,
+      // ---
+      payment_details: undefined,
+      gateways: undefined,
+      payment_types: undefined,
       // ---
       actors: {
         gateway: undefined,
@@ -83,7 +87,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "checking",
-                actions: ["setContext", "setSchemas"],
+                actions: ["setLookups"],
               },
               onError: {
                 target: "#error",
@@ -182,7 +186,6 @@ export default createMachine(
           },
 
           REFRESH: {
-            target: "#checking",
             actions: ["refreshBasket", "setSchemas"],
           },
         },
@@ -206,6 +209,12 @@ export default createMachine(
   {
     actions: {
       setContext: assign((_context, { data }: any) => data),
+
+      setLookups: assign({
+        payment_details: (_context, { data }) => data.payment_details,
+        gateways: (_context, { data }) => data.gateways,
+        payment_types: (_context, { data }) => data.payment_types,
+      }),
 
       setSchemas: assign({
         schema: context => useSchema(context),
