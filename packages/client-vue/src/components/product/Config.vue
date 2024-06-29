@@ -2,11 +2,11 @@
   <form :class="styles.product.config.root" @submit.prevent="doResolve">
     <figure
       :class="styles.product.config.media"
-      v-if="availableProduct?.image?.full_url"
+      v-if="product?.image?.full_url"
     >
       <img
-        :src="availableProduct?.image?.full_url"
-        :alt="`${availableProduct?.name} thumbnail`"
+        :src="product?.image?.full_url"
+        :alt="`${product?.name} thumbnail`"
         :class="styles.product.config.image"
       />
     </figure>
@@ -17,18 +17,18 @@
         <div :class="styles.product.config.headerContent">
           <upw-badge
             color="secondary"
-            v-if="availableProduct?.hasFreeTrial"
+            v-if="product?.hasFreeTrial"
             :label="$t('product.trail')"
           />
 
           <upw-badge
             color="secondary"
-            v-if="availableProduct?.isOnPromotion"
+            v-if="product?.isOnPromotion"
             :label="$t('product.promotion')"
           />
 
           <h3 :class="styles.product.config.title">
-            {{ availableProduct?.name }}
+            {{ product?.name }}
           </h3>
         </div>
 
@@ -38,12 +38,12 @@
           <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
 
           <upw-quantitybox
-            v-if="availableProduct?.canChangeQuantity"
+            v-if="product?.canChangeQuantity"
             :disabled="meta.isProcessing"
-            :min="availableProduct?.min_order_quantity"
-            :max="availableProduct?.max_order_quantity"
-            :step="availableProduct?.unit_quantity"
-            :model-value="model?.quantity || availableProduct?.unit_quantity"
+            :min="product?.min_order_quantity"
+            :max="product?.max_order_quantity"
+            :step="product?.unit_quantity"
+            :model-value="model?.quantity || product?.unit_quantity"
             @update:modelValue="updateQuantity"
             size="lg"
           />
@@ -71,18 +71,15 @@
           </span>
         </div>
 
-        <p
-          v-if="availableProduct?.description"
-          :class="styles.product.config.text"
-        >
-          {{ availableProduct.description }}
+        <p v-if="product?.description" :class="styles.product.config.text">
+          {{ product.description }}
         </p>
 
         <p
-          v-if="availableProduct?.short_description"
+          v-if="product?.short_description"
           :class="styles.product.config.text"
         >
-          {{ availableProduct.short_description }}
+          {{ product.short_description }}
         </p>
       </header>
 
@@ -94,7 +91,7 @@
           :processing="
             meta.isProcessing || meta.isLoading || meta.isCalculating
           "
-          :items="availableTerms"
+          :items="terms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
           :label="$t('product.terms.label')"
@@ -107,7 +104,7 @@
           :processing="
             meta.isProcessing || meta.isLoading || meta.isCalculating
           "
-          :items="availableAttributes"
+          :items="attributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
           itemKey="product_id"
@@ -119,7 +116,7 @@
           :processing="
             meta.isProcessing || meta.isLoading || meta.isCalculating
           "
-          :items="availableOptions"
+          :items="options"
           :model-value="model?.options"
           @update:modelValue="selectOption"
           @update:quantity="updateOptionQuantity"
@@ -221,13 +218,13 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const {
-      available,
+      lookups,
       // ---
-      availableProduct,
-      availableTerms,
-      availableOptions,
-      availableAttributes,
-      availableFields,
+      product,
+      terms,
+      options,
+      attributes,
+      fields,
       // ---
       errors,
       model,
@@ -257,13 +254,13 @@ export default defineComponent({
     // ---
 
     return {
-      available,
+      lookups,
       // ---
-      availableProduct,
-      availableTerms,
-      availableOptions,
-      availableAttributes,
-      availableFields,
+      product,
+      terms,
+      options,
+      attributes,
+      fields,
       // ---
       errors,
       model,

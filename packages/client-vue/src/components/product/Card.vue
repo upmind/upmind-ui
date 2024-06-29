@@ -1,13 +1,10 @@
 <template>
   <article :class="styles.product.card.root">
     <!-- thumb -->
-    <figure
-      :class="styles.product.card.media"
-      v-if="availableProduct?.image?.full_url"
-    >
+    <figure :class="styles.product.card.media" v-if="product?.image?.full_url">
       <img
-        :src="availableProduct?.image?.full_url"
-        :alt="`${availableProduct?.name} thumbnail`"
+        :src="product?.image?.full_url"
+        :alt="`${product?.name} thumbnail`"
         :class="styles.product.card.image"
       />
     </figure>
@@ -17,18 +14,18 @@
       <header :class="styles.product.card.header">
         <upw-badge
           color="secondary"
-          v-if="availableProduct?.hasFreeTrial"
+          v-if="product?.hasFreeTrial"
           :label="$t('product.trail')"
         />
 
         <upw-badge
           color="secondary"
-          v-if="availableProduct?.isOnPromotion"
+          v-if="product?.isOnPromotion"
           :label="$t('product.promotion')"
         />
 
         <h3 :class="styles.product.card.title">
-          {{ availableProduct?.name }}
+          {{ product?.name }}
         </h3>
 
         <div :class="styles.product.card.meta">
@@ -54,7 +51,7 @@
                 icon="arrow-down"
                 :class="styles.product.card.toggle"
                 :aria-checked="toggle"
-                :aria-controls="`product-${availableProduct?.id}-toggle`"
+                :aria-controls="`product-${product?.id}-toggle`"
                 aria-hidden="true"
               />
             </template>
@@ -70,7 +67,7 @@
             styles.product.card.collapsible
           )
         "
-        :id="`product-${availableProduct?.id}-toggle`"
+        :id="`product-${product?.id}-toggle`"
         :aria-expanded="toggle"
         :aria-hidden="!toggle"
       >
@@ -120,9 +117,7 @@
         <!-- actions -->
         <div :class="styles.product.card.actions">
           <upw-button
-            :disabled="
-              !meta.isConfigurable && !availableProduct?.canChangeQuantity
-            "
+            :disabled="!meta.isConfigurable && !product?.canChangeQuantity"
             :label="$t('product.actions.configure')"
             @click="doResolve"
             color="current"
@@ -177,9 +172,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const { availableProduct, model, meta, summary } = useProductConfig(
-      props.item
-    );
+    const { product, model, meta, summary } = useProductConfig(props.item);
 
     const styles = useStyles(
       ["product.card", "product.card.details"],
@@ -190,7 +183,7 @@ export default defineComponent({
     // ---
 
     return {
-      availableProduct,
+      product,
       model,
       meta,
       summary,

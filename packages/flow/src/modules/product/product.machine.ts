@@ -8,13 +8,12 @@ import services from "./services";
 // --utils
 import { useTime } from "../../utils";
 import {
-  useAttributesParser,
-  useProductConfigParser,
-  useOptionsParser,
+  useBasketConfigParser,
+  useSubproductParser,
   useProvisioningParser,
   useProductParser,
   useTermsParser,
-  useValuesParser,
+  useModelParser,
   useSummaryParser,
   useValidationParser,
 } from "./utils";
@@ -34,7 +33,7 @@ import { useBrand } from "../brand";
 
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default (values, currency_id, promotions) => {
+export default (model, currency_id, promotions) => {
   const { validateCurrency } = useBrand();
   return createMachine(
     {
@@ -43,41 +42,37 @@ export default (values, currency_id, promotions) => {
       predictableActionArguments: true,
       initial: "loading",
       context: {
-        raw: null, // the raw data from the api
-        // ---
-        // the model use dto generate our coonfig,
-        // but with better structure / more detail to make ut easier for any ui to consume,
-        // and keep the generated config separate & clean
-        values: useValuesParser(values),
-
         // we mark the config with flags to help us determine what to do with it
         // once we have finished configuring it
-        isNew: !values?.id,
+        // TODO: should probably be state instead of context
+        isNew: !model?.id,
         isDirty: false,
         needsCalculating: false,
-
+        // ---
+        currency_id: validateCurrency(currency_id),
+        promotions,
+        // the model used to generate our final config,
+        // but with better structure / more detail to make ut easier for any ui to consume,
+        // and keep the generated config separate & clean
+        model: useModelParser(model),
         // ---
         // the various lookups that we are using in our configuation
-        available: {
-          product: values?.product,
+        lookups: {
+          product: model?.product,
           terms: null,
           options: null,
           attributes: null,
           provision_fields: null,
         },
-
         // ---
-        // the generated summary/pricing/details of the configuration,
-        config: null,
-        summary: null,
+        // Dynamically generated summary/pricing/details of the configuration,
+        config: {},
+        summary: {},
         prices: {
           term: { subtotal: 0, total: 0, discount: 0 },
           attributes: { subtotal: 0, total: 0, discount: 0 },
           options: { subtotal: 0, total: 0, discount: 0 },
         },
-        // ---
-        promotions,
-        currency_id: validateCurrency(currency_id),
         // ---
         error: null,
       },
@@ -283,12 +278,12 @@ export default (values, currency_id, promotions) => {
             },
             UPDATE: {
               target: "configuring",
-              actions: ["setValues", "setDirty"],
+              actions: ["setModel", "setDirty"],
             },
             PUT: [
               {
                 target: "configuring",
-                actions: ["mergeValues", "setDirty"],
+                actions: ["mergeModel", "setDirty"],
                 cond: "hasChanged",
               },
             ],
@@ -340,12 +335,12 @@ export default (values, currency_id, promotions) => {
             // ---
             UPDATE: {
               target: "configuring",
-              actions: ["setValues", "setDirty"],
+              actions: ["setModel", "setDirty"],
             },
             PUT: [
               {
                 target: "configuring",
-                actions: ["mergeValues", "setDirty"],
+                actions: ["mergeModel", "setDirty"],
                 cond: "hasChanged",
               },
             ],
@@ -397,7 +392,7 @@ export default (values, currency_id, promotions) => {
         complete: {
           id: "valid",
           type: "final",
-          data: ({ values }, _event) => useProductConfigParser(values),
+          data: ({ model }, _event) => useBasketConfigParser(model),
         },
       },
       on: {
@@ -410,13 +405,12 @@ export default (values, currency_id, promotions) => {
       actions: {
         // ---
         setAvailable: assign({
-          raw: (_context, { data }) => data,
-          available: (_context, { data }) => {
+          lookups: (_context, { data }) => {
             return {
               product: useProductParser(data),
               terms: useTermsParser(data.prices),
-              attributes: useAttributesParser(data.products_attributes),
-              options: useOptionsParser(data.products_options),
+              attributes: useSubproductParser(data.products_attributes),
+              options: useSubproductParser(data.products_options),
               provision_fields: useProvisioningParser(
                 data.products_provisioning
               ),
@@ -434,59 +428,56 @@ export default (values, currency_id, promotions) => {
             data?.promotions || promotions || [],
         }),
 
-        setValues: assign({
-          values: (_context, { data }) => useValuesParser(data?.product),
+        setModel: assign({
+          model: (_context, { data }) => useModelParser(data?.product),
         }),
 
-        mergeValues: assign({
-          values: ({ values }, { data }) => {
-            const newValues = merge({}, values, useValuesParser(data));
-            return newValues;
-          },
+        mergeModel: assign({
+          model: ({ model }, { data }) =>
+            merge({}, model, useModelParser(data)),
         }),
 
         // ---
 
         setConfig: assign({
-          config: ({ values }, _event) => useProductConfigParser(values),
+          config: ({ model }, _event) => useBasketConfigParser(model),
         }),
 
-        sendConfig: sendParent(({ values }, _event) => ({
+        sendConfig: sendParent(({ model }, _event) => ({
           type: "CONFIGURED",
-          data: useProductConfigParser(values),
+          data: useBasketConfigParser(model),
         })),
 
         // ---
         setSummary: assign({
-          summary: ({ prices, values, raw }, { data }) => {
+          summary: ({ prices, model }, { data }) => {
             return useSummaryParser({
               summary: data,
               prices,
-              values,
-              raw,
+              model,
             });
           },
         }),
 
         setQuantity: assign({
-          values: ({ values }, { data }) => {
+          model: ({ model }, { data }) => {
             const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
-            set(values, "quantity", Math.max(1, quantity)); //TODO: min check? step check
-            return values;
+            set(model, "quantity", Math.max(1, quantity)); //TODO: min check? step check
+            return model;
           },
         }),
 
         setTerm: assign({
-          values: ({ values }, { data }) => {
+          model: ({ model }, { data }) => {
             const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
-            set(values, "term", term);
-            return values;
+            set(model, "term", term);
+            return model;
           },
           prices: ({ prices }, { data }) => get(data, "prices", prices),
-          available: ({ available }, { data }) => {
-            // set the price for the available options based on the term selected
+          lookups: ({ lookups }, { data }) => {
+            // set the price for the lookups options based on the term selected
             const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
-            available.options = map(available.options, option => {
+            lookups.options = map(lookups.options, option => {
               option.values = map(option.values, value => {
                 value.price = find(value.prices, [
                   "billing_cycle_months",
@@ -497,35 +488,35 @@ export default (values, currency_id, promotions) => {
 
               return option;
             });
-            return available;
+            return lookups;
           },
           needsCalculating: (_context, { data }) => !!data?.term,
         }),
 
         setAttributes: assign({
-          values: ({ values }, { data }) => {
+          model: ({ model }, { data }) => {
             const attributes = get(data, "attributes", data); // workaround to allow the same action to be used for different event sources
-            set(values, "attributes", attributes);
-            return values;
+            set(model, "attributes", attributes);
+            return model;
           },
           prices: ({ prices }, { data }) => get(data, "prices", prices),
         }),
 
         setOptions: assign({
-          values: ({ values }, { data }) => {
+          model: ({ model }, { data }) => {
             const options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
-            set(values, "options", options);
-            return values;
+            set(model, "options", options);
+            return model;
           },
           prices: ({ prices }, { data }) => get(data, "prices", prices),
           needsCalculating: (_context, { data }) => !!data?.options,
         }),
 
         setProvisioning: assign({
-          values: ({ values }, { data }) => {
+          model: ({ model }, { data }) => {
             const provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
-            set(values, "provision_fields", provision_fields);
-            return values;
+            set(model, "provision_fields", provision_fields);
+            return model;
           },
         }),
 
@@ -533,7 +524,7 @@ export default (values, currency_id, promotions) => {
 
         setCalculating: assign({
           needsCalculating: (_context, { data }) => {
-            // TODO: a more comprehensive check to see if values have actually changed.
+            // TODO: a more comprehensive check to see if model has actually changed.
             // For now we will always set this to true, as we need to recalculate the summary
             return isNil(data) ? true : !!data;
           },
@@ -567,12 +558,12 @@ export default (values, currency_id, promotions) => {
       services,
       guards: {
         needsRecalculating: ({ needsCalculating }) => needsCalculating,
-        isNewCurrency: ({ values, currency_id }, { data }) => {
+        isNewCurrency: ({ currency_id }, { data }) => {
           return currency_id !== data?.currency_id;
         },
-        hasChanged: ({ values, currency_id }, { data }) => {
-          const newValues = merge({}, values, useValuesParser(data));
-          return !isEqual(newValues, values);
+        hasChanged: ({ model }, { data }) => {
+          const newModel = merge({}, model, useModelParser(data));
+          return !isEqual(newModel, model);
         },
       },
       delays: {

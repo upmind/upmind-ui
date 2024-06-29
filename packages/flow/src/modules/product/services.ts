@@ -24,13 +24,12 @@ import {
   mapValues,
   maxBy,
   minBy,
-  pick,
   pickBy,
   reduce,
   set,
   some,
   sumBy,
-  values as objectValues,
+  values,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -103,10 +102,10 @@ async function calculateBillingTerm(
 // this will process the request and return a promise
 
 async function load(
-  { values, currency_id, promotions }: ProductConfigContext,
+  { model, currency_id, promotions }: ProductConfigContext,
   _event: any
 ) {
-  const { product_id } = values;
+  const { product_id } = model;
   if (!product_id) return Promise.reject("No Product ID provided");
 
   const { get, useUrl } = useApi();
@@ -143,7 +142,7 @@ async function load(
     withAccessToken: true,
   }).then(({ data }) => data);
 
-  // lets get our provision_fields fields early, so we can make them available
+  // lets get our provision_fields fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(product_id);
 
   return Promise.all([productPromise, provisioningPromise]).then(
@@ -169,11 +168,11 @@ async function loadProvisioningFields(product_id) {
 // ---
 
 async function checkQuantity(
-  { available, values }: ProductConfigContext,
+  { lookups, model }: ProductConfigContext,
   { data }: any
 ) {
-  const { product } = available;
-  let quantity = data?.quantity || values?.quantity;
+  const { product } = lookups;
+  let quantity = data?.quantity || model?.quantity;
   // ---
   quantity = useQuantityParser(quantity, product);
 
@@ -184,35 +183,35 @@ async function checkQuantity(
 }
 
 async function checkTerm(
-  { available, values, prices }: ProductConfigContext,
+  { lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
   let term;
 
-  if (!available?.terms?.length) {
-    return Promise.reject("No Terms available");
+  if (!lookups?.terms?.length) {
+    return Promise.reject("No Terms lookups");
   }
 
   // ---
-  // try ge the full term object from the available terms
-  term = find(available.terms, ["billing_cycle_months", values.term]);
+  // try ge the full term object from the lookups terms
+  term = find(lookups.terms, ["billing_cycle_months", model.term]);
 
   if (!term) {
-    if (available.terms.length === 1) {
-      term = first(available.terms);
+    if (lookups.terms.length === 1) {
+      term = first(lookups.terms);
     } else {
       term = await calculateBillingTerm(
-        available.product.default_payment_period,
-        available.terms
+        lookups.product.default_payment_period,
+        lookups.terms
       );
     }
   }
 
   // ---
   // only calculate the term price if we dont have any price overrides
-  if (!useHasPriceOverride(values.options, available.options)) {
-    const subtotal = values.quantity * term?.price || 0;
-    const total = values.quantity * term?.price_discounted || 0;
+  if (!useHasPriceOverride(model.options, lookups.options)) {
+    const subtotal = model.quantity * term?.price || 0;
+    const total = model.quantity * term?.price_discounted || 0;
     const discount = total ? subtotal - total : 0;
     prices.term.discount = discount;
     prices.term.subtotal = discount ? subtotal : 0;
@@ -232,11 +231,11 @@ async function checkTerm(
 }
 
 async function checkAttributes(
-  { available, values, prices }: ProductConfigContext,
+  { lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
-  if (!available?.attributes?.length) {
+  if (!lookups?.attributes?.length) {
     return Promise.resolve(null);
   }
 
@@ -247,18 +246,18 @@ async function checkAttributes(
   // do we have any attributes that are:
   // required?
   // single vs multiple?
-  // invalid : ie values but not actually available values
+  // invalid : ie values but not actually in lookup values
   // able to be auto values?
 
   // make sure we have a values object with only valid attribute values
   // let attributes = filter(values?.attributes, ({ product_id }) =>
-  //   some(available.attributes, ({ values }) => includes(values, product_id))
+  //   some(lookups.attributes, ({ values }) => includes(values, product_id))
   // );
 
   const attributes = reduce(
-    available.attributes,
+    lookups.attributes,
     (result, attribute) => {
-      let selected = get(values, `attributes.${attribute.id}`, {});
+      let selected = get(model, `attributes.${attribute.id}`, {});
 
       // only include valid values, if we have any
       if (!isEmpty(selected)) {
@@ -275,7 +274,7 @@ async function checkAttributes(
 
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
-            billing_cycle_months: values?.term?.billing_cycle_months,
+            billing_cycle_months: model?.term?.billing_cycle_months,
             unit_quantity: 1,
           });
 
@@ -321,22 +320,22 @@ async function checkAttributes(
 }
 
 async function checkOptions(
-  { available, values, prices }: ProductConfigContext,
+  { lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
-  if (!available?.options?.length) {
+  if (!lookups?.options?.length) {
     return Promise.resolve(null);
   }
 
   const errors = [];
 
   const options = reduce(
-    available.options,
+    lookups.options,
     (result, option) => {
       // try get any selected values for this option,
 
-      let selected = get(values, `options.${option.id}`, {});
+      let selected = get(model, `options.${option.id}`, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
@@ -355,11 +354,10 @@ async function checkOptions(
           value = defaultsDeep(value, {
             billing_cycle_months: some(product.prices, price => {
               return (
-                price.billing_cycle_months ===
-                values?.term?.billing_cycle_months
+                price.billing_cycle_months === model?.term?.billing_cycle_months
               );
             })
-              ? values?.term?.billing_cycle_months
+              ? model?.term?.billing_cycle_months
               : first(product.prices)?.billing_cycle_months || 0,
             unit_quantity: 1,
           });
@@ -376,7 +374,7 @@ async function checkOptions(
           ]);
 
           value.total =
-            value.unit_quantity * (value.price?.price || 0) * values.quantity;
+            value.unit_quantity * (value.price?.price || 0) * model.quantity;
 
           value.total_discounted =
             value.unit_quantity * (value.price?.price_discounted || 0);
@@ -403,8 +401,8 @@ async function checkOptions(
   prices.options = reduce(
     options,
     (result, option) => {
-      const subtotal = sumBy(objectValues(option), "total") || 0;
-      const total = sumBy(objectValues(option), "total_discounted") || 0;
+      const subtotal = sumBy(values(option), "total") || 0;
+      const total = sumBy(values(option), "total_discounted") || 0;
       const discount = total ? subtotal - total : 0;
       result.discount += discount;
       result.subtotal += discount ? subtotal : 0;
@@ -421,18 +419,18 @@ async function checkOptions(
 }
 
 async function checkProvisioning(
-  { available, values }: ProductConfigContext,
+  { lookups, model }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
-  if (isEmpty(available?.provision_fields?.properties)) {
+  if (isEmpty(lookups?.provision_fields?.properties)) {
     return Promise.resolve([]);
   }
 
   const provision_fields = reduce(
-    available.provision_fields.properties,
+    lookups.provision_fields.properties,
     (result, field, key) => {
-      const selected = get(values, `provision_fields.${key}`, null);
+      const selected = get(model, `provision_fields.${key}`, null);
       set(result, key, selected);
       return result;
     },
@@ -440,7 +438,7 @@ async function checkProvisioning(
   );
 
   const { validate } = useValidation();
-  const errors = validate(provision_fields, available.provision_fields);
+  const errors = validate(provision_fields, lookups.provision_fields);
   return new Promise((resolve, reject) => {
     if (errors?.length) reject(errors);
     else resolve(provision_fields);
@@ -450,7 +448,7 @@ async function checkProvisioning(
 // --------------------------------------------------------
 // This is a relatively expensive operation,
 // ineffect we are calculating the price of the item based on its configuration
-// We use the values that have been selected alongside the available data
+// We use the values that have been selected alongside the lookups data
 // and based on the combination of those values, we calculate the price
 // The really tricky bit is the fact that options can have price overrides,
 // so its not always as simple as just adding up the prices of the selected options
@@ -528,18 +526,14 @@ async function calculateSummary(
   }).then(response => response?.data);
 
   return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
-    ([subtotal, discount, total]) => {
-      const newSummary = {
-        currency_id,
-        subtotal: subtotal?.total || 0,
-        subtotal_formatted: subtotal?.total_formatted,
-        discount: discount?.total || 0,
-        discount_formatted: discount?.total_formatted,
-        total: total?.total || 0,
-        total_formatted: total?.total_formatted,
-      };
-      return newSummary;
-    }
+    ([subtotal, discount, total]) => ({
+      subtotal: subtotal?.total || 0,
+      subtotal_formatted: subtotal?.total_formatted,
+      discount: discount?.total || 0,
+      discount_formatted: discount?.total_formatted,
+      total: total?.total || 0,
+      total_formatted: total?.total_formatted,
+    })
   );
 }
 

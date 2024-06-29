@@ -92,7 +92,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearCalculating: "done.invoke.calculating:invocation[0]";
     clearError: "CLEAR.ERRORS";
-    mergeValues: "PUT";
+    mergeModel: "PUT";
     sendConfig:
       | "PROCESSING"
       | "done.state.configuring"
@@ -133,6 +133,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
+    setModel: "UPDATE";
     setOptions:
       | "UPDATE.OPTIONS"
       | "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]"
@@ -149,7 +150,6 @@ export interface Typegen0 {
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]";
-    setValues: "UPDATE";
   };
   eventsCausingDelays: {
     error: "ERROR" | "error.platform.load";
