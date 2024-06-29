@@ -25,6 +25,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket_id: undefined,
+      account_id: undefined,
       // ---
       schema: undefined,
       uischema: undefined,
@@ -207,6 +208,7 @@ export default createMachine(
         ) => {
           return {
             basket_id: basket?.id,
+            account_id: basket?.account_id,
             model: {
               address_id: basket?.address_id,
               company_id: basket?.company_id,
@@ -295,12 +297,9 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model, basket_id }, { data }) => {
-        return (
-          model?.address_id !== data?.address_id ||
-          model?.company_id !== data?.company_id ||
-          basket_id !== data?.id
-        );
+      hasChanged: ({ account_id, basket_id }, { data }) => {
+        debugger;
+        return basket_id !== data?.id || account_id !== data?.account_id;
       },
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
