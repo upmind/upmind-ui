@@ -32,6 +32,7 @@ export default createMachine(
       // ---
       dirty: false,
       error: null,
+      autoupdate: false,
     } as BillingDetailsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
@@ -115,18 +116,20 @@ export default createMachine(
             },
           },
 
-          invalid: {
-            id: "invalid",
-          },
-
           valid: {
             id: "valid",
+            always: { target: "processing", cond: "shouldUpdate" },
+
             on: {
               UPDATE: {
                 target: "processing",
                 cond: "hasBasket",
               },
             },
+          },
+
+          invalid: {
+            id: "invalid",
           },
 
           processing: {
@@ -137,7 +140,7 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "processed",
-                actions: ["setModel", "clearDirty"],
+                actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
                 target: "#error",
@@ -174,7 +177,11 @@ export default createMachine(
         },
       },
 
-      // ---
+      complete: {
+        id: "complete",
+        // type: "final"
+      },
+
       error: {
         id: "error",
         on: {
@@ -182,10 +189,6 @@ export default createMachine(
             target: "#processing",
           },
         },
-      },
-      complete: {
-        id: "complete",
-        // type: "final"
       },
     },
     on: {
@@ -244,6 +247,13 @@ export default createMachine(
         dirty: false,
       }),
 
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }) => !!update,
+      }),
+      clearAutoUpdate: assign({
+        autoupdate: false,
+      }),
+
       // ---
       setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated billing details");
@@ -285,12 +295,15 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model }, { data }) => {
+      hasChanged: ({ model, basket_id }, { data }) => {
         return (
           model?.address_id !== data?.address_id ||
-          model?.company_id !== data?.company_id
+          model?.company_id !== data?.company_id ||
+          basket_id !== data?.id
         );
       },
+      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
+        !!autoupdate && !!basket_id,
     },
 
     delays: {

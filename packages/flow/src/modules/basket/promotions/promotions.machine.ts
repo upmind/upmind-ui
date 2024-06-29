@@ -34,6 +34,7 @@ export default createMachine(
       // ---
       dirty: false,
       error: null,
+      autoupdate: false,
     } as PromotionsContext,
     states: {
       loading: {
@@ -95,6 +96,8 @@ export default createMachine(
 
       valid: {
         id: "valid",
+        always: { target: "processing", cond: "shouldUpdate" },
+
         on: {
           ADD: {
             target: "processing",
@@ -119,7 +122,7 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel", "clearDirty"],
+                actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
                 target: "error",
@@ -165,6 +168,11 @@ export default createMachine(
 
       error: {
         id: "error",
+        on: {
+          RETRY: {
+            target: "processing",
+          },
+        },
       },
     },
     on: {
@@ -177,14 +185,13 @@ export default createMachine(
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty"],
+        actions: ["setModel", "setDirty", "setAutoUpdate"],
       },
 
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
-
       REFRESH: {
         target: "checking",
         actions: ["refreshContext", "setSchemas"],
@@ -235,6 +242,13 @@ export default createMachine(
         dirty: false,
       }),
 
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }) => !!update,
+      }),
+      clearAutoUpdate: assign({
+        autoupdate: false,
+      }),
+
       // ---
       setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated the basket promotions");
@@ -260,6 +274,7 @@ export default createMachine(
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
+
           return error || data;
         },
       }),
@@ -270,8 +285,11 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ promotions }, { data }) =>
-        !!xorBy(promotions, data?.promotions, "id")?.length,
+      hasChanged: ({ promotions, basket_id }, { data }) =>
+        !!xorBy(promotions, data?.promotions, "id")?.length ||
+        basket_id !== data?.id,
+      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
+        !!autoupdate && !!basket_id,
     },
 
     delays: {

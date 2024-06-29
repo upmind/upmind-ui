@@ -23,7 +23,7 @@ import { isEqual } from "lodash-es";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketPaymentDetails = (actor?: TActor<any>) => {
-  const { service } = useBasket();
+  const { service, getSnapshot } = useBasket();
   const payment_details = ref(actor);
 
   if (!actor) {
@@ -51,7 +51,13 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
       isFree: !contextValue(payment_details.value?.state, "model.amount"),
       isLoading:
         !payment_details.value?.state ||
-        stateMatches(payment_details.value?.state, ["loading"]),
+        stateMatches(payment_details.value?.state, ["loading"]) ||
+        stateMatches(getSnapshot(), [
+          "subscribing",
+          "loading",
+          "generating",
+          "claiming",
+        ]),
       hasErrors: stateMatches(payment_details.value?.state, ["error"]),
       isProcessing: stateMatches(payment_details.value?.state, [
         "checking",
@@ -89,14 +95,8 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
-        payment_details.value?.send({ type: "SET", data: model });
+        payment_details.value?.send({ type: "SET", data: model, update: true });
       }
-
-      // then wait for the payment_details actor to be valid
-      // then send the update event to the payment_details actor
-      waitFor(service.state.context.actors.payment_details, newstate =>
-        newstate.matches("available.valid")
-      ).then(() => payment_details.value?.send({ type: "UPDATE" }));
     },
   };
 };

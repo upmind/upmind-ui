@@ -24,7 +24,7 @@ import type { TActor } from "./types";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketCurrency = (actor?: TActor<any>) => {
-  const { service } = useBasket();
+  const { service, getSnapshot } = useBasket();
   const currency = ref(actor);
 
   if (!actor) {
@@ -46,7 +46,13 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
     meta: computed(() => ({
       isLoading:
         !currency.value?.state ||
-        stateMatches(currency.value?.state, ["loading"]),
+        stateMatches(currency.value?.state, ["loading"]) ||
+        stateMatches(getSnapshot(), [
+          "subscribing",
+          "loading",
+          "generating",
+          "claiming",
+        ]),
       hasErrors: stateMatches(currency.value?.state, ["error"]),
       isProcessing: stateMatches(currency.value?.state, [
         "checking",
@@ -74,16 +80,13 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
       const { code } = contextValue(currency.value?.state, "model");
 
       // if it has not then bail
-      if (model?.code == code) return;
+      if (model?.code == code) {
+        debugger;
+        return;
+      }
 
       // if it has then send the new model to the machine
-      currency.value?.send({ type: "SET", data: model });
-
-      // then wait for the currency actor to be valid
-      // then send the update event to the currency actor
-      waitFor(service.state.context.actors.currency, newstate =>
-        newstate.matches("valid")
-      ).then(() => currency.value?.send({ type: "UPDATE" }));
+      currency.value?.send({ type: "SET", data: model, update: true });
     },
   };
 };
