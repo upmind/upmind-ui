@@ -183,11 +183,13 @@ async function checkQuantity(
 }
 
 async function checkTerm(
-  { lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
   let term;
-  const error = [];
+
+  // reset any previous errors for this check
+  const errors = [];
 
   if (!lookups?.terms?.length) {
     return Promise.reject("No Terms lookups");
@@ -208,7 +210,7 @@ async function checkTerm(
     }
   }
 
-  if (!isNil(term)) error.push({ message: "Valid Term is required" });
+  if (isNil(term)) errors.push("Valid Term is required");
 
   // ---
   // only calculate the term price if we dont have any price overrides
@@ -228,7 +230,8 @@ async function checkTerm(
   }
 
   return new Promise((resolve, reject) => {
-    if (error?.length) reject({ term, prices, error });
+    if (errors.length)
+      reject({ term, prices, error: { ...error, term: errors } });
     else {
       resolve({ term, prices });
     }
@@ -236,7 +239,7 @@ async function checkTerm(
 }
 
 async function checkAttributes(
-  { lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
@@ -244,8 +247,8 @@ async function checkAttributes(
     return Promise.resolve(null);
   }
 
-  const error = [];
-
+  // reset any previous errors for this check
+  const errors = [];
   // ---
   // for attributes we have to check a few things:
   // do we have any attributes that are:
@@ -305,11 +308,11 @@ async function checkAttributes(
 
       // check if we are missing required attribute
       if (attribute?.required && isEmpty(selected))
-        error.push({ message: "Is required", attribute });
+        errors.push(`${attribute.name} is required`);
 
       // check if we values too many values for this attribute
       if (!attribute?.multiple && keys(selected)?.length > 1) {
-        error.push({ message: "Multiple choice not allowed", attribute });
+        errors.push(`${attribute.name} does not multiple choice`);
       }
       // ---
       set(result, attribute.id, selected);
@@ -319,13 +322,14 @@ async function checkAttributes(
   );
 
   return new Promise((resolve, reject) => {
-    if (error?.length) reject({ attributes, prices, error });
+    if (errors.length)
+      reject({ attributes, prices, error: { ...error, attributes: errors } });
     else resolve({ attributes, prices });
   });
 }
 
 async function checkOptions(
-  { lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
@@ -333,7 +337,8 @@ async function checkOptions(
     return Promise.resolve(null);
   }
 
-  const error = [];
+  // reset any previous errors for this check
+  const errors = [];
 
   const options = reduce(
     lookups.options,
@@ -390,11 +395,11 @@ async function checkOptions(
 
       // check if we are missing required option
       if (option?.required && isEmpty(selected))
-        error.push({ message: "Is required", option });
+        errors.push(`${option.name} is required`);
 
       // check if we values too many values for this option
       if (!option?.multiple && keys(selected)?.length > 1) {
-        error.push({ message: "Multiple choice not allowed", option });
+        errors.push(`${option.name} does not multiple choice`);
       }
       // ---
       set(result, option.id, selected);
@@ -418,13 +423,14 @@ async function checkOptions(
   );
 
   return new Promise((resolve, reject) => {
-    if (error?.length) reject({ options, prices, error });
+    if (errors.length)
+      reject({ options, prices, error: { ...error, options: errors } });
     else resolve({ options, prices });
   });
 }
 
 async function checkProvisioning(
-  { lookups, model }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
   // safety check, resolve if we have no attributes to check
@@ -443,9 +449,14 @@ async function checkProvisioning(
   );
 
   const { validate } = useValidation();
-  const error = validate(provision_fields, lookups.provision_fields);
+  const errors = validate(provision_fields, lookups.provision_fields);
+
   return new Promise((resolve, reject) => {
-    if (error?.length) reject({ provision_fields, error });
+    if (errors.length)
+      reject({
+        provision_fields,
+        error: { ...error, provision_fields: errors },
+      });
     else resolve({ provision_fields });
   });
 }
