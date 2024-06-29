@@ -23,7 +23,7 @@ import { isEqual } from "lodash-es";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketFields = (actor?: TActor<any>) => {
-  const { service } = useBasket();
+  const { service, getSnapshot } = useBasket();
   const custom_fields = ref(actor);
 
   if (!actor) {
@@ -45,7 +45,13 @@ export const useBasketFields = (actor?: TActor<any>) => {
     meta: computed(() => ({
       isLoading:
         !custom_fields.value?.state ||
-        stateMatches(custom_fields.value?.state, ["loading"]),
+        stateMatches(custom_fields.value?.state, ["loading"]) ||
+        stateMatches(getSnapshot(), [
+          "subscribing",
+          "loading",
+          "generating",
+          "claiming",
+        ]),
       hasErrors: stateMatches(custom_fields.value?.state, ["error"]),
       isProcessing: stateMatches(custom_fields.value?.state, [
         "checking",
@@ -77,14 +83,8 @@ export const useBasketFields = (actor?: TActor<any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
-        custom_fields.value?.send({ type: "SET", data: model });
+        custom_fields.value?.send({ type: "SET", data: model, update: true });
       }
-
-      // then wait for the custom_fields actor to be valid
-      // then send the update event to the custom_fields actor
-      waitFor(service.state.context.actors.custom_fields, newstate =>
-        newstate.matches("valid")
-      ).then(() => custom_fields.value?.send({ type: "UPDATE" }));
     },
   };
 };

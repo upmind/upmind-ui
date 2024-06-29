@@ -43,7 +43,9 @@ export default createMachine(
         gateway: undefined,
       },
       // ---
+      dirty: false,
       error: null,
+      autoupdate: false,
     } as PaymentDetailsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
@@ -89,8 +91,8 @@ export default createMachine(
               },
             },
           },
-
           // ---
+
           checking: {
             entry: ["clearError"],
             id: "checking",
@@ -124,6 +126,18 @@ export default createMachine(
             },
           },
 
+          valid: {
+            id: "valid",
+            always: { target: "processing", cond: "shouldUpdate" },
+
+            on: {
+              CHECKOUT: { target: "processing", cond: "hasBasket" },
+              "xstate.update": {
+                target: "checking",
+              },
+            },
+          },
+
           invalid: {
             id: "invalid",
             on: {
@@ -133,23 +147,18 @@ export default createMachine(
             },
           },
 
-          valid: {
-            id: "valid",
-            on: {
-              CHECKOUT: { target: "processing", cond: "hasBasket" },
-              "xstate.update": {
-                target: "checking",
-              },
-            },
-          },
-
           processing: {
             entry: ["forwardCheckout"],
+
             invoke: {
               src: "update",
               onDone: {
                 target: "#complete",
-                actions: ["setPaymentDetails", "providePaymentDetails"],
+                actions: [
+                  "setPaymentDetails",
+                  "providePaymentDetails",
+                  "clearAutoUpdate",
+                ],
               },
             },
             on: {
@@ -164,11 +173,11 @@ export default createMachine(
         on: {
           CLEAR: {
             target: "#checking",
-            actions: ["clearModel"],
+            actions: ["clearModel", "setDirty"],
           },
           SET: {
             target: "#checking",
-            actions: ["setModel"],
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
           REFRESH: {
@@ -215,6 +224,21 @@ export default createMachine(
 
       clearModel: assign({
         model: undefined,
+      }),
+
+      setDirty: assign({
+        dirty: true,
+      }),
+
+      clearDirty: assign({
+        dirty: false,
+      }),
+
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }) => !!update,
+      }),
+      clearAutoUpdate: assign({
+        autoupdate: false,
       }),
 
       setGateway: assign({
@@ -300,7 +324,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }, node) => {
+        error: (_context, { data }) => {
           let error = data?.error;
           if (error?.code == 422) {
             // lets parse/override our error message and data
@@ -316,8 +340,11 @@ export default createMachine(
     },
 
     guards: {
+      isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       isFree: ({ model }, _event) => !model?.amount,
+      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
+        !!autoupdate && !!basket_id,
     },
 
     delays: {

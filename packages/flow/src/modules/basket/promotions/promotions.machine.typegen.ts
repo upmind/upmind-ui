@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]": {
       type: "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]";
       data: unknown;
@@ -64,14 +65,17 @@ export interface Typegen0 {
     services: "add" | "load" | "parse" | "remove" | "validate";
   };
   eventsCausingActions: {
+    clearAutoUpdate: "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     clearDirty:
       | "done.invoke.basketPromotionsManager.processing.remove:invocation[0]"
       | "done.invoke.basketPromotionsManager.processing.update:invocation[0]";
     clearError:
+      | ""
       | "ADD"
       | "CLEAR"
       | "REFRESH"
       | "REMOVE"
+      | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
       | "UPDATE"
@@ -79,6 +83,7 @@ export interface Typegen0 {
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     refreshContext: "REFRESH";
+    setAutoUpdate: "SET";
     setContext:
       | "done.invoke.basketPromotionsManager.checking.parsing:invocation[0]"
       | "done.invoke.basketPromotionsManager.loading:invocation[0]";
@@ -113,9 +118,10 @@ export interface Typegen0 {
     isDirty:
       | "done.invoke.basketPromotionsManager.checking.validating:invocation[0]"
       | "error.platform.basketPromotionsManager.checking.validating:invocation[0]";
+    shouldUpdate: "";
   };
   eventsCausingServices: {
-    add: "ADD" | "REMOVE" | "UPDATE";
+    add: "" | "ADD" | "REMOVE" | "RETRY" | "UPDATE";
     load:
       | "CLEAR"
       | "REFRESH"
