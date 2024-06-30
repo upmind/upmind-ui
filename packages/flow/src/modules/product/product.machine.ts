@@ -261,16 +261,6 @@ export default (model, currency_id, promotions) => {
             },
           },
           on: {
-            REFRESH: [
-              {
-                target: "loading",
-                actions: ["setCurrency", "setPromotions", "setClean"],
-                cond: "hasChanged",
-              },
-              {
-                actions: ["setClean"],
-              },
-            ],
             // PROCESSING: { target: "configured.processing" },
             "UPDATE.QUANTITY": {
               target: "configuring.quantity",
@@ -306,25 +296,14 @@ export default (model, currency_id, promotions) => {
               type: "final",
               on: {
                 REFRESH: {
-                  target: "#loading",
-                  actions: ["setCurrency", "setPromotions"],
+                  target: "#configuring",
+                  actions: ["setModel", "setCurrency", "setPromotions"],
                 },
               },
             },
           },
 
           on: {
-            REFRESH: [
-              {
-                target: "loading",
-                actions: ["setCurrency", "setPromotions", "setClean"],
-                cond: "hasChanged",
-              },
-
-              {
-                actions: ["setClean"],
-              },
-            ],
             PROCESSING: { target: "configured.processing" },
 
             // ---
@@ -364,15 +343,7 @@ export default (model, currency_id, promotions) => {
         },
 
         // this is a state where we hav ebeen deleted or are no longer available from a parent machine
-        unavailable: {
-          on: {
-            REFRESH: {
-              target: "loading",
-              actions: ["setCurrency", "setPromotions", "setClean"],
-              cond: "hasChanged",
-            },
-          },
-        },
+        unavailable: {},
         // Handle errors
         error: {
           id: "error",
@@ -391,6 +362,13 @@ export default (model, currency_id, promotions) => {
         },
       },
       on: {
+        REFRESH: [
+          {
+            target: "loading",
+            actions: ["setModel", "setCurrency", "setPromotions", "setClean"],
+            cond: "hasChanged",
+          },
+        ],
         BIN: { target: "unavailable" },
         ERROR: { target: "#error", actions: ["setError"] },
         "CLEAR.ERRORS": { actions: ["clearError"] },
@@ -534,7 +512,7 @@ export default (model, currency_id, promotions) => {
             if (err?.code == 422) {
               // lets parse/override our error message and data
               // this is to generate valid json schema validation errors
-              err = useValidationParser(error);
+              err = useValidationParser(err);
             }
 
             return err;
@@ -549,11 +527,11 @@ export default (model, currency_id, promotions) => {
 
         hasChanged: ({ model, basket_id, currency_id }, { data }) => {
           const newModel = merge({}, model, useModelParser(data));
-          return (
+          const value =
             !isEqual(newModel, model) ||
             basket_id !== data?.id ||
-            currency_id !== data?.currency_id
-          );
+            currency_id !== data?.currency_id;
+          return value;
         },
       },
       delays: {

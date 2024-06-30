@@ -107,7 +107,7 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setContext", "setGateway", "setSchemas"],
+                    actions: ["setParsed", "setGateway", "setSchemas"],
                   },
                 },
               },
@@ -208,7 +208,10 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign((_context, { data }: any) => data),
+      setParsed: assign({
+        model: (_context, { data }) => data.model,
+        gateway: (_context, { data }) => data.gateway,
+      }),
 
       setLookups: assign({
         payment_details: (_context, { data }) => data.payment_details,
