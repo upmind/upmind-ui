@@ -140,7 +140,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]";
     setLookups: "done.invoke.load";
-    setModel: "UPDATE";
+    setModel: "REFRESH" | "UPDATE";
     setOptions:
       | "UPDATE.OPTIONS"
       | "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]"
@@ -191,6 +191,7 @@ export interface Typegen0 {
       | "done.state.configuring";
     checkQuantity:
       | "PUT"
+      | "REFRESH"
       | "UPDATE"
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"

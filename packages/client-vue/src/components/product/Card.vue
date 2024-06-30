@@ -203,7 +203,7 @@ export default defineComponent({
       return find(this?.summary?.details, detail => detail.key === "term");
     },
     hasSummaryDetails() {
-      return reject(this?.summary?.details, ["key", "term"])?.length > 1;
+      return reject(this?.summary?.details, ["key", "term"])?.length;
     },
   },
 });
