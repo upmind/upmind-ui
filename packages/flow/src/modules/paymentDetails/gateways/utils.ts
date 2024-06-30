@@ -5,6 +5,7 @@
 // --- utils
 
 // --- types
+import def from "ajv/dist/vocabularies/discriminator";
 import { QUERY_PARAMS } from "./types.d";
 import { GatewayStoreType } from "./types.d";
 import type { GatewayContext, IGateway } from "./types.d";
@@ -91,11 +92,13 @@ export const useSchema = (context: GatewayContext) => {
       },
       store_on_payment: {
         type: "boolean",
+        default: false,
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
+        default: false,
       },
       return_url: {
         type: "string",
