@@ -64,34 +64,7 @@ async function getUser(_context: SessionContext, _event: any) {
       ].join(),
     }),
     withAccessToken: true,
-  })
-    .then(({ data }) => useUserParser(data?.actor))
-    .then(data => {
-      // if (isEmpty(data)) debugger; //TODO try trace a race condition on refresh token
-      return data;
-    });
-
-  // const self = await dispatch(
-  //   "api/call",
-  //   {
-  //     method: Methods.GET,
-  //     path: "api/self",
-  //     requestConfig: {
-  //       params: {
-  //         with: [
-  //           "actor",
-  //           "actor.account", // Relation required for determining `topup_enabled` value
-  //           "actor.brand", // Relation required for determining `topup_enabled` value
-  //           "accounts",
-  //           "delegated_ids",
-  //           "enabled_modules"
-
-  //         ].join()
-  //       }
-  //     }
-  //   },
-  //   { root: true }
-  // );
+  }).then(({ data }) => useUserParser(data?.actor));
 }
 
 async function transfer(_context: SessionContext, _event: any) {
