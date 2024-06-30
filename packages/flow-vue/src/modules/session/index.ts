@@ -1,6 +1,7 @@
 // --- external
 import { computed, unref, watch, toRaw } from "vue";
 import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession as useUpmindSession } from "@upmind/flow";
@@ -59,6 +60,7 @@ export const useSession = (inspector?: Function) => {
     isGuest: ["guest", "starting.guest"].some(state.value.matches),
     isClient: ["client", "starting.client"].some(state.value.matches),
     isAuthenticated: state.value.matches("client.idle"),
+    isTransferring: state.value.matches("client.transferring"),
     // ---
     showReCaptcha: client.value?.matches(
       "unauthenticated.register.challenging"
@@ -144,6 +146,16 @@ export const useSession = (inspector?: Function) => {
     });
   }
 
+  async function transfer() {
+    send({
+      type: "TRANSFER",
+    });
+
+    return waitFor(service, state =>
+      ["client.transferring.available"].some(state.matches)
+    ).then(newState => newState.context.transfer);
+  }
+
   // ---
 
   function resolve(model) {
@@ -215,5 +227,6 @@ export const useSession = (inspector?: Function) => {
     showRegister,
     verify2fa,
     verifyReCaptcha,
+    transfer,
   };
 };

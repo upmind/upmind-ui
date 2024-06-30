@@ -1,5 +1,5 @@
 <template>
-  <h-transition-root appear :show="meta.isActive" as="template">
+  <h-transition-root appear :show="meta.isActive" as="aside">
     <h-dialog
       as="aside"
       @close="doReject"
@@ -125,6 +125,7 @@ import type { DialogProps } from "./types";
 
 export default defineComponent({
   name: "UpwDialog",
+  inheritAttrs: false,
   components: {
     UpwButton,
     HTransitionRoot: TransitionRoot,

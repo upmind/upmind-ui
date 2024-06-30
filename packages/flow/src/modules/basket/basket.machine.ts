@@ -54,6 +54,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket: undefined,
+      invoice: undefined,
       // ---
       items: [],
       bin: [],
@@ -427,12 +428,12 @@ export default createMachine(
           onDone: [
             {
               target: "#paying",
-              actions: ["setBasket"],
+              actions: "setInvoice",
               cond: "needsPayment",
             },
             {
               target: "#complete",
-              actions: ["setBasket"],
+              actions: "setInvoice",
             },
           ],
           onError: {
@@ -567,6 +568,32 @@ export default createMachine(
 
       setPayment: assign({
         payment: (_context: BasketContext, { data }: BasketEvent) => data,
+      }),
+
+      setInvoice: assign({
+        invoice: (_context: BasketContext, { data }: BasketEvent) => data,
+        basket: undefined,
+        bin: [],
+        summary: undefined,
+        items: ({ items }, _event) => {
+          forEach(items, actor => {
+            if (!actor?.state?.done && actor?.stop) actor.stop();
+          });
+          return [];
+        },
+        actors: ({ actors }) => {
+          forEach(actors, actor => {
+            if (!actor?.state?.done && actor?.stop) actor.stop();
+          });
+          return {
+            billing_details: undefined,
+            currency: undefined,
+            custom_fields: undefined,
+            payment_details: undefined,
+            promotions: undefined,
+          };
+        },
+        error: undefined,
       }),
 
       // --- Spawned Actors Actions

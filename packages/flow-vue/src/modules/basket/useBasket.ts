@@ -178,6 +178,8 @@ export const useBasket = () => {
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
     currency: useContext(state, "basket.currency", []),
+    payment: useContext(state, "payment"),
+    invoice: useContext(state, "invoice"),
     // ---
     actors,
     // ---

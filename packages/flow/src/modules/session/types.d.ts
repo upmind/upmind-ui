@@ -36,6 +36,7 @@ export interface SessionContext {
   error?: RequestError | null;
   refresh?: boolean;
   message?: string | null;
+  transfer?: string | null;
 }
 
 export interface Token {
