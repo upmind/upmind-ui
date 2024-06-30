@@ -92,7 +92,7 @@ export default defineComponent({
       return this.$tm("basket.empty.actions.continue");
     },
     storefrontUrl() {
-      return import.meta.env.VITE_APP_UPMIND_STOREFRONT;
+      return import.meta.env.VITE_APP_STOREFRONT;
     },
   },
 });

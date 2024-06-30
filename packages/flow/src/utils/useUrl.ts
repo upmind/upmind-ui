@@ -1,4 +1,37 @@
-export function useUrl() {
+// --- utils
+import { defaultsDeep, forIn, trimStart } from "lodash-es";
+
+// ----------------------------------------------------------------------------
+/**
+ * Constructs a URL with the given path and query parameters.
+ * @function
+ * @param {string} path - The path to append to the base URL.
+ * @param {Object} params - The query parameters to include in the URL.
+ * @param {string} [prepend="api"] - The string to prepend to the path.
+ * @returns {string} The constructed URL as a string.
+ */
+export function useUrl(
+  path: string | URL["pathname"],
+  params: Object = {},
+  instance?: { base?: string; context?: string }
+) {
+  // ensure our instance has the correct defaults
+  instance = defaultsDeep(instance, {
+    base: import.meta.env.VITE_API_URL,
+    context: "api",
+  });
+
+  // clean up path
+  path = [instance.context, trimStart(path, "/")].join("/");
+  // now we can create the url
+  const url = new URL(path, instance.base);
+  // and add any params
+  forIn(params, (value, key) => url.searchParams.set(key, value));
+
+  return url;
+}
+
+export function useUrlParams() {
   /**
    * @name getParamFromUrl
    * @desc Here we retrieve a search param from the URL

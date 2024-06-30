@@ -14,7 +14,14 @@
       <p :class="styles.basket.confirmation.text">{{ text }}</p>
 
       <footer>
-        <upw-button v-if="action" v-bind="action" block variant="ghost" />
+        <upw-button
+          v-if="action"
+          v-bind="action"
+          block
+          variant="ghost"
+          @click="doAction"
+          :loading="processing"
+        />
       </footer>
     </section>
   </upw-dialog>
@@ -22,10 +29,10 @@
 
 <script>
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/flow-vue";
+import { useBasket, useSession, utils } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -44,19 +51,22 @@ export default defineComponent({
   },
   props: {},
   setup() {
-    const { meta } = useBasket();
-
+    const { meta, invoice } = useBasket();
+    const { transfer } = useSession();
     const styles = useStyles(["basket.confirmation"], meta, config);
 
     // ---
 
     return {
       meta,
+      transferSession: transfer,
+      invoice,
+      processing: ref(false),
+      // ---
       open: computed(() => {
         const value = meta.value.isProcessingOrder || meta.value.isComplete;
         return value;
       }),
-
       // ---
       styles,
       mergeStyles,
@@ -137,26 +147,60 @@ export default defineComponent({
 
     action() {
       if (this.meta.isComplete) {
-        return this.$tm("basket.confirmation.complete.actions.continue");
+        // we have transfer the users session to the Upmind client
+        // and then redirect to the order confirmation page on the Upmind client
+        const action = this.$tm(
+          "basket.confirmation.complete.actions.continue"
+        );
+
+        return action;
       }
 
-      if (this.meta.needsApproval) {
-        return this.$tm("basket.confirmation.approval.actions.continue");
-      }
+      // if (this.meta.needsApproval) {
+      //   return this.$tm("basket.confirmation.approval.actions.continue");
+      // }
 
-      if (this.meta.isConverting) {
-        return this.$tm("basket.confirmation.converting.actions.continue");
-      }
+      // if (this.meta.isConverting) {
+      //   return this.$tm("basket.confirmation.converting.actions.continue");
+      // }
 
-      if (this.meta.isPaying) {
-        return this.$tm("basket.confirmation.paying.actions.continue");
-      }
+      // if (this.meta.isPaying) {
+      //   return this.$tm("basket.confirmation.paying.actions.continue");
+      // }
 
-      if (this.meta.isCheckout) {
-        return this.$tm("basket.confirmation.default.actions.continue");
-      }
+      // if (this.meta.isCheckout) {
+      //   return this.$tm("basket.confirmation.default.actions.continue");
+      // }
 
       return this.$tm("basket.confirmation.invalid.actions.complete");
+    },
+
+    storefrontUrl() {
+      return import.meta.env.VITE_APP_UPMIND_STOREFRONT;
+    },
+  },
+
+  methods: {
+    async doAction() {
+      if (this.meta.isComplete) {
+        this.processing = true;
+        const invoiceId = this.invoice.id;
+        const transfer = await this.transferSession();
+
+        if (invoiceId && transfer?.code) {
+          window.location.href = utils.useUrl(
+            "auth/transfer",
+            {
+              code: transfer.code,
+              redirect: `/billing/invoices/${invoiceId}`,
+            },
+            { base: this.storefrontUrl, context: "" }
+          );
+        } else {
+          this.$router.replace({ query: null });
+          this.processing = false;
+        }
+      }
     },
   },
 });

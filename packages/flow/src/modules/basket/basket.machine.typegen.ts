@@ -147,7 +147,6 @@ export interface Typegen0 {
       | "UPDATE.TERM";
     setBasket:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
-      | "done.invoke.converting:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
@@ -165,6 +164,7 @@ export interface Typegen0 {
       | "error.platform.payment"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
+    setInvoice: "done.invoke.converting:invocation[0]";
     setPayment: "done.invoke.payment";
     setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
