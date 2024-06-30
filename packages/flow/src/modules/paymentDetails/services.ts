@@ -4,7 +4,16 @@
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
 // --- utils
 import { useValidation } from "../../utils";
-import { unset, get, sortBy, find, forEach, filter, includes } from "lodash-es";
+import {
+  unset,
+  get,
+  sortBy,
+  find,
+  forEach,
+  filter,
+  includes,
+  first,
+} from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -145,16 +154,23 @@ async function parse(
   // ---
   let gateway = null;
 
-  // ensure we dont send the gateway_id if the payment type is pay later
-  if (model?.type == PaymentTypes.PAY_LATER) {
-    unset(model, "gateway_id");
-  }
-
-  // also make sure we clear the gateway actor if we have no gateway_id
-  else if (model?.gateway_id) {
+  // also make sure we set the gateway if we have one, otherwise we will use the first one
+  if (model?.gateway_id) {
     gateway = find(gateways, {
       gateway_id: model.gateway_id,
-    })?.gateway; // we dont need the full brand gateway, just the actual gateway;
+    })?.gateway;
+    // if we dont have a matching/valid gateway, then we should remove the gateway_id
+    if (!gateway) unset(model, "gateway_id");
+  }
+
+  if (!model?.gateway_id) {
+    gateway = first(gateways)?.gateway;
+    model.gateway_id = gateway?.id;
+  }
+
+  // NB: ensure we dont send the gateway_id if the payment type is pay later
+  if (model?.type == PaymentTypes.PAY_LATER) {
+    unset(model, "gateway_id");
   }
 
   return Promise.resolve({ model, gateway });
