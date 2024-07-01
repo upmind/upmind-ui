@@ -3,7 +3,7 @@ import { useApi } from "../api";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
-import { useUserParser } from "./utils";
+import { getTokenfromStorage, useUserParser } from "./utils";
 
 // --- types
 import { type SessionContext } from "./types.d";
@@ -17,10 +17,7 @@ import { type SessionContext } from "./types.d";
 // this will process the request and return a promise
 
 async function check(_context: SessionContext, _event: any) {
-  const clientToken = get(localStorage, `client/auth/token`);
-  const guestToken = get(localStorage, `guest/auth/token`);
-
-  const token = clientToken || guestToken;
+  const token = getTokenfromStorage();
 
   return new Promise((resolve, reject) => {
     if (token) {
