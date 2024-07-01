@@ -645,7 +645,7 @@ export default createMachine(
         forEach(items, item => {
           const product =
             find(basket?.products, ["id", item?.id]) ||
-            item.state.context.values;
+            item.state.context.model;
           item.send({
             type: "REFRESH",
             data: {
@@ -732,26 +732,28 @@ export default createMachine(
 
             // track the removal using the BasketProduct data
             const basketProduct = find(basket?.products, ["id", itemId]);
-            trackEvent({ ecommerce: null });
-            trackEvent({
-              event: "remove_from_cart",
-              ecommerce: {
-                currency: basketProduct.base_currency_code,
-                value:
-                  basketProduct.configuration_net_amount_discounted_converted,
-                items: [
-                  {
-                    item_id: basketProduct.product.id,
-                    item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
-                    item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
-                    quantity: basketProduct.quantity,
-                    discount:
-                      basketProduct.configuration_net_amount_discount_converted,
-                    price: basketProduct.configuration_net_amount_converted,
-                  },
-                ],
-              },
-            });
+            if (basketProduct) {
+              trackEvent({ ecommerce: null });
+              trackEvent({
+                event: "remove_from_cart",
+                ecommerce: {
+                  currency: basketProduct.base_currency_code,
+                  value:
+                    basketProduct.configuration_net_amount_discounted_converted,
+                  items: [
+                    {
+                      item_id: basketProduct.product.id,
+                      item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
+                      item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                      quantity: basketProduct.quantity,
+                      discount:
+                        basketProduct.configuration_net_amount_discount_converted,
+                      price: basketProduct.configuration_net_amount_converted,
+                    },
+                  ],
+                },
+              });
+            }
           }
           return bin;
         },

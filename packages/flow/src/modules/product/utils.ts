@@ -425,14 +425,6 @@ const useChoiceParser = (values: any) => {
 };
 
 const useAddProvisioningParser = (data: any) => {
-  // const fields = reduce(
-  //   data,
-  //   (result, value, key) => {
-  //     set(result, key, value);
-  //     return result;
-  //   },
-  //   {}
-  // );
   return data;
 };
 
