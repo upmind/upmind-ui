@@ -93,7 +93,7 @@ export const useSession = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => state,
-    getToken: () => getTokenfromStorage(),
+    getToken: () => getTokenfromStorage()?.access_token,
     getHistory: () => state?.context?.history,
     getUser,
     getUserId,
