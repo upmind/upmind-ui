@@ -69,9 +69,9 @@
 
           <!-- content -->
           <div :class="styles.product.config.list.item.header">
-            <h4 :class="styles.product.config.list.item.title">
+            <span :class="styles.product.config.list.item.title">
               {{ value.name }}
-            </h4>
+            </span>
 
             <upw-badge
               v-if="value.saving"
