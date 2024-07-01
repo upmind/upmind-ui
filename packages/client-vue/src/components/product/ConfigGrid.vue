@@ -42,9 +42,9 @@
           />
 
           <div :class="styles.product.config.grid.item.header">
-            <h4 :class="styles.product.config.grid.item.title">
+            <span :class="styles.product.config.grid.item.title">
               {{ item.billing_cycle_name }}
-            </h4>
+            </span>
 
             <upw-badge
               v-if="item.saving"
