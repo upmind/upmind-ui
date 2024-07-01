@@ -4,8 +4,8 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import sessionMachine from "./session.machine";
-
 // --- utils
+import { getTokenfromStorage } from "./utils";
 
 // --------------------------------------------------------
 // create a global instance of the session machine
@@ -93,7 +93,7 @@ export const useSession = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => state,
-    getToken: () => state?.context?.token?.access_token,
+    getToken: () => getTokenfromStorage(),
     getHistory: () => state?.context?.history,
     getUser,
     getUserId,

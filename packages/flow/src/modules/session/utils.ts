@@ -1,5 +1,12 @@
 import { toNumber, isBoolean, toString, pick, first, slice } from "lodash-es";
 
+export const getTokenfromStorage = () => {
+  const clientToken = localStorage.getItem(`client/auth/token`);
+  const guestToken = localStorage.getItem(`guest/auth/token`);
+
+  return clientToken || guestToken;
+};
+
 export const useTokenParser = (data: any) => {
   return {
     access_token: toString(data?.access_token),
