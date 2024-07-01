@@ -18,10 +18,9 @@ import { type SessionContext } from "./types.d";
 
 async function check(_context: SessionContext, _event: any) {
   const token = getTokenfromStorage();
-
   return new Promise((resolve, reject) => {
-    if (token) {
-      resolve(JSON.parse(token));
+    if (!isEmpty(token)) {
+      resolve(token);
     } else {
       reject(null);
     }
