@@ -22,6 +22,9 @@ export interface BillingDetailsContext {
   uischema?: UISchemaElement;
   model?: IBillingDetail;
   // ---
+  addresses?: any[];
+  companies?: any[];
+  // ---
   dirty?: Boolean;
   error?: RequestError;
 }

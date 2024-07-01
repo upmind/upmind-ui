@@ -72,7 +72,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "checking",
-                actions: ["setContext", "setSchemas"],
+                actions: ["setLookups", "setSchemas"],
               },
               onError: {
                 target: "#error",
@@ -80,8 +80,8 @@ export default createMachine(
               },
             },
           },
-
           // ---
+
           checking: {
             entry: ["clearError"],
             id: "checking",
@@ -92,7 +92,7 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setContext", "setSchemas"],
+                    actions: ["setParsed", "setSchemas"],
                   },
                 },
               },
@@ -167,29 +167,20 @@ export default createMachine(
           },
           SET: {
             target: "#checking",
-            actions: ["setModel", "setDirty"],
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
           REFRESH: {
-            target: "#loading",
-            actions: ["refreshContext", "setSchemas"],
-            cond: "hasChanged",
+            actions: ["refreshBasket", "setSchemas"],
           },
         },
       },
 
+      // ---
+      error: { id: "error" },
       complete: {
         id: "complete",
         // type: "final"
-      },
-
-      error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "#processing",
-          },
-        },
       },
     },
     on: {
@@ -201,7 +192,7 @@ export default createMachine(
   },
   {
     actions: {
-      refreshContext: assign(
+      refreshBasket: assign(
         (
           _context: BillingDetailsContext,
           { data: basket }: BillingDetailsEvent
@@ -220,6 +211,13 @@ export default createMachine(
       setContext: assign(
         (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => data
       ),
+      setParsed: assign({
+        model: (_context, { data }) => data.model,
+      }),
+      setLookups: assign({
+        addresses: (_context, { data }) => data.addresses,
+        companies: (_context, { data }) => data.companies,
+      }),
 
       setSchemas: assign({
         schema: context => useSchema(context),

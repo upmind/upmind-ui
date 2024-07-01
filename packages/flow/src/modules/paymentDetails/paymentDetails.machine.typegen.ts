@@ -9,13 +9,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]": {
-      type: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
+    "done.invoke.loading:invocation[0]": {
+      type: "done.invoke.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.paymentDetailsManager.available.loading:invocation[0]": {
-      type: "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]": {
+      type: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -33,12 +33,12 @@ export interface Typegen0 {
       type: "error.platform.authCallback";
       data: unknown;
     };
-    "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]": {
-      type: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
+    "error.platform.loading:invocation[0]": {
+      type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
-    "error.platform.paymentDetailsManager.available.loading:invocation[0]": {
-      type: "error.platform.paymentDetailsManager.available.loading:invocation[0]";
+    "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]": {
+      type: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
@@ -47,7 +47,7 @@ export interface Typegen0 {
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
     isAuthenticated: "done.invoke.paymentDetailsManager.checking:invocation[0]";
-    load: "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    load: "done.invoke.loading:invocation[0]";
     parse: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     update: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     validate: "done.invoke.paymentDetailsManager.available.checking.validating:invocation[0]";
@@ -71,7 +71,7 @@ export interface Typegen0 {
       | "CLEAR"
       | "SET"
       | "UNAUTHENTICATED"
-      | "done.invoke.paymentDetailsManager.available.loading:invocation[0]"
+      | "done.invoke.loading:invocation[0]"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]"
       | "xstate.update";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
@@ -84,11 +84,11 @@ export interface Typegen0 {
     setAutoUpdate: "SET";
     setDirty: "CLEAR" | "SET";
     setError:
-      | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]"
-      | "error.platform.paymentDetailsManager.available.loading:invocation[0]";
-    setFeedbackError: "error.platform.paymentDetailsManager.available.loading:invocation[0]";
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
+    setFeedbackError: "error.platform.loading:invocation[0]";
     setGateway: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
-    setLookups: "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    setLookups: "done.invoke.loading:invocation[0]";
     setModel: "SET";
     setParsed: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     setPaymentDetails:
@@ -116,7 +116,7 @@ export interface Typegen0 {
     parse:
       | "CLEAR"
       | "SET"
-      | "done.invoke.paymentDetailsManager.available.loading:invocation[0]"
+      | "done.invoke.loading:invocation[0]"
       | "xstate.update";
     update: "" | "CHECKOUT";
     validate: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";

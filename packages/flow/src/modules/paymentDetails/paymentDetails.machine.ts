@@ -12,14 +12,10 @@ import { spawnGateway } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
-import { get, set, unset, forEach } from "lodash-es";
+import { set, unset, forEach } from "lodash-es";
 
 // --- types
-import type {
-  PaymentDetailsContext,
-  PaymentDetailsEvent,
-  RefreshEvent,
-} from "./types.d";
+import type { PaymentDetailsContext, RefreshEvent } from "./types.d";
 import { responseCodes } from "../api";
 
 // --------------------------------------------------------
@@ -82,6 +78,7 @@ export default createMachine(
         initial: "loading",
         states: {
           loading: {
+            id: "loading",
             entry: ["clearError"],
             invoke: {
               src: "load",
