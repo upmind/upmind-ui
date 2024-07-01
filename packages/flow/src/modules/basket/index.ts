@@ -53,7 +53,7 @@ const findItem = mapping =>
       if (key == "id") {
         return basketItem.id == value;
       } else {
-        return get(basketItem, `state.context.values.${key}`) == value;
+        return get(basketItem, `state.context.model.${key}`) == value;
       }
     })
   );
@@ -68,7 +68,7 @@ export const useBasket = () => {
     getItemsSnapshot: () => state?.context?.items || [],
     findItem,
     itemExists: mapping =>
-      exists(state?.context?.items, mapping, "state.context.values"),
+      exists(state?.context?.items, mapping, "state.context.model"),
   };
 };
 
@@ -96,14 +96,14 @@ export const useBasketHelper = (
     // find any items that are in the basket but not in the actor
     const missingItems = [];
     forEach(basketItems, basketItem => {
-      const mapping = basketItemMapper(basketItem.state.context.values);
+      const mapping = basketItemMapper(basketItem.state.context.model);
       // check all our mapping values are set, if not then its not a valid mapping and we can skip it
       const isValid = isEmpty(pickBy(mapping, isEmpty));
 
       if (isValid && !exists(items, mapping)) {
         const data = itemBuilder({
-          ...basketItem.state.context.values,
-          ...basketItem.state.context.available.product,
+          ...basketItem.state.context.model,
+          ...basketItem.state.context.lookups.product,
         });
         missingItems.push(data);
       }
@@ -124,7 +124,7 @@ export const useBasketHelper = (
     forEach(basketItems, basketItem => {
       if (!basketItem) return;
 
-      const mapping = itemMapper(basketItem?.state?.context?.values);
+      const mapping = itemMapper(basketItem?.state?.context?.model);
       const isValid = isEmpty(pickBy(mapping, isEmpty));
 
       if (isValid && !exists(items, mapping)) {
@@ -171,12 +171,12 @@ export const useBasketHelper = (
       const mapping = parentMapper();
       const basketItem = findItem(mapping);
       if (basketItem) {
-        const values = get(basketItem, "state.context.values");
-        const isDirty = !isEmpty(product) && !some([values], matches(product));
+        const model = get(basketItem, "state.context.model");
+        const isDirty = !isEmpty(product) && !some([model], matches(product));
         if (isDirty && !includes(dirtyItems, mapping)) {
           // let the actor know we are syncing so we dont do anyhting else
           actor.send({ type: "SYNC" });
-          // update the basket item  with the new parent values
+          // update the basket item  with the new parent model
           basketItem.send({ type: "PUT", data: product });
           dirtyItems.push(mapping);
         }

@@ -250,11 +250,10 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
       let product = find(basket.products, ["id", item.id]);
       product ??= get(newItems, index);
 
-      const hasProvisioning = !!get(item.state.context, [
-        "available",
-        "product",
-        "provision_blueprint_id",
-      ]);
+      const hasProvisioning = !!get(
+        item.state.context,
+        "lookups.product.provision_blueprint_id"
+      );
 
       // if the product has no provisioning fields, we dont need to make a request
       if (!product || !hasProvisioning) return result;
