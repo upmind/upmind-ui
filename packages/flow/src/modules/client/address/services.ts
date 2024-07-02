@@ -37,9 +37,6 @@ export const AddressTypes = [
   { key: 3, value: "Holiday" },
   { key: 4, value: "Company" },
 ];
-// --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -327,6 +324,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

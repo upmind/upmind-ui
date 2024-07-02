@@ -19,7 +19,7 @@ import type { GatewayEvent, GatewayContext, GatewayStoreType } from "./types.d";
 // Invoked by machines, providing context and event data
 
 async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
-  const { isAuthenticated, getUserId } = useSession();
+  const { isAuthenticated } = useSession();
 
   await isAuthenticated().catch(() =>
     Promise.reject({ title: "Unauthorized", code: 401 })
