@@ -508,7 +508,7 @@ export default createMachine(
       ],
       CLEAR: {
         target: "#shopping.items.processing",
-        actions: ["removeAllItems"],
+        actions: ["clearItems"],
       },
       // ---
       "UPDATE.QUANTITY": { actions: ["sendToItem"] },
@@ -530,8 +530,14 @@ export default createMachine(
       },
 
       UNAUTHENTICATED: {
-        target: "#loading",
-        actions: ["clearError", "clearBasket", "removeAllItems", "clearBin"],
+        target: "subscribing",
+        actions: [
+          "clearError",
+          "clearBasket",
+          "clearActors",
+          "clearItems",
+          "clearBin",
+        ],
       },
     },
   },
@@ -665,6 +671,24 @@ export default createMachine(
         });
       }),
 
+      clearActors: assign({
+        actors: ({ actors }) => {
+          forEach(actors, actor => {
+            if (!actor?.state?.done && actor?.stop) {
+              actor?.stop();
+            }
+          });
+
+          return {
+            billing_details: undefined,
+            currency: undefined,
+            custom_fields: undefined,
+            payment_details: undefined,
+            promotions: undefined,
+          };
+        },
+      }),
+
       checkoutActors: pure(({ actors }) => {
         // for Now  only the payment details is affected by checkout
         actors?.payment_details?.send({ type: "CHECKOUT" });
@@ -764,7 +788,7 @@ export default createMachine(
         bin: [],
       }),
 
-      removeAllItems: assign({
+      clearItems: assign({
         items: ({ items }, _event) => {
           forEach(
             items,
