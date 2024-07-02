@@ -14,6 +14,7 @@ import { getTokenfromStorage } from "./utils";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state = null;
+let hasSession = null;
 
 const service = interpret(sessionMachine, { devTools: true }).onTransition(
   newState => {
@@ -46,11 +47,13 @@ export const useSession = () => {
         clientMachine?.state?.matches &&
         clientMachine?.state?.matches("idle"))
     ) {
+      hasSession = true;
       callback({ type: "SESSION" });
     }
 
     // Authenticated if client ( eventually +admin +actor)
     if (
+      hasSession &&
       state.matches("client") &&
       clientMachine?.state?.matches &&
       clientMachine?.state?.matches("idle")
@@ -60,22 +63,33 @@ export const useSession = () => {
 
     // Unauthenticated if guest
     else if (
+      hasSession &&
       state.matches("guest") &&
       guestMachine?.state?.matches &&
       guestMachine?.state?.matches("loading")
     ) {
+      hasSession = false;
       callback({ type: "UNAUTHENTICATED" });
     }
+
+    return () => {
+      // Any code inside here will be called when
+      // you leave this state, or the machine is stopped
+    };
   };
 
   // --------------------------------------------------------
   // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
   const authSubscription =
-    (_context, _event) => async (callback, _onReceive) => {
+    (_context, _event) => async (callback, onReceive) => {
       // firstly, send service's current state upon subscription
 
       authCallback(callback);
+
+      onReceive(event => {
+        console.log("authSubscription", "receivedEvent", { event });
+      });
 
       // then listen for any changes to the client service
       // if we get a change to either authenticated or unauthenticated
