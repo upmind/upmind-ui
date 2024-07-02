@@ -4,61 +4,61 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.guest.login.authenticating:invocation[0]": {
-      type: "done.invoke.guest.login.authenticating:invocation[0]";
+    "done.invoke.sessionGuest.login.authenticating:invocation[0]": {
+      type: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.guest.register.checking:invocation[0]": {
-      type: "done.invoke.guest.register.checking:invocation[0]";
+    "done.invoke.sessionGuest.register.checking:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.guest.register.loading:invocation[0]": {
-      type: "done.invoke.guest.register.loading:invocation[0]";
+    "done.invoke.sessionGuest.register.loading:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.guest.register.registering:invocation[0]": {
-      type: "done.invoke.guest.register.registering:invocation[0]";
+    "done.invoke.sessionGuest.register.registering:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.registering:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.guest.register.verifying:invocation[0]": {
-      type: "done.invoke.guest.register.verifying:invocation[0]";
+    "done.invoke.sessionGuest.register.verifying:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.verifying:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.guest.login.authenticating:invocation[0]": {
-      type: "error.platform.guest.login.authenticating:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.guest.login.verifying:invocation[0]": {
-      type: "error.platform.guest.login.verifying:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.guest.register.authenticating:invocation[0]": {
-      type: "error.platform.guest.register.authenticating:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.guest.register.checking:invocation[0]": {
-      type: "error.platform.guest.register.checking:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.guest.register.loading:invocation[0]": {
-      type: "error.platform.guest.register.loading:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.guest.register.registering:invocation[0]": {
-      type: "error.platform.guest.register.registering:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.guest.register.verifying:invocation[0]": {
-      type: "error.platform.guest.register.verifying:invocation[0]";
-      data: unknown;
     };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.login.authenticating:invocation[0]": {
+      type: "error.platform.sessionGuest.login.authenticating:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.login.verifying:invocation[0]": {
+      type: "error.platform.sessionGuest.login.verifying:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.authenticating:invocation[0]": {
+      type: "error.platform.sessionGuest.register.authenticating:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.checking:invocation[0]": {
+      type: "error.platform.sessionGuest.register.checking:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.loading:invocation[0]": {
+      type: "error.platform.sessionGuest.register.loading:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.registering:invocation[0]": {
+      type: "error.platform.sessionGuest.register.registering:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.verifying:invocation[0]": {
+      type: "error.platform.sessionGuest.register.verifying:invocation[0]";
       data: unknown;
     };
     "error.platform.unauthenticated:invocation[0]": {
@@ -69,15 +69,15 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     authenticate:
-      | "done.invoke.guest.login.authenticating:invocation[0]"
-      | "done.invoke.guest.register.authenticating:invocation[0]";
+      | "done.invoke.sessionGuest.login.authenticating:invocation[0]"
+      | "done.invoke.sessionGuest.register.authenticating:invocation[0]";
     check: "done.invoke.loading:invocation[0]";
-    checkForReCaptcha: "done.invoke.guest.register.checking:invocation[0]";
+    checkForReCaptcha: "done.invoke.sessionGuest.register.checking:invocation[0]";
     generateToken: "done.invoke.unauthenticated:invocation[0]";
-    getCustomFields: "done.invoke.guest.register.loading:invocation[0]";
-    register: "done.invoke.guest.register.registering:invocation[0]";
-    verify2fa: "done.invoke.guest.login.verifying:invocation[0]";
-    verifyReCaptcha: "done.invoke.guest.register.verifying:invocation[0]";
+    getCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
+    register: "done.invoke.sessionGuest.register.registering:invocation[0]";
+    verify2fa: "done.invoke.sessionGuest.login.verifying:invocation[0]";
+    verifyReCaptcha: "done.invoke.sessionGuest.register.verifying:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -97,48 +97,48 @@ export interface Typegen0 {
     clear: "error.platform.loading:invocation[0]";
     clearError: "" | "xstate.init";
     escalateError:
-      | "error.platform.guest.login.authenticating:invocation[0]"
-      | "error.platform.guest.login.verifying:invocation[0]"
-      | "error.platform.guest.register.authenticating:invocation[0]"
-      | "error.platform.guest.register.checking:invocation[0]"
-      | "error.platform.guest.register.loading:invocation[0]"
-      | "error.platform.guest.register.registering:invocation[0]"
-      | "error.platform.guest.register.verifying:invocation[0]"
+      | "error.platform.sessionGuest.login.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.login.verifying:invocation[0]"
+      | "error.platform.sessionGuest.register.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.register.checking:invocation[0]"
+      | "error.platform.sessionGuest.register.loading:invocation[0]"
+      | "error.platform.sessionGuest.register.registering:invocation[0]"
+      | "error.platform.sessionGuest.register.verifying:invocation[0]"
       | "error.platform.unauthenticated:invocation[0]";
-    set2faSchemas: "done.invoke.guest.login.authenticating:invocation[0]";
-    set2faToken: "done.invoke.guest.login.authenticating:invocation[0]";
-    setCustomFields: "done.invoke.guest.register.loading:invocation[0]";
+    set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
     setError:
-      | "error.platform.guest.login.authenticating:invocation[0]"
-      | "error.platform.guest.login.verifying:invocation[0]"
-      | "error.platform.guest.register.authenticating:invocation[0]"
-      | "error.platform.guest.register.checking:invocation[0]"
-      | "error.platform.guest.register.loading:invocation[0]"
-      | "error.platform.guest.register.registering:invocation[0]"
-      | "error.platform.guest.register.verifying:invocation[0]"
+      | "error.platform.sessionGuest.login.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.login.verifying:invocation[0]"
+      | "error.platform.sessionGuest.register.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.register.checking:invocation[0]"
+      | "error.platform.sessionGuest.register.loading:invocation[0]"
+      | "error.platform.sessionGuest.register.registering:invocation[0]"
+      | "error.platform.sessionGuest.register.verifying:invocation[0]"
       | "error.platform.unauthenticated:invocation[0]";
     setLoginSchemas: "";
     setModel: "AUTHENTICATE" | "REGISTER";
-    setRegisterSchemas: "done.invoke.guest.register.loading:invocation[0]";
-    trackLogin: "done.invoke.guest.login.authenticating:invocation[0]";
-    trackRegister: "done.invoke.guest.register.registering:invocation[0]";
+    setRegisterSchemas: "done.invoke.sessionGuest.register.loading:invocation[0]";
+    trackLogin: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    trackRegister: "done.invoke.sessionGuest.register.registering:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    requires2fa: "done.invoke.guest.login.authenticating:invocation[0]";
-    requiresReCaptcha: "done.invoke.guest.register.checking:invocation[0]";
+    requires2fa: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    requiresReCaptcha: "done.invoke.sessionGuest.register.checking:invocation[0]";
   };
   eventsCausingServices: {
     authenticate:
       | "AUTHENTICATE"
-      | "done.invoke.guest.register.registering:invocation[0]";
+      | "done.invoke.sessionGuest.register.registering:invocation[0]";
     check: "xstate.init";
     checkForReCaptcha: "REGISTER";
     generateToken: "error.platform.loading:invocation[0]";
     getCustomFields: "REGISTER";
     register:
-      | "done.invoke.guest.register.checking:invocation[0]"
-      | "done.invoke.guest.register.verifying:invocation[0]";
+      | "done.invoke.sessionGuest.register.checking:invocation[0]"
+      | "done.invoke.sessionGuest.register.verifying:invocation[0]";
     verify2fa: "VERIFY";
     verifyReCaptcha: "VERIFY";
   };

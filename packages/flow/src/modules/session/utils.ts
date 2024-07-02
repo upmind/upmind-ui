@@ -30,11 +30,8 @@ export function getTokenfromStorage(type?: "guest" | "client") {
 }
 
 export function persistTokenToStorage(token: Token, type: "guest" | "client") {
-  debugger;
-
   token = omit(token, ["actor_id", "actor_type"]);
   token.type = type; // we need to remember the type of token we are storing
-  debugger;
 
   if (!localStorage) return Promise.reject("No localStorage available");
 

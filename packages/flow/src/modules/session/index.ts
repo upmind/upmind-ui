@@ -19,10 +19,12 @@ let service = null;
 // --------------------------------------------------------
 
 export const useSession = () => {
-  debugger;
   // only create the service once
   service ??= interpret(sessionMachine, { devTools: true }).onTransition(
-    newState => (state = newState)
+    newState => {
+      console.log("sessionMachine", "onTransition", "newState", newState.value);
+      state = newState;
+    }
   );
   // let { subscription } = useClient();
 
