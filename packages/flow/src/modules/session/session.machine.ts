@@ -28,32 +28,18 @@ export default createMachine(
       // TODO: add necessary cheand and states when we add user accounts with auth
       checking: {
         id: "checking",
-        initial: "check",
-        states: {
-          check: {
-            invoke: {
-              src: "check",
-              onDone: [
-                {
-                  target: "#client",
-                  cond: "isClientToken",
-                },
-                {
-                  target: "#guest",
-                },
-              ],
-              onError: { target: "#guest", actions: "clear" },
+        invoke: {
+          src: "check",
+          onDone: [
+            {
+              target: "#client",
+              cond: "isClientToken",
             },
-          },
-        },
-        onDone: {
-          actions: ["clearRefresh", "clearError"],
-        },
-        on: {
-          CANCEL: {
-            target: "#checking",
-            actions: "clearError",
-          },
+            {
+              target: "#guest",
+            },
+          ],
+          onError: { actions: ["clear", "setError"] },
         },
       },
 
@@ -82,7 +68,7 @@ export default createMachine(
           id: "guestMachine",
           src: guestMachine,
           autoForward: true,
-          onDone: { target: "checking" },
+          onDone: { target: "#client" },
         },
       },
 
@@ -92,7 +78,7 @@ export default createMachine(
           id: "clientMachine",
           src: clientMachine,
           autoForward: true,
-          onDone: { target: "checking" },
+          onDone: { target: "#guest" },
         },
       },
 

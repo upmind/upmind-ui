@@ -14,7 +14,7 @@ import { dumpTokensFromStorage } from "../utils";
 export default createMachine(
   {
     tsTypes: {} as import("./client.machine.typegen").Typegen0,
-    id: "client",
+    id: "sessionClient",
     predictableActionArguments: true,
     initial: "loading",
     context: {
@@ -39,6 +39,7 @@ export default createMachine(
       },
 
       idle: {
+        id: "idle",
         always: [
           {
             cond: "hasNoUser",
@@ -97,7 +98,7 @@ export default createMachine(
           },
 
           unavailable: {
-            after: { error: "#client.idle" },
+            after: { error: "#idle" },
           },
         },
       },

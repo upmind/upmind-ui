@@ -31,7 +31,7 @@ import { responseCodes } from "../../api/types.d";
 export default createMachine(
   {
     tsTypes: {} as import("./guest.machine.typegen").Typegen0,
-    id: "guest",
+    id: "sessionGuest",
     predictableActionArguments: true,
     initial: "loading",
     context: {
@@ -46,7 +46,7 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "check",
-          onDone: { target: "#complete" },
+          onDone: { target: "idle" },
           onError: { target: "#unauthenticated", actions: ["clear"] },
         },
       },
