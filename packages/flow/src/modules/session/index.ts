@@ -14,19 +14,17 @@ import { getTokenfromStorage } from "./utils";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state = null;
-let service = null;
+
+const service = interpret(sessionMachine, { devTools: true }).onTransition(
+  newState => {
+    state = newState;
+  }
+);
 
 // --------------------------------------------------------
 
 export const useSession = () => {
   // only create the service once
-  service ??= interpret(sessionMachine, { devTools: true }).onTransition(
-    newState => {
-      console.log("sessionMachine", "onTransition", "newState", newState.value);
-      state = newState;
-    }
-  );
-  // let { subscription } = useClient();
 
   // --------------------------------------------------------
   // methods
@@ -37,17 +35,38 @@ export const useSession = () => {
     // callback({ type: "TRANSITIONED", data: state.value });
 
     // Valid session
-    if (["client", "guest"].some(state.matches)) {
+    const clientMachine = state?.children?.clientMachine;
+    const guestMachine = state?.children?.guestMachine;
+
+    if (
+      (state.matches("guest") &&
+        guestMachine?.state?.matches &&
+        guestMachine?.state?.matches("idle")) ||
+      (state.matches("client") &&
+        clientMachine?.state?.matches &&
+        clientMachine?.state?.matches("idle"))
+    ) {
+      console.log("Session", "STARTED");
       callback({ type: "SESSION" });
     }
 
     // Authenticated if client ( eventually +admin +actor)
-    if (["client"].some(state.matches)) {
+    if (
+      state.matches("client") &&
+      clientMachine?.state?.matches &&
+      clientMachine?.state?.matches("idle")
+    ) {
+      console.log("Session", "AUTHENTICATED");
       callback({ type: "AUTHENTICATED" });
     }
 
     // Unauthenticated if guest
-    else if (["guest"].some(state.matches)) {
+    else if (
+      state.matches("guest") &&
+      guestMachine?.state?.matches &&
+      guestMachine?.state?.matches("loading")
+    ) {
+      console.log("Session", "UNAUTHENTICATED");
       callback({ type: "UNAUTHENTICATED" });
     }
   };
@@ -65,6 +84,15 @@ export const useSession = () => {
       // if we get a change to either authenticated or unauthenticated
       // then we need to send the callback to the subscriber
       service.onTransition(() => {
+        const currentMachine =
+          state?.children?.clientMachine || state?.children?.guestMachine;
+
+        // watch for our child machines to transition to a non-loading state
+        // and then send the callback to the subscriber
+        currentMachine?.onTransition(state => {
+          if (!state.matches("loading")) authCallback(callback);
+        });
+
         // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
         authCallback(callback);
       });
@@ -78,12 +106,9 @@ export const useSession = () => {
     };
 
   async function getUser() {
-    if (state.matches("client.processing")) {
-      await waitFor(service, state =>
-        ["client.idle", "guest.idle"].some(state.matches)
-      );
-    }
-    return state.context.user;
+    const clientMachine = state?.children?.clientMachine;
+    await waitFor(clientMachine, state => !state.matches("loading"));
+    return clientMachine.state.context.user;
   }
 
   async function getUserId() {

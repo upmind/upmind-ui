@@ -41,7 +41,7 @@ export interface Token {
   refresh_expires_in: number | null;
   refresh_token: string | null;
   second_factor_required: boolean | null;
-  token_type: string | null;
+  actor_type: string | null;
   // ---
   redirect?: Location["origin"] | null;
   actor_id?: string | null;
