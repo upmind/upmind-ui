@@ -53,7 +53,6 @@ export const useSchema = ({
       gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
-        default: first(gateways)?.gateway_id,
         oneOf: !gateways?.length
           ? undefined
           : map(gateways, ({ gateway_id, gateway }) => ({
@@ -117,19 +116,18 @@ export const useUischema = ({
           stretch: true,
           layout: gateways?.length >= 3 ? "grid" : "inline",
         },
-        // rule: {
-        //   effect: "SHOW",
-        //   condition: {
-        //     scope: "#",
-        //     schema: {
-        //       required: ["type", "amount"],
-        //       properties: {
-        //         amount: { not: { const: 0 } },
-        //         type: { const: PaymentTypes.PAY_IN_FULL },
-        //       },
-        //     },
-        //   },
-        // },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["type", "amount"],
+              properties: {
+                amount: { not: { const: 0 } },
+              },
+            },
+          },
+        },
       },
     ],
   };

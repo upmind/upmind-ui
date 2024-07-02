@@ -30,9 +30,6 @@ const whitelistGatewayProviders =
 //   "20403869-6e54-721d-59a5-18d9305e7d23",
 //   // "5952098d-3de4-0917-e6c3-1578626e347e",
 // ];
-// --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -163,7 +160,9 @@ async function parse(
     if (!gateway) unset(model, "gateway_id");
   }
 
-  if (!model?.gateway_id) {
+  debugger;
+  if (!model?.gateway_id && model?.amount > 0) {
+    debugger;
     gateway = first(gateways)?.gateway;
     model.gateway_id = gateway?.id;
   }
@@ -213,6 +212,7 @@ export default {
   validate,
   update,
   // ---
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

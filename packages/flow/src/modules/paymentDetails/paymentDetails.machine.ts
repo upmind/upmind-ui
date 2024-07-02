@@ -183,7 +183,8 @@ export default createMachine(
           },
 
           REFRESH: {
-            actions: ["refreshBasket", "setSchemas"],
+            target: "#checking",
+            actions: ["refreshBasket", "refreshActors", "setSchemas"],
           },
         },
       },
@@ -278,7 +279,7 @@ export default createMachine(
         },
       }),
 
-      refreshBasket: assign((_context, { data: basket }: RefreshEvent) => {
+      refreshBasket: assign(({ model }, { data: basket }: RefreshEvent) => {
         return {
           basket_id: basket?.id,
           currency: basket?.currency,
@@ -286,6 +287,22 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           },
         };
+      }),
+
+      refreshActors: assign({
+        actors: ({ actors }) => {
+          const wasFree = !model?.amount;
+          const isFree = !basket?.unpaid_amount_converted;
+          debugger;
+          // if we were free and now we are not, reset the gateway
+          if (wasFree && !isFree) {
+            if (actors?.gateway && !actors.gateway?.state?.done)
+              actors.gateway?.stop();
+            unset(actors, "gateway");
+          }
+
+          return actors;
+        },
       }),
 
       // ---

@@ -14,15 +14,16 @@ import { getTokenfromStorage } from "./utils";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state = null;
-
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
-  newState => (state = newState)
-);
+let service = null;
 
 // --------------------------------------------------------
 
 export const useSession = () => {
   debugger;
+  // only create the service once
+  service ??= interpret(sessionMachine, { devTools: true }).onTransition(
+    newState => (state = newState)
+  );
   // let { subscription } = useClient();
 
   // --------------------------------------------------------
@@ -53,8 +54,7 @@ export const useSession = () => {
   // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
   const authSubscription =
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_context, _event) => async (callback, onReceive) => {
+    (_context, _event) => async (callback, _onReceive) => {
       // firstly, send service's current state upon subscription
 
       authCallback(callback);

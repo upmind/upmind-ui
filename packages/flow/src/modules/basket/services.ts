@@ -6,7 +6,6 @@ import { useApi } from "../api";
 import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 import type { Token } from "../session/types.d";
-const { authSubscription, getHistory, isAuthenticated } = useSession();
 
 // --- utils
 import { useBasketParser } from "./utils";
@@ -110,6 +109,7 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
 async function claim({ basket }: BasketContext, _event: BasketEvent) {
   if (isEmpty(basket)) return Promise.resolve();
 
+  const { getHistory } = useSession();
   const { patch, useUrl } = useApi();
   const token: Token | undefined = first(getHistory());
   if (!token) return Promise.resolve();
@@ -363,6 +363,7 @@ export default {
   updateItem,
   removeItem,
   // ---
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };
