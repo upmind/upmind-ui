@@ -1,11 +1,14 @@
 // --- internal
 import { useApi } from "../../api";
-import type { GuestContext } from "./types.d";
 import { GrantTypes } from "../types.d";
+import services from "../services";
 
 // --- utils
 import { getTokenfromStorage, persistTokenToStorage } from "../utils";
 import { isEmpty } from "lodash-es";
+
+// ---types
+import type { GuestContext } from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
@@ -19,10 +22,7 @@ async function load(_context: GuestContext, _event: any) {
   // if we DONT have a token, we need to generate one, otherwise we are authenticated already
   const token = getTokenfromStorage("guest");
   if (!isEmpty(token)) return Promise.resolve(token);
-  return generateToken(_context, _event);
-}
 
-async function generateToken(_context: GuestContext, _event: any) {
   const { post, useUrl } = useApi();
 
   return post({
@@ -110,7 +110,7 @@ async function register({ model }: GuestContext) {
 
 export default <Object>{
   load,
-  generateToken,
+  refreshToken: services.refreshToken,
   // ---
   verify2fa,
   authenticate,

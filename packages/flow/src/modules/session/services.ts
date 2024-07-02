@@ -1,17 +1,13 @@
 // --- internal
 import { useApi } from "../api";
+import { GrantTypes } from "./types.d";
 
 // --- utils
-import { get, isEmpty } from "lodash-es";
-import {
-  getTokenfromStorage,
-  persistTokenToStorage,
-  useUserParser,
-} from "./utils";
+import { getTokenfromStorage, persistTokenToStorage } from "./utils";
+import { isEmpty, get } from "lodash-es";
 
 // --- types
 import type { SessionContext } from "./types.d";
-import { GrantTypes } from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
@@ -32,39 +28,10 @@ async function check(_context: SessionContext, _event: any) {
   });
 }
 
-async function getUser(_context: SessionContext, _event: any) {
-  const { get, useUrl } = useApi();
-
-  return get({
-    url: useUrl("self", {
-      with: [
-        "actor",
-        "accounts",
-        // client specific only
-        // "actor.account", // Relation required for determining `topup_enabled` value
-        // "actor.brand", // Relation required for determining `topup_enabled` value
-        // "delegated_ids",
-        // "enabled_modules"
-      ].join(),
-    }),
-    withAccessToken: true,
-  }).then(({ data }) => useUserParser(data?.actor));
-}
-
-async function transfer(_context: SessionContext, _event: any) {
-  const { post, useUrl } = useApi();
-
-  return post({
-    url: useUrl("auth_code"),
-    withAccessToken: true,
-  }).then(({ data }) => data);
-}
-
 async function refreshToken(_context: SessionContext) {
   const { post, useUrl } = useApi();
   const token = getTokenfromStorage();
   const refresh_token = get(token, "refresh_token", "");
-  debugger;
 
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
@@ -78,12 +45,20 @@ async function refreshToken(_context: SessionContext) {
   });
 }
 
+async function transfer(_context: ClientContext, _event: any) {
+  const { post, useUrl } = useApi();
+
+  return post({
+    url: useUrl("auth_code"),
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
   check,
   refreshToken,
-  getUser,
   transfer,
 };

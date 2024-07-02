@@ -9,6 +9,7 @@ import { useTime } from "../../utils";
 
 // --utils
 import { toNumber, set, includes } from "lodash-es";
+import { getTokenfromStorage } from "../session/utils";
 // --------------------------------------------------------
 
 // as this is a sub machine, we need to be initialised with a request
@@ -226,8 +227,9 @@ export default (request: RequestParams) =>
         }),
 
         setAuthHeader: assign({
-          init: ({ init }, { data }) => {
-            set(init, "headers.Authorization", `Bearer ${data.access_token}`);
+          init: ({ init }) => {
+            const token = getTokenfromStorage();
+            set(init, "headers.Authorization", `Bearer ${token?.access_token}`);
             return init;
           },
         }),

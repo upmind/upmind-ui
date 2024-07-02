@@ -46,7 +46,6 @@ export const useSession = () => {
         clientMachine?.state?.matches &&
         clientMachine?.state?.matches("idle"))
     ) {
-      console.log("Session", "STARTED");
       callback({ type: "SESSION" });
     }
 
@@ -56,7 +55,6 @@ export const useSession = () => {
       clientMachine?.state?.matches &&
       clientMachine?.state?.matches("idle")
     ) {
-      console.log("Session", "AUTHENTICATED");
       callback({ type: "AUTHENTICATED" });
     }
 
@@ -66,7 +64,6 @@ export const useSession = () => {
       guestMachine?.state?.matches &&
       guestMachine?.state?.matches("loading")
     ) {
-      console.log("Session", "UNAUTHENTICATED");
       callback({ type: "UNAUTHENTICATED" });
     }
   };
@@ -115,6 +112,21 @@ export const useSession = () => {
     const user = await getUser();
     return user?.id;
   }
+
+  async function refreshToken() {
+    const currentMachine =
+      state?.children?.clientMachine || state?.children?.guestMachine;
+
+    if (!currentMachine) return Promise.reject("No Session available");
+
+    // kick off the auth process
+    currentMachine.send("REFRESH");
+
+    // then return the wait for the service to complete
+    return waitFor(currentMachine, newState =>
+      ["processed"].some(newState.matches)
+    );
+  }
   // --------------------------------------------------------
 
   return {
@@ -137,5 +149,6 @@ export const useSession = () => {
         }
       });
     },
+    refreshToken,
   };
 };
