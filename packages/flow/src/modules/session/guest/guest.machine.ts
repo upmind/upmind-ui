@@ -5,10 +5,26 @@ const { escalate } = actions;
 // --- internal
 import services from "./services";
 import type { GuestContext } from "./types.d";
-import { responseCodes } from "../../api/types.d";
+import { useFeedback } from "../../feedback";
+const { trackEvent } = useFeedback();
 
 // --- utils
-import { useTokenParser } from "../utils";
+import { dumpTokensFromStorage } from "../utils";
+import {
+  useValidationParser,
+  useRegisterSchemaParser,
+  useRegisterUischemaParser,
+  useRegisterModelParser,
+  useLoginSchemaParser,
+  useLoginUischemaParser,
+  useLoginModelParser,
+  use2faSchemaParser,
+  use2faUischemaParser,
+  use2faModelParser,
+} from "./utils";
+
+// --- types
+import { responseCodes } from "../../api/types.d";
 
 // --------------------------------------------------------
 
@@ -19,55 +35,104 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      token: {
-        access_token: null,
-        created_at: null,
-        expires_in: null,
-        refresh_expires_in: null,
-        refresh_token: null,
-        second_factor_required: null,
-        token_type: null,
-        // ---
-        redirect: null,
-        actor_id: null,
-        actor_type: null,
-      },
-      refresh: false,
       // ---
       error: null,
     } as GuestContext,
     states: {
       // our initial state will check 'self' and see if we have a token
-      // if we do, we can are authenticated, if not, we are unauthenticated,
+      // if we do, we can continue to the completed state, if not, we are unauthenticated,
       loading: {
         id: "loading",
         entry: "clearError",
         invoke: {
           src: "check",
-          onDone: { target: "#authenticated", actions: ["setToken"] },
-          onError: { target: "#unauthenticated", actions: ["clearToken"] },
+          onDone: { target: "#complete" },
+          onError: { target: "#unauthenticated", actions: ["clear"] },
         },
       },
 
       // in this state, we are unauthenticated, and we need to generate a "guest" token
       unauthenticated: {
         id: "unauthenticated",
-        initial: "idle",
-        states: {
-          idle: {
-            always: { target: "generating" },
+        invoke: {
+          src: "generateToken",
+          onDone: {
+            target: "idle",
           },
+          onError: {
+            target: "#error",
+            actions: ["setError", "escalateError"],
+          },
+        },
+      },
 
-          generating: {
-            id: "generating",
+      idle: {
+        on: {
+          LOGIN: { target: "login" },
+          REGISTER: { target: "register" },
+        },
+      },
+      // --- Start the login flow
+      // in essence show a login form and await an event to authenticate
+      login: {
+        id: "login",
+        initial: "loading",
+        states: {
+          loading: {
+            always: {
+              target: "available",
+              actions: ["clearError", "setLoginSchemas"],
+            },
+            // after: {
+            //   wait: {
+            //     target: "idle",
+            //     actions: ["clearError", "setLoginSchemas"]
+            //   }
+            // }
+          },
+          // loading: {} // loading state not required?
+          available: {
+            on: {
+              AUTHENTICATE: {
+                target: "authenticating",
+                actions: ["setModel"],
+              },
+            },
+          },
+          authenticating: {
             invoke: {
-              src: "generateToken",
+              src: "authenticate",
+              onDone: [
+                {
+                  target: "challenging",
+                  actions: ["set2faToken", "set2faSchemas"],
+                  cond: "requires2fa",
+                },
+                {
+                  target: "#complete",
+                  actions: ["trackLogin"],
+                },
+              ],
+              onError: {
+                target: "available",
+                actions: ["setError", "escalateError"],
+              },
+            },
+          },
+          challenging: {
+            on: {
+              VERIFY: { target: "verifying" },
+              CANCEL: { target: "available" },
+            },
+          },
+          verifying: {
+            invoke: {
+              src: "verify2fa",
               onDone: {
-                target: "#authenticated",
-                actions: ["setToken"],
+                target: "#complete",
               },
               onError: {
-                target: "#error",
+                target: "challenging",
                 actions: ["setError", "escalateError"],
               },
             },
@@ -75,62 +140,95 @@ export default createMachine(
         },
       },
 
-      // in this state, we are authenticated, and we can either refresh or kill the token
-      authenticated: {
-        id: "authenticated",
-        initial: "idle",
+      // --- Start the create flow
+      // in essence show a register form, possibly with custom fields, and await an event to register
+      register: {
+        id: "register",
+        initial: "loading",
         states: {
-          idle: {
-            always: [
-              { target: "refreshing", cond: "isRefreshing" },
-              { target: "persisting" },
-            ],
-          },
-          // in this state, we are attempting to refresh our token
-          // if we are unauthorized (refresh token has expired),
-          // we will clear the token and go back to our unauthenticated state
-          // which will generate a new token
-          refreshing: {
-            id: "refreshing",
+          loading: {
             invoke: {
-              src: "refreshToken",
-              onDone: { target: "persisting", actions: ["setToken"] },
-              onError: [
-                {
-                  target: "clearing",
-                  cond: "isUnauthorized",
-                  actions: ["setError", "escalateError"],
-                },
-                { target: "#error", actions: ["setError", "escalateError"] },
-              ],
+              src: "getCustomFields",
+              onDone: {
+                target: "available",
+                actions: ["setCustomFields", "setRegisterSchemas"],
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "escalateError"],
+              },
             },
           },
-          // in this state, we are removing our token to localStorage,
-          // and then we start over
-          clearing: {
-            id: "clearing",
+          available: {
+            on: {
+              REGISTER: { target: "checking", actions: ["setModel"] },
+            },
+          },
+          checking: {
             invoke: {
-              src: "dumpToken",
+              src: "checkForReCaptcha",
               onDone: [
-                { target: "#loading", cond: "isRefreshing" },
-                { target: "#complete" },
+                { target: "challenging", cond: "requiresReCaptcha" },
+                { target: "registering" },
               ],
+              onError: {
+                target: "available",
+                actions: ["setError", "escalateError"],
+              },
             },
-            exit: "clearToken",
           },
-          // in this state, we are persisting our token to localStorage,
-          // and then we are done
-          persisting: {
-            id: "persisting",
+          challenging: {
+            on: {
+              VERIFY: { target: "verifying" },
+            },
+          },
+          verifying: {
             invoke: {
-              src: "persistToken",
+              src: "verifyReCaptcha",
+              onDone: {
+                target: "registering",
+                actions: [],
+              },
+              onError: {
+                target: "challenging",
+                actions: ["setError", "escalateError"],
+              },
+            },
+          },
+          registering: {
+            invoke: {
+              src: "register",
+              onDone: {
+                target: "authenticating",
+                actions: ["trackRegister"],
+              },
+              onError: {
+                target: "available",
+                actions: ["setError", "escalateError"],
+              },
+            },
+          },
+          authenticating: {
+            invoke: {
+              src: "authenticate",
               onDone: {
                 target: "#complete",
+              },
+              onError: {
+                target: "available",
+                actions: ["setError", "escalateError"],
               },
             },
           },
         },
       },
+
+      // --- potential alternate/future form flows
+      // social: {}, // when we require user to login with a social provider
+      // ---
+      // confirm: {}, // when we require user to confirm their email
+      // recover: {},  // when we require user to recover their password
+      // reset: {}, // when we user is in the process of reset their password
 
       // Handle errors
       error: {
@@ -141,31 +239,94 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: (context, _event) => context.token,
       },
     },
   },
   {
     actions: {
-      setToken: assign({
-        token: (context, { data }) => useTokenParser(data),
+      clear: assign({
+        token: (_context, _event) => {
+          dumpTokensFromStorage();
+          return null;
+        },
       }),
-      clearToken: assign({
-        token: {},
+      setCustomFields: assign({
+        customFields: (_context, { data }) => data,
       }),
+
+      setRegisterSchemas: assign({
+        schema: ({ customFields }) => useRegisterSchemaParser(customFields),
+        uischema: ({ customFields }) => useRegisterUischemaParser(customFields),
+        model: ({ customFields }) => useRegisterModelParser(customFields),
+      }),
+
+      setLoginSchemas: assign({
+        schema: _context => useLoginSchemaParser(),
+        uischema: _context => useLoginUischemaParser(),
+        model: _context => useLoginModelParser(),
+      }),
+
+      set2faSchemas: assign({
+        schema: _context => use2faSchemaParser(),
+        uischema: _context => use2faUischemaParser(),
+        model: _context => use2faModelParser(),
+      }),
+
+      setModel: assign({
+        model: (_context, { data }) => data,
+      }),
+      set2faToken: assign({
+        token: (_context, { data }) => data,
+      }),
+      trackRegister: (_context, { data }) => {
+        trackEvent({
+          event: "sign_up",
+          upmind: {
+            user_id: data?.actor_id,
+          },
+        });
+      },
+      trackLogin: (_context, { data }) => {
+        trackEvent({
+          event: "login",
+          upmind: {
+            user_id: data?.actor_id,
+          },
+        });
+      },
       // ---
+
       setError: assign({
-        error: (context, { data }) => data,
+        error: (_context, event, state) => {
+          console.error("session", "client", "error", { event, state });
+
+          const data = event?.data;
+
+          if (data?.error?.code == responseCodes.Unauthorized) {
+            // Usually because the refresh token has expired.
+            return {
+              code: responseCodes.Unauthorized,
+              message: data.error.message || "Unauthorized",
+            };
+          }
+
+          if (data?.error?.code == responseCodes.Unprocessable_Entity) {
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            return useValidationParser(data?.error);
+          }
+
+          return data?.error || data || event?.error || event || null;
+        },
       }),
       escalateError: escalate(({ error }) => error),
 
       clearError: assign({ error: null }),
     },
     guards: {
-      isRefreshing: context => !!context.refresh,
-      isUnauthorized: (_context, { data }) => {
-        return data?.status === responseCodes.Unauthorized;
-      },
+      requires2fa: (_context, { data }) =>
+        data.actor_type == "twofa" && !!data?.second_factor_required,
+      requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
     },
 
     delays: {},

@@ -1,15 +1,195 @@
-import { toNumber, isBoolean, toString } from "lodash-es";
+// --- utils
+export { useValidationParser } from "../../../utils";
+import {
+  useFieldsSchemaParser,
+  useFieldsUischemaParser,
+  useFieldsModelParser,
+} from "../../../utils";
 
-export const useTokenParser = (data: any) => {
+// -----------------------------------------------------------------------------
+
+export const useRegisterSchemaParser = (data: any) => {
+  const schema = {
+    type: "object",
+    title: "Register",
+    required: ["firstname", "lastname", "email", "password"],
+    properties: {
+      firstname: {
+        type: "string",
+        title: "Your first name",
+      },
+      lastname: {
+        type: "string",
+        title: "Your last name",
+      },
+      email: {
+        type: "string",
+        title: "Your email address",
+        format: "email",
+      },
+      password: {
+        type: "string",
+        title: "Your password",
+        minLength: 8,
+        format: "password",
+      },
+      custom_fields: useFieldsSchemaParser(data, "auth"),
+    },
+  };
+
+  return schema;
+};
+
+export const useRegisterUischemaParser = (data: any) => {
+  const schema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/firstname",
+        i18n: "auth.firstname",
+        options: {
+          focus: true,
+          autocomplete: "given-name",
+          placeholder: "Jay,Jane,John,... ",
+        },
+      },
+      {
+        type: "Control",
+        scope: "#/properties/lastname",
+        i18n: "auth.lastname",
+        options: {
+          autocomplete: "family-name",
+          placeholder: "Doe, Smith, ...",
+        },
+      },
+      {
+        type: "Control",
+        scope: "#/properties/email",
+        i18n: "auth.email",
+        options: {
+          autocomplete: "email",
+          placeholder: "name@email.com",
+        },
+      },
+      {
+        type: "Control",
+        scope: "#/properties/password",
+        i18n: "auth.password",
+        options: {
+          type: "password",
+          autocomplete: "current-password",
+          placeholder: "Use a strong password or passphrase",
+        },
+      },
+      ...useFieldsUischemaParser(data),
+    ],
+  };
+
+  return schema;
+};
+
+export const useRegisterModelParser = (data: any) => {
+  const model = {
+    firstname: undefined,
+    lastname: undefined,
+    email: undefined,
+    password: undefined,
+    custom_fields: useFieldsModelParser(data),
+  };
+
+  return model;
+};
+// ---
+
+export const useLoginSchemaParser = () => {
   return {
-    access_token: toString(data?.access_token),
-    created_at: toNumber(data?.created_at) || Date.now(),
-    expires_in: toNumber(data?.expires_in),
-    refresh_expires_in: toNumber(data?.refresh_expires_in),
-    refresh_token: toString(data?.refresh_token),
-    second_factor_required: isBoolean(data?.isBoolean)
-      ? data?.isBoolean
-      : data?.isBoolean === "true",
-    token_type: toString(data?.token_type),
+    type: "object",
+    title: "Login",
+    required: ["email", "password"],
+    properties: {
+      email: {
+        type: "string",
+        title: "Your email address",
+        // format: "email", // DEPRECATED as we can log in with email OR username
+      },
+      password: {
+        type: "string",
+        format: "password",
+        title: "Your password",
+      },
+    },
+  };
+};
+
+export const useLoginUischemaParser = () => {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/email",
+        i18n: "auth.email",
+        options: {
+          autocomplete: "email",
+          placeholder: "name@email.com",
+        },
+      },
+      {
+        type: "Control",
+        scope: "#/properties/password",
+        i18n: "auth.password",
+        options: {
+          autocomplete: "current-password",
+          placeholder: "password or passphrase",
+        },
+      },
+    ],
+  };
+};
+
+export const useLoginModelParser = () => {
+  return {
+    email: undefined,
+    password: undefined,
+  };
+};
+// ---
+
+export const use2faSchemaParser = () => {
+  return {
+    type: "object",
+    title: "Verify 2FA",
+    required: ["token"],
+    properties: {
+      token: {
+        type: ["string", "null"],
+        pattern: "\\d{6}",
+        title: "Your 2fa code",
+      },
+    },
+  };
+};
+
+export const use2faUischemaParser = () => {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/token",
+        options: {
+          autocomplete: "off",
+          placeholder: "123 456",
+          // mask: "### ###"
+        },
+      },
+    ],
+  };
+};
+
+export const use2faModelParser = () => {
+  return {
+    token: undefined,
   };
 };

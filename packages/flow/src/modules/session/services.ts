@@ -3,10 +3,15 @@ import { useApi } from "../api";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
-import { getTokenfromStorage, useUserParser } from "./utils";
+import {
+  getTokenfromStorage,
+  persistTokenToStorage,
+  useUserParser,
+} from "./utils";
 
 // --- types
-import { type SessionContext } from "./types.d";
+import type { SessionContext } from "./types.d";
+import { GrantTypes } from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
@@ -25,23 +30,6 @@ async function check(_context: SessionContext, _event: any) {
       reject(null);
     }
   });
-}
-
-async function dumpGuestToken(_context: SessionContext, _event: any) {
-  localStorage.removeItem(`guest/auth/token`);
-  return Promise.resolve(); // we dont need to return anything
-}
-
-async function dumpClientToken(_context: SessionContext, _event: any) {
-  localStorage.removeItem(`client/auth/token`);
-  return Promise.resolve(); // we dont need to return anything
-}
-
-async function dumpTokens(_context: SessionContext, _event: any) {
-  localStorage.removeItem(`client/auth/token`);
-  localStorage.removeItem(`guest/auth/token`);
-
-  return Promise.resolve(); // we dont need to return anything
 }
 
 async function getUser(_context: SessionContext, _event: any) {
@@ -71,14 +59,32 @@ async function transfer(_context: SessionContext, _event: any) {
     withAccessToken: true,
   }).then(({ data }) => data);
 }
+
+async function refreshToken(_context: SessionContext) {
+  const { post, useUrl } = useApi();
+  const token = getTokenfromStorage();
+  const type = get(token, "type");
+  const refresh_token = get(token, "refresh_token", "");
+  debugger;
+
+  return post({
+    url: useUrl("access_token", {}, { context: "oauth" }),
+    data: {
+      grant_type: GrantTypes.REFRESH_TOKEN,
+      refresh_token,
+    },
+  }).then(({ data }) => {
+    persistTokenToStorage(data, type);
+    return data;
+  });
+}
+
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
   check,
-  dumpTokens,
-  dumpGuestToken,
-  dumpClientToken,
+  refreshToken,
   getUser,
   transfer,
 };

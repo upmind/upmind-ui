@@ -4,7 +4,8 @@ import type { ClientContext } from "./types.d";
 import { GrantTypes } from "../types.d";
 
 // --- utils
-import { get, omit } from "lodash-es";
+import { isEmpty } from "lodash-es";
+import { getTokenfromStorage, persistTokenToStorage } from "../utils";
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -14,123 +15,16 @@ import { get, omit } from "lodash-es";
 async function check(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
   // and we need to check the token
-  const token = get(localStorage, `client/auth/token`);
+
+  const token = getTokenfromStorage("client");
 
   return new Promise((resolve, reject) => {
-    if (token) {
-      resolve(JSON.parse(token));
+    if (!isEmpty(token)) {
+      resolve(token);
     } else {
       reject(null);
     }
   });
-}
-
-// --- LOGIN
-
-async function authenticate({ model }: ClientContext) {
-  const { post, useUrl } = useApi();
-  return post({
-    url: useUrl("access_token", {}, { context: "oauth" }),
-    data: {
-      username: model.email,
-      password: model.password,
-      grant_type: GrantTypes.PASSWORD,
-    },
-  });
-}
-
-async function verify2fa(context: ClientContext, { data }: any) {
-  const { post, useUrl } = useApi();
-  return post({
-    url: useUrl("access_token", {}, { context: "oauth" }),
-    withAccessToken: context.token.access_token,
-    data: {
-      twofa_provider: "google",
-      twofa_code: data,
-      grant_type: GrantTypes.TWOFA,
-    },
-  });
-}
-
-// --- REGISTER
-
-async function getCustomFields(_context: ClientContext, _event: any) {
-  const { get, useUrl } = useApi();
-  return get({
-    // url: useUrl("clients_fields", { brand_id: null }),
-    url: useUrl("clients_fields"),
-  }).then(({ data }) => data);
-}
-
-async function checkForReCaptcha(_context: ClientContext, { data }: any) {
-  // not implemented so pass through
-  return Promise.resolve(data);
-}
-
-async function verifyReCaptcha(_context: ClientContext, { data }: any) {
-  // not implemented so pass through
-  return Promise.resolve(data);
-}
-
-async function register({ model }: ClientContext) {
-  const { post, useUrl } = useApi();
-  return post({
-    url: useUrl("clients/register"),
-    data: {
-      custom_fields: model?.custom_fields,
-      email: model?.email,
-      firstname: model?.firstname,
-      lastname: model?.lastname,
-      password: model?.password,
-      phone: model?.phone,
-      phone_code: model?.phone_code,
-      phone_country_code: model?.phone_country_code,
-      recaptcha_token: model?.recaptcha_token,
-    },
-  });
-}
-
-// --- AUTHENTICATED
-
-async function refreshToken(context: ClientContext) {
-  const { post, useUrl } = useApi();
-  const refresh_token = get(context, "token.refresh_token", "");
-  return post({
-    url: useUrl("access_token", {}, { context: "oauth" }),
-    data: {
-      grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token,
-    },
-  });
-  // for debugging purposes
-  // .then(response => {
-  //   console.log("refresh succeeded", response);
-  //   return response;
-  // })
-  // .catch(error => {
-  //   console.error("refresh failed", error);
-  //   Promise.reject(error);
-  // });
-}
-
-async function persistToken(context: ClientContext, _event: any) {
-  const token = omit(context.token, ["actor_id", "actor_type"]);
-  token.type = "client";
-
-  if (!localStorage) return Promise.reject("No localStorage available");
-
-  localStorage.setItem(`client/auth/token`, JSON.stringify(token));
-
-  // now remember to destroy any guest token as we are now authenticated
-  localStorage.removeItem(`guest/auth/token`);
-
-  return Promise.resolve(); // we dont need to return anything
-}
-
-async function dumpToken(_context: ClientContext, _event: any) {
-  localStorage.removeItem(`client/auth/token`);
-
-  return Promise.resolve(); // we dont need to return anything
 }
 
 // --------------------------------------------------------
@@ -138,16 +32,4 @@ async function dumpToken(_context: ClientContext, _event: any) {
 
 export default <Object>{
   check,
-  // ---
-  verify2fa,
-  authenticate,
-  // ---
-  getCustomFields,
-  checkForReCaptcha,
-  verifyReCaptcha,
-  register,
-  // ---
-  refreshToken,
-  persistToken,
-  dumpToken,
 };

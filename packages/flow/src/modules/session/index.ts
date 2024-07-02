@@ -15,13 +15,14 @@ import { getTokenfromStorage } from "./utils";
 
 let state = null;
 
-const service = interpret(sessionMachine, { devTools: false }).onTransition(
+const service = interpret(sessionMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 
 // --------------------------------------------------------
 
 export const useSession = () => {
+  debugger;
   // let { subscription } = useClient();
 
   // --------------------------------------------------------
