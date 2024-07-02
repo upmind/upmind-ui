@@ -33,9 +33,7 @@ export interface Typegen0 {
     guards: never;
     services: "check";
   };
-  eventsCausingActions: {
-    clearError: "CLEAR.ERRORS";
-  };
+  eventsCausingActions: {};
   eventsCausingDelays: {};
   eventsCausingGuards: {
     isClientToken: "done.invoke.sessionManager.checking:invocation[0]";

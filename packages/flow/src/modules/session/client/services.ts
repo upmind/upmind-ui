@@ -1,5 +1,6 @@
 // --- internal
 import { useApi } from "../../api";
+import services from "../services";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -37,18 +38,11 @@ async function load(_context: ClientContext, _event: any) {
   }).then(({ data }) => useUserParser(data?.actor));
 }
 
-async function transfer(_context: ClientContext, _event: any) {
-  const { post, useUrl } = useApi();
-
-  return post({
-    url: useUrl("auth_code"),
-    withAccessToken: true,
-  }).then(({ data }) => data);
-}
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
   load,
-  transfer,
+  refreshToken: services.refreshToken,
+  transfer: services.transfer,
 };
