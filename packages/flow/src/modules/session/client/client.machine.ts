@@ -23,29 +23,18 @@ export default createMachine(
       transfer: null,
     } as ClientContext,
     states: {
-      // our initial state will check 'self' and see if we have a token
-      // if we do, we move to the complete state and attempt to refresh if needed
-      // if we don't, we move to the unauthenticated state and await a login or register event
-      // TODO: add checks for if a client needs to confirm their email, or is in a recovery flow
-      // and then we move to the appropriate state
       loading: {
         id: "loading",
         entry: "clearError",
         invoke: {
-          src: "check",
-          onDone: { target: "#complete" },
+          src: "load",
+          onDone: { target: "idle", actions: "setUser" },
           onError: { target: "complete" },
         },
       },
 
       idle: {
         id: "idle",
-        always: [
-          {
-            cond: "hasNoUser",
-            target: "processing",
-          },
-        ],
         on: {
           LOGOUT: {
             target: "complete",
@@ -53,20 +42,6 @@ export default createMachine(
           },
           TRANSFER: {
             target: "transferring",
-          },
-        },
-      },
-
-      processing: {
-        invoke: {
-          src: "getUser",
-          onDone: {
-            target: "idle",
-            actions: "setUser",
-          },
-          onError: {
-            target: "idle",
-            actions: "setError",
           },
         },
       },

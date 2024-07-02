@@ -63,7 +63,6 @@ async function transfer(_context: SessionContext, _event: any) {
 async function refreshToken(_context: SessionContext) {
   const { post, useUrl } = useApi();
   const token = getTokenfromStorage();
-  const type = get(token, "type");
   const refresh_token = get(token, "refresh_token", "");
   debugger;
 
@@ -73,8 +72,8 @@ async function refreshToken(_context: SessionContext) {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token,
     },
-  }).then(({ data }) => {
-    persistTokenToStorage(data, type);
+  }).then(data => {
+    persistTokenToStorage(data);
     return data;
   });
 }

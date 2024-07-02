@@ -15,16 +15,11 @@ import { isEmpty } from "lodash-es";
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(_context: GuestContext, _event: any) {
+async function load(_context: GuestContext, _event: any) {
+  // if we DONT have a token, we need to generate one, otherwise we are authenticated already
   const token = getTokenfromStorage("guest");
-
-  return new Promise((resolve, reject) => {
-    if (!isEmpty(token)) {
-      resolve(token);
-    } else {
-      reject(null);
-    }
-  });
+  if (!isEmpty(token)) return Promise.resolve(token);
+  return generateToken(_context, _event);
 }
 
 async function generateToken(_context: GuestContext, _event: any) {
@@ -33,8 +28,8 @@ async function generateToken(_context: GuestContext, _event: any) {
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: { grant_type: GrantTypes.GUEST },
-  }).then(({ data }) => {
-    persistTokenToStorage(data, "guest");
+  }).then(data => {
+    persistTokenToStorage(data);
     return data;
   });
 }
@@ -50,8 +45,8 @@ async function authenticate({ model }: GuestContext) {
       password: model.password,
       grant_type: GrantTypes.PASSWORD,
     },
-  }).then(({ data }) => {
-    persistTokenToStorage(data, "client");
+  }).then(data => {
+    persistTokenToStorage(data);
     return data;
   });
 }
@@ -104,8 +99,8 @@ async function register({ model }: GuestContext) {
       phone_country_code: model?.phone_country_code,
       recaptcha_token: model?.recaptcha_token,
     },
-  }).then(({ data }) => {
-    persistTokenToStorage(data, "client");
+  }).then(data => {
+    persistTokenToStorage(data);
     return data;
   });
 }
@@ -114,7 +109,7 @@ async function register({ model }: GuestContext) {
 // EXPORTS
 
 export default <Object>{
-  check,
+  load,
   generateToken,
   // ---
   verify2fa,

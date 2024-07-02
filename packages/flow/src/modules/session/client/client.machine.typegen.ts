@@ -3,9 +3,8 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "": { type: "" };
-    "done.invoke.sessionClient.processing:invocation[0]": {
-      type: "done.invoke.sessionClient.processing:invocation[0]";
+    "done.invoke.loading:invocation[0]": {
+      type: "done.invoke.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -13,10 +12,6 @@ export interface Typegen0 {
       type: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.sessionClient.processing:invocation[0]": {
-      type: "error.platform.sessionClient.processing:invocation[0]";
-      data: unknown;
     };
     "error.platform.sessionClient.transferring.initiating:invocation[0]": {
       type: "error.platform.sessionClient.transferring.initiating:invocation[0]";
@@ -31,25 +26,22 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    check: "done.invoke.loading:invocation[0]";
-    getUser: "done.invoke.sessionClient.processing:invocation[0]";
+    load: "done.invoke.loading:invocation[0]";
     transfer: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
   };
   missingImplementations: {
     actions: "clearTransfer" | "setTransfer";
     delays: "expired";
-    guards: "hasNoUser";
-    services: "check" | "getUser" | "transfer";
+    guards: never;
+    services: "load" | "transfer";
   };
   eventsCausingActions: {
     clear: "LOGOUT";
     clearError: "xstate.init";
     clearTransfer: "xstate.after(expired)#sessionClient.transferring.available";
-    setError:
-      | "error.platform.sessionClient.processing:invocation[0]"
-      | "error.platform.sessionClient.transferring.initiating:invocation[0]";
+    setError: "error.platform.sessionClient.transferring.initiating:invocation[0]";
     setTransfer: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
-    setUser: "done.invoke.sessionClient.processing:invocation[0]";
+    setUser: "done.invoke.loading:invocation[0]";
   };
   eventsCausingDelays: {
     error:
@@ -57,12 +49,9 @@ export interface Typegen0 {
       | "xstate.after(expired)#sessionClient.transferring.available";
     expired: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
   };
-  eventsCausingGuards: {
-    hasNoUser: "";
-  };
+  eventsCausingGuards: {};
   eventsCausingServices: {
-    check: "xstate.init";
-    getUser: "";
+    load: "xstate.init";
     transfer: "TRANSFER";
   };
   matchesStates:
@@ -70,7 +59,6 @@ export interface Typegen0 {
     | "error"
     | "idle"
     | "loading"
-    | "processing"
     | "transferring"
     | "transferring.available"
     | "transferring.initiating"

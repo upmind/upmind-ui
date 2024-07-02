@@ -6,34 +6,35 @@ import {
   pick,
   first,
   slice,
-  omit,
+  isEmpty,
 } from "lodash-es";
 
 // --- types
 import type { Token } from "./types";
+import { isString } from "xstate/lib/utils";
+import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 
-export function getTokenfromStorage(type?: "guest" | "client") {
+export function getTokenfromStorage(actor_type?: "guest" | "client") {
   let token: string = "";
-  if (type === "client") {
+  if (actor_type === "client") {
     token = localStorage.getItem(`client/auth/token`) || "";
-  } else if (type === "guest") {
+  } else if (actor_type === "guest") {
     token = localStorage.getItem(`guest/auth/token`) || "";
   } else {
     const clientToken = localStorage.getItem(`client/auth/token`);
     const guestToken = localStorage.getItem(`guest/auth/token`);
     token = clientToken || guestToken || "";
   }
-
-  return JSON.parse(token);
+  return useTokenParser(token);
 }
 
-export function persistTokenToStorage(token: Token, type: "guest" | "client") {
-  token = omit(token, ["actor_id", "actor_type"]);
-  token.type = type; // we need to remember the type of token we are storing
-
+export function persistTokenToStorage(token: Token) {
   if (!localStorage) return Promise.reject("No localStorage available");
+
+  token = useTokenParser(token);
+  const type = token.actor_type || "guest";
 
   // now remember to destroy any prev token as we have a new one
   localStorage.removeItem(`guest/auth/token`);
@@ -51,6 +52,10 @@ export function dumpTokensFromStorage() {
 // ---
 
 export function useTokenParser(data: any) {
+  if (isEmpty(data)) return null;
+
+  if (isString(data)) data = JSON.parse(data);
+
   return {
     access_token: toString(data?.access_token),
     created_at: toNumber(data?.created_at) || Date.now(),
@@ -60,7 +65,8 @@ export function useTokenParser(data: any) {
     second_factor_required: isBoolean(data?.isBoolean)
       ? data?.isBoolean
       : data?.isBoolean === "true",
-    token_type: toString(data?.token_type),
+    actor_type: toString(data?.actor_type),
+    actor_id: toString(data?.actor_id),
   };
 }
 

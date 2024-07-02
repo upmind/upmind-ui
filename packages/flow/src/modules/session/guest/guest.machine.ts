@@ -39,30 +39,13 @@ export default createMachine(
       error: null,
     } as GuestContext,
     states: {
-      // our initial state will check 'self' and see if we have a token
-      // if we do, we can continue to the completed state, if not, we are unauthenticated,
       loading: {
         id: "loading",
         entry: "clearError",
         invoke: {
-          src: "check",
+          src: "load",
           onDone: { target: "idle" },
-          onError: { target: "#unauthenticated", actions: ["clear"] },
-        },
-      },
-
-      // in this state, we are unauthenticated, and we need to generate a "guest" token
-      unauthenticated: {
-        id: "unauthenticated",
-        invoke: {
-          src: "generateToken",
-          onDone: {
-            target: "idle",
-          },
-          onError: {
-            target: "#error",
-            actions: ["setError", "escalateError"],
-          },
+          onError: { target: "error", actions: ["setError"] },
         },
       },
 
@@ -93,6 +76,7 @@ export default createMachine(
           // loading: {} // loading state not required?
           available: {
             on: {
+              REGISTER: { target: "#register" },
               AUTHENTICATE: {
                 target: "authenticating",
                 actions: ["setModel"],
@@ -162,6 +146,7 @@ export default createMachine(
           available: {
             on: {
               REGISTER: { target: "checking", actions: ["setModel"] },
+              LOGIN: { target: "#login" },
             },
           },
           checking: {

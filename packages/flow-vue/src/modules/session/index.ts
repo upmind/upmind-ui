@@ -1,5 +1,5 @@
 // --- external
-import { computed, unref, watch, toRaw, inject } from "vue";
+import { computed, unref, watch, toRaw } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -19,14 +19,16 @@ export const useSession = (inspector?: Function) => {
   // We can create reactive refs to the child machines,
   // so that when they are invoked we can listen to their state changes
   const client = computed(() => {
-    if (!state.value?.children?.client) return null;
-    const { state: clientState } = useActor(state.value.children.client);
+    const clientMachine = state.value?.children?.clientMachine;
+    if (!clientMachine) return null;
+    const { state: clientState } = useActor(clientMachine);
     return clientState.value;
   });
 
   const guest = computed(() => {
-    if (!state.value?.children?.guest) return null;
-    const { state: guestState } = useActor(state.value.children.guest);
+    const guestMachine = state.value?.children?.guestMachine;
+    if (!guestMachine) return null;
+    const { state: guestState } = useActor(guestMachine);
     return guestState.value;
   });
 
@@ -38,67 +40,44 @@ export const useSession = (inspector?: Function) => {
   // ---
   const meta = computed(() => ({
     isLoading:
-      !client.value?.matches ||
-      [
-        "unauthenticated.login.loading",
-        "unauthenticated.register.loading",
-      ].some(client.value.matches),
+      state.value.matches("checking") ||
+      (guest.value?.matches && guest.value.matches("loading")) ||
+      (client.value?.matches && client.value.matches("loading")),
 
     isProcessing:
-      state.value.matches("client.processing") ||
-      (client.value?.matches &&
-        ![
-          "unauthenticated.idle",
-          "unauthenticated.login.idle",
-          "unauthenticated.login.challenging",
-          "unauthenticated.register.idle",
-          "unauthenticated.register.challenging",
-        ].some(client.value.matches)),
+      (guest.value?.matches &&
+        [
+          "login.authenticating",
+          "login.verifying",
+          "register.checking",
+          "register.verifying",
+          "register.registering",
+          "register.authenticating",
+        ].some(guest.value.matches)) ||
+      client.value?.matches("processing"),
 
     hasErrors: !isEmpty(state.value?.context?.error),
     // ---
-    isGuest: ["guest", "starting.guest"].some(state.value.matches),
-    isClient: ["client", "starting.client"].some(state.value.matches),
-    isAuthenticated: state.value.matches("client.idle"),
-    isTransferring: state.value.matches("client.transferring"),
+    isAuthenticated: state.value.matches("client"),
+    isTransferring: client.value?.matches("transferring"),
     // ---
-    showReCaptcha: client.value?.matches(
-      "unauthenticated.register.challenging"
-    ),
-
-    showLoginForm: client.value?.matches("unauthenticated.login"),
-    // show2fa: client.value?.matches("unauthenticated.login.challenging"),
-
+    showReCaptcha: guest.value?.matches("register.challenging"),
+    showLoginForm: guest.value?.matches("login"),
     show2fa:
-      client.value?.matches &&
-      [
-        "unauthenticated.login.challenging",
-        "unauthenticated.login.verifying",
-      ].some(client.value.matches),
+      guest.value?.matches &&
+      ["login.challenging", "login.verifying"].some(guest.value.matches),
 
-    showRegisterForm: client.value?.matches("unauthenticated.register"),
-
-    // ---
-    canShowForms:
-      state.value?.matches("guest.idle") &&
-      !client.value?.matches("unauthenticated.login") &&
-      !client.value?.matches("unauthenticated.register"),
+    showRegisterForm: guest.value?.matches("register"),
+    canShowForms: guest.value?.matches("idle"),
   }));
 
-  const user = computed(() => state.value?.context?.user);
+  const user = computed(() => client.value?.context?.user);
 
-  // --- Client
-  const model = computed(() => client.value?.context?.model);
-  const schema = computed(() => client.value?.context?.schema);
-  const uischema = computed(() => client.value?.context?.uischema);
+  // ---
+  const model = computed(() => guest.value?.context?.model);
+  const schema = computed(() => guest.value?.context?.schema);
+  const uischema = computed(() => guest.value?.context?.uischema);
   // --------------------------------------------------------
-
-  function clearErrors() {
-    send({
-      type: "CLEAR.ERRORS",
-    });
-  }
-
   function showLogin() {
     send({
       type: "LOGIN",
@@ -219,7 +198,6 @@ export const useSession = (inspector?: Function) => {
     // ---
     reject,
     resolve,
-    clearErrors,
     login,
     logout,
     register,

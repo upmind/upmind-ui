@@ -23,11 +23,7 @@ export default createMachine(
       error: null,
     } as SessionContext,
     states: {
-      // our initial state will check 'self' and see if we have a token
-      // if we do, we can skip generating a token
-      // TODO: add necessary cheand and states when we add user accounts with auth
       checking: {
-        id: "checking",
         invoke: {
           src: "check",
           onDone: [
@@ -39,27 +35,27 @@ export default createMachine(
               target: "#guest",
             },
           ],
-          onError: { actions: ["clear", "setError"] },
+          onError: { target: "#guest" },
         },
       },
 
       // in this state, we are attempting to refresh our token which has expired),
       // we will clear the token and go back to our unauthenticated state
       // which will generate a new token
-      refreshing: {
-        id: "refreshing",
-        invoke: {
-          src: "refreshToken",
-          onDone: [
-            { target: "#client", cond: "isClientToken" },
-            { target: "#guest" },
-          ],
-          onError: {
-            target: "#guest",
-            actions: "clear",
-          },
-        },
-      },
+      // refreshing: {
+      //   id: "refreshing",
+      //   invoke: {
+      //     src: "refreshToken",
+      //     onDone: [
+      //       { target: "#client", cond: "isClientToken" },
+      //       { target: "#guest" },
+      //     ],
+      //     onError: {
+      //       target: "#guest",
+      //       actions: "clear",
+      //     },
+      //   },
+      // },
 
       // ---
       guest: {
@@ -104,11 +100,14 @@ export default createMachine(
       }),
       // ---
 
+      setError: assign({
+        error: (context, { data }) => data,
+      }),
       clearError: assign({ error: null }),
     },
 
     guards: {
-      isClientToken: (_context, { data }) => data?.type === "client",
+      isClientToken: (_context, { data }) => data?.actor_type === "client",
     },
 
     delays: {
