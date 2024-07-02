@@ -4,258 +4,77 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.client.authenticated.clearing:invocation[0]": {
-      type: "done.invoke.client.authenticated.clearing:invocation[0]";
+    "done.invoke.client.processing:invocation[0]": {
+      type: "done.invoke.client.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.client.authenticated.refreshing:invocation[0]": {
-      type: "done.invoke.client.authenticated.refreshing:invocation[0]";
+    "done.invoke.client.transferring.initiating:invocation[0]": {
+      type: "done.invoke.client.transferring.initiating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.client.unauthenticated.login.authenticating:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.client.unauthenticated.login.verifying:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.login.verifying:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.client.unauthenticated.register.authenticating:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.register.authenticating:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.client.unauthenticated.register.checking:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.client.unauthenticated.register.loading:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.client.unauthenticated.register.registering:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.register.registering:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.client.unauthenticated.register.verifying:invocation[0]": {
-      type: "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.loading:invocation[0]": {
-      type: "done.invoke.loading:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.client.authenticated.refreshing:invocation[0]": {
-      type: "error.platform.client.authenticated.refreshing:invocation[0]";
+    "error.platform.client.processing:invocation[0]": {
+      type: "error.platform.client.processing:invocation[0]";
       data: unknown;
     };
-    "error.platform.client.unauthenticated.login.authenticating:invocation[0]": {
-      type: "error.platform.client.unauthenticated.login.authenticating:invocation[0]";
+    "error.platform.client.transferring.initiating:invocation[0]": {
+      type: "error.platform.client.transferring.initiating:invocation[0]";
       data: unknown;
     };
-    "error.platform.client.unauthenticated.login.verifying:invocation[0]": {
-      type: "error.platform.client.unauthenticated.login.verifying:invocation[0]";
-      data: unknown;
+    "xstate.after(error)#client.transferring.unavailable": {
+      type: "xstate.after(error)#client.transferring.unavailable";
     };
-    "error.platform.client.unauthenticated.register.authenticating:invocation[0]": {
-      type: "error.platform.client.unauthenticated.register.authenticating:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.client.unauthenticated.register.checking:invocation[0]": {
-      type: "error.platform.client.unauthenticated.register.checking:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.client.unauthenticated.register.loading:invocation[0]": {
-      type: "error.platform.client.unauthenticated.register.loading:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.client.unauthenticated.register.registering:invocation[0]": {
-      type: "error.platform.client.unauthenticated.register.registering:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.client.unauthenticated.register.verifying:invocation[0]": {
-      type: "error.platform.client.unauthenticated.register.verifying:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.loading:invocation[0]": {
-      type: "error.platform.loading:invocation[0]";
-      data: unknown;
-    };
-    "xstate.after(error)#client.unauthenticated.login.error": {
-      type: "xstate.after(error)#client.unauthenticated.login.error";
-    };
-    "xstate.after(error)#client.unauthenticated.register.error": {
-      type: "xstate.after(error)#client.unauthenticated.register.error";
+    "xstate.after(expired)#client.transferring.available": {
+      type: "xstate.after(expired)#client.transferring.available";
     };
     "xstate.init": { type: "xstate.init" };
-    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    authenticate:
-      | "done.invoke.client.unauthenticated.login.authenticating:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.authenticating:invocation[0]";
     check: "done.invoke.loading:invocation[0]";
-    checkForReCaptcha: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
-    dumpToken: "done.invoke.client.authenticated.clearing:invocation[0]";
-    getCustomFields: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
-    persistToken: "done.invoke.client.authenticated.persisting:invocation[0]";
-    refreshToken: "done.invoke.client.authenticated.refreshing:invocation[0]";
-    register: "done.invoke.client.unauthenticated.register.registering:invocation[0]";
-    verify2fa: "done.invoke.client.unauthenticated.login.verifying:invocation[0]";
-    verifyReCaptcha: "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
+    getUser: "done.invoke.client.processing:invocation[0]";
+    transfer: "done.invoke.client.transferring.initiating:invocation[0]";
   };
   missingImplementations: {
-    actions: "setChallengeToken";
-    delays: never;
-    guards: never;
-    services:
-      | "authenticate"
-      | "check"
-      | "checkForReCaptcha"
-      | "dumpToken"
-      | "getCustomFields"
-      | "persistToken"
-      | "refreshToken"
-      | "register"
-      | "verify2fa"
-      | "verifyReCaptcha";
+    actions: "clearTransfer" | "setTransfer";
+    delays: "expired";
+    guards: "hasNoUser";
+    services: "check" | "getUser" | "transfer";
   };
   eventsCausingActions: {
-    clearError: "" | "xstate.init";
-    clearToken:
-      | "done.invoke.client.authenticated.clearing:invocation[0]"
-      | "error.platform.loading:invocation[0]"
-      | "xstate.stop";
-    escalateError:
-      | "error.platform.client.authenticated.refreshing:invocation[0]"
-      | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.login.verifying:invocation[0]"
-      | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.register.checking:invocation[0]"
-      | "error.platform.client.unauthenticated.register.loading:invocation[0]"
-      | "error.platform.client.unauthenticated.register.registering:invocation[0]"
-      | "error.platform.client.unauthenticated.register.verifying:invocation[0]";
-    set2faSchemas: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
-    set2faToken: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
-    setChallengeToken:
-      | "done.invoke.client.unauthenticated.login.verifying:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
-    setCustomFields: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
+    clear: "LOGOUT";
+    clearError: "xstate.init";
+    clearTransfer: "xstate.after(expired)#client.transferring.available";
     setError:
-      | "error.platform.client.authenticated.refreshing:invocation[0]"
-      | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.login.verifying:invocation[0]"
-      | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.register.checking:invocation[0]"
-      | "error.platform.client.unauthenticated.register.loading:invocation[0]"
-      | "error.platform.client.unauthenticated.register.registering:invocation[0]"
-      | "error.platform.client.unauthenticated.register.verifying:invocation[0]";
-    setLoginSchemas: "";
-    setModel: "AUTHENTICATE" | "REGISTER";
-    setRegisterSchemas: "done.invoke.client.unauthenticated.register.loading:invocation[0]";
-    setToken:
-      | "done.invoke.client.authenticated.refreshing:invocation[0]"
-      | "done.invoke.client.unauthenticated.login.authenticating:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.authenticating:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.registering:invocation[0]"
-      | "done.invoke.loading:invocation[0]";
-    trackLogin: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
-    trackRegister: "done.invoke.client.unauthenticated.register.registering:invocation[0]";
+      | "error.platform.client.processing:invocation[0]"
+      | "error.platform.client.transferring.initiating:invocation[0]";
+    setTransfer: "done.invoke.client.transferring.initiating:invocation[0]";
+    setUser: "done.invoke.client.processing:invocation[0]";
   };
   eventsCausingDelays: {
     error:
-      | "error.platform.client.unauthenticated.login.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.register.authenticating:invocation[0]"
-      | "error.platform.client.unauthenticated.register.checking:invocation[0]"
-      | "error.platform.client.unauthenticated.register.loading:invocation[0]"
-      | "error.platform.client.unauthenticated.register.registering:invocation[0]";
+      | "error.platform.client.transferring.initiating:invocation[0]"
+      | "xstate.after(expired)#client.transferring.available";
+    expired: "done.invoke.client.transferring.initiating:invocation[0]";
   };
   eventsCausingGuards: {
-    isRefreshing:
-      | ""
-      | "done.invoke.client.authenticated.clearing:invocation[0]";
-    isUnauthorized: "error.platform.client.authenticated.refreshing:invocation[0]";
-    requires2fa: "done.invoke.client.unauthenticated.login.authenticating:invocation[0]";
-    requiresReCaptcha: "done.invoke.client.unauthenticated.register.checking:invocation[0]";
+    hasNoUser: "";
   };
   eventsCausingServices: {
-    authenticate:
-      | "AUTHENTICATE"
-      | "done.invoke.client.unauthenticated.register.registering:invocation[0]";
     check: "xstate.init";
-    checkForReCaptcha: "REGISTER";
-    dumpToken: "error.platform.client.authenticated.refreshing:invocation[0]";
-    getCustomFields: "REGISTER";
-    persistToken:
-      | ""
-      | "done.invoke.client.authenticated.refreshing:invocation[0]";
-    refreshToken: "";
-    register:
-      | "done.invoke.client.unauthenticated.register.checking:invocation[0]"
-      | "done.invoke.client.unauthenticated.register.verifying:invocation[0]";
-    verify2fa: "VERIFY";
-    verifyReCaptcha: "VERIFY";
+    getUser: "";
+    transfer: "TRANSFER";
   };
   matchesStates:
-    | "authenticated"
-    | "authenticated.clearing"
-    | "authenticated.idle"
-    | "authenticated.persisting"
-    | "authenticated.refreshing"
     | "complete"
     | "error"
+    | "idle"
     | "loading"
-    | "unauthenticated"
-    | "unauthenticated.idle"
-    | "unauthenticated.login"
-    | "unauthenticated.login.authenticating"
-    | "unauthenticated.login.challenging"
-    | "unauthenticated.login.error"
-    | "unauthenticated.login.idle"
-    | "unauthenticated.login.loading"
-    | "unauthenticated.login.verifying"
-    | "unauthenticated.register"
-    | "unauthenticated.register.authenticating"
-    | "unauthenticated.register.challenging"
-    | "unauthenticated.register.checking"
-    | "unauthenticated.register.error"
-    | "unauthenticated.register.idle"
-    | "unauthenticated.register.loading"
-    | "unauthenticated.register.registering"
-    | "unauthenticated.register.verifying"
-    | {
-        authenticated?: "clearing" | "idle" | "persisting" | "refreshing";
-        unauthenticated?:
-          | "idle"
-          | "login"
-          | "register"
-          | {
-              login?:
-                | "authenticating"
-                | "challenging"
-                | "error"
-                | "idle"
-                | "loading"
-                | "verifying";
-              register?:
-                | "authenticating"
-                | "challenging"
-                | "checking"
-                | "error"
-                | "idle"
-                | "loading"
-                | "registering"
-                | "verifying";
-            };
-      };
+    | "processing"
+    | "transferring"
+    | "transferring.available"
+    | "transferring.initiating"
+    | "transferring.unavailable"
+    | { transferring?: "available" | "initiating" | "unavailable" };
   tags: never;
 }

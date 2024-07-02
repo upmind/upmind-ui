@@ -1,13 +1,59 @@
-import { toNumber, isBoolean, toString, pick, first, slice } from "lodash-es";
+// --- utils
+import {
+  toNumber,
+  isBoolean,
+  toString,
+  pick,
+  first,
+  slice,
+  omit,
+} from "lodash-es";
 
-export const getTokenfromStorage = () => {
-  const clientToken = localStorage.getItem(`client/auth/token`);
-  const guestToken = localStorage.getItem(`guest/auth/token`);
+// --- types
+import type { Token } from "./types";
 
-  return JSON.parse(clientToken || guestToken);
-};
+// -----------------------------------------------------------------------------
 
-export const useTokenParser = (data: any) => {
+export function getTokenfromStorage(type?: "guest" | "client") {
+  let token: string = "";
+  if (type === "client") {
+    token = localStorage.getItem(`client/auth/token`) || "";
+  } else if (type === "guest") {
+    token = localStorage.getItem(`guest/auth/token`) || "";
+  } else {
+    const clientToken = localStorage.getItem(`client/auth/token`);
+    const guestToken = localStorage.getItem(`guest/auth/token`);
+    token = clientToken || guestToken || "";
+  }
+
+  return JSON.parse(token);
+}
+
+export function persistTokenToStorage(token: Token, type: "guest" | "client") {
+  debugger;
+
+  token = omit(token, ["actor_id", "actor_type"]);
+  token.type = type; // we need to remember the type of token we are storing
+  debugger;
+
+  if (!localStorage) return Promise.reject("No localStorage available");
+
+  // now remember to destroy any prev token as we have a new one
+  localStorage.removeItem(`guest/auth/token`);
+  localStorage.removeItem(`client/auth/token`);
+
+  // finally, persist the new token
+  localStorage.setItem(`${type}/auth/token`, JSON.stringify(token));
+}
+
+export function dumpTokensFromStorage() {
+  localStorage.removeItem(`client/auth/token`);
+  localStorage.removeItem(`guest/auth/token`);
+}
+
+// ---
+
+export function useTokenParser(data: any) {
   return {
     access_token: toString(data?.access_token),
     created_at: toNumber(data?.created_at) || Date.now(),
@@ -19,16 +65,9 @@ export const useTokenParser = (data: any) => {
       : data?.isBoolean === "true",
     token_type: toString(data?.token_type),
   };
-};
-
-async function useAvatarParser(url) {
-  if (!url?.length) return false;
-  url = url.replace("?d=blank", "?d=404");
-  const response = await fetch(url);
-  return response.ok ? url : null;
 }
 
-function useInitialsParser(user, chars: number = 1) {
+export function useInitialsParser(user, chars: number = 1) {
   if (!user) return "";
 
   return slice(user?.display?.split(" "), 0, chars)
@@ -36,7 +75,7 @@ function useInitialsParser(user, chars: number = 1) {
     ?.join("");
 }
 
-export const useUserParser = async (data: any) => {
+export async function useUserParser(data: any) {
   const user = pick(data, [
     "id",
     "email",
@@ -54,4 +93,11 @@ export const useUserParser = async (data: any) => {
   };
 
   return user;
-};
+}
+
+async function useAvatarParser(url) {
+  if (!url?.length) return false;
+  url = url.replace("?d=blank", "?d=404");
+  const response = await fetch(url);
+  return response.ok ? url : null;
+}

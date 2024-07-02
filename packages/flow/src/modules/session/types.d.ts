@@ -31,12 +31,7 @@ export enum TwofaProviders {
 // Contexts
 
 export interface SessionContext {
-  token: Token;
-  user: User;
   error?: RequestError | null;
-  refresh?: boolean;
-  message?: string | null;
-  transfer?: string | null;
 }
 
 export interface Token {

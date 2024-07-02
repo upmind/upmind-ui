@@ -4,103 +4,179 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.clearing:invocation[0]": {
-      type: "done.invoke.clearing:invocation[0]";
+    "done.invoke.guest.login.authenticating:invocation[0]": {
+      type: "done.invoke.guest.login.authenticating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.generating:invocation[0]": {
-      type: "done.invoke.generating:invocation[0]";
+    "done.invoke.guest.register.checking:invocation[0]": {
+      type: "done.invoke.guest.register.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.loading:invocation[0]": {
-      type: "done.invoke.loading:invocation[0]";
+    "done.invoke.guest.register.loading:invocation[0]": {
+      type: "done.invoke.guest.register.loading:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.refreshing:invocation[0]": {
-      type: "done.invoke.refreshing:invocation[0]";
+    "done.invoke.guest.register.registering:invocation[0]": {
+      type: "done.invoke.guest.register.registering:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.generating:invocation[0]": {
-      type: "error.platform.generating:invocation[0]";
+    "done.invoke.guest.register.verifying:invocation[0]": {
+      type: "done.invoke.guest.register.verifying:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "error.platform.guest.login.authenticating:invocation[0]": {
+      type: "error.platform.guest.login.authenticating:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.guest.login.verifying:invocation[0]": {
+      type: "error.platform.guest.login.verifying:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.guest.register.authenticating:invocation[0]": {
+      type: "error.platform.guest.register.authenticating:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.guest.register.checking:invocation[0]": {
+      type: "error.platform.guest.register.checking:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.guest.register.loading:invocation[0]": {
+      type: "error.platform.guest.register.loading:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.guest.register.registering:invocation[0]": {
+      type: "error.platform.guest.register.registering:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.guest.register.verifying:invocation[0]": {
+      type: "error.platform.guest.register.verifying:invocation[0]";
       data: unknown;
     };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
       data: unknown;
     };
-    "error.platform.refreshing:invocation[0]": {
-      type: "error.platform.refreshing:invocation[0]";
+    "error.platform.unauthenticated:invocation[0]": {
+      type: "error.platform.unauthenticated:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
-    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
+    authenticate:
+      | "done.invoke.guest.login.authenticating:invocation[0]"
+      | "done.invoke.guest.register.authenticating:invocation[0]";
     check: "done.invoke.loading:invocation[0]";
-    dumpToken: "done.invoke.clearing:invocation[0]";
-    generateToken: "done.invoke.generating:invocation[0]";
-    persistToken: "done.invoke.persisting:invocation[0]";
-    refreshToken: "done.invoke.refreshing:invocation[0]";
+    checkForReCaptcha: "done.invoke.guest.register.checking:invocation[0]";
+    generateToken: "done.invoke.unauthenticated:invocation[0]";
+    getCustomFields: "done.invoke.guest.register.loading:invocation[0]";
+    register: "done.invoke.guest.register.registering:invocation[0]";
+    verify2fa: "done.invoke.guest.login.verifying:invocation[0]";
+    verifyReCaptcha: "done.invoke.guest.register.verifying:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
     services:
+      | "authenticate"
       | "check"
-      | "dumpToken"
+      | "checkForReCaptcha"
       | "generateToken"
-      | "persistToken"
-      | "refreshToken";
+      | "getCustomFields"
+      | "register"
+      | "verify2fa"
+      | "verifyReCaptcha";
   };
   eventsCausingActions: {
-    clearError: "done.invoke.clearing:invocation[0]" | "xstate.init";
-    clearToken:
-      | "done.invoke.clearing:invocation[0]"
-      | "error.platform.loading:invocation[0]"
-      | "xstate.stop";
+    clear: "error.platform.loading:invocation[0]";
+    clearError: "" | "xstate.init";
     escalateError:
-      | "error.platform.generating:invocation[0]"
-      | "error.platform.refreshing:invocation[0]";
+      | "error.platform.guest.login.authenticating:invocation[0]"
+      | "error.platform.guest.login.verifying:invocation[0]"
+      | "error.platform.guest.register.authenticating:invocation[0]"
+      | "error.platform.guest.register.checking:invocation[0]"
+      | "error.platform.guest.register.loading:invocation[0]"
+      | "error.platform.guest.register.registering:invocation[0]"
+      | "error.platform.guest.register.verifying:invocation[0]"
+      | "error.platform.unauthenticated:invocation[0]";
+    set2faSchemas: "done.invoke.guest.login.authenticating:invocation[0]";
+    set2faToken: "done.invoke.guest.login.authenticating:invocation[0]";
+    setCustomFields: "done.invoke.guest.register.loading:invocation[0]";
     setError:
-      | "error.platform.generating:invocation[0]"
-      | "error.platform.refreshing:invocation[0]";
-    setToken:
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]"
-      | "done.invoke.refreshing:invocation[0]";
+      | "error.platform.guest.login.authenticating:invocation[0]"
+      | "error.platform.guest.login.verifying:invocation[0]"
+      | "error.platform.guest.register.authenticating:invocation[0]"
+      | "error.platform.guest.register.checking:invocation[0]"
+      | "error.platform.guest.register.loading:invocation[0]"
+      | "error.platform.guest.register.registering:invocation[0]"
+      | "error.platform.guest.register.verifying:invocation[0]"
+      | "error.platform.unauthenticated:invocation[0]";
+    setLoginSchemas: "";
+    setModel: "AUTHENTICATE" | "REGISTER";
+    setRegisterSchemas: "done.invoke.guest.register.loading:invocation[0]";
+    trackLogin: "done.invoke.guest.login.authenticating:invocation[0]";
+    trackRegister: "done.invoke.guest.register.registering:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    isRefreshing: "" | "done.invoke.clearing:invocation[0]";
-    isUnauthorized: "error.platform.refreshing:invocation[0]";
+    requires2fa: "done.invoke.guest.login.authenticating:invocation[0]";
+    requiresReCaptcha: "done.invoke.guest.register.checking:invocation[0]";
   };
   eventsCausingServices: {
-    check: "done.invoke.clearing:invocation[0]" | "xstate.init";
-    dumpToken: "error.platform.refreshing:invocation[0]";
-    generateToken: "";
-    persistToken: "" | "done.invoke.refreshing:invocation[0]";
-    refreshToken: "";
+    authenticate:
+      | "AUTHENTICATE"
+      | "done.invoke.guest.register.registering:invocation[0]";
+    check: "xstate.init";
+    checkForReCaptcha: "REGISTER";
+    generateToken: "error.platform.loading:invocation[0]";
+    getCustomFields: "REGISTER";
+    register:
+      | "done.invoke.guest.register.checking:invocation[0]"
+      | "done.invoke.guest.register.verifying:invocation[0]";
+    verify2fa: "VERIFY";
+    verifyReCaptcha: "VERIFY";
   };
   matchesStates:
-    | "authenticated"
-    | "authenticated.clearing"
-    | "authenticated.idle"
-    | "authenticated.persisting"
-    | "authenticated.refreshing"
     | "complete"
     | "error"
+    | "idle"
     | "loading"
+    | "login"
+    | "login.authenticating"
+    | "login.available"
+    | "login.challenging"
+    | "login.loading"
+    | "login.verifying"
+    | "register"
+    | "register.authenticating"
+    | "register.available"
+    | "register.challenging"
+    | "register.checking"
+    | "register.loading"
+    | "register.registering"
+    | "register.verifying"
     | "unauthenticated"
-    | "unauthenticated.generating"
-    | "unauthenticated.idle"
     | {
-        authenticated?: "clearing" | "idle" | "persisting" | "refreshing";
-        unauthenticated?: "generating" | "idle";
+        login?:
+          | "authenticating"
+          | "available"
+          | "challenging"
+          | "loading"
+          | "verifying";
+        register?:
+          | "authenticating"
+          | "available"
+          | "challenging"
+          | "checking"
+          | "loading"
+          | "registering"
+          | "verifying";
       };
   tags: never;
 }
