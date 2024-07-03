@@ -12,7 +12,6 @@ import {
 // --- types
 import type { Token } from "./types";
 import { isString } from "xstate/lib/utils";
-import { parse } from "path";
 
 // -----------------------------------------------------------------------------
 
@@ -30,11 +29,16 @@ export function getTokenfromStorage(actor_type?: "guest" | "client") {
   return useTokenParser(token);
 }
 
-export function persistTokenToStorage(token: Token) {
+export function persistTokenToStorage(token: Token, history: false) {
   if (!localStorage) return Promise.reject("No localStorage available");
 
   token = useTokenParser(token);
   const type = token.actor_type || "guest";
+
+  if (history) {
+    const prevGuestToken = getTokenfromStorage("guest");
+    if (prevGuestToken) token.guest_token = prevGuestToken?.access_token;
+  }
 
   // now remember to destroy any prev token as we have a new one
   localStorage.removeItem(`guest/auth/token`);
@@ -67,6 +71,7 @@ export function useTokenParser(data: any) {
       : data?.isBoolean === "true",
     actor_type: toString(data?.actor_type),
     actor_id: toString(data?.actor_id),
+    guest_token: toString(data?.guest_token),
   };
 }
 

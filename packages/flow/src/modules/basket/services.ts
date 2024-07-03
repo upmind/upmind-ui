@@ -5,10 +5,11 @@ import { useApi } from "../api";
 
 import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
-import type { Token } from "../session/types.d";
 
 // --- utils
 import { useBasketParser } from "./utils";
+import { getTokenfromStorage } from "../session/utils";
+
 import {
   differenceBy,
   filter,
@@ -23,6 +24,7 @@ import {
   reduce,
   reject,
   set,
+  isArray,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -107,12 +109,10 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
 }
 
 async function claim({ basket }: BasketContext, _event: BasketEvent) {
-  if (isEmpty(basket)) return Promise.resolve();
-
-  const { getHistory } = useSession();
+  if (isEmpty(basket)) return Promise.resolve(basket);
   const { patch, useUrl } = useApi();
-  const token: Token | undefined = first(getHistory());
-  if (!token) return Promise.resolve();
+  const { guest_token } = getTokenfromStorage();
+  if (!guest_token) return Promise.resolve(basket);
 
   // this will return an array of the users baskets, ordered by most recent
   // but the response basket does not contain the products, so we need to
@@ -121,9 +121,13 @@ async function claim({ basket }: BasketContext, _event: BasketEvent) {
     url: useUrl("orders/claim"),
     withAccessToken: true,
     data: {
-      guest_token: token.access_token,
+      guest_token,
     },
-  }).then(useBasketParser);
+  }).then(({ data }) => {
+    // get the latest basket if we have multiple
+    data = isArray(data) ? first(data) : data;
+    return useBasketParser(data);
+  });
 }
 
 async function update({ basket, items }: BasketContext, _event: BasketEvent) {

@@ -208,12 +208,10 @@ export default createMachine(
         }
       ),
 
-      setContext: assign(
-        (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => data
-      ),
       setParsed: assign({
         model: (_context, { data }) => data.model,
       }),
+
       setLookups: assign({
         addresses: (_context, { data }) => data.addresses,
         companies: (_context, { data }) => data.companies,
@@ -298,8 +296,9 @@ export default createMachine(
       hasChanged: ({ account_id, basket_id }, { data }) => {
         return basket_id !== data?.id || account_id !== data?.account_id;
       },
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
+      shouldUpdate: ({ autoupdate, basket_id }, _event) => {
+        return !!autoupdate && !!basket_id && !!model?.address_id;
+      },
     },
 
     delays: {

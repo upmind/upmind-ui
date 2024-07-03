@@ -46,7 +46,8 @@ async function authenticate({ model }: GuestContext) {
       grant_type: GrantTypes.PASSWORD,
     },
   }).then(data => {
-    persistTokenToStorage(data);
+    // we record the history of the token to be able to referejce the originating guest token
+    persistTokenToStorage(data, true);
     return data;
   });
 }

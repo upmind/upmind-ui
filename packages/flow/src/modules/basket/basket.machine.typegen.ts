@@ -147,6 +147,7 @@ export interface Typegen0 {
       | "UPDATE.TERM";
     setBasket:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
