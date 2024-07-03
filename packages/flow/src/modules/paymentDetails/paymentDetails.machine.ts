@@ -272,9 +272,9 @@ export default createMachine(
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
               basket_id,
-              gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
-              amount: model?.amount,
               currency,
+              amount: model?.amount,
+              gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
             });
             set(actors, "gateway", actor);
           }
@@ -283,21 +283,35 @@ export default createMachine(
         },
       }),
 
-      refreshBasket: assign(({ model }, { data: basket }: RefreshEvent) => {
-        return {
-          basket_id: basket?.id,
-          currency: basket?.currency,
-          model: {
-            amount: basket?.unpaid_amount_converted || 0.0,
-          },
-        };
+      refreshBasket: assign({
+        basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
+        currency: (_context, { data: basket }: RefreshEvent) =>
+          basket?.currency,
+        model: (_context, { data: basket }: RefreshEvent) => ({
+          amount: basket?.unpaid_amount_converted || 0.0,
+        }),
+        actors: ({ actors }, { data: basket }) => {
+          forEach(actors, actor => {
+            if (actor?.send && !actor?.state?.done) {
+              actor.send({
+                type: "REFRESH",
+                data: {
+                  basket_id: basket?.id,
+                  currency: basket?.currency,
+                  amount: basket?.unpaid_amount_converted || 0.0,
+                },
+              });
+            }
+          });
+          return actors;
+        },
       }),
 
       // ---
 
       setPaymentDetails: assign({
         paymentDetails: ({ model }, { data }) => {
-          return { ...model, ...data, amount: model?.amount }; // ALWAYS USE THE AMOUNT PROVIDED
+          return { ...model, ...data };
         },
       }),
 

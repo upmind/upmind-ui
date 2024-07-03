@@ -29,7 +29,7 @@ export enum PaymentMethodTypes {
 export interface IPaymentDetail {
   amount: Number;
   type?: PaymentTypes;
-  gateway_id: String;
+  gateway_id?: String;
 }
 
 // --------------------------------------------------------

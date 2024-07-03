@@ -1,15 +1,15 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand, BrandConfigKeys } from "../../../";
+import { useSession, useBrand, BrandConfigKeys } from "../../../";
 
 // --- utils
 import { canBeStored } from "./utils";
 import { useValidation } from "../../../utils";
-import { isNil, get, sortBy, find, forEach } from "lodash-es";
+import { isNil, get } from "lodash-es";
 
 // --- types
-import type { GatewayEvent, GatewayContext, GatewayStoreType } from "./types.d";
+import type { GatewayEvent, GatewayContext } from "./types.d";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -55,13 +55,10 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
 // --------------------------------------------------------
 
 async function parse(
-  { model, can_store, must_store, must_auto_pay, amount }: GatewayContext,
+  { model, can_store, must_store, must_auto_pay }: GatewayContext,
   _event: GatewayEvent
 ) {
   model ??= {}; // safeguard
-
-  // ensire we have an amount
-  model.amount = !model.amount ? amount : model.amount;
 
   // Honour the brand settings storage and auto payment
   if (!can_store) {
