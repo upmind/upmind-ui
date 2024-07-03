@@ -43,7 +43,7 @@ export default createMachine(
           src: "refreshToken",
           onDone: { target: "processed" },
           onError: {
-            target: "error",
+            target: "loading",
             actions: "setError",
           },
         },
@@ -99,11 +99,6 @@ export default createMachine(
             after: { error: "#idle" },
           },
         },
-      },
-
-      // Handle errors
-      error: {
-        id: "error",
       },
 
       // Handle completion, stop the machine and prevent further requests

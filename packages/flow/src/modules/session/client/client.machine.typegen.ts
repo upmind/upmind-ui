@@ -52,7 +52,10 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clear: "LOGOUT";
-    clearError: "REFRESH" | "xstate.init";
+    clearError:
+      | "REFRESH"
+      | "error.platform.refreshing:invocation[0]"
+      | "xstate.init";
     clearTransfer: "xstate.after(expired)#sessionClient.transferring.available";
     setError:
       | "error.platform.loading:invocation[0]"
@@ -70,13 +73,12 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {};
   eventsCausingServices: {
-    load: "REFRESH" | "xstate.init";
+    load: "REFRESH" | "error.platform.refreshing:invocation[0]" | "xstate.init";
     refreshToken: "REFRESH";
     transfer: "TRANSFER";
   };
   matchesStates:
     | "complete"
-    | "error"
     | "idle"
     | "loading"
     | "processed"

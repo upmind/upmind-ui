@@ -57,7 +57,7 @@ export const useBasket = () => {
     // ---
     meta: computed(() => {
       return {
-        isLoading: stateMatches(state, ["loading"]), //
+        isLoading: stateMatches(state, ["subscribing", "loading"]), //
         // || machineMatches(actors.value.currency, ["loading"])
         // || machineMatches(actors.value.customFields, ["loading"])
         // || machineMatches(actors.value.promotions, ["loading"]),
