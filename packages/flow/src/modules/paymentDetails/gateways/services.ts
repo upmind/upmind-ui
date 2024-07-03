@@ -6,7 +6,7 @@ import { useApi, useSession, useBrand, BrandConfigKeys } from "../../../";
 // --- utils
 import { canBeStored } from "./utils";
 import { useValidation } from "../../../utils";
-import { unset, get, sortBy, find, forEach } from "lodash-es";
+import { isNil, get, sortBy, find, forEach } from "lodash-es";
 
 // --- types
 import type { GatewayEvent, GatewayContext, GatewayStoreType } from "./types.d";
@@ -73,7 +73,9 @@ async function parse(
   }
 
   // If we are not storing, we should not allow auto payment
-  if (!model.store_on_payment) model.store_on_payment_auto_payment = false;
+  if (!isNil(model.store_on_payment) && !model.store_on_payment) {
+    model.store_on_payment_auto_payment = false;
+  }
 
   return Promise.resolve(model);
 }
