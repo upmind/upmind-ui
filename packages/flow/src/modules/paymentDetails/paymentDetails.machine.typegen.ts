@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.authCallback": {
       type: "done.invoke.authCallback";
       data: unknown;
@@ -64,6 +65,7 @@ export interface Typegen0 {
       | "validate";
   };
   eventsCausingActions: {
+    clearAutoUpdate: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     clearError:
       | "AUTHENTICATED"
       | "CLEAR"
@@ -75,14 +77,16 @@ export interface Typegen0 {
       | "xstate.update";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
-    forwardCheckout: "CHECKOUT";
+    forwardCheckout: "" | "CHECKOUT";
     providePaymentDetails:
       | "PAYMENT_DETAILS"
       | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     refreshBasket: "REFRESH";
+    setAutoUpdate: "SET";
     setContext:
       | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    setDirty: "CLEAR" | "SET";
     setError:
       | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]"
       | "error.platform.paymentDetailsManager.available.loading:invocation[0]";
@@ -96,11 +100,13 @@ export interface Typegen0 {
       | "REFRESH"
       | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]"
       | "done.invoke.paymentDetailsManager.available.loading:invocation[0]";
+    trackPaymentDetails: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasBasket: "CHECKOUT";
     isFree: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
+    shouldUpdate: "";
   };
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
@@ -117,7 +123,7 @@ export interface Typegen0 {
       | "SET"
       | "done.invoke.paymentDetailsManager.available.loading:invocation[0]"
       | "xstate.update";
-    update: "CHECKOUT";
+    update: "" | "CHECKOUT";
     validate: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
   };
   matchesStates:

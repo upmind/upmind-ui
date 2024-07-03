@@ -6,7 +6,8 @@ const { escalate } = actions;
 import services from "./services";
 import type { ClientContext } from "./types.d";
 import { responseCodes } from "../../api/types.d";
-
+import { useFeedback } from "../../feedback";
+const { trackEvent } = useFeedback();
 // --- utils
 import { useTime } from "../../../utils";
 import { useTokenParser } from "../utils";
@@ -114,7 +115,10 @@ export default createMachine(
                       actions: ["set2faToken", "set2faSchemas"],
                       cond: "requires2fa",
                     },
-                    { target: "#authenticated", actions: ["setToken"] },
+                    {
+                      target: "#authenticated",
+                      actions: ["setToken", "trackLogin"],
+                    },
                   ],
                   onError: {
                     target: "error",
@@ -205,7 +209,10 @@ export default createMachine(
               registering: {
                 invoke: {
                   src: "register",
-                  onDone: { target: "authenticating", actions: ["setToken"] },
+                  onDone: {
+                    target: "authenticating",
+                    actions: ["setToken", "trackRegister"],
+                  },
                   onError: {
                     target: "error",
                     actions: ["setError", "escalateError"],
@@ -215,7 +222,10 @@ export default createMachine(
               authenticating: {
                 invoke: {
                   src: "authenticate",
-                  onDone: { target: "#authenticated", actions: ["setToken"] },
+                  onDone: {
+                    target: "#authenticated",
+                    actions: ["setToken"],
+                  },
                   onError: {
                     target: "error",
                     actions: ["setError", "escalateError"],
@@ -357,6 +367,23 @@ export default createMachine(
         token: {},
       }),
       // ---
+      trackRegister: (_context, { data }) => {
+        trackEvent({
+          event: "sign_up",
+          upmind: {
+            user_id: data?.actor_id,
+          },
+        });
+      },
+      trackLogin: (_context, { data }) => {
+        trackEvent({
+          event: "login",
+          upmind: {
+            user_id: data?.actor_id,
+          },
+        });
+      },
+
       setError: assign({
         error: (_context, event, state) => {
           console.error("session", "client", "error", { event, state });

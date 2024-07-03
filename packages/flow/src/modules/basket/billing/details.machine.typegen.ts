@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.authCallback": {
       type: "done.invoke.authCallback";
       data: unknown;
@@ -73,8 +74,10 @@ export interface Typegen0 {
       | "validate";
   };
   eventsCausingActions: {
+    clearAutoUpdate: "done.invoke.processing:invocation[0]";
     clearDirty: "done.invoke.processing:invocation[0]";
     clearError:
+      | ""
       | "AUTHENTICATED"
       | "CLEAR"
       | "REFRESH"
@@ -111,6 +114,7 @@ export interface Typegen0 {
     hasBasket: "UPDATE";
     hasChanged: "REFRESH";
     isDirty: "done.invoke.billingDetailsManager.available.checking.validating:invocation[0]";
+    shouldUpdate: "";
   };
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
@@ -123,7 +127,7 @@ export interface Typegen0 {
       | "SET"
       | "done.invoke.billingDetailsManager.checking:invocation[0]";
     parse: "CLEAR" | "SET" | "done.invoke.loading:invocation[0]";
-    update: "RETRY" | "UPDATE";
+    update: "" | "RETRY" | "UPDATE";
     validate: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
   };
   matchesStates:

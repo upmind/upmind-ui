@@ -25,6 +25,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket_id: undefined,
+      account_id: undefined,
       // ---
       schema: undefined,
       uischema: undefined,
@@ -32,6 +33,7 @@ export default createMachine(
       // ---
       dirty: false,
       error: null,
+      autoupdate: false,
     } as BillingDetailsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
@@ -115,18 +117,20 @@ export default createMachine(
             },
           },
 
-          invalid: {
-            id: "invalid",
-          },
-
           valid: {
             id: "valid",
+            always: { target: "processing", cond: "shouldUpdate" },
+
             on: {
               UPDATE: {
                 target: "processing",
                 cond: "hasBasket",
               },
             },
+          },
+
+          invalid: {
+            id: "invalid",
           },
 
           processing: {
@@ -137,7 +141,7 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "processed",
-                actions: ["setModel", "clearDirty"],
+                actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
                 target: "#error",
@@ -174,7 +178,11 @@ export default createMachine(
         },
       },
 
-      // ---
+      complete: {
+        id: "complete",
+        // type: "final"
+      },
+
       error: {
         id: "error",
         on: {
@@ -182,10 +190,6 @@ export default createMachine(
             target: "#processing",
           },
         },
-      },
-      complete: {
-        id: "complete",
-        // type: "final"
       },
     },
     on: {
@@ -204,6 +208,7 @@ export default createMachine(
         ) => {
           return {
             basket_id: basket?.id,
+            account_id: basket?.account_id,
             model: {
               address_id: basket?.address_id,
               company_id: basket?.company_id,
@@ -242,6 +247,13 @@ export default createMachine(
 
       clearDirty: assign({
         dirty: false,
+      }),
+
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }) => !!update,
+      }),
+      clearAutoUpdate: assign({
+        autoupdate: false,
       }),
 
       // ---
@@ -285,12 +297,11 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model }, { data }) => {
-        return (
-          model?.address_id !== data?.address_id ||
-          model?.company_id !== data?.company_id
-        );
+      hasChanged: ({ account_id, basket_id }, { data }) => {
+        return basket_id !== data?.id || account_id !== data?.account_id;
       },
+      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
+        !!autoupdate && !!basket_id,
     },
 
     delays: {

@@ -5,23 +5,26 @@
 // Contexts
 
 export interface ProductConfigContext {
-  currency_id;
-  promotions;
-  // ---
-  available: {
+  lookups: {
     product: IProduct;
     terms: array;
     options: array;
     attributes: array;
   };
-  values: IProductValues;
+  model: IProductModel;
   // ---
   config: IProductConfig;
+  summary: IProductSummary;
+  prices: {
+    term: { subtotal: number; total: number; discount: number };
+    attributes: { subtotal: number; total: number; discount: number };
+    options: { subtotal: number; total: number; discount: number };
+  };
   // ---
   error?: RequestError;
 }
 
-export interface IProductValues {
+export interface IProductModel {
   id?: string; // this is only when it exists in the basket
   // ---
   product_id: IProduct["id"];
@@ -30,8 +33,16 @@ export interface IProductValues {
   term: IProductTerm;
   attributes: array;
   options: array;
-  promotions?: { promocode: string }[];
   start_trial?: boolean;
+  // ---
+  currency_id: IProductPrice["currency_id"];
+  promotions: IProductPromotion[];
+  // ---
+  prices: {
+    term: { subtotal: number; total: number; discount: number };
+    attributes: { subtotal: number; total: number; discount: number };
+    options: { subtotal: number; total: number; discount: number };
+  };
 }
 
 export interface IProductConfig {
@@ -55,6 +66,10 @@ export interface IProductConfig {
   currency_id: IProductPrice["currency_id"];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
   start_trial?: boolean;
+}
+
+export interface IProductPromotion {
+  promocode: string;
 }
 
 export interface BasketContext {

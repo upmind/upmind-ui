@@ -110,6 +110,7 @@ export interface Typegen0 {
     setUser:
       | "done.invoke.sessionManager.client.processing:invocation[0]"
       | "done.invoke.sessionManager.guest.processing:invocation[0]";
+    trackLogout: "LOGOUT";
   };
   eventsCausingDelays: {
     error:

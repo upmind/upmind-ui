@@ -1,13 +1,10 @@
 <template>
-  <article :class="styles.product.card.root" v-if="!meta.isLoading">
+  <article :class="styles.product.card.root">
     <!-- thumb -->
-    <figure
-      :class="styles.product.card.media"
-      v-if="availableProduct?.image?.full_url"
-    >
+    <figure :class="styles.product.card.media" v-if="product?.image?.full_url">
       <img
-        :src="availableProduct?.image?.full_url"
-        :alt="`${availableProduct?.name} thumbnail`"
+        :src="product?.image?.full_url"
+        :alt="`${product?.name} thumbnail`"
         :class="styles.product.card.image"
       />
     </figure>
@@ -17,18 +14,18 @@
       <header :class="styles.product.card.header">
         <upw-badge
           color="secondary"
-          v-if="availableProduct?.hasFreeTrial"
+          v-if="product?.hasFreeTrial"
           :label="$t('product.trail')"
         />
 
         <upw-badge
           color="secondary"
-          v-if="availableProduct?.isOnPromotion"
+          v-if="product?.isOnPromotion"
           :label="$t('product.promotion')"
         />
 
         <h3 :class="styles.product.card.title">
-          {{ availableProduct?.name }}
+          {{ product?.name }}
         </h3>
 
         <div :class="styles.product.card.meta">
@@ -46,14 +43,15 @@
             size="sm"
             color="current"
             :label="$tc('product.actions.more', toggle ? 0 : 1)"
-            v-if="meta.isConfigurable && meta.isConfigured"
+            :class="styles.product.card.more"
+            v-if="hasSummaryDetails"
           >
             <template #append-icon>
               <upw-icon
                 icon="arrow-down"
                 :class="styles.product.card.toggle"
                 :aria-checked="toggle"
-                :aria-controls="`product-${availableProduct?.id}-toggle`"
+                :aria-controls="`product-${product?.id}-toggle`"
                 aria-hidden="true"
               />
             </template>
@@ -69,13 +67,13 @@
             styles.product.card.collapsible
           )
         "
-        :id="`product-${availableProduct?.id}-toggle`"
+        :id="`product-${product?.id}-toggle`"
         :aria-expanded="toggle"
         :aria-hidden="!toggle"
       >
         <ul :class="styles.product.card.details.root">
           <template
-            v-for="(detail, index) in summary.details"
+            v-for="(detail, index) in summary?.details"
             :key="`summary-detail-${index}`"
           >
             <li
@@ -94,7 +92,8 @@
       </div>
 
       <!-- footer -->
-      <footer :class="styles.product.card.footer" v-show="!meta.isLoading">
+      <footer :class="styles.product.card.footer">
+        <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
             v-if="!!summary?.discount"
@@ -107,7 +106,10 @@
             }}
           </span>
 
-          <strong :class="styles.product.card.total">
+          <strong
+            :class="styles.product.card.total"
+            v-if="!isNil(summary?.total)"
+          >
             {{ summary?.total ? summary?.total_formatted : $t("product.free") }}
           </strong>
         </div>
@@ -115,9 +117,7 @@
         <!-- actions -->
         <div :class="styles.product.card.actions">
           <upw-button
-            :disabled="
-              !meta.isConfigurable && !availableProduct?.canChangeQuantity
-            "
+            :disabled="!meta.isConfigurable && !product?.canChangeQuantity"
             :label="$t('product.actions.configure')"
             @click="doResolve"
             color="current"
@@ -132,6 +132,7 @@
             icon-only
             prependIcon="remove"
             type="button"
+            :loading="meta.isUnavailable"
           />
         </div>
       </footer>
@@ -149,16 +150,16 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwBadge, UpwButton, UpwIcon } from "@upmind/upwind";
+import { UpwBadge, UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
 
 // --- utils
-import { isNil } from "lodash-es";
+import { isNil, find, reject } from "lodash-es";
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwBadge, UpwButton, UpwIcon },
+  components: { UpwBadge, UpwButton, UpwIcon, UpwSpinner },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
@@ -171,9 +172,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const { availableProduct, model, meta, summary } = useProductConfig(
-      props.item
-    );
+    const { product, model, meta, summary } = useProductConfig(props.item);
 
     const styles = useStyles(
       ["product.card", "product.card.details"],
@@ -184,7 +183,7 @@ export default defineComponent({
     // ---
 
     return {
-      availableProduct,
+      product,
       model,
       meta,
       summary,
@@ -201,7 +200,10 @@ export default defineComponent({
   },
   computed: {
     termSummary() {
-      return this.summary.details.find(detail => detail.key === "term");
+      return find(this?.summary?.details, detail => detail.key === "term");
+    },
+    hasSummaryDetails() {
+      return reject(this?.summary?.details, ["key", "term"])?.length > 1;
     },
   },
 });

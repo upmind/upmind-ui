@@ -22,7 +22,7 @@ import type { TActor } from "./types";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketPromotions = (actor?: TActor<any>) => {
-  const { service } = useBasket();
+  const { service, getSnapshot } = useBasket();
   const promotions = ref(actor);
 
   if (!actor) {
@@ -44,7 +44,13 @@ export const useBasketPromotions = (actor?: TActor<any>) => {
     meta: computed(() => ({
       isLoading:
         !promotions.value?.state ||
-        stateMatches(promotions.value?.state, ["loading"]),
+        stateMatches(promotions.value?.state, ["loading"]) ||
+        stateMatches(getSnapshot(), [
+          "subscribing",
+          "loading",
+          "generating",
+          "claiming",
+        ]),
       hasErrors: stateMatches(promotions.value?.state, ["error"]),
       isProcessing: stateMatches(promotions.value?.state, [
         "checking",

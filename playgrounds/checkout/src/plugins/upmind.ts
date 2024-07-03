@@ -1,4 +1,9 @@
-import type { App, Plugin } from "vue";
+// ---external
+import { createGtm } from "@gtm-support/vue-gtm";
+
+// ---internal
+import router from "../router";
+
 import {
   useApi,
   useBrand,
@@ -7,23 +12,32 @@ import {
   useBasket,
 } from "@upmind/client-vue";
 
-declare module "@vue/runtime-core" {
-  interface ComponentCustomProperties {
-    $upmind: ReturnType<typeof useApi>;
-  }
-}
+// --- types
+import type { App, Plugin } from "vue";
+
+// -----------------------------------------------------------------------------
 
 const upmindPlugin: Plugin = {
   install: (app: App): void => {
-    const api = useApi();
-
+    useApi();
     // lets initialize our system, brand + session machines as they are global
     useSystem();
-    useBrand();
+    useBrand()
+      .getAnayltics()
+      .then(analytics => {
+        // set up gtm if we have a container id
+        if (!analytics?.gtm?.container_id) return;
+        app.use(
+          createGtm({
+            id: analytics?.gtm?.container_id,
+            dataLayerName: "upmDataLayer",
+            debug: import.meta.env.DEV,
+            vueRouter: router,
+          })
+        );
+      });
     useSession();
     useBasket();
-
-    app.provide("upmind", api);
   },
 };
 

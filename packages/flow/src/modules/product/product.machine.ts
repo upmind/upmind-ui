@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { escalate, sendParent } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -8,25 +8,32 @@ import services from "./services";
 // --utils
 import { useTime } from "../../utils";
 import {
-  useAttributesParser,
-  useProductConfigParser,
-  useOptionsParser,
+  useBasketConfigParser,
+  useSubproductParser,
   useProvisioningParser,
   useProductParser,
   useTermsParser,
-  useValuesParser,
+  useModelParser,
   useSummaryParser,
   useValidationParser,
-  useDisplayPriceParser,
 } from "./utils";
 
-import { get, set, map, toNumber, find, merge, isEqual } from "lodash-es";
+import {
+  get,
+  set,
+  map,
+  toNumber,
+  find,
+  merge,
+  isEqual,
+  unset,
+} from "lodash-es";
 
 import { useBrand } from "../brand";
 
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
-export default (values, currency_id, promotions) => {
+export default (model, currency_id, promotions) => {
   const { validateCurrency } = useBrand();
   return createMachine(
     {
@@ -35,288 +42,337 @@ export default (values, currency_id, promotions) => {
       predictableActionArguments: true,
       initial: "loading",
       context: {
-        // ---
-        // the model use dto generate our coonfig,
-        // but with better structure / more detail to make ut easier for any ui to consume,
-        // and keep the generated config separate & clean
-        values: useValuesParser(values),
-
         // we mark the config with flags to help us determine what to do with it
         // once we have finished configuring it
-        isNew: !values?.id,
+        // TODO: should probably be state instead of context
+        isNew: !model?.id,
         isDirty: false,
         needsCalculating: false,
-
+        // ---
+        currency_id: validateCurrency(currency_id),
+        promotions,
+        // the model used to generate our final config,
+        // but with better structure / more detail to make ut easier for any ui to consume,
+        // and keep the generated config separate & clean
+        model: useModelParser(model),
         // ---
         // the various lookups that we are using in our configuation
-        available: {
-          product: values?.product,
+        lookups: {
+          product: model?.product,
           terms: null,
           options: null,
           attributes: null,
           provision_fields: null,
         },
-
         // ---
-        // the generated summary of the configuration,
-        // including the totals formatted for display
-        summary: useSummaryParser(values),
-
-        // use any applied promotions when fetching the product to get the correct prices
-        promotions,
-        currency_id: validateCurrency(currency_id),
+        // Dynamically generated summary/pricing/details of the configuration,
+        config: {},
+        summary: {},
+        prices: {
+          term: { subtotal: 0, total: 0, discount: 0 },
+          attributes: { subtotal: 0, total: 0, discount: 0 },
+          options: { subtotal: 0, total: 0, discount: 0 },
+        },
         // ---
-        error: null,
+        error: {},
       },
       states: {
         // first load our product, we do this even if we are given a configured set of values
         //  as we need the additional 'with' properties
         loading: {
+          id: "loading",
           invoke: {
             id: "load",
-            src: "getProduct",
-            onDone: [{ target: "processed", actions: ["setAvailable"] }],
+            src: "load",
+            onDone: [{ target: "configuring", actions: ["setLookups"] }],
             onError: {
               target: "#error",
-              actions: ["setError", "escalateError"],
+              actions: ["setError"],
             },
-          },
-        },
-
-        processed: {
-          after: {
-            wait: "configuring",
           },
         },
 
         // The product requires configuration
         configuring: {
           id: "configuring",
-          type: "parallel",
+          initial: "quantity",
           states: {
             quantity: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkQuantity",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setQuantity", "setConfig"],
-                    },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setError", "escalateError"],
-                    },
-                  },
+              invoke: {
+                src: "checkQuantity",
+                onDone: {
+                  target: "values",
+                  actions: ["setQuantity", "setConfig"],
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.QUANTITY": {
-                  target: "quantity.checking",
-                  actions: ["setQuantity", "setCalculating"],
+                onError: {
+                  actions: ["setError"],
                 },
               },
             },
-            term: {
-              initial: "checking",
+            values: {
+              entry: "clearError",
+              type: "parallel",
               states: {
-                checking: {
-                  invoke: {
-                    src: "checkTerm",
-                    onDone: { target: "valid", actions: ["setTerm"] },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setError", "escalateError"],
+                term: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      entry: ({ error }) => unset(error, "term"),
+                      invoke: {
+                        src: "checkTerm",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setTerm", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setTerm", "setConfig"],
+                        },
+                      },
+                    },
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.TERM": {
+                      target: "term.checking",
+                      actions: ["setTerm"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.TERM": {
-                  target: "term.checking",
-                  actions: ["setTerm", "setConfig", "setCalculating"],
-                },
-              },
-            },
-            attributes: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkAttributes",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setAttributes", "setConfig"],
+                attributes: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      entry: ({ error }) => unset(error, "attributes"),
+                      invoke: {
+                        src: "checkAttributes",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setAttributes", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setAttributes", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setAttributes", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.ATTRIBUTES": {
+                      target: "attributes.checking",
+                      actions: ["setAttributes"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.ATTRIBUTES": {
-                  target: "attributes.checking",
-                  actions: ["setAttributes"],
-                },
-              },
-            },
-            options: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkOptions",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setOptions", "setConfig"],
+                options: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      entry: ({ error }) => unset(error, "options"),
+                      invoke: {
+                        src: "checkOptions",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setOptions", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setOptions", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setOptions", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.OPTIONS": {
+                      target: "options.checking",
+                      actions: ["setOptions"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
-                },
-              },
-              on: {
-                "UPDATE.OPTIONS": {
-                  target: "options.checking",
-                  actions: ["setOptions", "setCalculating"],
-                },
-              },
-            },
-            provisioning: {
-              initial: "checking",
-              states: {
-                checking: {
-                  invoke: {
-                    src: "checkProvisioning",
-                    onDone: {
-                      target: "valid",
-                      actions: ["setProvisioning", "setConfig"],
+                provisioning: {
+                  initial: "checking",
+                  states: {
+                    checking: {
+                      entry: ({ error }) => unset(error, "provision_fields"),
+                      invoke: {
+                        src: "checkProvisioning",
+                        onDone: {
+                          target: "valid",
+                          actions: ["setProvisioning", "setConfig"],
+                        },
+                        onError: {
+                          target: "invalid",
+                          actions: ["setProvisioning", "setConfig", "setError"],
+                        },
+                      },
                     },
-                    onError: {
-                      target: "invalid",
-                      actions: ["setProvisioning", "setConfig", "setError"],
+                    invalid: {},
+                    valid: {
+                      type: "final",
+                    },
+                  },
+                  on: {
+                    "UPDATE.PROVISIONING": {
+                      target: "provisioning.checking",
+                      actions: ["setProvisioning"],
                     },
                   },
                 },
-                invalid: {},
-                valid: {
-                  type: "final",
+                summary: {
+                  initial: "idle",
+                  states: {
+                    idle: {
+                      always: [
+                        { target: "calculating", cond: "needsRecalculating" },
+                      ],
+                    },
+                    calculating: {
+                      id: "calculating",
+                      invoke: {
+                        src: "calculateSummary",
+                        onDone: {
+                          target: "complete",
+                          actions: ["setSummary", "clearCalculating"],
+                        },
+                        onError: {
+                          target: "idle",
+                          actions: ["setError"],
+                        },
+                      },
+                    },
+                    complete: {
+                      type: "final",
+                    },
+                  },
                 },
               },
-              on: {
-                "UPDATE.PROVISIONING": {
-                  target: "provisioning.checking",
-                  actions: ["setProvisioning"],
-                },
-              },
+              onDone: "#configured",
             },
           },
-          on: {
-            REFRESH: {
-              target: "loading",
-              actions: ["setValues", "setClean"],
-              cond: "hasChanged",
-            },
-            UPDATE: {
-              target: "processed",
-              actions: ["setValues", "setDirty", "setCalculating"],
-            },
-            PUT: [
-              {
-                target: "processed",
-                actions: ["mergeValues", "setDirty", "setCalculating"],
-                cond: "hasChanged",
-              },
-            ],
-          },
-          onDone: [
-            { target: "calculating", cond: "needsRecalculating" },
-            { target: "configured" },
-          ],
-        },
-
-        calculating: {
-          invoke: {
-            src: "calculateSummary",
-            onDone: {
-              target: "configured",
-              actions: ["setSummary", "clearCalculating"],
-            },
-            // onError: { target: "error", actions: ["setError"] }
-          },
-        },
-
-        // this is our state where we are all good and can add/update this configuration to the basket
-        configured: {
-          entry: ["setConfig", "sendConfig"],
           on: {
             REFRESH: [
               {
                 target: "loading",
-                actions: ["setValues", "setClean"],
+                actions: ["setCurrency", "setPromotions", "setClean"],
                 cond: "hasChanged",
               },
               {
                 actions: ["setClean"],
               },
             ],
-            // ---
+            // PROCESSING: { target: "configured.processing" },
+            "UPDATE.QUANTITY": {
+              target: "configuring.quantity",
+              actions: ["setQuantity"],
+            },
             UPDATE: {
-              target: "processed",
-              actions: ["setValues", "setDirty", "setCalculating"],
+              target: "configuring",
+              actions: ["setModel", "setDirty"],
             },
             PUT: [
               {
-                target: "processed",
-                actions: ["mergeValues", "setDirty", "setCalculating"],
+                target: "configuring",
+                actions: ["mergeModel", "setDirty"],
+                cond: "hasChanged",
+              },
+            ],
+          },
+          onDone: [
+            { target: "#calculating", cond: "needsRecalculating" },
+            { target: "configured" },
+          ],
+        },
+
+        // this is our state where we are all good and can add/update this configuration to the basket
+        configured: {
+          id: "configured",
+          entry: ["setConfig", "sendConfig"],
+          initial: "idle",
+          states: {
+            idle: {},
+            // this is a state where we have been processed from a parent machine
+            processing: {
+              type: "final",
+              on: {
+                REFRESH: {
+                  target: "#loading",
+                  actions: ["setCurrency", "setPromotions"],
+                },
+              },
+            },
+          },
+
+          on: {
+            REFRESH: [
+              {
+                target: "loading",
+                actions: ["setCurrency", "setPromotions", "setClean"],
+                cond: "hasChanged",
+              },
+
+              {
+                actions: ["setClean"],
+              },
+            ],
+            PROCESSING: { target: "configured.processing" },
+
+            // ---
+            UPDATE: {
+              target: "configuring",
+              actions: ["setModel", "setDirty"],
+            },
+            PUT: [
+              {
+                target: "configuring",
+                actions: ["mergeModel", "setDirty"],
                 cond: "hasChanged",
               },
             ],
 
             "UPDATE.QUANTITY": {
-              target: "configuring.quantity.checking",
-              actions: ["setQuantity", "setDirty", "setCalculating"],
+              target: "configuring.quantity",
+              actions: ["setQuantity", "setDirty"],
             },
             "UPDATE.TERM": {
-              target: "configuring.term.checking",
-              actions: ["setTerm", "setDirty", "setCalculating"],
+              target: "configuring.values.term.checking",
+              actions: ["setTerm", "setDirty"],
             },
             "UPDATE.ATTRIBUTES": {
-              target: "configuring.attributes.checking",
+              target: "configuring.values.attributes.checking",
               actions: ["setAttributes", "setDirty"],
             },
             "UPDATE.OPTIONS": {
-              target: "configuring.options.checking",
-              actions: ["setOptions", "setDirty", "setCalculating"],
+              target: "configuring.values.options.checking",
+              actions: ["setOptions", "setDirty"],
             },
             "UPDATE.PROVISIONING": {
-              target: "configuring.provisioning.checking",
+              target: "configuring.values.provisioning.checking",
               actions: ["setProvisioning", "setDirty"],
             },
           },
         },
 
+        // this is a state where we hav ebeen deleted or are no longer available from a parent machine
+        unavailable: {
+          on: {
+            REFRESH: {
+              target: "loading",
+              actions: ["setCurrency", "setPromotions", "setClean"],
+              cond: "hasChanged",
+            },
+          },
+        },
         // Handle errors
         error: {
           id: "error",
@@ -331,10 +387,11 @@ export default (values, currency_id, promotions) => {
         complete: {
           id: "valid",
           type: "final",
-          data: ({ values }, _event) => useProductConfigParser(values),
+          data: ({ model }, _event) => useBasketConfigParser(model),
         },
       },
       on: {
+        BIN: { target: "unavailable" },
         ERROR: { target: "#error", actions: ["setError"] },
         "CLEAR.ERRORS": { actions: ["clearError"] },
       },
@@ -342,73 +399,80 @@ export default (values, currency_id, promotions) => {
     {
       actions: {
         // ---
-        setAvailable: assign({
-          available: (_context, { data }) => {
+        setLookups: assign({
+          lookups: (_context, { data }) => {
             return {
               product: useProductParser(data),
               terms: useTermsParser(data.prices),
-              attributes: useAttributesParser(data.products_attributes),
-              options: useOptionsParser(data.products_options),
+              attributes: useSubproductParser(data.products_attributes),
+              options: useSubproductParser(data.products_options),
               provision_fields: useProvisioningParser(
                 data.products_provisioning
               ),
             };
           },
-
-          summary: ({ summary, isNew }, { data }) =>
-            !isNew ? summary : useDisplayPriceParser(data),
         }),
 
-        setValues: assign({
+        setCurrency: assign({
           currency_id: ({ currency_id }, { data }) =>
             data?.currency_id || currency_id,
-          promotions: ({ promotions }, { data }) =>
-            data?.promotions || promotions || [],
-          values: (_context, { data }) => useValuesParser(data?.product),
-          summary: (_context, { data }) => useSummaryParser(data?.product),
         }),
 
-        mergeValues: assign({
-          values: ({ values }, { data }) => {
-            const newValues = merge({}, values, useValuesParser(data));
-            return newValues;
-          },
+        setPromotions: assign({
+          promotions: ({ promotions }, { data }) =>
+            data?.promotions || promotions || [],
+        }),
+
+        setModel: assign({
+          model: (_context, { data }) => useModelParser(data?.product),
+        }),
+
+        mergeModel: assign({
+          model: ({ model }, { data }) =>
+            merge({}, model, useModelParser(data)),
         }),
 
         // ---
 
         setConfig: assign({
-          config: ({ values }, _event) => useProductConfigParser(values),
+          config: ({ model }, _event) => useBasketConfigParser(model),
         }),
 
-        sendConfig: sendParent(({ values }, _event) => ({
+        sendConfig: sendParent(({ model }, _event) => ({
           type: "CONFIGURED",
-          data: useProductConfigParser(values),
+          data: useBasketConfigParser(model),
         })),
 
         // ---
         setSummary: assign({
-          summary: (_context, { data }) => data,
+          summary: ({ prices, model }, { data }) => {
+            return useSummaryParser({
+              summary: data,
+              prices,
+              model,
+            });
+          },
         }),
 
         setQuantity: assign({
-          values: ({ values }, { data }) => {
+          model: ({ model }, { data }) => {
             const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
-            set(values, "quantity", Math.max(1, quantity)); //TODO: min check? step check
-            return values;
+            set(model, "quantity", Math.max(1, quantity)); //TODO: min check? step check
+            return model;
           },
         }),
 
         setTerm: assign({
-          values: ({ values }, { data }) => {
-            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
-            set(values, "term", term);
-            return values;
+          model: ({ model }, { data }) => {
+            const term = get(data, "term");
+            set(model, "term", term);
+            return model;
           },
-          available: ({ available }, { data }) => {
-            // set the price for the available options based on the term selected
-            const term = get(data, "term", data); // workaround to allow the same action to be used for different event sources
-            available.options = map(available.options, option => {
+          prices: ({ prices }, { data }) => get(data, "prices", prices),
+          lookups: ({ lookups }, { data }) => {
+            // set the price for the lookups options based on the term selected
+            const term = get(data, "term");
+            lookups.options = map(lookups.options, option => {
               option.values = map(option.values, value => {
                 value.price = find(value.prices, [
                   "billing_cycle_months",
@@ -419,82 +483,77 @@ export default (values, currency_id, promotions) => {
 
               return option;
             });
-            return available;
+            return lookups;
           },
+          needsCalculating: (_context, { data }) => !!data?.term,
         }),
 
         setAttributes: assign({
-          values: ({ values }, { data }) => {
-            const attributes = get(data, "attributes", data); // workaround to allow the same action to be used for different event sources
-            set(values, "attributes", attributes);
-            return values;
+          model: ({ model }, { data }) => {
+            const attributes = get(data, "attributes");
+            set(model, "attributes", attributes);
+            return model;
           },
+          prices: ({ prices }, { data }) => get(data, "prices", prices),
         }),
 
         setOptions: assign({
-          values: ({ values }, { data }) => {
-            const options = get(data, "options", data); // workaround to allow the same action to be used for different event sources
-            set(values, "options", options);
-            return values;
+          model: ({ model }, { data }) => {
+            const options = get(data, "options");
+            set(model, "options", options);
+            return model;
           },
+          prices: ({ prices }, { data }) => get(data, "prices", prices),
+          needsCalculating: (_context, { data }) => !!data?.options,
         }),
 
         setProvisioning: assign({
-          values: ({ values }, { data }) => {
-            const provision_fields = get(data, "provision_fields", data); // workaround to allow the same action to be used for different event sources
-            set(values, "provision_fields", provision_fields);
-            return values;
+          model: ({ model }, { data }) => {
+            const provision_fields = get(data, "provision_fields");
+            set(model, "provision_fields", provision_fields);
+            return model;
           },
         }),
 
         // ---
-
-        setCalculating: assign({
-          needsCalculating: (_context, _event) => {
-            // TODO: a more comprehensive check to see if values have actually changed.
-            // For now we will always set this to true, as we need to recalculate the summary
-            return true;
-          },
-        }),
 
         clearCalculating: assign({ needsCalculating: false }),
         setDirty: assign({ isDirty: true }),
         setClean: assign({
           isDirty: false,
           needsCalculating: false,
-          error: null,
+          error: {},
         }),
 
         // ---
 
         setError: assign({
-          error: (context, { data }) => {
-            let error = data?.error;
-            if (error?.code == 422) {
+          error: ({ error }, { data }) => {
+            let err = data?.error || data;
+
+            if (err?.code == 422) {
               // lets parse/override our error message and data
               // this is to generate valid json schema validation errors
-              error = useValidationParser(error);
+              err = useValidationParser(error);
             }
 
-            return error;
+            return err;
           },
         }),
 
-        escalateError: escalate(({ error }) => {
-          if (error) {
-            error.title = "We experienced an error configuring the product";
-          }
-          return error;
-        }),
-
-        clearError: assign({ error: null }),
+        clearError: assign({ error: {} }),
       },
       services,
       guards: {
         needsRecalculating: ({ needsCalculating }) => needsCalculating,
-        hasChanged: ({ values }, { data }) => {
-          const newValues = merge({}, values, useValuesParser(data));
-          return !isEqual(newValues, values);
+
+        hasChanged: ({ model, basket_id, currency_id }, { data }) => {
+          const newModel = merge({}, model, useModelParser(data));
+          return (
+            !isEqual(newModel, model) ||
+            basket_id !== data?.id ||
+            currency_id !== data?.currency_id
+          );
         },
       },
       delays: {
