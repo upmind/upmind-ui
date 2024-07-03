@@ -185,7 +185,7 @@ export default createMachine(
     },
     on: {
       UNAUTHENTICATED: {
-        target: "unavailable",
+        target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
     },
