@@ -182,15 +182,17 @@ async function setDefault({ model }: AddressContext, _event: AddressEvent) {
 // --------------------------------------------------------
 
 async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
-  const { fetchCountries, fetchRegions, getCountry } = useSystem();
+  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
+  await isReady();
   const countries = await fetchCountries();
   const country = getCountry(model?.country_id);
   const regions = await fetchRegions(model?.country_id || country?.id);
 
   if (!countries || !regions) {
+    debugger;
     return Promise.reject("Failed to load countries and regions");
   }
 

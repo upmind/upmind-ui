@@ -296,7 +296,7 @@ export default createMachine(
       hasChanged: ({ account_id, basket_id }, { data }) => {
         return basket_id !== data?.id || account_id !== data?.account_id;
       },
-      shouldUpdate: ({ autoupdate, basket_id }, _event) => {
+      shouldUpdate: ({ autoupdate, basket_id, model }, _event) => {
         return !!autoupdate && !!basket_id && !!model?.address_id;
       },
     },
