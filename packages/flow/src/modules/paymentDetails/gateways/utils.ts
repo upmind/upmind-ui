@@ -5,7 +5,6 @@
 // --- utils
 
 // --- types
-import def from "ajv/dist/vocabularies/discriminator";
 import { QUERY_PARAMS } from "./types.d";
 import { GatewayStoreType } from "./types.d";
 import type { GatewayContext, IGateway } from "./types.d";
