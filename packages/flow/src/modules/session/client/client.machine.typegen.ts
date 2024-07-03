@@ -45,8 +45,8 @@ export interface Typegen0 {
     transfer: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
   };
   missingImplementations: {
-    actions: "clearTransfer" | "setTransfer";
-    delays: "expired";
+    actions: never;
+    delays: never;
     guards: never;
     services: "load" | "refreshToken" | "transfer";
   };

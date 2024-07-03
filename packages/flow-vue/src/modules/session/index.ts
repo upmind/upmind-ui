@@ -60,6 +60,7 @@ export const useSession = (inspector?: Function) => {
     // ---
     isAuthenticated: state.value.matches("client"),
     isTransferring: client.value?.matches("transferring"),
+
     // ---
     showReCaptcha: guest.value?.matches("register.challenging"),
     showLoginForm: guest.value?.matches("login"),
@@ -126,12 +127,16 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function transfer() {
+    const clientMachine = state.value?.children?.clientMachine;
+
+    if (!clientMachine) return Promise.reject("Transfer not available");
+
     send({
       type: "TRANSFER",
     });
 
-    return waitFor(service, state =>
-      ["client.transferring.available"].some(state.matches)
+    return waitFor(clientMachine, newState =>
+      newState.matches("transferring.available")
     ).then(newState => newState.context.transfer);
   }
 
