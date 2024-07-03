@@ -46,6 +46,8 @@ export interface Token {
   redirect?: Location["origin"] | null;
   actor_id?: string | null;
   actor_type?: AccessRoleTypes | null;
+  // ---
+  guest_token?: string | null;
 }
 
 export interface User {}

@@ -124,7 +124,7 @@ export default createMachine(
           src: "claim",
           onDone: {
             target: "#shopping",
-            actions: ["refreshActors"],
+            actions: ["setBasket", "refreshActors"],
           },
           onError: {
             target: "#error",
