@@ -186,7 +186,6 @@ export default defineComponent({
         this.processing = true;
         const invoiceId = this.invoice.id;
         this.transferSession().then(transfer => {
-          debugger;
           if (invoiceId && transfer?.code) {
             window.location.href = utils.useUrl(
               "auth/transfer",

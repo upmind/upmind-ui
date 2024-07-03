@@ -359,7 +359,6 @@ async function loadLookups(
   const regions = await fetchRegions(model?.country_id || country?.id);
 
   if (!countries || !regions) {
-    debugger;
     return Promise.reject("Failed to load countries and regions");
   }
 
