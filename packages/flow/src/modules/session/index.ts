@@ -88,7 +88,8 @@ export const useSession = () => {
       authCallback(callback);
 
       onReceive(event => {
-        console.log("authSubscription", "receivedEvent", { event });
+        // do nothing for now
+        // console.debug("authSubscription", "receivedEvent", { event });
       });
 
       // then listen for any changes to the client service

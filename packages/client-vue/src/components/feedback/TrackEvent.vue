@@ -36,7 +36,6 @@ export default defineComponent({
       handler(state) {
         if (!state.matches("active")) return;
         if (!this.$gtm) {
-          console.warn("Google Tag Manager not available");
           this.dismiss();
         } else {
           if (!isEmpty(this.message?.data))
