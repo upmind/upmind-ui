@@ -46,6 +46,7 @@ export interface Typegen0 {
       | "CHECKOUT"
       | "CLEAR"
       | "PAY"
+      | "REFRESH"
       | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
@@ -54,7 +55,7 @@ export interface Typegen0 {
     clearSchemas: "UNAUTHENTICATED";
     providePaymentDetails: "done.invoke.gatewayPaymentManager.processing:invocation[0]";
     setContext:
-      | "done.invoke.gatewayPaymentManager.checking.parsing:invocation[0]"
+      | "REFRESH"
       | "done.invoke.gatewayPaymentManager.loading:invocation[0]";
     setError:
       | "error.platform.gatewayPaymentManager.checking.validating:invocation[0]"
@@ -73,9 +74,10 @@ export interface Typegen0 {
     hasNoOutstandingBalance: "xstate.after(wait)#processed";
   };
   eventsCausingServices: {
-    load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "xstate.init";
+    load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
     parse:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.gatewayPaymentManager.loading:invocation[0]";
     update: "CHECKOUT" | "PAY" | "RETRY";

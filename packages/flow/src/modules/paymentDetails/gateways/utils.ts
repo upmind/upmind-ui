@@ -70,18 +70,12 @@ export const useSchema = (context: GatewayContext) => {
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
-    required: ["gateway_id", "amount"],
+    required: ["gateway_id"],
     properties: {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
         const: context.gateway.id,
-      },
-      amount: {
-        type: "number",
-        title: "Amount",
-        readOnly: true,
-        exclusiveMinimum: 0,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
       can_store: {

@@ -163,11 +163,13 @@ export interface GatewayContext {
   renderer?: Function;
   // ---
   basket_id?: string;
-  gateway?: IGateway;
-  ctx?: GatewayContext;
-  amount?: number;
   currency?: ICurrency;
+  amount?: number;
+  gateway?: IGateway;
+  renderless?: boolean;
+  // ---
   type?: GatewayTypes;
+  ctx?: GatewayContext;
   // ---
   renderless?: boolean;
   can_store?: boolean;

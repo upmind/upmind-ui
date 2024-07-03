@@ -160,9 +160,7 @@ async function parse(
     if (!gateway) unset(model, "gateway_id");
   }
 
-  // debugger;
   if (!model?.gateway_id && model?.amount > 0) {
-    // debugger;
     gateway = first(gateways)?.gateway;
     model.gateway_id = gateway?.id;
   }

@@ -124,7 +124,16 @@ async function createPaymentElement(
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
     setupFutureUsage: "off_session",
   });
-  const element = elements?.create("payment");
+  const element = elements?.create("payment", {
+    // defaultValues: {
+    //     billingDetails: {
+    //       name: "Jenny Rosen",
+    //       email: "john.smith@example.com",
+    //       phone: "5554242424",
+    //     },
+    //   },
+    // },
+  });
 
   return new Promise(resolve => {
     resolve({
