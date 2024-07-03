@@ -290,10 +290,10 @@ export default createMachine(
       }),
 
       refreshActors: assign({
-        actors: ({ actors }) => {
+        actors: ({ actors, model, basket }) => {
           const wasFree = !model?.amount;
           const isFree = !basket?.unpaid_amount_converted;
-          debugger;
+          // debugger;
           // if we were free and now we are not, reset the gateway
           if (wasFree && !isFree) {
             if (actors?.gateway && !actors.gateway?.state?.done)
