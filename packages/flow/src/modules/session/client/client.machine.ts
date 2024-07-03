@@ -119,6 +119,8 @@ export default createMachine(
       }),
       // ---
       setUser: assign({ user: (_context, { data }) => data }),
+      setTransfer: assign({ transfer: (_context, { data }) => data }),
+      clearTransfer: assign({ transfer: null }),
       // ---
       setError: assign({
         error: (context, { data }) => data,
@@ -131,6 +133,7 @@ export default createMachine(
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
+      expired: () => useTime().MINUTE * 5,
     },
     services,
   }
