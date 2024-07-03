@@ -41,6 +41,10 @@ export interface Typegen0 {
       type: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
       data: unknown;
     };
+    "error.platform.paymentDetailsManager.available.processing:invocation[0]": {
+      type: "error.platform.paymentDetailsManager.available.processing:invocation[0]";
+      data: unknown;
+    };
     "xstate.init": { type: "xstate.init" };
     "xstate.update": { type: "xstate.update" };
   };
@@ -74,6 +78,7 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "done.invoke.loading:invocation[0]"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]"
+      | "error.platform.paymentDetailsManager.available.processing:invocation[0]"
       | "xstate.update";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
@@ -81,7 +86,6 @@ export interface Typegen0 {
     providePaymentDetails:
       | "PAYMENT_DETAILS"
       | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
-    refreshActors: "REFRESH";
     refreshBasket: "REFRESH";
     setAutoUpdate: "SET";
     setDirty: "CLEAR" | "SET";

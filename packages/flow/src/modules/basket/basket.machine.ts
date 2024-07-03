@@ -451,8 +451,8 @@ export default createMachine(
         invoke: {
           id: "payment",
           src: paymentMachine,
-          data: ({ basket, paymentDetails }: BasketContext) => ({
-            order: basket,
+          data: ({ invoice, paymentDetails }: BasketContext) => ({
+            order: invoice,
             paymentDetails,
           }),
           onDone: {

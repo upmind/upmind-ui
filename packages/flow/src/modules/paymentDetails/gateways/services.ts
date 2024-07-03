@@ -55,10 +55,13 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
 // --------------------------------------------------------
 
 async function parse(
-  { model, can_store, must_store, must_auto_pay }: GatewayContext,
+  { model, can_store, must_store, must_auto_pay, amount }: GatewayContext,
   _event: GatewayEvent
 ) {
   model ??= {}; // safeguard
+
+  // ensire we have an amount
+  model.amount = !model.amount ? amount : model.amount;
 
   // Honour the brand settings storage and auto payment
   if (!can_store) {

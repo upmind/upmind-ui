@@ -35,7 +35,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      payment_details: undefined,
+      stored_payment_details: undefined,
       gateways: undefined,
       payment_types: undefined,
       // ---
@@ -162,6 +162,9 @@ export default createMachine(
                   "trackPaymentDetails",
                 ],
               },
+              onError: {
+                actions: "clearError", // this is handled by the gateway
+              },
             },
             on: {
               // ths is the response from the gateway
@@ -184,7 +187,7 @@ export default createMachine(
 
           REFRESH: {
             target: "#checking",
-            actions: ["refreshBasket", "refreshActors", "setSchemas"],
+            actions: ["refreshBasket", "setSchemas"],
           },
         },
       },
@@ -199,7 +202,7 @@ export default createMachine(
     },
     on: {
       UNAUTHENTICATED: {
-        target: "unavailable",
+        target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
     },
@@ -212,7 +215,8 @@ export default createMachine(
       }),
 
       setLookups: assign({
-        payment_details: (_context, { data }) => data.payment_details,
+        stored_payment_details: (_context, { data }) =>
+          data.stored_payment_details,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
       }),
@@ -268,7 +272,7 @@ export default createMachine(
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
               basket_id,
-              gateway: gateway,
+              gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
               amount: model?.amount,
               currency,
             });
@@ -289,27 +293,11 @@ export default createMachine(
         };
       }),
 
-      refreshActors: assign({
-        actors: ({ actors, model, basket }) => {
-          const wasFree = !model?.amount;
-          const isFree = !basket?.unpaid_amount_converted;
-          // debugger;
-          // if we were free and now we are not, reset the gateway
-          if (wasFree && !isFree) {
-            if (actors?.gateway && !actors.gateway?.state?.done)
-              actors.gateway?.stop();
-            unset(actors, "gateway");
-          }
-
-          return actors;
-        },
-      }),
-
       // ---
 
       setPaymentDetails: assign({
         paymentDetails: ({ model }, { data }) => {
-          return { ...model, ...data };
+          return { ...model, ...data, amount: model?.amount }; // ALWAYS USE THE AMOUNT PROVIDED
         },
       }),
 

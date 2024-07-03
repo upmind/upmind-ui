@@ -70,7 +70,7 @@ async function load(
 
   // ---
 
-  const payment_details = getRequest({
+  const stored_payment_details = getRequest({
     url: useUrl(`clients/${client_id}/payment_details`, {
       limit: 0,
       brand_id,
@@ -111,9 +111,9 @@ async function load(
 
   // ----
 
-  return Promise.all([payment_details, gateways]).then(
-    ([payment_details, gateways]) => ({
-      payment_details,
+  return Promise.all([stored_payment_details, gateways]).then(
+    ([stored_payment_details, gateways]) => ({
+      stored_payment_details,
       gateways,
       payment_types: PaymentTypes,
     })
@@ -125,7 +125,7 @@ async function load(
 
 /**
  * @name getPaymentData
- * @desc Here we create a new payment detail ID we have a free basket, ie Amount = 0, and NO gateway provided
+ * @desc Here we create a new payment detail if we have a free basket, ie Amount = 0, and NO gateway provided
  *       Otherwise we reject this update and defer to the payment gateway
  */
 async function update({ model, basket_id, currency }: PaymentDetailsContext) {

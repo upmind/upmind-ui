@@ -71,7 +71,7 @@ export const useSchema = (context: GatewayContext) => {
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
-    required: ["gateway_id"],
+    required: ["gateway_id", "amount"],
     properties: {
       gateway_id: {
         type: "string",
@@ -92,13 +92,13 @@ export const useSchema = (context: GatewayContext) => {
       },
       store_on_payment: {
         type: "boolean",
-        default: false,
+        default: true,
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
-        default: false,
+        default: true,
       },
       return_url: {
         type: "string",
@@ -115,15 +115,6 @@ export const useSchema = (context: GatewayContext) => {
     },
   };
 
-  // enforce brand settings via setting the const value. This will ensure the value is not editable
-  if (!context.can_store) {
-    schema.properties.store_on_payment.const = false;
-    schema.properties.store_on_payment_auto_payment.const = false;
-  } else {
-    if (context.must_store) schema.properties.store_on_payment.const = true;
-    if (context.must_auto_pay)
-      schema.properties.store_on_payment_auto_payment.const = true;
-  }
   return schema;
 };
 
