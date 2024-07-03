@@ -84,9 +84,7 @@ export interface Typegen0 {
       | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
-      | "VALIDATE"
-      | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
-      | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+      | "VALIDATE";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     providePaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
@@ -136,13 +134,7 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "VALIDATE"
       | "xstate.init";
-    parse:
-      | "CLEAR"
-      | "REFRESH"
-      | "SET"
-      | "VALIDATE"
-      | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
-      | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+    parse: "CLEAR" | "REFRESH" | "SET" | "VALIDATE";
     update: "CHECKOUT" | "PAY";
     validate:
       | "VALIDATE"

@@ -55,7 +55,6 @@ export default createMachine(
 
       checking: {
         entry: ["clearError"],
-        id: "checking",
         initial: "parsing",
         states: {
           parsing: {

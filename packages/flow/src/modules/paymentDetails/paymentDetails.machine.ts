@@ -56,7 +56,7 @@ export default createMachine(
           src: "authSubscription",
         },
         on: {
-          SESSION: { target: "checking" },
+          AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -70,7 +70,7 @@ export default createMachine(
 
       unavailable: {
         on: {
-          AUTHENTICATED: { target: "available" },
+          // AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -96,7 +96,6 @@ export default createMachine(
 
           checking: {
             entry: ["clearError"],
-            id: "checking",
             initial: "parsing",
             states: {
               parsing: {
@@ -177,17 +176,17 @@ export default createMachine(
         },
         on: {
           CLEAR: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["clearModel", "setDirty"],
           },
           SET: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
           REFRESH: {
-            target: "#checking",
-            actions: ["refreshBasket", "setSchemas"],
+            target: "checking",
+            actions: "refreshBasket",
           },
         },
       },

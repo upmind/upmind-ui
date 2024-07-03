@@ -50,7 +50,6 @@ export default createMachine(
       // ---
       checking: {
         entry: ["clearError"],
-        id: "checking",
         initial: "parsing",
         states: {
           parsing: {
@@ -124,15 +123,15 @@ export default createMachine(
     },
     on: {
       CLEAR: {
-        target: "#checking",
+        target: "checking",
         actions: ["clearModel"],
       },
       SET: {
-        target: "#checking",
+        target: "checking",
         actions: ["setModel"],
       },
       REFRESH: {
-        target: "#checking",
+        target: "checking",
         actions: ["setContext"],
       },
       UNAUTHENTICATED: {
