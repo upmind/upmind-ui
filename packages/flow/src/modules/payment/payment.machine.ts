@@ -44,7 +44,6 @@ export default createMachine(
       // ---
       checking: {
         entry: ["clearError"],
-        id: "checking",
         invoke: {
           src: "validate",
           onDone: { target: "#valid" },

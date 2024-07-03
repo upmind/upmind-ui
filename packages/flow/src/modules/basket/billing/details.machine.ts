@@ -84,7 +84,6 @@ export default createMachine(
 
           checking: {
             entry: ["clearError"],
-            id: "checking",
             initial: "parsing",
             states: {
               parsing: {
@@ -162,11 +161,11 @@ export default createMachine(
         },
         on: {
           CLEAR: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["clearModel", "setDirty"],
           },
           SET: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 

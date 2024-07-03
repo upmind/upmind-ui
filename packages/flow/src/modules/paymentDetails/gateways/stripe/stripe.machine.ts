@@ -69,7 +69,7 @@ export default createMachine(
             invoke: {
               src: "createPaymentElement",
               onDone: {
-                target: "#checking",
+                target: "..checking",
                 actions: ["setElements"],
               },
               onError: {
@@ -83,7 +83,7 @@ export default createMachine(
             invoke: {
               src: "createAddElement",
               onDone: {
-                target: "#checking",
+                target: "..checking",
                 actions: ["setElements", "setClientDetails"],
               },
               onError: {
@@ -98,7 +98,6 @@ export default createMachine(
       // ---
       checking: {
         entry: ["clearError"],
-        id: "checking",
         initial: "parsing",
         states: {
           parsing: {
@@ -186,19 +185,19 @@ export default createMachine(
     },
     on: {
       CLEAR: {
-        target: "#checking",
+        target: "checking",
         actions: ["clearModel"],
       },
       SET: {
-        target: "#checking",
+        target: "checking",
         actions: ["setModel"],
       },
       VALIDATE: {
-        target: "#checking.validating",
+        target: "checking.validating",
         actions: ["setElementStatus"],
       },
       REFRESH: {
-        target: "#checking",
+        target: "checking",
         actions: ["setContext", "updateStripe"],
       },
       UNAUTHENTICATED: {

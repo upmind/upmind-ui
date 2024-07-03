@@ -71,9 +71,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearAutoUpdate: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     clearError:
-      | "AUTHENTICATED"
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
       | "done.invoke.loading:invocation[0]"
@@ -100,9 +98,7 @@ export interface Typegen0 {
     setPaymentDetails:
       | "PAYMENT_DETAILS"
       | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
-    setSchemas:
-      | "REFRESH"
-      | "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
+    setSchemas: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     trackPaymentDetails: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
   };
   eventsCausingDelays: {};
@@ -113,16 +109,13 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
-    isAuthenticated: "SESSION";
+    isAuthenticated: "AUTHENTICATED" | "REFRESH";
     load:
-      | "AUTHENTICATED"
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]";
     parse:
       | "CLEAR"
-      | "REFRESH"
       | "SET"
       | "done.invoke.loading:invocation[0]"
       | "xstate.update";
