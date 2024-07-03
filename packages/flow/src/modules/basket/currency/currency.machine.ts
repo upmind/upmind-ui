@@ -33,6 +33,7 @@ export default createMachine(
       // ---
       dirty: false,
       error: null,
+      autoupdate: false,
     } as CurrencyContext,
     states: {
       loading: {
@@ -88,6 +89,8 @@ export default createMachine(
 
       valid: {
         id: "valid",
+        always: { target: "processing", cond: "shouldUpdate" },
+
         on: {
           UPDATE: {
             target: "processing",
@@ -107,7 +110,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "clearDirty"],
+            actions: ["setModel", "clearDirty", "clearAutoUpdate"],
           },
           onError: {
             target: "error",
@@ -147,7 +150,7 @@ export default createMachine(
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty"],
+        actions: ["setModel", "setDirty", "setAutoUpdate"],
       },
 
       UNAUTHENTICATED: {
@@ -164,7 +167,10 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: CurrencyContext, { data: basket }: CurrencyEvent) => {
+        (
+          { basket_id, model }: CurrencyContext,
+          { data: basket }: CurrencyEvent
+        ) => {
           return {
             basket_id: basket?.id,
             model: basket?.currency,
@@ -204,6 +210,13 @@ export default createMachine(
         dirty: false,
       }),
 
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }) => !!update,
+      }),
+      clearAutoUpdate: assign({
+        autoupdate: false,
+      }),
+
       // ---
       setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated the basket currency");
@@ -239,7 +252,10 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model }, { data }) => model?.id !== data?.currency_id,
+      hasChanged: ({ model, basket_id }, { data }) =>
+        model?.id !== data?.currency_id || basket_id !== data?.id,
+      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
+        !!autoupdate && !!basket_id,
     },
 
     delays: {

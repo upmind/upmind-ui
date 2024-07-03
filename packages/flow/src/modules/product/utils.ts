@@ -17,7 +17,6 @@ import {
   reduce,
   set,
   some,
-  toNumber,
   values,
 } from "lodash-es";
 // --------------------------------------------------------
@@ -27,9 +26,9 @@ import {
 const translateName = item => item?.name_translated || item.name;
 
 // --------------------------------------------------------
-export const useHasPriceOverride = (values, available) => {
+export const useHasPriceOverride = (values, lookups) => {
   return some(values, (value, key) => {
-    const { price_override = false } = find(available, ["id", key]);
+    const { price_override = false } = find(lookups, ["id", key]);
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
     return !isEmpty(value) && !!price_override;
   });
@@ -80,7 +79,7 @@ export const useProductParser = (data: any) => {
   ]);
 
   // ---
-  // Ensure min values
+  // Ensure min values are set
   product.unit_quantity = product.unit_quantity || 1;
   product.min_order_quantity =
     product.min_order_quantity || product.unit_quantity;
@@ -155,55 +154,7 @@ export const useTermsParser = (data: any) => {
   });
 };
 
-export const useAttributesParser = (data: any) => {
-  // safety check, bail if we have no data
-  if (isEmpty(data)) return [];
-  // When getting the attributes from the API, we get a flat list of attributes
-  // We would rather have the attributes grouped by their category
-  // And with each category having a list of attributes
-  // so to do this we have to do the following:
-
-  // 0. sort the data by attached_order for further lookups
-  const sorted = orderBy(data, "attached_order");
-
-  // then reduce the sorted data, creating a new object keyed by the category id
-  // with the parsed data as the values
-  const attributes = reduce(
-    sorted,
-    (result, rawAttribute) => {
-      // create the attribute based on the category ... if it isnt already set
-      const attribute = get(
-        result,
-        rawAttribute.category_id,
-        pick(rawAttribute.category, ["id", "name", "multiple", "required"])
-      );
-      attribute.name = translateName(rawAttribute.category);
-
-      // get the prev values...if there are any
-      const values = get(attribute, "values", []);
-
-      // add this raw attribute to the values, with limited properties
-      const value = pick(rawAttribute, ["id", "name"]);
-      value.name = translateName(rawAttribute);
-      value.canChangeQuantity = rawAttribute.order_type == 2;
-
-      values.push(value);
-
-      // then set the updated values
-      set(attribute, "values", values);
-
-      // finally  set the updated attribute
-      set(result, rawAttribute.category_id, attribute);
-      return result;
-    },
-    {}
-  );
-
-  // return just the values of the reduced object.
-  return values(attributes);
-};
-
-export const useOptionsParser = (data: any) => {
+export const useSubproductParser = (data: any) => {
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
   // When getting the attributes from the API, we get a flat list of attributes
@@ -232,7 +183,6 @@ export const useOptionsParser = (data: any) => {
         ])
       );
       option.name = translateName(rawOption.category);
-
       // get the prev values...if there are any
       const values = get(option, "values", []);
 
@@ -352,127 +302,81 @@ export const useProvisioningParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = (data: any) => {
-  const { getBillingCycle } = useSystem();
-
-  const summary = {
-    // the base price without any discounts or configuration
-    price: data?.selling_price,
-    price_formatted: data?.selling_price_formatted,
-
-    // the price based on the configuration
-    subtotal: data?.configuration_total_amount_converted,
-    subtotal_formatted: data?.configuration_total_amount_formatted,
-
-    // the total discount applied
-    discount: data?.configuration_total_discount_amount_converted,
-    discount_formatted: data?.configuration_total_discount_amount_formatted,
-
-    // the total price after the discount
-    total:
-      data?.configuration_total_discounted_amount_converted ||
-      data?.configuration_total_amount_converted,
-
-    total_formatted: data?.configuration_total_discounted_amount_formatted,
-  };
-
+export const useSummaryParser = ({ summary, prices, model }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
-  //  typically used in the basket or checkout
+  // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
-  // asd allow for easy i18n
-  summary.details = [];
+  // an d allow for easy i18n
+  const details = [];
 
-  // MAYBE: only add terms if its NOT a one-off product, ie has a billing cycle (data?.billing_cycle_months)
-  if (summary.total) {
-    summary.details.push({
-      key: "term",
-      category: "Billing Cycle",
-      name: getBillingCycle(data.billing_cycle_months)?.name,
-      cycle: data.billing_cycle_months,
-      quantity: data.quantity,
-      value: data.configuration_net_amount_discounted_converted,
-      discount: data.configuration_net_amount_discount_converted,
-      formatted: data.configuration_net_selling_price_discounted_formatted,
-    });
-  }
+  // term
+  details.push({
+    key: "term",
+    category: "Billing Cycle",
+    name: model.term.billing_cycle_name,
+    cycle: model.term.billing_cycle_months,
+    quantity: model.quantity,
+    discount: prices.discount,
+    total: prices.total,
+  });
 
-  if (data?.attributes) {
-    reduce(
-      data.attributes,
-      (result, attribute) => {
-        result.push({
-          key: "attribute",
-          category: translateName(attribute.product.category),
-          name: translateName(attribute.product),
-          cycle: attribute.billing_cycle_months,
-          quantity: attribute.unit_quantity,
-          value: attribute.total_amount,
-          discount: attribute.total_discount_amount_formatted,
-          formatted: attribute.total_amount_formatted,
-        });
-        return result;
-      },
-      summary.details
-    );
-  }
+  // attributes
+  const attributes = useSummaryDetailsParser("attribute", model.attributes);
+  details.push(...attributes);
 
-  if (data?.options) {
-    reduce(
-      data.options,
-      (result, option) => {
-        result.push({
-          key: "option",
-          category: translateName(option.product.category),
-          name: translateName(option.product),
-          cycle: option.billing_cycle_months,
-          quantity: option.unit_quantity,
-          value: option.total_amount,
-          discount: option.total_discount_amount_formatted,
-          formatted: option.total_amount_formatted,
-        });
-        return result;
-      },
-      summary.details
-    );
-  }
+  // options
+  const options = useSummaryDetailsParser("option", model.options);
+  details.push(...options);
 
-  if (data?.provision_fields) {
-    reduce(
-      data.provision_fields,
-      (result, value, field) => {
-        result.push({
-          key: `provision_field.${field}`,
-          category: field, // todo get field name
-          name: value,
-        });
-        return result;
-      },
-      summary.details
-    );
-  }
+  // provision fields
+  reduce(
+    model.provision_fields,
+    (result, value, field) => {
+      result.push({
+        key: `provision_field.${field}`,
+        category: field, // todo get field name
+        name: value,
+      });
+      return result;
+    },
+    details
+  );
 
-  return summary;
+  return { ...summary, details };
 };
 
-export const useDisplayPriceParser = (data: any) => {
-  // the base price without any discounts or configuration
-  return {
-    price: Number(data?.display_price?.replace(/[^0-9.-]+/g, "")),
-    price_formatted: data?.display_price,
-
-    // the total price after the discount
-    total: Number(data?.display_price?.replace(/[^0-9.-]+/g, "")),
-    total_formatted: data?.display_price,
-  };
+export const useSummaryDetailsParser = (key: string, data: any) => {
+  return reduce(
+    data,
+    (result, choices) => {
+      if (choices) {
+        const selected = values(
+          mapValues(choices, choice => {
+            return {
+              key,
+              category: choice.category,
+              name: choice.name,
+              cycle: choice.billing_cycle_months,
+              quantity: choice.unit_quantity,
+              discount: choice.total_discounted,
+              total: choice.total,
+            };
+          })
+        );
+        result.push(...selected);
+      }
+      return result;
+    },
+    []
+  );
 };
-
 // --------------------------------------------------------
-//  Setting Values for an Item that is configuring,
+//  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
-export const useValuesParser = (data: any) => {
-  // handle new product values
-  const values = pick(data, [
+export const useModelParser = (data: any) => {
+  // handle new product model
+  const model = pick(data, [
     "quantity",
     "product_id",
     "term",
@@ -480,60 +384,42 @@ export const useValuesParser = (data: any) => {
     "options",
     "provision_fields",
   ]);
-
   // ---
   // handle existing products that have been added to the basket
   if (data?.id) {
-    set(values, "id", data.id);
-    set(values, "term", data.billing_cycle_months);
-    set(values, "product_id", data.product_id);
-    set(values, "attributes", useAddedAttributesParser(data.attributes));
-    set(values, "options", useAddedOptionsParser(data.options)); // TODO:
+    // set(model, "id", data.id);
+    set(model, "term", data.billing_cycle_months);
+    set(model, "product_id", data.product_id);
+    set(model, "attributes", useChoiceParser(data.attributes));
+    set(model, "options", useChoiceParser(data.options));
     set(
-      values,
+      model,
       "provision_fields",
       useAddProvisioningParser(data.provision_fields)
     );
   }
 
   // ---
-  return values;
+  return model;
 };
 
 // ---
-const useAddedAttributesParser = (data: any) => {
-  const attributes = reduce(
-    data,
-    (result, attribute) => {
-      set(result, [attribute.product.category_id, attribute.product_id], {
-        id: attribute?.id,
-        product_id: attribute.product_id,
-        unit_quantity: attribute.unit_quantity,
-        billing_cycle_months: attribute.billing_cycle_months,
+const useChoiceParser = (values: any) => {
+  return reduce(
+    values,
+    (result, value) => {
+      set(result, [value.product.category_id, value.product_id], {
+        id: value?.id,
+        product_id: value.product_id,
+        unit_quantity: value.unit_quantity,
+        billing_cycle_months: value.billing_cycle_months,
+        name: translateName(value.product),
+        category: translateName(value.product.category),
       });
       return result;
     },
     {}
   );
-
-  return attributes;
-};
-
-const useAddedOptionsParser = (data: any) => {
-  const options = reduce(
-    data,
-    (result, option) => {
-      set(result, [option.product.category_id, option.product_id], {
-        id: option?.id,
-        product_id: option.product_id,
-        unit_quantity: option.unit_quantity,
-        billing_cycle_months: option.billing_cycle_months,
-      });
-      return result;
-    },
-    {}
-  );
-  return options;
 };
 
 const useAddProvisioningParser = (data: any) => {
@@ -550,7 +436,7 @@ const useAddProvisioningParser = (data: any) => {
 
 // --------------------------------------------------------
 
-export const useProductConfigParser = (data: any) => {
+export const useBasketConfigParser = (data: any) => {
   // strip out any falsy values
   const config = {
     product_id: data?.product_id,

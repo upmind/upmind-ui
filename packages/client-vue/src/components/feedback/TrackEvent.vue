@@ -1,0 +1,54 @@
+<template>
+  <span :id="`event-${message.hash}`">
+    <!-- this event component has no template, its purely functional -->
+  </span>
+</template>
+<script>
+// --- external
+import { defineComponent } from "vue";
+
+// --- internal
+import { useMessage } from "@upmind/flow-vue";
+
+// --- utils
+import { isEmpty } from "lodash-es";
+// -----------------------------------------------------------------------------
+
+export default defineComponent({
+  name: "UpmTrackEvent",
+  props: {
+    item: {
+      type: Object, // xstate actor
+      required: true,
+    },
+  },
+  setup(props) {
+    const { message, dismiss, state } = useMessage(props.item);
+    return {
+      message,
+      dismiss,
+      state,
+    };
+  },
+  watch: {
+    state: {
+      immediate: true,
+      handler(state) {
+        if (!state.matches("active")) return;
+        if (!this.$gtm) {
+          console.warn("Google Tag Manager not available");
+          this.dismiss();
+        } else {
+          if (!isEmpty(this.message?.data))
+            this.$gtm.trackEvent(this.message?.data);
+          this.dismiss();
+        }
+      },
+    },
+  },
+  beforeUnmount() {
+    // dismiss the message if the component is destroyed, lets be 100% sure
+    if (!this.state.done) this.dismiss();
+  },
+});
+</script>

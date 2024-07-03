@@ -2,11 +2,11 @@
   <form :class="styles.product.config.root" @submit.prevent="doResolve">
     <figure
       :class="styles.product.config.media"
-      v-if="availableProduct?.image?.full_url"
+      v-if="product?.image?.full_url"
     >
       <img
-        :src="availableProduct?.image?.full_url"
-        :alt="`${availableProduct?.name} thumbnail`"
+        :src="product?.image?.full_url"
+        :alt="`${product?.name} thumbnail`"
         :class="styles.product.config.image"
       />
     </figure>
@@ -17,36 +17,33 @@
         <div :class="styles.product.config.headerContent">
           <upw-badge
             color="secondary"
-            v-if="availableProduct?.hasFreeTrial"
+            v-if="product?.hasFreeTrial"
             :label="$t('product.trail')"
           />
 
           <upw-badge
             color="secondary"
-            v-if="availableProduct?.isOnPromotion"
+            v-if="product?.isOnPromotion"
             :label="$t('product.promotion')"
           />
 
           <h3 :class="styles.product.config.title">
-            {{ availableProduct?.name }}
+            {{ product?.name }}
           </h3>
         </div>
 
         <div :class="styles.product.config.summary">
           <!-- quantity -->
 
-          <upw-spinner
-            v-if="meta.isLoading || meta.isCalculating"
-            :class="styles.product.config.loading"
-          />
+          <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
 
           <upw-quantitybox
-            v-if="availableProduct?.canChangeQuantity"
-            :disabled="processing"
-            :min="availableProduct?.min_order_quantity"
-            :max="availableProduct?.max_order_quantity"
-            :step="availableProduct?.unit_quantity"
-            :model-value="model?.quantity || availableProduct?.unit_quantity"
+            v-if="product?.canChangeQuantity"
+            :disabled="meta.isProcessing"
+            :min="product?.min_order_quantity"
+            :max="product?.max_order_quantity"
+            :step="product?.unit_quantity"
+            :model-value="model?.quantity || product?.unit_quantity"
             @update:modelValue="updateQuantity"
             size="lg"
           />
@@ -74,18 +71,15 @@
           </span>
         </div>
 
-        <p
-          v-if="availableProduct?.description"
-          :class="styles.product.config.text"
-        >
-          {{ availableProduct.description }}
+        <p v-if="product?.description" :class="styles.product.config.text">
+          {{ product.description }}
         </p>
 
         <p
-          v-if="availableProduct?.short_description"
+          v-if="product?.short_description"
           :class="styles.product.config.text"
         >
-          {{ availableProduct.short_description }}
+          {{ product.short_description }}
         </p>
       </header>
 
@@ -94,8 +88,10 @@
         <!-- terms -->
         <upm-config-grid
           v-if="meta.hasTerms"
-          :processing="processing || meta.isLoading || meta.isCalculating"
-          :items="availableTerms"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
+          :items="terms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
           :label="$t('product.terms.label')"
@@ -105,8 +101,10 @@
         <!-- attributes -->
         <upm-config-nested
           v-if="meta.hasAttributes"
-          :processing="processing || meta.isLoading || meta.isCalculating"
-          :items="availableAttributes"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
+          :items="attributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
           itemKey="product_id"
@@ -115,8 +113,10 @@
         <!-- options -->
         <upm-config-nested
           v-if="meta.hasOptions"
-          :processing="processing || meta.isLoading || meta.isCalculating"
-          :items="availableOptions"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
+          :items="options"
           :model-value="model?.options"
           @update:modelValue="selectOption"
           @update:quantity="updateOptionQuantity"
@@ -126,7 +126,7 @@
         <!-- provisional fields -->
         <upm-config-form
           v-if="meta.hasProvisioning"
-          :processing="processing || meta.isLoading"
+          :processing="meta.isProcessing || meta.isLoading"
           :additional-errors="errors?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"
@@ -141,7 +141,7 @@
         type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
-        :disabled="processing"
+        :disabled="meta.isProcessing"
         @click="doReject"
         color="current"
         variant="link"
@@ -158,7 +158,7 @@
         type="submit"
         tabindex="0"
         :label="$t('product.actions.resolve')"
-        :loading="processing"
+        :loading="meta.isProcessing"
         :disabled="meta.isLoading || !meta.isConfigured"
       />
     </footer>
@@ -215,20 +215,16 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    processing: {
-      type: Boolean,
-      default: false,
-    },
   },
   setup(props, { emit }) {
     const {
-      available,
+      lookups,
       // ---
-      availableProduct,
-      availableTerms,
-      availableOptions,
-      availableAttributes,
-      availableFields,
+      product,
+      terms,
+      options,
+      attributes,
+      fields,
       // ---
       errors,
       model,
@@ -258,13 +254,13 @@ export default defineComponent({
     // ---
 
     return {
-      available,
+      lookups,
       // ---
-      availableProduct,
-      availableTerms,
-      availableOptions,
-      availableAttributes,
-      availableFields,
+      product,
+      terms,
+      options,
+      attributes,
+      fields,
       // ---
       errors,
       model,

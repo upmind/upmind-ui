@@ -24,7 +24,7 @@ import type { TActor } from "./types";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketBillingDetails = (actor?: TActor<any>) => {
-  const { service } = useBasket();
+  const { service, getSnapshot } = useBasket();
   const billing_details = ref(actor);
 
   if (!actor) {
@@ -51,7 +51,13 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
     meta: computed(() => ({
       isLoading:
         !billing_details.value?.state ||
-        stateMatches(billing_details.value?.state, ["loading"]),
+        stateMatches(billing_details.value?.state, ["loading"]) ||
+        stateMatches(getSnapshot(), [
+          "subscribing",
+          "loading",
+          "generating",
+          "claiming",
+        ]),
       hasErrors: stateMatches(billing_details.value?.state, ["error"]),
       isProcessing: stateMatches(billing_details.value?.state, [
         "checking",
@@ -89,13 +95,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
         return;
       }
       // if it has then send the new model to the machine
-      billing_details.value?.send({ type: "SET", data: model });
-
-      // then wait for the billing_details actor to be valid
-      // then send the update event to the billing_details actor
-      waitFor(service.state.context.actors.billing_details, newstate =>
-        newstate.matches("available.valid")
-      ).then(() => billing_details.value?.send({ type: "UPDATE" }));
+      billing_details.value?.send({ type: "SET", data: model, update: true });
     },
   };
 };

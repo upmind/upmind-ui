@@ -6,7 +6,7 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 
 import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError, addSuccess, trackEvent } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
@@ -29,6 +29,7 @@ import {
   get,
   includes,
   isEmpty,
+  map,
   omit,
   remove,
   some,
@@ -165,7 +166,7 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
-                    actions: ["refreshItems", "updateBasket", "refreshActors"],
+                    actions: ["updateBasket", "refreshActors"],
                   },
                   onError: { target: "#error" },
                 },
@@ -456,7 +457,7 @@ export default createMachine(
           }),
           onDone: {
             target: "#complete",
-            actions: ["setPayment"],
+            actions: ["setPayment", "trackPayment"],
           },
           onError: {
             actions: ["setError", "setFeedbackError"],
@@ -497,10 +498,11 @@ export default createMachine(
       UPDATE: [
         {
           target: "#shopping.items.processing.everything",
-          actions: ["clearBin"],
+          actions: ["updateItems", "clearBin"],
           cond: "hasNoItem",
         }, // update everything
         {
+          actions: ["updateItem"],
           target: "#shopping.items.processing.updating",
         },
       ],
@@ -566,10 +568,6 @@ export default createMachine(
           data,
       }),
 
-      setPayment: assign({
-        payment: (_context: BasketContext, { data }: BasketEvent) => data,
-      }),
-
       setInvoice: assign({
         invoice: (_context: BasketContext, { data }: BasketEvent) => data,
         basket: undefined,
@@ -596,6 +594,33 @@ export default createMachine(
         error: undefined,
       }),
 
+      setPayment: assign({
+        payment: (_context: BasketContext, { data }: BasketEvent) => data,
+      }),
+
+      trackPayment: ({ invoice }, { data }) => {
+        trackEvent({
+          event: "payment",
+          upmind: {
+            user_id: data?.actor_id,
+            ecommerce: {
+              currency: invoice.currency.code,
+              tax: invoice.tax_amount_converted,
+              value: invoice.net_amount_converted,
+              transaction_id: invoice.number,
+              items: map(invoice.products, product => ({
+                item_id: product.product.id,
+                item_name: product.product.name, // For reporting purposes we intentionally pass untranslated product name
+                item_category: product.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                quantity: product.quantity,
+                discount: product.configuration_net_amount_discount_converted,
+                price: product.configuration_net_amount_converted,
+              })),
+            },
+          },
+        });
+      },
+
       // --- Spawned Actors Actions
       spawnActors: assign({
         actors: ({ actors, basket }) => {
@@ -610,11 +635,25 @@ export default createMachine(
         },
       }),
 
-      refreshActors: pure(({ basket, actors }) => {
+      refreshActors: pure(({ basket, actors, items }) => {
         forEach(actors, actor => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
+        });
+
+        forEach(items, item => {
+          const product =
+            find(basket?.products, ["id", item?.id]) ||
+            item.state.context.values;
+          item.send({
+            type: "REFRESH",
+            data: {
+              product,
+              currency_id: basket?.currency_id,
+              promotions: basket?.promotions || [],
+            },
+          });
         });
       }),
 
@@ -669,11 +708,51 @@ export default createMachine(
         error: undefined,
       }),
 
+      updateItem: pure(({ items }, { data }) => {
+        const itemId = data?.itemId;
+        const item = find(items, ["id", itemId]);
+        item.send({ type: "PROCESSING" });
+      }),
+
+      updateItems: pure(({ items }, { data }) => {
+        forEach(items, item => {
+          if (item.state.matches("configured")) {
+            item.send({ type: "PROCESSING" });
+          }
+        });
+      }),
+
       binItem: assign({
-        bin: ({ items, bin }, { data }) => {
+        bin: ({ basket, items, bin }, { data }) => {
           const itemId = data?.itemId || trimStart(type, "invoke.done.");
-          const removed = remove(items, ["id", itemId]);
-          if (removed) removed.forEach(item => bin.push(item)); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          const removed = find(items, ["id", itemId]);
+          if (removed) {
+            bin.push(removed);
+            removed.send({ type: "BIN" });
+
+            // track the removal using the BasketProduct data
+            const basketProduct = find(basket?.products, ["id", itemId]);
+            trackEvent({ ecommerce: null });
+            trackEvent({
+              event: "remove_from_cart",
+              ecommerce: {
+                currency: basketProduct.base_currency_code,
+                value:
+                  basketProduct.configuration_net_amount_discounted_converted,
+                items: [
+                  {
+                    item_id: basketProduct.product.id,
+                    item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
+                    item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                    quantity: basketProduct.quantity,
+                    discount:
+                      basketProduct.configuration_net_amount_discount_converted,
+                    price: basketProduct.configuration_net_amount_converted,
+                  },
+                ],
+              },
+            });
+          }
           return bin;
         },
         error: undefined,
@@ -727,34 +806,47 @@ export default createMachine(
             const newId = get(data?.newItems, [index, "id"]);
             const product = find(data?.basket?.products, ["id", itemId]);
 
-            // Check if the item still Exists in the basket
-            if (product) {
-              // Exists..
-              // we need to refresh it
-              item.send({
-                type: "REFRESH",
-                data: { product, currency_id, promotions },
-              });
-            }
             // if not, we need to check if its been Replaced
-            else if (newId) {
+            if (!product && newId) {
               // Replaced...
               // we need to replace it with a new machine and stop the old one
               // NB: its safe to assume that the items array is in the same order as the newItems
               // so we can use the index to match the items
               if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
               const currentIndex = findIndex(items, ["id", itemId]);
-              const newProduct = find(data?.basket?.products, ["id", newId]);
-              if (newProduct) {
+              const basketProduct = find(data?.basket?.products, ["id", newId]);
+              if (basketProduct) {
                 const machine = spawnConfiguration(
                   newId,
-                  newProduct,
+                  basketProduct,
                   currency_id,
                   promotions
                 );
                 // now put the item(s) back into the items array,
                 // at the same index so that we dont have any ui jank
                 items.splice(currentIndex, 1, machine);
+
+                // track the addition of the new product  using the BasketProduct data
+                trackEvent({ ecommerce: null });
+                trackEvent({
+                  event: "add_to_cart",
+                  ecommerce: {
+                    currency: basketProduct.base_currency_code,
+                    value:
+                      basketProduct.configuration_net_amount_discounted_converted,
+                    items: [
+                      {
+                        item_id: basketProduct.product.id,
+                        item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
+                        item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                        quantity: basketProduct.quantity,
+                        discount:
+                          basketProduct.configuration_net_amount_discount_converted,
+                        price: basketProduct.configuration_net_amount_converted,
+                      },
+                    ],
+                  },
+                });
               } else {
                 console.warn(
                   "Replacing old item",
@@ -787,16 +879,12 @@ export default createMachine(
           // but weve not updated the basket yet
           // and perhaps weve changed currency or added a promotion
           // we need to ensure all the items are up to date
-          // const dangling = differenceBy(
-          //   items,
-          //   [...data?.basket?.products, ...data.newItems],
-          //   "id"
-          // );
-          // forEach(dangling, (item, index) => {
+          // const dangling = differenceBy(items, data.newItems, "id");
+          // forEach(dangling, item => {
           //   const product = item.state.context.config;
           //   item.send({
           //     type: "REFRESH",
-          //     data: { product, currency_id, promotions }
+          //     data: { product, currency_id, promotions },
           //   });
           // });
 
@@ -833,8 +921,6 @@ export default createMachine(
         error: (context, { data }) => {
           const { items, newItems } = data;
           let { error } = data;
-
-          console.error("Basket Error", error);
 
           // if we are supplied a machine, we must forward/send the error to it
           if (items || newItems) {

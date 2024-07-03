@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.basketFieldsManager.checking.parsing:invocation[0]": {
       type: "done.invoke.basketFieldsManager.checking.parsing:invocation[0]";
       data: unknown;
@@ -51,8 +52,10 @@ export interface Typegen0 {
     services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
+    clearAutoUpdate: "done.invoke.basketFieldsManager.processing:invocation[0]";
     clearDirty: "done.invoke.basketFieldsManager.processing:invocation[0]";
     clearError:
+      | ""
       | "CLEAR"
       | "REFRESH"
       | "RETRY"
@@ -64,6 +67,7 @@ export interface Typegen0 {
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     refreshContext: "REFRESH";
+    setAutoUpdate: "SET";
     setContext:
       | "done.invoke.basketFieldsManager.checking.parsing:invocation[0]"
       | "done.invoke.basketFieldsManager.loading:invocation[0]";
@@ -90,6 +94,7 @@ export interface Typegen0 {
     hasBasket: "UPDATE";
     hasChanged: "REFRESH";
     isDirty: "done.invoke.basketFieldsManager.checking.validating:invocation[0]";
+    shouldUpdate: "";
   };
   eventsCausingServices: {
     load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
@@ -98,7 +103,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "SET"
       | "done.invoke.basketFieldsManager.loading:invocation[0]";
-    update: "RETRY" | "UPDATE";
+    update: "" | "RETRY" | "UPDATE";
     validate: "done.invoke.basketFieldsManager.checking.parsing:invocation[0]";
   };
   matchesStates:

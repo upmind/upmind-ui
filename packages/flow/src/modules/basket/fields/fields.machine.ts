@@ -33,6 +33,7 @@ export default createMachine(
       // ---
       dirty: false,
       error: null,
+      autoupdate: false,
     } as FieldsContext,
     states: {
       loading: {
@@ -88,6 +89,8 @@ export default createMachine(
 
       valid: {
         id: "valid",
+        always: { target: "processing", cond: "shouldUpdate" },
+
         on: {
           UPDATE: {
             target: "processing",
@@ -107,7 +110,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "clearDirty"],
+            actions: ["setModel", "clearDirty", "clearAutoUpdate"],
           },
           onError: {
             target: "error",
@@ -147,14 +150,13 @@ export default createMachine(
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setDirty"],
+        actions: ["setModel", "setDirty", "setAutoUpdate"],
       },
 
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
-
       REFRESH: {
         target: "checking",
         actions: ["refreshContext", "setSchemas"],
@@ -205,6 +207,13 @@ export default createMachine(
         dirty: false,
       }),
 
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }) => !!update,
+      }),
+      clearAutoUpdate: assign({
+        autoupdate: false,
+      }),
+
       // ---
       setFeedbackSuccess: (_context, _event) => {
         addSuccess("Successfully updated the basket fields");
@@ -241,10 +250,13 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model }, { data }) => {
+      hasChanged: ({ model, basket_id }, { data }) => {
         model?.notes !== data?.notes ||
-          model?.custom_fields !== data?.custom_fields;
+          model?.custom_fields !== data?.custom_fields ||
+          basket_id !== data?.id;
       },
+      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
+        !!autoupdate && !!basket_id,
     },
 
     delays: {

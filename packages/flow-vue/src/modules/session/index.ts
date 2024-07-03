@@ -1,5 +1,5 @@
 // --- external
-import { computed, unref, watch, toRaw } from "vue";
+import { computed, unref, watch, toRaw, inject } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 

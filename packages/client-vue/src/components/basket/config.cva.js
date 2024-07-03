@@ -22,10 +22,11 @@ export default {
       ),
       heading: cva("font-light m-0 flex gap-2 items-center flex-1 group"),
       text: cva(
-        "text-left m-0 text-sm inline-flex items-start gap-2 leading-normal font-normal text-base-700"
+        "text-left m-0 text-sm inline-flex items-end gap-2 leading-normal font-normal text-base-700"
       ),
       bold: cva("font-medium text-base-content"),
-      value: cva("text-right m-0 flex-0 text-base-content font-medium"),
+      discount: cva("font-light text-xs line-through text-base-500"),
+      value: cva("text-right m-0 flex-0 text-base-content font-medium "),
       total: cva("font-medium "),
       icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),

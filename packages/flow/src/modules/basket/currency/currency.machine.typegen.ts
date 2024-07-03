@@ -3,6 +3,7 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.basketCurrencyManager.checking.parsing:invocation[0]": {
       type: "done.invoke.basketCurrencyManager.checking.parsing:invocation[0]";
       data: unknown;
@@ -51,8 +52,10 @@ export interface Typegen0 {
     services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
+    clearAutoUpdate: "done.invoke.basketCurrencyManager.processing:invocation[0]";
     clearDirty: "done.invoke.basketCurrencyManager.processing:invocation[0]";
     clearError:
+      | ""
       | "CLEAR"
       | "REFRESH"
       | "RETRY"
@@ -64,6 +67,7 @@ export interface Typegen0 {
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     refreshContext: "REFRESH";
+    setAutoUpdate: "SET";
     setContext:
       | "done.invoke.basketCurrencyManager.checking.parsing:invocation[0]"
       | "done.invoke.basketCurrencyManager.loading:invocation[0]";
@@ -90,6 +94,7 @@ export interface Typegen0 {
     hasBasket: "UPDATE";
     hasChanged: "REFRESH";
     isDirty: "done.invoke.basketCurrencyManager.checking.validating:invocation[0]";
+    shouldUpdate: "";
   };
   eventsCausingServices: {
     load: "CLEAR" | "REFRESH" | "SET" | "UNAUTHENTICATED" | "xstate.init";
@@ -97,7 +102,7 @@ export interface Typegen0 {
       | "CLEAR"
       | "SET"
       | "done.invoke.basketCurrencyManager.loading:invocation[0]";
-    update: "RETRY" | "UPDATE";
+    update: "" | "RETRY" | "UPDATE";
     validate: "done.invoke.basketCurrencyManager.checking.parsing:invocation[0]";
   };
   matchesStates:

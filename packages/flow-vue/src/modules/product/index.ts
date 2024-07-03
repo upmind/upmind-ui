@@ -21,24 +21,16 @@ import {
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useProductConfig = item => {
-  const { state, send } = item;
-  const model = toRef(state.value.context, "values");
-  const available = computed(() => state.value.context.available);
+export const useProductConfig = actor => {
+  const { state, send } = actor;
+  const model = toRef(state.value.context, "model");
+  const lookups = computed(() => state.value.context.lookups);
   // syntactic sugar
-  const availableProduct = computed(
-    () => state.value.context.available.product
-  );
-  const availableTerms = computed(() => state.value.context.available.terms);
-  const availableAttributes = computed(
-    () => state.value.context.available.attributes
-  );
-  const availableOptions = computed(
-    () => state.value.context.available.options
-  );
-  const availableFields = computed(
-    () => state.value.context.available.provision_fields
-  );
+  const product = computed(() => state.value.context.lookups.product);
+  const terms = computed(() => state.value.context.lookups.terms);
+  const attributes = computed(() => state.value.context.lookups.attributes);
+  const options = computed(() => state.value.context.lookups.options);
+  const fields = computed(() => state.value.context.lookups.provision_fields);
   // ---
   const errors = computed(() => state.value.context.error);
   const meta = computed(() => ({
@@ -47,27 +39,30 @@ export const useProductConfig = item => {
     isDirty: state.value.context.isDirty,
     hasErrors: state.value.matches("error") || !isEmpty(errors.value),
     isConfigurable:
-      // !isEmpty(state.value?.context?.available?.terms) ||
-      !isEmpty(state.value?.context?.available?.attributes) ||
-      !isEmpty(state.value?.context?.available?.options) ||
-      !isEmpty(state.value?.context?.available?.provision_fields?.properties),
+      // !isEmpty(state.value?.context?.lookups?.terms) ||
+      !isEmpty(state.value?.context?.lookups?.attributes) ||
+      !isEmpty(state.value?.context?.lookups?.options) ||
+      !isEmpty(state.value?.context?.lookups?.provision_fields?.properties),
 
-    isConfiguring: state.value.matches("configuring"),
     isConfigured: state.value.matches("configured"),
-    isCalculating: state.value.matches("calculating"),
+    isCalculating: state.value.matches(
+      "configuring.values.summary.calculating"
+    ),
+    isProcessing: state.value.matches("configured.processing"),
+    isUnavailable: state.value.matches("unavailable"),
     // ---
     hasProvisioning:
-      !isEmpty(state.value.context.available.provision_fields?.properties) &&
-      state.value?.context?.values?.provision_fields,
+      !isEmpty(state.value.context.lookups.provision_fields?.properties) &&
+      state.value?.context?.model?.provision_fields,
     hasAttributes:
-      !isEmpty(state.value.context.available.attributes) &&
-      state.value?.context?.values?.attributes,
+      !isEmpty(state.value.context.lookups.attributes) &&
+      state.value?.context?.model?.attributes,
     hasOptions:
-      !isEmpty(state.value.context.available.options) &&
-      state.value?.context?.values?.options,
+      !isEmpty(state.value.context.lookups.options) &&
+      state.value?.context?.model?.options,
     hasTerms:
-      !isEmpty(state.value.context.available.terms) &&
-      state.value?.context?.values?.term,
+      !isEmpty(state.value.context.lookups.terms) &&
+      state.value?.context?.model?.term,
   }));
 
   const summary = computed(() => state.value.context.summary);
@@ -75,8 +70,8 @@ export const useProductConfig = item => {
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
   watch(state, newVal => {
-    if (newVal.context.values !== model.value) {
-      model.value = newVal.context.values;
+    if (newVal.context.model !== model.value) {
+      model.value = newVal.context.model;
     }
   });
 
@@ -100,13 +95,13 @@ export const useProductConfig = item => {
 
   function incrementQuantity() {
     // sanity check
-    if (!available.value.product?.canChangeQuantity) return;
+    if (!lookups.value.product?.canChangeQuantity) return;
 
     const qty = get(model.value, "quantity", 0);
     set(
       model.value,
       "quantity",
-      add(qty, available.value.product?.unit_quantity || 1)
+      add(qty, lookups.value.product?.unit_quantity || 1)
     );
     // emit the event
     updateQuantity();
@@ -114,13 +109,13 @@ export const useProductConfig = item => {
 
   function decrementQuantity() {
     // sanity check
-    if (!available.value.product?.canChangeQuantity) return;
+    if (!lookups.value.product?.canChangeQuantity) return;
 
     const qty = get(model.value, "quantity", 0);
     set(
       model.value,
       "quantity",
-      subtract(qty, available.value.product?.unit_quantity || 1)
+      subtract(qty, lookups.value.product?.unit_quantity || 1)
     );
     // emit the event
     updateQuantity();
@@ -256,7 +251,7 @@ export const useProductConfig = item => {
 
   // --- PROVISIONING
   function getProvisioningFields(showOptional = true, showHidden = false) {
-    const schema = availableFields.value || {
+    const schema = fields.value || {
       type: "object",
     };
 
@@ -302,12 +297,12 @@ export const useProductConfig = item => {
     errors,
     meta,
     // ---
-    available,
-    availableProduct,
-    availableTerms,
-    availableOptions,
-    availableAttributes,
-    availableFields,
+    lookups,
+    product,
+    terms,
+    options,
+    attributes,
+    fields,
     // ---
     model,
     summary,

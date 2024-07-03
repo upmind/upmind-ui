@@ -355,7 +355,20 @@ export default {
         },
       }
     ),
-    spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto size-[1.5em]"),
+    spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto ", {
+      variants: {
+        size: {
+          auto: "size-[1.5em]",
+          xs: "size-4",
+          sm: "size-5",
+          md: "size-6",
+          lg: "size-7",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
     avatar: cva("size-[1.5em] overflow-hidden rounded-full", {
       variants: {
         loading: {

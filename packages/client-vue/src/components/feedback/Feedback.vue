@@ -38,9 +38,11 @@
           :scheduled="scheduled"
           variant="stacked"
           anchor="bottom"
-        ></upm-message>
+        />
       </transition-group>
     </aside>
+
+    <upm-track-event v-for="event in events" :key="event.id" :item="event" />
   </div>
 </template>
 
@@ -53,6 +55,7 @@ import { useFeedback } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 import UpmMessage from "./Message.vue";
+import UpmTrackEvent from "./TrackEvent.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -60,6 +63,7 @@ export default defineComponent({
   name: "UpmFeedback",
   components: {
     UpmMessage,
+    UpmTrackEvent,
   },
   props: {
     scheduled: {
