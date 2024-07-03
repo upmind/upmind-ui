@@ -297,7 +297,12 @@ export default (model, currency_id, promotions) => {
               on: {
                 REFRESH: {
                   target: "#configuring",
-                  actions: ["setModel", "setCurrency", "setPromotions"],
+                  actions: [
+                    "setModel",
+                    "setCurrency",
+                    "setPromotions",
+                    "setClean",
+                  ],
                 },
               },
             },
@@ -368,6 +373,7 @@ export default (model, currency_id, promotions) => {
             actions: ["setModel", "setCurrency", "setPromotions", "setClean"],
             cond: "hasChanged",
           },
+          { actions: ["setClean"] },
         ],
         BIN: { target: "unavailable" },
         ERROR: { target: "#error", actions: ["setError"] },
