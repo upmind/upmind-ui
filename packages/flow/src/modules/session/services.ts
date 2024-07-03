@@ -3,7 +3,11 @@ import { useApi } from "../api";
 import { GrantTypes } from "./types.d";
 
 // --- utils
-import { getTokenfromStorage, persistTokenToStorage } from "./utils";
+import {
+  dumpTokensFromStorage,
+  getTokenfromStorage,
+  persistTokenToStorage,
+} from "./utils";
 import { isEmpty, get } from "lodash-es";
 
 // --- types
@@ -39,10 +43,15 @@ async function refreshToken(_context: SessionContext) {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token,
     },
-  }).then(data => {
-    persistTokenToStorage(data);
-    return data;
-  });
+  })
+    .then(data => {
+      persistTokenToStorage(data);
+      return data;
+    })
+    .catch(error => {
+      dumpTokensFromStorage();
+      return Promise.reject(error);
+    });
 }
 
 async function transfer(_context: ClientContext, _event: any) {
