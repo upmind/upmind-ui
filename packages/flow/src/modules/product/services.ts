@@ -237,129 +237,47 @@ async function checkTerm(
 }
 
 async function checkAttributes(
-  { error, lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  const attributes = null;
-  const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
-  const errors = [];
-  // ---
-
-  // safety check, resolve if we have no attributes to check
-  if (!lookups?.attributes?.length) {
-    return Promise.resolve({
-      attributes,
-      price,
-    });
-  }
-
-  // ---
-  // for attributes we have to check a few things:
-  // do we have any attributes that are:
-  // required?
-  // single vs multiple?
-  // invalid : ie values but not actually in lookup values
-  // able to be auto values?
-
-  // make sure we have a values object with only valid attribute values
-  // let attributes = filter(values?.attributes, ({ product_id }) =>
-  //   some(lookups.attributes, ({ values }) => includes(values, product_id))
-  // );
-
-  attributes = reduce(
-    lookups.attributes,
-    (result, attribute) => {
-      let selected = get(model, `attributes.${attribute.id}`, {});
-
-      // only include valid values, if we have any
-      if (!isEmpty(selected)) {
-        selected = pickBy(selected, (_value, id) =>
-          some(attribute.values, ["id", id])
-        );
-
-        // then parse each selected value, and ensure it has all its required attributes
-        // and that it has valid values for each of those attributes
-        selected = mapValues(selected, (value, id) => {
-          // ensure we have an object
-          if (!isObject(value)) value = { product_id: id };
-          const product = find(attribute.values, ["id", value.product_id]);
-
-          //  ensure we have the required attributes
-          value = defaultsDeep(value, {
-            billing_cycle_months: model?.term?.billing_cycle_months,
-            unit_quantity: 1,
-          });
-
-          // ensure we have a valid unit_quantity
-          value.unit_quantity = useQuantityParser(
-            value?.unit_quantity,
-            product
-          );
-
-          value.price = find(product.prices, [
-            "billing_cycle_months",
-            value.billing_cycle_months,
-          ]);
-
-          value.total = value.unit_quantity * (value.price?.price || 0);
-
-          value.total_discounted =
-            value.unit_quantity * (value.price?.price_discounted || 0);
-
-          return value;
-        });
-      }
-
-      // check if we are missing required attribute
-      if (attribute?.required && isEmpty(selected))
-        errors.push(`${attribute.name} is required`);
-
-      // check if we values too many values for this attribute
-      if (!attribute?.multiple && keys(selected)?.length > 1) {
-        errors.push(`${attribute.name} does not multiple choice`);
-      }
-      // ---
-      set(result, attribute.id, selected);
-      return result;
-    },
-    {}
-  );
-
-  return new Promise((resolve, reject) => {
-    if (errors.length)
-      reject({ attributes, prices, error: { ...error, attributes: errors } });
-    else resolve({ attributes, prices });
-  });
+  return checkSubproducts({ error, lookups, model }, { type: "attributes" });
 }
 
 async function checkOptions(
-  { error, lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  let options = null;
+  return checkSubproducts({ error, lookups, model }, { type: "options" });
+}
+
+async function checkSubproducts(
+  { error, lookups, model }: ProductConfigContext,
+  { type }: any
+) {
+  let subproducts = null;
   const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
   const errors = [];
   // ---
   // safety check, resolve if we have no attributes to check
-  if (!lookups?.options?.length) {
+  if (!lookups?.[type]?.length) {
     return Promise.resolve({
-      options,
+      subproducts,
       price,
     });
   }
 
-  options = reduce(
-    lookups.options,
-    (result, option) => {
-      // try get any selected values for this option,
+  subproducts = reduce(
+    lookups[type],
+    (result, subproduct) => {
+      // try get any selected values for this subproduct,
 
-      let selected = get(model, `options.${option.id}`, {});
+      let selected = get(model, `${type}.${subproduct.id}`, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any
         selected = pickBy(selected, (_value, id) =>
-          some(option.values, ["id", id])
+          some(subproduct.values, ["id", id])
         );
 
         // then parse each selected value, and ensure it has all its required attributes
@@ -367,7 +285,7 @@ async function checkOptions(
         selected = mapValues(selected, (value, id) => {
           // ensure we have an object
           if (!isObject(value)) value = { product_id: id };
-          const product = find(option.values, ["id", value.product_id]);
+          const product = find(subproduct.values, ["id", value.product_id]);
           //  ensure we have the required attributes
           value = defaultsDeep(value, {
             billing_cycle_months: some(product.prices, price => {
@@ -401,26 +319,26 @@ async function checkOptions(
         });
       }
 
-      // check if we are missing required option
-      if (option?.required && isEmpty(selected))
-        errors.push(`${option.name} is required`);
+      // check if we are missing required subproduct
+      if (subproduct?.required && isEmpty(selected))
+        errors.push(`${subproduct.name} is required`);
 
-      // check if we values too many values for this option
-      if (!option?.multiple && keys(selected)?.length > 1) {
-        errors.push(`${option.name} does not multiple choice`);
+      // check if we values too many values for this subproduct
+      if (!subproduct?.multiple && keys(selected)?.length > 1) {
+        errors.push(`${subproduct.name} does not multiple choice`);
       }
       // ---
-      set(result, option.id, selected);
+      set(result, subproduct.id, selected);
       return result;
     },
     {}
   );
 
   reduce(
-    options,
-    (result, option) => {
-      const subtotal = sumBy(values(option), "total") || 0;
-      const total = sumBy(values(option), "total_discounted") || 0;
+    subproducts,
+    (result, subproduct) => {
+      const subtotal = sumBy(values(subproduct), "total") || 0;
+      const total = sumBy(values(subproduct), "total_discounted") || 0;
       const discount = total ? subtotal - total : 0;
       result.discount += discount;
       result.subtotal += discount ? subtotal : 0;
@@ -434,11 +352,11 @@ async function checkOptions(
   return new Promise((resolve, reject) => {
     if (errors.length)
       reject({
-        options,
+        [type]: subproducts,
         price,
-        error: { ...error, options: errors },
+        error: { ...error, subproducts: errors },
       });
-    else resolve({ options, price });
+    else resolve({ [type]: subproducts, price });
   });
 }
 
