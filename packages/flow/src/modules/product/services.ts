@@ -219,21 +219,13 @@ async function checkTerm(
   if (isNil(term)) errors.push("Valid Term is required");
 
   // ---
-  // only calculate the term price if we dont have any price overrides
-  if (!useHasPriceOverride(model.options, lookups.options)) {
-    const subtotal = model.quantity * term?.price || 0;
-    const total = model.quantity * term?.price_discounted || 0;
-    const discount = total ? subtotal - total : 0;
-    price.discount = discount;
-    price.subtotal = discount ? subtotal : 0;
-    price.total = discount ? total : subtotal; // cater for no discount
-    price.formatted = term?.price_formatted;
-  } else {
-    price.discount = 0;
-    price.subtotal = 0;
-    price.total = 0;
-    price.formatted = null;
-  }
+  const subtotal = model.quantity * term?.price || 0;
+  const total = model.quantity * term?.price_discounted || 0;
+  const discount = total ? subtotal - total : 0;
+  price.discount = discount;
+  price.subtotal = discount ? subtotal : 0;
+  price.total = discount ? total : subtotal; // cater for no discount
+  price.formatted = term?.price_formatted;
 
   return new Promise((resolve, reject) => {
     if (errors.length)
@@ -480,7 +472,7 @@ async function checkProvisioning(
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
 async function calculateSummary(
-  { currency_id, prices }: BasketContext,
+  { currency_id, prices, model, lookups }: BasketContext,
   _event: any
 ) {
   const { post, useUrl } = useApi();
@@ -494,6 +486,8 @@ async function calculateSummary(
     return Promise.reject("No prices to calculate");
   }
 
+  // remove the term price if we have any price overrides
+  const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
   // ---
   const hasSubtotal =
     prices.term.subtotal > 0 &&
@@ -507,7 +501,7 @@ async function calculateSummary(
         data: {
           currency_id,
           prices: [
-            prices.term.subtotal,
+            hasPriceOverride ? 0 : prices.term.subtotal,
             prices.attributes.subtotal,
             prices.options.subtotal,
           ],
@@ -515,6 +509,7 @@ async function calculateSummary(
       }).then(response => response?.data);
 
   // ---
+
   const hasDiscount =
     prices.term.discount > 0 &&
     prices.attributes.discount > 0 &&
@@ -527,7 +522,7 @@ async function calculateSummary(
         data: {
           currency_id,
           prices: [
-            prices.term.discount,
+            hasPriceOverride ? 0 : prices.term.discount,
             prices.attributes.discount,
             prices.options.discount,
           ],
@@ -535,16 +530,16 @@ async function calculateSummary(
       }).then(response => response?.data);
 
   // ---
+
   const totalPromise = post({
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
       currency_id,
       prices: [
-        prices.term.total,
+        hasPriceOverride ? 0 : prices.term.total,
         prices.attributes.total,
         prices.options.total,
-        0, // we dont need to include the discount in the total calculation
       ],
     },
   }).then(response => response?.data);

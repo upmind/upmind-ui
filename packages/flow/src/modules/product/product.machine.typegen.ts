@@ -93,7 +93,6 @@ export interface Typegen0 {
     mergeModel: "PUT";
     sendConfig:
       | "PROCESSING"
-      | "done.state.configuring"
       | "done.state.productConfigurator.configuring.values";
     setAttributes:
       | "UPDATE.ATTRIBUTES"
@@ -107,7 +106,6 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
-      | "done.state.configuring"
       | "done.state.productConfigurator.configuring.values"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
@@ -129,7 +127,8 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.configuring.quantity:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]";
+      | "error.platform.productConfigurator.configuring.values.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
     setLookups: "done.invoke.load";
     setModel: "REFRESH" | "UPDATE";
     setOptions:
@@ -152,33 +151,30 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    hasCalculated: "";
+    hasCalculated: "" | "done.state.productConfigurator.configuring.values";
     hasChanged: "PUT" | "REFRESH";
-    needsRecalculating: "" | "done.state.configuring";
+    needsRecalculating: "";
   };
   eventsCausingServices: {
-    calculateSummary: "" | "done.state.configuring";
+    calculateSummary: "";
     checkAttributes:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
-      | "done.state.configuring";
+      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
     checkOptions:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
-      | "done.state.configuring";
+      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
     checkProvisioning:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
-      | "done.state.configuring";
+      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
     checkQuantity:
       | "PUT"
       | "REFRESH"
@@ -188,15 +184,13 @@ export interface Typegen0 {
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
-      | "done.invoke.load"
-      | "done.state.configuring";
+      | "done.invoke.load";
     checkTerm:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
       | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
-      | "done.state.configuring";
+      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
     load: "BIN" | "REFRESH" | "xstate.init";
   };
   matchesStates:
@@ -225,6 +219,7 @@ export interface Typegen0 {
     | "configuring.values.summary.complete"
     | "configuring.values.summary.error"
     | "configuring.values.summary.idle"
+    | "configuring.values.summary.test"
     | "configuring.values.term"
     | "configuring.values.term.checking"
     | "configuring.values.term.invalid"
@@ -248,7 +243,12 @@ export interface Typegen0 {
                     attributes?: "checking" | "invalid" | "valid";
                     options?: "checking" | "invalid" | "valid";
                     provisioning?: "checking" | "invalid" | "valid";
-                    summary?: "calculating" | "complete" | "error" | "idle";
+                    summary?:
+                      | "calculating"
+                      | "complete"
+                      | "error"
+                      | "idle"
+                      | "test";
                     term?: "checking" | "invalid" | "valid";
                   };
             };

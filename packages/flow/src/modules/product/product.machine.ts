@@ -126,7 +126,7 @@ export default (model, currency_id, promotions) => {
                         },
                         onError: {
                           target: "invalid",
-                          actions: ["setTerm", "setConfig"],
+                          actions: ["setTerm", "setConfig", "setError"],
                         },
                       },
                     },
@@ -255,14 +255,22 @@ export default (model, currency_id, promotions) => {
                         },
                       },
                     },
+                    test: {},
                     complete: {
+                      always: {
+                        target: "calculating",
+                        cond: "needsRecalculating",
+                      },
                       type: "final",
                     },
                     error: {},
                   },
                 },
               },
-              onDone: "#configured",
+              onDone: {
+                target: "#configured",
+                cond: "hasCalculated",
+              },
             },
           },
           on: {
@@ -283,10 +291,6 @@ export default (model, currency_id, promotions) => {
               },
             ],
           },
-          onDone: [
-            { target: "#calculating", cond: "needsRecalculating" },
-            { target: "configured" },
-          ],
         },
 
         // this is our state where we are all good and can add/update this configuration to the basket
@@ -471,12 +475,13 @@ export default (model, currency_id, promotions) => {
             });
             return lookups;
           },
-          needsCalculating: ({ prices, needsCalculating }, { data }) =>
-            needsCalculating || !isEqual(data?.price, prices?.term),
           prices: ({ prices }, { data }) => {
-            set(prices, "term", get(data, "price", prices?.term));
-            return prices;
+            if (!data?.price) return prices;
+            return { ...prices, term: data.price };
           },
+          needsCalculating: ({ prices, needsCalculating }, { data }) =>
+            needsCalculating ||
+            (data?.price && !isEqual(data?.price, prices?.term)),
         }),
 
         setAttributes: assign({
@@ -485,13 +490,13 @@ export default (model, currency_id, promotions) => {
             set(model, "attributes", attributes);
             return model;
           },
-          needsCalculating: ({ prices, needsCalculating }, { data }) =>
-            needsCalculating || !isEqual(data?.price, prices?.attributes),
-
           prices: ({ prices }, { data }) => {
-            set(prices, "attributes", get(data, "price", prices?.attributes));
-            return prices;
+            if (!data?.price) return prices;
+            return { ...prices, attributes: data.price };
           },
+          needsCalculating: ({ prices, needsCalculating }, { data }) =>
+            needsCalculating ||
+            (data?.price && !isEqual(data?.price, prices?.attributes)),
         }),
 
         setOptions: assign({
@@ -500,12 +505,13 @@ export default (model, currency_id, promotions) => {
             set(model, "options", options);
             return model;
           },
-          needsCalculating: ({ prices, needsCalculating }, { data }) =>
-            needsCalculating || !isEqual(data?.price, prices?.options),
           prices: ({ prices }, { data }) => {
-            set(prices, "options", get(data, "price", prices?.options));
-            return prices;
+            if (!data?.price) return prices;
+            return { ...prices, options: data.price };
           },
+          needsCalculating: ({ prices, needsCalculating }, { data }) =>
+            needsCalculating ||
+            (!!data?.price && !isEqual(data?.price, prices?.options)),
         }),
 
         setProvisioning: assign({
@@ -550,7 +556,8 @@ export default (model, currency_id, promotions) => {
       services,
       guards: {
         needsRecalculating: ({ needsCalculating }) => needsCalculating,
-        hasCalculated: ({ summary }) => !isEmpty(summary),
+        hasCalculated: ({ needsCalculating, summary }) =>
+          !needsCalculating && !isEmpty(summary),
 
         hasChanged: ({ model, basket_id, currency_id }, { data }) => {
           const newModel = merge({}, model, useModelParser(data));
