@@ -37,7 +37,7 @@
         :uischema="fieldsUischema"
         @reject="fieldsClear"
         @resolve="fieldsUpdate"
-        @update:modelValue="fieldsInput"
+        @update:modelValue="fieldsUpdate"
         no-actions
         autosave
       />
@@ -90,7 +90,6 @@ export default defineComponent({
     const { meta, summary } = useBasket();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
-    // const details = useBasketPaymentDetails();
 
     const styles = useStyles(["basket.details"], meta, config);
 
@@ -107,7 +106,6 @@ export default defineComponent({
       fieldsSchema: fields.schema,
       fieldsUischema: fields.uischema,
       fieldsErrors: fields.errors,
-      fieldsInput: fields.input,
       fieldsUpdate: fields.update,
       fieldsClear: fields.clear,
       // ---

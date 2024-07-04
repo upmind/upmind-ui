@@ -1,5 +1,6 @@
 <template>
   <section ref="form" :class="styles.basket.paymentDetails.root">
+    <pre>{{ meta }}</pre>
     <upw-form
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
