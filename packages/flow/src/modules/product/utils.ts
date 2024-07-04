@@ -8,6 +8,8 @@ import {
   get,
   isEmpty,
   isNil,
+  isObject,
+  isString,
   map,
   mapValues,
   omit,
@@ -284,7 +286,15 @@ export const useProvisioningParser = (data: any) => {
       format,
       description: field.description,
       default: field.default,
-      enum: field.options?.length ? field.options : undefined,
+      enum: !some(field.options, isString) ? undefined : field.options,
+      oneOf: !some(field.options, isObject)
+        ? undefined
+        : map(field.options, item => {
+            return {
+              const: item.value,
+              title: item.label,
+            };
+          }),
       // ---
       defer: field?.deferrable ? field?.defer_mode : undefined,
     };
