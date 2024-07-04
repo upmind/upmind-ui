@@ -228,13 +228,8 @@ export default createMachine(
                         actions: ["refreshItems", "updateBasket"],
                       },
                       onError: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setError",
-                          "setFeedbackError",
-                        ],
+                        target: "error",
+                        actions: ["setError", "setFeedbackError"],
                       },
                     },
                   },
@@ -244,17 +239,12 @@ export default createMachine(
                     invoke: {
                       src: "updateItem",
                       onDone: {
-                        target: "error",
+                        target: "#processed",
                         actions: ["refreshItems", "updateBasket"],
                       },
                       onError: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setError",
-                          "setFeedbackError",
-                        ],
+                        target: "error",
+                        actions: ["setError", "setFeedbackError"],
                       },
                     },
                   },
@@ -268,21 +258,16 @@ export default createMachine(
                         actions: ["removeItem", "updateBasket"],
                       },
                       onError: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setError",
-                          "setFeedbackError",
-                        ],
+                        target: "error",
+                        actions: ["setError", "setFeedbackError"],
                       },
                     },
                   },
 
                   error: {
-                    after: {
-                      error: "#processed",
-                    },
+                    // after: {
+                    // wait: "#processed",
+                    // },
                   },
                 },
               },
@@ -834,7 +819,7 @@ export default createMachine(
 
             // if not, we need to check if its been Replaced
             if (!product && newId) {
-              // Replaced...
+              // Replaced#.
               // we need to replace it with a new machine and stop the old one
               // NB: its safe to assume that the items array is in the same order as the newItems
               // so we can use the index to match the items

@@ -87,7 +87,7 @@ export default (model, currency_id, promotions) => {
             onDone: [{ target: "configuring", actions: ["setLookups"] }],
             onError: {
               target: "#error",
-              actions: ["setError"],
+              actions: "setError",
             },
           },
         },
@@ -105,12 +105,11 @@ export default (model, currency_id, promotions) => {
                   actions: ["setQuantity", "setConfig"],
                 },
                 onError: {
-                  actions: ["setError"],
+                  actions: "setError",
                 },
               },
             },
             values: {
-              entry: "clearError",
               type: "parallel",
               states: {
                 term: {
@@ -247,7 +246,7 @@ export default (model, currency_id, promotions) => {
                         },
                         onError: {
                           target: "idle",
-                          actions: ["setError"],
+                          actions: "setError",
                         },
                       },
                     },
@@ -295,6 +294,7 @@ export default (model, currency_id, promotions) => {
             processing: {
               type: "final",
               on: {
+                ERROR: { target: "error", actions: "setError" },
                 REFRESH: {
                   target: "#configuring",
                   actions: [
@@ -306,6 +306,8 @@ export default (model, currency_id, promotions) => {
                 },
               },
             },
+
+            error: {},
           },
 
           on: {
@@ -352,9 +354,6 @@ export default (model, currency_id, promotions) => {
         // Handle errors
         error: {
           id: "error",
-          after: {
-            error: "#configuring",
-          },
         },
 
         // Handle completion, stop the machine and prevent further products
@@ -376,8 +375,6 @@ export default (model, currency_id, promotions) => {
           { actions: ["setClean"] },
         ],
         BIN: { target: "unavailable" },
-        ERROR: { target: "#error", actions: ["setError"] },
-        "CLEAR.ERRORS": { actions: ["clearError"] },
       },
     },
     {
@@ -506,22 +503,25 @@ export default (model, currency_id, promotions) => {
         setClean: assign({
           isDirty: false,
           needsCalculating: false,
-          error: {},
+          // error: {},
         }),
 
         // ---
 
         setError: assign({
           error: ({ error }, { data }) => {
-            let err = data?.error || data;
+            const err = data?.error || data;
 
             if (err?.code == 422) {
               // lets parse/override our error message and data
               // this is to generate valid json schema validation errors
-              err = useValidationParser(err);
+              return {
+                ...error,
+                provision_fields: useValidationParser(err),
+              };
+            } else {
+              return { ...error, ...err };
             }
-
-            return err;
           },
         }),
 

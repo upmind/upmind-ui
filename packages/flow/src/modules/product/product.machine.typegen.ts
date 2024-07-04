@@ -64,7 +64,6 @@ export interface Typegen0 {
       type: "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
       data: unknown;
     };
-    "xstate.after(error)#error": { type: "xstate.after(error)#error" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -91,14 +90,6 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clearCalculating: "done.invoke.calculating:invocation[0]";
-    clearError:
-      | "CLEAR.ERRORS"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
-      | "done.state.configuring";
     mergeModel: "PUT";
     sendConfig:
       | "PROCESSING"
@@ -159,9 +150,7 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
   };
-  eventsCausingDelays: {
-    error: "ERROR" | "error.platform.load";
-  };
+  eventsCausingDelays: {};
   eventsCausingGuards: {
     hasChanged: "PUT" | "REFRESH";
     needsRecalculating: "" | "done.state.configuring";
@@ -199,8 +188,7 @@ export interface Typegen0 {
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM"
       | "done.invoke.load"
-      | "done.state.configuring"
-      | "xstate.after(error)#error";
+      | "done.state.configuring";
     checkTerm:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
@@ -208,11 +196,12 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
       | "done.state.configuring";
-    load: "BIN" | "ERROR" | "REFRESH" | "xstate.init";
+    load: "BIN" | "REFRESH" | "xstate.init";
   };
   matchesStates:
     | "complete"
     | "configured"
+    | "configured.error"
     | "configured.idle"
     | "configured.processing"
     | "configuring"
@@ -242,7 +231,7 @@ export interface Typegen0 {
     | "loading"
     | "unavailable"
     | {
-        configured?: "idle" | "processing";
+        configured?: "error" | "idle" | "processing";
         configuring?:
           | "quantity"
           | "values"
