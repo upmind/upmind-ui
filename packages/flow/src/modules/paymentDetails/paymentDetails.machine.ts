@@ -63,7 +63,13 @@ export default createMachine(
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: { target: "available" },
+          onDone: [
+            {
+              target: "available.checking",
+              cond: "hasLookups",
+            },
+            { target: "available" },
+          ],
           onError: { target: "unavailable" },
         },
       },
@@ -374,6 +380,10 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasLookups: (
+        { stored_payment_details, gateways, payment_types },
+        _event
+      ) => !!stored_payment_details && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
