@@ -191,7 +191,6 @@ export const useBasket = () => {
       );
     },
     clearBasket: () => send({ type: "CLEAR" }),
-    clearErrors: () => send({ type: "CLEAR.ERRORS" }),
     checkout: () => send({ type: "CHECKOUT" }),
     // ---
     // Item Methods
@@ -230,8 +229,15 @@ export const useBasket = () => {
     updateItem: async itemId => {
       send({ type: "UPDATE", data: { itemId } });
       return waitFor(service, newstate =>
-        newstate.matches("shopping.items.processed")
-      );
+        ["shopping.items.processed", "shopping.items.processing.error"].some(
+          newstate.matches
+        )
+      ).then(newState => {
+        if (newState.matches("shopping.items.processing.error")) {
+          return Promise.reject();
+        }
+        return Promise.resolve();
+      });
     },
 
     updateTerm: ({ itemId, term }) =>

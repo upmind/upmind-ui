@@ -83,9 +83,6 @@ export interface Typegen0 {
       type: "error.platform.updating:invocation[0]";
       data: unknown;
     };
-    "xstate.after(error)#basketManager.shopping.items.processing.error": {
-      type: "xstate.after(error)#basketManager.shopping.items.processing.error";
-    };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
@@ -134,10 +131,7 @@ export interface Typegen0 {
       | "done.invoke.refreshing:invocation[0]";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "done.invoke.updating:invocation[0]"
-      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.removing:invocation[0]"
-      | "error.platform.updating:invocation[0]";
+      | "done.invoke.updating:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     sendToItem:
       | "UPDATE.ATTRIBUTES"
@@ -175,22 +169,15 @@ export interface Typegen0 {
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
-      | "done.invoke.updating:invocation[0]"
-      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.removing:invocation[0]"
-      | "error.platform.updating:invocation[0]";
+      | "done.invoke.updating:invocation[0]";
     updateItem: "UPDATE";
     updateItems: "UPDATE";
   };
   eventsCausingDelays: {
-    error: "done.invoke.updating:invocation[0]";
     wait:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.removing:invocation[0]"
-      | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
-      | "error.platform.removing:invocation[0]"
-      | "error.platform.updating:invocation[0]"
-      | "xstate.after(error)#basketManager.shopping.items.processing.error";
+      | "done.invoke.updating:invocation[0]";
   };
   eventsCausingGuards: {
     billingComplete: "";

@@ -127,7 +127,7 @@
         <upm-config-form
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
-          :additional-errors="errors?.data"
+          :additional-errors="errors?.provision_fields?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"
           @update:modelValue="setProvisioningFields"
@@ -231,8 +231,6 @@ export default defineComponent({
       meta,
       summary,
       // ---
-      clearErrors,
-      // ---
       updateQuantity,
       updateTerm,
       // ---
@@ -266,8 +264,6 @@ export default defineComponent({
       model,
       meta,
       summary,
-      // ---
-      clearErrors,
       // ---
       updateQuantity,
       updateTerm,

@@ -14,6 +14,7 @@ import {
   defaultsDeep,
   find,
   first,
+  forEach,
   get,
   isEmpty,
   isNil,
@@ -435,31 +436,18 @@ async function checkProvisioning(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  // safety check, resolve if we have no attributes to check
-  if (isEmpty(lookups?.provision_fields?.properties)) {
-    return Promise.resolve([]);
-  }
-
-  const provision_fields = reduce(
-    lookups.provision_fields.properties,
-    (result, field, key) => {
-      const selected = get(model, `provision_fields.${key}`, null);
-      set(result, key, selected);
-      return result;
-    },
-    {}
-  );
+  model.provision_fields ??= {};
 
   const { validate } = useValidation();
-  const errors = validate(provision_fields, lookups.provision_fields);
+  const errors = validate(model.provision_fields, lookups.provision_fields);
 
   return new Promise((resolve, reject) => {
     if (errors.length)
       reject({
-        provision_fields,
+        provision_fields: model?.provision_fields,
         error: { ...error, provision_fields: errors },
       });
-    else resolve({ provision_fields });
+    else resolve({ provision_fields: model.provision_fields });
   });
 }
 

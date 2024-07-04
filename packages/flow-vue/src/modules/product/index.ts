@@ -77,12 +77,6 @@ export const useProductConfig = actor => {
 
   // --------------------------------------------------------
 
-  const clearErrors = () => {
-    send({
-      type: "CLEAR.ERRORS",
-    });
-  };
-
   // --- QUANTITY
   const updateQuantity = (value?: number) => {
     send({
@@ -306,8 +300,6 @@ export const useProductConfig = actor => {
     // ---
     model,
     summary,
-    // ---
-    clearErrors,
     // ---
     updateQuantity,
     incrementQuantity,
