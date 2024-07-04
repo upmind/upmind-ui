@@ -28,6 +28,7 @@ import {
   isEqual,
   unset,
   isEmpty,
+  isNil,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
@@ -70,9 +71,9 @@ export default (model, currency_id, promotions) => {
         config: {},
         summary: {},
         prices: {
-          term: { subtotal: 0, total: 0, discount: 0, formatted: null },
-          attributes: { subtotal: 0, total: 0, discount: 0, formatted: null },
-          options: { subtotal: 0, total: 0, discount: 0, formatted: null },
+          term: null,
+          attributes: null,
+          options: null,
         },
         // ---
         error: {},
@@ -555,7 +556,11 @@ export default (model, currency_id, promotions) => {
       },
       services,
       guards: {
-        needsRecalculating: ({ needsCalculating }) => needsCalculating,
+        needsRecalculating: ({ needsCalculating, prices }) =>
+          needsCalculating &&
+          !isNil(prices.term) &&
+          !isNil(prices.attributes) &&
+          !isNil(prices.options),
         hasCalculated: ({ needsCalculating, summary }) =>
           !needsCalculating && !isEmpty(summary),
 
