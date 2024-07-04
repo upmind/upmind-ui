@@ -14,7 +14,6 @@ import {
   defaultsDeep,
   find,
   first,
-  forEach,
   get,
   isEmpty,
   isNil,
@@ -182,16 +181,20 @@ async function checkQuantity(
 }
 
 async function checkTerm(
-  { error, lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  let term;
-
-  // reset any previous errors for this check
+  let term = null;
+  const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
   const errors = [];
+  // ---
 
   if (!lookups?.terms?.length) {
-    return Promise.reject("No Terms lookups");
+    return Promise.reject({
+      term,
+      price,
+      error: { ...error, term: "No Terms available" },
+    });
   }
 
   // ---
@@ -221,22 +224,22 @@ async function checkTerm(
     const subtotal = model.quantity * term?.price || 0;
     const total = model.quantity * term?.price_discounted || 0;
     const discount = total ? subtotal - total : 0;
-    prices.term.discount = discount;
-    prices.term.subtotal = discount ? subtotal : 0;
-    prices.term.total = discount ? total : subtotal; // cater for no discount
-    prices.term.formatted = term?.price_formatted;
+    price.discount = discount;
+    price.subtotal = discount ? subtotal : 0;
+    price.total = discount ? total : subtotal; // cater for no discount
+    price.formatted = term?.price_formatted;
   } else {
-    prices.term.discount = 0;
-    prices.term.subtotal = 0;
-    prices.term.total = 0;
-    prices.term.formatted = null;
+    price.discount = 0;
+    price.subtotal = 0;
+    price.total = 0;
+    price.formatted = null;
   }
 
   return new Promise((resolve, reject) => {
     if (errors.length)
-      reject({ term, prices, error: { ...error, term: errors } });
+      reject({ term, price, error: { ...error, term: errors } });
     else {
-      resolve({ term, prices });
+      resolve({ term, price });
     }
   });
 }
@@ -245,13 +248,19 @@ async function checkAttributes(
   { error, lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
+  const attributes = null;
+  const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
+  const errors = [];
+  // ---
+
   // safety check, resolve if we have no attributes to check
   if (!lookups?.attributes?.length) {
-    return Promise.resolve(null);
+    return Promise.resolve({
+      attributes,
+      price,
+    });
   }
 
-  // reset any previous errors for this check
-  const errors = [];
   // ---
   // for attributes we have to check a few things:
   // do we have any attributes that are:
@@ -265,7 +274,7 @@ async function checkAttributes(
   //   some(lookups.attributes, ({ values }) => includes(values, product_id))
   // );
 
-  const attributes = reduce(
+  attributes = reduce(
     lookups.attributes,
     (result, attribute) => {
       let selected = get(model, `attributes.${attribute.id}`, {});
@@ -335,15 +344,19 @@ async function checkOptions(
   { error, lookups, model, prices }: ProductConfigContext,
   _event: any
 ) {
+  let options = null;
+  const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
+  const errors = [];
+  // ---
   // safety check, resolve if we have no attributes to check
   if (!lookups?.options?.length) {
-    return Promise.resolve(null);
+    return Promise.resolve({
+      options,
+      price,
+    });
   }
 
-  // reset any previous errors for this check
-  const errors = [];
-
-  const options = reduce(
+  options = reduce(
     lookups.options,
     (result, option) => {
       // try get any selected values for this option,
@@ -411,7 +424,7 @@ async function checkOptions(
     {}
   );
 
-  prices.options = reduce(
+  reduce(
     options,
     (result, option) => {
       const subtotal = sumBy(values(option), "total") || 0;
@@ -420,15 +433,20 @@ async function checkOptions(
       result.discount += discount;
       result.subtotal += discount ? subtotal : 0;
       result.total += discount ? total : subtotal; // cater for no discount
+      result.formatted = null;
       return result;
     },
-    { subtotal: 0, total: 0, discount: 0 }
+    price
   );
 
   return new Promise((resolve, reject) => {
     if (errors.length)
-      reject({ options, prices, error: { ...error, options: errors } });
-    else resolve({ options, prices });
+      reject({
+        options,
+        price,
+        error: { ...error, options: errors },
+      });
+    else resolve({ options, price });
   });
 }
 

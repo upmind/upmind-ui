@@ -152,6 +152,7 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
+    hasCalculated: "";
     hasChanged: "PUT" | "REFRESH";
     needsRecalculating: "" | "done.state.configuring";
   };
@@ -222,6 +223,7 @@ export interface Typegen0 {
     | "configuring.values.summary"
     | "configuring.values.summary.calculating"
     | "configuring.values.summary.complete"
+    | "configuring.values.summary.error"
     | "configuring.values.summary.idle"
     | "configuring.values.term"
     | "configuring.values.term.checking"
@@ -246,7 +248,7 @@ export interface Typegen0 {
                     attributes?: "checking" | "invalid" | "valid";
                     options?: "checking" | "invalid" | "valid";
                     provisioning?: "checking" | "invalid" | "valid";
-                    summary?: "calculating" | "complete" | "idle";
+                    summary?: "calculating" | "complete" | "error" | "idle";
                     term?: "checking" | "invalid" | "valid";
                   };
             };

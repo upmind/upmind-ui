@@ -27,6 +27,7 @@ import {
   merge,
   isEqual,
   unset,
+  isEmpty,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
@@ -69,9 +70,9 @@ export default (model, currency_id, promotions) => {
         config: {},
         summary: {},
         prices: {
-          term: { subtotal: 0, total: 0, discount: 0 },
-          attributes: { subtotal: 0, total: 0, discount: 0 },
-          options: { subtotal: 0, total: 0, discount: 0 },
+          term: { subtotal: 0, total: 0, discount: 0, formatted: null },
+          attributes: { subtotal: 0, total: 0, discount: 0, formatted: null },
+          options: { subtotal: 0, total: 0, discount: 0, formatted: null },
         },
         // ---
         error: {},
@@ -233,7 +234,11 @@ export default (model, currency_id, promotions) => {
                   states: {
                     idle: {
                       always: [
-                        { target: "calculating", cond: "needsRecalculating" },
+                        {
+                          target: "calculating",
+                          cond: "needsRecalculating",
+                        },
+                        { target: "complete", cond: "hasCalculated" },
                       ],
                     },
                     calculating: {
@@ -245,14 +250,15 @@ export default (model, currency_id, promotions) => {
                           actions: ["setSummary", "clearCalculating"],
                         },
                         onError: {
-                          target: "idle",
-                          actions: "setError",
+                          target: "error",
+                          actions: ["setError"],
                         },
                       },
                     },
                     complete: {
                       type: "final",
                     },
+                    error: {},
                   },
                 },
               },
@@ -449,7 +455,6 @@ export default (model, currency_id, promotions) => {
             set(model, "term", term);
             return model;
           },
-          prices: ({ prices }, { data }) => get(data, "prices", prices),
           lookups: ({ lookups }, { data }) => {
             // set the price for the lookups options based on the term selected
             const term = get(data, "term");
@@ -466,7 +471,12 @@ export default (model, currency_id, promotions) => {
             });
             return lookups;
           },
-          needsCalculating: (_context, { data }) => !!data?.term,
+          needsCalculating: ({ prices, needsCalculating }, { data }) =>
+            needsCalculating || !isEqual(data?.price, prices?.term),
+          prices: ({ prices }, { data }) => {
+            set(prices, "term", get(data, "price", prices?.term));
+            return prices;
+          },
         }),
 
         setAttributes: assign({
@@ -475,7 +485,13 @@ export default (model, currency_id, promotions) => {
             set(model, "attributes", attributes);
             return model;
           },
-          prices: ({ prices }, { data }) => get(data, "prices", prices),
+          needsCalculating: ({ prices, needsCalculating }, { data }) =>
+            needsCalculating || !isEqual(data?.price, prices?.attributes),
+
+          prices: ({ prices }, { data }) => {
+            set(prices, "attributes", get(data, "price", prices?.attributes));
+            return prices;
+          },
         }),
 
         setOptions: assign({
@@ -484,8 +500,12 @@ export default (model, currency_id, promotions) => {
             set(model, "options", options);
             return model;
           },
-          prices: ({ prices }, { data }) => get(data, "prices", prices),
-          needsCalculating: (_context, { data }) => !!data?.options,
+          needsCalculating: ({ prices, needsCalculating }, { data }) =>
+            needsCalculating || !isEqual(data?.price, prices?.options),
+          prices: ({ prices }, { data }) => {
+            set(prices, "options", get(data, "price", prices?.options));
+            return prices;
+          },
         }),
 
         setProvisioning: assign({
@@ -530,6 +550,7 @@ export default (model, currency_id, promotions) => {
       services,
       guards: {
         needsRecalculating: ({ needsCalculating }) => needsCalculating,
+        hasCalculated: ({ summary }) => !isEmpty(summary),
 
         hasChanged: ({ model, basket_id, currency_id }, { data }) => {
           const newModel = merge({}, model, useModelParser(data));

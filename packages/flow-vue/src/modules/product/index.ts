@@ -53,16 +53,16 @@ export const useProductConfig = actor => {
     // ---
     hasProvisioning:
       !isEmpty(state.value.context.lookups.provision_fields?.properties) &&
-      state.value?.context?.model?.provision_fields,
+      !!state.value?.context?.model?.provision_fields,
     hasAttributes:
       !isEmpty(state.value.context.lookups.attributes) &&
-      state.value?.context?.model?.attributes,
+      !!state.value?.context?.model?.attributes,
     hasOptions:
       !isEmpty(state.value.context.lookups.options) &&
-      state.value?.context?.model?.options,
+      !!state.value?.context?.model?.options,
     hasTerms:
       !isEmpty(state.value.context.lookups.terms) &&
-      state.value?.context?.model?.term,
+      !!state.value?.context?.model?.term,
   }));
 
   const summary = computed(() => state.value.context.summary);
