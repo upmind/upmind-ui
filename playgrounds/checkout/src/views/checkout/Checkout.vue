@@ -1,8 +1,13 @@
 <template>
   <article :class="styles.checkout.root">
+    <pre>
+      isLoading: {{ meta.isLoading }}
+      animationComplete: {{ animationComplete }}
+    </pre>
+
     <upm-basket-loading
       id="loading"
-      v-if="meta.isLoading"
+      v-if="meta.isLoading || !animationComplete"
       :class="styles.checkout.section.root"
     />
 
@@ -136,6 +141,14 @@ export default defineComponent({
     const styles = useStyles(["checkout", "checkout.section"], meta, config);
 
     // ---------------------------------------------------
+    // Create a min Animation time for the Loading Screen to prevent fout/jank
+    const animationComplete = ref(false);
+    const animationDuration = 2_000;
+
+    new Promise(resolve => setTimeout(resolve, animationDuration)).then(() => {
+      animationComplete.value = true;
+    });
+    // ---------------------------------------------------
 
     return {
       mergeStyles,
@@ -179,6 +192,7 @@ export default defineComponent({
           },
         ];
       }),
+      animationComplete,
     };
   },
   watch: {

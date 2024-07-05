@@ -544,12 +544,8 @@ export default createMachine(
       }),
 
       updateBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvent) => {
-          debugger;
-          const basket = useBasketParser(data);
-          debugger;
-          return basket;
-        },
+        basket: (_context: BasketContext, { data }: BasketEvent) =>
+          useBasketParser(data),
         summary: ({ basket }: BasketContext, { data }: BasketEvent) =>
           useSummaryParser(useBasketParser(data)),
         error: undefined,
