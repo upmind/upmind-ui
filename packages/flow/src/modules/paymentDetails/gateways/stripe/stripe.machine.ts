@@ -69,7 +69,7 @@ export default createMachine(
             invoke: {
               src: "createPaymentElement",
               onDone: {
-                target: "..checking",
+                target: "#checking",
                 actions: ["setElements"],
               },
               onError: {
@@ -83,7 +83,7 @@ export default createMachine(
             invoke: {
               src: "createAddElement",
               onDone: {
-                target: "..checking",
+                target: "#checking",
                 actions: ["setElements", "setClientDetails"],
               },
               onError: {
@@ -97,6 +97,7 @@ export default createMachine(
 
       // ---
       checking: {
+        id: "checking",
         entry: ["clearError"],
         initial: "parsing",
         states: {
