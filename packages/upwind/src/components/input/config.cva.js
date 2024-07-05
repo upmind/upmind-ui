@@ -30,7 +30,7 @@ export default {
           },
 
           isDisabled: {
-            true: "",
+            true: "opacity-50",
           },
         },
         compoundVariants: [

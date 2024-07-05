@@ -10,6 +10,12 @@ export default {
           md: "size-6",
           lg: "size-7",
         },
+        isDisabled: {
+          true: "cursor-not-allowed",
+        },
+        isProcessing: {
+          true: "cursor-wait",
+        },
       },
       defaultVariants: {
         size: "md",
@@ -25,7 +31,7 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "bg-base-100 cursor-not-allowed",
+            true: "bg-base-100 cursor-not-allowed ",
           },
           isProcessing: {
             true: "cursor-wait",
