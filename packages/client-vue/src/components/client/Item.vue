@@ -10,7 +10,6 @@
   >
     <upw-form
       :class="styles.clientForm.root"
-      :loading="meta.isLoading"
       :processing="meta.isProcessing"
       :model-value="model"
       :schema="schema"
