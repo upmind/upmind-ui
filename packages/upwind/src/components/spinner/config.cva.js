@@ -12,7 +12,7 @@ export default {
             auto: "",
             xs: "size-6",
             sm: "size-8",
-            md: "size-10",
+            md: "size-10 border-[0.2em]",
             lg: "size-12 border-[0.2em]",
             xl: "size-14 border-[0.4em]",
             "2xl": "size-16 border-[0.6em]",
