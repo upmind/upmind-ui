@@ -36,7 +36,7 @@ export const ListingActions = {
 export const ItemActions = {
   setMeta: assign({
     title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
-      model?.name || "New Address",
+      model?.company_name || model?.name || "New Address",
     description: (
       { model, countries, regions }: UnifiedAddressContext,
       _event: UnifiedAddressEvent

@@ -175,7 +175,7 @@ async function add(
     return post({
       url: useUrl(`clients/${clientId}/companies`),
       data: {
-        name: model.name,
+        name: model.company_name,
         address_id: address?.id,
         email_id: email?.id,
         phone_id: phone?.id,
@@ -226,7 +226,7 @@ async function update(
       return put({
         url: useUrl(`clients/${clientId}/companies/${model.id}`),
         data: {
-          name: model.name,
+          name: model.company_name,
           address_id: address?.id,
           email_id: email?.id,
           phone_id: phone?.id,
@@ -241,7 +241,7 @@ async function update(
       return post({
         url: useUrl(`clients/${clientId}/companies`),
         data: {
-          name: model.name,
+          name: model.company_name,
           address_id: address?.id,
           email_id: email?.id,
           phone_id: phone?.id,
@@ -411,7 +411,7 @@ async function loadLookups(
 
 async function parse(
   { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
-  _event: UnifiedAddressEvent
+  event: UnifiedAddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -477,7 +477,7 @@ async function parse(
     }
 
     // finally lets force a manual place if we are invalid:
-    const isValid = await validate({ schema, model }, _event)
+    const isValid = await validate({ schema, model }, event)
       .then(() => true)
       .catch(() => false);
 
