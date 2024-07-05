@@ -154,12 +154,6 @@ export const useSchema = ({
         default: baseModel?.company_details,
       },
 
-      name: {
-        type: ["string", "null"],
-        title: "Name",
-        default: baseModel?.name,
-      },
-
       company_name: {
         type: ["string", "null"],
         title: "Name",
