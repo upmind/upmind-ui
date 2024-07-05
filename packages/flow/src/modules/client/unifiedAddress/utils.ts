@@ -37,7 +37,7 @@ export const useSchema = ({
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["address_1", "city", "country_id", "postcode", "type"],
+    required: ["name", "address_1", "city", "country_id", "postcode", "type"],
     // --- conditionally required fields
     if: {
       properties: {
@@ -45,7 +45,7 @@ export const useSchema = ({
       },
       required: ["company_details"],
     },
-    then: { required: ["name", "email", "reg_number"] },
+    then: { required: ["company_name", "email", "reg_number"] },
     // ---
     properties: {
       id: {
@@ -86,6 +86,13 @@ export const useSchema = ({
       },
 
       // ---
+
+      name: {
+        type: ["string", "null"],
+        title: "Name",
+        default: baseModel?.name,
+      },
+
       address_1: {
         type: "string",
         title: "Address Line 1",
@@ -151,6 +158,11 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Name",
         default: baseModel?.name,
+      },
+
+      company_name: {
+        type: ["string", "null"],
+        title: "Name",
       },
 
       email: {
@@ -274,18 +286,6 @@ export const useUischema = ({ addresses, emails, phones }) => {
           focus: true,
           autocomplete: "off",
           placeholder: "My home address, etc...",
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["id"],
-              properties: {
-                company_details: { const: false },
-              },
-            },
-          },
         },
       },
 
@@ -443,8 +443,8 @@ export const useUischema = ({ addresses, emails, phones }) => {
         elements: [
           {
             type: "Control",
-            scope: "#/properties/name",
-            i18n: "client.unified.form.fields.name",
+            scope: "#/properties/company_name",
+            i18n: "client.unified.form.fields.company_name",
             options: {
               focus: true,
               autocomplete: "organization",
@@ -571,17 +571,17 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
       const mappedItem = {
         id: item?.id,
         client_id: item?.client_id,
-
         address_id: item?.address.id, // add the address id as the unified id representing the actual address
         company_id: item?.id, // add the company id as the unified id representing the actual address
         company_details: true, // our flag to show company details
+        company_name: item?.name,
         type: item?.type || 4, // default to 4 = company
         default: item?.default,
         can_delete: item?.can_delete,
         verified: item?.verified,
 
         // ---
-        name: item?.name,
+        name: item?.address?.name,
         address_1: item?.address?.address_1,
         address_2: item?.address?.address_2,
         city: item?.address?.city,

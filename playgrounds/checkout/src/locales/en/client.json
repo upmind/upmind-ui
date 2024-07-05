@@ -124,6 +124,10 @@
         "title": "Cant see your addresses.."
       },
       "form": {
+        "name": {
+          "label": "Name",
+          "placeholder": "My home address, etc... "
+        },
         "address_1": {
           "label": "Address",
           "placeholder": "Street, house number, etc..."
@@ -161,12 +165,8 @@
           },
           "saved": "Saved addresses"
         },
-        "name": {
-          "label": "Name",
-          "placeholder": "My home address, etc... "
-        },
-        "namr": {
-          "label": "Name",
+        "company_name": {
+          "label": "Company Name",
           "placeholder": "My company, etc..."
         },
         "phone": {
