@@ -194,7 +194,7 @@ export default defineComponent({
                 code: transfer.code,
                 redirect: `/billing/invoices/${invoiceId}`,
               },
-              { base: this.storefrontUrl, context: "" }
+              { base: transfer.redirect_url, context: "" }
             );
           } else {
             this.$router.replace({ query: null });
