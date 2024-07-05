@@ -1,10 +1,5 @@
 <template>
   <article :class="styles.checkout.root">
-    <pre>
-      isLoading: {{ meta.isLoading }}
-      animationComplete: {{ animationComplete }}
-    </pre>
-
     <upm-basket-loading
       id="loading"
       v-if="meta.isLoading || !animationComplete"
