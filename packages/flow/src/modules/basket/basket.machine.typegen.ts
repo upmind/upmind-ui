@@ -126,6 +126,7 @@ export interface Typegen0 {
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     muteBasket: "CLEAR" | "REFRESH" | "REMOVE" | "UPDATE";
     refreshActors:
+      | "REFRESH"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]";
@@ -166,6 +167,7 @@ export interface Typegen0 {
     trackPayment: "done.invoke.payment";
     updateActors: "CLEAR" | "REMOVE" | "UPDATE";
     updateBasket:
+      | "REFRESH"
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
@@ -186,6 +188,7 @@ export interface Typegen0 {
     currencyConfiguring: "";
     custom_fieldsComplete: "";
     custom_fieldsConfiguring: "";
+    hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
     hasNoItem: "UPDATE";
     hasNoItems: "";

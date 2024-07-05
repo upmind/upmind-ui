@@ -120,7 +120,10 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
+        entry: sendParent((_context, { data }) => ({
+          type: "REFRESH",
+          data,
+        })),
         after: {
           wait: {
             target: "complete",

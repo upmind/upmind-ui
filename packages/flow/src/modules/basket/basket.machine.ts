@@ -11,6 +11,7 @@ const { addError, addSuccess, trackEvent } = useFeedback();
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
 import {
+  useBasketParser,
   useSummaryParser,
   spawnConfiguration,
   spawnBillingDetails,
@@ -29,6 +30,7 @@ import {
   get,
   includes,
   isEmpty,
+  isEqual,
   map,
   omit,
   remove,
@@ -508,11 +510,17 @@ export default createMachine(
       //   cond: (_context, event) => includes(event.type, "done.invoke")
       // }
 
-      REFRESH: {
-        target: "#refreshing",
-        actions: "muteBasket",
-        cond: "isNotMuted",
-      },
+      REFRESH: [
+        {
+          actions: ["updateBasket", "refreshActors"],
+          cond: "hasNewBasket",
+        },
+        {
+          target: "#refreshing",
+          actions: "muteBasket",
+          cond: "isNotMuted",
+        },
+      ],
 
       UNAUTHENTICATED: {
         target: "subscribing",
@@ -536,10 +544,14 @@ export default createMachine(
       }),
 
       updateBasket: assign({
-        basket: ({ basket }: BasketContext, { data }: BasketEvent) =>
-          get(data, "basket", basket),
+        basket: (_context: BasketContext, { data }: BasketEvent) => {
+          debugger;
+          const basket = useBasketParser(data);
+          debugger;
+          return basket;
+        },
         summary: ({ basket }: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(get(data, "basket", basket)),
+          useSummaryParser(useBasketParser(data)),
         error: undefined,
         muted: false,
       }),
@@ -962,6 +974,9 @@ export default createMachine(
 
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
+
+      hasNewBasket: ({ basket }, { data }) =>
+        !isEmpty(data) && !isEqual(basket, data),
 
       needsPayment: ({ paymentDetails }) => {
         const hasOustandingBalance = paymentDetails?.amount > 0;
