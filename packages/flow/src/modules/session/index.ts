@@ -13,14 +13,9 @@ import { getTokenfromStorage } from "./utils";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
 let hasSession = false;
 
-const service = interpret(sessionMachine, { devTools: false }).onTransition(
-  newState => {
-    state = newState;
-  }
-);
+const service = interpret(sessionMachine, { devTools: false });
 
 // --------------------------------------------------------
 
@@ -33,6 +28,8 @@ export const useSession = () => {
   // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
   // this will fire every time we transition to a new state
   const authCallback = callback => {
+    const state = service.getSnapshot();
+
     // callback({ type: "TRANSITIONED", data: state.value });
 
     // Valid session
@@ -95,13 +92,13 @@ export const useSession = () => {
       // then listen for any changes to the client service
       // if we get a change to either authenticated or unauthenticated
       // then we need to send the callback to the subscriber
-      service.onTransition(() => {
+      service.onTransition(state => {
         const currentMachine =
           state?.children?.clientMachine || state?.children?.guestMachine;
 
         // watch for our child machines to transition to a non-loading state
         // and then send the callback to the subscriber
-        currentMachine?.onTransition(state => {
+        currentMachine?.onTransition(() => {
           authCallback(callback);
         });
 
@@ -118,7 +115,7 @@ export const useSession = () => {
     };
 
   async function getUser() {
-    const clientMachine = state?.children?.clientMachine;
+    const clientMachine = service.getSnapshot()?.children?.clientMachine;
     await waitFor(clientMachine, state => !state.matches("loading"));
     return clientMachine.state.context.user;
   }
@@ -144,17 +141,33 @@ export const useSession = () => {
   }
   // --------------------------------------------------------
 
+  async function transfer() {
+    const state = service.getSnapshot();
+    const clientMachine = state?.children?.clientMachine;
+
+    if (!clientMachine) return Promise.reject("Transfer not available");
+
+    service.send({
+      type: "TRANSFER",
+    });
+
+    return waitFor(clientMachine, newState =>
+      newState.matches("transferring.available")
+    ).then(newState => newState.context.transfer);
+  }
+  // --------------------------------------------------------
+
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
+    getSnapshot: () => service.getSnapshot(),
     getToken: () => getTokenfromStorage()?.access_token,
-    getHistory: () => state?.context?.history,
+    getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,
     authSubscription,
     isAuthenticated: async () => {
-      const clientMachine = state?.children?.clientMachine;
+      const clientMachine = service.getSnapshot()?.children?.clientMachine;
       if (!clientMachine)
         return Promise.reject({ title: "Unauthorized", code: 401 });
 
@@ -163,5 +176,6 @@ export const useSession = () => {
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
     refreshToken,
+    transfer,
   };
 };

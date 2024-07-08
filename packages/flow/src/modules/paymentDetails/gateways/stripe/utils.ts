@@ -4,7 +4,6 @@
 
 // --- utils
 import {
-  generateUrls,
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema,
 } from "../utils";

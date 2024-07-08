@@ -7,7 +7,7 @@ import stripeMachine from "./gateways/stripe/stripe.machine";
 import cardConfig from "./gateways/card";
 
 // --- utils
-import { first, map } from "lodash-es";
+import { omit, map } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -20,6 +20,12 @@ import {
 import type { PaymentDetailsContext } from "./types.d";
 import type { UISchemaElement } from "@jsonforms/core";
 
+// --------------------------------------------------------
+
+export const parsePaymentDetails = payment_details => {
+  // TODO: map the actual allowed params fr the endpoint
+  return omit(payment_details, ["gateway", "can_store"]);
+};
 // --------------------------------------------------------
 
 export const useSchema = ({
