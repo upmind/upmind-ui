@@ -8,7 +8,7 @@ import { useFeedback } from "../feedback";
 const { addError, trackEvent } = useFeedback();
 
 // --- utils
-import { spawnGateway } from "./utils";
+import { spawnGateway, parsePaymentDetails } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
@@ -76,7 +76,7 @@ export default createMachine(
 
       unavailable: {
         on: {
-          // AUTHENTICATED: { target: "checking" },
+          AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -315,9 +315,8 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: ({ model }, { data }) => {
-          return { ...model, ...data };
-        },
+        paymentDetails: ({ model }, { data }) =>
+          parsePaymentDetails({ ...model, ...data }),
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({

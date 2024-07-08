@@ -105,21 +105,16 @@ async function load(
 // --------------------------------------------------------
 
 async function update(
-  { order, paymentDetails, urls }: PaymentContext,
+  { order, paymentDetails }: PaymentContext,
   _event: PaymentEvent
 ) {
   const { post, useUrl } = useApi();
 
-  const { isAuthenticated } = useSession();
-
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
-
   // build the payload with ALL the data we need for the payment details AND the order
+  const data = usePaymentParser({ paymentDetails, order });
   return post({
     url: useUrl(`/payments`),
-    data: usePaymentParser({ paymentDetails, order }),
+    data,
     withAccessToken: true,
   }).then(({ data }) => data);
 }
