@@ -312,7 +312,7 @@ export const useProvisioningParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = ({ summary, prices, model }) => {
+export const useSummaryParser = ({ summary, model }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -320,18 +320,18 @@ export const useSummaryParser = ({ summary, prices, model }) => {
   const details = [];
 
   // term
-  if (model.term)
+  if (model.term) {
     details.push({
       key: "term",
       category: "Billing Cycle",
       name: model.term.billing_cycle_name,
       cycle: model.term.billing_cycle_months,
       quantity: model.quantity,
-      discount: prices.term.discount,
-      total: prices.term.total,
-      formatted: prices.term.formatted,
+      discount: model.term.price_discounted,
+      total: model.term.price,
+      formatted: model.term.price_formatted,
     });
-
+  }
   // attributes
   const attributes = useSummaryDetailsParser("attribute", model.attributes);
   details.push(...attributes);
