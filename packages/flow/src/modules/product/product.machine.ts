@@ -379,7 +379,7 @@ export default (model, currency_id, promotions) => {
               ),
             };
           },
-          summary: ({ prices, model }, { data }) => {
+          summary: ({ model }, { data }) => {
             // use the display price as the initial price to use in the summary
             const dislay_price_formatted = data.display_price;
             const display_price = Number(
@@ -394,7 +394,6 @@ export default (model, currency_id, promotions) => {
                 total: display_price,
                 total_formatted: dislay_price_formatted,
               },
-              prices,
               model,
             });
           },
@@ -432,10 +431,9 @@ export default (model, currency_id, promotions) => {
 
         // ---
         setSummary: assign({
-          summary: ({ prices, model }, { data }) => {
+          summary: ({ model }, { data }) => {
             return useSummaryParser({
               summary: data,
-              prices,
               model,
             });
           },
