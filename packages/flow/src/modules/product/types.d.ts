@@ -5,6 +5,9 @@
 // Contexts
 
 export interface ProductConfigContext {
+  currency_id: IProductPrice["currency_id"];
+  promotions: IProductPromotion[];
+
   lookups: {
     product: IProduct;
     terms: array;
