@@ -114,10 +114,9 @@ export interface Typegen0 {
     shouldUpdate: "";
   };
   eventsCausingServices: {
-    authSubscription: "UNAUTHENTICATED" | "xstate.init";
-    isAuthenticated: "SESSION";
+    authSubscription: "AUTHENTICATED" | "UNAUTHENTICATED" | "xstate.init";
+    isAuthenticated: "AUTHENTICATED" | "SESSION";
     load:
-      | "AUTHENTICATED"
       | "CLEAR"
       | "SET"
       | "done.invoke.billingDetailsManager.checking:invocation[0]";

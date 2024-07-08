@@ -57,21 +57,19 @@ async function load(
   _event: UnifiedAddressesEvents
 ) {
   const { get, useUrl } = useApi();
-  const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(error => Promise.reject(error));
-
-  const clientId = await getUserId();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   const addresses = get({
-    url: useUrl(`clients/${clientId}/addresses`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/addresses`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
   }).then(({ data }) => parseAddress(data));
 
   const companies = get({
-    url: useUrl(`clients/${clientId}/companies`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/companies`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,

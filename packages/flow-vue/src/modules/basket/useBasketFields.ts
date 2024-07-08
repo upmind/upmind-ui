@@ -27,8 +27,10 @@ export const useBasketFields = (actor?: TActor<any>) => {
   const custom_fields = ref(actor);
 
   if (!actor) {
-    waitFor(service, newstate =>
-      ["checkout", "shopping"].some(newstate.matches)
+    waitFor(
+      service,
+      newstate => ["checkout", "shopping"].some(newstate.matches),
+      { timeout: Infinity }
     ).then(validState => {
       custom_fields.value = contextActor(validState, "actors.custom_fields");
     });

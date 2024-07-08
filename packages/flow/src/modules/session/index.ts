@@ -14,7 +14,7 @@ import { getTokenfromStorage } from "./utils";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state = null;
-let hasSession = null;
+let hasSession = false;
 
 const service = interpret(sessionMachine, { devTools: true }).onTransition(
   newState => {
@@ -102,7 +102,7 @@ export const useSession = () => {
         // watch for our child machines to transition to a non-loading state
         // and then send the callback to the subscriber
         currentMachine?.onTransition(state => {
-          if (!state.matches("loading")) authCallback(callback);
+          authCallback(callback);
         });
 
         // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
@@ -153,16 +153,14 @@ export const useSession = () => {
     getUser,
     getUserId,
     authSubscription,
-    isAuthenticated: () => {
-      const authenticated = state.matches("client");
+    isAuthenticated: async () => {
+      const clientMachine = state?.children?.clientMachine;
+      if (!clientMachine)
+        return Promise.reject({ title: "Unauthorized", code: 401 });
 
-      return new Promise((resolve, reject) => {
-        if (authenticated) {
-          resolve(state.context.user);
-        } else {
-          reject({ title: "Unauthorized", code: 401 });
-        }
-      });
+      return waitFor(clientMachine, state => state.matches("idle"))
+        .then(() => clientMachine.state.context.user)
+        .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
     refreshToken,
   };

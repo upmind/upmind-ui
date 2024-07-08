@@ -21,9 +21,7 @@ import type { GatewayEvent, GatewayContext } from "./types.d";
 async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
   const { isAuthenticated } = useSession();
 
-  await isAuthenticated().catch(() =>
-    Promise.reject({ title: "Unauthorized", code: 401 })
-  );
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   const { isReady, getConfig } = useBrand();
 

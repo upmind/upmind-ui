@@ -26,8 +26,10 @@ export const useBasketPromotions = (actor?: TActor<any>) => {
   const promotions = ref(actor);
 
   if (!actor) {
-    waitFor(service, newstate =>
-      ["checkout", "shopping"].some(newstate.matches)
+    waitFor(
+      service,
+      newstate => ["checkout", "shopping"].some(newstate.matches),
+      { timeout: Infinity }
     ).then(validState => {
       promotions.value = contextActor(validState, "actors.promotions");
     });
