@@ -191,7 +191,7 @@ export default createMachine(
           },
 
           REFRESH: {
-            target: "checking",
+            target: "available.loading",
             actions: "refreshBasket",
           },
         },

@@ -36,7 +36,7 @@ const whitelistGatewayProviders =
 // Invoked by machines, providing context and event data
 
 async function load(
-  { currency_id }: PaymentDetailsContext,
+  { currency }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   const { isAuthenticated, getUserId } = useSession();
@@ -53,7 +53,7 @@ async function load(
   const client_id = await getUserId();
   const brand_id = getBrandId();
 
-  currency_id ??= getCurrencyId();
+  const currency_id = currency?.id || getCurrencyId(); // fallback to default currency
 
   await getConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
