@@ -7,7 +7,6 @@ import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 
 // --- utils
-import { useBasketParser } from "./utils";
 import { getTokenfromStorage } from "../session/utils";
 
 import {
@@ -86,7 +85,7 @@ async function load(_context?: BasketContext, _event?: BasketEvent) {
     withAccessToken: true,
     useCache: false,
   })
-    .then(useBasketParser)
+    .then(({ data }) => data)
     .then(getProvisioningFieldsValues);
 }
 
@@ -105,7 +104,7 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
       // currency_code: "GBP", // from brand
       // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
     },
-  }).then(useBasketParser);
+  }).then(({ data }) => data);
 }
 
 async function claim({ basket }: BasketContext, _event: BasketEvent) {
@@ -126,7 +125,7 @@ async function claim({ basket }: BasketContext, _event: BasketEvent) {
   }).then(({ data }) => {
     // get the latest basket if we have multiple
     data = isArray(data) ? first(data) : data;
-    return useBasketParser(data);
+    return data;
   });
 }
 
@@ -147,7 +146,7 @@ async function update({ basket, items }: BasketContext, _event: BasketEvent) {
       },
       withAccessToken: true,
     })
-      .then(useBasketParser)
+      .then(({ data }) => data)
       .then(basket => {
         const newItems = differenceBy(basket.products, validItems, "id");
         return { basket, items: validItems, newItems };
@@ -186,7 +185,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
     url: useUrl(`/orders/${basket.id}/convert`),
     withAccessToken: true,
     data,
-  }).then(useBasketParser);
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------
@@ -217,7 +216,7 @@ async function updateItem({ basket, items }, { data }: BasketEvent) {
       data: config,
       withAccessToken: true,
     })
-      .then(useBasketParser)
+      .then(({ data }) => data)
       .then(basket => {
         const newItems = differenceBy(basket.products, items, "id");
         return { basket, items: [item], newItems };

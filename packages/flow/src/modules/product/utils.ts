@@ -320,16 +320,17 @@ export const useSummaryParser = ({ summary, prices, model }) => {
   const details = [];
 
   // term
-  details.push({
-    key: "term",
-    category: "Billing Cycle",
-    name: model.term.billing_cycle_name,
-    cycle: model.term.billing_cycle_months,
-    quantity: model.quantity,
-    discount: prices.term.discount,
-    total: prices.term.total,
-    formatted: prices.term.formatted,
-  });
+  if (model.term)
+    details.push({
+      key: "term",
+      category: "Billing Cycle",
+      name: model.term.billing_cycle_name,
+      cycle: model.term.billing_cycle_months,
+      quantity: model.quantity,
+      discount: prices.term.discount,
+      total: prices.term.total,
+      formatted: prices.term.formatted,
+    });
 
   // attributes
   const attributes = useSummaryDetailsParser("attribute", model.attributes);
