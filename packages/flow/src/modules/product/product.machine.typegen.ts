@@ -3,14 +3,13 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
-    "": { type: "" };
-    "done.invoke.calculating:invocation[0]": {
-      type: "done.invoke.calculating:invocation[0]";
+    "done.invoke.load": {
+      type: "done.invoke.load";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.load": {
-      type: "done.invoke.load";
+    "done.invoke.productConfigurator.configuring.calculating:invocation[0]": {
+      type: "done.invoke.productConfigurator.configuring.calculating:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -39,11 +38,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.calculating:invocation[0]": {
-      type: "error.platform.calculating:invocation[0]";
+    "error.platform.load": { type: "error.platform.load"; data: unknown };
+    "error.platform.productConfigurator.configuring.calculating:invocation[0]": {
+      type: "error.platform.productConfigurator.configuring.calculating:invocation[0]";
       data: unknown;
     };
-    "error.platform.load": { type: "error.platform.load"; data: unknown };
     "error.platform.productConfigurator.configuring.quantity:invocation[0]": {
       type: "error.platform.productConfigurator.configuring.quantity:invocation[0]";
       data: unknown;
@@ -67,7 +66,7 @@ export interface Typegen0 {
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    calculateSummary: "done.invoke.calculating:invocation[0]";
+    calculateSummary: "done.invoke.productConfigurator.configuring.calculating:invocation[0]";
     checkAttributes: "done.invoke.productConfigurator.configuring.values.attributes.checking:invocation[0]";
     checkOptions: "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]";
     checkProvisioning: "done.invoke.productConfigurator.configuring.values.provisioning.checking:invocation[0]";
@@ -89,10 +88,11 @@ export interface Typegen0 {
       | "load";
   };
   eventsCausingActions: {
-    clearCalculating: "done.invoke.calculating:invocation[0]";
+    clearCalculating: "done.invoke.productConfigurator.configuring.calculating:invocation[0]";
     mergeModel: "PUT";
     sendConfig:
       | "PROCESSING"
+      | "done.invoke.productConfigurator.configuring.calculating:invocation[0]"
       | "done.state.productConfigurator.configuring.values";
     setAttributes:
       | "UPDATE.ATTRIBUTES"
@@ -101,6 +101,7 @@ export interface Typegen0 {
     setClean: "REFRESH";
     setConfig:
       | "PROCESSING"
+      | "done.invoke.productConfigurator.configuring.calculating:invocation[0]"
       | "done.invoke.productConfigurator.configuring.quantity:invocation[0]"
       | "done.invoke.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]"
@@ -122,8 +123,8 @@ export interface Typegen0 {
       | "UPDATE.TERM";
     setError:
       | "ERROR"
-      | "error.platform.calculating:invocation[0]"
       | "error.platform.load"
+      | "error.platform.productConfigurator.configuring.calculating:invocation[0]"
       | "error.platform.productConfigurator.configuring.quantity:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
@@ -143,7 +144,7 @@ export interface Typegen0 {
     setQuantity:
       | "UPDATE.QUANTITY"
       | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
-    setSummary: "done.invoke.calculating:invocation[0]";
+    setSummary: "done.invoke.productConfigurator.configuring.calculating:invocation[0]";
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
@@ -151,12 +152,11 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    hasCalculated: "" | "done.state.productConfigurator.configuring.values";
     hasChanged: "PUT" | "REFRESH";
-    needsRecalculating: "";
+    needsRecalculating: "done.state.productConfigurator.configuring.values";
   };
   eventsCausingServices: {
-    calculateSummary: "";
+    calculateSummary: "done.state.productConfigurator.configuring.values";
     checkAttributes:
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
@@ -200,6 +200,7 @@ export interface Typegen0 {
     | "configured.idle"
     | "configured.processing"
     | "configuring"
+    | "configuring.calculating"
     | "configuring.quantity"
     | "configuring.values"
     | "configuring.values.attributes"
@@ -214,12 +215,6 @@ export interface Typegen0 {
     | "configuring.values.provisioning.checking"
     | "configuring.values.provisioning.invalid"
     | "configuring.values.provisioning.valid"
-    | "configuring.values.summary"
-    | "configuring.values.summary.calculating"
-    | "configuring.values.summary.complete"
-    | "configuring.values.summary.error"
-    | "configuring.values.summary.idle"
-    | "configuring.values.summary.test"
     | "configuring.values.term"
     | "configuring.values.term.checking"
     | "configuring.values.term.invalid"
@@ -230,6 +225,7 @@ export interface Typegen0 {
     | {
         configured?: "error" | "idle" | "processing";
         configuring?:
+          | "calculating"
           | "quantity"
           | "values"
           | {
@@ -237,18 +233,11 @@ export interface Typegen0 {
                 | "attributes"
                 | "options"
                 | "provisioning"
-                | "summary"
                 | "term"
                 | {
                     attributes?: "checking" | "invalid" | "valid";
                     options?: "checking" | "invalid" | "valid";
                     provisioning?: "checking" | "invalid" | "valid";
-                    summary?:
-                      | "calculating"
-                      | "complete"
-                      | "error"
-                      | "idle"
-                      | "test";
                     term?: "checking" | "invalid" | "valid";
                   };
             };

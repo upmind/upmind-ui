@@ -97,12 +97,11 @@ export function spawnPromotions(basket: IBasket) {
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
-  data = get(data, "data", data); // handle the reponse types from the api
-  data = isArray(data) ? first(data) : data; // usually from the claims endpoint
+  const basket = get(data, "basket", data);
 
   // TODO:...map properly...
 
-  return data;
+  return basket;
 };
 
 // ---

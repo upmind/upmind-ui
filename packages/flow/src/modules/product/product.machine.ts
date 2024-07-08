@@ -230,47 +230,23 @@ export default (model, currency_id, promotions) => {
                     },
                   },
                 },
-                summary: {
-                  initial: "idle",
-                  states: {
-                    idle: {
-                      always: [
-                        {
-                          target: "calculating",
-                          cond: "needsRecalculating",
-                        },
-                        { target: "complete", cond: "hasCalculated" },
-                      ],
-                    },
-                    calculating: {
-                      id: "calculating",
-                      invoke: {
-                        src: "calculateSummary",
-                        onDone: {
-                          target: "complete",
-                          actions: ["setSummary", "clearCalculating"],
-                        },
-                        onError: {
-                          target: "error",
-                          actions: ["setError"],
-                        },
-                      },
-                    },
-                    test: {},
-                    complete: {
-                      always: {
-                        target: "calculating",
-                        cond: "needsRecalculating",
-                      },
-                      type: "final",
-                    },
-                    error: {},
-                  },
-                },
               },
-              onDone: {
-                target: "#configured",
-                cond: "hasCalculated",
+              onDone: [
+                { target: "calculating", cond: "needsRecalculating" },
+                { target: "#configured" },
+              ],
+            },
+            calculating: {
+              invoke: {
+                src: "calculateSummary",
+                onDone: {
+                  target: "#configured",
+                  actions: ["setSummary", "clearCalculating"],
+                },
+                onError: {
+                  target: "#error",
+                  actions: ["setError"],
+                },
               },
             },
           },
@@ -402,6 +378,25 @@ export default (model, currency_id, promotions) => {
                 data.products_provisioning
               ),
             };
+          },
+          summary: ({ prices, model }, { data }) => {
+            // use the display price as the initial price to use in the summary
+            const dislay_price_formatted = data.display_price;
+            const display_price = Number(
+              data.display_price?.replace(/[^0-9.-]+/g, "")
+            );
+            return useSummaryParser({
+              summary: {
+                discount: 0,
+                discount_formatted: "",
+                subtotal: display_price,
+                subtotal_formatted: dislay_price_formatted,
+                total: display_price,
+                total_formatted: dislay_price_formatted,
+              },
+              prices,
+              model,
+            });
           },
         }),
 
@@ -556,8 +551,8 @@ export default (model, currency_id, promotions) => {
       },
       services,
       guards: {
-        needsRecalculating: ({ needsCalculating, prices }) =>
-          needsCalculating &&
+        needsRecalculating: ({ needsCalculating, prices, summary }) =>
+          (isEmpty(summary) || needsCalculating) &&
           !isNil(prices.term) &&
           !isNil(prices.attributes) &&
           !isNil(prices.options),

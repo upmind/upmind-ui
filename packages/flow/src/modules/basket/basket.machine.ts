@@ -101,7 +101,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "actors",
-                actions: ["setBasket", "loadItems"],
+                actions: ["updateBasket", "loadItems"],
               },
               onError: {
                 target: "#error",
@@ -126,7 +126,7 @@ export default createMachine(
           src: "claim",
           onDone: {
             target: "#shopping",
-            actions: ["setBasket", "refreshActors"],
+            actions: ["updateBasket", "refreshActors"],
           },
           onError: {
             target: "#error",
@@ -142,7 +142,7 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: ["setBasket", "refreshActors"],
+            actions: ["updateBasket", "refreshActors"],
           },
           onError: { target: "#error" },
         },
@@ -536,17 +536,10 @@ export default createMachine(
   },
   {
     actions: {
-      setBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvent) => data,
-        summary: (_context: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(data),
-        error: undefined,
-      }),
-
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
           useBasketParser(data),
-        summary: ({ basket }: BasketContext, { data }: BasketEvent) =>
+        summary: (_context: BasketContext, { data }: BasketEvent) =>
           useSummaryParser(useBasketParser(data)),
         error: undefined,
         muted: false,

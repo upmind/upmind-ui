@@ -140,10 +140,6 @@ export interface Typegen0 {
       | "UPDATE.PROVISIONING"
       | "UPDATE.QUANTITY"
       | "UPDATE.TERM";
-    setBasket:
-      | "done.invoke.basketManager.loading.basket:invocation[0]"
-      | "done.invoke.claiming:invocation[0]"
-      | "done.invoke.generating:invocation[0]";
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
@@ -168,7 +164,10 @@ export interface Typegen0 {
     updateActors: "CLEAR" | "REMOVE" | "UPDATE";
     updateBasket:
       | "REFRESH"
+      | "done.invoke.basketManager.loading.basket:invocation[0]"
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
+      | "done.invoke.claiming:invocation[0]"
+      | "done.invoke.generating:invocation[0]"
       | "done.invoke.refreshing:invocation[0]"
       | "done.invoke.removing:invocation[0]"
       | "done.invoke.updating:invocation[0]";
