@@ -72,6 +72,7 @@ export interface Typegen0 {
     clearAutoUpdate: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     clearError:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
       | "done.invoke.loading:invocation[0]"
@@ -110,9 +111,10 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
-    isAuthenticated: "AUTHENTICATED" | "REFRESH";
+    isAuthenticated: "AUTHENTICATED";
     load:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]";
     parse:

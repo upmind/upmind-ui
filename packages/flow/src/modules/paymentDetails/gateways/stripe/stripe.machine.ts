@@ -13,6 +13,7 @@ import {
   useModelParser,
 } from "../../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { isFunction } from "lodash-es";
 
 // --- types
 import type { StripeContext, StripeEvent } from "./types.d";
@@ -275,6 +276,7 @@ export default createMachine(
       // ---
 
       updateStripe: ({ elements }: StripeContext, { data }: StripeEvent) => {
+        if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
         elements.update({
           amount: Math.round((data?.amount || 0) * 100), // NB: Stripe expects amount in cents
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
