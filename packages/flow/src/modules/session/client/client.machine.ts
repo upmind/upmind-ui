@@ -41,7 +41,10 @@ export default createMachine(
         id: "refreshing",
         invoke: {
           src: "refreshToken",
-          onDone: { target: "processed" },
+          onDone: [
+            { target: "processed", cond: "hasUser" },
+            { target: "loading" },
+          ],
           onError: {
             target: "loading",
             actions: "setError",
@@ -128,7 +131,9 @@ export default createMachine(
 
       clearError: assign({ error: null }),
     },
-    guards: {},
+    guards: {
+      hasUser: context => context.user !== null,
+    },
 
     delays: {
       error: () => useTime().ERROR,

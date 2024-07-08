@@ -22,7 +22,7 @@ import type { IAddressData, IAddress } from "./types";
 let state = null;
 
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
+  devTools: true,
 }).onTransition(newState => (state = newState));
 
 // --------------------------------------------------------

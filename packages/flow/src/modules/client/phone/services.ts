@@ -38,14 +38,11 @@ async function load(
   _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
-  const { isAuthenticated, getUserId } = useSession();
-
-  await isAuthenticated().catch(error => Promise.reject(error));
-
-  const clientId = await getUserId();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   return get({
-    url: useUrl(`clients/${clientId}/phones`, {
+    url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
     withAccessToken: true,

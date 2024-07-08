@@ -56,11 +56,7 @@ export default createMachine(
         },
       },
 
-      unavailable: {
-        on: {
-          AUTHENTICATED: { target: "available" },
-        },
-      },
+      unavailable: {},
 
       available: {
         initial: "loading",
@@ -186,6 +182,7 @@ export default createMachine(
       },
     },
     on: {
+      AUTHENTICATED: { target: "checking", actions: ["clearError"] },
       UNAUTHENTICATED: {
         target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],

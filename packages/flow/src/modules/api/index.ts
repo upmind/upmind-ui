@@ -88,7 +88,9 @@ export const useApi = () => {
     if (request) {
       // finally ... await the response
       return new Promise((resolve, reject) => {
-        waitFor(request, state => ["processed", "error"].some(state.matches))
+        waitFor(request, state => ["processed", "error"].some(state.matches), {
+          timeout: Infinity, // infinity = no timeout
+        })
           .then(() => {
             if (request.state.matches("processed")) {
               resolve(get(request, "state.context.response"));

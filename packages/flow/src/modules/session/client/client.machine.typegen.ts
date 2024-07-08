@@ -54,6 +54,7 @@ export interface Typegen0 {
     clear: "LOGOUT";
     clearError:
       | "REFRESH"
+      | "done.invoke.refreshing:invocation[0]"
       | "error.platform.refreshing:invocation[0]"
       | "xstate.init";
     clearTransfer: "xstate.after(expired)#sessionClient.transferring.available";
@@ -71,9 +72,15 @@ export interface Typegen0 {
     expired: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
     wait: "done.invoke.refreshing:invocation[0]";
   };
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    hasUser: "done.invoke.refreshing:invocation[0]";
+  };
   eventsCausingServices: {
-    load: "REFRESH" | "error.platform.refreshing:invocation[0]" | "xstate.init";
+    load:
+      | "REFRESH"
+      | "done.invoke.refreshing:invocation[0]"
+      | "error.platform.refreshing:invocation[0]"
+      | "xstate.init";
     refreshToken: "REFRESH";
     transfer: "TRANSFER";
   };
