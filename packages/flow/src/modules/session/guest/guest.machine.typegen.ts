@@ -101,7 +101,12 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clearError: "" | "REFRESH" | "xstate.init";
-    escalateError:
+    set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
+    setError:
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.refreshing:invocation[0]"
       | "error.platform.sessionGuest.login.authenticating:invocation[0]"
       | "error.platform.sessionGuest.login.verifying:invocation[0]"
       | "error.platform.sessionGuest.register.authenticating:invocation[0]"
@@ -109,12 +114,7 @@ export interface Typegen0 {
       | "error.platform.sessionGuest.register.loading:invocation[0]"
       | "error.platform.sessionGuest.register.registering:invocation[0]"
       | "error.platform.sessionGuest.register.verifying:invocation[0]";
-    set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
-    set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
-    setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
-    setError:
-      | "error.platform.loading:invocation[0]"
-      | "error.platform.refreshing:invocation[0]"
+    setFeedbackError:
       | "error.platform.sessionGuest.login.authenticating:invocation[0]"
       | "error.platform.sessionGuest.login.verifying:invocation[0]"
       | "error.platform.sessionGuest.register.authenticating:invocation[0]"

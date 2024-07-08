@@ -1,12 +1,11 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { escalate } = actions;
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
 import type { GuestContext } from "./types.d";
 import { useFeedback } from "../../feedback";
-const { trackEvent } = useFeedback();
+const { trackEvent, addError } = useFeedback();
 
 // --- utils
 import { dumpTokensFromStorage } from "../utils";
@@ -121,7 +120,7 @@ export default createMachine(
               ],
               onError: {
                 target: "available",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -139,7 +138,7 @@ export default createMachine(
               },
               onError: {
                 target: "challenging",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -161,7 +160,7 @@ export default createMachine(
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -180,7 +179,7 @@ export default createMachine(
               ],
               onError: {
                 target: "available",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -198,7 +197,7 @@ export default createMachine(
               },
               onError: {
                 target: "challenging",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -211,7 +210,7 @@ export default createMachine(
               },
               onError: {
                 target: "available",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -223,7 +222,7 @@ export default createMachine(
               },
               onError: {
                 target: "available",
-                actions: ["setError", "escalateError"],
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -288,6 +287,15 @@ export default createMachine(
       set2faToken: assign({
         token: (_context, { data }) => data,
       }),
+
+      setFeedbackError: ({ error }, _event) => {
+        addError({
+          title: error?.title,
+          copy: error?.message,
+          data: error?.data,
+        });
+      },
+
       trackRegister: (_context, { data }) => {
         trackEvent({
           event: "sign_up",
@@ -329,7 +337,6 @@ export default createMachine(
           return data?.error || data || event?.error || event || null;
         },
       }),
-      escalateError: escalate(({ error }) => error),
 
       clearError: assign({ error: null }),
     },
