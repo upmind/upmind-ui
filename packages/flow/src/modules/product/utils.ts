@@ -320,7 +320,7 @@ export const useSummaryParser = ({ summary, model }) => {
   const details = [];
 
   // term
-  if (model.term) {
+  if (isObject(model.term)) {
     details.push({
       key: "term",
       category: "Billing Cycle",
