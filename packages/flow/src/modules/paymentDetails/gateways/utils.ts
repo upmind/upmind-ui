@@ -12,28 +12,27 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export function generateUrls({
-  gateway,
-  basket_id,
-  type,
-  operation_id,
-  model,
-}: GatewayContext) {
-  const url = new URL(window.location.pathname, window.location.origin);
+export function generateResponseUrls(
+  url: string,
+  { gateway, basket_id, type, model }: GatewayContext
+) {
+  // TODO: implemet operations machine
   // if (operation_id)
-  url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
+  //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
 
   // ---
   const successUrl = new URL(url);
+  successUrl.searchParams.append("invoiceId", basket_id);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   // ---
   const failUrl = new URL(url);
+  failUrl.searchParams.append("invoiceId", basket_id);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   // ---
   const cancelUrl = new URL(url);
-  cancelUrl.searchParams.append("basketId", basket_id);
+  cancelUrl.searchParams.append("invoiceId", basket_id);
   cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basket_id);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
@@ -66,7 +65,8 @@ export function generateUrls({
 // --------------------------------------------------------
 
 export const useSchema = (context: GatewayContext) => {
-  const { cancel, success, fail } = generateUrls(context);
+  const url = new URL(window.location.pathname, window.location.origin);
+  const { cancel, success, fail } = generateResponseUrls(url, context);
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
