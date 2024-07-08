@@ -19,7 +19,7 @@
           v-bind="action"
           block
           variant="ghost"
-          @click="doAction"
+          @click.prevent="doAction"
           :loading="processing"
         />
       </footer>
@@ -195,10 +195,11 @@ export default defineComponent({
               },
               { base: transfer.redirect_url, context: "" }
             );
-          } else {
-            this.$router.replace({ query: null });
-            this.processing = false;
           }
+          //else {
+          //this.$router.replace({ query: null });
+          //his.processing = false;
+          //}
         });
       }
     },
