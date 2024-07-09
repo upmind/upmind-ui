@@ -124,8 +124,12 @@
         "title": "Cant see your addresses.."
       },
       "form": {
+        "title": {
+          "address": "New Address | Edit Address",
+          "company": "New Company | Edit Company"
+        },
         "name": {
-          "label": "Name",
+          "label": "Address Name",
           "placeholder": "My home address, etc... "
         },
         "address_1": {
@@ -189,7 +193,6 @@
           "label": "State",
           "placeholder": "State, province, etc..."
         },
-        "title": "New Address | Edit Address",
         "type": {
           "label": "Address Type",
           "placeholder": "Select type"

@@ -61,6 +61,7 @@
       i18nKey="unified"
       dialog
       no-filter
+      @update:modelValue="onClose"
     />
 
     <footer :class="styles.client.footer">
@@ -149,6 +150,7 @@ export default defineComponent({
       client.input({ ...model, company_details: true });
     },
     onClose() {
+      debugger;
       this.activeDialog = false;
     },
   },

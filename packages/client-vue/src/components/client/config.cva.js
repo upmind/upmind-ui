@@ -48,9 +48,6 @@ export default {
         hasErrors: {
           true: "border-error",
         },
-        isComplete: {
-          true: "border-primary",
-        },
       },
     }),
     title: cva("text-inherit m-0 flex-1"),
@@ -80,7 +77,8 @@ export default {
             hasErrors: false,
             isSelectable: true,
             isSelected: true,
-            class: "border-primary border-2",
+            class:
+              "border-control-active ring-control-active ring-4 ring-opacity-20",
           },
           {
             hasErrors: false,
@@ -91,7 +89,7 @@ export default {
           {
             isSelected: false,
             isSelectable: true,
-            class: "hover:border-base-100 hover:bg-base-100",
+            class: "cursor-pointer",
           },
         ],
       }
@@ -122,16 +120,5 @@ export default {
     title: cva("text-inherit m-0"),
     text: cva("text-base-700 text-center m-0"),
     icon: cva("size-8 text-base-700"),
-  },
-  clientRadio: {
-    radio: {
-      input: cva("", {
-        variants: {
-          isChecked: {
-            true: `bg-primary border-primary text-base`,
-          },
-        },
-      }),
-    },
   },
 };
