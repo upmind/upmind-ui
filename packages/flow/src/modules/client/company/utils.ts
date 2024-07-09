@@ -93,10 +93,10 @@ export const useSchema = ({ addresses, emails, phones, baseModel }) => {
         type: ["string", "null"],
         title: "Registered tax/VAT id",
       },
-      vat_percent: {
-        type: ["string", "null"],
-        title: "VAT percent",
-      },
+      // vat_percent: {
+      //   type: ["string", "null"],
+      //   title: "VAT percent",
+      // },
 
       // ---
 
