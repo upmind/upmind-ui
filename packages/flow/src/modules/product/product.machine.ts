@@ -19,16 +19,17 @@ import {
 } from "./utils";
 
 import {
-  get,
-  set,
-  map,
-  toNumber,
+  clone,
   find,
-  merge,
-  isEqual,
-  unset,
+  get,
   isEmpty,
+  isEqual,
   isNil,
+  map,
+  merge,
+  set,
+  toNumber,
+  unset,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
@@ -57,6 +58,7 @@ export default (model, currency_id, promotions) => {
         // but with better structure / more detail to make ut easier for any ui to consume,
         // and keep the generated config separate & clean
         model: useModelParser(model),
+        baseModel: useModelParser(model),
         // ---
         // the various lookups that we are using in our configuation
         lookups: {
@@ -278,6 +280,8 @@ export default (model, currency_id, promotions) => {
           states: {
             idle: {},
             // this is a state where we have been processed from a parent machine
+            // so we update our base model to reflect the current state
+            //  that way we can alwatys reset to the original state
             processing: {
               type: "final",
               on: {
@@ -285,6 +289,7 @@ export default (model, currency_id, promotions) => {
                 REFRESH: {
                   target: "#configuring",
                   actions: [
+                    "setBaseModel",
                     "setModel",
                     "setCurrency",
                     "setPromotions",
@@ -298,7 +303,9 @@ export default (model, currency_id, promotions) => {
           },
 
           on: {
-            PROCESSING: { target: "configured.processing" },
+            PROCESSING: {
+              target: "configured.processing",
+            },
 
             // ---
             UPDATE: {
@@ -353,6 +360,10 @@ export default (model, currency_id, promotions) => {
         },
       },
       on: {
+        RESET: {
+          target: "loading",
+          actions: ["resetModel", "setClean"],
+        },
         REFRESH: [
           {
             target: "loading",
@@ -379,7 +390,7 @@ export default (model, currency_id, promotions) => {
               ),
             };
           },
-          summary: ({ model }, { data }) => {
+          summary: ({ model, lookups }, { data }) => {
             // use the display price as the initial price to use in the summary
             const dislay_price_formatted = data.display_price;
             const display_price = Number(
@@ -395,6 +406,7 @@ export default (model, currency_id, promotions) => {
                 total_formatted: dislay_price_formatted,
               },
               model,
+              lookups,
             });
           },
         }),
@@ -411,6 +423,15 @@ export default (model, currency_id, promotions) => {
 
         setModel: assign({
           model: (_context, { data }) => useModelParser(data?.product),
+        }),
+
+        resetModel: assign({
+          model: ({ baseModel }, _event) => clone(baseModel),
+          needsCalculating: true,
+        }),
+
+        setBaseModel: assign({
+          baseModel: ({ model }, _even) => clone(model),
         }),
 
         mergeModel: assign({
@@ -431,10 +452,11 @@ export default (model, currency_id, promotions) => {
 
         // ---
         setSummary: assign({
-          summary: ({ model }, { data }) => {
+          summary: ({ model, lookups }, { data }) => {
             return useSummaryParser({
               summary: data,
               model,
+              lookups,
             });
           },
         }),

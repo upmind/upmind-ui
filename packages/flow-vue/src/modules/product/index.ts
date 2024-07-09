@@ -321,5 +321,7 @@ export const useProductConfig = actor => {
     setProvisioningFields,
     updateProvisioning,
     getProvisioningField,
+    // ---
+    reset: () => send("RESET"),
   };
 };

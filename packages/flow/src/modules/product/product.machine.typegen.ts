@@ -90,6 +90,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     clearCalculating: "done.invoke.productConfigurator.configuring.calculating:invocation[0]";
     mergeModel: "PUT";
+    resetModel: "RESET";
     sendConfig:
       | "PROCESSING"
       | "done.invoke.productConfigurator.configuring.calculating:invocation[0]"
@@ -98,7 +99,8 @@ export interface Typegen0 {
       | "UPDATE.ATTRIBUTES"
       | "done.invoke.productConfigurator.configuring.values.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.configuring.values.attributes.checking:invocation[0]";
-    setClean: "REFRESH";
+    setBaseModel: "REFRESH";
+    setClean: "REFRESH" | "RESET";
     setConfig:
       | "PROCESSING"
       | "done.invoke.productConfigurator.configuring.calculating:invocation[0]"
@@ -191,7 +193,7 @@ export interface Typegen0 {
       | "UPDATE.PROVISIONING"
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
-    load: "BIN" | "REFRESH" | "xstate.init";
+    load: "BIN" | "REFRESH" | "RESET" | "xstate.init";
   };
   matchesStates:
     | "complete"
