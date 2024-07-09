@@ -32,26 +32,24 @@
           size,
         }"
       >
-        <span
-          class="prependText"
-          :class="styles.input.prepend"
-          v-if="prependText"
-        >
-          {{ prependText }}
+        <span :class="styles.input.prependWrapper">
+          <span :class="styles.input.prepend" v-if="prependText">
+            {{ prependText }}
+          </span>
+
+          <upw-icon
+            v-if="prependAvatar"
+            class="avatar"
+            :class="styles.input.avatar"
+            :icon="prependAvatar"
+          />
+
+          <upw-icon
+            v-if="prependIcon"
+            :class="styles.input.icon"
+            :icon="prependIcon"
+          />
         </span>
-
-        <upw-icon
-          v-if="prependAvatar"
-          class="avatar"
-          :class="styles.input.avatar"
-          :icon="prependAvatar"
-        />
-
-        <upw-icon
-          v-if="prependIcon"
-          :class="styles.input.icon"
-          :icon="prependIcon"
-        />
       </slot>
 
       <!-- main slot where actual input gets injected -->
@@ -87,21 +85,23 @@
           size,
         }"
       >
-        <upw-icon
-          v-if="appendIcon"
-          :class="styles.input.icon"
-          :icon="appendIcon"
-        />
+        <span :class="styles.input.appendWrapper">
+          <upw-icon
+            v-if="appendIcon"
+            :class="styles.input.icon"
+            :icon="appendIcon"
+          />
 
-        <upw-icon
-          v-if="appendAvatar"
-          class="avatar"
-          :class="styles.input.avatar"
-          :icon="appendAvatar"
-        />
+          <upw-icon
+            v-if="appendAvatar"
+            class="avatar"
+            :class="styles.input.avatar"
+            :icon="appendAvatar"
+          />
 
-        <span class="appendText" :class="styles.input.append" v-if="appendText">
-          {{ appendText }}
+          <span class="appendText" v-if="appendText">
+            {{ appendText }}
+          </span>
         </span>
       </slot>
     </div>

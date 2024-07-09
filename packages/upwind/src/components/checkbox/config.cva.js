@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   checkbox: {
-    root: cva("relative flex shrink-0 items-center justify-center", {
+    root: cva("relative mr-3 flex shrink-0 items-center justify-center", {
       variants: {
         size: {
           sm: "size-5",
