@@ -150,7 +150,6 @@ export default defineComponent({
       client.input({ ...model, company_details: true });
     },
     onClose() {
-      debugger;
       this.activeDialog = false;
     },
   },
