@@ -14,6 +14,7 @@ export interface ProductConfigContext {
     options: array;
     attributes: array;
   };
+  baseModel: IProductModel;
   model: IProductModel;
   // ---
   config: IProductConfig;

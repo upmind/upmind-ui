@@ -245,6 +245,7 @@ export default defineComponent({
       setProvisioningFields,
       updateProvisioning,
       getProvisioningField,
+      reset,
     } = useProductConfig(props.item);
 
     const styles = useStyles(["product.config"], meta, config);
@@ -280,7 +281,10 @@ export default defineComponent({
       updateProvisioning,
       getProvisioningField,
       // ---
-      doReject: () => emit("reject", { id: props.modelValue }),
+      doReject: () => {
+        reset();
+        emit("reject", { id: props.modelValue });
+      },
       doResolve: () => emit("resolve", { id: props.modelValue }), // ---
       styles,
       mergeStyles,

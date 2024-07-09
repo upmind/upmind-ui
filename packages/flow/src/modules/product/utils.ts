@@ -312,7 +312,7 @@ export const useProvisioningParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = ({ summary, model }) => {
+export const useSummaryParser = ({ summary, model, lookups }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -321,15 +321,20 @@ export const useSummaryParser = ({ summary, model }) => {
 
   // term
   if (isObject(model.term)) {
+    // NB: only show term pricing if recurring
     details.push({
       key: "term",
       category: "Billing Cycle",
       name: model.term.billing_cycle_name,
       cycle: model.term.billing_cycle_months,
       quantity: model.quantity,
-      discount: model.term.price_discounted,
-      total: model.term.price,
-      formatted: model.term.price_formatted,
+      discount: model.term.billing_cycle_months
+        ? model.term.price_discounted
+        : null,
+      total: model.term.billing_cycle_months ? model.term.price : null,
+      formatted: model.term.billing_cycle_months
+        ? model.term.price_formatted
+        : null,
     });
   }
   // attributes
