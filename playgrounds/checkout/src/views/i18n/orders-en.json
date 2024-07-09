@@ -22,6 +22,17 @@
         "avatar": "paying",
         "text": "Please check your payment details to complete the purchase.",
         "title": "Unable to complete your order"
+      },
+      "invalid": {
+        "actions": {
+          "continue": {
+            "prependIcon": "arrow-left",
+            "label": "Return to shop"
+          }
+        },
+        "avatar": "paying",
+        "title": "Unable to find your order",
+        "text": "Please try again or contact support."
       }
     }
   }
