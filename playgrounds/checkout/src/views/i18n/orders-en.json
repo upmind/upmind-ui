@@ -1,0 +1,28 @@
+{
+  "order": {
+    "confirmation": {
+      "success": {
+        "actions": {
+          "continue": {
+            "appendIcon": "arrow-right",
+            "label": "View Invoice"
+          }
+        },
+        "avatar": "paying",
+        "text": "Your order is complete. You will receive an email confirmation shortly.",
+        "title": "Order complete"
+      },
+      "failed": {
+        "actions": {
+          "continue": {
+            "appendIcon": "arrow-right",
+            "label": "Check Invoice"
+          }
+        },
+        "avatar": "paying",
+        "text": "Please check your payment details to complete the purchase.",
+        "title": "Unable to complete your order"
+      }
+    }
+  }
+}
