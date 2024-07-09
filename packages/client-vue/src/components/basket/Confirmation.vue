@@ -185,22 +185,26 @@ export default defineComponent({
       if (this.meta.isComplete) {
         this.processing = true;
         const invoiceId = this.invoice.id;
-        this.transferSession().then(transfer => {
-          if (invoiceId && transfer?.code) {
-            window.location.href = utils.useUrl(
-              "auth/transfer",
-              {
-                code: transfer.code,
-                redirect: `/billing/invoices/${invoiceId}`,
-              },
-              { base: transfer.redirect_url, context: "" }
-            );
-          }
-          //else {
-          //this.$router.replace({ query: null });
-          //his.processing = false;
-          //}
-        });
+        this.transferSession()
+          .then(transfer => {
+            if (invoiceId && transfer?.code) {
+              window.location.href = utils.useUrl(
+                "auth/transfer",
+                {
+                  code: transfer.code,
+                  redirect: `/billing/invoices/${invoiceId}`,
+                },
+                { base: transfer.redirect_url, context: "" }
+              );
+            }
+            //else {
+            //this.$router.replace({ query: null });
+            //his.processing = false;
+            //}
+          })
+          .catch(() => {
+            this.processing = false;
+          });
       }
     },
   },

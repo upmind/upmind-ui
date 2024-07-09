@@ -111,7 +111,6 @@ async function register({ model }: GuestContext) {
 
 export default <Object>{
   load,
-  refreshToken: services.refreshToken,
   // ---
   verify2fa,
   authenticate,

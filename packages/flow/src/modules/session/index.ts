@@ -4,9 +4,10 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import sessionMachine from "./session.machine";
+import { useFeedback } from "../feedback";
+
 // --- utils
 import { getTokenfromStorage } from "./utils";
-
 // --------------------------------------------------------
 // create a global instance of the session machine
 // and a global object to store state
@@ -125,27 +126,17 @@ export const useSession = () => {
     return user?.id;
   }
 
-  async function refreshToken() {
-    const currentMachine =
-      state?.children?.clientMachine || state?.children?.guestMachine;
-
-    if (!currentMachine) return Promise.reject("No Session available");
-
-    // kick off the auth process
-    currentMachine.send("REFRESH");
-
-    // then return the wait for the service to complete
-    return waitFor(currentMachine, newState =>
-      ["processed"].some(newState.matches)
-    );
-  }
   // --------------------------------------------------------
 
   async function transfer() {
     const state = service.getSnapshot();
     const clientMachine = state?.children?.clientMachine;
 
-    if (!clientMachine) return Promise.reject("Transfer not available");
+    if (!clientMachine) {
+      const { addError } = useFeedback();
+      addError({ title: "Transfer not available" });
+      return Promise.reject("Transfer not available");
+    }
 
     service.send({
       type: "TRANSFER",
@@ -175,7 +166,6 @@ export const useSession = () => {
         .then(() => clientMachine.state.context.user)
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
-    refreshToken,
     transfer,
   };
 };

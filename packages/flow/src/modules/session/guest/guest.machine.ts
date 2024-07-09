@@ -48,21 +48,6 @@ export default createMachine(
         },
       },
 
-      // in this state, we are attempting to refresh our token which has expired),
-      // we will clear the token and go back to our unauthenticated state
-      // which will generate a new token
-      refreshing: {
-        id: "refreshing",
-        invoke: {
-          src: "refreshToken",
-          onDone: { target: "processed" },
-          onError: {
-            target: "error",
-            actions: "setError",
-          },
-        },
-      },
-
       processed: {
         id: "processed",
         after: {
@@ -246,9 +231,6 @@ export default createMachine(
         id: "complete",
         type: "final",
       },
-    },
-    on: {
-      REFRESH: "refreshing",
     },
   },
   {
