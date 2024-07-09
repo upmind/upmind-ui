@@ -213,12 +213,10 @@ export default defineComponent({
   },
   methods: {
     onClose() {
-      debugger;
       this.$emit("update:modelValue", false);
     },
 
     onSelect(item) {
-      debugger;
       this.select(item.id);
       this.$emit("update:modelValue", true);
     },

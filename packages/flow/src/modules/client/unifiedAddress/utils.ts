@@ -34,15 +34,6 @@ export const useSchema = ({
   places,
   emails,
 }: AddressContext) => {
-  console.log("unifiedAddress", "useSchema", {
-    country,
-    countries,
-    regions,
-    types,
-    baseModel,
-    places,
-    emails,
-  });
   const schema = {
     type: "object",
     title: "Address Fields",
