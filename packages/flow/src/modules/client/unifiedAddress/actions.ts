@@ -56,7 +56,7 @@ export const ItemActions = {
       const company = compact([
         model?.reg_number ? `Reg #: ${get(model, "reg_number")}` : null,
         model?.vat_number ? `Tax #: ${get(model, "vat_number")}` : null,
-        model?.vat_percent ? `Tax %: ${get(model, "vat_percent")}` : null,
+        // model?.vat_percent ? `Tax %: ${get(model, "vat_percent")}` : null,
       ]).join(";");
 
       return compact([address, company]).join(";");

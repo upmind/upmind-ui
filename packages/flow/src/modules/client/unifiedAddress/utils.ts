@@ -207,10 +207,10 @@ export const useSchema = ({
         title: "Registered tax/VAT id",
       },
 
-      vat_percent: {
-        type: ["string", "null"],
-        title: "VAT percent",
-      },
+      // vat_percent: {
+      //   type: ["string", "null"],
+      //   title: "VAT percent",
+      // },
       // ---
 
       default: {
@@ -592,7 +592,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
         },
         reg_number: item?.reg_number,
         vat_number: item?.vat_number,
-        vat_percent: item?.vat_percent,
+        // vat_percent: item?.vat_percent,
       };
       return mappedItem;
     } else {

@@ -108,7 +108,7 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: model.phone_id,
       reg_number: model.reg_number,
       vat_number: model.vat_number,
-      vat_percent: model.vat_percent,
+      // vat_percent: model.vat_percent,
     },
     withAccessToken: true,
   }).then(({ data }) => data);
@@ -129,7 +129,7 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: model.phone_id,
       reg_number: model.reg_number,
       vat_number: model.vat_number,
-      vat_percent: model.vat_percent,
+      // vat_percent: model.vat_percent,
     },
     withAccessToken: true,
   }).then(({ data }) => data);
