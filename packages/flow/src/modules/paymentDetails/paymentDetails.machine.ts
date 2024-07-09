@@ -190,10 +190,17 @@ export default createMachine(
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
-          REFRESH: {
-            target: "available.loading",
-            actions: "refreshBasket",
-          },
+          REFRESH: [
+            {
+              target: "available.loading",
+              actions: "refreshBasket",
+              cond: "hasChanged",
+            },
+            {
+              target: "available.checking",
+              actions: "refreshBasket",
+            },
+          ],
         },
       },
 
@@ -386,6 +393,7 @@ export default createMachine(
       isFree: ({ model }, _event) => !model?.amount,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
+      hasChanged: ({ currency }, { data }) => currency?.id != data?.currency_id,
     },
 
     delays: {

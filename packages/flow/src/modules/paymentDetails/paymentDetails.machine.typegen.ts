@@ -105,6 +105,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasBasket: "CHECKOUT";
+    hasChanged: "REFRESH";
     hasLookups: "done.invoke.paymentDetailsManager.checking:invocation[0]";
     isFree: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
     shouldUpdate: "";
@@ -119,6 +120,7 @@ export interface Typegen0 {
       | "done.invoke.paymentDetailsManager.checking:invocation[0]";
     parse:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.loading:invocation[0]"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]"
