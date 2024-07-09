@@ -274,28 +274,44 @@ export const useUischema = ({ addresses, emails, phones }) => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Control",
-        scope: "#/properties/name",
-        options: {
-          focus: true,
-          autocomplete: "off",
-          placeholder: "My home address, etc...",
-        },
+        // --- address details
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/name",
+            options: {
+              focus: true,
+              autocomplete: "off",
+              placeholder: "My home address, etc...",
+            },
+            rule: {
+              effect: "DISABLE",
+              condition: {
+                scope: "#",
+                schema: {
+                  anyOf: [
+                    {
+                      required: ["id", "company_details"],
+                      properties: { company_details: { const: true } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
         rule: {
-          effect: "DISABLE",
+          effect: "SHOW",
           condition: {
             scope: "#",
             schema: {
-              anyOf: [
-                {
-                  required: ["id", "company_details"],
-                  properties: { company_details: { const: true } },
-                },
-              ],
+              required: ["id"],
             },
           },
         },
       },
+
       {
         // --- address details
         type: "VerticalLayout",
