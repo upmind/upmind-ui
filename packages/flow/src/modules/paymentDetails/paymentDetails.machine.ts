@@ -299,9 +299,12 @@ export default createMachine(
         basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
         currency: (_context, { data: basket }: RefreshEvent) =>
           basket?.currency,
-        model: (_context, { data: basket }: RefreshEvent) => ({
-          amount: basket?.unpaid_amount_converted || 0.0,
-        }),
+        model: ({ model }, { data: basket }: RefreshEvent) => {
+          return {
+            ...model,
+            amount: basket?.unpaid_amount_converted || 0.0,
+          };
+        },
         actors: ({ actors }, { data: basket }) => {
           forEach(actors, actor => {
             if (actor?.send && !actor?.state?.done) {
