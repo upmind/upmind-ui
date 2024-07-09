@@ -1,7 +1,6 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
+
 // --- internal
-import { useSession } from "../session";
 import { useApi } from "./";
 import type { RequestContext } from "./types.d";
 
@@ -101,7 +100,7 @@ async function refreshToken(_context: RequestContext, _event: any) {
     })
     .catch(error => {
       // console.debug("refreshToken", "failed", error);
-      // dumpTokensFromStorage();
+      dumpTokensFromStorage();
       return Promise.reject(error);
     });
 }

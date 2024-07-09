@@ -17,7 +17,15 @@
 
       <footer>
         <upw-button
-          v-if="action"
+          v-if="!meta.isAuthenticated && action"
+          v-bind="action"
+          block
+          variant="ghost"
+          :loading="processing"
+          :href="storefrontUrl"
+        />
+        <upw-button
+          v-else-if="action"
           v-bind="action"
           block
           variant="ghost"
@@ -62,12 +70,13 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { transfer } = useSession();
+    const { transfer, meta } = useSession();
     const styles = useStyles(["order.confirmation"], toRefs(props), config);
 
     // ---
 
     return {
+      meta,
       transferSession: transfer,
       processing: ref(false),
       // ---
@@ -77,22 +86,27 @@ export default defineComponent({
   },
   computed: {
     title() {
-      if (this.success) {
-        return this.$t("order.confirmation.success.title");
-      }
+      if (!this.meta.isAuthenticated)
+        return this.$tm("order.confirmation.invalid.title");
+
+      if (this.success) return this.$t("order.confirmation.success.title");
 
       return this.$t("order.confirmation.failed.title");
     },
 
     text() {
-      if (this.success) {
-        return this.$t("order.confirmation.success.text");
-      }
+      if (!this.meta.isAuthenticated)
+        return this.$tm("order.confirmation.invalid.text");
+
+      if (this.success) return this.$t("order.confirmation.success.text");
 
       return this.$t("order.confirmation.failed.text");
     },
 
     avatar() {
+      if (!this.meta.isAuthenticated)
+        return this.$tm("order.confirmation.invalid.avatar");
+
       if (this.success) {
         return this.$tm("order.confirmation.success.avatar");
       }
@@ -101,16 +115,27 @@ export default defineComponent({
     },
 
     action() {
-      if (this.success) {
+      if (!this.meta.isAuthenticated)
+        return this.$tm("order.confirmation.invalid.actions.continue");
+
+      if (this.success)
         return this.$tm("order.confirmation.success.actions.continue");
-      }
 
       return this.$tm("order.confirmation.failed.actions.continue");
+    },
+
+    storefrontUrl() {
+      return import.meta.env.VITE_APP_STOREFRONT;
     },
   },
 
   methods: {
     doAction() {
+      if (!this.meta.isAuthenticated) {
+        this.processing = false;
+        return;
+      }
+
       this.processing = true;
       this.transferSession()
         .then(transfer => {
