@@ -192,7 +192,7 @@ export default defineComponent({
                 "auth/transfer",
                 {
                   code: transfer.code,
-                  redirect: `/billing/invoices/${invoiceId}`,
+                  redirect: `/billing/orders/${invoiceId}/overview`,
                 },
                 { base: transfer.redirect_url, context: "" }
               );
