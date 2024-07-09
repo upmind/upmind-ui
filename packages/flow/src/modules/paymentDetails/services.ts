@@ -9,6 +9,7 @@ import {
   get,
   sortBy,
   find,
+  map,
   forEach,
   filter,
   includes,
@@ -18,6 +19,7 @@ import {
 // --- types
 import { PaymentTypes } from "./types.d";
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --------------------------------------------------------
 // ENUMS
@@ -182,17 +184,31 @@ async function validate(
   // Now validate the model as per normal
   const { validate } = useValidation();
 
-  return new Promise((resolve, reject) => {
-    //
-    const errors = validate(schema, model) || [];
+  //
+  const errors = validate(schema, model) || [];
 
-    // ALSO check if any of our actors are in an invalid state
-    forEach(actors, actor => {
-      if (["invalid"].some(actor.state.matches)) {
-        errors.push(actor.state.context.error);
-      }
+  // ALSO check if any of our actors are in an invalid state
+  // NB, wait for them to finish loading/checking before we proceed
+  const promises = map(actors, actor =>
+    waitFor(
+      actor,
+      state => !["loading", "checking", "error"].some(state.matches)
+    )
+  );
+
+  await Promise.all(promises)
+    .then(responses => {
+      forEach(responses, state => {
+        if (["error", "invalid"].some(state.matches)) {
+          errors.push(state.context.error);
+        }
+      });
+    })
+    .catch(errors => {
+      errors.push(...errors);
     });
 
+  return new Promise((resolve, reject) => {
     if (errors?.length) {
       reject({ error: errors, model });
     } else {
