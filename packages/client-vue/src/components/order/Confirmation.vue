@@ -144,7 +144,7 @@ export default defineComponent({
               "auth/transfer",
               {
                 code: transfer.code,
-                redirect: `/order/complete/?oid=${this.orderId}`,
+                redirect: `/billing/orders/${this.orderId}/overview`,
               },
               { base: transfer.redirect_url, context: "" }
             );
