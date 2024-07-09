@@ -112,18 +112,23 @@ export default defineComponent({
   methods: {
     doAction() {
       this.processing = true;
-      this.transferSession().then(transfer => {
-        if (transfer?.code) {
-          window.location.href = utils.useUrl(
-            "auth/transfer",
-            {
-              code: transfer.code,
-              redirect: `/order/complete/?oid=${this.orderId}`,
-            },
-            { base: transfer.redirect_url, context: "" }
-          );
-        }
-      });
+      this.transferSession()
+        .then(transfer => {
+          if (transfer?.code) {
+            window.location.href = utils.useUrl(
+              "auth/transfer",
+              {
+                code: transfer.code,
+                redirect: `/order/complete/?oid=${this.orderId}`,
+              },
+              { base: transfer.redirect_url, context: "" }
+            );
+          }
+        })
+        .catch(() => {
+          this.processing = false;
+          this.$router.push("/");
+        });
     },
   },
 });

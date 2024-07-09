@@ -8,11 +8,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.refreshing:invocation[0]": {
-      type: "done.invoke.refreshing:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.sessionClient.transferring.initiating:invocation[0]": {
       type: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
       data: unknown;
@@ -20,10 +15,6 @@ export interface Typegen0 {
     };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.refreshing:invocation[0]": {
-      type: "error.platform.refreshing:invocation[0]";
       data: unknown;
     };
     "error.platform.sessionClient.transferring.initiating:invocation[0]": {
@@ -41,27 +32,22 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     load: "done.invoke.loading:invocation[0]";
-    refreshToken: "done.invoke.refreshing:invocation[0]";
     transfer: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
   };
   missingImplementations: {
     actions: never;
     delays: never;
     guards: never;
-    services: "load" | "refreshToken" | "transfer";
+    services: "load" | "transfer";
   };
   eventsCausingActions: {
     clear: "LOGOUT";
-    clearError:
-      | "REFRESH"
-      | "done.invoke.refreshing:invocation[0]"
-      | "error.platform.refreshing:invocation[0]"
-      | "xstate.init";
+    clearError: "xstate.init";
     clearTransfer: "xstate.after(expired)#sessionClient.transferring.available";
     setError:
       | "error.platform.loading:invocation[0]"
-      | "error.platform.refreshing:invocation[0]"
       | "error.platform.sessionClient.transferring.initiating:invocation[0]";
+    setFeedbackError: "error.platform.sessionClient.transferring.initiating:invocation[0]";
     setTransfer: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
     setUser: "done.invoke.loading:invocation[0]";
   };
@@ -70,18 +56,10 @@ export interface Typegen0 {
       | "error.platform.sessionClient.transferring.initiating:invocation[0]"
       | "xstate.after(expired)#sessionClient.transferring.available";
     expired: "done.invoke.sessionClient.transferring.initiating:invocation[0]";
-    wait: "done.invoke.refreshing:invocation[0]";
   };
-  eventsCausingGuards: {
-    hasUser: "done.invoke.refreshing:invocation[0]";
-  };
+  eventsCausingGuards: {};
   eventsCausingServices: {
-    load:
-      | "REFRESH"
-      | "done.invoke.refreshing:invocation[0]"
-      | "error.platform.refreshing:invocation[0]"
-      | "xstate.init";
-    refreshToken: "REFRESH";
+    load: "xstate.init";
     transfer: "TRANSFER";
   };
   matchesStates:
@@ -89,7 +67,6 @@ export interface Typegen0 {
     | "idle"
     | "loading"
     | "processed"
-    | "refreshing"
     | "transferring"
     | "transferring.available"
     | "transferring.initiating"
