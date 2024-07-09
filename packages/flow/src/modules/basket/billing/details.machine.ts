@@ -167,10 +167,6 @@ export default createMachine(
             target: "available.checking",
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
-
-          REFRESH: {
-            actions: ["refreshBasket", "setSchemas"],
-          },
         },
       },
 
@@ -178,6 +174,16 @@ export default createMachine(
       error: { id: "error" },
       complete: {
         id: "complete",
+        on: {
+          CLEAR: {
+            target: "available.checking",
+            actions: ["clearModel", "setDirty"],
+          },
+          SET: {
+            target: "available.checking",
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
+          },
+        },
         // type: "final"
       },
     },
@@ -186,6 +192,9 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
+      },
+      REFRESH: {
+        actions: ["refreshBasket", "setSchemas"],
       },
     },
   },

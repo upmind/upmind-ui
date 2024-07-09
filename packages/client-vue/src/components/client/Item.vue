@@ -4,7 +4,7 @@
     @reject="onClose"
     size="xl"
     :actions="actions"
-    :title="$tc(`client.${i18nKey}.form.title`, meta.isNew ? 1 : 0)"
+    :title="safeTitle"
     :model-value="dialog"
     @update:modelValue="onClose"
   >
@@ -94,6 +94,19 @@ export default defineComponent({
       if (this.dialog) return true;
       if (!this.autosave) return false;
       return !this.model?.manualPlace;
+    },
+    safeTitle() {
+      if (this.model?.company_details) {
+        return this.$tc(
+          `client.${this.i18nKey}.form.title.company`,
+          this.meta.isNew ? 1 : 0
+        );
+      }
+
+      return this.$tc(
+        `client.${this.i18nKey}.form.title.address`,
+        this.meta.isNew ? 1 : 0
+      );
     },
   },
   methods: {
