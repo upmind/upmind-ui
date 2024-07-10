@@ -80,18 +80,18 @@ export interface Typegen0 {
       | "CHECKOUT"
       | "CLEAR"
       | "PAY"
+      | "REFRESH"
       | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
-      | "VALIDATE"
-      | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
-      | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+      | "VALIDATE";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     providePaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     set: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
     setClientDetails: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
     setContext:
+      | "REFRESH"
       | "done.invoke.stripePaymentManager.checking.parsing:invocation[0]"
       | "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     setElementStatus: "VALIDATE";
@@ -112,6 +112,7 @@ export interface Typegen0 {
       | "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
     setPaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     setSchemas: "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";
+    updateStripe: "REFRESH";
   };
   eventsCausingDelays: {
     wait:
@@ -126,13 +127,14 @@ export interface Typegen0 {
     confirmSetup: "ADD";
     createAddElement: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
     createPaymentElement: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";
-    load: "CLEAR" | "SET" | "UNAUTHENTICATED" | "VALIDATE" | "xstate.init";
-    parse:
+    load:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
+      | "UNAUTHENTICATED"
       | "VALIDATE"
-      | "done.invoke.stripePaymentManager.loading.addElement:invocation[0]"
-      | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
+      | "xstate.init";
+    parse: "CLEAR" | "REFRESH" | "SET" | "VALIDATE";
     update: "CHECKOUT" | "PAY";
     validate:
       | "VALIDATE"

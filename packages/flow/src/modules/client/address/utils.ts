@@ -50,7 +50,7 @@ export const useSchema = ({
       place: {
         type: ["string", "null"],
         title: "Address",
-        lookup: places.search,
+        lookup: places?.search,
       },
 
       manualPlace: {

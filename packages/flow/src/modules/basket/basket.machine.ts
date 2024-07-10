@@ -124,7 +124,7 @@ export default createMachine(
           src: "claim",
           onDone: {
             target: "#shopping",
-            actions: ["refreshActors"],
+            actions: ["setBasket", "refreshActors"],
           },
           onError: {
             target: "#error",
@@ -451,8 +451,8 @@ export default createMachine(
         invoke: {
           id: "payment",
           src: paymentMachine,
-          data: ({ basket, paymentDetails }: BasketContext) => ({
-            order: basket,
+          data: ({ invoice, paymentDetails }: BasketContext) => ({
+            order: invoice,
             paymentDetails,
           }),
           onDone: {
@@ -508,7 +508,7 @@ export default createMachine(
       ],
       CLEAR: {
         target: "#shopping.items.processing",
-        actions: ["removeAllItems"],
+        actions: ["clearItems"],
       },
       // ---
       "UPDATE.QUANTITY": { actions: ["sendToItem"] },
@@ -530,8 +530,14 @@ export default createMachine(
       },
 
       UNAUTHENTICATED: {
-        target: "#loading",
-        actions: ["clearError", "clearBasket", "removeAllItems", "clearBin"],
+        target: "subscribing",
+        actions: [
+          "clearError",
+          "clearBasket",
+          "clearActors",
+          "clearItems",
+          "clearBin",
+        ],
       },
     },
   },
@@ -645,7 +651,7 @@ export default createMachine(
         forEach(items, item => {
           const product =
             find(basket?.products, ["id", item?.id]) ||
-            item.state.context.values;
+            item.state.context.model;
           item.send({
             type: "REFRESH",
             data: {
@@ -663,6 +669,24 @@ export default createMachine(
             actor.send({ type: "UPDATE" });
           }
         });
+      }),
+
+      clearActors: assign({
+        actors: ({ actors }) => {
+          forEach(actors, actor => {
+            if (!actor?.state?.done && actor?.stop) {
+              actor?.stop();
+            }
+          });
+
+          return {
+            billing_details: undefined,
+            currency: undefined,
+            custom_fields: undefined,
+            payment_details: undefined,
+            promotions: undefined,
+          };
+        },
       }),
 
       checkoutActors: pure(({ actors }) => {
@@ -732,26 +756,28 @@ export default createMachine(
 
             // track the removal using the BasketProduct data
             const basketProduct = find(basket?.products, ["id", itemId]);
-            trackEvent({ ecommerce: null });
-            trackEvent({
-              event: "remove_from_cart",
-              ecommerce: {
-                currency: basketProduct.base_currency_code,
-                value:
-                  basketProduct.configuration_net_amount_discounted_converted,
-                items: [
-                  {
-                    item_id: basketProduct.product.id,
-                    item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
-                    item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
-                    quantity: basketProduct.quantity,
-                    discount:
-                      basketProduct.configuration_net_amount_discount_converted,
-                    price: basketProduct.configuration_net_amount_converted,
-                  },
-                ],
-              },
-            });
+            if (basketProduct) {
+              trackEvent({ ecommerce: null });
+              trackEvent({
+                event: "remove_from_cart",
+                ecommerce: {
+                  currency: basketProduct.base_currency_code,
+                  value:
+                    basketProduct.configuration_net_amount_discounted_converted,
+                  items: [
+                    {
+                      item_id: basketProduct.product.id,
+                      item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
+                      item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
+                      quantity: basketProduct.quantity,
+                      discount:
+                        basketProduct.configuration_net_amount_discount_converted,
+                      price: basketProduct.configuration_net_amount_converted,
+                    },
+                  ],
+                },
+              });
+            }
           }
           return bin;
         },
@@ -762,7 +788,7 @@ export default createMachine(
         bin: [],
       }),
 
-      removeAllItems: assign({
+      clearItems: assign({
         items: ({ items }, _event) => {
           forEach(
             items,

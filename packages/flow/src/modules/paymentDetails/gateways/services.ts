@@ -1,15 +1,15 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand, BrandConfigKeys } from "../../../";
+import { useSession, useBrand, BrandConfigKeys } from "../../../";
 
 // --- utils
 import { canBeStored } from "./utils";
 import { useValidation } from "../../../utils";
-import { unset, get, sortBy, find, forEach } from "lodash-es";
+import { isNil, get } from "lodash-es";
 
 // --- types
-import type { GatewayEvent, GatewayContext, GatewayStoreType } from "./types.d";
+import type { GatewayEvent, GatewayContext } from "./types.d";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -19,7 +19,7 @@ import type { GatewayEvent, GatewayContext, GatewayStoreType } from "./types.d";
 // Invoked by machines, providing context and event data
 
 async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
-  const { isAuthenticated, getUserId } = useSession();
+  const { isAuthenticated } = useSession();
 
   await isAuthenticated().catch(() =>
     Promise.reject({ title: "Unauthorized", code: 401 })
@@ -70,7 +70,9 @@ async function parse(
   }
 
   // If we are not storing, we should not allow auto payment
-  if (!model.store_on_payment) model.store_on_payment_auto_payment = false;
+  if (!isNil(model.store_on_payment) && !model.store_on_payment) {
+    model.store_on_payment_auto_payment = false;
+  }
 
   return Promise.resolve(model);
 }

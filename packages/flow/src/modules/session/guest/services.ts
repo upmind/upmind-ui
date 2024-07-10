@@ -1,10 +1,14 @@
 // --- internal
 import { useApi } from "../../api";
-import type { GuestContext } from "./types.d";
 import { GrantTypes } from "../types.d";
+import services from "../services";
 
 // --- utils
-import { get, omit } from "lodash-es";
+import { getTokenfromStorage, persistTokenToStorage } from "../utils";
+import { isEmpty } from "lodash-es";
+
+// ---types
+import type { GuestContext } from "./types.d";
 
 // --------------------------------------------------------
 // ENUMS
@@ -14,62 +18,106 @@ import { get, omit } from "lodash-es";
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function check(_context: GuestContext, _event: any) {
-  const token = get(localStorage, `guest/auth/token`);
+async function load(_context: GuestContext, _event: any) {
+  // if we DONT have a token, we need to generate one, otherwise we are authenticated already
+  const token = getTokenfromStorage("guest");
+  if (!isEmpty(token)) return Promise.resolve(token);
 
-  return new Promise((resolve, reject) => {
-    if (token) {
-      resolve(JSON.parse(token));
-    } else {
-      reject(null);
-    }
-  });
-}
-
-async function generateToken(_context: GuestContext, _event: any) {
   const { post, useUrl } = useApi();
 
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: { grant_type: GrantTypes.GUEST },
+  }).then(data => {
+    persistTokenToStorage(data);
+    return data;
   });
 }
 
-async function refreshToken(context: GuestContext, _event: any) {
+// --- LOGIN
+
+async function authenticate({ model }: GuestContext) {
   const { post, useUrl } = useApi();
-  const refresh_token = get(context, "token.refresh_token", "");
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
-      grant_type: GrantTypes.REFRESH_TOKEN,
-      refresh_token,
+      username: model.email,
+      password: model.password,
+      grant_type: GrantTypes.PASSWORD,
+    },
+  }).then(data => {
+    // we record the history of the token to be able to referejce the originating guest token
+    persistTokenToStorage(data, true);
+    return data;
+  });
+}
+
+async function verify2fa({ token }: GuestContext, { data }: any) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl("access_token", {}, { context: "oauth" }),
+    withAccessToken: token.access_token,
+    data: {
+      twofa_provider: "google",
+      twofa_code: data,
+      grant_type: GrantTypes.TWOFA,
     },
   });
 }
 
-async function persistToken(context: GuestContext, _event: any) {
-  const token = omit(context.token, ["actor_id", "actor_type"]);
-  token.type = "guest";
+// --- REGISTER
 
-  if (!localStorage) return Promise.reject("No localStorage available");
-
-  localStorage.setItem(`guest/auth/token`, JSON.stringify(token));
-
-  return Promise.resolve(); // we dont need to return anything
+async function getCustomFields(_context: GuestContext, _event: any) {
+  const { get, useUrl } = useApi();
+  return get({
+    // url: useUrl("clients_fields", { brand_id: null }),
+    url: useUrl("clients_fields"),
+  }).then(({ data }) => data);
 }
 
-async function dumpToken(_context: GuestContext, _event: any) {
-  localStorage.removeItem(`guest/auth/token`);
-  return Promise.resolve(); // we dont need to return anything
+async function checkForReCaptcha(_context: GuestContext, { data }: any) {
+  // not implemented so pass through
+  return Promise.resolve(data);
+}
+
+async function verifyReCaptcha(_context: GuestContext, { data }: any) {
+  // not implemented so pass through
+  return Promise.resolve(data);
+}
+
+async function register({ model }: GuestContext) {
+  const { post, useUrl } = useApi();
+  return post({
+    url: useUrl("clients/register"),
+    data: {
+      custom_fields: model?.custom_fields,
+      email: model?.email,
+      firstname: model?.firstname,
+      lastname: model?.lastname,
+      password: model?.password,
+      phone: model?.phone,
+      phone_code: model?.phone_code,
+      phone_country_code: model?.phone_country_code,
+      recaptcha_token: model?.recaptcha_token,
+    },
+  }).then(data => {
+    persistTokenToStorage(data);
+    return data;
+  });
 }
 
 // --------------------------------------------------------
 // EXPORTS
 
 export default <Object>{
-  check,
-  generateToken,
-  refreshToken,
-  persistToken,
-  dumpToken,
+  load,
+  refreshToken: services.refreshToken,
+  // ---
+  verify2fa,
+  authenticate,
+  // ---
+  getCustomFields,
+  checkForReCaptcha,
+  verifyReCaptcha,
+  register,
 };

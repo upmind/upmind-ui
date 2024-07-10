@@ -72,7 +72,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "checking",
-                actions: ["setContext", "setSchemas"],
+                actions: ["setLookups", "setSchemas"],
               },
               onError: {
                 target: "#error",
@@ -80,11 +80,10 @@ export default createMachine(
               },
             },
           },
-
           // ---
+
           checking: {
             entry: ["clearError"],
-            id: "checking",
             initial: "parsing",
             states: {
               parsing: {
@@ -92,7 +91,7 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setContext", "setSchemas"],
+                    actions: ["setParsed", "setSchemas"],
                   },
                 },
               },
@@ -162,46 +161,37 @@ export default createMachine(
         },
         on: {
           CLEAR: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["clearModel", "setDirty"],
           },
           SET: {
-            target: "#checking",
-            actions: ["setModel", "setDirty"],
+            target: "available.checking",
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
           REFRESH: {
-            target: "#loading",
-            actions: ["refreshContext", "setSchemas"],
-            cond: "hasChanged",
+            actions: ["refreshBasket", "setSchemas"],
           },
         },
       },
 
+      // ---
+      error: { id: "error" },
       complete: {
         id: "complete",
         // type: "final"
       },
-
-      error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "#processing",
-          },
-        },
-      },
     },
     on: {
       UNAUTHENTICATED: {
-        target: "unavailable",
+        target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
     },
   },
   {
     actions: {
-      refreshContext: assign(
+      refreshBasket: assign(
         (
           _context: BillingDetailsContext,
           { data: basket }: BillingDetailsEvent
@@ -217,9 +207,14 @@ export default createMachine(
         }
       ),
 
-      setContext: assign(
-        (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => data
-      ),
+      setParsed: assign({
+        model: (_context, { data }) => data.model,
+      }),
+
+      setLookups: assign({
+        addresses: (_context, { data }) => data.addresses,
+        companies: (_context, { data }) => data.companies,
+      }),
 
       setSchemas: assign({
         schema: context => useSchema(context),
@@ -300,8 +295,9 @@ export default createMachine(
       hasChanged: ({ account_id, basket_id }, { data }) => {
         return basket_id !== data?.id || account_id !== data?.account_id;
       },
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
+      shouldUpdate: ({ autoupdate, basket_id, model }, _event) => {
+        return !!autoupdate && !!basket_id && !!model?.address_id;
+      },
     },
 
     delays: {

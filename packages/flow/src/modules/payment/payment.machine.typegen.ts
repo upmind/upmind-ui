@@ -14,12 +14,12 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.checking:invocation[0]": {
-      type: "error.platform.checking:invocation[0]";
-      data: unknown;
-    };
     "error.platform.paymentManager.approving.redirecting:invocation[0]": {
       type: "error.platform.paymentManager.approving.redirecting:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.paymentManager.checking:invocation[0]": {
+      type: "error.platform.paymentManager.checking:invocation[0]";
       data: unknown;
     };
     "error.platform.paymentManager.loading:invocation[0]": {
@@ -38,7 +38,7 @@ export interface Typegen0 {
     load: "done.invoke.paymentManager.loading:invocation[0]";
     redirect: "done.invoke.paymentManager.approving.redirecting:invocation[0]";
     update: "done.invoke.paymentManager.processing:invocation[0]";
-    validate: "done.invoke.checking:invocation[0]";
+    validate: "done.invoke.paymentManager.checking:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -54,8 +54,8 @@ export interface Typegen0 {
     setApproval: "xstate.after(wait)#processed";
     setContext: "done.invoke.paymentManager.loading:invocation[0]";
     setError:
-      | "error.platform.checking:invocation[0]"
       | "error.platform.paymentManager.approving.redirecting:invocation[0]"
+      | "error.platform.paymentManager.checking:invocation[0]"
       | "error.platform.paymentManager.loading:invocation[0]"
       | "error.platform.paymentManager.processing:invocation[0]";
     setFeedbackError:

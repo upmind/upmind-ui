@@ -7,6 +7,7 @@ import type { RequestContext } from "./types.d";
 
 // --- utils
 import { includes, get, set } from "lodash-es";
+import { getTokenfromStorage } from "../session/utils";
 
 // --------------------------------------------------------
 // ENUMS
@@ -73,36 +74,9 @@ async function doFetch({ url, init }: RequestContext) {
 }
 
 async function refreshToken(_context: RequestContext, _event: any) {
-  const { getSnapshot, service: sessionService } = useSession();
+  const { refreshToken } = useSession();
 
-  // start by getting the current service and state
-  // kick off the auth process
-  // let state = getSnapshot();
-
-  sessionService.send("REFRESH");
-
-  // state = getSnapshot();
-
-  // wait for the service to complete
-  await waitFor(sessionService, newState =>
-    ["client", "guest"].some(newState.matches)
-  ).catch(error => {
-    // prevent the error from bubbling up
-    console.error("refreshToken failed", { error });
-  });
-
-  // return the token or error
-  return new Promise((resolve, reject) => {
-    // get the current state
-    const state = getSnapshot();
-
-    if (["client", "guest"].some(state.matches)) {
-      resolve(state.context.token);
-    } else {
-      const error = get(state, "context.error");
-      reject(error);
-    }
-  });
+  return refreshToken();
 }
 
 // --------------------------------------------------------

@@ -121,9 +121,11 @@ export interface Typegen0 {
     addItem: "ADD";
     binItem: "REMOVE";
     checkoutActors: "CHECKOUT";
+    clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
     clearBin: "UNAUTHENTICATED" | "UPDATE";
     clearError: "UNAUTHENTICATED";
+    clearItems: "CLEAR" | "UNAUTHENTICATED";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     muteBasket: "CLEAR" | "REFRESH" | "REMOVE" | "UPDATE";
     refreshActors:
@@ -136,7 +138,6 @@ export interface Typegen0 {
       | "error.platform.basketManager.shopping.items.processing.everything:invocation[0]"
       | "error.platform.removing:invocation[0]"
       | "error.platform.updating:invocation[0]";
-    removeAllItems: "CLEAR" | "UNAUTHENTICATED";
     removeItem: "done.invoke.removing:invocation[0]";
     sendToItem:
       | "UPDATE.ATTRIBUTES"
@@ -146,6 +147,7 @@ export interface Typegen0 {
       | "UPDATE.TERM";
     setBasket:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
@@ -231,7 +233,7 @@ export interface Typegen0 {
       | "UPDATE"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
-    load: "SESSION" | "UNAUTHENTICATED";
+    load: "SESSION";
     payment: "done.invoke.converting:invocation[0]";
     refresh: "REFRESH" | "xstate.after(wait)#processed";
     removeItem: "REMOVE";

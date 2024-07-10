@@ -31,6 +31,7 @@ const service = interpret(systemMachine, { devTools: false }).onTransition(
 
 export const useSystem = () => {
   const {
+    isReady,
     getCountry: getDefaultCountry,
     getCurrencyId: getDefaultCurrency,
     service: brandService,
@@ -172,7 +173,7 @@ export const useSystem = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-
+    isReady,
     getSnapshot: () => state,
 
     // ---

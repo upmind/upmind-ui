@@ -4,7 +4,16 @@
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
 // --- utils
 import { useValidation } from "../../utils";
-import { unset, get, sortBy, find, forEach, filter, includes } from "lodash-es";
+import {
+  unset,
+  get,
+  sortBy,
+  find,
+  forEach,
+  filter,
+  includes,
+  first,
+} from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -21,9 +30,6 @@ const whitelistGatewayProviders =
 //   "20403869-6e54-721d-59a5-18d9305e7d23",
 //   // "5952098d-3de4-0917-e6c3-1578626e347e",
 // ];
-// --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -64,18 +70,7 @@ async function load(
 
   // ---
 
-  const balance = getRequest({
-    url: useUrl(`wallet/balance`, {
-      currency_id,
-      // with_staged_imports=1
-    }),
-    withAccessToken: true,
-    useCache: false,
-  }).then(({ data }) => data);
-
-  // ---
-
-  const payment_details = getRequest({
+  const stored_payment_details = getRequest({
     url: useUrl(`clients/${client_id}/payment_details`, {
       limit: 0,
       brand_id,
@@ -116,10 +111,9 @@ async function load(
 
   // ----
 
-  return Promise.all([balance, payment_details, gateways]).then(
-    ([balance, payment_details, gateways]) => ({
-      balance,
-      payment_details,
+  return Promise.all([stored_payment_details, gateways]).then(
+    ([stored_payment_details, gateways]) => ({
+      stored_payment_details,
       gateways,
       payment_types: PaymentTypes,
     })
@@ -131,7 +125,7 @@ async function load(
 
 /**
  * @name getPaymentData
- * @desc Here we create a new payment detail ID we have a free basket, ie Amount = 0, and NO gateway provided
+ * @desc Here we create a new payment detail if we have a free basket, ie Amount = 0, and NO gateway provided
  *       Otherwise we reject this update and defer to the payment gateway
  */
 async function update({ model, basket_id, currency }: PaymentDetailsContext) {
@@ -157,16 +151,23 @@ async function parse(
   // ---
   let gateway = null;
 
-  // ensure we dont send the gateway_id if the payment type is pay later
-  if (model?.type == PaymentTypes.PAY_LATER) {
-    unset(model, "gateway_id");
-  }
-
-  // also make sure we clear the gateway actor if we have no gateway_id
-  else if (model?.gateway_id) {
+  // also make sure we set the gateway if we have one, otherwise we will use the first one
+  if (model?.gateway_id) {
     gateway = find(gateways, {
       gateway_id: model.gateway_id,
-    })?.gateway; // we dont need the full brand gateway, just the actual gateway;
+    })?.gateway;
+    // if we dont have a matching/valid gateway, then we should remove the gateway_id
+    if (!gateway) unset(model, "gateway_id");
+  }
+
+  if (!model?.gateway_id && model?.amount > 0) {
+    gateway = first(gateways)?.gateway;
+    model.gateway_id = gateway?.id;
+  }
+
+  // NB: ensure we dont send the gateway_id if the payment type is pay later
+  if (model?.type == PaymentTypes.PAY_LATER) {
+    unset(model, "gateway_id");
   }
 
   return Promise.resolve({ model, gateway });
@@ -193,7 +194,7 @@ async function validate(
     });
 
     if (errors?.length) {
-      reject({ error: errors });
+      reject({ error: errors, model });
     } else {
       resolve(model);
     }
@@ -209,6 +210,7 @@ export default {
   validate,
   update,
   // ---
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

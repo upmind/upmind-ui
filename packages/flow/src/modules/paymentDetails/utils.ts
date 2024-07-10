@@ -7,7 +7,7 @@ import stripeMachine from "./gateways/stripe/stripe.machine";
 import cardConfig from "./gateways/card";
 
 // --- utils
-import { map } from "lodash-es";
+import { first, map } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -41,13 +41,14 @@ export const useSchema = ({
       type: {
         type: "string",
         title: "Payment type",
-        default: PaymentTypes.PAY_IN_FULL,
-        oneOf: !payment_types
-          ? undefined
-          : map(payment_types, (value, key) => ({
-              const: value,
-              title: key,
-            })),
+        const: PaymentTypes.PAY_IN_FULL,
+        // DISABLED FOR NOW: We only support pay in full for now
+        // oneOf: !payment_types
+        //   ? undefined
+        //   : map(payment_types, (value, key) => ({
+        //       const: value,
+        //       title: key,
+        //     })),
       },
       gateway_id: {
         type: ["string", "null"],
@@ -83,35 +84,35 @@ export const useUischema = ({
   const uischema = {
     type: "VerticalLayout",
     elements: [
-      {
-        type: "Control",
-        scope: "#/properties/type",
-        i18n: "basket.payment_details.type",
-        options: {
-          format: "radio",
-          // layout: "inline",
-          stretch: true,
-          layout: payment_types?.length >= 3 ? "grid" : "inline",
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["amount"],
-              properties: {
-                amount: { not: { const: 0 } },
-              },
-            },
-          },
-        },
-      },
+      // DISABLED FOR NOW: We only support pay in full for now
+      // {
+      //   type: "Control",
+      //   scope: "#/properties/type",
+      //   i18n: "basket.payment_details.type",
+      //   options: {
+      //     format: "radio",
+      //     // layout: "inline",
+      //     stretch: true,
+      //     layout: payment_types?.length >= 3 ? "grid" : "inline",
+      //   },
+      //   rule: {
+      //     effect: "SHOW",
+      //     condition: {
+      //       scope: "#",
+      //       schema: {
+      //         required: ["amount"],
+      //         properties: {
+      //           amount: { not: { const: 0 } },
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
       {
         type: "Control",
         scope: "#/properties/gateway_id",
         options: {
           format: "radio",
-          // layout: "inline",
           stretch: true,
           layout: gateways?.length >= 3 ? "grid" : "inline",
         },
@@ -123,7 +124,6 @@ export const useUischema = ({
               required: ["type", "amount"],
               properties: {
                 amount: { not: { const: 0 } },
-                type: { const: PaymentTypes.PAY_IN_FULL },
               },
             },
           },
@@ -141,7 +141,7 @@ export const useUischema = ({
 export function spawnGateway({ basket_id, gateway, amount, currency }) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
-  if (!amount) {
+  if (!amount || !gateway) {
     return spawnGenericGateway(GatewayTypes.FREE, {
       basket_id,
       gateway,

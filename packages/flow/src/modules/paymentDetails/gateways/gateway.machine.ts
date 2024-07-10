@@ -23,7 +23,12 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      basket_id: undefined,
+      currency: undefined,
       gateway: undefined,
+      amount: undefined,
+      renderless: undefined,
+      // ---
       schema: undefined,
       uischema: undefined,
       model: undefined,
@@ -45,7 +50,6 @@ export default createMachine(
       // ---
       checking: {
         entry: ["clearError"],
-        id: "checking",
         initial: "parsing",
         states: {
           parsing: {
@@ -53,7 +57,7 @@ export default createMachine(
               src: "parse",
               onDone: {
                 target: "validating",
-                actions: ["setContext", "setSchemas", "setModel"],
+                actions: ["setSchemas", "setModel"],
               },
             },
           },
@@ -119,14 +123,17 @@ export default createMachine(
     },
     on: {
       CLEAR: {
-        target: "#checking",
+        target: "checking",
         actions: ["clearModel"],
       },
       SET: {
-        target: "#checking",
+        target: "checking",
         actions: ["setModel"],
       },
-
+      REFRESH: {
+        target: "checking",
+        actions: ["setContext"],
+      },
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"],

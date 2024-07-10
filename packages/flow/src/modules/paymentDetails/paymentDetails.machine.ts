@@ -15,11 +15,7 @@ import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
 
 // --- types
-import type {
-  PaymentDetailsContext,
-  PaymentDetailsEvent,
-  RefreshEvent,
-} from "./types.d";
+import type { PaymentDetailsContext, RefreshEvent } from "./types.d";
 import { responseCodes } from "../api";
 
 // --------------------------------------------------------
@@ -39,6 +35,10 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
+      stored_payment_details: undefined,
+      gateways: undefined,
+      payment_types: undefined,
+      // ---
       actors: {
         gateway: undefined,
       },
@@ -56,7 +56,7 @@ export default createMachine(
           src: "authSubscription",
         },
         on: {
-          SESSION: { target: "checking" },
+          AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -70,7 +70,7 @@ export default createMachine(
 
       unavailable: {
         on: {
-          AUTHENTICATED: { target: "available" },
+          // AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -78,12 +78,13 @@ export default createMachine(
         initial: "loading",
         states: {
           loading: {
+            id: "loading",
             entry: ["clearError"],
             invoke: {
               src: "load",
               onDone: {
                 target: "checking",
-                actions: ["setContext", "setSchemas"],
+                actions: ["setLookups"],
               },
               onError: {
                 target: "#error",
@@ -95,7 +96,6 @@ export default createMachine(
 
           checking: {
             entry: ["clearError"],
-            id: "checking",
             initial: "parsing",
             states: {
               parsing: {
@@ -103,7 +103,7 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setContext", "setGateway", "setSchemas"],
+                    actions: ["setParsed", "setGateway", "setSchemas"],
                   },
                 },
               },
@@ -161,6 +161,9 @@ export default createMachine(
                   "trackPaymentDetails",
                 ],
               },
+              onError: {
+                actions: "clearError", // this is handled by the gateway
+              },
             },
             on: {
               // ths is the response from the gateway
@@ -173,17 +176,17 @@ export default createMachine(
         },
         on: {
           CLEAR: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["clearModel", "setDirty"],
           },
           SET: {
-            target: "#checking",
+            target: "available.checking",
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
           REFRESH: {
-            target: "#checking",
-            actions: ["refreshBasket", "setSchemas"],
+            target: "checking",
+            actions: "refreshBasket",
           },
         },
       },
@@ -198,14 +201,24 @@ export default createMachine(
     },
     on: {
       UNAUTHENTICATED: {
-        target: "unavailable",
+        target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
     },
   },
   {
     actions: {
-      setContext: assign((_context, { data }: any) => data),
+      setParsed: assign({
+        model: (_context, { data }) => data.model,
+        gateway: (_context, { data }) => data.gateway,
+      }),
+
+      setLookups: assign({
+        stored_payment_details: (_context, { data }) =>
+          data.stored_payment_details,
+        gateways: (_context, { data }) => data.gateways,
+        payment_types: (_context, { data }) => data.payment_types,
+      }),
 
       setSchemas: assign({
         schema: context => useSchema(context),
@@ -258,9 +271,9 @@ export default createMachine(
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
               basket_id,
-              gateway: gateway,
-              amount: model?.amount,
               currency,
+              amount: model?.amount,
+              gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
             });
             set(actors, "gateway", actor);
           }
@@ -269,14 +282,28 @@ export default createMachine(
         },
       }),
 
-      refreshBasket: assign((_context, { data: basket }: RefreshEvent) => {
-        return {
-          basket_id: basket?.id,
-          currency: basket?.currency,
-          model: {
-            amount: basket?.unpaid_amount_converted || 0.0,
-          },
-        };
+      refreshBasket: assign({
+        basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
+        currency: (_context, { data: basket }: RefreshEvent) =>
+          basket?.currency,
+        model: (_context, { data: basket }: RefreshEvent) => ({
+          amount: basket?.unpaid_amount_converted || 0.0,
+        }),
+        actors: ({ actors }, { data: basket }) => {
+          forEach(actors, actor => {
+            if (actor?.send && !actor?.state?.done) {
+              actor.send({
+                type: "REFRESH",
+                data: {
+                  basket_id: basket?.id,
+                  currency: basket?.currency,
+                  amount: basket?.unpaid_amount_converted || 0.0,
+                },
+              });
+            }
+          });
+          return actors;
+        },
       }),
 
       // ---
