@@ -194,6 +194,7 @@ export default createMachine(
         actions: ["clearError", "clearModel", "clearSchemas"],
       },
       REFRESH: {
+        target: "available.checking",
         actions: ["refreshBasket", "setSchemas"],
       },
     },

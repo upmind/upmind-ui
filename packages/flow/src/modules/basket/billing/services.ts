@@ -65,7 +65,7 @@ async function parse(
 ) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model: omitBy(model, isNil) });
+  return Promise.resolve({ model });
 }
 
 async function validate(
@@ -79,6 +79,7 @@ async function validate(
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
+    console.log("Billing Details", "validate", { model, errors });
     if (errors?.length) {
       reject({ error: errors });
     } else {

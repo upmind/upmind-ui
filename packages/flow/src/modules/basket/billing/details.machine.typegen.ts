@@ -80,6 +80,7 @@ export interface Typegen0 {
       | ""
       | "AUTHENTICATED"
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
       | "UPDATE"
@@ -114,13 +115,18 @@ export interface Typegen0 {
     shouldUpdate: "";
   };
   eventsCausingServices: {
-    authSubscription: "AUTHENTICATED" | "UNAUTHENTICATED" | "xstate.init";
+    authSubscription:
+      | "AUTHENTICATED"
+      | "REFRESH"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
     isAuthenticated: "AUTHENTICATED" | "SESSION";
     load:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.billingDetailsManager.checking:invocation[0]";
-    parse: "CLEAR" | "SET" | "done.invoke.loading:invocation[0]";
+    parse: "CLEAR" | "REFRESH" | "SET" | "done.invoke.loading:invocation[0]";
     update: "" | "UPDATE";
     validate: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
   };
