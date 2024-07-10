@@ -1,7 +1,7 @@
 <template>
   <upw-dialog
     size="xl"
-    :model-value="!!orderId"
+    :model-value="modelValue"
     no-actions
     persistent
     skrim="light"
@@ -15,11 +15,10 @@
 
       <p :class="styles.order.confirmation.text">{{ text }}</p>
 
-      <footer>
+      <footer :class="styles.order.confirmation.actions">
         <upw-button
           v-if="!meta.isAuthenticated && action"
           v-bind="action"
-          block
           variant="ghost"
           :loading="processing"
           :href="storefrontUrl"
@@ -27,7 +26,6 @@
         <upw-button
           v-else-if="action"
           v-bind="action"
-          block
           variant="ghost"
           @click.prevent="doAction"
           :loading="processing"
@@ -60,9 +58,12 @@ export default defineComponent({
     UpwButton,
   },
   props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
     orderId: {
       type: String,
-      required: true,
     },
     success: {
       type: Boolean,
@@ -117,6 +118,8 @@ export default defineComponent({
     action() {
       if (!this.meta.isAuthenticated)
         return this.$tm("order.confirmation.invalid.actions.continue");
+
+      if (!this.orderId) return null;
 
       if (this.success)
         return this.$tm("order.confirmation.success.actions.continue");
