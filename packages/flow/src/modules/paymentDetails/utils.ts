@@ -24,7 +24,7 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 export const parsePaymentDetails = payment_details => {
   // TODO: map the actual allowed params fr the endpoint
-  return omit(payment_details, ["gateway", "can_store"]);
+  return omit(payment_details, ["can_store"]);
 };
 // --------------------------------------------------------
 

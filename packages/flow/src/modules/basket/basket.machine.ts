@@ -980,17 +980,11 @@ export default createMachine(
 
         const valid = hasOustandingBalance && payingNow && !manualPayment;
 
-        // NB: original checks from the vue app for reference
-        // (data.balance !== 0 && data.payment_type !== PaymentTypes.PAY_LATER) ||
-        //   includes(
-        //     [
-        //       PaymentMethodType.GATEWAY_OFFLINE,
-        //       PaymentMethodType.GATEWAY_BANK_TRANSFER,
-        //       PaymentTypes.PAY_LATER
-        //     ],
-        //     paymentMethodType
-        //   )) ||
-        // this.paymentData.wallet_amount > 0
+        // console.debug("needsPayment", valid, {
+        //   hasOustandingBalance,
+        //   payingNow,
+        //   manualPayment,
+        // });
 
         return valid;
       },
