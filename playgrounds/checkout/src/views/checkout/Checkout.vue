@@ -197,8 +197,8 @@ export default defineComponent({
   },
   watch: {
     meta(meta) {
+      // MAYBE: redirect after complete instead of dialog?
       // if (meta.isComplete) {
-      //   debugger;
       //   this.$router.push({
       //     name: "order",
       //     params: { orderId: this.invoice?.id },

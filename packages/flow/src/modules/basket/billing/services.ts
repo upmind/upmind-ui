@@ -79,7 +79,6 @@ async function validate(
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
-    console.log("Billing Details", "validate", { model, errors });
     if (errors?.length) {
       reject({ error: errors });
     } else {
