@@ -124,12 +124,14 @@ export interface Typegen0 {
     clearError: "UNAUTHENTICATED";
     clearItems: "CLEAR" | "UNAUTHENTICATED";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
-    muteBasket: "CLEAR" | "REFRESH" | "REMOVE" | "UPDATE";
     refreshActors:
       | "REFRESH"
+      | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
-      | "done.invoke.refreshing:invocation[0]";
+      | "done.invoke.refreshing:invocation[0]"
+      | "done.invoke.removing:invocation[0]"
+      | "done.invoke.updating:invocation[0]";
     refreshItems:
       | "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]"
       | "done.invoke.updating:invocation[0]";
@@ -192,7 +194,6 @@ export interface Typegen0 {
     hasNoItem: "UPDATE";
     hasNoItems: "";
     isNotLoading: "";
-    isNotMuted: "REFRESH";
     itemsConfigured: "";
     needsPayment: "done.invoke.converting:invocation[0]";
     paymentConfiguring: "";

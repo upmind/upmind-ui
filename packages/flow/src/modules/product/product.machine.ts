@@ -289,8 +289,8 @@ export default (model, currency_id, promotions) => {
                 REFRESH: {
                   target: "#configuring",
                   actions: [
-                    "setBaseModel",
                     "setModel",
+                    "setBaseModel",
                     "setCurrency",
                     "setPromotions",
                     "setClean",
@@ -431,7 +431,7 @@ export default (model, currency_id, promotions) => {
         }),
 
         setBaseModel: assign({
-          baseModel: ({ model }, _even) => clone(model),
+          baseModel: ({ model }, _event) => clone(model),
         }),
 
         mergeModel: assign({
