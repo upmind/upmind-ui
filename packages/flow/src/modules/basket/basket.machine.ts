@@ -221,13 +221,17 @@ export default createMachine(
                 initial: "everything",
                 states: {
                   everything: {
-                    entry: ["muteBasket", "updateActors"],
+                    entry: ["updateActors"],
 
                     invoke: {
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"],
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "refreshActors",
+                        ],
                       },
                       onError: {
                         target: "error",
@@ -242,7 +246,11 @@ export default createMachine(
                       src: "updateItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"],
+                        actions: [
+                          "refreshItems",
+                          "updateBasket",
+                          "refreshActors",
+                        ],
                       },
                       onError: {
                         target: "error",
@@ -257,7 +265,11 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["removeItem", "updateBasket"],
+                        actions: [
+                          "removeItem",
+                          "updateBasket",
+                          "refreshActors",
+                        ],
                       },
                       onError: {
                         target: "error",
@@ -266,18 +278,14 @@ export default createMachine(
                     },
                   },
 
-                  error: {
-                    // after: {
-                    // wait: "#processed",
-                    // },
-                  },
+                  error: {},
                 },
               },
 
               processed: {
                 id: "processed",
                 after: {
-                  wait: "#refreshing",
+                  wait: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
                 },
               },
 
@@ -517,13 +525,12 @@ export default createMachine(
 
       REFRESH: [
         {
+          target: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
           actions: ["updateBasket", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
           target: "#refreshing",
-          actions: "muteBasket",
-          cond: "isNotMuted",
         },
       ],
 
@@ -547,11 +554,6 @@ export default createMachine(
         summary: (_context: BasketContext, { data }: BasketEvent) =>
           useSummaryParser(useBasketParser(data)),
         error: undefined,
-        muted: false,
-      }),
-
-      muteBasket: assign({
-        muted: true,
       }),
 
       clearBasket: assign({
@@ -993,8 +995,6 @@ export default createMachine(
 
         return valid;
       },
-
-      isNotMuted: ({ muted }) => !muted,
 
       // --- Actor Guards
       currencyComplete: ({ actors }) => {
