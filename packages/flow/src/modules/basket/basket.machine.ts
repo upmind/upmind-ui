@@ -416,7 +416,7 @@ export default createMachine(
           onDone: [
             {
               target: "#paying",
-              actions: "setInvoice",
+              actions: ["setInvoice"],
               cond: "needsPayment",
             },
             {
@@ -447,6 +447,7 @@ export default createMachine(
             actions: ["setPayment", "trackPayment"],
           },
           onError: {
+            target: "#failed",
             actions: ["setError", "setFeedbackError"],
           },
         },
@@ -457,12 +458,16 @@ export default createMachine(
         },
       },
 
-      // TODO: actual payment node.
-
       // Handle errors
       error: {
         id: "error",
       },
+      // ---
+
+      failed: {
+        id: "failed",
+      },
+      // TODO: actual payment node.
 
       complete: {
         id: "complete",

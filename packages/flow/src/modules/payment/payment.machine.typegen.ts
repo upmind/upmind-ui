@@ -75,7 +75,7 @@ export interface Typegen0 {
   eventsCausingServices: {
     load: "xstate.init";
     redirect: "xstate.after(wait)#processed";
-    update: "" | "PAY" | "RETRY";
+    update: "" | "PAY";
     validate:
       | "done.invoke.paymentManager.loading:invocation[0]"
       | "xstate.update";
