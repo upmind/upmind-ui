@@ -10,6 +10,7 @@ export default {
         variants: {
           size: {
             auto: "",
+            badge: "",
             xs: "size-6",
             sm: "size-8",
             md: "size-10 border-[0.2em]",

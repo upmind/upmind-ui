@@ -28,7 +28,7 @@ export default defineComponent({
       type: String,
       default: "md",
       validator: (value: string) =>
-        ["auto", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
+        ["auto", "badge", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: {
