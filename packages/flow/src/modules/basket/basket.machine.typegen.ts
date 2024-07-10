@@ -238,6 +238,7 @@ export interface Typegen0 {
     | "complete"
     | "converting"
     | "error"
+    | "failed"
     | "generating"
     | "loading"
     | "loading.actors"

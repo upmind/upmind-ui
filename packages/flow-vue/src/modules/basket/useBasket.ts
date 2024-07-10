@@ -149,17 +149,19 @@ export const useBasket = () => {
           stateMatches(state, ["paying"]) ||
           stateMatches(state, ["checkout.processing"]),
 
-        isComplete: stateMatches(state, ["complete"]),
+        isComplete: stateMatches(state, ["complete", "failed"]),
+        hasPaid: stateMatches(state, ["complete"]),
+        hasFailed: stateMatches(state, ["failed"]),
 
-        hasErrors:
-          stateMatches(state, [
-            "shopping.items.processing.error",
-            "shopping.promotions.error",
-            "shopping.account.error",
-          ]) ||
-          machineMatches(actors.value.customFields, ["error"]) ||
-          machineMatches(actors.value.paymentDetails, ["error"]) ||
-          !!useContext(state, "error"),
+        // hasErrors:
+        //   stateMatches(state, [
+        //     "shopping.items.processing.error",
+        //     "shopping.promotions.error",
+        //     "shopping.account.error",
+        //   ]) ||
+        //   machineMatches(actors.value.customFields, ["error"]) ||
+        //   machineMatches(actors.value.paymentDetails, ["error"]) ||
+        //   !!useContext(state, "error"),
       };
     }),
     //  ---
