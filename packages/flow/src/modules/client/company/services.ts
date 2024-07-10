@@ -16,10 +16,6 @@ import type { CompanyEvent, CompanyContext } from "./types.d";
 import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 // --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
-
-// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -206,6 +202,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

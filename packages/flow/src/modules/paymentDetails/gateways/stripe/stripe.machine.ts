@@ -28,7 +28,12 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
+      basket_id: undefined,
+      currency: undefined,
       gateway: undefined,
+      amount: undefined,
+      renderless: false, // stripe is not renderless
+      // ---
       schema: undefined,
       uischema: undefined,
       model: undefined,
@@ -64,7 +69,7 @@ export default createMachine(
             invoke: {
               src: "createPaymentElement",
               onDone: {
-                target: "#checking",
+                target: "..checking",
                 actions: ["setElements"],
               },
               onError: {
@@ -78,7 +83,7 @@ export default createMachine(
             invoke: {
               src: "createAddElement",
               onDone: {
-                target: "#checking",
+                target: "..checking",
                 actions: ["setElements", "setClientDetails"],
               },
               onError: {
@@ -93,7 +98,6 @@ export default createMachine(
       // ---
       checking: {
         entry: ["clearError"],
-        id: "checking",
         initial: "parsing",
         states: {
           parsing: {
@@ -181,19 +185,21 @@ export default createMachine(
     },
     on: {
       CLEAR: {
-        target: "#checking",
+        target: "checking",
         actions: ["clearModel"],
       },
       SET: {
-        target: "#checking",
+        target: "checking",
         actions: ["setModel"],
       },
-
       VALIDATE: {
-        target: "#checking.validating",
+        target: "checking.validating",
         actions: ["setElementStatus"],
       },
-
+      REFRESH: {
+        target: "checking",
+        actions: ["setContext", "updateStripe"],
+      },
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"],
@@ -265,6 +271,14 @@ export default createMachine(
       clearModel: assign({
         model: undefined,
       }),
+      // ---
+
+      updateStripe: ({ elements }: StripeContext, { data }: StripeEvent) => {
+        elements.update({
+          amount: Math.round((data?.amount || 0) * 100), // NB: Stripe expects amount in cents
+          currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
+        });
+      },
 
       // ---
       setPaymentDetails: assign({

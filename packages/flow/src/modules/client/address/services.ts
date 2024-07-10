@@ -37,9 +37,6 @@ export const AddressTypes = [
   { key: 3, value: "Holiday" },
   { key: 4, value: "Company" },
 ];
-// --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -185,10 +182,11 @@ async function setDefault({ model }: AddressContext, _event: AddressEvent) {
 // --------------------------------------------------------
 
 async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
-  const { fetchCountries, fetchRegions, getCountry } = useSystem();
+  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
+  await isReady();
   const countries = await fetchCountries();
   const country = getCountry(model?.country_id);
   const regions = await fetchRegions(model?.country_id || country?.id);
@@ -327,6 +325,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

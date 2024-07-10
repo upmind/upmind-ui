@@ -39,10 +39,6 @@ import { AddressTypes } from "../address/services";
 // ENUMS
 
 // --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
-
-// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -353,10 +349,11 @@ async function loadLookups(
   { model }: UnifiedAddressContext,
   _event: UnifiedAddressEvent
 ) {
-  const { fetchCountries, fetchRegions, getCountry } = useSystem();
+  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
+  await isReady();
   const countries = await fetchCountries();
   const country = getCountry(model?.country_id);
   const regions = await fetchRegions(model?.country_id || country?.id);
@@ -535,6 +532,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

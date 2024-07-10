@@ -14,8 +14,6 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 //  ENUMS
 // --------------------------------------------------------
 
-const { authSubscription } = useSession();
-// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -114,6 +112,7 @@ export default {
   load,
   parse,
   filter: filterItems,
-  authSubscription,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
   isAuthenticated: () => Promise.resolve(), // we dont need authentication for this service
 };

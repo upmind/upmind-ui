@@ -4,29 +4,35 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.clearing:invocation[0]": {
-      type: "done.invoke.clearing:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.generating:invocation[0]": {
-      type: "done.invoke.generating:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.loading:invocation[0]": {
-      type: "done.invoke.loading:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.refreshing:invocation[0]": {
       type: "done.invoke.refreshing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.generating:invocation[0]": {
-      type: "error.platform.generating:invocation[0]";
+    "done.invoke.sessionGuest.login.authenticating:invocation[0]": {
+      type: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
       data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.sessionGuest.register.checking:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.checking:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.sessionGuest.register.loading:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.loading:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.sessionGuest.register.registering:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.registering:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.sessionGuest.register.verifying:invocation[0]": {
+      type: "done.invoke.sessionGuest.register.verifying:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
@@ -36,71 +42,149 @@ export interface Typegen0 {
       type: "error.platform.refreshing:invocation[0]";
       data: unknown;
     };
+    "error.platform.sessionGuest.login.authenticating:invocation[0]": {
+      type: "error.platform.sessionGuest.login.authenticating:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.login.verifying:invocation[0]": {
+      type: "error.platform.sessionGuest.login.verifying:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.authenticating:invocation[0]": {
+      type: "error.platform.sessionGuest.register.authenticating:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.checking:invocation[0]": {
+      type: "error.platform.sessionGuest.register.checking:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.loading:invocation[0]": {
+      type: "error.platform.sessionGuest.register.loading:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.registering:invocation[0]": {
+      type: "error.platform.sessionGuest.register.registering:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.sessionGuest.register.verifying:invocation[0]": {
+      type: "error.platform.sessionGuest.register.verifying:invocation[0]";
+      data: unknown;
+    };
+    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
-    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    check: "done.invoke.loading:invocation[0]";
-    dumpToken: "done.invoke.clearing:invocation[0]";
-    generateToken: "done.invoke.generating:invocation[0]";
-    persistToken: "done.invoke.persisting:invocation[0]";
+    authenticate:
+      | "done.invoke.sessionGuest.login.authenticating:invocation[0]"
+      | "done.invoke.sessionGuest.register.authenticating:invocation[0]";
+    checkForReCaptcha: "done.invoke.sessionGuest.register.checking:invocation[0]";
+    getCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
+    load: "done.invoke.loading:invocation[0]";
     refreshToken: "done.invoke.refreshing:invocation[0]";
+    register: "done.invoke.sessionGuest.register.registering:invocation[0]";
+    verify2fa: "done.invoke.sessionGuest.login.verifying:invocation[0]";
+    verifyReCaptcha: "done.invoke.sessionGuest.register.verifying:invocation[0]";
   };
   missingImplementations: {
     actions: never;
-    delays: never;
+    delays: "wait";
     guards: never;
     services:
-      | "check"
-      | "dumpToken"
-      | "generateToken"
-      | "persistToken"
-      | "refreshToken";
+      | "authenticate"
+      | "checkForReCaptcha"
+      | "getCustomFields"
+      | "load"
+      | "refreshToken"
+      | "register"
+      | "verify2fa"
+      | "verifyReCaptcha";
   };
   eventsCausingActions: {
-    clearError: "done.invoke.clearing:invocation[0]" | "xstate.init";
-    clearToken:
-      | "done.invoke.clearing:invocation[0]"
-      | "error.platform.loading:invocation[0]"
-      | "xstate.stop";
+    clearError: "" | "REFRESH" | "xstate.init";
     escalateError:
-      | "error.platform.generating:invocation[0]"
-      | "error.platform.refreshing:invocation[0]";
+      | "error.platform.sessionGuest.login.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.login.verifying:invocation[0]"
+      | "error.platform.sessionGuest.register.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.register.checking:invocation[0]"
+      | "error.platform.sessionGuest.register.loading:invocation[0]"
+      | "error.platform.sessionGuest.register.registering:invocation[0]"
+      | "error.platform.sessionGuest.register.verifying:invocation[0]";
+    set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
     setError:
-      | "error.platform.generating:invocation[0]"
-      | "error.platform.refreshing:invocation[0]";
-    setToken:
-      | "done.invoke.generating:invocation[0]"
-      | "done.invoke.loading:invocation[0]"
-      | "done.invoke.refreshing:invocation[0]";
+      | "error.platform.loading:invocation[0]"
+      | "error.platform.refreshing:invocation[0]"
+      | "error.platform.sessionGuest.login.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.login.verifying:invocation[0]"
+      | "error.platform.sessionGuest.register.authenticating:invocation[0]"
+      | "error.platform.sessionGuest.register.checking:invocation[0]"
+      | "error.platform.sessionGuest.register.loading:invocation[0]"
+      | "error.platform.sessionGuest.register.registering:invocation[0]"
+      | "error.platform.sessionGuest.register.verifying:invocation[0]";
+    setLoginSchemas: "";
+    setModel: "AUTHENTICATE" | "REGISTER";
+    setRegisterSchemas: "done.invoke.sessionGuest.register.loading:invocation[0]";
+    trackLogin: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    trackRegister: "done.invoke.sessionGuest.register.registering:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    wait: "done.invoke.refreshing:invocation[0]";
+  };
   eventsCausingGuards: {
-    isRefreshing: "" | "done.invoke.clearing:invocation[0]";
-    isUnauthorized: "error.platform.refreshing:invocation[0]";
+    requires2fa: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    requiresReCaptcha: "done.invoke.sessionGuest.register.checking:invocation[0]";
   };
   eventsCausingServices: {
-    check: "done.invoke.clearing:invocation[0]" | "xstate.init";
-    dumpToken: "error.platform.refreshing:invocation[0]";
-    generateToken: "";
-    persistToken: "" | "done.invoke.refreshing:invocation[0]";
-    refreshToken: "";
+    authenticate:
+      | "AUTHENTICATE"
+      | "done.invoke.sessionGuest.register.registering:invocation[0]";
+    checkForReCaptcha: "REGISTER";
+    getCustomFields: "REGISTER";
+    load: "REFRESH" | "xstate.init";
+    refreshToken: "REFRESH";
+    register:
+      | "done.invoke.sessionGuest.register.checking:invocation[0]"
+      | "done.invoke.sessionGuest.register.verifying:invocation[0]";
+    verify2fa: "VERIFY";
+    verifyReCaptcha: "VERIFY";
   };
   matchesStates:
-    | "authenticated"
-    | "authenticated.clearing"
-    | "authenticated.idle"
-    | "authenticated.persisting"
-    | "authenticated.refreshing"
     | "complete"
     | "error"
+    | "idle"
     | "loading"
-    | "unauthenticated"
-    | "unauthenticated.generating"
-    | "unauthenticated.idle"
+    | "login"
+    | "login.authenticating"
+    | "login.available"
+    | "login.challenging"
+    | "login.loading"
+    | "login.verifying"
+    | "processed"
+    | "refreshing"
+    | "register"
+    | "register.authenticating"
+    | "register.available"
+    | "register.challenging"
+    | "register.checking"
+    | "register.loading"
+    | "register.registering"
+    | "register.verifying"
     | {
-        authenticated?: "clearing" | "idle" | "persisting" | "refreshing";
-        unauthenticated?: "generating" | "idle";
+        login?:
+          | "authenticating"
+          | "available"
+          | "challenging"
+          | "loading"
+          | "verifying";
+        register?:
+          | "authenticating"
+          | "available"
+          | "challenging"
+          | "checking"
+          | "loading"
+          | "registering"
+          | "verifying";
       };
   tags: never;
 }

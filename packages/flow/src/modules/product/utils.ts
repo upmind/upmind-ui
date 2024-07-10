@@ -316,8 +316,9 @@ export const useSummaryParser = ({ summary, prices, model }) => {
     name: model.term.billing_cycle_name,
     cycle: model.term.billing_cycle_months,
     quantity: model.quantity,
-    discount: prices.discount,
-    total: prices.total,
+    discount: prices.term.discount,
+    total: prices.term.total,
+    formatted: prices.term.formatted,
   });
 
   // attributes
@@ -360,6 +361,7 @@ export const useSummaryDetailsParser = (key: string, data: any) => {
               quantity: choice.unit_quantity,
               discount: choice.total_discounted,
               total: choice.total,
+              formatted: choice.total_formatted,
             };
           })
         );
@@ -423,14 +425,6 @@ const useChoiceParser = (values: any) => {
 };
 
 const useAddProvisioningParser = (data: any) => {
-  // const fields = reduce(
-  //   data,
-  //   (result, value, key) => {
-  //     set(result, key, value);
-  //     return result;
-  //   },
-  //   {}
-  // );
   return data;
 };
 

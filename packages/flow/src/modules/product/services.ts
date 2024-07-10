@@ -155,13 +155,11 @@ async function load(
 
 async function loadProvisioningFields(product_id) {
   const { get, useUrl } = useApi();
-
   if (!product_id) return Promise.reject("No Product ID provided");
-
   // we dont cache provision_fields fields, as they can change with diferent options/attributes being selected
   return get({
     url: useUrl(`basket/products/${product_id}/provision_fields`),
-    useCache: true,
+    useCache: false,
     withAccessToken: true,
   }).then(({ data }) => data);
 }
@@ -197,7 +195,11 @@ async function checkTerm(
 
   // ---
   // try ge the full term object from the lookups terms
-  term = find(lookups.terms, ["billing_cycle_months", model.term]);
+
+  term = find(lookups.terms, [
+    "billing_cycle_months",
+    model?.term?.billing_cycle_months || model?.term,
+  ]);
 
   if (!term) {
     if (lookups.terms.length === 1) {

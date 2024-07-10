@@ -15,10 +15,6 @@ import { omitBy, isNil } from "lodash-es";
 import type { BillingDetailsEvent, BillingDetailsContext } from "./types.d";
 
 // --------------------------------------------------------
-
-const { authSubscription, isAuthenticated } = useSession();
-
-// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -26,7 +22,7 @@ async function load(
   _context: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  const { isAuthenticated, getUserId } = useSession();
+  const { isAuthenticated } = useSession();
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
@@ -100,6 +96,7 @@ export default {
   validate,
   update,
   // ---
-  authSubscription,
-  isAuthenticated,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };

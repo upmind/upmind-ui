@@ -74,7 +74,7 @@ export const useSchema = ({
       place: {
         type: ["string", "null"],
         title: "Address",
-        lookup: places.search,
+        lookup: places?.search,
         default: baseModel?.company_details && baseModel?.place,
       },
 

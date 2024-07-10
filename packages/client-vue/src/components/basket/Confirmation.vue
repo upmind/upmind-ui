@@ -181,25 +181,25 @@ export default defineComponent({
   },
 
   methods: {
-    async doAction() {
+    doAction() {
       if (this.meta.isComplete) {
         this.processing = true;
         const invoiceId = this.invoice.id;
-        const transfer = await this.transferSession();
-
-        if (invoiceId && transfer?.code) {
-          window.location.href = utils.useUrl(
-            "auth/transfer",
-            {
-              code: transfer.code,
-              redirect: `/billing/invoices/${invoiceId}`,
-            },
-            { base: this.storefrontUrl, context: "" }
-          );
-        } else {
-          this.$router.replace({ query: null });
-          this.processing = false;
-        }
+        this.transferSession().then(transfer => {
+          if (invoiceId && transfer?.code) {
+            window.location.href = utils.useUrl(
+              "auth/transfer",
+              {
+                code: transfer.code,
+                redirect: `/billing/invoices/${invoiceId}`,
+              },
+              { base: this.storefrontUrl, context: "" }
+            );
+          } else {
+            this.$router.replace({ query: null });
+            this.processing = false;
+          }
+        });
       }
     },
   },

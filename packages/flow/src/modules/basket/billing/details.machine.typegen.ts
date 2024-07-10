@@ -80,8 +80,6 @@ export interface Typegen0 {
       | ""
       | "AUTHENTICATED"
       | "CLEAR"
-      | "REFRESH"
-      | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
       | "UPDATE"
@@ -89,10 +87,8 @@ export interface Typegen0 {
       | "done.invoke.loading:invocation[0]";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
-    refreshContext: "REFRESH";
-    setContext:
-      | "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]"
-      | "done.invoke.loading:invocation[0]";
+    refreshBasket: "REFRESH";
+    setAutoUpdate: "SET";
     setDirty: "CLEAR" | "SET";
     setError:
       | "error.platform.billingDetailsManager.available.checking.validating:invocation[0]"
@@ -101,7 +97,9 @@ export interface Typegen0 {
     setFeedbackError:
       | "error.platform.loading:invocation[0]"
       | "error.platform.processing:invocation[0]";
+    setLookups: "done.invoke.loading:invocation[0]";
     setModel: "SET" | "done.invoke.processing:invocation[0]";
+    setParsed: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
     setSchemas:
       | "REFRESH"
       | "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]"
@@ -112,7 +110,6 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasBasket: "UPDATE";
-    hasChanged: "REFRESH";
     isDirty: "done.invoke.billingDetailsManager.available.checking.validating:invocation[0]";
     shouldUpdate: "";
   };
@@ -122,12 +119,10 @@ export interface Typegen0 {
     load:
       | "AUTHENTICATED"
       | "CLEAR"
-      | "REFRESH"
-      | "RETRY"
       | "SET"
       | "done.invoke.billingDetailsManager.checking:invocation[0]";
     parse: "CLEAR" | "SET" | "done.invoke.loading:invocation[0]";
-    update: "" | "RETRY" | "UPDATE";
+    update: "" | "UPDATE";
     validate: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
   };
   matchesStates:

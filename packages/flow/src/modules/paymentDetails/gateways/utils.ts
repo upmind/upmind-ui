@@ -77,12 +77,6 @@ export const useSchema = (context: GatewayContext) => {
         title: "Gateway ID",
         const: context.gateway.id,
       },
-      amount: {
-        type: "number",
-        title: "Amount",
-        readOnly: true,
-        exclusiveMinimum: 0,
-      },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
       can_store: {
         type: "boolean",
@@ -91,11 +85,13 @@ export const useSchema = (context: GatewayContext) => {
       },
       store_on_payment: {
         type: "boolean",
+        default: true,
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
+        default: true,
       },
       return_url: {
         type: "string",
@@ -112,15 +108,6 @@ export const useSchema = (context: GatewayContext) => {
     },
   };
 
-  // enforce brand settings via setting the const value. This will ensure the value is not editable
-  if (!context.can_store) {
-    schema.properties.store_on_payment.const = false;
-    schema.properties.store_on_payment_auto_payment.const = false;
-  } else {
-    if (context.must_store) schema.properties.store_on_payment.const = true;
-    if (context.must_auto_pay)
-      schema.properties.store_on_payment_auto_payment.const = true;
-  }
   return schema;
 };
 

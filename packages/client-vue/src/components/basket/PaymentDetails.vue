@@ -2,7 +2,7 @@
   <section ref="form" :class="styles.basket.paymentDetails.root">
     <upw-form
       :additional-errors="errors?.data"
-      :loading="meta.isLoading && false"
+      :loading="meta.isLoading"
       :model-value="model"
       :processing="meta.isProcessing"
       :schema="schema"
