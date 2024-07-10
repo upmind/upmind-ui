@@ -25,8 +25,8 @@ export default {
         "text-left m-0 text-sm inline-flex items-end gap-2 leading-normal font-normal text-base-700"
       ),
       bold: cva("font-medium text-base-content"),
-      discount: cva("font-light text-xs line-through text-base-500"),
-      value: cva("text-right m-0 flex-0 text-base-content font-medium "),
+      discount: cva("font-light text-xs line-through text-base-500 block"),
+      value: cva("text-right m-0 flex-0 text-base-content font-medium block "),
       total: cva("font-medium "),
       icon: cva("size-5 flex-0 leading-normal"),
       tooltipIcon: cva("size-4 flex-0 leading-6"),

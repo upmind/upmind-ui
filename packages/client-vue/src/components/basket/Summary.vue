@@ -91,21 +91,21 @@
 
         <dd :class="styles.basket.summary.value">{{ summary?.discount }}</dd>
 
-        <dt :class="styles.basket.summary.heading">
-          <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.taxes.title", products.length)
-          }}</span>
-          <!-- TODO -->
-          <!-- <upw-icon
+        <template v-for="(value, key) in summary?.taxes" :key="key">
+          <dt :class="styles.basket.summary.heading">
+            <span :class="styles.basket.summary.text">{{ key }}</span>
+            <!-- TODO -->
+            <!-- <upw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
             {{ $t("basket.summary.taxes.tooltip") }}
           </p> -->
-        </dt>
+          </dt>
 
-        <dd :class="styles.basket.summary.value">{{ summary?.taxes }}</dd>
+          <dd :class="styles.basket.summary.value">{{ value }}</dd>
+        </template>
       </dl>
 
       <!-- total -->

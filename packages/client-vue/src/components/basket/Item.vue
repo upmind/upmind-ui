@@ -24,7 +24,8 @@
 import { defineComponent, ref, watch } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/flow-vue";
+import { useBasket, utils } from "@upmind/flow-vue";
+const { stateMatches } = utils;
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -53,7 +54,7 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(props, { emit }) {
+  setup(props) {
     const {
       meta,
       removeItem,
@@ -102,7 +103,9 @@ export default defineComponent({
   methods: {
     async doResolve() {
       this.updateItem(this.modelValue).then(() => {
-        this.open = !this.meta.hasErrors;
+        this.open =
+          stateMatches(this.item.state, ["configured"]) &&
+          !stateMatches(this.item.state, ["error"]);
       });
     },
   },
