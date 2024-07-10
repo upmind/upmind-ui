@@ -18,19 +18,7 @@
         :steps="steps"
         :loading="meta.isLoading"
         @update:model-value="scrollTo"
-      >
-        <template #append>
-          <div class="ml-auto w-full max-w-xs text-right">
-            <upw-button
-              :disabled="!meta.isReadyForCheckout || meta.isProcessing"
-              @click.prevent="doCheckout"
-              color="primary"
-              :label="$t('basket.summary.actions.submit')"
-              block
-            />
-          </div>
-        </template>
-      </upw-steps>
+      />
 
       <!-- overview -->
       <upm-basket-items
