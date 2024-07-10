@@ -5,23 +5,23 @@
         "actions": {
           "continue": {
             "appendIcon": "arrow-right",
-            "label": "View Invoice"
+            "label": "Go to my account"
           }
         },
         "avatar": "paying",
-        "text": "Your order is complete. You will receive an email confirmation shortly.",
-        "title": "Order complete"
+        "title": "Order complete!",
+        "text": "Thanks for your order – your purchase is now complete. You will receive an email confirmation shortly."
       },
       "failed": {
         "actions": {
           "continue": {
             "appendIcon": "arrow-right",
-            "label": "Check Invoice"
+            "label": "Go to invoice"
           }
         },
         "avatar": "paying",
-        "text": "Please check your payment details to complete the purchase.",
-        "title": "Unable to complete your order"
+        "title": "Unable to process payment.",
+        "text": "We were unable to process your payment for this order – this could be for a number of reasons. Please click below to go to your invoice where you can retry your payment."
       },
       "invalid": {
         "actions": {
@@ -31,8 +31,8 @@
           }
         },
         "avatar": "paying",
-        "title": "Unable to find your order",
-        "text": "Please try again or contact support."
+        "title": "Your session has expired",
+        "text": "We're unable to retrieve your past order as your session has expired. To start a new purchase, please click the button below to return to our store."
       }
     }
   }

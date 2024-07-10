@@ -19,7 +19,7 @@
           v-bind="action"
           block
           variant="ghost"
-          @click.prevent="doAction"
+          @click.stop="doAction"
           :loading="processing"
         />
       </footer>

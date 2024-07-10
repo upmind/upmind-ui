@@ -127,6 +127,7 @@ export const useSummaryParser = (data?: any) => {
     discount: data?.net_discount_amount_formatted, // total_discount_amount
     subtotal: data?.net_amount_formatted || "", // total_amount
     taxes: data?.tax_amount_formatted, // tax_amount
+    // taxes: map(data.taxes, ["amount", "amount_formatted"]),
     total: data?.unpaid_amount_formatted || "", // unpaid_amount
   };
   return summary;
