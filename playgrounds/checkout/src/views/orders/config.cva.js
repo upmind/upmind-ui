@@ -3,20 +3,13 @@ import { cva } from "class-variance-authority";
 
 export default {
   order: {
-    root: cva(" flex-col !gap-0 bg-cover bg-no-repeat", {
-      variants: {
-        isLoading: {
-          true: "bg-[url('/background.svg')] ",
-        },
-        isEmpty: {
-          true: "bg-[url('/background.svg')]",
-        },
-      },
-    }),
+    root: cva(
+      " flex-col !gap-0 bg-[url('/background.svg')] bg-cover bg-no-repeat"
+    ),
 
     section: {
       root: cva(
-        "relative mx-auto flex flex w-full max-w-screen-2xl flex-wrap flex-wrap items-start justify-start gap-6 py-20"
+        "relative mx-auto flex flex w-full max-w-screen-2xl flex-wrap flex-wrap items-start justify-start py-20"
       ),
       centered: cva(
         "min-h-[70vh] flex-col items-center justify-center text-center"

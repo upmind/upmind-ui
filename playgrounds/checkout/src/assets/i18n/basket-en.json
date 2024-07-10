@@ -51,7 +51,7 @@
         }
       ]
     },
-    "confirmation": {
+    "processing": {
       "invalid": {
         "title": "Unable to complete your order",
         "text": "Please check your payment details to complete the purchase.",

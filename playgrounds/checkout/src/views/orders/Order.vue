@@ -1,11 +1,10 @@
 <template>
-  <article class="flex flex-col gap-4">
+  <article :class="styles.order.root">
     <!-- confirmation -->
     <upm-order-confirmation
-      id="confirmation"
-      :class="styles.order.section.root"
       :orderId="orderId"
       :success="success"
+      :model-value="true"
     />
   </article>
 </template>

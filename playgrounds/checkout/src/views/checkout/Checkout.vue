@@ -53,11 +53,14 @@
         v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
       />
 
-      <!-- confirmation -->
-      <upm-basket-confirmation
-        id="confirmation"
-        :class="styles.checkout.section.root"
-        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      <!-- basket procesing -->
+      <upm-basket-processing :model-value="meta.isProcessingOrder" />
+
+      <!-- order confirmation -->
+      <upm-order-confirmation
+        :model-value="meta.isComplete"
+        :order-id="invoice?.id"
+        :success="meta.hasPaid"
       />
     </template>
   </article>
@@ -80,7 +83,8 @@ import {
   UpmBasketItems,
   UpmSession,
   UpmBasketDetails,
-  UpmBasketConfirmation,
+  UpmBasketProcessing,
+  UpmOrderConfirmation,
   UpmBasketEmpty,
   UpmBasketLoading,
   // ---
@@ -101,7 +105,8 @@ export default defineComponent({
     UpmBasketItems,
     UpmSession,
     UpmBasketDetails,
-    UpmBasketConfirmation,
+    UpmBasketProcessing,
+    UpmOrderConfirmation,
     UpmBasketEmpty,
     UpmBasketLoading,
     // ---
@@ -110,8 +115,7 @@ export default defineComponent({
   },
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
-    const { meta, itemsPending, addProduct, updateBasket, isReady } =
-      useBasket();
+    const { meta, itemsPending, addProduct, invoice, isReady } = useBasket();
 
     // ---------------------------------------------------
     // --- basket setup
@@ -151,6 +155,7 @@ export default defineComponent({
       // ---
       itemsPending,
       meta,
+      invoice,
       activeSection: ref(null),
       isScrolling,
       scrollIntoView,
@@ -192,8 +197,16 @@ export default defineComponent({
   },
   watch: {
     meta(meta) {
+      // if (meta.isComplete) {
+      //   debugger;
+      //   this.$router.push({
+      //     name: "order",
+      //     params: { orderId: this.invoice?.id },
+      //     query: { payment_success: meta.hasPaid },
+      //   });
+      //   return;
+      // }
       if (!meta.isLoading || meta.isEmpty) return;
-
       this.scrollTo();
     },
   },
