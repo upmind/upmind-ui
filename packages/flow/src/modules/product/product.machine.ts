@@ -21,6 +21,7 @@ import {
 import {
   clone,
   find,
+  first,
   get,
   isEmpty,
   isEqual,
@@ -480,10 +481,15 @@ export default (model, currency_id, promotions) => {
             const term = get(data, "term");
             lookups.options = map(lookups.options, option => {
               option.values = map(option.values, value => {
-                value.price = find(value.prices, [
-                  "billing_cycle_months",
-                  term?.billing_cycle_months,
-                ]);
+                // try get one off prices first
+                value.price = find(value.prices, ["billing_cycle_months", 0]);
+                if (!value.price) {
+                  value.price =
+                    find(value.prices, [
+                      "billing_cycle_months",
+                      term?.billing_cycle_months,
+                    ]) || first(value.prices);
+                }
                 return value;
               });
 

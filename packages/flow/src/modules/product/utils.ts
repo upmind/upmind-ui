@@ -19,6 +19,7 @@ import {
   reduce,
   set,
   some,
+  toNumber,
   values,
 } from "lodash-es";
 // --------------------------------------------------------
@@ -37,6 +38,7 @@ export const useHasPriceOverride = (values, lookups) => {
 };
 
 export const useQuantityParser = (quantity: number, data: any) => {
+  quantity = toNumber(quantity) || 1; // ensure we have a number;
   // Check the data is available
   // Check the quantity is valid,
   //  - min Quantity matches the data min
@@ -157,6 +159,8 @@ export const useTermsParser = (data: any) => {
 };
 
 export const useSubproductParser = (data: any) => {
+  const { getBillingCycle } = useSystem();
+
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
   // When getting the attributes from the API, we get a flat list of attributes
@@ -202,17 +206,24 @@ export const useSubproductParser = (data: any) => {
       value.canChangeQuantity = rawOption.order_type == 2;
 
       // add the prices to the value, with limited properties
-      value.prices = map(rawOption.prices, price =>
-        pick(price, [
+
+      value.prices = map(rawOption.prices, price => {
+        price = pick(price, [
           "mixed_promotions",
           "billing_cycle_months",
           "price",
           "price_discounted",
           "price_formatted",
           "price_discounted_formatted",
-          "promotions",
-        ])
-      );
+          // "promotions",
+        ]);
+
+        price.billing_cycle_name = getBillingCycle(
+          price.billing_cycle_months
+        )?.name;
+
+        return price;
+      });
 
       // then set the updated values
       values.push(value);
