@@ -133,12 +133,14 @@
                 :class="styles.product.config.list.item.total"
                 v-if="value.price"
               >
-                <span v-if="!item.price_override">+</span>
+                <span v-if="!item.price_override && item.price">+</span>
 
                 {{
                   value.price?.price_discounted
                     ? value.price?.price_discounted_formatted
-                    : value.price?.price_formatted
+                    : value.price
+                      ? value.price?.price_formatted
+                      : $t("product.free")
                 }}
               </strong>
 
