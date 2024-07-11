@@ -100,7 +100,7 @@
               /> -->
 
               <upw-badge
-                v-if="!item.price_override"
+                v-if="!item.price_override && value?.price?.price"
                 variant="tonal"
                 color="base"
                 :label="value.price?.billing_cycle_name"
@@ -138,7 +138,7 @@
                 {{
                   value.price?.price_discounted
                     ? value.price?.price_discounted_formatted
-                    : value.price
+                    : value.price.price
                       ? value.price?.price_formatted
                       : $t("product.free")
                 }}
