@@ -75,10 +75,17 @@
             </span>
             <!-- badges -->
             <span :class="styles.product.config.list.item.badges">
-              <upw-badge
-                color="promotion"
-                :label="$t('product.save', { value: item.saving_formatted })"
-              />
+              <template
+                v-for="promotion in value?.price?.promotions"
+                :key="promotion.id"
+              >
+                <upw-badge
+                  color="promotion"
+                  :label="
+                    $t('product.save', { value: promotion.amount_formatted })
+                  "
+                />
+              </template>
 
               <!-- <upw-badge
                 v-if="item.price_override"
