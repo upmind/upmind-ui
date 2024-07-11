@@ -12,5 +12,6 @@ export interface BadgeProps {
     | "success"
     | "error"
     | "warning"
-    | "info";
+    | "info"
+    | "promotion";
 }

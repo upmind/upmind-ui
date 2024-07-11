@@ -21,6 +21,7 @@ export default {
             error: "bg-error text-error-content",
             warning: "bg-warning text-warning-content",
             info: "bg-info text-info-content",
+            promotion: "bg-promotion text-promotion-content",
           },
         },
         compoundVariants: [
@@ -118,6 +119,18 @@ export default {
             color: "info",
             variant: "tonal",
             class: "bg-info-50 text-info",
+          },
+
+          // --- promotion + variant ---
+          {
+            color: "promotion",
+            variant: "outlined",
+            class: "border-promotion text-promotion",
+          },
+          {
+            color: "promotion",
+            variant: "tonal",
+            class: "bg-promotion-50 text-promotion",
           },
         ],
         defaultVariants: {
