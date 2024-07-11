@@ -3,7 +3,6 @@
     <header :class="styles.basket.promotions.header">
       <upw-button
         variant="link"
-        color="secondary"
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
@@ -46,7 +45,7 @@
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
         variant="flat"
-        color="secondary"
+        color="promotion"
         :label="promotion.promotion.code"
         appendIcon="close"
         @click.prevent="doRemove(promotion)"
