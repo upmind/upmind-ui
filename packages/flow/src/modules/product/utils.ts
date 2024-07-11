@@ -1,6 +1,7 @@
 // --- internal
 import { useSystem } from "../system";
 import { TrialEndActionTypes } from "./services";
+
 // --- utils
 import {
   find,
@@ -22,6 +23,9 @@ import {
   toNumber,
   values,
 } from "lodash-es";
+
+// --- types
+import { PromotionDisplayTypes } from "./services";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
@@ -107,7 +111,10 @@ export const useProductParser = (data: any) => {
   return product;
 };
 
-export const useTermsParser = (data: any) => {
+export const useTermsParser = (
+  data: any,
+  promotion_display_type: PromotionDisplayTypes
+) => {
   const { getBillingCycle } = useSystem();
 
   // 1. sort the terms by billing_cycle_months
@@ -130,9 +137,8 @@ export const useTermsParser = (data: any) => {
     // --------------------------------------------------------
     // Ensure the name is set
 
-    term.billing_cycle_name = getBillingCycle(
-      rawTerm.billing_cycle_months
-    )?.name;
+    const cycle = getBillingCycle(rawTerm.billing_cycle_months);
+    term.billing_cycle_name = cycle ? translateName(cycle) : null;
 
     // --------------------------------------------------------
     // then add some syntactic sugar / computed properties
@@ -145,20 +151,16 @@ export const useTermsParser = (data: any) => {
 
     // --- Coupon Syntax Sugar
 
-    term.promotions = map(rawTerm.promotions, promo => `'${promo.code}'`);
-
-    // --- Savings Syntax Sugar - When promotion has been applied
-    term.saving = !isNil(term.price_discounted)
-      ? ((term.price - term.price_discounted) / term.price) * 100
-      : 0;
-
-    term.saving_formatted = `${Math.round(term.saving)}%`;
+    term.promotions = usePromotionParser(rawTerm, promotion_display_type);
 
     return term;
   });
 };
 
-export const useSubproductParser = (data: any) => {
+export const useSubproductParser = (
+  data: any,
+  promotion_display_type: PromotionDisplayTypes
+) => {
   const { getBillingCycle } = useSystem();
 
   // safety check, bail if we have no data
@@ -207,20 +209,20 @@ export const useSubproductParser = (data: any) => {
 
       // add the prices to the value, with limited properties
 
-      value.prices = map(rawOption.prices, price => {
-        price = pick(price, [
+      value.prices = map(rawOption.prices, rawPrice => {
+        const price = pick(rawPrice, [
           "mixed_promotions",
           "billing_cycle_months",
           "price",
           "price_discounted",
           "price_formatted",
           "price_discounted_formatted",
-          // "promotions",
         ]);
 
-        price.billing_cycle_name = getBillingCycle(
-          price.billing_cycle_months
-        )?.name;
+        const cycle = getBillingCycle(price.billing_cycle_months);
+        price.billing_cycle_name = cycle ? translateName(cycle) : null;
+
+        price.promotions = usePromotionParser(rawPrice, promotion_display_type);
 
         return price;
       });
@@ -239,6 +241,48 @@ export const useSubproductParser = (data: any) => {
 
   // return just the values of the reduced object.
   return values(options);
+};
+
+export const usePromotionParser = (
+  data: any,
+  promotion_display_type: PromotionDisplayTypes
+) => {
+  //  Promotions can be display in one of 3 ways:
+  //  - As a generic summary label with no values, eg "SAVE"
+  //  - As a sumamry percentage, eg "Save 20%"
+  //  - As individual names, eg ["20% off", "Black Friday"]
+  // NB: we always supply the amouns so we can show meta data if needed, eg a tooltip
+
+  // ---
+
+  if (promotion_display_type == PromotionDisplayTypes.NAME) {
+    return map(data.promotions, rawPromo => {
+      const promo = pick(rawPromo, ["amount", "amount_formatted", "code"]);
+      promo.name = translateName(rawPromo);
+      promo.display = promotion_display_type;
+      promo.mixed = data.mixed_promotions;
+      return promo;
+    });
+  } else {
+    const saving =
+      ((data.price - (data.price_discounted || data.price)) / data.price) * 100;
+    const saving_formatted = `${Math.round(saving)}%`;
+
+    return [
+      {
+        name: null,
+        amount:
+          isNil(data.price_discounted) || data.mixed_promotions ? 0 : saving,
+        amount_formatted:
+          isNil(data.price_discounted) || data.mixed_promotions
+            ? ""
+            : saving_formatted,
+        code: map(data.promotions, "code"),
+        display: promotion_display_type,
+        mixed: data.mixed_promotions,
+      },
+    ];
+  }
 };
 
 export const useProvisioningParser = (data: any) => {

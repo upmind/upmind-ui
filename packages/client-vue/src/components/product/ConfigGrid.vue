@@ -46,11 +46,14 @@
               {{ item.billing_cycle_name }}
             </span>
 
-            <upw-badge
-              v-if="item.saving"
-              color="promotion"
-              :label="$t('product.save', { value: item.saving_formatted })"
-            />
+            <template v-for="promotion in item?.promotions" :key="promotion.id">
+              <upw-badge
+                color="promotion"
+                :label="
+                  $t('product.save', { value: promotion.amount_formatted })
+                "
+              />
+            </template>
 
             <!-- monthly -->
             <span

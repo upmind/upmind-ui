@@ -11,7 +11,6 @@ import { useTime, useValidation } from "../../utils";
 import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
-  defaultsDeep,
   find,
   first,
   get,
@@ -108,8 +107,8 @@ async function load(
   const { product_id } = model;
   if (!product_id) return Promise.reject("No Product ID provided");
 
-  const { get, useUrl } = useApi();
-  const productPromise = get({
+  const { get: getRequest, useUrl } = useApi();
+  const productPromise = getRequest({
     url: useUrl(`basket/products/${product_id}`, {
       currency_id,
       promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
@@ -145,9 +144,22 @@ async function load(
   // lets get our provision_fields fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(product_id);
 
-  return Promise.all([productPromise, provisioningPromise]).then(
-    ([product, provision_fields]) => {
+  // lets also get some brand config for how we want to show promotions
+  // Get the brands preference on how to display promotions
+  const { getConfig } = useBrand();
+  const configPromise = getConfig(BrandConfigKeys.SHOW_PROMOTION_AS).then(
+    response =>
+      get(
+        response,
+        BrandConfigKeys.SHOW_PROMOTION_AS,
+        PromotionDisplayTypes.PERCENTAGE
+      )
+  );
+
+  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
+    ([product, provision_fields, promotion_display_type]) => {
       set(product, "products_provisioning", provision_fields);
+      set(product, "promotion_display_type", promotion_display_type);
       return product;
     }
   );
@@ -299,7 +311,6 @@ async function checkSubproducts(
 
           // BILLING CYCLE(S)
           if (!value.price) {
-            debugger;
             value.price =
               find(product.prices, [
                 "billing_cycle_months",

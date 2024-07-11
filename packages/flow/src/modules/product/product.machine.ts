@@ -383,9 +383,15 @@ export default (model, currency_id, promotions) => {
           lookups: (_context, { data }) => {
             return {
               product: useProductParser(data),
-              terms: useTermsParser(data.prices),
-              attributes: useSubproductParser(data.products_attributes),
-              options: useSubproductParser(data.products_options),
+              terms: useTermsParser(data.prices, data?.promotion_display_type),
+              attributes: useSubproductParser(
+                data.products_attributes,
+                data?.promotion_display_type
+              ),
+              options: useSubproductParser(
+                data.products_options,
+                data?.promotion_display_type
+              ),
               provision_fields: useProvisioningParser(
                 data.products_provisioning
               ),
