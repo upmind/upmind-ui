@@ -94,6 +94,22 @@ export default {
 
     // ---
 
+    promotion: {
+      DEFAULT: "#5E36E8",
+      50: "#f3f3ff",
+      100: "#eae9fe",
+      200: "#d9d7fd",
+      300: "#bbb7fb",
+      400: "#998ef7",
+      500: "#7760f2",
+      600: "#5e36e8",
+      700: "#562cd5",
+      800: "#4724b3",
+      900: "#3d2092",
+      950: "#231263",
+      content: "#ffffff",
+    },
+
     info: {
       DEFAULT: "#3b82f6",
       50: "#eff5ff",
