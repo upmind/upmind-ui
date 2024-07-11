@@ -82,7 +82,13 @@
                 <upw-badge
                   color="promotion"
                   :label="
-                    $t('product.save', { value: promotion.amount_formatted })
+                    $tc(
+                      'product.promo_save',
+                      promotion.mixed || !promotion.amount ? 1 : 0,
+                      {
+                        value: promotion.amount_formatted,
+                      }
+                    )
                   "
                 />
               </template>

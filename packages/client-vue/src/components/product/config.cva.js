@@ -270,7 +270,7 @@ export default {
           title: cva("m-0 text-md font-normal"),
           text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
           badges: cva("flex gap-4 items-center justify-end px-4"),
-          price: cva("text-right"),
+          price: cva("text-right min-w-20"),
           total: cva(
             "font-medium text-md leading-snug tracking-wide block text-right"
           ),

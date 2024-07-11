@@ -5,7 +5,7 @@
     "promotion": "On promotion",
     "trail": "Free trial",
     "term": "billed {name}",
-    "save": "Save {value}",
+    "promo_save": "On promotion | Save {value}",
     "cycle": "{value}/mo",
     "adds_overrides": "Overrides price | Adds to price",
     "terms": {
