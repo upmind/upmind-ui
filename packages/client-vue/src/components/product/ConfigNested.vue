@@ -4,10 +4,10 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
+    :requiredText="$tc('product.adds_overrides', item.price_override ? 1 : 0)"
     :required="true"
-    no-required
+    :no-required="!item.price_override && false"
     no-feedback
-    no-status
     variant="flat"
     layout="stacked"
   >
@@ -69,36 +69,34 @@
 
           <!-- content -->
           <div :class="styles.product.config.list.item.header">
+            <!-- title -->
             <span :class="styles.product.config.list.item.title">
               {{ value.name }}
             </span>
+            <!-- badges -->
+            <span :class="styles.product.config.list.item.badges">
+              <upw-badge
+                color="promotion"
+                :label="$t('product.save', { value: item.saving_formatted })"
+              />
 
-            <upw-badge
-              v-if="value.saving"
-              color="secondary"
-              :label="$t('product.save', { value: item.saving_formatted })"
-            />
+              <!-- <upw-badge
+                v-if="item.price_override"
+                color="base"
+                :label="$t('product.overrides')"
+              /> -->
 
-            <!-- monthly -->
-            <span
-              :class="styles.product.config.list.item.text"
-              v-if="value?.monthly_price_from && value.billing_cycle_months > 1"
-            >
-              {{
-                $t("product.items.cycle", {
-                  value: value?.monthly_price_from_discounted
-                    ? value.monthly_price_from_discounted_formatted
-                    : value.monthly_price_from_formatted,
-                })
-              }}
+              <upw-badge
+                v-if="!item.price_override"
+                variant="tonal"
+                color="base"
+                :label="value.price?.billing_cycle_name"
+              />
             </span>
           </div>
 
           <!-- footer -->
-          <div
-            :class="styles.product.config.list.item.footer"
-            v-if="value?.price"
-          >
+          <div :class="styles.product.config.list.item.footer">
             <upw-spinner v-if="loading" size="xs" />
 
             <upw-quantitybox
@@ -118,11 +116,16 @@
             />
 
             <span :class="styles.product.config.list.item.price">
-              <strong :class="styles.product.config.list.item.total">
+              <strong
+                :class="styles.product.config.list.item.total"
+                v-if="value.price"
+              >
+                <span v-if="!item.price_override">+</span>
+
                 {{
                   value.price?.price_discounted
-                    ? value.price.price_discounted_formatted
-                    : value.price.price_formatted
+                    ? value.price?.price_discounted_formatted
+                    : value.price?.price_formatted
                 }}
               </strong>
 
@@ -130,7 +133,7 @@
                 :class="styles.product.config.list.item.discount"
                 v-if="value.price?.price_discounted"
               >
-                {{ value.price.price_formatted }}
+                {{ value.price?.price_formatted }}
               </span>
             </span>
           </div>

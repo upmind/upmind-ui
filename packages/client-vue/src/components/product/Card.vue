@@ -19,7 +19,7 @@
         />
 
         <upw-badge
-          color="secondary"
+          color="promotion"
           v-if="product?.isOnPromotion"
           :label="$t('product.promotion')"
         />

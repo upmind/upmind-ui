@@ -7,6 +7,7 @@
     "term": "billed {name}",
     "save": "Save {value}",
     "cycle": "{value}/mo",
+    "adds_overrides": "Overrides price | Adds to price",
     "terms": {
       "label": "Billing terms"
     },

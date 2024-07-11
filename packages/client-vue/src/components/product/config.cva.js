@@ -188,7 +188,7 @@ export default {
           },
         }
       ),
-      price: cva(),
+      price: cva(""),
       // ---
       image: cva("h-full w-full object-cover"),
       actions: cva("flex gap-2 items-center"),
@@ -237,7 +237,7 @@ export default {
             },
           },
         }),
-        items: cva("p-0 m-0 list-none grid grid-cols-1 w-full gap-0"),
+        items: cva("p-0 m-0 list-none w-full"),
         item: {
           root: cva(
             "m-0 p-0 first-of-type:rounded-t-lg border border-b-0 last-of-type:rounded-b-lg last-of-type:border-b"
@@ -267,14 +267,18 @@ export default {
             "flex-shrink-1 flex items-center gap-1 justify-end gap-4"
           ),
           // ---
-          price: cva(),
           title: cva("m-0 text-md font-normal"),
           text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
+          badges: cva("flex gap-4 items-center justify-end px-4"),
+          price: cva("text-right"),
           total: cva(
             "font-medium text-md leading-snug tracking-wide block text-right"
           ),
           discount: cva(
             "font-normal text-sm leading-snug tracking-wide line-through text-base-700  block text-right"
+          ),
+          cycle: cva(
+            "block font-normal text-xs leading-snug tracking-wide text-base-700  block text-right"
           ),
         },
       },

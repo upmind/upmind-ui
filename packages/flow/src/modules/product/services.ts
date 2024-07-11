@@ -286,28 +286,34 @@ async function checkSubproducts(
           // ensure we have an object
           if (!isObject(value)) value = { product_id: id };
           const product = find(subproduct.values, ["id", value.product_id]);
-          //  ensure we have the required attributes
-          value = defaultsDeep(value, {
-            billing_cycle_months: some(product.prices, price => {
-              return (
-                price.billing_cycle_months === model?.term?.billing_cycle_months
-              );
-            })
-              ? model?.term?.billing_cycle_months
-              : first(product.prices)?.billing_cycle_months || 0,
-            unit_quantity: 1,
-          });
+
+          // NB: If a sub product has prices, we need to ensure we have the correct price
+          //     Sub products cant have a mix or billing cycles and one off, it will be one or the other
+          //     One off prices have a billing cycle of 0, so we can use that to determine the price
+          // based on either:
+          // 1. If its One off, just use the first (and only) price
+          // 2. IF we have billing cycle(s) : then match the term billing cycle
+
+          // ONE OFF
+          value.price = find(product.prices, ["billing_cycle_months", 0]);
+
+          // BILLING CYCLE(S)
+          if (!value.price) {
+            debugger;
+            value.price =
+              find(product.prices, [
+                "billing_cycle_months",
+                model?.term?.billing_cycle_months,
+              ]) || first(product.prices);
+          }
 
           // ensure we have a valid unit_quantity
           value.unit_quantity = useQuantityParser(
-            value?.unit_quantity,
+            value?.unit_quantity || 1,
             product
           );
 
-          value.price = find(product.prices, [
-            "billing_cycle_months",
-            value.billing_cycle_months,
-          ]);
+          value.billing_cycle_months = value.price?.billing_cycle_months;
 
           value.total =
             value.unit_quantity * (value.price?.price || 0) * model.quantity;
