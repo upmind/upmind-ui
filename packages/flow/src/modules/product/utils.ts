@@ -3,6 +3,7 @@ import { useSystem } from "../system";
 import { TrialEndActionTypes } from "./services";
 
 // --- utils
+import { useTranslateName } from "../../utils";
 import {
   find,
   forEach,
@@ -28,9 +29,6 @@ import {
 import { PromotionDisplayTypes } from "./services";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
-
-// check for a translated name, if it exists, use it, otherwise use the default
-const translateName = item => item?.name_translated || item.name;
 
 // --------------------------------------------------------
 export const useHasPriceOverride = (values, lookups) => {
@@ -107,7 +105,7 @@ export const useProductParser = (data: any) => {
   product.hasMixedPromotions = some(data.prices, "mixed_promotions");
   product.isOnPromotion = product.hasSavings || product.hasMixedPromotions;
 
-  product.category = translateName(data.category);
+  product.category = useTranslateName(data.category);
   return product;
 };
 
@@ -138,7 +136,7 @@ export const useTermsParser = (
     // Ensure the name is set
 
     const cycle = getBillingCycle(rawTerm.billing_cycle_months);
-    term.billing_cycle_name = cycle ? translateName(cycle) : null;
+    term.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
     // --------------------------------------------------------
     // then add some syntactic sugar / computed properties
@@ -159,7 +157,8 @@ export const useTermsParser = (
 
 export const useSubproductParser = (
   data: any,
-  promotion_display_type: PromotionDisplayTypes
+  promotion_display_type: PromotionDisplayTypes,
+  billing_cycle_months?: number
 ) => {
   const { getBillingCycle } = useSystem();
 
@@ -190,7 +189,7 @@ export const useSubproductParser = (
           "price_override",
         ])
       );
-      option.name = translateName(rawOption.category);
+      option.name = useTranslateName(rawOption.category);
       // get the prev values...if there are any
       const values = get(option, "values", []);
 
@@ -204,11 +203,10 @@ export const useSubproductParser = (
         "max_order_quantity",
         "min_order_quantity",
       ]);
-      value.name = translateName(rawOption);
+      value.name = useTranslateName(rawOption);
       value.canChangeQuantity = rawOption.order_type == 2;
 
       // add the prices to the value, with limited properties
-
       value.prices = map(rawOption.prices, rawPrice => {
         const price = pick(rawPrice, [
           "mixed_promotions",
@@ -220,15 +218,31 @@ export const useSubproductParser = (
         ]);
 
         const cycle = getBillingCycle(price.billing_cycle_months);
-        price.billing_cycle_name = cycle ? translateName(cycle) : null;
+        price.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
         price.promotions = usePromotionParser(rawPrice, promotion_display_type);
 
         return price;
       });
 
-      // then set the updated values
-      values.push(value);
+      // check if we have a price for the current billing cycle ( if provided )
+      if (!isNil(billing_cycle_months) && value?.prices?.length) {
+        // First, try get a one off price, if it exists
+        value.price = find(value.prices, ["billing_cycle_months", 0]);
+
+        // othrwise try find the matching term price
+        if (!value.price)
+          value.price = find(value.prices, [
+            "billing_cycle_months",
+            billing_cycle_months,
+          ]);
+
+        // finally...only include the value if we have a price
+        if (value.price) values.push(value);
+      } else {
+        //  set the updated values
+        values.push(value);
+      }
 
       set(option, "values", values);
 
@@ -255,10 +269,14 @@ export const usePromotionParser = (
 
   // ---
 
+  if (!data?.promotions?.length) return [];
+
+  // ---
+
   if (promotion_display_type == PromotionDisplayTypes.NAME) {
     return map(data.promotions, rawPromo => {
       const promo = pick(rawPromo, ["amount", "amount_formatted", "code"]);
-      promo.name = translateName(rawPromo);
+      promo.name = useTranslateName(rawPromo);
       promo.display = promotion_display_type;
       promo.mixed = data.mixed_promotions;
       return promo;
@@ -486,8 +504,8 @@ const useChoiceParser = (values: any) => {
         product_id: value.product_id,
         unit_quantity: value.unit_quantity,
         billing_cycle_months: value.billing_cycle_months,
-        name: translateName(value.product),
-        category: translateName(value.product.category),
+        name: useTranslateName(value.product),
+        category: useTranslateName(value.product.category),
       });
       return result;
     },

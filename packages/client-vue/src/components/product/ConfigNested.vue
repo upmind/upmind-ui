@@ -93,14 +93,8 @@
                 />
               </template>
 
-              <!-- <upw-badge
-                v-if="item.price_override"
-                color="base"
-                :label="$t('product.overrides')"
-              /> -->
-
               <upw-badge
-                v-if="!item.price_override && value?.price?.price"
+                v-if="!item.price_override"
                 variant="tonal"
                 color="base"
                 :label="value.price?.billing_cycle_name"

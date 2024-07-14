@@ -20,13 +20,10 @@ import {
 
 import {
   clone,
-  find,
-  first,
   get,
   isEmpty,
   isEqual,
   isNil,
-  map,
   merge,
   set,
   toNumber,
@@ -380,6 +377,8 @@ export default (model, currency_id, promotions) => {
       actions: {
         // ---
         setLookups: assign({
+          raw: (_context, { data }) => data,
+
           lookups: (_context, { data }) => {
             return {
               product: useProductParser(data),
@@ -482,25 +481,16 @@ export default (model, currency_id, promotions) => {
             set(model, "term", term);
             return model;
           },
-          lookups: ({ lookups }, { data }) => {
-            // set the price for the lookups options based on the term selected
-            const term = get(data, "term");
-            lookups.options = map(lookups.options, option => {
-              option.values = map(option.values, value => {
-                // try get one off prices first
-                value.price = find(value.prices, ["billing_cycle_months", 0]);
-                if (!value.price) {
-                  value.price =
-                    find(value.prices, [
-                      "billing_cycle_months",
-                      term?.billing_cycle_months,
-                    ]) || first(value.prices);
-                }
-                return value;
-              });
+          lookups: ({ lookups, raw }, { data }) => {
+            // reset the lookup options options based on the term selected,
+            //  as this may impact what price and options are available
+            const billing_cycle_months = get(data, "term.billing_cycle_months");
 
-              return option;
-            });
+            lookups.options = useSubproductParser(
+              raw.products_options,
+              raw?.promotion_display_type,
+              billing_cycle_months
+            );
             return lookups;
           },
           prices: ({ prices }, { data }) => {
@@ -591,12 +581,16 @@ export default (model, currency_id, promotions) => {
         hasCalculated: ({ needsCalculating, summary }) =>
           !needsCalculating && !isEmpty(summary),
 
-        hasChanged: ({ model, basket_id, currency_id }, { data }) => {
+        hasChanged: (
+          { model, basket_id, currency_id, promotions },
+          { data }
+        ) => {
           const newModel = merge({}, model, useModelParser(data));
           const value =
             !isEqual(newModel, model) ||
             basket_id !== data?.id ||
-            currency_id !== data?.currency_id;
+            currency_id !== data?.currency_id ||
+            !isEqual(promotions, data?.promotions);
           return value;
         },
       },
