@@ -8,6 +8,8 @@ export interface ProductConfigContext {
   currency_id: IProductPrice["currency_id"];
   promotions: IProductPromotion[];
 
+  raw: Object;
+
   lookups: {
     product: IProduct;
     terms: array;

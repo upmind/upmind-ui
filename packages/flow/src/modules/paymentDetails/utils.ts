@@ -7,6 +7,7 @@ import stripeMachine from "./gateways/stripe/stripe.machine";
 import cardConfig from "./gateways/card";
 
 // --- utils
+import { useTranslateName } from "../../utils";
 import { omit, map } from "lodash-es";
 
 // --- types
@@ -63,7 +64,7 @@ export const useSchema = ({
           ? undefined
           : map(gateways, ({ gateway_id, gateway }) => ({
               const: gateway_id,
-              title: gateway.name,
+              title: useTranslateName(gateway),
             })),
       },
     },
