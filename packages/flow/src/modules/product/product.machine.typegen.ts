@@ -79,7 +79,9 @@ export interface Typegen0 {
   eventsCausingActions: {
     calculate:
       | "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]"
-      | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]";
+      | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
     mergeModel: "PUT";
     resetModel: "RESET";
     sendConfig:
@@ -136,7 +138,9 @@ export interface Typegen0 {
     hasChanged: "PUT" | "REFRESH";
     needsCalculating:
       | "done.invoke.productConfigurator.configuring.values.options.checking:invocation[0]"
-      | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]";
+      | "done.invoke.productConfigurator.configuring.values.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.values.term.checking:invocation[0]";
   };
   eventsCausingServices: {
     checkAttributes:

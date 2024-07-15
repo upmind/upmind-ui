@@ -137,10 +137,17 @@ export default (model, currency_id, promotions) => {
                             actions: ["setTerm"],
                           },
                         ],
-                        onError: {
-                          target: "invalid",
-                          actions: ["setTerm", "setError"],
-                        },
+                        onError: [
+                          {
+                            target: "invalid",
+                            actions: ["setTerm", "calculate", "setError"],
+                            cond: "needsCalculating",
+                          },
+                          {
+                            target: "invalid",
+                            actions: ["setTerm", "setError"],
+                          },
+                        ],
                       },
                     },
                     calculating: {},
@@ -207,10 +214,17 @@ export default (model, currency_id, promotions) => {
                             actions: ["setOptions"],
                           },
                         ],
-                        onError: {
-                          target: "invalid",
-                          actions: ["setOptions", "setError"],
-                        },
+                        onError: [
+                          {
+                            target: "invalid",
+                            actions: ["setOptions", "calculate", "setError"],
+                            cond: "needsCalculating",
+                          },
+                          {
+                            target: "invalid",
+                            actions: ["setOptions", "setError"],
+                          },
+                        ],
                       },
                     },
                     calculating: {},
