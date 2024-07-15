@@ -11,6 +11,7 @@ import { useTime, useValidation } from "../../utils";
 import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
+  compact,
   find,
   first,
   get,
@@ -431,11 +432,11 @@ const calculateSummary = (
         withAccessToken: true,
         data: {
           currency_id,
-          prices: [
+          prices: compact([
             hasPriceOverride ? 0 : prices?.term?.subtotal,
             prices?.attributes?.subtotal,
             prices?.options?.subtotal,
-          ],
+          ]),
         },
       }).then(response => response?.data);
 
@@ -453,11 +454,11 @@ const calculateSummary = (
         withAccessToken: true,
         data: {
           currency_id,
-          prices: [
+          prices: compact([
             hasPriceOverride ? 0 : prices?.term?.discount,
             prices?.attributes?.discount,
             prices?.options?.discount,
-          ],
+          ]),
         },
       }).then(response => response?.data);
 
@@ -469,11 +470,11 @@ const calculateSummary = (
     withAccessToken: true,
     data: {
       currency_id,
-      prices: [
+      prices: compact([
         hasPriceOverride ? 0 : prices?.term?.total,
         prices?.attributes?.total,
         prices?.options?.total,
-      ],
+      ]),
     },
   }).then(response => response?.data);
 
@@ -495,8 +496,11 @@ const calculateSummary = (
 export function calculateSubscription(callback, onReceive) {
   // firstly, send service's current state upon subscription
   let controller: AbortController | null;
+
   onReceive(event => {
     if (event.type === "CALCULATE") {
+      console.log("calculateSubscription", { controller, event });
+
       // Firstly, we need to check if we have a controller already doing calculation requests.
       // If we do, we need to abort the current request and start a new one.
       if (controller?.signal && !controller.signal?.aborted) {
@@ -508,14 +512,13 @@ export function calculateSubscription(callback, onReceive) {
 
       calculateSummary(event.data, controller)
         .then(summary => {
-          controller = null;
           // send the summary back to the machine
           callback({ type: "CALCULATED", data: summary });
         })
         .catch(error => {
           // dont do anything if the request was aborted or we  had any other error
           console.error("productConfig", "calculateSubscription", error);
-          controller = null;
+          callback({ type: "CALCULATED", data: null });
         });
     }
   });
