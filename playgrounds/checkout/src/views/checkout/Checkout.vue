@@ -127,7 +127,7 @@ export default defineComponent({
       if (currency) update({ code: currency.toUpperCase() });
 
       // finally clean up our query params
-      router.replace({ query: {} });
+      // router.replace({ query: {} });
     });
     // ---------------------------------------------------
 
