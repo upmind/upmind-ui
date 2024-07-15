@@ -57,7 +57,7 @@
 <script>
 // --- external
 import { defineComponent, ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -67,6 +67,7 @@ import config from "./config.cva";
 import {
   useScrollSpy,
   useBasket,
+  useBasketCurrency,
   // ---
   UpmBasketItems,
   UpmSession,
@@ -104,22 +105,29 @@ export default defineComponent({
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
     const { meta, itemsPending, addProduct, invoice, isReady } = useBasket();
+    const { update } = useBasketCurrency();
 
     // ---------------------------------------------------
     // --- basket setup
     const { query } = useRoute();
+    const router = useRouter();
     const product = get(query, "product");
     const products = ref([]);
+    const currency = get(query, "curr");
 
     isReady().then(() => {
-      // add the product to the basket if the basket is empty
-      if (!meta.value.isEmpty) return;
-
-      if (product) {
+      // first add our product(s) to the basket if the basket is ready & empty
+      if (meta.value.isEmpty && product) {
         forEach(isArray(product) ? product : [product], product_id => {
           products.value.push(addProduct({ product_id, quantity: 1 }));
         });
       }
+
+      // then set the currency if provided
+      if (currency) update({ code: currency.toUpperCase() });
+
+      // finally clean up our query params
+      router.replace({ query: {} });
     });
     // ---------------------------------------------------
 
