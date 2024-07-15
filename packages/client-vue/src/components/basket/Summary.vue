@@ -76,7 +76,7 @@
       <!-- subtotals -->
       <dl
         :class="styles.basket.summary.list"
-        v-if="summary?.discount || summary?.taxes?.length"
+        v-if="!!summary?.discount || !!summary?.taxes"
       >
         <template v-if="summary?.discount">
           <dt :class="styles.basket.summary.heading">
