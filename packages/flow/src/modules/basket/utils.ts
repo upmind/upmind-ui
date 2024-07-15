@@ -125,9 +125,11 @@ export const useSummaryParser = (data?: any) => {
         // total: data?.configuration_total_discounted_amount_formatted,
       };
     }),
-    discount: data?.net_discount_amount_formatted, // total_discount_amount
+    discount: data?.total_discount_amount
+      ? data.net_discount_amount_formatted
+      : null, // only include the discount if there is one
+
     subtotal: data?.net_amount_formatted || "", // total_amount
-    // taxes: data?.tax_amount_formatted, // tax_amount
     taxes: parseTaxes(data?.taxes),
     total: data?.unpaid_amount_formatted || "", // unpaid_amount
   };
