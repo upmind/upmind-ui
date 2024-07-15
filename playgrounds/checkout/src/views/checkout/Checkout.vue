@@ -87,7 +87,7 @@ import { getLocalMessages } from "@/utils";
 import { trimStart, get, forEach, isArray } from "lodash-es";
 
 // ---types
-import { QUERY_PARAMS } from "./types";
+import { QUERY_PARAMS } from "./types.d";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "Checkout",
