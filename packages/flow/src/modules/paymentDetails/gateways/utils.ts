@@ -80,11 +80,23 @@ export const useSchema = (context: GatewayContext) => {
         const: context.gateway.id,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
+      // ---
       can_store: {
         type: "boolean",
         const: context.can_store,
         readOnly: true,
       },
+      must_store: {
+        type: "boolean",
+        const: context.must_store,
+        readOnly: true,
+      },
+      must_auto_pay: {
+        type: "boolean",
+        const: context.must_auto_pay,
+        readOnly: true,
+      },
+      //  ---
       store_on_payment: {
         type: "boolean",
         default: true,
@@ -115,9 +127,7 @@ export const useSchema = (context: GatewayContext) => {
 
 // --------------------------------------------------------
 
-export const useUischema = ({ can_store }: GatewayContext) => {
-  // if (!can_store) return { type: "VerticalLayout", elements: [] };
-
+export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
@@ -132,8 +142,14 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/can_store",
-            schema: { const: true },
+            scope: "#",
+            schema: {
+              required: ["can_store"],
+              properties: {
+                can_store: { const: true },
+                must_store: { not: { const: true } },
+              },
+            },
           },
         },
       },
@@ -148,8 +164,14 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/store_on_payment",
-            schema: { const: true },
+            scope: "#",
+            schema: {
+              required: ["store_on_payment"],
+              properties: {
+                store_on_payment: { const: true },
+                must_auto_pay: { not: { const: true } },
+              },
+            },
           },
         },
       },
