@@ -98,18 +98,6 @@
           itemKey="billing_cycle_months"
         />
 
-        <!-- attributes -->
-        <upm-config-nested
-          v-if="meta.hasAttributes"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
-          :items="attributes"
-          :model-value="model?.attributes"
-          @update:modelValue="selectAttribute"
-          itemKey="product_id"
-        />
-
         <!-- options -->
         <upm-config-nested
           v-if="meta.hasOptions"
@@ -120,6 +108,18 @@
           :model-value="model?.options"
           @update:modelValue="selectOption"
           @update:quantity="updateOptionQuantity"
+          itemKey="product_id"
+        />
+
+        <!-- attributes -->
+        <upm-config-nested
+          v-if="meta.hasAttributes"
+          :processing="
+            meta.isProcessing || meta.isLoading || meta.isCalculating
+          "
+          :items="attributes"
+          :model-value="model?.attributes"
+          @update:modelValue="selectAttribute"
           itemKey="product_id"
         />
 
