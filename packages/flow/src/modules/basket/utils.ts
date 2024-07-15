@@ -114,24 +114,20 @@ export const useSummaryParser = (data?: any) => {
         id: product?.id,
         name: product?.product_name,
         quantity: product?.quantity,
-        subtotal: product?.configuration_total_amount_formatted,
         discount: product?.configuration_total_discount_amount_converted
           ? product?.configuration_total_discount_amount_formatted
           : null,
-        total: product?.configuration_total_discounted_amount_formatted,
-
-        // total: data?.selling_price_formatted,
-        // total: data?.configuration_total_amount_formatted,
-        // total: data?.configuration_total_discounted_amount_formatted,
+        subtotal: product?.configuration_net_amount_formatted,
+        total: product?.configuration_net_amount_discounted_formatted,
       };
     }),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
 
-    subtotal: data?.net_amount_formatted || "", // total_amount
+    subtotal: data?.net_amount_formatted || "",
     taxes: parseTaxes(data?.taxes),
-    total: data?.unpaid_amount_formatted || "", // unpaid_amount
+    total: data?.total_amount_formatted || "",
   };
   return summary;
 };

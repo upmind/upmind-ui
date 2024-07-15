@@ -127,13 +127,13 @@ export default (model, currency_id, promotions) => {
                         src: "checkTerm",
                         onDone: [
                           {
-                            target: "valid",
+                            target: "calculating",
                             actions: ["setTerm", "calculate"],
                             cond: "needsCalculating",
                           },
 
                           {
-                            target: "calculating",
+                            target: "valid",
                             actions: ["setTerm"],
                           },
                         ],
@@ -198,7 +198,7 @@ export default (model, currency_id, promotions) => {
                         src: "checkOptions",
                         onDone: [
                           {
-                            target: "valid",
+                            target: "calculating",
                             actions: ["setOptions", "calculate"],
                             cond: "needsCalculating",
                           },

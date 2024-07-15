@@ -36,6 +36,10 @@
         "title": "Discount",
         "tooltip": "Discount applied"
       },
+      "subtotal": {
+        "title": "Subtotal",
+        "tooltip": "Subtotal applied"
+      },
       "taxes": {
         "tooltip": "Taxes applied"
       },

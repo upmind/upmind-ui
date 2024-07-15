@@ -38,6 +38,7 @@
                   {{ product.subtotal }}
                   <!-- <small>{{ product.quantity }}</small> -->
                 </del>
+
                 {{ product.total }}
                 <!-- <small>{{ product.quantity }}</small> -->
               </strong>
@@ -94,6 +95,24 @@
           </dt>
 
           <dd :class="styles.basket.summary.value">{{ summary.discount }}</dd>
+        </template>
+
+        <template v-if="summary?.subtotal">
+          <dt :class="styles.basket.summary.heading">
+            <span :class="styles.basket.summary.text">{{
+              $tc("basket.summary.subtotal.title", products.length)
+            }}</span>
+            <!-- TODO -->
+            <!-- <upw-icon
+            :class="styles.basket.summary.tooltipIcon"
+            icon="information-circle-alt"
+          />
+          <p :class="styles.basket.summary.tooltip">
+            {{ $t("basket.summary.discount.tooltip") }}
+          </p> -->
+          </dt>
+
+          <dd :class="styles.basket.summary.value">{{ summary.subtotal }}</dd>
         </template>
 
         <template v-for="(value, key) in summary?.taxes" :key="key">
