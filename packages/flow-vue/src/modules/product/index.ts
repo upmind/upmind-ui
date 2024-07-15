@@ -45,7 +45,10 @@ export const useProductConfig = actor => {
       !isEmpty(state.value?.context?.lookups?.provision_fields?.properties),
 
     isConfigured: state.value.matches("configured"),
-    isCalculating: state.value.matches("configuring.calculating"),
+    isCalculating: [
+      "configuring.values.term.calculating",
+      "configuring.values.options.calculating",
+    ].some(state.value.matches),
     isProcessing: state.value.matches("configured.processing"),
     isUnavailable: state.value.matches("unavailable"),
     // ---

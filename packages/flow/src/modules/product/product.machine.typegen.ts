@@ -146,6 +146,7 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.quantity:invocation[0]";
     checkOptions:
+      | "CALCULATED"
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"
@@ -168,6 +169,7 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.load";
     checkTerm:
+      | "CALCULATED"
       | "UPDATE.ATTRIBUTES"
       | "UPDATE.OPTIONS"
       | "UPDATE.PROVISIONING"

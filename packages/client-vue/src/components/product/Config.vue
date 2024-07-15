@@ -88,9 +88,7 @@
         <!-- terms -->
         <upm-config-grid
           v-if="meta.hasTerms"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
+          :processing="meta.isProcessing || meta.isLoading"
           :items="terms"
           :model-value="model?.term?.billing_cycle_months || 0"
           @update:modelValue="updateTerm"
@@ -101,9 +99,7 @@
         <!-- options -->
         <upm-config-nested
           v-if="meta.hasOptions"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
+          :processing="meta.isProcessing || meta.isLoading"
           :items="options"
           :model-value="model?.options"
           @update:modelValue="selectOption"
@@ -114,9 +110,7 @@
         <!-- attributes -->
         <upm-config-nested
           v-if="meta.hasAttributes"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
+          :processing="meta.isProcessing || meta.isLoading"
           :items="attributes"
           :model-value="model?.attributes"
           @update:modelValue="selectAttribute"
