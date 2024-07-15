@@ -74,7 +74,10 @@
       <upm-promotions :class="styles.basket.summary.form" />
 
       <!-- subtotals -->
-      <dl :class="styles.basket.summary.list">
+      <dl
+        :class="styles.basket.summary.list"
+        v-if="summary?.discount || summary?.taxes?.length"
+      >
         <template v-if="summary?.discount">
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{
