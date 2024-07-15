@@ -499,8 +499,6 @@ export function calculateSubscription(callback, onReceive) {
 
   onReceive(event => {
     if (event.type === "CALCULATE") {
-      console.log("calculateSubscription", { controller, event });
-
       // Firstly, we need to check if we have a controller already doing calculation requests.
       // If we do, we need to abort the current request and start a new one.
       if (controller?.signal && !controller.signal?.aborted) {
