@@ -143,20 +143,17 @@ export default (model, currency_id, promotions) => {
                         },
                       },
                     },
-                    calculating: {
-                      on: {
-                        CALCULATED: {
-                          target: "valid",
-                          actions: ["setSummary"],
-                        },
-                      },
-                    },
+                    calculating: {},
                     invalid: {},
                     valid: {
                       type: "final",
                     },
                   },
                   on: {
+                    CALCULATED: {
+                      target: "term.valid",
+                      actions: ["setSummary"],
+                    },
                     "UPDATE.TERM": {
                       target: "term.checking",
                       actions: ["setTerm"],
@@ -216,20 +213,17 @@ export default (model, currency_id, promotions) => {
                         },
                       },
                     },
-                    calculating: {
-                      on: {
-                        CALCULATED: {
-                          target: "valid",
-                          actions: ["setSummary"],
-                        },
-                      },
-                    },
+                    calculating: {},
                     invalid: {},
                     valid: {
                       type: "final",
                     },
                   },
                   on: {
+                    CALCULATED: {
+                      target: "options.valid",
+                      actions: ["setSummary"],
+                    },
                     "UPDATE.OPTIONS": {
                       target: "options.checking",
                       actions: ["setOptions"],
