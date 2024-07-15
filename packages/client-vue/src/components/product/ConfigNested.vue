@@ -4,7 +4,11 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
-    :requiredText="$tc('product.adds_overrides', item.price_override ? 1 : 0)"
+    :requiredText="
+      !hasPrices(item)
+        ? null
+        : $tc('product.adds_overrides', item.price_override ? 1 : 0)
+    "
     :required="true"
     :no-required="!item.price_override && false"
     no-feedback
@@ -218,6 +222,9 @@ export default defineComponent({
   },
   computed: {},
   methods: {
+    hasPrices(item) {
+      return some(item.values, "price");
+    },
     isSelected(item, value, autoselect = false) {
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
