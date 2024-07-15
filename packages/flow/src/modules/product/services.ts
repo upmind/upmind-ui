@@ -24,12 +24,12 @@ import {
   mapValues,
   maxBy,
   minBy,
+  pick,
   pickBy,
   reduce,
   set,
   some,
-  sumBy,
-  values,
+  times,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -199,7 +199,7 @@ async function checkTerm(
   _event: any
 ) {
   let term = null;
-  const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
+  const price = { subtotal: [], total: [], formatted: null };
   const errors = [];
   // ---
 
@@ -233,19 +233,22 @@ async function checkTerm(
   if (isNil(term)) errors.push("Valid Term is required");
 
   // ---
-  const subtotal = model.quantity * term?.price || 0;
-  const total = model.quantity * term?.price_discounted || 0;
-  const discount = total ? subtotal - total : 0;
-  price.discount = discount;
-  price.subtotal = discount ? subtotal : 0;
-  price.total = discount ? total : subtotal; // cater for no discount
-  price.formatted = term?.price_formatted;
+  // set price values, taking into account the quantity and unit quantity
+  // NB: we NEVER add, we always push into an array for the backend to handle
+  times(model.quantity, () => {
+    price.subtotal.push(term?.price || 0);
+    price.total.push(term?.price_discounted || term?.price || 0);
+  });
 
   return new Promise((resolve, reject) => {
     if (errors.length)
-      reject({ term, price, error: { ...error, term: errors } });
+      reject({
+        term: pick(term, "billing_cycle_months"),
+        price,
+        error: { ...error, term: errors },
+      });
     else {
-      resolve({ term, price });
+      resolve({ term: pick(term, "billing_cycle_months"), price });
     }
   });
 }
@@ -269,7 +272,7 @@ async function checkSubproducts(
   { type }: any
 ) {
   let subproducts = null;
-  const price = { discount: 0, subtotal: 0, total: 0, formatted: null };
+  const price = { subtotal: [], total: [], formatted: null };
   const errors = [];
   // ---
   // safety check, resolve if we have no attributes to check
@@ -328,11 +331,14 @@ async function checkSubproducts(
 
           value.billing_cycle_months = value.price?.billing_cycle_months;
 
-          value.total =
-            value.unit_quantity * (value.price?.price || 0) * model.quantity;
-
-          value.total_discounted =
-            value.unit_quantity * (value.price?.price_discounted || 0);
+          // set price values, taking into account the quantity and unit quantity
+          // NB: we NEVER add, we always push into an array for the backend to handle
+          times(value.unit_quantity * model.quantity, () => {
+            price.subtotal.push(value.price?.price || 0);
+            price.total.push(
+              value.price?.price_discounted || value.price?.price || 0
+            );
+          });
 
           return value;
         });
@@ -351,21 +357,6 @@ async function checkSubproducts(
       return result;
     },
     {}
-  );
-
-  reduce(
-    subproducts,
-    (result, subproduct) => {
-      const subtotal = sumBy(values(subproduct), "total") || 0;
-      const total = sumBy(values(subproduct), "total_discounted") || 0;
-      const discount = total ? subtotal - total : 0;
-      result.discount += discount;
-      result.subtotal += discount ? subtotal : 0;
-      result.total += discount ? total : subtotal; // cater for no discount
-      result.formatted = null;
-      return result;
-    },
-    price
   );
 
   return new Promise((resolve, reject) => {
@@ -420,47 +411,20 @@ const calculateSummary = (
   // remove the term price if we have any price overrides
   const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
   // ---
-  const hasSubtotal =
-    prices?.term?.subtotal > 0 ||
-    prices?.attributes?.subtotal > 0 ||
-    prices?.options?.subtotal > 0;
-  const subtotalPromise = !hasSubtotal
-    ? Promise.resolve(0)
-    : post({
-        url: useUrl("cart/calculate", {}),
-        init: { signal: controller?.signal },
-        withAccessToken: true,
-        data: {
-          currency_id,
-          prices: compact([
-            hasPriceOverride ? 0 : prices?.term?.subtotal,
-            prices?.attributes?.subtotal,
-            prices?.options?.subtotal,
-          ]),
-        },
-      }).then(response => response?.data);
 
-  // ---
-
-  const hasDiscount =
-    prices?.term?.discount > 0 ||
-    prices?.attributes?.discount > 0 ||
-    prices?.options?.discount > 0;
-  const discountPromise = !hasDiscount
-    ? Promise.resolve(0)
-    : post({
-        url: useUrl("cart/calculate", {}),
-        init: { signal: controller?.signal },
-        withAccessToken: true,
-        data: {
-          currency_id,
-          prices: compact([
-            hasPriceOverride ? 0 : prices?.term?.discount,
-            prices?.attributes?.discount,
-            prices?.options?.discount,
-          ]),
-        },
-      }).then(response => response?.data);
+  const subtotalPromise = post({
+    url: useUrl("cart/calculate", {}),
+    init: { signal: controller?.signal },
+    withAccessToken: true,
+    data: {
+      currency_id,
+      prices: compact([
+        ...(hasPriceOverride ? [] : prices?.term?.subtotal),
+        ...prices?.attributes?.subtotal,
+        ...prices?.options?.subtotal,
+      ]),
+    },
+  }).then(response => response?.data);
 
   // ---
 
@@ -471,19 +435,17 @@ const calculateSummary = (
     data: {
       currency_id,
       prices: compact([
-        hasPriceOverride ? 0 : prices?.term?.total,
-        prices?.attributes?.total,
-        prices?.options?.total,
+        ...(hasPriceOverride ? [] : prices?.term?.total),
+        ...prices?.attributes?.total,
+        ...prices?.options?.total,
       ]),
     },
   }).then(response => response?.data);
 
-  return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
-    ([subtotal, discount, total]) => ({
+  return Promise.all([subtotalPromise, totalPromise]).then(
+    ([subtotal, total]) => ({
       subtotal: subtotal?.total || 0,
       subtotal_formatted: subtotal?.total_formatted,
-      discount: discount?.total || 0,
-      discount_formatted: discount?.total_formatted,
       total: total?.total || 0,
       total_formatted: total?.total_formatted,
     })
