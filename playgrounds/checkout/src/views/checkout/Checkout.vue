@@ -86,6 +86,8 @@ import { vIntersectionObserver } from "@vueuse/components";
 import { getLocalMessages } from "@/utils";
 import { trimStart, get, forEach, isArray } from "lodash-es";
 
+// ---types
+import { QUERY_PARAMS } from "./types";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "Checkout",
@@ -110,10 +112,21 @@ export default defineComponent({
     // ---------------------------------------------------
     // --- basket setup
     const { query } = useRoute();
-    const router = useRouter();
-    const product = get(query, "product");
+    // const router = useRouter();
+    // ---
+    // parse our query params that may be passed in
+    const product = get(
+      query,
+      QUERY_PARAMS.PRODUCT,
+      get(query, QUERY_PARAMS.PRODUCT_ID)
+    );
     const products = ref([]);
-    const currency = get(query, "curr");
+    // ---
+    const currency = get(
+      query,
+      QUERY_PARAMS.CURRENCY,
+      get(query, QUERY_PARAMS.CURRENCY_CODE)
+    );
 
     isReady().then(() => {
       // first add our product(s) to the basket if the basket is ready & empty
@@ -124,7 +137,9 @@ export default defineComponent({
       }
 
       // then set the currency if provided
-      if (currency) update({ code: currency.toUpperCase() });
+      if (currency) {
+        update({ code: currency.toUpperCase() });
+      }
 
       // finally clean up our query params
       // router.replace({ query: {} });
