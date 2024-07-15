@@ -31,6 +31,7 @@ const i18n = createI18n({
 // ---------------------
 
 Sentry.init({
+  environment: import.meta.env.MODE,
   app,
   dsn: import.meta.env.VITE_APP_SENTRY_DSN,
   integrations: [
