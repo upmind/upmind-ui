@@ -46,6 +46,7 @@ export enum TrialEndActionTypes {
   MIGRATE = 1,
   CANCEL = 2,
 }
+
 export enum PromotionDisplayTypes {
   NAME = "name",
   LABEL = "label",
@@ -406,39 +407,34 @@ async function checkProvisioning(
 // If we do have price overrides, we then just reset the term price to 0
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
-async function calculateSummary(
-  { currency_id, prices, model, lookups }: BasketContext,
-  _event: any
-) {
-  const { post, useUrl } = useApi();
 
-  // no prices to calculate, so bail out
-  if (
-    prices.term.total > 0 &&
-    prices.attributes.total > 0 &&
-    prices.options.total > 0
-  ) {
-    return Promise.reject("No prices to calculate");
-  }
+// We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
+// this will fire every time we transition to a new state
+const calculateSummary = (
+  { currency_id, prices, model, lookups }: ProductConfigContext,
+  controller: AbortController
+) => {
+  const { post, useUrl } = useApi();
 
   // remove the term price if we have any price overrides
   const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
   // ---
   const hasSubtotal =
-    prices.term.subtotal > 0 &&
-    prices.attributes.subtotal > 0 &&
-    prices.options.subtotal > 0;
+    prices?.term?.subtotal > 0 ||
+    prices?.attributes?.subtotal > 0 ||
+    prices?.options?.subtotal > 0;
   const subtotalPromise = !hasSubtotal
     ? Promise.resolve(0)
     : post({
         url: useUrl("cart/calculate", {}),
+        init: { signal: controller?.signal },
         withAccessToken: true,
         data: {
           currency_id,
           prices: [
-            hasPriceOverride ? 0 : prices.term.subtotal,
-            prices.attributes.subtotal,
-            prices.options.subtotal,
+            hasPriceOverride ? 0 : prices?.term?.subtotal,
+            prices?.attributes?.subtotal,
+            prices?.options?.subtotal,
           ],
         },
       }).then(response => response?.data);
@@ -446,20 +442,21 @@ async function calculateSummary(
   // ---
 
   const hasDiscount =
-    prices.term.discount > 0 &&
-    prices.attributes.discount > 0 &&
-    prices.options.discount > 0;
+    prices?.term?.discount > 0 ||
+    prices?.attributes?.discount > 0 ||
+    prices?.options?.discount > 0;
   const discountPromise = !hasDiscount
     ? Promise.resolve(0)
     : post({
         url: useUrl("cart/calculate", {}),
+        init: { signal: controller?.signal },
         withAccessToken: true,
         data: {
           currency_id,
           prices: [
-            hasPriceOverride ? 0 : prices.term.discount,
-            prices.attributes.discount,
-            prices.options.discount,
+            hasPriceOverride ? 0 : prices?.term?.discount,
+            prices?.attributes?.discount,
+            prices?.options?.discount,
           ],
         },
       }).then(response => response?.data);
@@ -468,13 +465,14 @@ async function calculateSummary(
 
   const totalPromise = post({
     url: useUrl("cart/calculate", {}),
+    init: { signal: controller?.signal },
     withAccessToken: true,
     data: {
       currency_id,
       prices: [
-        hasPriceOverride ? 0 : prices.term.total,
-        prices.attributes.total,
-        prices.options.total,
+        hasPriceOverride ? 0 : prices?.term?.total,
+        prices?.attributes?.total,
+        prices?.options?.total,
       ],
     },
   }).then(response => response?.data);
@@ -489,6 +487,46 @@ async function calculateSummary(
       total_formatted: total?.total_formatted,
     })
   );
+};
+
+// --------------------------------------------------------
+// Subscriptions - these are used by the other machines to listen for changes/messages from this machine
+
+export function calculateSubscription(callback, onReceive) {
+  // firstly, send service's current state upon subscription
+  let controller: AbortController | null;
+  onReceive(event => {
+    if (event.type === "CALCULATE") {
+      // Firstly, we need to check if we have a controller already doing calculation requests.
+      // If we do, we need to abort the current request and start a new one.
+      if (controller?.signal && !controller.signal?.aborted) {
+        controller?.abort("New request received");
+      }
+
+      // create a new controller to allow us to abort the request if needed
+      controller = new AbortController();
+
+      calculateSummary(event.data, controller)
+        .then(summary => {
+          controller = null;
+          // send the summary back to the machine
+          callback({ type: "CALCULATED", data: summary });
+        })
+        .catch(error => {
+          // dont do anything if the request was aborted or we  had any other error
+          console.error("productConfig", "calculateSubscription", error);
+          controller = null;
+        });
+    }
+  });
+
+  return () => {
+    // The subscriber has unsubscribed from this service
+    // typically when the transitioning out of the state node
+    //  so cancel any pending requests
+    if (controller?.signal && !controller.signal?.aborted)
+      controller?.abort("New request received");
+  };
 }
 
 // --------------------------------------------------------
@@ -503,5 +541,4 @@ export default <Object>{
   checkOptions,
   checkProvisioning,
   // ---
-  calculateSummary,
 };

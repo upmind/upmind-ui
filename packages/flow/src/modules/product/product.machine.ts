@@ -1,6 +1,6 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, actions, spawn } from "xstate";
+const { sendParent, sendTo } = actions;
 
 // --- internal
 import services from "./services";
@@ -21,17 +21,16 @@ import {
 import {
   clone,
   get,
-  isEmpty,
   isEqual,
-  isNil,
   merge,
   set,
   toNumber,
   unset,
+  has,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
-
+import { calculateSubscription } from "./services";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default (model, currency_id, promotions) => {
@@ -48,7 +47,6 @@ export default (model, currency_id, promotions) => {
         // TODO: should probably be state instead of context
         isNew: !model?.id,
         isDirty: false,
-        needsCalculating: false,
         // ---
         currency_id: validateCurrency(currency_id),
         promotions,
@@ -75,9 +73,15 @@ export default (model, currency_id, promotions) => {
           attributes: null,
           options: null,
         },
+        calculateCallback: null,
         // ---
         error: {},
       },
+
+      entry: assign({
+        calculateCallback: (context, event) => spawn(calculateSubscription),
+      }),
+
       states: {
         // first load our product, we do this even if we are given a configured set of values
         //  as we need the additional 'with' properties
@@ -104,7 +108,7 @@ export default (model, currency_id, promotions) => {
                 src: "checkQuantity",
                 onDone: {
                   target: "values",
-                  actions: ["setQuantity", "setConfig"],
+                  actions: ["setQuantity"],
                 },
                 onError: {
                   actions: "setError",
@@ -121,13 +125,29 @@ export default (model, currency_id, promotions) => {
                       entry: ({ error }) => unset(error, "term"),
                       invoke: {
                         src: "checkTerm",
-                        onDone: {
-                          target: "valid",
-                          actions: ["setTerm", "setConfig"],
-                        },
+                        onDone: [
+                          {
+                            target: "valid",
+                            actions: ["setTerm", "calculate"],
+                            cond: "needsCalculating",
+                          },
+
+                          {
+                            target: "calculating",
+                            actions: ["setTerm"],
+                          },
+                        ],
                         onError: {
                           target: "invalid",
-                          actions: ["setTerm", "setConfig", "setError"],
+                          actions: ["setTerm", "setError"],
+                        },
+                      },
+                    },
+                    calculating: {
+                      on: {
+                        CALCULATED: {
+                          target: "valid",
+                          actions: ["setSummary"],
                         },
                       },
                     },
@@ -152,11 +172,11 @@ export default (model, currency_id, promotions) => {
                         src: "checkAttributes",
                         onDone: {
                           target: "valid",
-                          actions: ["setAttributes", "setConfig"],
+                          actions: ["setAttributes"],
                         },
                         onError: {
                           target: "invalid",
-                          actions: ["setAttributes", "setConfig", "setError"],
+                          actions: ["setAttributes", "setError"],
                         },
                       },
                     },
@@ -179,13 +199,28 @@ export default (model, currency_id, promotions) => {
                       entry: ({ error }) => unset(error, "options"),
                       invoke: {
                         src: "checkOptions",
-                        onDone: {
-                          target: "valid",
-                          actions: ["setOptions", "setConfig"],
-                        },
+                        onDone: [
+                          {
+                            target: "valid",
+                            actions: ["setOptions", "calculate"],
+                            cond: "needsCalculating",
+                          },
+                          {
+                            target: "valid",
+                            actions: ["setOptions"],
+                          },
+                        ],
                         onError: {
                           target: "invalid",
-                          actions: ["setOptions", "setConfig", "setError"],
+                          actions: ["setOptions", "setError"],
+                        },
+                      },
+                    },
+                    calculating: {
+                      on: {
+                        CALCULATED: {
+                          target: "valid",
+                          actions: ["setSummary"],
                         },
                       },
                     },
@@ -210,11 +245,11 @@ export default (model, currency_id, promotions) => {
                         src: "checkProvisioning",
                         onDone: {
                           target: "valid",
-                          actions: ["setProvisioning", "setConfig"],
+                          actions: ["setProvisioning"],
                         },
                         onError: {
                           target: "invalid",
-                          actions: ["setProvisioning", "setConfig", "setError"],
+                          actions: ["setProvisioning", "setError"],
                         },
                       },
                     },
@@ -231,23 +266,7 @@ export default (model, currency_id, promotions) => {
                   },
                 },
               },
-              onDone: [
-                { target: "calculating", cond: "needsRecalculating" },
-                { target: "#configured" },
-              ],
-            },
-            calculating: {
-              invoke: {
-                src: "calculateSummary",
-                onDone: {
-                  target: "#configured",
-                  actions: ["setSummary", "clearCalculating"],
-                },
-                onError: {
-                  target: "#error",
-                  actions: ["setError"],
-                },
-              },
+              onDone: { target: "#configured" },
             },
           },
           on: {
@@ -305,6 +324,9 @@ export default (model, currency_id, promotions) => {
               target: "configured.processing",
             },
 
+            CALCULATED: {
+              actions: ["setSummary"],
+            },
             // ---
             UPDATE: {
               target: "configuring",
@@ -433,7 +455,6 @@ export default (model, currency_id, promotions) => {
 
         resetModel: assign({
           model: ({ baseModel }, _event) => clone(baseModel),
-          needsCalculating: true,
         }),
 
         setBaseModel: assign({
@@ -444,6 +465,15 @@ export default (model, currency_id, promotions) => {
           model: ({ model }, { data }) =>
             merge({}, model, useModelParser(data)),
         }),
+
+        // ---
+        calculate: sendTo(
+          ({ calculateCallback }, _event) => calculateCallback,
+          ({ currency_id, prices, model, lookups }, _event) => ({
+            type: "CALCULATE",
+            data: { currency_id, prices, model, lookups },
+          })
+        ),
 
         // ---
 
@@ -497,9 +527,6 @@ export default (model, currency_id, promotions) => {
             if (!data?.price) return prices;
             return { ...prices, term: data.price };
           },
-          needsCalculating: ({ prices, needsCalculating }, { data }) =>
-            needsCalculating ||
-            (data?.price && !isEqual(data?.price, prices?.term)),
         }),
 
         setAttributes: assign({
@@ -512,9 +539,6 @@ export default (model, currency_id, promotions) => {
             if (!data?.price) return prices;
             return { ...prices, attributes: data.price };
           },
-          needsCalculating: ({ prices, needsCalculating }, { data }) =>
-            needsCalculating ||
-            (data?.price && !isEqual(data?.price, prices?.attributes)),
         }),
 
         setOptions: assign({
@@ -527,9 +551,6 @@ export default (model, currency_id, promotions) => {
             if (!data?.price) return prices;
             return { ...prices, options: data.price };
           },
-          needsCalculating: ({ prices, needsCalculating }, { data }) =>
-            needsCalculating ||
-            (!!data?.price && !isEqual(data?.price, prices?.options)),
         }),
 
         setProvisioning: assign({
@@ -542,11 +563,9 @@ export default (model, currency_id, promotions) => {
 
         // ---
 
-        clearCalculating: assign({ needsCalculating: false }),
         setDirty: assign({ isDirty: true }),
         setClean: assign({
           isDirty: false,
-          needsCalculating: false,
           // error: {},
         }),
 
@@ -573,14 +592,6 @@ export default (model, currency_id, promotions) => {
       },
       services,
       guards: {
-        needsRecalculating: ({ needsCalculating, prices, summary }) =>
-          (isEmpty(summary) || needsCalculating) &&
-          !isNil(prices.term) &&
-          !isNil(prices.attributes) &&
-          !isNil(prices.options),
-        hasCalculated: ({ needsCalculating, summary }) =>
-          !needsCalculating && !isEmpty(summary),
-
         hasChanged: (
           { model, basket_id, currency_id, promotions },
           { data }
@@ -592,6 +603,15 @@ export default (model, currency_id, promotions) => {
             currency_id !== data?.currency_id ||
             !isEqual(promotions, data?.promotions);
           return value;
+        },
+        needsCalculating: ({ prices }, { data }) => {
+          // work out which property we need to compare
+          let prop;
+          prop ??= has(data, "term") ? "term" : null;
+          prop ??= has(data, "options") ? "options" : null;
+          prop ??= has(data, "attributes") ? "attributes" : null;
+
+          return !!prop && data?.price && !isEqual(data?.price, prices[prop]);
         },
       },
       delays: {
