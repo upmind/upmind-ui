@@ -69,9 +69,18 @@ export default (model, currency_id, promotions) => {
         config: {},
         summary: {},
         prices: {
-          term: null,
-          attributes: null,
-          options: null,
+          term: {
+            subtotal: [],
+            total: [],
+          },
+          attributes: {
+            subtotal: [],
+            total: [],
+          },
+          options: {
+            subtotal: [],
+            total: [],
+          },
         },
         calculateCallback: null,
         // ---
@@ -428,18 +437,16 @@ export default (model, currency_id, promotions) => {
           },
           summary: ({ model, lookups }, { data }) => {
             // use the display price as the initial price to use in the summary
-            const dislay_price_formatted = data.display_price;
+            const display_price_formatted = data.display_price;
             const display_price = Number(
               data.display_price?.replace(/[^0-9.-]+/g, "")
             );
             return useSummaryParser({
               summary: {
-                discount: 0,
-                discount_formatted: "",
                 subtotal: display_price,
-                subtotal_formatted: dislay_price_formatted,
+                subtotal_formatted: display_price_formatted,
                 total: display_price,
-                total_formatted: dislay_price_formatted,
+                total_formatted: display_price_formatted,
               },
               model,
               lookups,

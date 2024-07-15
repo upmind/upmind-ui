@@ -466,55 +466,43 @@ export const useSummaryDetailsParser = (key: string, data: any) => {
 //  this may be a new item, or an existing item that has been added to the basket
 
 export const useModelParser = (data: any) => {
-  // handle new product model
-  const model = pick(data, [
-    "quantity",
-    "product_id",
-    "term",
-    "attributes",
-    "options",
-    "provision_fields",
-  ]);
-  // ---
-  // handle existing products that have been added to the basket
+  // map basket product data
   if (data?.id) {
-    // set(model, "id", data.id);
-    set(model, "term", data.billing_cycle_months);
-    set(model, "product_id", data.product_id);
-    set(model, "attributes", useChoiceParser(data.attributes));
-    set(model, "options", useChoiceParser(data.options));
-    set(
-      model,
+    return {
+      quantity: data.quantity,
+      product_id: data.product_id,
+      term: { billing_cycle_months: data.billing_cycle_months },
+      attributes: mapSubProductChoices(data.attributes),
+      options: mapSubProductChoices(data.options),
+      provision_fields: data.provision_fields,
+    };
+  } else {
+    // handle new product model
+    return pick(data, [
+      "quantity",
+      "product_id",
+      "term",
+      "attributes",
+      "options",
       "provision_fields",
-      useAddProvisioningParser(data.provision_fields)
-    );
+    ]);
   }
-
-  // ---
-  return model;
 };
 
 // ---
-const useChoiceParser = (values: any) => {
+const mapSubProductChoices = (values: any) => {
   return reduce(
     values,
     (result, value) => {
       set(result, [value.product.category_id, value.product_id], {
-        id: value?.id,
         product_id: value.product_id,
         unit_quantity: value.unit_quantity,
         billing_cycle_months: value.billing_cycle_months,
-        name: useTranslateName(value.product),
-        category: useTranslateName(value.product.category),
       });
       return result;
     },
     {}
   );
-};
-
-const useAddProvisioningParser = (data: any) => {
-  return data;
 };
 
 // --------------------------------------------------------
