@@ -393,29 +393,38 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   const details = [];
 
   // term
-  if (isObject(model.term)) {
-    // NB: only show term pricing if recurring
+  const term = find(lookups.terms, [
+    "billing_cycle_months",
+    model?.term?.billing_cycle_months,
+  ]);
+  if (term) {
+    // NB: only show term pricing if recurring!
     details.push({
       key: "term",
       category: "Billing Cycle",
-      name: model.term.billing_cycle_name,
-      cycle: model.term.billing_cycle_months,
+      name: term.billing_cycle_name,
+      cycle: term.billing_cycle_months,
       quantity: model.quantity,
-      discount: model.term.billing_cycle_months
-        ? model.term.price_discounted
-        : null,
-      total: model.term.billing_cycle_months ? model.term.price : null,
-      formatted: model.term.billing_cycle_months
-        ? model.term.price_formatted
-        : null,
+      discount: term.billing_cycle_months ? term.price_discounted : null,
+      total: term.billing_cycle_months ? term.price : null,
+      formatted: term.billing_cycle_months ? term.price_formatted : null,
     });
   }
+
   // attributes
-  const attributes = useSummaryDetailsParser("attribute", model.attributes);
+  const attributes = useSummarySubproductParser(
+    "attribute",
+    model.attributes,
+    lookups.attributes
+  );
   details.push(...attributes);
 
   // options
-  const options = useSummaryDetailsParser("option", model.options);
+  const options = useSummarySubproductParser(
+    "option",
+    model.options,
+    lookups.options
+  );
   details.push(...options);
 
   // provision fields
@@ -435,24 +444,37 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   return { ...summary, details };
 };
 
-export const useSummaryDetailsParser = (key: string, data: any) => {
+export const useSummarySubproductParser = (
+  key: string,
+  data: any,
+  lookup: Array<any>
+) => {
   return reduce(
     data,
     (result, choices) => {
       if (choices) {
-        const selected = values(
-          mapValues(choices, choice => {
-            return {
-              key,
-              category: choice.category,
-              name: choice.name,
-              cycle: choice.billing_cycle_months,
-              quantity: choice.unit_quantity,
-              discount: choice.total_discounted,
-              total: choice.total,
-              formatted: choice.total_formatted,
-            };
-          })
+        const selected = reduce(
+          choices,
+          (result, choice, id) => {
+            const category = find(lookup, { values: [{ id }] });
+            const subproduct = find(category?.values, { id });
+
+            if (subproduct) {
+              result.push({
+                key,
+                quantity: choice.unit_quantity,
+                category: category.name,
+                name: subproduct.name,
+                cycle: subproduct.price.billing_cycle_months,
+                discount: subproduct.price.price_discounted,
+                total: subproduct.price.price,
+                formatted: subproduct.price.price_formatted,
+              });
+            }
+
+            return result;
+          },
+          []
         );
         result.push(...selected);
       }

@@ -113,7 +113,7 @@ async function load(
   const productPromise = getRequest({
     url: useUrl(`basket/products/${product_id}`, {
       currency_id,
-      promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
+      promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [
         "image",
@@ -374,18 +374,24 @@ async function checkProvisioning(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  model.provision_fields ??= {};
+  // bail if we dont actually have any provision fields to check
+  if (isEmpty(lookups.provision_fields?.properties))
+    return Promise.resolve({ provision_fields: {} });
 
+  // ---
+
+  model.provision_fields ??= {};
   const { validate } = useValidation();
   const errors = validate(model.provision_fields, lookups.provision_fields);
-
   return new Promise((resolve, reject) => {
-    if (errors.length)
+    if (errors.length) {
       reject({
-        provision_fields: model?.provision_fields,
+        provision_fields: model.provision_fields,
         error: { ...error, provision_fields: errors },
       });
-    else resolve({ provision_fields: model.provision_fields });
+    } else {
+      resolve({ provision_fields: model.provision_fields });
+    }
   });
 }
 
@@ -411,24 +417,7 @@ const calculateSummary = (
   // remove the term price if we have any price overrides
   const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
   // ---
-
-  const subtotalPromise = post({
-    url: useUrl("cart/calculate", {}),
-    init: { signal: controller?.signal },
-    withAccessToken: true,
-    data: {
-      currency_id,
-      prices: compact([
-        ...(hasPriceOverride ? [] : prices?.term?.subtotal),
-        ...prices?.attributes?.subtotal,
-        ...prices?.options?.subtotal,
-      ]),
-    },
-  }).then(response => response?.data);
-
-  // ---
-
-  const totalPromise = post({
+  return post({
     url: useUrl("cart/calculate", {}),
     init: { signal: controller?.signal },
     withAccessToken: true,
@@ -440,16 +429,10 @@ const calculateSummary = (
         ...prices?.options?.total,
       ]),
     },
-  }).then(response => response?.data);
-
-  return Promise.all([subtotalPromise, totalPromise]).then(
-    ([subtotal, total]) => ({
-      subtotal: subtotal?.total || 0,
-      subtotal_formatted: subtotal?.total_formatted,
-      total: total?.total || 0,
-      total_formatted: total?.total_formatted,
-    })
-  );
+  }).then(({ data }) => ({
+    total: data?.total || 0,
+    total_formatted: data?.total_formatted,
+  }));
 };
 
 // --------------------------------------------------------
