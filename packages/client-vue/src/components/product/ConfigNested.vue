@@ -4,11 +4,7 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
-    :requiredText="
-      !hasPrices(item)
-        ? null
-        : $tc('product.adds_overrides', item.price_override ? 1 : 0)
-    "
+    :requiredText="safeRequireText(item)"
     :required="true"
     :no-required="!item.price_override && false"
     no-feedback
@@ -222,6 +218,25 @@ export default defineComponent({
   },
   computed: {},
   methods: {
+    safeRequireText(item) {
+      const values = [];
+
+      const hasPrices = this.hasPrices(item);
+
+      if (hasPrices) {
+        values.push(
+          this.$tc("product.adds_overrides", item?.price_override ? 1 : 0)
+        );
+      }
+
+      if (item.required) {
+        const prefix = hasPrices ? "(" : "";
+        const suffix = hasPrices ? ")" : "";
+        values.push(`${prefix}${this.$t("product.required")}${suffix}`);
+      }
+
+      return values.join(" ");
+    },
     hasPrices(item) {
       return some(item.values, "price");
     },
