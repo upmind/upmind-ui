@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "p-6 bg-base text-base-content border rounded-lg border-base-300 gap-6 flex flex-wrap items-stretch ",
+        "bg-base text-base-content border-base-300 flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
         {
           variants: {
             isUnavailable: {
@@ -44,34 +44,34 @@ export default {
           },
         }
       ),
-      wrapper: cva("gap-6 flex flex-wrap items-stretch w-full flex-1"),
-      media: cva("flex-none size-20 rounded-lg overflow-hidden m-0 p-0", {
+      wrapper: cva("flex w-full flex-1 flex-wrap items-stretch gap-6"),
+      media: cva("m-0 size-20 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
-            true: "bg-base-100 border text-base-300",
+            true: "bg-base-100 text-base-300 border",
           },
         },
       }),
       header: cva(
-        "flex-1 flex flex-col justify-center text-left items-start gap-2 "
+        "flex flex-1 flex-col items-start justify-center gap-2 text-left "
       ),
       content: cva(
-        "w-full flex-none flex flex-wrap gap-6 order-last empty:hidden border-t border-base-300 pt-4 "
+        "border-base-300 order-last flex w-full flex-none flex-wrap gap-6 border-t pt-4 empty:hidden "
       ),
       collapsible: cva(
-        "transition max-h-0 opacity-0 aria-expanded:opacity-100 aria-expanded:max-h-fit overflow-hidden aria-hidden:hidden"
+        "max-h-0 overflow-hidden opacity-0 transition aria-expanded:max-h-fit aria-expanded:opacity-100 aria-hidden:hidden"
       ),
       footer: cva(
-        "flex max-w-xs flex-1 items-center text-right justify-end gap-6"
+        "flex max-w-xs flex-1 items-center justify-end gap-6 text-right"
       ),
       // ---
       loading: cva("size-7"),
-      title: cva("w-full m-0 text-2xl font-normal leading-none tracking-wide"),
+      title: cva("m-0 w-full text-2xl font-normal leading-none tracking-wide"),
       meta: cva(
-        "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
+        "text-base-700 m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
 
-      text: cva("w-full text-left m-0 text-sm leading-normal"),
+      text: cva("m-0 w-full text-left text-sm leading-normal"),
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
@@ -79,30 +79,30 @@ export default {
           },
         },
       }),
-      total: cva("font-medium text-2xl leading-snug tracking-wide"),
+      total: cva("text-2xl font-medium leading-snug tracking-wide"),
       discount: cva(
-        "font-normal text-md leading-snug tracking-wide line-through text-base-700"
+        "text-md text-base-700 font-normal leading-snug tracking-wide line-through"
       ),
       // ---
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       image: cva("h-full w-full object-cover"),
-      actions: cva("flex gap-2 items-center"),
+      actions: cva("flex items-center gap-2"),
       summary: cva("inline-flex flex-col"),
       // ---
       details: {
-        root: cva("grid grid-cols-4 gap-6 py-4 px-0 m-0 list-none w-full"),
-        item: cva("p-0 m-0 flex flex-col gap-0 "),
+        root: cva("m-0 grid w-full list-none grid-cols-4 gap-6 px-0 py-4"),
+        item: cva("m-0 flex flex-col gap-0 p-0 "),
         full: cva("col-span-4"),
         title: cva(
-          "font-normal text-base-500 m-0 text-sm tracking-wide m-0 p-0 "
+          "text-base-500 m-0 m-0 p-0 text-sm font-normal tracking-wide "
         ),
-        text: cva("m-0 text-sm tracking-wide m-0 p-0 "),
+        text: cva("m-0 m-0 p-0 text-sm tracking-wide "),
       },
     },
 
     config: {
       root: cva(
-        "bg-base text-base-content border rounded-lg border-base-300 gap-x-2 flex flex-wrap items-start",
+        "bg-base text-base-content border-base-300 flex flex-wrap items-start gap-x-2 rounded-lg border",
         {
           variants: {
             isDisabled: {
@@ -112,23 +112,23 @@ export default {
         }
       ),
 
-      media: cva("flex-none size-80 rounded-lg overflow-hidden m-10 mr-0 p-0", {
+      media: cva("m-10 mr-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
-            true: "bg-base-100 border text-base-300",
+            true: "bg-base-100 text-base-300 border",
           },
         },
       }),
 
       wrapper: cva(
-        "gap-x-6 gap-y-16 flex flex-wrap items-stretch w-full flex-1 p-10 "
+        "flex w-full flex-1 flex-wrap items-stretch gap-x-6 gap-y-16 p-10 "
       ),
 
-      header: cva("w-full flex flex-wrap items-end gap-x-10 gap-y-4"),
+      header: cva("flex w-full flex-wrap items-end gap-x-10 gap-y-4"),
 
-      headerContent: cva("w-full flex-1 flex flex-wrap items-start gap-2 "),
+      headerContent: cva("flex w-full flex-1 flex-wrap items-start gap-2 "),
 
-      summary: cva("inline-flex items-end gap-y-6 gap-x-6", {
+      summary: cva("inline-flex items-end gap-x-6 gap-y-6", {
         variants: {
           isCalculating: {
             true: "text-base-300",
@@ -137,19 +137,19 @@ export default {
       }),
 
       content: cva(
-        "w-full flex-none flex flex-wrap gap-x-6 gap-y-8 empty:hidden items-start "
+        "flex w-full flex-none flex-wrap items-start gap-x-6 gap-y-8 empty:hidden "
       ),
 
       footer: cva(
-        "border-t border-base-300 px-6 mt-6 py-4 flex w-full items-center justify-between gap-x-10"
+        "border-base-300 mt-6 flex w-full items-center justify-between gap-x-10 border-t px-6 py-4"
       ),
       // ---
       loading: cva("size-7"),
-      title: cva("w-full m-0 text-4xl font-normal leading-none tracking-wide"),
+      title: cva("m-0 w-full text-4xl font-normal leading-none tracking-wide"),
       meta: cva(
-        "w-full flex gap-4 items-center text-left lowercase m-0 text-sm leading-snug text-base-700"
+        "text-base-700 m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
-      text: cva("w-full text-left m-0 leading-normal text-base-700"),
+      text: cva("text-base-700 m-0 w-full text-left leading-normal"),
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
@@ -159,7 +159,7 @@ export default {
       }),
       // ---
       total: cva(
-        "block font-medium text-2xl leading-snug tracking-wide text-right",
+        "block text-right text-2xl font-medium leading-snug tracking-wide",
         {
           variants: {
             isCalculating: {
@@ -169,7 +169,7 @@ export default {
         }
       ),
       itemtotal: cva(
-        "w-full justify-end m-0 leading-normal text-base-700 flex gap-2 items-end",
+        "text-base-700 m-0 flex w-full items-end justify-end gap-2 leading-normal",
         {
           variants: {
             isCalculating: {
@@ -179,7 +179,7 @@ export default {
         }
       ),
       discount: cva(
-        "block font-normal text-md leading-snug tracking-wide line-through text-base-700 text-right w-full",
+        "text-md text-base-700 block w-full text-right font-normal leading-snug tracking-wide line-through",
         {
           variants: {
             isCalculating: {
@@ -191,7 +191,7 @@ export default {
       price: cva(""),
       // ---
       image: cva("h-full w-full object-cover"),
-      actions: cva("flex gap-2 items-center"),
+      actions: cva("flex items-center gap-2"),
 
       // ---
       grid: {
@@ -203,28 +203,28 @@ export default {
           },
         }),
         items: cva(
-          "p-0 m-0 list-none grid w-full gap-3 grid-cols-[repeat(auto-fit,_minmax(14rem,_auto))]"
+          "m-0 grid w-full list-none grid-cols-[repeat(auto-fit,_minmax(14rem,_auto))] gap-3 p-0"
         ),
         item: {
           root: cva(
-            "m-0 flex flex-wrap items-start gap-2 gap-y-8 cursor-pointer border px-4 py-3 rounded-lg"
+            "m-0 flex cursor-pointer flex-wrap items-start gap-2 gap-y-8 rounded-lg border px-4 py-3"
           ),
           selected: cva(
-            "focus-within:border focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20"
+            "focus-within:border-control-active focus-within:ring-control-active focus-within:border focus-within:ring-4 focus-within:ring-opacity-20"
           ),
           disabled: cva("cursor-wait"),
 
           // input: cva("text-primary"),
           header: cva(
-            "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
+            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
           ),
-          footer: cva("w-full flex-none flex flex-col gap-1 self-end"),
+          footer: cva("flex w-full flex-none flex-col gap-1 self-end"),
           // ---
-          title: cva("m-0 text-md font-normal"),
-          text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
-          total: cva("font-medium text-2xl leading-snug tracking-wide"),
+          title: cva("text-md m-0 font-normal"),
+          text: cva("text-base-700 m-0 block w-full flex-none text-sm"),
+          total: cva("text-2xl font-medium leading-snug tracking-wide"),
           discount: cva(
-            "font-normal text-md leading-snug tracking-wide line-through text-base-700"
+            "text-md text-base-700 font-normal leading-snug tracking-wide line-through"
           ),
         },
       },
@@ -237,13 +237,16 @@ export default {
             },
           },
         }),
-        items: cva("p-0 m-0 list-none w-full"),
+        items: cva(
+          "aria-[invalid=true]:border-control-error aria-[invalid=true]:focus-within:ring-control-error m-0 w-full  list-none rounded-lg p-0  aria-[invalid=true]:border  aria-[invalid=true]:focus-within:ring-4 aria-[invalid=true]:focus-within:ring-opacity-20"
+        ),
         item: {
           root: cva(
-            "m-0 p-0 first-of-type:rounded-t-lg border border-b-0 last-of-type:rounded-b-lg last-of-type:border-b"
+            "aria-selected:focus-within:border-control-active aria-selected:focus-within:ring-control-active m-0 border border-b-0 p-0 first-of-type:rounded-t-lg last-of-type:rounded-b-lg last-of-type:border-b  aria-selected:border  aria-selected:focus-within:border  aria-selected:focus-within:ring-4  aria-selected:focus-within:ring-opacity-20 "
           ),
+
           wrapper: cva(
-            "flex flex-wrap items-center gap-2 gap-y-8 cursor-pointer px-4 py-3 ",
+            "flex cursor-pointer flex-wrap items-center gap-2 gap-y-8 px-4 py-3 ",
             {
               variants: {
                 disabled: {
@@ -256,29 +259,26 @@ export default {
             }
           ),
 
-          selected: cva(
-            "focus-within:border focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20"
-          ),
           // input: cva("text-primary"),
           header: cva(
-            "flex flex-wrap gap-y-0 gap-x-2 justify-between items-center flex-1"
+            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
           ),
           footer: cva(
-            "flex-shrink-1 flex items-center gap-1 justify-end gap-4"
+            "flex-shrink-1 flex items-center justify-end gap-1 gap-4"
           ),
           // ---
-          title: cva("m-0 text-md font-normal"),
-          text: cva("m-0 text-sm text-base-700 w-full flex-none block"),
-          badges: cva("flex gap-4 items-center justify-end px-4"),
-          price: cva("text-right min-w-20"),
+          title: cva("text-md m-0 font-normal"),
+          text: cva("text-base-700 m-0 block w-full flex-none text-sm"),
+          badges: cva("flex items-center justify-end gap-4 px-4"),
+          price: cva("min-w-20 text-right"),
           total: cva(
-            "font-medium text-md leading-snug tracking-wide block text-right"
+            "text-md block text-right font-medium leading-snug tracking-wide"
           ),
           discount: cva(
-            "font-normal text-sm leading-snug tracking-wide line-through text-base-700  block text-right"
+            "text-base-700 block text-right text-sm font-normal leading-snug  tracking-wide line-through"
           ),
           cycle: cva(
-            "block font-normal text-xs leading-snug tracking-wide text-base-700  block text-right"
+            "text-base-700 block block text-right text-xs font-normal  leading-snug tracking-wide"
           ),
         },
       },
