@@ -11,7 +11,6 @@ import { useTime, useValidation } from "../../utils";
 import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
-  compact,
   concat,
   find,
   first,
@@ -27,6 +26,7 @@ import {
   minBy,
   pick,
   reduce,
+  reject,
   set,
   times,
 } from "lodash-es";
@@ -415,6 +415,16 @@ const calculateSummary = (
 
   // remove the term price if we have any price overrides
   const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
+
+  // clean the prices object, removing any nil values. we dont use compact because that also removes 0 values
+  const values = reject(
+    concat(
+      hasPriceOverride ? [] : prices?.term || 0,
+      prices?.attributes,
+      prices?.options
+    ),
+    isNil
+  );
   // ---
   return post({
     url: useUrl("cart/calculate", {}),
@@ -422,13 +432,7 @@ const calculateSummary = (
     withAccessToken: true,
     data: {
       currency_id,
-      prices: compact(
-        concat(
-          hasPriceOverride ? [] : prices?.term,
-          prices?.attributes,
-          prices?.options
-        )
-      ),
+      prices: values,
     },
   }).then(({ data }) => pick(data, ["total", "total_formatted"]));
 };
