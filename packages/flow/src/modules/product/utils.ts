@@ -422,11 +422,15 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   // provision fields
   reduce(
     model.provision_fields,
-    (result, value, field) => {
+    (result, name, field) => {
       result.push({
         key: `provision_field.${field}`,
-        category: field, // todo get field name
-        name: value,
+        category: get(
+          lookups.provision_fields,
+          ["properties", field, "title"],
+          field
+        ),
+        name,
       });
       return result;
     },
@@ -475,13 +479,12 @@ export const useSummarySubproductParser = (
     []
   );
 };
+
 // --------------------------------------------------------
 //  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
 export const useModelParser = (data: any) => {
-  console.debug("useModelParser", data);
-
   // map basket product data
   if (data?.id) {
     return {

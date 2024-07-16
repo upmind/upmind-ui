@@ -580,8 +580,6 @@ export default (model, currency_id, promotions) => {
 
         setError: assign({
           error: ({ error }, { data }) => {
-            console.log("setError", data);
-
             const err = data?.error || data;
 
             if (err?.code == 422) {
