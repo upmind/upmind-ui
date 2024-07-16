@@ -12,5 +12,12 @@
   "requirePragma": false,
   "semi": true,
   "singleQuote": false,
-  "useTabs": false
+  "useTabs": false,
+  "plugins": [
+    "prettier-plugin-tailwindcss"
+  ],
+  "tailwindFunctions": [
+    "cva",
+    "cx"
+  ]
 }
