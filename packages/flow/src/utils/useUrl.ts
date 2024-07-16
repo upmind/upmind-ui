@@ -1,5 +1,6 @@
 // --- utils
 import { defaultsDeep, forIn, trimStart } from "lodash-es";
+import { isArray } from "xstate/lib/utils";
 
 // ----------------------------------------------------------------------------
 /**
@@ -26,7 +27,11 @@ export function useUrl(
   // now we can create the url
   const url = new URL(path, instance.base);
   // and add any params
-  forIn(params, (value, key) => url.searchParams.set(key, value));
+  forIn(params, (value, key) => {
+    if (isArray(value))
+      value.forEach(v => url.searchParams.append(`${key}[]`, v));
+    else url.searchParams.set(key, value);
+  });
 
   return url;
 }

@@ -476,8 +476,7 @@ export function calculateSubscription(callback, onReceive) {
           callback({ type: "CALCULATED", data: summary });
         })
         .catch(error => {
-          // dont do anything if the request was aborted or we  had any other error
-          console.error("productConfig", "calculateSubscription", error);
+          // still notify the machine, but with an no value, so we can move out of the state
           callback({ type: "CALCULATED", data: null });
         });
     }

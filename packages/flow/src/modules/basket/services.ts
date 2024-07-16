@@ -10,6 +10,8 @@ import { useSession } from "../session";
 import { getTokenfromStorage } from "../session/utils";
 
 import {
+  compact,
+  concat,
   differenceBy,
   filter,
   find,
@@ -329,23 +331,28 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
   forEach(products, async product => {
-    const { id, provision_provider_id } = product;
-    if (provision_provider_id) {
-      // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
-      const promise = get({
-        url: useUrl(
-          `orders/${basket_id}/products/${id}/provision_fields/values`
-        ),
-        useCache: false,
-        withAccessToken: true,
-      }).then(({ data }) => {
-        // update the product with the provisioning fields
-        set(product, "provision_fields", data);
-        return data;
-      });
+    const { id } = product;
 
-      provisioningPromises.push(promise);
-    }
+    const sub_products = compact(
+      map(concat(product.options, product.attributes), "product_id")
+    );
+    // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+    const promise = get({
+      url: useUrl(
+        `orders/${basket_id}/products/${id}/provision_fields/values`,
+        {
+          sub_product_ids: sub_products,
+        }
+      ),
+      useCache: false,
+      withAccessToken: true,
+    }).then(({ data }) => {
+      // update the product with the provisioning fields
+      set(product, "provision_fields", data);
+      return data;
+    });
+
+    provisioningPromises.push(promise);
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched
