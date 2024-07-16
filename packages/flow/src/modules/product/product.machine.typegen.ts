@@ -77,7 +77,11 @@ export interface Typegen0 {
       | "load";
   };
   eventsCausingActions: {
-    calculate: "CALCULATE";
+    calculate:
+      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     mergeModel: "PUT";
     resetModel: "RESET";
     sendConfig: "PROCESSING" | "done.state.configuring";
@@ -120,6 +124,11 @@ export interface Typegen0 {
       | "UPDATE.QUANTITY"
       | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
     setSummary: "CALCULATED";
+    setSummaryCalculating:
+      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
     setTerm:
       | "UPDATE.TERM"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
@@ -128,7 +137,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasChanged: "PUT" | "REFRESH";
-    hasSummary: "CALCULATED";
+    hasSummaryData: "CALCULATED";
     needsCalculating:
       | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
@@ -137,7 +146,6 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     checkAttributes:
-      | "CALCULATE"
       | "CHECK.ATTRIBUTES"
       | "PUT"
       | "REFRESH"
@@ -149,7 +157,6 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.load";
     checkOptions:
-      | "CALCULATE"
       | "CHECK.OPTIONS"
       | "PUT"
       | "REFRESH"
@@ -161,7 +168,6 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.load";
     checkProvisioning:
-      | "CALCULATE"
       | "PUT"
       | "REFRESH"
       | "UPDATE"
@@ -172,7 +178,6 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.load";
     checkQuantity:
-      | "CALCULATE"
       | "CHECK.QUANTITY"
       | "PUT"
       | "REFRESH"
@@ -184,7 +189,6 @@ export interface Typegen0 {
       | "UPDATE.TERM"
       | "done.invoke.load";
     checkTerm:
-      | "CALCULATE"
       | "CHECK.TERM"
       | "PUT"
       | "REFRESH"
@@ -220,10 +224,6 @@ export interface Typegen0 {
     | "configuring.quantity.checking"
     | "configuring.quantity.invalid"
     | "configuring.quantity.valid"
-    | "configuring.summary"
-    | "configuring.summary.calculated"
-    | "configuring.summary.calculating"
-    | "configuring.summary.empty"
     | "configuring.term"
     | "configuring.term.checking"
     | "configuring.term.invalid"
@@ -238,14 +238,12 @@ export interface Typegen0 {
           | "options"
           | "provisioning"
           | "quantity"
-          | "summary"
           | "term"
           | {
               attributes?: "checking" | "invalid" | "valid";
               options?: "checking" | "invalid" | "valid";
               provisioning?: "checking" | "invalid" | "valid";
               quantity?: "checking" | "invalid" | "valid";
-              summary?: "calculated" | "calculating" | "empty";
               term?: "checking" | "invalid" | "valid";
             };
       };
