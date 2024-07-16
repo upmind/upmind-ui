@@ -138,17 +138,6 @@ export const useTermsParser = (
     const cycle = getBillingCycle(rawTerm.billing_cycle_months);
     term.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
-    // --------------------------------------------------------
-    // then add some syntactic sugar / computed properties
-
-    //  product.hasSavings = some(
-    //    data.prices,
-    //    ({ price, discountedPrice }) =>
-    //      ((price - discountedPrice) / price) * 100
-    //  );
-
-    // --- Coupon Syntax Sugar
-
     term.promotions = usePromotionParser(rawTerm, promotion_display_type);
 
     return term;
@@ -208,7 +197,7 @@ export const useSubproductParser = (
       value.canChangeQuantity = rawSubproduct.order_type == 2;
 
       // get the prices for this subproduct
-      const prices = map(rawSubproduct.prices, rawPrice => {
+      value.prices = map(rawSubproduct.prices, rawPrice => {
         const price = pick(rawPrice, [
           "mixed_promotions",
           "billing_cycle_months",
@@ -227,13 +216,13 @@ export const useSubproductParser = (
       });
 
       // check if we have a price for the current billing cycle ( if provided )
-      if (!isNil(billing_cycle_months) && prices?.length) {
+      if (!isNil(billing_cycle_months) && value.prices?.length) {
         // First, try get a one off price, if it exists
-        value.price = find(prices, ["billing_cycle_months", 0]);
+        value.price = find(value.prices, ["billing_cycle_months", 0]);
 
         // othrwise try find the matching term price
         if (!value.price)
-          value.price = find(prices, [
+          value.price = find(value.prices, [
             "billing_cycle_months",
             billing_cycle_months,
           ]);
@@ -468,10 +457,10 @@ export const useSummarySubproductParser = (
                 quantity: choice.unit_quantity,
                 category: category.name,
                 name: subproduct.name,
-                cycle: subproduct.price.billing_cycle_months,
-                discount: subproduct.price.price_discounted,
-                total: subproduct.price.price,
-                formatted: subproduct.price.price_formatted,
+                cycle: subproduct?.billing_cycle_months,
+                discount: subproduct?.price?.price_discounted,
+                total: subproduct?.price?.price,
+                formatted: subproduct?.price?.price_formatted,
               });
             }
 
@@ -491,14 +480,16 @@ export const useSummarySubproductParser = (
 //  this may be a new item, or an existing item that has been added to the basket
 
 export const useModelParser = (data: any) => {
+  console.debug("useModelParser", data);
+
   // map basket product data
   if (data?.id) {
     return {
       quantity: data.quantity,
       product_id: data.product_id,
       term: { billing_cycle_months: data.billing_cycle_months },
-      attributes: mapSubproductChoices(data.attributes),
       options: mapSubproductChoices(data.options),
+      attributes: mapSubproductChoices(data.attributes),
       provision_fields: data.provision_fields,
     };
   } else {

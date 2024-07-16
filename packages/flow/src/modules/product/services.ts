@@ -12,6 +12,7 @@ import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
   compact,
+  concat,
   find,
   first,
   get,
@@ -25,10 +26,8 @@ import {
   maxBy,
   minBy,
   pick,
-  pickBy,
   reduce,
   set,
-  some,
   times,
 } from "lodash-es";
 
@@ -199,7 +198,7 @@ async function checkTerm(
   _event: any
 ) {
   let term = null;
-  const price = { subtotal: [], total: [], formatted: null };
+  const price = [];
   const errors = [];
   // ---
 
@@ -236,8 +235,7 @@ async function checkTerm(
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
   times(model.quantity, () => {
-    price.subtotal.push(term?.price || 0);
-    price.total.push(term?.price_discounted || term?.price || 0);
+    price.push(term?.price_discounted || term?.price || 0);
   });
 
   return new Promise((resolve, reject) => {
@@ -272,11 +270,12 @@ async function checkSubproducts(
   { type }: any
 ) {
   let subproducts = null;
-  const price = { subtotal: [], total: [], formatted: null };
-  const errors = [];
+  const price = [];
+  const errors = {};
   // ---
   // safety check, resolve if we have no attributes to check
   if (!lookups?.[type]?.length) {
+    debugger;
     return Promise.resolve({
       subproducts,
       price,
@@ -287,15 +286,15 @@ async function checkSubproducts(
     lookups[type],
     (result, subproduct) => {
       // try get any selected values for this subproduct,
-
+      console.log("checkSubproducts", { ...subproducts });
       let selected = get(model, `${type}.${subproduct.id}`, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any
-        selected = pickBy(selected, (_value, id) =>
-          some(subproduct.values, ["id", id])
-        );
+        // selected = pickBy(selected, (_value, id) =>
+        //   some(subproduct.values, ["id", id])
+        // );
 
         // then parse each selected value, and ensure it has all its required attributes
         // and that it has valid values for each of those attributes
@@ -312,15 +311,14 @@ async function checkSubproducts(
           // 2. IF we have billing cycle(s) : then match the term billing cycle
 
           // ONE OFF
-          value.price = find(product.prices, ["billing_cycle_months", 0]);
+          let activePrice = find(product?.prices, ["billing_cycle_months", 0]);
 
           // BILLING CYCLE(S)
-          if (!value.price) {
-            value.price =
-              find(product.prices, [
-                "billing_cycle_months",
-                model?.term?.billing_cycle_months,
-              ]) || first(product.prices);
+          if (!activePrice) {
+            activePrice = find(product?.prices, [
+              "billing_cycle_months",
+              model?.term?.billing_cycle_months,
+            ]);
           }
 
           // ensure we have a valid unit_quantity
@@ -329,14 +327,12 @@ async function checkSubproducts(
             product
           );
 
-          value.billing_cycle_months = value.price?.billing_cycle_months;
-
+          value.billing_cycle_months = activePrice?.billing_cycle_months;
           // set price values, taking into account the quantity and unit quantity
           // NB: we NEVER add, we always push into an array for the backend to handle
           times(value.unit_quantity * model.quantity, () => {
-            price.subtotal.push(value.price?.price || 0);
-            price.total.push(
-              value.price?.price_discounted || value.price?.price || 0
+            price.push(
+              activePrice?.price_discounted || activePrice?.price || 0
             );
           });
 
@@ -345,12 +341,17 @@ async function checkSubproducts(
       }
 
       // check if we are missing required subproduct
-      if (subproduct?.required && isEmpty(selected))
-        errors.push(`${subproduct.name} is required`);
+      if (subproduct?.required && isEmpty(selected)) {
+        errors[subproduct.id] ??= [];
+        errors[subproduct.id].push(`${subproduct.name} is required`);
+      }
 
       // check if we values too many values for this subproduct
       if (!subproduct?.multiple && keys(selected)?.length > 1) {
-        errors.push(`${subproduct.name} does not multiple choice`);
+        errors[subproduct.id] ??= [];
+        errors[subproduct.id].push(
+          `${subproduct.name} does not allow multiple choice`
+        );
       }
       // ---
       set(result, subproduct.id, selected);
@@ -360,13 +361,13 @@ async function checkSubproducts(
   );
 
   return new Promise((resolve, reject) => {
-    if (errors.length)
+    if (!isEmpty(errors)) {
       reject({
         [type]: subproducts,
         price,
-        error: { ...error, subproducts: errors },
+        error: { ...error, [type]: errors },
       });
-    else resolve({ [type]: subproducts, price });
+    } else resolve({ [type]: subproducts, price });
   });
 }
 
@@ -412,6 +413,7 @@ const calculateSummary = (
   { currency_id, prices, model, lookups }: ProductConfigContext,
   controller: AbortController
 ) => {
+  debugger;
   const { post, useUrl } = useApi();
 
   // remove the term price if we have any price overrides
@@ -423,16 +425,15 @@ const calculateSummary = (
     withAccessToken: true,
     data: {
       currency_id,
-      prices: compact([
-        ...(hasPriceOverride ? [] : prices?.term?.total),
-        ...prices?.attributes?.total,
-        ...prices?.options?.total,
-      ]),
+      prices: compact(
+        concat(
+          hasPriceOverride ? [] : prices?.term,
+          prices?.attributes,
+          prices?.options
+        )
+      ),
     },
-  }).then(({ data }) => ({
-    total: data?.total || 0,
-    total_formatted: data?.total_formatted,
-  }));
+  }).then(({ data }) => pick(data, ["total", "total_formatted"]));
 };
 
 // --------------------------------------------------------

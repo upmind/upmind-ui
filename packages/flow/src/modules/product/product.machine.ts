@@ -35,6 +35,7 @@ import { calculateSubscription } from "./services";
 // as this is a sub machine, we need to be initialised with a product
 export default (model, currency_id, promotions) => {
   const { validateCurrency } = useBrand();
+  const baseModel = useModelParser(model);
   return createMachine(
     {
       tsTypes: {} as import("./product.machine.typegen").Typegen0,
@@ -53,8 +54,8 @@ export default (model, currency_id, promotions) => {
         // the model used to generate our final config,
         // but with better structure / more detail to make ut easier for any ui to consume,
         // and keep the generated config separate & clean
-        model: useModelParser(model),
-        baseModel: useModelParser(model),
+        model: clone(baseModel),
+        baseModel: baseModel,
         // ---
         // the various lookups that we are using in our configuation
         lookups: {
@@ -136,7 +137,7 @@ export default (model, currency_id, promotions) => {
                         src: "checkTerm",
                         onDone: [
                           {
-                            target: "calculating",
+                            target: "valid",
                             actions: ["setTerm", "calculate"],
                             cond: "needsCalculating",
                           },
@@ -159,17 +160,12 @@ export default (model, currency_id, promotions) => {
                         ],
                       },
                     },
-                    calculating: {},
                     invalid: {},
                     valid: {
                       type: "final",
                     },
                   },
                   on: {
-                    CALCULATED: {
-                      target: "term.valid",
-                      actions: ["setSummary"],
-                    },
                     "UPDATE.TERM": {
                       target: "term.checking",
                       actions: ["setTerm"],
@@ -214,7 +210,7 @@ export default (model, currency_id, promotions) => {
                         src: "checkOptions",
                         onDone: [
                           {
-                            target: "calculating",
+                            target: "valid",
                             actions: ["setOptions", "calculate"],
                             cond: "needsCalculating",
                           },
@@ -236,17 +232,12 @@ export default (model, currency_id, promotions) => {
                         ],
                       },
                     },
-                    calculating: {},
                     invalid: {},
                     valid: {
                       type: "final",
                     },
                   },
                   on: {
-                    CALCULATED: {
-                      target: "options.valid",
-                      actions: ["setSummary"],
-                    },
                     "UPDATE.OPTIONS": {
                       target: "options.checking",
                       actions: ["setOptions"],
@@ -418,7 +409,7 @@ export default (model, currency_id, promotions) => {
         setLookups: assign({
           raw: (_context, { data }) => data,
 
-          lookups: (_context, { data }) => {
+          lookups: ({ model }, { data }) => {
             return {
               product: useProductParser(data),
               terms: useTermsParser(data.prices, data?.promotion_display_type),
@@ -428,30 +419,31 @@ export default (model, currency_id, promotions) => {
               ),
               options: useSubproductParser(
                 data.products_options,
-                data?.promotion_display_type
+                data?.promotion_display_type,
+                model?.term?.billing_cycle_months
               ),
               provision_fields: useProvisioningParser(
                 data.products_provisioning
               ),
             };
           },
-          summary: ({ model, lookups }, { data }) => {
-            // use the display price as the initial price to use in the summary
-            const display_price_formatted = data.display_price;
-            const display_price = Number(
-              data.display_price?.replace(/[^0-9.-]+/g, "")
-            );
-            return useSummaryParser({
-              summary: {
-                subtotal: display_price,
-                subtotal_formatted: display_price_formatted,
-                total: display_price,
-                total_formatted: display_price_formatted,
-              },
-              model,
-              lookups,
-            });
-          },
+          // summary: ({ model, lookups }, { data }) => {
+          //   // use the display price as the initial price to use in the summary
+          //   const display_price_formatted = data.display_price;
+          //   const display_price = Number(
+          //     data.display_price?.replace(/[^0-9.-]+/g, "")
+          //   );
+          //   return useSummaryParser({
+          //     summary: {
+          //       subtotal: display_price,
+          //       subtotal_formatted: display_price_formatted,
+          //       total: display_price,
+          //       total_formatted: display_price_formatted,
+          //     },
+          //     model,
+          //     lookups,
+          //   });
+          // },
         }),
 
         setCurrency: assign({
@@ -588,6 +580,8 @@ export default (model, currency_id, promotions) => {
 
         setError: assign({
           error: ({ error }, { data }) => {
+            console.log("setError", data);
+
             const err = data?.error || data;
 
             if (err?.code == 422) {
