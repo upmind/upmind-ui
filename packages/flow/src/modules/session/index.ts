@@ -16,7 +16,7 @@ import { getTokenfromStorage } from "./utils";
 
 let hasSession = false;
 
-const service = interpret(sessionMachine, { devTools: false });
+const service = interpret(sessionMachine, { devTools: true });
 
 // --------------------------------------------------------
 
@@ -167,5 +167,6 @@ export const useSession = () => {
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
     transfer,
+    reauth: () => service.send("REAUTH"),
   };
 };
