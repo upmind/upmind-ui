@@ -71,18 +71,9 @@ export default (model, currency_id, promotions) => {
         config: {},
         summary: {},
         prices: {
-          term: {
-            subtotal: [],
-            total: [],
-          },
-          attributes: {
-            subtotal: [],
-            total: [],
-          },
-          options: {
-            subtotal: [],
-            total: [],
-          },
+          term: [],
+          attributes: [],
+          options: [],
         },
         calculateCallback: null,
         // ---
@@ -159,8 +150,9 @@ export default (model, currency_id, promotions) => {
                         target: ["valid"],
                         actions: [
                           "setTerm",
+                          "setSummaryCalculating",
+                          "calculate",
                           raise("CHECK.OPTIONS"),
-                          raise("CALCULATE"),
                         ],
                         cond: "needsCalculating",
                       },
@@ -173,7 +165,12 @@ export default (model, currency_id, promotions) => {
                     onError: [
                       {
                         target: "invalid",
-                        actions: ["setTerm", "setError", raise("CALCULATE")],
+                        actions: [
+                          "setTerm",
+                          "setError",
+                          "setSummaryCalculating",
+                          "calculate",
+                        ],
                         cond: "needsCalculating",
                       },
                       {
@@ -238,7 +235,11 @@ export default (model, currency_id, promotions) => {
                     onDone: [
                       {
                         target: "valid",
-                        actions: ["setOptions", raise("CALCULATE")],
+                        actions: [
+                          "setOptions",
+                          "setSummaryCalculating",
+                          "calculate",
+                        ],
                         cond: "needsCalculating",
                       },
                       {
@@ -249,7 +250,12 @@ export default (model, currency_id, promotions) => {
                     onError: [
                       {
                         target: "invalid",
-                        actions: ["setOptions", raise("CALCULATE"), "setError"],
+                        actions: [
+                          "setOptions",
+                          "setError",
+                          "setSummaryCalculating",
+                          "calculate",
+                        ],
                         cond: "needsCalculating",
                       },
                       {
@@ -296,25 +302,6 @@ export default (model, currency_id, promotions) => {
                 "UPDATE.PROVISIONING": {
                   target: "provisioning.checking",
                   actions: ["setProvisioning"],
-                },
-              },
-            },
-            summary: {
-              initial: "empty",
-              states: {
-                empty: {},
-                calculating: {},
-                calculated: { type: "final" },
-              },
-              on: {
-                CALCULATE: {
-                  target: "summary.calculating",
-                  actions: ["calculate"],
-                },
-                CALCULATED: {
-                  target: "summary.calculated",
-                  actions: ["setSummary"],
-                  cond: "hasSummary",
                 },
               },
             },
@@ -369,16 +356,6 @@ export default (model, currency_id, promotions) => {
             PROCESSING: {
               target: "configured.processing",
             },
-
-            CALCULATE: {
-              target: "configuring.summary.calculating",
-              actions: ["calculate"],
-            },
-
-            // CALCULATED: {
-            //   target: "configuring.summary.calculated",
-            //   actions: ["setSummary"],
-            // },
             // ---
             UPDATE: {
               target: "configuring",
@@ -446,6 +423,11 @@ export default (model, currency_id, promotions) => {
           { actions: ["setClean"] },
         ],
         BIN: { target: "unavailable" },
+
+        CALCULATED: {
+          actions: ["setSummary"],
+          cond: "hasSummaryData",
+        },
       },
     },
     {
@@ -519,15 +501,6 @@ export default (model, currency_id, promotions) => {
         }),
 
         // ---
-        calculate: sendTo(
-          ({ calculateCallback }, _event) => calculateCallback,
-          ({ currency_id, prices, model, lookups }, _event) => ({
-            type: "CALCULATE",
-            data: { currency_id, prices, model, lookups },
-          })
-        ),
-
-        // ---
 
         setConfig: assign({
           config: ({ model }, _event) => useBasketConfigParser(model),
@@ -539,6 +512,7 @@ export default (model, currency_id, promotions) => {
         })),
 
         // ---
+
         setSummary: assign({
           summary: ({ model, lookups }, { data }) => {
             return useSummaryParser({
@@ -549,6 +523,22 @@ export default (model, currency_id, promotions) => {
           },
         }),
 
+        setSummaryCalculating: assign({
+          summary: ({ summary }, _event) => {
+            set(summary, "isCalculating", true);
+            return summary;
+          },
+        }),
+
+        calculate: sendTo(
+          ({ calculateCallback }, _event) => calculateCallback,
+          ({ currency_id, prices, model, lookups }, _event) => ({
+            type: "CALCULATE",
+            data: { currency_id, prices, model, lookups },
+          })
+        ),
+
+        //  ---
         setQuantity: assign({
           model: ({ model }, { data }) => {
             const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
@@ -665,7 +655,7 @@ export default (model, currency_id, promotions) => {
 
           return !!prop && data?.price && !isEqual(data?.price, prices[prop]);
         },
-        hasSummary: (_context, { data }) => !isEmpty(data),
+        hasSummaryData: (_context, { data }) => !isEmpty(data),
       },
       delays: {
         error: () => useTime().ERROR,
