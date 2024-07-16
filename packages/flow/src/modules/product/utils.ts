@@ -176,12 +176,12 @@ export const useSubproductParser = (
   // with the parsed data as the values
   const options = reduce(
     sorted,
-    (result, rawOption) => {
+    (result, rawSubproduct) => {
       // create the option based on the category ... if it isnt already set
       const option = get(
         result,
-        rawOption.category_id,
-        pick(rawOption.category, [
+        rawSubproduct.category_id,
+        pick(rawSubproduct.category, [
           "id",
           "name",
           "multiple",
@@ -189,25 +189,26 @@ export const useSubproductParser = (
           "price_override",
         ])
       );
-      option.name = useTranslateName(rawOption.category);
+      option.name = useTranslateName(rawSubproduct.category);
       // get the prev values...if there are any
       const values = get(option, "values", []);
 
       // add this raw option to the values, with limited properties
-      const value = pick(rawOption, [
+      const value = pick(rawSubproduct, [
         "id",
         "name",
         "id",
         "order_type",
+        "billing_cycle_months",
         "unit_quantity",
         "max_order_quantity",
         "min_order_quantity",
       ]);
-      value.name = useTranslateName(rawOption);
-      value.canChangeQuantity = rawOption.order_type == 2;
+      value.name = useTranslateName(rawSubproduct);
+      value.canChangeQuantity = rawSubproduct.order_type == 2;
 
-      // add the prices to the value, with limited properties
-      value.prices = map(rawOption.prices, rawPrice => {
+      // get the prices for this subproduct
+      const prices = map(rawSubproduct.prices, rawPrice => {
         const price = pick(rawPrice, [
           "mixed_promotions",
           "billing_cycle_months",
@@ -226,28 +227,29 @@ export const useSubproductParser = (
       });
 
       // check if we have a price for the current billing cycle ( if provided )
-      if (!isNil(billing_cycle_months) && value?.prices?.length) {
+      if (!isNil(billing_cycle_months) && prices?.length) {
         // First, try get a one off price, if it exists
-        value.price = find(value.prices, ["billing_cycle_months", 0]);
+        value.price = find(prices, ["billing_cycle_months", 0]);
 
         // othrwise try find the matching term price
         if (!value.price)
-          value.price = find(value.prices, [
+          value.price = find(prices, [
             "billing_cycle_months",
             billing_cycle_months,
           ]);
 
         // finally...only include the value if we have a price
         if (value.price) values.push(value);
-      } else {
-        //  set the updated values
+      } else if (!value?.billing_cycle_months) {
+        // otherwise set the updated values if we DON'T have a billing cycle
+        // this is so products with no billing cycle doesnt show subproducts that do
         values.push(value);
       }
 
       set(option, "values", values);
 
       // finally  set the updated option
-      set(result, rawOption.category_id, option);
+      set(result, rawSubproduct.category_id, option);
       return result;
     },
     {}
@@ -357,6 +359,7 @@ export const useProvisioningParser = (data: any) => {
     const schema = {
       type,
       format,
+      title: field.field_label,
       description: field.description,
       default: field.default,
       enum: !some(field.options, isString) ? undefined : field.options,
@@ -494,8 +497,8 @@ export const useModelParser = (data: any) => {
       quantity: data.quantity,
       product_id: data.product_id,
       term: { billing_cycle_months: data.billing_cycle_months },
-      attributes: mapSubProductChoices(data.attributes),
-      options: mapSubProductChoices(data.options),
+      attributes: mapSubproductChoices(data.attributes),
+      options: mapSubproductChoices(data.options),
       provision_fields: data.provision_fields,
     };
   } else {
@@ -512,7 +515,7 @@ export const useModelParser = (data: any) => {
 };
 
 // ---
-const mapSubProductChoices = (values: any) => {
+const mapSubproductChoices = (values: any) => {
   return reduce(
     values,
     (result, value) => {
