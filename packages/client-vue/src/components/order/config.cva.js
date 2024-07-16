@@ -7,14 +7,14 @@ export default {
     confirmation: {
       // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
       root: cva(
-        "relative flex w-full flex-wrap flex-wrap items-start justify-center py-16 px-6 flex-col justify-center items-center",
+        "relative flex w-full flex-col flex-wrap flex-wrap items-start items-center justify-center justify-center px-6 py-16",
         {
           variants: {},
         }
       ),
-      title: cva("text-3xl font-light m-0 mt-8 text-center text-inherit"),
-      text: cva("text-sm tracking-tight text-center m-0 mt-2 text-base-500"),
-      avatar: cva("size-20 bg-primary text-primary-content p-2"),
+      title: cva("m-0 mt-8 text-center text-3xl font-light text-inherit"),
+      text: cva("text-base-500 m-0 mt-2 text-center text-sm tracking-tight"),
+      avatar: cva("bg-primary text-primary-content size-20 p-2"),
       actions: cva("flex w-full justify-center pt-8"),
     },
   },
