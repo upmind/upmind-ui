@@ -275,7 +275,6 @@ async function checkSubproducts(
   // ---
   // safety check, resolve if we have no attributes to check
   if (!lookups?.[type]?.length) {
-    debugger;
     return Promise.resolve({
       subproducts,
       price,
@@ -286,7 +285,6 @@ async function checkSubproducts(
     lookups[type],
     (result, subproduct) => {
       // try get any selected values for this subproduct,
-      console.log("checkSubproducts", { ...subproducts });
       let selected = get(model, `${type}.${subproduct.id}`, {});
 
       // if we have selected values, ensure they are valid and fully formed
@@ -413,7 +411,6 @@ const calculateSummary = (
   { currency_id, prices, model, lookups }: ProductConfigContext,
   controller: AbortController
 ) => {
-  debugger;
   const { post, useUrl } = useApi();
 
   // remove the term price if we have any price overrides
