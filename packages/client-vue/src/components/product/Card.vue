@@ -30,10 +30,6 @@
 
         <div :class="styles.product.card.meta">
           <span v-if="termSummary">
-            <strong :class="styles.product.card.bold">{{
-              termSummary.formatted
-            }}</strong>
-
             {{ $t(`product.${termSummary.key}`, termSummary) }}
           </span>
 

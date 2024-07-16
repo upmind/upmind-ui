@@ -5,6 +5,7 @@
       v-if="!meta.isInline"
       :id="id"
       :text="label"
+      :alt-text="text"
       :requiredText="requiredText"
       :optionalText="optionalText"
       :noRequired="noRequired"
@@ -60,6 +61,7 @@
         v-if="meta.isInline"
         :id="id"
         :text="label"
+        :alt-text="text"
         :requiredText="requiredText"
         :optionalText="optionalText"
         :noRequired="noRequired"
@@ -161,6 +163,7 @@ export default defineComponent({
   props: {
     id: { type: String },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---
@@ -220,7 +223,7 @@ export default defineComponent({
       isDisabled: props.disabled,
       hasFeedback:
         (isEmpty(props.errors) && !isEmpty(props.description)) ||
-        !isEmpty(props.errors),
+        (!isEmpty(props.errors) && props.dirty),
     }));
 
     const styles = useStyles(

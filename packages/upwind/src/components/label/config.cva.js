@@ -22,7 +22,7 @@ export default {
         size: "md",
       },
     }),
-    alt: cva("text-base-500 w-full text-xs"),
+    alt: cva("mx-2"),
     required: cva(""),
     optional: cva(""),
     status: cva(

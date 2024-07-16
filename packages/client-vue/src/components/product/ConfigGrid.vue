@@ -4,6 +4,7 @@
     :class="styles.product.config.grid.root"
     :label="label"
     :required="true"
+    :errors="errors"
     no-required
     no-feedback
     no-status
@@ -98,6 +99,8 @@
       </h-radio-group-option>
     </h-radio-group>
   </upw-input>
+
+  <pre v-if="errors">{{ errors }}</pre>
 </template>
 
 <script>
@@ -153,6 +156,9 @@ export default defineComponent({
     },
     label: {
       type: String,
+    },
+    errors: {
+      type: Array,
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

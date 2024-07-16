@@ -397,9 +397,9 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
       name: term.billing_cycle_name,
       cycle: term.billing_cycle_months,
       quantity: model.quantity,
-      discount: term.billing_cycle_months ? term.price_discounted : null,
-      total: term.billing_cycle_months ? term.price : null,
-      formatted: term.billing_cycle_months ? term.price_formatted : null,
+      discount: term.price_discounted,
+      total: term.price,
+      formatted: term.price_formatted,
     });
   }
 

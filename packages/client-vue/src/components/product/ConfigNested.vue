@@ -4,14 +4,20 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
-    :requiredText="safeRequireText(item)"
-    :required="true"
+    :text="safeText(item)"
+    :required="item.required"
+    :errors="safeErrors(item.id)"
     :no-required="!item.price_override && false"
-    no-feedback
     variant="flat"
     layout="stacked"
+    :dirty="isDirty(item.id)"
+    @blur="blurred[item.id] = true"
+    tabindex="-1"
   >
-    <ul :class="styles.product.config.list.items">
+    <ul
+      :class="styles.product.config.list.items"
+      :aria-invalid="isInvalid(item.id)"
+    >
       <li
         v-for="value in item.values"
         :key="value.id"
@@ -22,18 +28,7 @@
             item.values?.length == 1 && item.required
           )
         "
-        :class="
-          mergeStyles(
-            styles.product.config.list.item.root,
-            isSelected(
-              item.id,
-              value.id,
-              item.values?.length == 1 && item.required
-            )
-              ? styles.product.config.list.item.selected
-              : null
-          )
-        "
+        :class="styles.product.config.list.item.root"
       >
         <label
           :for="`items[${item.id}][${value.id}]`"
@@ -154,7 +149,7 @@
 
 <script>
 // --- external
-import { defineComponent, toRefs } from "vue";
+import { defineComponent, toRefs, ref } from "vue";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -171,7 +166,7 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import { some } from "lodash-es";
+import { some, has } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -202,6 +197,9 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    errors: {
+      type: Object,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
@@ -214,32 +212,37 @@ export default defineComponent({
     return {
       styles,
       mergeStyles,
+      blurred: ref({}),
     };
   },
   computed: {},
   methods: {
-    safeRequireText(item) {
-      const values = [];
-
+    safeText(item) {
       const hasPrices = this.hasPrices(item);
 
       if (hasPrices) {
-        values.push(
-          this.$tc("product.adds_overrides", item?.price_override ? 1 : 0)
-        );
+        return this.$tc("product.adds_overrides", item?.price_override ? 1 : 0);
       }
 
-      if (item.required) {
-        const prefix = hasPrices ? "(" : "";
-        const suffix = hasPrices ? ")" : "";
-        values.push(`${prefix}${this.$t("product.required")}${suffix}`);
-      }
-
-      return values.join(" ");
+      return null;
     },
+
+    isDirty(item) {
+      return has(this.blurred, item);
+    },
+
+    safeErrors(item) {
+      return this.errors?.[item]?.join() || undefined;
+    },
+
     hasPrices(item) {
       return some(item.values, "price");
     },
+
+    isInvalid(item) {
+      return this.isDirty(item) && !!this.errors?.[item]?.length;
+    },
+
     isSelected(item, value, autoselect = false) {
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
