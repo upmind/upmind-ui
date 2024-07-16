@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions, spawn } from "xstate";
-const { sendParent, sendTo } = actions;
+const { sendParent, sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
@@ -21,12 +21,13 @@ import {
 import {
   clone,
   get,
+  has,
+  isEmpty,
   isEqual,
   merge,
   set,
   toNumber,
   unset,
-  has,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
@@ -111,178 +112,214 @@ export default (model, currency_id, promotions) => {
         // The product requires configuration
         configuring: {
           id: "configuring",
-          initial: "quantity",
+          type: "parallel",
           states: {
             quantity: {
-              invoke: {
-                src: "checkQuantity",
-                onDone: {
-                  target: "values",
-                  actions: ["setQuantity"],
+              initial: "checking",
+              states: {
+                checking: {
+                  invoke: {
+                    src: "checkQuantity",
+                    onDone: {
+                      target: "valid",
+                      actions: [
+                        "setQuantity",
+                        raise("CHECK.TERM"),
+                        raise("CHECK.OPTIONS"),
+                      ],
+                    },
+                    onError: {
+                      target: "invalid",
+                      actions: "setError",
+                    },
+                  },
                 },
-                onError: {
-                  actions: "setError",
+                invalid: {},
+                valid: { type: "final" },
+              },
+              on: {
+                "CHECK.QUANTITY": {
+                  target: "quantity.checking",
+                },
+                "UPDATE.QUANTITY": {
+                  target: "quantity",
+                  actions: ["setQuantity"],
                 },
               },
             },
-            values: {
-              type: "parallel",
+            term: {
+              initial: "checking",
               states: {
-                term: {
-                  initial: "checking",
-                  states: {
-                    checking: {
-                      entry: ({ error }) => unset(error, "term"),
-                      invoke: {
-                        src: "checkTerm",
-                        onDone: [
-                          {
-                            target: "valid",
-                            actions: ["setTerm", "calculate"],
-                            cond: "needsCalculating",
-                          },
+                checking: {
+                  entry: ({ error }) => unset(error, "term"),
+                  invoke: {
+                    src: "checkTerm",
+                    onDone: [
+                      {
+                        target: ["valid"],
+                        actions: [
+                          "setTerm",
+                          raise("CHECK.OPTIONS"),
+                          raise("CALCULATE"),
+                        ],
+                        cond: "needsCalculating",
+                      },
 
-                          {
-                            target: "valid",
-                            actions: ["setTerm"],
-                          },
-                        ],
-                        onError: [
-                          {
-                            target: "invalid",
-                            actions: ["setTerm", "calculate", "setError"],
-                            cond: "needsCalculating",
-                          },
-                          {
-                            target: "invalid",
-                            actions: ["setTerm", "setError"],
-                          },
-                        ],
+                      {
+                        target: "valid",
+                        actions: ["setTerm", raise("CHECK.OPTIONS")],
                       },
-                    },
-                    invalid: {},
-                    valid: {
-                      type: "final",
-                    },
-                  },
-                  on: {
-                    "UPDATE.TERM": {
-                      target: "term.checking",
-                      actions: ["setTerm"],
-                    },
+                    ],
+                    onError: [
+                      {
+                        target: "invalid",
+                        actions: ["setTerm", "setError", raise("CALCULATE")],
+                        cond: "needsCalculating",
+                      },
+                      {
+                        target: "invalid",
+                        actions: ["setTerm", "setError"],
+                      },
+                    ],
                   },
                 },
-                attributes: {
-                  initial: "checking",
-                  states: {
-                    checking: {
-                      entry: ({ error }) => unset(error, "attributes"),
-                      invoke: {
-                        src: "checkAttributes",
-                        onDone: {
-                          target: "valid",
-                          actions: ["setAttributes"],
-                        },
-                        onError: {
-                          target: "invalid",
-                          actions: ["setAttributes", "setError"],
-                        },
-                      },
-                    },
-                    invalid: {},
-                    valid: {
-                      type: "final",
-                    },
-                  },
-                  on: {
-                    "UPDATE.ATTRIBUTES": {
-                      target: "attributes.checking",
-                      actions: ["setAttributes"],
-                    },
-                  },
+                invalid: {},
+                valid: { type: "final" },
+              },
+              on: {
+                "CHECK.TERM": {
+                  target: "term.checking",
                 },
-                options: {
-                  initial: "checking",
-                  states: {
-                    checking: {
-                      entry: ({ error }) => unset(error, "options"),
-                      invoke: {
-                        src: "checkOptions",
-                        onDone: [
-                          {
-                            target: "valid",
-                            actions: ["setOptions", "calculate"],
-                            cond: "needsCalculating",
-                          },
-                          {
-                            target: "valid",
-                            actions: ["setOptions"],
-                          },
-                        ],
-                        onError: [
-                          {
-                            target: "invalid",
-                            actions: ["setOptions", "calculate", "setError"],
-                            cond: "needsCalculating",
-                          },
-                          {
-                            target: "invalid",
-                            actions: ["setOptions", "setError"],
-                          },
-                        ],
-                      },
-                    },
-                    invalid: {},
-                    valid: {
-                      type: "final",
-                    },
-                  },
-                  on: {
-                    "UPDATE.OPTIONS": {
-                      target: "options.checking",
-                      actions: ["setOptions"],
-                    },
-                  },
-                },
-                provisioning: {
-                  initial: "checking",
-                  states: {
-                    checking: {
-                      entry: ({ error }) => unset(error, "provision_fields"),
-                      invoke: {
-                        src: "checkProvisioning",
-                        onDone: {
-                          target: "valid",
-                          actions: ["setProvisioning"],
-                        },
-                        onError: {
-                          target: "invalid",
-                          actions: ["setProvisioning", "setError"],
-                        },
-                      },
-                    },
-                    invalid: {},
-                    valid: {
-                      type: "final",
-                    },
-                  },
-                  on: {
-                    "UPDATE.PROVISIONING": {
-                      target: "provisioning.checking",
-                      actions: ["setProvisioning"],
-                    },
-                  },
+                "UPDATE.TERM": {
+                  target: "term.checking",
+                  actions: ["setTerm"],
                 },
               },
-              onDone: { target: "#configured" },
+            },
+            attributes: {
+              id: "attributes",
+              initial: "checking",
+              states: {
+                checking: {
+                  entry: ({ error }) => unset(error, "attributes"),
+                  invoke: {
+                    src: "checkAttributes",
+                    onDone: {
+                      target: "valid",
+                      actions: ["setAttributes"],
+                    },
+                    onError: {
+                      target: "invalid",
+                      actions: ["setAttributes", "setError"],
+                    },
+                  },
+                },
+                invalid: {},
+                valid: { type: "final" },
+              },
+              on: {
+                "CHECK.ATTRIBUTES": {
+                  target: "attributes.checking",
+                },
+                "UPDATE.ATTRIBUTES": {
+                  target: "attributes.checking",
+                  actions: ["setAttributes"],
+                },
+              },
+            },
+            options: {
+              id: "options",
+              initial: "checking",
+              states: {
+                checking: {
+                  entry: ({ error }) => unset(error, "options"),
+                  invoke: {
+                    src: "checkOptions",
+                    onDone: [
+                      {
+                        target: "valid",
+                        actions: ["setOptions", raise("CALCULATE")],
+                        cond: "needsCalculating",
+                      },
+                      {
+                        target: "valid",
+                        actions: ["setOptions"],
+                      },
+                    ],
+                    onError: [
+                      {
+                        target: "invalid",
+                        actions: ["setOptions", raise("CALCULATE"), "setError"],
+                        cond: "needsCalculating",
+                      },
+                      {
+                        target: "invalid",
+                        actions: ["setOptions", "setError"],
+                      },
+                    ],
+                  },
+                },
+                invalid: {},
+                valid: { type: "final" },
+              },
+              on: {
+                "CHECK.OPTIONS": {
+                  target: "options.checking",
+                },
+                "UPDATE.OPTIONS": {
+                  target: "options.checking",
+                  actions: ["setOptions"],
+                },
+              },
+            },
+            provisioning: {
+              initial: "checking",
+              states: {
+                checking: {
+                  entry: ({ error }) => unset(error, "provision_fields"),
+                  invoke: {
+                    src: "checkProvisioning",
+                    onDone: {
+                      target: "valid",
+                      actions: ["setProvisioning"],
+                    },
+                    onError: {
+                      target: "invalid",
+                      actions: ["setProvisioning", "setError"],
+                    },
+                  },
+                },
+                invalid: {},
+                valid: { type: "final" },
+              },
+              on: {
+                "UPDATE.PROVISIONING": {
+                  target: "provisioning.checking",
+                  actions: ["setProvisioning"],
+                },
+              },
+            },
+            summary: {
+              initial: "empty",
+              states: {
+                empty: {},
+                calculating: {},
+                calculated: { type: "final" },
+              },
+              on: {
+                CALCULATE: {
+                  target: "summary.calculating",
+                  actions: ["calculate"],
+                },
+                CALCULATED: {
+                  target: "summary.calculated",
+                  actions: ["setSummary"],
+                  cond: "hasSummary",
+                },
+              },
             },
           },
           on: {
-            // PROCESSING: { target: "configured.processing" },
-            "UPDATE.QUANTITY": {
-              target: "configuring.quantity",
-              actions: ["setQuantity"],
-            },
             UPDATE: {
               target: "configuring",
               actions: ["setModel", "setDirty"],
@@ -295,6 +332,7 @@ export default (model, currency_id, promotions) => {
               },
             ],
           },
+          onDone: { target: "#configured" },
         },
 
         // this is our state where we are all good and can add/update this configuration to the basket
@@ -332,9 +370,15 @@ export default (model, currency_id, promotions) => {
               target: "configured.processing",
             },
 
-            CALCULATED: {
-              actions: ["setSummary"],
+            CALCULATE: {
+              target: "configuring.summary.calculating",
+              actions: ["calculate"],
             },
+
+            // CALCULATED: {
+            //   target: "configuring.summary.calculated",
+            //   actions: ["setSummary"],
+            // },
             // ---
             UPDATE: {
               target: "configuring",
@@ -349,23 +393,23 @@ export default (model, currency_id, promotions) => {
             ],
 
             "UPDATE.QUANTITY": {
-              target: "configuring.quantity",
+              target: "configuring.quantity.checking",
               actions: ["setQuantity", "setDirty"],
             },
             "UPDATE.TERM": {
-              target: "configuring.values.term.checking",
+              target: "configuring.term.checking",
               actions: ["setTerm", "setDirty"],
             },
             "UPDATE.ATTRIBUTES": {
-              target: "configuring.values.attributes.checking",
+              target: "configuring.attributes.checking",
               actions: ["setAttributes", "setDirty"],
             },
             "UPDATE.OPTIONS": {
-              target: "configuring.values.options.checking",
+              target: "configuring.options.checking",
               actions: ["setOptions", "setDirty"],
             },
             "UPDATE.PROVISIONING": {
-              target: "configuring.values.provisioning.checking",
+              target: "configuring.provisioning.checking",
               actions: ["setProvisioning", "setDirty"],
             },
           },
@@ -373,6 +417,7 @@ export default (model, currency_id, promotions) => {
 
         // this is a state where we hav ebeen deleted or are no longer available from a parent machine
         unavailable: {},
+
         // Handle errors
         error: {
           id: "error",
@@ -620,6 +665,7 @@ export default (model, currency_id, promotions) => {
 
           return !!prop && data?.price && !isEqual(data?.price, prices[prop]);
         },
+        hasSummary: (_context, { data }) => !isEmpty(data),
       },
       delays: {
         error: () => useTime().ERROR,
