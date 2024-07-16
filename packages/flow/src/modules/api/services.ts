@@ -2,6 +2,8 @@
 
 // --- internal
 import { useApi } from "./";
+import { useSession } from "../session";
+
 import type { RequestContext } from "./types.d";
 
 // --- utils
@@ -81,6 +83,8 @@ async function doFetch({ url, init }: RequestContext) {
 
 async function refreshToken(_context: RequestContext, _event: any) {
   const { post, useUrl } = useApi();
+  const { reauth } = useSession();
+
   const token = getTokenfromStorage();
   const refresh_token = get(token, "refresh_token", "");
 
@@ -100,7 +104,12 @@ async function refreshToken(_context: RequestContext, _event: any) {
     })
     .catch(error => {
       // console.debug("refreshToken", "failed", error);
+
+      // we need to notify the session machine that the token is invalid
+      // so it can handle the error and decide what to do next
       dumpTokensFromStorage();
+      reauth();
+
       return Promise.reject(error);
     });
 }

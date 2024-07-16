@@ -42,7 +42,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     clear: "LOGOUT";
-    clearError: "xstate.init";
+    clearError: "REAUTH" | "xstate.init";
     clearTransfer: "xstate.after(expired)#sessionClient.transferring.available";
     setError:
       | "error.platform.loading:invocation[0]"
@@ -59,7 +59,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {};
   eventsCausingServices: {
-    load: "xstate.init";
+    load: "REAUTH" | "xstate.init";
     transfer: "TRANSFER";
   };
   matchesStates:

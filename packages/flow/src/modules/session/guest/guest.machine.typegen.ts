@@ -89,7 +89,7 @@ export interface Typegen0 {
       | "verifyReCaptcha";
   };
   eventsCausingActions: {
-    clearError: "" | "xstate.init";
+    clearError: "" | "REAUTH" | "xstate.init";
     set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
     set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
     setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
@@ -127,7 +127,7 @@ export interface Typegen0 {
       | "done.invoke.sessionGuest.register.registering:invocation[0]";
     checkForReCaptcha: "REGISTER";
     getCustomFields: "REGISTER";
-    load: "xstate.init";
+    load: "REAUTH" | "xstate.init";
     register:
       | "done.invoke.sessionGuest.register.checking:invocation[0]"
       | "done.invoke.sessionGuest.register.verifying:invocation[0]";
