@@ -1,6 +1,7 @@
 {
   "product": {
     "image": "/fallback.svg",
+    "required": "Required",
     "free": "Free",
     "promotion": "On promotion",
     "trail": "Free trial",
