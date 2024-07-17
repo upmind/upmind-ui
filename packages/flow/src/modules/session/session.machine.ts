@@ -60,7 +60,7 @@ export default createMachine(
         },
       },
 
-      unavailable: {},
+      expired: {},
 
       // ---
 
@@ -68,6 +68,11 @@ export default createMachine(
       complete: {
         entry: "clear",
         type: "final",
+      },
+    },
+    on: {
+      EXPIRED: {
+        target: "expired",
       },
     },
   },
@@ -78,11 +83,6 @@ export default createMachine(
         return null;
       }),
       // ---
-
-      setError: assign({
-        error: (context, { data }) => data,
-      }),
-      clearError: assign({ error: null }),
     },
 
     guards: {

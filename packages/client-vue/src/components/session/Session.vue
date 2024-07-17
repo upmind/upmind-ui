@@ -97,11 +97,7 @@ export default defineComponent({
     },
   },
   setup(props, { slots }) {
-    const styles = useStyles(
-      ["session", "sessionTransitionEnter", "sessionTransitionLeave"],
-      props,
-      config
-    );
+    const styles = useStyles(["session"], props, config);
 
     return {
       ...useSession(),

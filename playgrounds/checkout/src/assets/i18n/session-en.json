@@ -61,6 +61,16 @@
         "text": "Not you? Sign in with another account {action} .",
         "action": "here"
       }
+    },
+    "expired": {
+      "title": "Your session has expired",
+      "text": "Please restart your checkout to continue.",
+      "avatar": "basket",
+      "actions": {
+        "continue": {
+          "label": "Restart checkout"
+        }
+      }
     }
   }
 }

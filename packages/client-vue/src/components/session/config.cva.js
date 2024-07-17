@@ -14,29 +14,43 @@ export default {
       "flex flex-col gap-2 text-sm font-light leading-tight tracking-tight"
     ),
     content: cva("rounded-box my-8 w-full max-w-3xl items-start"),
-  },
 
-  sessionTransitionEnter: {
-    active: cva("m-0 transition duration-300 ease-out"),
-    from: cva("-translate-y-10 transform opacity-0"),
-    to: cva("translate-y-0 transform opacity-100"),
-  },
+    transition: {
+      enter: {
+        active: cva("m-0 transition duration-300 ease-out"),
+        from: cva("-translate-y-10 transform opacity-0"),
+        to: cva("translate-y-0 transform opacity-100"),
+      },
 
-  sessionTransitionLeave: {
-    active: cva("absolute transition duration-100 ease-in"),
-    from: cva("translate-y-0 transform opacity-100"),
-    to: cva("-translate-y-1 transform opacity-0"),
-  },
+      leave: {
+        active: cva("absolute transition duration-100 ease-in"),
+        from: cva("translate-y-0 transform opacity-100"),
+        to: cva("-translate-y-1 transform opacity-0"),
+      },
+    },
 
-  auth: {
-    root: cva("flex flex-col gap-8"),
-    form: cva("place-items-start"),
-  },
+    auth: {
+      root: cva("flex flex-col gap-8"),
+      form: cva("place-items-start"),
+    },
 
-  profile: {
-    trigger: cva("rounded-full p-0"),
-    loading: cva(""),
-    label: cva("sr-only"),
-    avatar: cva("my-0 size-8"),
+    profile: {
+      trigger: cva("rounded-full p-0"),
+      loading: cva(""),
+      label: cva("sr-only"),
+      avatar: cva("my-0 size-8"),
+    },
+
+    expired: {
+      // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
+      root: cva(
+        "relative flex w-full flex-col flex-wrap flex-wrap items-start items-center justify-start justify-center gap-6 py-16"
+      ),
+      title: cva("m-0 text-center text-3xl font-light text-inherit"),
+      text: cva(
+        "text-base-500  m-0 text-center text-sm leading-5 tracking-tight"
+      ),
+      avatar: cva("bg-primary text-primary-content size-20 p-2"),
+    },
   },
 };

@@ -1,5 +1,9 @@
 <template>
-  <div class="auth" :class="styles.auth.root" v-if="!meta.isAuthenticated">
+  <div
+    class="auth"
+    :class="styles.session.auth.root"
+    v-if="!meta.isAuthenticated"
+  >
     <upw-tabs
       :tabs="tabs"
       v-model="active"
@@ -21,7 +25,7 @@
       :additional-errors="errors?.data"
       @reject="reject"
       @resolve="resolve"
-      :class="styles.auth.form"
+      :class="styles.session.auth.form"
       :actions="authActions"
     >
     </upw-form>
@@ -61,7 +65,7 @@ export default defineComponent({
   setup(props) {
     const session = useSession();
 
-    const styles = useStyles(["auth"], session.meta, config);
+    const styles = useStyles(["session.auth"], session.meta, config);
 
     return {
       ...session,

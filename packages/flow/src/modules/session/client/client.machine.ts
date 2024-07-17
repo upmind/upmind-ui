@@ -94,11 +94,6 @@ export default createMachine(
         type: "final",
       },
     },
-    on: {
-      REAUTH: {
-        target: "loading",
-      },
-    },
   },
   {
     actions: {

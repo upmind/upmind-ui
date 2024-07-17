@@ -167,6 +167,6 @@ export const useSession = () => {
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
     transfer,
-    reauth: () => service.send("REAUTH"),
+    reauth: () => service.send("EXPIRED"),
   };
 };

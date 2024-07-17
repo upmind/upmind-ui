@@ -1,0 +1,98 @@
+<template>
+  <component
+    v-if="modal || (!modal && open)"
+    :is="modal ? 'upw-dialog' : 'div'"
+    size="xl"
+    :model-value="open"
+    no-actions
+    persistent
+    skrim="light"
+  >
+    <section :class="styles.session.expired.root">
+      <upw-avatar :avatar="avatar" :class="styles.session.expired.avatar" />
+
+      <h3 :class="styles.session.expired.title">
+        {{ title }}
+      </h3>
+
+      <p :class="styles.session.expired.text">{{ text }}</p>
+
+      <footer>
+        <upw-button
+          v-if="action"
+          v-bind="action"
+          block
+          variant="ghost"
+          :href="$route.fullPath"
+        />
+      </footer>
+    </section>
+  </component>
+</template>
+
+<script>
+// --- external
+import { defineComponent, computed } from "vue";
+
+// --- internal
+import { useSession } from "@upmind/flow-vue";
+import { useStyles, mergeStyles } from "@upmind/upwind";
+import config from "./config.cva";
+
+// --- components
+import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+
+// --- types
+
+// -----------------------------------------------------------------------------
+export default defineComponent({
+  name: "UpmBasketEmpty",
+  components: {
+    UpwDialog,
+    UpwAvatar,
+    UpwButton,
+  },
+  props: {
+    modal: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  setup() {
+    const { meta } = useSession();
+
+    const styles = useStyles(["session.expired"], meta, config);
+
+    // ---
+
+    return {
+      meta,
+      open: computed(() => {
+        const value = meta.value.hasExpired;
+        return value;
+      }),
+
+      // ---
+      styles,
+      mergeStyles,
+    };
+  },
+  computed: {
+    title() {
+      return this.$t("session.expired.title");
+    },
+
+    text() {
+      return this.$t("session.expired.text");
+    },
+
+    avatar() {
+      return this.$tm("session.expired.avatar");
+    },
+    action() {
+      return this.$tm("session.expired.actions.continue");
+    },
+  },
+});
+</script>
+.

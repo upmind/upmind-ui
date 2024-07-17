@@ -6,7 +6,7 @@
     :placement="placement"
     grouped
     :disabled="meta.isProcessing"
-    :upwind-config="{ dropdown: config.profile }"
+    :upwind-config="{ dropdown: config.session.profile }"
     :loading="meta.isProcessing"
     :prepend-avatar="user?.avatar"
     :label="user?.display"
@@ -51,7 +51,7 @@ export default defineComponent({
   setup() {
     const session = useSession();
 
-    const styles = useStyles(["profile"], session.meta, config);
+    const styles = useStyles(["session.profile"], session.meta, config);
 
     return {
       ...session,
