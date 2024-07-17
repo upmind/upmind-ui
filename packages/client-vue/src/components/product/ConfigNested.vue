@@ -7,7 +7,6 @@
     :text="safeText(item)"
     :required="item.required"
     :errors="safeErrors(item.id)"
-    :no-required="!item.price_override && false"
     variant="flat"
     layout="stacked"
     :dirty="isDirty(item.id)"
