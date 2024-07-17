@@ -8,7 +8,7 @@
       }
     },
     "details": {
-      "title": "Your basket total is {total}",
+      "title": "{name}, your basket total is {total}",
       "text": "Let's complete your order"
     },
     "promotions": {

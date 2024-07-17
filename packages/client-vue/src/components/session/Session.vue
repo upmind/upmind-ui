@@ -1,6 +1,6 @@
 <template>
   <section class="session" :class="styles.session.root">
-    <header :class="styles.session.header">
+    <header :class="styles.session.header" v-if="!noHeader">
       <slot name="header" v-bind="{ meta, user }">
         <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
@@ -59,7 +59,7 @@
     >
     </upm-auth>
 
-    <footer :class="styles.session.footer">
+    <footer :class="styles.session.footer" v-if="noFooter || !!$slots.footer">
       <slot name="footer" v-bind="{ meta, user }"> </slot>
     </footer>
   </section>
@@ -94,6 +94,14 @@ export default defineComponent({
     show: {
       type: String as PropType<AuthProps["form"]>,
       default: "register",
+    },
+    noHeader: {
+      type: Boolean,
+      default: false,
+    },
+    noFooter: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, { slots }) {
