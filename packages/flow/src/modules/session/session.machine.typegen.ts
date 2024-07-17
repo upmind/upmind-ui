@@ -39,7 +39,7 @@ export interface Typegen0 {
     isClientToken: "done.invoke.sessionManager.checking:invocation[0]";
   };
   eventsCausingServices: {
-    check: "xstate.init";
+    check: "EXPIRED" | "xstate.init";
     clientMachine:
       | "done.invoke.guestMachine"
       | "done.invoke.sessionManager.checking:invocation[0]";
@@ -48,6 +48,6 @@ export interface Typegen0 {
       | "done.invoke.sessionManager.checking:invocation[0]"
       | "error.platform.sessionManager.checking:invocation[0]";
   };
-  matchesStates: "checking" | "client" | "complete" | "guest" | "unavailable";
+  matchesStates: "checking" | "client" | "complete" | "expired" | "guest";
   tags: never;
 }

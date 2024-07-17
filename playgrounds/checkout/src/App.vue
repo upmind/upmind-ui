@@ -13,6 +13,8 @@
           class="view flex-1 gap-4 px-4 py-8 sm:px-6 lg:px-20"
           :key="route.fullPath"
         />
+
+        <upm-session-expired />
       </main>
 
       <upm-footer />
@@ -25,7 +27,7 @@
 import { useRoute } from "vue-router";
 
 // --- internal
-import { UpmFeedback, useThemes } from "@upmind/client-vue";
+import { UpmFeedback, useThemes, UpmSessionExpired } from "@upmind/client-vue";
 import theme from "@/assets/theme";
 
 // --- components
