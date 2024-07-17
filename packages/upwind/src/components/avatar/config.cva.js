@@ -34,6 +34,9 @@ export default {
           xl: "text-xl",
           "2xl": "text-2xl",
         },
+        forceCaption: {
+          true: "absolute",
+        },
       },
       defaultVariants: {
         size: "md",
