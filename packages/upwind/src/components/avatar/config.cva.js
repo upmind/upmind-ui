@@ -23,7 +23,7 @@ export default {
     ),
     loading: cva("absolute left-0 top-0 h-full w-full"),
     icon: cva("m-1 h-full w-full object-cover"),
-    image: cva("h-full w-full object-cover"),
+    image: cva("relative z-10 h-full w-full object-cover"),
     caption: cva("m-0 text-current", {
       variants: {
         size: {
@@ -35,7 +35,7 @@ export default {
           "2xl": "text-2xl",
         },
         forceCaption: {
-          true: "absolute",
+          true: "absolute z-0",
         },
       },
       defaultVariants: {
