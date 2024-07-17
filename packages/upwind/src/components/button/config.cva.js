@@ -7,13 +7,16 @@ export default {
       "relative inline-flex !cursor-pointer items-center justify-center gap-x-3 rounded-lg text-center leading-normal transition-all",
       {
         variants: {
+          sm: "leading-5",
+          md: "leading-6",
+          lg: "leading-7",
           size: {
             badge: "rounded-full px-2 text-xs",
             square: "p-1",
-            xs: "px-2 py-1 text-xs",
-            sm: "px-3 py-2 text-sm",
-            md: "px-3 py-3",
-            lg: "px-3 py-4 text-lg",
+            xs: "px-2 py-1 text-xs leading-4",
+            sm: "px-3 py-2 text-sm leading-5",
+            md: "px-3 py-3 leading-6",
+            lg: "px-3 py-4 text-lg leading-7",
           },
           variant: {
             flat: "border-transparent",
