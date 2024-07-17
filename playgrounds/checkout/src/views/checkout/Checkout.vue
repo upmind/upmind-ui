@@ -51,7 +51,7 @@
             </h1>
           </template>
 
-          <template v-else>
+          <template v-else-if="account.isAuthenticated">
             <i18n-t
               :class="styles.checkout.section.text"
               keypath="basket.details.text"
