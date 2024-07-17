@@ -28,8 +28,10 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
   const billing_details = ref(actor);
 
   if (!actor) {
-    waitFor(service, newstate =>
-      ["checkout", "shopping"].some(newstate.matches)
+    waitFor(
+      service,
+      newstate => ["checkout", "shopping"].some(newstate.matches),
+      { timeout: Infinity }
     ).then(validState => {
       billing_details.value = contextActor(
         validState,

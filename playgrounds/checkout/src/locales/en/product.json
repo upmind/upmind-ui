@@ -1,27 +1,29 @@
 {
   "product": {
-    "actions": {
-      "configure": "Configure",
-      "more": "Show more | Show less",
-      "reject": "Cancel",
-      "remove": "Remove",
-      "resolve": "Confirm and proceed"
-    },
-    "cycle": "{value}/mo",
-    "free": "Free",
     "image": "/fallback.svg",
+    "required": "Required",
+    "free": "Free",
     "promotion": "On promotion",
-    "quantity": "Quantity",
-    "save": "Save {value}",
-    "taxes": {
-      "excluded": "Taxes excluded",
-      "included": "Taxes included"
-    },
+    "trail": "Free trial",
     "term": "billed {name}",
+    "promo_save": "On promotion | Save {value}",
+    "cycle": "{value}/mo",
+    "adds_overrides": "Overrides price | Adds to price",
     "terms": {
       "label": "Billing terms"
     },
     "total": "Item total",
-    "trail": "Free trial"
+    "quantity": "Quantity",
+    "taxes": {
+      "included": "Taxes included",
+      "excluded": "Taxes excluded"
+    },
+    "actions": {
+      "more": "Show more | Show less",
+      "remove": "Remove",
+      "configure": "Configure",
+      "resolve": "Confirm and proceed",
+      "reject": "Cancel"
+    }
   }
 }

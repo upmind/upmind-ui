@@ -63,7 +63,9 @@ export const useBasket = () => {
     service: service.start(),
     // ---
     isReady: async () =>
-      waitFor(service, state => ["shopping", "checkout"].some(state.matches)),
+      waitFor(service, state => ["shopping", "checkout"].some(state.matches), {
+        timeout: Infinity, // infinity = no timeout
+      }),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items || [],
     findItem,

@@ -6,7 +6,9 @@
 
     <upw-skeleton-list
       :class="styles.client.loading"
-      v-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
+      v-if="
+        meta.isLoading || (meta.isAdding && !meta.isEmpty) || meta.isEditing
+      "
     />
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
@@ -59,6 +61,7 @@
       i18nKey="unified"
       dialog
       no-filter
+      @update:modelValue="onClose"
     />
 
     <footer :class="styles.client.footer">

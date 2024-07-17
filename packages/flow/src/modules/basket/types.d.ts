@@ -3,6 +3,11 @@
 // --------------------------------------------------------
 // ENUMS
 
+export enum TaxTagTypes {
+  PERCENT = 1,
+  FIXED = 2,
+}
+
 // --------------------------------------------------------
 // Interfaces
 export interface Basket {

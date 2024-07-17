@@ -12,29 +12,28 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export function generateUrls({
-  gateway,
-  basket_id,
-  type,
-  operation_id,
-  model,
-}: GatewayContext) {
-  const url = new URL(window.location.pathname, window.location.origin);
+export function generateResponseUrls(
+  url: string,
+  { gateway, basket_id, type, model }: GatewayContext
+) {
+  // TODO: implemet operations machine
   // if (operation_id)
-  url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
+  //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
 
   // ---
-  const successUrl = new URL(url);
+  const successUrl = new URL(`orders/${basket_id}`, url);
+  // successUrl.searchParams.append("invoiceId", basket_id);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   // ---
-  const failUrl = new URL(url);
+  const failUrl = new URL(`orders/${basket_id}`, url);
+  // failUrl.searchParams.append("invoiceId", basket_id);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   // ---
-  const cancelUrl = new URL(url);
-  cancelUrl.searchParams.append("basketId", basket_id);
-  cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basket_id);
+  const cancelUrl = new URL(`orders/${basket_id}`, url);
+  // cancelUrl.searchParams.append("invoiceId", basket_id);
+  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basket_id);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
     encodeURIComponent(
@@ -66,7 +65,10 @@ export function generateUrls({
 // --------------------------------------------------------
 
 export const useSchema = (context: GatewayContext) => {
-  const { cancel, success, fail } = generateUrls(context);
+  const { cancel, success, fail } = generateResponseUrls(
+    window.location.origin,
+    context
+  );
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
@@ -78,11 +80,23 @@ export const useSchema = (context: GatewayContext) => {
         const: context.gateway.id,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
+      // ---
       can_store: {
         type: "boolean",
         const: context.can_store,
         readOnly: true,
       },
+      must_store: {
+        type: "boolean",
+        const: context.must_store,
+        readOnly: true,
+      },
+      must_auto_pay: {
+        type: "boolean",
+        const: context.must_auto_pay,
+        readOnly: true,
+      },
+      //  ---
       store_on_payment: {
         type: "boolean",
         default: true,
@@ -113,9 +127,7 @@ export const useSchema = (context: GatewayContext) => {
 
 // --------------------------------------------------------
 
-export const useUischema = ({ can_store }: GatewayContext) => {
-  // if (!can_store) return { type: "VerticalLayout", elements: [] };
-
+export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
@@ -130,8 +142,14 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/can_store",
-            schema: { const: true },
+            scope: "#",
+            schema: {
+              required: ["can_store"],
+              properties: {
+                can_store: { const: true },
+                must_store: { not: { const: true } },
+              },
+            },
           },
         },
       },
@@ -146,8 +164,14 @@ export const useUischema = ({ can_store }: GatewayContext) => {
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/store_on_payment",
-            schema: { const: true },
+            scope: "#",
+            schema: {
+              required: ["store_on_payment"],
+              properties: {
+                store_on_payment: { const: true },
+                must_auto_pay: { not: { const: true } },
+              },
+            },
           },
         },
       },

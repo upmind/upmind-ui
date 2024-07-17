@@ -34,7 +34,6 @@ export const useSystem = () => {
     isReady,
     getCountry: getDefaultCountry,
     getCurrencyId: getDefaultCurrency,
-    service: brandService,
   } = useBrand();
 
   // --- Helpers
@@ -65,8 +64,10 @@ export const useSystem = () => {
 
     // finally ... await the response
     return new Promise((resolve, reject) => {
-      waitFor(service, state =>
-        [`${node}.processed`, `${node}.error`].some(state.matches)
+      waitFor(
+        service,
+        state => [`${node}.processed`, `${node}.error`].some(state.matches)
+        // { timeout: Infinity }
       )
         .then(() => {
           if (state.matches(`${node}.processed`)) {
@@ -115,10 +116,7 @@ export const useSystem = () => {
 
     if (isEmpty(country)) {
       // ensure we have our brand settings loaded before we try to get the default country
-      if (!brandService.getSnapshot().matches("complete")) {
-        await waitFor(brandService, state => state.matches("complete"));
-      }
-
+      await isReady();
       country = getDefaultCountry();
     }
 

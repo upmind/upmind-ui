@@ -38,6 +38,7 @@
                   {{ product.subtotal }}
                   <!-- <small>{{ product.quantity }}</small> -->
                 </del>
+
                 {{ product.total }}
                 <!-- <small>{{ product.quantity }}</small> -->
               </strong>
@@ -74,38 +75,61 @@
       <upm-promotions :class="styles.basket.summary.form" />
 
       <!-- subtotals -->
-      <dl :class="styles.basket.summary.list">
-        <dt :class="styles.basket.summary.heading">
-          <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.discount.title", products.length)
-          }}</span>
-          <!-- TODO -->
-          <!-- <upw-icon
+      <dl
+        :class="styles.basket.summary.list"
+        v-if="!!summary?.discount || !!summary?.taxes"
+      >
+        <template v-if="summary?.discount">
+          <dt :class="styles.basket.summary.heading">
+            <span :class="styles.basket.summary.text">{{
+              $tc("basket.summary.discount.title", products.length)
+            }}</span>
+            <!-- TODO -->
+            <!-- <upw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
             {{ $t("basket.summary.discount.tooltip") }}
           </p> -->
-        </dt>
+          </dt>
 
-        <dd :class="styles.basket.summary.value">{{ summary?.discount }}</dd>
+          <dd :class="styles.basket.summary.value">{{ summary.discount }}</dd>
+        </template>
 
-        <dt :class="styles.basket.summary.heading">
-          <span :class="styles.basket.summary.text">{{
-            $tc("basket.summary.taxes.title", products.length)
-          }}</span>
-          <!-- TODO -->
-          <!-- <upw-icon
+        <template v-if="summary?.subtotal">
+          <dt :class="styles.basket.summary.heading">
+            <span :class="styles.basket.summary.text">{{
+              $tc("basket.summary.subtotal.title", products.length)
+            }}</span>
+            <!-- TODO -->
+            <!-- <upw-icon
+            :class="styles.basket.summary.tooltipIcon"
+            icon="information-circle-alt"
+          />
+          <p :class="styles.basket.summary.tooltip">
+            {{ $t("basket.summary.discount.tooltip") }}
+          </p> -->
+          </dt>
+
+          <dd :class="styles.basket.summary.value">{{ summary.subtotal }}</dd>
+        </template>
+
+        <template v-for="(value, key) in summary?.taxes" :key="key">
+          <dt :class="styles.basket.summary.heading">
+            <span :class="styles.basket.summary.text">{{ key }}</span>
+            <!-- TODO -->
+            <!-- <upw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
             {{ $t("basket.summary.taxes.tooltip") }}
           </p> -->
-        </dt>
+          </dt>
 
-        <dd :class="styles.basket.summary.value">{{ summary?.taxes }}</dd>
+          <dd :class="styles.basket.summary.value">{{ value }}</dd>
+        </template>
       </dl>
 
       <!-- total -->

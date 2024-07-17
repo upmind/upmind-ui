@@ -56,11 +56,7 @@ export default createMachine(
         },
       },
 
-      unavailable: {
-        on: {
-          AUTHENTICATED: { target: "available" },
-        },
-      },
+      unavailable: {},
 
       available: {
         initial: "loading",
@@ -151,7 +147,10 @@ export default createMachine(
 
           processed: {
             id: "processed",
-            entry: sendParent({ type: "REFRESH" }),
+            entry: sendParent((_context, { data }) => ({
+              type: "REFRESH",
+              data,
+            })),
             after: {
               wait: {
                 target: "#complete",
@@ -168,10 +167,6 @@ export default createMachine(
             target: "available.checking",
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
-
-          REFRESH: {
-            actions: ["refreshBasket", "setSchemas"],
-          },
         },
       },
 
@@ -179,13 +174,28 @@ export default createMachine(
       error: { id: "error" },
       complete: {
         id: "complete",
+        on: {
+          CLEAR: {
+            target: "available.checking",
+            actions: ["clearModel", "setDirty"],
+          },
+          SET: {
+            target: "available.checking",
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
+          },
+        },
         // type: "final"
       },
     },
     on: {
+      AUTHENTICATED: { target: "checking", actions: ["clearError"] },
       UNAUTHENTICATED: {
         target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
+      },
+      REFRESH: {
+        target: "available.checking",
+        actions: ["refreshBasket", "setSchemas"],
       },
     },
   },

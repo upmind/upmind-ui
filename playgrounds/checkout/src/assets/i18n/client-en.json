@@ -125,7 +125,10 @@
         "copy": "Copy to clipboard | Copied!"
       },
       "form": {
-        "title": "New Address | Edit Address",
+        "title": {
+          "address": "New Address | Edit Address",
+          "company": "New Company | Edit Company"
+        },
         "fields": {
           "place": {
             "label": "Address",

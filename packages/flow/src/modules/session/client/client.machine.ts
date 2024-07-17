@@ -4,6 +4,8 @@ import { createMachine, assign } from "xstate";
 // --- internal
 import services from "./services";
 import type { ClientContext } from "./types.d";
+import { useFeedback } from "../../feedback";
+const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../../utils";
@@ -31,21 +33,6 @@ export default createMachine(
           src: "load",
           onDone: { target: "idle", actions: "setUser" },
           onError: { target: "complete", actions: ["setError"] },
-        },
-      },
-
-      // in this state, we are attempting to refresh our token which has expired),
-      // we will clear the token and go back to our unauthenticated state
-      // which will generate a new token
-      refreshing: {
-        id: "refreshing",
-        invoke: {
-          src: "refreshToken",
-          onDone: { target: "processed" },
-          onError: {
-            target: "loading",
-            actions: "setError",
-          },
         },
       },
 
@@ -81,7 +68,7 @@ export default createMachine(
               },
               onError: {
                 target: "unavailable",
-                actions: "setError",
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
@@ -108,7 +95,9 @@ export default createMachine(
       },
     },
     on: {
-      REFRESH: "refreshing",
+      REAUTH: {
+        target: "loading",
+      },
     },
   },
   {
@@ -126,9 +115,19 @@ export default createMachine(
         error: (context, { data }) => data,
       }),
 
+      setFeedbackError: ({ error }, _event) => {
+        addError({
+          title: error?.title,
+          copy: error?.message,
+          data: error?.data,
+        });
+      },
+
       clearError: assign({ error: null }),
     },
-    guards: {},
+    guards: {
+      hasUser: context => context.user !== null,
+    },
 
     delays: {
       error: () => useTime().ERROR,

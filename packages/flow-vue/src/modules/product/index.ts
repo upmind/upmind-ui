@@ -45,24 +45,23 @@ export const useProductConfig = actor => {
       !isEmpty(state.value?.context?.lookups?.provision_fields?.properties),
 
     isConfigured: state.value.matches("configured"),
-    isCalculating: state.value.matches(
-      "configuring.values.summary.calculating"
-    ),
+    isCalculating: state.value.context?.summary?.isCalculating,
+
     isProcessing: state.value.matches("configured.processing"),
     isUnavailable: state.value.matches("unavailable"),
     // ---
     hasProvisioning:
       !isEmpty(state.value.context.lookups.provision_fields?.properties) &&
-      state.value?.context?.model?.provision_fields,
+      !!state.value?.context?.model?.provision_fields,
     hasAttributes:
       !isEmpty(state.value.context.lookups.attributes) &&
-      state.value?.context?.model?.attributes,
+      !!state.value?.context?.model?.attributes,
     hasOptions:
       !isEmpty(state.value.context.lookups.options) &&
-      state.value?.context?.model?.options,
+      !!state.value?.context?.model?.options,
     hasTerms:
       !isEmpty(state.value.context.lookups.terms) &&
-      state.value?.context?.model?.term,
+      !!state.value?.context?.model?.term,
   }));
 
   const summary = computed(() => state.value.context.summary);
@@ -76,12 +75,6 @@ export const useProductConfig = actor => {
   });
 
   // --------------------------------------------------------
-
-  const clearErrors = () => {
-    send({
-      type: "CLEAR.ERRORS",
-    });
-  };
 
   // --- QUANTITY
   const updateQuantity = (value?: number) => {
@@ -307,8 +300,6 @@ export const useProductConfig = actor => {
     model,
     summary,
     // ---
-    clearErrors,
-    // ---
     updateQuantity,
     incrementQuantity,
     decrementQuantity,
@@ -331,5 +322,7 @@ export const useProductConfig = actor => {
     setProvisioningFields,
     updateProvisioning,
     getProvisioningField,
+    // ---
+    reset: () => send("RESET"),
   };
 };

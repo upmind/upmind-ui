@@ -11,6 +11,7 @@ const { addError, addSuccess } = useFeedback();
 
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { get } from "lodash-es";
 
 // --- types
 import type { CurrencyContext, CurrencyEvent } from "./types.d";
@@ -120,7 +121,10 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
+        entry: sendParent((_context, { data }) => ({
+          type: "REFRESH",
+          data,
+        })),
         after: {
           wait: {
             target: "complete",
@@ -193,8 +197,10 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
-          useModelParser(schema, data || model),
+        model: ({ schema, model }, { data }) => {
+          const currency = get(data, "currency", data);
+          return useModelParser(schema, currency || model);
+        },
       }),
 
       clearModel: assign({

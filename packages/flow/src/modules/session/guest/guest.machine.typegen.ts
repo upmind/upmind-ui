@@ -4,11 +4,6 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.refreshing:invocation[0]": {
-      type: "done.invoke.refreshing:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.sessionGuest.login.authenticating:invocation[0]": {
       type: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
       data: unknown;
@@ -36,10 +31,6 @@ export interface Typegen0 {
     };
     "error.platform.loading:invocation[0]": {
       type: "error.platform.loading:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.refreshing:invocation[0]": {
-      type: "error.platform.refreshing:invocation[0]";
       data: unknown;
     };
     "error.platform.sessionGuest.login.authenticating:invocation[0]": {
@@ -80,28 +71,30 @@ export interface Typegen0 {
     checkForReCaptcha: "done.invoke.sessionGuest.register.checking:invocation[0]";
     getCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
     load: "done.invoke.loading:invocation[0]";
-    refreshToken: "done.invoke.refreshing:invocation[0]";
     register: "done.invoke.sessionGuest.register.registering:invocation[0]";
     verify2fa: "done.invoke.sessionGuest.login.verifying:invocation[0]";
     verifyReCaptcha: "done.invoke.sessionGuest.register.verifying:invocation[0]";
   };
   missingImplementations: {
     actions: never;
-    delays: "wait";
+    delays: never;
     guards: never;
     services:
       | "authenticate"
       | "checkForReCaptcha"
       | "getCustomFields"
       | "load"
-      | "refreshToken"
       | "register"
       | "verify2fa"
       | "verifyReCaptcha";
   };
   eventsCausingActions: {
-    clearError: "" | "REFRESH" | "xstate.init";
-    escalateError:
+    clearError: "" | "REAUTH" | "xstate.init";
+    set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
+    setError:
+      | "error.platform.loading:invocation[0]"
       | "error.platform.sessionGuest.login.authenticating:invocation[0]"
       | "error.platform.sessionGuest.login.verifying:invocation[0]"
       | "error.platform.sessionGuest.register.authenticating:invocation[0]"
@@ -109,12 +102,7 @@ export interface Typegen0 {
       | "error.platform.sessionGuest.register.loading:invocation[0]"
       | "error.platform.sessionGuest.register.registering:invocation[0]"
       | "error.platform.sessionGuest.register.verifying:invocation[0]";
-    set2faSchemas: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
-    set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
-    setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
-    setError:
-      | "error.platform.loading:invocation[0]"
-      | "error.platform.refreshing:invocation[0]"
+    setFeedbackError:
       | "error.platform.sessionGuest.login.authenticating:invocation[0]"
       | "error.platform.sessionGuest.login.verifying:invocation[0]"
       | "error.platform.sessionGuest.register.authenticating:invocation[0]"
@@ -128,9 +116,7 @@ export interface Typegen0 {
     trackLogin: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
     trackRegister: "done.invoke.sessionGuest.register.registering:invocation[0]";
   };
-  eventsCausingDelays: {
-    wait: "done.invoke.refreshing:invocation[0]";
-  };
+  eventsCausingDelays: {};
   eventsCausingGuards: {
     requires2fa: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
     requiresReCaptcha: "done.invoke.sessionGuest.register.checking:invocation[0]";
@@ -141,8 +127,7 @@ export interface Typegen0 {
       | "done.invoke.sessionGuest.register.registering:invocation[0]";
     checkForReCaptcha: "REGISTER";
     getCustomFields: "REGISTER";
-    load: "REFRESH" | "xstate.init";
-    refreshToken: "REFRESH";
+    load: "REAUTH" | "xstate.init";
     register:
       | "done.invoke.sessionGuest.register.checking:invocation[0]"
       | "done.invoke.sessionGuest.register.verifying:invocation[0]";
@@ -161,7 +146,6 @@ export interface Typegen0 {
     | "login.loading"
     | "login.verifying"
     | "processed"
-    | "refreshing"
     | "register"
     | "register.authenticating"
     | "register.available"

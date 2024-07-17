@@ -4,14 +4,19 @@
     :key="item.id"
     :class="styles.product.config.list.root"
     :label="item.name"
-    :required="true"
-    no-required
-    no-feedback
-    no-status
+    :text="safeText(item)"
+    :required="item.required"
+    :errors="safeErrors(item.id)"
     variant="flat"
     layout="stacked"
+    :dirty="isDirty(item.id)"
+    @blur="blurred[item.id] = true"
+    tabindex="-1"
   >
-    <ul :class="styles.product.config.list.items">
+    <ul
+      :class="styles.product.config.list.items"
+      :aria-invalid="isInvalid(item.id)"
+    >
       <li
         v-for="value in item.values"
         :key="value.id"
@@ -22,18 +27,7 @@
             item.values?.length == 1 && item.required
           )
         "
-        :class="
-          mergeStyles(
-            styles.product.config.list.item.root,
-            isSelected(
-              item.id,
-              value.id,
-              item.values?.length == 1 && item.required
-            )
-              ? styles.product.config.list.item.selected
-              : null
-          )
-        "
+        :class="styles.product.config.list.item.root"
       >
         <label
           :for="`items[${item.id}][${value.id}]`"
@@ -69,36 +63,41 @@
 
           <!-- content -->
           <div :class="styles.product.config.list.item.header">
+            <!-- title -->
             <span :class="styles.product.config.list.item.title">
               {{ value.name }}
             </span>
+            <!-- badges -->
+            <span :class="styles.product.config.list.item.badges">
+              <template
+                v-for="promotion in value?.price?.promotions"
+                :key="promotion.id"
+              >
+                <upw-badge
+                  color="promotion"
+                  :label="
+                    $tc(
+                      'product.promo_save',
+                      promotion.mixed || !promotion.amount ? 1 : 0,
+                      {
+                        value: promotion.amount_formatted,
+                      }
+                    )
+                  "
+                />
+              </template>
 
-            <upw-badge
-              v-if="value.saving"
-              color="secondary"
-              :label="$t('product.save', { value: item.saving_formatted })"
-            />
-
-            <!-- monthly -->
-            <span
-              :class="styles.product.config.list.item.text"
-              v-if="value?.monthly_price_from && value.billing_cycle_months > 1"
-            >
-              {{
-                $t("product.items.cycle", {
-                  value: value?.monthly_price_from_discounted
-                    ? value.monthly_price_from_discounted_formatted
-                    : value.monthly_price_from_formatted,
-                })
-              }}
+              <upw-badge
+                v-if="!item.price_override"
+                variant="tonal"
+                color="base"
+                :label="value.price?.billing_cycle_name"
+              />
             </span>
           </div>
 
           <!-- footer -->
-          <div
-            :class="styles.product.config.list.item.footer"
-            v-if="value?.price"
-          >
+          <div :class="styles.product.config.list.item.footer">
             <upw-spinner v-if="loading" size="xs" />
 
             <upw-quantitybox
@@ -118,11 +117,18 @@
             />
 
             <span :class="styles.product.config.list.item.price">
-              <strong :class="styles.product.config.list.item.total">
+              <strong
+                :class="styles.product.config.list.item.total"
+                v-if="value.price"
+              >
+                <span v-if="!item.price_override && item.price">+</span>
+
                 {{
                   value.price?.price_discounted
-                    ? value.price.price_discounted_formatted
-                    : value.price.price_formatted
+                    ? value.price?.price_discounted_formatted
+                    : value.price.price
+                      ? value.price?.price_formatted
+                      : $t("product.free")
                 }}
               </strong>
 
@@ -130,7 +136,7 @@
                 :class="styles.product.config.list.item.discount"
                 v-if="value.price?.price_discounted"
               >
-                {{ value.price.price_formatted }}
+                {{ value.price?.price_formatted }}
               </span>
             </span>
           </div>
@@ -142,7 +148,7 @@
 
 <script>
 // --- external
-import { defineComponent, toRefs } from "vue";
+import { defineComponent, toRefs, ref } from "vue";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -159,7 +165,7 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import { some } from "lodash-es";
+import { some, has } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -190,6 +196,9 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    errors: {
+      type: Object,
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
@@ -202,10 +211,37 @@ export default defineComponent({
     return {
       styles,
       mergeStyles,
+      blurred: ref({}),
     };
   },
   computed: {},
   methods: {
+    safeText(item) {
+      const hasPrices = this.hasPrices(item);
+
+      if (hasPrices) {
+        return this.$tc("product.adds_overrides", item?.price_override ? 1 : 0);
+      }
+
+      return null;
+    },
+
+    isDirty(item) {
+      return has(this.blurred, item);
+    },
+
+    safeErrors(item) {
+      return this.errors?.[item]?.join() || undefined;
+    },
+
+    hasPrices(item) {
+      return some(item.values, "price");
+    },
+
+    isInvalid(item) {
+      return this.isDirty(item) && !!this.errors?.[item]?.length;
+    },
+
     isSelected(item, value, autoselect = false) {
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },

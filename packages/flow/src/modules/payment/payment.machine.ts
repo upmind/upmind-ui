@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign, sendParent, actions } from "xstate";
+const { escalate } = actions;
 
 // --- internal
 import services from "./services";
@@ -142,12 +143,11 @@ export default createMachine(
       },
 
       error: {
+        entry: escalate(({ error }, _event) => ({
+          data: error,
+        })),
         id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
+        type: "final",
       },
     },
   },

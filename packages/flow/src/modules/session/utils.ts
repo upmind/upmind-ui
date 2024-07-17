@@ -29,7 +29,7 @@ export function getTokenfromStorage(actor_type?: "guest" | "client") {
   return useTokenParser(token);
 }
 
-export function persistTokenToStorage(token: Token, history: false) {
+export function persistTokenToStorage(token: Token, history?: false) {
   if (!localStorage) return Promise.reject("No localStorage available");
 
   token = useTokenParser(token);

@@ -12,11 +12,6 @@
       </slot>
     </header>
 
-    <!-- <upw-skeleton-list
-      :class="styles.basket.details.loading"
-      v-else-if="meta.isLoading || (meta.isAdding && !meta.isEmpty)"
-    /> -->
-
     <div :class="styles.basket.details.content">
       <!-- billing details -->
       <upm-billing-details
@@ -30,14 +25,13 @@
       <upw-form
         v-if="!meta.needsAuth"
         :additional-errors="fieldsErrors?.data"
-        :loading="fieldsMeta.isLoading"
         :model-value="fieldsModel"
         :processing="fieldsMeta.isProcessing"
         :schema="fieldsSchema"
         :uischema="fieldsUischema"
         @reject="fieldsClear"
         @resolve="fieldsUpdate"
-        @update:modelValue="fieldsInput"
+        @update:modelValue="fieldsUpdate"
         no-actions
         autosave
       />
@@ -69,6 +63,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
+import UpmSession from "../session/Session.vue";
 import UpmBasketSummary from "./Summary.vue";
 import UpmBillingDetails from "./BillingDetails.vue";
 import UpmPaymentDetails from "./PaymentDetails.vue";
@@ -80,6 +75,7 @@ import { UpwForm } from "@upmind/upwind";
 export default defineComponent({
   name: "UpmBasketDetails",
   components: {
+    UpmSession,
     UpmBasketSummary,
     UpmBillingDetails,
     UpmPaymentDetails,
@@ -90,7 +86,6 @@ export default defineComponent({
     const { meta, summary } = useBasket();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
-    // const details = useBasketPaymentDetails();
 
     const styles = useStyles(["basket.details"], meta, config);
 
@@ -107,7 +102,6 @@ export default defineComponent({
       fieldsSchema: fields.schema,
       fieldsUischema: fields.uischema,
       fieldsErrors: fields.errors,
-      fieldsInput: fields.input,
       fieldsUpdate: fields.update,
       fieldsClear: fields.clear,
       // ---

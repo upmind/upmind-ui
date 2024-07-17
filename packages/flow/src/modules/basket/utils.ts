@@ -10,9 +10,10 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import { first, get, isArray, map, reduce, set } from "lodash-es";
+import { get, map, compact, uniq, reduce, set } from "lodash-es";
 
 // --- types
+import { TaxTagTypes } from "./types.d";
 import type { IBasket } from "./types.d";
 // --------------------------------------------------------
 
@@ -97,12 +98,11 @@ export function spawnPromotions(basket: IBasket) {
 // --------------------------------------------------------
 
 export const useBasketParser = (data: any) => {
-  data = get(data, "data", data); // handle the reponse types from the api
-  data = isArray(data) ? first(data) : data; // usually from the claims endpoint
+  const basket = get(data, "basket", data);
 
   // TODO:...map properly...
 
-  return data;
+  return basket;
 };
 
 // ---
@@ -114,23 +114,63 @@ export const useSummaryParser = (data?: any) => {
         id: product?.id,
         name: product?.product_name,
         quantity: product?.quantity,
-        subtotal: product?.configuration_total_amount_formatted,
         discount: product?.configuration_total_discount_amount_converted
           ? product?.configuration_total_discount_amount_formatted
           : null,
-        total: product?.configuration_total_discounted_amount_formatted,
-
-        // total: data?.selling_price_formatted,
-        // total: data?.configuration_total_amount_formatted,
-        // total: data?.configuration_total_discounted_amount_formatted,
+        subtotal: product?.configuration_net_amount_formatted,
+        total: product?.configuration_net_amount_discounted_formatted,
       };
     }),
-    discount: data?.net_discount_amount_formatted, // total_discount_amount
-    subtotal: data?.net_amount_formatted || "", // total_amount
-    taxes: data?.tax_amount_formatted, // tax_amount
-    total: data?.unpaid_amount_formatted || "", // unpaid_amount
+    discount: data?.total_discount_amount
+      ? data.net_discount_amount_formatted
+      : null, // only include the discount if there is one
+
+    subtotal: data?.net_amount_formatted || "",
+    taxes: parseTaxes(data?.taxes),
+    total: data?.total_amount_formatted || "",
   };
   return summary;
+};
+
+//
+export const parseTaxes = (taxes: any) => {
+  // we may have multiple taxes, and each tax may have multiple tags
+  //  we want to return a unique list of tags and their values
+  return reduce(
+    taxes,
+    (result, tax) => {
+      // and we may have multiple tags for a single tax
+      //  so parse them all and return a unique list
+      // -- The old codebase just used the first tag, but lets see if we can do better
+      const name = uniq(map(tax.tax_tag_data, parseTaxTagName)).join(", ");
+      set(result, name, tax.amount_formatted);
+
+      return result;
+    },
+    {}
+  );
+};
+
+// HACK: This is ported directly from the old codebase!
+//       This is a bit of wizardry that takes a tax tag and
+//       returns a human readable string and is used in the basket summary.
+//       ---
+//       This is slightly coonfusing because is takes what are essentially
+//       plain text field which is the tag title and assumes it may contain a tax % value.
+//       This strips any % values from the tag name and then calculates the actual
+//       tax value based on the tag type and if it is a standard rate or the company rate.
+//       eg: `Tax 20%` becomes `Tax (20%)` for the standard rate and `Tax (0%)` for the company rate.
+export const parseTaxTagName = (tag: any) => {
+  return compact([
+    // Tag name
+    tag?.tax_tag_name?.replace(/\d*%$/, ""),
+    // Append percentage (if SECONDARY % rate)
+    tag?.for_company
+      ? tag.tax_tag_company_type === TaxTagTypes.PERCENT &&
+        `(${tag.tax_tag_company_amount}%)`
+      : // Append percentage (if DEFAULT % rate)
+        tag?.tax_tag_type === TaxTagTypes.PERCENT && `(${tag.tax_tag_amount}%)`,
+  ]).join(" ");
 };
 
 // --------------------------------------------------------

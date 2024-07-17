@@ -149,17 +149,19 @@ export const useBasket = () => {
           stateMatches(state, ["paying"]) ||
           stateMatches(state, ["checkout.processing"]),
 
-        isComplete: stateMatches(state, ["complete"]),
+        isComplete: stateMatches(state, ["complete", "failed"]),
+        hasPaid: stateMatches(state, ["complete"]),
+        hasFailed: stateMatches(state, ["failed"]),
 
-        hasErrors:
-          stateMatches(state, [
-            "shopping.items.processing.error",
-            "shopping.promotions.error",
-            "shopping.account.error",
-          ]) ||
-          machineMatches(actors.value.customFields, ["error"]) ||
-          machineMatches(actors.value.paymentDetails, ["error"]) ||
-          !!useContext(state, "error"),
+        // hasErrors:
+        //   stateMatches(state, [
+        //     "shopping.items.processing.error",
+        //     "shopping.promotions.error",
+        //     "shopping.account.error",
+        //   ]) ||
+        //   machineMatches(actors.value.customFields, ["error"]) ||
+        //   machineMatches(actors.value.paymentDetails, ["error"]) ||
+        //   !!useContext(state, "error"),
       };
     }),
     //  ---
@@ -191,7 +193,6 @@ export const useBasket = () => {
       );
     },
     clearBasket: () => send({ type: "CLEAR" }),
-    clearErrors: () => send({ type: "CLEAR.ERRORS" }),
     checkout: () => send({ type: "CHECKOUT" }),
     // ---
     // Item Methods
@@ -230,8 +231,15 @@ export const useBasket = () => {
     updateItem: async itemId => {
       send({ type: "UPDATE", data: { itemId } });
       return waitFor(service, newstate =>
-        newstate.matches("shopping.items.processed")
-      );
+        ["shopping.items.processed", "shopping.items.processing.error"].some(
+          newstate.matches
+        )
+      ).then(newState => {
+        if (newState.matches("shopping.items.processing.error")) {
+          return Promise.reject();
+        }
+        return Promise.resolve();
+      });
     },
 
     updateTerm: ({ itemId, term }) =>

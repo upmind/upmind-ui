@@ -7,10 +7,11 @@ import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 
 // --- utils
-import { useBasketParser } from "./utils";
 import { getTokenfromStorage } from "../session/utils";
 
 import {
+  compact,
+  concat,
   differenceBy,
   filter,
   find,
@@ -58,14 +59,17 @@ async function load(_context?: BasketContext, _event?: BasketEvent) {
   return get({
     url: useUrl("orders/current", {
       with: [
-        "account.brand.image",
-        "account.pricelist",
-        "brand.image",
-        "client.image",
-        "contract",
         "currency",
         "custom_fields.field",
-        "payments",
+        "promotions",
+        "taxes",
+        "taxes.tax_tag_data",
+        // "account.brand.image",
+        // "account.pricelist",
+        // "brand.image",
+        // "client.image",
+        // "contract",
+        // "payments",
         "products.product.image",
         "products.product.images",
         "products.product.prices",
@@ -76,17 +80,14 @@ async function load(_context?: BasketContext, _event?: BasketEvent) {
         "products.product.products_options.prices",
         "products.product.provision_field_values",
         "products.tags",
-        "promotions",
-        "status",
-        "taxes",
-        "taxes.tax_tag_data",
-        `products.product.category${".top_category".repeat(4)}`,
+        // "status",
+        // `products.product.category${".top_category".repeat(4)}`,
       ].join(),
     }),
     withAccessToken: true,
     useCache: false,
   })
-    .then(useBasketParser)
+    .then(({ data }) => data)
     .then(getProvisioningFieldsValues);
 }
 
@@ -105,7 +106,7 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
       // currency_code: "GBP", // from brand
       // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
     },
-  }).then(useBasketParser);
+  }).then(({ data }) => data);
 }
 
 async function claim({ basket }: BasketContext, _event: BasketEvent) {
@@ -126,7 +127,7 @@ async function claim({ basket }: BasketContext, _event: BasketEvent) {
   }).then(({ data }) => {
     // get the latest basket if we have multiple
     data = isArray(data) ? first(data) : data;
-    return useBasketParser(data);
+    return data;
   });
 }
 
@@ -147,7 +148,7 @@ async function update({ basket, items }: BasketContext, _event: BasketEvent) {
       },
       withAccessToken: true,
     })
-      .then(useBasketParser)
+      .then(({ data }) => data)
       .then(basket => {
         const newItems = differenceBy(basket.products, validItems, "id");
         return { basket, items: validItems, newItems };
@@ -186,7 +187,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
     url: useUrl(`/orders/${basket.id}/convert`),
     withAccessToken: true,
     data,
-  }).then(useBasketParser);
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------
@@ -217,7 +218,7 @@ async function updateItem({ basket, items }, { data }: BasketEvent) {
       data: config,
       withAccessToken: true,
     })
-      .then(useBasketParser)
+      .then(({ data }) => data)
       .then(basket => {
         const newItems = differenceBy(basket.products, items, "id");
         return { basket, items: [item], newItems };
@@ -330,23 +331,28 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
   forEach(products, async product => {
-    const { id, provision_provider_id } = product;
-    if (provision_provider_id) {
-      // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
-      const promise = get({
-        url: useUrl(
-          `orders/${basket_id}/products/${id}/provision_fields/values`
-        ),
-        useCache: false,
-        withAccessToken: true,
-      }).then(({ data }) => {
-        // update the product with the provisioning fields
-        set(product, "provision_fields", data);
-        return data;
-      });
+    const { id } = product;
 
-      provisioningPromises.push(promise);
-    }
+    const sub_products = compact(
+      map(concat(product.options, product.attributes), "product_id")
+    );
+    // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+    const promise = get({
+      url: useUrl(
+        `orders/${basket_id}/products/${id}/provision_fields/values`,
+        {
+          sub_product_ids: sub_products,
+        }
+      ),
+      useCache: false,
+      withAccessToken: true,
+    }).then(({ data }) => {
+      // update the product with the provisioning fields
+      set(product, "provision_fields", data);
+      return data;
+    });
+
+    provisioningPromises.push(promise);
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched

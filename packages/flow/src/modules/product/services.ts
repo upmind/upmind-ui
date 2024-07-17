@@ -11,7 +11,7 @@ import { useTime, useValidation } from "../../utils";
 import { useQuantityParser, useHasPriceOverride } from "./utils";
 
 import {
-  defaultsDeep,
+  concat,
   find,
   first,
   get,
@@ -24,12 +24,11 @@ import {
   mapValues,
   maxBy,
   minBy,
-  pickBy,
+  pick,
   reduce,
+  reject,
   set,
-  some,
-  sumBy,
-  values,
+  times,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -47,6 +46,7 @@ export enum TrialEndActionTypes {
   MIGRATE = 1,
   CANCEL = 2,
 }
+
 export enum PromotionDisplayTypes {
   NAME = "name",
   LABEL = "label",
@@ -108,11 +108,11 @@ async function load(
   const { product_id } = model;
   if (!product_id) return Promise.reject("No Product ID provided");
 
-  const { get, useUrl } = useApi();
-  const productPromise = get({
+  const { get: getRequest, useUrl } = useApi();
+  const productPromise = getRequest({
     url: useUrl(`basket/products/${product_id}`, {
       currency_id,
-      promotions: map(promotions, "promotion.code"), // ensure we pass any applied promotions to get the correct prices
+      promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [
         "image",
@@ -145,9 +145,22 @@ async function load(
   // lets get our provision_fields fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(product_id);
 
-  return Promise.all([productPromise, provisioningPromise]).then(
-    ([product, provision_fields]) => {
+  // lets also get some brand config for how we want to show promotions
+  // Get the brands preference on how to display promotions
+  const { getConfig } = useBrand();
+  const configPromise = getConfig(BrandConfigKeys.SHOW_PROMOTION_AS).then(
+    response =>
+      get(
+        response,
+        BrandConfigKeys.SHOW_PROMOTION_AS,
+        PromotionDisplayTypes.PERCENTAGE
+      )
+  );
+
+  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
+    ([product, provision_fields, promotion_display_type]) => {
       set(product, "products_provisioning", provision_fields);
+      set(product, "promotion_display_type", promotion_display_type);
       return product;
     }
   );
@@ -181,16 +194,20 @@ async function checkQuantity(
 }
 
 async function checkTerm(
-  { error, lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  let term;
-
-  // reset any previous errors for this check
+  let term = null;
+  const price = [];
   const errors = [];
+  // ---
 
   if (!lookups?.terms?.length) {
-    return Promise.reject("No Terms lookups");
+    return Promise.reject({
+      term,
+      price,
+      error: { ...error, term: "No Terms available" },
+    });
   }
 
   // ---
@@ -215,219 +232,140 @@ async function checkTerm(
   if (isNil(term)) errors.push("Valid Term is required");
 
   // ---
-  // only calculate the term price if we dont have any price overrides
-  if (!useHasPriceOverride(model.options, lookups.options)) {
-    const subtotal = model.quantity * term?.price || 0;
-    const total = model.quantity * term?.price_discounted || 0;
-    const discount = total ? subtotal - total : 0;
-    prices.term.discount = discount;
-    prices.term.subtotal = discount ? subtotal : 0;
-    prices.term.total = discount ? total : subtotal; // cater for no discount
-    prices.term.formatted = term?.price_formatted;
-  } else {
-    prices.term.discount = 0;
-    prices.term.subtotal = 0;
-    prices.term.total = 0;
-    prices.term.formatted = null;
-  }
+  // set price values, taking into account the quantity and unit quantity
+  // NB: we NEVER add, we always push into an array for the backend to handle
+  times(model.quantity, () => {
+    price.push(term?.price_discounted || term?.price || 0);
+  });
 
   return new Promise((resolve, reject) => {
     if (errors.length)
-      reject({ term, prices, error: { ...error, term: errors } });
+      reject({
+        term: pick(term, "billing_cycle_months"),
+        price,
+        error: { ...error, term: errors },
+      });
     else {
-      resolve({ term, prices });
+      resolve({ term: pick(term, "billing_cycle_months"), price });
     }
   });
 }
 
 async function checkAttributes(
-  { error, lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  // safety check, resolve if we have no attributes to check
-  if (!lookups?.attributes?.length) {
-    return Promise.resolve(null);
-  }
-
-  // reset any previous errors for this check
-  const errors = [];
-  // ---
-  // for attributes we have to check a few things:
-  // do we have any attributes that are:
-  // required?
-  // single vs multiple?
-  // invalid : ie values but not actually in lookup values
-  // able to be auto values?
-
-  // make sure we have a values object with only valid attribute values
-  // let attributes = filter(values?.attributes, ({ product_id }) =>
-  //   some(lookups.attributes, ({ values }) => includes(values, product_id))
-  // );
-
-  const attributes = reduce(
-    lookups.attributes,
-    (result, attribute) => {
-      let selected = get(model, `attributes.${attribute.id}`, {});
-
-      // only include valid values, if we have any
-      if (!isEmpty(selected)) {
-        selected = pickBy(selected, (_value, id) =>
-          some(attribute.values, ["id", id])
-        );
-
-        // then parse each selected value, and ensure it has all its required attributes
-        // and that it has valid values for each of those attributes
-        selected = mapValues(selected, (value, id) => {
-          // ensure we have an object
-          if (!isObject(value)) value = { product_id: id };
-          const product = find(attribute.values, ["id", value.product_id]);
-
-          //  ensure we have the required attributes
-          value = defaultsDeep(value, {
-            billing_cycle_months: model?.term?.billing_cycle_months,
-            unit_quantity: 1,
-          });
-
-          // ensure we have a valid unit_quantity
-          value.unit_quantity = useQuantityParser(
-            value?.unit_quantity,
-            product
-          );
-
-          value.price = find(product.prices, [
-            "billing_cycle_months",
-            value.billing_cycle_months,
-          ]);
-
-          value.total = value.unit_quantity * (value.price?.price || 0);
-
-          value.total_discounted =
-            value.unit_quantity * (value.price?.price_discounted || 0);
-
-          return value;
-        });
-      }
-
-      // check if we are missing required attribute
-      if (attribute?.required && isEmpty(selected))
-        errors.push(`${attribute.name} is required`);
-
-      // check if we values too many values for this attribute
-      if (!attribute?.multiple && keys(selected)?.length > 1) {
-        errors.push(`${attribute.name} does not multiple choice`);
-      }
-      // ---
-      set(result, attribute.id, selected);
-      return result;
-    },
-    {}
-  );
-
-  return new Promise((resolve, reject) => {
-    if (errors.length)
-      reject({ attributes, prices, error: { ...error, attributes: errors } });
-    else resolve({ attributes, prices });
-  });
+  return checkSubproducts({ error, lookups, model }, { type: "attributes" });
 }
 
 async function checkOptions(
-  { error, lookups, model, prices }: ProductConfigContext,
+  { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
+  return checkSubproducts({ error, lookups, model }, { type: "options" });
+}
+
+async function checkSubproducts(
+  { error, lookups, model }: ProductConfigContext,
+  { type }: any
+) {
+  let subproducts = null;
+  const price = [];
+  const errors = {};
+  // ---
   // safety check, resolve if we have no attributes to check
-  if (!lookups?.options?.length) {
-    return Promise.resolve(null);
+  if (!lookups?.[type]?.length) {
+    return Promise.resolve({
+      subproducts,
+      price,
+    });
   }
 
-  // reset any previous errors for this check
-  const errors = [];
-
-  const options = reduce(
-    lookups.options,
-    (result, option) => {
-      // try get any selected values for this option,
-
-      let selected = get(model, `options.${option.id}`, {});
+  subproducts = reduce(
+    lookups[type],
+    (result, subproduct) => {
+      // try get any selected values for this subproduct,
+      let selected = get(model, `${type}.${subproduct.id}`, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any
-        selected = pickBy(selected, (_value, id) =>
-          some(option.values, ["id", id])
-        );
+        // selected = pickBy(selected, (_value, id) =>
+        //   some(subproduct.values, ["id", id])
+        // );
 
         // then parse each selected value, and ensure it has all its required attributes
         // and that it has valid values for each of those attributes
         selected = mapValues(selected, (value, id) => {
           // ensure we have an object
           if (!isObject(value)) value = { product_id: id };
-          const product = find(option.values, ["id", value.product_id]);
-          //  ensure we have the required attributes
-          value = defaultsDeep(value, {
-            billing_cycle_months: some(product.prices, price => {
-              return (
-                price.billing_cycle_months === model?.term?.billing_cycle_months
-              );
-            })
-              ? model?.term?.billing_cycle_months
-              : first(product.prices)?.billing_cycle_months || 0,
-            unit_quantity: 1,
-          });
+          const product = find(subproduct.values, ["id", value.product_id]);
+
+          // NB: If a sub product has prices, we need to ensure we have the correct price
+          //     Sub products cant have a mix or billing cycles and one off, it will be one or the other
+          //     One off prices have a billing cycle of 0, so we can use that to determine the price
+          // based on either:
+          // 1. If its One off, just use the first (and only) price
+          // 2. IF we have billing cycle(s) : then match the term billing cycle
+
+          // ONE OFF
+          let activePrice = find(product?.prices, ["billing_cycle_months", 0]);
+
+          // BILLING CYCLE(S)
+          if (!activePrice) {
+            activePrice = find(product?.prices, [
+              "billing_cycle_months",
+              model?.term?.billing_cycle_months,
+            ]);
+          }
 
           // ensure we have a valid unit_quantity
           value.unit_quantity = useQuantityParser(
-            value?.unit_quantity,
+            value?.unit_quantity || 1,
             product
           );
 
-          value.price = find(product.prices, [
-            "billing_cycle_months",
-            value.billing_cycle_months,
-          ]);
-
-          value.total =
-            value.unit_quantity * (value.price?.price || 0) * model.quantity;
-
-          value.total_discounted =
-            value.unit_quantity * (value.price?.price_discounted || 0);
+          value.billing_cycle_months = activePrice?.billing_cycle_months;
+          // set price values, taking into account the quantity and unit quantity
+          // NB: we NEVER add, we always push into an array for the backend to handle
+          times(value.unit_quantity * model.quantity, () => {
+            price.push(
+              activePrice?.price_discounted || activePrice?.price || 0
+            );
+          });
 
           return value;
         });
       }
 
-      // check if we are missing required option
-      if (option?.required && isEmpty(selected))
-        errors.push(`${option.name} is required`);
+      // check if we are missing required subproduct
+      if (subproduct?.required && isEmpty(selected)) {
+        errors[subproduct.id] ??= [];
+        errors[subproduct.id].push(`${subproduct.name} is required`);
+      }
 
-      // check if we values too many values for this option
-      if (!option?.multiple && keys(selected)?.length > 1) {
-        errors.push(`${option.name} does not multiple choice`);
+      // check if we values too many values for this subproduct
+      if (!subproduct?.multiple && keys(selected)?.length > 1) {
+        errors[subproduct.id] ??= [];
+        errors[subproduct.id].push(
+          `${subproduct.name} does not allow multiple choice`
+        );
       }
       // ---
-      set(result, option.id, selected);
+      set(result, subproduct.id, selected);
       return result;
     },
     {}
   );
 
-  prices.options = reduce(
-    options,
-    (result, option) => {
-      const subtotal = sumBy(values(option), "total") || 0;
-      const total = sumBy(values(option), "total_discounted") || 0;
-      const discount = total ? subtotal - total : 0;
-      result.discount += discount;
-      result.subtotal += discount ? subtotal : 0;
-      result.total += discount ? total : subtotal; // cater for no discount
-      return result;
-    },
-    { subtotal: 0, total: 0, discount: 0 }
-  );
-
   return new Promise((resolve, reject) => {
-    if (errors.length)
-      reject({ options, prices, error: { ...error, options: errors } });
-    else resolve({ options, prices });
+    if (!isEmpty(errors)) {
+      reject({
+        [type]: subproducts,
+        price,
+        error: { ...error, [type]: errors },
+      });
+    } else resolve({ [type]: subproducts, price });
   });
 }
 
@@ -435,31 +373,24 @@ async function checkProvisioning(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  // safety check, resolve if we have no attributes to check
-  if (isEmpty(lookups?.provision_fields?.properties)) {
-    return Promise.resolve([]);
-  }
+  // bail if we dont actually have any provision fields to check
+  if (isEmpty(lookups.provision_fields?.properties))
+    return Promise.resolve({ provision_fields: {} });
 
-  const provision_fields = reduce(
-    lookups.provision_fields.properties,
-    (result, field, key) => {
-      const selected = get(model, `provision_fields.${key}`, null);
-      set(result, key, selected);
-      return result;
-    },
-    {}
-  );
+  // ---
 
+  model.provision_fields ??= {};
   const { validate } = useValidation();
-  const errors = validate(provision_fields, lookups.provision_fields);
-
+  const errors = validate(model.provision_fields, lookups.provision_fields);
   return new Promise((resolve, reject) => {
-    if (errors.length)
+    if (errors.length) {
       reject({
-        provision_fields,
+        provision_fields: model.provision_fields,
         error: { ...error, provision_fields: errors },
       });
-    else resolve({ provision_fields });
+    } else {
+      resolve({ provision_fields: model.provision_fields });
+    }
   });
 }
 
@@ -473,86 +404,76 @@ async function checkProvisioning(
 // If we do have price overrides, we then just reset the term price to 0
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
-async function calculateSummary(
-  { currency_id, prices }: BasketContext,
-  _event: any
-) {
+
+// We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
+// this will fire every time we transition to a new state
+const calculateSummary = (
+  { currency_id, prices, model, lookups }: ProductConfigContext,
+  controller: AbortController
+) => {
   const { post, useUrl } = useApi();
 
-  // no prices to calculate, so bail out
-  if (
-    prices.term.total > 0 &&
-    prices.attributes.total > 0 &&
-    prices.options.total > 0
-  ) {
-    return Promise.reject("No prices to calculate");
-  }
+  // remove the term price if we have any price overrides
+  const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
 
+  // clean the prices object, removing any nil values. we dont use compact because that also removes 0 values
+  const values = reject(
+    concat(
+      hasPriceOverride ? [] : prices?.term || 0,
+      prices?.attributes,
+      prices?.options
+    ),
+    isNil
+  );
   // ---
-  const hasSubtotal =
-    prices.term.subtotal > 0 &&
-    prices.attributes.subtotal > 0 &&
-    prices.options.subtotal > 0;
-  const subtotalPromise = !hasSubtotal
-    ? Promise.resolve(0)
-    : post({
-        url: useUrl("cart/calculate", {}),
-        withAccessToken: true,
-        data: {
-          currency_id,
-          prices: [
-            prices.term.subtotal,
-            prices.attributes.subtotal,
-            prices.options.subtotal,
-          ],
-        },
-      }).then(response => response?.data);
-
-  // ---
-  const hasDiscount =
-    prices.term.discount > 0 &&
-    prices.attributes.discount > 0 &&
-    prices.options.discount > 0;
-  const discountPromise = !hasDiscount
-    ? Promise.resolve(0)
-    : post({
-        url: useUrl("cart/calculate", {}),
-        withAccessToken: true,
-        data: {
-          currency_id,
-          prices: [
-            prices.term.discount,
-            prices.attributes.discount,
-            prices.options.discount,
-          ],
-        },
-      }).then(response => response?.data);
-
-  // ---
-  const totalPromise = post({
+  return post({
     url: useUrl("cart/calculate", {}),
+    init: { signal: controller?.signal },
     withAccessToken: true,
     data: {
       currency_id,
-      prices: [
-        prices.term.total,
-        prices.attributes.total,
-        prices.options.total,
-        0, // we dont need to include the discount in the total calculation
-      ],
+      prices: values,
     },
-  }).then(response => response?.data);
+  }).then(({ data }) => pick(data, ["total", "total_formatted"]));
+};
 
-  return Promise.all([subtotalPromise, discountPromise, totalPromise]).then(
-    ([subtotal, discount, total]) => ({
-      subtotal: subtotal?.total || 0,
-      subtotal_formatted: subtotal?.total_formatted,
-      discount: discount?.total || 0,
-      discount_formatted: discount?.total_formatted,
-      total: total?.total || 0,
-      total_formatted: total?.total_formatted,
-    })
-  );
+// --------------------------------------------------------
+// Subscriptions - these are used by the other machines to listen for changes/messages from this machine
+
+export function calculateSubscription(callback, onReceive) {
+  // firstly, send service's current state upon subscription
+  let controller: AbortController | null;
+
+  onReceive(event => {
+    if (event.type === "CALCULATE") {
+      // Firstly, we need to check if we have a controller already doing calculation requests.
+      // If we do, we need to abort the current request and start a new one.
+      if (controller?.signal && !controller.signal?.aborted) {
+        controller?.abort("New request received");
+      }
+
+      // create a new controller to allow us to abort the request if needed
+      controller = new AbortController();
+
+      calculateSummary(event.data, controller)
+        .then(summary => {
+          // send the summary back to the machine
+          callback({ type: "CALCULATED", data: summary });
+        })
+        .catch(error => {
+          // still notify the machine, but with an no value, so we can move out of the state
+          callback({ type: "CALCULATED", data: null });
+        });
+    }
+  });
+
+  return () => {
+    // The subscriber has unsubscribed from this service
+    // typically when the transitioning out of the state node
+    //  so cancel any pending requests
+    if (controller?.signal && !controller.signal?.aborted)
+      controller?.abort("New request received");
+  };
 }
 
 // --------------------------------------------------------
@@ -567,5 +488,4 @@ export default <Object>{
   checkOptions,
   checkProvisioning,
   // ---
-  calculateSummary,
 };

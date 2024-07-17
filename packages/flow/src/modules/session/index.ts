@@ -4,23 +4,19 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import sessionMachine from "./session.machine";
+import { useFeedback } from "../feedback";
+
 // --- utils
 import { getTokenfromStorage } from "./utils";
-
 // --------------------------------------------------------
 // create a global instance of the session machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
-let hasSession = null;
+let hasSession = false;
 
-const service = interpret(sessionMachine, { devTools: true }).onTransition(
-  newState => {
-    state = newState;
-  }
-);
+const service = interpret(sessionMachine, { devTools: true });
 
 // --------------------------------------------------------
 
@@ -33,6 +29,8 @@ export const useSession = () => {
   // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
   // this will fire every time we transition to a new state
   const authCallback = callback => {
+    const state = service.getSnapshot();
+
     // callback({ type: "TRANSITIONED", data: state.value });
 
     // Valid session
@@ -95,14 +93,14 @@ export const useSession = () => {
       // then listen for any changes to the client service
       // if we get a change to either authenticated or unauthenticated
       // then we need to send the callback to the subscriber
-      service.onTransition(() => {
+      service.onTransition(state => {
         const currentMachine =
           state?.children?.clientMachine || state?.children?.guestMachine;
 
         // watch for our child machines to transition to a non-loading state
         // and then send the callback to the subscriber
-        currentMachine?.onTransition(state => {
-          if (!state.matches("loading")) authCallback(callback);
+        currentMachine?.onTransition(() => {
+          authCallback(callback);
         });
 
         // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
@@ -118,7 +116,7 @@ export const useSession = () => {
     };
 
   async function getUser() {
-    const clientMachine = state?.children?.clientMachine;
+    const clientMachine = service.getSnapshot()?.children?.clientMachine;
     await waitFor(clientMachine, state => !state.matches("loading"));
     return clientMachine.state.context.user;
   }
@@ -128,42 +126,47 @@ export const useSession = () => {
     return user?.id;
   }
 
-  async function refreshToken() {
-    const currentMachine =
-      state?.children?.clientMachine || state?.children?.guestMachine;
+  // --------------------------------------------------------
 
-    if (!currentMachine) return Promise.reject("No Session available");
+  async function transfer() {
+    const state = service.getSnapshot();
+    const clientMachine = state?.children?.clientMachine;
 
-    // kick off the auth process
-    currentMachine.send("REFRESH");
+    if (!clientMachine) {
+      const { addError } = useFeedback();
+      addError({ title: "Transfer not available" });
+      return Promise.reject("Transfer not available");
+    }
 
-    // then return the wait for the service to complete
-    return waitFor(currentMachine, newState =>
-      ["processed"].some(newState.matches)
-    );
+    service.send({
+      type: "TRANSFER",
+    });
+
+    return waitFor(clientMachine, newState =>
+      newState.matches("transferring.available")
+    ).then(newState => newState.context.transfer);
   }
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
+    getSnapshot: () => service.getSnapshot(),
     getToken: () => getTokenfromStorage()?.access_token,
-    getHistory: () => state?.context?.history,
+    getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,
     authSubscription,
-    isAuthenticated: () => {
-      const authenticated = state.matches("client");
+    isAuthenticated: async () => {
+      const clientMachine = service.getSnapshot()?.children?.clientMachine;
+      if (!clientMachine)
+        return Promise.reject({ title: "Unauthorized", code: 401 });
 
-      return new Promise((resolve, reject) => {
-        if (authenticated) {
-          resolve(state.context.user);
-        } else {
-          reject({ title: "Unauthorized", code: 401 });
-        }
-      });
+      return waitFor(clientMachine, state => state.matches("idle"))
+        .then(() => clientMachine.state.context.user)
+        .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
-    refreshToken,
+    transfer,
+    reauth: () => service.send("REAUTH"),
   };
 };

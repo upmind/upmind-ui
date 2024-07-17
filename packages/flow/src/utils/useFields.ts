@@ -1,6 +1,16 @@
 //--- utils
 import { useTranslateField } from "./useTranslation";
-import { forEach, get, isNil, map, omitBy, set } from "lodash-es";
+import {
+  forEach,
+  get,
+  isNil,
+  map,
+  omitBy,
+  set,
+  some,
+  isString,
+  isObject,
+} from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -109,13 +119,23 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
             i18n: `${i18nPrefix}.${field.code}`,
             default: field.default,
             const: field.const,
-            enum: !field.options?.length ? undefined : field.options,
+            enum: !some(field.options, isString) ? undefined : field.options,
+            // oneOf: !some(field.options, isObject)
+            //   ? undefined
+            //   : map(field.options, item => {
+            //       return {
+            //         const: item.value,
+            //         title: item.label,
+            //       };
+            //     }),
             oneOf: !field.values?.length
               ? undefined
-              : map(useTranslateField(field, "values"), item => ({
-                  const: item.value,
-                  title: item.label,
-                })),
+              : map(useTranslateField(field, "values"), item => {
+                  return {
+                    const: item.value,
+                    title: item.label,
+                  };
+                }),
           },
           isNil
         )

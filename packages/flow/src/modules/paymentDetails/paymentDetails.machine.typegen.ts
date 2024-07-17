@@ -72,6 +72,7 @@ export interface Typegen0 {
     clearAutoUpdate: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     clearError:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "UNAUTHENTICATED"
       | "done.invoke.loading:invocation[0]"
@@ -104,20 +105,25 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasBasket: "CHECKOUT";
+    hasChanged: "REFRESH";
+    hasLookups: "done.invoke.paymentDetailsManager.checking:invocation[0]";
     isFree: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
     shouldUpdate: "";
   };
   eventsCausingServices: {
     authSubscription: "UNAUTHENTICATED" | "xstate.init";
-    isAuthenticated: "AUTHENTICATED" | "REFRESH";
+    isAuthenticated: "AUTHENTICATED";
     load:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]";
     parse:
       | "CLEAR"
+      | "REFRESH"
       | "SET"
       | "done.invoke.loading:invocation[0]"
+      | "done.invoke.paymentDetailsManager.checking:invocation[0]"
       | "xstate.update";
     update: "" | "CHECKOUT";
     validate: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";

@@ -3,7 +3,6 @@
     <header :class="styles.basket.promotions.header">
       <upw-button
         variant="link"
-        color="secondary"
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
@@ -46,11 +45,12 @@
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
         variant="flat"
-        color="secondary"
+        color="promotion"
         :label="promotion.promotion.code"
         appendIcon="close"
-        @click.prevent="remove(promotion)"
+        @click.prevent="doRemove(promotion)"
         :disabled="meta.isProcessing"
+        :loading="!!processing[promotion.id]"
         size="badge"
       />
     </footer>
@@ -62,12 +62,13 @@
 import { defineComponent, ref } from "vue";
 
 // --- components
-import { UpwButton, UpwIcon, UpwForm, UpwBadge } from "@upmind/upwind";
+import { UpwButton, UpwIcon, UpwForm } from "@upmind/upwind";
 
 // --- internal
 import { useBasketPromotions } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
+import { set } from "lodash-es";
 
 // --- utils
 
@@ -75,7 +76,7 @@ import config from "./config.cva";
 
 export default defineComponent({
   name: "UpmBasketPromotions",
-  components: { UpwButton, UpwIcon, UpwForm, UpwBadge },
+  components: { UpwButton, UpwIcon, UpwForm },
 
   emits: ["edit"],
   props: {},
@@ -112,20 +113,24 @@ export default defineComponent({
       mergeStyles,
       // ---
       toggle: ref(false),
+      processing: ref({}),
     };
   },
-  methods: {},
+  methods: {
+    doRemove(promotion) {
+      set(this.processing, promotion.id, true);
+      this.remove(promotion);
+    },
+  },
   computed: {
     actions() {
       return {
         submit: {
           type: "submit",
           label: this.$t("basket.promotions.actions.submit"),
-          size: "sm",
+          size: "xs",
           variant: "ghost",
           needsValid: true,
-          disabled:
-            !this.meta.isDirty || !this.meta.isValid || this.meta.isProcessing,
         },
       };
     },

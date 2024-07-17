@@ -19,7 +19,7 @@ interface ICompany {
   phone_id: IPhone["id"];
   reg_number: string | null;
   vat_number: string | null;
-  vat_percent: string | null;
+  // vat_percent: string | null;
   // ---
   default: boolean;
   // --- readonly/system data
