@@ -57,9 +57,7 @@
               keypath="basket.details.text"
               tag="span"
             >
-              <template #[`name`]>
-                <span>{{ user.display }}</span>
-              </template>
+              <template #[`name`]>{{ user?.display }}</template>
             </i18n-t>
 
             <i18n-t
@@ -67,8 +65,8 @@
               keypath="basket.details.title"
               tag="h2"
             >
-              <template #[`name`]>{{ user.display }}</template>
-              <template #[`total`]>{{ summary.total }}</template>
+              <template #[`name`]>{{ user?.display }}</template>
+              <template #[`total`]>{{ summary?.total }}</template>
             </i18n-t>
           </template>
         </header>
