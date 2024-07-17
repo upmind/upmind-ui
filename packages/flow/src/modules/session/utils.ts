@@ -89,13 +89,13 @@ export async function useUserParser(data: any) {
     "id",
     "email",
     "username",
-    "full_name",
-    "first_name",
-    "last_name",
+    "fullname",
+    "firstname",
+    "lastname",
     "image_url",
   ]);
 
-  user.display = data?.public_name || data?.first_name || data?.email;
+  user.display = data?.firstname || data?.public_name || data?.email;
   user.avatar = {
     caption: useInitialsParser(user),
     src: user.image_url, //await useAvatarParser(user.image_url),

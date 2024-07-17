@@ -27,19 +27,97 @@
         v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
       />
 
-      <!-- account -->
-      <upm-session
-        id="account"
-        :class="styles.checkout.section.root"
-        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-      />
+      <section :class="styles.checkout.section.root">
+        <header :class="styles.checkout.section.header">
+          <template v-if="!account.isAuthenticated && account.showRegisterForm">
+            <span :class="styles.checkout.section.text">
+              {{ $t("session.unauthenticated.header.register.text") }}
+            </span>
 
-      <!-- payment -->
-      <upm-basket-details
-        id="payment"
-        :class="styles.checkout.section.root"
-        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-      />
+            <h1 :class="styles.checkout.section.title">
+              {{ $t("session.unauthenticated.header.register.title") }}
+            </h1>
+          </template>
+
+          <template
+            v-else-if="!account.isAuthenticated && account.showLoginForm"
+          >
+            <span :class="styles.checkout.section.text">
+              {{ $t("session.unauthenticated.header.login.text") }}
+            </span>
+
+            <h1 :class="styles.checkout.section.title">
+              {{ $t("session.unauthenticated.header.login.title") }}
+            </h1>
+          </template>
+
+          <template v-else>
+            <i18n-t
+              :class="styles.checkout.section.text"
+              keypath="basket.details.text"
+              tag="span"
+            >
+              <template #[`name`]>
+                <span>{{ user.display }}</span>
+              </template>
+            </i18n-t>
+
+            <i18n-t
+              :class="styles.checkout.section.title"
+              keypath="basket.details.title"
+              tag="h2"
+            >
+              <template #[`name`]>{{ user.display }}</template>
+              <template #[`total`]>{{ summary.total }}</template>
+            </i18n-t>
+          </template>
+        </header>
+
+        <div :class="styles.checkout.section.wrapper">
+          <div :class="styles.checkout.section.content">
+            <!-- account -->
+
+            <upm-session
+              v-if="!meta.hasAccount"
+              id="account"
+              no-header
+              v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+            >
+            </upm-session>
+
+            <!-- billing details -->
+            <upm-billing-details
+              v-if="!meta.needsAuth"
+              :model-value="billingDetailsModel"
+              @update:modelValue="billingDetailsUpdate"
+            />
+
+            <!-- custom fields  -->
+            <upw-form
+              v-if="!meta.needsAuth"
+              :additional-errors="fieldsErrors?.data"
+              :model-value="fieldsModel"
+              :processing="fieldsMeta.isProcessing"
+              :schema="fieldsSchema"
+              :uischema="fieldsUischema"
+              @reject="fieldsClear"
+              @resolve="fieldsUpdate"
+              @update:modelValue="fieldsUpdate"
+              no-actions
+              autosave
+            />
+
+            <!-- payment details -->
+            <upm-payment-details />
+          </div>
+
+          <aside :class="styles.checkout.section.sidebar">
+            <upm-basket-summary no-actions />
+          </aside>
+        </div>
+
+        <footer :class="styles.checkout.section.footer"></footer>
+      </section>
 
       <!-- basket procesing -->
       <upm-basket-processing :model-value="meta.isProcessingOrder" />
@@ -66,19 +144,25 @@ import config from "./config.cva";
 // -- components
 import {
   useScrollSpy,
+  useSession,
   useBasket,
   useBasketCurrency,
   // ---
-  UpmBasketItems,
-  UpmSession,
-  UpmBasketDetails,
-  UpmBasketProcessing,
-  UpmOrderConfirmation,
   UpmBasketEmpty,
+  UpmBasketItems,
   UpmBasketLoading,
+  UpmBasketProcessing,
+  UpmBasketSummary,
+  UpmBillingDetails,
+  UpmOrderConfirmation,
+  UpmPaymentDetails,
+  useBasketBillingDetails,
+  useBasketFields,
+  UpmSession,
+  UpwForm,
+
   // ---
   UpwSteps,
-  UpwButton,
 } from "@upmind/client-vue";
 
 // -- utils
@@ -93,21 +177,26 @@ export default defineComponent({
   name: "Checkout",
   i18n: { messages: getLocalMessages("checkout") },
   components: {
-    UpmBasketItems,
-    UpmSession,
-    UpmBasketDetails,
-    UpmBasketProcessing,
-    UpmOrderConfirmation,
     UpmBasketEmpty,
+    UpmBasketItems,
     UpmBasketLoading,
+    UpmBasketProcessing,
+    UpmBasketSummary,
+    UpmBillingDetails,
+    UpmOrderConfirmation,
+    UpmPaymentDetails,
+    UpmSession,
+    UpwForm,
     // ---
     UpwSteps,
-    UpwButton,
   },
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
-    const { meta, itemsPending, addProduct, invoice, isReady } = useBasket();
+    const { meta: account, user } = useSession();
+    const { meta, summary, addProduct, invoice, isReady } = useBasket();
     const { update } = useBasketCurrency();
+    const billingDetails = useBasketBillingDetails();
+    const fields = useBasketFields();
 
     // ---------------------------------------------------
     // --- basket setup
@@ -164,12 +253,30 @@ export default defineComponent({
       mergeStyles,
       styles,
       // ---
-      itemsPending,
       meta,
+      summary,
+      // ---
+      account,
+      user,
+      // ---
+      billingDetailsModel: billingDetails.model,
+      billingDetailsUpdate: billingDetails.update,
+      billingDetailsMeta: billingDetails.meta,
+      // ---
+      fieldsMeta: fields.meta,
+      fieldsModel: fields.model,
+      fieldsSchema: fields.schema,
+      fieldsUischema: fields.uischema,
+      fieldsErrors: fields.errors,
+      fieldsUpdate: fields.update,
+      fieldsClear: fields.clear,
+      // ---
       invoice,
+      // ---
       activeSection: ref(null),
       isScrolling,
       scrollIntoView,
+      // ---
       steps: computed(() => {
         return [
           {
