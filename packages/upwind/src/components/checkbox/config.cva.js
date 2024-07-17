@@ -3,12 +3,18 @@ import { cva } from "class-variance-authority";
 
 export default {
   checkbox: {
-    root: cva("relative flex shrink-0 items-center justify-center", {
+    root: cva("relative mr-3 flex shrink-0 items-center justify-center", {
       variants: {
         size: {
           sm: "size-5",
           md: "size-6",
           lg: "size-7",
+        },
+        isDisabled: {
+          true: "cursor-not-allowed",
+        },
+        isProcessing: {
+          true: "cursor-wait",
         },
       },
       defaultVariants: {
@@ -25,7 +31,7 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "bg-base-100 cursor-not-allowed",
+            true: "bg-base-100 cursor-not-allowed ",
           },
           isProcessing: {
             true: "cursor-wait",

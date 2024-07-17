@@ -4,11 +4,10 @@
 
 // --- utils
 import {
-  generateUrls,
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema,
 } from "../utils";
-import { get, merge, concat } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "../types.d";

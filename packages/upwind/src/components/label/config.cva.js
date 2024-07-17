@@ -22,21 +22,11 @@ export default {
         size: "md",
       },
     }),
-    alt: cva("text-base-500 w-full text-xs"),
+    alt: cva("mx-2"),
     required: cva(""),
     optional: cva(""),
     status: cva(
-      "text-base-500 ml-auto inline-flex items-center gap-2 text-xs leading-tight",
-      {
-        variants: {
-          isValid: {
-            true: "hidden",
-          },
-          isInvalid: {
-            // true: "text-error",
-          },
-        },
-      }
+      "text-base-500 ml-auto inline-flex items-center gap-2 text-xs leading-tight"
     ),
     icon: cva("size-4"),
   },

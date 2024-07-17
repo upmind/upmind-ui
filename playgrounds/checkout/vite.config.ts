@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -8,16 +9,17 @@ import svgLoader from 'vite-svg-loader';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    // basicSsl(),
-    vue(),
-    vueJsx(),
-    svgLoader()
-  ],
+  plugins: [// basicSsl(),
+  vue(), vueJsx(), svgLoader(), sentryVitePlugin({
+    org: "upmind",
+    project: "upm-checkout-v2"
+  })],
+
   server: {
     cors: true,
     // https: true,
   },
+
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -26,5 +28,9 @@ export default defineConfig({
       '@locales': fileURLToPath(new URL('./src/locales', import.meta.url)),
 
     }
+  },
+
+  build: {
+    sourcemap: true
   }
 })

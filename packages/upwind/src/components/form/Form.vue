@@ -10,7 +10,7 @@
       name="loading"
       v-bind="{ styles: styles.form.loading }"
     >
-      <upw-skeleton-form :class="styles.form.loading" />
+      <!-- <upw-skeleton-form :class="styles.form.loading" /> -->
     </slot>
 
     <json-forms

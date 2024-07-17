@@ -8,7 +8,7 @@ import { useFeedback } from "../feedback";
 const { addError, trackEvent } = useFeedback();
 
 // --- utils
-import { spawnGateway } from "./utils";
+import { spawnGateway, parsePaymentDetails } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
@@ -63,14 +63,20 @@ export default createMachine(
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: { target: "available" },
+          onDone: [
+            {
+              target: "available.checking",
+              cond: "hasLookups",
+            },
+            { target: "available" },
+          ],
           onError: { target: "unavailable" },
         },
       },
 
       unavailable: {
         on: {
-          // AUTHENTICATED: { target: "checking" },
+          AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -184,10 +190,17 @@ export default createMachine(
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
 
-          REFRESH: {
-            target: "checking",
-            actions: "refreshBasket",
-          },
+          REFRESH: [
+            {
+              target: "available.loading",
+              actions: "refreshBasket",
+              cond: "hasChanged",
+            },
+            {
+              target: "available.checking",
+              actions: "refreshBasket",
+            },
+          ],
         },
       },
 
@@ -286,9 +299,12 @@ export default createMachine(
         basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
         currency: (_context, { data: basket }: RefreshEvent) =>
           basket?.currency,
-        model: (_context, { data: basket }: RefreshEvent) => ({
-          amount: basket?.unpaid_amount_converted || 0.0,
-        }),
+        model: ({ model }, { data: basket }: RefreshEvent) => {
+          return {
+            ...model,
+            amount: basket?.unpaid_amount_converted || 0.0,
+          };
+        },
         actors: ({ actors }, { data: basket }) => {
           forEach(actors, actor => {
             if (actor?.send && !actor?.state?.done) {
@@ -309,9 +325,8 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: ({ model }, { data }) => {
-          return { ...model, ...data };
-        },
+        paymentDetails: ({ model }, { data }) =>
+          parsePaymentDetails({ ...model, ...data }),
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
@@ -374,9 +389,14 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasLookups: (
+        { stored_payment_details, gateways, payment_types },
+        _event
+      ) => !!stored_payment_details && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
+      hasChanged: ({ currency }, { data }) => currency?.id != data?.currency_id,
     },
 
     delays: {

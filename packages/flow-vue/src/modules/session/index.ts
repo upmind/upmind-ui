@@ -1,7 +1,6 @@
 // --- external
 import { computed, unref, watch, toRaw } from "vue";
 import { useActor } from "@xstate/vue";
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession as useUpmindSession } from "@upmind/flow";
@@ -13,7 +12,7 @@ import { isEmpty, isFunction } from "lodash-es";
 //  with some state helpers
 
 export const useSession = (inspector?: Function) => {
-  const { service } = useUpmindSession();
+  const { service, transfer } = useUpmindSession();
   const { state, send } = useActor(service);
 
   // We can create reactive refs to the child machines,
@@ -124,20 +123,6 @@ export const useSession = (inspector?: Function) => {
     send({
       type: "LOGOUT",
     });
-  }
-
-  async function transfer() {
-    const clientMachine = state.value?.children?.clientMachine;
-
-    if (!clientMachine) return Promise.reject("Transfer not available");
-
-    send({
-      type: "TRANSFER",
-    });
-
-    return waitFor(clientMachine, newState =>
-      newState.matches("transferring.available")
-    ).then(newState => newState.context.transfer);
   }
 
   // ---

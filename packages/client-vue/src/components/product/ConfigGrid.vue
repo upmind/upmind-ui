@@ -4,6 +4,7 @@
     :class="styles.product.config.grid.root"
     :label="label"
     :required="true"
+    :errors="errors"
     no-required
     no-feedback
     no-status
@@ -46,11 +47,20 @@
               {{ item.billing_cycle_name }}
             </span>
 
-            <upw-badge
-              v-if="item.saving"
-              color="secondary"
-              :label="$t('product.save', { value: item.saving_formatted })"
-            />
+            <template v-for="promotion in item?.promotions" :key="promotion.id">
+              <upw-badge
+                color="promotion"
+                :label="
+                  $tc(
+                    'product.promo_save',
+                    promotion.mixed || !promotion.amount ? 1 : 0,
+                    {
+                      value: promotion.amount_formatted,
+                    }
+                  )
+                "
+              />
+            </template>
 
             <!-- monthly -->
             <span
@@ -89,6 +99,8 @@
       </h-radio-group-option>
     </h-radio-group>
   </upw-input>
+
+  <pre v-if="errors">{{ errors }}</pre>
 </template>
 
 <script>
@@ -144,6 +156,9 @@ export default defineComponent({
     },
     label: {
       type: String,
+    },
+    errors: {
+      type: Array,
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

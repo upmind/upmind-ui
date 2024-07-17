@@ -31,6 +31,7 @@ export default {
             error: "bg-error text-error-content border-transparent",
             warning: "bg-warning text-warning-content border-transparent",
             info: "bg-info text-info-content border-transparent",
+            promotion: "bg-promotion text-promotion-content border-transparent",
           },
           disabled: {
             true: "!cursor-default opacity-50",
@@ -93,6 +94,12 @@ export default {
             color: "info",
             class: "hover:bg-info-800",
           },
+          {
+            disabled: false,
+            color: "promotion",
+            class: "hover:bg-promotion-800",
+          },
+
           // --- current + variant ---
           {
             color: "current",
@@ -347,6 +354,34 @@ export default {
             variant: "link",
             class: "hover:text-info-800",
           },
+          // --- promotion + variant ---
+          {
+            color: "promotion",
+            variant: "outlined",
+            class: "border-promotion text-promotion",
+          },
+          {
+            color: "promotion",
+            variant: "ghost",
+            class: "text-promotion",
+          },
+          {
+            color: "promotion",
+            variant: "link",
+            class: "text-promotion",
+          },
+          {
+            disabled: false,
+            color: "promotion",
+            variant: ["outlined", "ghost"],
+            class: "hover:bg-promotion-50",
+          },
+          {
+            disabled: false,
+            color: "promotion",
+            variant: "link",
+            class: "hover:text-promotion-800",
+          },
         ],
         defaultVariants: {
           variant: "flat",
@@ -358,6 +393,7 @@ export default {
     spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto ", {
       variants: {
         size: {
+          badge: "size-4",
           auto: "size-[1.5em]",
           xs: "size-4",
           sm: "size-5",

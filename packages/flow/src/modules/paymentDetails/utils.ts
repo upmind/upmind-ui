@@ -7,7 +7,8 @@ import stripeMachine from "./gateways/stripe/stripe.machine";
 import cardConfig from "./gateways/card";
 
 // --- utils
-import { first, map } from "lodash-es";
+import { useTranslateName } from "../../utils";
+import { omit, map } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types.d";
@@ -20,6 +21,12 @@ import {
 import type { PaymentDetailsContext } from "./types.d";
 import type { UISchemaElement } from "@jsonforms/core";
 
+// --------------------------------------------------------
+
+export const parsePaymentDetails = payment_details => {
+  // TODO: map the actual allowed params fr the endpoint
+  return omit(payment_details, ["can_store"]);
+};
 // --------------------------------------------------------
 
 export const useSchema = ({
@@ -57,7 +64,7 @@ export const useSchema = ({
           ? undefined
           : map(gateways, ({ gateway_id, gateway }) => ({
               const: gateway_id,
-              title: gateway.name,
+              title: useTranslateName(gateway),
             })),
       },
     },

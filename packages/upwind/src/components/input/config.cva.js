@@ -17,11 +17,11 @@ export default {
     }),
 
     wrapper: cva(
-      "group flex min-h-full w-full items-start items-center gap-3 rounded-lg ring-0",
+      "group flex min-h-full w-full items-start items-center rounded-lg ring-0",
       {
         variants: {
           variant: {
-            outlined: "border-base-300  border px-2",
+            outlined: "border-base-300 border",
             flat: "",
           },
           layout: {
@@ -30,7 +30,7 @@ export default {
           },
 
           isDisabled: {
-            true: "",
+            true: "opacity-50 ",
           },
         },
         compoundVariants: [
@@ -93,6 +93,21 @@ export default {
         },
       }
     ),
+
+    prependWrapper: cva("flex items-start gap-3 px-2 empty:hidden", {
+      variants: {
+        isDisabled: {
+          true: "bg-base-100",
+        },
+      },
+    }),
+    appendWrapper: cva("flex items-start gap-3 px-2 empty:hidden", {
+      variants: {
+        isDisabled: {
+          true: "bg-base-100",
+        },
+      },
+    }),
 
     icon: cva("", {
       variants: {

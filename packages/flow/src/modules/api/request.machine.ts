@@ -10,6 +10,7 @@ import { useTime } from "../../utils";
 // --utils
 import { toNumber, set, includes } from "lodash-es";
 import { getTokenfromStorage } from "../session/utils";
+import { stateValuesEqual } from "xstate/lib/State";
 // --------------------------------------------------------
 
 // as this is a sub machine, we need to be initialised with a request
@@ -76,7 +77,7 @@ export default (request: RequestParams) =>
             },
             onError: [
               { target: "authorizing", cond: "canAuthorize" },
-              { target: "error", actions: ["setError"] },
+              { target: "error", actions: ["setError"] }, // TODO throw an auth feedback message
             ],
           },
           on: {
@@ -243,13 +244,16 @@ export default (request: RequestParams) =>
         canAuthorize: (context, { data }) => {
           const isAuth = includes(context.url.pathname, "oauth");
           const isUnauthorized = data?.status === responseCodes.Unauthorized;
+          const value =
+            !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1;
+
           // console.debug("request", "canAuthorize", {
           //   isAuth,
           //   isUnauthorized,
           //   attempts: context?.attempts,
-          //   can: !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1
+          //   canAuthorize: value
           // });
-          return !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1;
+          return value;
         },
         // ---
         isUnauthorized: context =>

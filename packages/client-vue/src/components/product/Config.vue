@@ -22,7 +22,7 @@
           />
 
           <upw-badge
-            color="secondary"
+            color="promotion"
             v-if="product?.isOnPromotion"
             :label="$t('product.promotion')"
           />
@@ -88,38 +88,35 @@
         <!-- terms -->
         <upm-config-grid
           v-if="meta.hasTerms"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
+          :errors="errors?.term"
           :items="terms"
-          :model-value="model?.term?.billing_cycle_months || 0"
-          @update:modelValue="updateTerm"
           :label="$t('product.terms.label')"
+          :model-value="model?.term?.billing_cycle_months || 0"
+          :processing="meta.isProcessing || meta.isLoading"
+          @update:modelValue="updateTerm"
           itemKey="billing_cycle_months"
-        />
-
-        <!-- attributes -->
-        <upm-config-nested
-          v-if="meta.hasAttributes"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
-          :items="attributes"
-          :model-value="model?.attributes"
-          @update:modelValue="selectAttribute"
-          itemKey="product_id"
         />
 
         <!-- options -->
         <upm-config-nested
           v-if="meta.hasOptions"
-          :processing="
-            meta.isProcessing || meta.isLoading || meta.isCalculating
-          "
+          :errors="errors?.options"
           :items="options"
           :model-value="model?.options"
+          :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="selectOption"
           @update:quantity="updateOptionQuantity"
+          itemKey="product_id"
+        />
+
+        <!-- attributes -->
+        <upm-config-nested
+          v-if="meta.hasAttributes"
+          :errors="errors?.attributes"
+          :items="attributes"
+          :model-value="model?.attributes"
+          :processing="meta.isProcessing || meta.isLoading"
+          @update:modelValue="selectAttribute"
           itemKey="product_id"
         />
 
@@ -127,7 +124,7 @@
         <upm-config-form
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
-          :additional-errors="errors?.data"
+          :additional-errors="errors?.provision_fields?.data"
           :fields="getProvisioningFields()"
           :model-value="model.provision_fields"
           @update:modelValue="setProvisioningFields"
@@ -231,8 +228,6 @@ export default defineComponent({
       meta,
       summary,
       // ---
-      clearErrors,
-      // ---
       updateQuantity,
       updateTerm,
       // ---
@@ -247,6 +242,7 @@ export default defineComponent({
       setProvisioningFields,
       updateProvisioning,
       getProvisioningField,
+      reset,
     } = useProductConfig(props.item);
 
     const styles = useStyles(["product.config"], meta, config);
@@ -267,8 +263,6 @@ export default defineComponent({
       meta,
       summary,
       // ---
-      clearErrors,
-      // ---
       updateQuantity,
       updateTerm,
       // ---
@@ -284,7 +278,10 @@ export default defineComponent({
       updateProvisioning,
       getProvisioningField,
       // ---
-      doReject: () => emit("reject", { id: props.modelValue }),
+      doReject: () => {
+        reset();
+        emit("reject", { id: props.modelValue });
+      },
       doResolve: () => emit("resolve", { id: props.modelValue }), // ---
       styles,
       mergeStyles,

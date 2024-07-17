@@ -2,7 +2,7 @@
   <article :class="styles.checkout.root">
     <upm-basket-loading
       id="loading"
-      v-if="meta.isLoading"
+      v-if="meta.isLoading || !animationComplete"
       :class="styles.checkout.section.root"
     />
 
@@ -18,19 +18,7 @@
         :steps="steps"
         :loading="meta.isLoading"
         @update:model-value="scrollTo"
-      >
-        <template #append>
-          <div class="ml-auto w-full max-w-xs text-right">
-            <upw-button
-              :disabled="!meta.isReadyForCheckout || meta.isProcessing"
-              @click.prevent="doCheckout"
-              color="primary"
-              :label="$t('basket.summary.actions.submit')"
-              block
-            />
-          </div>
-        </template>
-      </upw-steps>
+      />
 
       <!-- overview -->
       <upm-basket-items
@@ -53,11 +41,14 @@
         v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
       />
 
-      <!-- confirmation -->
-      <upm-basket-confirmation
-        id="confirmation"
-        :class="styles.checkout.section.root"
-        v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+      <!-- basket procesing -->
+      <upm-basket-processing :model-value="meta.isProcessingOrder" />
+
+      <!-- order confirmation -->
+      <upm-order-confirmation
+        :model-value="meta.isComplete"
+        :order-id="invoice?.id"
+        :success="meta.hasPaid"
       />
     </template>
   </article>
@@ -66,7 +57,7 @@
 <script>
 // --- external
 import { defineComponent, ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -76,11 +67,13 @@ import config from "./config.cva";
 import {
   useScrollSpy,
   useBasket,
+  useBasketCurrency,
   // ---
   UpmBasketItems,
   UpmSession,
   UpmBasketDetails,
-  UpmBasketConfirmation,
+  UpmBasketProcessing,
+  UpmOrderConfirmation,
   UpmBasketEmpty,
   UpmBasketLoading,
   // ---
@@ -93,6 +86,8 @@ import { vIntersectionObserver } from "@vueuse/components";
 import { getLocalMessages } from "@/utils";
 import { trimStart, get, forEach, isArray } from "lodash-es";
 
+// ---types
+import { QUERY_PARAMS } from "./types.d";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "Checkout",
@@ -101,7 +96,8 @@ export default defineComponent({
     UpmBasketItems,
     UpmSession,
     UpmBasketDetails,
-    UpmBasketConfirmation,
+    UpmBasketProcessing,
+    UpmOrderConfirmation,
     UpmBasketEmpty,
     UpmBasketLoading,
     // ---
@@ -110,24 +106,43 @@ export default defineComponent({
   },
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
-    const { meta, itemsPending, addProduct, updateBasket, isReady } =
-      useBasket();
+    const { meta, itemsPending, addProduct, invoice, isReady } = useBasket();
+    const { update } = useBasketCurrency();
 
     // ---------------------------------------------------
     // --- basket setup
     const { query } = useRoute();
-    const product = get(query, "product");
+    // const router = useRouter();
+    // ---
+    // parse our query params that may be passed in
+    const product = get(
+      query,
+      QUERY_PARAMS.PRODUCT,
+      get(query, QUERY_PARAMS.PRODUCT_ID)
+    );
     const products = ref([]);
+    // ---
+    const currency = get(
+      query,
+      QUERY_PARAMS.CURRENCY,
+      get(query, QUERY_PARAMS.CURRENCY_CODE)
+    );
 
     isReady().then(() => {
-      // add the product to the basket if the basket is empty
-      if (!meta.value.isEmpty) return;
-
-      if (product) {
+      // first add our product(s) to the basket if the basket is ready & empty
+      if (meta.value.isEmpty && product) {
         forEach(isArray(product) ? product : [product], product_id => {
           products.value.push(addProduct({ product_id, quantity: 1 }));
         });
       }
+
+      // then set the currency if provided
+      if (currency) {
+        update({ code: currency.toUpperCase() });
+      }
+
+      // finally clean up our query params
+      // router.replace({ query: {} });
     });
     // ---------------------------------------------------
 
@@ -136,6 +151,14 @@ export default defineComponent({
     const styles = useStyles(["checkout", "checkout.section"], meta, config);
 
     // ---------------------------------------------------
+    // Create a min Animation time for the Loading Screen to prevent fout/jank
+    const animationComplete = ref(false);
+    const animationDuration = 2_000;
+
+    new Promise(resolve => setTimeout(resolve, animationDuration)).then(() => {
+      animationComplete.value = true;
+    });
+    // ---------------------------------------------------
 
     return {
       mergeStyles,
@@ -143,6 +166,7 @@ export default defineComponent({
       // ---
       itemsPending,
       meta,
+      invoice,
       activeSection: ref(null),
       isScrolling,
       scrollIntoView,
@@ -179,12 +203,21 @@ export default defineComponent({
           },
         ];
       }),
+      animationComplete,
     };
   },
   watch: {
     meta(meta) {
+      // MAYBE: redirect after complete instead of dialog?
+      // if (meta.isComplete) {
+      //   this.$router.push({
+      //     name: "order",
+      //     params: { orderId: this.invoice?.id },
+      //     query: { payment_success: meta.hasPaid },
+      //   });
+      //   return;
+      // }
       if (!meta.isLoading || meta.isEmpty) return;
-
       this.scrollTo();
     },
   },

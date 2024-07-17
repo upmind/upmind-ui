@@ -34,14 +34,11 @@ async function load(
   _event: ClientListingsEvents
 ) {
   const { get, useUrl } = useApi();
-  const { isAuthenticated, getUserId } = useSession();
-
-  await isAuthenticated().catch(error => Promise.reject(error));
-
-  const clientId = await getUserId();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   return get({
-    url: useUrl(`clients/${clientId}/companies`, {
+    url: useUrl(`clients/${client.id}/companies`, {
       // with: [].join(),
       limit: 0,
     }),
@@ -111,7 +108,7 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: model.phone_id,
       reg_number: model.reg_number,
       vat_number: model.vat_number,
-      vat_percent: model.vat_percent,
+      // vat_percent: model.vat_percent,
     },
     withAccessToken: true,
   }).then(({ data }) => data);
@@ -132,7 +129,7 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
       phone_id: model.phone_id,
       reg_number: model.reg_number,
       vat_number: model.vat_number,
-      vat_percent: model.vat_percent,
+      // vat_percent: model.vat_percent,
     },
     withAccessToken: true,
   }).then(({ data }) => data);

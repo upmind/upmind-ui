@@ -1,12 +1,14 @@
 {
   "product": {
     "image": "/fallback.svg",
+    "required": "Required",
     "free": "Free",
     "promotion": "On promotion",
     "trail": "Free trial",
     "term": "billed {name}",
-    "save": "Save {value}",
+    "promo_save": "On promotion | Save {value}",
     "cycle": "{value}/mo",
+    "adds_overrides": "Overrides price | Adds to price",
     "terms": {
       "label": "Billing terms"
     },

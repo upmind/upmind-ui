@@ -11,6 +11,7 @@ const { addError, addSuccess, trackEvent } = useFeedback();
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
 import {
+  useBasketParser,
   useSummaryParser,
   spawnConfiguration,
   spawnBillingDetails,
@@ -29,6 +30,7 @@ import {
   get,
   includes,
   isEmpty,
+  isEqual,
   map,
   omit,
   remove,
@@ -99,7 +101,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "actors",
-                actions: ["setBasket", "loadItems"],
+                actions: ["updateBasket", "loadItems"],
               },
               onError: {
                 target: "#error",
@@ -124,7 +126,7 @@ export default createMachine(
           src: "claim",
           onDone: {
             target: "#shopping",
-            actions: ["setBasket", "refreshActors"],
+            actions: ["updateBasket", "refreshActors"],
           },
           onError: {
             target: "#error",
@@ -140,7 +142,7 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: ["setBasket", "refreshActors"],
+            actions: ["updateBasket", "refreshActors"],
           },
           onError: { target: "#error" },
         },
@@ -219,22 +221,21 @@ export default createMachine(
                 initial: "everything",
                 states: {
                   everything: {
-                    entry: ["muteBasket", "updateActors"],
+                    entry: ["updateActors"],
 
                     invoke: {
                       src: "update",
                       onDone: {
                         target: "#processed",
-                        actions: ["refreshItems", "updateBasket"],
-                      },
-                      onError: {
-                        target: "#processed",
                         actions: [
                           "refreshItems",
                           "updateBasket",
-                          "setError",
-                          "setFeedbackError",
+                          "refreshActors",
                         ],
+                      },
+                      onError: {
+                        target: "error",
+                        actions: ["setError", "setFeedbackError"],
                       },
                     },
                   },
@@ -244,17 +245,16 @@ export default createMachine(
                     invoke: {
                       src: "updateItem",
                       onDone: {
-                        target: "error",
-                        actions: ["refreshItems", "updateBasket"],
-                      },
-                      onError: {
                         target: "#processed",
                         actions: [
                           "refreshItems",
                           "updateBasket",
-                          "setError",
-                          "setFeedbackError",
+                          "refreshActors",
                         ],
+                      },
+                      onError: {
+                        target: "error",
+                        actions: ["setError", "setFeedbackError"],
                       },
                     },
                   },
@@ -265,32 +265,27 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: ["removeItem", "updateBasket"],
+                        actions: [
+                          "removeItem",
+                          "updateBasket",
+                          "refreshActors",
+                        ],
                       },
                       onError: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "setError",
-                          "setFeedbackError",
-                        ],
+                        target: "error",
+                        actions: ["setError", "setFeedbackError"],
                       },
                     },
                   },
 
-                  error: {
-                    after: {
-                      error: "#processed",
-                    },
-                  },
+                  error: {},
                 },
               },
 
               processed: {
                 id: "processed",
                 after: {
-                  wait: "#refreshing",
+                  wait: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
                 },
               },
 
@@ -429,7 +424,7 @@ export default createMachine(
           onDone: [
             {
               target: "#paying",
-              actions: "setInvoice",
+              actions: ["setInvoice"],
               cond: "needsPayment",
             },
             {
@@ -460,6 +455,7 @@ export default createMachine(
             actions: ["setPayment", "trackPayment"],
           },
           onError: {
+            target: "#failed",
             actions: ["setError", "setFeedbackError"],
           },
         },
@@ -470,12 +466,16 @@ export default createMachine(
         },
       },
 
-      // TODO: actual payment node.
-
       // Handle errors
       error: {
         id: "error",
       },
+      // ---
+
+      failed: {
+        id: "failed",
+      },
+      // TODO: actual payment node.
 
       complete: {
         id: "complete",
@@ -523,11 +523,16 @@ export default createMachine(
       //   cond: (_context, event) => includes(event.type, "done.invoke")
       // }
 
-      REFRESH: {
-        target: "#refreshing",
-        actions: "muteBasket",
-        cond: "isNotMuted",
-      },
+      REFRESH: [
+        {
+          target: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
+          actions: ["updateBasket", "refreshActors"],
+          cond: "hasNewBasket",
+        },
+        {
+          target: "#refreshing",
+        },
+      ],
 
       UNAUTHENTICATED: {
         target: "subscribing",
@@ -543,24 +548,12 @@ export default createMachine(
   },
   {
     actions: {
-      setBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvent) => data,
-        summary: (_context: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(data),
-        error: undefined,
-      }),
-
       updateBasket: assign({
-        basket: ({ basket }: BasketContext, { data }: BasketEvent) =>
-          get(data, "basket", basket),
-        summary: ({ basket }: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(get(data, "basket", basket)),
+        basket: (_context: BasketContext, { data }: BasketEvent) =>
+          useBasketParser(data),
+        summary: (_context: BasketContext, { data }: BasketEvent) =>
+          useSummaryParser(useBasketParser(data)),
         error: undefined,
-        muted: false,
-      }),
-
-      muteBasket: assign({
-        muted: true,
       }),
 
       clearBasket: assign({
@@ -834,7 +827,7 @@ export default createMachine(
 
             // if not, we need to check if its been Replaced
             if (!product && newId) {
-              // Replaced...
+              // Replaced#.
               // we need to replace it with a new machine and stop the old one
               // NB: its safe to assume that the items array is in the same order as the newItems
               // so we can use the index to match the items
@@ -978,6 +971,9 @@ export default createMachine(
     guards: {
       hasNoBasket: ({ basket }) => isEmpty(basket),
 
+      hasNewBasket: ({ basket }, { data }) =>
+        !isEmpty(data) && !isEqual(basket, data),
+
       needsPayment: ({ paymentDetails }) => {
         const hasOustandingBalance = paymentDetails?.amount > 0;
 
@@ -991,22 +987,14 @@ export default createMachine(
 
         const valid = hasOustandingBalance && payingNow && !manualPayment;
 
-        // NB: original checks from the vue app for reference
-        // (data.balance !== 0 && data.payment_type !== PaymentTypes.PAY_LATER) ||
-        //   includes(
-        //     [
-        //       PaymentMethodType.GATEWAY_OFFLINE,
-        //       PaymentMethodType.GATEWAY_BANK_TRANSFER,
-        //       PaymentTypes.PAY_LATER
-        //     ],
-        //     paymentMethodType
-        //   )) ||
-        // this.paymentData.wallet_amount > 0
+        // console.debug("needsPayment", valid, {
+        //   hasOustandingBalance,
+        //   payingNow,
+        //   manualPayment,
+        // });
 
         return valid;
       },
-
-      isNotMuted: ({ muted }) => !muted,
 
       // --- Actor Guards
       currencyComplete: ({ actors }) => {

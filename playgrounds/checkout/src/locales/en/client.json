@@ -124,6 +124,14 @@
         "title": "Cant see your addresses.."
       },
       "form": {
+        "title": {
+          "address": "New Address | Edit Address",
+          "company": "New Company | Edit Company"
+        },
+        "name": {
+          "label": "Address Name",
+          "placeholder": "My home address, etc... "
+        },
         "address_1": {
           "label": "Address",
           "placeholder": "Street, house number, etc..."
@@ -161,12 +169,8 @@
           },
           "saved": "Saved addresses"
         },
-        "name": {
-          "label": "Name",
-          "placeholder": "My home address, etc... "
-        },
-        "namr": {
-          "label": "Name",
+        "company_name": {
+          "label": "Company Name",
           "placeholder": "My company, etc..."
         },
         "phone": {
@@ -189,7 +193,6 @@
           "label": "State",
           "placeholder": "State, province, etc..."
         },
-        "title": "New Address | Edit Address",
         "type": {
           "label": "Address Type",
           "placeholder": "Select type"

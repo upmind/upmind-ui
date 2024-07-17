@@ -4,7 +4,7 @@ import { createMachine, assign } from "xstate";
 // --- internal
 
 // --- utils
-import { find, forEach, isEmpty, last, every, isString } from "lodash-es";
+import { find, forEach, isEmpty, every, isString } from "lodash-es";
 
 // - --types
 import type { ClientListingsContext, ClientListingsEvents } from "./types.d";
@@ -159,7 +159,7 @@ export default createMachine(
       },
 
       UNAUTHENTICATED: {
-        target: "unavailable",
+        target: "subscribing",
         actions: ["clearError", "clearItems"],
       },
     },

@@ -43,6 +43,5 @@ async function load(_context: ClientContext, _event: any) {
 
 export default <Object>{
   load,
-  refreshToken: services.refreshToken,
   transfer: services.transfer,
 };

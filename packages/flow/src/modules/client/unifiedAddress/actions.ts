@@ -36,7 +36,7 @@ export const ListingActions = {
 export const ItemActions = {
   setMeta: assign({
     title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
-      model?.name || "New Address",
+      model?.company_name || model?.name || "New Address",
     description: (
       { model, countries, regions }: UnifiedAddressContext,
       _event: UnifiedAddressEvent
@@ -56,7 +56,7 @@ export const ItemActions = {
       const company = compact([
         model?.reg_number ? `Reg #: ${get(model, "reg_number")}` : null,
         model?.vat_number ? `Tax #: ${get(model, "vat_number")}` : null,
-        model?.vat_percent ? `Tax %: ${get(model, "vat_percent")}` : null,
+        // model?.vat_percent ? `Tax %: ${get(model, "vat_percent")}` : null,
       ]).join(";");
 
       return compact([address, company]).join(";");

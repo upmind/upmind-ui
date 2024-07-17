@@ -37,7 +37,7 @@ export const useSchema = ({
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["address_1", "city", "country_id", "postcode", "type"],
+    required: ["name", "address_1", "city", "country_id", "postcode", "type"],
     // --- conditionally required fields
     if: {
       properties: {
@@ -45,7 +45,7 @@ export const useSchema = ({
       },
       required: ["company_details"],
     },
-    then: { required: ["name", "email", "reg_number"] },
+    then: { required: ["company_name", "email", "reg_number"] },
     // ---
     properties: {
       id: {
@@ -86,6 +86,13 @@ export const useSchema = ({
       },
 
       // ---
+
+      name: {
+        type: ["string", "null"],
+        title: "Address Name",
+        default: baseModel?.name,
+      },
+
       address_1: {
         type: "string",
         title: "Address Line 1",
@@ -147,10 +154,9 @@ export const useSchema = ({
         default: baseModel?.company_details,
       },
 
-      name: {
+      company_name: {
         type: ["string", "null"],
         title: "Name",
-        default: baseModel?.name,
       },
 
       email: {
@@ -201,10 +207,10 @@ export const useSchema = ({
         title: "Registered tax/VAT id",
       },
 
-      vat_percent: {
-        type: ["string", "null"],
-        title: "VAT percent",
-      },
+      // vat_percent: {
+      //   type: ["string", "null"],
+      //   title: "VAT percent",
+      // },
       // ---
 
       default: {
@@ -268,65 +274,175 @@ export const useUischema = ({ addresses, emails, phones }) => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Control",
-        scope: "#/properties/name",
-        options: {
-          focus: true,
-          autocomplete: "off",
-          placeholder: "My home address, etc...",
-        },
+        // --- address details
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/name",
+            options: {
+              focus: true,
+              autocomplete: "off",
+              placeholder: "My home address, etc...",
+            },
+            rule: {
+              effect: "DISABLE",
+              condition: {
+                scope: "#",
+                schema: {
+                  anyOf: [
+                    {
+                      required: ["id", "company_details"],
+                      properties: { company_details: { const: true } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
         rule: {
           effect: "SHOW",
           condition: {
             scope: "#",
             schema: {
               required: ["id"],
-              properties: {
-                company_details: { const: false },
-              },
             },
           },
         },
       },
 
-      // ---
       {
-        type: "Control",
-        scope: "#/properties/place",
-        i18n: "client.unified.form.fields.place",
-        options: {
-          prependIcon: "search",
-          autocomplete: "off",
-          items: compact([
-            lookups.addresses?.length
-              ? {
-                  label: "Your saved addreses",
-                  i18n: "client.unified.form.fields.saved",
-                  as: "separator",
-                }
-              : null,
-            ...lookups.addresses,
-            {
-              label: "Enter manually",
-              i18n: "client.unified.form.fields.manual",
-              value: "manual",
-              as: "button",
-              variant: "link",
-              size: "sm",
-              persist: true,
+        // --- address details
+        type: "VerticalLayout",
+        elements: [
+          // ---
+          {
+            type: "Control",
+            scope: "#/properties/place",
+            i18n: "client.unified.form.fields.place",
+            options: {
+              prependIcon: "search",
+              autocomplete: "off",
+              items: compact([
+                lookups.addresses?.length
+                  ? {
+                      label: "Your saved addreses",
+                      i18n: "client.unified.form.fields.saved",
+                      as: "separator",
+                    }
+                  : null,
+                ...lookups.addresses,
+                {
+                  label: "Enter manually",
+                  i18n: "client.unified.form.fields.manual",
+                  value: "manual",
+                  as: "button",
+                  variant: "link",
+                  size: "sm",
+                  persist: true,
+                },
+              ]),
             },
-          ]),
-        },
+            rule: {
+              effect: "HIDE",
+              condition: {
+                scope: "#",
+                schema: {
+                  anyOf: [
+                    { required: ["id"] },
+                    {
+                      required: ["place"],
+                      properties: { place: { const: "manual" } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+
+          // ---
+          {
+            type: "VerticalLayout",
+            elements: [
+              {
+                type: "Control",
+                scope: "#/properties/address_1",
+                i18n: "client.unified.form.fields.address_1",
+                options: {
+                  focus: true,
+                  autocomplete: "address-line1",
+                },
+              },
+              {
+                type: "Control",
+                scope: "#/properties/address_2",
+                i18n: "client.unified.form.fields.address_2",
+                options: {
+                  autocomplete: "address-line2",
+                },
+              },
+
+              // ---
+              {
+                type: "HorizontalLayout",
+                elements: [
+                  {
+                    type: "Control",
+                    scope: "#/properties/city",
+                    i18n: "client.unified.form.fields.city",
+                    options: {
+                      autocomplete: "address-level2",
+                    },
+                  },
+                  {
+                    type: "Control",
+                    scope: "#/properties/postcode",
+                    i18n: "client.unified.form.fields.postcode",
+                    options: {
+                      autocomplete: "postal-code",
+                    },
+                  },
+                ],
+              },
+              // ---
+              {
+                type: "Control",
+                scope: "#/properties/region_id",
+                i18n: "client.unified.form.fields.region_id",
+                options: {
+                  autocomplete: "address-level1",
+                  placeholder: "Please select a Region...",
+                },
+              },
+              {
+                type: "Control",
+                scope: "#/properties/country_id",
+                i18n: "client.unified.form.fields.country_id",
+                options: {
+                  autocomplete: "country",
+                  placeholder: "Please select a Country...",
+                },
+              },
+            ],
+            rule: {
+              effect: "SHOW",
+              condition: {
+                scope: "#/properties/manualPlace",
+                schema: { const: true },
+              },
+            },
+          },
+        ],
         rule: {
           effect: "HIDE",
           condition: {
             scope: "#",
             schema: {
               anyOf: [
-                { required: ["id"] },
                 {
-                  required: ["place"],
-                  properties: { place: { const: "manual" } },
+                  required: ["id", "company_details"],
+                  properties: { company_details: { const: true } },
                 },
               ],
             },
@@ -334,78 +450,6 @@ export const useUischema = ({ addresses, emails, phones }) => {
         },
       },
 
-      // ---
-      {
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/address_1",
-            i18n: "client.unified.form.fields.address_1",
-            options: {
-              focus: true,
-              autocomplete: "address-line1",
-            },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/address_2",
-            i18n: "client.unified.form.fields.address_2",
-            options: {
-              autocomplete: "address-line2",
-            },
-          },
-
-          // ---
-          {
-            type: "HorizontalLayout",
-            elements: [
-              {
-                type: "Control",
-                scope: "#/properties/city",
-                i18n: "client.unified.form.fields.city",
-                options: {
-                  autocomplete: "address-level2",
-                },
-              },
-              {
-                type: "Control",
-                scope: "#/properties/postcode",
-                i18n: "client.unified.form.fields.postcode",
-                options: {
-                  autocomplete: "postal-code",
-                },
-              },
-            ],
-          },
-          // ---
-          {
-            type: "Control",
-            scope: "#/properties/region_id",
-            i18n: "client.unified.form.fields.region_id",
-            options: {
-              autocomplete: "address-level1",
-              placeholder: "Please select a Region...",
-            },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/country_id",
-            i18n: "client.unified.form.fields.country_id",
-            options: {
-              autocomplete: "country",
-              placeholder: "Please select a Country...",
-            },
-          },
-        ],
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#/properties/manualPlace",
-            schema: { const: true },
-          },
-        },
-      },
       // --- company details
       {
         type: "Control",
@@ -443,8 +487,8 @@ export const useUischema = ({ addresses, emails, phones }) => {
         elements: [
           {
             type: "Control",
-            scope: "#/properties/name",
-            i18n: "client.unified.form.fields.name",
+            scope: "#/properties/company_name",
+            i18n: "client.unified.form.fields.company_name",
             options: {
               focus: true,
               autocomplete: "organization",
@@ -571,17 +615,17 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
       const mappedItem = {
         id: item?.id,
         client_id: item?.client_id,
-
         address_id: item?.address.id, // add the address id as the unified id representing the actual address
         company_id: item?.id, // add the company id as the unified id representing the actual address
         company_details: true, // our flag to show company details
+        company_name: item?.name,
         type: item?.type || 4, // default to 4 = company
         default: item?.default,
         can_delete: item?.can_delete,
         verified: item?.verified,
 
         // ---
-        name: item?.name,
+        name: item?.address?.name,
         address_1: item?.address?.address_1,
         address_2: item?.address?.address_2,
         city: item?.address?.city,
@@ -598,7 +642,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
         },
         reg_number: item?.reg_number,
         vat_number: item?.vat_number,
-        vat_percent: item?.vat_percent,
+        // vat_percent: item?.vat_percent,
       };
       return mappedItem;
     } else {

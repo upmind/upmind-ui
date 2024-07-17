@@ -33,7 +33,7 @@ async function add(
     url: useUrl(`/orders/${basket_id}/promotions`),
     data: { promocode: model?.promocode },
     withAccessToken: true,
-  });
+  }).then(({ data }) => data);
 }
 
 async function remove(
@@ -50,7 +50,7 @@ async function remove(
   return del({
     url: useUrl(`/orders/${basket_id}/promotions/${id}`),
     withAccessToken: true,
-  });
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------

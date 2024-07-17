@@ -14,13 +14,7 @@
 <script lang="ts">
 // --- external
 import { defineComponent } from "vue";
-import {
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  Generate,
-  findUISchema,
-  isObjectControl,
-} from "@jsonforms/core";
+import { Generate, findUISchema, isObjectControl } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,

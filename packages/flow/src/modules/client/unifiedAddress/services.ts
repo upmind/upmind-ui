@@ -57,21 +57,19 @@ async function load(
   _event: UnifiedAddressesEvents
 ) {
   const { get, useUrl } = useApi();
-  const { isAuthenticated, getUserId } = useSession();
 
-  await isAuthenticated().catch(error => Promise.reject(error));
-
-  const clientId = await getUserId();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   const addresses = get({
-    url: useUrl(`clients/${clientId}/addresses`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/addresses`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
   }).then(({ data }) => parseAddress(data));
 
   const companies = get({
-    url: useUrl(`clients/${clientId}/companies`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/companies`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
@@ -175,13 +173,13 @@ async function add(
     return post({
       url: useUrl(`clients/${clientId}/companies`),
       data: {
-        name: model.name,
+        name: model.company_name,
         address_id: address?.id,
         email_id: email?.id,
         phone_id: phone?.id,
         reg_number: model.reg_number,
         vat_number: model.vat_number,
-        vat_percent: model.vat_percent,
+        // vat_percent: model.vat_percent,
       },
       withAccessToken: true,
     }).then(({ data }) => data);
@@ -226,13 +224,13 @@ async function update(
       return put({
         url: useUrl(`clients/${clientId}/companies/${model.id}`),
         data: {
-          name: model.name,
+          name: model.company_name,
           address_id: address?.id,
           email_id: email?.id,
           phone_id: phone?.id,
           reg_number: model.reg_number,
           vat_number: model.vat_number,
-          vat_percent: model.vat_percent,
+          // vat_percent: model.vat_percent,
         },
         withAccessToken: true,
       }).then(({ data }) => data);
@@ -241,13 +239,13 @@ async function update(
       return post({
         url: useUrl(`clients/${clientId}/companies`),
         data: {
-          name: model.name,
+          name: model.company_name,
           address_id: address?.id,
           email_id: email?.id,
           phone_id: phone?.id,
           reg_number: model.reg_number,
           vat_number: model.vat_number,
-          vat_percent: model.vat_percent,
+          // vat_percent: model.vat_percent,
         },
         withAccessToken: true,
       }).then(({ data }) => data);
@@ -411,7 +409,7 @@ async function loadLookups(
 
 async function parse(
   { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
-  _event: UnifiedAddressEvent
+  event: UnifiedAddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -477,7 +475,7 @@ async function parse(
     }
 
     // finally lets force a manual place if we are invalid:
-    const isValid = await validate({ schema, model }, _event)
+    const isValid = await validate({ schema, model }, event)
       .then(() => true)
       .catch(() => false);
 

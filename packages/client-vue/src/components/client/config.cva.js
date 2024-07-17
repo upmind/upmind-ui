@@ -3,12 +3,12 @@ import { cva } from "class-variance-authority";
 
 export default {
   client: {
-    root: cva("w-full flex flex-col"),
+    root: cva("flex w-full flex-col"),
     header: cva(""),
     loading: cva(""),
     footer: cva(""),
-    title: cva("flex justify-between items-center gap-4"),
-    content: cva("flex flex-col gap-4 border border-base-300 rounded-lg p-4"),
+    title: cva("flex items-center justify-between gap-4"),
+    content: cva("border-base-300 flex flex-col gap-4 rounded-lg border p-4"),
     actions: cva(""),
   },
   clientListings: {
@@ -48,17 +48,14 @@ export default {
         hasErrors: {
           true: "border-error",
         },
-        isComplete: {
-          true: "border-primary",
-        },
       },
     }),
-    title: cva("text-inherit m-0 flex-1"),
-    text: cva("text-xs m-0 flex-1"),
+    title: cva("m-0 flex-1 text-inherit"),
+    text: cva("m-0 flex-1 text-xs"),
   },
   clientCard: {
     root: cva(
-      "rounded-lg flex items-start gap-2 border border-transparent transition",
+      "flex items-start gap-2 rounded-lg border border-transparent transition",
       {
         variants: {
           isSelectable: {
@@ -69,7 +66,7 @@ export default {
             true: "bg-base-200",
           },
           isHidden: {
-            true: "hidden opacity-50 pointer-events-none",
+            true: "pointer-events-none hidden opacity-50",
           },
           hasErrors: {
             true: "border-error",
@@ -80,7 +77,8 @@ export default {
             hasErrors: false,
             isSelectable: true,
             isSelected: true,
-            class: "border-primary border-2",
+            class:
+              "border-control-active ring-control-active ring-4 ring-opacity-20",
           },
           {
             hasErrors: false,
@@ -91,17 +89,17 @@ export default {
           {
             isSelected: false,
             isSelectable: true,
-            class: "hover:border-base-100 hover:bg-base-100",
+            class: "cursor-pointer",
           },
         ],
       }
     ),
-    content: cva("flex-1 text-sm text-base-700 flex flex-col gap-1", {}),
-    header: cva("flex gap-4 items-center justify-start"),
+    content: cva("text-base-700 flex flex-1 flex-col gap-1 text-sm", {}),
+    header: cva("flex items-center justify-start gap-4"),
     icon: cva("size-4"),
-    avatar: cva("size-6 rounded-full border overflow-hidden "),
+    avatar: cva("size-6 overflow-hidden rounded-full border "),
     title: cva(
-      "m-0 leading-none text-md text-base-content gap-1 inline-flex font-normal"
+      "text-md text-base-content m-0 inline-flex gap-1 font-normal leading-none"
     ),
     text: cva("leading-tight "),
     verified: cva("", {
@@ -112,26 +110,15 @@ export default {
         },
       },
     }),
-    errors: cva("text-error text-sm m-0"),
-    actions: cva("flex gap-2 items-center justify-end self-start"),
+    errors: cva("text-error m-0 text-sm"),
+    actions: cva("flex items-center justify-end gap-2 self-start"),
   },
   clientEmpty: {
     root: cva(
-      "flex flex-col items-center justify-center gap-4 p-4 bg-base-100 rounded-lg"
+      "bg-base-100 flex flex-col items-center justify-center gap-4 rounded-lg p-4"
     ),
-    title: cva("text-inherit m-0"),
-    text: cva("text-base-700 text-center m-0"),
-    icon: cva("size-8 text-base-700"),
-  },
-  clientRadio: {
-    radio: {
-      input: cva("", {
-        variants: {
-          isChecked: {
-            true: `bg-primary border-primary text-base`,
-          },
-        },
-      }),
-    },
+    title: cva("m-0 text-inherit"),
+    text: cva("text-base-700 m-0 text-center"),
+    icon: cva("text-base-700 size-8"),
   },
 };
