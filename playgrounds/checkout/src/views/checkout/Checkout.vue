@@ -316,7 +316,10 @@ export default defineComponent({
             hash: "#payment",
             disabled: !meta.value.hasProducts || !meta.value.hasAccount,
             complete:
-              meta.value.hasBillingDetails && meta.value.hasPaymentDetails,
+              meta.value.hasProducts &&
+              meta.value.hasAccount &&
+              meta.value.hasBillingDetails &&
+              meta.value.hasPaymentDetails,
           },
           {
             label: "Confirmation",
