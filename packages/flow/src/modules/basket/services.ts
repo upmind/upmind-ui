@@ -299,13 +299,10 @@ async function updateItemProvisioningFields({ basket, items, newItems }) {
   });
 }
 
-async function removeItem(
-  { basket, bin }: BasketContext,
-  { data }: BasketEvent
-) {
+async function removeItem({ basket, bin }: BasketContext, _event: BasketEvent) {
   if (!has(basket, "id")) return Promise.reject("No basket provided/available");
 
-  const item = find(bin, ["id", data.itemId]);
+  const item = first(bin);
 
   const isNew = get(item.state, "context.isNew");
 
@@ -315,7 +312,9 @@ async function removeItem(
   return del({
     url: useUrl(`/orders/${basket.id}/products/${item.id}`),
     withAccessToken: true,
-  }).then(({ data }) => ({ basket: data, itemId: item.id }));
+  })
+    .then(({ data }) => ({ basket: data, itemId: item.id }))
+    .catch(() => ({ itemId: item.id }));
 }
 
 async function getProvisioningFieldsValues(basket: BasketEvent) {
