@@ -1,14 +1,14 @@
 <template>
   <nav :class="styles.steps.root">
     <div :class="styles.steps.wrapper">
-      <slot name="prepend"></slot>
+      <slot name="prepend"> </slot>
 
       <upw-step
         v-for="(step, index) in steps"
         :key="step.hash"
         v-bind="step"
         :loading="loading"
-        :selected="step.hash == selectedHash"
+        :selected="step.hash == selectedHash && !step?.disabled"
         :caption="`${index + 1}`"
         @update:modelValue="$emit('update:modelValue', $event)"
       >

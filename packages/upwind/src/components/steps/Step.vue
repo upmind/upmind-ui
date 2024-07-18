@@ -2,6 +2,8 @@
   <button
     type="button"
     :disabled="disabled"
+    :aria-disabled="disabled"
+    :aria-selected="selected"
     @click="disabled ? null : $emit('update:modelValue', hash)"
     :class="styles.step.root"
     replace

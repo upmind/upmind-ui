@@ -34,5 +34,19 @@ export default {
       ),
       text: cva("m-0 text-lg font-light leading-7 text-base-700"),
     },
+
+    transition: {
+      enter: {
+        active: cva("m-0 transition duration-300 ease-out"),
+        from: cva("translate-y-10 transform opacity-0"),
+        to: cva("translate-y-0 transform opacity-100"),
+      },
+
+      leave: {
+        active: cva("absolute transition duration-100 ease-in"),
+        from: cva("translate-y-0 transform opacity-100"),
+        to: cva("translate-y-10 transform opacity-0"),
+      },
+    },
   },
 };
