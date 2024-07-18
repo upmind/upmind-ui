@@ -20,13 +20,17 @@
         @update:model-value="scrollTo"
       />
 
-      <!-- overview -->
+      <!-- Overview -->
       <upm-basket-items
         id="overview"
+        ref="overview"
+        :aria-disabled="!meta.isAvailable"
+        :aria-active="activeSection === 'overview'"
         :class="styles.checkout.section.root"
         v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
       />
 
+      <!-- Account + Payment -->
       <section :class="styles.checkout.section.root">
         <header :class="styles.checkout.section.header">
           <template v-if="!account.isAuthenticated && account.showRegisterForm">
@@ -74,25 +78,27 @@
         <div :class="styles.checkout.section.wrapper">
           <div :class="styles.checkout.section.content">
             <!-- account -->
-
             <upm-session
-              v-if="!meta.hasAccount"
               id="account"
+              ref="account"
+              v-if="!meta.hasAccount"
               no-header
               v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+              :aria-disabled="meta.hasAccount"
+              :aria-active="activeSection === 'account'"
             >
             </upm-session>
 
             <!-- billing details -->
             <upm-billing-details
-              v-if="!meta.needsAuth"
+              v-if="meta.hasAccount"
               :model-value="billingDetailsModel"
               @update:modelValue="billingDetailsUpdate"
             />
 
             <!-- custom fields  -->
             <upw-form
-              v-if="!meta.needsAuth"
+              v-if="meta.hasAccount"
               :additional-errors="fieldsErrors?.data"
               :model-value="fieldsModel"
               :processing="fieldsMeta.isProcessing"
@@ -106,7 +112,14 @@
             />
 
             <!-- payment details -->
-            <upm-payment-details />
+            <upm-payment-details
+              id="payment"
+              ref="payment"
+              v-if="meta.hasAccount && meta.hasProducts"
+              v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+              :aria-disabled="!meta.hasProducts || !meta.hasAccount"
+              :aria-active="activeSection === 'payment'"
+            />
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
@@ -117,10 +130,10 @@
         <footer :class="styles.checkout.section.footer"></footer>
       </section>
 
-      <!-- basket procesing -->
+      <!-- Basket procesing -->
       <upm-basket-processing :model-value="meta.isProcessingOrder" />
 
-      <!-- order confirmation -->
+      <!-- Order confirmation -->
       <upm-order-confirmation
         :model-value="meta.isComplete"
         :order-id="invoice?.id"
@@ -166,7 +179,7 @@ import {
 // -- utils
 import { vIntersectionObserver } from "@vueuse/components";
 import { getLocalMessages } from "@/utils";
-import { trimStart, get, forEach, isArray } from "lodash-es";
+import { trimStart, get, forEach, isArray, reject } from "lodash-es";
 
 // ---types
 import { QUERY_PARAMS } from "./types.d";
@@ -235,7 +248,16 @@ export default defineComponent({
 
     const { isScrolling, scrollIntoView } = useScrollSpy();
 
-    const styles = useStyles(["checkout", "checkout.section"], meta, config);
+    const styles = useStyles(
+      [
+        "checkout",
+        "checkout.section",
+        "checkout.transition.enter",
+        "checkout.transition.leave",
+      ],
+      meta,
+      config
+    );
 
     // ---------------------------------------------------
     // Create a min Animation time for the Loading Screen to prevent fout/jank
@@ -276,7 +298,7 @@ export default defineComponent({
       scrollIntoView,
       // ---
       steps: computed(() => {
-        return [
+        let values = [
           {
             label: "Overview",
             hash: "#overview",
@@ -307,12 +329,20 @@ export default defineComponent({
             complete: meta.isComplete,
           },
         ];
+
+        if (meta.value.hasAccount) {
+          values = reject(values, { label: "Account" });
+        }
+
+        return values;
       }),
       animationComplete,
     };
   },
   watch: {
     meta(meta) {
+      if (!this.animationComplete || meta.isLoading || meta.isEmpty) return;
+
       // MAYBE: redirect after complete instead of dialog?
       // if (meta.isComplete) {
       //   this.$router.push({
@@ -322,50 +352,34 @@ export default defineComponent({
       //   });
       //   return;
       // }
-      if (!meta.isLoading || meta.isEmpty) return;
-      this.scrollTo();
+
+      this.scrollTo(this.$route.hash);
     },
   },
   methods: {
     scrollSpy([section]) {
-      if (!this.activeSection || this.isScrolling) return; // safety check to prevent multiple scrolls
-
-      // if we have manually scrolled to a section, update the active section
-      if (section.isIntersecting && section.target?.id) {
+      // if we have manually sctolled to a section, update the active section
+      // only if the section is intersecting, not disabled and we are not already scrolling
+      if (
+        !this.isScrolling &&
+        section.isIntersecting &&
+        section.target?.id &&
+        section.target?.ariaDisabled != "true"
+      ) {
         this.activeSection = section.target.id;
       }
     },
 
-    scrollTo(hash = this.$route.hash) {
-      // return;
-      const current = this.activeSection;
-      // fallback to the route hash if set
-      let target = trimStart(hash, "#");
+    scrollTo(hash) {
+      // Clean the hash of any leading # characters
+      const target = trimStart(hash, "#");
 
-      // scroll to the appropriate step when the basket has loaded
-      // but only if we dont already have no target, ie user has not navigated to a specific step
-      // and only if weve never had a target before, ie on first load
-      if (!target && !current && !this.meta.isLoading) {
-        // only do this section if weve not scrolled to a section yet
-        if (!this.meta.hasProducts || this.itemsPending?.length) {
-          target = "overview";
-        } else if (!this.meta.hasAccount) {
-          target = "account";
-        } else {
-          target = "payment";
-        }
-      }
-
-      if (target && target != current) {
+      // if we have a target, check if it exists in the DOM before scrolling to it
+      if (this.$refs[target]) {
         this.isScrolling = false;
         this.activeSection = target;
         this.scrollIntoView(this.activeSection, 108);
       }
-    },
-
-    doCheckout: async () => {
-      // TODO: implement the checkout progress modal
-      this.checkout();
     },
   },
 });
