@@ -43,6 +43,7 @@ export default createMachine(
     } as StripeContext,
     states: {
       loading: {
+        id: "loading",
         initial: "stripe",
         states: {
           stripe: {
@@ -109,16 +110,26 @@ export default createMachine(
                 target: "validating",
                 actions: ["setContext", "setSchemas", "setModel"],
               },
+              onError: {
+                target: "#invalid",
+                actions: ["setError"],
+              },
             },
           },
           validating: {
             invoke: {
               src: "validate",
               onDone: { target: "#valid" },
-              onError: {
-                target: "#invalid",
-                actions: ["setError"],
-              },
+              onError: [
+                {
+                  target: "#loading",
+                  cond: "hasNoElements",
+                },
+                {
+                  target: "#invalid",
+                  actions: ["setError"],
+                },
+              ],
             },
           },
         },
@@ -277,8 +288,12 @@ export default createMachine(
 
       updateStripe: ({ elements }: StripeContext, { data }: StripeEvent) => {
         if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
+
+        const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
+        if (amount <= 0) return; // NB: Stripe requires a positive amount
+
         elements.update({
-          amount: Math.round((data?.amount || 0) * 100), // NB: Stripe expects amount in cents
+          amount,
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
         });
       },
@@ -323,6 +338,10 @@ export default createMachine(
     },
 
     guards: {
+      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) => {
+        return !elements;
+      },
+
       hasNoOutstandingBalance: (
         _context: StripeContext,
         _event: StripeEvent
