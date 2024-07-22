@@ -1,14 +1,13 @@
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 // import type { ImageObjectTypes } from "@upmind/flow";
 import { useSystemRecaptcha } from "@upmind/flow";
 
 // --- utils
-import { get, isEmpty } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 
@@ -17,35 +16,10 @@ import { get, isEmpty } from "lodash-es";
 //  with some state helpers
 
 export const useRecaptcha = () => {
-  const { service, destroy } = useSystemRecaptcha();
+  const { service, destroy, generate, clear } = useSystemRecaptcha();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
-
-  const generate = async () => {
-    send({ type: "GENERATE" });
-
-    return new Promise((resolve, reject) => {
-      waitFor(service, state => ["complete", "error"].some(state.matches))
-        .then(() => {
-          if (state.value.matches("complete")) {
-            const token = get(state.value, "context.token");
-            resolve(token);
-          } else {
-            // throw
-            const error = get(state.value, "context.error");
-            reject(error);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-  };
-
-  const clear = () => {
-    send({ type: "CLEAR" });
-  };
 
   // --------------------------------------------------------
 
