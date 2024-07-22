@@ -1,9 +1,6 @@
 // --- internal
-import { useApi } from "../../api";
-import { useBrand, BrandConfigKeys } from "../../brand";
 
 // --- utils
-import { includes, isEmpty, get } from "lodash-es";
 
 // --- types
 import type { RecaptchaEvent, RecaptchaContext } from "./types.d";
@@ -42,10 +39,10 @@ async function load(_context: RecaptchaContext, _event: RecaptchaEvent) {
   });
 }
 
-async function generate({ grecaptcha }: any, { data }: any) {
+export async function generateToken(grecaptcha: any, action?: String) {
   if (!grecaptcha) return Promise.reject("Recaptcha not loaded");
 
-  return grecaptcha.execute(siteKey, { action: data });
+  return grecaptcha.execute(siteKey, { action });
 }
 
 // --------------------------------------------------------
@@ -53,5 +50,4 @@ async function generate({ grecaptcha }: any, { data }: any) {
 
 export default {
   load,
-  generate,
 };

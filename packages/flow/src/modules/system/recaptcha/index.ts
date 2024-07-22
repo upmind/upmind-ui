@@ -1,8 +1,10 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recaptchaMachine from "./recaptcha.machine";
+import { generateToken } from "./services";
 
 // --- utils
 
@@ -14,12 +16,31 @@ import recaptchaMachine from "./recaptcha.machine";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(recaptchaMachine, { devTools: true });
+// ---
+async function generate(action?: String) {
+  debugger;
+  return waitFor(service, state => ["available"].some(state.matches))
+    .then(() => {
+      const grecaptcha = service.getSnapshot().context.grecaptcha;
+      return generateToken(grecaptcha, action);
+    })
+    .catch(() => {
+      return Promise.reject("Recaptcha not available");
+    });
+}
 
+function clear() {
+  service.send({ type: "CLEAR" });
+}
+// --------------------------------------------------------
 export const useSystemRecaptcha = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
+    isReady: async () => waitFor(service, state => state.matches("available")),
     // ---
     getSnapshot: service.getSnapshot,
+    generate,
+    clear,
     destroy: () => service.stop(),
   };
 };
