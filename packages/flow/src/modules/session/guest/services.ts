@@ -1,7 +1,7 @@
 // --- internal
 import { useApi } from "../../api";
+import { useSystemRecaptcha } from "../../system/recaptcha";
 import { GrantTypes } from "../types.d";
-import services from "../services";
 
 // --- utils
 import { getTokenfromStorage, persistTokenToStorage } from "../utils";
@@ -87,6 +87,12 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
 
 async function register({ model }: GuestContext) {
   const { post, useUrl } = useApi();
+  const recaptcha = useSystemRecaptcha();
+
+  const recaptcha_token = await recaptcha
+    .generate("client_register")
+    .catch(() => null);
+
   return post({
     url: useUrl("clients/register"),
     data: {
@@ -98,7 +104,7 @@ async function register({ model }: GuestContext) {
       phone: model?.phone,
       phone_code: model?.phone_code,
       phone_country_code: model?.phone_country_code,
-      recaptcha_token: model?.recaptcha_token,
+      recaptcha_token,
     },
   }).then(data => {
     persistTokenToStorage(data);
