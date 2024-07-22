@@ -18,7 +18,6 @@ import { generateToken } from "./services";
 const service = interpret(recaptchaMachine, { devTools: true });
 // ---
 async function generate(action?: String) {
-  debugger;
   return waitFor(service, state => ["available"].some(state.matches))
     .then(() => {
       const grecaptcha = service.getSnapshot().context.grecaptcha;
