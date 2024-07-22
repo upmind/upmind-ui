@@ -16,7 +16,7 @@ import { isString } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
-export function getTokenfromStorage(actor_type?: "guest" | "client") {
+export function getTokenfromStorage(actor_type?: Token["actor_type"]) {
   let token: string = "";
   if (actor_type === "client") {
     token = localStorage.getItem(`client/auth/token`) || "";
@@ -27,31 +27,23 @@ export function getTokenfromStorage(actor_type?: "guest" | "client") {
     const guestToken = localStorage.getItem(`guest/auth/token`);
     token = clientToken || guestToken || "";
   }
-  return useTokenParser(token);
+  return useTokenParser(token) as Token;
 }
 
-export function persistTokenToStorage(token: Token, history?: false) {
+export function persistTokenToStorage(token: Token) {
   if (!localStorage) return Promise.reject("No localStorage available");
 
-  token = useTokenParser(token);
-  const type = token.actor_type || "guest";
-
-  if (history) {
-    const prevGuestToken = getTokenfromStorage("guest");
-    if (prevGuestToken) token.guest_token = prevGuestToken?.access_token;
-  }
-
-  // now remember to destroy any prev token as we have a new one
-  localStorage.removeItem(`guest/auth/token`);
-  localStorage.removeItem(`client/auth/token`);
+  const type = token?.actor_type || "guest";
 
   // finally, persist the new token
-  localStorage.setItem(`${type}/auth/token`, JSON.stringify(token));
+  localStorage.setItem(
+    `${type}/auth/token`,
+    JSON.stringify(useTokenParser(token))
+  );
 }
 
-export function dumpTokensFromStorage() {
-  localStorage.removeItem(`client/auth/token`);
-  localStorage.removeItem(`guest/auth/token`);
+export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
+  localStorage.removeItem(`${actor_type}/auth/token`);
 }
 
 // ---

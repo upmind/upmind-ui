@@ -7,7 +7,7 @@ import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 
 // --- utils
-import { getTokenfromStorage } from "../session/utils";
+import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 
 import {
   compact,
@@ -25,7 +25,6 @@ import {
   reduce,
   reject,
   set,
-  isArray,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -53,9 +52,29 @@ export enum InvoiceStatus {
 // this will process the request and return a promise
 
 async function load(_context?: BasketContext, _event?: BasketEvent) {
-  const { get, useUrl } = useApi();
+  const { get, patch, useUrl } = useApi();
 
-  // get returns a promise so we can pass it directly back to the machine
+  // check if we are logged in as a client
+  // then try get any previous guest token a
+  const client_token = getTokenfromStorage("client");
+  const guest_token = getTokenfromStorage("guest");
+
+  // if we are a client AND we have a guest token, we need to claim the basket
+  if (client_token && guest_token) {
+    await patch({
+      url: useUrl("orders/claim"),
+      withAccessToken: true,
+      data: {
+        guest_token: guest_token.access_token,
+      },
+    }).then(() => {
+      // because we have successfully claimed the basket, we can dump the guest token
+      // we only do it here, as we may need to claim the basket again if something went wrong
+      dumpTokenFromStorage("guest");
+    });
+  }
+
+  // finally return a the basket with all the relevant data, include the provisioning fields
   return get({
     url: useUrl("orders/current", {
       with: [
@@ -107,28 +126,6 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
       // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
     },
   }).then(({ data }) => data);
-}
-
-async function claim({ basket }: BasketContext, _event: BasketEvent) {
-  if (isEmpty(basket)) return Promise.resolve(basket);
-  const { patch, useUrl } = useApi();
-  const { guest_token } = getTokenfromStorage();
-  if (!guest_token) return Promise.resolve(basket);
-
-  // this will return an array of the users baskets, ordered by most recent
-  // but the response basket does not contain the products, so we need to
-  // request the basket by id to get the products?
-  return patch({
-    url: useUrl("orders/claim"),
-    withAccessToken: true,
-    data: {
-      guest_token,
-    },
-  }).then(({ data }) => {
-    // get the latest basket if we have multiple
-    data = isArray(data) ? first(data) : data;
-    return data;
-  });
 }
 
 async function update({ basket, items }: BasketContext, _event: BasketEvent) {
@@ -364,7 +361,6 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
 export default {
   load,
   generate,
-  claim,
   update,
   refresh,
   convert,

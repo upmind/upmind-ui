@@ -111,10 +111,12 @@ export default createMachine(
           },
           actors: {
             entry: ["spawnActors"],
-            always: {
-              target: "#shopping",
-              cond: "isNotLoading",
-            },
+            always: [
+              {
+                target: "#shopping",
+                cond: "isNotLoading",
+              },
+            ],
           },
         },
       },
@@ -123,7 +125,7 @@ export default createMachine(
       claiming: {
         id: "claiming",
         invoke: {
-          src: "claim",
+          src: "load",
           onDone: {
             target: "#shopping",
             actions: ["updateBasket", "refreshActors"],
@@ -1066,11 +1068,12 @@ export default createMachine(
 
       isNotLoading: ({ items, actors }) => {
         return (
-          every(
-            actors,
-            actor =>
-              !["loading", "available.loading"].some(actor?.state.matches)
-          ) && every(items, actor => !actor?.state.matches("loading"))
+          // every(
+          //   actors,
+          //   actor =>
+          //     !["loading", "available.loading"].some(actor?.state.matches)
+          // ) &&
+          every(items, actor => !actor?.state.matches("loading"))
         );
       },
 
