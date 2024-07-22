@@ -106,10 +106,7 @@ async function register({ model }: GuestContext) {
       phone_country_code: model?.phone_country_code,
       recaptcha_token,
     },
-  }).then(data => {
-    persistTokenToStorage(data);
-    return data;
-  });
+  }).then(({ data }) => data);
 }
 
 // --------------------------------------------------------

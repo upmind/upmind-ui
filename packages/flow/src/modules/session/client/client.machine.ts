@@ -9,7 +9,7 @@ const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../../utils";
-import { dumpTokensFromStorage } from "../utils";
+import { dumpTokenFromStorage } from "../utils";
 
 // --------------------------------------------------------
 
@@ -98,7 +98,7 @@ export default createMachine(
   {
     actions: {
       clear: assign((context, _event) => {
-        dumpTokensFromStorage();
+        dumpTokenFromStorage("client");
         return {};
       }),
       // ---

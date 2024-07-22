@@ -8,7 +8,6 @@ import { useFeedback } from "../../feedback";
 const { trackEvent, addError } = useFeedback();
 
 // --- utils
-import { dumpTokensFromStorage } from "../utils";
 import {
   useValidationParser,
   useRegisterSchemaParser,
@@ -235,12 +234,6 @@ export default createMachine(
   },
   {
     actions: {
-      clear: assign({
-        token: (_context, _event) => {
-          dumpTokensFromStorage();
-          return null;
-        },
-      }),
       setCustomFields: assign({
         customFields: (_context, { data }) => data,
       }),

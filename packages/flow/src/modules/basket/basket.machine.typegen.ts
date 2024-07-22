@@ -88,11 +88,12 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {
     authSubscription: "done.invoke.authCallback";
-    claim: "done.invoke.claiming:invocation[0]";
     convert: "done.invoke.converting:invocation[0]";
     generate: "done.invoke.generating:invocation[0]";
     isAuthenticated: "done.invoke.basketManager.shopping.account.checking:invocation[0]";
-    load: "done.invoke.basketManager.loading.basket:invocation[0]";
+    load:
+      | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.claiming:invocation[0]";
     refresh: "done.invoke.refreshing:invocation[0]";
     removeItem: "done.invoke.removing:invocation[0]";
     update: "done.invoke.basketManager.shopping.items.processing.everything:invocation[0]";
@@ -104,7 +105,6 @@ export interface Typegen0 {
     guards: never;
     services:
       | "authSubscription"
-      | "claim"
       | "convert"
       | "generate"
       | "isAuthenticated"
@@ -212,7 +212,6 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "UPDATE"
       | "xstate.init";
-    claim: "AUTHENTICATED";
     convert: "PAYMENT_DETAILS";
     generate: "ADD";
     isAuthenticated:
@@ -223,7 +222,7 @@ export interface Typegen0 {
       | "UPDATE"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
-    load: "SESSION";
+    load: "AUTHENTICATED" | "SESSION";
     payment: "done.invoke.converting:invocation[0]";
     refresh: "REFRESH" | "xstate.after(wait)#processed";
     removeItem: "" | "REMOVE";

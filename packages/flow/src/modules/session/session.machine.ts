@@ -8,7 +8,6 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 
 // --- utils
-import { dumpTokensFromStorage } from "./utils";
 import { useTime } from "../../utils";
 // --------------------------------------------------------
 
@@ -66,7 +65,6 @@ export default createMachine(
 
       // Handle completion, stop the machine and prevent further requests
       complete: {
-        entry: "clear",
         type: "final",
       },
     },
@@ -77,13 +75,7 @@ export default createMachine(
     },
   },
   {
-    actions: {
-      clear: assign((_context, _event) => {
-        dumpTokensFromStorage();
-        return null;
-      }),
-      // ---
-    },
+    actions: {},
 
     guards: {
       isClientToken: (_context, { data }) => data?.actor_type === "client",
