@@ -94,7 +94,6 @@ export interface Typegen0 {
     setFeedbackError: "error.platform.loading:invocation[0]";
     setGateway: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     setLookups: "done.invoke.loading:invocation[0]";
-    setModel: "SET";
     setParsed: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     setPaymentDetails:
       | "PAYMENT_DETAILS"

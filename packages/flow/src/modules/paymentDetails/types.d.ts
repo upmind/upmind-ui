@@ -43,7 +43,7 @@ export interface PaymentDetailsContext {
   gateways?: Array<IGateway>;
   payment_types?: PaymentTypes;
   // ---
-  stored_payment_details?: Array<IPaymentDetail>;
+  stored_payment_methods?: Array<IPaymentDetail>;
   balance?: IWalletBalance;
   gateway?: IGateway;
   // ---

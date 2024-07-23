@@ -30,6 +30,7 @@ export const parsePaymentDetails = payment_details => {
 // --------------------------------------------------------
 
 export const useSchema = ({
+  stored_payment_methods,
   payment_types,
   gateways,
 }: PaymentDetailsContext) => {
@@ -57,6 +58,17 @@ export const useSchema = ({
         //       title: key,
         //     })),
       },
+      payment_details_id: {
+        type: ["string", "null"],
+        title: "Pay with an existing method",
+        oneOf: !stored_payment_methods?.length
+          ? undefined
+          : map(stored_payment_methods, ({ id, name }) => ({
+              const: id,
+              title: name,
+            })),
+      },
+
       gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
@@ -75,7 +87,10 @@ export const useSchema = ({
       },
     },
     then: {
-      required: ["gateway_id"],
+      oneOf: [
+        { required: ["gateway_id"] },
+        { required: ["payment_details_id"] },
+      ],
     },
   };
 
@@ -85,6 +100,7 @@ export const useSchema = ({
 // --------------------------------------------------------
 
 export const useUischema = ({
+  stored_payment_methods,
   payment_types,
   gateways,
 }: PaymentDetailsContext) => {
@@ -115,6 +131,38 @@ export const useUischema = ({
       //     },
       //   },
       // },
+      {
+        type: "Control",
+        scope: "#/properties/payment_details_id",
+        options: {
+          format: "radio",
+          stretch: true,
+          layout: "stacked",
+          items: map(
+            stored_payment_methods,
+            ({ id, name, card_type, card_expire_date }) => {
+              return {
+                value: id,
+                label: name,
+                text: card_expire_date,
+                appendIcon: { name: card_type, path: "payment-providers" },
+              };
+            }
+          ),
+        },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["type", "amount"],
+              properties: {
+                amount: { not: { const: 0 } },
+              },
+            },
+          },
+        },
+      },
       {
         type: "Control",
         scope: "#/properties/gateway_id",

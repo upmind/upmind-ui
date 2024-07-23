@@ -35,7 +35,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      stored_payment_details: undefined,
+      stored_payment_methods: undefined,
       gateways: undefined,
       payment_types: undefined,
       // ---
@@ -187,7 +187,7 @@ export default createMachine(
           },
           SET: {
             target: "available.checking",
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
+            actions: ["setDirty", "setAutoUpdate"],
           },
 
           REFRESH: [
@@ -227,8 +227,8 @@ export default createMachine(
       }),
 
       setLookups: assign({
-        stored_payment_details: (_context, { data }) =>
-          data.stored_payment_details,
+        stored_payment_methods: (_context, { data }) =>
+          data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
       }),
@@ -343,6 +343,7 @@ export default createMachine(
       // ---
 
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
+        debugger;
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
@@ -390,9 +391,9 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       hasLookups: (
-        { stored_payment_details, gateways, payment_types },
+        { stored_payment_methods, gateways, payment_types },
         _event
-      ) => !!stored_payment_details && !!gateways && !!payment_types,
+      ) => !!stored_payment_methods && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
