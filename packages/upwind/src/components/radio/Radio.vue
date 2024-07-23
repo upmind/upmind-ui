@@ -2,6 +2,7 @@
   <upw-input
     :id="id"
     :label="label"
+    :text="text"
     :description="description"
     :errors="errors"
     :size="size"
@@ -80,6 +81,7 @@ export default defineComponent({
       default: () => "radio-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---

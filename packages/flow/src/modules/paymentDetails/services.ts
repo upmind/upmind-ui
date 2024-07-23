@@ -14,6 +14,9 @@ import {
   filter,
   includes,
   first,
+  isEmpty,
+  defaultsDeep,
+  pick,
 } from "lodash-es";
 
 // --- types
@@ -72,7 +75,7 @@ async function load(
 
   // ---
 
-  const stored_payment_details = getRequest({
+  const stored_payment_methods = getRequest({
     url: useUrl(`clients/${client_id}/payment_details`, {
       limit: 0,
       brand_id,
@@ -113,9 +116,9 @@ async function load(
 
   // ----
 
-  return Promise.all([stored_payment_details, gateways]).then(
-    ([stored_payment_details, gateways]) => ({
-      stored_payment_details,
+  return Promise.all([stored_payment_methods, gateways]).then(
+    ([stored_payment_methods, gateways]) => ({
+      stored_payment_methods,
       gateways,
       payment_types: PaymentTypes,
     })
@@ -131,12 +134,15 @@ async function load(
  *       Otherwise we reject this update and defer to the payment gateway
  */
 async function update({ model, basket_id, currency }: PaymentDetailsContext) {
+  // if we have a free basket, Or a gateway is provided, then we should not create a payment detail
   return new Promise((resolve, reject) => {
-    if (model?.amount == 0 && !model?.gateway_id) {
+    if (model?.amount == 0 || !!model?.payment_details_id) {
+      debugger;
       resolve({
-        basket_id: basket_id,
-        amount: model.amount,
+        basket_id,
         currency,
+        amount: model.amount,
+        payment_details_id: model?.payment_details_id,
       });
     } else {
       reject();
@@ -147,32 +153,79 @@ async function update({ model, basket_id, currency }: PaymentDetailsContext) {
 // --------------------------------------------------------
 
 async function parse(
-  { model, gateways }: PaymentDetailsContext,
-  _event: PaymentDetailsEvent
+  { model, gateways, stored_payment_methods }: PaymentDetailsContext,
+  { data }: PaymentDetailsEvent
 ) {
   // ---
   let gateway = null;
 
-  // also make sure we set the gateway if we have one, otherwise we will use the first one
-  if (model?.gateway_id) {
+  // ---
+  // Create a safe model to work with
+  const safeModel = defaultsDeep(
+    pick(data, ["amount", "type", "gateway_id", "payment_details_id"]),
+    model
+  );
+
+  // ---
+  // ok so this is messy, but we need to check if the safeModel has changed the gateway_id OR payment_details_id
+  // if it has, then we need to update the model to reflect this
+  if (!isEmpty(data)) {
+    if (data?.gateway_id != model.gateway_id) {
+      safeModel.gateway_id = data.gateway_id;
+      unset(safeModel, "payment_details_id");
+    } else if (data?.payment_details_id != model.payment_details_id) {
+      safeModel.payment_details_id = data.payment_details_id;
+      unset(safeModel, "gateway_id");
+    }
+  }
+  // ---
+  // HACK: TEMP: FORCE payment type to PAY_IN_FULL
+  safeModel.type = PaymentTypes.PAY_IN_FULL;
+
+  // ---
+  // Gateway vs Stored Payment Methods Logic...
+
+  // 1) Make sure if a gateway is selected that we use that
+  // and clean the payment_details_id
+  if (safeModel?.gateway_id) {
+    unset(safeModel, "payment_details_id");
+
     gateway = find(gateways, {
-      gateway_id: model.gateway_id,
+      gateway_id: safeModel.gateway_id,
     })?.gateway;
     // if we dont have a matching/valid gateway, then we should remove the gateway_id
-    if (!gateway) unset(model, "gateway_id");
+    if (!gateway) unset(safeModel, "gateway_id");
   }
 
-  if (!model?.gateway_id && model?.amount > 0) {
+  // 2) Otherwise if we have a payment method, then we should use that
+  // and clean the gateway_id
+  else if (safeModel?.payment_details_id) {
+    unset(safeModel, "gateway_id");
+    gateway = null;
+  }
+
+  // 3) But if we have neither a payment method or gateway
+  // AND we have stored payment methods, then we should use the default one
+  else if (!safeModel.payment_details_id && stored_payment_methods?.length) {
+    safeModel.payment_details_id = find(stored_payment_methods, {
+      default: true,
+    })?.id;
+  }
+
+  // 4) finally If we dont have any stored methods then we should use the first gateway
+  else {
     gateway = first(gateways)?.gateway;
-    model.gateway_id = gateway?.id;
+    safeModel.gateway_id = gateway?.id;
   }
 
-  // NB: ensure we dont send the gateway_id if the payment type is pay later
-  if (model?.type == PaymentTypes.PAY_LATER) {
-    unset(model, "gateway_id");
+  // 5) Safety Check...if the payment type is pay later or Free, clear the gateway_id and payment_details_id
+  if (safeModel?.type == PaymentTypes.PAY_LATER || safeModel?.amount <= 0) {
+    unset(safeModel, "gateway_id");
+    unset(safeModel, "payment_details_id");
+    gateway = null;
   }
 
-  return Promise.resolve({ model, gateway });
+  return Promise.resolve({ model: safeModel, gateway });
 }
 
 async function validate(

@@ -2,6 +2,7 @@
   <upw-input
     :id="id"
     :label="label"
+    :text="text"
     :description="description"
     :errors="errors"
     :size="size"
@@ -31,15 +32,13 @@
         :value="item.value"
       >
         <upw-radio
-          v-bind="safeAttrs"
+          v-bind="{ ...safeAttrs, ...item }"
           variant="outlined"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
           :disabled="meta.isDisabled"
           :processing="meta.isProcessing"
-          :label="item.label"
-          :value="item.value"
           :model-value="isSelected(item.value)"
           :upwind-config="{ input: config.radiolist.radio }"
           no-status
@@ -91,6 +90,7 @@ export default defineComponent({
       default: () => "radiolist-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---
