@@ -10,6 +10,7 @@ import {
   useSession,
   useSystem,
   useBasket,
+  utils,
 } from "@upmind/client-vue";
 
 // --- types
@@ -38,6 +39,15 @@ const upmindPlugin: Plugin = {
       });
     useSession();
     useBasket();
+
+    // ---
+    const { track } = utils.useTracking();
+    router
+      .isReady()
+      .then(track)
+      .catch(error => {
+        // do nothing, no tracking;
+      });
   },
 };
 
