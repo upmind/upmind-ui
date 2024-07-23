@@ -127,10 +127,12 @@ export default defineComponent({
     const styles = useStyles("textarea", meta, config, props.upwindConfig);
 
     function resize() {
-      input.value.style.height = "initial";
+      if (input.value?.style) {
+        input.value.style.height = "initial";
 
-      if (input.value && props.autosize && meta.value.isFocused) {
-        input.value.style.height = input.value.scrollHeight + "px";
+        if (input.value && props.autosize && meta.value.isFocused) {
+          input.value.style.height = input.value.scrollHeight + "px";
+        }
       }
     }
 
