@@ -125,6 +125,8 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
     // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
   };
   // ---
+  // Conditional data
+
   // add tracking if available
   await getTracking()
     .then(values => (data.tracking = values))
