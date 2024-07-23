@@ -117,15 +117,25 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
   if (!isEmpty(basket)) return Promise.resolve(basket);
 
   const { post, useUrl } = useApi();
+  const { getTracking } = useTracking();
+
+  const data = {
+    category_slug: "new_contract",
+    // currency_code: "GBP", // from brand
+    // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
+  };
+  // ---
+  // add tracking if available
+  await getTracking()
+    .then(values => (data.tracking = values))
+    .catch(() => null);
+
+  // ---
 
   return post({
     url: useUrl("orders"),
     withAccessToken: true,
-    data: {
-      category_slug: "new_contract",
-      // currency_code: "GBP", // from brand
-      // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
-    },
+    data,
   }).then(({ data }) => data);
 }
 
