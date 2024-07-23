@@ -4,6 +4,7 @@ import { useSystemRecaptcha } from "../../system/recaptcha";
 import { GrantTypes } from "../types.d";
 
 // --- utils
+import { useCookies, useTracking } from "../../../utils";
 import { getTokenfromStorage, persistTokenToStorage } from "../utils";
 import { isEmpty } from "lodash-es";
 
@@ -88,24 +89,44 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
 async function register({ model }: GuestContext) {
   const { post, useUrl } = useApi();
   const recaptcha = useSystemRecaptcha();
+  const { getCookie } = useCookies();
+  const { getTracking } = useTracking();
 
-  const recaptcha_token = await recaptcha
+  const data = {
+    custom_fields: model?.custom_fields,
+    email: model?.email,
+    firstname: model?.firstname,
+    lastname: model?.lastname,
+    password: model?.password,
+    phone: model?.phone,
+    phone_code: model?.phone_code,
+    phone_country_code: model?.phone_country_code,
+  };
+
+  // ---
+  // Conditional data
+
+  // add recaptcha token if available
+  await recaptcha
     .generate("client_register")
+    .then(token => (data.recaptcha_token = token))
     .catch(() => null);
+
+  // add referral cookie if available
+  await getCookie("upm_aff")
+    .then(value => (data.referral_cookie = value))
+    .catch(() => null);
+
+  // add tracking if available
+  await getTracking()
+    .then(values => (data.tracking = values))
+    .catch(() => null);
+
+  // ---
 
   return post({
     url: useUrl("clients/register"),
-    data: {
-      custom_fields: model?.custom_fields,
-      email: model?.email,
-      firstname: model?.firstname,
-      lastname: model?.lastname,
-      password: model?.password,
-      phone: model?.phone,
-      phone_code: model?.phone_code,
-      phone_country_code: model?.phone_country_code,
-      recaptcha_token,
-    },
+    data,
   }).then(({ data }) => data);
 }
 
