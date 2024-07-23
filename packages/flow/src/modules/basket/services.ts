@@ -7,6 +7,7 @@ import type { BasketContext, BasketEvent } from "./types.d";
 import { useSession } from "../session";
 
 // --- utils
+import { useCookies, useTracking } from "../../utils";
 import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 
 import {
@@ -176,7 +177,22 @@ async function refresh({ items }: BasketContext, _event: BasketEvent) {
 
 async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   const { patch, useUrl } = useApi();
+  const { getCookie } = useCookies();
+  const { getTracking } = useTracking();
+  // ---
+  // Conditional data
 
+  // add referral cookie if available
+  await getCookie("upm_aff")
+    .then(value => (data.referral_cookie = value))
+    .catch(() => null);
+
+  // add tracking if available
+  await getTracking()
+    .then(values => (data.tracking = values))
+    .catch(() => null);
+
+  // ---
   // this will return an array of the users baskets, ordered by most recent
   // but the response basket does not contain the products, so we need to
   // request the basket by id to get the products?
