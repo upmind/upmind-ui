@@ -147,7 +147,7 @@ const meta: Meta<typeof UpwForm> = {
               i18n: "form.occupation",
             },
           },
-          required: ["weight", "height"],
+          required: ["weight", "height", "drivingSkill"],
         },
       },
       required: ["name", "dob", "postalCode", "nationality"],
