@@ -22,7 +22,7 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 appearance-none rounded-[100%] border text-inherit outline-none ring-0",
+      " appearance-none rounded-[100%] border text-inherit outline-none ring-0",
       {
         variants: {
           size: {
@@ -121,8 +121,7 @@ export default {
     root: cva("m-0 grid w-full list-none p-0", {
       variants: {
         layout: {
-          stacked:
-            "border-base-300 grid-flow-row grid-cols-1 rounded-lg  border p-0",
+          stacked: " grid-flow-row grid-cols-1 rounded-lg  border p-0",
           grid: " !auto-cols-fr grid-cols-3 gap-x-2   ",
           inline: "grid-flow-col grid-rows-1 gap-x-2 ",
         },

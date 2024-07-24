@@ -53,6 +53,7 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
       isRenderless: contextMatches(payment_gateway.value?.state, [
         "renderless",
       ]),
+      hasRenderer: !!contextValue(payment_gateway.value?.state, "renderer"),
       // !contextMatches(payment_gateway.value?.state, [
       //   "schema.properties",
       //   "renderer",
@@ -93,20 +94,23 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
       ).then(() => payment_gateway.value?.send({ type: "UPDATE" }));
     },
 
-    render(container: HTMLElement | null = null) {
+    async render(container: HTMLElement | null = null) {
       const renderer = contextValue(payment_gateway.value?.state, "renderer");
 
-      if (!container) {
-        console.error("No container available for the renderer");
-        return;
-      }
+      return new Promise((resolve, reject) => {
+        if (!container) {
+          return reject("No container available for the renderer");
+        }
 
-      // NB: renderer MUST be a function, if not then we clear the container
-      if (isFunction(renderer)) {
-        renderer(container);
-      } else {
-        container.innerHTML = "";
-      }
+        // NB: renderer MUST be a function, if not then we clear the container
+        if (isFunction(renderer)) {
+          renderer(container);
+          return resolve(true);
+        } else {
+          container.innerHTML = "";
+          return reject(false);
+        }
+      });
     },
   };
 };

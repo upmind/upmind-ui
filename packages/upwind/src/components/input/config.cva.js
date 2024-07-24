@@ -21,7 +21,7 @@ export default {
       {
         variants: {
           variant: {
-            outlined: "border-base-300 border",
+            outlined: " border",
             flat: "",
           },
           layout: {
@@ -177,7 +177,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100 border-base-300 border-r ",
+          outlined: "bg-base-100  border-r ",
           flat: "text-base-500",
         },
         layout: {
@@ -214,7 +214,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100 border-base-300 border-l",
+          outlined: "bg-base-100  border-l",
           flat: "text-base-500",
         },
         layout: {

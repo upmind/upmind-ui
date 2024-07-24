@@ -5,7 +5,7 @@ export default {
   dropdown: {
     root: cva("relative inline-flex"),
     items: cva(
-      "bg-base border-base-300 [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border !p-0 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
+      "bg-base  [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border !p-0 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
     ),
     item: cva(
       "text-base-800 !m-0 flex  min-w-full cursor-pointer items-center justify-start gap-3 text-nowrap px-2 text-left text-sm no-underline focus:outline-none",
@@ -58,7 +58,7 @@ export default {
             true: "cursor-wait",
           },
           grouped: {
-            false: "border-base-300",
+            false: "",
             true: "border-transparent",
           },
         },
@@ -69,7 +69,7 @@ export default {
       }
     ),
     group: cva(
-      "border-base-300 mb-2 w-full border-b pb-2 first:pt-0 last:mb-0 last:border-b-0 last:pb-0"
+      " mb-2 w-full border-b pb-2 first:pt-0 last:mb-0 last:border-b-0 last:pb-0"
     ),
     loading: cva("text-base-300", {
       variants: {
@@ -137,7 +137,7 @@ export default {
       },
     }),
     prepend: cva(
-      "border-base-300 -ml-2 flex items-start self-stretch rounded-s-lg border-r ",
+      " -ml-2 flex items-start self-stretch rounded-s-lg border-r ",
       {
         variants: {
           size: {
@@ -152,22 +152,19 @@ export default {
         },
       }
     ),
-    append: cva(
-      "border-base-300 -mr-2 flex items-start self-stretch rounded-e-lg border-l ",
-      {
-        variants: {
-          size: {
-            sm: "px-3 py-2 leading-5",
-            md: "px-3 py-3 leading-6",
-            lg: "px-3 py-4 leading-7",
-          },
+    append: cva(" -mr-2 flex items-start self-stretch rounded-e-lg border-l ", {
+      variants: {
+        size: {
+          sm: "px-3 py-2 leading-5",
+          md: "px-3 py-3 leading-6",
+          lg: "px-3 py-4 leading-7",
         },
+      },
 
-        defaultVariants: {
-          size: "md",
-        },
-      }
-    ),
+      defaultVariants: {
+        size: "md",
+      },
+    }),
   },
 
   dropdownTransitionEnter: {

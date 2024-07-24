@@ -135,7 +135,7 @@ export default {
           {
             color: "base",
             variant: "outlined",
-            class: "border-base-300 text-base-content",
+            class: " text-base-content",
           },
 
           {
