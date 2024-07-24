@@ -1,11 +1,8 @@
 <template>
   <form :class="styles.product.config.root" @submit.prevent="doResolve">
-    <figure
-      :class="styles.product.config.media"
-      v-if="product?.image?.full_url"
-    >
+    <figure :class="styles.product.config.media" v-if="productImage">
       <img
-        :src="product?.image?.full_url"
+        :src="productImage"
         :alt="`${product?.name} thumbnail`"
         :class="styles.product.config.image"
       />
@@ -71,16 +68,19 @@
           </span>
         </div>
 
-        <p v-if="product?.description" :class="styles.product.config.text">
-          {{ product.description }}
-        </p>
+        <upw-markdown
+          v-if="product?.description"
+          :class="styles.product.config.text"
+          :model-value="product.description"
+          tag="div"
+        />
 
-        <p
+        <upw-markdown
           v-if="product?.short_description"
           :class="styles.product.config.text"
-        >
-          {{ product.short_description }}
-        </p>
+          :model-value="product.short_description"
+          tag="div"
+        />
       </header>
 
       <!-- content -->
@@ -177,6 +177,7 @@ import {
   UpwButton,
   UpwQuantitybox,
   UpwSpinner,
+  UpwMarkdown,
 } from "@upmind/upwind";
 import UpmConfigGrid from "./ConfigGrid.vue";
 import UpmConfigNested from "./ConfigNested.vue";
@@ -197,6 +198,7 @@ export default defineComponent({
     UpmConfigGrid,
     UpmConfigNested,
     UpmConfigForm,
+    UpwMarkdown,
   },
   props: {
     modelValue: {
@@ -289,7 +291,14 @@ export default defineComponent({
       isNil,
     };
   },
-  computed: {},
+  computed: {
+    productImage() {
+      if (!product?.image?.full_url) return null;
+      const url = new URL(product.image.full_url);
+      url.searchParams.set("size", "400x400");
+      return url.toString();
+    },
+  },
 });
 </script>
 .
