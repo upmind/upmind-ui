@@ -1,9 +1,6 @@
 <template>
-  <div :class="styles.lineclamp.root">
-    <div
-      ref="wrapper"
-      :class="mergeStyles(`line-clamp-${lines}`, styles.lineclamp.wrapper)"
-    >
+  <div class="upw-lineclamp" :class="styles.lineclamp.root">
+    <div ref="wrapper" :class="styles.lineclamp.wrapper">
       <slot />
     </div>
 

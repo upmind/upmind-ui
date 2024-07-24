@@ -68,19 +68,29 @@
           </span>
         </div>
 
-        <upw-markdown
-          v-if="product?.description"
+        <upw-lineclamp
           :class="styles.product.config.text"
-          :model-value="product.description"
-          tag="div"
-        />
+          :lines="2"
+          :labelMore="$tc('product.actions.more', 1)"
+          :labelLess="$tc('product.actions.more', 0)"
+        >
+          <upw-markdown
+            v-if="product?.description"
+            :model-value="product.description"
+          />
+        </upw-lineclamp>
 
-        <upw-markdown
-          v-if="product?.short_description"
+        <upw-lineclamp
           :class="styles.product.config.text"
-          :model-value="product.short_description"
-          tag="div"
-        />
+          :lines="2"
+          labelMore=""
+          labelLess=""
+        >
+          <upw-markdown
+            v-if="product?.short_description"
+            :model-value="product.short_description"
+          />
+        </upw-lineclamp>
       </header>
 
       <!-- content -->
@@ -178,6 +188,7 @@ import {
   UpwQuantitybox,
   UpwSpinner,
   UpwMarkdown,
+  UpwLineclamp,
 } from "@upmind/upwind";
 import UpmConfigGrid from "./ConfigGrid.vue";
 import UpmConfigNested from "./ConfigNested.vue";
@@ -199,6 +210,7 @@ export default defineComponent({
     UpmConfigNested,
     UpmConfigForm,
     UpwMarkdown,
+    UpwLineclamp,
   },
   props: {
     modelValue: {
