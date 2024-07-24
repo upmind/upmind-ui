@@ -293,7 +293,7 @@ export default defineComponent({
   },
   computed: {
     productImage() {
-      if (!product?.image?.full_url) return null;
+      if (!this.product?.image?.full_url) return null;
       const url = new URL(product.image.full_url);
       url.searchParams.set("size", "400x400");
       return url.toString();
