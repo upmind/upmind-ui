@@ -54,6 +54,11 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
         "renderless",
       ]),
       hasRenderer: !!contextValue(payment_gateway.value?.state, "renderer"),
+      hasInstructions: !!contextValue(
+        payment_gateway.value?.state,
+        "gateway.payment_instructions"
+      ),
+
       // !contextMatches(payment_gateway.value?.state, [
       //   "schema.properties",
       //   "renderer",
@@ -69,6 +74,9 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
     ),
     renderer: computed(() =>
       contextValue(payment_gateway.value?.state, "renderer")
+    ),
+    instructions: computed(() =>
+      contextValue(payment_gateway.value?.state, "gateway.payment_instructions")
     ),
 
     // ---

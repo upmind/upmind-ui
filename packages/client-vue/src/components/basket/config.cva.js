@@ -127,6 +127,7 @@ export default {
       }),
       render: cva("w-full empty:hidden"),
       form: cva("w-full"),
+      instructions: cva("m-0 w-full p-0"),
       transition: {
         enter: {
           active: cva("m-0 transition duration-300 ease-out"),
