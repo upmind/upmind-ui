@@ -124,7 +124,7 @@ export default {
         "flex w-full flex-1 flex-wrap items-stretch gap-x-6 gap-y-16 p-10 "
       ),
 
-      header: cva("flex w-full flex-wrap items-end gap-x-10 gap-y-4"),
+      header: cva("flex w-full flex-wrap items-end gap-x-10"),
 
       headerContent: cva("flex w-full flex-1 flex-wrap items-start gap-2 "),
 
