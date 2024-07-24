@@ -169,7 +169,7 @@ export default createMachine(
       // ---
       setPaymentDetails: assign({
         paymentDetails: ({ gateway }, { data }) => {
-          return { gateway, data };
+          return { gateway, ...data };
         },
       }),
 

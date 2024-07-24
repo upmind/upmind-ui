@@ -40,6 +40,7 @@ export function generateResponseUrls(
       btoa(JSON.stringify(model?.store_on_payment_auto_payment))
     )
   );
+
   cancelUrl.searchParams.append(
     QUERY_PARAMS.INIT_PAY,
     encodeURIComponent(
@@ -52,6 +53,7 @@ export function generateResponseUrls(
       )
     )
   );
+
   cancelUrl.searchParams.append(QUERY_PARAMS.PAYMENT_METHOD_TYPE, type);
 
   // --------------------------------------------------------

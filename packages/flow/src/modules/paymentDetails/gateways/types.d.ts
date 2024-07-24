@@ -54,7 +54,9 @@ export enum QUERY_PARAMS {
 }
 
 export enum GatewayTypes {
-  FREE = 0,
+  FREE = -1,
+  STORED = 0,
+  // ---
   CARD = 1,
   BANK_TRANSFER = 2,
   DIRECT_DEBIT = 3,
@@ -170,6 +172,7 @@ export interface GatewayContext {
   // ---
   type?: GatewayTypes;
   ctx?: GatewayContext;
+  stored_payment_methods?: Array<any>;
   // ---
   renderless?: boolean;
   can_store?: boolean;

@@ -270,7 +270,17 @@ export default createMachine(
 
       setGateway: assign({
         // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
-        actors: ({ basket_id, currency, model, gateway, actors }, _event) => {
+        actors: (
+          {
+            basket_id,
+            currency,
+            model,
+            gateway,
+            actors,
+            stored_payment_methods,
+          },
+          _event
+        ) => {
           actors ??= {}; //sanity check
 
           // stop any existing gateways if they are different and not done/complete
@@ -287,6 +297,7 @@ export default createMachine(
               currency,
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
+              stored_payment_methods,
             });
             set(actors, "gateway", actor);
           }
@@ -343,7 +354,6 @@ export default createMachine(
       // ---
 
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
-        debugger;
         forEach(actors, actor => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });

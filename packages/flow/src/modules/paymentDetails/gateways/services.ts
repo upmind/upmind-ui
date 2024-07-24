@@ -39,7 +39,7 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
       must_store: get(
         data,
         BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-        gateway.store_on_payment_force || false
+        gateway?.store_on_payment_force || false
       ),
       must_auto_pay: get(
         data,
