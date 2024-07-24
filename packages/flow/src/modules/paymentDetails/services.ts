@@ -79,7 +79,10 @@ async function load(
     url: useUrl(`clients/${client_id}/payment_details`, {
       limit: 0,
       brand_id,
+      active: true,
       "filter[gateway.currencies.id]": currency_id,
+      // "filter[active]": 1,
+
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join(),
       // with_staged_imports: 1
@@ -96,7 +99,7 @@ async function load(
       client_id,
       order: "order",
       "filter[gateway.currencies.id]": currency_id,
-      "filter:[active]": 1,
+      "filter[active]": 1,
       with: ["gateway.gateway_provider", "gateway.card_types"].join(),
     }),
     withAccessToken: true,
