@@ -12,13 +12,11 @@ export default {
       header: cva("w-full"),
       title: cva("m-0 text-lg text-xl font-normal tracking-tight"),
       content: cva(
-        "border-base-300 bg-base text-base-content grid w-full space-y-4 rounded-lg border p-6 shadow-md"
+        " bg-base text-base-content grid w-full space-y-4 rounded-lg border p-6 shadow-md"
       ),
-      form: cva(
-        "border-base-300 m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"
-      ),
+      form: cva(" m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
-        "border-base-300 m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+        " m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
       ),
       heading: cva("group m-0 flex flex-1 items-center gap-2 font-light"),
       text: cva(
@@ -116,9 +114,17 @@ export default {
 
     paymentGateway: {
       root: cva("flex flex-col gap-6 py-6 "),
-      wrapper: cva(
-        "border-base-300 flex flex-col items-center justify-center gap-6 rounded-lg border p-6 empty:hidden"
-      ),
+      wrapper: cva("flex flex-col items-center justify-center gap-6", {
+        variants: {
+          variant: {
+            outlined: "rounded-lg border p-6 ",
+            flat: "",
+          },
+        },
+        defaultVariants: {
+          variant: "flat",
+        },
+      }),
       render: cva("w-full empty:hidden"),
       form: cva("w-full"),
       transition: {

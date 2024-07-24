@@ -62,10 +62,13 @@ export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
       {
         type: "Control",
         scope: "#/properties/payment_details_id",
+        i18n: "payment.payment_details_id",
         options: {
           format: "radio",
           stretch: true,
           layout: "stacked",
+          noRequired: true,
+          noLabel: true,
           items: map(
             stored_payment_methods,
             ({ id, name, card_type, card_expire_date }) => {

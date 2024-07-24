@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base text-base-content border-base-300 flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
+        "bg-base text-base-content  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
         {
           variants: {
             isUnavailable: {
@@ -56,7 +56,7 @@ export default {
         "flex flex-1 flex-col items-start justify-center gap-2 text-left "
       ),
       content: cva(
-        "border-base-300 order-last flex w-full flex-none flex-wrap gap-6 border-t pt-4 empty:hidden "
+        " order-last flex w-full flex-none flex-wrap gap-6 border-t pt-4 empty:hidden "
       ),
       collapsible: cva(
         "max-h-0 overflow-hidden opacity-0 transition aria-expanded:max-h-fit aria-expanded:opacity-100 aria-hidden:hidden"
@@ -102,7 +102,7 @@ export default {
 
     config: {
       root: cva(
-        "bg-base text-base-content border-base-300 flex flex-wrap items-start gap-x-2 rounded-lg border",
+        "bg-base text-base-content  flex flex-wrap items-start gap-x-2 rounded-lg border",
         {
           variants: {
             isDisabled: {
@@ -141,7 +141,7 @@ export default {
       ),
 
       footer: cva(
-        "border-base-300 mt-6 flex w-full items-center justify-between gap-x-10 border-t px-6 py-4"
+        " mt-6 flex w-full items-center justify-between gap-x-10 border-t px-6 py-4"
       ),
       // ---
       loading: cva("size-7"),
