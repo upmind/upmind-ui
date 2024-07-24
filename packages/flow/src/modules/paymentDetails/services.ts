@@ -14,12 +14,12 @@ import {
   filter,
   includes,
   first,
-  isEmpty,
   defaultsDeep,
   pick,
 } from "lodash-es";
 
 // --- types
+import { GatewayTypes } from "./gateways/types.d";
 import { PaymentTypes } from "./types.d";
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types.d";
 import { waitFor } from "xstate/lib/waitFor";
@@ -117,11 +117,28 @@ async function load(
   // ----
 
   return Promise.all([stored_payment_methods, gateways]).then(
-    ([stored_payment_methods, gateways]) => ({
-      stored_payment_methods,
-      gateways,
-      payment_types: PaymentTypes,
-    })
+    ([stored_payment_methods, gateways]) => {
+      // ensure we only show active stored payment methods
+      stored_payment_methods = filter(stored_payment_methods, "active");
+
+      // If we have stored payment methods, then we MUSt add a 'gateway' for them
+      if (stored_payment_methods?.length) {
+        gateways.unshift({
+          gateway_id: "stored",
+          gateway: {
+            id: "stored",
+            name: "Pay with an existing method",
+            type: GatewayTypes.STORED,
+          },
+        });
+      }
+
+      return {
+        stored_payment_methods,
+        gateways,
+        payment_types: PaymentTypes,
+      };
+    }
   );
 }
 
@@ -136,13 +153,11 @@ async function load(
 async function update({ model, basket_id, currency }: PaymentDetailsContext) {
   // if we have a free basket, Or a gateway is provided, then we should not create a payment detail
   return new Promise((resolve, reject) => {
-    if (model?.amount == 0 || !!model?.payment_details_id) {
-      debugger;
+    if (model?.amount == 0) {
       resolve({
         basket_id,
         currency,
         amount: model.amount,
-        payment_details_id: model?.payment_details_id,
       });
     } else {
       reject();
@@ -162,34 +177,19 @@ async function parse(
   // ---
   // Create a safe model to work with
   const safeModel = defaultsDeep(
-    pick(data, ["amount", "type", "gateway_id", "payment_details_id"]),
+    pick(data, ["amount", "type", "gateway_id"]),
     model
   );
 
   // ---
-  // ok so this is messy, but we need to check if the safeModel has changed the gateway_id OR payment_details_id
-  // if it has, then we need to update the model to reflect this
-  if (!isEmpty(data)) {
-    if (data?.gateway_id != model.gateway_id) {
-      safeModel.gateway_id = data.gateway_id;
-      unset(safeModel, "payment_details_id");
-    } else if (data?.payment_details_id != model.payment_details_id) {
-      safeModel.payment_details_id = data.payment_details_id;
-      unset(safeModel, "gateway_id");
-    }
-  }
-  // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
-  safeModel.type = PaymentTypes.PAY_IN_FULL;
+  safeModel.type ??= PaymentTypes.PAY_IN_FULL;
 
   // ---
   // Gateway vs Stored Payment Methods Logic...
 
   // 1) Make sure if a gateway is selected that we use that
-  // and clean the payment_details_id
   if (safeModel?.gateway_id) {
-    unset(safeModel, "payment_details_id");
-
     gateway = find(gateways, {
       gateway_id: safeModel.gateway_id,
     })?.gateway;
@@ -197,31 +197,15 @@ async function parse(
     if (!gateway) unset(safeModel, "gateway_id");
   }
 
-  // 2) Otherwise if we have a payment method, then we should use that
-  // and clean the gateway_id
-  else if (safeModel?.payment_details_id) {
-    unset(safeModel, "gateway_id");
-    gateway = null;
-  }
-
-  // 3) But if we have neither a payment method or gateway
-  // AND we have stored payment methods, then we should use the default one
-  else if (!safeModel.payment_details_id && stored_payment_methods?.length) {
-    safeModel.payment_details_id = find(stored_payment_methods, {
-      default: true,
-    })?.id;
-  }
-
-  // 4) finally If we dont have any stored methods then we should use the first gateway
-  else {
+  // 2) finally If we dont have any selected gateways then we should use the first available
+  if (!safeModel.gateway_id) {
     gateway = first(gateways)?.gateway;
     safeModel.gateway_id = gateway?.id;
   }
 
-  // 5) Safety Check...if the payment type is pay later or Free, clear the gateway_id and payment_details_id
+  // 3) Safety Check...if the payment type is pay later or Free, clear the gateway_id
   if (safeModel?.type == PaymentTypes.PAY_LATER || safeModel?.amount <= 0) {
     unset(safeModel, "gateway_id");
-    unset(safeModel, "payment_details_id");
     gateway = null;
   }
 

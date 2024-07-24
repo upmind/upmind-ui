@@ -5,6 +5,7 @@ import { spawn } from "xstate";
 import gatewayMachine from "./gateways/gateway.machine";
 import stripeMachine from "./gateways/stripe/stripe.machine";
 import cardConfig from "./gateways/card";
+import storedConfig from "./gateways/stored";
 
 // --- utils
 import { useTranslateName } from "../../utils";
@@ -30,7 +31,6 @@ export const parsePaymentDetails = payment_details => {
 // --------------------------------------------------------
 
 export const useSchema = ({
-  stored_payment_methods,
   payment_types,
   gateways,
 }: PaymentDetailsContext) => {
@@ -50,25 +50,13 @@ export const useSchema = ({
         type: "string",
         title: "Payment type",
         const: PaymentTypes.PAY_IN_FULL,
-        // DISABLED FOR NOW: We only support pay in full for now
-        // oneOf: !payment_types
-        //   ? undefined
-        //   : map(payment_types, (value, key) => ({
-        //       const: value,
-        //       title: key,
-        //     })),
-      },
-      payment_details_id: {
-        type: ["string", "null"],
-        title: "Pay with an existing method",
-        oneOf: !stored_payment_methods?.length
+        oneOf: !payment_types
           ? undefined
-          : map(stored_payment_methods, ({ id, name }) => ({
-              const: id,
-              title: name,
+          : map(payment_types, (value, key) => ({
+              const: value,
+              title: key,
             })),
       },
-
       gateway_id: {
         type: ["string", "null"],
         title: "Select a payment method",
@@ -100,7 +88,6 @@ export const useSchema = ({
 // --------------------------------------------------------
 
 export const useUischema = ({
-  stored_payment_methods,
   payment_types,
   gateways,
 }: PaymentDetailsContext) => {
@@ -131,38 +118,7 @@ export const useUischema = ({
       //     },
       //   },
       // },
-      {
-        type: "Control",
-        scope: "#/properties/payment_details_id",
-        options: {
-          format: "radio",
-          stretch: true,
-          layout: "stacked",
-          items: map(
-            stored_payment_methods,
-            ({ id, name, card_type, card_expire_date }) => {
-              return {
-                value: id,
-                label: name,
-                text: card_expire_date,
-                appendIcon: { name: card_type, path: "payment-providers" },
-              };
-            }
-          ),
-        },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["type", "amount"],
-              properties: {
-                amount: { not: { const: 0 } },
-              },
-            },
-          },
-        },
-      },
+
       {
         type: "Control",
         scope: "#/properties/gateway_id",
@@ -193,7 +149,13 @@ export const useUischema = ({
 // --------------------------------------------------------
 // Gateway Machine Spawner (Factory)
 
-export function spawnGateway({ basket_id, gateway, amount, currency }) {
+export function spawnGateway({
+  basket_id,
+  gateway,
+  amount,
+  currency,
+  stored_payment_methods,
+}) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) {
@@ -205,6 +167,16 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
       renderless: true,
     });
   }
+
+  if (isStored(gateway)) {
+    return spawnStored({
+      basket_id,
+      amount,
+      currency,
+      stored_payment_methods,
+    });
+  }
+
   if (isStripe(gateway))
     return spawnStripe({ basket_id, gateway, amount, currency });
 
@@ -265,12 +237,30 @@ export function spawnGateway({ basket_id, gateway, amount, currency }) {
 // --------------------------------------------------------
 // Individual Gateway Machine Spawners
 
+export function spawnStored({
+  basket_id,
+  amount,
+  currency,
+  stored_payment_methods,
+}) {
+  return spawn(
+    gatewayMachine.withConfig(storedConfig).withContext({
+      basket_id,
+      stored_payment_methods,
+      amount,
+      currency,
+      type: GatewayTypes.STORED,
+    }),
+    { name: "stored", sync: true }
+  );
+}
+
 export function spawnCard({ basket_id, gateway, amount, currency }) {
   return spawn(
     gatewayMachine.withConfig(cardConfig).withContext({
       basket_id,
       gateway,
-      amount: amount || 0,
+      amount,
       currency,
       type: GatewayTypes.CARD,
     }),
@@ -284,7 +274,7 @@ export function spawnStripe({ basket_id, gateway, amount, currency }) {
       basket_id,
       gateway,
       ctx: GatewayCtx.PAY,
-      amount: amount || 0,
+      amount,
       currency,
       type: GatewayTypes.CARD,
     }),
@@ -315,7 +305,7 @@ export function spawnExternal({ basket_id, gateway, amount, currency }) {
     gatewayMachine.withContext({
       basket_id,
       gateway,
-      amount: amount || 0,
+      amount,
       currency,
       type: gateway?.gateway_provider.external_store,
     }),
@@ -325,6 +315,8 @@ export function spawnExternal({ basket_id, gateway, amount, currency }) {
 
 // --------------------------------------------------------
 // Gateway Type Checks
+
+const isStored = gateway => gateway.type === GatewayTypes.STORED;
 
 const isCard = gateway => gateway.type === GatewayTypes.CARD;
 
