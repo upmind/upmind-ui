@@ -17,11 +17,21 @@ import { map, some, find } from "lodash-es";
 //  with some state helpers
 
 export const useDomain = (
-  syncBasket?: boolean,
-  forceType?: string,
-  parent: Object // machine representing the parent context
+  {
+    sync,
+    type,
+    parentId,
+  }: {
+    sync?: boolean;
+    type?: "register" | "transfer" | "existing" | "basket";
+    parentId?: string; // id of basket item machine representing the parent context
+  } = {
+    sync: false,
+    type: undefined,
+    parentId: undefined,
+  }
 ) => {
-  const domain = useUpmindDomain(syncBasket, forceType, parent);
+  const domain = useUpmindDomain({ sync, type, parentId });
   const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------
@@ -77,10 +87,17 @@ export const useDomain = (
   return {
     state: computed(() => state.value.value),
     // ---
-    choices: computed(() => state.value.context.choices),
+    choices: computed(() =>
+      map(state.value.context.choices, (value, key) => {
+        return {
+          value: key,
+          label: value,
+        };
+      })
+    ),
     values: computed(() => state.value.context.values),
     selected: computed(() => map(state.value.context.values, "domain")),
-    selectedType: computed(() => state.value.context.type),
+    type: computed(() => state.value.context.type),
     available: computed(() => state.value.context.available),
     errors: computed(() => state.value.context?.error),
     primaryDomain: computed(() =>

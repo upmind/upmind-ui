@@ -8,40 +8,31 @@ import { DomainTypes } from "./types.d";
 // --- utils
 import { useBasketHelper } from "..";
 import { parseDomain } from "./utils";
-import { has, find } from "lodash-es";
+import { has, find, set } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useDomain = (
-  sync?: boolean,
-  type?: DomainTypes,
-  parent?: Object // machine representing the parent context
-) => {
+export const useDomain = ({
+  sync,
+  type,
+  parentId,
+}: {
+  sync?: boolean;
+  type?: DomainTypes;
+  parentId?: Object; // id of basket item machine representing the parent context
+}) => {
   // --------------------------------------------------------
   // create a new instance of the domain machine
 
-  let state = null;
-
   // safetycheck to ensure forcedType is valid
-  type = has(DomainTypes, type) ? type : null;
-
-  const values = [];
-
-  // if we have a parent...make sure we set the primaryDomain!
-  if (parent?.state.value.context?.values?.provision_fields?.domain) {
-    const domain = parseDomain(
-      parent.state.value.context.values.provision_fields.domain
-    );
-    domain.is_primary = true;
-    values.push(domain);
-  }
+  const safeType = has(DomainTypes, type) ? type : null;
 
   const context = {
-    type,
+    type: safeType,
     sync,
     // ---
-    choices: type ? null : DomainTypes,
-    values,
+    choices: safeType ? null : DomainTypes,
+    values: [],
     available: [],
     total: 0,
     // ---
@@ -56,10 +47,8 @@ export const useDomain = (
   };
 
   const service = interpret(domainMachine.withContext(context), {
-    devTools: false,
-  })
-    .onTransition(newState => (state = newState))
-    .start();
+    devTools: true,
+  }).start();
 
   // --------------------------------------------------------
   // sync the basket with the domain machine and any parent machines
@@ -110,12 +99,30 @@ export const useDomain = (
 
     // ---
 
+    // if we have a parent...make sure we set the primaryDomain!
+
     let parentBuilder = null;
     let parentMapper = null;
 
-    if (parent) {
+    if (parentId) {
+      debugger;
+
+      // MAYBE we need to add the parents domain value to the values array
+      //  but  we should be able t oget it from the basket.... so hence commented out
+      // const parentModel = parent.getSnapshot().context.model;
+      // debugger;
+      // if (parentModel?.provision_fields?.domain) {
+      //   const domain = parseDomain(parentModel.provision_fields.domain);
+      //   debugger;
+      //   if (domain) {
+      //     set(domain, "is_primary", true);
+      //     values.push(domain);
+      //   }
+      // }
+
       // ---
       parentBuilder = () => {
+        const state = service.getSnapshot();
         let config = null;
         const primaryDomain = find(state?.context?.values, "is_primary");
 
@@ -137,7 +144,7 @@ export const useDomain = (
       };
 
       parentMapper = () => ({
-        id: parent.id,
+        id: parentId,
       });
     }
 
@@ -171,7 +178,7 @@ export const useDomain = (
   return {
     service, // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
-    destroy: () => service.stop(),
+    getSnapshot: service.getSnapshot,
+    destroy: service.stop,
   };
 };

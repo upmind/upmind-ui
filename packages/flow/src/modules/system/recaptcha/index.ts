@@ -15,7 +15,7 @@ import { generateToken } from "./services";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(recaptchaMachine, { devTools: true });
+const service = interpret(recaptchaMachine, { devTools: false });
 // ---
 async function generate(action?: String) {
   return waitFor(service, state => ["available"].some(state.matches))
@@ -40,6 +40,6 @@ export const useSystemRecaptcha = () => {
     getSnapshot: service.getSnapshot,
     generate,
     clear,
-    destroy: () => service.stop(),
+    destroy: service.stop,
   };
 };

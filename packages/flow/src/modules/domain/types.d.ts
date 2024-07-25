@@ -3,7 +3,7 @@
 // --- enums
 
 export enum DomainTypes {
-  register = "Regsiter a new domain",
+  register = "Register a new domain",
   transfer = "Transfer your domain from another registrar",
   existing = "I will use my existing domain and update my nameservers",
   basket = "I will use a domain from my basket",

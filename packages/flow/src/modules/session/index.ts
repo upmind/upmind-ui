@@ -16,7 +16,7 @@ import { getTokenfromStorage } from "./utils";
 
 let hasSession = false;
 
-const service = interpret(sessionMachine, { devTools: true });
+const service = interpret(sessionMachine, { devTools: false });
 
 // --------------------------------------------------------
 
