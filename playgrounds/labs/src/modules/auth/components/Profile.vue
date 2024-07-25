@@ -1,7 +1,7 @@
 <template>
   <aside
     v-if="meta.isAuthenticated"
-    class="w-full rounded-xl border border-base-300 bg-base-50 p-4 text-base-content shadow-lg sm:p-7"
+    class="w-full rounded-xl border bg-base-50 p-4 text-base-content shadow-lg sm:p-7"
   >
     <div class="flex flex-col items-center py-10">
       <img

@@ -18,7 +18,7 @@
 
       <div
         v-else-if="meta.showLoginForm || meta.showRegisterForm"
-        class="w-full max-w-md rounded-xl border border-base-300 bg-base-50 p-4 px-4 py-8 text-base-content shadow-sm sm:p-7 sm:px-6 lg:px-8"
+        class="w-full max-w-md rounded-xl border bg-base-50 p-4 px-4 py-8 text-base-content shadow-sm sm:p-7 sm:px-6 lg:px-8"
       >
         <div class="text-center">
           <h3 class="block text-2xl font-bold text-inherit">

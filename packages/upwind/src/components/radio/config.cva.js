@@ -22,7 +22,7 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 appearance-none rounded-[100%] border text-inherit outline-none ring-0",
+      " appearance-none rounded-[100%] border text-inherit outline-none ring-0",
       {
         variants: {
           size: {
@@ -52,7 +52,6 @@ export default {
             isInvalid: false,
             isDisabled: false,
             isProcessing: false,
-
             class:
               "focus-within:border-control-active focus-within:ring-control-active cursor-pointer focus-within:ring-4 focus-within:ring-opacity-20",
           },
@@ -62,7 +61,6 @@ export default {
             isInvalid: true,
             isDisabled: false,
             isProcessing: false,
-
             class:
               "focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
           },
@@ -72,7 +70,6 @@ export default {
           //   isValid: true,
           //   isDisabled: false,
           //   isProcessing: false,
-
           //   class:
           //     "focus-within:border-success focus-within:ring-success focus-within:ring-4 focus-within:ring-opacity-20",
           // },
@@ -121,12 +118,12 @@ export default {
   },
   // ---------------------------------------------------------------------------
   radiolist: {
-    root: cva("m-0 grid w-full list-none gap-2 p-0", {
+    root: cva("m-0 grid w-full list-none p-0", {
       variants: {
         layout: {
-          grid: "!auto-cols-fr grid-cols-3",
-          stacked: "grid-flow-row grid-cols-1",
-          inline: "grid-flow-col grid-rows-1 ",
+          stacked: " grid-flow-row grid-cols-1 rounded-lg  border p-0",
+          grid: " !auto-cols-fr grid-cols-3 gap-x-2   ",
+          inline: "grid-flow-col grid-rows-1 gap-x-2 ",
         },
       },
       defaultVariants: {
@@ -134,6 +131,12 @@ export default {
         isStretched: false,
       },
       compoundVariants: [
+        {
+          isInvalid: true,
+          isDisabled: false,
+          class:
+            "border-control-error focus-within:ring-control-error border focus-within:ring-4 focus-within:ring-opacity-20",
+        },
         {
           layout: "inline",
           isStretched: true,
@@ -146,16 +149,25 @@ export default {
         },
       ],
     }),
-    item: cva("m-0 cursor-pointer p-0"),
+    item: cva("m-0 cursor-pointer p-0", {
+      variants: {
+        layout: {
+          stacked: "border-b last-of-type:border-b-0",
+          grid: " rounded-lg border",
+          inline: "",
+        },
+      },
+    }),
 
     radio: {
-      wrapper: cva("", {
+      wrapper: cva("border-transparent", {
         variants: {
           layout: {
             grid: "py-6",
           },
         },
       }),
+      input: cva("", {}),
     },
   },
 };
