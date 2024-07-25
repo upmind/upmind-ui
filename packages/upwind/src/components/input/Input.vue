@@ -17,41 +17,61 @@
       :disabled="meta.isDisabled"
       :size="size"
       :upwindConfig="[config, upwindConfig]"
-    />
+    >
+      <template #default="slotProps">
+        <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+      </template>
+    </upw-label>
 
     <!-- input wrapper -->
     <div :class="styles.input.wrapper">
       <!-- prepend slot-->
-      <slot
-        name="prepend"
-        v-bind="{
-          meta,
-          styles: styles.input,
-          prependIcon,
-          prependAvatar,
-          prependText,
-          size,
-        }"
-      >
-        <span :class="styles.input.prependWrapper">
-          <span :class="styles.input.prepend" v-if="prependText">
-            {{ prependText }}
-          </span>
 
-          <upw-icon
-            v-if="prependAvatar"
-            class="avatar"
-            :class="styles.input.avatar"
-            :icon="prependAvatar"
-          />
+      <span :class="styles.input.prependWrapper">
+        <slot
+          name="prepend"
+          v-bind="{
+            meta,
+            styles: styles.input,
+            icon: prependIcon,
+            avatar: prependAvatar,
+            tetx: prependText,
+            size,
+          }"
+        >
+          <slot
+            name="prepend.text"
+            v-bind="{ meta, styles: styles.input, text: prependText }"
+          >
+            <span :class="styles.input.prepend" v-if="prependText">
+              {{ prependText }}
+            </span>
+          </slot>
 
-          <upw-icon
-            v-if="prependIcon"
-            :class="styles.input.icon"
-            :icon="prependIcon"
-          />
-        </span>
-      </slot>
+          <slot
+            name="prepend.avatar"
+            v-bind="{ meta, styles: styles.input, avatar: prependAvatar }"
+          >
+            <upw-icon
+              v-if="prependAvatar"
+              class="avatar"
+              :class="styles.input.avatar"
+              :icon="prependAvatar"
+            />
+          </slot>
+
+          <slot
+            name="prepend.icon"
+            v-bind="{ meta, styles: styles.input, icon: prependIcon }"
+          >
+            <upw-icon
+              v-if="prependIcon"
+              :class="styles.input.icon"
+              :icon="prependIcon"
+            />
+          </slot>
+        </slot>
+      </span>
 
       <!-- main slot where actual input gets injected -->
       <slot v-bind="{ meta, styles: styles.input, size }"></slot>
@@ -73,56 +93,75 @@
         :size="size"
         :noLabel="noLabel"
         :upwindConfig="[config, upwindConfig]"
-      />
+      >
+        <template #default="slotProps">
+          <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+        </template>
+      </upw-label>
 
       <!-- append slot -->
-      <slot
-        name="append"
-        v-bind="{
-          meta,
-          styles: styles.input,
-          appendIcon,
-          appendAvatar,
-          appendText,
-          size,
-        }"
-      >
-        <span :class="styles.input.appendWrapper">
-          <upw-icon
-            v-if="appendIcon"
-            :class="styles.input.icon"
-            :icon="appendIcon"
-          />
+      <span :class="styles.input.appendWrapper">
+        <slot
+          name="append"
+          v-bind="{
+            meta,
+            styles: styles.input,
+            appendIcon,
+            appendAvatar,
+            appendText,
+            size,
+          }"
+        >
+          <slot
+            name="append.icon"
+            v-bind="{ meta, styles: styles.input, icon: appendIcon }"
+          >
+            <upw-icon
+              v-if="appendIcon"
+              :class="styles.input.icon"
+              :icon="appendIcon"
+            />
+          </slot>
 
-          <upw-icon
-            v-if="appendAvatar"
-            class="avatar"
-            :class="styles.input.avatar"
-            :icon="appendAvatar"
-          />
+          <slot
+            name="append.avatar"
+            v-bind="{ meta, styles: styles.input, avatar: appendAvatar }"
+          >
+            <upw-icon
+              v-if="appendAvatar"
+              class="avatar"
+              :class="styles.input.avatar"
+              :icon="appendAvatar"
+            />
+          </slot>
 
-          <span class="appendText" v-if="appendText">
-            {{ appendText }}
-          </span>
-        </span>
-      </slot>
+          <slot
+            name="append.text"
+            v-bind="{ meta, styles: styles.input, text: appendText }"
+          >
+            <span class="appendText" v-if="appendText">
+              {{ appendText }}
+            </span>
+          </slot>
+        </slot>
+      </span>
     </div>
 
     <!-- feedback -->
-    <slot
-      name="feedback"
-      v-bind="{
-        meta,
-        noFeedback,
-        errors,
-        description,
-        styles: styles.input,
-      }"
+    <div
+      class="feedback"
+      :class="styles.input.feedback.root"
+      v-if="!noFeedback"
     >
-      <div
-        class="feedback"
-        :class="styles.input.feedback.root"
-        v-if="!noFeedback"
+      <slot
+        name="feedback"
+        v-bind="{
+          meta,
+          noFeedback,
+          errors,
+          description,
+          styles: styles.input,
+        }"
       >
         <upw-icon
           :class="styles.input.feedback.icon"
@@ -130,8 +169,8 @@
           v-if="meta.hasFeedback"
         />
         <span v-if="meta.hasFeedback">{{ errors || description }}</span>
-      </div>
-    </slot>
+      </slot>
+    </div>
   </div>
 </template>
 

@@ -24,7 +24,9 @@
     layout="stacked"
     variant="outlined"
   >
-    <slot name="prepend" v-bind="{ styles: styles.textbox }"></slot>
+    <template #prepend>
+      <slot name="prepend" v-bind="{ styles: styles.textbox }"></slot>
+    </template>
 
     <input
       :id="id"
@@ -35,7 +37,10 @@
       @input="onChange"
       :aria-invalid="meta.isInvalid"
     />
-    <slot name="append" v-bind="{ styles: styles.textbox }"></slot>
+
+    <template #append>
+      <slot name="append" v-bind="{ styles: styles.textbox }"></slot>
+    </template>
   </upw-input>
 </template>
 
