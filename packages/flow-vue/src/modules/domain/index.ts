@@ -42,13 +42,16 @@ export const useDomain = (
       data: value,
     });
 
-  const search = (value: string) =>
+  const search = (value: string) => {
+    debugger;
+
     send({
       type: "SEARCH",
       data: {
         domain: value,
       },
     });
+  };
 
   const toggle = (value: string) => {
     const type = some(state.value.context.values, ["domain", value])
@@ -95,6 +98,7 @@ export const useDomain = (
         };
       })
     ),
+    query: computed(() => state.value.context.search),
     values: computed(() => state.value.context.values),
     selected: computed(() => map(state.value.context.values, "domain")),
     type: computed(() => state.value.context.type),
