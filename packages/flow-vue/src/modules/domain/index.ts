@@ -42,16 +42,13 @@ export const useDomain = (
       data: value,
     });
 
-  const search = (value: string) => {
-    debugger;
-
+  const search = (value: string) =>
     send({
       type: "SEARCH",
       data: {
         domain: value,
       },
     });
-  };
 
   const toggle = (value: string) => {
     const type = some(state.value.context.values, ["domain", value])

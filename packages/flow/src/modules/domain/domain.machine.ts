@@ -160,11 +160,16 @@ export default createMachine(
             actions: ["remove"],
             cond: "hasValues",
           },
-          SEARCH: {
-            target: ".processing",
-            actions: ["setSearch"],
-            cond: "isValidSearch",
-          },
+          SEARCH: [
+            {
+              target: ".processing",
+              actions: ["setSearch"],
+              cond: "isValidSearch",
+            },
+            {
+              actions: ["setSearch"],
+            },
+          ],
           SYNC: { target: "#register.syncing" },
           REFRESH: { target: "#register.available" },
         },

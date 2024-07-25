@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   domains: {
     root: cva(
-      "flex-col !gap-0 bg-[url('/background.svg')] bg-cover bg-no-repeat"
+      "flex-col !gap-0 bg-[url('/background.svg')] bg-contain bg-no-repeat"
     ),
 
     section: {
