@@ -41,7 +41,20 @@
           no-status
           no-feedback
           @change="onChange"
-        />
+        >
+          <!-- expose our core input slots -->
+          <template #label="slotProps">
+            <slot name="label" v-bind="{ item, ...slotProps }" />
+          </template>
+
+          <template #prepend="slotProps">
+            <slot name="prepend" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+
+          <template #append="slotProps">
+            <slot name="append" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+        </upw-checkbox>
       </li>
     </ul>
   </upw-input>

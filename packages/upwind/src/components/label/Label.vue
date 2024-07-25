@@ -4,31 +4,44 @@
     :class="styles.label.root"
     v-if="!noRequired || !noStatus || (!noLabel && !!text)"
   >
-    <span :class="styles.label.text" v-if="text">
-      {{ text }}
-      <upw-badge
-        v-if="altText"
-        :class="styles.label.alt"
-        :label="altText"
-        variant="tonal"
-        color="base"
-        size="xs"
-      />
-    </span>
-
-    <span
-      class="status"
-      :class="styles.label.status"
-      v-if="!noStatus && !disabled"
+    <slot
+      v-bind="{
+        meta,
+        text,
+        altText,
+        requiredText,
+        optionalText,
+        style: styles.label,
+      }"
     >
-      <span v-if="meta.showAsRequired" :class="styles.label.required">
-        {{ requiredText }}
+      <span :class="styles.label.text" v-if="text">
+        {{ text }}
+        <upw-badge
+          v-if="altText"
+          :class="styles.label.alt"
+          :label="altText"
+          variant="tonal"
+          color="base"
+          size="xs"
+        />
       </span>
+    </slot>
 
-      <span v-else-if="meta.showAsOptional" :class="styles.label.optional">
-        {{ optionalText }}
+    <slot
+      name="status"
+      v-if="!noStatus && !disabled"
+      v-bind="{ meta, requiredText, optionalText, style: styles.label }"
+    >
+      <span class="status" :class="styles.label.status">
+        <span v-if="meta.showAsRequired" :class="styles.label.required">
+          {{ requiredText }}
+        </span>
+
+        <span v-else-if="meta.showAsOptional" :class="styles.label.optional">
+          {{ optionalText }}
+        </span>
       </span>
-    </span>
+    </slot>
   </label>
 </template>
 

@@ -23,7 +23,17 @@
           <upm-empty />
         </slot>
 
-        <div :class="styles.domain.listings.items" v-else>
+        <upw-checkbox-list
+          v-else
+          :class="styles.domain.listings.items"
+          :items="items"
+          :model-value="modelValue"
+          @update:modelValue="onChange"
+        >
+          <template #label="{ item }">{{ item.domain }}</template>
+        </upw-checkbox-list>
+
+        <!-- <div :class="styles.domain.listings.items" v-else>
           <template v-for="(item, index) in items" :key="item.domain">
             <slot
               name="item"
@@ -39,7 +49,7 @@
               />
             </slot>
           </template>
-        </div>
+        </div> -->
       </template>
 
       <!-- <footer :class="styles.domain.listings.footer">
@@ -65,6 +75,7 @@ import {
   UpwButton,
   UpwSkeletonList,
   UpwDialog,
+  UpwCheckboxList,
 } from "@upmind/upwind";
 
 // --- utils
@@ -78,6 +89,7 @@ export default defineComponent({
   components: {
     UpwTextbox,
     UpwButton,
+    UpwCheckboxList,
     UpwSkeletonList,
     UpwDialog,
     // ---
