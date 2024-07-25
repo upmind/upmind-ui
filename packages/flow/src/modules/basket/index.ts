@@ -29,7 +29,7 @@ import {
 
 let state = null;
 
-const service = interpret(basketMachine, { devTools: true }).onTransition(
+const service = interpret(basketMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 
