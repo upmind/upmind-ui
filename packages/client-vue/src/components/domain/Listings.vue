@@ -1,12 +1,12 @@
 <template>
   <component
-    :is="dialog ? 'upw-dialog' : 'section'"
+    :is="dialog ? 'upw-dialog' : 'div'"
+    size="2xl"
+    :title="title"
+    :model-value="!!items.length || meta.isLoading"
     @reject="onClose"
-    size="xl"
-    title="Select domain(s)"
-    :model-value="modelValue"
     @update:modelValue="onClose"
-    v-show="items.length || meta.isLoading"
+    v-show="!!items.length || meta.isLoading"
   >
     <section :class="styles.domain.listings.root">
       <header :class="styles.domain.listings.header">
@@ -24,26 +24,27 @@
         </slot>
 
         <div :class="styles.domain.listings.items" v-else>
-          <template v-for="item in items" :key="item.id">
-            <pre>{{ item }}</pre>
-
-            <!-- <upm-card
-
-            :model-value="item"
-            :selected="item.id === selected?.id"
-            @update:modelValue="onSelect"
-            :hidden="meta.isAdding && item.id === selected?.id"
-            :disabled="meta.isEditing && item.id === selected?.id"
-            :i18nKey="i18nKey"
-            @click:action="onClose"
-          /> -->
+          <template v-for="(item, index) in items" :key="item.domain">
+            <slot
+              name="item"
+              v-bind="{ index, item, meta, isSelected, onChange }"
+            >
+              <upm-card
+                v-bind="item"
+                :processing="meta.isProcessing"
+                :tabindex="index"
+                :i18nKey="`${i18nKey}.card`"
+                :model-value="isSelected(item)"
+                @change="onChange"
+              />
+            </slot>
           </template>
         </div>
       </template>
 
-      <footer :class="styles.domain.listings.footer">
+      <!-- <footer :class="styles.domain.listings.footer">
         <slot name="footer" v-bind="{ meta }"></slot>
-      </footer>
+      </footer> -->
     </section>
   </component>
 </template>
@@ -58,7 +59,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmEmpty from "./Empty.vue";
-// import UpmCard from "./Card.vue";
+import UpmCard from "./Card.vue";
 import {
   UpwTextbox,
   UpwButton,
@@ -67,7 +68,7 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import { includes, remove, uniq, compact } from "lodash-es";
+import { includes, remove, uniq, compact, get } from "lodash-es";
 
 // --- types
 // -----------------------------------------------------------------------------
@@ -81,11 +82,11 @@ export default defineComponent({
     UpwDialog,
     // ---
     UpmEmpty,
-    // UpmCard,
+    UpmCard,
   },
   emits: ["update:modelValue"],
   props: {
-    i18nKey: { type: String, default: "domain" },
+    i18nKey: { type: String, default: "domain.listings" },
     modelValue: { type: Array, default: () => [] },
     items: { type: Array, required: true },
     dialog: { type: Boolean, default: false },
@@ -109,15 +110,23 @@ export default defineComponent({
     };
   },
 
-  computed: {},
+  computed: {
+    translations() {
+      return this.$tm(this.i18nKey);
+    },
+    title() {
+      return get(this.translations, "title", "Select your domain");
+    },
+  },
   methods: {
     onClose() {},
 
-    isSelected: value => {
-      return includes(props.modelValue, value);
+    isSelected(value) {
+      return includes(this.modelValue, value);
     },
 
-    onChange: event => {
+    onChange(event) {
+      debugger;
       if (this.meta.isDisabled || this.meta.isProcessing) return;
 
       const selected = this.modelValue || [];

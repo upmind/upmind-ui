@@ -18,14 +18,14 @@
       :class="styles.domain.search"
       @update:modelValue="search"
       prependIcon="domain-search"
-      placeholder="Find your pefect domain &hellip;"
+      placeholder="Search for your domain &hellip;"
       :autofocus="meta.showRegister"
       autocomplete="url"
       :model-value="query"
     >
       <template #append>
         <upw-button
-          label="Find"
+          label="Search"
           :loading="meta.isSearching"
           variant="ghost"
           size="sm"
