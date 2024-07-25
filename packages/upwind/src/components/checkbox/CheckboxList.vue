@@ -29,16 +29,15 @@
         :class="styles.checkboxlist.item"
       >
         <upw-checkbox
-          v-bind="safeAttrs"
+          v-bind="{ ...safeAttrs, ...item }"
           variant="outlined"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
           :disabled="meta.isDisabled"
           :processing="meta.isProcessing"
-          :label="item.label"
-          :value="item.value"
           :model-value="isSelected(item.value)"
+          :upwind-config="{ input: config.checkboxlist.checkbox }"
           no-status
           no-feedback
           @change="onChange"
@@ -74,6 +73,7 @@ import {
 // --- types
 import type { PropType } from "vue";
 import type { InputProps, IconProps } from "../input/types";
+import type { CheckboxListProps } from "./types";
 
 // ----------------------------------------------
 
@@ -94,10 +94,16 @@ export default defineComponent({
       default: () => "checkboxlist-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
+    layout: {
+      type: String as PropType<CheckboxListProps["layout"]>,
+      default: "stacked",
+    },
+    stretch: { type: Boolean, default: false },
     // ---
     appendAvatar: { type: [Object, String] as PropType<IconProps["icon"]> },
     appendIcon: { type: [Object, String] as PropType<IconProps["icon"]> },
@@ -126,7 +132,6 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     processing: { type: Boolean },
-
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -139,6 +144,9 @@ export default defineComponent({
   setup(props, { emit }) {
     const meta = computed(() => ({
       size: props.size,
+      layout: props.layout,
+      // ---
+      isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,
       isProcessing: props.processing,
@@ -155,6 +163,7 @@ export default defineComponent({
     return {
       meta,
       styles,
+      config,
       onChange: event => {
         if (props.disabled || props.processing) return;
         const selected = props.modelValue || [];
@@ -178,8 +187,8 @@ export default defineComponent({
         "value",
         "readonly",
         "autofocus",
-        "placeholder",
         "tabindex",
+        "placeholder",
         "maxlength",
         "name",
         "onChange",

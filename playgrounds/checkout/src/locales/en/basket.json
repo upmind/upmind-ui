@@ -148,6 +148,10 @@
     }
   },
   "payment": {
+    "payment_details_id": {
+      "label": "",
+      "description": ""
+    },
     "store_on_payment": {
       "label": "Save payment details",
       "description": ""

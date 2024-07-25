@@ -55,7 +55,7 @@ export default {
     panel: cva("flex w-full flex-col items-start justify-start"),
 
     panelHeader: cva(
-      "border-base-300 flex w-full items-center justify-between gap-2 border-b p-6"
+      " flex w-full items-center justify-between gap-2 border-b p-6"
     ),
 
     panelContent: cva(
@@ -70,7 +70,7 @@ export default {
     ),
 
     panelActions: cva(
-      "border-base-300 flex w-full items-center justify-between gap-2 border-t p-6"
+      " flex w-full items-center justify-between gap-2 border-t p-6"
     ),
 
     title: cva("m-0 text-lg font-medium leading-6 text-inherit"),

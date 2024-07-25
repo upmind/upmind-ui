@@ -141,9 +141,7 @@ export default defineComponent({
     const meta = computed(() => ({
       size: props.size,
       layout: props.layout,
-      align: props.align,
       // ---
-      isBlock: props.block,
       isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,

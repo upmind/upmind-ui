@@ -1,11 +1,8 @@
 <template>
   <form :class="styles.product.config.root" @submit.prevent="doResolve">
-    <figure
-      :class="styles.product.config.media"
-      v-if="product?.image?.full_url"
-    >
+    <figure :class="styles.product.config.media" v-if="productImage">
       <img
-        :src="product?.image?.full_url"
+        :src="productImage"
         :alt="`${product?.name} thumbnail`"
         :class="styles.product.config.image"
       />
@@ -71,16 +68,29 @@
           </span>
         </div>
 
-        <p v-if="product?.description" :class="styles.product.config.text">
-          {{ product.description }}
-        </p>
-
-        <p
-          v-if="product?.short_description"
+        <upw-lineclamp
           :class="styles.product.config.text"
+          :lines="2"
+          :labelMore="$tc('product.actions.more', 1)"
+          :labelLess="$tc('product.actions.more', 0)"
         >
-          {{ product.short_description }}
-        </p>
+          <upw-markdown
+            v-if="product?.description"
+            :model-value="product.description"
+          />
+        </upw-lineclamp>
+
+        <upw-lineclamp
+          :class="styles.product.config.text"
+          :lines="2"
+          labelMore=""
+          labelLess=""
+        >
+          <upw-markdown
+            v-if="product?.short_description"
+            :model-value="product.short_description"
+          />
+        </upw-lineclamp>
       </header>
 
       <!-- content -->
@@ -177,6 +187,8 @@ import {
   UpwButton,
   UpwQuantitybox,
   UpwSpinner,
+  UpwMarkdown,
+  UpwLineclamp,
 } from "@upmind/upwind";
 import UpmConfigGrid from "./ConfigGrid.vue";
 import UpmConfigNested from "./ConfigNested.vue";
@@ -197,6 +209,8 @@ export default defineComponent({
     UpmConfigGrid,
     UpmConfigNested,
     UpmConfigForm,
+    UpwMarkdown,
+    UpwLineclamp,
   },
   props: {
     modelValue: {
@@ -289,7 +303,14 @@ export default defineComponent({
       isNil,
     };
   },
-  computed: {},
+  computed: {
+    productImage() {
+      if (!this.product?.image?.full_url) return null;
+      const url = new URL(this.product.image.full_url);
+      url.searchParams.set("size", "400x400");
+      return url.toString();
+    },
+  },
 });
 </script>
 .

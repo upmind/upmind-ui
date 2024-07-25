@@ -1,5 +1,5 @@
 <template>
-  <div class="message flex flex-col gap-2 rounded border border-base-300 p-4">
+  <div class="message flex flex-col gap-2 rounded border p-4">
     <h3 class="wrap m-0 whitespace-normal text-inherit" v-if="message.title">
       {{ message.title }}
     </h3>

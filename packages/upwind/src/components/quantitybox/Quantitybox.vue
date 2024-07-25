@@ -66,7 +66,7 @@
 // --- external
 import { defineComponent, computed } from "vue";
 
-// --- local
+// --- internal
 import config from "./config.cva";
 
 // --- components
