@@ -1,11 +1,11 @@
 <template>
   <div :class="styles.domain.root">
     <!-- loader -->
-
-    <pre>{{ meta }}</pre>
+    <!-- <pre>{{ meta }}</pre> -->
 
     <!-- type -->
     <upw-radio-list
+      :class="styles.domain.choices"
       v-if="meta.showChoices"
       :items="choices"
       :model-value="choice"
@@ -14,9 +14,10 @@
 
     <!-- register/transfer -->
     <upw-textbox
-      v-if="meta.showRegister"
+      v-if="meta.showRegister || meta.showTransfer"
+      :class="styles.domain.search"
       @update:modelValue="search"
-      prependIcon="MagnifyingGlassIcon"
+      prependIcon="domain-search"
       placeholder="Find your pefect domain &hellip;"
       :autofocus="meta.showRegister"
       autocomplete="url"
@@ -32,22 +33,19 @@
       </template>
     </upw-textbox>
 
-    <upw-textbox
-      v-if="meta.showTransfer"
-      @update:modelValue="search"
-      prependIcon="MagnifyingGlassIcon"
-      placeholder="Search for the domain to Transfer &hellip;"
-      :autofocus="meta.showTransfer"
-      autocomplete="url"
-    >
-      <template #append>
-        <upw-button label="Search" :loading="meta.isSearching" />
-      </template>
-    </upw-textbox>
-
     <!-- basket -->
 
     <!-- external -->
+
+    <!-- INPUT -->
+    <upm-domain-listings
+      v-if="meta.showRegister || meta.showTransfer"
+      :model-value="selected"
+      :items="available"
+      :loading="meta.isSearching"
+      :processing="meta.isSyncing"
+      @change="toggle"
+    />
   </div>
 </template>
 
@@ -67,6 +65,7 @@ import {
 import config from "./config.cva";
 
 // --- components
+import UpmDomainListings from "./Listings.vue";
 
 // --- utils
 import { debounce } from "lodash-es";
@@ -76,7 +75,7 @@ import { debounce } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmDomain",
-  components: { UpwRadioList, UpwTextbox, UpwButton },
+  components: { UpwRadioList, UpwTextbox, UpwButton, UpmDomainListings },
   props: {
     sync: { type: Boolean, default: true },
     type: {
@@ -86,10 +85,6 @@ export default defineComponent({
     },
     parentId: { type: String },
     // ---
-    limit: {
-      type: Number,
-      default: 10,
-    },
   },
   setup(props) {
     const {
@@ -97,10 +92,10 @@ export default defineComponent({
       // ---
       choices,
       // values,
-      // selected,
+      selected,
       type,
       query,
-      // available,
+      available,
       // errors,
       // primaryDomain,
       // ---
@@ -110,7 +105,7 @@ export default defineComponent({
       search,
       // add,
       // remove,
-      // toggle,
+      toggle,
       // setPrimaryDomain,
       // isSelected,
       // destroy,
@@ -122,13 +117,15 @@ export default defineComponent({
     return {
       meta,
       choices,
+      selected,
+      available,
       // ---
       choice: type,
       query,
       // ---
       choose,
       search: debounce(search, 500),
-
+      toggle,
       // ---
       styles,
       mergeStyles,
