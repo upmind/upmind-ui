@@ -13,7 +13,7 @@
 
       <div :class="styles.domains.section.wrapper">
         <div :class="styles.domains.section.content">
-          <upm-domain sync @update:modelValue="setSelected" />
+          <upm-domain :sync="false" @update:modelValue="setSelected" />
         </div>
       </div>
 

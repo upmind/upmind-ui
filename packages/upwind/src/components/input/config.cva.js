@@ -101,7 +101,10 @@ export default {
         },
       },
     }),
-    appendWrapper: cva("flex items-start gap-3 px-2 empty:hidden", {
+
+    control: cva("flex w-full flex-1 items-start"),
+
+    appendWrapper: cva("flex flex-1 items-start gap-3 px-2 empty:hidden", {
       variants: {
         isDisabled: {
           true: "bg-base-100",

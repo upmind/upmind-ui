@@ -42,12 +42,24 @@
         v-if="computedIcon"
       />
     </span>
+    <!-- expose our core input slots -->
+    <template #label="slotProps">
+      <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+    </template>
+
+    <template #prepend="slotProps">
+      <slot name="prepend" v-bind="{ meta, ...slotProps }"></slot>
+    </template>
+
+    <template #append="slotProps">
+      <slot name="append" v-bind="{ meta, ...slotProps }"></slot>
+    </template>
   </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -120,6 +132,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // ---
+    noInput: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
@@ -131,6 +144,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const meta = computed(() => ({
       size: props.size,
+      noInput: props.noInput,
       // ---
       isDisabled: props.disabled,
       isProcessing: props.processing,
