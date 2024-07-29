@@ -7,8 +7,7 @@ import { DomainTypes } from "./types.d";
 
 // --- utils
 import { useBasketHelper } from "..";
-import { parseDomain } from "./utils";
-import { has, find, set } from "lodash-es";
+import { has, find } from "lodash-es";
 
 // --------------------------------------------------------
 

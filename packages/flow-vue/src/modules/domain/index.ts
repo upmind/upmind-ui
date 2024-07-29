@@ -8,7 +8,7 @@ import { useActor } from "@xstate/vue";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find } from "lodash-es";
+import { map, some, find, isArray, isEmpty } from "lodash-es";
 
 // --- types
 
@@ -61,6 +61,14 @@ export const useDomain = (
     });
   };
 
+  const update = (values: Array<string>) => {
+    // NB: nsure we have an array of strings
+    send({
+      type: "UPDATE",
+      data: isArray(values) ? values : [values],
+    });
+  };
+
   const add = (value: string) => {
     send({
       type: "ADD",
@@ -99,7 +107,12 @@ export const useDomain = (
     values: computed(() => state.value.context.values),
     selected: computed(() => map(state.value.context.values, "domain")),
     type: computed(() => state.value.context.type),
-    available: computed(() => state.value.context.available),
+    available: computed(() =>
+      map(state.value.context.available, item => {
+        item.value = item.domain;
+        return item;
+      })
+    ),
     errors: computed(() => state.value.context?.error),
     primaryDomain: computed(() =>
       find(state.value.context?.values, "is_primary")
@@ -164,6 +177,7 @@ export const useDomain = (
     add,
     remove,
     toggle,
+    update,
     setPrimaryDomain,
     isSelected: (value: string) => state.value.matches(value),
     destroy: domain.destroy,

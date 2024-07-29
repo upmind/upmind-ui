@@ -68,7 +68,8 @@ export interface Typegen0 {
       | "REFRESH"
       | "REMOVE"
       | "SEARCH"
-      | "SYNC";
+      | "SYNC"
+      | "UPDATE";
     checkChoices: "CHOOSE" | "STOP" | "xstate.init";
     clearAvailable:
       | ""
@@ -77,6 +78,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "REMOVE"
       | "SYNC"
+      | "UPDATE"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     clearError:
@@ -86,6 +88,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "REMOVE"
       | "SYNC"
+      | "UPDATE"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     newController:
@@ -95,6 +98,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "REMOVE"
       | "SYNC"
+      | "UPDATE"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     remove: "REMOVE";
@@ -109,6 +113,7 @@ export interface Typegen0 {
     setPrimary: "SELECT";
     setSearch: "SEARCH";
     setType: "CHOOSE";
+    setValues: "UPDATE";
     sync: "SYNC";
   };
   eventsCausingDelays: {
@@ -116,7 +121,7 @@ export interface Typegen0 {
     wait: "SEARCH" | "SELECT";
   };
   eventsCausingGuards: {
-    hasAvailable: "ADD";
+    hasAvailable: "ADD" | "UPDATE";
     hasNoValues: "";
     hasValues: "" | "REMOVE" | "SELECT";
     isBasket: "CHOOSE";
@@ -134,7 +139,14 @@ export interface Typegen0 {
     isValidSearch: "SEARCH";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "ADD" | "CHOOSE" | "REFRESH" | "REMOVE" | "SYNC";
+    getClientDomains:
+      | ""
+      | "ADD"
+      | "CHOOSE"
+      | "REFRESH"
+      | "REMOVE"
+      | "SYNC"
+      | "UPDATE";
     search:
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";

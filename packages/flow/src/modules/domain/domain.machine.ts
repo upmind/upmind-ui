@@ -8,13 +8,15 @@ const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useTime } from "../../utils";
 import {
-  isEmpty,
-  reject,
   find,
-  some,
   has,
+  isEmpty,
+  isObject,
   map,
   omit,
+  reduce,
+  reject,
+  some,
   unionBy,
 } from "lodash-es";
 
@@ -103,7 +105,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
-            entry: ["cancelController", "clearAvailable", "clearError"],
+            entry: ["cancelController", "clearError"],
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
@@ -156,9 +158,14 @@ export default createMachine(
             cond: "hasAvailable",
           },
           REMOVE: {
-            target: "#register.available",
+            target: "#register.valid",
             actions: ["remove"],
             cond: "hasValues",
+          },
+          UPDATE: {
+            target: "#register.valid",
+            actions: ["setValues"],
+            cond: "hasAvailable",
           },
           SEARCH: [
             {
@@ -180,7 +187,7 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {
-            entry: ["cancelController", "clearAvailable", "clearError"],
+            entry: ["cancelController", "clearError"],
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
@@ -233,9 +240,14 @@ export default createMachine(
             cond: "hasAvailable",
           },
           REMOVE: {
-            target: "#transfer.available",
+            target: "#transfer.valid",
             actions: ["remove"],
             cond: "hasValues",
+          },
+          UPDATE: {
+            target: "#transfer.valid",
+            actions: ["setValues"],
+            cond: "hasAvailable",
           },
           SEARCH: {
             target: ".processing",
@@ -316,9 +328,14 @@ export default createMachine(
             },
           ],
           REMOVE: {
-            target: "#existing.available",
+            target: "#existing.valid",
             actions: ["remove"],
             cond: "hasValues",
+          },
+          UPDATE: {
+            target: "#existing.valid",
+            actions: ["setValues"],
+            cond: "hasAvailable",
           },
           SYNC: { target: "#existing.syncing" },
           REFRESH: { target: "#existing.available" },
@@ -418,7 +435,9 @@ export default createMachine(
     actions: {
       checkChoices: assign({
         choices: ({ choices, sync }) => {
-          if (!sync) return omit(choices, "basket");
+          if (!sync) {
+            return omit(choices, "basket");
+          }
           return choices;
         },
       }),
@@ -500,6 +519,36 @@ export default createMachine(
             newValues[0].is_primary = true;
           }
           return newValues;
+        },
+      }),
+
+      setValues: assign({
+        values: ({ values, available }: DomainContext, { data }: AddEvent) => {
+          // check if we already have the domain
+          return reduce(
+            data,
+            (result, item) => {
+              // parse the domain name provided
+              const value = (
+                isObject(item) ? item?.domain : item
+              ).toLowerCase();
+
+              // Then look for the domain in our existing values
+              let domain = find(values, ["domain", value]);
+
+              // if we dont then add it to our list of values, if it exists in available
+              domain ??= find(available, ["domain", value]);
+
+              // if  we have a valid, hydrated domain then add it to our list of values
+              if (domain) {
+                domain.is_primary = !some(values, "is_primary"); //  ensure we have a primary domain
+                result.push(domain);
+              }
+
+              return result;
+            },
+            []
+          );
         },
       }),
 

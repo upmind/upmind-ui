@@ -2,6 +2,7 @@
   <upw-input
     :id="id"
     :label="label"
+    :text="text"
     :description="description"
     :errors="errors"
     :size="size"
@@ -38,13 +39,14 @@
           :processing="meta.isProcessing"
           :model-value="isSelected(item.value)"
           :upwind-config="{ input: config.checkboxlist.checkbox }"
+          :no-input="noInput"
           no-status
           no-feedback
           @change="onChange"
         >
           <!-- expose our core input slots -->
           <template #label="slotProps">
-            <slot name="label" v-bind="{ item, ...slotProps }" />
+            <slot name="label" v-bind="{ item, ...slotProps }"></slot>
           </template>
 
           <template #prepend="slotProps">
@@ -62,7 +64,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -146,6 +148,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // ---
+    noInput: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },

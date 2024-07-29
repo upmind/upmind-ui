@@ -73,31 +73,33 @@
         </slot>
       </span>
 
-      <!-- main slot where actual input gets injected -->
-      <slot v-bind="{ meta, styles: styles.input, size }"></slot>
+      <span :class="styles.input.control">
+        <!-- main slot where actual input gets injected -->
+        <slot v-bind="{ meta, styles: styles.input, size }"></slot>
 
-      <!-- conditionally add our label for inline inputs -->
-      <upw-label
-        v-if="meta.isInline"
-        :id="id"
-        :text="label"
-        :alt-text="text"
-        :requiredText="requiredText"
-        :optionalText="optionalText"
-        :noRequired="noRequired"
-        :noStatus="noStatus"
-        :required="meta.isRequired"
-        :dirty="meta.isDirty"
-        :invalid="meta.isInvalid"
-        :disabled="meta.isDisabled"
-        :size="size"
-        :noLabel="noLabel"
-        :upwindConfig="[config, upwindConfig]"
-      >
-        <template #default="slotProps">
-          <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
-        </template>
-      </upw-label>
+        <!-- conditionally add our label for inline inputs -->
+        <upw-label
+          v-if="meta.isInline"
+          :id="id"
+          :text="label"
+          :alt-text="text"
+          :requiredText="requiredText"
+          :optionalText="optionalText"
+          :noRequired="noRequired"
+          :noStatus="noStatus"
+          :required="meta.isRequired"
+          :dirty="meta.isDirty"
+          :invalid="meta.isInvalid"
+          :disabled="meta.isDisabled"
+          :size="size"
+          :noLabel="noLabel"
+          :upwindConfig="[config, upwindConfig]"
+        >
+          <template #default="slotProps">
+            <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+          </template>
+        </upw-label>
+      </span>
 
       <!-- append slot -->
       <span :class="styles.input.appendWrapper">

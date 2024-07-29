@@ -17,21 +17,12 @@
       v-if="meta.showRegister || meta.showTransfer"
       :class="styles.domain.search"
       @update:modelValue="search"
-      prependIcon="domain-search"
+      prependIcon="search"
       placeholder="Search for your domain &hellip;"
-      :autofocus="meta.showRegister"
+      autofocus
       autocomplete="url"
       :model-value="query"
-    >
-      <template #append>
-        <upw-button
-          label="Search"
-          :loading="meta.isSearching"
-          variant="ghost"
-          size="sm"
-        />
-      </template>
-    </upw-textbox>
+    />
 
     <!-- basket -->
 
@@ -44,8 +35,11 @@
       :items="available"
       :loading="meta.isSearching"
       :processing="meta.isSyncing"
-      @change="toggle"
+      @update:modelValue="doSelect"
+      :multiple="multiple"
     />
+
+    <pre>{{ meta }}</pre>
   </div>
 </template>
 
@@ -77,13 +71,14 @@ export default defineComponent({
   name: "UpmDomain",
   components: { UpwRadioList, UpwTextbox, UpwButton, UpmDomainListings },
   props: {
-    sync: { type: Boolean, default: true },
+    sync: { type: Boolean, default: false },
     type: {
       type: String,
       validator: value =>
         ["register", "transfer", "existing", "basket"].includes(value),
     },
     parentId: { type: String },
+    multiple: { type: Boolean, default: true },
     // ---
   },
   setup(props) {
@@ -103,9 +98,11 @@ export default defineComponent({
       // ---
       choose,
       search,
+      update,
+      toggle,
       // add,
       // remove,
-      toggle,
+      // toggle,
       // setPrimaryDomain,
       // isSelected,
       // destroy,
@@ -125,6 +122,7 @@ export default defineComponent({
       // ---
       choose,
       search: debounce(search, 500),
+      update,
       toggle,
       // ---
       styles,
@@ -133,7 +131,11 @@ export default defineComponent({
   },
   computed: {},
 
-  methods: {},
+  methods: {
+    doSelect(value) {
+      this.update(value);
+    },
+  },
 });
 </script>
 .

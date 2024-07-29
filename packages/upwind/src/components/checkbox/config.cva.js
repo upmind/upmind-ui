@@ -10,6 +10,9 @@ export default {
           md: "size-6",
           lg: "size-7",
         },
+        noInput: {
+          true: "visibility-hidden h-0 w-0 opacity-0",
+        },
         isDisabled: {
           true: "cursor-not-allowed",
         },
@@ -22,7 +25,7 @@ export default {
       },
     }),
     input: cva(
-      " cursor-inherit appearance-none rounded border text-inherit outline-none ring-0",
+      "cursor-inherit appearance-none rounded border text-inherit outline-none ring-0",
       {
         variants: {
           size: {

@@ -41,9 +41,23 @@
           :processing="meta.isProcessing"
           :model-value="isSelected(item.value)"
           :upwind-config="{ input: config.radiolist.radio }"
+          :no-input="noInput"
           no-status
           no-feedback
-        />
+        >
+          <!-- expose our core input slots -->
+          <template #label="slotProps">
+            <slot name="label" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+
+          <template #prepend="slotProps">
+            <slot name="prepend" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+
+          <template #append="slotProps">
+            <slot name="append" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+        </upw-radio>
       </h-radio-group-option>
     </h-radio-group>
   </upw-input>
@@ -129,6 +143,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // ---
+    noInput: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },

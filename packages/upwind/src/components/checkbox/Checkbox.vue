@@ -2,6 +2,7 @@
   <upw-input
     :id="id"
     :label="label"
+    :text="text"
     :description="description"
     :errors="errors"
     :size="size"
@@ -92,6 +93,7 @@ export default defineComponent({
       default: () => "checkbox-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
     errors: { type: String },
     // ---
@@ -133,6 +135,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // ---
+    noInput: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
@@ -144,6 +147,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const meta = computed(() => ({
       size: props.size,
+      noInput: props.noInput,
       // ---
       isDisabled: props.disabled,
       isProcessing: props.processing,
