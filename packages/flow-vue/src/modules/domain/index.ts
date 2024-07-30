@@ -8,7 +8,7 @@ import { useActor } from "@xstate/vue";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find, isArray } from "lodash-es";
+import { map, some, find, isArray, first } from "lodash-es";
 
 // --- types
 
@@ -105,7 +105,18 @@ export const useDomain = (
     ),
     query: computed(() => state.value.context.search),
     values: computed(() => state.value.context.values),
-    selected: computed(() => map(state.value.context.values, "domain")),
+    selected: computed(() => {
+      switch (state.value.context.type) {
+        case "existing":
+          return first(map(state.value.context.values, "domain"));
+
+        default:
+          return map(state.value.context.values, "domain");
+      }
+      let value;
+
+      return value;
+    }),
     type: computed(() => state.value.context.type),
     available: computed(() =>
       map(state.value.context.available, item => {

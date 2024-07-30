@@ -73,7 +73,10 @@
         </slot>
       </span>
 
-      <span :class="styles.input.control">
+      <span
+        :class="styles.input.control"
+        v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+      >
         <!-- main slot where actual input gets injected -->
         <slot v-bind="{ meta, styles: styles.input, size }"></slot>
 
@@ -178,7 +181,8 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref, watch } from "vue";
+import { vIntersectionObserver } from "@vueuse/components";
 
 // --- components
 import UpwIcon from "../icon/Icon.vue";
@@ -189,7 +193,7 @@ import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty } from "lodash-es";
+import { has, isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -201,6 +205,7 @@ export default defineComponent({
     UpwIcon,
     UpwLabel,
   },
+  directives: { "intersection-observer": vIntersectionObserver },
   props: {
     id: { type: String },
     label: { type: String },
@@ -234,6 +239,7 @@ export default defineComponent({
       default: "outlined",
     },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
@@ -248,6 +254,8 @@ export default defineComponent({
     upwindConfig: { type: Object },
   },
   setup(props) {
+    const target = ref();
+
     const meta = computed(() => ({
       layout: props.layout,
       variant: props.variant,
@@ -271,13 +279,33 @@ export default defineComponent({
       ["input", "input.feedback"],
       meta,
       config,
+      target,
       props.upwindConfig
     );
+
+    function maybeFocus([section]) {
+      if (props.autofocus && section.isIntersecting) {
+        let el = section.target;
+        if (
+          !["input", "textarea", "select", "button"].includes(
+            el.tagName.toLowerCase()
+          )
+        ) {
+          el = el.querySelector("input");
+        }
+        if (el.getAttribute("tabindex")) {
+          el.setAttribute("tabindex", -1);
+        }
+        el.focus();
+      }
+    }
 
     return {
       meta,
       config,
       styles,
+      target,
+      maybeFocus,
     };
   },
 });

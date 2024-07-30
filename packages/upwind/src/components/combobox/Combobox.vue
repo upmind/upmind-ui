@@ -14,6 +14,7 @@
         :prepend-icon="displayIcon"
         :prepend-text="prependText"
         :feedback-icon="feedbackIcon"
+        :autofocus="autofocus"
         :dirty="meta.isDirty"
         :disabled="meta.isDisabled"
         :visible="meta.isVisible"
@@ -96,13 +97,8 @@
                   selected ? styles.combobox.item.selected : '',
                 ]"
               >
-                <upw-icon
-                  :class="styles.combobox.item.icon"
-                  aria-hidden="true"
-                />
-
                 <span :class="styles.combobox.item.label">{{
-                  queryResult.label
+                  queryResult[itemLabel]
                 }}</span>
 
                 <upw-icon
@@ -151,7 +147,7 @@
                 v-else-if="item?.as == 'button'"
                 as="template"
                 v-slot="{ active, selected }"
-                :value="item[itemValue]"
+                :value="item"
                 :disabled="item?.disabled"
               >
                 <li :class="styles.combobox.item.root">
@@ -168,7 +164,7 @@
                 v-else
                 as="template"
                 v-slot="{ active, selected }"
-                :value="item[itemValue]"
+                :value="item"
                 :disabled="item?.disabled"
               >
                 <li
@@ -257,7 +253,7 @@ import {
 
 // --- types
 import type { PropType } from "vue";
-import type { ComboboxItem, ComboboxPosition } from "./types";
+import type { ComboboxPosition } from "./types";
 import type { InputProps, IconProps } from "../input/types";
 
 // ----------------------------------------------
@@ -335,6 +331,7 @@ export default defineComponent({
       type: [Function, Promise],
     },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
@@ -354,7 +351,6 @@ export default defineComponent({
     const input = ref(null);
     const processing = ref(false);
     const results = ref(props.items || []);
-
     // ---
     const meta = computed(() => ({
       size: props.size,
@@ -440,7 +436,6 @@ export default defineComponent({
         "class",
         "value",
         "readonly",
-        "autofocus",
         "placeholder",
         "tabindex",
         "maxlength",
@@ -455,30 +450,29 @@ export default defineComponent({
       return this.input &&
         !this.meta.isProcessing &&
         !some(this.results, [this.itemValue, this.input])
-        ? { value: this.input, label: this.input }
+        ? { [this.itemValue]: this.input, [this.itemLabel]: this.input }
         : null;
     },
 
     displayValue() {
-      const selected = find(this.results, [this.itemValue, this.value]);
-      const value = get(selected, this.itemLabel, "");
+      // const selected = find(this.results, [this.itemValue, this.value]);
+      const value = get(this.value, this.itemLabel);
       return value;
     },
     displayIcon() {
-      const selected = find(this.items, ["value", this.value]);
+      const selected = find(this.items, [this.itemValue, this.value]);
       return this.prependIcon || selected?.icon;
     },
     displayAvatar() {
-      const selected = find(this.items, ["value", this.value]);
+      const selected = find(this.items, [this.itemValue, this.value]);
       return this.prependAvatar || selected?.avatar;
     },
   },
 
   watch: {
-    modelValue(value) {
-      this.value = value;
-    },
     value(value) {
+      value = get(value, this.itemValue, value); // safetycheck in case we get an object
+
       this.$emit("update:modelValue", value);
 
       // forward the event to our form renderer that will trigger the update
