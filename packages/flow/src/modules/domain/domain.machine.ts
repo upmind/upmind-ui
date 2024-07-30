@@ -153,17 +153,17 @@ export default createMachine(
         },
         on: {
           ADD: {
-            target: "#register.valid",
+            target: ".valid",
             actions: ["add"],
             cond: "hasAvailable",
           },
           REMOVE: {
-            target: "#register.valid",
+            target: ".valid",
             actions: ["remove"],
             cond: "hasValues",
           },
           UPDATE: {
-            target: "#register.valid",
+            target: ".valid",
             actions: ["setValues"],
             cond: "hasAvailable",
           },
@@ -177,8 +177,11 @@ export default createMachine(
               actions: ["setSearch"],
             },
           ],
-          SYNC: { target: "#register.syncing" },
-          REFRESH: { target: "#register.available" },
+          SYNC: { target: ".syncing" },
+          REFRESH: {
+            target: ".processing",
+            actions: ["setCurrency", "setPromotions"],
+          },
         },
       },
 
@@ -235,17 +238,17 @@ export default createMachine(
         },
         on: {
           ADD: {
-            target: "#transfer.valid",
+            target: ".valid",
             actions: ["add"],
             cond: "hasAvailable",
           },
           REMOVE: {
-            target: "#transfer.valid",
+            target: ".valid",
             actions: ["remove"],
             cond: "hasValues",
           },
           UPDATE: {
-            target: "#transfer.valid",
+            target: ".valid",
             actions: ["setValues"],
             cond: "hasAvailable",
           },
@@ -254,8 +257,11 @@ export default createMachine(
             actions: ["setSearch"],
             cond: "isValidSearch",
           },
-          SYNC: { target: "#transfer.syncing" },
-          REFRESH: { target: "#transfer.available" },
+          SYNC: { target: ".syncing" },
+          REFRESH: {
+            target: ".processing",
+            actions: ["setCurrency", "setPromotions"],
+          },
         },
       },
 
@@ -333,12 +339,15 @@ export default createMachine(
             cond: "hasValues",
           },
           UPDATE: {
-            target: "#existing.valid",
+            target: ".valid",
             actions: ["setValues"],
             cond: "hasAvailable",
           },
-          SYNC: { target: "#existing.syncing" },
-          REFRESH: { target: "#existing.available" },
+          SYNC: { target: ".syncing" },
+          REFRESH: {
+            target: ".loading",
+            actions: ["setCurrency", "setPromotions"],
+          },
         },
       },
 
@@ -375,13 +384,16 @@ export default createMachine(
         on: {
           SELECT: [
             {
-              target: "#basket.updating",
+              target: ".updating",
               actions: ["setPrimary"],
               cond: "hasValues",
             },
           ],
-          SYNC: { target: "#basket.syncing" },
-          REFRESH: { target: "#basket.valid" },
+          SYNC: { target: ".syncing" },
+          REFRESH: {
+            target: ".valid",
+            actions: ["setCurrency", "setPromotions"],
+          },
         },
       },
 
@@ -441,10 +453,19 @@ export default createMachine(
           return choices;
         },
       }),
+
       setType: assign({
         type: (_context, { data }) => data,
       }),
 
+      setCurrency: assign({
+        currency: (_context, { data }) => data?.currency,
+      }),
+
+      setPromotions: assign({
+        promotions: (_context, { data }) => data?.promotions,
+      }),
+      // ---
       sync: assign({
         values: ({ values }, { data }) => {
           // merge the values and data, preserving any existing properties in values
@@ -609,16 +630,16 @@ export default createMachine(
 
       // ---
       setSuccess: (_context, _event) => {
-        addSuccess("Successfully set Domain");
+        // addSuccess("Successfully set Domain");
       },
 
       setError: assign({
         error: (_context, { data }) => {
-          addError({
-            title: data?.title || "We experienced an error getting domains",
-            copy: data?.message,
-            data: data?.data,
-          });
+          // addError({
+          //   title: data?.title || "We experienced an error getting domains",
+          //   copy: data?.message,
+          //   data: data?.data,
+          // });
 
           return data;
         },

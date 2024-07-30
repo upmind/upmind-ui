@@ -9,6 +9,7 @@ import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
 import { map, some, find, isArray, isEmpty } from "lodash-es";
+import { useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- types
 

@@ -12,25 +12,36 @@ export default {
     },
     card: {
       root: cva(""),
-      available: cva("text-primary size-5 "),
-      unavailable: cva("text-secondary size-5"),
       underline: cva("underline underline-offset-8"),
       label: cva("m-0 flex w-full flex-col pr-4"),
       title: cva("m-0 text-xl font-medium leading-normal tracking-wide"),
       text: cva(
         "items-cnter text-base-700 m-0 inline inline-flex gap-2 text-xs font-normal leading-5"
       ),
-      price: cva(
-        "m-0 self-center text-center text-2xl font-semibold tracking-wide"
-      ),
-      discount: cva("text-base-500 text-md block font-normal line-through"),
-      button: cva("self-center"),
+
       // ---
       footer: cva(
         "text-base-700 m-0 flex w-full w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
-      content: cva("inline-flex items-end gap-1"),
       actions: cva("min-w-48"),
+      transfer: {
+        root: cva("m-0 items-end"),
+        ownership: cva("font-medium"),
+        price: cva("not-italic"),
+        tld: cva("uppercase not-italic"),
+        label: cva("text-secondary size-5"),
+        discount: cva("text-base-500 text-md block font-normal line-through"),
+        action: cva(""),
+      },
+      available: {
+        root: cva("m-0 items-end"),
+        ownership: cva("font-medium"),
+        price: cva("m-0 text-2xl font-semibold not-italic tracking-wide"),
+        tld: cva("uppercase not-italic"),
+        label: cva("text-primary size-5 "),
+        discount: cva("text-base-500 text-md block font-normal line-through"),
+        action: cva(""),
+      },
     },
     empty: {
       root: cva(
