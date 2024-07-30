@@ -11,19 +11,22 @@ import {
   find,
   has,
   isEmpty,
-  isObject,
   map,
   omit,
   reduce,
   reject,
   some,
   unionBy,
+  uniqBy,
 } from "lodash-es";
+
+// ---utils
+import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
+import { isArray } from "lodash-es";
 
 // --- types
 import { DomainTypes } from "./types.d";
 import type { DomainContext, AddEvent, RemoveEvent } from "./types.d";
-import { parseDomain, parseDomainItem } from "./utils";
 
 // --------------------------------------------------------
 
@@ -33,7 +36,7 @@ export default createMachine(
     tsTypes: {} as import("./domain.machine.typegen").Typegen0,
     id: "domainManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "idle",
     context: {
       choices: DomainTypes,
       type: null,
@@ -52,50 +55,28 @@ export default createMachine(
       error: null,
     } as DomainContext,
     states: {
-      loading: {
-        entry: ["checkChoices"],
-        always: [
-          {
-            target: "#existing.valid",
-            actions: assign({ type: () => "existing" }),
-            cond: "isExistingPrimaryDomain",
-          },
-          {
-            target: "basket",
-            actions: assign({ type: () => "basket" }),
-            cond: ({ sync, values }) => !sync && !!values.length,
-          },
-          {
-            target: "idle",
-            cond: ({ sync }) => !sync,
-          },
-        ],
-        on: {
-          SYNC: { actions: ["sync"] },
-        },
-      },
-
       // our initial state depends on if the machine has been forced to a type,
       // if we do then go to that types state, otherwise stay idle
       idle: {
+        entry: ["checkChoices"],
         id: "idle",
         always: [
           {
             target: "register",
-            cond: ({ type, sync }) => !sync && type === "register",
+            cond: ({ type }) => type === "register",
           },
           {
             target: "transfer",
-            cond: ({ type, sync }) => !sync && type === "transfer",
+            cond: ({ type }) => type === "transfer",
           },
 
           {
             target: "existing",
-            cond: ({ type, sync }) => !sync && type === "existing",
+            cond: ({ type }) => type === "existing",
           },
           {
             target: "basket",
-            cond: ({ type, sync }) => !sync && type === "basket",
+            cond: ({ type }) => type === "basket",
           },
         ],
       },
@@ -130,6 +111,9 @@ export default createMachine(
                       actions: ["setError"],
                       cond: "isNotCancelled",
                     },
+                    {
+                      actions: ["setError"],
+                    },
                   ],
                 },
               },
@@ -148,15 +132,16 @@ export default createMachine(
               cond: "hasNoValues",
             },
           },
-          syncing: {},
           error: {},
         },
         on: {
-          ADD: {
-            target: ".valid",
-            actions: ["add"],
-            cond: "hasAvailable",
-          },
+          ADD: [
+            {
+              target: ".valid",
+              actions: ["add"],
+              cond: "isValidDomain",
+            },
+          ],
           REMOVE: {
             target: ".valid",
             actions: ["remove"],
@@ -165,7 +150,6 @@ export default createMachine(
           UPDATE: {
             target: ".valid",
             actions: ["setValues"],
-            cond: "hasAvailable",
           },
           SEARCH: [
             {
@@ -177,7 +161,6 @@ export default createMachine(
               actions: ["setSearch"],
             },
           ],
-          SYNC: { target: ".syncing" },
           REFRESH: {
             target: ".processing",
             actions: ["setCurrency", "setPromotions"],
@@ -233,15 +216,16 @@ export default createMachine(
               cond: "hasNoValues",
             },
           },
-          syncing: {},
           error: {},
         },
         on: {
-          ADD: {
-            target: ".valid",
-            actions: ["add"],
-            cond: "hasAvailable",
-          },
+          ADD: [
+            {
+              target: ".valid",
+              actions: ["add"],
+              cond: "isValidDomain",
+            },
+          ],
           REMOVE: {
             target: ".valid",
             actions: ["remove"],
@@ -250,14 +234,12 @@ export default createMachine(
           UPDATE: {
             target: ".valid",
             actions: ["setValues"],
-            cond: "hasAvailable",
           },
           SEARCH: {
             target: ".processing",
             actions: ["setSearch"],
             cond: "isValidSearch",
           },
-          SYNC: { target: ".syncing" },
           REFRESH: {
             target: ".processing",
             actions: ["setCurrency", "setPromotions"],
@@ -266,6 +248,7 @@ export default createMachine(
       },
 
       existing: {
+        entry: ["clearValues"],
         id: "existing",
         initial: "loading",
         states: {
@@ -312,25 +295,18 @@ export default createMachine(
           valid: {
             type: "final",
             always: {
-              target: "available",
+              target: "idle",
               cond: "hasNoValues",
             },
           },
-          syncing: {},
           error: {},
         },
         on: {
           ADD: [
             {
-              target: "#existing.valid",
-              actions: ["addExisting"],
+              target: ".valid",
+              actions: ["add"],
               cond: "isValidDomain",
-            },
-            {
-              target: "#existing.error",
-              meta: {
-                message: "Invalid domain name",
-              },
             },
           ],
           REMOVE: {
@@ -340,15 +316,14 @@ export default createMachine(
           },
           UPDATE: {
             target: ".valid",
-            actions: ["setValues"],
-            cond: "hasAvailable",
+            actions: ["clearValues", "setValues"],
           },
-          SYNC: { target: ".syncing" },
           REFRESH: {
             target: ".loading",
             actions: ["setCurrency", "setPromotions"],
           },
         },
+        exit: ["clearValues"],
       },
 
       basket: {
@@ -372,7 +347,6 @@ export default createMachine(
               wait: "loading",
             },
           },
-          syncing: {},
           valid: {
             type: "final",
             always: {
@@ -389,7 +363,6 @@ export default createMachine(
               cond: "hasValues",
             },
           ],
-          SYNC: { target: ".syncing" },
           REFRESH: {
             target: ".valid",
             actions: ["setCurrency", "setPromotions"],
@@ -471,7 +444,7 @@ export default createMachine(
           // merge the values and data, preserving any existing properties in values
           const domains = unionBy(
             map(data, item => {
-              let domain = parseDomainItem(item);
+              let domain = parseBasketItem(item);
               // merge any existing values with the new data
               const exists = find(values, ["domain", domain.domain]);
               if (exists) {
@@ -495,42 +468,16 @@ export default createMachine(
 
       add: assign({
         values: ({ values, available }: DomainContext, { data }: AddEvent) => {
-          // check if we already have the domain
-          let domain = find(values, ["domain", data.toLowerCase()]);
-
-          // if we dont then add it to our list of values, if it exists in available
-          if (!domain) {
-            domain = find(available, ["domain", data.toLowerCase()]);
-
-            if (domain) values.push(domain);
-          }
-
+          const domain = parseValue(data, values, available);
           // check in case...
-          if (domain) domain.is_primary = !some(values, "is_primary");
-
-          return values;
-        },
-      }),
-
-      addExisting: assign({
-        values: ({ values }: DomainContext, { data }: AddEvent) => {
-          // check if we already have the domain
-          let domain = some(values, ["domain", data]);
-
-          // if we dont then add it to our list of values, if it exists in available
-          // NB: existing domains will always be 1 value, so we can just replace it
-          if (!domain) {
-            domain = parseDomain(data);
-            domain.is_primary = true;
-            values = [domain];
+          // ensure we have at least one primary domain
+          if (domain) {
+            domain.is_primary = !some(values, "is_primary");
+            values.push(domain);
           }
 
           return values;
         },
-        // reset all the search/available vars, as we dont show any available domains
-        search: "",
-        offset: 0,
-        total: 0,
       }),
 
       remove: assign({
@@ -549,30 +496,24 @@ export default createMachine(
           return reduce(
             data,
             (result, item) => {
-              // parse the domain name provided
-              const value = (
-                isObject(item) ? item?.domain : item
-              ).toLowerCase();
+              const domain = parseValue(item, values, available);
 
-              // Then look for the domain in our existing values
-              let domain = find(values, ["domain", value]);
-
-              // if we dont then add it to our list of values, if it exists in available
-              domain ??= find(available, ["domain", value]);
-
-              // if  we have a valid, hydrated domain then add it to our list of values
+              // ensure we have at least one primary domain
               if (domain) {
-                domain.is_primary = !some(values, "is_primary"); //  ensure we have a primary domain
+                domain.is_primary = !some(values, "is_primary");
                 result.push(domain);
               }
-
               return result;
             },
             []
           );
         },
       }),
-
+      clearValues: assign({
+        values: (_context, _event) => {
+          return [];
+        },
+      }),
       cancelController: assign({
         controller: ({ controller }) => {
           if (controller?.signal && !controller.signal?.aborted) {
@@ -658,16 +599,12 @@ export default createMachine(
       },
 
       isValidDomain: (_context, { data }) => {
-        const value = parseDomain(data);
-        return !!value?.sld && !!value?.tld;
+        return !isEmpty(parseDomain(data));
       },
 
       isValidSearch: (_context, { data }) => {
-        return data?.domain?.length > 2;
-      },
-
-      hasAvailable: ({ available }) => {
-        return !isEmpty(available);
+        const sld = parseSld(data?.domain || data);
+        return sld?.length > 2;
       },
 
       hasValues: ({ values }) => {
