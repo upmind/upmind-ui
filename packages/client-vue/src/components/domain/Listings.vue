@@ -39,18 +39,18 @@
               <span :class="styles.domain.card.text" v-if="!item.is_available">
                 <upw-icon
                   icon="transfer-circle-solid"
-                  :class="styles.domain.card.unavailable"
+                  :class="styles.domain.card.transfer.label"
                 />
 
-                {{ "Transferrable" }}
+                {{ $t("domain.card.transfer.label") }}
               </span>
               <span v-else :class="styles.domain.card.text">
                 <upw-icon
                   icon="check-circle-solid"
-                  :class="styles.domain.card.available"
+                  :class="styles.domain.card.available.label"
                 />
-                {{ "Available" }}</span
-              >
+                {{ $t("domain.card.available.label") }}
+              </span>
 
               <span :class="styles.domain.card.title">
                 {{ item.sld
@@ -63,52 +63,97 @@
 
           <template #append="{ item }">
             <div :class="styles.domain.card.footer">
-              <p v-if="!item.is_available">
-                <strong>Do you own this domain?</strong>
-                Transfer it to us and we’ll take care of the rest. Our {{
-                  item.tld
-                }}
-                prices start from only {{ item.price_formatted }} /yr.
-              </p>
-              <div :class="styles.domain.card.content">
-                <span :class="styles.domain.card.price"
-                  >{{ item.price_formatted }}
-                  <span
-                    v-if="item.is_discounted"
-                    :class="styles.domain.card.discount"
-                    >{{ item.price_discounted_formatted }}</span
-                  >
-                </span>
-                <span>/yr</span>
-              </div>
+              <i18n-t
+                v-if="!item.is_available"
+                :class="styles.domain.card.transfer.root"
+                keypath="domain.card.transfer.instruction"
+                tag="p"
+              >
+                <template #[`newline`]><br /></template>
+
+                <template #[`ownership`]>
+                  <strong :class="styles.domain.card.transfer.ownership">{{
+                    $t("domain.card.transfer.ownership")
+                  }}</strong>
+                </template>
+
+                <template #[`price`]>
+                  <em :class="styles.domain.card.transfer.price">{{
+                    item.price_formatted
+                  }}</em>
+                </template>
+
+                <template #[`tld`]>
+                  <em :class="styles.domain.card.transfer.tld">{{
+                    item.tld
+                  }}</em>
+                </template>
+              </i18n-t>
+
+              <i18n-t
+                v-else
+                :class="styles.domain.card.available.root"
+                keypath="domain.card.available.instruction"
+                tag="p"
+              >
+                <template #[`newline`]><br /></template>
+
+                <template #[`ownership`]>
+                  <strong :class="styles.domain.card.available.ownership">{{
+                    $t("domain.card.available.ownership")
+                  }}</strong>
+                </template>
+
+                <template #[`price`]>
+                  <em :class="styles.domain.card.available.price">{{
+                    item.price_formatted
+                  }}</em>
+                </template>
+
+                <template #[`tld`]>
+                  <em :class="styles.domain.card.available.tld">{{
+                    item.tld
+                  }}</em>
+                </template>
+              </i18n-t>
 
               <div :class="styles.domain.card.actions">
                 <upw-button
                   v-if="item.is_available"
-                  :class="styles.domain.card.button"
-                  :loading="meta.isProcessing"
+                  :class="styles.domain.card.available.action"
                   :disabled="meta.isDisabled"
-                  size="sm"
-                  :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
+                  :label="
+                    $tc(
+                      'domain.card.available.action',
+                      isSelected(item.domain) ? 0 : 1
+                    )
+                  "
+                  :loading="meta.isProcessing"
                   :prepend-icon="
                     isSelected(item.domain) ? 'check' : 'plus-circle'
                   "
+                  :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
                   @click="onChange(item)"
-                  :label="isSelected(item.domain) ? 'Added' : 'Add'"
                   block
+                  size="sm"
                 />
 
                 <upw-button
                   v-else
-                  :class="styles.domain.card.button"
-                  :loading="meta.isProcessing"
+                  :class="styles.domain.card.transfer.action"
                   :disabled="meta.isDisabled"
-                  size="sm"
-                  :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
+                  :label="
+                    $tc(
+                      'domain.card.transfer.action',
+                      isSelected(item.domain) ? 0 : 1
+                    )
+                  "
+                  :loading="meta.isProcessing"
                   :prepend-icon="isSelected(item.domain) ? 'check' : 'transfer'"
-                  :label="isSelected(item.domain) ? 'Added' : 'Transfer'"
+                  :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
                   @click="onChange(item)"
                   block
+                  size="sm"
                 />
               </div>
             </div>
@@ -211,7 +256,16 @@ export default defineComponent({
       isDisabled: props.disabled,
       isProcessing: props.processing,
     }));
-    const styles = useStyles(["domain.listings", "domain.card"], meta, config);
+    const styles = useStyles(
+      [
+        "domain.listings",
+        "domain.card",
+        "domain.card.available",
+        "domain.card.transfer",
+      ],
+      meta,
+      config
+    );
 
     return {
       styles,

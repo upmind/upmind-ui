@@ -6,7 +6,7 @@ import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types.d";
 
 // --- utils
-import { useBasketHelper } from "..";
+import { useBasketHelper, useBasket } from "..";
 import { has, find } from "lodash-es";
 
 // --------------------------------------------------------
@@ -21,7 +21,7 @@ export const useDomain = ({
   parentId?: Object; // id of basket item machine representing the parent context
 }) => {
   // --------------------------------------------------------
-  // create a new instance of the domain machine
+  // create a new instance of the  domain machine
 
   // safetycheck to ensure forcedType is valid
   const safeType = has(DomainTypes, type) ? type : null;
@@ -49,6 +49,46 @@ export const useDomain = ({
     devTools: true,
   }).start();
 
+  // --------------------------------------------------------
+  // Get the basket machine and watch for changes, ie basket is updated/refreshed
+  // and get the currency and promotions to update our domain prices
+  const { service: basket } = useBasket();
+
+  basket.onTransition(state => {
+    if (state.matches("shopping.refreshing.complete")) {
+      // ---
+      const currencyActor = state.context?.actors?.currency;
+      const currency = currencyActor?.getSnapshot()?.context?.model?.code;
+      // ---
+      const promotionsActor = state.context?.actors?.promotions;
+      const promotions =
+        promotionsActor?.getSnapshot()?.context?.model?.promotions;
+
+      // ---
+      //  only refresh if the currency or promotions have changed
+      console.debug("Domain", "basket refreshed", {
+        currency,
+        promotions,
+        currencyActor,
+        promotionsActor,
+      });
+
+      if (
+        (currency || promotions) &&
+        (currency !== service.getSnapshot().context.currency ||
+          promotions !== service.getSnapshot().context.promotions)
+      ) {
+        debugger;
+        service.send({
+          type: "REFRESH",
+          data: {
+            currency,
+            promotions,
+          },
+        });
+      }
+    }
+  });
   // --------------------------------------------------------
   // sync the basket with the domain machine and any parent machines
 

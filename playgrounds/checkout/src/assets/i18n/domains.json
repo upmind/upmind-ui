@@ -9,6 +9,20 @@
     "empty": {},
     "listings": {
       "title": "Choose your domain from the list below "
+    },
+    "card": {
+      "available": {
+        "label": "Available",
+        "instruction": "{price} /yr",
+        "ownership": "",
+        "action": "Add | Added"
+      },
+      "transfer": {
+        "label": "Transferable",
+        "instruction": "{ownership} Transfer it to us and we'll take care of the rest.{newline}Our {tld} renewal prices start from only {price} /yr.",
+        "ownership": "Own this domain?",
+        "action": "Transfer | Transferring"
+      }
     }
   }
 }
