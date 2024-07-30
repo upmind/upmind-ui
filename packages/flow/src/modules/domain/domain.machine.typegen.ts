@@ -45,6 +45,7 @@ export interface Typegen0 {
       type: "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     };
     "xstate.init": { type: "xstate.init" };
+    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
     getClientDomains: "done.invoke.domainManager.existing.loading:invocation[0]";
@@ -60,12 +61,15 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    addExisting: "ADD";
-    cancelController: "" | "ADD" | "CHOOSE" | "REFRESH" | "REMOVE" | "SEARCH";
-    checkChoices: "CHOOSE" | "STOP" | "xstate.init";
+    cancelController: "" | "CHOOSE" | "REFRESH" | "REMOVE" | "SEARCH";
+    checkChoices:
+      | ""
+      | "CHOOSE"
+      | "STOP"
+      | "xstate.after(error)#error"
+      | "xstate.init";
     clearAvailable:
       | ""
-      | "ADD"
       | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
@@ -73,15 +77,21 @@ export interface Typegen0 {
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
     clearError:
       | ""
-      | "ADD"
       | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
-    newController:
+    clearValues:
       | ""
       | "ADD"
+      | "CHOOSE"
+      | "REMOVE"
+      | "STOP"
+      | "UPDATE"
+      | "xstate.stop";
+    newController:
+      | ""
       | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
@@ -102,21 +112,18 @@ export interface Typegen0 {
     setSearch: "SEARCH";
     setType: "CHOOSE";
     setValues: "UPDATE";
-    sync: "SYNC";
   };
   eventsCausingDelays: {
     error: "CHOOSE";
     wait: "REFRESH" | "SEARCH" | "SELECT";
   };
   eventsCausingGuards: {
-    hasAvailable: "ADD" | "UPDATE";
     hasNoValues: "";
     hasValues: "" | "REMOVE" | "SELECT";
     isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
     isExistingDomain: "CHOOSE";
-    isExistingPrimaryDomain: "";
     isForced: "CHOOSE";
     isInvalidType: "CHOOSE";
     isNotCancelled:
@@ -127,7 +134,7 @@ export interface Typegen0 {
     isValidSearch: "SEARCH";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "ADD" | "CHOOSE" | "REFRESH" | "REMOVE";
+    getClientDomains: "" | "CHOOSE" | "REFRESH" | "REMOVE";
     search:
       | "xstate.after(wait)#domainManager.register.processing.cancelling"
       | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
@@ -135,7 +142,6 @@ export interface Typegen0 {
   matchesStates:
     | "basket"
     | "basket.loading"
-    | "basket.syncing"
     | "basket.updating"
     | "basket.valid"
     | "complete"
@@ -147,10 +153,8 @@ export interface Typegen0 {
     | "existing.loading"
     | "existing.processing"
     | "existing.processing.cancelling"
-    | "existing.syncing"
     | "existing.valid"
     | "idle"
-    | "loading"
     | "register"
     | "register.available"
     | "register.error"
@@ -158,7 +162,6 @@ export interface Typegen0 {
     | "register.processing"
     | "register.processing.cancelling"
     | "register.processing.searching"
-    | "register.syncing"
     | "register.valid"
     | "transfer"
     | "transfer.available"
@@ -167,17 +170,15 @@ export interface Typegen0 {
     | "transfer.processing"
     | "transfer.processing.cancelling"
     | "transfer.processing.searching"
-    | "transfer.syncing"
     | "transfer.valid"
     | {
-        basket?: "loading" | "syncing" | "updating" | "valid";
+        basket?: "loading" | "updating" | "valid";
         existing?:
           | "available"
           | "error"
           | "idle"
           | "loading"
           | "processing"
-          | "syncing"
           | "valid"
           | { processing?: "cancelling" };
         register?:
@@ -185,7 +186,6 @@ export interface Typegen0 {
           | "error"
           | "idle"
           | "processing"
-          | "syncing"
           | "valid"
           | { processing?: "cancelling" | "searching" };
         transfer?:
@@ -193,7 +193,6 @@ export interface Typegen0 {
           | "error"
           | "idle"
           | "processing"
-          | "syncing"
           | "valid"
           | { processing?: "cancelling" | "searching" };
       };

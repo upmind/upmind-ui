@@ -66,19 +66,11 @@ export const useDomain = ({
 
       // ---
       //  only refresh if the currency or promotions have changed
-      console.debug("Domain", "basket refreshed", {
-        currency,
-        promotions,
-        currencyActor,
-        promotionsActor,
-      });
-
       if (
         (currency || promotions) &&
         (currency !== service.getSnapshot().context.currency ||
           promotions !== service.getSnapshot().context.promotions)
       ) {
-        debugger;
         service.send({
           type: "REFRESH",
           data: {
@@ -144,7 +136,7 @@ export const useDomain = ({
     let parentMapper = null;
 
     if (parentId) {
-      debugger;
+      // debugger;
 
       // MAYBE we need to add the parents domain value to the values array
       //  but  we should be able t oget it from the basket.... so hence commented out

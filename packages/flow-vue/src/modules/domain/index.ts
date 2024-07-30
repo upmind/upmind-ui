@@ -8,8 +8,7 @@ import { useActor } from "@xstate/vue";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find, isArray, isEmpty } from "lodash-es";
-import { useBasketCurrency, useBasketPromotions } from "../basket";
+import { map, some, find, isArray } from "lodash-es";
 
 // --- types
 
@@ -62,7 +61,7 @@ export const useDomain = (
     });
   };
 
-  const update = (values: Array<string>) => {
+  const update = (values: string | Array<string>) => {
     // NB: nsure we have an array of strings
     send({
       type: "UPDATE",

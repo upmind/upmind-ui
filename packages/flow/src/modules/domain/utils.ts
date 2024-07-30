@@ -1,30 +1,51 @@
 // --- externals
-import { unref } from "vue";
 
 // --- utils
 import { useMoney } from "../../utils";
-import { map, orderBy, uniqBy, first, compact, reduce, set } from "lodash-es";
+import {
+  compact,
+  find,
+  first,
+  isObject,
+  map,
+  orderBy,
+  reduce,
+  set,
+  some,
+  uniqBy,
+} from "lodash-es";
 
 // --- types
 import type { IDomainProduct } from "./types.d";
 // ----------------------------------------------------------------------------
 
-export function parseDomain(domain: string) {
-  domain = unref(domain);
-
-  if (!domain) {
-    return;
-  }
-
-  const value = domain
+export function parseDomain(data: string) {
+  const parsed = data
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
     ?.toLowerCase();
 
-  return {
-    domain: value,
-    tld: value?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
-    sld: first(value?.split(".")) || "",
+  const value = {
+    domain: parsed,
+    tld: parsed?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
+    sld: first(parsed?.split(".")) || "",
   };
+
+  if (value.domain && value.tld && value.sld) return value;
+
+  return undefined;
+}
+
+export function parseSld(data: string) {
+  if (!data) {
+    return;
+  }
+
+  const parsed = data
+    ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
+    ?.toLowerCase();
+
+  const value = first(parsed?.split(".")) || "";
+  return value;
 }
 
 export function parseAvailable(
@@ -33,7 +54,7 @@ export function parseAvailable(
   available = [] as IDomainProduct[]
 ): IDomainProduct[] {
   // map the available to a new array
-  const newAvailable = map(results, item => parseDomainItem({ ...item, sld }));
+  const newAvailable = map(results, item => parseBasketItem({ ...item, sld }));
 
   // then add the new available to any existing available
   available.push(...newAvailable);
@@ -44,7 +65,23 @@ export function parseAvailable(
   return available;
 }
 
-export function parseDomainItem(item) {
+export function parseValue(data: Object | string, values = [], available = []) {
+  // parse the domain name provided
+  const value = (isObject(data) ? data?.domain : data).toLowerCase();
+
+  // check if we already have the domain
+  let domain = find(values, ["domain", value]);
+
+  // if we dont then add it to our list of values, if it exists in available
+  domain ??= find(available, ["domain", value]);
+
+  // finally parse the domain name provided and check if its a valid domain
+  domain ??= parseDomain(value);
+
+  return domain;
+}
+
+export function parseBasketItem(item) {
   const { removeTrailingZeroes } = useMoney();
   const result = {
     product_id: item.product_id,

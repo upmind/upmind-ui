@@ -159,24 +159,6 @@
             </div>
           </template>
         </component>
-
-        <!-- <div :class="styles.domain.listings.items" v-else>
-          <template v-for="(item, index) in items" :key="item.domain">
-            <slot
-              name="item"
-              v-bind="{ index, item, meta, isSelected, onChange }"
-            >
-              <upm-card
-                v-bind="item"
-                :processing="meta.isProcessing"
-                :tabindex="index"
-                :i18nKey="`${i18nKey}.card`"
-                :model-value="isSelected(item)"
-                @change="onChange"
-              />
-            </slot>
-          </template>
-        </div> -->
       </template>
 
       <!-- <footer :class="styles.domain.listings.footer">

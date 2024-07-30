@@ -4,7 +4,7 @@
 import { useApi } from "../api";
 
 // --- utils
-import { parseDomain, parseAvailable } from "./utils";
+import { parseDomain, parseAvailable, parseSld } from "./utils";
 import { isEmpty, omitBy, map } from "lodash-es";
 
 // --- types
@@ -25,7 +25,7 @@ function search({
 
   if (!search?.length) return Promise.reject("No domain provided");
 
-  const { sld } = parseDomain(search);
+  const sld = parseSld(search);
 
   // --- Build the request, and Fetch the search results
   const params = omitBy(

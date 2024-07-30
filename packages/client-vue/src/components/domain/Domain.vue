@@ -13,31 +13,39 @@
     />
 
     <!-- register/transfer -->
+    <template v-if="meta.showRegister || meta.showTransfer">
+      <upw-textbox
+        :class="styles.domain.search"
+        @update:modelValue="search"
+        prependIcon="search"
+        placeholder="Search for your domain &hellip;"
+        autofocus
+        autocomplete="url"
+        :model-value="query"
+      />
+
+      <upm-domain-listings
+        :model-value="selected"
+        :items="available"
+        :loading="meta.isSearching"
+        :processing="meta.isSyncing"
+        @update:modelValue="update"
+        :multiple="multiple"
+      />
+    </template>
+
+    <!-- external -->
     <upw-textbox
-      v-if="meta.showRegister || meta.showTransfer"
-      :class="styles.domain.search"
-      @update:modelValue="search"
-      prependIcon="search"
-      placeholder="Search for your domain &hellip;"
+      v-else-if="meta.showExisting"
+      :class="styles.domain.existing"
+      @update:modelValue="update"
+      prependIcon="domain"
+      placeholder="Enter for your domain &hellip;"
       autofocus
       autocomplete="url"
-      :model-value="query"
     />
 
     <!-- basket -->
-
-    <!-- external -->
-
-    <!-- INPUT -->
-    <upm-domain-listings
-      v-if="meta.showRegister || meta.showTransfer"
-      :model-value="selected"
-      :items="available"
-      :loading="meta.isSearching"
-      :processing="meta.isSyncing"
-      @update:modelValue="doSelect"
-      :multiple="multiple"
-    />
 
     <pre>{{ meta }}</pre>
   </div>
@@ -99,10 +107,7 @@ export default defineComponent({
       choose,
       search,
       update,
-      toggle,
-      // add,
       // remove,
-      // toggle,
       // setPrimaryDomain,
       // isSelected,
       // destroy,
@@ -122,8 +127,7 @@ export default defineComponent({
       // ---
       choose,
       search: debounce(search, 500),
-      update,
-      toggle,
+      update: debounce(update, 500),
       // ---
       styles,
       mergeStyles,
@@ -131,11 +135,7 @@ export default defineComponent({
   },
   computed: {},
 
-  methods: {
-    doSelect(value) {
-      this.update(value);
-    },
-  },
+  methods: {},
 });
 </script>
 .
