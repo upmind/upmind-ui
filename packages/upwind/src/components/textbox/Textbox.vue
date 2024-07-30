@@ -12,6 +12,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
+    :autofocus="autofocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -46,7 +47,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref, onMounted, nextTick } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -101,6 +102,7 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     processing: { type: Boolean },
+    autofocus: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -144,7 +146,7 @@ export default defineComponent({
         "value",
         "readonly",
         "placeholder",
-        "autofocus",
+        "focus",
         "tabindex",
         "maxlength",
         "name",

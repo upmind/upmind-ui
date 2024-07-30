@@ -36,7 +36,7 @@ export default {
       available: {
         root: cva("m-0 items-end"),
         ownership: cva("font-medium"),
-        price: cva("m-0 text-2xl font-semibold not-italic tracking-wide"),
+        price: cva("m-0 text-xl font-semibold not-italic tracking-wide"),
         tld: cva("uppercase not-italic"),
         label: cva("text-primary size-5 "),
         discount: cva("text-base-500 text-md block font-normal line-through"),

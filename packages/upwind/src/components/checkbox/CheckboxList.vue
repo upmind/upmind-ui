@@ -13,6 +13,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
+    :autofocus="autofocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -143,6 +144,7 @@ export default defineComponent({
     // ---
     modelValue: { type: Array },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },

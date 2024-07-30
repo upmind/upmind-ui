@@ -1,7 +1,6 @@
 <template>
   <div :class="styles.domain.root">
     <!-- loader -->
-    <!-- <pre>{{ meta }}</pre> -->
 
     <!-- type -->
     <upw-radio-list
@@ -15,6 +14,7 @@
     <!-- register/transfer -->
     <template v-if="meta.showRegister || meta.showTransfer">
       <upw-textbox
+        :key="meta.showRegister ? 'register' : 'transfer'"
         :class="styles.domain.search"
         @update:modelValue="search"
         prependIcon="search"
@@ -35,19 +35,24 @@
     </template>
 
     <!-- external -->
-    <upw-textbox
+
+    <upw-combobox
       v-else-if="meta.showExisting"
       :class="styles.domain.existing"
       @update:modelValue="update"
-      prependIcon="domain"
+      prependIcon="domain-search"
+      :items="available"
+      item-label="domain"
+      item-value="value"
       placeholder="Enter for your domain &hellip;"
       autofocus
       autocomplete="url"
+      :model-value="selected"
     />
 
     <!-- basket -->
 
-    <pre>{{ meta }}</pre>
+    <pre>{{ { state, meta } }}</pre>
   </div>
 </template>
 
@@ -63,6 +68,7 @@ import {
   UpwRadioList,
   UpwTextbox,
   UpwButton,
+  UpwCombobox,
 } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -77,7 +83,13 @@ import { debounce } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmDomain",
-  components: { UpwRadioList, UpwTextbox, UpwButton, UpmDomainListings },
+  components: {
+    UpwRadioList,
+    UpwTextbox,
+    UpwButton,
+    UpwCombobox,
+    UpmDomainListings,
+  },
   props: {
     sync: { type: Boolean, default: false },
     type: {
@@ -103,6 +115,7 @@ export default defineComponent({
       // primaryDomain,
       // ---
       meta,
+      state,
       // ---
       choose,
       search,
@@ -117,6 +130,7 @@ export default defineComponent({
     // ---
 
     return {
+      state,
       meta,
       choices,
       selected,

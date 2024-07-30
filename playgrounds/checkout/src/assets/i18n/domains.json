@@ -15,13 +15,13 @@
         "label": "Available",
         "instruction": "{price} /yr",
         "ownership": "",
-        "action": "Add | Added"
+        "action": "Regsiter | Added"
       },
       "transfer": {
         "label": "Transferable",
         "instruction": "{ownership} Transfer it to us and we'll take care of the rest.{newline}Our {tld} renewal prices start from only {price} /yr.",
         "ownership": "Own this domain?",
-        "action": "Transfer | Transferring"
+        "action": "Transfer | Added"
       }
     }
   }
