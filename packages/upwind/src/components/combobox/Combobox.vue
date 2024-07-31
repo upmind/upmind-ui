@@ -95,9 +95,10 @@
                   selected ? styles.combobox.item.selected : '',
                 ]"
               >
-                <span :class="styles.combobox.item.label">{{
-                  queryResult[itemLabel]
-                }}</span>
+                <em :class="styles.combobox.item.label">
+                  {{ itemCustomPrepend }}{{ queryResult[itemLabel]
+                  }}{{ itemCustomAppend }}
+                </em>
 
                 <upw-icon
                   v-if="selectedIcon"
@@ -324,6 +325,14 @@ export default defineComponent({
     itemValue: {
       type: String,
       default: "value",
+    },
+    itemCustomPrepend: {
+      type: String,
+      default: "'",
+    },
+    itemCustomAppend: {
+      type: String,
+      default: "'",
     },
 
     search: {
