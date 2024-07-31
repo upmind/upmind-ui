@@ -3,20 +3,21 @@
     <section :class="styles.domains.section.root">
       <header :class="styles.domains.section.header">
         <span :class="styles.domains.section.text">
-          {{ $tc("domains.header.text", selected.length) }}
+          {{ $tc("domains.header.text", selected?.length) }}
         </span>
 
         <h1 :class="styles.domains.section.title">
-          {{ $tc("domains.header.title", selected.length) }}
+          {{ $tc("domains.header.title", selected?.length) }}
         </h1>
       </header>
 
       <div :class="styles.domains.section.wrapper">
         <div :class="styles.domains.section.content">
-          <upm-domain :sync="false" @update:modelValue="setSelected" />
+          <upm-domain sync v-model="selected" />
         </div>
       </div>
 
+      <pre>{{ { selected } }}</pre>
       <footer :class="styles.domains.section.footer"></footer>
     </section>
   </article>
@@ -42,10 +43,6 @@ export default defineComponent({
     const styles = useStyles(["domains", "domains.section"], null, config);
     return { styles, selected: ref([]) };
   },
-  methods: {
-    setSelected(value) {
-      this.selected = value;
-    },
-  },
+  methods: {},
 });
 </script>
