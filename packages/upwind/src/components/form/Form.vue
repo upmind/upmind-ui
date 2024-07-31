@@ -293,6 +293,7 @@ export default defineComponent({
       };
     },
   },
+
   methods: {
     onChange({ data, errors }: JsonFormsChangeEvent) {
       this.errors = errors;

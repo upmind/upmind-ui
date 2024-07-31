@@ -6,7 +6,7 @@
     <upw-radio-list
       :class="styles.domain.choices"
       v-if="meta.showChoices"
-      :items="choices"
+      :items="i18nChoices"
       :model-value="choice"
       @update:modelValue="choose"
     />
@@ -18,7 +18,7 @@
         :class="styles.domain.search"
         @update:modelValue="search"
         prependIcon="search"
-        placeholder="Search for your domain &hellip;"
+        :placeholder="$t('domain.dac.search')"
         autofocus
         autocomplete="url"
         :model-value="query"
@@ -47,8 +47,7 @@
       autofocus
       item-label="domain"
       item-value="value"
-      placeholder="Enter your domain &hellip;"
-      prependIcon="domain-search"
+      :placeholder="$t('domain.existing.search')"
     />
 
     <!-- basket -->
@@ -77,7 +76,7 @@ import config from "./config.cva";
 import UpmDomainListings from "./Listings.vue";
 
 // --- utils
-import { debounce } from "lodash-es";
+import { debounce, map } from "lodash-es";
 
 // --- types
 
@@ -149,7 +148,17 @@ export default defineComponent({
       mergeStyles,
     };
   },
-  computed: {},
+  computed: {
+    i18nChoices() {
+      return map(this.choices, choice => {
+        const i18n = this.$tm(`domain.choices.${choice.value}`);
+        return {
+          ...choice,
+          label: this.$rt(i18n.label) || choice.label,
+        };
+      });
+    },
+  },
 
   methods: {},
 });

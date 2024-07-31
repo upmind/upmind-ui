@@ -7,6 +7,26 @@
   },
   "domain": {
     "empty": {},
+    "choices": {
+      "register": {
+        "label": "Register a new domain."
+      },
+      "transfer": {
+        "label": "Transfer a domain from another registrar."
+      },
+      "existing": {
+        "label": "Use an existing domain and update nameservers."
+      },
+      "basket": {
+        "label": "Use a domain from my basket"
+      }
+    },
+    "dac": {
+      "search": "Search for your domain..."
+    },
+    "existing": {
+      "search": "Enter your domain..."
+    },
     "listings": {
       "title": "Choose your domain from the list below "
     },
