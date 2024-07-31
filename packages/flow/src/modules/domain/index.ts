@@ -183,13 +183,7 @@ export const useDomain = ({
 
     useBasketHelper(
       service,
-      [
-        "dac.valid",
-        // ---
-        "existing.valid",
-        // ---
-        "basket.valid",
-      ],
+      ["dac.valid", "existing.valid", "basket.valid"],
       "values",
       // ---
       basketItemMapper,

@@ -390,14 +390,15 @@ export default defineComponent({
         results.value = filter(
           props.items,
           item =>
-            includes(
-              item?.[props.itemLabel].toLowerCase(),
+            !item.persist &&
+            (includes(
+              item?.[props.itemLabel]?.toLowerCase(),
               input.value.toLowerCase()
             ) ||
-            includes(
-              item?.[props.itemValue].toLowerCase(),
-              input.value.toLowerCase()
-            )
+              includes(
+                item?.[props.itemValue]?.toLowerCase(),
+                input.value.toLowerCase()
+              ))
         );
       }
 

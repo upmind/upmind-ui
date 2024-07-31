@@ -34,13 +34,12 @@
       />
     </template>
 
-    <!-- external -->
-
+    <!-- existing -->
     <upw-combobox
       v-else-if="meta.showExisting"
       :class="styles.domain.existing"
       :errors="errors"
-      :items="available"
+      :items="ownedDomains"
       :model-value="selected"
       @update:modelValue="update"
       autocomplete="url"
@@ -76,7 +75,7 @@ import config from "./config.cva";
 import UpmDomainListings from "./Listings.vue";
 
 // --- utils
-import { debounce, map } from "lodash-es";
+import { debounce, map, reduce } from "lodash-es";
 
 // --- types
 
@@ -157,6 +156,23 @@ export default defineComponent({
           label: this.$rt(i18n.label) || choice.label,
         };
       });
+    },
+
+    ownedDomains() {
+      return reduce(
+        this.available,
+        (result, item) => {
+          result.push({ ...item, persist: true });
+          return result;
+        },
+        [
+          {
+            as: "separator",
+            persist: true,
+            domain: this.$t("domain.existing.owned"),
+          },
+        ]
+      );
     },
   },
 
