@@ -75,7 +75,7 @@ import config from "./config.cva";
 import UpmDomainListings from "./Listings.vue";
 
 // --- utils
-import { debounce, map, reduce } from "lodash-es";
+import { debounce, first, map, reduce } from "lodash-es";
 
 // --- types
 
@@ -89,6 +89,7 @@ export default defineComponent({
     UpwCombobox,
     UpmDomainListings,
   },
+  emits: ["update:modelValue"],
   props: {
     sync: { type: Boolean, default: false },
     type: {
@@ -96,8 +97,10 @@ export default defineComponent({
       validator: value =>
         ["register", "transfer", "existing", "basket"].includes(value),
     },
+    modelValue: { type: [String, Array], default: () => [] },
+    multiple: { type: Boolean, default: false },
     parentId: { type: String },
-    multiple: { type: Boolean, default: true },
+
     // ---
   },
   setup(props) {
@@ -175,8 +178,22 @@ export default defineComponent({
       );
     },
   },
-
   methods: {},
+  watch: {
+    selected: {
+      handler: function (value) {
+        if (!this.multiple) {
+          this.$emit("update:modelValue", value);
+        } else {
+          this.$emit(
+            "update:modelValue",
+            find(value, "is_primary") || first(value)
+          );
+        }
+      },
+      deep: true,
+    },
+  },
 });
 </script>
 .
