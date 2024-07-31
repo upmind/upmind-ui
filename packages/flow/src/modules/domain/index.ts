@@ -7,7 +7,7 @@ import { DomainTypes } from "./types.d";
 export * from "./types.d";
 // --- utils
 import { useBasketHelper, useBasket } from "..";
-import { has, find } from "lodash-es";
+import { has, find, map } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -79,6 +79,16 @@ export const useDomain = ({
           },
         });
       }
+      // ---
+      // if (sync) {
+      //   const itemActors = state.context?.items;
+      //   const domains = map(itemActors, item => {
+      //     return {
+      //       product_id: item.getSnapshot().context.model.product_id,
+      //       sld: item.getSnapshot().context.model.provision_fields.sld,
+      //     };
+      //   });
+      // }
     }
   });
   // --------------------------------------------------------

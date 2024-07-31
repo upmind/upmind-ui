@@ -204,7 +204,7 @@ export default defineComponent({
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
     const { meta: account, user } = useSession();
-    const { meta, summary, addProduct, invoice, isReady } = useBasket();
+    const { meta, summary, addItem, invoice, isReady } = useBasket();
     const { update } = useBasketCurrency();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
@@ -220,7 +220,6 @@ export default defineComponent({
       QUERY_PARAMS.PRODUCT,
       get(query, QUERY_PARAMS.PRODUCT_ID)
     );
-    const products = ref([]);
     // ---
     const currency = get(
       query,
@@ -232,7 +231,7 @@ export default defineComponent({
       // first add our product(s) to the basket if the basket is ready & empty
       if (meta.value.isEmpty && product) {
         forEach(isArray(product) ? product : [product], product_id => {
-          products.value.push(addProduct({ product_id, quantity: 1 }));
+          addItem({ product_id, quantity: 1 });
         });
       }
 
