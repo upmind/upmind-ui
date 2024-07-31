@@ -8,30 +8,43 @@ export * from "./types.d";
 // --- utils
 import { useBasketHelper, useBasket } from "..";
 import { has, find, map } from "lodash-es";
+import { isArray } from "xstate/lib/utils";
+import { parseDomain } from "./utils";
 
 // --------------------------------------------------------
 
-export const useDomain = ({
-  sync,
-  type,
-  parentId,
-}: {
-  sync?: boolean;
-  type?: DomainTypes;
-  parentId?: Object; // id of basket item machine representing the parent context
-}) => {
+export const useDomain = (
+  {
+    values,
+    sync,
+    type,
+    parentId,
+  }: {
+    values?: Array<string> | string;
+    sync?: boolean;
+    type?: DomainTypes;
+    parentId?: Object; // id of basket item machine representing the parent context
+  } = {
+    values: [],
+    sync: false,
+    type: undefined,
+    parentId: undefined,
+  }
+) => {
   // --------------------------------------------------------
   // create a new instance of the  domain machine
 
   // safetycheck to ensure forcedType is valid
   const safeType = has(DomainTypes, type) ? type : null;
+  const safeValues = map(isArray(values) ? values : [values], parseDomain);
 
+  // ---
   const context = {
     type: safeType,
     sync,
     // ---
     choices: safeType ? null : DomainTypes,
-    values: [],
+    values: safeValues,
     available: [],
     total: 0,
     // ---
@@ -91,121 +104,7 @@ export const useDomain = ({
       // }
     }
   });
-  // --------------------------------------------------------
-  // sync the basket with the domain machine and any parent machines
 
-  if (sync) {
-    const itemBuilder = basketItem => {
-      return {
-        product_id: basketItem.product_id,
-        options: basketItem.options,
-        quantity: basketItem.quantity,
-        tld: basketItem?.name,
-        sld: basketItem?.provision_fields?.sld,
-        term: {
-          billing_cycle_months:
-            basketItem?.billing_cycle_months ||
-            basketItem?.term?.billing_cycle_months ||
-            basketItem?.term,
-        },
-      };
-    };
-
-    const itemMapper = item => ({
-      product_id: item.product_id,
-      sld: item?.sld || item?.provision_fields?.sld,
-    });
-
-    // ---
-
-    const basketItemBuilder = item => {
-      if (!item?.product_id) return null;
-      return {
-        product_id: item.product_id,
-        quantity: 1,
-        term: {
-          billing_cycle_months: item.billing_cycle_months,
-        },
-        options: item.options,
-        provision_fields: {
-          sld: item.sld,
-        },
-      };
-    };
-
-    const basketItemMapper = item => ({
-      product_id: item.product_id,
-      "provision_fields.sld": item?.sld || item?.provision_fields?.sld,
-    });
-
-    // ---
-
-    // if we have a parent...make sure we set the primaryDomain!
-
-    let parentBuilder = null;
-    let parentMapper = null;
-
-    if (parentId) {
-      // debugger;
-
-      // MAYBE we need to add the parents domain value to the values array
-      //  but  we should be able t oget it from the basket.... so hence commented out
-      // const parentModel = parent.getSnapshot().context.model;
-      // debugger;
-      // if (parentModel?.provision_fields?.domain) {
-      //   const domain = parseDomain(parentModel.provision_fields.domain);
-      //   debugger;
-      //   if (domain) {
-      //     set(domain, "is_primary", true);
-      //     values.push(domain);
-      //   }
-      // }
-
-      // ---
-      parentBuilder = () => {
-        const state = service.getSnapshot();
-        let config = null;
-        const primaryDomain = find(state?.context?.values, "is_primary");
-
-        if (primaryDomain) {
-          // ensure the domain is set as primary
-          if (!primaryDomain.is_primary) {
-            service.send({ type: "SELECT", data: primaryDomain.domain });
-          }
-
-          //finally, build the config for the parent machine with the primary domain
-          config = {
-            provision_fields: {
-              domain: primaryDomain.domain,
-            },
-          };
-        }
-
-        return config;
-      };
-
-      parentMapper = () => ({
-        id: parentId,
-      });
-    }
-
-    // ---
-
-    useBasketHelper(
-      service,
-      ["dac.valid", "existing.valid", "basket.valid"],
-      "values",
-      // ---
-      basketItemMapper,
-      basketItemBuilder,
-      // ---
-      itemMapper,
-      itemBuilder,
-      // ---
-      parentMapper,
-      parentBuilder
-    );
-  }
   // --------------------------------------------------------
 
   return {
