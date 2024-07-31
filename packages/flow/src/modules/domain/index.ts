@@ -4,7 +4,7 @@ import { interpret } from "xstate";
 // --- internal
 import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types.d";
-
+export * from "./types.d";
 // --- utils
 import { useBasketHelper, useBasket } from "..";
 import { has, find } from "lodash-es";
@@ -184,9 +184,7 @@ export const useDomain = ({
     useBasketHelper(
       service,
       [
-        "register.valid",
-        // ---
-        "transfer.valid",
+        "dac.valid",
         // ---
         "existing.valid",
         // ---

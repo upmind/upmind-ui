@@ -9,13 +9,8 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.domainManager.register.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.register.processing.searching:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.domainManager.transfer.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
+    "done.invoke.processing:invocation[0]": {
+      type: "done.invoke.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -23,35 +18,22 @@ export interface Typegen0 {
       type: "error.platform.domainManager.existing.loading:invocation[0]";
       data: unknown;
     };
-    "error.platform.domainManager.register.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.register.processing.searching:invocation[0]";
+    "error.platform.processing:invocation[0]": {
+      type: "error.platform.processing:invocation[0]";
       data: unknown;
     };
-    "error.platform.domainManager.transfer.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.transfer.processing.searching:invocation[0]";
-      data: unknown;
-    };
-    "xstate.after(error)#error": { type: "xstate.after(error)#error" };
     "xstate.after(wait)#domainManager.basket.updating": {
       type: "xstate.after(wait)#domainManager.basket.updating";
     };
     "xstate.after(wait)#domainManager.existing.processing.cancelling": {
       type: "xstate.after(wait)#domainManager.existing.processing.cancelling";
     };
-    "xstate.after(wait)#domainManager.register.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.register.processing.cancelling";
-    };
-    "xstate.after(wait)#domainManager.transfer.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.transfer.processing.cancelling";
-    };
     "xstate.init": { type: "xstate.init" };
     "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
     getClientDomains: "done.invoke.domainManager.existing.loading:invocation[0]";
-    search:
-      | "done.invoke.domainManager.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
+    search: "done.invoke.processing:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -61,52 +43,33 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    cancelController: "" | "CHOOSE" | "REFRESH" | "REMOVE" | "SEARCH";
-    checkChoices:
-      | ""
-      | "CHOOSE"
-      | "STOP"
-      | "xstate.after(error)#error"
-      | "xstate.init";
+    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
+    checkChoices: "" | "CHOOSE" | "STOP" | "xstate.init";
     clearAvailable:
       | ""
       | "CHOOSE"
       | "REFRESH"
-      | "REMOVE"
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+      | "SEARCH"
+      | "STOP"
+      | "xstate.stop";
     clearError:
-      | ""
-      | "CHOOSE"
-      | "REFRESH"
-      | "REMOVE"
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
-    clearValues:
       | ""
       | "ADD"
       | "CHOOSE"
-      | "REMOVE"
-      | "STOP"
-      | "UPDATE"
-      | "xstate.stop";
-    newController:
-      | ""
-      | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+      | "SEARCH"
+      | "UPDATE";
+    clearValues: "" | "CHOOSE" | "STOP" | "UPDATE" | "xstate.stop";
+    newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     remove: "REMOVE";
     setAvailable:
       | "done.invoke.domainManager.existing.loading:invocation[0]"
-      | "done.invoke.domainManager.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
+      | "done.invoke.processing:invocation[0]";
     setCurrency: "REFRESH";
     setError:
       | "error.platform.domainManager.existing.loading:invocation[0]"
-      | "error.platform.domainManager.register.processing.searching:invocation[0]"
-      | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
+      | "error.platform.processing:invocation[0]";
     setPrimary: "SELECT";
     setPromotions: "REFRESH";
     setSearch: "SEARCH";
@@ -114,30 +77,27 @@ export interface Typegen0 {
     setValues: "UPDATE";
   };
   eventsCausingDelays: {
-    error: "CHOOSE";
-    wait: "REFRESH" | "SEARCH" | "SELECT";
+    wait: "" | "REFRESH" | "SEARCH" | "SELECT";
   };
   eventsCausingGuards: {
+    hasAvailable: "";
     hasNoValues: "";
+    hasValidSearch: "";
     hasValues: "" | "REMOVE" | "SELECT";
     isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
     isExistingDomain: "CHOOSE";
-    isForced: "CHOOSE";
     isInvalidType: "CHOOSE";
     isNotCancelled:
       | "error.platform.domainManager.existing.loading:invocation[0]"
-      | "error.platform.domainManager.register.processing.searching:invocation[0]"
-      | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
+      | "error.platform.processing:invocation[0]";
     isValidDomain: "ADD";
     isValidSearch: "SEARCH";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "CHOOSE" | "REFRESH" | "REMOVE";
-    search:
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+    getClientDomains: "" | "CHOOSE" | "REFRESH";
+    search: "" | "REFRESH" | "SEARCH";
   };
   matchesStates:
     | "basket"
@@ -145,56 +105,34 @@ export interface Typegen0 {
     | "basket.updating"
     | "basket.valid"
     | "complete"
-    | "error"
+    | "dac"
+    | "dac.available"
+    | "dac.error"
+    | "dac.idle"
+    | "dac.processing"
+    | "dac.valid"
     | "existing"
     | "existing.available"
     | "existing.error"
     | "existing.idle"
+    | "existing.invalid"
     | "existing.loading"
     | "existing.processing"
     | "existing.processing.cancelling"
     | "existing.valid"
     | "idle"
-    | "register"
-    | "register.available"
-    | "register.error"
-    | "register.idle"
-    | "register.processing"
-    | "register.processing.cancelling"
-    | "register.processing.searching"
-    | "register.valid"
-    | "transfer"
-    | "transfer.available"
-    | "transfer.error"
-    | "transfer.idle"
-    | "transfer.processing"
-    | "transfer.processing.cancelling"
-    | "transfer.processing.searching"
-    | "transfer.valid"
     | {
         basket?: "loading" | "updating" | "valid";
+        dac?: "available" | "error" | "idle" | "processing" | "valid";
         existing?:
           | "available"
           | "error"
           | "idle"
+          | "invalid"
           | "loading"
           | "processing"
           | "valid"
           | { processing?: "cancelling" };
-        register?:
-          | "available"
-          | "error"
-          | "idle"
-          | "processing"
-          | "valid"
-          | { processing?: "cancelling" | "searching" };
-        transfer?:
-          | "available"
-          | "error"
-          | "idle"
-          | "processing"
-          | "valid"
-          | { processing?: "cancelling" | "searching" };
       };
   tags: never;
 }
