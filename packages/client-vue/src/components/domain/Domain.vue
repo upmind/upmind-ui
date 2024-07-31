@@ -12,9 +12,9 @@
     />
 
     <!-- register/transfer -->
-    <template v-if="meta.showRegister || meta.showTransfer">
+    <template v-if="meta.showDac">
       <upw-textbox
-        :key="meta.showRegister ? 'register' : 'transfer'"
+        :key="choice"
         :class="styles.domain.search"
         @update:modelValue="search"
         prependIcon="search"
@@ -39,20 +39,21 @@
     <upw-combobox
       v-else-if="meta.showExisting"
       :class="styles.domain.existing"
-      @update:modelValue="update"
-      prependIcon="domain-search"
+      :errors="errors"
       :items="available"
+      :model-value="selected"
+      @update:modelValue="update"
+      autocomplete="url"
+      autofocus
       item-label="domain"
       item-value="value"
-      placeholder="Enter for your domain &hellip;"
-      autofocus
-      autocomplete="url"
-      :model-value="selected"
+      placeholder="Enter your domain &hellip;"
+      prependIcon="domain-search"
     />
 
     <!-- basket -->
 
-    <pre>{{ { state, meta } }}</pre>
+    <pre>{{ { state, errors, meta } }}</pre>
   </div>
 </template>
 
@@ -111,7 +112,7 @@ export default defineComponent({
       type,
       query,
       available,
-      // errors,
+      errors,
       // primaryDomain,
       // ---
       meta,
@@ -135,6 +136,7 @@ export default defineComponent({
       choices,
       selected,
       available,
+      errors,
       // ---
       choice: type,
       query,

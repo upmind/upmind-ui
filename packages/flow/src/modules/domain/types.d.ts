@@ -2,11 +2,17 @@
 
 // --- enums
 
+// export enum DomainTypes {
+//   register = "Register a new domain",
+//   transfer = "Transfer your domain from another registrar",
+//   existing = "I will use my existing domain and update my nameservers",
+//   basket = "I will use a domain from my basket",
+// }
 export enum DomainTypes {
-  register = "Register a new domain",
-  transfer = "Transfer your domain from another registrar",
-  existing = "I will use my existing domain and update my nameservers",
-  basket = "I will use a domain from my basket",
+  register = "register",
+  transfer = "transfer",
+  existing = "existing",
+  basket = "basket",
 }
 
 // --- Interfaces

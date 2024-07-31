@@ -5,24 +5,23 @@ import { createMachine, assign } from "xstate";
 import services from "./services";
 import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
+
 // --- utils
 import { useTime } from "../../utils";
+import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
   find,
   has,
   isEmpty,
+  isArray,
   map,
   omit,
   reduce,
   reject,
   some,
   unionBy,
-  uniqBy,
+  includes,
 } from "lodash-es";
-
-// ---utils
-import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
-import { isArray } from "lodash-es";
 
 // --- types
 import { DomainTypes } from "./types.d";
@@ -62,61 +61,57 @@ export default createMachine(
         id: "idle",
         always: [
           {
-            target: "register",
-            cond: ({ type }) => type === "register",
+            target: "dac",
+            cond: ({ type }) =>
+              includes([DomainTypes.register, DomainTypes.transfer], type),
           },
-          {
-            target: "transfer",
-            cond: ({ type }) => type === "transfer",
-          },
-
           {
             target: "existing",
-            cond: ({ type }) => type === "existing",
+            cond: ({ type }) => type === DomainTypes.existing,
           },
           {
             target: "basket",
-            cond: ({ type }) => type === "basket",
+            cond: ({ type }) => type === DomainTypes.basket,
           },
         ],
       },
 
-      register: {
-        id: "register",
+      dac: {
+        id: "dac",
         initial: "idle",
         states: {
           idle: {
             entry: ["cancelController", "clearError"],
+            always: [
+              { target: "available", cond: "hasAvailable" },
+              { target: "processing", cond: "hasValidSearch" },
+            ],
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
             id: "processing",
-            initial: "cancelling",
-            states: {
-              cancelling: {
-                entry: "cancelController",
-                after: { wait: "searching" },
+            entry: [
+              "clearAvailable",
+              "clearError",
+              "cancelController",
+              "newController",
+            ],
+            invoke: {
+              src: "search",
+              onDone: {
+                target: "available",
+                actions: ["setAvailable"],
               },
-              searching: {
-                entry: ["clearAvailable", "clearError", "newController"],
-                invoke: {
-                  src: "search",
-                  onDone: {
-                    target: "#register.available",
-                    actions: ["setAvailable"],
-                  },
-                  onError: [
-                    {
-                      target: "#register.error",
-                      actions: ["setError"],
-                      cond: "isNotCancelled",
-                    },
-                    {
-                      actions: ["setError"],
-                    },
-                  ],
+              onError: [
+                {
+                  target: "error",
+                  actions: ["setError"],
+                  cond: "isNotCancelled",
                 },
-              },
+                {
+                  actions: ["setError"],
+                },
+              ],
             },
           },
           available: {
@@ -168,87 +163,8 @@ export default createMachine(
         },
       },
 
-      transfer: {
-        id: "transfer",
-        initial: "idle",
-        states: {
-          idle: {
-            entry: ["cancelController", "clearError"],
-          },
-          // cancel any existing search via the controller then wait before starting a new search & controller
-          processing: {
-            id: "processing",
-            initial: "cancelling",
-            states: {
-              cancelling: {
-                entry: "cancelController",
-                after: { wait: "searching" },
-              },
-              searching: {
-                entry: ["clearAvailable", "clearError", "newController"],
-                invoke: {
-                  src: "search",
-                  onDone: {
-                    target: "#transfer.available",
-                    actions: ["setAvailable"],
-                  },
-                  onError: [
-                    {
-                      target: "#transfer.error",
-                      actions: ["setError"],
-                      cond: "isNotCancelled",
-                    },
-                  ],
-                },
-              },
-            },
-          },
-          available: {
-            always: {
-              target: "valid",
-              cond: "hasValues",
-            },
-          },
-          valid: {
-            type: "final",
-            always: {
-              target: "available",
-              cond: "hasNoValues",
-            },
-          },
-          error: {},
-        },
-        on: {
-          ADD: [
-            {
-              target: ".valid",
-              actions: ["add"],
-              cond: "isValidDomain",
-            },
-          ],
-          REMOVE: {
-            target: ".valid",
-            actions: ["remove"],
-            cond: "hasValues",
-          },
-          UPDATE: {
-            target: ".valid",
-            actions: ["setValues"],
-          },
-          SEARCH: {
-            target: ".processing",
-            actions: ["setSearch"],
-            cond: "isValidSearch",
-          },
-          REFRESH: {
-            target: ".processing",
-            actions: ["setCurrency", "setPromotions"],
-          },
-        },
-      },
-
       existing: {
-        entry: ["clearValues"],
+        entry: ["clearValues", "clearAvailable"],
         id: "existing",
         initial: "loading",
         states: {
@@ -274,7 +190,9 @@ export default createMachine(
               ],
             },
           },
-          idle: {},
+          idle: {
+            always: [{ target: "available", cond: "hasAvailable" }],
+          },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
             id: "processing",
@@ -293,37 +211,43 @@ export default createMachine(
             },
           },
           valid: {
-            type: "final",
-            always: {
-              target: "idle",
-              cond: "hasNoValues",
-            },
+            always: [
+              {
+                target: "invalid",
+                cond: "hasNoValues",
+                actions: assign({
+                  error: "Invalid domain",
+                }),
+              },
+            ],
           },
+          invalid: {},
           error: {},
         },
         on: {
           ADD: [
             {
               target: ".valid",
-              actions: ["add"],
+              actions: ["clearError", "add"],
               cond: "isValidDomain",
             },
+            { target: ".valid" },
           ],
           REMOVE: {
-            target: "#existing.valid",
-            actions: ["remove"],
+            target: ".valid",
+            actions: ["clearError", "remove"],
             cond: "hasValues",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["clearValues", "setValues"],
+            actions: ["clearError", "clearValues", "setValues"],
           },
           REFRESH: {
             target: ".loading",
-            actions: ["setCurrency", "setPromotions"],
+            actions: ["clearError", "setCurrency", "setPromotions"],
           },
         },
-        exit: ["clearValues"],
+        exit: ["clearValues", "clearAvailable"],
       },
 
       basket: {
@@ -370,11 +294,6 @@ export default createMachine(
         },
       },
 
-      error: {
-        id: "error",
-        after: { error: "idle" },
-      },
-
       complete: {
         type: "final",
       },
@@ -382,20 +301,16 @@ export default createMachine(
     on: {
       CHOOSE: [
         {
-          target: "error",
+          // do nothing
           cond: "isInvalidType",
         },
         {
-          // do nothing
-          cond: "isForced",
-        },
-        {
-          target: "register",
+          target: "dac",
           actions: ["setType"],
           cond: "isDomainRegister",
         },
         {
-          target: "transfer",
+          target: "dac",
           actions: ["setType"],
           cond: "isDomainTransfer",
         },
@@ -421,7 +336,7 @@ export default createMachine(
       checkChoices: assign({
         choices: ({ choices, sync }) => {
           if (!sync) {
-            return omit(choices, "basket");
+            return omit(choices, DomainTypes.basket);
           }
           return choices;
         },
@@ -460,7 +375,7 @@ export default createMachine(
         },
         sync: false,
         choices: ({ choices }, { data }) => {
-          if (!data?.length) return omit(choices, "basket");
+          if (!data?.length) return omit(choices, DomainTypes.basket);
           return choices;
         },
         // type: ({ type }, { data }) => (type || data.length ? "basket" : null)
@@ -566,7 +481,7 @@ export default createMachine(
             return value;
           });
         },
-        type: () => "existing",
+        type: () => DomainTypes.existing,
       }),
 
       // ---
@@ -590,21 +505,27 @@ export default createMachine(
     },
 
     guards: {
-      isForced: ({ choices }) => isEmpty(choices),
-
       // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
-      isInvalidType: (_context, { data }) => {
-        return !has(DomainTypes, data);
+      isInvalidType: ({ choices }, { data }) => {
+        return isEmpty(choices) || !has(DomainTypes, data);
       },
 
       isValidDomain: (_context, { data }) => {
         return !isEmpty(parseDomain(data));
       },
 
+      hasValidSearch: ({ search }, _event) => {
+        const sld = parseSld(search);
+        return sld?.length > 2;
+      },
       isValidSearch: (_context, { data }) => {
         const sld = parseSld(data?.domain || data);
         return sld?.length > 2;
+      },
+
+      hasAvailable: ({ available }) => {
+        return !isEmpty(available);
       },
 
       hasValues: ({ values }) => {
@@ -617,24 +538,17 @@ export default createMachine(
 
       isNotCancelled: (_context, { data }) => data?.name !== "AbortError",
 
-      isDomainTransfer: (_context, { data }: { data: string }) =>
-        data === "transfer",
+      isDomainTransfer: ({ choices }, { data }: { data: string }) =>
+        !isEmpty(choices) && data === DomainTypes.transfer,
 
-      isExistingDomain: (_context, { data }: { data: string }) =>
-        data === "existing",
+      isExistingDomain: ({ choices }, { data }: { data: string }) =>
+        !isEmpty(choices) && data === DomainTypes.existing,
 
-      isExistingPrimaryDomain: ({ sync, values }) => {
-        const primary = some(
-          values,
-          item => item.is_primary && !item.product_id
-        );
-        return !sync && primary;
-      },
+      isDomainRegister: ({ choices }, { data }: { data: string }) =>
+        !isEmpty(choices) && data === DomainTypes.register,
 
-      isDomainRegister: (_context, { data }: { data: string }) =>
-        data === "register",
-
-      isBasket: (_context, { data }: { data: string }) => data === "basket",
+      isBasket: ({ choices }, { data }: { data: string }) =>
+        !isEmpty(choices) && data === DomainTypes.basket,
     },
 
     delays: {

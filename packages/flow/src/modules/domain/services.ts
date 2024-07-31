@@ -69,6 +69,27 @@ function getClientDomains({ controller }: DomainContext) {
   });
 }
 // --------------------------------------------------------
+
+// async function parse(_context, _event) {
+//   // TODO: Implement the parse function
+//   // ---
+//   return Promise.resolve({});
+// }
+
+// async function validate(_context, _event) {
+//   // TODO: Implement the validate function
+//   // ---
+//   return new Promise((resolve, reject) => {
+//     const errors = null;
+//     if (errors?.length) {
+//       reject({ error: errors });
+//     } else {
+//       resolve(model);
+//     }
+//   });
+// }
+
+// --------------------------------------------------------
 // EXPORTS
 
 export default {

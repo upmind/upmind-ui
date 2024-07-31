@@ -5,13 +5,13 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import type { DomainTypes } from "@upmind/flow";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
 import { map, some, find, isArray, first } from "lodash-es";
 
 // --- types
-
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
@@ -23,7 +23,7 @@ export const useDomain = (
     parentId,
   }: {
     sync?: boolean;
-    type?: "register" | "transfer" | "existing" | "basket";
+    type?: DomainTypes;
     parentId?: string; // id of basket item machine representing the parent context
   } = {
     sync: false,
@@ -133,47 +133,32 @@ export const useDomain = (
     meta: computed(() => ({
       isLoading: state.value.matches("loading"),
 
-      isProcessing: [
-        "register.processing",
-        "transfer.processing",
-        "existing.processing",
-      ].some(state.value.matches),
+      isProcessing: ["dac.processing", "existing.processing"].some(
+        state.value.matches
+      ),
 
-      isSyncing: [
-        "register.syncing",
-        "transfer.syncing",
-        "existing.syncing",
-        "basket.syncing",
-      ].some(state.value.matches),
+      isSyncing: ["dac.syncing", "existing.syncing", "basket.syncing"].some(
+        state.value.matches
+      ),
 
-      isSearching: [
-        "register.processing.searching",
-        "transfer.processing.searching",
-        "existing.processing.idle",
-      ].some(state.value.matches),
+      isSearching: ["dac.processing", "existing.processing"].some(
+        state.value.matches
+      ),
 
-      hasErrors: [
-        "error",
-        "register.error",
-        "transfer.error",
-        "existing.error",
-      ].some(state.value.matches),
+      hasErrors: ["error", "dac.error", "existing.error"].some(
+        state.value.matches
+      ),
 
       // ---
       showChoices:
         !state.value.matches("loading") && !!state.value.context.choices,
-      showRegister: state.value.matches("register"),
-      showTransfer: state.value.matches("transfer"),
+      showDac: state.value.matches("dac"),
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),
       showContinue:
-        [
-          "register.valid",
-          "transfer.valid",
-          "existing.valid",
-          "basket.valid",
-        ].some(state.value.matches) &&
-        some(state.value.context?.values, "is_primary"),
+        ["dac.valid", "existing.valid", "basket.valid"].some(
+          state.value.matches
+        ) && some(state.value.context?.values, "is_primary"),
       // ---
       hasValues: !!state.value.context?.values?.length,
       hasPrimary: some(state.value.context?.values, "is_primary"),
