@@ -5,7 +5,7 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import type { DomainTypes } from "@upmind/flow";
+import { DomainTypes } from "@upmind/flow";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
@@ -107,7 +107,7 @@ export const useDomain = (
     values: computed(() => state.value.context.values),
     selected: computed(() => {
       switch (state.value.context.type) {
-        case "existing":
+        case DomainTypes.existing:
           return first(map(state.value.context.values, "domain"));
 
         default:
@@ -150,8 +150,7 @@ export const useDomain = (
       ),
 
       // ---
-      showChoices:
-        !state.value.matches("loading") && !!state.value.context.choices,
+      showChoices: !!state.value.context.choices,
       showDac: state.value.matches("dac"),
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),

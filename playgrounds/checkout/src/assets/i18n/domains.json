@@ -25,7 +25,8 @@
       "search": "Search for your domain..."
     },
     "existing": {
-      "search": "Enter your domain..."
+      "search": "Enter your domain...",
+      "owned": "Domains that you currently own"
     },
     "listings": {
       "title": "Choose your domain from the list below "
