@@ -178,7 +178,6 @@ import config from "./config.cva";
 
 // --- components
 import UpmEmpty from "./Empty.vue";
-import UpmCard from "./Card.vue";
 import {
   UpwTextbox,
   UpwButton,
@@ -217,7 +216,6 @@ export default defineComponent({
     UpwDialog,
     // ---
     UpmEmpty,
-    UpmCard,
   },
   emits: ["update:modelValue"],
   props: {
