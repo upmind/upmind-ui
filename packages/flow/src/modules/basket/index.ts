@@ -13,6 +13,7 @@ import {
   get,
   includes,
   isEmpty,
+  last,
   matches,
   pickBy,
   remove,
@@ -27,11 +28,7 @@ import {
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
-
-const service = interpret(basketMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service = interpret(basketMachine, { devTools: false });
 
 // --------------------------------------------------------
 // methods
@@ -47,17 +44,6 @@ const exists = (items = [], mapping, context = null) => {
   );
 };
 
-const findItem = mapping =>
-  find(state?.context?.items, basketItem =>
-    every(mapping, (value, key) => {
-      if (key == "id") {
-        return basketItem.id == value;
-      } else {
-        return get(basketItem, `state.context.model.${key}`) == value;
-      }
-    })
-  );
-
 export const useBasket = () => {
   return {
     service: service.start(),
@@ -66,11 +52,61 @@ export const useBasket = () => {
       waitFor(service, state => ["shopping", "checkout"].some(state.matches), {
         timeout: Infinity, // infinity = no timeout
       }),
-    getSnapshot: () => state,
-    getItemsSnapshot: () => state?.context?.items || [],
-    findItem,
+    getSnapshot: () => service.getSnapshot(),
+    getItemsSnapshot: () => service.getSnapshot()?.context?.items || [],
+    findItem: mapping =>
+      find(service.getSnapshot()?.context?.items, basketItem =>
+        every(mapping, (value, key) => {
+          if (key == "id") {
+            return basketItem.id == value;
+          } else {
+            return get(basketItem, `state.context.model.${key}`) == value;
+          }
+        })
+      ),
     itemExists: mapping =>
-      exists(state?.context?.items, mapping, "state.context.model"),
+      exists(
+        service.getSnapshot()?.context?.items,
+        mapping,
+        "state.context.model"
+      ),
+    addItem: async ({
+      id,
+      product_id,
+      quantity,
+      term,
+      attributes,
+      options,
+    }) => {
+      // lets wait for our basket  to be ready for shopping
+      return waitFor(service, state => state.matches("shopping")).then(() => {
+        // lets add the new product base don the provided config to the basket
+        service.send({
+          type: "ADD",
+          data: { id, product_id, quantity, term, attributes, options },
+        });
+
+        // then wait/check for the new product actor to be configured
+        // then send the update event to the basket
+        return last(service.getSnapshot().context?.items);
+      });
+    },
+    updateItem: async itemId => {
+      service.send({ type: "UPDATE", data: { itemId } });
+      return waitFor(service, state =>
+        ["shopping.items.processed", "shopping.items.processing.error"].some(
+          state.matches
+        )
+      ).then(state => {
+        if (state.matches("shopping.items.processing.error")) {
+          return Promise.reject();
+        }
+        return Promise.resolve();
+      });
+    },
+    removeItem: itemId => {
+      service.send({ type: "REMOVE", data: { itemId } });
+    },
   };
 };
 
@@ -90,37 +126,26 @@ export const useBasketHelper = (
   const dirtyItems = [];
   const processingItems = {};
 
-  // wait for our basket to be ready, then sync basket items with the actor...
-  waitFor(service, state => ["shopping"].some(state.matches)).then(() => {
-    const items = get(actor, `state.context.${context}`, []);
+  // watch the provided actor for state changes so we can add or remove items
+  actor.onTransition(state => {
+    // bail if the state is not one of the states we are interested in
+    if (!states.some(state.matches)) return;
+
+    const items = get(state, `context.${context}`, []);
     const basketItems = getItemsSnapshot();
 
-    // find any items that are in the basket but not in the actor
-    const missingItems = [];
-    forEach(basketItems, basketItem => {
-      const mapping = basketItemMapper(basketItem.state.context.model);
-      // check all our mapping values are set, if not then its not a valid mapping and we can skip it
-      const isValid = isEmpty(pickBy(mapping, isEmpty));
+    // handle items not in the basket, ie new items
+    forEach(items, item => {
+      const product = basketItemBuilder(item);
+      const mapping = basketItemMapper(item);
+      const basketItem = findItem(mapping);
 
-      if (isValid && !exists(items, mapping)) {
-        const data = itemBuilder({
-          ...basketItem.state.context.model,
-          ...basketItem.state.context.lookups.product,
-        });
-        missingItems.push(data);
+      if (product && !basketItem && !includes(dirtyItems, mapping)) {
+        // add the item to the basket
+        service.send({ type: "ADD", data: product });
+        dirtyItems.push(mapping);
       }
     });
-
-    actor.send({ type: "SYNC", data: missingItems });
-  });
-
-  // watch the provided actor for state changes so we can sync items
-  actor.onTransition(newState => {
-    // bail if the state is not one of the states we are interested in
-    if (!states.some(newState.matches)) return;
-
-    const items = get(newState, `context.${context}`, []);
-    const basketItems = getItemsSnapshot();
 
     //  handle items not in the actor, ie dangling items
     forEach(basketItems, basketItem => {
@@ -143,31 +168,7 @@ export const useBasketHelper = (
       }
     });
 
-    // handle items not in the basket, ie new items
-    forEach(items, item => {
-      const product = basketItemBuilder(item);
-      const mapping = basketItemMapper(item);
-
-      const basketItem = findItem(mapping);
-
-      if (product && !basketItem && !includes(dirtyItems, mapping)) {
-        // let the actor know we are syncing so we dont do anyhting else
-        actor.send({ type: "SYNC" });
-        // add the item to the basket
-        service.send({ type: "ADD", data: product });
-        dirtyItems.push(mapping);
-      }
-
-      // else {
-      // let the actor know we are syncing so we dont do anyhting else
-      // actor.send({ type: "SYNC" });
-      // update the item to the basket
-      // service.send({ type: "UPDATE", data: { product } });
-      // dirtyItems.push(mapping);
-      // }
-    });
-
-    // handle syncing the parent item's config with the actor
+    // sync the parent item's config with the actor
     if (parentMapper && parentBuilder) {
       const product = parentBuilder(items);
       const mapping = parentMapper();
@@ -176,8 +177,6 @@ export const useBasketHelper = (
         const model = get(basketItem, "state.context.model");
         const isDirty = !isEmpty(product) && !some([model], matches(product));
         if (isDirty && !includes(dirtyItems, mapping)) {
-          // let the actor know we are syncing so we dont do anyhting else
-          actor.send({ type: "SYNC" });
           // update the basket item  with the new parent model
           basketItem.send({ type: "PUT", data: product });
           dirtyItems.push(mapping);
@@ -186,8 +185,8 @@ export const useBasketHelper = (
     }
   });
 
-  // Finally watch the basket so we can update the dirtyItems items
-  service.onTransition(newState => {
+  // watch the basket so we can process items and sync with the actor
+  service.onTransition(state => {
     // trigger new items to be process once they are ready/configured
     forEach(dirtyItems, mapping => {
       const basketItem = findItem(mapping);
@@ -203,7 +202,34 @@ export const useBasketHelper = (
 
     // finally cleanup and refresh any items that have been updated
     // once the basket has been processed
-    if (newState.matches("shopping.items.processed")) {
+
+    // wait for our basket to be ready, then sync basket items with the actor...
+    waitFor(service, state =>
+      ["shopping.refreshing.complete"].some(state.matches)
+    ).then(() => {
+      const items = get(actor, `state.context.${context}`, []);
+      const basketItems = getItemsSnapshot();
+
+      // find any items that are in the basket but not in the actor
+      const missingItems = [];
+      forEach(basketItems, basketItem => {
+        const mapping = basketItemMapper(basketItem.state.context.model);
+        // check all our mapping values are set, if not then its not a valid mapping and we can skip it
+        const isValid = isEmpty(pickBy(mapping, isEmpty));
+
+        if (isValid && !exists(items, mapping)) {
+          const data = itemBuilder({
+            ...basketItem.state.context.model,
+            ...basketItem.state.context.lookups.product,
+          });
+          missingItems.push(data);
+        }
+      });
+
+      actor.send({ type: "SYNC", data: missingItems });
+    });
+
+    if (state.matches("shopping.items.processed")) {
       forEach(processingItems, (basketItem, id) => {
         actor.send({ type: "REFRESH" });
         unset(processingItems, id);
