@@ -1,14 +1,12 @@
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket as useUpmindBasket } from "@upmind/flow";
 
 // --- utils
 import {
-  childActor,
   contextActor,
   contextMatches,
   contextValue,
@@ -19,7 +17,7 @@ import {
   useContextActor,
   useState,
 } from "../../utils";
-import { isEmpty, some, reject, filter, last } from "lodash-es";
+import { some, filter } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -28,11 +26,24 @@ import { isEmpty, some, reject, filter, last } from "lodash-es";
 //  with some state helpers
 
 export const useBasket = () => {
-  const { service, isReady, addItem, updateItem, removeItem } =
-    useUpmindBasket();
+  const {
+    service,
+    isReady,
+    update,
+    clear,
+    checkout,
+    addItem,
+    updateItem,
+    removeItem,
+    updateTerm,
+    updateQuantity,
+    updateAttributes,
+    updateOptions,
+    updateProvisioning,
+  } = useUpmindBasket();
   // --------------------------------------------------------
   // we need this for reactive state
-  const { state, send } = useActor(service);
+  const { state } = useActor(service);
 
   // --------------------------------------------------------
   // Actors
@@ -186,34 +197,20 @@ export const useBasket = () => {
     // ---
     actors,
     // ---
+    // Basket Methods
     isReady,
-    updateBasket: async () => {
-      send({ type: "UPDATE" });
-      return waitFor(service, newstate =>
-        newstate.matches("shopping.items.processed")
-      );
-    },
-    clearBasket: () => send({ type: "CLEAR" }),
-    checkout: () => send({ type: "CHECKOUT" }),
+    update,
+    clear,
+    checkout,
     // ---
     // Item Methods
     addItem,
     updateItem,
     removeItem,
-
-    updateTerm: ({ itemId, term }) =>
-      send({ type: "UPDATE.TERM", data: { itemId, term } }),
-
-    updateQuantity: ({ itemId, quantity }) =>
-      send({ type: "UPDATE.QUANTITY", data: { itemId, quantity } }),
-
-    updateAttributes: ({ itemId, attributes }) =>
-      send({ type: "UPDATE.ATTRIBUTES", data: { itemId, attributes } }),
-
-    updateOptions: ({ itemId, options }) =>
-      send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
-
-    updateProvisioning: ({ itemId, provision_fields }) =>
-      send({ type: "UPDATE.PROVISIONING", data: { itemId, provision_fields } }),
+    updateTerm,
+    updateQuantity,
+    updateAttributes,
+    updateOptions,
+    updateProvisioning,
   };
 };

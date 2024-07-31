@@ -67,7 +67,7 @@ export function parseAvailable(
 
 export function parseValue(data: Object | string, values = [], available = []) {
   // parse the domain name provided
-  const value = (isObject(data) ? data?.domain : data).toLowerCase();
+  const value = (isObject(data) ? data?.domain : data)?.toLowerCase();
 
   // check if we already have the domain
   let domain = find(values, ["domain", value]);

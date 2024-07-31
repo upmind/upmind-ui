@@ -18,20 +18,23 @@ import { map, some, find, isArray, first } from "lodash-es";
 
 export const useDomain = (
   {
+    values,
     sync,
     type,
     parentId,
   }: {
+    values?: Array<string> | string;
     sync?: boolean;
     type?: DomainTypes;
     parentId?: string; // id of basket item machine representing the parent context
   } = {
+    values: [],
     sync: false,
     type: undefined,
     parentId: undefined,
   }
 ) => {
-  const domain = useUpmindDomain({ sync, type, parentId });
+  const domain = useUpmindDomain({ values, sync, type, parentId });
   const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------

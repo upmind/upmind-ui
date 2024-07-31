@@ -51,7 +51,7 @@
 
     <!-- basket -->
 
-    <pre>{{ { state, errors, meta } }}</pre>
+    <pre>{{ { state, errors, meta, selected } }}</pre>
   </div>
 </template>
 
@@ -108,13 +108,11 @@ export default defineComponent({
       // state,
       // ---
       choices,
-      // values,
       selected,
       type,
       query,
       available,
       errors,
-      // primaryDomain,
       // ---
       meta,
       state,
@@ -122,11 +120,12 @@ export default defineComponent({
       choose,
       search,
       update,
-      // remove,
-      // setPrimaryDomain,
-      // isSelected,
-      // destroy,
-    } = useDomain(props);
+    } = useDomain({
+      values: props.modelValue,
+      sync: props.sync,
+      type: props.type,
+      parentId: props.parentId,
+    });
     const styles = useStyles(["domain"], meta, config);
 
     // ---

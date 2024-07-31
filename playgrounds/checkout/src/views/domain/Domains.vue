@@ -41,7 +41,7 @@ export default defineComponent({
   components: { UpmDomain },
   setup() {
     const styles = useStyles(["domains", "domains.section"], null, config);
-    return { styles, selected: ref([]) };
+    return { styles, selected: ref() };
   },
   methods: {},
 });
