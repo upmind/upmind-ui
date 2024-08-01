@@ -16,7 +16,8 @@
     "localazy": "localazy upload",
     "localazy:download": "localazy download",
     "localazy:sync": "localazy upload && localazy download",
-    "deploy": "npm run build-only && firebase deploy"
+    "deploy": "npm run build-only && firebase deploy --only hosting:staging",
+    "deploy:prod": "npm run build-only && firebase deploy --only hosting:production"
   },
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
