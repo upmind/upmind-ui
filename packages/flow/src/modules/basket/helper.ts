@@ -52,23 +52,22 @@ async function add(context, basket, target = "items") {
 }
 
 async function remove(context, basket, target = "items") {
-  const items = get(context, target, []);
-  const promises = [];
+  // todo;
+  return Promise.resolve();
 
-  debugger;
-  forEach(basket.getItemsSnapshot(), basketItem => {
-    debugger;
-    const model = get(basketItem.getSnapshot(), "context.model");
-    const mapping = context.itemMapper(model);
-    debugger;
-    if (!basket.itemExists(items, mapping)) {
-      debugger;
-      // send the command and set the item to be processed
-      promises.push(basket.removeItem(basketItem.id));
-    }
-  });
+  // const items = get(context, target, []);
+  // const promises = [];
 
-  return Promise.all(promises);
+  // forEach(basket.getItemsSnapshot(), basketItem => {
+  //   const model = get(basketItem.getSnapshot(), "context.model");
+  //   const mapping = context.itemMapper(model);
+  //   if (!basket.itemExists(items, mapping)) {
+  //     // send the command and set the item to be processed
+  //     promises.push(basket.removeItem(basketItem.id));
+  //   }
+  // });
+
+  // return Promise.all(promises);
 }
 
 async function update(context, basket, target = "items") {

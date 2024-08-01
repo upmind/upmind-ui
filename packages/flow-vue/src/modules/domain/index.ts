@@ -93,7 +93,6 @@ export const useDomain = (
   };
 
   const setPrimaryDomain = (value: string) => {
-    debugger;
     send({
       type: "SELECT",
       data: value,

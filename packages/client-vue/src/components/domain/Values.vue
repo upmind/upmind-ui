@@ -75,7 +75,6 @@ export default defineComponent({
     disabled: { type: Boolean, default: false },
   },
   setup(props) {
-    debugger;
     const meta = computed(() => ({
       isLoading: props.loading,
       isEmpty: !props.items?.length,
@@ -117,9 +116,7 @@ export default defineComponent({
     },
 
     onUpdate(value) {
-      debugger;
       if (this.meta.isDisabled || this.meta.isProcessing) return;
-      // // ensure we return a nice clean array
       this.$emit("update:modelValue", value);
     },
   },
