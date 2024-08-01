@@ -72,6 +72,12 @@ export const useDomain = (
     });
   };
 
+  const reset = () => {
+    send({
+      type: "RESET",
+    });
+  };
+
   const add = (value: string) => {
     send({
       type: "ADD",
@@ -172,6 +178,7 @@ export const useDomain = (
     remove,
     toggle,
     update,
+    reset,
     setPrimaryDomain,
     syncBasket,
     isSelected: (value: string) => state.value.matches(value),
