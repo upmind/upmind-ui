@@ -44,7 +44,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     add: "ADD";
     cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
-    checkChoices: "" | "CHOOSE" | "STOP" | "xstate.init";
+    checkChoices: "";
     clearAvailable:
       | ""
       | "CHOOSE"
@@ -66,8 +66,10 @@ export interface Typegen0 {
     setAvailable:
       | "done.invoke.domainManager.existing.loading:invocation[0]"
       | "done.invoke.processing:invocation[0]";
+    setBasketHelper: "";
     setCurrency: "REFRESH";
     setError:
+      | "ERROR"
       | "error.platform.domainManager.existing.loading:invocation[0]"
       | "error.platform.processing:invocation[0]";
     setPrimary: "SELECT";
@@ -75,6 +77,8 @@ export interface Typegen0 {
     setSearch: "SEARCH";
     setType: "CHOOSE";
     setValues: "UPDATE";
+    syncBasket: "SYNC";
+    synced: "SYNCED";
   };
   eventsCausingDelays: {
     wait: "" | "REFRESH" | "SEARCH" | "SELECT";
@@ -94,6 +98,7 @@ export interface Typegen0 {
       | "error.platform.processing:invocation[0]";
     isValidDomain: "ADD";
     isValidSearch: "SEARCH";
+    needsBasketHelper: "";
   };
   eventsCausingServices: {
     getClientDomains: "" | "CHOOSE" | "REFRESH";
@@ -107,9 +112,11 @@ export interface Typegen0 {
     | "complete"
     | "dac"
     | "dac.available"
+    | "dac.complete"
     | "dac.error"
     | "dac.idle"
     | "dac.processing"
+    | "dac.syncing"
     | "dac.valid"
     | "existing"
     | "existing.available"
@@ -121,9 +128,17 @@ export interface Typegen0 {
     | "existing.processing.cancelling"
     | "existing.valid"
     | "idle"
+    | "subscribing"
     | {
         basket?: "loading" | "updating" | "valid";
-        dac?: "available" | "error" | "idle" | "processing" | "valid";
+        dac?:
+          | "available"
+          | "complete"
+          | "error"
+          | "idle"
+          | "processing"
+          | "syncing"
+          | "valid";
         existing?:
           | "available"
           | "error"
