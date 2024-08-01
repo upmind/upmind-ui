@@ -5,6 +5,7 @@
     :model-value="true"
     persistent
     :upwind-config="config.domain"
+    skrim="light"
   >
     <div :class="styles.domain.root">
       <upw-textbox
@@ -31,14 +32,14 @@
       <upw-button
         :loading="meta.isProcessing"
         @click="onReject"
-        label="Cancel"
-        variant="ghost"
+        :label="$t('domain.dac.actions.cancel')"
+        variant="link"
       />
       <upw-button
         :loading="meta.isProcessing"
         :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
         @click="onResolve"
-        label="Add domains to basket"
+        :label="$t('domain.dac.actions.continue')"
         prependIcon="plus-circle"
       />
     </template>
