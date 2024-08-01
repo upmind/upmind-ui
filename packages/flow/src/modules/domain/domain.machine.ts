@@ -26,7 +26,7 @@ import {
   reduce,
   reject,
   some,
-  unionBy,
+  set,
   uniqBy,
 } from "lodash-es";
 
@@ -330,10 +330,16 @@ export default createMachine(
             on: {
               SYNCED: {
                 target: "invalid",
-                actions: ["setBasketItems", "setAvailable", "setValues"],
+                actions: [
+                  "setBasketItems",
+                  "setAvailable",
+                  "setValues",
+                  "checkChoices",
+                ],
               },
               ERROR: {
-                target: "invalid",
+                target: "error",
+                actions: ["setError"],
               },
             },
           },
@@ -435,11 +441,15 @@ export default createMachine(
   {
     actions: {
       checkChoices: assign({
-        choices: ({ choices, basketItems }) => {
-          if (!basketItems?.length) {
-            return omit(choices, DomainTypes.basket);
-          }
-          return choices;
+        choices: ({ basketItems }) => {
+          if (!basketItems?.length)
+            return omit(DomainTypes, DomainTypes.basket);
+
+          return DomainTypes;
+        },
+        type: ({ type, basketItems }) => {
+          if (!basketItems?.length) return type;
+          return type || DomainTypes.basket;
         },
       }),
 
@@ -466,7 +476,6 @@ export default createMachine(
           itemBuilder: function (item) {
             return parseBasketItem(item);
           },
-
           itemMapper: item => ({
             product_id: item.product_id,
             sld: item?.sld || item?.provision_fields?.sld,
