@@ -77,7 +77,7 @@ import UpwRadio from "../radio/Radio.vue";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isNil, pick } from "lodash-es";
+import { isEmpty, isEqual, isNil, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -210,9 +210,8 @@ export default defineComponent({
       },
     },
     selected: {
-      immediate: true,
-      handler(value) {
-        if (this.disabled || this.processing) return;
+      handler(value, prevValue) {
+        if (this.disabled || this.processing || value == prevValue) return;
 
         this.$emit("update:modelValue", value);
         // forward the event to the input control that will trigger the update

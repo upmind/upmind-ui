@@ -14,6 +14,7 @@ import { useTime } from "../../utils";
 import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
   find,
+  get,
   has,
   isEmpty,
   map,
@@ -23,6 +24,7 @@ import {
   some,
   unionBy,
   includes,
+  isObject,
 } from "lodash-es";
 
 // --- types
@@ -158,6 +160,9 @@ export default createMachine(
           // ---
           syncing: {
             on: {
+              REFRESH: {
+                // do nothing
+              },
               SYNCED: {
                 target: "complete",
                 actions: ["synced"],
@@ -284,10 +289,6 @@ export default createMachine(
             target: ".valid",
             actions: ["clearError", "clearValues", "setValues"],
           },
-          REFRESH: {
-            target: ".loading",
-            actions: ["clearError", "setCurrency", "setPromotions"],
-          },
         },
         exit: ["clearValues", "clearAvailable"],
       },
@@ -329,10 +330,6 @@ export default createMachine(
               cond: "hasValues",
             },
           ],
-          REFRESH: {
-            target: ".valid",
-            actions: ["setCurrency", "setPromotions"],
-          },
         },
       },
 
@@ -342,6 +339,10 @@ export default createMachine(
       },
     },
     on: {
+      REFRESH: {
+        actions: ["setCurrency", "setPromotions"],
+      },
+
       CHOOSE: [
         {
           // do nothing
@@ -390,11 +391,15 @@ export default createMachine(
       }),
 
       setCurrency: assign({
-        currency: (_context, { data }) => data?.currency,
+        currency: (_context, { data }) => {
+          return data?.currency;
+        },
       }),
 
       setPromotions: assign({
-        promotions: (_context, { data }) => data?.promotions,
+        promotions: (_context, { data }) => {
+          return data?.promotions;
+        },
       }),
       // ---
 
@@ -449,31 +454,32 @@ export default createMachine(
           target: "values",
         })
       ),
-      addToBasket: sendTo(
-        ({ basketHelper }, _event) => basketHelper,
-        (context, _event) => ({
-          type: "ADD",
-          data: context,
-          target: "values",
-        })
-      ),
-      removeFromBasket: sendTo(
-        ({ basketHelper }, _event) => basketHelper,
-        (context, _event) => ({
-          type: "REMOVE",
-          data: context,
-          target: "values",
-        })
-      ),
 
-      updateBasket: sendTo(
-        ({ basketHelper }, _event) => basketHelper,
-        (context, _event) => ({
-          type: "UPDATE",
-          data: context,
-          target: "values",
-        })
-      ),
+      // addToBasket: sendTo(
+      //   ({ basketHelper }, _event) => basketHelper,
+      //   (context, _event) => ({
+      //     type: "ADD",
+      //     data: context,
+      //     target: "values",
+      //   })
+      // ),
+      // removeFromBasket: sendTo(
+      //   ({ basketHelper }, _event) => basketHelper,
+      //   (context, _event) => ({
+      //     type: "REMOVE",
+      //     data: context,
+      //     target: "values",
+      //   })
+      // ),
+
+      // updateBasket: sendTo(
+      //   ({ basketHelper }, _event) => basketHelper,
+      //   (context, _event) => ({
+      //     type: "UPDATE",
+      //     data: context,
+      //     target: "values",
+      //   })
+      // ),
 
       // ---
 

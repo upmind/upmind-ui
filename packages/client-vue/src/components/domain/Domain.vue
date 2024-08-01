@@ -17,7 +17,7 @@
         :key="choice"
         :class="styles.domain.search"
         @update:modelValue="search"
-        prependIcon="search"
+        :prependIcon="meta.showPrimaryDomain ? null : 'search'"
         :placeholder="$t('domain.dac.search')"
         autofocus
         autocomplete="url"
@@ -25,12 +25,22 @@
       />
 
       <upm-domain-listings
+        v-if="!meta.showPrimaryDomain"
         :model-value="selected"
         :items="available"
         :loading="meta.isSearching"
         :processing="meta.isSyncing"
         @update:modelValue="update"
+        @toggle="toggle"
         :multiple="multiple"
+      />
+
+      <upw-button
+        v-if="meta.showContinue || meta.isSyncing"
+        :loading="meta.isSyncing"
+        :disabled="!selected.length"
+        @click="syncBasket"
+        label="Sync"
       />
     </template>
 
@@ -51,7 +61,7 @@
 
     <!-- basket -->
 
-    <pre>{{ { state, errors, meta, selected } }}</pre>
+    <pre>{{ { state, meta, selected } }}</pre>
   </div>
 </template>
 
@@ -120,6 +130,8 @@ export default defineComponent({
       choose,
       search,
       update,
+      toggle,
+      syncBasket,
     } = useDomain({
       values: props.modelValue,
       sync: props.sync,
@@ -144,6 +156,8 @@ export default defineComponent({
       choose,
       search: debounce(search, 500),
       update: debounce(update, 500),
+      toggle,
+      syncBasket,
       // ---
       styles,
       mergeStyles,

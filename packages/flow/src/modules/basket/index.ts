@@ -97,11 +97,10 @@ export const useBasket = () => {
       provision_fields,
     }) => {
       // lets wait for our basket  to be ready for shopping
-      return waitFor(service, state => state.matches("shopping")).then(() => {
-        // lets add the new product base don the provided config to the basket
-        service.send({
-          type: "ADD",
-          data: {
+      return waitFor(service, state => state.matches("shopping")).then(
+        async () => {
+          // lets add the new product base don the provided config to the basket
+          const mapping = {
             id,
             product_id,
             quantity,
@@ -109,13 +108,29 @@ export const useBasket = () => {
             attributes,
             options,
             provision_fields,
-          },
-        });
+          };
+          service.send({
+            type: "ADD",
+            data: mapping,
+          });
 
-        // then wait/check for the new product actor to be configured
-        // then send the update event to the basket
-        return last(service.getSnapshot().context?.items);
-      });
+          // then wait/check for the new product actor to be configured
+          // then send the update event to the basket
+          const actor = find(
+            service.getSnapshot()?.context?.items,
+            basketItem =>
+              every(mapping, (value, key) => {
+                if (key == "id" && value) {
+                  return basketItem.id == value;
+                } else {
+                  return get(basketItem, `state.context.model.${key}`) == value;
+                }
+              })
+          );
+          await waitFor(actor, actorState => actorState.matches("configured"));
+          return actor;
+        }
+      );
     },
 
     updateItem: async itemId => {

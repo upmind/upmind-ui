@@ -23,13 +23,11 @@
           <upm-empty />
         </slot>
 
-        <component
+        <upw-checkbox-list
           v-else
-          :is="multiple ? 'upw-checkbox-list' : 'upw-radio-list'"
           :class="styles.domain.listings.items"
           :items="items"
           :model-value="safeValue"
-          @update:modelValue="onChange"
           no-input
         >
           <template #prepend="{ item }"> </template>
@@ -133,7 +131,7 @@
                     isSelected(item.domain) ? 'check' : 'plus-circle'
                   "
                   :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
-                  @click="onChange(item)"
+                  @click.prevent="onUpdate(item.domain)"
                   block
                   size="sm"
                 />
@@ -151,14 +149,14 @@
                   :loading="meta.isProcessing"
                   :prepend-icon="isSelected(item.domain) ? 'check' : 'transfer'"
                   :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
-                  @click="onChange(item)"
+                  @click.prevent="onUpdate(item.domain)"
                   block
                   size="sm"
                 />
               </div>
             </div>
           </template>
-        </component>
+        </upw-checkbox-list>
       </template>
 
       <!-- <footer :class="styles.domain.listings.footer">
@@ -189,17 +187,7 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import {
-  compact,
-  first,
-  get,
-  includes,
-  isArray,
-  isObject,
-  isString,
-  remove,
-  uniq,
-} from "lodash-es";
+import { get, includes, isArray, isNil } from "lodash-es";
 
 // --- types
 // -----------------------------------------------------------------------------
@@ -217,13 +205,12 @@ export default defineComponent({
     // ---
     UpmEmpty,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "toggle"],
   props: {
     i18nKey: { type: String, default: "domain.listings" },
     modelValue: { type: [String, Array], default: () => [] },
     items: { type: Array, required: true },
     dialog: { type: Boolean, default: false },
-    multiple: { type: Boolean, default: false },
     // ---
     loading: { type: Boolean, default: false },
     processing: { type: Boolean, default: false },
@@ -263,7 +250,11 @@ export default defineComponent({
       return get(this.translations, "title", "Select your domain");
     },
     safeValue() {
-      return this.multiple ? this.modelValue : first(this.modelValue);
+      return isNil(this.modelValue)
+        ? []
+        : isArray(this.modelValue)
+          ? this.modelValue
+          : [this.modelValue];
     },
   },
   methods: {
@@ -273,27 +264,10 @@ export default defineComponent({
       return includes(this.modelValue, value);
     },
 
-    onChange(value) {
+    onUpdate(value) {
       if (this.meta.isDisabled || this.meta.isProcessing) return;
-      // ensure we return a nice clean array
-
-      if (isArray(value) && !this.multiple) {
-        value = first(value);
-      } else if (isArray(value) && this.multiple) {
-        value = value.map(item => (isObject(item) ? item.domain : item));
-      } else if (isString(value) || (isObject(value) && this.multiple)) {
-        const selected = this.modelValue || [];
-        value = isObject(value) ? value.domain : value;
-        if (includes(selected, value)) {
-          remove(selected, domain => domain == value);
-        } else {
-          selected.push(value);
-        }
-        // ensure we return a nice clean array
-        value = uniq(compact(selected));
-      }
-
-      this.$emit("update:modelValue", value);
+      // // ensure we return a nice clean array
+      this.$emit("toggle", value);
     },
   },
 });
