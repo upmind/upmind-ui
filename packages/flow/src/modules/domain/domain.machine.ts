@@ -542,31 +542,28 @@ export default createMachine(
       // ---
 
       synced: assign({
-        values: ({ values }, { data }) => {
-          // merge the values and data, preserving any existing properties in values
-          debugger;
-          const domains = unionBy(
-            map(data, item => {
-              let domain = parseBasketItem(item);
-              // merge any existing values with the new data
-              const exists = find(values, ["domain", domain.domain]);
-              if (exists) {
-                domain = Object.assign({}, exists, domain);
-              }
-              return domain;
-            }),
-            values, // this will include any values NOT in data
-            "domain"
-          );
-
-          return domains;
+        // values: ({ values }, { data }) => {
+        //   // merge the values and data, preserving any existing properties in values
+        //   debugger;
+        //   const domains = unionBy(
+        //     map(data, item => {
+        //       let domain = parseBasketItem(item);
+        //       // merge any existing values with the new data
+        //       const exists = find(values, ["domain", domain.domain]);
+        //       if (exists) {
+        //         domain = Object.assign({}, exists, domain);
+        //       }
+        //       return domain;
+        //     }),
+        //     values, // this will include any values NOT in data
+        //     "domain"
+        //   );
+        //   return domains;
+        // },
+        type: ({ type }, { data }) => {
+          return DomainTypes.basket;
+          // return data.length ? DomainTypes.basket : type;
         },
-        sync: false,
-        choices: ({ choices }, { data }) => {
-          if (!data?.length) return omit(choices, DomainTypes.basket);
-          return choices;
-        },
-        // type: ({ type }, { data }) => (type || data.length ? "basket" : null)
       }),
 
       // ---
