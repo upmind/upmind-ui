@@ -139,7 +139,7 @@ export const useDomain = (
     meta: computed(() => ({
       isLoading: ["subscribing", "loading"].some(state.value.matches),
 
-      isSyncing: ["dac.syncing"].some(state.value.matches),
+      isSyncing: ["dac.syncing", "basket.processing"].some(state.value.matches),
 
       isSearching: [
         "dac.loading",
@@ -147,7 +147,6 @@ export const useDomain = (
         "existing.loading",
         "existing.processing",
         "basket.loading",
-        "basket.processing",
       ].some(state.value.matches),
 
       hasErrors: ["error", "dac.error", "existing.error", "basket.error"].some(

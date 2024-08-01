@@ -19,17 +19,9 @@
         :class="styles.domain.listings.items"
         :items="items"
         :model-value="modelValue"
+        @update:modelValue="onUpdate"
       >
-        <template #label="{ item }">
-          <p :class="styles.domain.card.label">
-            <span :class="styles.domain.card.title">
-              {{ item.sld
-              }}<strong :class="styles.domain.card.underline">{{
-                item.tld
-              }}</strong>
-            </span>
-          </p>
-        </template>
+        <template #label="{ item }"> {{ item.sld }}{{ item.tld }} </template>
       </upw-radio-list>
     </template>
 
@@ -125,6 +117,7 @@ export default defineComponent({
     },
 
     onUpdate(value) {
+      debugger;
       if (this.meta.isDisabled || this.meta.isProcessing) return;
       // // ensure we return a nice clean array
       this.$emit("update:modelValue", value);

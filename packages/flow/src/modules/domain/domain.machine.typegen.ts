@@ -81,7 +81,7 @@ export interface Typegen0 {
     setPromotions: "REFRESH";
     setSearch: "SEARCH";
     setType: "CHOOSE";
-    setValues: "UPDATE";
+    setValues: "SYNCED" | "UPDATE";
     syncBasket: "SYNC";
     synced: "SYNCED";
   };
