@@ -93,6 +93,7 @@ export const useDomain = (
   };
 
   const setPrimaryDomain = (value: string) => {
+    debugger;
     send({
       type: "SELECT",
       data: value,
@@ -141,8 +142,11 @@ export const useDomain = (
       isSyncing: ["dac.syncing"].some(state.value.matches),
 
       isSearching: [
+        "dac.loading",
         "dac.processing",
+        "existing.loading",
         "existing.processing",
+        "basket.loading",
         "basket.processing",
       ].some(state.value.matches),
 
