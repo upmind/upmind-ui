@@ -56,7 +56,7 @@
       @update:modelValue="setPrimaryDomain"
     />
 
-    <pre>{{ { state, meta, selected, values, available } }}</pre>
+    <!-- <pre>{{ { state, meta, selected, values,  } }}</pre> -->
   </div>
 </template>
 
@@ -194,18 +194,10 @@ export default defineComponent({
   },
   methods: {},
   watch: {
-    values: {
+    selected: {
       handler: function (value) {
-        if (!this.multiple) {
-          this.$emit("update:modelValue", value);
-        } else {
-          this.$emit(
-            "update:modelValue",
-            find(value, "is_primary") || first(value)
-          );
-        }
+        this.$emit("update:modelValue", value);
       },
-      deep: true,
     },
   },
 });

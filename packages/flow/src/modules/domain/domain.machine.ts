@@ -321,6 +321,7 @@ export default createMachine(
       },
 
       basket: {
+        entry: ["clearValues", "clearAvailable"],
         id: "basket",
         initial: "loading",
         states: {
@@ -329,7 +330,7 @@ export default createMachine(
             on: {
               SYNCED: {
                 target: "invalid",
-                actions: ["setBasketItems", "setAvailable"],
+                actions: ["setBasketItems", "setAvailable", "setValues"],
               },
               ERROR: {
                 target: "invalid",
@@ -386,6 +387,7 @@ export default createMachine(
             },
           ],
         },
+        exit: ["clearValues", "clearAvailable"],
       },
 
       // ---
