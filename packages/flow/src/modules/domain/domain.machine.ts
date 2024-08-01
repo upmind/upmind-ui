@@ -1,9 +1,12 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, spawn, actions } from "xstate";
+const { sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
+import { syncSubscription } from "../basket/helper";
+
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
@@ -13,7 +16,6 @@ import {
   find,
   has,
   isEmpty,
-  isArray,
   map,
   omit,
   reduce,
@@ -35,25 +37,45 @@ export default createMachine(
     tsTypes: {} as import("./domain.machine.typegen").Typegen0,
     id: "domainManager",
     predictableActionArguments: true,
-    initial: "idle",
+    initial: "subscribing",
     context: {
       choices: DomainTypes,
-      type: null,
-      sync: null,
+      type: undefined,
+      sync: undefined,
       values: [],
       available: [],
       total: 0,
       // ---
-      search: null,
-      currency: null,
+      search: undefined,
+      currency: undefined,
       promotions: [],
       limit: 10,
       offset: 0,
-      controller: null,
+      controller: undefined,
       // ---
-      error: null,
+      error: undefined,
+      basketHelper: undefined,
+      itemBuilder: undefined,
+      itemMapper: undefined,
+      basketItemBuilder: undefined,
+      basketItemMapper: undefined,
+
+      // ---
     } as DomainContext,
+
     states: {
+      subscribing: {
+        always: [
+          {
+            target: "idle",
+            actions: "setBasketHelper",
+            cond: "needsBasketHelper",
+          },
+          {
+            target: "idle",
+          },
+        ],
+      },
       // our initial state depends on if the machine has been forced to a type,
       // if we do then go to that types state, otherwise stay idle
       idle: {
@@ -126,8 +148,28 @@ export default createMachine(
               target: "available",
               cond: "hasNoValues",
             },
+            on: {
+              SYNC: {
+                target: "syncing",
+                actions: ["syncBasket"],
+              },
+            },
+          },
+          // ---
+          syncing: {
+            on: {
+              SYNCED: {
+                target: "complete",
+                actions: ["synced"],
+              },
+              ERROR: {
+                target: "error",
+                actions: ["setError"],
+              },
+            },
           },
           error: {},
+          complete: {},
         },
         on: {
           ADD: [
@@ -294,6 +336,7 @@ export default createMachine(
         },
       },
 
+      // ---
       complete: {
         type: "final",
       },
@@ -354,7 +397,87 @@ export default createMachine(
         promotions: (_context, { data }) => data?.promotions,
       }),
       // ---
-      sync: assign({
+
+      setBasketHelper: assign(context => {
+        return {
+          basketHelper: spawn(syncSubscription),
+          itemBuilder: function (item) {
+            return {
+              product_id: item.product_id,
+              options: item.options,
+              quantity: item.quantity,
+              tld: item?.name,
+              sld: item?.provision_fields?.sld,
+              term: {
+                billing_cycle_months:
+                  item?.billing_cycle_months ||
+                  item?.term?.billing_cycle_months ||
+                  item?.term,
+              },
+            };
+          },
+          itemMapper: item => ({
+            product_id: item.product_id,
+            sld: item?.sld || item?.provision_fields?.sld,
+          }),
+          basketItemBuilder: item => {
+            if (!item?.product_id) return null;
+            return {
+              product_id: item.product_id,
+              quantity: 1,
+              term: {
+                billing_cycle_months: item.billing_cycle_months,
+              },
+              options: item.options,
+              provision_fields: {
+                sld: item.sld,
+              },
+            };
+          },
+          basketItemMapper: item => ({
+            product_id: item.product_id,
+            "provision_fields.sld": item?.sld || item?.provision_fields?.sld,
+          }),
+        };
+      }),
+
+      syncBasket: sendTo(
+        ({ basketHelper }, _event) => basketHelper,
+        (context, _event) => ({
+          type: "SYNC",
+          data: context,
+          target: "values",
+        })
+      ),
+      addToBasket: sendTo(
+        ({ basketHelper }, _event) => basketHelper,
+        (context, _event) => ({
+          type: "ADD",
+          data: context,
+          target: "values",
+        })
+      ),
+      removeFromBasket: sendTo(
+        ({ basketHelper }, _event) => basketHelper,
+        (context, _event) => ({
+          type: "REMOVE",
+          data: context,
+          target: "values",
+        })
+      ),
+
+      updateBasket: sendTo(
+        ({ basketHelper }, _event) => basketHelper,
+        (context, _event) => ({
+          type: "UPDATE",
+          data: context,
+          target: "values",
+        })
+      ),
+
+      // ---
+
+      synced: assign({
         values: ({ values }, { data }) => {
           // merge the values and data, preserving any existing properties in values
           const domains = unionBy(
@@ -381,6 +504,8 @@ export default createMachine(
         // type: ({ type }, { data }) => (type || data.length ? "basket" : null)
       }),
 
+      // ---
+
       add: assign({
         values: ({ values, available }: DomainContext, { data }: AddEvent) => {
           const domain = parseValue(data, values, available);
@@ -404,6 +529,8 @@ export default createMachine(
           return newValues;
         },
       }),
+
+      // ---
 
       setValues: assign({
         values: ({ values, available }: DomainContext, { data }: AddEvent) => {
@@ -505,6 +632,8 @@ export default createMachine(
     },
 
     guards: {
+      needsBasketHelper: ({ sync, basketHelper }) => sync && !basketHelper,
+
       // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
       isInvalidType: ({ choices }, { data }) => {

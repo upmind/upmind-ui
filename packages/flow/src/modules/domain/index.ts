@@ -6,7 +6,7 @@ import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types.d";
 export * from "./types.d";
 // --- utils
-import { useBasketHelper, useBasket } from "..";
+import { useBasket } from "..";
 import { has, find, map } from "lodash-es";
 import { isArray } from "xstate/lib/utils";
 import { parseDomain } from "./utils";

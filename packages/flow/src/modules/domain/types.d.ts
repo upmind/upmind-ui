@@ -52,21 +52,24 @@ interface IDomainSearch {
 
 export interface DomainContext {
   choices: Object<DomainTypes>;
-  type: DomainTypes | null;
-  sync?: boolean | null;
-  values: Array<IDomainProduct | IDomain>;
-  available: Array<IDomainProduct>;
-  total: number;
+  type?: DomainTypes;
+  values?: Array<IDomainProduct | IDomain>;
+  available?: Array<IDomainProduct>;
+  total?: number;
   // ---
-  search?: string | null;
-  currency?: string | null;
+  search?: string;
+  currency?: string;
   promotions?: Array<string>;
-  limit: number;
+  limit?: number;
   offset?: number;
-  controller?: AbortController | null;
+  controller?: AbortController;
   tlds?: Array<string>;
   // ---
   error?: any;
+  // ---
+  sync?: boolean;
+  basketHelper?: Function;
+  //
 }
 
 // --- Events
