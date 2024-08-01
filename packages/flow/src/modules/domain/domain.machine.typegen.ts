@@ -22,11 +22,11 @@ export interface Typegen0 {
       type: "error.platform.processing:invocation[0]";
       data: unknown;
     };
-    "xstate.after(wait)#domainManager.basket.updating": {
-      type: "xstate.after(wait)#domainManager.basket.updating";
+    "xstate.after(wait)#domainManager.basket.processing": {
+      type: "xstate.after(wait)#domainManager.basket.processing";
     };
-    "xstate.after(wait)#domainManager.existing.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.existing.processing.cancelling";
+    "xstate.after(wait)#domainManager.existing.processing": {
+      type: "xstate.after(wait)#domainManager.existing.processing";
     };
     "xstate.init": { type: "xstate.init" };
     "xstate.stop": { type: "xstate.stop" };
@@ -43,8 +43,8 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    cancelController: "" | "CHOOSE" | "REFRESH" | "RESET" | "SEARCH";
-    checkChoices: "";
+    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
+    checkChoices: "ERROR" | "SYNCED";
     clearAvailable:
       | ""
       | "CHOOSE"
@@ -59,17 +59,19 @@ export interface Typegen0 {
       | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
-      | "RESET"
       | "SEARCH"
       | "UPDATE";
     clearSearch: "RESET";
     clearValues: "" | "CHOOSE" | "RESET" | "STOP" | "UPDATE" | "xstate.stop";
+    fetchBasket: "" | "CHOOSE";
     newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     remove: "REMOVE";
     setAvailable:
+      | "SYNCED"
       | "done.invoke.domainManager.existing.loading:invocation[0]"
       | "done.invoke.processing:invocation[0]";
     setBasketHelper: "";
+    setBasketItems: "SYNCED";
     setCurrency: "REFRESH";
     setError:
       | "ERROR"
@@ -84,10 +86,9 @@ export interface Typegen0 {
     synced: "SYNCED";
   };
   eventsCausingDelays: {
-    wait: "" | "REFRESH" | "SEARCH" | "SELECT";
+    wait: "SELECT";
   };
   eventsCausingGuards: {
-    hasAvailable: "";
     hasNoValues: "";
     hasValidSearch: "";
     hasValues: "" | "REMOVE" | "SELECT";
@@ -109,48 +110,49 @@ export interface Typegen0 {
   };
   matchesStates:
     | "basket"
+    | "basket.complete"
+    | "basket.error"
+    | "basket.invalid"
     | "basket.loading"
-    | "basket.updating"
+    | "basket.processing"
+    | "basket.syncing"
     | "basket.valid"
     | "complete"
     | "dac"
-    | "dac.available"
     | "dac.complete"
     | "dac.error"
-    | "dac.idle"
+    | "dac.invalid"
+    | "dac.loading"
     | "dac.processing"
     | "dac.syncing"
     | "dac.valid"
     | "existing"
-    | "existing.available"
     | "existing.error"
-    | "existing.idle"
     | "existing.invalid"
     | "existing.loading"
     | "existing.processing"
-    | "existing.processing.cancelling"
     | "existing.valid"
     | "idle"
+    | "loading"
     | "subscribing"
     | {
-        basket?: "loading" | "updating" | "valid";
-        dac?:
-          | "available"
+        basket?:
           | "complete"
           | "error"
-          | "idle"
-          | "processing"
-          | "syncing"
-          | "valid";
-        existing?:
-          | "available"
-          | "error"
-          | "idle"
           | "invalid"
           | "loading"
           | "processing"
-          | "valid"
-          | { processing?: "cancelling" };
+          | "syncing"
+          | "valid";
+        dac?:
+          | "complete"
+          | "error"
+          | "invalid"
+          | "loading"
+          | "processing"
+          | "syncing"
+          | "valid";
+        existing?: "error" | "invalid" | "loading" | "processing" | "valid";
       };
   tags: never;
 }

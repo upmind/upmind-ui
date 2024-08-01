@@ -86,32 +86,37 @@ export function parseValue(data: Object | string, values = [], available = []) {
 
 export function parseBasketItem(item) {
   const { removeTrailingZeroes } = useMoney();
+
+  const tld = item?.tld || item?.name;
+  const sld = item?.sld || item?.provision_fields?.sld;
+  const domain = [sld, tld].join("").toLowerCase();
   const result = {
     product_id: item.product_id,
-    options: !item?.domain_available
-      ? useAddedOptionsParser(item?.options)
-      : {},
-    tld: item?.tld,
-    sld: item?.sld,
-    domain: [item.sld, item.tld].join("").toLowerCase(),
+    quantity: item.quantity,
+    options: !item?.domain_available ? parseOptions(item?.options) : {},
     is_available: item?.domain_available,
+    // ---
+    tld,
+    sld,
+    domain,
   };
-
-  if (item?.prices?.length) {
-    const term = first(orderBy(item.prices, "billing_cycle_months", "asc"));
-
-    result.billing_cycle_months = term.billing_cycle_months;
-    result.billing_cycle_years = Math.round(term.billing_cycle_months / 12);
-    result.is_discounted = !!term.price_discounted_formatted;
-    result.price_formatted = removeTrailingZeroes(term.price_formatted);
+  const term =
+    item.term || first(orderBy(item.prices, "billing_cycle_months", "asc"));
+  if (term) {
+    result.billing_cycle_months =
+      item?.billing_cycle_months ||
+      item?.term?.billing_cycle_months ||
+      item?.term;
+    result.billing_cycle_years = Math.round(term?.billing_cycle_months / 12);
+    result.is_discounted = !!term?.price_discounted_formatted;
+    result.price_formatted = removeTrailingZeroes(term?.price_formatted);
     result.price_discounted_formatted = removeTrailingZeroes(
-      term.price_discounted_formatted
+      term?.price_discounted_formatted
     );
-
-    result.percentage_saving = !result.is_discounted
+    result.percentage_saving = !result?.is_discounted
       ? 0
       : Math.floor(
-          ((term.price - (term.price_discounted || 0)) / term.price) * 100
+          ((term?.price - (term?.price_discounted || 0)) / term?.price) * 100
         );
 
     //   result.billing_summary = $tc(
@@ -129,7 +134,7 @@ export function parseBasketItem(item) {
 
 // ---
 
-const useAddedOptionsParser = (data: any) => {
+export const parseOptions = (data: any) => {
   const options = reduce(
     data,
     (result, option) => {

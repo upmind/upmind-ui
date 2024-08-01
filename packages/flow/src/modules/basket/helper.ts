@@ -4,9 +4,35 @@
 import { useBasket } from "./";
 
 // --- utils
-import { forEach, get } from "lodash-es";
+import { forEach, get, reduce, isEmpty, pickBy } from "lodash-es";
 
 // --------------------------------------------------------
+async function fetch(context, basket) {
+  const basketItems = basket.getItemsSnapshot();
+
+  return basket.isReady().then(() => {
+    return reduce(
+      basketItems,
+      (result, basketItem) => {
+        const model = get(basketItem, "state.context.model");
+        const product = get(basketItem, "state.context.lookups.product");
+        const mapping = context.basketItemMapper(model);
+        // check all our mapping values are set, if not then its not a valid mapping and we can skip it
+        const isValid = isEmpty(pickBy(mapping, isEmpty));
+        if (isValid) {
+          const data = context.itemBuilder({
+            ...model,
+            ...product,
+          });
+          result.push(data);
+        }
+
+        return result;
+      },
+      []
+    );
+  });
+}
 
 async function add(context, basket, target = "items") {
   const items = get(context, target, []);
@@ -100,6 +126,12 @@ export function syncSubscription(callback, onReceive) {
   const basket = useBasket();
   onReceive(event => {
     switch (event.type) {
+      case "FETCH":
+        fetch(event.data, basket)
+          .then(data => callback({ type: "SYNCED", data }))
+          .catch(error => callback({ type: "ERROR", error }));
+        break;
+
       case "ADD":
         add(event.data, basket, event.target)
           .then(data => callback({ type: "SYNCED", data }))

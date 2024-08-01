@@ -28,35 +28,6 @@
         @reject="reset"
         :query="meta.showPrimaryDomain ? selected : query"
       />
-      <!-- <upw-textbox
-        :key="choice"
-        :class="styles.domain.search"
-        @update:modelValue="search"
-        :prependIcon="meta.showPrimaryDomain ? null : 'search'"
-        :placeholder="$t('domain.dac.search')"
-        autofocus
-        autocomplete="url"
-        :model-value="query"
-      />
-
-      <upm-domain-listings
-        v-if="!meta.showPrimaryDomain"
-        :model-value="selected"
-        :items="available"
-        :loading="meta.isSearching"
-        :processing="meta.isSyncing"
-        @update:modelValue="update"
-        @toggle="toggle"
-        :multiple="multiple"
-      />
-
-      <upw-button
-        v-if="meta.showContinue || meta.isSyncing"
-        :loading="meta.isSyncing"
-        :disabled="!selected.length"
-        @click="syncBasket"
-        label="Sync"
-      /> -->
     </template>
 
     <!-- existing -->
@@ -65,7 +36,7 @@
       :class="styles.domain.existing"
       :errors="errors"
       :items="ownedDomains"
-      :model-value="values"
+      :model-value="selected"
       @update:modelValue="update"
       autocomplete="url"
       autofocus
@@ -76,7 +47,16 @@
 
     <!-- basket -->
 
-    <pre>{{ { state, meta, selected, values } }}</pre>
+    <upm-domain-values
+      v-if="meta.showBasket"
+      :model-value="selected"
+      :items="available"
+      :loading="meta.isSearching"
+      :processing="meta.isSyncing"
+      @update:modelValue="setPrimaryDomain"
+    />
+
+    <pre>{{ { state, meta, selected, values, available } }}</pre>
   </div>
 </template>
 
@@ -90,14 +70,13 @@ import {
   useStyles,
   mergeStyles,
   UpwRadioList,
-  UpwTextbox,
-  UpwButton,
   UpwCombobox,
 } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
 import UpmDac from "./Dac.vue";
+import UpmDomainValues from "./Values.vue";
 
 // --- utils
 import { debounce, first, map, reduce } from "lodash-es";
@@ -109,10 +88,9 @@ export default defineComponent({
   name: "UpmDomain",
   components: {
     UpwRadioList,
-    UpwTextbox,
-    UpwButton,
     UpwCombobox,
     UpmDac,
+    UpmDomainValues,
   },
   emits: ["update:modelValue"],
   props: {
@@ -149,6 +127,7 @@ export default defineComponent({
       toggle,
       reset,
       syncBasket,
+      setPrimaryDomain,
     } = useDomain({
       values: props.modelValue,
       sync: props.sync,
@@ -177,6 +156,7 @@ export default defineComponent({
       toggle,
       reset,
       syncBasket,
+      setPrimaryDomain,
       // ---
       styles,
       mergeStyles,
@@ -194,19 +174,21 @@ export default defineComponent({
     },
 
     ownedDomains() {
+      const owned = [];
+      if (this.available) {
+        owned.push({
+          as: "separator",
+          persist: true,
+          domain: this.$t("domain.existing.owned"),
+        });
+      }
       return reduce(
         this.available,
         (result, item) => {
           result.push({ ...item, persist: true });
           return result;
         },
-        [
-          {
-            as: "separator",
-            persist: true,
-            domain: this.$t("domain.existing.owned"),
-          },
-        ]
+        owned
       );
     },
   },
