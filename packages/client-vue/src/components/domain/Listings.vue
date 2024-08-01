@@ -126,7 +126,7 @@
                       isSelected(item.domain) ? 0 : 1
                     )
                   "
-                  :loading="meta.isProcessing"
+                  :loading="meta.isProcessing && isSelected(item.domain)"
                   :prepend-icon="
                     isSelected(item.domain) ? 'check' : 'plus-circle'
                   "
@@ -146,7 +146,7 @@
                       isSelected(item.domain) ? 0 : 1
                     )
                   "
-                  :loading="meta.isProcessing"
+                  :loading="meta.isProcessing && isSelected(item.domain)"
                   :prepend-icon="isSelected(item.domain) ? 'check' : 'transfer'"
                   :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
                   @click.prevent="onUpdate(item.domain)"

@@ -3,10 +3,12 @@ import { cva } from "class-variance-authority";
 
 export default {
   domain: {
-    root: cva("flex flex-col gap-6"),
+    root: cva("flex w-full flex-col gap-6"),
     choices: cva(""),
-    search: cva(""),
     // ---
+
+    search: cva(""),
+
     listings: {
       root: cva(""),
     },

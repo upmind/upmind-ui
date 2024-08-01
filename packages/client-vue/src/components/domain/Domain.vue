@@ -13,7 +13,21 @@
 
     <!-- register/transfer -->
     <template v-if="meta.showDac">
-      <upw-textbox
+      <upm-dac
+        :complete="meta.showPrimaryDomain"
+        :continue="meta.showContinue"
+        :items="available"
+        :key="type"
+        :loading="meta.isSearching"
+        :model-value="selected"
+        :processing="meta.isSyncing"
+        :values="values"
+        @search="search"
+        @toggle="toggle"
+        @sync="syncBasket"
+        :query="meta.showPrimaryDomain ? selected : query"
+      />
+      <!-- <upw-textbox
         :key="choice"
         :class="styles.domain.search"
         @update:modelValue="search"
@@ -41,7 +55,7 @@
         :disabled="!selected.length"
         @click="syncBasket"
         label="Sync"
-      />
+      /> -->
     </template>
 
     <!-- existing -->
@@ -50,7 +64,7 @@
       :class="styles.domain.existing"
       :errors="errors"
       :items="ownedDomains"
-      :model-value="selected"
+      :model-value="values"
       @update:modelValue="update"
       autocomplete="url"
       autofocus
@@ -61,7 +75,7 @@
 
     <!-- basket -->
 
-    <pre>{{ { state, meta, selected } }}</pre>
+    <pre>{{ { state, meta, selected, values } }}</pre>
   </div>
 </template>
 
@@ -82,7 +96,7 @@ import {
 import config from "./config.cva";
 
 // --- components
-import UpmDomainListings from "./Listings.vue";
+import UpmDac from "./Dac.vue";
 
 // --- utils
 import { debounce, first, map, reduce } from "lodash-es";
@@ -97,7 +111,7 @@ export default defineComponent({
     UpwTextbox,
     UpwButton,
     UpwCombobox,
-    UpmDomainListings,
+    UpmDac,
   },
   emits: ["update:modelValue"],
   props: {
@@ -119,6 +133,7 @@ export default defineComponent({
       // ---
       choices,
       selected,
+      values,
       type,
       query,
       available,
@@ -147,6 +162,7 @@ export default defineComponent({
       meta,
       choices,
       selected,
+      values,
       available,
       errors,
       // ---
@@ -193,7 +209,7 @@ export default defineComponent({
   },
   methods: {},
   watch: {
-    selected: {
+    values: {
       handler: function (value) {
         if (!this.multiple) {
           this.$emit("update:modelValue", value);
