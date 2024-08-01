@@ -22,7 +22,11 @@
       }
     },
     "dac": {
-      "search": "Search for your domain..."
+      "search": "Search for your domain...",
+      "actions": {
+        "continue": "Add domains to basket",
+        "cancel": "Cancel"
+      }
     },
     "existing": {
       "search": "Enter your domain...",
