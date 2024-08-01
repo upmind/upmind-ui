@@ -3,11 +3,11 @@
     <section :class="styles.domains.section.root">
       <header :class="styles.domains.section.header">
         <span :class="styles.domains.section.text">
-          {{ $tc("domains.header.text", selected?.length) }}
+          {{ $tc("domains.header.text", isEmpty(selected) ? 0 : 1) }}
         </span>
 
         <h1 :class="styles.domains.section.title">
-          {{ $tc("domains.header.title", selected?.length) }}
+          {{ $tc("domains.header.title", isEmpty(selected) ? 0 : 1) }}
         </h1>
       </header>
 
@@ -34,6 +34,7 @@ import config from "./config.cva";
 
 // --- utils
 import { getLocalMessages } from "@/utils";
+import { isEmpty } from "lodash-es";
 
 export default defineComponent({
   name: "domains",
@@ -41,7 +42,7 @@ export default defineComponent({
   components: { UpmDomain },
   setup() {
     const styles = useStyles(["domains", "domains.section"], null, config);
-    return { styles, selected: ref() };
+    return { styles, selected: ref(), isEmpty };
   },
   methods: {},
 });

@@ -2,60 +2,65 @@
   <div :class="styles.domain.root">
     <!-- loader -->
 
-    <!-- type -->
-    <upw-radio-list
-      :class="styles.domain.choices"
-      v-if="meta.showChoices"
-      :items="i18nChoices"
-      :model-value="choice"
-      @update:modelValue="choose"
+    <upw-skeleton-list
+      :class="styles.domain.listings.loading"
+      v-if="meta.isLoading"
     />
+    <template v-else>
+      <!-- type -->
+      <upw-radio-list
+        :class="styles.domain.choices"
+        v-if="meta.showChoices"
+        :items="i18nChoices"
+        :model-value="choice"
+        @update:modelValue="choose"
+      />
 
-    <!-- register/transfer -->
-    <template v-if="meta.showDac">
-      <upm-dac
-        :complete="meta.showPrimaryDomain"
-        :continue="meta.showContinue"
-        :items="available"
-        :key="type"
-        :loading="meta.isSearching"
+      <!-- register/transfer -->
+      <template v-if="meta.showDac">
+        <upm-dac
+          :complete="meta.showPrimaryDomain"
+          :continue="meta.showContinue"
+          :items="available"
+          :key="type"
+          :loading="meta.isSearching"
+          :model-value="selected"
+          :processing="meta.isSyncing"
+          :values="values"
+          @search="search"
+          @toggle="toggle"
+          @resolve="syncBasket"
+          @reject="reset"
+          :query="meta.showPrimaryDomain ? selected : query"
+        />
+      </template>
+
+      <!-- existing -->
+      <upw-combobox
+        v-else-if="meta.showExisting"
+        :class="styles.domain.existing"
+        :errors="errors"
+        :items="ownedDomains"
         :model-value="selected"
+        @update:modelValue="update"
+        autocomplete="url"
+        autofocus
+        item-label="domain"
+        item-value="value"
+        :placeholder="$t('domain.existing.search')"
+      />
+
+      <!-- basket -->
+
+      <upm-domain-values
+        v-if="meta.showBasket"
+        :model-value="selected"
+        :items="available"
+        :loading="meta.isSearching"
         :processing="meta.isSyncing"
-        :values="values"
-        @search="search"
-        @toggle="toggle"
-        @resolve="syncBasket"
-        @reject="reset"
-        :query="meta.showPrimaryDomain ? selected : query"
+        @update:modelValue="setPrimaryDomain"
       />
     </template>
-
-    <!-- existing -->
-    <upw-combobox
-      v-else-if="meta.showExisting"
-      :class="styles.domain.existing"
-      :errors="errors"
-      :items="ownedDomains"
-      :model-value="selected"
-      @update:modelValue="update"
-      autocomplete="url"
-      autofocus
-      item-label="domain"
-      item-value="value"
-      :placeholder="$t('domain.existing.search')"
-    />
-
-    <!-- basket -->
-
-    <upm-domain-values
-      v-if="meta.showBasket"
-      :model-value="selected"
-      :items="available"
-      :loading="meta.isSearching"
-      :processing="meta.isSyncing"
-      @update:modelValue="setPrimaryDomain"
-    />
-
     <!-- <pre>{{ { state, meta, selected, values,  } }}</pre> -->
   </div>
 </template>
@@ -71,6 +76,7 @@ import {
   mergeStyles,
   UpwRadioList,
   UpwCombobox,
+  UpwSkeletonList,
 } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -91,6 +97,7 @@ export default defineComponent({
     UpwCombobox,
     UpmDac,
     UpmDomainValues,
+    UpwSkeletonList,
   },
   emits: ["update:modelValue"],
   props: {
