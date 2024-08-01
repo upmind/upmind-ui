@@ -149,6 +149,8 @@ async function update({ basket, items }: BasketContext, _event: BasketEvent) {
   const validItems = filter(items, item => item.state.matches("configured"));
   const productConfigs = map(validItems, item => item.state.context.config);
   // get returns a promise so we can pass it directly back to the machine
+  if (isEmpty(productConfigs))
+    return Promise.reject("No valid items to update");
 
   return new Promise((resolve, reject) => {
     put({

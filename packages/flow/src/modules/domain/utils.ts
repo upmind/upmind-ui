@@ -6,6 +6,7 @@ import {
   compact,
   find,
   first,
+  get,
   isObject,
   map,
   orderBy,
@@ -19,7 +20,9 @@ import {
 import type { IDomainProduct } from "./types.d";
 // ----------------------------------------------------------------------------
 
-export function parseDomain(data: string) {
+export function parseDomain(data: Object | string) {
+  if (isObject(data)) data = get(data, "domain");
+
   const parsed = data
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
     ?.toLowerCase();

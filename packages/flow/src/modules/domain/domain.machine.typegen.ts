@@ -101,7 +101,7 @@ export interface Typegen0 {
     needsBasketHelper: "";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "CHOOSE" | "REFRESH";
+    getClientDomains: "" | "CHOOSE";
     search: "" | "REFRESH" | "SEARCH";
   };
   matchesStates:

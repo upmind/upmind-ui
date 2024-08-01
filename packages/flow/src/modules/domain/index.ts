@@ -71,24 +71,24 @@ export const useDomain = (
     if (state.matches("shopping.refreshing.complete")) {
       // ---
       const currencyActor = state.context?.actors?.currency;
-      const currency = currencyActor?.getSnapshot()?.context?.model?.code;
+      const basketCurrency = currencyActor?.getSnapshot()?.context?.model?.code;
       // ---
       const promotionsActor = state.context?.actors?.promotions;
-      const promotions =
+      const basketPromotions =
         promotionsActor?.getSnapshot()?.context?.model?.promotions;
 
       // ---
       //  only refresh if the currency or promotions have changed
+      const { currency, promotions } = service.getSnapshot().context;
       if (
-        (currency || promotions) &&
-        (currency !== service.getSnapshot().context.currency ||
-          promotions !== service.getSnapshot().context.promotions)
+        (basketCurrency && basketCurrency !== currency) ||
+        (basketPromotions && basketPromotions !== promotions)
       ) {
         service.send({
           type: "REFRESH",
           data: {
-            currency,
-            promotions,
+            currency: basketCurrency,
+            promotions: basketPromotions,
           },
         });
       }

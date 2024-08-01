@@ -93,6 +93,12 @@ export const useDomain = (
     });
   };
 
+  const syncBasket = () => {
+    send({
+      type: "SYNC",
+    });
+  };
+
   // --------------------------------------------------------
 
   return {
@@ -134,21 +140,17 @@ export const useDomain = (
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: state.value.matches("loading"),
+      isLoading: ["subscribing", "loading"].some(state.value.matches),
 
-      isProcessing: ["dac.processing", "existing.processing"].some(
-        state.value.matches
-      ),
+      isSyncing: ["dac.syncing"].some(state.value.matches),
 
-      isSyncing: ["dac.syncing", "existing.syncing", "basket.syncing"].some(
-        state.value.matches
-      ),
+      isSearching: [
+        "dac.processing",
+        "existing.processing",
+        "basket.processing",
+      ].some(state.value.matches),
 
-      isSearching: ["dac.processing", "existing.processing"].some(
-        state.value.matches
-      ),
-
-      hasErrors: ["error", "dac.error", "existing.error"].some(
+      hasErrors: ["error", "dac.error", "existing.error", "basket.error"].some(
         state.value.matches
       ),
 
@@ -159,6 +161,10 @@ export const useDomain = (
       showBasket: state.value.matches("basket"),
       showContinue:
         ["dac.valid", "existing.valid", "basket.valid"].some(
+          state.value.matches
+        ) && some(state.value.context?.values, "is_primary"),
+      showPrimaryDomain:
+        ["dac.complete", "existing.complete", "basket.complete"].some(
           state.value.matches
         ) && some(state.value.context?.values, "is_primary"),
       // ---
@@ -177,6 +183,7 @@ export const useDomain = (
     toggle,
     update,
     setPrimaryDomain,
+    syncBasket,
     isSelected: (value: string) => state.value.matches(value),
     destroy: domain.destroy,
   };
