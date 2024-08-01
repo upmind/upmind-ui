@@ -708,7 +708,6 @@ export default createMachine(
 
       addItem: assign({
         items: ({ items, basket }, { data }) => {
-          debugger;
           const machine = spawnConfiguration(
             data?.id || uniqueId("item_"),
             omit(data, "id"),

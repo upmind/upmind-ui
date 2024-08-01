@@ -43,12 +43,13 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
+    cancelController: "" | "CHOOSE" | "REFRESH" | "RESET" | "SEARCH";
     checkChoices: "";
     clearAvailable:
       | ""
       | "CHOOSE"
       | "REFRESH"
+      | "RESET"
       | "SEARCH"
       | "STOP"
       | "xstate.stop";
@@ -58,9 +59,11 @@ export interface Typegen0 {
       | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
+      | "RESET"
       | "SEARCH"
       | "UPDATE";
-    clearValues: "" | "CHOOSE" | "STOP" | "UPDATE" | "xstate.stop";
+    clearSearch: "RESET";
+    clearValues: "" | "CHOOSE" | "RESET" | "STOP" | "UPDATE" | "xstate.stop";
     newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     remove: "REMOVE";
     setAvailable:

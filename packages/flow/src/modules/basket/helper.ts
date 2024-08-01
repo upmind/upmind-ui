@@ -18,7 +18,6 @@ async function add(context, basket, target = "items") {
     const mapping = context.basketItemMapper(item);
     const basketItem = basket.findItem(mapping);
     if (product && !basketItem) {
-      debugger;
       promises.push(basket.addItem(product));
     }
   });
@@ -72,7 +71,6 @@ async function update(context, basket, target = "items") {
 }
 
 async function sync(context, basket, target = "items") {
-  debugger;
   return (
     add(context, basket, target)
       // .then(() => remove(context, basket, target))
@@ -118,7 +116,6 @@ export function syncSubscription(callback, onReceive) {
           .catch(error => callback({ type: "ERROR", error }));
         break;
       case "SYNC":
-        debugger;
         sync(event.data, basket, event.target)
           .then(data => callback({ type: "SYNCED", data }))
           .catch(error => callback({ type: "ERROR", error }));

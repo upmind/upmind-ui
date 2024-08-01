@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo, raise } = actions;
+const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
@@ -13,9 +13,12 @@ const { addError, addSuccess } = useFeedback();
 import { useTime } from "../../utils";
 import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
+  concat,
+  compact,
   find,
-  get,
+  filter,
   has,
+  includes,
   isEmpty,
   map,
   omit,
@@ -23,8 +26,7 @@ import {
   reject,
   some,
   unionBy,
-  includes,
-  isObject,
+  uniqBy,
 } from "lodash-es";
 
 // --- types
@@ -46,11 +48,13 @@ export default createMachine(
       sync: undefined,
       values: [],
       available: [],
+      history: [],
       total: 0,
       // ---
-      search: undefined,
       currency: undefined,
       promotions: [],
+      // ---
+      search: undefined,
       limit: 10,
       offset: 0,
       controller: undefined,
@@ -206,6 +210,10 @@ export default createMachine(
           REFRESH: {
             target: ".processing",
             actions: ["setCurrency", "setPromotions"],
+          },
+          RESET: {
+            target: ".idle",
+            actions: ["clearValues", "clearAvailable", "clearSearch"],
           },
         },
       },
@@ -582,9 +590,25 @@ export default createMachine(
         offset: (_context, { data }) => data?.offset || 0,
       }),
 
+      clearSearch: assign({
+        search: null,
+        offset: 0,
+        total: 0,
+        history: [],
+      }),
+
       setAvailable: assign({
-        available: (_context, { data }) => data.available,
+        available: ({ history, values }, { data }) => {
+          const persisted = filter(history, ({ domain }) =>
+            some(values, ["domain", domain])
+          );
+          return uniqBy(compact(concat(persisted, data.available)), "domain");
+        },
+        history: ({ history }, { data }) =>
+          uniqBy(compact(concat(history, data.available)), "domain"),
+
         total: (_context, { data }) => data.total,
+
         controller: null,
       }),
 

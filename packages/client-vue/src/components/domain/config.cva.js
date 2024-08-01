@@ -53,5 +53,26 @@ export default {
       text: cva("text-base-700 m-0 text-center"),
       icon: cva("text-base-700 size-8"),
     },
+    dialog: {
+      content: cva("justify-end p-0"),
+      transition: {
+        enter: {
+          active: cva("duration-300 ease-out"),
+          from: cva("translate-y-10 scale-100 opacity-0"),
+          to: cva("translate-y-0 scale-100 opacity-100"),
+        },
+        leave: {
+          active: cva("duration-200 ease-in"),
+          from: cva("translate-y-0 scale-100 opacity-100"),
+          to: cva("translate-y-10 scale-100 opacity-0"),
+        },
+      },
+      panel: {
+        wrapper: cva("shadow-inner"),
+        content: cva(
+          "!min-h-min max-w-screen-2xl px-4 py-8 transition-all sm:px-6 lg:px-20"
+        ),
+      },
+    },
   },
 };

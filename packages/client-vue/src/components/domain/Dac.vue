@@ -1,15 +1,16 @@
 <template>
   <component
     :is="meta.showDialog ? 'upw-dialog' : 'div'"
-    size="2xl"
+    size="full"
     :model-value="true"
     persistent
+    :upwind-config="config.domain"
   >
     <div :class="styles.domain.root">
       <upw-textbox
         :class="styles.domain.search"
         @update:modelValue="onSearch"
-        :prependIcon="meta.hasDomain ? null : 'search'"
+        :prependIcon="meta.showComplete ? null : 'search'"
         :placeholder="$t('domain.dac.search')"
         autofocus
         autocomplete="url"
@@ -25,15 +26,22 @@
         @update:modelValue="onUpdate"
         @toggle="onUpdate"
       />
-
-      <upw-button
-        v-if="meta.showContinue || meta.isProcessing"
-        :loading="meta.isProcessing"
-        :disabled="meta.isEmpty"
-        @click="onSync"
-        label="Sync"
-      />
     </div>
+    <template #actions="">
+      <upw-button
+        :loading="meta.isProcessing"
+        @click="onReject"
+        label="Cancel"
+        variant="ghost"
+      />
+      <upw-button
+        :loading="meta.isProcessing"
+        :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
+        @click="onResolve"
+        label="Add domains to basket"
+        prependIcon="plus-circle"
+      />
+    </template>
   </component>
 </template>
 
@@ -63,7 +71,7 @@ export default defineComponent({
     // ---
     UpmDomainListings,
   },
-  emits: ["toggle", "search", "sync"],
+  emits: ["toggle", "search", "resolve", "reject"],
   props: {
     modelValue: { type: String },
     query: { type: String, default: "" },
@@ -106,12 +114,14 @@ export default defineComponent({
 
   computed: {},
   methods: {
-    onClose() {},
+    onReject() {
+      this.$emit("reject");
+    },
+    onResolve() {
+      this.$emit("resolve");
+    },
     onSearch(value) {
       this.$emit("search", value);
-    },
-    onSync() {
-      this.$emit("sync");
     },
     onUpdate(value) {
       if (this.meta.isDisabled || this.meta.isProcessing) return;

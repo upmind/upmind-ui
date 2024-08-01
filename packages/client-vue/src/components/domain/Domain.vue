@@ -24,7 +24,8 @@
         :values="values"
         @search="search"
         @toggle="toggle"
-        @sync="syncBasket"
+        @resolve="syncBasket"
+        @reject="reset"
         :query="meta.showPrimaryDomain ? selected : query"
       />
       <!-- <upw-textbox
@@ -146,6 +147,7 @@ export default defineComponent({
       search,
       update,
       toggle,
+      reset,
       syncBasket,
     } = useDomain({
       values: props.modelValue,
@@ -173,6 +175,7 @@ export default defineComponent({
       search: debounce(search, 500),
       update: debounce(update, 500),
       toggle,
+      reset,
       syncBasket,
       // ---
       styles,
