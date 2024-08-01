@@ -5,11 +5,11 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { DomainTypes } from "@upmind/flow";
+import type { DomainTypes } from "@upmind/flow";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find, isArray, first } from "lodash-es";
+import { map, some, find, isArray, get } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -113,19 +113,7 @@ export const useDomain = (
       })
     ),
     query: computed(() => state.value.context.search),
-    values: computed(() => state.value.context.values),
-    selected: computed(() => {
-      switch (state.value.context.type) {
-        case DomainTypes.existing:
-          return first(map(state.value.context.values, "domain"));
-
-        default:
-          return map(state.value.context.values, "domain");
-      }
-      let value;
-
-      return value;
-    }),
+    values: computed(() => map(state.value.context.values, "domain")),
     type: computed(() => state.value.context.type),
     available: computed(() =>
       map(state.value.context.available, item => {
@@ -134,9 +122,11 @@ export const useDomain = (
       })
     ),
     errors: computed(() => state.value.context?.error),
-    primaryDomain: computed(() =>
-      find(state.value.context?.values, "is_primary")
-    ),
+    selected: computed(() => {
+      const selected = find(state.value.context?.values, "is_primary");
+      return get(selected, "domain");
+    }),
+
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({

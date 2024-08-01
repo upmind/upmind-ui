@@ -97,40 +97,38 @@ export const useBasket = () => {
       provision_fields,
     }) => {
       // lets wait for our basket  to be ready for shopping
-      return waitFor(service, state => state.matches("shopping")).then(
-        async () => {
-          // lets add the new product base don the provided config to the basket
-          const mapping = {
-            id,
-            product_id,
-            quantity,
-            term,
-            attributes,
-            options,
-            provision_fields,
-          };
-          service.send({
-            type: "ADD",
-            data: mapping,
-          });
+      return waitFor(service, state =>
+        ["shopping", "checkout"].some(state.matches)
+      ).then(async () => {
+        // lets add the new product base don the provided config to the basket
+        const mapping = {
+          id,
+          product_id,
+          quantity,
+          term,
+          attributes,
+          options,
+          provision_fields,
+        };
+        service.send({
+          type: "ADD",
+          data: mapping,
+        });
 
-          // then wait/check for the new product actor to be configured
-          // then send the update event to the basket
-          const actor = find(
-            service.getSnapshot()?.context?.items,
-            basketItem =>
-              every(mapping, (value, key) => {
-                if (key == "id" && value) {
-                  return basketItem.id == value;
-                } else {
-                  return get(basketItem, `state.context.model.${key}`) == value;
-                }
-              })
-          );
-          await waitFor(actor, actorState => actorState.matches("configured"));
-          return actor;
-        }
-      );
+        // then wait/check for the new product actor to be configured
+        // then send the update event to the basket
+        const actor = find(service.getSnapshot()?.context?.items, basketItem =>
+          every(mapping, (value, key) => {
+            if (key == "id" && value) {
+              return basketItem.id == value;
+            } else {
+              return get(basketItem, `state.context.model.${key}`) == value;
+            }
+          })
+        );
+        await waitFor(actor, actorState => actorState.matches("configured"));
+        return actor;
+      });
     },
 
     updateItem: async itemId => {
