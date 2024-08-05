@@ -16,7 +16,7 @@ export default {
       root: cva(""),
       underline: cva("underline underline-offset-8"),
       label: cva("m-0 flex w-full flex-col gap-1 pr-4"),
-      title: cva("m-0 text-xl font-medium leading-none tracking-wide"),
+      title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(
         "items-cnter text-base-700 m-0 inline inline-flex gap-2 text-xs font-normal leading-5"
       ),

@@ -5,7 +5,6 @@
     :model-value="true"
     persistent
     :upwind-config="config.domain"
-    skrim="light"
   >
     <div :class="styles.domain.root">
       <upw-textbox
