@@ -52,9 +52,7 @@ export default defineComponent({
             find(mutations, ["attributeName", "data-theme"]),
             "target.dataset.theme"
           );
-          debugger;
           if (theme && theme != activeTheme.value) {
-            debugger;
             updateTheme(theme);
           }
         }
