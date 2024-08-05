@@ -27,10 +27,41 @@ export default {
 */
 
   colors: {
-    transparent: "transparent",
-    black: "#ffffff",
-    white: "#000000",
+    background: "#000000",
+    foreground: "#ffffff",
 
+    //
+    muted: {
+      DEFAULT: "#f1f5f9",
+      foreground: "#65758b",
+    },
+
+    card: {
+      DEFAULT: "#ffffff",
+      foreground: "#0f1729",
+    },
+
+    popover: {
+      DEFAULT: "#ffffff",
+      foreground: "#0f1729",
+    },
+
+    destructive: {
+      DEFAULT: "#ff0000",
+      foreground: "#f8fafc",
+    },
+
+    //
+    border: "214.3 31.8% 91.4%;",
+    input: "214.3 31.8% 91.4%;",
+    control: {
+      DEFAULT: "#ffffff",
+      forground: "#000000",
+      active: "#5E36E8",
+      error: "#EF4444",
+    },
+
+    ring: "215 20.2% 65.1%;",
     // ---
 
     base: {
@@ -46,11 +77,10 @@ export default {
       800: "#efefef",
       900: "#f5f5f5",
       950: "#fefefe",
-      content: "#ffffff",
+      foreground: "#ffffff",
     },
 
     // ---
-
     primary: {
       DEFAULT: "#018ffd",
       50: "#edfbff",
@@ -64,7 +94,7 @@ export default {
       800: "#086dc5",
       900: "#0e5c9a",
       950: "#0e385d",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     secondary: {
@@ -80,7 +110,7 @@ export default {
       800: "#146076",
       900: "#165063",
       950: "#083444",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     accent: {
@@ -96,10 +126,25 @@ export default {
       800: "#7c0abf",
       900: "#66099a",
       950: "#470074",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     // ---
+    promotion: {
+      DEFAULT: "#5E36E8",
+      50: "#f3f3ff",
+      100: "#eae9fe",
+      200: "#d9d7fd",
+      300: "#bbb7fb",
+      400: "#998ef7",
+      500: "#7760f2",
+      600: "#5e36e8",
+      700: "#562cd5",
+      800: "#4724b3",
+      900: "#3d2092",
+      950: "#231263",
+      forground: "#ffffff",
+    },
 
     info: {
       DEFAULT: "#3b82f6",
@@ -114,7 +159,7 @@ export default {
       800: "#1e55af",
       900: "#1e478a",
       950: "#172e54",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     success: {
@@ -130,7 +175,7 @@ export default {
       800: "#065f42",
       900: "#064e36",
       950: "#022c1e",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     warning: {
@@ -146,7 +191,7 @@ export default {
       800: "#9a4f12",
       900: "#7c4212",
       950: "#432207",
-      content: "#fff3e0",
+      forground: "#fff3e0",
     },
 
     error: {
@@ -162,13 +207,14 @@ export default {
       800: "#991b1b",
       900: "#7f1d1d",
       950: "#450a0a",
-      content: "#ffebee",
+      forground: "#ffebee",
     },
 
     disabled: {
       DEFAULT: "#9e9e9e",
-      content: "#eeeeee",
+      forground: "#eeeeee",
     },
+    // ---
   },
 
   /*
@@ -286,11 +332,11 @@ export default {
   */
 
   borderRadius: {
-    DEFAULT: ".25rem",
+    DEFAULT: ".5rem",
     none: "0",
     xs: ".0625rem", // 1px
     sm: ".125rem", // 2px
-    default: ".25rem", // 4px
+    md: ".25rem", // 4px
     lg: ".5rem", // 8px
     xl: "1rem", // 16px
     full: "9999px", // 9999px,
@@ -323,49 +369,4 @@ export default {
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
     none: "none",
   },
-
-  /*
-  |-----------------------------------------------------------------------------
-  | Typography            https://github.com/tailwindlabs/tailwindcss-typography
-  |-----------------------------------------------------------------------------
-  |
-  */
-  // typography: ({ theme }) => ({
-  //   DEFAULT: {
-  //     css: {
-  //       "--tw-prose-body": theme("colors.base[800]"),
-  //       "--tw-prose-headings": theme("colors.base[900]"),
-  //       "--tw-prose-lead": theme("colors.base[700]"),
-  //       "--tw-prose-links": theme("colors.base[900]"),
-  //       "--tw-prose-bold": theme("colors.base[900]"),
-  //       "--tw-prose-counters": theme("colors.base[600]"),
-  //       "--tw-prose-bullets": theme("colors.base[400]"),
-  //       "--tw-prose-hr": theme("colors.base[300]"),
-  //       "--tw-prose-quotes": theme("colors.base[900]"),
-  //       "--tw-prose-quote-borders": theme("colors.base[300]"),
-  //       "--tw-prose-captions": theme("colors.base[700]"),
-  //       "--tw-prose-code": theme("colors.base[900]"),
-  //       "--tw-prose-pre-code": theme("colors.base[100]"),
-  //       "--tw-prose-pre-bg": theme("colors.base[900]"),
-  //       "--tw-prose-th-borders": theme("colors.base[300]"),
-  //       "--tw-prose-td-borders": theme("colors.base[200]"),
-  //       "--tw-prose-invert-body": theme("colors.base[200]"),
-  //       "--tw-prose-invert-headings": theme("colors.white"),
-  //       "--tw-prose-invert-lead": theme("colors.base[300]"),
-  //       "--tw-prose-invert-links": theme("colors.white"),
-  //       "--tw-prose-invert-bold": theme("colors.white"),
-  //       "--tw-prose-invert-counters": theme("colors.base[400]"),
-  //       "--tw-prose-invert-bullets": theme("colors.base[600]"),
-  //       "--tw-prose-invert-hr": theme("colors.base[700]"),
-  //       "--tw-prose-invert-quotes": theme("colors.base[100]"),
-  //       "--tw-prose-invert-quote-borders": theme("colors.base[700]"),
-  //       "--tw-prose-invert-captions": theme("colors.base[400]"),
-  //       "--tw-prose-invert-code": theme("colors.white"),
-  //       "--tw-prose-invert-pre-code": theme("colors.base[300]"),
-  //       "--tw-prose-invert-pre-bg": "rgb(0 0 0 / 50%)",
-  //       "--tw-prose-invert-th-borders": theme("colors.base[600]"),
-  //       "--tw-prose-invert-td-borders": theme("colors.base[700]"),
-  //     },
-  //   },
-  // }),
 };

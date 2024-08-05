@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   button: {
     label: cva("font-light uppercase"),
-    root: cva("rounded-none font-light uppercase", {
+    root: cva("font-light uppercase", {
       variants: {
         size: {
           sm: "px-2 py-1 text-xs",
