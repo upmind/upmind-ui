@@ -14,9 +14,9 @@ export default {
           },
           color: {
             base: "text-base-50 bg-base-800",
-            primary: "bg-primary text-primary-content",
-            secondary: "bg-secondary text-secondary-content",
-            accent: "bg-accent text-accent-content",
+            primary: "text-primary-content bg-primary",
+            secondary: "text-secondary-content bg-secondary",
+            accent: "text-accent-content bg-accent",
             success: "bg-success text-success-content",
             error: "bg-error text-error-content",
             warning: "bg-warning text-warning-content",

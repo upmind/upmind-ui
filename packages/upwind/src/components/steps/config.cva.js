@@ -48,7 +48,7 @@ export default {
         {
           complete: false,
           selected: true,
-          class: "bg-primary text-primary-content",
+          class: "text-primary-content bg-primary",
         },
       ],
       defaultVariants: {

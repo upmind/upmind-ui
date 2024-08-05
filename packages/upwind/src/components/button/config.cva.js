@@ -27,9 +27,9 @@ export default {
           color: {
             current: "text-content border-transparent bg-transparent",
             base: "bg-base-200 text-base-content border-transparent",
-            primary: "bg-primary text-primary-content border-transparent",
-            secondary: "bg-secondary text-secondary-content border-transparent",
-            accent: "bg-accent text-accent-content border-transparent",
+            primary: "text-primary-content border-transparent bg-primary",
+            secondary: "text-secondary-content border-transparent bg-secondary",
+            accent: "text-accent-content border-transparent bg-accent",
             success: "bg-success text-success-content border-transparent",
             error: "bg-error text-error-content border-transparent",
             warning: "bg-warning text-warning-content border-transparent",
