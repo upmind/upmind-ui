@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ---external
-import { defineProps, withDefaults } from "vue";
 import { Primitive } from "radix-vue";
 
 // --- internal

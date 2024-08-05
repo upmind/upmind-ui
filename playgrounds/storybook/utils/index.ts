@@ -22,9 +22,11 @@ enum colors {
 }
 
 enum sizes {
+  xs = "Extra Small",
   sm = "Small",
   md = "Medium",
   lg = "Large",
+  icon = "Icon",
 }
 enum allSizes {
   xs = "Extra Small",
