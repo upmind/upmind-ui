@@ -11,7 +11,7 @@ import { keys } from "lodash-es";
 // --- types
 enum variants {
   flat = "Flat",
-  outlined = "Outlined",
+  outline = "Outline",
   ghost = "Ghost",
   destructive = "Destructive",
   link = "Link",
@@ -86,7 +86,7 @@ export const Variants: Story = {
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
         <uw-button v-bind="args" variant="flat" label="Flat" />
-        <uw-button v-bind="args" variant="outlined" label="Outlined" />
+        <uw-button v-bind="args" variant="outline" label="outline" />
         <uw-button v-bind="args" variant="ghost" label="Ghost" />
         <uw-button v-bind="args" variant="link" label="Link" />
       </section>
@@ -297,7 +297,7 @@ export const SolidColorVariants: Story = {
   }),
 };
 
-export const OutlinedColorVariants: Story = {
+export const outlineColorVariants: Story = {
   parameters: {
     controls: { exclude: ["label", "variant", "color"] },
   },
@@ -310,15 +310,15 @@ export const OutlinedColorVariants: Story = {
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Outlined Color Variants</h1>
-        <uw-button v-bind="args" variant="outlined" color="primary" label="Primary" />
-        <uw-button v-bind="args" variant="outlined" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" variant="outlined" color="accent" label="Accent" />
-        <uw-button v-bind="args" variant="outlined" color="base" label="Base" />
-        <uw-button v-bind="args" variant="outlined" color="info" label="Info" />
-        <uw-button v-bind="args" variant="outlined" color="success" label="Success" />
-        <uw-button v-bind="args" variant="outlined" color="error" label="Error" />
-        <uw-button v-bind="args" variant="outlined" color="warning" label="Warning" />
+        <h1 class="w-full mt-0">outline Color Variants</h1>
+        <uw-button v-bind="args" variant="outline" color="primary" label="Primary" />
+        <uw-button v-bind="args" variant="outline" color="secondary" label="Secondary" />
+        <uw-button v-bind="args" variant="outline" color="accent" label="Accent" />
+        <uw-button v-bind="args" variant="outline" color="base" label="Base" />
+        <uw-button v-bind="args" variant="outline" color="info" label="Info" />
+        <uw-button v-bind="args" variant="outline" color="success" label="Success" />
+        <uw-button v-bind="args" variant="outline" color="error" label="Error" />
+        <uw-button v-bind="args" variant="outline" color="warning" label="Warning" />
       </section>
     `,
   }),
