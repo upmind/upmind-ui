@@ -1,7 +1,7 @@
 // --- external
 import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
-import { cx } from "class-variance-authority";
+import { clsx } from "clsx";
 import theme from "./useThemes";
 
 // --- utils
@@ -21,9 +21,13 @@ import {
   flattenDeep,
 } from "lodash-es";
 
+// --- types
+import { type ClassValue } from "clsx";
+import { type ClassNameValue } from "tailwind-merge";
+
 // -----------------------------------------------------------------------------
 
-function applyVariants(configs: Array<Object>, context: Object = {}) {
+function applyVariants(configs: ClassValue[], context: Object = {}) {
   // ----------------------------------------------
   //  NB: This works by getting ALL the unique keys from ALL of the provided configs
   //      then we loop over each key
@@ -41,7 +45,7 @@ function applyVariants(configs: Array<Object>, context: Object = {}) {
       const results = map(variants, variant =>
         isFunction(variant) ? variant(context) : variant
       );
-      set(styles, key, twMerge(cx(...results)));
+      set(styles, key, twMerge(clsx(...results)));
       return styles;
     },
     {}
@@ -94,6 +98,6 @@ export function useStyles(
   });
 }
 
-export function mergeStyles(...styles: Array<String>) {
-  return twMerge(...styles);
+export function mergeStyles(...styles: ClassNameValue[]) {
+  return twMerge(clsx(...styles));
 }
