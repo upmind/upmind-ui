@@ -1,5 +1,3 @@
-import "./assets/index.css";
-
 // ---
 export { default as UpwAlert } from "./components/alert/Alert.vue";
 export { default as UpwAvatar } from "./components/avatar/Avatar.vue";

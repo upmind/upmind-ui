@@ -40,9 +40,41 @@ export default {
   */
 
   colors: {
-    transparent: "transparent",
-    black: "#282425",
-    white: "#ece3ca",
+    foreground: "#282425",
+    background: "#ece3ca",
+
+    //
+    muted: {
+      DEFAULT: "#f1f5f9",
+      foreground: "#65758b",
+    },
+
+    card: {
+      DEFAULT: "#ffffff",
+      foreground: "#0f1729",
+    },
+
+    popover: {
+      DEFAULT: "#ffffff",
+      foreground: "#0f1729",
+    },
+
+    destructive: {
+      DEFAULT: "#ff0000",
+      foreground: "#f8fafc",
+    },
+
+    //
+    border: "214.3 31.8% 91.4%;",
+    input: "214.3 31.8% 91.4%;",
+    control: {
+      DEFAULT: "#ffffff",
+      forground: "#000000",
+      active: "#5E36E8",
+      error: "#EF4444",
+    },
+
+    ring: "215 20.2% 65.1%;",
 
     // ---
 
@@ -59,7 +91,7 @@ export default {
       800: "#775335",
       900: "#61442d",
       950: "#342316",
-      content: "#775335",
+      foreground: "#775335",
     },
 
     // ---
@@ -77,7 +109,7 @@ export default {
       800: "#8d2c27",
       900: "#762a26",
       950: "#40110f",
-      content: "#282425",
+      foreground: "#282425",
     },
 
     accent: {
@@ -93,7 +125,7 @@ export default {
       800: "#224334",
       900: "#1c382b",
       950: "#0f1f18",
-      content: "#f1f8f4",
+      foreground: "#f1f8f4",
     },
 
     secondary: {
@@ -109,7 +141,7 @@ export default {
       800: "#903710",
       900: "#762e11",
       950: "#441604",
-      content: "#fffaeb",
+      foreground: "#fffaeb",
     },
 
     // ---
@@ -127,7 +159,7 @@ export default {
       800: "#1e4baf",
       900: "#1e408a",
       950: "#172a54",
-      content: "#dbe6fe",
+      foreground: "#dbe6fe",
     },
 
     success: {
@@ -143,7 +175,7 @@ export default {
       800: "#166533",
       900: "#14532b",
       950: "#052e14",
-      content: "#dcfce8",
+      foreground: "#dcfce8",
     },
 
     error: {
@@ -159,7 +191,7 @@ export default {
       800: "#9c2018",
       900: "#81211b",
       950: "#460d09",
-      content: "#ffe3e1",
+      foreground: "#ffe3e1",
     },
 
     warning: {
@@ -175,12 +207,12 @@ export default {
       800: "#92550e",
       900: "#78470f",
       950: "#452603",
-      content: "#fee4c7",
+      foreground: "#fee4c7",
     },
 
     disabled: {
       DEFAULT: "#bdbdbd",
-      content: "#404040",
+      foreground: "#404040",
     },
     // ---
   },
@@ -298,7 +330,7 @@ export default {
     none: "0",
     xs: "0",
     sm: "0",
-    default: "0",
+    md: "0",
     lg: "0",
     xl: "0",
     full: "0",

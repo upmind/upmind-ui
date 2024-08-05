@@ -13,6 +13,7 @@ enum variants {
   flat = "Flat",
   outlined = "Outlined",
   ghost = "Ghost",
+  destructive = "Destructive",
   link = "Link",
 }
 // -----------------------------------------------------------------------------

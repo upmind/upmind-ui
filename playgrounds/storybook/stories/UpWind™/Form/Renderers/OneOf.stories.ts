@@ -52,7 +52,7 @@ const meta: Meta<typeof UpwForm> = {
       />
 
       <h4>Model</h4>
-      <pre class="sticky top-0 rounded-lg bg-base-100 p-4">{{ model }}</pre>
+      <pre class="sticky top-0 rounded-lg bg-background-100 p-4">{{ model }}</pre>
     `,
   }),
   argTypes: {},

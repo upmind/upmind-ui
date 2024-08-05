@@ -27,12 +27,41 @@ export default {
 */
 
   colors: {
-    transparent: "transparent",
-    black: "#000000",
-    white: "#ffffff",
-    background: "#000000",
-    foreground: "#ffffff",
+    background: "#ffffff",
+    foreground: "#000000",
 
+    //
+    muted: {
+      DEFAULT: "#f1f5f9",
+      foreground: "#65758b",
+    },
+
+    card: {
+      DEFAULT: "#ffffff",
+      foreground: "#0f1729",
+    },
+
+    popover: {
+      DEFAULT: "#ffffff",
+      foreground: "#0f1729",
+    },
+
+    destructive: {
+      DEFAULT: "#ff0000",
+      foreground: "#f8fafc",
+    },
+
+    //
+    border: "214.3 31.8% 91.4%;",
+    input: "214.3 31.8% 91.4%;",
+    control: {
+      DEFAULT: "#ffffff",
+      forground: "#000000",
+      active: "#5E36E8",
+      error: "#EF4444",
+    },
+
+    ring: "215 20.2% 65.1%;",
     // ---
 
     base: {
@@ -48,14 +77,7 @@ export default {
       800: "#3e3e3e",
       900: "#1e1e1e",
       950: "#000000",
-      content: "#000000",
-    },
-
-    control: {
-      DEFAULT: "#ffffff",
-      content: "#000000",
-      active: "#5E36E8",
-      error: "#EF4444",
+      forground: "#000000",
     },
 
     // ---
@@ -72,7 +94,7 @@ export default {
       800: "#086dc5",
       900: "#0e5c9a",
       950: "#0e385d",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     secondary: {
@@ -88,7 +110,7 @@ export default {
       800: "#146076",
       900: "#165063",
       950: "#083444",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     accent: {
@@ -104,7 +126,7 @@ export default {
       800: "#7c0abf",
       900: "#66099a",
       950: "#470074",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     // ---
@@ -121,7 +143,7 @@ export default {
       800: "#4724b3",
       900: "#3d2092",
       950: "#231263",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     info: {
@@ -137,7 +159,7 @@ export default {
       800: "#1e55af",
       900: "#1e478a",
       950: "#172e54",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     success: {
@@ -153,7 +175,7 @@ export default {
       800: "#065f42",
       900: "#064e36",
       950: "#022c1e",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     warning: {
@@ -169,7 +191,7 @@ export default {
       800: "#9a4f12",
       900: "#7c4212",
       950: "#432207",
-      content: "#fff3e0",
+      forground: "#fff3e0",
     },
 
     error: {
@@ -185,12 +207,12 @@ export default {
       800: "#991b1b",
       900: "#7f1d1d",
       950: "#450a0a",
-      content: "#ffebee",
+      forground: "#ffebee",
     },
 
     disabled: {
       DEFAULT: "#9e9e9e",
-      content: "#eeeeee",
+      forground: "#eeeeee",
     },
     // ---
   },
@@ -310,11 +332,11 @@ export default {
   */
 
   borderRadius: {
-    DEFAULT: ".25rem",
+    DEFAULT: ".5rem",
     none: "0",
     xs: ".0625rem", // 1px
     sm: ".125rem", // 2px
-    default: ".25rem", // 4px
+    md: ".25rem", // 4px
     lg: ".5rem", // 8px
     xl: "1rem", // 16px
     full: "9999px", // 9999px,
