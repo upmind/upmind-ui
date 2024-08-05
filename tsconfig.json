@@ -19,7 +19,12 @@
     "noUnusedLocals": true,
     "resolveJsonModule": true
   },
-  "include": ["packages/*/src", "playgrounds/*/src"],
+  "include": [
+    "packages/*/src",
+    "playgrounds/*/src",
+    "packages/upwind/utils",
+    "packages/upwind/src/utils"
+  ],
 
   "references": [
     { "path": "playgrounds/labs" },

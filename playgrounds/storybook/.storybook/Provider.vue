@@ -50,9 +50,13 @@ export default defineComponent({
         if (some(mutations, ["attributeName", "data-theme"])) {
           const theme = get(
             find(mutations, ["attributeName", "data-theme"]),
-            "target,dataset.theme"
+            "target.dataset.theme"
           );
-          if (theme && theme != activeTheme.value) updateTheme(theme);
+          debugger;
+          if (theme && theme != activeTheme.value) {
+            debugger;
+            updateTheme(theme);
+          }
         }
 
         if (some(mutations, ["attributeName", "data-locale"])) {

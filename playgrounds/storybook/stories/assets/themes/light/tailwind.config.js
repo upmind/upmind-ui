@@ -30,6 +30,8 @@ export default {
     transparent: "transparent",
     black: "#000000",
     white: "#ffffff",
+    background: "#000000",
+    foreground: "#ffffff",
 
     // ---
 

@@ -30,10 +30,9 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: getAbsolutePath("@storybook/vue3-vite"),
-    options: {},
-  },
-  docs: {
-    autodocs: "tag",
+    options: {
+      docgen: "vue-component-meta",
+    },
   },
 };
 export default config;

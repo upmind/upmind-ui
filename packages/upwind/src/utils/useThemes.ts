@@ -29,6 +29,7 @@ export const useThemes = (themes?: Array<Object>, defaultTheme?: string) => {
   updateTheme(defaultTheme);
 
   function updateTheme(theme: string) {
+    debugger;
     if (theme == activeTheme.value) return;
 
     activeTheme.value = theme || activeTheme.value || defaultTheme;
