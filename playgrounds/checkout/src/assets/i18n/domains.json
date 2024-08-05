@@ -40,7 +40,7 @@
         "label": "Available",
         "instruction": "{price} /yr",
         "ownership": "",
-        "action": "Regsiter | Added"
+        "action": "Register | Added"
       },
       "transfer": {
         "label": "Transferable",
