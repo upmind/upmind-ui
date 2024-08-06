@@ -15,9 +15,9 @@ import { forEach, reduce, get, set, defaultsDeep } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useValidation = () => {
+export const useValidation = (ajv?: Object) => {
   // us JSON Forms version of AJV as it has formats and other keywords already
-  const ajv = createAjv({ useDefaults: true, allErrors: true });
+  ajv ??= createAjv({ useDefaults: true, allErrors: true });
   ajvErrors(ajv, { singleError: true });
 
   ajv.addFormat(

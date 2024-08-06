@@ -45,6 +45,7 @@ export interface Typegen0 {
     add: "ADD";
     cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     checkChoices: "ERROR" | "SYNCED";
+    checkValues: "CHOOSE" | "STOP" | "xstate.init";
     clearAvailable:
       | ""
       | "CHOOSE"

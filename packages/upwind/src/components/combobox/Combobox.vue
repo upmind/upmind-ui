@@ -246,6 +246,7 @@ import {
   isEmpty,
   isFunction,
   isNil,
+  isString,
   pick,
   reject,
   some,
@@ -465,7 +466,9 @@ export default defineComponent({
 
     displayValue() {
       // const selected = find(this.results, [this.itemValue, this.value]);
-      const value = get(this.value, this.itemLabel);
+      const value = isString(this.value)
+        ? this.value
+        : get(this.value, this.itemLabel, "");
       return value;
     },
     displayIcon() {
@@ -485,6 +488,7 @@ export default defineComponent({
         this.results = this.items;
       },
     },
+
     value(value) {
       value = get(value, this.itemValue, value); // safetycheck in case we get an object
 

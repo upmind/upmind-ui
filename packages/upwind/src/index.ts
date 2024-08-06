@@ -28,3 +28,5 @@ export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 
 // ---
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
+
+export * from "./components/form/renderers/utils";

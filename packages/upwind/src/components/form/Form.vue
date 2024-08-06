@@ -136,6 +136,10 @@ export default defineComponent({
     modelValue: {
       type: Object,
     },
+    additionalRenderers: {
+      type: Array,
+      default: () => [],
+    },
     // ---
     actions: {
       type: [Boolean, Object] as PropType<
@@ -198,7 +202,7 @@ export default defineComponent({
   emits: ["reject", "resolve", "update:modelValue", "valid", "click"],
 
   setup(props) {
-    const { ajv } = useValidation();
+    const { ajv } = useValidation(props.ajv);
 
     // ---
     const styles = useStyles(
@@ -209,10 +213,13 @@ export default defineComponent({
     );
 
     return {
-      renderers: Object.freeze(upwindRenderers),
+      renderers: Object.freeze([
+        ...upwindRenderers,
+        ...props.additionalRenderers,
+      ]),
       styles,
       safeValue,
-      safeAjv: props.ajv || ajv,
+      safeAjv: ajv,
       // ---
       model: ref({}),
       errors: ref([]),
