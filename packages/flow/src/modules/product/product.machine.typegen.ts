@@ -92,6 +92,7 @@ export interface Typegen0 {
     setBaseModel: "REFRESH";
     setClean: "REFRESH" | "RESET";
     setConfig: "PROCESSING" | "done.state.configuring";
+    setContext: "BIN" | "REFRESH" | "RESET" | "xstate.init";
     setCurrency: "REFRESH";
     setDirty:
       | "PUT"

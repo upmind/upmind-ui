@@ -6,21 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import {
-  every,
-  find,
-  forEach,
-  get,
-  includes,
-  isEmpty,
-  last,
-  matches,
-  pickBy,
-  remove,
-  set,
-  some,
-  unset,
-} from "lodash-es";
+import { every, find, get, some } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -48,6 +34,7 @@ export const useBasket = () => {
   return {
     service: service.start(),
     getSnapshot: () => service.getSnapshot(),
+    getBasketId: () => service.getSnapshot()?.context?.basket?.id,
 
     // --- basket functions
     isReady: async () =>
@@ -55,16 +42,11 @@ export const useBasket = () => {
         timeout: Infinity, // infinity = no timeout
       }),
 
-    update: async () => {
-      service.send({ type: "UPDATE" });
-      return waitFor(service, state =>
-        state.matches("shopping.refreshing.complete")
-      );
-    },
-
     clear: () => service.send({ type: "CLEAR" }),
 
     checkout: () => service.send({ type: "CHECKOUT" }),
+
+    refresh: () => service.send({ type: "REFRESH" }),
 
     // --- item functions
     getItemsSnapshot: () => service.getSnapshot()?.context?.items || [],

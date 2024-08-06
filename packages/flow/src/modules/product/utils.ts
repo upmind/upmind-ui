@@ -27,6 +27,7 @@ import {
 
 // --- types
 import { PromotionDisplayTypes } from "./services";
+import type { IProductModel } from "./types.d";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
@@ -484,7 +485,7 @@ export const useSummarySubproductParser = (
 //  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
-export const useModelParser = (data: any) => {
+export const useModelParser = (data: any): IProductModel => {
   // map basket product data
   if (data?.id) {
     return {

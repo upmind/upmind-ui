@@ -13,7 +13,7 @@ import { useTime, useValidationParser } from "../../utils";
 import {
   useBasketParser,
   useSummaryParser,
-  spawnConfiguration,
+  spawnProductConfiguration,
   spawnBillingDetails,
   spawnCurrency,
   spawnCustomFields,
@@ -33,9 +33,7 @@ import {
   isEqual,
   map,
   omit,
-  remove,
   some,
-  trimStart,
   uniqueId,
 } from "lodash-es";
 
@@ -60,7 +58,6 @@ export default createMachine(
       invoice: undefined,
       // ---
       items: [],
-      bin: [],
       // ---
       actors: {
         billing_details: undefined,
@@ -75,6 +72,7 @@ export default createMachine(
       // including the totals formatted for display
       summary: undefined,
       // ---
+      controller: undefined,
       error: undefined,
     } as BasketContext,
     states: {
@@ -97,6 +95,7 @@ export default createMachine(
         initial: "basket",
         states: {
           basket: {
+            entry: ["clearError", "cancelController", "newController"],
             invoke: {
               src: "load",
               onDone: {
@@ -124,6 +123,7 @@ export default createMachine(
       // if we have a session, we can now claim any existing basket
       claiming: {
         id: "claiming",
+        entry: ["clearError", "cancelController", "newController"],
         invoke: {
           src: "load",
           onDone: {
@@ -162,17 +162,22 @@ export default createMachine(
         states: {
           // after we do any operation that requires a refresh, we will refresh the basket and then refresh the actors
           refreshing: {
+            id: "refreshing",
             initial: "complete",
             states: {
               processing: {
-                id: "refreshing",
+                entry: ["clearError", "cancelController", "newController"],
                 invoke: {
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
                     actions: ["updateBasket", "refreshActors"],
                   },
-                  onError: { target: "#error" },
+                  onError: {
+                    target: "#error",
+                    actions: ["setError"],
+                    cond: "isNotCancelled",
+                  },
                 },
               },
               complete: {
@@ -217,78 +222,6 @@ export default createMachine(
                   { target: "empty", cond: "hasNoItems" },
                   { target: "complete", cond: "itemsConfigured" },
                 ],
-              },
-
-              processing: {
-                initial: "everything",
-                states: {
-                  everything: {
-                    entry: ["updateActors"],
-
-                    invoke: {
-                      src: "update",
-                      onDone: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "refreshActors",
-                        ],
-                      },
-                      onError: {
-                        target: "error",
-                        actions: ["setError", "setFeedbackError"],
-                      },
-                    },
-                  },
-
-                  updating: {
-                    id: "updating",
-                    invoke: {
-                      src: "updateItem",
-                      onDone: {
-                        target: "#processed",
-                        actions: [
-                          "refreshItems",
-                          "updateBasket",
-                          "refreshActors",
-                        ],
-                      },
-                      onError: {
-                        target: "error",
-                        actions: ["setError", "setFeedbackError"],
-                      },
-                    },
-                  },
-
-                  removing: {
-                    id: "removing",
-                    invoke: {
-                      src: "removeItem",
-                      onDone: {
-                        target: "#processed",
-                        actions: ["removeItem"],
-                      },
-                      onError: {
-                        target: "#processed",
-                        actions: ["removeItem"],
-                      },
-                    },
-                  },
-
-                  error: {},
-                },
-              },
-
-              processed: {
-                id: "processed",
-                always: {
-                  target: "#removing",
-                  cond: "hasBinItems",
-                },
-                after: {
-                  wait: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-                },
               },
 
               // items are 'complete' only when they have been successfully added to the basket
@@ -493,52 +426,26 @@ export default createMachine(
         },
         { actions: ["addItem"] },
       ],
-      REMOVE: {
-        target: "#shopping.items.processing.removing",
-        actions: ["binItem"],
-      },
-      UPDATE: [
-        {
-          target: "#shopping.items.processing.everything",
-          actions: ["updateItems", "clearBin"],
-          cond: "hasNoItem",
-        }, // update everything
-        {
-          actions: ["updateItem"],
-          target: "#shopping.items.processing.updating",
-        },
-      ],
       CLEAR: {
-        target: "#shopping.items.processing",
+        target: "#shopping.items.empty",
         actions: ["clearItems"],
       },
       // ---
-      "UPDATE.QUANTITY": { actions: ["sendToItem"] },
-      "UPDATE.TERM": { actions: ["sendToItem"] },
-      "UPDATE.OPTIONS": { actions: ["sendToItem"] },
-      "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
-      "UPDATE.PROVISIONING": { actions: ["sendToItem"] },
 
       REFRESH: [
         {
-          target: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
+          target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
           actions: ["updateBasket", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
-          target: "#refreshing",
+          target: "#refreshing.processing",
         },
       ],
 
       UNAUTHENTICATED: {
         target: "subscribing",
-        actions: [
-          "clearError",
-          "clearBasket",
-          "clearActors",
-          "clearItems",
-          "clearBin",
-        ],
+        actions: ["clearError", "clearBasket", "clearActors", "clearItems"],
       },
     },
   },
@@ -566,7 +473,6 @@ export default createMachine(
       setInvoice: assign({
         invoice: (_context: BasketContext, { data }: BasketEvent) => data,
         basket: undefined,
-        bin: [],
         summary: undefined,
         items: ({ items }, _event) => {
           forEach(items, actor => {
@@ -652,14 +558,6 @@ export default createMachine(
         });
       }),
 
-      updateActors: pure(({ actors }) => {
-        forEach(actors, actor => {
-          if (actor?.send) {
-            actor.send({ type: "UPDATE" });
-          }
-        });
-      }),
-
       clearActors: assign({
         actors: ({ actors }) => {
           forEach(actors, actor => {
@@ -693,7 +591,7 @@ export default createMachine(
             // TODO: check if the item already exists
             // const item = find(items, ["id", product.id]);
 
-            const machine = spawnConfiguration(
+            const machine = spawnProductConfiguration(
               product.id,
               product,
               basket?.currency_id,
@@ -706,107 +604,7 @@ export default createMachine(
         error: undefined,
       }),
 
-      addItem: assign({
-        items: ({ items, basket }, { data }) => {
-          const machine = spawnConfiguration(
-            data?.id || uniqueId("item_"),
-            omit(data, "id"),
-            basket?.currency_id,
-            basket?.promotions
-          );
-
-          items.push(machine);
-          return items;
-        },
-        error: undefined,
-      }),
-
-      updateItem: pure(({ items }, { data }) => {
-        const itemId = data?.itemId;
-        const item = find(items, ["id", itemId]);
-        item.send({ type: "PROCESSING" });
-      }),
-
-      updateItems: pure(({ items }, { data }) => {
-        forEach(items, item => {
-          if (item.state.matches("configured")) {
-            item.send({ type: "PROCESSING" });
-          }
-        });
-      }),
-
-      binItem: assign({
-        bin: ({ basket, items, bin }, { data }) => {
-          const itemId = data?.itemId || trimStart(type, "invoke.done.");
-          const removed = find(items, ["id", itemId]);
-          if (removed) {
-            bin.push(removed);
-            removed.send({ type: "BIN" });
-
-            // track the removal using the BasketProduct data
-            const basketProduct = find(basket?.products, ["id", itemId]);
-            if (basketProduct) {
-              trackEvent({ ecommerce: null });
-              trackEvent({
-                event: "remove_from_cart",
-                ecommerce: {
-                  currency: basketProduct.base_currency_code,
-                  value:
-                    basketProduct.configuration_net_amount_discounted_converted,
-                  items: [
-                    {
-                      item_id: basketProduct.product.id,
-                      item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
-                      item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
-                      quantity: basketProduct.quantity,
-                      discount:
-                        basketProduct.configuration_net_amount_discount_converted,
-                      price: basketProduct.configuration_net_amount_converted,
-                    },
-                  ],
-                },
-              });
-            }
-          }
-          return bin;
-        },
-        error: undefined,
-      }),
-
-      clearBin: assign({
-        bin: [],
-      }),
-
-      clearItems: assign({
-        items: ({ items }, _event) => {
-          forEach(
-            items,
-            item => !item?.state?.done && item?.stop && item?.stop()
-          );
-          return [];
-        },
-        bin: [],
-        error: undefined,
-      }),
-
-      removeItem: assign({
-        items: ({ items }, { data }, _event) => {
-          const itemId = data?.itemId;
-          const item = find(items, ["id", itemId]);
-          if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
-          remove(items, ["id", itemId]);
-          return items;
-        },
-        bin: ({ bin }, { data }, _event) => {
-          const itemId = data?.itemId;
-          remove(bin, ["id", itemId]);
-          return bin;
-        },
-
-        error: undefined,
-      }),
-
-      refreshItems: assign({
+      reloadItems: assign({
         items: ({ items, basket }, { data }) => {
           const promotions = data?.basket?.promotions || [];
           const currency_id = data?.basket?.currency_id;
@@ -825,7 +623,7 @@ export default createMachine(
               const currentIndex = findIndex(items, ["id", itemId]);
               const basketProduct = find(data?.basket?.products, ["id", newId]);
               if (basketProduct) {
-                const machine = spawnConfiguration(
+                const machine = spawnProductConfiguration(
                   newId,
                   basketProduct,
                   currency_id,
@@ -873,7 +671,7 @@ export default createMachine(
           // NB: do some housekeeping and ensure that we dont have any missing items
           const missing = differenceBy(data?.basket?.products, items, "id");
           forEach(missing, product => {
-            const machine = spawnConfiguration(
+            const machine = spawnProductConfiguration(
               product.id,
               product,
               currency_id,
@@ -900,16 +698,52 @@ export default createMachine(
           // ---
           return items;
         },
-        bin: [],
+        error: undefined,
+      }),
+
+      addItem: assign({
+        items: ({ items, basket }, { data }) => {
+          const machine = spawnProductConfiguration(
+            data?.id || uniqueId("item_"),
+            omit(data, "id"),
+            basket?.currency_id,
+            basket?.promotions
+          );
+
+          items.push(machine);
+          return items;
+        },
+        error: undefined,
+      }),
+
+      clearItems: assign({
+        items: ({ items }, _event) => {
+          forEach(items, item => {
+            if (item?.send && !item?.state?.done) {
+              item.send({ type: "BIN" });
+            }
+          });
+          return [];
+        },
         error: undefined,
       }),
 
       // ---
 
-      sendToItem: sendTo(
-        (_context, { data: { itemId } }) => itemId,
-        (_context, { type, data }) => ({ type, data })
-      ),
+      cancelController: assign({
+        controller: ({ controller }) => {
+          if (controller?.signal && !controller.signal?.aborted) {
+            controller?.abort();
+          }
+          return undefined;
+        },
+      }),
+
+      newController: assign({
+        controller: () => {
+          return new AbortController();
+        },
+      }),
 
       // ---
       setFeedbackSuccess: (_context, _event) => {
@@ -986,6 +820,8 @@ export default createMachine(
         return valid;
       },
 
+      isNotCancelled: (_context, { data }) => data?.name !== "AbortError",
+
       // --- Actor Guards
       currencyComplete: ({ actors }) => {
         return actors.currency?.state?.matches("complete");
@@ -1052,7 +888,7 @@ export default createMachine(
             state.context.isDirty !== true &&
             state.context.isNew !== true
         );
-        return items?.length && itemsConfigured; //&& !bin?.length;
+        return items?.length && itemsConfigured;
       },
 
       someConfiguring: ({ items }) =>
@@ -1080,8 +916,6 @@ export default createMachine(
       hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
       hasNoItems: ({ items }) => isEmpty(items),
-
-      hasBinItems: ({ bin }) => !isEmpty(bin),
     },
 
     delays: {
