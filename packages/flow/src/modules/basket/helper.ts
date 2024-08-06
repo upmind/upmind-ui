@@ -1,10 +1,11 @@
 // --- external
 
 // --- internal
-import { useBasket } from "./";
+import { useBasket } from ".";
+import productServices from "./products/services";
 
 // --- utils
-import { forEach, get, reduce, isEmpty, pickBy } from "lodash-es";
+import { forEach, get, reduce, isEmpty, pickBy, isArray, map } from "lodash-es";
 
 // --------------------------------------------------------
 async function fetch(context, basket) {
@@ -34,31 +35,64 @@ async function fetch(context, basket) {
   });
 }
 
-async function add(context, basket, target = "items") {
-  const items = get(context, target, []);
+async function add(item, context, basket) {
+  if (isEmpty(item)) return Promise.resolve();
 
-  const promises = [];
+  const mapping = context.basketItemMapper(item);
+  const basketItem = basket.findItem(mapping);
+  if (basketItem) return Promise.resolve(); // its allready added, so we can skip it
 
-  forEach(items, item => {
-    const product = context.basketItemBuilder(item);
-    const mapping = context.basketItemMapper(item);
-    const basketItem = basket.findItem(mapping);
-    if (product && !basketItem) {
-      promises.push(basket.addItem(product));
-    }
-  });
+  const product = context.basketItemBuilder(item);
+  if (!product) return Promise.reject("No product found");
 
-  return Promise.all(promises);
+  return basket.addItem(product);
 }
 
-async function remove(context, basket, target = "items") {
-  // todo;
-  return Promise.resolve();
+async function remove(item, context, basket) {
+  const mapping = context.basketItemMapper(item);
+  const basketItem = basket.findItem(mapping);
 
-  // const items = get(context, target, []);
-  // const promises = [];
+  if (!basketItem) return Promise.resolve();
 
-  // forEach(basket.getItemsSnapshot(), basketItem => {
+  return productServices
+    .remove({ basket }, { data: basketItem })
+    .then(() => basket.refresh());
+}
+
+async function update(item, context, basket) {
+  debugger;
+  if (isEmpty(item)) return Promise.resolve();
+  debugger;
+  const mapping = context.basketItemMapper(item);
+  const basketItem = basket.findItem(mapping);
+  const basket_id = basket.getBasketId();
+  debugger;
+  if (!basketItem) return Promise.reject("No item found");
+  debugger;
+  return productServices
+    .update({ basket_id }, { data: basketItem })
+    .then(() => basket.refresh());
+}
+
+async function sync(items, context, basket) {
+  const basketItems = basket.getItemsSnapshot();
+
+  if (isEmpty(items) && isEmpty(basketItems)) return Promise.resolve();
+
+  // safey check to ensure we have an array of items
+  items = isArray(items) ? items : [items];
+
+  // First ensure all our items are added to the basket...
+  // Then update all our items individually
+  const promises = map(items, item =>
+    add(item, context, basket).then(() => update(item, context, basket))
+  );
+
+  return Promise.all(promises);
+
+  // remove all dangling items
+  // .then(() => {
+  // forEach(basketItems, basketItem => {
   //   const model = get(basketItem.getSnapshot(), "context.model");
   //   const mapping = context.itemMapper(model);
   //   if (!basket.itemExists(items, mapping)) {
@@ -66,41 +100,30 @@ async function remove(context, basket, target = "items") {
   //     promises.push(basket.removeItem(basketItem.id));
   //   }
   // });
+  // });
 
-  // return Promise.all(promises);
-}
-
-async function update(context, basket, target = "items") {
-  return basket.update().then(() => {
-    // // finally cleanup and refresh any items that have been updated
-    // // once the basket has been processed
-    // const basketItems = basket.getItemsSnapshot();
-    // // find any items that are in the basket but not in the actor
-    // const missingItems = [];
-    // forEach(basketItems, basketItem => {
-    //   const model = get(basketItem, "state.context.model");
-    //   const product = get(basketItem, "state.context.lookups.product");
-    //   const mapping = context.basketItemMapper(model);
-    //   // check all our mapping values are set, if not then its not a valid mapping and we can skip it
-    //   const isValid = isEmpty(pickBy(mapping, isEmpty));
-    //   if (isValid && !basket.exists(items, mapping)) {
-    //     const data = context.itemBuilder({
-    //       ...model,
-    //       ...product,
-    //     });
-    //     missingItems.push(data);
-    //   }
-    // });
-    // return missingItems;
-  });
-}
-
-async function sync(context, basket, target = "items") {
-  return (
-    add(context, basket, target)
-      // .then(() => remove(context, basket, target))
-      .then(() => update(context, basket, target))
-  );
+  // .finally(() => {
+  // // finally cleanup and refresh any items that have been updated
+  // // once the basket has been processed
+  // const basketItems = basket.getItemsSnapshot();
+  // // find any items that are in the basket but not in the actor
+  // const missingItems = [];
+  // forEach(basketItems, basketItem => {
+  //   const model = get(basketItem, "state.context.model");
+  //   const product = get(basketItem, "state.context.lookups.product");
+  //   const mapping = context.basketItemMapper(model);
+  //   // check all our mapping values are set, if not then its not a valid mapping and we can skip it
+  //   const isValid = isEmpty(pickBy(mapping, isEmpty));
+  //   if (isValid && !basket.exists(items, mapping)) {
+  //     const data = context.itemBuilder({
+  //       ...model,
+  //       ...product,
+  //     });
+  //     missingItems.push(data);
+  //   }
+  // });
+  // return missingItems;
+  // });
 
   // 3) sync the parent item's config with the context
   // if (parentMapper && parentBuilder) {
@@ -126,28 +149,28 @@ export function syncSubscription(callback, onReceive) {
   onReceive(event => {
     switch (event.type) {
       case "FETCH":
-        fetch(event.data, basket)
+        fetch(event.context, basket)
           .then(data => callback({ type: "SYNCED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;
 
       case "ADD":
-        add(event.data, basket, event.target)
+        add(event.target, event.context, basket)
           .then(data => callback({ type: "SYNCED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;
       case "REMOVE":
-        remove(event.data, basket, event.target)
+        remove(event.target, event.context, basket)
           .then(data => callback({ type: "SYNCED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;
       case "UPDATE":
-        update(event.data, basket, event.target)
+        update(event.target, event.context, basket)
           .then(data => callback({ type: "SYNCED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;
       case "SYNC":
-        sync(event.data, basket, event.target)
+        sync(event.target, event.context, basket)
           .then(data => callback({ type: "SYNCED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;

@@ -93,6 +93,7 @@ export interface BasketContext {
   bin?: Array;
   queue?: Array;
   error?: RequestError;
+  controller?: AbortController;
   summary?: Object;
   // --- SPAWNED ACTORS/MACHINES
   actors: {

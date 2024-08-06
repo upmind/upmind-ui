@@ -2,7 +2,7 @@
 import { spawn } from "xstate";
 
 // --- internal
-import configurationMachine from "../product/product.machine";
+import productMachine from "../product/product.machine";
 import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
@@ -18,24 +18,24 @@ import type { IBasket } from "./types.d";
 // --------------------------------------------------------
 
 // utility function to spawn machines based on the given items
-export function spawnConfiguration(
+export function spawnProductConfiguration(
   id: string,
-  values: any,
+  model: any,
   currency_id: IBasket["currency_id"],
   promotions: IBasket["promotions"]
 ) {
-  try {
-    return spawn(configurationMachine(values, currency_id, promotions), {
-      name: id,
-      sync: true,
-    });
-  } catch (err) {
-    console.error("Basket", "spawnConfiguration", {
-      values,
+  return spawn(
+    productMachine.withContext({
+      model,
       currency_id,
       promotions,
-    });
-  }
+      sync: true,
+    }),
+    {
+      name: id,
+      sync: true,
+    }
+  );
 }
 
 export function spawnBillingDetails(basket: IBasket) {
