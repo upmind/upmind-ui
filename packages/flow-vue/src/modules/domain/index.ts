@@ -9,7 +9,7 @@ import type { DomainTypes } from "@upmind/flow";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find, isArray, get } from "lodash-es";
+import { map, some, find, isArray, get, first } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -129,7 +129,9 @@ export const useDomain = (
     ),
     errors: computed(() => state.value.context?.error),
     selected: computed(() => {
-      const selected = find(state.value.context?.values, "is_primary");
+      const selected =
+        find(state.value.context?.values, "is_primary") ||
+        first(state.value.context?.values);
       return get(selected, "domain");
     }),
 
@@ -160,15 +162,13 @@ export const useDomain = (
       showContinue:
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
-        ) && some(state.value.context?.values, "is_primary"),
+        ) && !!state.value.context?.values?.length,
       showPrimaryDomain:
         ["dac.complete", "existing.complete", "basket.complete"].some(
           state.value.matches
-        ) && some(state.value.context?.values, "is_primary"),
+        ) && !!state.value.context?.values?.length,
       // ---
       hasValues: !!state.value.context?.values?.length,
-      hasPrimary: some(state.value.context?.values, "is_primary"),
-      hasAdditional: state.value.context?.values?.length > 1,
       hasMore:
         !!state.value.context.available.length &&
         state.value.context.available.length < state.value.context.total,

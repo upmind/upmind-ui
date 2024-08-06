@@ -17,6 +17,7 @@ import {
   concat,
   filter,
   find,
+  first,
   get,
   has,
   includes,
@@ -26,7 +27,6 @@ import {
   reduce,
   reject,
   some,
-  set,
   uniqBy,
 } from "lodash-es";
 
@@ -70,6 +70,7 @@ export default createMachine(
       // ---
     } as DomainContext,
 
+    entry: "checkValues",
     states: {
       subscribing: {
         always: [
@@ -440,6 +441,23 @@ export default createMachine(
   },
   {
     actions: {
+      checkValues: assign({
+        values: ({ values }) => {
+          const domains = map(values, parseDomain);
+          if (!!domains?.length && !some(domains, "is_primary")) {
+            first(domains).is_primary = true;
+          }
+          return domains;
+        },
+        rawValues: ({ values }) => {
+          const domains = map(values, parseDomain);
+          if (!!domains?.length && !some(domains, "is_primary")) {
+            first(domains).is_primary = true;
+          }
+          return domains;
+        },
+      }),
+
       checkChoices: assign({
         choices: ({ basketItems }) => {
           if (!basketItems?.length)
@@ -447,9 +465,18 @@ export default createMachine(
 
           return DomainTypes;
         },
-        type: ({ type, basketItems }) => {
-          if (!basketItems?.length) return type;
-          return type || DomainTypes.basket;
+        type: ({ type, basketItems, available, values }) => {
+          const selected = find(values, "is_primary") || first(values);
+          const domain = get(selected, "domain");
+
+          if (domain) {
+            const inBasket = some(basketItems, ["domain", domain]);
+            if (inBasket) return DomainTypes.basket;
+
+            return DomainTypes.existing;
+          }
+
+          return type;
         },
       }),
 
@@ -553,7 +580,6 @@ export default createMachine(
       synced: assign({
         // values: ({ values }, { data }) => {
         //   // merge the values and data, preserving any existing properties in values
-        //   debugger;
         //   const domains = unionBy(
         //     map(data, item => {
         //       let domain = parseBasketItem(item);
@@ -569,10 +595,6 @@ export default createMachine(
         //   );
         //   return domains;
         // },
-        type: ({ type }, { data }) => {
-          return DomainTypes.basket;
-          // return data.length ? DomainTypes.basket : type;
-        },
       }),
 
       // ---
@@ -624,8 +646,8 @@ export default createMachine(
       }),
 
       clearValues: assign({
-        values: (_context, _event) => {
-          return [];
+        values: ({ rawValues }, _event) => {
+          return rawValues;
         },
       }),
 
@@ -688,19 +710,6 @@ export default createMachine(
         },
       }),
 
-      import: assign({
-        values: ({ values }, { data }) => {
-          const domain = parseDomain(data);
-          values.push(domain);
-
-          return map(values, value => {
-            value.is_primary = value === domain;
-            return value;
-          });
-        },
-        type: () => DomainTypes.existing,
-      }),
-
       // ---
       setSuccess: (_context, _event) => {
         // addSuccess("Successfully set Domain");
@@ -722,7 +731,8 @@ export default createMachine(
     },
 
     guards: {
-      needsBasketHelper: ({ sync, basketHelper }) => sync && !basketHelper,
+      needsBasketHelper: ({ sync, basketHelper }) =>
+        Boolean(sync && !basketHelper),
 
       // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
@@ -757,6 +767,7 @@ export default createMachine(
 
       isNotCancelled: (_context, { data }) => data?.name !== "AbortError",
 
+      // ---
       isDomainTransfer: ({ choices }, { data }: { data: string }) =>
         !isEmpty(choices) && data === DomainTypes.transfer,
 

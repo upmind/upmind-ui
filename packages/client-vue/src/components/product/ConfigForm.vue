@@ -17,6 +17,7 @@
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
+      :additional-renderers="additionalRenderers"
       @update:modelValue="doResolve"
       no-actions
       as="fieldset"
@@ -31,7 +32,7 @@ import { defineComponent, toRefs } from "vue";
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
-
+import { additionalRenderers } from "../renderers";
 // --- components
 import { UpwForm, UpwInput } from "@upmind/upwind";
 
@@ -80,6 +81,7 @@ export default defineComponent({
     return {
       styles,
       mergeStyles,
+      additionalRenderers,
     };
   },
   computed: {

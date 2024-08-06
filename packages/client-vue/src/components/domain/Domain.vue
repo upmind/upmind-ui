@@ -61,7 +61,8 @@
         @update:modelValue="setPrimaryDomain"
       />
     </template>
-    <!-- <pre>{{ { state, meta, selected, values,  } }}</pre> -->
+
+    <pre>{{ { state, meta, selected, values } }}</pre>
   </div>
 </template>
 
@@ -99,9 +100,9 @@ export default defineComponent({
     UpmDomainValues,
     UpwSkeletonList,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change"],
   props: {
-    sync: { type: Boolean, default: false },
+    sync: { type: Boolean, default: true },
     type: {
       type: String,
       validator: value =>
@@ -182,7 +183,7 @@ export default defineComponent({
 
     ownedDomains() {
       const owned = [];
-      if (this.available) {
+      if (this.available?.length) {
         owned.push({
           as: "separator",
           persist: true,
@@ -204,6 +205,9 @@ export default defineComponent({
     selected: {
       handler: function (value) {
         this.$emit("update:modelValue", value);
+        // forward the event to our form renderers that will trigger the update
+        // NB: this is not a DOM event so we need to fake one for the renderer
+        this.$emit("change", { currentTarget: { value } });
       },
     },
   },
