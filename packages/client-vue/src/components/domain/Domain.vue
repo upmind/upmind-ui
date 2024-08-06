@@ -62,7 +62,7 @@
       />
     </template>
 
-    <pre>{{ { state, meta, selected, values } }}</pre>
+    <!-- <pre>{{ { state, meta, selected, values } }}</pre> -->
   </div>
 </template>
 

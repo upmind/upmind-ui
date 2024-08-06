@@ -536,8 +536,8 @@ export default createMachine(
         ({ basketHelper }, _event) => basketHelper,
         (context, _event) => ({
           type: "SYNC",
-          data: context,
-          target: "values",
+          target: context.values,
+          context,
         })
       ),
 
@@ -545,56 +545,32 @@ export default createMachine(
         ({ basketHelper }, _event) => basketHelper,
         (context, _event) => ({
           type: "FETCH",
-          data: context,
+          context,
         })
       ),
-
-      // addToBasket: sendTo(
-      //   ({ basketHelper }, _event) => basketHelper,
-      //   (context, _event) => ({
-      //     type: "ADD",
-      //     data: context,
-      //     target: "values",
-      //   })
-      // ),
-      // removeFromBasket: sendTo(
-      //   ({ basketHelper }, _event) => basketHelper,
-      //   (context, _event) => ({
-      //     type: "REMOVE",
-      //     data: context,
-      //     target: "values",
-      //   })
-      // ),
-
-      // updateBasket: sendTo(
-      //   ({ basketHelper }, _event) => basketHelper,
-      //   (context, _event) => ({
-      //     type: "UPDATE",
-      //     data: context,
-      //     target: "values",
-      //   })
-      // ),
 
       // ---
 
       synced: assign({
-        // values: ({ values }, { data }) => {
-        //   // merge the values and data, preserving any existing properties in values
-        //   const domains = unionBy(
-        //     map(data, item => {
-        //       let domain = parseBasketItem(item);
-        //       // merge any existing values with the new data
-        //       const exists = find(values, ["domain", domain.domain]);
-        //       if (exists) {
-        //         domain = Object.assign({}, exists, domain);
-        //       }
-        //       return domain;
-        //     }),
-        //     values, // this will include any values NOT in data
-        //     "domain"
-        //   );
-        //   return domains;
-        // },
+        values: ({ values }, { data }) => {
+          console.debug("Domains", "basket synced", data);
+          //   // merge the values and data, preserving any existing properties in values
+          //   const domains = unionBy(
+          //     map(data, item => {
+          //       let domain = parseBasketItem(item);
+          //       // merge any existing values with the new data
+          //       const exists = find(values, ["domain", domain.domain]);
+          //       if (exists) {
+          //         domain = Object.assign({}, exists, domain);
+          //       }
+          //       return domain;
+          //     }),
+          //     values, // this will include any values NOT in data
+          //     "domain"
+          //   );
+          //   return domains;
+          return values;
+        },
       }),
 
       // ---
