@@ -17,7 +17,8 @@
         </div>
       </div>
 
-      <pre>{{ { selected } }}</pre>
+      <!-- <pre>{{ { selected } }}</pre> -->
+
       <footer :class="styles.domains.section.footer"></footer>
     </section>
   </article>
