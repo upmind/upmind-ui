@@ -70,9 +70,7 @@ async function update(item, context, basket) {
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
   const basket_id = basket.getBasketId();
-  debugger;
   const id = get(basketItem, "state.context.basket_product.id");
-  debugger;
   // ---
   if (!basketItem) return Promise.reject("No item found");
 
