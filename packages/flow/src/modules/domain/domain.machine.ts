@@ -76,7 +76,7 @@ export default createMachine(
       // ---
     } as DomainContext,
 
-    entry: ["checkModel", "persistModel", "clearListings"],
+    entry: ["checkModel", "ensurePrimary", "persistModel", "clearListings"],
     states: {
       subscribing: {
         always: [
@@ -213,18 +213,18 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["add", "checkModel"],
+              actions: ["add", "ensurePrimary"],
               cond: "isValidDomain",
             },
           ],
           REMOVE: {
             target: ".valid",
-            actions: ["remove", "checkModel"],
+            actions: ["remove", "ensurePrimary"],
             cond: "hasModel",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["setModel", "checkModel"],
+            actions: ["setModel", "ensurePrimary"],
           },
           SEARCH: [
             {
@@ -299,19 +299,19 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["clearError", "add", "checkModel"],
+              actions: ["clearError", "add", "ensurePrimary"],
               cond: "isValidDomain",
             },
             { target: ".valid" },
           ],
           REMOVE: {
             target: ".valid",
-            actions: ["clearError", "remove", "checkModel"],
+            actions: ["clearError", "remove", "ensurePrimary"],
             cond: "hasModel",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["clearError", "clearModel", "setModel", "checkModel"],
+            actions: ["clearError", "clearModel", "setModel", "ensurePrimary"],
           },
         },
         exit: ["clearModel"],
@@ -331,7 +331,7 @@ export default createMachine(
                   "setBasketItems",
                   "setBasket",
                   "setModel",
-                  "checkModel",
+                  "ensurePrimary",
                   "checkChoices",
                 ],
               },
@@ -443,12 +443,15 @@ export default createMachine(
       }),
 
       checkModel: assign({
+        model: ({ model }) => map(model, parseDomain),
+      }),
+
+      ensurePrimary: assign({
         model: ({ model }) => {
-          const domains = map(model, parseDomain);
-          if (!!domains?.length && !some(domains, "is_primary")) {
-            first(domains).is_primary = true;
+          if (!!model?.length && !some(model, "is_primary")) {
+            first(model).is_primary = true;
           }
-          return domains;
+          return model;
         },
       }),
 
@@ -591,6 +594,7 @@ export default createMachine(
               break;
           }
           const domain = parseValue(data, model, available);
+
           if (domain) model.push(domain);
           return model;
         },

@@ -45,14 +45,7 @@ export interface Typegen0 {
     add: "ADD";
     cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     checkChoices: "" | "ERROR" | "FETCHED";
-    checkModel:
-      | "ADD"
-      | "CHOOSE"
-      | "FETCHED"
-      | "REMOVE"
-      | "STOP"
-      | "UPDATE"
-      | "xstate.init";
+    checkModel: "CHOOSE" | "STOP" | "xstate.init";
     clearError:
       | ""
       | "ADD"
@@ -71,6 +64,14 @@ export interface Typegen0 {
       | "UPDATE"
       | "xstate.stop";
     clearSearch: "RESET";
+    ensurePrimary:
+      | "ADD"
+      | "CHOOSE"
+      | "FETCHED"
+      | "REMOVE"
+      | "STOP"
+      | "UPDATE"
+      | "xstate.init";
     fetchBasket: "" | "CHOOSE" | "SYNCED";
     newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     persistModel: "CHOOSE" | "STOP" | "xstate.init";
