@@ -2,10 +2,8 @@
   <div :class="styles.domain.root">
     <!-- loader -->
 
-    <upw-skeleton-list
-      :class="styles.domain.listings.loading"
-      v-if="meta.isLoading"
-    />
+    <upw-skeleton-list v-if="meta.isLoading" />
+
     <template v-else>
       <!-- type -->
       <upw-radio-list
@@ -26,7 +24,7 @@
           :loading="meta.isSearching"
           :model-value="selected"
           :processing="meta.isSyncing"
-          :values="values"
+          :values="model"
           @search="search"
           @toggle="toggle"
           @resolve="syncBasket"
@@ -55,7 +53,7 @@
       <upm-domain-values
         v-if="meta.showBasket"
         :model-value="selected"
-        :items="available"
+        :items="basket"
         :loading="meta.isSearching"
         :processing="meta.isSyncing"
         @update:modelValue="setPrimaryDomain"
@@ -86,7 +84,7 @@ import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
 
 // --- utils
-import { debounce, first, map, reduce } from "lodash-es";
+import { debounce, map, reduce } from "lodash-es";
 
 // --- types
 
@@ -120,10 +118,12 @@ export default defineComponent({
       // ---
       choices,
       selected,
-      values,
+      model,
       type,
       query,
       available,
+      owned,
+      basket,
       errors,
       // ---
       meta,
@@ -137,7 +137,7 @@ export default defineComponent({
       syncBasket,
       setPrimaryDomain,
     } = useDomain({
-      values: props.modelValue,
+      model: props.modelValue,
       sync: props.sync,
       type: props.type,
       parentId: props.parentId,
@@ -151,8 +151,10 @@ export default defineComponent({
       meta,
       choices,
       selected,
-      values,
+      model,
       available,
+      owned,
+      basket,
       errors,
       // ---
       choice: type,
@@ -182,22 +184,15 @@ export default defineComponent({
     },
 
     ownedDomains() {
-      const owned = [];
-      if (this.available?.length) {
-        owned.push({
+      if (!this.owned?.length) return [];
+      return [
+        {
           as: "separator",
           persist: true,
           domain: this.$t("domain.existing.owned"),
-        });
-      }
-      return reduce(
-        this.available,
-        (result, item) => {
-          result.push({ ...item, persist: true });
-          return result;
         },
-        owned
-      );
+        ...this.owned,
+      ];
     },
   },
   methods: {},

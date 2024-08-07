@@ -6,8 +6,11 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import { every, find, get, some } from "lodash-es";
+import { every, find, get, some, omitBy, isEmpty } from "lodash-es";
+import { responseCodes } from "../api";
 
+// --- types
+import type { IProductModel } from "../product/types";
 // --------------------------------------------------------
 // create a global instance of the basket machine
 // and a global object to store state
@@ -30,6 +33,19 @@ const exists = (items = [], mapping, context = null) => {
   );
 };
 
+const sendToItem = (itemId, type, data) => {
+  const item = find(service.getSnapshot()?.context?.items, ["id", itemId]);
+  if (item) {
+    item.send({ type, data });
+    return Promise.resolve(item);
+  } else {
+    return Promise.reject({
+      message: "Item not found",
+      code: responseCodes.Not_Found,
+    });
+  }
+};
+
 export const useBasket = () => {
   return {
     service: service.start(),
@@ -49,6 +65,7 @@ export const useBasket = () => {
     refresh: () => service.send({ type: "REFRESH" }),
 
     // --- item functions
+
     getItemsSnapshot: () => service.getSnapshot()?.context?.items || [],
 
     findItem: mapping =>
@@ -77,77 +94,70 @@ export const useBasket = () => {
       attributes,
       options,
       provision_fields,
-    }) => {
+    }: IProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state =>
         ["shopping", "checkout"].some(state.matches)
-      ).then(async () => {
-        // lets add the new product base don the provided config to the basket
-        const mapping = {
-          id,
-          product_id,
-          quantity,
-          term,
-          attributes,
-          options,
-          provision_fields,
-        };
-        service.send({
-          type: "ADD",
-          data: mapping,
-        });
+      )
+        .then(async () => {
+          // lets add the new product base don the provided config to the basket
+          const mapping = omitBy(
+            {
+              id,
+              product_id,
+              quantity,
+              term,
+              attributes,
+              options,
+              provision_fields,
+            },
+            isEmpty
+          );
 
-        // then wait/check for the new product actor to be configured
-        // then send the update event to the basket
-        const actor = find(service.getSnapshot()?.context?.items, basketItem =>
-          every(mapping, (value, key) => {
-            if (key == "id" && value) {
-              return basketItem.id == value;
-            } else {
-              return get(basketItem, `state.context.model.${key}`) == value;
-            }
-          })
-        );
-        await waitFor(actor, actorState => actorState.matches("configured"));
-        return actor;
-      });
+          service.send({
+            type: "ADD",
+            data: mapping,
+          });
+
+          // then wait/check for the new product actor to be configured
+          // then send the update event to the basket
+          return find(service.getSnapshot()?.context?.items, basketItem =>
+            every(mapping, (value, key) => {
+              if (key == "id" && value) {
+                return basketItem.id == value;
+              } else {
+                return get(basketItem, `state.context.model.${key}`) == value;
+              }
+            })
+          );
+        })
+        .then(actor => {
+          return waitFor(actor, actorState =>
+            actorState.matches("available.configured")
+          ).then(() => {
+            return actor;
+          });
+        });
     },
+
+    // --- Item CRUD
 
     updateItem: async itemId => {
-      service.send({ type: "UPDATE", data: { itemId } });
-      return waitFor(service, state =>
-        ["shopping.items.processed", "shopping.items.processing.error"].some(
-          state.matches
-        )
-      ).then(state => {
-        if (state.matches("shopping.items.processing.error")) {
-          return Promise.reject();
-        }
-        return Promise.resolve();
+      sendToItem(itemId, "UPDATE", { itemId }).then(item => {
+        // TODO: update the waitFor
+        // return waitFor(service, state =>
+        //   ["shopping.items.processed", "shopping.items.processing.error"].some(
+        //     state.matches
+        //   )
+        // ).then(state => {
+        //   if (state.matches("shopping.items.processing.error")) {
+        //     return Promise.reject();
+        //   }
+        //   return Promise.resolve();
+        // });
       });
     },
 
-    removeItem: itemId => {
-      service.send({ type: "REMOVE", data: { itemId } });
-    },
-
-    updateTerm: ({ itemId, term }) =>
-      service.send({ type: "UPDATE.TERM", data: { itemId, term } }),
-
-    updateQuantity: ({ itemId, quantity }) =>
-      service.send({ type: "UPDATE.QUANTITY", data: { itemId, quantity } }),
-
-    updateAttributes: ({ itemId, attributes }) =>
-      service.send({ type: "UPDATE.ATTRIBUTES", data: { itemId, attributes } }),
-
-    updateOptions: ({ itemId, options }) =>
-      service.send({ type: "UPDATE.OPTIONS", data: { itemId, options } }),
-
-    updateProvisioning: ({ itemId, provision_fields }) =>
-      service.send({
-        type: "UPDATE.PROVISIONING",
-        data: { itemId, provision_fields },
-      }),
-    // ---
+    removeItem: async itemId => sendToItem(itemId, "REMOVE", { itemId }),
   };
 };

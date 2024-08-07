@@ -53,8 +53,14 @@ interface IDomainSearch {
 export interface DomainContext {
   choices: Object<DomainTypes>;
   type?: DomainTypes;
-  values?: Array<IDomainProduct | IDomain>;
-  available?: Array<IDomainProduct>;
+  model?: Array<IDomainProduct | IDomain>;
+  baseModel?: Array<IDomainProduct | IDomain>;
+  listings?: {
+    searched: Array<IDomainProduct>;
+    history: Array<IDomainProduct>;
+    owned: Array<IDomainProduct>;
+    basket: Array<IDomainProduct>;
+  };
   total?: number;
   // ---
   search?: string;
@@ -69,6 +75,10 @@ export interface DomainContext {
   // ---
   sync?: boolean;
   basketHelper?: Function;
+  itemBuilder?: Function;
+  itemMapper?: Function;
+  basketItemBuilder?: Function;
+  basketItemMapper?: Function;
   //
 }
 

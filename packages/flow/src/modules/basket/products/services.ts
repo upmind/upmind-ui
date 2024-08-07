@@ -1,10 +1,9 @@
 // --- external
 
 // --- internal
-import { ServerResponse } from "http";
 import { useApi } from "../../..";
 // --- utils
-import { get, has, set, map, concat, compact, isEmpty } from "lodash-es";
+import { set, map, concat, compact, isEmpty } from "lodash-es";
 
 // --- types
 
@@ -45,25 +44,20 @@ async function loadProvisioningValues({ basket_id, model }) {
   });
 }
 
-async function update({ basket_id }, { data }) {
+async function update({ basket_id, id }, { data }) {
   debugger;
-  if (!basket_id) return Promise.reject("No basket provided/available");
-  debugger;
-
-  // We have been provided a subMachine, so we need to get its latest data
-  const item = data.getSnapshot();
-  if (isEmpty(item)) return Promise.reject(`No such item : ${data}`);
-
-  const isNew = get(item, "context.isNew");
-  const config = get(item, "context.config");
-
   const { put, post, useUrl } = useApi();
+  if (!basket_id) return Promise.reject("No basket provided/available");
+  if (isEmpty(data)) return Promise.reject(`No product data provided : ${id}`);
+  // ---
+  const isNew = !id;
   const action = isNew ? post : put;
-  const suffix = isNew ? "" : `/${item.id}`;
+  const suffix = isNew ? "" : `/${id}`;
   debugger;
+  // ---
   return action({
     url: useUrl(`/orders/${basket_id}/products${suffix}`),
-    data: config,
+    data,
     withAccessToken: true,
   }).then(({ data }) => data);
 }
@@ -75,7 +69,6 @@ async function update({ basket_id }, { data }) {
 //   if (!basket_id) return Promise.reject("No basket provided/available");
 //   if (!product) return Promise.reject("No product provided/available");
 
-//   debugger;
 //   const hasProvisioning = !!get(product, "provision_blueprint_id");
 
 //   // if the product has no provisioning fields, we dont need to make a request
@@ -94,21 +87,13 @@ async function update({ basket_id }, { data }) {
 //   });
 // }
 
-async function remove({ basket_id }, { data }) {
-  debugger;
-  if (!basket_id) return Promise.reject("No basket provided/available");
-
-  // We have been provided a subMachine, so we need to get its latest data
-  const item = data.getSnapshot();
-  if (isEmpty(item)) return Promise.reject(`No such item : ${data}`);
-
-  const isNew = get(item, "context.isNew");
-
-  if (isNew) return Promise.resolve(); // we dont need to make a request
-
+async function remove({ basket_id, id }) {
   const { del, useUrl } = useApi();
+  if (!basket_id) return Promise.reject("No basket provided/available");
+  if (!id) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
+  // ---
   return del({
-    url: useUrl(`/orders/${basket_id}/products/${item.id}`),
+    url: useUrl(`/orders/${basket_id}/products/${id}`),
     withAccessToken: true,
   }).then(({ data }) => data);
 }

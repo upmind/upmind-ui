@@ -29,17 +29,12 @@ export const useBasket = () => {
   const {
     service,
     isReady,
-    update,
     clear,
     checkout,
+    // ---
     addItem,
     updateItem,
     removeItem,
-    updateTerm,
-    updateQuantity,
-    updateAttributes,
-    updateOptions,
-    updateProvisioning,
   } = useUpmindBasket();
   // --------------------------------------------------------
   // we need this for reactive state
@@ -95,11 +90,8 @@ export const useBasket = () => {
           machineMatches(actors.value.billingDetails, ["valid"]) ||
           machineMatches(actors.value.promotions, ["valid"]) ||
           (stateMatches(state, ["shopping.items.configuring"]) &&
-            some(
-              contextValue(state, "items"),
-              item =>
-                machineMatches(item, ["configured"]) &&
-                contextMatches(item?.state, ["isNew", "isDirty"])
+            some(contextValue(state, "items"), item =>
+              machineMatches(item, ["available.configured"])
             )),
 
         // ---
@@ -182,11 +174,16 @@ export const useBasket = () => {
     items: useContextActor(state, "items", []),
     itemsPending: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(items, item => contextMatches(item?.state, ["isNew"]));
+      return filter(
+        items,
+        item => !contextMatches(item?.state, ["basket_product"])
+      );
     }),
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(items, item => !contextMatches(item?.state, ["isNew"]));
+      return filter(items, item =>
+        contextMatches(item?.state, ["basket_product"])
+      );
     }),
     products: useContext(state, "basket.products", []),
     promotions: useContext(state, "basket.promotions", []),
@@ -199,7 +196,6 @@ export const useBasket = () => {
     // ---
     // Basket Methods
     isReady,
-    update,
     clear,
     checkout,
     // ---
@@ -207,10 +203,5 @@ export const useBasket = () => {
     addItem,
     updateItem,
     removeItem,
-    updateTerm,
-    updateQuantity,
-    updateAttributes,
-    updateOptions,
-    updateProvisioning,
   };
 };

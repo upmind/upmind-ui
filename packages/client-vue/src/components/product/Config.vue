@@ -294,9 +294,9 @@ export default defineComponent({
       // ---
       doReject: () => {
         reset();
-        emit("reject", { id: props.modelValue });
+        emit("reject", props.modelValue);
       },
-      doResolve: () => emit("resolve", { id: props.modelValue }), // ---
+      doResolve: () => emit("resolve", props.modelValue), // ---
       styles,
       mergeStyles,
       // ---

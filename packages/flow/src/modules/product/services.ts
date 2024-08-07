@@ -8,7 +8,7 @@ import type { ProductConfigContext } from "./types.d";
 
 // --- utils
 import { useTime, useValidation } from "../../utils";
-import { useQuantityParser, useHasPriceOverride } from "./utils";
+import { parseQuantity, checkPriceOverride } from "./utils";
 
 import {
   concat,
@@ -185,7 +185,7 @@ async function checkQuantity(
   const { product } = lookups;
   let quantity = data?.quantity || model?.quantity;
   // ---
-  quantity = useQuantityParser(quantity, product);
+  quantity = parseQuantity(quantity, product);
 
   return new Promise((resolve, reject) => {
     if (isNumber(quantity)) resolve({ quantity });
@@ -320,7 +320,7 @@ async function checkSubproducts(
           }
 
           // ensure we have a valid unit_quantity
-          value.unit_quantity = useQuantityParser(
+          value.unit_quantity = parseQuantity(
             value?.unit_quantity || 1,
             product
           );
@@ -413,13 +413,13 @@ const calculateSummary = (
 ) => {
   const { post, useUrl } = useApi();
 
-  // remove the term price if we have any price overrides
-  const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
-
   // clean the prices object, removing any nil values. we dont use compact because that also removes 0 values
+  // NB: remove the term price if we have any price overrides
   const values = reject(
     concat(
-      hasPriceOverride ? [] : prices?.term || 0,
+      checkPriceOverride(model.options, lookups.options)
+        ? []
+        : prices?.term || 0,
       prices?.attributes,
       prices?.options
     ),

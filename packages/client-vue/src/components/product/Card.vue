@@ -184,8 +184,8 @@ export default defineComponent({
       meta,
       summary,
       // ---
-      doReject: () => emit("reject", { id: props.modelValue }),
-      doResolve: () => emit("resolve", { id: props.modelValue }),
+      doReject: () => emit("reject", props.modelValue),
+      doResolve: () => emit("resolve", props.modelValue),
       toggle: ref(false),
       // ---
       styles,

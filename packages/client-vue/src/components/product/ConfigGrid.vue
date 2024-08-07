@@ -182,7 +182,6 @@ export default defineComponent({
   methods: {
     doResolve(item) {
       if (this.disabled) return;
-
       this.$emit("update:modelValue", item);
     },
   },

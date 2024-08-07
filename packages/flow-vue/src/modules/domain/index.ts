@@ -18,23 +18,23 @@ import { map, some, find, isArray, get, first } from "lodash-es";
 
 export const useDomain = (
   {
-    values,
+    model,
     sync,
     type,
     parentId,
   }: {
-    values?: Array<string> | string;
+    model?: Array<string> | string;
     sync?: boolean;
     type?: DomainTypes;
     parentId?: string; // id of basket item machine representing the parent context
   } = {
-    values: [],
+    model: [],
     sync: false,
     type: undefined,
     parentId: undefined,
   }
 ) => {
-  const domain = useUpmindDomain({ values, sync, type, parentId });
+  const domain = useUpmindDomain({ model, sync, type, parentId });
   const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------
@@ -54,7 +54,7 @@ export const useDomain = (
     });
 
   const toggle = (value: string) => {
-    const type = some(state.value.context.values, ["domain", value])
+    const type = some(state.value.context.model, ["domain", value])
       ? "REMOVE"
       : "ADD";
 
@@ -64,11 +64,11 @@ export const useDomain = (
     });
   };
 
-  const update = (values: string | Array<string>) => {
+  const update = (model: string | Array<string>) => {
     // NB: nsure we have an array of strings
     send({
       type: "UPDATE",
-      data: isArray(values) ? values : [values],
+      data: isArray(model) ? model : [model],
     });
   };
 
@@ -119,19 +119,19 @@ export const useDomain = (
       })
     ),
     query: computed(() => state.value.context.search),
-    values: computed(() => map(state.value.context.values, "domain")),
+    model: computed(() => map(state.value.context.model, "domain")),
     type: computed(() => state.value.context.type),
-    available: computed(() =>
-      map(state.value.context.available, item => {
-        item.value = item.domain;
-        return item;
-      })
-    ),
+    // ---
+    owned: computed(() => state.value.context.listings?.owned),
+    basket: computed(() => state.value.context.listings?.basket),
+    available: computed(() => state.value.context.listings?.searched),
+
+    // ---
     errors: computed(() => state.value.context?.error),
     selected: computed(() => {
       const selected =
-        find(state.value.context?.values, "is_primary") ||
-        first(state.value.context?.values);
+        find(state.value.context?.model, "is_primary") ||
+        first(state.value.context?.model);
       return get(selected, "domain");
     }),
 
@@ -162,16 +162,11 @@ export const useDomain = (
       showContinue:
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
-        ) && !!state.value.context?.values?.length,
+        ) && !!state.value.context?.model?.length,
       showPrimaryDomain:
         ["dac.complete", "existing.complete", "basket.complete"].some(
           state.value.matches
-        ) && !!state.value.context?.values?.length,
-      // ---
-      hasValues: !!state.value.context?.values?.length,
-      hasMore:
-        !!state.value.context.available.length &&
-        state.value.context.available.length < state.value.context.total,
+        ) && !!state.value.context?.model?.length,
     })),
     // ---
     choose,

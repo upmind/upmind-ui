@@ -5,6 +5,7 @@
 // Contexts
 
 export interface ProductConfigContext {
+  id: string;
   currency_id: IProductPrice["currency_id"];
   promotions: IProductPromotion[];
   baseModel: IProductModel;
@@ -28,6 +29,14 @@ export interface ProductConfigContext {
   // ---
   calculateCallback?: ActorRef<any, any>;
   error?: RequestError;
+  // ---
+  basket_id?: string;
+  basket_product?: IBasketProduct;
+  basketHelper?: Function;
+  itemBuilder?: Function;
+  itemMapper?: Function;
+  basketItemBuilder?: Function;
+  basketItemMapper?: Function;
 }
 
 export interface IProductModel {

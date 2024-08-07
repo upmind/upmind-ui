@@ -44,10 +44,10 @@ export const useProductConfig = actor => {
       !isEmpty(state.value?.context?.lookups?.options) ||
       !isEmpty(state.value?.context?.lookups?.provision_fields?.properties),
 
-    isConfigured: state.value.matches("configured"),
+    isConfigured: state.value.matches("available.configured"),
     isCalculating: state.value.context?.summary?.isCalculating,
 
-    isProcessing: state.value.matches("configured.processing"),
+    isProcessing: state.value.matches("processing"),
     isUnavailable: state.value.matches("unavailable"),
     // ---
     hasProvisioning:
@@ -79,7 +79,7 @@ export const useProductConfig = actor => {
   // --- QUANTITY
   const updateQuantity = (value?: number) => {
     send({
-      type: "UPDATE.QUANTITY",
+      type: "SET.QUANTITY",
       data: {
         quantity: value || model.value.quantity,
       },
@@ -126,7 +126,7 @@ export const useProductConfig = actor => {
 
   const updateTerm = term =>
     send({
-      type: "UPDATE.TERM",
+      type: "SET.TERM",
       data: {
         term: isObject(term) ? term.billing_cycle_months : term,
       },
@@ -137,7 +137,7 @@ export const useProductConfig = actor => {
 
   const updateAttributes = () =>
     send({
-      type: "UPDATE.ATTRIBUTES",
+      type: "SET.ATTRIBUTES",
       data: {
         attributes: model.value.attributes,
       },
@@ -170,7 +170,7 @@ export const useProductConfig = actor => {
 
   const updateOptions = () =>
     send({
-      type: "UPDATE.OPTIONS",
+      type: "SET.OPTIONS",
       data: {
         options: model.value.options,
       },
@@ -277,7 +277,7 @@ export const useProductConfig = actor => {
 
   const updateProvisioning = () => {
     send({
-      type: "UPDATE.PROVISIONING",
+      type: "SET.PROVISIONING",
       data: { provision_fields: model.value.provision_fields },
     });
   };

@@ -44,16 +44,15 @@ export interface Typegen0 {
   eventsCausingActions: {
     add: "ADD";
     cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
-    checkChoices: "ERROR" | "SYNCED";
-    checkValues: "CHOOSE" | "STOP" | "xstate.init";
-    clearAvailable:
-      | ""
+    checkChoices: "" | "ERROR" | "FETCHED";
+    checkModel:
+      | "ADD"
       | "CHOOSE"
-      | "REFRESH"
-      | "RESET"
-      | "SEARCH"
+      | "FETCHED"
+      | "REMOVE"
       | "STOP"
-      | "xstate.stop";
+      | "UPDATE"
+      | "xstate.init";
     clearError:
       | ""
       | "ADD"
@@ -62,27 +61,35 @@ export interface Typegen0 {
       | "REMOVE"
       | "SEARCH"
       | "UPDATE";
-    clearSearch: "RESET";
-    clearValues: "" | "CHOOSE" | "RESET" | "STOP" | "UPDATE" | "xstate.stop";
-    fetchBasket: "" | "CHOOSE";
-    newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
-    remove: "REMOVE";
-    setAvailable:
+    clearListings: "CHOOSE" | "RESET" | "STOP" | "xstate.init";
+    clearModel:
+      | ""
+      | "CHOOSE"
+      | "RESET"
+      | "STOP"
       | "SYNCED"
-      | "done.invoke.domainManager.existing.loading:invocation[0]"
-      | "done.invoke.processing:invocation[0]";
+      | "UPDATE"
+      | "xstate.stop";
+    clearSearch: "RESET";
+    fetchBasket: "" | "CHOOSE" | "SYNCED";
+    newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
+    persistModel: "CHOOSE" | "STOP" | "xstate.init";
+    remove: "REMOVE";
+    setBasket: "FETCHED";
     setBasketHelper: "";
-    setBasketItems: "SYNCED";
+    setBasketItems: "FETCHED";
     setCurrency: "REFRESH";
     setError:
       | "ERROR"
       | "error.platform.domainManager.existing.loading:invocation[0]"
       | "error.platform.processing:invocation[0]";
+    setModel: "FETCHED" | "UPDATE";
+    setOwned: "done.invoke.domainManager.existing.loading:invocation[0]";
     setPrimary: "SELECT";
     setPromotions: "REFRESH";
     setSearch: "SEARCH";
+    setSearched: "done.invoke.processing:invocation[0]";
     setType: "CHOOSE";
-    setValues: "SYNCED" | "UPDATE";
     syncBasket: "SYNC";
     synced: "SYNCED";
   };
@@ -90,9 +97,9 @@ export interface Typegen0 {
     wait: "SELECT";
   };
   eventsCausingGuards: {
-    hasNoValues: "";
+    hasModel: "" | "REMOVE" | "SELECT";
+    hasNoModel: "";
     hasValidSearch: "";
-    hasValues: "" | "REMOVE" | "SELECT";
     isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";

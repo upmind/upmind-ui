@@ -10,26 +10,31 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import { get, map, compact, uniq, reduce, set } from "lodash-es";
+import { get, map, compact, uniq, reduce, set, uniqueId } from "lodash-es";
 
 // --- types
 import { TaxTagTypes } from "./types.d";
 import type { IBasket } from "./types.d";
+
 // --------------------------------------------------------
 
 // utility function to spawn machines based on the given items
 export function spawnProductConfiguration(
-  id: string,
-  model: any,
-  currency_id: IBasket["currency_id"],
-  promotions: IBasket["promotions"]
+  data: any,
+  basket_id?: string,
+  currency_id?: IBasket["currency_id"],
+  promotions?: IBasket["promotions"]
 ) {
+  const id = data?.id || uniqueId("product-");
+  const isBasketProduct = data?.id ? true : false;
+
   return spawn(
     productMachine.withContext({
-      model,
+      id,
+      basket_id,
+      [isBasketProduct ? "basket_product" : "model"]: data,
       currency_id,
       promotions,
-      sync: true,
     }),
     {
       name: id,

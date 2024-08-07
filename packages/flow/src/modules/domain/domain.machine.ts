@@ -26,6 +26,7 @@ import {
   omit,
   reduce,
   reject,
+  set,
   some,
   uniqBy,
 } from "lodash-es";
@@ -47,9 +48,13 @@ export default createMachine(
       choices: DomainTypes,
       type: undefined,
       sync: undefined,
-      values: [],
-      available: [],
-      history: [],
+      model: [],
+      listings: {
+        searched: [],
+        history: [],
+        owned: [],
+        basket: [],
+      },
       total: 0,
       // ---
       currency: undefined,
@@ -61,6 +66,7 @@ export default createMachine(
       controller: undefined,
       // ---
       error: undefined,
+      // ---
       basketHelper: undefined,
       itemBuilder: undefined,
       itemMapper: undefined,
@@ -70,7 +76,7 @@ export default createMachine(
       // ---
     } as DomainContext,
 
-    entry: "checkValues",
+    entry: ["checkModel", "persistModel", "clearListings"],
     states: {
       subscribing: {
         always: [
@@ -80,7 +86,7 @@ export default createMachine(
             cond: "needsBasketHelper",
           },
           {
-            target: "loading",
+            target: "idle",
           },
         ],
       },
@@ -88,7 +94,7 @@ export default createMachine(
       loading: {
         entry: ["fetchBasket"],
         on: {
-          SYNCED: {
+          FETCHED: {
             target: "idle",
             actions: ["setBasketItems"],
           },
@@ -101,7 +107,7 @@ export default createMachine(
         //   src: "load",
         //   onDone: {
         //     target: "idle",
-        //     actions: ["setValues"],
+        //     actions: ["setModel"],
         //   },
         //   onError: {
         //     target: "idle",
@@ -144,17 +150,12 @@ export default createMachine(
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
             id: "processing",
-            entry: [
-              "clearAvailable",
-              "clearError",
-              "cancelController",
-              "newController",
-            ],
+            entry: ["clearError", "cancelController", "newController"],
             invoke: {
               src: "search",
               onDone: {
                 target: "invalid",
-                actions: ["setAvailable"],
+                actions: ["setSearched"],
               },
               onError: [
                 {
@@ -173,7 +174,7 @@ export default createMachine(
             always: [
               {
                 target: "invalid",
-                cond: "hasNoValues",
+                cond: "hasNoModel",
                 actions: assign({
                   error: "Invalid domain",
                 }),
@@ -187,7 +188,7 @@ export default createMachine(
             },
           },
           invalid: {
-            always: [{ target: "valid", cond: "hasValues" }],
+            always: [{ target: "valid", cond: "hasModel" }],
           },
           // ---
           syncing: {
@@ -196,7 +197,7 @@ export default createMachine(
                 // do nothing
               },
               SYNCED: {
-                target: "complete",
+                target: "#basket",
                 actions: ["synced"],
               },
               ERROR: {
@@ -212,18 +213,18 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["add"],
+              actions: ["add", "checkModel"],
               cond: "isValidDomain",
             },
           ],
           REMOVE: {
             target: ".valid",
-            actions: ["remove"],
-            cond: "hasValues",
+            actions: ["remove", "checkModel"],
+            cond: "hasModel",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["setValues"],
+            actions: ["setModel", "checkModel"],
           },
           SEARCH: [
             {
@@ -241,28 +242,23 @@ export default createMachine(
           },
           RESET: {
             target: ".invalid",
-            actions: ["clearValues", "clearAvailable", "clearSearch"],
+            actions: ["clearModel", "clearListings", "clearSearch"],
           },
         },
       },
 
       existing: {
-        entry: ["clearValues", "clearAvailable"],
+        entry: ["clearModel"],
         id: "existing",
         initial: "loading",
         states: {
           loading: {
-            entry: [
-              "cancelController",
-              "clearAvailable",
-              "clearError",
-              "newController",
-            ],
+            entry: ["cancelController", "clearError", "newController"],
             invoke: {
               src: "getClientDomains",
               onDone: {
                 target: "invalid",
-                actions: ["setAvailable"],
+                actions: ["setOwned"],
               },
               onError: [
                 {
@@ -284,7 +280,7 @@ export default createMachine(
             always: [
               {
                 target: "invalid",
-                cond: "hasNoValues",
+                cond: "hasNoModel",
                 actions: assign({
                   error: "Invalid domain",
                 }),
@@ -294,7 +290,7 @@ export default createMachine(
           invalid: {
             always: {
               target: "valid",
-              cond: "hasValues",
+              cond: "hasModel",
             },
           },
           error: {},
@@ -303,38 +299,39 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["clearError", "add"],
+              actions: ["clearError", "add", "checkModel"],
               cond: "isValidDomain",
             },
             { target: ".valid" },
           ],
           REMOVE: {
             target: ".valid",
-            actions: ["clearError", "remove"],
-            cond: "hasValues",
+            actions: ["clearError", "remove", "checkModel"],
+            cond: "hasModel",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["clearError", "clearValues", "setValues"],
+            actions: ["clearError", "clearModel", "setModel", "checkModel"],
           },
         },
-        exit: ["clearValues", "clearAvailable"],
+        exit: ["clearModel"],
       },
 
       basket: {
-        entry: ["clearValues", "clearAvailable"],
+        entry: ["clearModel"],
         id: "basket",
         initial: "loading",
         states: {
           loading: {
             entry: ["fetchBasket"],
             on: {
-              SYNCED: {
+              FETCHED: {
                 target: "invalid",
                 actions: [
                   "setBasketItems",
-                  "setAvailable",
-                  "setValues",
+                  "setBasket",
+                  "setModel",
+                  "checkModel",
                   "checkChoices",
                 ],
               },
@@ -352,7 +349,7 @@ export default createMachine(
           valid: {
             always: {
               target: "invalid",
-              cond: "hasNoValues",
+              cond: "hasNoModel",
             },
             on: {
               SYNC: {
@@ -364,7 +361,7 @@ export default createMachine(
           invalid: {
             always: {
               target: "valid",
-              cond: "hasValues",
+              cond: "hasModel",
             },
           },
           syncing: {
@@ -390,11 +387,11 @@ export default createMachine(
             {
               target: ".processing",
               actions: ["setPrimary"],
-              cond: "hasValues",
+              cond: "hasModel",
             },
           ],
         },
-        exit: ["clearValues", "clearAvailable"],
+        exit: ["clearModel"],
       },
 
       // ---
@@ -441,16 +438,13 @@ export default createMachine(
   },
   {
     actions: {
-      checkValues: assign({
-        values: ({ values }) => {
-          const domains = map(values, parseDomain);
-          if (!!domains?.length && !some(domains, "is_primary")) {
-            first(domains).is_primary = true;
-          }
-          return domains;
-        },
-        rawValues: ({ values }) => {
-          const domains = map(values, parseDomain);
+      persistModel: assign({
+        baseModel: ({ model }) => model,
+      }),
+
+      checkModel: assign({
+        model: ({ model }) => {
+          const domains = map(model, parseDomain);
           if (!!domains?.length && !some(domains, "is_primary")) {
             first(domains).is_primary = true;
           }
@@ -465,8 +459,8 @@ export default createMachine(
 
           return DomainTypes;
         },
-        type: ({ type, basketItems, available, values }) => {
-          const selected = find(values, "is_primary") || first(values);
+        type: ({ type, basketItems, model }) => {
+          const selected = find(model, "is_primary") || first(model);
           const domain = get(selected, "domain");
 
           if (domain) {
@@ -536,7 +530,7 @@ export default createMachine(
         ({ basketHelper }, _event) => basketHelper,
         (context, _event) => ({
           type: "SYNC",
-          target: context.values,
+          target: context.model,
           context,
         })
       ),
@@ -552,78 +546,101 @@ export default createMachine(
       // ---
 
       synced: assign({
-        values: ({ values }, { data }) => {
+        model: ({ model }, { data }) => {
           console.debug("Domains", "basket synced", data);
-          //   // merge the values and data, preserving any existing properties in values
+          //   // merge the model and data, preserving any existing properties in model
           //   const domains = unionBy(
           //     map(data, item => {
           //       let domain = parseBasketItem(item);
-          //       // merge any existing values with the new data
-          //       const exists = find(values, ["domain", domain.domain]);
+          //       // merge any existing model with the new data
+          //       const exists = find(model, ["domain", domain.domain]);
           //       if (exists) {
           //         domain = Object.assign({}, exists, domain);
           //       }
           //       return domain;
           //     }),
-          //     values, // this will include any values NOT in data
+          //     model, // this will include any model NOT in data
           //     "domain"
           //   );
           //   return domains;
-          return values;
+          return model;
         },
+        type: DomainTypes.basket,
       }),
 
       // ---
 
       add: assign({
-        values: ({ values, available }: DomainContext, { data }: AddEvent) => {
-          const domain = parseValue(data, values, available);
-          // check in case...
-          // ensure we have at least one primary domain
-          if (domain) {
-            domain.is_primary = !some(values, "is_primary");
-            values.push(domain);
+        model: (
+          { model, listings, type }: DomainContext,
+          { data }: AddEvent
+        ) => {
+          let available = [];
+          switch (type) {
+            case DomainTypes.register:
+              available = listings?.searched;
+              break;
+            case DomainTypes.transfer:
+              available = listings?.searched;
+              break;
+            case DomainTypes.existing:
+              available = listings?.owned;
+              break;
+            case DomainTypes.basket:
+              available = listings?.basket;
+              break;
           }
-
-          return values;
+          const domain = parseValue(data, model, available);
+          if (domain) model.push(domain);
+          return model;
         },
       }),
 
       remove: assign({
-        values: ({ values }: DomainContext, { data }: RemoveEvent) => {
-          const newValues = reject(values, ["domain", data]);
-          if (newValues?.length && !some(newValues, "is_primary")) {
-            newValues[0].is_primary = true;
-          }
-          return newValues;
-        },
+        model: ({ model }: DomainContext, { data }: RemoveEvent) =>
+          reject(model, ["domain", data]),
       }),
 
       // ---
 
-      setValues: assign({
-        values: ({ values, available }: DomainContext, { data }: AddEvent) => {
-          // check if we already have the domain
-          return reduce(
+      setModel: assign({
+        model: ({ model, listings, type }: DomainContext, { data }: AddEvent) =>
+          reduce(
             data,
             (result, item) => {
-              const domain = parseValue(item, values, available);
+              let available = [];
+              switch (type) {
+                case DomainTypes.register:
+                  available = listings?.searched;
+                  break;
+                case DomainTypes.transfer:
+                  available = listings?.searched;
+                  break;
+                case DomainTypes.existing:
+                  available = listings?.owned;
+                  break;
+                case DomainTypes.basket:
+                  available = listings?.basket;
+                  break;
+              }
 
-              // ensure we have at least one primary domain
+              const domain = parseValue(item, model, available);
+
+              // ensure we persist any prev selected/primary domain
               if (domain) {
-                domain.is_primary = !some(values, "is_primary");
+                const exists = find(model, ["domain", domain.domain]);
+                domain.is_primary = exists?.is_primary;
                 result.push(domain);
               }
               return result;
             },
             []
-          );
-        },
+          ),
       }),
 
-      clearValues: assign({
-        values: ({ rawValues }, _event) => {
-          return rawValues;
+      clearModel: assign({
+        model: ({ baseModel }, _event) => {
+          return baseModel;
         },
       }),
 
@@ -651,35 +668,81 @@ export default createMachine(
         search: null,
         offset: 0,
         total: 0,
-        history: [],
+        listings: ({ listings }) => {
+          listings.history = [];
+          return listings;
+        },
       }),
 
-      setAvailable: assign({
-        available: ({ history, values }, { data }) => {
-          const available = get(data, "available", data);
-          const persisted = filter(history, ({ domain }) =>
-            some(values, ["domain", domain])
+      setSearched: assign({
+        listings: ({ listings, model }, { data }) => {
+          const available = map(data?.available, item => {
+            item.value = item.domain;
+            return item;
+          });
+
+          const persisted = filter(listings.history, ({ domain }) =>
+            some(model, ["domain", domain])
           );
-          return uniqBy(compact(concat(persisted, available)), "domain");
+
+          set(
+            listings,
+            "searched",
+            uniqBy(compact(concat(persisted, available)), "domain")
+          );
+
+          // store all previous searches
+          set(
+            listings,
+            "history",
+            uniqBy(compact(concat(listings.history, available)), "domain")
+          );
+
+          return listings;
         },
-        history: ({ history }, { data }) =>
-          uniqBy(compact(concat(history, data.available)), "domain"),
-
         total: (_context, { data }) => data.total,
-
         controller: null,
       }),
 
-      clearAvailable: assign({
-        available: (_context, _event) => {
-          return [];
+      setOwned: assign({
+        listings: ({ listings }, { data }) => {
+          const available = map(data?.available, item => {
+            item.value = item.domain;
+            item.persist = true;
+            return item;
+          });
+          set(listings, "owned", available);
+          return listings;
+        },
+      }),
+
+      setBasket: assign({
+        listings: ({ listings }, { data }) => {
+          const available = map(data, item => {
+            item.value = item.domain;
+            return item;
+          });
+
+          set(listings, "basket", available);
+          return listings;
+        },
+      }),
+
+      clearListings: assign({
+        listings: (_context, _event) => {
+          return {
+            searched: [],
+            history: [],
+            owned: [],
+            basket: [],
+          };
         },
       }),
 
       setPrimary: assign({
-        values: ({ values }, { data }) => {
-          const primary = find(values, ["domain", data]);
-          return map(values, value => {
+        model: ({ model }, { data }) => {
+          const primary = find(model, ["domain", data]);
+          return map(model, value => {
             value.is_primary = value === primary;
             return value;
           });
@@ -716,9 +779,7 @@ export default createMachine(
         return isEmpty(choices) || !has(DomainTypes, data);
       },
 
-      isValidDomain: (_context, { data }) => {
-        return !isEmpty(parseDomain(data));
-      },
+      isValidDomain: (_context, { data }) => !isEmpty(parseDomain(data)),
 
       hasValidSearch: ({ search }, _event) => {
         const sld = parseSld(search);
@@ -729,16 +790,12 @@ export default createMachine(
         return sld?.length > 2;
       },
 
-      hasAvailable: ({ available }) => {
-        return !isEmpty(available);
+      hasModel: ({ model }) => {
+        return !isEmpty(model);
       },
 
-      hasValues: ({ values }) => {
-        return !isEmpty(values);
-      },
-
-      hasNoValues: ({ values }) => {
-        return isEmpty(values);
+      hasNoModel: ({ model }) => {
+        return isEmpty(model);
       },
 
       isNotCancelled: (_context, { data }) => data?.name !== "AbortError",

@@ -142,7 +142,7 @@ export default defineComponent({
     // ---
     size: {
       type: String as PropType<ButtonProps["size"]>,
-      default: null,
+      default: "md",
     },
     variant: {
       type: String as PropType<ButtonProps["variant"]>,
