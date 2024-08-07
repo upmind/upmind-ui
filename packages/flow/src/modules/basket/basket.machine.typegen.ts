@@ -99,6 +99,9 @@ export interface Typegen0 {
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
+    reloadItems:
+      | "REFRESH"
+      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
     setError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.refreshing.processing:invocation[0]"

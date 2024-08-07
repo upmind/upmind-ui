@@ -266,7 +266,6 @@ export default defineComponent({
 
     onUpdate(value) {
       if (this.meta.isDisabled || this.meta.isProcessing) return;
-      // // ensure we return a nice clean array
       this.$emit("toggle", value);
     },
   },

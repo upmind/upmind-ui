@@ -24,6 +24,7 @@ import {
 import {
   differenceBy,
   every,
+  filter,
   find,
   findIndex,
   forEach,
@@ -32,9 +33,7 @@ import {
   isEmpty,
   isEqual,
   map,
-  omit,
   some,
-  uniqueId,
 } from "lodash-es";
 
 // --- types
@@ -171,7 +170,7 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
-                    actions: ["updateBasket", "refreshActors"],
+                    actions: ["updateBasket", "reloadItems", "refreshActors"],
                   },
                   onError: {
                     target: "#error",
@@ -435,7 +434,7 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket", "refreshActors"],
+          actions: ["updateBasket", "reloadItems", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
@@ -585,16 +584,19 @@ export default createMachine(
 
       loadItems: assign({
         items: ({ items, basket }, { data }) => {
+          const basket_id = data?.id || basket?.id;
           const products = data?.products || basket?.products || [];
           const promotions = data?.promotions || basket?.promotions || [];
+          const currency_id = data?.currency_id || basket?.currency_id;
+          // ---
           forEach(products, product => {
             // TODO: check if the item already exists
             // const item = find(items, ["id", product.id]);
 
             const machine = spawnProductConfiguration(
-              product.id,
               product,
-              basket?.currency_id,
+              basket_id,
+              currency_id,
               promotions
             );
             items.push(machine);
@@ -608,94 +610,28 @@ export default createMachine(
         items: ({ items, basket }, { data }) => {
           const promotions = data?.basket?.promotions || [];
           const currency_id = data?.basket?.currency_id;
-          forEach(data?.items, (item, index) => {
-            const itemId = item.id;
-            const newId = get(data?.newItems, [index, "id"]);
-            const product = find(data?.basket?.products, ["id", itemId]);
+          const basket_id = data?.basket?.id;
 
-            // if not, we need to check if its been Replaced
-            if (!product && newId) {
-              // Replaced#.
-              // we need to replace it with a new machine and stop the old one
-              // NB: its safe to assume that the items array is in the same order as the newItems
-              // so we can use the index to match the items
-              if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
-              const currentIndex = findIndex(items, ["id", itemId]);
-              const basketProduct = find(data?.basket?.products, ["id", newId]);
-              if (basketProduct) {
-                const machine = spawnProductConfiguration(
-                  newId,
-                  basketProduct,
-                  currency_id,
-                  promotions
-                );
-                // now put the item(s) back into the items array,
-                // at the same index so that we dont have any ui jank
-                items.splice(currentIndex, 1, machine);
-
-                // track the addition of the new product  using the BasketProduct data
-                trackEvent({ ecommerce: null });
-                trackEvent({
-                  event: "add_to_cart",
-                  ecommerce: {
-                    currency: basketProduct.base_currency_code,
-                    value:
-                      basketProduct.configuration_net_amount_discounted_converted,
-                    items: [
-                      {
-                        item_id: basketProduct.product.id,
-                        item_name: basketProduct.product.name, // For reporting purposes we intentionally pass untranslated product name
-                        item_category: basketProduct.product.category.name, // For reporting purposes we intentionally pass untranslated category name
-                        quantity: basketProduct.quantity,
-                        discount:
-                          basketProduct.configuration_net_amount_discount_converted,
-                        price: basketProduct.configuration_net_amount_converted,
-                      },
-                    ],
-                  },
-                });
-              } else {
-                console.warn(
-                  "Replacing old item",
-                  itemId,
-                  "with new item",
-                  newId,
-                  "resulted in NO PRODUCT CONFIG being found"
-                );
-                items.splice(currentIndex, 1);
-              }
-            }
+          // ---
+          // FIRST Remove any stopped items
+          const stopped = filter(items, item => item?.state?.done);
+          forEach(stopped, item => {
+            const index = findIndex(items, ["id", item.id]);
+            items.splice(index, 1);
           });
 
           // ---
-          // NB: do some housekeeping and ensure that we dont have any missing items
+          // THEN add any new items
           const missing = differenceBy(data?.basket?.products, items, "id");
           forEach(missing, product => {
             const machine = spawnProductConfiguration(
-              product.id,
               product,
+              basket_id,
               currency_id,
               promotions
             );
             items.push(machine);
           });
-
-          // We need to refresh any machines that are not yet in the basket
-          // but that are still being configured.
-          // eg: weve added a product and it may be configuring or configured,
-          // but weve not updated the basket yet
-          // and perhaps weve changed currency or added a promotion
-          // we need to ensure all the items are up to date
-          // const dangling = differenceBy(items, data.newItems, "id");
-          // forEach(dangling, item => {
-          //   const product = item.state.context.config;
-          //   item.send({
-          //     type: "REFRESH",
-          //     data: { product, currency_id, promotions },
-          //   });
-          // });
-
-          // ---
           return items;
         },
         error: undefined,
@@ -704,8 +640,8 @@ export default createMachine(
       addItem: assign({
         items: ({ items, basket }, { data }) => {
           const machine = spawnProductConfiguration(
-            data?.id || uniqueId("item_"),
-            omit(data, "id"),
+            data,
+            basket?.id,
             basket?.currency_id,
             basket?.promotions
           );
@@ -881,23 +817,15 @@ export default createMachine(
       // --- Configuration Guards
 
       itemsConfigured: ({ items }) => {
-        const itemsConfigured = every(
-          items,
-          ({ state }) =>
-            state?.matches("configured") &&
-            state.context.isDirty !== true &&
-            state.context.isNew !== true
+        const itemsConfigured = every(items, ({ state }) =>
+          state?.matches("complete")
         );
         return items?.length && itemsConfigured;
       },
 
       someConfiguring: ({ items }) =>
-        some(
-          items,
-          ({ state }) =>
-            state?.matches("configuring") ||
-            state.context.isDirty === true ||
-            state.context.isNew === true
+        some(items, ({ state }) =>
+          ["available.configuring", "available.configured"].some(state?.matches)
         ),
 
       // --- Item Guards

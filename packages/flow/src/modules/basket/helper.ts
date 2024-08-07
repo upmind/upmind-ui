@@ -1,11 +1,12 @@
 // --- external
 
 // --- internal
+import type { ActorRef } from "xstate";
 import { useBasket } from ".";
 import productServices from "./products/services";
 
 // --- utils
-import { forEach, get, reduce, isEmpty, pickBy, isArray, map } from "lodash-es";
+import { has, get, reduce, isEmpty, pickBy, isArray, map } from "lodash-es";
 
 // --------------------------------------------------------
 async function fetch(context, basket) {
@@ -35,6 +36,14 @@ async function fetch(context, basket) {
   });
 }
 
+/**
+ * Add a new item to the basket
+ *
+ * @param item
+ * @param context
+ * @param basket
+ * @returns {ActorRef<any, any>} XState Actor representing the new item
+ */
 async function add(item, context, basket) {
   if (isEmpty(item)) return Promise.resolve();
 
@@ -51,41 +60,42 @@ async function add(item, context, basket) {
 async function remove(item, context, basket) {
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
-
-  if (!basketItem) return Promise.resolve();
-
-  return productServices
-    .remove({ basket }, { data: basketItem })
-    .then(() => basket.refresh());
+  const basket_id = basket.getBasketId();
+  const id = get(basketItem, "state.context.basket_product.id");
+  return productServices.remove({ basket_id, id });
 }
 
 async function update(item, context, basket) {
-  debugger;
   if (isEmpty(item)) return Promise.resolve();
-  debugger;
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
   const basket_id = basket.getBasketId();
   debugger;
-  if (!basketItem) return Promise.reject("No item found");
+  const id = get(basketItem, "state.context.basket_product.id");
   debugger;
-  return productServices
-    .update({ basket_id }, { data: basketItem })
-    .then(() => basket.refresh());
+  // ---
+  if (!basketItem) return Promise.reject("No item found");
+
+  const config = context.basketItemBuilder(item);
+  if (!config) return Promise.reject("No product config provided");
+
+  return productServices.update({ basket_id, id }, { data: config });
 }
 
 async function sync(items, context, basket) {
   const basketItems = basket.getItemsSnapshot();
+  items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
 
   if (isEmpty(items) && isEmpty(basketItems)) return Promise.resolve();
-
-  // safey check to ensure we have an array of items
-  items = isArray(items) ? items : [items];
 
   // First ensure all our items are added to the basket...
   // Then update all our items individually
   const promises = map(items, item =>
-    add(item, context, basket).then(() => update(item, context, basket))
+    add(item, context, basket).then(actor => {
+      const itemContext = get(actor.getSnapshot(), "context");
+      const model = get(itemContext, "model");
+      return update(model, itemContext, basket);
+    })
   );
 
   return Promise.all(promises);
@@ -150,28 +160,40 @@ export function syncSubscription(callback, onReceive) {
     switch (event.type) {
       case "FETCH":
         fetch(event.context, basket)
-          .then(data => callback({ type: "SYNCED", data }))
+          .then(data => callback({ type: "FETCHED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;
 
       case "ADD":
         add(event.target, event.context, basket)
-          .then(data => callback({ type: "SYNCED", data }))
+          .then(data => callback({ type: "ADDED", data }))
           .catch(error => callback({ type: "ERROR", error }));
         break;
+
       case "REMOVE":
         remove(event.target, event.context, basket)
-          .then(data => callback({ type: "SYNCED", data }))
+          .then(data => {
+            callback({ type: "REMOVED", data });
+            basket.refresh();
+          })
           .catch(error => callback({ type: "ERROR", error }));
         break;
+
       case "UPDATE":
         update(event.target, event.context, basket)
-          .then(data => callback({ type: "SYNCED", data }))
+          .then(data => {
+            callback({ type: "UPDATED", data });
+            basket.refresh();
+          })
           .catch(error => callback({ type: "ERROR", error }));
         break;
+
       case "SYNC":
         sync(event.target, event.context, basket)
-          .then(data => callback({ type: "SYNCED", data }))
+          .then(data => {
+            callback({ type: "SYNCED", data });
+            basket.refresh();
+          })
           .catch(error => callback({ type: "ERROR", error }));
         break;
     }

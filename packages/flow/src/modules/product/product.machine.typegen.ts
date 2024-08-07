@@ -3,65 +3,66 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
+    "": { type: "" };
     "done.invoke.load": {
       type: "done.invoke.load";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]": {
-      type: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
+    "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.productConfigurator.configuring.options.checking:invocation[0]": {
-      type: "done.invoke.productConfigurator.configuring.options.checking:invocation[0]";
+    "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]": {
-      type: "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]";
+    "done.invoke.productConfigurator.available.configuring.provisioning.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.available.configuring.provisioning.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]": {
-      type: "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
+    "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.productConfigurator.configuring.term.checking:invocation[0]": {
-      type: "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
+    "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]": {
+      type: "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
     "error.platform.load": { type: "error.platform.load"; data: unknown };
-    "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]": {
-      type: "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
+    "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
       data: unknown;
     };
-    "error.platform.productConfigurator.configuring.options.checking:invocation[0]": {
-      type: "error.platform.productConfigurator.configuring.options.checking:invocation[0]";
+    "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]";
       data: unknown;
     };
-    "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]": {
-      type: "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]";
+    "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]";
       data: unknown;
     };
-    "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]": {
-      type: "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]";
+    "error.platform.productConfigurator.available.configuring.quantity.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.available.configuring.quantity.checking:invocation[0]";
       data: unknown;
     };
-    "error.platform.productConfigurator.configuring.term.checking:invocation[0]": {
-      type: "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+    "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]": {
+      type: "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    checkAttributes: "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]";
-    checkOptions: "done.invoke.productConfigurator.configuring.options.checking:invocation[0]";
-    checkProvisioning: "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]";
-    checkQuantity: "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
-    checkTerm: "done.invoke.productConfigurator.configuring.term.checking:invocation[0]";
+    checkAttributes: "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]";
+    checkOptions: "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]";
+    checkProvisioning: "done.invoke.productConfigurator.available.configuring.provisioning.checking:invocation[0]";
+    checkQuantity: "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]";
+    checkTerm: "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]";
     load: "done.invoke.load";
   };
   missingImplementations: {
@@ -78,174 +79,165 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     calculate:
-      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
-      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
-    mergeModel: "PUT";
+      | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
     resetModel: "RESET";
-    sendConfig: "PROCESSING" | "done.state.configuring";
     setAttributes:
-      | "UPDATE.ATTRIBUTES"
-      | "done.invoke.productConfigurator.configuring.attributes.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]";
+      | "SET.ATTRIBUTES"
+      | "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
     setBaseModel: "REFRESH";
-    setClean: "REFRESH" | "RESET";
-    setConfig: "PROCESSING" | "done.state.configuring";
-    setContext: "BIN" | "REFRESH" | "RESET" | "xstate.init";
+    setBasketHelper: "";
+    setContext: "xstate.init";
     setCurrency: "REFRESH";
-    setDirty:
-      | "PUT"
-      | "UPDATE"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.QUANTITY"
-      | "UPDATE.TERM";
     setError:
       | "ERROR"
       | "error.platform.load"
-      | "error.platform.productConfigurator.configuring.attributes.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.quantity.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+      | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.quantity.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
     setLookups: "done.invoke.load";
-    setModel: "REFRESH" | "UPDATE";
+    setModel: "REFRESH" | "SET";
     setOptions:
-      | "UPDATE.OPTIONS"
-      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]";
+      | "SET.OPTIONS"
+      | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]";
     setPromotions: "REFRESH";
     setProvisioning:
-      | "UPDATE.PROVISIONING"
-      | "done.invoke.productConfigurator.configuring.provisioning.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.provisioning.checking:invocation[0]";
+      | "SET.PROVISIONING"
+      | "done.invoke.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]";
     setQuantity:
-      | "UPDATE.QUANTITY"
-      | "done.invoke.productConfigurator.configuring.quantity.checking:invocation[0]";
+      | "SET.QUANTITY"
+      | "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]";
     setSummary: "CALCULATED";
     setSummaryCalculating:
-      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
-      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+      | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
     setTerm:
-      | "UPDATE.TERM"
-      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+      | "SET.TERM"
+      | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
-    hasChanged: "PUT" | "REFRESH";
+    hasChanged: "REFRESH";
     hasSummaryData: "CALCULATED";
+    isDirty: "done.state.configuring";
+    needsBasketHelper: "";
     needsCalculating:
-      | "done.invoke.productConfigurator.configuring.options.checking:invocation[0]"
-      | "done.invoke.productConfigurator.configuring.term.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.options.checking:invocation[0]"
-      | "error.platform.productConfigurator.configuring.term.checking:invocation[0]";
+      | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
   };
   eventsCausingServices: {
     checkAttributes:
       | "CHECK.ATTRIBUTES"
-      | "PUT"
-      | "REFRESH"
-      | "UPDATE"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.QUANTITY"
-      | "UPDATE.TERM"
+      | "SET"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING"
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "UPDATED"
       | "done.invoke.load";
     checkOptions:
       | "CHECK.OPTIONS"
-      | "PUT"
-      | "REFRESH"
-      | "UPDATE"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.QUANTITY"
-      | "UPDATE.TERM"
+      | "SET"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING"
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "UPDATED"
       | "done.invoke.load";
     checkProvisioning:
-      | "PUT"
-      | "REFRESH"
-      | "UPDATE"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.QUANTITY"
-      | "UPDATE.TERM"
+      | "SET"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING"
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "UPDATED"
       | "done.invoke.load";
     checkQuantity:
       | "CHECK.QUANTITY"
-      | "PUT"
-      | "REFRESH"
-      | "UPDATE"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.QUANTITY"
-      | "UPDATE.TERM"
+      | "SET"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING"
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "UPDATED"
       | "done.invoke.load";
     checkTerm:
       | "CHECK.TERM"
-      | "PUT"
-      | "REFRESH"
-      | "UPDATE"
-      | "UPDATE.ATTRIBUTES"
-      | "UPDATE.OPTIONS"
-      | "UPDATE.PROVISIONING"
-      | "UPDATE.QUANTITY"
-      | "UPDATE.TERM"
+      | "SET"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING"
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "UPDATED"
       | "done.invoke.load";
-    load: "BIN" | "REFRESH" | "RESET" | "xstate.init";
+    load: "" | "REFRESH" | "RESET";
   };
   matchesStates:
+    | "available"
+    | "available.complete"
+    | "available.configured"
+    | "available.configuring"
+    | "available.configuring.attributes"
+    | "available.configuring.attributes.checking"
+    | "available.configuring.attributes.invalid"
+    | "available.configuring.attributes.valid"
+    | "available.configuring.options"
+    | "available.configuring.options.checking"
+    | "available.configuring.options.invalid"
+    | "available.configuring.options.valid"
+    | "available.configuring.provisioning"
+    | "available.configuring.provisioning.checking"
+    | "available.configuring.provisioning.invalid"
+    | "available.configuring.provisioning.valid"
+    | "available.configuring.quantity"
+    | "available.configuring.quantity.checking"
+    | "available.configuring.quantity.invalid"
+    | "available.configuring.quantity.valid"
+    | "available.configuring.term"
+    | "available.configuring.term.checking"
+    | "available.configuring.term.invalid"
+    | "available.configuring.term.valid"
     | "complete"
-    | "configured"
-    | "configured.error"
-    | "configured.idle"
-    | "configured.processing"
-    | "configuring"
-    | "configuring.attributes"
-    | "configuring.attributes.checking"
-    | "configuring.attributes.invalid"
-    | "configuring.attributes.valid"
-    | "configuring.options"
-    | "configuring.options.checking"
-    | "configuring.options.invalid"
-    | "configuring.options.valid"
-    | "configuring.provisioning"
-    | "configuring.provisioning.checking"
-    | "configuring.provisioning.invalid"
-    | "configuring.provisioning.valid"
-    | "configuring.quantity"
-    | "configuring.quantity.checking"
-    | "configuring.quantity.invalid"
-    | "configuring.quantity.valid"
-    | "configuring.term"
-    | "configuring.term.checking"
-    | "configuring.term.invalid"
-    | "configuring.term.valid"
-    | "error"
     | "loading"
+    | "processing"
+    | "subscribing"
     | "unavailable"
     | {
-        configured?: "error" | "idle" | "processing";
-        configuring?:
-          | "attributes"
-          | "options"
-          | "provisioning"
-          | "quantity"
-          | "term"
+        available?:
+          | "complete"
+          | "configured"
+          | "configuring"
           | {
-              attributes?: "checking" | "invalid" | "valid";
-              options?: "checking" | "invalid" | "valid";
-              provisioning?: "checking" | "invalid" | "valid";
-              quantity?: "checking" | "invalid" | "valid";
-              term?: "checking" | "invalid" | "valid";
+              configuring?:
+                | "attributes"
+                | "options"
+                | "provisioning"
+                | "quantity"
+                | "term"
+                | {
+                    attributes?: "checking" | "invalid" | "valid";
+                    options?: "checking" | "invalid" | "valid";
+                    provisioning?: "checking" | "invalid" | "valid";
+                    quantity?: "checking" | "invalid" | "valid";
+                    term?: "checking" | "invalid" | "valid";
+                  };
             };
       };
   tags: never;

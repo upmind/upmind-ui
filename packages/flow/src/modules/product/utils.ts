@@ -32,7 +32,7 @@ import type { IProductModel } from "./types.d";
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
 // --------------------------------------------------------
-export const useHasPriceOverride = (values, lookups) => {
+export const checkPriceOverride = (values, lookups) => {
   return some(values, (value, key) => {
     const { price_override = false } = find(lookups, ["id", key]);
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
@@ -40,7 +40,7 @@ export const useHasPriceOverride = (values, lookups) => {
   });
 };
 
-export const useQuantityParser = (quantity: number, data: any) => {
+export const parseQuantity = (quantity: number, data: any) => {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
   // Check the data is available
   // Check the quantity is valid,
@@ -65,7 +65,7 @@ export const useQuantityParser = (quantity: number, data: any) => {
   return quantity;
 };
 
-export const useProductParser = (data: any) => {
+export const parseProduct = (data: any) => {
   // Pick only the properties we need
   const product = pick(data, [
     "id",
@@ -139,13 +139,13 @@ export const useTermsParser = (
     const cycle = getBillingCycle(rawTerm.billing_cycle_months);
     term.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
-    term.promotions = usePromotionParser(rawTerm, promotion_display_type);
+    term.promotions = parsePromotion(rawTerm, promotion_display_type);
 
     return term;
   });
 };
 
-export const useSubproductParser = (
+export const parseSubproduct = (
   data: any,
   promotion_display_type: PromotionDisplayTypes,
   billing_cycle_months?: number
@@ -211,7 +211,7 @@ export const useSubproductParser = (
         const cycle = getBillingCycle(price.billing_cycle_months);
         price.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
-        price.promotions = usePromotionParser(rawPrice, promotion_display_type);
+        price.promotions = parsePromotion(rawPrice, promotion_display_type);
 
         return price;
       });
@@ -249,7 +249,7 @@ export const useSubproductParser = (
   return values(options);
 };
 
-export const usePromotionParser = (
+export const parsePromotion = (
   data: any,
   promotion_display_type: PromotionDisplayTypes
 ) => {
@@ -295,7 +295,7 @@ export const usePromotionParser = (
   }
 };
 
-export const useProvisioningParser = (data: any) => {
+export const parseProvisioningSchema = (data: any) => {
   const required: string[] = [];
   const properties = {};
   forEach(data, field => {
@@ -378,7 +378,7 @@ export const useProvisioningParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = ({ summary, model, lookups }) => {
+export const parseSummary = ({ summary, model, lookups }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -405,7 +405,7 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   }
 
   // attributes
-  const attributes = useSummarySubproductParser(
+  const attributes = parseSummarySubproduct(
     "attribute",
     model.attributes,
     lookups.attributes
@@ -413,7 +413,7 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   details.push(...attributes);
 
   // options
-  const options = useSummarySubproductParser(
+  const options = parseSummarySubproduct(
     "option",
     model.options,
     lookups.options
@@ -441,7 +441,7 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   return { ...summary, details };
 };
 
-export const useSummarySubproductParser = (
+export const parseSummarySubproduct = (
   key: string,
   data: any,
   lookup: Array<any>
@@ -485,28 +485,30 @@ export const useSummarySubproductParser = (
 //  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
-export const useModelParser = (data: any): IProductModel => {
+export const parseModel = (data: any): IProductModel => {
+  // handle  product model
+  return pick(data, [
+    "id",
+    "quantity",
+    "product_id",
+    "term",
+    "attributes",
+    "options",
+    "provision_fields",
+  ]);
+};
+
+export const parseBasketProduct = (data: IBasketProduct): IProductModel => {
   // map basket product data
-  if (data?.id) {
-    return {
-      quantity: data.quantity,
-      product_id: data.product_id,
-      term: { billing_cycle_months: data.billing_cycle_months },
-      options: mapSubproductChoices(data.options),
-      attributes: mapSubproductChoices(data.attributes),
-      provision_fields: data.provision_fields,
-    };
-  } else {
-    // handle new product model
-    return pick(data, [
-      "quantity",
-      "product_id",
-      "term",
-      "attributes",
-      "options",
-      "provision_fields",
-    ]);
-  }
+  return {
+    id: data.id,
+    quantity: data.quantity,
+    product_id: data.product_id,
+    term: { billing_cycle_months: data.billing_cycle_months },
+    options: mapSubproductChoices(data.options),
+    attributes: mapSubproductChoices(data.attributes),
+    provision_fields: data.provision_fields,
+  };
 };
 
 // ---
@@ -527,7 +529,7 @@ const mapSubproductChoices = (values: any) => {
 
 // --------------------------------------------------------
 
-export const useBasketConfigParser = (data: any) => {
+export const buildBasketItem = (data: any) => {
   // strip out any falsy values
   const config = {
     product_id: data?.product_id,
@@ -572,7 +574,7 @@ export const useBasketConfigParser = (data: any) => {
   return config;
 };
 
-export const useValidationParser = (error: any) => {
+export const parseAddirtionalErrors = (error: any) => {
   if (error?.data) {
     error.message = "Validation error";
 

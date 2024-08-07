@@ -14,7 +14,7 @@
   <upm-product-card
     v-else
     v-bind="$props"
-    @reject="removeItem(modelValue)"
+    @reject="removeItem"
     @resolve="open = true"
   />
 </template>
