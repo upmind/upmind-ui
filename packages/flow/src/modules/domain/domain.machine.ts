@@ -531,11 +531,19 @@ export default createMachine(
 
       syncBasket: sendTo(
         ({ basketHelper }, _event) => basketHelper,
-        (context, _event) => ({
-          type: "SYNC",
-          target: context.model,
-          context,
-        })
+        (context, _event) => {
+          // not all values might be products, eg an exiting domain value,
+          // so we need to filter out any non product values
+          const safeProducts = filter(
+            context.model,
+            item => !!item?.product_id
+          );
+          return {
+            type: "SYNC",
+            target: safeProducts,
+            context,
+          };
+        }
       ),
 
       fetchBasket: sendTo(

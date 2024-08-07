@@ -356,7 +356,10 @@ export default createMachine(
         on: {
           ERROR: { target: "unavailable", actions: "setError" },
           REMOVED: { target: "complete" },
-          UPDATED: { target: "available.complete" },
+          UPDATED: [
+            { target: "complete", cond: "isNew" },
+            { target: "available.complete" },
+          ],
         },
       },
 

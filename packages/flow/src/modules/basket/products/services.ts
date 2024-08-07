@@ -45,7 +45,6 @@ async function loadProvisioningValues({ basket_id, model }) {
 }
 
 async function update({ basket_id, id }, { data }) {
-  debugger;
   const { put, post, useUrl } = useApi();
   if (!basket_id) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided : ${id}`);
@@ -53,7 +52,6 @@ async function update({ basket_id, id }, { data }) {
   const isNew = !id;
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${id}`;
-  debugger;
   // ---
   return action({
     url: useUrl(`/orders/${basket_id}/products${suffix}`),
