@@ -1,5 +1,9 @@
 <template>
-  <upw-input v-bind="{ ...control, ...appliedOptions }" variant="flat">
+  <upw-input
+    v-bind="{ ...control, ...appliedOptions }"
+    :dirty="!!control.data"
+    variant="flat"
+  >
     <upm-domain
       v-bind="{ ...control, ...appliedOptions }"
       :id="control.id + '-domain'"

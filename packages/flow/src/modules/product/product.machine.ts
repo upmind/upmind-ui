@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions, spawn } from "xstate";
-const { sendParent, sendTo, raise } = actions;
+const { sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
@@ -279,6 +279,7 @@ export default createMachine(
           // this is our state where we are all good and can add/update this configuration to the basket
           configured: {},
           complete: {},
+          error: {},
         },
         on: {
           UPDATE: {
@@ -358,7 +359,7 @@ export default createMachine(
       PROCESSING: {
         target: "processing",
       },
-      ERROR: { target: "error", actions: "setError" },
+      ERROR: { target: "available.error", actions: "setError" },
       REMOVED: { target: "complete" },
       UPDATED: [
         { target: "complete", cond: "isNew" },
@@ -376,9 +377,18 @@ export default createMachine(
             basket_product,
             currency_id,
             promotions,
+            lookups,
           }: ProductConfigContext,
           _event
         ) => {
+          console.debug("product.machine", "setContext", {
+            id,
+            model,
+            basket_product,
+            currency_id,
+            promotions,
+            lookups,
+          });
           return {
             // ---
             currency_id: useBrand().validateCurrency(currency_id),
@@ -393,11 +403,11 @@ export default createMachine(
               : parseModel({ id, ...model }),
             // ---
             lookups: {
-              product: basket_product?.product,
-              terms: undefined,
-              options: undefined,
-              attributes: undefined,
-              provision_fields: undefined,
+              product: basket_product?.product || lookups?.product,
+              terms: lookups?.terms,
+              options: lookups?.options,
+              attributes: lookups?.attributes,
+              provision_fields: lookups?.provision_fields,
             },
             // ---
             // config: {},

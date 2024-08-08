@@ -149,6 +149,7 @@ export interface Typegen0 {
   eventsCausingServices: {
     checkAttributes:
       | "CHECK.ATTRIBUTES"
+      | "ERROR"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -159,6 +160,7 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkOptions:
       | "CHECK.OPTIONS"
+      | "ERROR"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -168,6 +170,7 @@ export interface Typegen0 {
       | "UPDATED"
       | "done.invoke.load";
     checkProvisioning:
+      | "ERROR"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -178,6 +181,7 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkQuantity:
       | "CHECK.QUANTITY"
+      | "ERROR"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -188,6 +192,7 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkTerm:
       | "CHECK.TERM"
+      | "ERROR"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -223,6 +228,7 @@ export interface Typegen0 {
     | "available.configuring.term.checking"
     | "available.configuring.term.invalid"
     | "available.configuring.term.valid"
+    | "available.error"
     | "complete"
     | "error"
     | "loading"
@@ -233,6 +239,7 @@ export interface Typegen0 {
           | "complete"
           | "configured"
           | "configuring"
+          | "error"
           | {
               configuring?:
                 | "attributes"
