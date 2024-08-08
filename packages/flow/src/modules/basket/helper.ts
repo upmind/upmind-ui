@@ -76,6 +76,7 @@ async function remove(item, context, basket) {
   const basketItem = basket.findItem(mapping);
   const basket_id = basket.getBasketId();
   const id = get(basketItem, "state.context.basket_product.id");
+  // ---
   return productServices.remove({ basket_id, id });
 }
 
@@ -91,6 +92,7 @@ async function update(item, context, basket) {
   const config = context.basketItemBuilder(item);
   if (!config) return Promise.reject("No product config provided");
 
+  // ---
   return productServices.update(
     {
       basket_id: basketSnapshot?.id,
@@ -114,7 +116,7 @@ async function sync(items, context, basket) {
       const itemContext = get(actor.getSnapshot(), "context");
       const model = get(itemContext, "model");
       return update(model, itemContext, basket).then(() =>
-        actor.send("UPDATED")
+        actor.send({ type: "UPDATED" })
       );
     })
   );
@@ -182,31 +184,45 @@ export function syncSubscription(callback, onReceive) {
       case "FETCH":
         fetch(event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", error });
+          });
         break;
 
       case "ADD":
         add(event.target, event.context, basket)
           .then(data => callback({ type: "ADDED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", error });
+          });
         break;
 
       case "REMOVE":
+        callback({ type: "PROCESSING" });
         remove(event.target, event.context, basket)
           .then(data => {
-            callback({ type: "REMOVED", data });
+            callback({ type: "REMOVED" });
             basket.refresh();
           })
-          .catch(error => callback({ type: "ERROR", error }));
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", error });
+          });
         break;
 
       case "UPDATE":
+        callback({ type: "PROCESSING" });
         update(event.target, event.context, basket)
           .then(data => {
             callback({ type: "UPDATED", data });
             basket.refresh();
           })
-          .catch(error => callback({ type: "ERROR", error }));
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", error });
+          });
         break;
 
       case "SYNC":
@@ -214,7 +230,10 @@ export function syncSubscription(callback, onReceive) {
           .then(data => {
             basket.refresh().then(() => callback({ type: "SYNCED" }));
           })
-          .catch(error => callback({ type: "ERROR", error }));
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", error });
+          });
         break;
     }
   });

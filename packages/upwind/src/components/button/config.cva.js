@@ -393,8 +393,22 @@ export default {
         },
       }
     ),
-    spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto "),
-    avatar: cva("size-[1.5em] overflow-hidden rounded-full", {
+    spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto ", {
+      variants: {
+        size: {
+          square: "size-[1em]",
+          badge: "size-4",
+          xs: "size-3",
+          sm: "size-4",
+          md: "size-5",
+          lg: "size-6",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
+    avatar: cva("overflow-hidden rounded-full", {
       variants: {
         loading: {
           true: "invisible opacity-0",

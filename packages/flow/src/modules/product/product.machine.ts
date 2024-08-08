@@ -75,7 +75,7 @@ export default createMachine(
           src: "load",
           onDone: [{ target: "available", actions: ["setLookups"] }],
           onError: {
-            target: "unavailable",
+            target: "error",
             actions: "setError",
           },
         },
@@ -281,31 +281,6 @@ export default createMachine(
           complete: {},
         },
         on: {
-          RESET: {
-            target: "loading",
-            actions: ["resetModel"],
-          },
-          REFRESH: {
-            target: "loading",
-            actions: [
-              "setModel",
-              "setBaseModel",
-              "setCurrency",
-              "setPromotions",
-            ],
-            cond: "hasChanged",
-          },
-          REMOVE: {
-            actions: sendTo(
-              ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => ({
-                type: "REMOVE",
-                target: context.model,
-                context,
-              })
-            ),
-            target: "processing",
-          },
           UPDATE: {
             actions: sendTo(
               ({ basketHelper }, _event) => basketHelper,
@@ -349,7 +324,7 @@ export default createMachine(
         },
       },
 
-      unavailable: {},
+      error: {},
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
       processing: {},
@@ -360,7 +335,30 @@ export default createMachine(
       },
     },
     on: {
-      ERROR: { target: "unavailable", actions: "setError" },
+      RESET: {
+        target: "loading",
+        actions: ["resetModel"],
+      },
+      REFRESH: {
+        target: "loading",
+        actions: ["setModel", "setBaseModel", "setCurrency", "setPromotions"],
+        cond: "hasChanged",
+      },
+      REMOVE: {
+        actions: sendTo(
+          ({ basketHelper }, _event) => basketHelper,
+          (context, _event) => ({
+            type: "REMOVE",
+            target: context.model,
+            context,
+          })
+        ),
+        target: "processing",
+      },
+      PROCESSING: {
+        target: "processing",
+      },
+      ERROR: { target: "error", actions: "setError" },
       REMOVED: { target: "complete" },
       UPDATED: [
         { target: "complete", cond: "isNew" },
@@ -381,19 +379,21 @@ export default createMachine(
           }: ProductConfigContext,
           _event
         ) => {
-          const parsedModel = !isEmpty(basket_product)
-            ? parseBasketProduct({ id, ...basket_product })
-            : parseModel({ id, ...model });
           return {
             // ---
             currency_id: useBrand().validateCurrency(currency_id),
             promotions,
             // ---
-            baseModel: parsedModel,
-            model: parsedModel,
+            baseModel: !isEmpty(basket_product)
+              ? parseBasketProduct({ id, ...basket_product })
+              : parseModel({ id, ...model }),
+
+            model: !isEmpty(basket_product)
+              ? parseBasketProduct({ id, ...basket_product })
+              : parseModel({ id, ...model }),
             // ---
             lookups: {
-              product: undefined,
+              product: basket_product?.product,
               terms: undefined,
               options: undefined,
               attributes: undefined,

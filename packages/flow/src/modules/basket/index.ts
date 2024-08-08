@@ -146,18 +146,15 @@ export const useBasket = () => {
     // --- Item CRUD
 
     updateItem: async itemId => {
-      sendToItem(itemId, "UPDATE", { itemId }).then(item => {
-        // TODO: update the waitFor
-        // return waitFor(service, state =>
-        //   ["shopping.items.processed", "shopping.items.processing.error"].some(
-        //     state.matches
-        //   )
-        // ).then(state => {
-        //   if (state.matches("shopping.items.processing.error")) {
-        //     return Promise.reject();
-        //   }
-        //   return Promise.resolve();
-        // });
+      return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
+        return waitFor(item, state =>
+          ["available.complete", "complete", "error"].some(state.matches)
+        ).then(state => {
+          if (state.matches("error")) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve(item);
+        });
       });
     },
 
