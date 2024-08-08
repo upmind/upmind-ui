@@ -102,10 +102,11 @@ export default defineComponent({
   computed: {},
   methods: {
     async doResolve() {
-      this.updateItem(this.modelValue).then(() => {
-        this.open =
-          stateMatches(this.item.state, ["configured"]) &&
-          !stateMatches(this.item.state, ["error"]);
+      this.updateItem(this.modelValue).then(item => {
+        this.open = !stateMatches(item.state, [
+          "available.complete",
+          "complete",
+        ]);
       });
     },
   },

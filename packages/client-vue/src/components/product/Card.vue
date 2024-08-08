@@ -128,7 +128,7 @@
             icon-only
             prependIcon="remove"
             type="button"
-            :loading="meta.isUnavailable"
+            :loading="meta.isProcessing"
           />
         </div>
       </footer>
@@ -168,7 +168,9 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const { product, model, meta, summary } = useProductConfig(props.item);
+    const { state, product, model, meta, summary } = useProductConfig(
+      props.item
+    );
 
     const styles = useStyles(
       ["product.card", "product.card.details"],
@@ -179,6 +181,7 @@ export default defineComponent({
     // ---
 
     return {
+      state,
       product,
       model,
       meta,
