@@ -6,11 +6,7 @@
     :disabled="disabled"
   >
     <slot v-if="meta.isLoading" name="loading" v-bind="{ meta }">
-      <upw-spinner
-        :class="styles.button.spinner"
-        class="loading"
-        :size="size"
-      />
+      <upw-spinner :class="styles.button.spinner" class="loading" />
     </slot>
 
     <slot

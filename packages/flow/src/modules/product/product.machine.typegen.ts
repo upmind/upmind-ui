@@ -90,7 +90,15 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
     setBaseModel: "REFRESH";
     setBasketHelper: "";
-    setContext: "ERROR" | "REMOVED" | "UPDATED" | "xstate.init";
+    setContext:
+      | "ERROR"
+      | "PROCESSING"
+      | "REFRESH"
+      | "REMOVE"
+      | "REMOVED"
+      | "RESET"
+      | "UPDATED"
+      | "xstate.init";
     setCurrency: "REFRESH";
     setError:
       | "ERROR"
@@ -216,10 +224,10 @@ export interface Typegen0 {
     | "available.configuring.term.invalid"
     | "available.configuring.term.valid"
     | "complete"
+    | "error"
     | "loading"
     | "processing"
     | "subscribing"
-    | "unavailable"
     | {
         available?:
           | "complete"

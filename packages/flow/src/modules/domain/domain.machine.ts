@@ -242,13 +242,12 @@ export default createMachine(
           },
           RESET: {
             target: ".invalid",
-            actions: ["clearModel", "clearListings", "clearSearch"],
+            actions: ["resetModel", "clearListings", "clearSearch"],
           },
         },
       },
 
       existing: {
-        entry: ["clearModel"],
         id: "existing",
         initial: "loading",
         states: {
@@ -318,7 +317,6 @@ export default createMachine(
       },
 
       basket: {
-        entry: ["clearModel"],
         id: "basket",
         initial: "loading",
         states: {
@@ -650,10 +648,14 @@ export default createMachine(
           ),
       }),
 
-      clearModel: assign({
+      resetModel: assign({
         model: ({ baseModel }, _event) => {
           return baseModel;
         },
+      }),
+
+      clearModel: assign({
+        model: [],
       }),
 
       cancelController: assign({
