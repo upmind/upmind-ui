@@ -63,7 +63,7 @@ async function add(item, context, basket) {
 
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
-  if (basketItem) return Promise.resolve(); // its allready added, so we can skip it
+  if (basketItem) return Promise.resolve(basketItem); // its allready added, so we can skip it
 
   const product = context.basketItemBuilder(item);
   if (!product) return Promise.reject("No product found");
@@ -186,7 +186,7 @@ export function syncSubscription(callback, onReceive) {
           .then(data => callback({ type: "FETCHED", data }))
           .catch(error => {
             console.error("basketHelper", "SYNC", error);
-            callback({ type: "ERROR", error });
+            callback({ type: "ERROR", data: error });
           });
         break;
 
@@ -195,7 +195,7 @@ export function syncSubscription(callback, onReceive) {
           .then(data => callback({ type: "ADDED", data }))
           .catch(error => {
             console.error("basketHelper", "SYNC", error);
-            callback({ type: "ERROR", error });
+            callback({ type: "ERROR", data: error });
           });
         break;
 
@@ -208,7 +208,7 @@ export function syncSubscription(callback, onReceive) {
           })
           .catch(error => {
             console.error("basketHelper", "SYNC", error);
-            callback({ type: "ERROR", error });
+            callback({ type: "ERROR", data: error });
           });
         break;
 
@@ -221,7 +221,7 @@ export function syncSubscription(callback, onReceive) {
           })
           .catch(error => {
             console.error("basketHelper", "SYNC", error);
-            callback({ type: "ERROR", error });
+            callback({ type: "ERROR", data: error });
           });
         break;
 
@@ -232,7 +232,7 @@ export function syncSubscription(callback, onReceive) {
           })
           .catch(error => {
             console.error("basketHelper", "SYNC", error);
-            callback({ type: "ERROR", error });
+            callback({ type: "ERROR", data: error });
           });
         break;
     }
