@@ -443,7 +443,7 @@ export default createMachine(
       }),
 
       checkModel: assign({
-        model: ({ model }) => map(model, parseDomain),
+        model: ({ model }) => map(compact(model), parseDomain),
       }),
 
       ensurePrimary: assign({

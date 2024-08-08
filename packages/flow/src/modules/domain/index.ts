@@ -99,6 +99,6 @@ export const useDomain = (
     service, // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: service.getSnapshot,
-    destroy: service.stop,
+    destroy: () => service.stop,
   };
 };

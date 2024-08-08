@@ -90,7 +90,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
     setBaseModel: "REFRESH";
     setBasketHelper: "";
-    setContext: "xstate.init";
+    setContext: "ERROR" | "REMOVED" | "UPDATED" | "xstate.init";
     setCurrency: "REFRESH";
     setError:
       | "ERROR"

@@ -17,7 +17,6 @@ function search({
   currency,
   limit,
   controller,
-  available,
   search,
   offset,
 }: DomainContext) {
@@ -47,7 +46,7 @@ function search({
     useCache: true,
   }).then(({ data, total }) => {
     return {
-      available: parseAvailable(sld, data, available),
+      available: parseAvailable(sld, data),
       total: total || 0,
     };
   });

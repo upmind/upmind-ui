@@ -1,26 +1,40 @@
 // --- external
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import type { ActorRef } from "xstate";
+// import type { ActorRef } from "xstate";
 import { useBasket } from ".";
 import productServices from "./products/services";
 
 // --- utils
-import { has, get, reduce, isEmpty, pickBy, isArray, map } from "lodash-es";
+import { every, get, reduce, isEmpty, pickBy, isArray, map } from "lodash-es";
 
 // --------------------------------------------------------
 async function fetch(context, basket) {
   const basketItems = basket.getItemsSnapshot();
 
-  return basket.isReady().then(() => {
+  // we need to ensure ALL our items are loaded before we can proceed
+  return waitFor(
+    basket.service,
+    state => {
+      return every(
+        state.context.items,
+        actor => !actor?.state.matches("loading")
+      );
+    },
+    {
+      timeout: Infinity, // infinity = no timeout
+    }
+  ).then(() => {
     return reduce(
       basketItems,
       (result, basketItem) => {
         const model = get(basketItem, "state.context.model");
-        const product = get(basketItem, "state.context.lookups.product");
         const mapping = context.basketItemMapper(model);
         // check all our mapping values are set, if not then its not a valid mapping and we can skip it
         const isValid = isEmpty(pickBy(mapping, isEmpty));
+
+        const product = get(basketItem, "state.context.lookups.product");
         if (isValid) {
           const data = context.itemBuilder({
             ...model,
@@ -67,9 +81,9 @@ async function remove(item, context, basket) {
 
 async function update(item, context, basket) {
   if (isEmpty(item)) return Promise.resolve();
+  const basketSnapshot = get(basket.getSnapshot(), "context.basket");
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
-  const basket_id = basket.getBasketId();
   const id = get(basketItem, "state.context.basket_product.id");
   // ---
   if (!basketItem) return Promise.reject("No item found");
@@ -77,7 +91,14 @@ async function update(item, context, basket) {
   const config = context.basketItemBuilder(item);
   if (!config) return Promise.reject("No product config provided");
 
-  return productServices.update({ basket_id, id }, { data: config });
+  return productServices.update(
+    {
+      basket_id: basketSnapshot?.id,
+      basket_products: basketSnapshot?.products,
+      id,
+    },
+    { data: config }
+  );
 }
 
 async function sync(items, context, basket) {
@@ -92,7 +113,9 @@ async function sync(items, context, basket) {
     add(item, context, basket).then(actor => {
       const itemContext = get(actor.getSnapshot(), "context");
       const model = get(itemContext, "model");
-      return update(model, itemContext, basket);
+      return update(model, itemContext, basket).then(() =>
+        actor.send("UPDATED")
+      );
     })
   );
 
@@ -189,8 +212,7 @@ export function syncSubscription(callback, onReceive) {
       case "SYNC":
         sync(event.target, event.context, basket)
           .then(data => {
-            callback({ type: "SYNCED", data });
-            basket.refresh();
+            basket.refresh().then(() => callback({ type: "SYNCED" }));
           })
           .catch(error => callback({ type: "ERROR", error }));
         break;

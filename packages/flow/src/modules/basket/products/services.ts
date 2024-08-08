@@ -3,7 +3,7 @@
 // --- internal
 import { useApi } from "../../..";
 // --- utils
-import { set, map, concat, compact, isEmpty } from "lodash-es";
+import { has, set, map, concat, compact, isEmpty } from "lodash-es";
 
 // --- types
 
@@ -16,7 +16,6 @@ import { set, map, concat, compact, isEmpty } from "lodash-es";
 // --------------------------------------------------------
 async function loadProvisioningValues({ basket_id, model }) {
   const { get, useUrl } = useApi();
-
   const { product_id } = model;
 
   // bail if we have no basket, or if we have a basket with products
@@ -44,7 +43,7 @@ async function loadProvisioningValues({ basket_id, model }) {
   });
 }
 
-async function update({ basket_id, id }, { data }) {
+async function update({ basket_id, basket_products, id }, { data }) {
   const { put, post, useUrl } = useApi();
   if (!basket_id) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided : ${id}`);
@@ -57,33 +56,58 @@ async function update({ basket_id, id }, { data }) {
     url: useUrl(`/orders/${basket_id}/products${suffix}`),
     data,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  })
+    .then(({ data }) => data)
+    .then(basket => {
+      // if (isNew) {
+      //   const newProducts = differenceBy(
+      //     basket.products,
+      //     basket_products,
+      //     "id"
+      //   );
+      //   if (newProducts?.length > 1) {
+      //     // there should not really ever be more than one new product
+      //     console.warn(
+      //       "BasketHelper",
+      //       "update",
+      //       "returned multiple new products",
+      //       newProducts
+      //     );
+      //   }
+      //   // update our product id with the new product id, which should be the first new product
+      //   id = get(newProducts, "[0].id");
+      // }
+      //  new Products will add the provisioning fields, so we dont need to make a request
+      if (isNew) return basket;
+      // ---
+      const hasProvisioning = has(data, "provision_field_values");
+      // if the product has no provisioning fields, we dont need to make a request
+      if (!hasProvisioning) return basket;
+      return updateProvisioningFields(
+        { basket_id, product_id: id },
+        { data: data.provision_field_values }
+      );
+    });
 }
 
-// async function updateProvisioningFields({ basket_id, product, values }) {
-//   const { put, useUrl } = useApi();
-
-//   // bail if we have no basket, or if we dont have a product
-//   if (!basket_id) return Promise.reject("No basket provided/available");
-//   if (!product) return Promise.reject("No product provided/available");
-
-//   const hasProvisioning = !!get(product, "provision_blueprint_id");
-
-//   // if the product has no provisioning fields, we dont need to make a request
-//   if (!hasProvisioning) return Promise.resolve(product);
-
-//   return put({
-//     url: useUrl(
-//       `/orders/${basket_id}/products/${product.id}/provision_fields/values`
-//     ),
-//     data: { values },
-//     withAccessToken: true,
-//   }).then(({ data }) => {
-//     // update the product with the provisioning fields, before returning the basket
-//     set(product, ["provision_fields"], data);
-//     return product;
-//   });
-// }
+async function updateProvisioningFields(
+  { basket_id, product_id },
+  { data: provision_field_values }
+) {
+  const { put, useUrl } = useApi();
+  // bail if we have no basket, or if we dont have a product
+  if (!basket_id) return Promise.reject("No basket provided/available");
+  if (!product_id) return Promise.reject("No product provided/available");
+  return put({
+    url: useUrl(
+      `/orders/${basket_id}/products/${product_id}/provision_fields/values`
+    ),
+    data: { provision_field_values },
+    withAccessToken: true,
+  }).then(({ data }) => {
+    return data;
+  });
+}
 
 async function remove({ basket_id, id }) {
   const { del, useUrl } = useApi();
