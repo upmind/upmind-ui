@@ -568,9 +568,6 @@ export const buildBasketItem = (data: any) => {
     start_trial: !!data?.start_trial,
   };
 
-  // only add the id if it exists
-  if (data?.id) set(config, "id", data.id);
-
   return config;
 };
 

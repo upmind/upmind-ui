@@ -62,7 +62,12 @@ export const useBasket = () => {
 
     checkout: () => service.send({ type: "CHECKOUT" }),
 
-    refresh: () => service.send({ type: "REFRESH" }),
+    refresh: () => {
+      service.send({ type: "REFRESH" });
+      return waitFor(service, state =>
+        state.matches("shopping.refreshing.complete")
+      );
+    },
 
     // --- item functions
 
@@ -134,9 +139,7 @@ export const useBasket = () => {
         .then(actor => {
           return waitFor(actor, actorState =>
             actorState.matches("available.configured")
-          ).then(() => {
-            return actor;
-          });
+          ).then(() => actor);
         });
     },
 

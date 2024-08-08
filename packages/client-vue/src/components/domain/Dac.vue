@@ -29,7 +29,6 @@
     </div>
     <template #actions="">
       <upw-button
-        :loading="meta.isProcessing"
         @click="onReject"
         :label="$t('domain.dac.actions.cancel')"
         variant="link"

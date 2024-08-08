@@ -352,24 +352,20 @@ export default createMachine(
       unavailable: {},
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
-      processing: {
-        on: {
-          ERROR: { target: "unavailable", actions: "setError" },
-          REMOVED: { target: "complete" },
-          UPDATED: [
-            { target: "complete", cond: "isNew" },
-            { target: "available.complete" },
-          ],
-        },
-      },
+      processing: {},
 
       // Handle completion, stop the machine and prevent further products
-      // also send a message to the parent machine to remove the product
-      // with the config that has been generated, just in case...
       complete: {
         type: "final",
-        data: ({ model }, _event) => buildBasketItem(model),
       },
+    },
+    on: {
+      ERROR: { target: "unavailable", actions: "setError" },
+      REMOVED: { target: "complete" },
+      UPDATED: [
+        { target: "complete", cond: "isNew" },
+        { target: "available.complete" },
+      ],
     },
   },
   {
@@ -384,38 +380,38 @@ export default createMachine(
             promotions,
           }: ProductConfigContext,
           _event
-        ) => ({
-          // ---
-          currency_id: useBrand().validateCurrency(currency_id),
-          promotions,
-          // ---
-          baseModel: !isEmpty(basket_product)
+        ) => {
+          const parsedModel = !isEmpty(basket_product)
             ? parseBasketProduct({ id, ...basket_product })
-            : parseModel({ id, ...model }),
-          model: !isEmpty(basket_product)
-            ? parseBasketProduct({ id, ...basket_product })
-            : parseModel({ id, ...model }),
-
-          // ---
-          lookups: {
-            product: model?.product,
-            terms: undefined,
-            options: undefined,
-            attributes: undefined,
-            provision_fields: undefined,
-          },
-          // ---
-          // config: {},
-          // summary: {},
-          // prices: {
-          //   term: [],
-          //   attributes: [],
-          //   options: [],
-          // },
-          calculateCallback: spawn(calculateSubscription),
-          // ---
-          // error: {},
-        })
+            : parseModel({ id, ...model });
+          return {
+            // ---
+            currency_id: useBrand().validateCurrency(currency_id),
+            promotions,
+            // ---
+            baseModel: parsedModel,
+            model: parsedModel,
+            // ---
+            lookups: {
+              product: undefined,
+              terms: undefined,
+              options: undefined,
+              attributes: undefined,
+              provision_fields: undefined,
+            },
+            // ---
+            // config: {},
+            // summary: {},
+            // prices: {
+            //   term: [],
+            //   attributes: [],
+            //   options: [],
+            // },
+            calculateCallback: spawn(calculateSubscription),
+            // ---
+            // error: {},
+          };
+        }
       ),
       setBasketHelper: assign(context => {
         return {

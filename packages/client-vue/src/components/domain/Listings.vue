@@ -158,10 +158,6 @@
           </template>
         </upw-checkbox-list>
       </template>
-
-      <!-- <footer :class="styles.domain.listings.footer">
-        <slot name="footer" v-bind="{ meta }"></slot>
-      </footer> -->
     </section>
   </component>
 </template>

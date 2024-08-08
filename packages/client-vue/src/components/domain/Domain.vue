@@ -134,6 +134,7 @@ export default defineComponent({
       update,
       toggle,
       reset,
+      destroy,
       syncBasket,
       setPrimaryDomain,
     } = useDomain({
@@ -167,6 +168,7 @@ export default defineComponent({
       reset,
       syncBasket,
       setPrimaryDomain,
+      destroy,
       // ---
       styles,
       mergeStyles,
@@ -205,6 +207,9 @@ export default defineComponent({
         this.$emit("change", { currentTarget: { value } });
       },
     },
+  },
+  beforeUnmount() {
+    this.destroy();
   },
 });
 </script>

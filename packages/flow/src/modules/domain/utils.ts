@@ -51,21 +51,12 @@ export function parseSld(data: string) {
   return value;
 }
 
-export function parseAvailable(
-  sld: string,
-  results = [] as IDomainProduct[],
-  available = [] as IDomainProduct[]
-): IDomainProduct[] {
-  // map the available to a new array
-  const newAvailable = map(results, item => parseBasketItem({ ...item, sld }));
-
-  // then add the new available to any existing available
-  available.push(...newAvailable);
+export function parseAvailable(sld: string, results = [] as IDomainProduct[]) {
+  // parse the results
+  const available = map(results, item => parseBasketItem({ ...item, sld }));
 
   // and ensure we don't have any duplicates or falsy
-  available = compact(uniqBy(available, "domain"));
-
-  return available;
+  return compact(uniqBy(available, "domain"));
 }
 
 export function parseValue(data: Object | string, values = [], available = []) {
@@ -86,7 +77,6 @@ export function parseValue(data: Object | string, values = [], available = []) {
 
 export function parseBasketItem(item) {
   const { removeTrailingZeroes } = useMoney();
-
   const tld = item?.tld || item?.name;
   const sld = item?.sld || item?.provision_fields?.sld;
   const domain = [sld, tld].join("").toLowerCase();
