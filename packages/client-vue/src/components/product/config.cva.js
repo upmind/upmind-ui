@@ -12,7 +12,7 @@ export default {
         "bg-base text-base-content  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
         {
           variants: {
-            isUnavailable: {
+            isProcessing: {
               true: "pointer-events-none opacity-50",
             },
             isDisabled: {
