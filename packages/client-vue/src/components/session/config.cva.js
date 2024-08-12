@@ -50,7 +50,7 @@ export default {
       text: cva(
         "text-base-500  m-0 text-center text-sm leading-5 tracking-tight"
       ),
-      avatar: cva("bg-primary text-primary-content size-20 p-2"),
+      avatar: cva("bg-primary text-primary-forground size-20 p-2"),
     },
   },
 };
