@@ -1,9 +1,22 @@
 // --- external
 
 // --- internal
+import { or } from "ajv/dist/compile/codegen";
 import { useApi } from "../../..";
 // --- utils
-import { has, set, map, concat, compact, isEmpty } from "lodash-es";
+import {
+  compact,
+  concat,
+  filter,
+  forEach,
+  get,
+  has,
+  isEmpty,
+  map,
+  reduce,
+  set,
+  some,
+} from "lodash-es";
 
 // --- types
 
@@ -56,57 +69,7 @@ async function update({ basket_id, basket_products, id }, { data }) {
     url: useUrl(`/orders/${basket_id}/products${suffix}`),
     data,
     withAccessToken: true,
-  })
-    .then(({ data }) => data)
-    .then(basket => {
-      // if (isNew) {
-      //   const newProducts = differenceBy(
-      //     basket.products,
-      //     basket_products,
-      //     "id"
-      //   );
-      //   if (newProducts?.length > 1) {
-      //     // there should not really ever be more than one new product
-      //     console.warn(
-      //       "BasketHelper",
-      //       "update",
-      //       "returned multiple new products",
-      //       newProducts
-      //     );
-      //   }
-      //   // update our product id with the new product id, which should be the first new product
-      //   id = get(newProducts, "[0].id");
-      // }
-      //  new Products will add the provisioning fields, so we dont need to make a request
-      if (isNew) return basket;
-      // ---
-      const hasProvisioning = has(data, "provision_field_values");
-      // if the product has no provisioning fields, we dont need to make a request
-      if (!hasProvisioning) return basket;
-      return updateProvisioningFields(
-        { basket_id, product_id: id },
-        { data: data.provision_field_values }
-      );
-    });
-}
-
-async function updateProvisioningFields(
-  { basket_id, product_id },
-  { data: provision_field_values }
-) {
-  const { put, useUrl } = useApi();
-  // bail if we have no basket, or if we dont have a product
-  if (!basket_id) return Promise.reject("No basket provided/available");
-  if (!product_id) return Promise.reject("No product provided/available");
-  return put({
-    url: useUrl(
-      `/orders/${basket_id}/products/${product_id}/provision_fields/values`
-    ),
-    data: { provision_field_values },
-    withAccessToken: true,
-  }).then(({ data }) => {
-    return data;
-  });
+  }).then(({ data }) => data);
 }
 
 async function remove({ basket_id, id }) {
@@ -120,6 +83,66 @@ async function remove({ basket_id, id }) {
   }).then(({ data }) => data);
 }
 
+async function sync({ basket_id, basket_products }, { data }) {
+  if (!basket_id) return Promise.reject("No basket provided/available");
+
+  // When updating the basket we need to provide all products that are being updated
+  // AND any other existing products already added
+  // otherwise the existing products will be removed from the basket
+  const dirty = filter(
+    data,
+    item =>
+      !isEmpty(item?.state?.context?.basket_product) ||
+      ["available.configured"].some(item.state.matches)
+  );
+
+  // --- then build the basket config for the dirty products
+  const products = map(dirty, item => {
+    const id = get(item, "state.context.basket_product.id");
+    // inform the item that it is being processed
+    item.send({ type: "PROCESSING" });
+    // ---
+    const model = get(item, "state.context.model");
+    if (!model) return Promise.reject("No model found");
+    // ---
+    const basketItemBuilder = get(item, "state.context.basketItemBuilder");
+    if (!basketItemBuilder)
+      return Promise.reject("No basketItemBuilder provided");
+    // ---
+    const product = basketItemBuilder(model);
+    if (id) set(product, "order_product_id", id);
+    return product;
+  });
+
+  // --- then build the minimal basket config for the existing products
+  // the existing products dont need to have their full config, just the id
+
+  const existingProducts = reduce(
+    basket_products,
+    (result, item) => {
+      if (get(item, "state.context.basket_product.id")) {
+        result.push({
+          product_id: item.state.context.model.product_id,
+          order_product_id: item.state.context.basket_product.id,
+        });
+      }
+
+      return result;
+    },
+    []
+  );
+
+  // ---
+  const { put, useUrl } = useApi();
+  return put({
+    url: useUrl(`/orders/${basket_id}`),
+    data: { products: concat(existingProducts, products) },
+    withAccessToken: true,
+  }).then(({ data }) => {
+    forEach(dirty, item => item.send({ type: "UPDATED" }));
+    return data;
+  });
+}
 // --------------------------------------------------------
 // EXPORTS
 
@@ -127,4 +150,5 @@ export default {
   loadProvisioningValues,
   update,
   remove,
+  sync,
 };

@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendTo, pure } from "xstate";
+import { createMachine, assign, pure } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -28,7 +28,6 @@ import {
   find,
   findIndex,
   forEach,
-  get,
   includes,
   isEmpty,
   isEqual,
