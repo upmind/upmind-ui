@@ -25,16 +25,18 @@ export default {
             link: "!bg-transparent !p-0 underline",
           },
           color: {
-            current: "text-content border-transparent bg-transparent",
-            base: "bg-base-200 text-base-content border-transparent",
-            primary: "text-primary-content border-transparent bg-primary",
-            secondary: "text-secondary-content border-transparent bg-secondary",
-            accent: "text-accent-content border-transparent bg-accent",
-            success: "bg-success text-success-content border-transparent",
-            error: "bg-error text-error-content border-transparent",
-            warning: "bg-warning text-warning-content border-transparent",
-            info: "bg-info text-info-content border-transparent",
-            promotion: "bg-promotion text-promotion-content border-transparent",
+            current: "text-forground border-transparent bg-transparent",
+            base: "bg-base-200 text-base-forground border-transparent",
+            primary: "text-primary-forground border-transparent bg-primary",
+            secondary:
+              "text-secondary-forground border-transparent bg-secondary",
+            accent: "text-accent-forground border-transparent bg-accent",
+            success: "bg-success text-success-forground border-transparent",
+            error: "bg-error text-error-forground border-transparent",
+            warning: "bg-warning text-warning-forground border-transparent",
+            info: "bg-info text-info-forground border-transparent",
+            promotion:
+              "bg-promotion text-promotion-forground border-transparent",
           },
           disabled: {
             true: "!cursor-default opacity-50",
@@ -135,18 +137,18 @@ export default {
           {
             color: "base",
             variant: "outlined",
-            class: " text-base-content",
+            class: " text-base-forground",
           },
 
           {
             color: "base",
             variant: "ghost",
-            class: "text-base-content",
+            class: "text-base-forground",
           },
           {
             color: "base",
             variant: "link",
-            class: "text-base-content",
+            class: "text-base-forground",
           },
           {
             disabled: false,

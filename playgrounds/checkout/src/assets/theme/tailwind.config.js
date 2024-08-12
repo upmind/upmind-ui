@@ -33,12 +33,12 @@ export default {
       800: "#3e3e3e",
       900: "#1e1e1e",
       950: "#000000",
-      content: "#000000",
+      forground: "#000000",
     },
 
     control: {
       DEFAULT: "#ffffff",
-      content: "#000000",
+      forground: "#000000",
       active: "#5E36E8",
       error: "#EF4444",
     },
@@ -57,7 +57,7 @@ export default {
       800: "#156637",
       900: "#13542f",
       950: "#052e18",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     secondary: {
@@ -73,7 +73,7 @@ export default {
       800: "#4724b3",
       900: "#3d2092",
       950: "#231263",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     accent: {
@@ -89,7 +89,7 @@ export default {
       800: "#42424a",
       900: "#3a3a40",
       950: "#303035",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     // ---
@@ -107,7 +107,7 @@ export default {
       800: "#4724b3",
       900: "#3d2092",
       950: "#231263",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     info: {
@@ -123,7 +123,7 @@ export default {
       800: "#1e55af",
       900: "#1e478a",
       950: "#172e54",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     success: {
@@ -139,7 +139,7 @@ export default {
       800: "#065f42",
       900: "#064e36",
       950: "#022c1e",
-      content: "#ffffff",
+      forground: "#ffffff",
     },
 
     warning: {
@@ -155,7 +155,7 @@ export default {
       800: "#9a4f12",
       900: "#7c4212",
       950: "#432207",
-      content: "#fff3e0",
+      forground: "#fff3e0",
     },
 
     error: {
@@ -171,7 +171,7 @@ export default {
       800: "#991b1b",
       900: "#7f1d1d",
       950: "#450a0a",
-      content: "#ffebee",
+      forground: "#ffebee",
     },
   },
 

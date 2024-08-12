@@ -32,7 +32,7 @@ export default {
   },
   tab: {
     root: cva(
-      "text-base-content hover:bg-base-100 flex items-center gap-x-2 rounded-lg bg-transparent leading-none transition duration-300",
+      "text-base-forground hover:bg-base-100 flex items-center gap-x-2 rounded-lg bg-transparent leading-none transition duration-300",
       {
         variants: {
           size: {
@@ -41,7 +41,7 @@ export default {
             lg: "px-12 py-3 text-lg",
           },
           isActive: {
-            true: "bg-base hover:text-base-content hover:bg-base shadow",
+            true: "bg-base hover:text-base-forground hover:bg-base shadow",
           },
           isStretched: {
             true: "flex-1",

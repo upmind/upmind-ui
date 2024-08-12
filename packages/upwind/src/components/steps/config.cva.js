@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   steps: {
     root: cva(
-      " bg-base text-base-content sticky top-0 z-10 -mx-4 -mt-8  border-b px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"
+      " bg-base text-base-forground sticky top-0 z-10 -mx-4 -mt-8  border-b px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"
     ),
     wrapper: cva(
       "mx-auto flex flex max-w-screen-2xl flex-row items-center justify-start gap-8"
@@ -21,7 +21,7 @@ export default {
             false: "border-transparent",
           },
           complete: {
-            true: "text-base-content font-normal",
+            true: "text-base-forground font-normal",
           },
           disabled: {
             true: "cursor-not-allowed opacity-50",
@@ -41,14 +41,14 @@ export default {
     avatar: cva("", {
       variants: {
         complete: {
-          true: "bg-primary-content text-primary",
+          true: "bg-primary-forground text-primary",
         },
       },
       compoundVariants: [
         {
           complete: false,
           selected: true,
-          class: "text-primary-content bg-primary",
+          class: "text-primary-forground bg-primary",
         },
       ],
       defaultVariants: {

@@ -170,7 +170,7 @@
 
       <p
         v-for="(content, index) in $tm('basket.summary.footer')"
-        :key="`footer-content-${index}`"
+        :key="`footer-forground-${index}`"
         :class="styles.basket.summary.text"
       >
         <upw-icon
