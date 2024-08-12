@@ -65,9 +65,9 @@ export default {
         },
       },
       panel: {
-        wrapper: cva("shadow-inner"),
+        wrapper: cva("px-4 py-8 shadow-inner sm:px-6 lg:px-20"),
         content: cva(
-          "!min-h-min max-w-screen-2xl px-4 py-8 transition-all sm:px-6 lg:px-20"
+          "mx-auto !min-h-min max-w-screen-2xl px-10 transition-all"
         ),
       },
     },

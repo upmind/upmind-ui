@@ -122,7 +122,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     (result, item) => {
       if (get(item, "state.context.basket_product.id")) {
         result.push({
-          product_id: item.state.context.model.product_id,
+          product_id: item.state.context.basket_product.product_id,
           order_product_id: item.state.context.basket_product.id,
         });
       }
@@ -131,6 +131,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     },
     []
   );
+  debugger;
 
   // ---
   const { put, useUrl } = useApi();
@@ -139,6 +140,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   }).then(({ data }) => {
+    debugger;
     forEach(dirty, item => item.send({ type: "UPDATED" }));
     return data;
   });
