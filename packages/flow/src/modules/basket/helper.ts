@@ -4,10 +4,21 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 // import type { ActorRef } from "xstate";
 import { useBasket } from ".";
-import productServices from "./products/services";
+import productServices from "./items/services";
 
 // --- utils
-import { every, get, reduce, isEmpty, pickBy, isArray, map } from "lodash-es";
+import {
+  every,
+  filter,
+  get,
+  has,
+  isArray,
+  isEmpty,
+  map,
+  pickBy,
+  reduce,
+  set,
+} from "lodash-es";
 
 // --------------------------------------------------------
 async function fetch(context, basket) {
@@ -104,75 +115,26 @@ async function update(item, context, basket) {
 }
 
 async function sync(items, context, basket) {
-  const basketItems = basket.getItemsSnapshot();
   items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
 
-  if (isEmpty(items) && isEmpty(basketItems)) return Promise.resolve();
-
   // First ensure all our items are added to the basket...
-  // Then update all our items individually
-  const promises = map(items, item =>
-    add(item, context, basket).then(actor => {
-      const itemContext = get(actor.getSnapshot(), "context");
-      const model = get(itemContext, "model");
-      return update(model, itemContext, basket).then(() =>
-        actor.send({ type: "UPDATED" })
-      );
-    })
+  // Then sync all our items with the basket
+  const promises = isEmpty(items)
+    ? [Promise.resolve([])]
+    : map(items, item => add(item, context, basket));
+
+  // then update the basket
+  return Promise.all(promises).then(dirtyItems =>
+    productServices
+      .sync(
+        {
+          basket_id: basket.getBasketId(),
+          basket_products: basket.getItemsSnapshot(),
+        },
+        { data: dirtyItems }
+      )
+      .then(({ data }) => basket.refresh())
   );
-
-  return Promise.all(promises);
-
-  // remove all dangling items
-  // .then(() => {
-  // forEach(basketItems, basketItem => {
-  //   const model = get(basketItem.getSnapshot(), "context.model");
-  //   const mapping = context.itemMapper(model);
-  //   if (!basket.itemExists(items, mapping)) {
-  //     // send the command and set the item to be processed
-  //     promises.push(basket.removeItem(basketItem.id));
-  //   }
-  // });
-  // });
-
-  // .finally(() => {
-  // // finally cleanup and refresh any items that have been updated
-  // // once the basket has been processed
-  // const basketItems = basket.getItemsSnapshot();
-  // // find any items that are in the basket but not in the actor
-  // const missingItems = [];
-  // forEach(basketItems, basketItem => {
-  //   const model = get(basketItem, "state.context.model");
-  //   const product = get(basketItem, "state.context.lookups.product");
-  //   const mapping = context.basketItemMapper(model);
-  //   // check all our mapping values are set, if not then its not a valid mapping and we can skip it
-  //   const isValid = isEmpty(pickBy(mapping, isEmpty));
-  //   if (isValid && !basket.exists(items, mapping)) {
-  //     const data = context.itemBuilder({
-  //       ...model,
-  //       ...product,
-  //     });
-  //     missingItems.push(data);
-  //   }
-  // });
-  // return missingItems;
-  // });
-
-  // 3) sync the parent item's config with the context
-  // if (parentMapper && parentBuilder) {
-  //   const product = parentBuilder(items);
-  //   const mapping = parentMapper();
-  //   const basketItem = findItem(mapping);
-  //   if (basketItem) {
-  //     const model = get(basketItem, "state.context.model");
-  //     const isDirty = !isEmpty(product) && !some([model], matches(product));
-  //     if (isDirty && !includes(dirtyItems, mapping)) {
-  //       // update the basket item  with the new parent model
-  //       basketItem.send({ type: "PUT", data: product });
-  //       dirtyItems.push(mapping);
-  //     }
-  //   }
-  // }
 }
 
 // --------------------------------------------------------
