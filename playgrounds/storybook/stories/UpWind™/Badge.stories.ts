@@ -36,8 +36,6 @@ const meta: Meta<typeof UpwBadge> = {
     // ---
     variant: "flat",
     color: "primary",
-    // ---
-    loading: false,
   },
 };
 
@@ -147,32 +145,4 @@ export const TonalColorVariants: Story = {
       </section>
     `,
   }),
-};
-
-export const LoadingColorVariants: Story = {
-  parameters: {
-    controls: { exclude: ["label", "color"] },
-  },
-  render: args => ({
-    components: { UpwBadge },
-    setup() {
-      return { args };
-    },
-    template: `
-      <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Loading Color Variants</h1>
-        <upw-badge v-bind="args" color="primary" label="Primary" />
-        <upw-badge v-bind="args" color="secondary" label="Secondary" />
-        <upw-badge v-bind="args" color="accent" label="Accent" />
-        <upw-badge v-bind="args" color="base" label="Base" />
-        <upw-badge v-bind="args" color="info" label="Info" />
-        <upw-badge v-bind="args" color="success" label="Success" />
-        <upw-badge v-bind="args" color="error" label="Error" />
-        <upw-badge v-bind="args" color="warning" label="Warning" />
-      </section>
-    `,
-  }),
-  args: {
-    loading: true,
-  },
 };
