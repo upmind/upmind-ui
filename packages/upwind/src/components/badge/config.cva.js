@@ -14,14 +14,14 @@ export default {
           },
           color: {
             base: "text-base-50 bg-base-800",
-            primary: "text-primary-forground bg-primary",
-            secondary: "text-secondary-forground bg-secondary",
-            accent: "text-accent-forground bg-accent",
-            success: "bg-success text-success-forground",
-            error: "bg-error text-error-forground",
-            warning: "bg-warning text-warning-forground",
-            info: "bg-info text-info-forground",
-            promotion: "bg-promotion text-promotion-forground",
+            primary: "bg-primary text-primary-foreground",
+            secondary: "bg-secondary text-secondary-foreground",
+            accent: "bg-accent text-accent-foreground",
+            success: "bg-success text-success-foreground",
+            error: "bg-error text-error-foreground",
+            warning: "bg-warning text-warning-foreground",
+            info: "bg-info text-info-foreground",
+            promotion: "bg-promotion text-promotion-foreground",
           },
         },
         compoundVariants: [
@@ -29,12 +29,12 @@ export default {
           {
             color: "base",
             variant: "outlined",
-            class: "border-base-forground text-base-forground",
+            class: "border-base-foreground text-base-foreground",
           },
           {
             color: "base",
             variant: "tonal",
-            class: "bg-base-200 text-base-forground",
+            class: "bg-base-200 text-base-foreground",
           },
 
           // --- primary + variant ---

@@ -8,14 +8,14 @@ export default {
         variants: {
           color: {
             base: "text-base-50 bg-base-800",
-            primary: "text-primary-forground bg-primary",
-            secondary: "text-secondary-forground bg-secondary",
-            accent: "text-accent-forground bg-accent",
-            success: "text-success-forground bg-success",
-            error: "text-error-forground bg-error",
-            warning: "text-warning-forground bg-warning",
-            info: "text-info-forground bg-info",
-            promotion: "text-promotion-forground bg-promotion",
+            primary: "bg-primary text-primary-foreground",
+            secondary: "bg-secondary text-secondary-foreground",
+            accent: "bg-accent text-accent-foreground",
+            success: "text-success-foreground bg-success",
+            error: "text-error-foreground bg-error",
+            warning: "text-warning-foreground bg-warning",
+            info: "text-info-foreground bg-info",
+            promotion: "text-promotion-foreground bg-promotion",
           },
         },
       }

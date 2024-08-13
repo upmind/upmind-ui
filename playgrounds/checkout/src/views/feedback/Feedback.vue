@@ -48,7 +48,7 @@
       />
     </header>
 
-    <div class="my-8 flex flex-col gap-4 text-base-forground">
+    <div class="my-8 flex flex-col gap-4 text-base-foreground">
       <upm-message
         v-for="message in messages"
         :key="message.id"
