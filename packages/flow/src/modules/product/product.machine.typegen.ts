@@ -85,7 +85,7 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
-    clearError: "REFRESH" | "RESET";
+    clearError: "RESET";
     resetModel: "RESET";
     setAttributes:
       | "SET.ATTRIBUTES"
@@ -104,6 +104,7 @@ export interface Typegen0 {
       | "xstate.init";
     setError:
       | "ERROR"
+      | "REFRESH"
       | "error.platform.load"
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"

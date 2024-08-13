@@ -347,7 +347,7 @@ export default createMachine(
       },
       REFRESH: {
         target: "available",
-        actions: ["clearError", "setContext", "calculate"],
+        actions: ["setError", "setContext", "calculate"],
         cond: "hasChanged",
       },
       REMOVE: {
@@ -386,6 +386,7 @@ export default createMachine(
             currency_id,
             promotions,
             lookups,
+            error,
           }: ProductConfigContext,
           _event
         ) => {
@@ -419,7 +420,7 @@ export default createMachine(
             // },
             calculateCallback: spawn(calculateSubscription),
             // ---
-            // error: {},
+            error,
           };
         }
       ),
@@ -570,7 +571,9 @@ export default createMachine(
 
       setError: assign({
         error: ({ error }, { data }) => {
-          const err = data?.error || data;
+          const err = data?.error;
+
+          if (!err) debugger;
 
           if (err?.code == 422) {
             // lets parse/override our error message and data
@@ -606,10 +609,9 @@ export default createMachine(
         { data }: ProductConfigEvent
       ) => {
         const cleanModel = omitBy(model, isDeepEmpty);
-        const cleanProduct = omitBy(
-          parseBasketProduct(data.basket_product),
-          isDeepEmpty
-        );
+        const cleanProduct = data?.basket_product
+          ? omitBy(parseBasketProduct(data.basket_product), isDeepEmpty)
+          : {};
         const isDirty =
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
 
