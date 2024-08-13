@@ -28,10 +28,14 @@ import {
   find,
   findIndex,
   forEach,
+  get,
+  set,
+  isNil,
   includes,
   isEmpty,
   isEqual,
   map,
+  reduce,
   some,
 } from "lodash-es";
 
@@ -98,7 +102,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "actors",
-                actions: ["updateBasket", "loadItems"],
+                actions: ["updateBasket", "setError", "loadItems"],
               },
               onError: {
                 target: "#error",
@@ -121,7 +125,7 @@ export default createMachine(
       // if we have a session, we can now claim any existing basket
       claiming: {
         id: "claiming",
-        entry: ["clearError", "cancelController", "newController"],
+        entry: ["cancelController", "newController"],
         invoke: {
           src: "load",
           onDone: {
@@ -164,7 +168,7 @@ export default createMachine(
             initial: "complete",
             states: {
               processing: {
-                entry: ["clearError", "cancelController", "newController"],
+                entry: ["cancelController", "newController"],
                 invoke: {
                   src: "refresh",
                   onDone: {
@@ -433,7 +437,8 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket", "reloadItems", "refreshActors"],
+          actions: ["updateBasket"],
+          // actions: ["updateBasket", "reloadItems", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
@@ -443,7 +448,7 @@ export default createMachine(
 
       UNAUTHENTICATED: {
         target: "subscribing",
-        actions: ["clearError", "clearBasket", "clearActors", "clearItems"],
+        actions: ["clearBasket", "clearActors", "clearItems"],
       },
     },
   },
@@ -451,10 +456,9 @@ export default createMachine(
     actions: {
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
-          useBasketParser(data),
+          useBasketParser(data.basket),
         summary: (_context: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(useBasketParser(data)),
-        error: undefined,
+          useSummaryParser(useBasketParser(data.basket)),
       }),
 
       clearBasket: assign({
@@ -490,7 +494,7 @@ export default createMachine(
             promotions: undefined,
           };
         },
-        error: undefined,
+        // error: undefined,
       }),
 
       setPayment: assign({
@@ -534,7 +538,7 @@ export default createMachine(
         },
       }),
 
-      refreshActors: pure(({ basket, actors, items }) => {
+      refreshActors: pure(({ basket, actors, items, error }) => {
         forEach(actors, actor => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
@@ -543,6 +547,31 @@ export default createMachine(
 
         forEach(items, item => {
           const product = find(basket?.products, ["id", item?.id]);
+          const productIndex = findIndex(basket?.products, ["id", item?.id]);
+          let parsedError = null;
+          // const parsedError = parseError(error, item, items);
+          if (error && product) {
+            const productErrors = get(
+              error,
+              `data.products.${productIndex}`,
+              []
+            );
+            parsedError = reduce(
+              productErrors,
+              (result, value) => {
+                const validationErrors = useValidationParser({ data: value });
+                // we have an error for this product
+                set(result, "provision_fields", validationErrors);
+                return result;
+              },
+              {}
+            );
+
+            //   error?.data,
+            //   `error.products[${productIndex}]`
+            // );
+          }
+
           item.send({
             type: "REFRESH",
             data: {
@@ -550,6 +579,7 @@ export default createMachine(
               id: basket?.id,
               currency_id: basket?.currency_id,
               promotions: basket?.promotions || [],
+              error: parsedError,
             },
           });
         });
@@ -601,7 +631,6 @@ export default createMachine(
           });
           return items;
         },
-        error: undefined,
       }),
 
       reloadItems: assign({
@@ -632,7 +661,6 @@ export default createMachine(
           });
           return items;
         },
-        error: undefined,
       }),
 
       addItem: assign({
@@ -647,7 +675,6 @@ export default createMachine(
           items.push(machine);
           return items;
         },
-        error: undefined,
       }),
 
       clearItems: assign({
@@ -659,7 +686,6 @@ export default createMachine(
           });
           return [];
         },
-        error: undefined,
       }),
 
       // ---
@@ -700,32 +726,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (context, { data }) => {
-          const { items, newItems } = data;
-          let { error } = data;
-
-          // if we are supplied a machine, we must forward/send the error to it
-          if (items || newItems) {
-            forEach(items.concat(newItems), item => {
-              const found = find(context.items, ["id", item.id]);
-              if (found) {
-                found.send({ type: "ERROR", data: { error: data.error } });
-              }
-            });
-
-            if (error?.code == 422) {
-              error.message = "Validation error";
-            }
-          } else if (error?.code == 422) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
-          }
-
-          // addError(error?.message);
-
-          return error;
-        },
+        error: (context, { data }) => data?.error,
       }),
 
       clearError: assign({ error: undefined }),

@@ -90,19 +90,17 @@ export interface Typegen0 {
     checkoutActors: "CHECKOUT";
     clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
-    clearError: "AUTHENTICATED" | "REFRESH" | "SESSION" | "UNAUTHENTICATED";
+    clearError: "SESSION";
     clearItems: "CLEAR" | "UNAUTHENTICATED";
     loadItems: "done.invoke.basketManager.loading.basket:invocation[0]";
     newController: "AUTHENTICATED" | "REFRESH" | "SESSION";
     refreshActors:
-      | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
-    reloadItems:
-      | "REFRESH"
-      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
+    reloadItems: "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
     setError:
+      | "done.invoke.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.loading.basket:invocation[0]"
       | "error.platform.basketManager.shopping.refreshing.processing:invocation[0]"
       | "error.platform.claiming:invocation[0]"

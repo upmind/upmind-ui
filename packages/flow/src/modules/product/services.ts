@@ -103,13 +103,7 @@ async function calculateBillingTerm(
 // this will process the request and return a promise
 
 async function load(
-  {
-    basket_product,
-    basket_id,
-    model,
-    currency_id,
-    promotions,
-  }: ProductConfigContext,
+  { model, currency_id, promotions }: ProductConfigContext,
   _event: any
 ) {
   const { product_id } = model;
@@ -151,10 +145,6 @@ async function load(
 
   // lets get our provision_fields fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(product_id);
-  // const provisioningValuesPromise = loadProvisioningValues(
-  //   basket_product,
-  //   basket_id
-  // );
 
   // lets also get some brand config for how we want to show promotions
   // Get the brands preference on how to display promotions
@@ -168,22 +158,10 @@ async function load(
       )
   );
 
-  return Promise.all([
-    productPromise,
-    provisioningPromise,
-    // provisioningValuesPromise,
-    configPromise,
-  ]).then(
-    ([
-      product,
-      products_provisioning,
-      // provision_fields,
-      promotion_display_type,
-    ]) => {
+  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
+    ([product, products_provisioning, promotion_display_type]) => {
       set(product, "products_provisioning", products_provisioning);
       return { product, promotion_display_type };
-
-      // return { product, provision_fields, promotion_display_type };
     }
   );
 }
@@ -199,28 +177,6 @@ async function loadProvisioningFields(product_id) {
   }).then(({ data }) => data);
 }
 
-async function loadProvisioningValues(product, basket_id) {
-  const { get, useUrl } = useApi();
-
-  // bail if we have no basket, or if we have a basket with products
-  if (!basket_id || isEmpty(product)) return Promise.resolve();
-
-  // this will get all our provisioning fields for each product that has them,
-  // and update the baskets relevant products with the values
-  const { id } = product;
-  const sub_products = compact(
-    map(concat(product.options, product.attributes), "product_id")
-  );
-
-  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
-  return get({
-    url: useUrl(`orders/${basket_id}/products/${id}/provision_fields/values`, {
-      sub_product_ids: sub_products,
-    }),
-    useCache: false,
-    withAccessToken: true,
-  }).then(({ data }) => data);
-}
 // ---
 
 async function checkQuantity(

@@ -142,16 +142,6 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
   }).then(({ data }) => data);
 }
 
-async function refresh(context: BasketContext, _event: BasketEvent) {
-  const validItems = reject(context.items, item => item.state.context.isNew);
-
-  // get returns a promise so we can pass it directly back to the machine
-  return load(context).then(basket => {
-    const newItems = differenceBy(basket.products, validItems, "id");
-    return { basket, items: validItems, newItems };
-  });
-}
-
 async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   const { patch, useUrl } = useApi();
   const { getCookie } = useCookies();
@@ -181,7 +171,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
 }
 
 async function getProvisioningFieldsValues(basket: BasketEvent) {
-  const { get, useUrl } = useApi();
+  const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
   if (!basket || !basket?.products?.length) return Promise.resolve(basket);
@@ -190,6 +180,17 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
 
   const provisioningPromises = [];
 
+  // Start with a promise to check the baskets provisioning fields for errors
+  const checkPromise = patch({
+    url: useUrl(`orders/${basket_id}/provision_fields/values/check`),
+    useCache: false,
+    withAccessToken: true,
+  })
+    .then(({ data }) => data)
+    .catch(({ error }) => error);
+  provisioningPromises.push(checkPromise);
+
+  // then get each products provisioning fields
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
   forEach(products, async product => {
@@ -218,7 +219,23 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched
-  return Promise.all(provisioningPromises).then(() => basket);
+  return Promise.all(provisioningPromises).then(([provisioningErrors]) => {
+    // provisioningErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
+    if (has(provisioningErrors, "data")) {
+      provisioningErrors.data = reduce(
+        provisioningErrors.data,
+        (result, value, key) => {
+          set(result, key, value);
+          return result;
+        },
+        {}
+      );
+    }
+    return {
+      basket,
+      error: provisioningErrors,
+    };
+  });
 }
 // --------------------------------------------------------
 // EXPORTS
@@ -226,7 +243,7 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
 export default {
   load,
   generate,
-  refresh,
+  refresh: load,
   convert,
   // ---
   authSubscription: (context, event) =>
