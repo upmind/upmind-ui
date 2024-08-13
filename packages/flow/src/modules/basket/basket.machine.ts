@@ -686,7 +686,12 @@ export default createMachine(
       },
 
       setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (
+          !error ||
+          error?.code == responseCodes.Unprocessable_Entity ||
+          error?.code == responseCodes.Unauthorized
+        )
+          return;
 
         addError({
           title: error?.title || "We experienced an error updating the basket",
