@@ -341,8 +341,8 @@ export default createMachine(
         actions: ["resetModel"],
       },
       REFRESH: {
-        target: "loading",
-        actions: ["setModel", "setBaseModel", "setCurrency", "setPromotions"],
+        target: "available",
+        actions: ["setContext"],
         cond: "hasChanged",
       },
       REMOVE: {
@@ -363,7 +363,7 @@ export default createMachine(
       REMOVED: { target: "complete" },
       UPDATED: [
         { target: "complete", cond: "isNew" },
-        { target: "available.complete" },
+        { target: "available.complete", actions: "setContext" },
       ],
     },
   },
@@ -423,6 +423,7 @@ export default createMachine(
           };
         }
       ),
+
       setBasketHelper: assign(context => {
         return {
           basketHelper: spawn(syncSubscription),
@@ -434,8 +435,8 @@ export default createMachine(
           }),
         };
       }),
-
       // ---
+
       setLookups: assign({
         raw: (_context, { data }) => data,
 
@@ -618,14 +619,22 @@ export default createMachine(
         { model, basket_id, currency_id, promotions }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
-        const newModel = merge({}, model, parseModel(data));
-        const value =
-          !isEqual(newModel, model) ||
+        const cleanModel = omitBy(model, isDeepEmpty);
+        const cleanProduct = omitBy(
+          parseBasketProduct(data.basket_product),
+          isDeepEmpty
+        );
+        const isDirty =
+          !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
+
+        return (
+          isDirty ||
           basket_id !== data?.id ||
           currency_id !== data?.currency_id ||
-          !isEqual(promotions, data?.promotions);
-        return value;
+          !isEqual(promotions, data?.promotions)
+        );
       },
+
       needsCalculating: (
         { prices }: ProductConfigContext,
         { data }: ProductConfigEvent

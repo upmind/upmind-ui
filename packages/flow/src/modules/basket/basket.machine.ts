@@ -542,13 +542,12 @@ export default createMachine(
         });
 
         forEach(items, item => {
-          const product =
-            find(basket?.products, ["id", item?.id]) ||
-            item.state.context.model;
+          const product = find(basket?.products, ["id", item?.id]);
           item.send({
             type: "REFRESH",
             data: {
-              product,
+              basket_product: product,
+              id: basket?.id,
               currency_id: basket?.currency_id,
               promotions: basket?.promotions || [],
             },
