@@ -127,7 +127,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "term"),
+                    // entry: ({ error }) => unset(error, "term"),
                     invoke: {
                       src: "checkTerm",
                       onDone: [
@@ -179,7 +179,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "attributes"),
+                    // entry: ({ error }) => unset(error, "attributes"),
                     invoke: {
                       src: "checkAttributes",
                       onDone: {
@@ -206,7 +206,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "options"),
+                    // entry: ({ error }) => unset(error, "options"),
                     invoke: {
                       src: "checkOptions",
                       onDone: [
@@ -255,7 +255,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "provision_fields"),
+                    // entry: ({ error }) => unset(error, "provision_fields"),
                     invoke: {
                       src: "checkProvisioning",
                       onDone: {
@@ -386,7 +386,6 @@ export default createMachine(
             currency_id,
             promotions,
             lookups,
-            error,
           }: ProductConfigContext,
           _event
         ) => {
@@ -419,8 +418,6 @@ export default createMachine(
             //   options: [],
             // },
             calculateCallback: spawn(calculateSubscription),
-            // ---
-            error,
           };
         }
       ),
@@ -583,12 +580,13 @@ export default createMachine(
               provision_fields: parseAddirtionalErrors(err),
             };
           } else {
-            return { ...error, ...err };
+            debugger;
+            return merge({}, error, err);
           }
         },
       }),
 
-      clearError: assign({ error: {} }),
+      clearError: assign({ error: { xxx: {} } }),
     },
     services,
     guards: {

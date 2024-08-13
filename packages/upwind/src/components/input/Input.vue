@@ -272,7 +272,7 @@ export default defineComponent({
       isDisabled: props.disabled,
       hasFeedback:
         (isEmpty(props.errors) && !isEmpty(props.description)) ||
-        (!isEmpty(props.errors) && props.dirty),
+        !isEmpty(props.errors),
     }));
 
     const styles = useStyles(
