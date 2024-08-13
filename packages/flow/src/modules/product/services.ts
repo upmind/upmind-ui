@@ -151,10 +151,10 @@ async function load(
 
   // lets get our provision_fields fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(product_id);
-  const provisioningValuesPromise = loadProvisioningValues(
-    basket_product,
-    basket_id
-  );
+  // const provisioningValuesPromise = loadProvisioningValues(
+  //   basket_product,
+  //   basket_id
+  // );
 
   // lets also get some brand config for how we want to show promotions
   // Get the brands preference on how to display promotions
@@ -171,20 +171,19 @@ async function load(
   return Promise.all([
     productPromise,
     provisioningPromise,
-    provisioningValuesPromise,
+    // provisioningValuesPromise,
     configPromise,
   ]).then(
     ([
       product,
       products_provisioning,
-      provision_fields,
+      // provision_fields,
       promotion_display_type,
     ]) => {
       set(product, "products_provisioning", products_provisioning);
-      set(product, "provision_fields", provision_fields);
-      set(product, "promotion_display_type", promotion_display_type);
+      return { product, promotion_display_type };
 
-      return product;
+      // return { product, provision_fields, promotion_display_type };
     }
   );
 }

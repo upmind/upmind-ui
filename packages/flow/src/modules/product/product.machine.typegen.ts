@@ -79,15 +79,19 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     calculate:
+      | "REFRESH"
+      | "UPDATED"
       | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
+    clearError: "REFRESH" | "RESET";
     resetModel: "RESET";
     setAttributes:
       | "SET.ATTRIBUTES"
       | "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
+    setBaseModel: "UPDATED";
     setBasketHelper: "";
     setContext:
       | "ERROR"

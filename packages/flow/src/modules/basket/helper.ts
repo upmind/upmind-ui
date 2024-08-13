@@ -156,7 +156,7 @@ export function syncSubscription(callback, onReceive) {
         add(event.target, event.context, basket)
           .then(data => callback({ type: "ADDED", data }))
           .catch(error => {
-            console.error("basketHelper", "SYNC", error);
+            console.error("basketHelper", "ADD", error);
             callback({ type: "ERROR", data: error });
           });
         break;
@@ -169,7 +169,7 @@ export function syncSubscription(callback, onReceive) {
             basket.refresh();
           })
           .catch(error => {
-            console.error("basketHelper", "SYNC", error);
+            console.error("basketHelper", "REMOVE", error);
             callback({ type: "ERROR", data: error });
           });
         break;
@@ -182,7 +182,7 @@ export function syncSubscription(callback, onReceive) {
             basket.refresh();
           })
           .catch(error => {
-            console.error("basketHelper", "SYNC", error);
+            console.error("basketHelper", "UPDATE", error);
             callback({ type: "ERROR", data: error });
           });
         break;
