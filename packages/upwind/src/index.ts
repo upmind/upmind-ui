@@ -1,4 +1,4 @@
-// ---
+// --- upw
 export { default as UpwAlert } from "./components/alert/Alert.vue";
 export { default as UpwAvatar } from "./components/avatar/Avatar.vue";
 export { default as UpwBadge } from "./components/badge/Badge.vue";
@@ -26,8 +26,8 @@ export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
 export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
-// ---
+// --- uw
 export { default as UwButton } from "./components/ui/button/Button.vue";
-
-// ---
+export { TooltipConsolidated as Tooltip } from "./components/ui/tooltip";
+// --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";

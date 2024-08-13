@@ -13,7 +13,7 @@ export const Base: Story = {
   render: () => ({
     template: `
       <div
-        class="prose mx-auto flex max-w-none flex-wrap place-forground-start items-start justify-start gap-4 p-8"
+        class="prose mx-auto flex max-w-none flex-wrap place-foreground-start items-start justify-start gap-4 p-8"
       >
         <div id="headers" class="w-full">
           <h1>Header 1</h1>

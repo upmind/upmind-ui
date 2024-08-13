@@ -12,7 +12,7 @@ export default {
       header: cva("w-full"),
       title: cva("m-0 text-lg text-xl font-normal tracking-tight"),
       content: cva(
-        " bg-base text-base-forground grid w-full space-y-4 rounded-lg border p-6 shadow-md"
+        " bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6 shadow-md"
       ),
       form: cva(" m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
@@ -22,10 +22,10 @@ export default {
       text: cva(
         "text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
       ),
-      bold: cva("text-base-forground font-medium"),
+      bold: cva("text-base-foreground font-medium"),
       discount: cva("text-base-500 block text-xs font-light line-through"),
       value: cva(
-        "flex-0 text-base-forground m-0 block text-right font-medium "
+        "flex-0 text-base-foreground m-0 block text-right font-medium "
       ),
       total: cva("font-medium "),
       icon: cva("flex-0 size-5 leading-normal"),
@@ -98,7 +98,7 @@ export default {
       // ---
       pending: {
         root: cva(
-          "bg-accent text-accent-forground border-accent gap-0 rounded-lg border"
+          "bg-accent text-accent-foreground border-accent gap-0 rounded-lg border"
         ),
         header: cva(
           "flex items-center justify-center gap-2 px-6 py-1 text-center text-sm"
@@ -154,7 +154,9 @@ export default {
       text: cva(
         "text-base-500  m-0 text-center text-sm leading-5 tracking-tight"
       ),
-      avatar: cva("bg-primary text-primary-forground border-error size-20 p-2"),
+      avatar: cva(
+        "bg-primary text-primary-foreground border-error size-20 p-2"
+      ),
     },
 
     processing: {
@@ -167,7 +169,7 @@ export default {
       ),
       title: cva("m-0 mt-8 text-center text-3xl font-light text-inherit"),
       text: cva("text-base-500 m-0 mt-2 text-center text-sm tracking-tight"),
-      avatar: cva("bg-primary text-primary-forground size-20 p-2"),
+      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center pt-8"),
     },
 
@@ -180,7 +182,7 @@ export default {
       text: cva(
         "text-base-500  m-0 text-center text-sm leading-5 tracking-tight"
       ),
-      avatar: cva("bg-primary text-primary-forground size-20 p-2"),
+      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
     },
   },
 };

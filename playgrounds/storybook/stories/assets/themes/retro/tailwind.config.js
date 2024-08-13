@@ -167,7 +167,7 @@ const colors = {
 
   control: {
     DEFAULT: "#ffffff",
-    forground: "#000000",
+    foreground: "#000000",
     active: "#5E36E8",
     error: "#EF4444",
   },

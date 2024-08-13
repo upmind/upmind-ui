@@ -34,7 +34,7 @@ export default {
   },
   formButton: {
     root: cva(
-      "bg-base text-base-forground  hover:bg-base-50 relative flex w-full cursor-pointer items-center gap-x-2 text-nowrap rounded-lg border px-4 py-3 text-start text-sm font-medium shadow-sm before:absolute before:inset-0 before:z-[1]"
+      "bg-base text-base-foreground  hover:bg-base-50 relative flex w-full cursor-pointer items-center gap-x-2 text-nowrap rounded-lg border px-4 py-3 text-start text-sm font-medium shadow-sm before:absolute before:inset-0 before:z-[1]"
     ),
     active: cva("ring-control-active border-control-active"),
     label: cva("flex-1 leading-none"),

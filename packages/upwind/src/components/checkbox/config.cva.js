@@ -92,7 +92,7 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "text-base-forground",
+            true: "text-base-foreground",
           },
           isChecked: {
             true: `text-base`,
