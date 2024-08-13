@@ -32,6 +32,7 @@ const colors = {
     900: "#f5f5f5",
     950: "#fefefe",
     foreground: "#ffffff",
+    background: "#000000",
   },
 
   primary: {
@@ -48,6 +49,7 @@ const colors = {
     900: "#0e5c9a",
     950: "#0e385d",
     foreground: "#ffffff",
+    background: "#018ffd",
   },
 
   secondary: {
@@ -64,6 +66,7 @@ const colors = {
     900: "#165063",
     950: "#083444",
     foreground: "#ffffff",
+    background: "#05c3de",
   },
 
   accent: {
@@ -80,6 +83,7 @@ const colors = {
     900: "#66099a",
     950: "#470074",
     foreground: "#ffffff",
+    background: "#8b04de",
   },
 
   // --- State Variants
@@ -97,6 +101,7 @@ const colors = {
     900: "#3d2092",
     950: "#231263",
     foreground: "#ffffff",
+    background: "#5E36E8",
   },
 
   info: {
@@ -113,6 +118,7 @@ const colors = {
     900: "#1e478a",
     950: "#172e54",
     foreground: "#ffffff",
+    background: "#3b82f6",
   },
 
   success: {
@@ -129,6 +135,7 @@ const colors = {
     900: "#064e36",
     950: "#022c1e",
     foreground: "#ffffff",
+    background: "#10b981",
   },
 
   warning: {
@@ -145,6 +152,7 @@ const colors = {
     900: "#7c4212",
     950: "#432207",
     foreground: "#fff3e0",
+    background: "#fb923c",
   },
 
   error: {
@@ -161,6 +169,7 @@ const colors = {
     900: "#7f1d1d",
     950: "#450a0a",
     foreground: "#ffebee",
+    background: "#ef4444",
   },
 
   destructive: {
