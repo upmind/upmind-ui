@@ -22,6 +22,7 @@ const colors = {
     900: "#61442d",
     950: "#342316",
     foreground: "#775335",
+    background: "#f4efe0",
   },
 
   primary: {
@@ -38,6 +39,7 @@ const colors = {
     900: "#762a26",
     950: "#40110f",
     foreground: "#282425",
+    background: "#df5a54",
   },
 
   accent: {
@@ -54,6 +56,7 @@ const colors = {
     900: "#1c382b",
     950: "#0f1f18",
     foreground: "#f1f8f4",
+    background: "#448562",
   },
 
   secondary: {
@@ -70,6 +73,7 @@ const colors = {
     900: "#762e11",
     950: "#441604",
     foreground: "#fffaeb",
+    background: "#903710",
   },
 
   // ---
@@ -88,6 +92,7 @@ const colors = {
     900: "#1e408a",
     950: "#172a54",
     foreground: "#dbe6fe",
+    background: "#2563eb",
   },
 
   success: {
@@ -104,6 +109,7 @@ const colors = {
     900: "#14532b",
     950: "#052e14",
     foreground: "#dcfce8",
+    background: "#16a34a",
   },
 
   warning: {
@@ -120,6 +126,7 @@ const colors = {
     900: "#78470f",
     950: "#452603",
     foreground: "#fee4c7",
+    background: "#d97706",
   },
 
   error: {
@@ -136,6 +143,7 @@ const colors = {
     900: "#81211b",
     950: "#460d09",
     foreground: "#ffe3e1",
+    background: "#f35248",
   },
 
   destructive: {
