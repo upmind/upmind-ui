@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base text-base-forground  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
+        "bg-base text-base-foreground  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
         {
           variants: {
             isUnavailable: {
@@ -102,7 +102,7 @@ export default {
 
     config: {
       root: cva(
-        "bg-base text-base-forground  flex flex-wrap items-start gap-x-2 rounded-lg border",
+        "bg-base text-base-foreground  flex flex-wrap items-start gap-x-2 rounded-lg border",
         {
           variants: {
             isDisabled: {

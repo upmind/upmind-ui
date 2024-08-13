@@ -42,7 +42,7 @@ export const withUpwindTheme = ({
       components: { story },
       template: `
       <upw-provider theme="${selected}" locale="${locale}">
-        <div class="content bg-background p-4 sm:p-8 text-forground prose max-w-full min-h-screen">
+        <div class="content bg-background p-4 sm:p-8 text-foreground prose max-w-full min-h-screen">
             <story />
         </div>
       </upw-provider>`,

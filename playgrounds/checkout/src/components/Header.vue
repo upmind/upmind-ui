@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex w-full flex-wrap border-b bg-base px-4 py-3 text-sm text-base-forground sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
+    class="flex w-full flex-wrap border-b bg-base px-4 py-3 text-sm text-base-foreground sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
   >
     <nav
       class="relative mx-auto flex w-full max-w-screen-2xl flex-row flex-wrap items-center justify-start gap-4 sm:flex sm:items-center sm:justify-between"
@@ -49,7 +49,7 @@
             <upw-avatar
               :key="items?.length"
               v-if="items?.length"
-              class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-forground"
+              class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-foreground"
             >
               {{ items.length }}
             </upw-avatar>
