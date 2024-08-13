@@ -110,7 +110,11 @@ async function sync({ basket_id, basket_products }, { data }) {
       return Promise.reject("No basketItemBuilder provided");
     // ---
     const product = basketItemBuilder(model);
+    // Add a flag to the product to indicate that the field values should NOT be validated.
+    //  we want to ge these products in without deep validation
+    set(product, "provision_field_values_validate", false);
     if (id) set(product, "order_product_id", id);
+
     return product;
   });
 
@@ -131,7 +135,6 @@ async function sync({ basket_id, basket_products }, { data }) {
     },
     []
   );
-  debugger;
 
   // ---
   const { put, useUrl } = useApi();
@@ -140,7 +143,6 @@ async function sync({ basket_id, basket_products }, { data }) {
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   }).then(({ data }) => {
-    debugger;
     forEach(dirty, item => item.send({ type: "UPDATED" }));
     return data;
   });
