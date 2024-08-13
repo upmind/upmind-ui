@@ -48,12 +48,12 @@ export default createMachine(
     initial: "subscribing",
     context: {},
 
-    // Parse our Basket/Config data into context
-    entry: "setContext",
     states: {
       // this is our initial state where we are conditionally waiting for the basket helper to be created
       // this is so we can add/update our product to the basket
       subscribing: {
+        entry: "setContext",
+        // Parse our Basket/Config data into context
         always: [
           {
             target: "loading",
@@ -73,7 +73,12 @@ export default createMachine(
         invoke: {
           id: "load",
           src: "load",
-          onDone: [{ target: "available", actions: ["setLookups"] }],
+          onDone: [
+            {
+              target: "available",
+              actions: ["setLookups"],
+            },
+          ],
           onError: {
             target: "error",
             actions: "setError",
@@ -338,11 +343,11 @@ export default createMachine(
     on: {
       RESET: {
         target: "loading",
-        actions: ["resetModel"],
+        actions: ["clearError", "resetModel"],
       },
       REFRESH: {
         target: "available",
-        actions: ["setContext"],
+        actions: ["clearError", "setContext", "calculate"],
         cond: "hasChanged",
       },
       REMOVE: {
@@ -363,7 +368,10 @@ export default createMachine(
       REMOVED: { target: "complete" },
       UPDATED: [
         { target: "complete", cond: "isNew" },
-        { target: "available.complete", actions: "setContext" },
+        {
+          target: "available.complete",
+          actions: ["setBaseModel", "calculate"],
+        },
       ],
     },
   },
@@ -381,17 +389,9 @@ export default createMachine(
           }: ProductConfigContext,
           _event
         ) => {
-          console.debug("product.machine", "setContext", {
-            id,
-            model,
-            basket_product,
-            currency_id,
-            promotions,
-            lookups,
-          });
           return {
             // ---
-            currency_id: useBrand().validateCurrency(currency_id),
+            currency_id, //useBrand().validateCurrency(currency_id),
             promotions,
             // ---
             baseModel: !isEmpty(basket_product)
@@ -403,7 +403,7 @@ export default createMachine(
               : parseModel({ id, ...model }),
             // ---
             lookups: {
-              product: basket_product?.product || lookups?.product,
+              product: lookups?.product || basket_product?.product,
               terms: lookups?.terms,
               options: lookups?.options,
               attributes: lookups?.attributes,
@@ -424,7 +424,7 @@ export default createMachine(
         }
       ),
 
-      setBasketHelper: assign(context => {
+      setBasketHelper: assign(_context => {
         return {
           basketHelper: spawn(syncSubscription),
           itemBuilder: item => parseModel(item),
@@ -438,54 +438,40 @@ export default createMachine(
       // ---
 
       setLookups: assign({
-        raw: (_context, { data }) => data,
+        raw: (_context, { data }) => data.product,
 
         lookups: ({ model }, { data }) => {
           return {
-            product: parseProduct(data),
-            terms: useTermsParser(data.prices, data?.promotion_display_type),
+            product: parseProduct(data.product),
+            terms: useTermsParser(
+              data.product.prices,
+              data.promotion_display_type
+            ),
             attributes: parseSubproduct(
-              data.products_attributes,
+              data.product.products_attributes,
               data?.promotion_display_type
             ),
             options: parseSubproduct(
-              data.products_options,
+              data.product.products_options,
               data?.promotion_display_type,
               model?.term?.billing_cycle_months
             ),
             provision_fields: parseProvisioningSchema(
-              data.products_provisioning
+              data.product.products_provisioning
             ),
           };
         },
       }),
 
-      setCurrency: assign({
-        currency_id: ({ currency_id }, { data }) =>
-          data?.currency_id || currency_id,
+      setBaseModel: assign({
+        baseModel: ({ model }, _event) => parseModel(model),
       }),
-
-      setPromotions: assign({
-        promotions: ({ promotions }, { data }) =>
-          data?.promotions || promotions || [],
-      }),
-
       setModel: assign({
         model: (_context, { data }) => parseModel(data?.product),
       }),
 
       resetModel: assign({
         model: ({ baseModel }, _event) => clone(baseModel),
-      }),
-
-      setBaseModel: assign({
-        baseModel: ({ model }, _event) => clone(model),
-      }),
-
-      // ---
-
-      setConfig: assign({
-        config: ({ model }, _event) => buildBasketItem(model),
       }),
 
       // ---
