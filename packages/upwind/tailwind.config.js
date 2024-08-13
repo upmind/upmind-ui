@@ -22,34 +22,34 @@ module.exports = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
-        foreground: "hsl(var(--forground))",
+        foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-forground))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-forground))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-forground))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-forground))",
+          foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-forground))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-forground))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         card: {
           DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-forground))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
       borderRadius: {
@@ -61,18 +61,18 @@ module.exports = {
       keyframes: {
         "accordion-down": {
           from: { height: 0 },
-          to: { height: "var(--radix-accordion-forground-height)" },
+          to: { height: "var(--radix-accordion-foreground-height)" },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-forground-height)" },
+          from: { height: "var(--radix-accordion-foreground-height)" },
           to: { height: 0 },
         },
         "collapsible-down": {
           from: { height: 0 },
-          to: { height: "var(--radix-collapsible-forground-height)" },
+          to: { height: "var(--radix-collapsible-foreground-height)" },
         },
         "collapsible-up": {
-          from: { height: "var(--radix-collapsible-forground-height)" },
+          from: { height: "var(--radix-collapsible-foreground-height)" },
           to: { height: 0 },
         },
       },

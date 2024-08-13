@@ -14,7 +14,7 @@ export default {
       ),
       title: cva("m-0 mt-8 text-center text-3xl font-light text-inherit"),
       text: cva("text-base-500 m-0 mt-2 text-center text-sm tracking-tight"),
-      avatar: cva("bg-primary text-primary-forground size-20 p-2"),
+      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center pt-8"),
     },
   },

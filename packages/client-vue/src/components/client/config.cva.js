@@ -99,7 +99,7 @@ export default {
     icon: cva("size-4"),
     avatar: cva("size-6 overflow-hidden rounded-full border "),
     title: cva(
-      "text-md text-base-forground m-0 inline-flex gap-1 font-normal leading-none"
+      "text-md text-base-foreground m-0 inline-flex gap-1 font-normal leading-none"
     ),
     text: cva("leading-tight "),
     verified: cva("", {

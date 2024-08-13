@@ -38,7 +38,7 @@ export default {
     panel: {
       root: cva("flex w-full flex-col items-start justify-start"),
       wrapper: cva(
-        "bg-base text-base-forground relative transform  rounded-lg  text-left align-middle shadow-xl transition-all",
+        "bg-base text-base-foreground relative transform  rounded-lg  text-left align-middle shadow-xl transition-all",
         {
           variants: {
             size: {
