@@ -13,7 +13,7 @@ export default {
         {
           variants: {
             isProcessing: {
-              true: "pointer-events-none opacity-50",
+              // true: "pointer-events-none opacity-50",
             },
             isDisabled: {
               // true: "pointer-events-none",
