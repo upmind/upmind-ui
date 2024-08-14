@@ -11,13 +11,11 @@ import {
   every,
   filter,
   get,
-  has,
   isArray,
   isEmpty,
   map,
   pickBy,
   reduce,
-  set,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -124,17 +122,28 @@ async function sync(items, context, basket) {
     : map(items, item => add(item, context, basket));
 
   // then update the basket
-  return Promise.all(promises).then(dirtyItems =>
-    productServices
+  return Promise.all(promises).then(dirtyItems => {
+    // we should only try save items that are configured
+    // and have a valid basket_product
+    const validItems = filter(dirtyItems, item =>
+      item?.state.matches("available.configured")
+    );
+
+    if (!validItems.length) return basket.refresh();
+
+    return productServices
       .sync(
         {
           basket_id: basket.getBasketId(),
           basket_products: basket.getItemsSnapshot(),
         },
-        { data: dirtyItems }
+        { data: validItems }
       )
-      .then(({ data }) => basket.refresh())
-  );
+      .catch(error => {
+        console.error("basketHelper", "SYNC", error);
+      })
+      .finally(data => basket.refresh(data));
+  });
 }
 
 // --------------------------------------------------------
@@ -166,12 +175,13 @@ export function syncSubscription(callback, onReceive) {
         remove(event.target, event.context, basket)
           .then(data => {
             callback({ type: "REMOVED" });
-            basket.refresh();
           })
           .catch(error => {
             console.error("basketHelper", "REMOVE", error);
             callback({ type: "ERROR", data: error });
-          });
+          })
+          .finally(data => basket.refresh(data));
+
         break;
 
       case "UPDATE":
@@ -179,22 +189,26 @@ export function syncSubscription(callback, onReceive) {
         update(event.target, event.context, basket)
           .then(data => {
             callback({ type: "UPDATED", data });
-            basket.refresh();
           })
           .catch(error => {
             console.error("basketHelper", "UPDATE", error);
             callback({ type: "ERROR", data: error });
-          });
+          })
+          .finally(data => basket.refresh(data));
+
         break;
 
       case "SYNC":
         sync(event.target, event.context, basket)
-          .then(data => {
-            basket.refresh().then(() => callback({ type: "SYNCED" }));
-          })
           .catch(error => {
             console.error("basketHelper", "SYNC", error);
             callback({ type: "ERROR", data: error });
+          })
+          .finally(() => {
+            const items = basket.getItemsSnapshot();
+            basket
+              .refresh()
+              .then(() => callback({ type: "SYNCED", data: items }));
           });
         break;
     }

@@ -155,9 +155,22 @@ export const useBasket = () => {
           }
           return Promise.resolve(item);
         });
+        // .finally(() => service.send({ type: "REFRESH" }));
       });
     },
 
-    removeItem: async itemId => sendToItem(itemId, "REMOVE", { itemId }),
+    removeItem: async itemId => {
+      return sendToItem(itemId, "REMOVE", { itemId }).then(item => {
+        return waitFor(item, state =>
+          ["available.complete", "complete", "error"].some(state.matches)
+        ).then(state => {
+          if (state.matches("error")) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve(item);
+        });
+        // .finally(() => service.send({ type: "REFRESH" }));
+      });
+    },
   };
 };

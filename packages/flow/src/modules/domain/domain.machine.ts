@@ -49,7 +49,7 @@ export default createMachine(
       type: undefined,
       sync: undefined,
       model: [],
-      listings: {
+      lookups: {
         searched: [],
         history: [],
         owned: [],
@@ -76,7 +76,7 @@ export default createMachine(
       // ---
     } as DomainContext,
 
-    entry: ["checkModel", "ensurePrimary", "persistModel", "clearListings"],
+    entry: ["checkModel", "ensurePrimary", "persistModel", "clearLookups"],
     states: {
       subscribing: {
         always: [
@@ -196,10 +196,7 @@ export default createMachine(
               REFRESH: {
                 // do nothing
               },
-              SYNCED: {
-                target: "#basket",
-                actions: ["synced"],
-              },
+              SYNCED: [{ target: "loading", actions: ["synced"] }],
               ERROR: {
                 target: "error",
                 actions: ["setError"],
@@ -242,7 +239,7 @@ export default createMachine(
           },
           RESET: {
             target: ".invalid",
-            actions: ["resetModel", "clearListings", "clearSearch"],
+            actions: ["resetModel", "clearLookups", "clearSearch"],
           },
         },
       },
@@ -555,48 +552,35 @@ export default createMachine(
       // ---
 
       synced: assign({
-        model: ({ model }, { data }) => {
-          console.debug("Domains", "basket synced", data);
-          //   // merge the model and data, preserving any existing properties in model
-          //   const domains = unionBy(
-          //     map(data, item => {
-          //       let domain = parseBasketItem(item);
-          //       // merge any existing model with the new data
-          //       const exists = find(model, ["domain", domain.domain]);
-          //       if (exists) {
-          //         domain = Object.assign({}, exists, domain);
-          //       }
-          //       return domain;
-          //     }),
-          //     model, // this will include any model NOT in data
-          //     "domain"
-          //   );
-          //   return domains;
-          return model;
+        lookups: ({ lookups }, { data }) => {
+          lookups.basket = data;
+          return lookups;
         },
-        type: DomainTypes.basket,
+        type: ({ type }, { data }) => {
+          return data?.length ? DomainTypes.basket : type;
+        },
       }),
 
       // ---
 
       add: assign({
         model: (
-          { model, listings, type }: DomainContext,
+          { model, lookups, type }: DomainContext,
           { data }: AddEvent
         ) => {
           let available = [];
           switch (type) {
             case DomainTypes.register:
-              available = listings?.searched;
+              available = lookups?.searched;
               break;
             case DomainTypes.transfer:
-              available = listings?.searched;
+              available = lookups?.searched;
               break;
             case DomainTypes.existing:
-              available = listings?.owned;
+              available = lookups?.owned;
               break;
             case DomainTypes.basket:
-              available = listings?.basket;
+              available = lookups?.basket;
               break;
           }
           const domain = parseValue(data, model, available);
@@ -614,23 +598,23 @@ export default createMachine(
       // ---
 
       setModel: assign({
-        model: ({ model, listings, type }: DomainContext, { data }: AddEvent) =>
+        model: ({ model, lookups, type }: DomainContext, { data }: AddEvent) =>
           reduce(
             data,
             (result, item) => {
               let available = [];
               switch (type) {
                 case DomainTypes.register:
-                  available = listings?.searched;
+                  available = lookups?.searched;
                   break;
                 case DomainTypes.transfer:
-                  available = listings?.searched;
+                  available = lookups?.searched;
                   break;
                 case DomainTypes.existing:
-                  available = listings?.owned;
+                  available = lookups?.owned;
                   break;
                 case DomainTypes.basket:
-                  available = listings?.basket;
+                  available = lookups?.basket;
                   break;
               }
 
@@ -682,68 +666,68 @@ export default createMachine(
         search: null,
         offset: 0,
         total: 0,
-        listings: ({ listings }) => {
-          listings.history = [];
-          return listings;
+        lookups: ({ lookups }) => {
+          lookups.history = [];
+          return lookups;
         },
       }),
 
       setSearched: assign({
-        listings: ({ listings, model }, { data }) => {
+        lookups: ({ lookups, model }, { data }) => {
           const available = map(data?.available, item => {
             item.value = item.domain;
             return item;
           });
 
-          const persisted = filter(listings.history, ({ domain }) =>
+          const persisted = filter(lookups.history, ({ domain }) =>
             some(model, ["domain", domain])
           );
 
           set(
-            listings,
+            lookups,
             "searched",
             uniqBy(compact(concat(persisted, available)), "domain")
           );
 
           // store all previous searches
           set(
-            listings,
+            lookups,
             "history",
-            uniqBy(compact(concat(listings.history, available)), "domain")
+            uniqBy(compact(concat(lookups.history, available)), "domain")
           );
 
-          return listings;
+          return lookups;
         },
         total: (_context, { data }) => data.total,
         controller: null,
       }),
 
       setOwned: assign({
-        listings: ({ listings }, { data }) => {
+        lookups: ({ lookups }, { data }) => {
           const available = map(data?.available, item => {
             item.value = item.domain;
             item.persist = true;
             return item;
           });
-          set(listings, "owned", available);
-          return listings;
+          set(lookups, "owned", available);
+          return lookups;
         },
       }),
 
       setBasket: assign({
-        listings: ({ listings }, { data }) => {
+        lookups: ({ lookups }, { data }) => {
           const available = map(data, item => {
             item.value = item.domain;
             return item;
           });
 
-          set(listings, "basket", available);
-          return listings;
+          set(lookups, "basket", available);
+          return lookups;
         },
       }),
 
-      clearListings: assign({
-        listings: (_context, _event) => {
+      clearLookups: assign({
+        lookups: (_context, _event) => {
           return {
             searched: [],
             history: [],
@@ -810,6 +794,11 @@ export default createMachine(
 
       hasNoModel: ({ model }) => {
         return isEmpty(model);
+      },
+
+      hasItems: (_context, { data }) => {
+        debugger;
+        return !!data?.length;
       },
 
       isNotCancelled: (_context, { data }) => data?.name !== "AbortError",

@@ -93,7 +93,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     data,
     item =>
       !isEmpty(item?.state?.context?.basket_product) ||
-      ["available.configured"].some(item.state.matches)
+      ["available.configured"].some(item.state?.matches)
   );
 
   // --- then build the basket config for the dirty products
@@ -142,10 +142,16 @@ async function sync({ basket_id, basket_products }, { data }) {
     url: useUrl(`/orders/${basket_id}`),
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
-  }).then(({ data }) => {
-    forEach(dirty, item => item.send({ type: "UPDATED" }));
-    return data;
-  });
+  })
+    .then(({ data }) => {
+      forEach(dirty, item => item.send({ type: "UPDATED" }));
+      return data;
+    })
+    .catch(error => {
+      debugger;
+      forEach(dirty, item => item.send({ type: "ERROR" }));
+      return Promise.reject(error);
+    });
 }
 // --------------------------------------------------------
 // EXPORTS

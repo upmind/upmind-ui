@@ -36,7 +36,7 @@ export function spawnProductConfiguration(data: any, basket: IBasket) {
   const id = data?.id || uniqueId("product-");
   const isBasketProduct = data?.id ? true : false;
 
-  return spawn(
+  const item = spawn(
     productMachine.withContext({
       id,
       basket_id: basket?.id,
@@ -49,6 +49,12 @@ export function spawnProductConfiguration(data: any, basket: IBasket) {
       sync: true,
     }
   );
+
+  // item.onTransition(state => {
+  //   if (state.done) debugger;
+  // });
+
+  return item;
 }
 
 export function spawnBillingDetails(basket: IBasket) {
