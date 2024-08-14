@@ -456,9 +456,9 @@ export default createMachine(
     actions: {
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
-          useBasketParser(data.basket),
+          useBasketParser(data),
         summary: (_context: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(useBasketParser(data.basket)),
+          useSummaryParser(useBasketParser(data)),
       }),
 
       clearBasket: assign({
