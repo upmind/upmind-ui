@@ -2,7 +2,7 @@
   <div :class="styles.domain.root">
     <!-- loader -->
 
-    <upw-skeleton-list v-if="meta.isLoading" />
+    <upw-skeleton-list v-if="meta.isLoading" :rows="3" />
 
     <template v-else>
       <!-- type -->

@@ -7,7 +7,7 @@ import services from "./services";
 import { syncSubscription } from "../basket/helper";
 
 // --utils
-import { useTime, isDeepEmpty } from "../../utils";
+import { useTime, isDeepEmpty, useValidationParser } from "../../utils";
 import {
   buildBasketItem,
   parseSubproduct,
@@ -17,20 +17,19 @@ import {
   parseModel,
   parseBasketProduct,
   parseSummary,
-  parseAddirtionalErrors,
 } from "./utils";
 
 import {
   clone,
+  defaultsDeep,
   get,
   has,
   isEmpty,
   isEqual,
   merge,
+  omitBy,
   set,
   toNumber,
-  unset,
-  omitBy,
 } from "lodash-es";
 
 import { useBrand } from "../brand";
@@ -47,7 +46,6 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {},
-
     states: {
       // this is our initial state where we are conditionally waiting for the basket helper to be created
       // this is so we can add/update our product to the basket
@@ -276,6 +274,7 @@ export default createMachine(
             },
 
             onDone: [
+              { target: "error", cond: "hasError" },
               { target: "configured", cond: "isDirty" },
               { target: "complete" },
             ],
@@ -287,6 +286,22 @@ export default createMachine(
           error: {},
         },
         on: {
+          REFRESH: {
+            target: "available.configuring",
+            actions: ["refreshContext"],
+            cond: "hasChanged",
+          },
+          REMOVE: {
+            actions: sendTo(
+              ({ basketHelper }, _event) => basketHelper,
+              (context, _event) => ({
+                type: "REMOVE",
+                target: context.model,
+                context,
+              })
+            ),
+            target: "processing",
+          },
           UPDATE: {
             actions: sendTo(
               ({ basketHelper }, _event) => basketHelper,
@@ -333,7 +348,18 @@ export default createMachine(
       error: {},
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
-      processing: {},
+      processing: {
+        on: {
+          REMOVED: { target: "complete" },
+          UPDATED: [
+            { target: "complete", cond: "isNew" },
+            {
+              target: "available.complete",
+              actions: ["setBaseModel", "calculate"],
+            },
+          ],
+        },
+      },
 
       // Handle completion, stop the machine and prevent further products
       complete: {
@@ -343,36 +369,12 @@ export default createMachine(
     on: {
       RESET: {
         target: "loading",
-        actions: ["clearError", "resetModel"],
-      },
-      REFRESH: {
-        target: "available",
-        actions: ["setError", "setContext", "calculate"],
-        cond: "hasChanged",
-      },
-      REMOVE: {
-        actions: sendTo(
-          ({ basketHelper }, _event) => basketHelper,
-          (context, _event) => ({
-            type: "REMOVE",
-            target: context.model,
-            context,
-          })
-        ),
-        target: "processing",
+        actions: ["resetModel"],
       },
       PROCESSING: {
         target: "processing",
       },
       ERROR: { target: "available.error", actions: "setError" },
-      REMOVED: { target: "complete" },
-      UPDATED: [
-        { target: "complete", cond: "isNew" },
-        {
-          target: "available.complete",
-          actions: ["setBaseModel", "calculate"],
-        },
-      ],
     },
   },
   {
@@ -385,9 +387,8 @@ export default createMachine(
             basket_product,
             currency_id,
             promotions,
-            lookups,
           }: ProductConfigContext,
-          _event
+          _event: ProductConfigEvent
         ) => {
           return {
             // ---
@@ -402,22 +403,20 @@ export default createMachine(
               ? parseBasketProduct({ id, ...basket_product })
               : parseModel({ id, ...model }),
             // ---
-            lookups: {
-              product: lookups?.product || basket_product?.product,
-              terms: lookups?.terms,
-              options: lookups?.options,
-              attributes: lookups?.attributes,
-              provision_fields: lookups?.provision_fields,
-            },
-            // ---
-            // config: {},
-            // summary: {},
-            // prices: {
-            //   term: [],
-            //   attributes: [],
-            //   options: [],
-            // },
             calculateCallback: spawn(calculateSubscription),
+          };
+        }
+      ),
+      refreshContext: assign(
+        (_context: ProductConfigContext, { data }: ProductConfigEvent) => {
+          const { basket_product, currency_id, promotions } = data;
+
+          return {
+            currency_id,
+            promotions,
+            baseModel: parseBasketProduct(basket_product),
+            model: parseBasketProduct(basket_product),
+            error: undefined,
           };
         }
       ),
@@ -520,7 +519,7 @@ export default createMachine(
           const billing_cycle_months = get(data, "term.billing_cycle_months");
 
           lookups.options = parseSubproduct(
-            raw.products_options,
+            raw?.products_options,
             raw?.promotion_display_type,
             billing_cycle_months
           );
@@ -569,24 +568,24 @@ export default createMachine(
       setError: assign({
         error: ({ error }, { data }) => {
           const err = data?.error;
-
-          if (!err) debugger;
+          if (!err) return error;
 
           if (err?.code == 422) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return {
               ...error,
-              provision_fields: parseAddirtionalErrors(err),
+              provision_fields: useValidationParser(err),
             };
           } else {
-            debugger;
             return merge({}, error, err);
           }
         },
       }),
 
-      clearError: assign({ error: { xxx: {} } }),
+      clearError: assign({
+        error: {},
+      }),
     },
     services,
     guards: {
@@ -601,6 +600,7 @@ export default createMachine(
         const cleanBaseModel = omitBy(baseModel, isDeepEmpty);
         return isEmpty(basket_product) || !isEqual(cleanModel, cleanBaseModel);
       },
+      hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
       hasChanged: (
         { model, basket_id, currency_id, promotions }: ProductConfigContext,
@@ -613,7 +613,9 @@ export default createMachine(
         const isDirty =
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
 
+        const hasError = !isEmpty(data?.error);
         return (
+          hasError ||
           isDirty ||
           basket_id !== data?.id ||
           currency_id !== data?.currency_id ||

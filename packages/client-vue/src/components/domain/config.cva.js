@@ -65,10 +65,25 @@ export default {
         },
       },
       panel: {
-        wrapper: cva("px-4 py-8 shadow-inner sm:px-6 lg:px-20"),
+        wrapper: cva("px-4 shadow-inner sm:px-6 lg:px-20"),
         content: cva(
-          "mx-auto !min-h-min max-w-screen-2xl px-10 transition-all"
+          "mx-auto !min-h-min max-w-screen-2xl px-10  transition-all"
         ),
+        actions: cva("-mx-4 w-auto sm:-mx-6 lg:-mx-20 "),
+      },
+    },
+    transitions: {
+      fade: {
+        enter: {
+          active: cva("duration-300 ease-out"),
+          from: cva("transform opacity-0"),
+          to: cva("opacity-100"),
+        },
+        leave: {
+          active: cva("hidden duration-200 ease-in"),
+          from: cva("opacity-100"),
+          to: cva("transform opacity-0"),
+        },
       },
     },
   },

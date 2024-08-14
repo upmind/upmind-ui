@@ -79,13 +79,12 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     calculate:
-      | "REFRESH"
       | "UPDATED"
       | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
-    clearError: "RESET";
+    refreshContext: "REFRESH";
     resetModel: "RESET";
     setAttributes:
       | "SET.ATTRIBUTES"
@@ -93,18 +92,9 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
     setBaseModel: "UPDATED";
     setBasketHelper: "";
-    setContext:
-      | "ERROR"
-      | "PROCESSING"
-      | "REFRESH"
-      | "REMOVE"
-      | "REMOVED"
-      | "RESET"
-      | "UPDATED"
-      | "xstate.init";
+    setContext: "ERROR" | "PROCESSING" | "RESET" | "xstate.init";
     setError:
       | "ERROR"
-      | "REFRESH"
       | "error.platform.load"
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
@@ -138,6 +128,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasChanged: "REFRESH";
+    hasError: "done.state.configuring";
     hasSummaryData: "CALCULATED";
     isDirty: "done.state.configuring";
     isNew: "UPDATED";

@@ -113,7 +113,11 @@
         <!-- actions -->
         <div :class="styles.product.card.actions">
           <upw-button
-            :disabled="!meta.isConfigurable && !product?.canChangeQuantity"
+            :disabled="
+              meta.isLoading ||
+              meta.isProcessing ||
+              (!meta.isConfigurable && !product?.canChangeQuantity)
+            "
             :label="$t('product.actions.configure')"
             @click="doResolve"
             color="current"
@@ -128,6 +132,7 @@
             icon-only
             prependIcon="remove"
             type="button"
+            :disabled="meta.isLoading"
             :loading="meta.isProcessing"
           />
         </div>
