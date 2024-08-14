@@ -391,7 +391,7 @@ export default createMachine(
         ) => {
           return {
             // ---
-            currency_id, //useBrand().validateCurrency(currency_id),
+            currency_id: useBrand().validateCurrency(currency_id),
             promotions,
             // ---
             baseModel: !isEmpty(basket_product)
