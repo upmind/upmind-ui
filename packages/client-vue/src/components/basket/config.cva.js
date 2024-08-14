@@ -105,6 +105,17 @@ export default {
         item: cva("rounded-none border-b-0 last:rounded-b-lg"),
         footer: cva("flex justify-end gap-2 p-4 empty:hidden"),
       },
+      invalid: {
+        root: cva(
+          "bg-error text-error-content border-error gap-0 rounded-lg border"
+        ),
+        header: cva(
+          "flex items-center justify-center gap-2 px-6 py-1 text-center text-sm"
+        ),
+        content: cva("flex flex-col rounded-lg"),
+        item: cva("rounded-none border-b-0 last:rounded-b-lg"),
+        footer: cva("flex justify-end gap-2 p-4 empty:hidden"),
+      },
     },
 
     paymentDetails: {

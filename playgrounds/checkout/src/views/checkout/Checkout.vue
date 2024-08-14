@@ -204,7 +204,7 @@ export default defineComponent({
   directives: { "intersection-observer": vIntersectionObserver },
   setup() {
     const { meta: account, user } = useSession();
-    const { meta, summary, addItem, invoice, isReady } = useBasket();
+    const { state, meta, summary, addItem, invoice, isReady } = useBasket();
     const { update } = useBasketCurrency();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
@@ -272,6 +272,7 @@ export default defineComponent({
       mergeStyles,
       styles,
       // ---
+      state,
       meta,
       summary,
       // ---

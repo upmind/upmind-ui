@@ -61,7 +61,10 @@ export const useBrand = () => {
     },
     // ---
     hasModuleEnabled,
-    validateCurrency: (currency_id: string) => {
+    validateCurrency: async (currency_id: string) => {
+      // lets wait for the brand to be ready
+      await waitFor(service, state => state.matches("complete"));
+
       // if we dont have any currencies, then just return the given currency
       if (!state?.context?.currencies?.length) return currency_id;
 

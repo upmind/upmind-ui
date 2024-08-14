@@ -4,14 +4,11 @@
 import { useApi } from "../api";
 import { useBrand, BrandConfigKeys } from "../brand";
 
-import type { ProductConfigContext } from "./types.d";
-
 // --- utils
 import { useTime, useValidation } from "../../utils";
 import { parseQuantity, checkPriceOverride } from "./utils";
 
 import {
-  compact,
   concat,
   find,
   first,
@@ -32,6 +29,8 @@ import {
   times,
 } from "lodash-es";
 
+// --- types
+import type { ProductConfigContext, IProductModel } from "./types.d";
 // --------------------------------------------------------
 // ENUMS
 
@@ -55,49 +54,6 @@ export enum PromotionDisplayTypes {
 }
 
 // --------------------------------------------------------
-// HELPERS
-
-async function calculateBillingTerm(
-  period: DefaultPaymentPeriod,
-  availableTerms: any
-) {
-  // because we have multiple options, we need to select one base don the following strategy:
-
-  const { getConfig } = useBrand();
-
-  let term;
-
-  switch (period) {
-    case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(availableTerms, "price");
-      break;
-    case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(availableTerms, "price");
-      break;
-    case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(availableTerms, "monthly_price_from");
-      break;
-    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = await getConfig(
-        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-      ).then(config => {
-        const period = get(
-          config,
-          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-        );
-        return calculateBillingTerm(period, availableTerms);
-      });
-
-      break;
-
-    default:
-      term = first(availableTerms);
-      break;
-  }
-  return term;
-}
-
-// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
@@ -108,6 +64,10 @@ async function load(
 ) {
   const { product_id } = model;
   if (!product_id) return Promise.reject("No Product ID provided");
+
+  // lets ensure we have a valid currency > fallback to default
+  currency_id = await useBrand().validateCurrency(currency_id);
+  // ---
 
   const { get: getRequest, useUrl } = useApi();
   const productPromise = getRequest({
@@ -438,10 +398,49 @@ const calculateSummary = (
   }).then(({ data }) => pick(data, ["total", "total_formatted"]));
 };
 
+const calculateBillingTerm: IProductModel["term"] = async (
+  period: DefaultPaymentPeriod,
+  availableTerms: any
+) => {
+  // because we have multiple options, we need to select one base don the following strategy:
+
+  const { getConfig } = useBrand();
+
+  let term;
+
+  switch (period) {
+    case DefaultPaymentPeriod.HIGHEST_PRICE:
+      term = maxBy(availableTerms, "price");
+      break;
+    case DefaultPaymentPeriod.LOWEST_PRICE:
+      term = minBy(availableTerms, "price");
+      break;
+    case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
+      term = minBy(availableTerms, "monthly_price_from");
+      break;
+    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
+      term = await getConfig(
+        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+      ).then(config => {
+        const period = get(
+          config,
+          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+        );
+        return calculateBillingTerm(period, availableTerms);
+      });
+
+      break;
+
+    default:
+      term = first(availableTerms);
+      break;
+  }
+  return term;
+};
 // --------------------------------------------------------
 // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
-export function calculateSubscription(callback, onReceive) {
+export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
   let controller: AbortController | null;
 

@@ -5,6 +5,9 @@
       "text": " Great | Great choice | Great Choices",
       "pending": {
         "title": "Before we continue, we require additional details from you."
+      },
+      "invalid": {
+        "title": "Before we continue, we require additional details from you."
       }
     },
     "details": {
