@@ -50,10 +50,6 @@ export function spawnProductConfiguration(data: any, basket: IBasket) {
     }
   );
 
-  // item.onTransition(state => {
-  //   if (state.done) debugger;
-  // });
-
   return item;
 }
 

@@ -444,7 +444,7 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket", "refreshItems"],
+          actions: ["updateBasket", "refreshItems", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
@@ -607,6 +607,8 @@ export default createMachine(
               if (error) {
                 parseBasketProvisioningErrors(error, item, index);
               }
+            } else {
+              newItems.push(item);
             }
           });
 

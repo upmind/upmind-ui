@@ -797,7 +797,6 @@ export default createMachine(
       },
 
       hasItems: (_context, { data }) => {
-        debugger;
         return !!data?.length;
       },
 

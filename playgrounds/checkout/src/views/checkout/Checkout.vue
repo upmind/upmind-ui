@@ -263,7 +263,6 @@ export default defineComponent({
     const animationComplete = ref(false);
     const animationDuration = 1_000;
     const interval = setInterval(() => {
-      debugger;
       if (meta.value.isAvailable || !product) {
         animationComplete.value = true;
         clearInterval(interval);
