@@ -16,7 +16,6 @@
       <upw-steps
         :model-value="activeSection"
         :steps="steps"
-        :loading="meta.isLoading"
         @update:model-value="scrollTo"
       />
 
@@ -265,8 +264,8 @@ export default defineComponent({
     const animationDuration = 1_000;
     const interval = setInterval(() => {
       debugger;
-      if (meta.value.isAvailable) {
-        animationComplete.value = meta.value.isAvailable;
+      if (meta.value.isAvailable || !product) {
+        animationComplete.value = true;
         clearInterval(interval);
       }
     }, animationDuration);
