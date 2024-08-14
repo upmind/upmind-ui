@@ -148,7 +148,6 @@ async function sync({ basket_id, basket_products }, { data }) {
       return data;
     })
     .catch(error => {
-      debugger;
       forEach(dirty, item => item.send({ type: "ERROR" }));
       return Promise.reject(error);
     });

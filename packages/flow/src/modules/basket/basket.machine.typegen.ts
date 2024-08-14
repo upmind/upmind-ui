@@ -94,6 +94,7 @@ export interface Typegen0 {
     clearItems: "CLEAR" | "UNAUTHENTICATED";
     newController: "AUTHENTICATED" | "REFRESH" | "SESSION";
     refreshActors:
+      | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     refreshItems:

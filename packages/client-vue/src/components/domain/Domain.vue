@@ -209,7 +209,6 @@ export default defineComponent({
     },
   },
   beforeUnmount() {
-    debugger;
     this.destroy();
   },
 });
