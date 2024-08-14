@@ -122,9 +122,9 @@ export const useDomain = (
     model: computed(() => map(state.value.context.model, "domain")),
     type: computed(() => state.value.context.type),
     // ---
-    owned: computed(() => state.value.context.listings?.owned),
-    basket: computed(() => state.value.context.listings?.basket),
-    available: computed(() => state.value.context.listings?.searched),
+    owned: computed(() => state.value.context.lookups?.owned),
+    basket: computed(() => state.value.context.lookups?.basket),
+    available: computed(() => state.value.context.lookups?.searched),
 
     // ---
     errors: computed(() => state.value.context?.error),

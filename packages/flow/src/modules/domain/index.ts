@@ -7,7 +7,7 @@ import { DomainTypes } from "./types.d";
 export * from "./types.d";
 // --- utils
 import { useBasket } from "..";
-import { has, find, map } from "lodash-es";
+import { has, map } from "lodash-es";
 import { isArray } from "xstate/lib/utils";
 import { parseDomain } from "./utils";
 
@@ -18,7 +18,6 @@ export const useDomain = (
     model,
     sync,
     type,
-    parentId,
   }: {
     model?: Array<string> | string;
     sync?: boolean;
@@ -99,6 +98,6 @@ export const useDomain = (
     service, // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: service.getSnapshot,
-    destroy: () => service.stop,
+    destroy: () => service.stop(),
   };
 };

@@ -260,12 +260,17 @@ export default defineComponent({
 
     // ---------------------------------------------------
     // Create a min Animation time for the Loading Screen to prevent fout/jank
+    // but only 'complete' the animation once our basket is available, ie the products have been added
     const animationComplete = ref(false);
-    const animationDuration = 2_000;
+    const animationDuration = 1_000;
+    const interval = setInterval(() => {
+      debugger;
+      if (meta.value.isAvailable) {
+        animationComplete.value = meta.value.isAvailable;
+        clearInterval(interval);
+      }
+    }, animationDuration);
 
-    new Promise(resolve => setTimeout(resolve, animationDuration)).then(() => {
-      animationComplete.value = true;
-    });
     // ---------------------------------------------------
 
     return {

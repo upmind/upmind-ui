@@ -184,8 +184,11 @@ export const useBasket = () => {
     }),
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(items, item =>
-        machineMatches(item, ["available.complete"])
+      return filter(
+        items,
+        item =>
+          contextMatches(item?.state, ["basket_product"]) &&
+          !machineMatches(item, ["available.error"])
       );
     }),
     products: useContext(state, "basket.products", []),

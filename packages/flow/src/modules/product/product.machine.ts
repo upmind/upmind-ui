@@ -407,13 +407,13 @@ export default createMachine(
         }
       ),
       refreshContext: assign(
-        (_context: ProductConfigContext, { data }: ProductConfigEvent) => {
+        ({ model }: ProductConfigContext, { data }: ProductConfigEvent) => {
           const { basket_product, currency_id, promotions } = data;
 
           return {
             currency_id,
             promotions,
-            baseModel: parseBasketProduct(basket_product),
+            baseModel: parseBasketProduct(model),
             model: parseBasketProduct(basket_product),
             error: undefined,
           };

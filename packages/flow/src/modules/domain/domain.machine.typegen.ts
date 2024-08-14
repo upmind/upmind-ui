@@ -43,7 +43,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
+    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH" | "SYNCED";
     checkChoices: "" | "ERROR" | "FETCHED";
     checkModel: "CHOOSE" | "STOP" | "xstate.init";
     clearError:
@@ -53,8 +53,9 @@ export interface Typegen0 {
       | "REFRESH"
       | "REMOVE"
       | "SEARCH"
+      | "SYNCED"
       | "UPDATE";
-    clearListings: "CHOOSE" | "RESET" | "STOP" | "xstate.init";
+    clearLookups: "CHOOSE" | "RESET" | "STOP" | "xstate.init";
     clearModel: "CHOOSE" | "STOP" | "UPDATE" | "xstate.stop";
     clearSearch: "RESET";
     ensurePrimary:
@@ -65,7 +66,7 @@ export interface Typegen0 {
       | "STOP"
       | "UPDATE"
       | "xstate.init";
-    fetchBasket: "" | "CHOOSE" | "SYNCED";
+    fetchBasket: "" | "CHOOSE";
     newController: "" | "CHOOSE" | "REFRESH" | "SEARCH";
     persistModel: "CHOOSE" | "STOP" | "xstate.init";
     remove: "REMOVE";

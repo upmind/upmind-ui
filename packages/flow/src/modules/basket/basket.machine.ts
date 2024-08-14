@@ -9,7 +9,7 @@ import { useFeedback } from "../feedback";
 const { addError, addSuccess, trackEvent } = useFeedback();
 
 // --- utils
-import { useTime, useValidationParser } from "../../utils";
+import { useTime } from "../../utils";
 import {
   parseBasket,
   parseBasketProvisioningErrors,
@@ -25,11 +25,9 @@ import {
 import {
   differenceBy,
   every,
-  filter,
   find,
   findIndex,
   forEach,
-  get,
   includes,
   isEmpty,
   isEqual,
@@ -446,8 +444,7 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket"],
-          // actions: ["updateBasket", "refreshItems", "refreshActors"],
+          actions: ["updateBasket", "refreshItems"],
           cond: "hasNewBasket",
         },
         {
@@ -584,6 +581,7 @@ export default createMachine(
         items: ({ items, error }, { data }) => {
           const basket = parseBasket(data);
           const products = basket?.products || [];
+          const newItems = [];
 
           // First Refresh any existing items ...
           // Refresh and that are still in active state
@@ -592,8 +590,10 @@ export default createMachine(
             const product = find(products, ["id", item?.id]);
 
             if (item?.state?.done) {
-              items.splice(index, 1);
+              // do nothing
             } else if (product) {
+              newItems.push(item);
+
               item.send({
                 type: "REFRESH",
                 data: {
@@ -622,11 +622,11 @@ export default createMachine(
               parseBasketProvisioningErrors(error, item, index);
             }
 
-            items.push(item);
+            newItems.push(item);
           });
 
           // ---
-          return items;
+          return newItems;
         },
       }),
 
@@ -798,11 +798,11 @@ export default createMachine(
 
       isNotLoading: ({ items, actors }) => {
         return (
-          every(
-            actors,
-            actor =>
-              !["loading", "available.loading"].some(actor?.state.matches)
-          ) &&
+          // every(
+          //   actors,
+          //   actor =>
+          //     !["loading", "available.loading"].some(actor?.state.matches)
+          // ) &&
           every(
             items,
             actor => !["subscribing", "loading"].some(actor?.state.matches)
