@@ -10,7 +10,7 @@ const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { useBasketFieldsModelParser } from "../utils";
+import { parseBasketFieldsModel } from "../utils";
 
 // --- types
 import type { FieldsContext, FieldsEvent } from "./types.d";
@@ -172,7 +172,7 @@ export default createMachine(
         (_context: FieldsContext, { data: basket }: FieldsEvent) => {
           return {
             basket_id: basket?.id,
-            model: useBasketFieldsModelParser(basket),
+            model: parseBasketFieldsModel(basket),
           };
         }
       ),

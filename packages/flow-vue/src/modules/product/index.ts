@@ -26,18 +26,20 @@ export const useProductConfig = actor => {
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
   // syntactic sugar
-  const product = computed(() => state.value.context.lookups.product);
-  const terms = computed(() => state.value.context.lookups.terms);
-  const attributes = computed(() => state.value.context.lookups.attributes);
-  const options = computed(() => state.value.context.lookups.options);
-  const fields = computed(() => state.value.context.lookups.provision_fields);
+  const product = computed(() => state.value.context?.lookups?.product);
+  const terms = computed(() => state.value.context?.lookups?.terms);
+  const attributes = computed(() => state.value.context?.lookups?.attributes);
+  const options = computed(() => state.value.context?.lookups?.options);
+  const fields = computed(() => state.value.context?.lookups?.provision_fields);
   // ---
   const errors = computed(() => state.value.context.error);
   const meta = computed(() => ({
-    isLoading: state.value.matches("loading"),
+    isLoading: ["subscribing", "loading"].some(state.value.matches),
     isNew: state.value.context.isNew,
     isDirty: state.value.context.isDirty,
-    hasErrors: state.value.matches("error") || !isEmpty(errors.value),
+    hasErrors:
+      ["available.error", "error"].some(state.value.matches) ||
+      !isEmpty(errors.value),
     isConfigurable:
       // !isEmpty(state.value?.context?.lookups?.terms) ||
       !isEmpty(state.value?.context?.lookups?.attributes) ||
@@ -50,16 +52,16 @@ export const useProductConfig = actor => {
     isProcessing: ["processing", "complete"].some(state.value.matches),
     // ---
     hasProvisioning:
-      !isEmpty(state.value.context.lookups.provision_fields?.properties) &&
+      !isEmpty(state.value.context?.lookups?.provision_fields?.properties) &&
       !!state.value?.context?.model?.provision_fields,
     hasAttributes:
-      !isEmpty(state.value.context.lookups.attributes) &&
+      !isEmpty(state.value.context?.lookups?.attributes) &&
       !!state.value?.context?.model?.attributes,
     hasOptions:
-      !isEmpty(state.value.context.lookups.options) &&
+      !isEmpty(state.value.context?.lookups?.options) &&
       !!state.value?.context?.model?.options,
     hasTerms:
-      !isEmpty(state.value.context.lookups.terms) &&
+      !isEmpty(state.value.context?.lookups?.terms) &&
       !!state.value?.context?.model?.term,
   }));
 

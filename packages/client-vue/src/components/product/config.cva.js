@@ -19,6 +19,10 @@ export default {
               // true: "pointer-events-none",
             },
 
+            hasErrors: {
+              true: "border-error",
+            },
+
             // isNew: {
             //   true: "rounded-none border-none",
             // },

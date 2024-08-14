@@ -11,13 +11,14 @@ const { addError, addSuccess, trackEvent } = useFeedback();
 // --- utils
 import { useTime, useValidationParser } from "../../utils";
 import {
-  useBasketParser,
-  useSummaryParser,
-  spawnProductConfiguration,
+  parseBasket,
+  parseBasketProvisioningErrors,
+  parseSummary,
   spawnBillingDetails,
   spawnCurrency,
   spawnCustomFields,
   spawnPaymentDetails,
+  spawnProductConfiguration,
   spawnPromotions,
 } from "./utils";
 
@@ -29,13 +30,10 @@ import {
   findIndex,
   forEach,
   get,
-  set,
-  isNil,
   includes,
   isEmpty,
   isEqual,
   map,
-  reduce,
   some,
 } from "lodash-es";
 
@@ -102,7 +100,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "actors",
-                actions: ["updateBasket", "setError", "loadItems"],
+                actions: ["setError", "updateBasket"],
               },
               onError: {
                 target: "#error",
@@ -110,8 +108,9 @@ export default createMachine(
               },
             },
           },
+
           actors: {
-            entry: ["spawnActors"],
+            entry: ["refreshItems", "spawnActors"],
             always: [
               {
                 target: "#shopping",
@@ -130,7 +129,7 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "#shopping",
-            actions: ["updateBasket", "refreshActors"],
+            actions: ["setError", "updateBasket", "refreshItems"],
           },
           onError: {
             target: "#error",
@@ -146,7 +145,12 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: ["updateBasket", "refreshActors"],
+            actions: [
+              "setError",
+              "updateBasket",
+              "refreshItems",
+              "refreshActors",
+            ],
           },
           onError: { target: "#error" },
         },
@@ -173,7 +177,12 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
-                    actions: ["updateBasket", "reloadItems", "refreshActors"],
+                    actions: [
+                      "setError",
+                      "updateBasket",
+                      "refreshItems",
+                      "refreshActors",
+                    ],
                   },
                   onError: {
                     target: "#error",
@@ -438,7 +447,7 @@ export default createMachine(
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
           actions: ["updateBasket"],
-          // actions: ["updateBasket", "reloadItems", "refreshActors"],
+          // actions: ["updateBasket", "refreshItems", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
@@ -456,14 +465,14 @@ export default createMachine(
     actions: {
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
-          useBasketParser(data),
+          parseBasket(data),
         summary: (_context: BasketContext, { data }: BasketEvent) =>
-          useSummaryParser(useBasketParser(data)),
+          parseSummary(parseBasket(data)),
       }),
 
       clearBasket: assign({
         basket: undefined,
-        summary: useSummaryParser(),
+        summary: parseSummary(),
         error: undefined,
       }),
 
@@ -544,45 +553,6 @@ export default createMachine(
             actor.send({ type: "REFRESH", data: basket });
           }
         });
-
-        forEach(items, item => {
-          const product = find(basket?.products, ["id", item?.id]);
-          const productIndex = findIndex(basket?.products, ["id", item?.id]);
-          let parsedError = null;
-          // const parsedError = parseError(error, item, items);
-          if (error && product) {
-            const productErrors = get(
-              error,
-              `data.products.${productIndex}`,
-              []
-            );
-            parsedError = reduce(
-              productErrors,
-              (result, value) => {
-                const validationErrors = useValidationParser({ data: value });
-                // we have an error for this product
-                set(result, "provision_fields", validationErrors);
-                return result;
-              },
-              {}
-            );
-
-            //   error?.data,
-            //   `error.products[${productIndex}]`
-            // );
-          }
-
-          item.send({
-            type: "REFRESH",
-            data: {
-              basket_product: product,
-              id: basket?.id,
-              currency_id: basket?.currency_id,
-              promotions: basket?.promotions || [],
-              error: parsedError,
-            },
-          });
-        });
       }),
 
       clearActors: assign({
@@ -610,67 +580,59 @@ export default createMachine(
 
       // --- Configuring Items Actions
 
-      loadItems: assign({
-        items: ({ items, basket }, { data }) => {
-          const basket_id = data?.id || basket?.id;
-          const products = data?.products || basket?.products || [];
-          const promotions = data?.promotions || basket?.promotions || [];
-          const currency_id = data?.currency_id || basket?.currency_id;
-          // ---
-          forEach(products, product => {
-            // TODO: check if the item already exists
-            // const item = find(items, ["id", product.id]);
+      refreshItems: assign({
+        items: ({ items, error }, { data }) => {
+          const basket = parseBasket(data);
+          const products = basket?.products || [];
 
-            const machine = spawnProductConfiguration(
-              product,
-              basket_id,
-              currency_id,
-              promotions
-            );
-            items.push(machine);
-          });
-          return items;
-        },
-      }),
+          // First Refresh any existing items ...
+          // Refresh and that are still in active state
+          // Remove any items that are done
+          forEach(items, (item, index) => {
+            const product = find(products, ["id", item?.id]);
 
-      reloadItems: assign({
-        items: ({ items, basket }, { data }) => {
-          const promotions = data?.basket?.promotions || [];
-          const currency_id = data?.basket?.currency_id;
-          const basket_id = data?.basket?.id;
+            if (item?.state?.done) {
+              items.splice(index, 1);
+            } else if (product) {
+              item.send({
+                type: "REFRESH",
+                data: {
+                  basket_product: product,
+                  id: basket?.id,
+                  currency_id: basket?.currency_id,
+                  promotions: basket?.promotions || [],
+                },
+              });
 
-          // ---
-          // FIRST Remove any stopped items
-          const stopped = filter(items, item => item?.state?.done);
-          forEach(stopped, item => {
-            const index = findIndex(items, ["id", item.id]);
-            items.splice(index, 1);
+              if (error) {
+                parseBasketProvisioningErrors(error, item, index);
+              }
+            }
           });
 
           // ---
-          // THEN add any new items
-          const missing = differenceBy(data?.basket?.products, items, "id");
+          // finally add any new items
+          const missing = differenceBy(products, items, "id");
           forEach(missing, product => {
-            const machine = spawnProductConfiguration(
-              product,
-              basket_id,
-              currency_id,
-              promotions
-            );
-            items.push(machine);
+            const index = findIndex(basket?.products, ["id", product?.id]);
+
+            const item = spawnProductConfiguration(product, basket);
+
+            if (error) {
+              parseBasketProvisioningErrors(error, item, index);
+            }
+
+            items.push(item);
           });
+
+          // ---
           return items;
         },
       }),
 
       addItem: assign({
         items: ({ items, basket }, { data }) => {
-          const machine = spawnProductConfiguration(
-            data,
-            basket?.id,
-            basket?.currency_id,
-            basket?.promotions
-          );
+          const machine = spawnProductConfiguration(data, basket);
 
           items.push(machine);
           return items;
@@ -681,7 +643,7 @@ export default createMachine(
         items: ({ items }, _event) => {
           forEach(items, item => {
             if (item?.send && !item?.state?.done) {
-              item.send({ type: "BIN" });
+              item.send({ type: "REMOVE" });
             }
           });
           return [];
@@ -841,7 +803,7 @@ export default createMachine(
           //   actor =>
           //     !["loading", "available.loading"].some(actor?.state.matches)
           // ) &&
-          every(items, actor => !actor?.state.matches("loading"))
+          every(items, actor => actor?.state.matches("available"))
         );
       },
 

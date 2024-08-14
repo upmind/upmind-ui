@@ -1,5 +1,6 @@
 // --- external
 import { spawn } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import productMachine from "../product/product.machine";
@@ -10,7 +11,19 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import { get, map, compact, uniq, reduce, set, uniqueId } from "lodash-es";
+import { useValidationParser } from "../../utils";
+import {
+  get,
+  map,
+  compact,
+  uniq,
+  reduce,
+  set,
+  uniqueId,
+  find,
+  findIndex,
+  isEmpty,
+} from "lodash-es";
 
 // --- types
 import { TaxTagTypes } from "./types.d";
@@ -19,22 +32,17 @@ import type { IBasket } from "./types.d";
 // --------------------------------------------------------
 
 // utility function to spawn machines based on the given items
-export function spawnProductConfiguration(
-  data: any,
-  basket_id?: string,
-  currency_id?: IBasket["currency_id"],
-  promotions?: IBasket["promotions"]
-) {
+export function spawnProductConfiguration(data: any, basket: IBasket) {
   const id = data?.id || uniqueId("product-");
   const isBasketProduct = data?.id ? true : false;
 
   return spawn(
     productMachine.withContext({
       id,
-      basket_id,
+      basket_id: basket?.id,
       [isBasketProduct ? "basket_product" : "model"]: data,
-      currency_id,
-      promotions,
+      currency_id: basket?.currency_id,
+      promotions: basket?.promotions,
     }),
     {
       name: id,
@@ -71,7 +79,7 @@ export function spawnCustomFields(basket: IBasket) {
   return spawn(
     customFieldsMachine.withContext({
       basket_id: basket?.id,
-      model: useBasketFieldsModelParser(basket),
+      model: parseBasketFieldsModel(basket),
     }),
     { name: "customFields", sync: true }
   );
@@ -102,7 +110,7 @@ export function spawnPromotions(basket: IBasket) {
 
 // --------------------------------------------------------
 
-export const useBasketParser = (data: any) => {
+export const parseBasket = (data: any) => {
   const basket = get(data, "basket", data);
 
   // TODO:...map properly...
@@ -112,7 +120,7 @@ export const useBasketParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = (data?: any) => {
+export const parseSummary = (data?: any) => {
   const summary = {
     products: map(get(data, "products"), product => {
       return {
@@ -181,7 +189,7 @@ export const parseTaxTagName = (tag: any) => {
 // --------------------------------------------------------
 // Fields
 
-export const useBasketFieldsModelParser = (basket: any, data = {}) => {
+export const parseBasketFieldsModel = (basket: any, data = {}) => {
   const notes = get(basket, "notes", get(data, "notes"));
   const custom_fields = reduce(
     get(basket, "custom_fields"),
@@ -196,4 +204,26 @@ export const useBasketFieldsModelParser = (basket: any, data = {}) => {
     notes,
     custom_fields,
   };
+};
+
+export const parseBasketProvisioningErrors = (error, item, index) => {
+  // now pass any provisioning errors to the item
+  if (error) {
+    const errors = get(
+      error,
+      `data.products.${index}.provision_field_values`,
+      []
+    );
+    if (!isEmpty(errors)) {
+      const parsedError = {
+        provision_fields: useValidationParser({
+          data: errors,
+        }),
+      };
+
+      waitFor(item, state => state.matches("available")).then(() => {
+        item.send({ type: "ERROR", data: { error: parsedError } });
+      });
+    }
+  }
 };

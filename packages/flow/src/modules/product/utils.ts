@@ -3,7 +3,7 @@ import { useSystem } from "../system";
 import { TrialEndActionTypes } from "./services";
 
 // --- utils
-import { useTranslateName } from "../../utils";
+import { useTranslateName, useValidationParser } from "../../utils";
 import {
   find,
   forEach,
@@ -569,33 +569,4 @@ export const buildBasketItem = (data: any) => {
   };
 
   return config;
-};
-
-export const parseAddirtionalErrors = (error: any) => {
-  if (error?.data) {
-    error.message = "Validation error";
-
-    const errors = [];
-
-    forEach(error.data, (value, key) => {
-      // because we have a specific schema for provision_fields, we dont need the prefix of the path
-      const instancePath = key.replace("provision_field_values.", "");
-      // handle any nested properties correctly, JSON schema would have them withing properties
-      instancePath.replace(".", "/properties/");
-
-      const newError = {
-        instancePath: `/${instancePath}`, // AJV style path to the property in the schema
-        message: value.toString(), // in case the message is an array
-        // --- optional
-        schemaPath: "",
-        keyword: "",
-        params: {},
-      };
-      errors.push(newError);
-    });
-
-    error.data = errors;
-  }
-
-  return error;
 };

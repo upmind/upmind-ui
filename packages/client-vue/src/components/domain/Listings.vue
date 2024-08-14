@@ -4,8 +4,6 @@
     size="2xl"
     :title="title"
     :model-value="!!items.length || meta.isLoading"
-    @reject="onClose"
-    @update:modelValue="onClose"
     v-show="!!items.length || meta.isLoading"
   >
     <section :class="styles.domain.listings.root">
@@ -13,13 +11,21 @@
         <slot name="header" v-bind="{ meta }"></slot>
       </header>
 
-      <upw-skeleton-list
-        :class="styles.domain.listings.loading"
-        v-if="meta.isLoading"
-      />
+      <transition
+        :enter-active-class="styles.domain.transitions.fade.enter.active"
+        :enter-from-class="styles.domain.transitions.fade.enter.from"
+        :enter-to-class="styles.domain.transitions.fade.enter.to"
+        :leave-active-class="styles.domain.transitions.fade.leave.active"
+        :leave-from-class="styles.domain.transitions.fade.leave.from"
+        :leave-to-class="styles.domain.transitions.fade.leave.to"
+      >
+        <upw-skeleton-list
+          :class="styles.domain.listings.loading"
+          v-if="meta.isLoading"
+          :rows="3"
+        />
 
-      <template v-else>
-        <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
+        <slot name="empty" v-bind="{ meta }" v-else-if="meta.isEmpty">
           <upm-empty />
         </slot>
 
@@ -157,7 +163,7 @@
             </div>
           </template>
         </upw-checkbox-list>
-      </template>
+      </transition>
     </section>
   </component>
 </template>
@@ -225,6 +231,8 @@ export default defineComponent({
         "domain.card",
         "domain.card.available",
         "domain.card.transfer",
+        "domain.transitions.fade.enter",
+        "domain.transitions.fade.leave",
       ],
       meta,
       config
@@ -254,8 +262,6 @@ export default defineComponent({
     },
   },
   methods: {
-    onClose() {},
-
     isSelected(value) {
       return includes(this.modelValue, value);
     },

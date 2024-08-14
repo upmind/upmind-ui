@@ -13,18 +13,11 @@ import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 import {
   compact,
   concat,
-  differenceBy,
-  filter,
-  find,
-  first,
   forEach,
-  get,
   has,
   isEmpty,
   map,
-  merge,
   reduce,
-  reject,
   set,
 } from "lodash-es";
 
@@ -221,6 +214,7 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   // return the 'updated' basket once all the provisioning fields have been fetched
   return Promise.all(provisioningPromises).then(([provisioningErrors]) => {
     // provisioningErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
+
     if (has(provisioningErrors, "data")) {
       provisioningErrors.data = reduce(
         provisioningErrors.data,
