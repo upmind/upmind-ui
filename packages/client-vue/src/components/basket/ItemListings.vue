@@ -38,6 +38,32 @@
       </div>
     </aside>
 
+    <!-- invalid items -->
+    <aside
+      :class="
+        mergeStyles(
+          styles.basket.items.content,
+          styles.basket.items.invalid.root
+        )
+      "
+      v-if="!meta.isLoading && itemsInvalid?.length"
+    >
+      <header :class="styles.basket.items.invalid.header">
+        {{ $t("basket.items.invalid.title") }}
+      </header>
+
+      <div :class="styles.basket.items.invalid.content">
+        <upm-basket-item
+          v-for="(item, index) in itemsInvalid"
+          :selected="index === 0"
+          :key="item.id"
+          :model-value="item.id"
+          :item="item"
+          :class="styles.basket.items.invalid.item"
+        />
+      </div>
+    </aside>
+
     <!-- configured items -->
     <div :class="styles.basket.items.content">
       <template v-if="!meta.isLoading && itemsConfigured?.length">
@@ -76,10 +102,11 @@ export default defineComponent({
   components: { UpmBasketItem },
   props: {},
   setup() {
-    const { meta, items, itemsPending, itemsConfigured } = useBasket();
+    const { meta, items, itemsPending, itemsInvalid, itemsConfigured } =
+      useBasket();
 
     const styles = useStyles(
-      ["basket.items", "basket.items.pending"],
+      ["basket.items", "basket.items.pending", "basket.items.invalid"],
       meta,
       config
     );
@@ -90,6 +117,7 @@ export default defineComponent({
       meta,
       items,
       itemsPending,
+      itemsInvalid,
       itemsConfigured,
       // ---
       styles,

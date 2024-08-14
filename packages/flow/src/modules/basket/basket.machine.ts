@@ -798,12 +798,15 @@ export default createMachine(
 
       isNotLoading: ({ items, actors }) => {
         return (
-          // every(
-          //   actors,
-          //   actor =>
-          //     !["loading", "available.loading"].some(actor?.state.matches)
-          // ) &&
-          every(items, actor => actor?.state.matches("available"))
+          every(
+            actors,
+            actor =>
+              !["loading", "available.loading"].some(actor?.state.matches)
+          ) &&
+          every(
+            items,
+            actor => !["subscribing", "loading"].some(actor?.state.matches)
+          )
         );
       },
 

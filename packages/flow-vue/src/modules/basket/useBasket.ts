@@ -65,12 +65,6 @@ export const useBasket = () => {
     meta: computed(() => {
       return {
         isLoading: stateMatches(state, ["subscribing", "loading"]), //
-        // || machineMatches(actors.value.currency, ["loading"])
-        // || machineMatches(actors.value.customFields, ["loading"])
-        // || machineMatches(actors.value.promotions, ["loading"]),
-        // || some(contextValue(state, "items"), item =>
-        //   machineMatches(item, ["loading"])
-        // ),
 
         isProcessing:
           stateMatches(state, [
@@ -179,10 +173,19 @@ export const useBasket = () => {
         item => !contextMatches(item?.state, ["basket_product"])
       );
     }),
+    itemsInvalid: computed(() => {
+      const items = contextActor(state, "items", []);
+      return filter(
+        items,
+        item =>
+          contextMatches(item?.state, ["basket_product"]) &&
+          machineMatches(item, ["available.error"])
+      );
+    }),
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
       return filter(items, item =>
-        contextMatches(item?.state, ["basket_product"])
+        machineMatches(item, ["available.complete"])
       );
     }),
     products: useContext(state, "basket.products", []),
