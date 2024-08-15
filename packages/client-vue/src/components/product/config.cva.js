@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base text-base-content  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
+        "bg-base text-base-content relative  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
         {
           variants: {
             isProcessing: {
@@ -21,6 +21,10 @@ export default {
 
             hasErrors: {
               true: "border-error",
+            },
+
+            isNew: {
+              true: "border-accent",
             },
 
             // isNew: {
@@ -91,6 +95,16 @@ export default {
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       image: cva("h-full w-full object-cover"),
       actions: cva("flex items-center gap-2"),
+      actionConfigure: cva("relative", {
+        variants: {
+          // hasErrors: {
+          //   true: "motion-safe:animate-pulse",
+          // },
+          // isNew: {
+          //   true: "motion-safe:animate-pulse",
+          // },
+        },
+      }),
       summary: cva("inline-flex flex-col"),
       // ---
       details: {
@@ -105,16 +119,35 @@ export default {
     },
 
     config: {
-      root: cva(
-        "bg-base text-base-content  flex flex-wrap items-start gap-x-2 rounded-lg border",
+      root: cva("bg-base text-base-content overflow-hidden rounded-lg border", {
+        variants: {
+          isDisabled: {
+            true: "pointer-events-none",
+          },
+          hasErrors: {
+            true: "border-error",
+          },
+          isNew: {
+            true: "border-accent",
+          },
+        },
+      }),
+
+      header: cva(
+        "flex items-center justify-center gap-2  px-6 py-1 text-center text-sm",
         {
           variants: {
-            isDisabled: {
-              true: "pointer-events-none",
+            hasErrors: {
+              true: "bg-error text-error-content",
+            },
+            isNew: {
+              true: "bg-accent text-accent-content",
             },
           },
         }
       ),
+
+      content: cva("flex flex-wrap  items-start gap-x-2"),
 
       media: cva("m-10 mr-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
@@ -123,14 +156,13 @@ export default {
           },
         },
       }),
-
       wrapper: cva(
         "flex w-full flex-1 flex-wrap items-stretch gap-x-6 gap-y-16 p-10 "
       ),
 
-      header: cva("flex w-full flex-wrap items-end gap-x-10"),
+      heading: cva("flex w-full flex-wrap items-end gap-x-10"),
 
-      headerContent: cva("flex w-full flex-1 flex-wrap items-start gap-2 "),
+      headingContent: cva("flex w-full flex-1 flex-wrap items-start gap-2 "),
 
       summary: cva("inline-flex items-end gap-x-6 gap-y-6", {
         variants: {
@@ -140,7 +172,7 @@ export default {
         },
       }),
 
-      content: cva(
+      fields: cva(
         "flex w-full flex-none flex-wrap items-start gap-x-6 gap-y-8 empty:hidden "
       ),
 

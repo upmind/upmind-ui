@@ -84,6 +84,7 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
+    clearError: "PROCESSING" | "REMOVE" | "UPDATE";
     refreshContext: "REFRESH";
     resetModel: "RESET";
     setAttributes:
@@ -92,15 +93,15 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
     setBaseModel: "UPDATED";
     setBasketHelper: "";
-    setContext: "ERROR" | "PROCESSING" | "RESET" | "xstate.init";
+    setContext: "PROCESSING" | "RESET" | "xstate.init";
     setError:
-      | "ERROR"
       | "error.platform.load"
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
+    setExternalError: "ERROR";
     setLookups: "done.invoke.load";
     setModel: "SET";
     setOptions:
@@ -142,7 +143,6 @@ export interface Typegen0 {
   eventsCausingServices: {
     checkAttributes:
       | "CHECK.ATTRIBUTES"
-      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -154,7 +154,6 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkOptions:
       | "CHECK.OPTIONS"
-      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -165,7 +164,6 @@ export interface Typegen0 {
       | "UPDATED"
       | "done.invoke.load";
     checkProvisioning:
-      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -177,7 +175,6 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkQuantity:
       | "CHECK.QUANTITY"
-      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -189,7 +186,6 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkTerm:
       | "CHECK.TERM"
-      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"

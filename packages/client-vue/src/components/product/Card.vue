@@ -112,28 +112,35 @@
 
         <!-- actions -->
         <div :class="styles.product.card.actions">
+          <slot name="badges"></slot>
+
           <upw-button
             :disabled="
               meta.isLoading ||
               meta.isProcessing ||
               (!meta.isConfigurable && !product?.canChangeQuantity)
             "
+            :color="
+              meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'
+            "
             :label="$t('product.actions.configure')"
             @click="doResolve"
-            color="current"
             icon-only
             prependIcon="edit"
             type="button"
+            variant="ghost"
           />
+
           <upw-button
+            :disabled="meta.isLoading"
             :label="$t('product.actions.remove')"
+            :loading="meta.isProcessing"
             @click="doReject"
             color="current"
             icon-only
             prependIcon="remove"
             type="button"
-            :disabled="meta.isLoading"
-            :loading="meta.isProcessing"
+            variant="ghost"
           />
         </div>
       </footer>

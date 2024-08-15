@@ -2,6 +2,7 @@
   <upm-product-config
     v-if="open"
     v-bind="$props"
+    :class="'styles.basket.item'"
     :processing="meta.isProcessing"
     @reject="open = false"
     @resolve="doResolve"
@@ -10,23 +11,56 @@
     @update:provisioning="updateProvisioning"
     @update:quantity="updateQuantity"
     @update:term="updateTerm"
-  />
+  >
+    <template #header>
+      <span v-if="meta.isNew">{{ $t("basket.items.pending.title") }}</span>
+      <span v-else-if="meta.hasErrors">{{
+        $t("basket.items.invalid.title")
+      }}</span>
+    </template>
+  </upm-product-config>
   <upm-product-card
     v-else
     v-bind="$props"
+    :class="'styles.basket.item'"
     @reject="removeItem"
     @resolve="open = true"
-  />
+  >
+    <template #badges>
+      <upw-badge
+        v-if="meta.isNew"
+        color="accent"
+        variant="flat"
+        :class="styles.basket.item.ping.root"
+      >
+        {{ $t("basket.items.pending.badge") }}
+        <!-- <span :class="styles.basket.item.ping.wrapper">
+          <span :class="styles.basket.item.ping.overlay"></span>
+        </span> -->
+      </upw-badge>
+      <upw-badge
+        v-else-if="meta.hasErrors"
+        color="error"
+        variant="flat"
+        :class="styles.basket.item.ping.root"
+      >
+        {{ $t("basket.items.invalid.badge") }}
+        <!-- <span :class="styles.basket.item.ping.wrapper">
+          <span :class="styles.basket.item.ping.overlay"></span>
+        </span> -->
+      </upw-badge>
+    </template>
+  </upm-product-card>
 </template>
 
 <script>
 // --- external
-import { defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
 import { useBasket, utils } from "@upmind/flow-vue";
-const { stateMatches } = utils;
-import { useStyles, mergeStyles } from "@upmind/upwind";
+const { stateMatches, contextMatches, machineMatches } = utils;
+import { useStyles, mergeStyles, UpwBadge } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -38,7 +72,7 @@ import UpmProductConfig from "../product/Config.vue";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketItem",
-  components: { UpmProductCard, UpmProductConfig },
+  components: { UpmProductCard, UpmProductConfig, UpwBadge },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
@@ -66,9 +100,18 @@ export default defineComponent({
       updateTerm,
     } = useBasket();
 
+    const itemMeta = computed(() => ({
+      isLoading: meta.value.isLoading,
+      isProcessing: meta.value.isProcessing,
+      isNew: !contextMatches(props.item, ["basket_product"]),
+      hasErrors:
+        contextMatches(props.item, ["basket_product"]) &&
+        machineMatches(props.item, ["available.error"]),
+    }));
+
     const styles = useStyles(
-      ["basket.item", "basket.item.details"],
-      meta,
+      ["basket.item", "basket.item.ping"],
+      itemMeta,
       config
     );
     // ---
@@ -84,7 +127,7 @@ export default defineComponent({
     // ---
 
     return {
-      meta,
+      meta: itemMeta,
       removeItem,
       updateItem,
       updateAttributes,

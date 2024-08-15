@@ -35,8 +35,8 @@ export const useProductConfig = actor => {
   const errors = computed(() => state.value.context.error);
   const meta = computed(() => ({
     isLoading: ["subscribing", "loading"].some(state.value.matches),
-    isNew: state.value.context.isNew,
-    isDirty: state.value.context.isDirty,
+    isNew: isEmpty(state.value.context.basket_product),
+    isDirty: !isEmpty(state.value.context.basket_product),
     hasErrors:
       ["available.error", "error"].some(state.value.matches) ||
       !isEmpty(errors.value),
