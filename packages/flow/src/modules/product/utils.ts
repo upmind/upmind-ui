@@ -299,51 +299,55 @@ export const parseProvisioningSchema = (data: any) => {
   const required: string[] = [];
   const properties = {};
   forEach(data, field => {
-    if (field.required) required.push(field.name);
-
-    let type = "string";
+    let type = ["string"];
     let format = field?.semantic_type;
 
     // lets map our field types...
     switch (field.type) {
       case "input_number":
-        type = "number";
+        type = ["number"];
         break;
       case "input-checkbox":
-        type = "boolean";
+        type = ["boolean"];
         break;
       case "input_date":
-        type = "string";
+        type = ["string"];
         format = "date";
         break;
       case "input_datetime":
-        type = "string";
+        type = ["string"];
         format = "date-time";
         break;
       case "input_email":
-        type = "string";
+        type = ["string"];
         format = "email";
         break;
       case "input_url":
-        type = "string";
+        type = ["string"];
         format = "uri";
         break;
       case "input_phone":
-        type = "string";
+        type = ["string"];
         format = "phone";
         break;
       case "input_ip":
-        type = "string";
+        type = ["string"];
         format = "ipv4";
         break;
       case "input_ipv6":
-        type = "string";
+        type = ["string"];
         format = "ipv6";
         break;
 
       default:
-        type = "string";
+        type = ["string"];
         break;
+    }
+
+    if (field.required) {
+      required.push(field.name);
+    } else {
+      type.push("null");
     }
 
     const schema = {

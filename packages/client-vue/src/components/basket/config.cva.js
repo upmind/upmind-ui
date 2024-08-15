@@ -92,29 +92,41 @@ export default {
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
       text: cva("text-base-700 m-0 text-lg font-light leading-7"),
+    },
 
-      // ---
-      pending: {
+    item: {
+      root: cva("", {}),
+      ping: {
         root: cva(
-          "bg-accent text-accent-content border-accent gap-0 rounded-lg border"
+          "!absolute right-1/2 top-0	translate-x-1/2 !rounded-b-lg !rounded-t-none"
         ),
-        header: cva(
-          "flex items-center justify-center gap-2 px-6 py-1 text-center text-sm"
+        wrapper: cva(
+          "absolute right-0 top-0 -mr-1 mt-1 flex size-2 rounded-full opacity-75",
+          {
+            variants: {
+              hasErrors: {
+                true: "bg-error",
+              },
+              isNew: {
+                true: "bg-accent",
+              },
+            },
+          }
         ),
-        content: cva("flex flex-col rounded-lg"),
-        item: cva("rounded-none border-b-0 last:rounded-b-lg"),
-        footer: cva("flex justify-end gap-2 p-4 empty:hidden"),
-      },
-      invalid: {
-        root: cva(
-          "bg-error text-error-content border-error gap-0 rounded-lg border"
+
+        overlay: cva(
+          "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+          {
+            variants: {
+              hasErrors: {
+                true: "bg-error",
+              },
+              isNew: {
+                true: "bg-accent",
+              },
+            },
+          }
         ),
-        header: cva(
-          "flex items-center justify-center gap-2 px-6 py-1 text-center text-sm"
-        ),
-        content: cva("flex flex-col rounded-lg"),
-        item: cva("rounded-none border-b-0 last:rounded-b-lg"),
-        footer: cva("flex justify-end gap-2 p-4 empty:hidden"),
       },
     },
 

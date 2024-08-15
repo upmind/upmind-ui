@@ -10,6 +10,7 @@ import {
   some,
   isString,
   isObject,
+  isEmpty,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -119,9 +120,7 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
             i18n: `${i18nPrefix}.${field.code}`,
             default: field.default,
             const: field.const,
-            enum: !some(field.options, isString) ? undefined : field.options,
-            // oneOf: !some(field.options, isObject)
-            //   ? undefined
+            enum: !some(field.options, isString) ? undefined : field.options, //   ? undefined
             //   : map(field.options, item => {
             //       return {
             //         const: item.value,
@@ -215,11 +214,11 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
   return schema;
 };
 
-export const useFieldsModelParser = (data: any, values: any = {}) => {
+export const useFieldsModelParser = (fields: any, values: any = {}) => {
   const model = values || {};
 
-  if (data?.length) {
-    forEach(data, field => {
+  if (!isEmpty(fields)) {
+    forEach(fields, field => {
       const value = get(model, `${field.code}`, field?.value || field?.default);
       set(model, field.code, value);
     });

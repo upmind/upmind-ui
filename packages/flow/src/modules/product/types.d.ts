@@ -29,6 +29,7 @@ export interface ProductConfigContext {
   // ---
   calculateCallback?: ActorRef<any, any>;
   error?: RequestError;
+  errorExternal: RequestError;
   // ---
   basket_id?: string;
   basket_product?: IBasketProduct;

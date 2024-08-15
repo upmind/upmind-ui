@@ -12,67 +12,10 @@
       </slot>
     </header>
 
-    <!-- pending items -->
-    <aside
-      :class="
-        mergeStyles(
-          styles.basket.items.content,
-          styles.basket.items.pending.root
-        )
-      "
-      v-if="!meta.isLoading && itemsPending?.length"
-    >
-      <header :class="styles.basket.items.pending.header">
-        {{ $t("basket.items.pending.title") }}
-      </header>
-
-      <div :class="styles.basket.items.pending.content">
-        <upm-basket-item
-          v-for="(item, index) in itemsPending"
-          :selected="index === 0"
-          :key="item.id"
-          :model-value="item.id"
-          :item="item"
-          :class="styles.basket.items.pending.item"
-        />
-      </div>
-    </aside>
-
-    <!-- invalid items -->
-    <aside
-      :class="
-        mergeStyles(
-          styles.basket.items.content,
-          styles.basket.items.invalid.root
-        )
-      "
-      v-if="!meta.isLoading && itemsInvalid?.length"
-    >
-      <header :class="styles.basket.items.invalid.header">
-        {{ $t("basket.items.invalid.title") }}
-      </header>
-
-      <div :class="styles.basket.items.invalid.content">
-        <upm-basket-item
-          v-for="(item, index) in itemsInvalid"
-          :selected="index === 0"
-          :key="item.id"
-          :model-value="item.id"
-          :item="item"
-          :class="styles.basket.items.invalid.item"
-        />
-      </div>
-    </aside>
-
-    <!-- configured items -->
-    <div :class="styles.basket.items.content">
-      <template v-if="!meta.isLoading && itemsConfigured?.length">
-        <upm-basket-item
-          v-for="item in itemsConfigured"
-          :key="item.id"
-          :model-value="item.id"
-          :item="item"
-        />
+    <!-- items -->
+    <div :class="styles.basket.items.content" v-if="!meta.isLoading">
+      <template v-for="(item, index) in items" :key="item.id">
+        <upm-basket-item :model-value="item.id" :item="item" />
       </template>
     </div>
 

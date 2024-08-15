@@ -21,17 +21,20 @@ import {
 
 import {
   clone,
+  forEach,
   get,
   has,
   isEmpty,
   isEqual,
+  isNil,
   merge,
   omitBy,
   set,
   toNumber,
+  unset,
+  remove,
 } from "lodash-es";
 
-import { useBrand } from "../brand";
 import { calculateSubscription } from "./services";
 
 // ---types
@@ -348,6 +351,7 @@ export default createMachine(
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
       processing: {
+        entry: "clearError",
         on: {
           REMOVED: { target: "complete" },
           UPDATED: [
@@ -373,7 +377,9 @@ export default createMachine(
       PROCESSING: {
         target: "processing",
       },
-      ERROR: { target: "available.error", actions: "setError" },
+      ERROR: {
+        actions: ["setExternalError"],
+      },
     },
   },
   {
@@ -560,11 +566,35 @@ export default createMachine(
           set(model, "provision_fields", provision_fields);
           return model;
         },
+        error: ({ error }, { data }) => {
+          // lets parse/override our error message and data, specifically external errors.
+          // For any dirty/hydrated field, remove any external error to allow for normal validation
+          // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
+          const provision_fields = get(data, "provision_fields");
+
+          if (!error?.provision_fields?.data?.length) return error;
+
+          forEach(provision_fields, (field, key) => {
+            if (!isEmpty(field) || !isNil(field)) {
+              remove(error.provision_fields.data, ["schemaPath", key]);
+            }
+          });
+
+          return error;
+        },
       }),
 
       // ---
 
+      setExternalError: assign({
+        errorExternal: (_context, { data }) => data?.error,
+        error: ({ error }, { data }) => {
+          return merge({}, error, data?.error);
+        },
+      }),
+
       setError: assign({
+        errorExternal: (_context, { data }) => data,
         error: ({ error }, { data }) => {
           const err = data?.error;
           if (!err) return error;
