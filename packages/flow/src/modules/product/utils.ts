@@ -3,17 +3,19 @@ import { useSystem } from "../system";
 import { TrialEndActionTypes } from "./services";
 
 // --- utils
-import { useTranslateName, useValidationParser } from "../../utils";
+import { useTranslateName } from "../../utils";
 import {
   find,
   forEach,
   get,
+  has,
   isEmpty,
   isNil,
   isObject,
   isString,
   map,
   mapValues,
+  merge,
   omit,
   omitBy,
   orderBy,
@@ -27,7 +29,7 @@ import {
 
 // --- types
 import { PromotionDisplayTypes } from "./services";
-import type { IProductModel } from "./types.d";
+import type { IProductModel, ProductConfigContext } from "./types.d";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
@@ -65,11 +67,15 @@ export const parseQuantity = (quantity: number, data: any) => {
   return quantity;
 };
 
-export const parseProduct = (data: any) => {
+export const parseProduct = (
+  data: any,
+  basket_product?: ProductConfigContext["basket_product"]
+) => {
   // Pick only the properties we need
-  const product = pick(data, [
+  const product = pick(merge({}, data, basket_product), [
     "id",
     "name",
+    "service_identifier",
     "description",
     "short_description",
     // ---
@@ -110,7 +116,7 @@ export const parseProduct = (data: any) => {
   return product;
 };
 
-export const useTermsParser = (
+export const parseTerms = (
   data: any,
   promotion_display_type: PromotionDisplayTypes
 ) => {
@@ -382,7 +388,7 @@ export const parseProvisioningSchema = (data: any) => {
 
 // ---
 
-export const parseSummary = ({ summary, model, lookups }) => {
+export const parseSummary = ({ summary, model, lookups, error }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -394,6 +400,7 @@ export const parseSummary = ({ summary, model, lookups }) => {
     "billing_cycle_months",
     model?.term?.billing_cycle_months,
   ]);
+
   if (term) {
     // NB: only show term pricing if recurring!
     details.push({
@@ -405,6 +412,7 @@ export const parseSummary = ({ summary, model, lookups }) => {
       discount: term.price_discounted,
       total: term.price,
       formatted: term.price_formatted,
+      invalid: !isEmpty(error?.term),
     });
   }
 
@@ -412,7 +420,8 @@ export const parseSummary = ({ summary, model, lookups }) => {
   const attributes = parseSummarySubproduct(
     "attribute",
     model.attributes,
-    lookups.attributes
+    lookups.attributes,
+    error?.attributes
   );
   details.push(...attributes);
 
@@ -420,11 +429,13 @@ export const parseSummary = ({ summary, model, lookups }) => {
   const options = parseSummarySubproduct(
     "option",
     model.options,
-    lookups.options
+    lookups.options,
+    error?.options
   );
   details.push(...options);
 
   // provision fields
+
   reduce(
     model.provision_fields,
     (result, name, field) => {
@@ -436,6 +447,7 @@ export const parseSummary = ({ summary, model, lookups }) => {
           field
         ),
         name,
+        invalid: some(error?.provision_fields?.data, ["schemaPath", field]),
       });
       return result;
     },
@@ -448,7 +460,8 @@ export const parseSummary = ({ summary, model, lookups }) => {
 export const parseSummarySubproduct = (
   key: string,
   data: any,
-  lookup: Array<any>
+  lookup: Array<any>,
+  error?: any
 ) => {
   return reduce(
     data,
@@ -470,6 +483,7 @@ export const parseSummarySubproduct = (
                 discount: subproduct?.price?.price_discounted,
                 total: subproduct?.price?.price,
                 formatted: subproduct?.price?.price_formatted,
+                invalid: has(error, `${key}.${id}`),
               });
             }
 

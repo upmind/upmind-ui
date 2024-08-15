@@ -13,7 +13,7 @@ import {
   parseSubproduct,
   parseProvisioningSchema,
   parseProduct,
-  useTermsParser,
+  parseTerms,
   parseModel,
   parseBasketProduct,
   parseSummary,
@@ -407,6 +407,7 @@ export default createMachine(
             model: !isEmpty(basket_product)
               ? parseBasketProduct({ id, ...basket_product })
               : parseModel({ id, ...model }),
+
             // ---
             calculateCallback: spawn(calculateSubscription),
           };
@@ -442,13 +443,10 @@ export default createMachine(
       setLookups: assign({
         raw: (_context, { data }) => data.product,
 
-        lookups: ({ model }, { data }) => {
+        lookups: ({ model, basket_product }, { data }) => {
           return {
-            product: parseProduct(data.product),
-            terms: useTermsParser(
-              data.product.prices,
-              data.promotion_display_type
-            ),
+            product: parseProduct(data.product, basket_product),
+            terms: parseTerms(data.product.prices, data.promotion_display_type),
             attributes: parseSubproduct(
               data.product.products_attributes,
               data?.promotion_display_type
@@ -479,11 +477,12 @@ export default createMachine(
       // ---
 
       setSummary: assign({
-        summary: ({ model, lookups }, { data }) => {
+        summary: ({ model, lookups, error }, { data }) => {
           return parseSummary({
             summary: data,
             model,
             lookups,
+            error,
           });
         },
       }),

@@ -25,7 +25,12 @@
         />
 
         <h3 :class="styles.product.card.title">
-          {{ product?.name }}
+          <span>{{ product?.name }}</span>
+          <span v-if="product?.service_identifier">
+            ({{ product?.service_identifier }})
+          </span>
+
+          <slot name="badges"></slot>
         </h3>
 
         <div :class="styles.product.card.meta">
@@ -76,12 +81,29 @@
               :class="styles.product.card.details.item"
               v-if="detail.key != 'term'"
             >
-              <strong :class="styles.product.card.details.title">
+              <strong
+                :class="
+                  mergeStyles(
+                    styles.product.card.details.title,
+                    detail.invalid ? styles.product.card.details.invalid : ''
+                  )
+                "
+              >
                 {{ detail.category }}
               </strong>
-              <span :class="styles.product.card.details.text">
+              <span
+                :class="styles.product.card.details.text"
+                v-if="detail.name"
+              >
                 {{ detail.name }}
               </span>
+              <upw-button
+                v-else-if="detail.invalid"
+                size="xs"
+                variant="link"
+                :label="$t('product.actions.invalid')"
+                @click="doResolve"
+              />
             </li>
           </template>
         </ul>
@@ -112,8 +134,6 @@
 
         <!-- actions -->
         <div :class="styles.product.card.actions">
-          <slot name="badges"></slot>
-
           <upw-button
             :disabled="
               meta.isLoading ||
@@ -128,7 +148,7 @@
             icon-only
             prependIcon="edit"
             type="button"
-            variant="ghost"
+            :variant="meta.hasErrors || meta.isNew ? 'flat' : 'ghost'"
           />
 
           <upw-button
@@ -201,7 +221,7 @@ export default defineComponent({
       // ---
       doReject: () => emit("reject", props.modelValue),
       doResolve: () => emit("resolve", props.modelValue),
-      toggle: ref(false),
+      toggle: ref(meta.value.hasErrors),
       // ---
       styles,
       mergeStyles,
@@ -215,6 +235,15 @@ export default defineComponent({
     },
     hasSummaryDetails() {
       return reject(this?.summary?.details, ["key", "term"])?.length;
+    },
+  },
+
+  watch: {
+    "meta.hasErrors": {
+      immediate: true,
+      handler(value) {
+        this.toggle = value || this.toggle;
+      },
     },
   },
 });

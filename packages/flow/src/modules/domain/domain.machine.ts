@@ -584,7 +584,6 @@ export default createMachine(
               break;
           }
           const domain = parseValue(data, model, available);
-
           if (domain) model.push(domain);
           return model;
         },
