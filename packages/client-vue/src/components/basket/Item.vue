@@ -4,6 +4,7 @@
     v-bind="$props"
     :class="'styles.basket.item'"
     :processing="meta.isProcessing"
+    :required="meta.isRequired"
     @reject="open = false"
     @resolve="doResolve"
     @update:attributes="updateAttributes"
@@ -26,7 +27,7 @@
     @reject="removeItem"
     @resolve="open = true"
   >
-    <template #badges>
+    <template #badges v-if="!meta.isLoading">
       <upw-badge
         v-if="meta.isNew"
         color="accent"
@@ -34,9 +35,6 @@
         :class="styles.basket.item.ping.root"
       >
         {{ $t("basket.items.pending.badge") }}
-        <!-- <span :class="styles.basket.item.ping.wrapper">
-          <span :class="styles.basket.item.ping.overlay"></span>
-        </span> -->
       </upw-badge>
       <upw-badge
         v-else-if="meta.hasErrors"
@@ -45,9 +43,6 @@
         :class="styles.basket.item.ping.root"
       >
         {{ $t("basket.items.invalid.badge") }}
-        <!-- <span :class="styles.basket.item.ping.wrapper">
-          <span :class="styles.basket.item.ping.overlay"></span>
-        </span> -->
       </upw-badge>
     </template>
   </upm-product-card>
@@ -55,7 +50,7 @@
 
 <script>
 // --- external
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref } from "vue";
 
 // --- internal
 import { useBasket, utils } from "@upmind/flow-vue";
@@ -91,6 +86,7 @@ export default defineComponent({
   setup(props) {
     const {
       meta,
+      items,
       removeItem,
       updateItem,
       updateAttributes,
@@ -101,6 +97,7 @@ export default defineComponent({
     } = useBasket();
 
     const itemMeta = computed(() => ({
+      isRequired: items.value.length <= 1,
       isLoading: meta.value.isLoading,
       isProcessing: meta.value.isProcessing,
       isNew: !contextMatches(props.item, ["basket_product"]),
@@ -117,13 +114,7 @@ export default defineComponent({
     // ---
 
     const open = ref(props.selected);
-    // make props reactive to open
-    watch(
-      () => props.selected,
-      value => {
-        open.value = value;
-      }
-    );
+
     // ---
 
     return {

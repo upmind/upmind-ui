@@ -96,38 +96,6 @@ export default {
 
     item: {
       root: cva("", {}),
-      ping: {
-        root: cva(
-          "!absolute right-1/2 top-0	translate-x-1/2 !rounded-b-lg !rounded-t-none"
-        ),
-        wrapper: cva(
-          "absolute right-0 top-0 -mr-1 mt-1 flex size-2 rounded-full opacity-75",
-          {
-            variants: {
-              hasErrors: {
-                true: "bg-error",
-              },
-              isNew: {
-                true: "bg-accent",
-              },
-            },
-          }
-        ),
-
-        overlay: cva(
-          "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-          {
-            variants: {
-              hasErrors: {
-                true: "bg-error",
-              },
-              isNew: {
-                true: "bg-accent",
-              },
-            },
-          }
-        ),
-      },
     },
 
     paymentDetails: {

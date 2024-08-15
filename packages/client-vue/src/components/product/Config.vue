@@ -165,6 +165,7 @@
         @click="doReject"
         color="current"
         variant="link"
+        v-if="!required"
       />
 
       <span :class="styles.product.config.itemtotal" v-if="summary?.total">
@@ -236,6 +237,10 @@ export default defineComponent({
     },
     // ---
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    required: {
       type: Boolean,
       default: false,
     },

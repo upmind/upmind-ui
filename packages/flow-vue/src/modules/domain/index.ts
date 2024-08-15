@@ -57,7 +57,6 @@ export const useDomain = (
     const type = some(state.value.context.model, ["domain", value])
       ? "REMOVE"
       : "ADD";
-
     send({
       type,
       data: value,

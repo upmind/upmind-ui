@@ -14,9 +14,18 @@
 
     <!-- items -->
     <div :class="styles.basket.items.content" v-if="!meta.isLoading">
-      <template v-for="(item, index) in items" :key="item.id">
-        <upm-basket-item :model-value="item.id" :item="item" />
-      </template>
+      <upm-basket-item
+        v-for="item in items"
+        :key="item.id"
+        :model-value="item.id"
+        :item="item"
+        :selected="
+          items?.length == 1 &&
+          ['available.configuring', 'available.configured'].some(
+            item.state.value.matches
+          )
+        "
+      />
     </div>
 
     <footer :class="styles.basket.items.footer">

@@ -74,7 +74,9 @@ export default {
       ),
       // ---
       loading: cva("size-7"),
-      title: cva("m-0 w-full text-2xl font-normal leading-none tracking-wide"),
+      title: cva(
+        "m-0 inline-flex w-full items-center gap-2 text-2xl font-normal leading-none tracking-wide"
+      ),
       meta: cva(
         "text-base-700 m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
@@ -109,12 +111,12 @@ export default {
       // ---
       details: {
         root: cva("m-0 grid w-full list-none grid-cols-4 gap-6 px-0 py-4"),
-        item: cva("m-0 flex flex-col gap-0 p-0 "),
-        full: cva("col-span-4"),
+        item: cva("m-0 flex flex-wrap gap-0 p-0 "),
         title: cva(
-          "text-base-500 m-0 m-0 p-0 text-sm font-normal tracking-wide "
+          "text-base-500 m-0 m-0 w-full p-0 text-sm font-normal tracking-wide "
         ),
         text: cva("m-0 m-0 p-0 text-sm tracking-wide "),
+        invalid: cva("text-error"),
       },
     },
 
