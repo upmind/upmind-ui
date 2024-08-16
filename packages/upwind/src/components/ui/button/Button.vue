@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ---external
 import { Primitive } from "radix-vue";
+import { toRefs } from "vue";
 
 // --- internal
 import config from "./button.config";
@@ -28,7 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
   upwindConfig: {},
 });
 
-const styles = useStyles("button", props, config, props.upwindConfig);
+const styles = useStyles("button", toRefs(props), config, props.upwindConfig);
 </script>
 
 <template>

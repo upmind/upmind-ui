@@ -86,7 +86,7 @@ export const Variants: Story = {
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
         <uw-button v-bind="args" variant="flat" label="Flat" />
-        <uw-button v-bind="args" variant="outline" label="outline" />
+        <uw-button v-bind="args" variant="outline" label="Outline" />
         <uw-button v-bind="args" variant="ghost" label="Ghost" />
         <uw-button v-bind="args" variant="link" label="Link" />
       </section>
