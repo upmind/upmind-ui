@@ -8,9 +8,10 @@ export const buttonConfig = {
     {
       variants: {
         variant: {
-          default: "hover:bg-primary/90",
-          flat: "hover:bg-primary/90",
-          outline: "border bg-opacity-0",
+          default: "bg-[var(--bg-color)] hover:bg-opacity-90",
+          flat: "bg-[var(--bg-color)] hover:bg-opacity-90",
+          outline:
+            "border bg-opacity-0 hover:border-opacity-80 hover:text-opacity-80",
           ghost: "",
           link: "underline-offset-4 hover:underline",
           tonal: "border border-transparent",
