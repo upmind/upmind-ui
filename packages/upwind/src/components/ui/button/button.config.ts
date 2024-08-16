@@ -7,16 +7,22 @@ export const buttonConfig = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        flat: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: "hover:bg-primary/90",
+        flat: "hover:bg-primary/90",
+        outline: "border border-input bg-transparent",
+        ghost: "",
+        link: "underline-offset-4 hover:underline",
+      },
+      color: {
+        base: "bg-base-foreground text-base-background",
+        primary: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
+        accent: "bg-accent text-accent-foreground",
+        success: "bg-success text-success-foreground",
+        error: "bg-error text-error-foreground",
+        warning: "bg-warning text-warning-foreground",
+        info: "bg-info text-info-foreground",
+        promotion: "bg-promotion text-promotion-foreground",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -29,6 +35,7 @@ export const buttonConfig = cva(
     },
     defaultVariants: {
       variant: "default",
+      color: "base",
       size: "default",
     },
   }
