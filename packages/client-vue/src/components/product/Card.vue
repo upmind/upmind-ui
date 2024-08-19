@@ -221,7 +221,7 @@ export default defineComponent({
       // ---
       doReject: () => emit("reject", props.modelValue),
       doResolve: () => emit("resolve", props.modelValue),
-      toggle: ref(meta.value.hasErrors),
+      toggle: ref(meta.value.hasErrors && !meta.value.isNew),
       // ---
       styles,
       mergeStyles,
@@ -242,7 +242,7 @@ export default defineComponent({
     "meta.hasErrors": {
       immediate: true,
       handler(value) {
-        this.toggle = value || this.toggle;
+        this.toggle = (value && !this.meta.isNew) || this.toggle;
       },
     },
   },

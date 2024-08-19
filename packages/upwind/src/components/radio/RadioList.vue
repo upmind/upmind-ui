@@ -23,6 +23,7 @@
     :no-status="noStatus"
     :persist-feedback="persistFeedback"
     variant="flat"
+    :upwind-config="{ input: config.radiolist.input }"
   >
     <h-radio-group v-model="selected" as="ul" :class="styles.radiolist.root">
       <h-radio-group-option
@@ -41,6 +42,7 @@
           :disabled="meta.isDisabled"
           :processing="meta.isProcessing"
           :model-value="isSelected(item.value)"
+          :value="item.value"
           :upwind-config="{ input: config.radiolist.radio }"
           :no-input="noInput"
           no-status
@@ -107,7 +109,7 @@ export default defineComponent({
     label: { type: String },
     text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     layout: {
@@ -154,7 +156,7 @@ export default defineComponent({
     upwindConfig: { type: [Array, Object], default: null },
   },
 
-  setup(props, { emit }) {
+  setup(props) {
     const meta = computed(() => ({
       size: props.size,
       layout: props.layout,

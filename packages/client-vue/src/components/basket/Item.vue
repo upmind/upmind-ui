@@ -97,7 +97,7 @@ export default defineComponent({
     } = useBasket();
 
     const itemMeta = computed(() => ({
-      isRequired: items.value.length <= 1,
+      isRequired: !contextMatches(props.item, ["basket_product"]),
       isLoading: meta.value.isLoading,
       isProcessing: meta.value.isProcessing,
       isNew: !contextMatches(props.item, ["basket_product"]),

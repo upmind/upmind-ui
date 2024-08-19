@@ -13,136 +13,93 @@
     @blur="blurred[item.id] = true"
     tabindex="-1"
   >
-    <ul
-      :class="styles.product.config.list.items"
-      :aria-invalid="isInvalid(item.id)"
+    <component
+      :is="
+        item.multiple || item.values?.length == 1
+          ? 'upw-checkbox-list'
+          : 'upw-radio-list'
+      "
+      :items="safeValues(item.values)"
+      :model-value="getValues(item)"
+      :errors="errors?.[item.id]"
+      no-feedback
+      @update:modelValue="doResolve(item, $event)"
     >
-      <li
-        v-for="value in item.values"
-        :key="value.id"
-        :aria-selected="
-          isSelected(
-            item.id,
-            value.id,
-            item.values?.length == 1 && item.required
-          )
-        "
-        :class="styles.product.config.list.item.root"
-      >
-        <label
-          :for="`items[${item.id}][${value.id}]`"
-          :class="styles.product.config.list.item.wrapper"
-          :disabled="disabled"
-        >
-          <component
-            :is="
-              item.multiple || item.values?.length == 1
-                ? 'upw-checkbox'
-                : 'upw-radio'
-            "
-            :id="`items[${item.id}][${value.id}]`"
-            :name="`items[${item.id}]`"
-            :class="styles.product.config.list.item.input"
+      <template #prepend="{ item: value }"> </template>
+
+      <template #label="{ item: value }">
+        <div :class="styles.product.config.list.item.header">
+          <!-- title -->
+          <span :class="styles.product.config.list.item.title">
+            {{ value.name }}
+          </span>
+          <!-- badges -->
+          <span :class="styles.product.config.list.item.badges">
+            <template
+              v-for="promotion in value?.price?.promotions"
+              :key="promotion.id"
+            >
+              <upw-badge
+                color="promotion"
+                :label="
+                  $tc(
+                    'product.promo_save',
+                    promotion.mixed || !promotion.amount ? 1 : 0,
+                    {
+                      value: promotion.amount_formatted,
+                    }
+                  )
+                "
+              />
+            </template>
+          </span>
+        </div>
+      </template>
+
+      <template #append="{ item: value }">
+        <div :class="styles.product.config.list.item.footer">
+          <upw-spinner v-if="loading" size="xs" />
+
+          <upw-quantitybox
+            v-if="value.canChangeQuantity && modelValue?.[item.id]?.[value.id]"
+            :disabled="processing"
+            :min="value?.min_order_quantity"
+            :max="value?.max_order_quantity"
+            :step="value?.unit_quantity"
             :model-value="
-              isSelected(
-                item.id,
-                value.id,
-                item.values?.length == 1 && item.required
-              )
+              modelValue[item.id][value.id]?.unit_quantity ||
+              value?.unit_quantity
             "
-            :value="value.id"
-            :required="item.required"
-            :disabled="disabled"
-            :processing="processing"
-            @change="doResolve(item, value, $event)"
-            no-feedback
-            no-status
-            variant="flat"
-            size="md"
+            @update:modelValue="doUpdateQuantity(item, value, $event)"
+            size="sm"
           />
 
-          <!-- content -->
-          <div :class="styles.product.config.list.item.header">
-            <!-- title -->
-            <span :class="styles.product.config.list.item.title">
-              {{ value.name }}
+          <span :class="styles.product.config.list.item.price">
+            <strong
+              :class="styles.product.config.list.item.total"
+              v-if="value.price"
+            >
+              <span v-if="!item.price_override && value.price?.price">+</span>
+
+              {{
+                value.price?.price_discounted
+                  ? value.price?.price_discounted_formatted
+                  : value.price.price
+                    ? value.price?.price_formatted
+                    : $t("product.free")
+              }}
+            </strong>
+
+            <span
+              :class="styles.product.config.list.item.discount"
+              v-if="value.price?.price_discounted"
+            >
+              {{ value.price?.price_formatted }}
             </span>
-            <!-- badges -->
-            <span :class="styles.product.config.list.item.badges">
-              <template
-                v-for="promotion in value?.price?.promotions"
-                :key="promotion.id"
-              >
-                <upw-badge
-                  color="promotion"
-                  :label="
-                    $tc(
-                      'product.promo_save',
-                      promotion.mixed || !promotion.amount ? 1 : 0,
-                      {
-                        value: promotion.amount_formatted,
-                      }
-                    )
-                  "
-                />
-              </template>
-
-              <!-- <upw-badge
-                v-if="!item.price_override"
-                variant="tonal"
-                color="base"
-                :label="value.price?.billing_cycle_name"
-              /> -->
-            </span>
-          </div>
-
-          <!-- footer -->
-          <div :class="styles.product.config.list.item.footer">
-            <upw-spinner v-if="loading" size="xs" />
-
-            <upw-quantitybox
-              v-if="
-                value.canChangeQuantity && modelValue?.[item.id]?.[value.id]
-              "
-              :disabled="processing"
-              :min="value?.min_order_quantity"
-              :max="value?.max_order_quantity"
-              :step="value?.unit_quantity"
-              :model-value="
-                modelValue[item.id][value.id]?.unit_quantity ||
-                value?.unit_quantity
-              "
-              @update:modelValue="doUpdateQuantity(item, value, $event)"
-              size="sm"
-            />
-
-            <span :class="styles.product.config.list.item.price">
-              <strong
-                :class="styles.product.config.list.item.total"
-                v-if="value.price"
-              >
-                <span v-if="!item.price_override && value.price?.price">+</span>
-
-                {{
-                  value.price?.price_discounted
-                    ? value.price?.price_discounted_formatted
-                    : value.price.price
-                      ? value.price?.price_formatted
-                      : $t("product.free")
-                }}
-              </strong>
-
-              <span
-                :class="styles.product.config.list.item.discount"
-                v-if="value.price?.price_discounted"
-              >
-                {{ value.price?.price_formatted }}
-              </span>
-            </span>
-          </div>
-        </label>
-      </li>
-    </ul>
+          </span>
+        </div>
+      </template>
+    </component>
   </upw-input>
 </template>
 
@@ -157,7 +114,9 @@ import config from "./config.cva";
 // --- components
 import {
   UpwRadio,
+  UpwRadioList,
   UpwCheckbox,
+  UpwCheckboxList,
   UpwBadge,
   UpwInput,
   UpwQuantitybox,
@@ -165,15 +124,17 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import { some, has } from "lodash-es";
+import { some, has, reduce, map, get, filter } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigList",
+  name: "UpmProductConfigNested",
   components: {
     UpwInput,
     UpwRadio,
+    UpwRadioList,
     UpwCheckbox,
+    UpwCheckboxList,
     UpwBadge,
     UpwQuantitybox,
     UpwSpinner,
@@ -246,14 +207,36 @@ export default defineComponent({
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
 
+    getValues(item) {
+      const value = reduce(
+        this.modelValue?.[item.id],
+        (result, value) => {
+          const val = get(value, this.itemKey);
+          if (val) result.push(val);
+          return result;
+        },
+        []
+      );
+
+      return !item.multiple || item.values?.length == 1
+        ? value?.toString()
+        : value;
+    },
     doUpdateQuantity(item, value, $event) {
       this.$emit("update:quantity", item, value, $event);
     },
 
-    doResolve(item, value, $event) {
+    doResolve(item, values) {
       if (this.disabled || this.processing) return;
+      this.$emit("update:modelValue", item, values);
+    },
 
-      this.$emit("update:modelValue", item, value, $event);
+    safeValues(values) {
+      return map(values, value => ({
+        ...value,
+        value: value.id,
+        label: value.name,
+      }));
     },
   },
 });

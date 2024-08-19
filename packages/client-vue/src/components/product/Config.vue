@@ -126,7 +126,7 @@
             :items="options"
             :model-value="model?.options"
             :processing="meta.isProcessing || meta.isLoading"
-            @update:modelValue="selectOption"
+            @update:modelValue="setOptions"
             @update:quantity="updateOptionQuantity"
             itemKey="product_id"
           />
@@ -138,7 +138,7 @@
             :items="attributes"
             :model-value="model?.attributes"
             :processing="meta.isProcessing || meta.isLoading"
-            @update:modelValue="selectAttribute"
+            @update:modelValue="setAttributes"
             itemKey="product_id"
           />
 
@@ -264,10 +264,10 @@ export default defineComponent({
       updateTerm,
       // ---
       updateAttributes,
-      selectAttribute,
+      setAttributes,
       // ---
       updateOptions,
-      selectOption,
+      setOptions,
       updateOptionQuantity,
       // ---
       getProvisioningFields,
@@ -299,10 +299,10 @@ export default defineComponent({
       updateTerm,
       // ---
       updateAttributes,
-      selectAttribute,
+      setAttributes,
       // ---
       updateOptions,
-      selectOption,
+      setOptions,
       updateOptionQuantity,
       // ---
       getProvisioningFields,

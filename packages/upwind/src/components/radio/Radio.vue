@@ -96,7 +96,7 @@ export default defineComponent({
     label: { type: String },
     text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     variant: {

@@ -585,10 +585,9 @@ export default createMachine(
 
           // First Refresh any existing items ...
           // Refresh and that are still in active state
-          // Remove any items that are done
+          // Remove any items that are done or whos basket_product ids are no longer in the basket
           forEach(items, (item, index) => {
             const product = find(products, ["id", item?.id]);
-
             if (item?.state?.done) {
               // do nothing
             } else if (product) {
@@ -607,6 +606,8 @@ export default createMachine(
               if (error) {
                 parseBasketProvisioningErrors(error, item, index);
               }
+            } else if (!isEmpty(item.state?.context?.basket_product)) {
+              item.stop();
             } else {
               newItems.push(item);
             }
