@@ -59,8 +59,6 @@
         @update:modelValue="setPrimaryDomain"
       />
     </template>
-
-    <!-- <pre>{{ { state, meta, selected, values } }}</pre> -->
   </div>
 </template>
 

@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ { meta } }}</pre>
   <form :class="styles.product.config.root" @submit.prevent="doResolve">
     <header
       :class="styles.product.config.header"
