@@ -32,14 +32,15 @@ export const useProductConfig = actor => {
   const options = computed(() => state.value.context?.lookups?.options);
   const fields = computed(() => state.value.context?.lookups?.provision_fields);
   // ---
-  const errors = computed(() => state.value.context.error);
+  const errors = computed(() => state.value.context?.error);
+
   const meta = computed(() => ({
     isLoading: ["subscribing", "loading"].some(state.value.matches),
     isNew: isEmpty(state.value.context.basket_product),
     isDirty: !isEmpty(state.value.context.basket_product),
     hasErrors:
       ["available.error", "error"].some(state.value.matches) ||
-      !isEmpty(errors.value),
+      !isEmpty(state.value.context?.error),
     isConfigurable:
       // !isEmpty(state.value?.context?.lookups?.terms) ||
       !isEmpty(state.value?.context?.lookups?.attributes) ||

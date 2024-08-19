@@ -7,6 +7,7 @@ import services from "./services";
 import { syncSubscription } from "../basket/helper";
 
 // --utils
+import { responseCodes } from "../api";
 import { useTime, isDeepEmpty, useValidationParser } from "../../utils";
 import {
   buildBasketItem,
@@ -127,7 +128,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "term"),
+                    entry: ({ error }) => unset(error, "term"),
                     invoke: {
                       src: "checkTerm",
                       onDone: [
@@ -179,7 +180,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "attributes"),
+                    entry: ({ error }) => unset(error, "attributes"),
                     invoke: {
                       src: "checkAttributes",
                       onDone: {
@@ -206,7 +207,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "options"),
+                    entry: ({ error }) => unset(error, "options"),
                     invoke: {
                       src: "checkOptions",
                       onDone: [
@@ -255,7 +256,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "provision_fields"),
+                    entry: ({ error }) => unset(error, "provision_fields"),
                     invoke: {
                       src: "checkProvisioning",
                       onDone: {
@@ -353,6 +354,10 @@ export default createMachine(
       processing: {
         entry: "clearError",
         on: {
+          CANCEL: [
+            { target: "available.error", cond: "hasError" },
+            { target: "available.configuring" },
+          ],
           REMOVED: { target: "complete" },
           UPDATED: [
             { target: "complete", cond: "isNew" },
@@ -378,7 +383,7 @@ export default createMachine(
         target: "processing",
       },
       ERROR: {
-        actions: ["setExternalError"],
+        actions: ["setError"],
       },
     },
   },
@@ -585,29 +590,22 @@ export default createMachine(
 
       // ---
 
-      setExternalError: assign({
+      setError: assign({
         errorExternal: (_context, { data }) => data?.error,
         error: ({ error }, { data }) => {
-          return merge({}, error, data?.error);
-        },
-      }),
+          let err = data?.error;
 
-      setError: assign({
-        errorExternal: (_context, { data }) => data,
-        error: ({ error }, { data }) => {
-          const err = data?.error;
           if (!err) return error;
 
-          if (err?.code == 422) {
+          if (err?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
-            return {
-              ...error,
+            err = {
               provision_fields: useValidationParser(err),
             };
-          } else {
-            return merge({}, error, err);
           }
+
+          return merge({}, error, err);
         },
       }),
 

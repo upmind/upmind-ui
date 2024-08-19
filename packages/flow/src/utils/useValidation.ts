@@ -60,24 +60,26 @@ export const useValidationParser = (error: any) => {
     const errors = [];
     forEach(error.data, (value, key) => {
       // because we have a specific schema for provision_fields, we dont need the prefix of the path
-      const instancePath = key.replace("provision_field_values.", "");
-      // handle any nested properties correctly, JSON schema would have them withing properties
-      instancePath.replace(".", "/properties/");
+      // we also need to handle any nested properties correctly, JSON schema would have them withing properties
+
+      const instancePath = key
+        .replace("provision_field_values.", "/")
+        .replace(".", "/properties/");
 
       const newError = {
-        instancePath: `/${key}`, // AJV style path to the property in the schema
+        instancePath, // AJV style path to the property in the schema
         message: value.toString(),
         // --- optional
         schemaPath: key,
         keyword: "",
         params: {},
       };
+
       errors.push(newError);
     });
 
     error.data = errors;
   }
-
   return error;
 };
 

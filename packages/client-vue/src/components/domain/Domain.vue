@@ -37,7 +37,7 @@
       <upw-combobox
         v-else-if="meta.showExisting"
         :class="styles.domain.existing"
-        :errors="errors"
+        :errors="externalErrors || internalErrors"
         :items="ownedDomains"
         :model-value="selected"
         @update:modelValue="update"
@@ -66,7 +66,7 @@
 
 <script>
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, toRef } from "vue";
 
 // --- internal
 import { useDomain } from "@upmind/flow-vue";
@@ -84,7 +84,7 @@ import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
 
 // --- utils
-import { debounce, map, reduce } from "lodash-es";
+import { debounce, map } from "lodash-es";
 
 // --- types
 
@@ -109,6 +109,7 @@ export default defineComponent({
     modelValue: { type: [String, Array], default: () => [] },
     multiple: { type: Boolean, default: false },
     parentId: { type: String },
+    errors: { type: [String, Array] },
 
     // ---
   },
@@ -156,7 +157,8 @@ export default defineComponent({
       available,
       owned,
       basket,
-      errors,
+      externalErrors: toRef(props, "errors"),
+      internalErrors: errors,
       // ---
       choice: type,
       query,

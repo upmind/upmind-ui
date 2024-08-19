@@ -39,9 +39,7 @@ export function parseDomain(data: Object | string) {
 }
 
 export function parseSld(data: string) {
-  if (!data) {
-    return;
-  }
+  if (!data?.length) return;
 
   const parsed = data
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")

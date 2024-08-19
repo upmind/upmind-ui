@@ -1,6 +1,7 @@
 <template>
   <upw-input
     v-bind="{ ...control, ...appliedOptions }"
+    :errors="null"
     :dirty="!!control.data"
     variant="flat"
   >
@@ -32,7 +33,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "LookupRenderer",
+  name: "DomainRenderer",
   components: {
     UpmDomain,
     UpwInput,
