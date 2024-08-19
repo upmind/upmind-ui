@@ -62,7 +62,7 @@ export const useBasket = () => {
 
     checkout: () => service.send({ type: "CHECKOUT" }),
 
-    refresh: data => {
+    refresh: (data?: any) => {
       service.send({ type: "REFRESH", data });
       return waitFor(service, state =>
         state.matches("shopping.refreshing.complete")

@@ -283,6 +283,7 @@ export default createMachine(
               },
             ],
           },
+
           invalid: {
             always: {
               target: "valid",

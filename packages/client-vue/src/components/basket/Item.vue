@@ -137,10 +137,7 @@ export default defineComponent({
   methods: {
     async doResolve() {
       this.updateItem(this.modelValue).then(item => {
-        this.open = !stateMatches(item.state, [
-          "available.complete",
-          "complete",
-        ]);
+        this.open = !stateMatches(item.state, ["available.complete"]);
       });
     },
   },

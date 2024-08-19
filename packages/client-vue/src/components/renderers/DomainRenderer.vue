@@ -1,7 +1,6 @@
 <template>
   <upw-input
     v-bind="{ ...control, ...appliedOptions }"
-    :errors="null"
     :dirty="!!control.data"
     variant="flat"
   >
