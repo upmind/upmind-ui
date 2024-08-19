@@ -176,13 +176,13 @@ export function syncSubscription(callback, onReceive) {
         remove(event.target, event.context, basket)
           .then(data => {
             callback({ type: "REMOVED" });
+            basket.refresh();
           })
           .catch(error => {
             console.error("basketHelper", "REMOVE", error);
             callback({ type: "ERROR", data: error });
             callback({ type: "CANCEL" });
-          })
-          .finally(data => basket.refresh(data));
+          });
 
         break;
 
@@ -191,13 +191,13 @@ export function syncSubscription(callback, onReceive) {
         update(event.target, event.context, basket)
           .then(data => {
             callback({ type: "UPDATED", data });
+            basket.refresh();
           })
           .catch(error => {
             console.error("basketHelper", "UPDATE", error);
             callback({ type: "ERROR", data: error });
             callback({ type: "CANCEL" });
-          })
-          .finally(data => basket.refresh(data));
+          });
 
         break;
 
