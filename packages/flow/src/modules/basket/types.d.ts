@@ -112,7 +112,7 @@ export interface BasketContext {
 // Events
 
 export interface BasketEvent {
-  type: "CHECK" | "REFRESH";
+  type: "CHECK" | "REFRESH" | "AUTHENTICATED";
   data?: IBasket;
   error?: RequestError;
 }

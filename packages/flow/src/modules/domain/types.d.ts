@@ -73,7 +73,6 @@ export interface DomainContext {
   // ---
   error?: any;
   // ---
-  sync?: boolean;
   basketHelper?: Function;
   itemBuilder?: Function;
   itemMapper?: Function;

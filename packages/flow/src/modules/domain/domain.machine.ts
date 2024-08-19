@@ -47,7 +47,6 @@ export default createMachine(
     context: {
       choices: DomainTypes,
       type: undefined,
-      sync: undefined,
       model: [],
       lookups: {
         searched: [],
@@ -76,42 +75,63 @@ export default createMachine(
       // ---
     } as DomainContext,
 
-    entry: ["checkModel", "ensurePrimary", "persistModel", "clearLookups"],
     states: {
       subscribing: {
-        always: [
-          {
-            target: "loading",
-            actions: "setBasketHelper",
-            cond: "needsBasketHelper",
-          },
-          {
-            target: "idle",
-          },
-        ],
+        entry: ["checkModel", "ensurePrimary", "persistModel", "clearLookups"],
+        invoke: {
+          id: "authCallback",
+          src: "authSubscription",
+        },
+        on: {
+          SESSION: [
+            {
+              target: "loading",
+              actions: "setBasketHelper",
+              cond: "hasNoBasketHelper",
+            },
+            {
+              target: "loading",
+            },
+          ],
+        },
       },
 
       loading: {
-        entry: ["fetchBasket"],
-        on: {
-          FETCHED: {
-            target: "idle",
-            actions: ["setBasketItems"],
+        type: "parallel",
+        states: {
+          existing: {
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  src: "getClientDomains",
+                  onDone: { target: "complete", actions: ["setOwned"] },
+                  onError: { target: "complete" },
+                },
+              },
+              complete: { type: "final" },
+            },
           },
-          ERROR: {
-            target: "idle",
+          basket: {
+            initial: "processing",
+            states: {
+              processing: {
+                entry: ["fetchBasket"],
+                on: {
+                  FETCHED: {
+                    target: "complete",
+                    actions: ["setBasketItems"],
+                  },
+                  ERROR: {
+                    target: "complete",
+                  },
+                },
+              },
+              complete: { type: "final" },
+            },
           },
         },
-
-        // invoke: {
-        //   src: "load",
-        //   onDone: {
-        //     target: "idle",
-        //     actions: ["setModel"],
-        //   },
-        //   onError: {
-        //     target: "idle",
-        //   },
+        onDone: "idle",
       },
 
       // our initial state depends on if the machine has been forced to a type,
@@ -239,39 +259,15 @@ export default createMachine(
           },
           RESET: {
             target: ".invalid",
-            actions: ["resetModel", "clearLookups", "clearSearch"],
+            actions: ["resetModel", "resetLookups", "clearSearch"],
           },
         },
       },
 
       existing: {
         id: "existing",
-        initial: "loading",
+        initial: "invalid",
         states: {
-          loading: {
-            entry: ["cancelController", "clearError", "newController"],
-            invoke: {
-              src: "getClientDomains",
-              onDone: {
-                target: "invalid",
-                actions: ["setOwned"],
-              },
-              onError: [
-                {
-                  target: "error",
-                  actions: ["setError"],
-                  cond: "isNotCancelled",
-                },
-              ],
-            },
-          },
-
-          // cancel any existing search via the controller then wait before starting a new search & controller
-          processing: {
-            entry: "cancelController",
-            after: { wait: "invalid" },
-          },
-
           valid: {
             always: [
               {
@@ -283,7 +279,6 @@ export default createMachine(
               },
             ],
           },
-
           invalid: {
             always: {
               target: "valid",
@@ -302,7 +297,7 @@ export default createMachine(
             { target: ".valid" },
           ],
           REMOVE: {
-            target: ".valid",
+            target: ".invalid",
             actions: ["clearError", "remove", "ensurePrimary"],
             cond: "hasModel",
           },
@@ -430,6 +425,9 @@ export default createMachine(
       STOP: {
         target: "complete",
       },
+
+      AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
+      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
     },
   },
   {
@@ -676,6 +674,9 @@ export default createMachine(
         lookups: ({ lookups, model }, { data }) => {
           const available = map(data?.available, item => {
             item.value = item.domain;
+            item.is_owned = some(lookups.owned, ["domain", item.domain]);
+            item.in_basket = some(lookups.basket, ["domain", item.domain]);
+            item.disabled = item.is_owned || item.in_basket;
             return item;
           });
 
@@ -737,6 +738,17 @@ export default createMachine(
         },
       }),
 
+      resetLookups: assign({
+        lookups: ({ lookups }, _event) => {
+          return {
+            searched: [],
+            history: [],
+            owned: lookups.owned,
+            basket: lookups.basket,
+          };
+        },
+      }),
+
       setPrimary: assign({
         model: ({ model }, { data }) => {
           const primary = find(model, ["domain", data]);
@@ -768,8 +780,7 @@ export default createMachine(
     },
 
     guards: {
-      needsBasketHelper: ({ sync, basketHelper }) =>
-        Boolean(sync && !basketHelper),
+      hasNoBasketHelper: ({ basketHelper }) => !basketHelper,
 
       // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
