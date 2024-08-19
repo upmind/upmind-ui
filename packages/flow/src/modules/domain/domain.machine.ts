@@ -784,7 +784,7 @@ export default createMachine(
       },
       isValidSearch: (_context, { data }) => {
         const sld = parseSld(data?.domain || data);
-        return sld?.length > 2;
+        return sld?.length >= 2;
       },
 
       hasModel: ({ model }) => {

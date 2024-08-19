@@ -95,13 +95,13 @@ export interface Typegen0 {
     setBasketHelper: "";
     setContext: "PROCESSING" | "RESET" | "xstate.init";
     setError:
+      | "ERROR"
       | "error.platform.load"
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.quantity.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
-    setExternalError: "ERROR";
     setLookups: "done.invoke.load";
     setModel: "SET";
     setOptions:
@@ -129,7 +129,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasChanged: "REFRESH";
-    hasError: "done.state.configuring";
+    hasError: "CANCEL" | "done.state.configuring";
     hasSummaryData: "CALCULATED";
     isDirty: "done.state.configuring";
     isNew: "UPDATED";
@@ -142,6 +142,7 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     checkAttributes:
+      | "CANCEL"
       | "CHECK.ATTRIBUTES"
       | "REFRESH"
       | "SET"
@@ -153,6 +154,7 @@ export interface Typegen0 {
       | "UPDATED"
       | "done.invoke.load";
     checkOptions:
+      | "CANCEL"
       | "CHECK.OPTIONS"
       | "REFRESH"
       | "SET"
@@ -164,6 +166,7 @@ export interface Typegen0 {
       | "UPDATED"
       | "done.invoke.load";
     checkProvisioning:
+      | "CANCEL"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -174,6 +177,7 @@ export interface Typegen0 {
       | "UPDATED"
       | "done.invoke.load";
     checkQuantity:
+      | "CANCEL"
       | "CHECK.QUANTITY"
       | "REFRESH"
       | "SET"
@@ -185,6 +189,7 @@ export interface Typegen0 {
       | "UPDATED"
       | "done.invoke.load";
     checkTerm:
+      | "CANCEL"
       | "CHECK.TERM"
       | "REFRESH"
       | "SET"

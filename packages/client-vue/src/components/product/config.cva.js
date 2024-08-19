@@ -129,10 +129,14 @@ export default {
           hasErrors: {
             true: "border-error",
           },
-          isNew: {
-            true: "border-accent",
-          },
         },
+        compoundVariants: [
+          {
+            hasErrors: false,
+            isNew: true,
+            class: "border-accent",
+          },
+        ],
       }),
 
       header: cva(
@@ -142,10 +146,14 @@ export default {
             hasErrors: {
               true: "bg-error text-error-content",
             },
-            isNew: {
-              true: "bg-accent text-accent-content",
-            },
           },
+          compoundVariants: [
+            {
+              hasErrors: false,
+              isNew: true,
+              class: "bg-accent text-accent-content",
+            },
+          ],
         }
       ),
 

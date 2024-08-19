@@ -167,6 +167,7 @@ export function syncSubscription(callback, onReceive) {
           .catch(error => {
             console.error("basketHelper", "ADD", error);
             callback({ type: "ERROR", data: error });
+            callback({ type: "ADDED" });
           });
         break;
 
@@ -179,6 +180,7 @@ export function syncSubscription(callback, onReceive) {
           .catch(error => {
             console.error("basketHelper", "REMOVE", error);
             callback({ type: "ERROR", data: error });
+            callback({ type: "CANCEL" });
           })
           .finally(data => basket.refresh(data));
 
@@ -193,6 +195,7 @@ export function syncSubscription(callback, onReceive) {
           .catch(error => {
             console.error("basketHelper", "UPDATE", error);
             callback({ type: "ERROR", data: error });
+            callback({ type: "CANCEL" });
           })
           .finally(data => basket.refresh(data));
 

@@ -62,8 +62,8 @@ export const useBasket = () => {
 
     checkout: () => service.send({ type: "CHECKOUT" }),
 
-    refresh: () => {
-      service.send({ type: "REFRESH" });
+    refresh: data => {
+      service.send({ type: "REFRESH", data });
       return waitFor(service, state =>
         state.matches("shopping.refreshing.complete")
       );
@@ -148,9 +148,11 @@ export const useBasket = () => {
     updateItem: async itemId => {
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
         return waitFor(item, state =>
-          ["available.complete", "complete", "error"].some(state.matches)
+          ["available.complete", "available.error", "complete", "error"].some(
+            state.matches
+          )
         ).then(state => {
-          if (state.matches("error")) {
+          if (["error", "available.error"].some(state.matches)) {
             return Promise.reject(state.context.error);
           }
           return Promise.resolve(item);
