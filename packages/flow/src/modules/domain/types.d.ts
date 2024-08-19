@@ -63,11 +63,14 @@ export interface DomainContext {
   };
   total?: number;
   // ---
-  search?: string;
+  search?: {
+    value: string;
+    limit: number;
+    offset: number;
+    total: number;
+  };
   currency?: string;
   promotions?: Array<string>;
-  limit?: number;
-  offset?: number;
   controller?: AbortController;
   tlds?: Array<string>;
   // ---

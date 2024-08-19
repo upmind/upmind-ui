@@ -15,6 +15,7 @@ import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
   compact,
   concat,
+  defaultsDeep,
   filter,
   find,
   first,
@@ -44,40 +45,16 @@ export default createMachine(
     id: "domainManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      choices: DomainTypes,
-      type: undefined,
-      model: [],
-      lookups: {
-        searched: [],
-        history: [],
-        owned: [],
-        basket: [],
-      },
-      total: 0,
-      // ---
-      currency: undefined,
-      promotions: [],
-      // ---
-      search: undefined,
-      limit: 10,
-      offset: 0,
-      controller: undefined,
-      // ---
-      error: undefined,
-      // ---
-      basketHelper: undefined,
-      itemBuilder: undefined,
-      itemMapper: undefined,
-      basketItemBuilder: undefined,
-      basketItemMapper: undefined,
-
-      // ---
-    } as DomainContext,
-
+    context: {} as DomainContext,
     states: {
       subscribing: {
-        entry: ["checkModel", "ensurePrimary", "persistModel", "clearLookups"],
+        entry: [
+          "setContext",
+          "checkModel",
+          "ensurePrimary",
+          "persistModel",
+          "clearLookups",
+        ],
         invoke: {
           id: "authCallback",
           src: "authSubscription",
@@ -432,6 +409,40 @@ export default createMachine(
   },
   {
     actions: {
+      setContext: assign((context, _event) =>
+        defaultsDeep(context, {
+          choices: DomainTypes,
+          type: undefined,
+          model: [],
+          lookups: {
+            searched: [],
+            history: [],
+            owned: [],
+            basket: [],
+          },
+          // ---
+          currency: undefined,
+          promotions: [],
+          // ---
+          search: {
+            query: undefined,
+            limit: 3,
+            offset: 0,
+            total: 0,
+          },
+
+          controller: undefined,
+          // ---
+          error: undefined,
+          // ---
+          basketHelper: undefined,
+          itemBuilder: undefined,
+          itemMapper: undefined,
+          basketItemBuilder: undefined,
+          basketItemMapper: undefined,
+        })
+      ),
+
       persistModel: assign({
         baseModel: ({ model }) => model,
       }),
@@ -656,16 +667,25 @@ export default createMachine(
       }),
 
       setSearch: assign({
-        search: (_context, { data }) => data?.domain || "",
-        offset: (_context, { data }) => data?.offset || 0,
+        search: ({ search }, { data }) => {
+          return {
+            query: data?.query || "",
+            offset: data?.offset || 0,
+            limit: data?.limit || search?.limit,
+          };
+        },
       }),
 
       clearSearch: assign({
-        search: null,
-        offset: 0,
-        total: 0,
+        search: ({ search }, _event) => ({
+          query: "",
+          offset: 0,
+          limit: search.limit,
+          total: 0,
+        }),
         lookups: ({ lookups }) => {
-          lookups.history = [];
+          // lookups.history = [];
+          lookups.search = [];
           return lookups;
         },
       }),
@@ -698,14 +718,18 @@ export default createMachine(
           );
 
           return lookups;
+          foffset;
         },
-        total: (_context, { data }) => data.total,
+        search: ({ search }, { data }) => {
+          search.total = data.total;
+          return search;
+        },
         controller: null,
       }),
 
       setOwned: assign({
         lookups: ({ lookups }, { data }) => {
-          const available = map(data?.available, item => {
+          const available = map(data, item => {
             item.value = item.domain;
             item.persist = true;
             return item;
@@ -791,11 +815,11 @@ export default createMachine(
       isValidDomain: (_context, { data }) => !isEmpty(parseDomain(data)),
 
       hasValidSearch: ({ search }, _event) => {
-        const sld = parseSld(search);
+        const sld = parseSld(search.query);
         return sld?.length > 2;
       },
       isValidSearch: (_context, { data }) => {
-        const sld = parseSld(data?.domain || data);
+        const sld = parseSld(data?.query);
         return sld?.length >= 2;
       },
 

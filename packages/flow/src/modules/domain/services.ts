@@ -13,27 +13,20 @@ import type { DomainContext } from "./types.d";
 
 // --------------------------------------------------------
 
-function search({
-  promotions,
-  currency,
-  limit,
-  controller,
-  search,
-  offset,
-}: DomainContext) {
+function search({ promotions, currency, controller, search }: DomainContext) {
   const { get, useUrl } = useApi();
 
-  if (!search?.length) return Promise.reject("No domain provided");
+  if (!search?.query?.length) return Promise.reject("No query provided");
 
-  const sld = parseSld(search);
+  const sld = parseSld(search.query);
 
   // --- Build the request, and Fetch the search results
   const params = omitBy(
     {
       sld,
       with: ["prices", "options", "options.prices", "attributes"].join(),
-      limit: limit?.toString(),
-      offset: offset?.toString(),
+      limit: search?.limit?.toString(),
+      offset: search.offset?.toString(),
       currency_code: currency,
       // tld,
       promotions: promotions?.join(),
@@ -61,12 +54,9 @@ function getClientDomains({ controller }: DomainContext) {
     init: { signal: controller?.signal },
     useCache: true,
     withAccessToken: true,
-  }).then(({ data, total }) => {
-    return {
-      available: map(data, ({ domain_name }) => parseDomain(domain_name)),
-      total: total || 0,
-    };
-  });
+  }).then(({ data }) =>
+    map(data, ({ domain_name }) => parseDomain(domain_name))
+  );
 }
 // --------------------------------------------------------
 

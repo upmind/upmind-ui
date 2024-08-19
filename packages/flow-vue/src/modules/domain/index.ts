@@ -45,13 +45,12 @@ export const useDomain = (
       data: value,
     });
 
-  const search = (value: string) =>
+  const search = (query: string, offset?: number, limit?: number) => {
     send({
       type: "SEARCH",
-      data: {
-        domain: value,
-      },
+      data: { query, limit, offset },
     });
+  };
 
   const toggle = (value: string) => {
     const type = some(state.value.context.model, ["domain", value])
@@ -117,7 +116,7 @@ export const useDomain = (
         };
       })
     ),
-    query: computed(() => state.value.context.search),
+    query: computed(() => state.value.context.search?.query),
     model: computed(() => map(state.value.context.model, "domain")),
     type: computed(() => state.value.context.type),
     // ---
@@ -152,12 +151,12 @@ export const useDomain = (
       hasErrors: ["error", "dac.error", "existing.error", "basket.error"].some(
         state.value.matches
       ),
-
       // ---
       showChoices: !!state.value.context.choices,
       showDac: state.value.matches("dac"),
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),
+
       showContinue:
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
