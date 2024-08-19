@@ -106,6 +106,12 @@ export interface Typegen0 {
     setBasket: "FETCHED";
     setBasketHelper: "SESSION";
     setBasketItems: "FETCHED";
+    setContext:
+      | "AUTHENTICATED"
+      | "CHOOSE"
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
     setCurrency: "REFRESH";
     setError: "ERROR" | "error.platform.processing:invocation[0]";
     setModel: "FETCHED" | "UPDATE";
