@@ -2,6 +2,7 @@
 
 // --- internal
 import { useApi } from "../api";
+import { useSession } from "../session";
 
 // --- utils
 import { parseDomain, parseAvailable, parseSld } from "./utils";
@@ -94,4 +95,7 @@ function getClientDomains({ controller }: DomainContext) {
 export default {
   search,
   getClientDomains,
+  authSubscription: (context, event) =>
+    useSession().authSubscription(context, event),
+  isAuthenticated: () => useSession().isAuthenticated(),
 };
