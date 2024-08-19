@@ -15,6 +15,9 @@ import {
   some,
   subtract,
   unset,
+  has,
+  isArray,
+  forEach,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -144,25 +147,20 @@ export const useProductConfig = actor => {
         attributes: model.value.attributes,
       },
     });
-  //emit("update:attributes",{itemId: props.id,...);
 
   function isSelectedAttribute(attributeId, value) {
     return some(model.value.attributes[attributeId], ["product_id", value]);
   }
 
-  function selectAttribute(attribute, value, { target }) {
-    // TODO: handle non multiple attributes
+  function setAttributes(attribute, values) {
+    const safeValues = isArray(values) ? values : [values];
+    set(model.value.attributes, attribute.id, {}); // reset all previous attributes
 
-    if (!attribute.multiple && target.checked)
-      set(model.value.attributes, attribute.id, {}); // reset all previous attributes
-
-    if (target.checked) {
-      set(model.value.attributes, [attribute.id, value.id], {
-        product_id: value.id,
+    forEach(safeValues, value => {
+      set(model.value.attributes, [attribute.id, value], {
+        product_id: value,
       });
-    } else {
-      unset(model.value.attributes, [attribute.id, value.id]);
-    }
+    });
 
     // emit the event
     updateAttributes();
@@ -177,23 +175,19 @@ export const useProductConfig = actor => {
         options: model.value.options,
       },
     });
-  //emit("update:options",{itemId: props.id,...);
 
   function isSelectedOption(optionId, value) {
     return some(model.value.options[optionId], ["product_id", value]);
   }
 
-  function selectOption(option, value, { target }) {
-    if (!option.multiple && target.checked)
-      set(model.value.options, option.id, {}); // reset all previous options
-
-    if (target.checked) {
-      set(model.value.options, [option.id, value.id], {
-        product_id: value.id,
+  function setOptions(option, values) {
+    const safeValues = isArray(values) ? values : [values];
+    set(model.value.options, option.id, {}); // reset all previous options
+    forEach(safeValues, value => {
+      set(model.value.options, [option.id, value], {
+        product_id: value,
       });
-    } else {
-      unset(model.value.options, [option.id, value.id]);
-    }
+    });
 
     // emit the event
     updateOptions();
@@ -311,11 +305,11 @@ export const useProductConfig = actor => {
     // ---
     updateAttributes,
     isSelectedAttribute,
-    selectAttribute,
+    setAttributes,
     // ---
     updateOptions,
     isSelectedOption,
-    selectOption,
+    setOptions,
     updateOptionQuantity,
     incrementOption,
     decrementOption,

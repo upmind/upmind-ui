@@ -129,14 +129,10 @@ export default {
           hasErrors: {
             true: "border-error",
           },
-        },
-        compoundVariants: [
-          {
-            hasErrors: false,
-            isNew: true,
-            class: "border-accent",
+          isNew: {
+            true: "border-accent",
           },
-        ],
+        },
       }),
 
       header: cva(
@@ -146,14 +142,10 @@ export default {
             hasErrors: {
               true: "bg-error text-error-content",
             },
-          },
-          compoundVariants: [
-            {
-              hasErrors: false,
-              isNew: true,
-              class: "bg-accent text-accent-content",
+            isNew: {
+              true: "bg-accent text-accent-content",
             },
-          ],
+          },
         }
       ),
 
@@ -276,45 +268,15 @@ export default {
       },
       // ---
       list: {
-        root: cva("w-full p-0 ", {
-          variants: {
-            disabled: {
-              // true: "pointer-events-none",
-            },
-          },
-        }),
-        items: cva(
-          "aria-[invalid=true]:border-control-error aria-[invalid=true]:focus-within:ring-control-error m-0 w-full  list-none rounded-lg p-0  aria-[invalid=true]:border  aria-[invalid=true]:focus-within:ring-4 aria-[invalid=true]:focus-within:ring-opacity-20"
-        ),
+        root: cva("w-full p-0 "),
         item: {
-          root: cva(
-            "aria-selected:focus-within:border-control-active aria-selected:focus-within:ring-control-active m-0 border border-b-0 p-0 first-of-type:rounded-t-lg last-of-type:rounded-b-lg last-of-type:border-b  aria-selected:border  aria-selected:focus-within:border  aria-selected:focus-within:ring-4  aria-selected:focus-within:ring-opacity-20 "
-          ),
-
-          wrapper: cva(
-            "flex cursor-pointer flex-wrap items-center gap-2 gap-y-8 px-4 py-3 ",
-            {
-              variants: {
-                disabled: {
-                  true: "cursor-not-allowed",
-                },
-                processing: {
-                  true: "cursor-wait",
-                },
-              },
-            }
-          ),
-
-          // input: cva("text-primary"),
           header: cva(
             "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
           ),
           footer: cva(
             "flex-shrink-1 flex items-center justify-end gap-1 gap-4"
           ),
-          // ---
           title: cva("text-md m-0 font-normal"),
-          text: cva("text-base-700 m-0 block w-full flex-none text-sm"),
           badges: cva("flex items-center justify-end gap-4 px-4"),
           price: cva("min-w-20 text-right"),
           total: cva(
@@ -322,9 +284,6 @@ export default {
           ),
           discount: cva(
             "text-base-700 block text-right text-sm font-normal leading-snug  tracking-wide line-through"
-          ),
-          cycle: cva(
-            "text-base-700 block block text-right text-xs font-normal  leading-snug tracking-wide"
           ),
         },
       },

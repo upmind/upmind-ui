@@ -173,7 +173,7 @@
           :icon="feedbackIcon"
           v-if="meta.hasFeedback"
         />
-        <span v-if="meta.hasFeedback">{{ errors || description }}</span>
+        <span v-if="meta.hasFeedback">{{ safeErrors || description }}</span>
       </slot>
     </div>
   </div>
@@ -211,7 +211,7 @@ export default defineComponent({
     label: { type: String },
     text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     requiredText: { type: String, default: "Required" },
     optionalText: { type: String, default: "" },
@@ -307,6 +307,11 @@ export default defineComponent({
       target,
       maybeFocus,
     };
+  },
+  computed: {
+    safeErrors() {
+      return Array.isArray(this.errors) ? this.errors.join() : this.errors;
+    },
   },
 });
 </script>

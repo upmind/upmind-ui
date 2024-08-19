@@ -114,7 +114,6 @@ async function update(item, context, basket) {
 
 async function sync(items, context, basket) {
   items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
-
   // First ensure all our items are added to the basket...
   // Then sync all our items with the basket
   const promises = isEmpty(items)
@@ -129,20 +128,17 @@ async function sync(items, context, basket) {
       item?.state.matches("available.configured")
     );
 
-    if (!validItems.length) return basket.refresh();
+    if (!validItems.length) {
+      return;
+    }
 
-    return productServices
-      .sync(
-        {
-          basket_id: basket.getBasketId(),
-          basket_products: basket.getItemsSnapshot(),
-        },
-        { data: validItems }
-      )
-      .catch(error => {
-        console.error("basketHelper", "SYNC", error);
-      })
-      .finally(data => basket.refresh(data));
+    return productServices.sync(
+      {
+        basket_id: basket.getBasketId(),
+        basket_products: basket.getItemsSnapshot(),
+      },
+      { data: validItems }
+    );
   });
 }
 

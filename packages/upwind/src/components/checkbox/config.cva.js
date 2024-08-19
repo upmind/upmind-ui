@@ -161,7 +161,6 @@ export default {
         },
       },
     }),
-
     checkbox: {
       wrapper: cva("border-transparent", {
         variants: {
@@ -171,6 +170,9 @@ export default {
         },
       }),
       input: cva("", {}),
+    },
+    input: {
+      root: cva("w-full "),
     },
   },
 };

@@ -15,16 +15,11 @@
     <!-- items -->
     <div :class="styles.basket.items.content" v-if="!meta.isLoading">
       <upm-basket-item
-        v-for="item in items"
-        :key="item.id"
+        v-for="(item, index) in items"
+        :key="`item-${item.id}-${index}`"
         :model-value="item.id"
         :item="item"
-        :selected="
-          items?.length == 1 &&
-          ['available.configuring', 'available.configured'].some(
-            item.state.value.matches
-          )
-        "
+        :selected="isSelected(index)"
       />
     </div>
 
@@ -45,6 +40,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmBasketItem from "./Item.vue";
+import { findIndex } from "lodash-es";
 
 // --- types
 
@@ -77,6 +73,17 @@ export default defineComponent({
     };
   },
   computed: {},
+  methods: {
+    isSelected(index) {
+      const firstForcedIndex = findIndex(this.items, item =>
+        ["available.configuring", "available.configured"].some(
+          item.state.value.matches
+        )
+      );
+
+      return index === firstForcedIndex;
+    },
+  },
 });
 </script>
 .
