@@ -25,7 +25,8 @@
       "search": "Search for your domain...",
       "actions": {
         "continue": "Add domains to basket",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "more": "Load more"
       }
     },
     "existing": {
@@ -36,6 +37,18 @@
       "title": "Choose your domain from the list below "
     },
     "card": {
+      "owned": {
+        "label": "You own this domain",
+        "instruction": "Select this domain from {newline}{ownership} section above.",
+        "ownership": "Use an existing domain and update nameservers",
+        "action": "Owned"
+      },
+      "basket": {
+        "label": "In Basket",
+        "instruction": "Select this domain from {newline}{ownership} section above.",
+        "ownership": "Use a domain from my basket",
+        "action": "Added"
+      },
       "available": {
         "label": "Available",
         "instruction": "{price} /yr",
