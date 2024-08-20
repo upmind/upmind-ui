@@ -140,7 +140,7 @@ export default createMachine(
           loading: {
             entry: ["cancelController", "clearError"],
             always: [
-              { target: "processing", cond: "hasValidSearch" },
+              { target: "processing", cond: "hasSearchQuery" },
               { target: "invalid" },
             ],
           },
@@ -152,7 +152,7 @@ export default createMachine(
               src: "search",
               onDone: {
                 target: "invalid",
-                actions: ["setSearched"],
+                actions: ["setSearchResults"],
               },
               onError: [
                 {
@@ -223,13 +223,19 @@ export default createMachine(
           SEARCH: [
             {
               target: ".processing",
-              actions: ["setSearch"],
-              cond: "isValidSearch",
+              actions: ["setSearchQuery"],
+              cond: "validSearchQuery",
             },
             {
-              actions: ["setSearch"],
+              actions: ["setSearchQuery"],
             },
           ],
+          "SEARCH.OFFSET": {
+            target: ".processing",
+            actions: ["setSearchOffset"],
+            cond: "validSearchOffset",
+          },
+
           REFRESH: {
             target: ".processing",
             actions: ["setCurrency", "setPromotions"],
@@ -426,7 +432,7 @@ export default createMachine(
           // ---
           search: {
             query: undefined,
-            limit: 3,
+            limit: 10,
             offset: 0,
             total: 0,
           },
@@ -666,13 +672,21 @@ export default createMachine(
         },
       }),
 
-      setSearch: assign({
+      setSearchQuery: assign({
         search: ({ search }, { data }) => {
           return {
-            query: data?.query || "",
-            offset: data?.offset || 0,
-            limit: data?.limit || search?.limit,
+            query: data,
+            offset: 0,
+            limit: search?.limit,
+            total: 0,
           };
+        },
+      }),
+
+      setSearchOffset: assign({
+        search: ({ search }, _event) => {
+          search.offset += search?.limit;
+          return search;
         },
       }),
 
@@ -690,8 +704,10 @@ export default createMachine(
         },
       }),
 
-      setSearched: assign({
-        lookups: ({ lookups, model }, { data }) => {
+      setSearchResults: assign({
+        lookups: ({ lookups, model, search }, { data }) => {
+          const previous = search.offset > 0 ? lookups.searched : [];
+
           const available = map(data?.available, item => {
             item.value = item.domain;
             item.is_owned = some(lookups.owned, ["domain", item.domain]);
@@ -707,7 +723,7 @@ export default createMachine(
           set(
             lookups,
             "searched",
-            uniqBy(compact(concat(persisted, available)), "domain")
+            uniqBy(compact(concat(persisted, previous, available)), "domain")
           );
 
           // store all previous searches
@@ -814,13 +830,17 @@ export default createMachine(
 
       isValidDomain: (_context, { data }) => !isEmpty(parseDomain(data)),
 
-      hasValidSearch: ({ search }, _event) => {
+      hasSearchQuery: ({ search }, _event) => {
         const sld = parseSld(search.query);
         return sld?.length > 2;
       },
-      isValidSearch: (_context, { data }) => {
-        const sld = parseSld(data?.query);
+      validSearchQuery: (_context, { data }) => {
+        const sld = parseSld(data);
         return sld?.length >= 2;
+      },
+      validSearchOffset: ({ search }, _event) => {
+        const offset = search.offset + search.limit;
+        return offset < search.total;
       },
 
       hasModel: ({ model }) => {

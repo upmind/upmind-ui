@@ -45,11 +45,12 @@ export const useDomain = (
       data: value,
     });
 
-  const search = (query: string, offset?: number, limit?: number) => {
-    send({
-      type: "SEARCH",
-      data: { query, limit, offset },
-    });
+  const search = (query: string) => {
+    send({ type: "SEARCH", data: query });
+  };
+
+  const searchMore = () => {
+    send({ type: "SEARCH.OFFSET" });
   };
 
   const toggle = (value: string) => {
@@ -148,9 +149,16 @@ export const useDomain = (
         "basket.loading",
       ].some(state.value.matches),
 
+      hasMoreSearchResults:
+        ["dac"].some(state.value.matches) &&
+        state.value.context?.search?.offset +
+          state.value.context?.search?.limit <
+          state.value.context?.search?.total,
+
       hasErrors: ["error", "dac.error", "existing.error", "basket.error"].some(
         state.value.matches
       ),
+
       // ---
       showChoices: !!state.value.context.choices,
       showDac: state.value.matches("dac"),
@@ -169,6 +177,7 @@ export const useDomain = (
     // ---
     choose,
     search,
+    searchMore,
     add,
     remove,
     toggle,

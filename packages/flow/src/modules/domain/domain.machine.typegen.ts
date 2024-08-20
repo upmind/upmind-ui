@@ -46,7 +46,13 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH" | "SYNCED";
+    cancelController:
+      | ""
+      | "CHOOSE"
+      | "REFRESH"
+      | "SEARCH"
+      | "SEARCH.OFFSET"
+      | "SYNCED";
     checkChoices: "FETCHED" | "done.state.domainManager.loading";
     checkModel:
       | "AUTHENTICATED"
@@ -61,6 +67,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "REMOVE"
       | "SEARCH"
+      | "SEARCH.OFFSET"
       | "SYNCED"
       | "UPDATE";
     clearLookups:
@@ -93,7 +100,7 @@ export interface Typegen0 {
       | "CHOOSE"
       | "SESSION"
       | "UNAUTHENTICATED";
-    newController: "" | "REFRESH" | "SEARCH";
+    newController: "" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
     persistModel:
       | "AUTHENTICATED"
       | "CHOOSE"
@@ -118,8 +125,9 @@ export interface Typegen0 {
     setOwned: "done.invoke.domainManager.loading.existing.processing:invocation[0]";
     setPrimary: "SELECT";
     setPromotions: "REFRESH";
-    setSearch: "SEARCH";
-    setSearched: "done.invoke.processing:invocation[0]";
+    setSearchOffset: "SEARCH.OFFSET";
+    setSearchQuery: "SEARCH";
+    setSearchResults: "done.invoke.processing:invocation[0]";
     setType: "CHOOSE";
     syncBasket: "SYNC";
     synced: "SYNCED";
@@ -131,7 +139,7 @@ export interface Typegen0 {
     hasModel: "" | "REMOVE" | "SELECT";
     hasNoBasketHelper: "SESSION";
     hasNoModel: "";
-    hasValidSearch: "";
+    hasSearchQuery: "";
     isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
@@ -139,7 +147,8 @@ export interface Typegen0 {
     isInvalidType: "CHOOSE";
     isNotCancelled: "error.platform.processing:invocation[0]";
     isValidDomain: "ADD";
-    isValidSearch: "SEARCH";
+    validSearchOffset: "SEARCH.OFFSET";
+    validSearchQuery: "SEARCH";
   };
   eventsCausingServices: {
     authSubscription:
@@ -149,7 +158,7 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "xstate.init";
     getClientDomains: "AUTHENTICATED" | "SESSION" | "UNAUTHENTICATED";
-    search: "" | "REFRESH" | "SEARCH";
+    search: "" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
   };
   matchesStates:
     | "basket"
