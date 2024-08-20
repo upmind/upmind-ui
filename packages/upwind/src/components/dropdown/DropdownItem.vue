@@ -106,7 +106,7 @@ import { defineComponent, toRefs } from "vue";
 import { RouterLink } from "vue-router";
 import { MenuItem } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
-import UpwAvatar from "../avatar/Avatar.vue";
+import UpwAvatar from "../ui/avatar/AvatarConsolidated.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
