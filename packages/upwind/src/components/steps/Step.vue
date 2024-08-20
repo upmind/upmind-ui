@@ -26,7 +26,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // -- components
-import UpwAvatar from "../avatar/Avatar.vue";
+import UpwAvatar from "../ui/avatar/AvatarConsolidated.vue";
 import UpwButton from "../button/Button.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
