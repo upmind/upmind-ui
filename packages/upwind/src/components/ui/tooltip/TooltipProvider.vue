@@ -5,7 +5,7 @@ const props = defineProps<TooltipProviderProps>();
 </script>
 
 <template>
-  <TooltipProvider v-bind="props">
+  <tooltip-provider v-bind="props">
     <slot />
-  </TooltipProvider>
+  </tooltip-provider>
 </template>

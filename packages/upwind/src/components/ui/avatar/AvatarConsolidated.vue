@@ -1,17 +1,17 @@
 <template>
-  <AvatarRoot :class="styles.avatar.root">
+  <avatar-root :class="styles.avatar.root">
     <slot v-if="avatar === null" />
 
-    <AvatarImage v-if="meta.hasImage" :src="avatar.src" alt="avatar" />
+    <avatar-image v-if="meta.hasImage" :src="avatar.src" alt="avatar" />
 
-    <AvatarFallback v-if="meta.hasCaption" :class="styles.avatar.caption">
+    <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
       {{ avatar.caption }}
-    </AvatarFallback>
+    </avatar-fallback>
 
     <upw-spinner v-if="meta.isLoading" />
 
     <upw-icon v-if="meta.hasIcon" :icon="avatar" :class="styles.avatar.icon" />
-  </AvatarRoot>
+  </avatar-root>
 </template>
 
 <script lang="ts">

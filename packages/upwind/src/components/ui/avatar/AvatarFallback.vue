@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<AvatarFallbackProps>(), {
 </script>
 
 <template>
-  <Primitive :as-child="asChild" :as="as">
+  <primitive :as-child="asChild" :as="as">
     <slot />
-  </Primitive>
+  </primitive>
 </template>
