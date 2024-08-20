@@ -20,6 +20,11 @@ enum colors {
   info = "Info",
   current = "Current",
 }
+enum baseSizes {
+  sm = "Small",
+  base = "Base",
+  lg = "Large",
+}
 
 enum sizes {
   xs = "Extra Small",
@@ -73,6 +78,13 @@ export const useSystemArgTypes = {
     control: {
       type: "radio",
       labels: sizes,
+    },
+  },
+  baseSizes: {
+    options: keys(baseSizes),
+    control: {
+      type: "radio",
+      labels: baseSizes,
     },
   },
   allSizes: {
