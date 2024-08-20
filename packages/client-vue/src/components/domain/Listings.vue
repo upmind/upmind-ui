@@ -11,7 +11,7 @@
         <slot name="header" v-bind="{ meta }"></slot>
       </header>
 
-      <transition
+      <transition-group
         :enter-active-class="styles.domain.transitions.fade.enter.active"
         :enter-from-class="styles.domain.transitions.fade.enter.from"
         :enter-to-class="styles.domain.transitions.fade.enter.to"
@@ -19,22 +19,15 @@
         :leave-from-class="styles.domain.transitions.fade.leave.from"
         :leave-to-class="styles.domain.transitions.fade.leave.to"
       >
-        <upw-skeleton-list
-          :class="styles.domain.listings.loading"
-          v-if="meta.isLoading"
-          :rows="3"
-        />
-
-        <slot name="empty" v-bind="{ meta }" v-else-if="meta.isEmpty">
-          <upm-empty />
-        </slot>
+        <upm-empty key="empty" v-if="!meta.isLoading && meta.isEmpty" />
 
         <upw-checkbox-list
-          v-else
+          v-if="!meta.isEmpty"
           :class="styles.domain.listings.items"
           :items="items"
           :model-value="safeValue"
           no-input
+          key="items"
         >
           <template #prepend="{ item }"> </template>
 
@@ -254,7 +247,14 @@
             </div>
           </template>
         </upw-checkbox-list>
-      </transition>
+
+        <upw-skeleton-list
+          v-if="meta.isLoading"
+          :class="styles.domain.listings.loading"
+          :rows="3"
+          key="more"
+        />
+      </transition-group>
     </section>
   </component>
 </template>

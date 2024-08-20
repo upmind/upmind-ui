@@ -25,7 +25,8 @@
       "search": "Search for your domain...",
       "actions": {
         "continue": "Add domains to basket",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "more": "Load more"
       }
     },
     "existing": {

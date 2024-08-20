@@ -26,6 +26,15 @@
         @update:modelValue="onUpdate"
         @toggle="onUpdate"
       />
+
+      <upw-button
+        v-if="meta.showDialog && meta.hasItems && meta.hasMore"
+        :label="$t('domain.dac.actions.more')"
+        :loading="meta.isLoading"
+        @click="onSearchOffset"
+        block
+        variant="ghost"
+      />
     </div>
     <template #actions="">
       <upw-button
@@ -70,7 +79,7 @@ export default defineComponent({
     // ---
     UpmDomainListings,
   },
-  emits: ["toggle", "search", "resolve", "reject"],
+  emits: ["toggle", "search", "search:more", "resolve", "reject"],
   props: {
     modelValue: { type: String },
     query: { type: String, default: "" },
@@ -83,18 +92,21 @@ export default defineComponent({
     disabled: { type: Boolean, default: false },
     continue: { type: Boolean, default: false },
     complete: { type: Boolean, default: false },
+    hasMore: { type: Boolean, default: false },
   },
   setup(props) {
     const meta = computed(() => ({
       hasDomain: !!props.modelValue,
       isEmpty: !props.values?.length,
       hasItems: !!props.items?.length,
+      hasMore: props.hasMore,
       isLoading: props.loading,
       isDisabled: props.disabled,
       isProcessing: props.processing,
       showContinue: props.continue,
       showComplete: props.complete,
       hasSynced: props.synced,
+
       // ---
       showDialog:
         props.dialog &&
@@ -121,6 +133,9 @@ export default defineComponent({
     },
     onSearch(value) {
       this.$emit("search", value);
+    },
+    onSearchOffset(value) {
+      this.$emit("search:more", value);
     },
     onUpdate(value) {
       if (this.meta.isDisabled || this.meta.isProcessing) return;

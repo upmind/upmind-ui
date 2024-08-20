@@ -20,12 +20,14 @@
           :complete="meta.showPrimaryDomain"
           :continue="meta.showContinue"
           :items="available"
+          :has-more="meta.hasMoreSearchResults"
           :key="type"
           :loading="meta.isSearching"
           :model-value="selected"
           :processing="meta.isSyncing"
           :values="model"
           @search="search"
+          @search:more="searchMore"
           @toggle="toggle"
           @resolve="syncBasket"
           @reject="reset"
@@ -129,6 +131,7 @@ export default defineComponent({
       // ---
       choose,
       search,
+      searchMore,
       update,
       toggle,
       reset,
@@ -161,6 +164,7 @@ export default defineComponent({
       // ---
       choose,
       search: debounce(search, 500),
+      searchMore: debounce(searchMore, 500),
       update: debounce(update, 500),
       toggle,
       reset,
