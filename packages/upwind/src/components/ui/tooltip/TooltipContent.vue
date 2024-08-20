@@ -31,9 +31,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <TooltipPortal>
-    <TooltipContent v-bind="{ ...forwarded, ...$attrs }" :class="props.class">
+  <tooltip-portal>
+    <tooltip-content v-bind="{ ...forwarded, ...$attrs }" :class="props.class">
       <slot />
-    </TooltipContent>
-  </TooltipPortal>
+    </tooltip-content>
+  </tooltip-portal>
 </template>

@@ -66,6 +66,10 @@ module.exports = {
     "vue/no-v-html": "off",
     "vue/no-v-text-v-html-on-component": "off",
     "vue/no-v-model-argument": "off",
+    "vue/component-api-style": [
+      "error",
+      ["script-setup", "composition", "options"],
+    ], // "script-setup", "composition", "composition-vue2", or "options"
 
     // general
     "no-unsafe-optional-chaining": "off",
