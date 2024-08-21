@@ -50,11 +50,11 @@
 
 <script>
 // --- external
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
-import { useBasket, utils } from "@upmind/flow-vue";
-const { stateMatches, contextMatches, machineMatches } = utils;
+import { useProductConfig, useBasket, utils } from "@upmind/flow-vue";
+const { stateMatches } = utils;
 import { useStyles, mergeStyles, UpwBadge } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -84,41 +84,33 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { removeItem, updateItem } = useBasket();
+
     const {
       meta,
-      items,
-      removeItem,
-      updateItem,
       updateAttributes,
       updateOptions,
       updateProvisioning,
       updateQuantity,
       updateTerm,
-    } = useBasket();
+    } = useProductConfig(props.item);
 
-    const itemMeta = computed(() => ({
-      isRequired: !contextMatches(props.item, ["basket_product"]),
-      isLoading: meta.value.isLoading,
-      isProcessing: meta.value.isProcessing,
-      isNew: !contextMatches(props.item, ["basket_product"]),
-      hasErrors:
-        contextMatches(props.item, ["basket_product"]) &&
-        machineMatches(props.item, ["available.error"]),
-    }));
-
-    const styles = useStyles(
-      ["basket.item", "basket.item.ping"],
-      itemMeta,
-      config
-    );
+    const styles = useStyles(["basket.item", "basket.item.ping"], meta, config);
     // ---
 
     const open = ref(props.selected);
+    // make props reactive to open
+    watch(
+      () => props.selected,
+      value => {
+        open.value = value || meta.value.isNew;
+      }
+    );
 
     // ---
 
     return {
-      meta: itemMeta,
+      meta,
       removeItem,
       updateItem,
       updateAttributes,

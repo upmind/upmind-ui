@@ -3,6 +3,8 @@ import { computed, toRef, watch } from "vue";
 
 // --- internal
 
+import { stateMatches, contextMatches } from "../../utils";
+
 // --- utils
 import {
   add,
@@ -14,8 +16,6 @@ import {
   set,
   some,
   subtract,
-  unset,
-  has,
   isArray,
   forEach,
 } from "lodash-es";
@@ -38,23 +38,22 @@ export const useProductConfig = actor => {
   const errors = computed(() => state.value.context?.error);
 
   const meta = computed(() => ({
-    isLoading: ["subscribing", "loading"].some(state.value.matches),
-    isNew: isEmpty(state.value.context.basket_product),
-    isDirty: !isEmpty(state.value.context.basket_product),
+    isLoading: stateMatches(state, ["subscribing", "loading"]),
+    isNew: !contextMatches(state, ["basket_product"]),
+    isDirty: stateMatches(state, ["available.configured"]),
     hasErrors:
-      ["available.error", "error"].some(state.value.matches) ||
-      !isEmpty(state.value.context?.error),
-    isConfigurable:
-      // !isEmpty(state.value?.context?.lookups?.terms) ||
-      !isEmpty(state.value?.context?.lookups?.attributes) ||
-      !isEmpty(state.value?.context?.lookups?.options) ||
-      !isEmpty(state.value?.context?.lookups?.provision_fields?.properties),
-
-    isConfigured: state.value.matches("available.configured"),
-    isCalculating: state.value.context?.summary?.isCalculating,
-
-    isProcessing: ["processing", "complete"].some(state.value.matches),
+      stateMatches(state, ["available.error", "error"]) ||
+      contextMatches(state, ["error"]),
+    isConfigurable: contextMatches(state, [
+      "lookups.attributes",
+      "lookups.options",
+      "lookups.provision_fields.properties",
+    ]),
+    isConfigured: stateMatches(state, ["available.configured"]),
+    isCalculating: contextMatches(state, ["summary.isCalculating"]),
+    isProcessing: stateMatches(state, ["processing", "complete"]),
     // ---
+
     hasProvisioning:
       !isEmpty(state.value.context?.lookups?.provision_fields?.properties) &&
       !!state.value?.context?.model?.provision_fields,

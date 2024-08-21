@@ -6,6 +6,7 @@ const { sendTo } = actions;
 import services from "./services";
 import { useFeedback } from "../feedback";
 import { syncSubscription } from "../basket/helper";
+import { authSubscription } from "../session";
 
 const { addError, addSuccess } = useFeedback();
 
@@ -55,21 +56,9 @@ export default createMachine(
           "persistModel",
           "clearLookups",
         ],
-        invoke: {
-          id: "authCallback",
-          src: "authSubscription",
-        },
-        on: {
-          SESSION: [
-            {
-              target: "loading",
-              actions: "setBasketHelper",
-              cond: "hasNoBasketHelper",
-            },
-            {
-              target: "loading",
-            },
-          ],
+        always: {
+          target: "loading",
+          actions: ["setBasketHelper", "setAuthHelper"],
         },
       },
 
@@ -441,6 +430,7 @@ export default createMachine(
           // ---
           error: undefined,
           // ---
+          authHelper: undefined,
           basketHelper: undefined,
           itemBuilder: undefined,
           itemMapper: undefined,
@@ -505,9 +495,13 @@ export default createMachine(
       }),
       // ---
 
-      setBasketHelper: assign(context => {
+      setAuthHelper: assign(({ authHelper }) => {
+        authHelper || spawn(authSubscription);
+      }),
+
+      setBasketHelper: assign(({ basketHelper }) => {
         return {
-          basketHelper: spawn(syncSubscription),
+          basketHelper: basketHelper || spawn(syncSubscription),
           itemBuilder: function (item) {
             return parseBasketItem(item);
           },
@@ -820,8 +814,6 @@ export default createMachine(
     },
 
     guards: {
-      hasNoBasketHelper: ({ basketHelper }) => !basketHelper,
-
       // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
       isInvalidType: ({ choices }, { data }) => {

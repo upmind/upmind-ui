@@ -85,7 +85,4 @@ function getClientDomains({ controller }: DomainContext) {
 export default {
   search,
   getClientDomains,
-  authSubscription: (context, event) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
 };

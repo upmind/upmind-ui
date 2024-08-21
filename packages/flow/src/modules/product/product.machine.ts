@@ -8,7 +8,7 @@ import { syncSubscription } from "../basket/helper";
 
 // --utils
 import { responseCodes } from "../api";
-import { useTime, isDeepEmpty, useValidationParser } from "../../utils";
+import { useTime, compactDeep, useValidationParser } from "../../utils";
 import {
   buildBasketItem,
   parseSubproduct,
@@ -55,16 +55,10 @@ export default createMachine(
       subscribing: {
         entry: "setContext",
         // Parse our Basket/Config data into context
-        always: [
-          {
-            target: "loading",
-            actions: "setBasketHelper",
-            cond: "needsBasketHelper",
-          },
-          {
-            target: "loading",
-          },
-        ],
+        always: {
+          target: "loading",
+          actions: "setBasketHelper",
+        },
       },
 
       // first load our product, we do this even if we are given a configured set of values
@@ -275,7 +269,6 @@ export default createMachine(
                 on: {},
               },
             },
-
             onDone: [
               { target: "error", cond: "hasError" },
               { target: "configured", cond: "isDirty" },
@@ -425,16 +418,16 @@ export default createMachine(
           return {
             currency_id,
             promotions,
-            baseModel: parseBasketProduct(model),
+            baseModel: clone(model),
             model: parseBasketProduct(basket_product),
             error: undefined,
           };
         }
       ),
 
-      setBasketHelper: assign(_context => {
+      setBasketHelper: assign(({ basketHelper }) => {
         return {
-          basketHelper: spawn(syncSubscription),
+          basketHelper: basketHelper || spawn(syncSubscription),
           itemBuilder: item => parseModel(item),
           itemMapper: item => ({ id: item.id }),
           basketItemBuilder: item => buildBasketItem(item),
@@ -615,15 +608,12 @@ export default createMachine(
     },
     services,
     guards: {
-      needsBasketHelper: ({ basket_id, basketHelper }: ProductConfigContext) =>
-        Boolean(!!basket_id && !basketHelper),
-
       isNew: ({ basket_product }: ProductConfigContext) =>
         isEmpty(basket_product),
 
       isDirty: ({ model, baseModel, basket_product }: ProductConfigContext) => {
-        const cleanModel = omitBy(model, isDeepEmpty);
-        const cleanBaseModel = omitBy(baseModel, isDeepEmpty);
+        const cleanModel = compactDeep(model);
+        const cleanBaseModel = compactDeep(baseModel);
         return isEmpty(basket_product) || !isEqual(cleanModel, cleanBaseModel);
       },
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
@@ -632,9 +622,9 @@ export default createMachine(
         { model, basket_id, currency_id, promotions }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
-        const cleanModel = omitBy(model, isDeepEmpty);
+        const cleanModel = compactDeep(model);
         const cleanProduct = data?.basket_product
-          ? omitBy(parseBasketProduct(data.basket_product), isDeepEmpty)
+          ? compactDeep(parseBasketProduct(data.basket_product))
           : {};
         const isDirty =
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);

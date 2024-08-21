@@ -124,7 +124,7 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import { some, has, reduce, map, get, filter } from "lodash-es";
+import { some, has, reduce, map, get, filter, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -220,7 +220,9 @@ export default defineComponent({
 
       return !item.multiple || item.values?.length == 1
         ? value?.toString()
-        : value;
+        : isArray(value)
+          ? value
+          : [value];
     },
     doUpdateQuantity(item, value, $event) {
       this.$emit("update:quantity", item, value, $event);

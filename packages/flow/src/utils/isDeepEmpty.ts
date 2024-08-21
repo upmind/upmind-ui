@@ -23,3 +23,23 @@ export function isDeepEmpty(value: any): boolean {
   }
   return isEmpty(value);
 }
+
+export function compactDeep(value: any): any {
+  if (isEmpty(value)) {
+    return value;
+  }
+  if (isObject(value)) {
+    const result = {};
+    for (const [key, item] of Object.entries(value)) {
+      const compactedItem = compactDeep(item);
+      if (!isEmpty(compactedItem)) {
+        result[key] = compactedItem;
+      }
+    }
+    return result;
+  }
+  if (isArray(value)) {
+    return value.map(item => compactDeep(item)).filter(item => !isEmpty(item));
+  }
+  return value;
+}
