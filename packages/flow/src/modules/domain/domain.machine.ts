@@ -5,7 +5,7 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
-import { basketSubscription } from "../basket/helper";
+import { syncSubscription } from "../basket/helper";
 import { authSubscription } from "../session";
 
 const { addError, addSuccess } = useFeedback();
@@ -499,7 +499,7 @@ export default createMachine(
 
       setBasketHelper: assign(({ basketHelper }) => {
         return {
-          basketHelper: basketHelper || spawn(basketSubscription),
+          basketHelper: basketHelper || spawn(syncSubscription),
           itemBuilder: function (item) {
             return parseBasketItem(item);
           },

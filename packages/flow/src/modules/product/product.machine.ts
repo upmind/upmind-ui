@@ -4,7 +4,7 @@ const { sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
-import { basketSubscription } from "../basket/helper";
+import { syncSubscription } from "../basket/helper";
 
 // --utils
 import { responseCodes } from "../api";
@@ -426,7 +426,7 @@ export default createMachine(
 
       setBasketHelper: assign(({ basketHelper }) => {
         return {
-          basketHelper: basketHelper || spawn(basketSubscription),
+          basketHelper: basketHelper || spawn(syncSubscription),
           itemBuilder: item => parseModel(item),
           itemMapper: item => ({ id: item.id }),
           basketItemBuilder: item => buildBasketItem(item),

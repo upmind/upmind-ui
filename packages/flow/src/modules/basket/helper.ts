@@ -114,7 +114,7 @@ async function update(item, context, basket) {
 
 async function sync(items, context, basket) {
   items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
-  // First ensure all our items are added to the basket...wihout autoupdate!
+  // First ensure all our items are added to the basket...
   // Then sync all our items with the basket
   const promises = isEmpty(items)
     ? [Promise.resolve([])]
@@ -144,7 +144,7 @@ async function sync(items, context, basket) {
 
 // --------------------------------------------------------
 
-export function basketSubscription(callback, onReceive) {
+export function syncSubscription(callback, onReceive) {
   const basket = useBasket();
   onReceive(event => {
     switch (event.type) {
