@@ -100,12 +100,12 @@ export default defineComponent({
 
     const open = ref(props.selected);
     // make props reactive to open
-    watch(
-      () => props.selected,
-      value => {
-        open.value = value || meta.value.isNew;
-      }
-    );
+    // watch(
+    //   () => props.selected,
+    //   value => {
+    //     open.value = value || meta.value.isNew;
+    //   }
+    // );
 
     // ---
 

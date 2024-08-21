@@ -122,7 +122,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "term"),
+                    // entry: ({ error }) => unset(error, "term"),
                     invoke: {
                       src: "checkTerm",
                       onDone: [
@@ -174,7 +174,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "attributes"),
+                    // entry: ({ error }) => unset(error, "attributes"),
                     invoke: {
                       src: "checkAttributes",
                       onDone: {
@@ -201,7 +201,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "options"),
+                    // entry: ({ error }) => unset(error, "options"),
                     invoke: {
                       src: "checkOptions",
                       onDone: [
@@ -250,7 +250,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    entry: ({ error }) => unset(error, "provision_fields"),
+                    // entry: ({ error }) => unset(error, "provision_fields"),
                     invoke: {
                       src: "checkProvisioning",
                       onDone: {
@@ -468,8 +468,11 @@ export default createMachine(
         model: (_context, { data }) => parseModel(data?.product),
       }),
 
+      // restroring the model + errors to its prev state
       resetModel: assign({
         model: ({ baseModel }, _event) => clone(baseModel),
+        error: ({ error, errorExternal }, _event) =>
+          merge({}, error, errorExternal),
       }),
 
       // ---
@@ -563,7 +566,7 @@ export default createMachine(
           set(model, "provision_fields", provision_fields);
           return model;
         },
-        error: ({ error }, { data }) => {
+        error: ({ error, errorExternal }, { data }) => {
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
