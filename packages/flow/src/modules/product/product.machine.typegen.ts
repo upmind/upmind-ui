@@ -133,7 +133,6 @@ export interface Typegen0 {
     hasSummaryData: "CALCULATED";
     isDirty: "done.state.configuring";
     isNew: "UPDATED";
-    needsBasketHelper: "";
     needsCalculating:
       | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"

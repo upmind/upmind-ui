@@ -4,11 +4,6 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.authCallback": {
-      type: "done.invoke.authCallback";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.domainManager.loading.existing.processing:invocation[0]": {
       type: "done.invoke.domainManager.loading.existing.processing:invocation[0]";
       data: unknown;
@@ -18,10 +13,6 @@ export interface Typegen0 {
       type: "done.invoke.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.authCallback": {
-      type: "error.platform.authCallback";
-      data: unknown;
     };
     "error.platform.processing:invocation[0]": {
       type: "error.platform.processing:invocation[0]";
@@ -34,7 +25,6 @@ export interface Typegen0 {
     "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    authSubscription: "done.invoke.authCallback";
     getClientDomains: "done.invoke.domainManager.loading.existing.processing:invocation[0]";
     search: "done.invoke.processing:invocation[0]";
   };
@@ -42,7 +32,7 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services: "authSubscription" | "getClientDomains" | "search";
+    services: "getClientDomains" | "search";
   };
   eventsCausingActions: {
     add: "ADD";
@@ -94,12 +84,7 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "UPDATE"
       | "xstate.init";
-    fetchBasket:
-      | ""
-      | "AUTHENTICATED"
-      | "CHOOSE"
-      | "SESSION"
-      | "UNAUTHENTICATED";
+    fetchBasket: "" | "AUTHENTICATED" | "CHOOSE" | "UNAUTHENTICATED";
     newController: "" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
     persistModel:
       | "AUTHENTICATED"
@@ -110,8 +95,9 @@ export interface Typegen0 {
     remove: "REMOVE";
     resetLookups: "RESET";
     resetModel: "RESET";
+    setAuthHelper: "";
     setBasket: "FETCHED";
-    setBasketHelper: "SESSION";
+    setBasketHelper: "";
     setBasketItems: "FETCHED";
     setContext:
       | "AUTHENTICATED"
@@ -137,7 +123,6 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasModel: "" | "REMOVE" | "SELECT";
-    hasNoBasketHelper: "SESSION";
     hasNoModel: "";
     hasSearchQuery: "";
     isBasket: "CHOOSE";
@@ -151,13 +136,7 @@ export interface Typegen0 {
     validSearchQuery: "SEARCH";
   };
   eventsCausingServices: {
-    authSubscription:
-      | "AUTHENTICATED"
-      | "CHOOSE"
-      | "STOP"
-      | "UNAUTHENTICATED"
-      | "xstate.init";
-    getClientDomains: "AUTHENTICATED" | "SESSION" | "UNAUTHENTICATED";
+    getClientDomains: "" | "AUTHENTICATED" | "UNAUTHENTICATED";
     search: "" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
   };
   matchesStates:

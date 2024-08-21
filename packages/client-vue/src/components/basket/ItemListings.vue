@@ -75,11 +75,13 @@ export default defineComponent({
   computed: {},
   methods: {
     isSelected(index) {
-      const firstForcedIndex = findIndex(this.items, item =>
-        ["available.configuring", "available.configured"].some(
+      const firstForcedIndex = findIndex(this.items, item => {
+        const selected = ["available.configuring", "available.configured"].some(
           item.state.value.matches
-        )
-      );
+        );
+
+        return selected;
+      });
 
       return index === firstForcedIndex;
     },

@@ -76,6 +76,7 @@ export interface DomainContext {
   // ---
   error?: any;
   // ---
+  authHelper?: Function;
   basketHelper?: Function;
   itemBuilder?: Function;
   itemMapper?: Function;
