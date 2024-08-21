@@ -29,7 +29,6 @@ import {
   isEqual,
   isNil,
   merge,
-  omitBy,
   set,
   toNumber,
   unset,
@@ -579,6 +578,10 @@ export default createMachine(
               remove(error.provision_fields.data, ["schemaPath", key]);
             }
           });
+
+          // housekeeping, if we have no errors, remove the provision_fields key
+          if (isEmpty(error?.provision_fields?.data))
+            unset(error, "provision_fields");
 
           return error;
         },
