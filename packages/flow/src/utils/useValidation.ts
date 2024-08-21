@@ -71,7 +71,7 @@ export const useValidationParser = (error: any) => {
         instancePath: `/${instancePath}`, // AJV style path to the property in the schema
         message: value.toString(),
         // --- optional
-        schemaPath: key,
+        schemaPath: instancePath,
         keyword: "",
         params: {},
       };
