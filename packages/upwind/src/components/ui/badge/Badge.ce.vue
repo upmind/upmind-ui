@@ -1,37 +1,30 @@
 <template>
   <span :class="[styles.badge.root]">
-    <slot name="prepend" v-bind="{ icon }">
-      <upw-icon v-if="icon" :class="styles.badge.icon" :icon="icon" />
-    </slot>
-
-    <slot v-if="label === ''" />
-    <span v-else :class="styles.badge.label">{{ label }}</span>
-
-    <slot name="append" v-bind="{ icon }"> </slot>
+    <slot name="prepend"></slot>
+    <span :class="styles.badge.label">
+      <slot> {{ label }}</slot>
+    </span>
+    <slot name="append"> </slot>
   </span>
 </template>
 
 <script lang="ts">
-// --- components
-import UpwIcon from "../../icon/Icon.vue";
-
 // --- external
 import { toRefs } from "vue";
 
-// --- types
-import { type BadgeVariants } from ".";
-import type { IconProps } from "./types";
-
-// --- config
+// --- internal
 import config from "./badge.config";
 import { useStyles } from "../../../utils";
 
-export default {
-  name: "Badge",
-  components: {
-    UpwIcon,
-  },
+// --- components
 
+// --- types
+import { type BadgeVariants } from ".";
+
+// -----------------------------------------------------------------------------
+export default {
+  name: "UwBadge",
+  components: {},
   props: {
     variant: {
       type: String as BadgeVariants["variant"],
@@ -42,9 +35,6 @@ export default {
     },
     label: {
       type: String,
-    },
-    icon: {
-      type: [String, Object] as IconProps["icon"],
     },
 
     // --- Provide a way to add custom styles for a specific instance of the component

@@ -1,23 +1,16 @@
 <template>
   <avatar-root :class="styles.avatar.root">
-    <slot v-if="avatar === null" />
-
-    <avatar-image v-if="meta.hasImage" :src="avatar.src" alt="avatar" />
-
-    <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
-      {{ avatar.caption }}
-    </avatar-fallback>
-
-    <upw-spinner v-if="meta.isLoading" />
-
-    <upw-icon v-if="meta.hasIcon" :icon="avatar" :class="styles.avatar.icon" />
+    <slot>
+      <avatar-image v-if="meta.hasImage" :src="avatar.src" alt="avatar" />
+      <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
+        {{ avatar.caption }}
+      </avatar-fallback>
+    </slot>
   </avatar-root>
 </template>
 
 <script lang="ts">
 // --- components
-import UpwIcon from "../../icon/Icon.vue";
-import UpwSpinner from "../../spinner/Spinner.vue";
 import { AvatarFallback, AvatarImage } from "./index";
 import { AvatarRoot } from "radix-vue";
 
@@ -36,10 +29,8 @@ import { useStyles } from "../../../utils";
 import config from "./avatar.config";
 
 export default {
-  name: "Avatar",
+  name: "UwAvatar",
   components: {
-    UpwIcon,
-    UpwSpinner,
     AvatarFallback,
     AvatarImage,
     AvatarRoot,
@@ -57,10 +48,6 @@ export default {
     avatar: {
       type: Object,
       default: () => null,
-    },
-    icon: {
-      type: String,
-      default: "",
     },
     loading: {
       type: Boolean,
