@@ -22,22 +22,26 @@ export default {
       footer: cva(
         "text-base-700 m-0 flex w-full w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
-      actions: cva("min-w-48"),
+      actions: cva("min-w-48 empty:hidden"),
       owned: {
         root: cva("m-0 items-end"),
-        ownership: cva("font-medium"),
+        ownership: cva("font-semibold"),
         price: cva("not-italic"),
         tld: cva("uppercase not-italic"),
-        label: cva("text-primary size-5"),
+        icon: cva(
+          "bg-accent text-accent-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
         discount: cva("text-base-500 text-md block font-normal line-through"),
         action: cva(""),
       },
       basket: {
         root: cva("m-0 items-end"),
-        ownership: cva("font-medium"),
+        ownership: cva("font-semibold"),
         price: cva("not-italic"),
         tld: cva("uppercase not-italic"),
-        label: cva("text-primary size-5"),
+        icon: cva(
+          "bg-accent text-accent-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
         discount: cva("text-base-500 text-md block font-normal line-through"),
         action: cva(""),
       },
@@ -46,7 +50,9 @@ export default {
         ownership: cva("font-medium"),
         price: cva("m-0 text-xl font-semibold not-italic tracking-wide"),
         tld: cva("uppercase not-italic"),
-        label: cva("text-primary size-5 "),
+        icon: cva(
+          "bg-primary text-primary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
         discount: cva("text-base-500 text-md block font-normal line-through"),
         action: cva(""),
       },
@@ -55,7 +61,9 @@ export default {
         ownership: cva("font-medium"),
         price: cva("not-italic"),
         tld: cva("uppercase not-italic"),
-        label: cva("text-secondary size-5"),
+        icon: cva(
+          "bg-secondary text-secondary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
         discount: cva("text-base-500 text-md block font-normal line-through"),
         action: cva(""),
       },

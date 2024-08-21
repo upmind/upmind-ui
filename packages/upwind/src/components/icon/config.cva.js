@@ -6,6 +6,7 @@ export default {
     root: cva("inline-flex flex-shrink-0 align-middle", {
       variants: {
         size: {
+          full: "size-full",
           xs: "size-6",
           sm: "size-8",
           md: "size-10",

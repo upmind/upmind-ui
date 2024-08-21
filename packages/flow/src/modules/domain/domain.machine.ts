@@ -71,7 +71,10 @@ export default createMachine(
               processing: {
                 invoke: {
                   src: "getClientDomains",
-                  onDone: { target: "complete", actions: ["setOwned"] },
+                  onDone: {
+                    target: "complete",
+                    actions: ["setOwned"],
+                  },
                   onError: { target: "complete" },
                 },
               },
@@ -292,7 +295,6 @@ export default createMachine(
                 target: "invalid",
                 actions: [
                   "setBasketItems",
-                  "setBasket",
                   "setModel",
                   "ensurePrimary",
                   "checkChoices",
@@ -532,6 +534,15 @@ export default createMachine(
 
       setBasketItems: assign({
         basketItems: (_context, { data }) => data,
+        lookups: ({ lookups }, { data }) => {
+          const available = map(data, item => {
+            item.value = item.domain;
+            return item;
+          });
+
+          set(lookups, "basket", available);
+          return lookups;
+        },
       }),
 
       syncBasket: sendTo(
@@ -745,18 +756,6 @@ export default createMachine(
             return item;
           });
           set(lookups, "owned", available);
-          return lookups;
-        },
-      }),
-
-      setBasket: assign({
-        lookups: ({ lookups }, { data }) => {
-          const available = map(data, item => {
-            item.value = item.domain;
-            return item;
-          });
-
-          set(lookups, "basket", available);
           return lookups;
         },
       }),
