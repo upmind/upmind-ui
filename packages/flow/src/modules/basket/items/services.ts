@@ -112,7 +112,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     const product = basketItemBuilder(model);
     // Add a flag to the product to indicate that the field values should NOT be validated.
     //  we want to ge these products in without deep validation
-    set(product, "provision_field_values_validate", false);
+    // set(product, "provision_field_values_validate", false);
     if (id) set(product, "order_product_id", id);
 
     return product;
