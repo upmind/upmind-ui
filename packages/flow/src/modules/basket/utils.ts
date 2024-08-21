@@ -43,6 +43,7 @@ export function spawnProductConfiguration(data: any, basket: IBasket) {
       [isBasketProduct ? "basket_product" : "model"]: data,
       currency_id: basket?.currency_id,
       promotions: basket?.promotions,
+      autoupdate: data?.autoupdate,
     }),
     {
       name: id,
