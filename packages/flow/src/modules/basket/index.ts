@@ -91,15 +91,18 @@ export const useBasket = () => {
         "state.context.model"
       ),
 
-    addItem: async ({
-      id,
-      product_id,
-      quantity,
-      term,
-      attributes,
-      options,
-      provision_fields,
-    }: IProductModel) => {
+    addItem: async (
+      {
+        id,
+        product_id,
+        quantity,
+        term,
+        attributes,
+        options,
+        provision_fields,
+      }: IProductModel,
+      autoupdate: boolean = true
+    ) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state =>
         ["shopping", "checkout"].some(state.matches)
@@ -118,6 +121,7 @@ export const useBasket = () => {
             },
             isEmpty
           );
+          mapping.autoupdate = autoupdate;
 
           service.send({
             type: "ADD",
