@@ -96,7 +96,6 @@ export interface Typegen0 {
     resetLookups: "RESET";
     resetModel: "RESET";
     setAuthHelper: "";
-    setBasket: "FETCHED";
     setBasketHelper: "";
     setBasketItems: "FETCHED";
     setContext:

@@ -34,17 +34,16 @@
           <template #label="{ item }">
             <p :class="styles.domain.card.label">
               <span :class="styles.domain.card.text" v-if="item.is_owned">
-                <upw-icon icon="lock" :class="styles.domain.card.owned.label" />
-
+                <span :class="styles.domain.card.owned.icon">
+                  <upw-icon icon="lock" size="full" />
+                </span>
                 {{ $t("domain.card.owned.label") }}
               </span>
 
               <span :class="styles.domain.card.text" v-else-if="item.in_basket">
-                <upw-icon
-                  icon="check-circle-solid"
-                  :class="styles.domain.card.basket.label"
-                />
-
+                <span :class="styles.domain.card.basket.icon">
+                  <upw-icon icon="basket" size="full" />
+                </span>
                 {{ $t("domain.card.basket.label") }}
               </span>
 
@@ -52,18 +51,16 @@
                 v-else-if="item.is_available"
                 :class="styles.domain.card.text"
               >
-                <upw-icon
-                  icon="check-circle-solid"
-                  :class="styles.domain.card.available.label"
-                />
+                <span :class="styles.domain.card.available.icon">
+                  <upw-icon icon="check" size="full" />
+                </span>
                 {{ $t("domain.card.available.label") }}
               </span>
 
               <span :class="styles.domain.card.text" v-else>
-                <upw-icon
-                  icon="transfer-circle-solid"
-                  :class="styles.domain.card.transfer.label"
-                />
+                <span :class="styles.domain.card.transfer.icon">
+                  <upw-icon icon="transfer" size="full" />
+                </span>
 
                 {{ $t("domain.card.transfer.label") }}
               </span>
@@ -184,65 +181,47 @@
               </i18n-t>
 
               <div :class="styles.domain.card.actions">
-                <upw-button
-                  v-if="item.is_owned"
-                  :class="styles.domain.card.owned.action"
-                  :label="$t('domain.card.owned.action')"
-                  disabled
-                  prepend-icon="check"
-                  variant="flat"
-                  block
-                  size="sm"
-                />
+                <template v-if="!item.is_owned && !item.in_basket">
+                  <upw-button
+                    v-if="item.is_available"
+                    :class="styles.domain.card.available.action"
+                    :disabled="meta.isDisabled"
+                    :label="
+                      $tc(
+                        'domain.card.available.action',
+                        isSelected(item.domain) ? 0 : 1
+                      )
+                    "
+                    :loading="meta.isProcessing && isSelected(item.domain)"
+                    :prepend-icon="
+                      isSelected(item.domain) ? 'check' : 'plus-circle'
+                    "
+                    :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
+                    @click.prevent="onUpdate(item.domain)"
+                    block
+                    size="sm"
+                  />
 
-                <upw-button
-                  v-else-if="item.in_basket"
-                  :class="styles.domain.card.basket.action"
-                  :label="$t('domain.card.basket.action')"
-                  disabled
-                  prepend-icon="check"
-                  variant="flat"
-                  block
-                  size="sm"
-                />
-
-                <upw-button
-                  v-else-if="item.is_available"
-                  :class="styles.domain.card.available.action"
-                  :disabled="meta.isDisabled"
-                  :label="
-                    $tc(
-                      'domain.card.available.action',
-                      isSelected(item.domain) ? 0 : 1
-                    )
-                  "
-                  :loading="meta.isProcessing && isSelected(item.domain)"
-                  :prepend-icon="
-                    isSelected(item.domain) ? 'check' : 'plus-circle'
-                  "
-                  :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
-                  @click.prevent="onUpdate(item.domain)"
-                  block
-                  size="sm"
-                />
-
-                <upw-button
-                  v-else
-                  :class="styles.domain.card.transfer.action"
-                  :disabled="meta.isDisabled"
-                  :label="
-                    $tc(
-                      'domain.card.transfer.action',
-                      isSelected(item.domain) ? 0 : 1
-                    )
-                  "
-                  :loading="meta.isProcessing && isSelected(item.domain)"
-                  :prepend-icon="isSelected(item.domain) ? 'check' : 'transfer'"
-                  :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
-                  @click.prevent="onUpdate(item.domain)"
-                  block
-                  size="sm"
-                />
+                  <upw-button
+                    v-else
+                    :class="styles.domain.card.transfer.action"
+                    :disabled="meta.isDisabled"
+                    :label="
+                      $tc(
+                        'domain.card.transfer.action',
+                        isSelected(item.domain) ? 0 : 1
+                      )
+                    "
+                    :loading="meta.isProcessing && isSelected(item.domain)"
+                    :prepend-icon="
+                      isSelected(item.domain) ? 'check' : 'transfer'
+                    "
+                    :variant="isSelected(item.domain) ? 'flat' : 'outlined'"
+                    @click.prevent="onUpdate(item.domain)"
+                    block
+                    size="sm"
+                  />
+                </template>
               </div>
             </div>
           </template>
@@ -321,6 +300,7 @@ export default defineComponent({
         "domain.listings",
         "domain.card",
         "domain.card.owned",
+        "domain.card.basket",
         "domain.card.available",
         "domain.card.transfer",
         "domain.transitions.fade.enter",
