@@ -36,13 +36,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    cancelController:
-      | ""
-      | "CHOOSE"
-      | "REFRESH"
-      | "SEARCH"
-      | "SEARCH.OFFSET"
-      | "SYNCED";
+    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
     checkChoices: "FETCHED" | "done.state.domainManager.loading";
     checkModel:
       | "AUTHENTICATED"
@@ -58,7 +52,6 @@ export interface Typegen0 {
       | "REMOVE"
       | "SEARCH"
       | "SEARCH.OFFSET"
-      | "SYNCED"
       | "UPDATE";
     clearLookups:
       | "AUTHENTICATED"

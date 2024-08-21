@@ -185,11 +185,8 @@ export default createMachine(
               REFRESH: {
                 // do nothing
               },
-              SYNCED: [{ target: "loading", actions: ["synced"] }],
-              ERROR: {
-                target: "error",
-                actions: ["setError"],
-              },
+              SYNCED: [{ target: "complete", actions: ["synced"] }],
+              ERROR: { actions: ["setError"] },
             },
           },
           error: {},
@@ -339,7 +336,6 @@ export default createMachine(
                 actions: ["synced"],
               },
               ERROR: {
-                target: "error",
                 actions: ["setError"],
               },
             },
