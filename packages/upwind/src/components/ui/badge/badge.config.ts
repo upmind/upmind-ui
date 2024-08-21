@@ -111,7 +111,6 @@ export const badgeConfig = {
     }
   ),
 
-  icon: cva("-ml-1 mr-1 size-[0.9em]"),
   label: cva("font-normal"),
 };
 
