@@ -144,7 +144,7 @@ async function sync(items, context, basket) {
 
 // --------------------------------------------------------
 
-export function syncSubscription(callback, onReceive) {
+export function basketSubscription(callback, onReceive) {
   const basket = useBasket();
   onReceive(event => {
     switch (event.type) {
