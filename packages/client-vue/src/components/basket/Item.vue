@@ -1,6 +1,6 @@
 <template>
   <upm-product-config
-    v-if="open"
+    v-if="open || selected"
     v-bind="$props"
     :class="'styles.basket.item'"
     :processing="meta.isProcessing"
@@ -99,13 +99,6 @@ export default defineComponent({
     // ---
 
     const open = ref(props.selected);
-    // make props reactive to open
-    // watch(
-    //   () => props.selected,
-    //   value => {
-    //     open.value = value || meta.value.isNew;
-    //   }
-    // );
 
     // ---
 
