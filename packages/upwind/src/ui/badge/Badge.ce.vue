@@ -1,5 +1,5 @@
 <template>
-  <span :class="[styles.badge.root]">
+  <span :class="styles.badge.root">
     <slot name="prepend"></slot>
     <span :class="styles.badge.label">
       <slot> {{ label }}</slot>
@@ -10,38 +10,31 @@
 
 <script lang="ts">
 // --- external
-import { toRefs } from "vue";
+import { toRefs, defineComponent } from "vue";
 
 // --- internal
 import config from "./badge.config";
-import { useStyles } from "../../../utils";
-
-// --- components
+import { useStyles } from "../../utils";
 
 // --- types
-import { type BadgeVariants } from ".";
+import type { PropType } from "vue";
+import type { BadgeConfig } from "./types";
 
 // -----------------------------------------------------------------------------
-export default {
+export default defineComponent({
   name: "UwBadge",
-  components: {},
   props: {
     variant: {
-      type: String as BadgeVariants["variant"],
+      type: String as PropType<BadgeConfig["variant"]>,
     },
     color: {
-      type: String as BadgeVariants["color"],
+      type: String as PropType<BadgeConfig["color"]>,
       default: "base",
     },
-    label: {
-      type: String,
-    },
+    label: { type: String },
 
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: Object, default: () => ({}) },
   },
 
   setup(props) {
@@ -56,5 +49,7 @@ export default {
       styles,
     };
   },
-};
+});
 </script>
+
+<style src="@/assets/main.css" />

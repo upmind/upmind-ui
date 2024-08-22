@@ -2,7 +2,8 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwBadge } from "@upmind/upwind";
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -16,8 +17,7 @@ enum variants {
 }
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwBadge> = {
-  component: UpwBadge,
+const meta: Meta<typeof UwBadge> = {
   argTypes: {
     variant: {
       options: keys(variants),
@@ -37,10 +37,16 @@ const meta: Meta<typeof UpwBadge> = {
     variant: "flat",
     color: "primary",
   },
+  render: args => ({
+    setup() {
+      return { args };
+    },
+    template: `<uw-badge v-bind="args"/>`,
+  }),
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwBadge>;
+type Story = StoryObj<typeof UwBadge>;
 
 export const Base: Story = {};
 
@@ -49,7 +55,6 @@ export const Variants: Story = {
     controls: { exclude: ["label", "variant"] },
   },
   render: args => ({
-    components: { UpwBadge },
     setup() {
       return {
         args,
@@ -71,7 +76,7 @@ export const SolidColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwBadge },
+    components: { UwBadge },
     setup() {
       return {
         args,
@@ -98,7 +103,7 @@ export const OutlinedColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwBadge },
+    components: { UwBadge },
     setup() {
       return {
         args,
@@ -125,7 +130,7 @@ export const TonalColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwBadge },
+    components: { UwBadge },
     setup() {
       return {
         args,

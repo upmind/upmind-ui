@@ -1,75 +1,74 @@
 // --- eternal
-import { defineCustomElement } from "vue";
 
-// --- components
-import Button from "./components/ui/button/Button.ce.vue";
-import Avatar from "./components/ui/avatar/AvatarConsolidated.ce.vue";
-import Badge from "./components/ui/badge/Badge.ce.vue";
+// --- upw
+// export { default as UpwAlert } from "./components/alert/Alert.vue";
+// export { default as UpwButton } from "./components/button/Button.vue";
+// export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
+// export { default as UpwCheckboxList } from "./components/checkbox/CheckboxList.vue";
+// export { default as UpwCombobox } from "./components/combobox/Combobox.vue";
+// export { default as UpwDialog } from "./components/dialog/Dialog.vue";
+// export { default as UpwDropdown } from "./components/dropdown/Dropdown.vue";
+// export { default as UpwForm } from "./components/form/Form.vue";
+// export { default as UpwIcon } from "./components/icon/Icon.vue";
+// export { default as UpwInput } from "./components/input/Input.vue";
+// export { default as UpwListbox } from "./components/listbox/Listbox.vue";
+// export { default as UpwQuantitybox } from "./components/quantitybox/Quantitybox.vue";
+// export { default as UpwRadio } from "./components/radio/Radio.vue";
+// export { default as UpwRadioList } from "./components/radio/RadioList.vue";
+// export { default as UpwSelect } from "./components/select/Select.vue";
+// export { default as UpwSkeletonForm } from "./components/skeleton/SkeletonForm.vue";
+// export { default as UpwSkeletonList } from "./components/skeleton/SkeletonList.vue";
+// export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
+// export { default as UpwSteps } from "./components/steps/Steps.vue";
+// export { default as UpwTabs } from "./components/tabs/Tabs.vue";
+// export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
+// export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
+// export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
+// export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
+// export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
+
+// --- uw
+
+import { UwButton } from "./ui/button";
+import { UwAvatar } from "./ui/avatar";
+import { UwBadge } from "./ui/badge";
+import { UwDialog } from "./ui/dialog";
+import { UwTooltip } from "./ui/tooltip";
 
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
-import { get, forEach, set, reduce, find, kebabCase } from "lodash-es";
+import { kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
+// export individial Custom Elements / Web Components
+export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip };
 
-export const UwButton = defineCustomElement(Button);
-export const UwAvatar = defineCustomElement(Avatar);
-export const UwBadge = defineCustomElement(Badge);
+// --- utility for registering all custom elements
+export function register() {
+  customElements.define("uw-avatar", UwAvatar);
+  customElements.define("uw-badge", UwBadge);
+  customElements.define("uw-button", UwButton);
+  customElements.define("uw-dialog", UwDialog);
+  customElements.define("uw-tooltip", UwTooltip);
+}
 
-// ---
-export function useCustomElement(constructor): void {
+// --- utility for registering custom elements and allowing for code splitting
+export function useCustomElement(constructor: CustomElementConstructor): void {
   const componentName = kebabCase(constructor.def.name);
+  debugger;
   if (!customElements.get(componentName)) {
     customElements.define(componentName, constructor);
   }
 }
 
-// ---
-export function register() {
-  customElements.define("uw-button", UwButton);
-  customElements.define("uw-avatar", UwAvatar);
-  customElements.define("uw-badge", UwBadge);
-}
-
-// -----------------------------------------------------------------------------
-// ALTERNATE GLOBAL COMPONENT REGISTRATION
-// const components = reduce(
-//   import.meta.glob("./**/*.ce.*", {
-//     eager: true,
-//     import: "default",
-//   }),
-//   (result, definition, path) => {
-//     // Get name of component, based on filename
-//     // "./components/Fruits.vue" will become "Fruits"
-//     const componentName = kebabCase(definition?.name);
-
-//     debugger;
-
-//     // Register component on this Vue instance
-//     const component = defineCustomElement(definition);
-
-//     console.log("custom element", componentName, component);
-
-//     set(result, componentName, component);
-//     return result;
-//   },
-//   {}
-// );
-//
-// export function useCustomElement(name: String): void {
-//   name = kebabCase(name);
-//   const component = get(components, name);
-//   debugger;
-//   if (!customElements.get(name) && component) {
-//     debugger;
-//     customElements.define(name, component);
-//   }
-// }
 // -----------------------------------------------------------------------------
 
-// register global typings
 declare module "vue" {
   export interface GlobalComponents {
-    // Counter: typeof Counter;
+    // UwAvatar: typeof UwAvatar;
+    UwBadge: typeof UwBadge;
+    UwButton: typeof UwButton;
+    UwDialog: typeof UwDialog;
+    UwTooltip: typeof UwTooltip;
   }
 }
