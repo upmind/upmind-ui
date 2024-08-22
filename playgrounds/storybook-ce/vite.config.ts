@@ -13,7 +13,7 @@ export default defineConfig({
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: (tag) => tag.includes('.ce.')
+          isCustomElement: (tag) => tag.includes('uw-')
         }
       }
     }),
@@ -24,7 +24,6 @@ export default defineConfig({
     }
   },
   build: {
-    // cssCodeSplit: true,
     lib: {
       entry: './src/index.ts',
       name: "upwind",

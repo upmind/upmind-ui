@@ -64,6 +64,7 @@
     "packages/client-vue",
     "playgrounds/labs",
     "playgrounds/checkout",
-    "playgrounds/storybook"
+    "playgrounds/storybook",
+    "playgrounds/storybook-ce"
   ]
 }

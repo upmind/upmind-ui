@@ -31,11 +31,9 @@ export default defineComponent({
     as: {
       type: String as PropType<PrimitiveProps["as"]>,
       default: "button",
-      required: true,
     },
     asChild: {
       type: Boolean as PropType<PrimitiveProps["asChild"]>,
-      default: false,
     },
     label: { type: String },
     color: { type: String as PropType<ButtonConfig["color"]> },
@@ -57,3 +55,5 @@ export default defineComponent({
   },
 });
 </script>
+
+<style src="@/assets/main.css" />
