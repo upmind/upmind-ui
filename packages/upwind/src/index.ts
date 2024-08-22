@@ -30,5 +30,6 @@ export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 export { default as UwButton } from "./components/ui/button/Button.vue";
 export { AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export { TooltipConsolidated as Tooltip } from "./components/ui/tooltip";
+export { UwDialogConsolidated, UwDialogClose } from "./components/ui/dialog";
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
