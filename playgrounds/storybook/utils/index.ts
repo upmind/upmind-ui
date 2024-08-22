@@ -10,15 +10,16 @@ const flags = useIcons("flags");
 const icons = useIcons();
 
 enum colors {
+  base = "Base",
   primary = "Primary",
   secondary = "Secondary",
   accent = "Accent",
-  base = "Base",
+  promotion = "Promotion",
+  destructive = "Destructive",
   success = "Success",
+  info = "Info",
   error = "Error",
   warning = "Warning",
-  info = "Info",
-  current = "Current",
 }
 enum baseSizes {
   sm = "Small",

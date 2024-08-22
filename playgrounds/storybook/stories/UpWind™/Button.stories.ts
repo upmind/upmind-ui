@@ -2,7 +2,8 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwButton } from "@upmind/upwind";
+import { UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -13,13 +14,12 @@ enum variants {
   flat = "Flat",
   outline = "Outline",
   ghost = "Ghost",
-  destructive = "Destructive",
   link = "Link",
+  tonal = "Tonal",
 }
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UwButton> = {
-  component: UwButton,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -64,6 +64,12 @@ const meta: Meta<typeof UwButton> = {
     loading: false,
     disabled: false,
   },
+  render: args => ({
+    setup() {
+      return { args };
+    },
+    template: `<uw-button v-bind="args"/>`,
+  }),
 };
 
 export default meta;
