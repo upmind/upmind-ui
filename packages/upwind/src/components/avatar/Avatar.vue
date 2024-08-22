@@ -1,18 +1,22 @@
 <template>
   <figure class="avatar" :class="styles.avatar.root">
     <slot>
-      <upw-spinner v-if="loading" :class="styles.avatar.loading" />
+      <upw-spinner v-if="meta.isLoading" :class="styles.avatar.loading" />
 
-      <upw-icon v-if="hasIcon" :icon="avatar" :class="styles.avatar.icon" />
+      <upw-icon
+        v-if="meta.hasIcon"
+        :icon="avatar"
+        :class="styles.avatar.icon"
+      />
 
       <img
-        v-else-if="hasImage"
+        v-else-if="meta.hasImage"
         :src="avatar.src"
         alt="avatar"
         :class="styles.avatar.image"
       />
 
-      <figcaption :class="styles.avatar.caption" v-else-if="hasCaption">
+      <figcaption :class="styles.avatar.caption" v-if="meta.hasCaption">
         {{ avatar.caption }}
       </figcaption>
     </slot>
@@ -21,7 +25,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, toRefs } from "vue";
+import { computed, defineComponent } from "vue";
 
 // --- components
 import UpwIcon from "../icon/Icon.vue";
@@ -32,7 +36,7 @@ import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isObject, isString } from "lodash-es";
+import { isEmpty, isString } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -66,30 +70,23 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const styles = useStyles(
-      "avatar",
-      toRefs(props),
-      config,
-      props.upwindConfig
-    );
+    const meta = computed(() => ({
+      size: props.size,
+      // ---
+      isLoading: props.loading,
+      hasIcon: isString(props?.avatar) || !isEmpty(props?.avatar?.name),
+      hasImage: !isEmpty(props?.avatar?.src),
+      hasCaption:
+        props?.avatar?.forceCaption ||
+        (isEmpty(props?.avatar?.src) && !isEmpty(props?.avatar?.caption)),
+      forceCaption: props?.avatar?.forceCaption,
+    }));
+    const styles = useStyles("avatar", meta, config, props.upwindConfig);
 
     return {
       styles,
+      meta,
     };
-  },
-  computed: {
-    hasIcon() {
-      return (
-        isString(this?.avatar) ||
-        (isObject(this?.avatar) && !isEmpty(this?.avatar?.name))
-      );
-    },
-    hasImage() {
-      return isObject(this?.avatar) && !isEmpty(this?.avatar?.src);
-    },
-    hasCaption() {
-      return isObject(this?.avatar) && !isEmpty(this?.avatar?.caption);
-    },
   },
 });
 </script>

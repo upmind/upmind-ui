@@ -66,7 +66,7 @@ export default defineComponent({
         cancel: {
           label: this?.$t(`client.${this.i18nKey}.actions.cancel`),
           variant: "link",
-          disabled: this.meta.isProcessing,
+          disabled: this?.meta?.isProcessing,
           action: () => this.cancel(),
         },
 
@@ -77,7 +77,7 @@ export default defineComponent({
             `client.${this.i18nKey}.actions.submit`,
             this.model?.company_details ? 0 : 1
           ),
-          disabled: !this.meta.isValid || this.meta.isProcessing,
+          disabled: !this?.meta?.isValid || this?.meta?.isProcessing,
           action: ({ model }) => this.update(model),
         },
       };
@@ -99,13 +99,13 @@ export default defineComponent({
       if (this.model?.company_details) {
         return this.$tc(
           `client.${this.i18nKey}.form.title.company`,
-          this.meta.isNew ? 1 : 0
+          this?.meta?.isNew ? 1 : 0
         );
       }
 
       return this.$tc(
         `client.${this.i18nKey}.form.title.address`,
-        this.meta.isNew ? 1 : 0
+        this?.meta?.isNew ? 1 : 0
       );
     },
   },

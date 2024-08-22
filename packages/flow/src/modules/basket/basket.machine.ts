@@ -265,15 +265,11 @@ export default createMachine(
                       src: "removeItem",
                       onDone: {
                         target: "#processed",
-                        actions: [
-                          "removeItem",
-                          "updateBasket",
-                          "refreshActors",
-                        ],
+                        actions: ["removeItem"],
                       },
                       onError: {
-                        target: "error",
-                        actions: ["setError", "setFeedbackError"],
+                        target: "#processed",
+                        actions: ["removeItem"],
                       },
                     },
                   },
@@ -284,6 +280,10 @@ export default createMachine(
 
               processed: {
                 id: "processed",
+                always: {
+                  target: "#removing",
+                  cond: "hasBinItems",
+                },
                 after: {
                   wait: "#refreshing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
                 },
@@ -516,12 +516,6 @@ export default createMachine(
       "UPDATE.OPTIONS": { actions: ["sendToItem"] },
       "UPDATE.ATTRIBUTES": { actions: ["sendToItem"] },
       "UPDATE.PROVISIONING": { actions: ["sendToItem"] },
-
-      // This transition will match any event, but we will target the completion of ANY spawned machine
-      // "*": {
-      //   actions: ["removeItem"],
-      //   cond: (_context, event) => includes(event.type, "done.invoke")
-      // }
 
       REFRESH: [
         {
@@ -794,22 +788,16 @@ export default createMachine(
       }),
 
       removeItem: assign({
-        items: ({ items }, { type, data }, _event) => {
-          // me may be given a name, but if not we can determine it from the event type
-          const itemId = data?.itemId || trimStart(type, "invoke.done.");
-          const removed = remove(items, ["id", itemId]);
-          removed.forEach(
-            item => !item?.state?.done && item?.stop && item?.stop()
-          ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+        items: ({ items }, { data }, _event) => {
+          const itemId = data?.itemId;
+          const item = find(items, ["id", itemId]);
+          if (item && !item?.state?.done) item.stop(); // ensure the machine is stopped
+          remove(items, ["id", itemId]);
           return items;
         },
         bin: ({ bin }, { data }, _event) => {
-          // me may be given a name, but if not we can determine it from the event type
-          const itemId = data?.itemId || trimStart(type, "invoke.done.");
-          const removed = remove(bin, ["id", itemId]);
-          removed.forEach(
-            item => !item?.state?.done && item?.stop && item?.stop()
-          ); // if it exists, be 100% vigilant and stop the referenced machine in case it is still running
+          const itemId = data?.itemId;
+          remove(bin, ["id", itemId]);
           return bin;
         },
 
@@ -1089,6 +1077,8 @@ export default createMachine(
       hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
       hasNoItems: ({ items }) => isEmpty(items),
+
+      hasBinItems: ({ bin }) => !isEmpty(bin),
     },
 
     delays: {

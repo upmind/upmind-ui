@@ -55,10 +55,10 @@ export const useSession = (inspector?: Function) => {
         ].some(guest.value.matches)) ||
       client.value?.matches("processing"),
 
-    hasErrors: !isEmpty(state.value?.context?.error),
     // ---
     isAuthenticated: state.value.matches("client"),
     isTransferring: client.value?.matches("transferring"),
+    hasExpired: state.value.matches("expired"),
 
     // ---
     showReCaptcha: guest.value?.matches("register.challenging"),
