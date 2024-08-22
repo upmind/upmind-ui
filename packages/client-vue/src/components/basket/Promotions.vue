@@ -128,7 +128,7 @@ export default defineComponent({
         submit: {
           type: "submit",
           label: this.$t("basket.promotions.actions.submit"),
-          size: "xs",
+          size: "sm",
           variant: "ghost",
           needsValid: true,
         },

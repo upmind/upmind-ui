@@ -87,12 +87,12 @@
                 />
               </template>
 
-              <upw-badge
+              <!-- <upw-badge
                 v-if="!item.price_override"
                 variant="tonal"
                 color="base"
                 :label="value.price?.billing_cycle_name"
-              />
+              /> -->
             </span>
           </div>
 
@@ -121,7 +121,7 @@
                 :class="styles.product.config.list.item.total"
                 v-if="value.price"
               >
-                <span v-if="!item.price_override && item.price">+</span>
+                <span v-if="!item.price_override && value.price?.price">+</span>
 
                 {{
                   value.price?.price_discounted
@@ -219,7 +219,7 @@ export default defineComponent({
     safeText(item) {
       const hasPrices = this.hasPrices(item);
 
-      if (hasPrices) {
+      if (hasPrices && item?.price_override) {
         return this.$tc("product.adds_overrides", item?.price_override ? 1 : 0);
       }
 

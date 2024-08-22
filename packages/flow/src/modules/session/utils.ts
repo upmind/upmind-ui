@@ -7,6 +7,7 @@ import {
   first,
   slice,
   isEmpty,
+  includes,
 } from "lodash-es";
 
 // --- types
@@ -88,24 +89,18 @@ export async function useUserParser(data: any) {
     "id",
     "email",
     "username",
-    "full_name",
-    "first_name",
-    "last_name",
+    "fullname",
+    "firstname",
+    "lastname",
     "image_url",
   ]);
 
-  user.display = data?.public_name || data?.first_name || data?.email;
+  user.display = data?.firstname || data?.public_name || data?.email;
   user.avatar = {
     caption: useInitialsParser(user),
-    src: await useAvatarParser(user.image_url),
+    src: user.image_url, //await useAvatarParser(user.image_url),
+    forceCaption: includes(user?.image_url, "gravatar"),
   };
 
   return user;
-}
-
-async function useAvatarParser(url) {
-  if (!url?.length) return false;
-  url = url.replace("?d=blank", "?d=404");
-  const response = await fetch(url);
-  return response.ok ? url : null;
 }
