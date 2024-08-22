@@ -15,11 +15,12 @@ import { Primitive } from "radix-vue";
 import config from "./button.config";
 
 // --- utils
-import { useStyles } from "../../../utils";
+import { useStyles } from "../../utils";
 
 // --- types
+import type { PropType } from "vue";
 import type { PrimitiveProps } from "radix-vue";
-import type { ButtonConfig } from ".";
+import type { ButtonConfig } from "./types";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({

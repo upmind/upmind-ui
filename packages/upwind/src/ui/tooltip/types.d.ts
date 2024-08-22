@@ -1,8 +1,8 @@
 // --- external
 import { type VariantProps } from "class-variance-authority";
 
-// --- types
-import type { tooltipConfig } from "./tooltip.cva";
+// --- internal
+import type { tooltipConfig } from "./tooltip.config";
 export type TooltipConfig = VariantProps<typeof tooltipConfig>;
 
 export interface TooltipProps {

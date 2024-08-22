@@ -144,7 +144,7 @@ import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 // --- components
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
-import UpwAvatar from "../ui/avatar/AvatarConsolidated.vue";
+import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 

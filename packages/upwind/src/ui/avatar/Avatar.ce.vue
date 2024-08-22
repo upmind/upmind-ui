@@ -10,25 +10,27 @@
 </template>
 
 <script lang="ts">
+// --- external
+import { defineComponent, toRefs } from "vue";
+
 // --- components
 import { AvatarFallback, AvatarImage } from "./index";
 import { AvatarRoot } from "radix-vue";
 
-// --- external
-import { toRefs } from "vue";
-
-// --- types
-import { type AvatarVariants } from ".";
-import type { HTMLAttributes } from "vue";
+// --- internal
+import { useStyles } from "../../utils";
+import config from "./avatar.config";
 
 // --- utils
 import { isEmpty, isString } from "lodash-es";
-import { useStyles } from "../../../utils";
 
-// --- config
-import config from "./avatar.config";
+// --- types
+import type { PropType } from "vue";
+import type { AvatarConfig } from "./types";
 
-export default {
+// -----------------------------------------------------------------------------
+
+export default defineComponent({
   name: "UwAvatar",
   components: {
     AvatarFallback,
@@ -36,27 +38,17 @@ export default {
     AvatarRoot,
   },
   props: {
-    class: [String, Object, Array] as HTMLAttributes["class"],
     shape: {
-      type: String as AvatarVariants["shape"],
+      type: String as PropType<AvatarConfig["shape"]>,
       default: "circle",
     },
     size: {
-      type: String as AvatarVariants["size"],
-      default: "sm",
+      type: String as PropType<AvatarConfig["size"]>,
+      default: "md",
     },
-    avatar: {
-      type: Object,
-      default: () => null,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    upwindConfig: {
-      type: Object,
-      default: () => ({}),
-    },
+    avatar: { type: Object, default: () => ({}) },
+    loading: { type: Boolean },
+    upwindConfig: { type: Object, default: () => ({}) },
   },
 
   setup(props) {
@@ -82,5 +74,5 @@ export default {
       };
     },
   },
-};
+});
 </script>
