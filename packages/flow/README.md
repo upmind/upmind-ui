@@ -22,6 +22,16 @@ See individual modules for API documentation.
 
 See individual modules for examples.
 
+## Tests
+
+Unit tests are written using [Vitest](https://vitest.dev/).
+
+```
+npm test
+```
+
+We also have unit tests code coverage provided by [@vitest/coverage-istanbul](https://www.npmjs.com/package/@vitest/coverage-istanbul).
+
 ## License
 
 The **Upmind Flow** package is proprietary and closed source.
