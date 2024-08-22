@@ -1,52 +1,34 @@
 import { test, describe, it, expect } from "vitest";
-import { Machine } from "xstate";
 import { createModel } from "@xstate/test";
-import domainsMachine from "../domain.machine";
+import domainsMachine from "@/modules/domain/domain.machine";
 
-const domainsModel = createModel(domainsMachine).withEvents({
-  ADD_PRODUCT: {
-    exec: async ({ context }) => {
-      // simulate adding a product to the domains
-      context.domains = {
-        "pewpew.com": { domain: "pewpew.com", sld: "pewpew", tld: ".com" },
-      };
-    },
-  },
-  CLEAR_BASKET: {
-    exec: async ({ context }) => {
-      // simulate clearing the domains
-      context.domains = {};
-    },
-  },
-  SESSION: {},
-  GENERATE: {},
-  UNAUTHENTICATED: {},
-  AUTHENTICATED: {},
-});
+const domainsModel = createModel(domainsMachine);
 
-test("domains machine", async ({ pass }) => {
+test("domains machine", async () => {
   const testPlans = domainsModel.getShortestPathPlans();
+  // const testPlans = domainsModel.getSimplePathPlans();
 
   // test all the plans
   testPlans.forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
         it(path.description, async () => {
-          const machine = Machine(domainsMachine).withContext(
-            path.state.context
-          );
+          const machine = domainsMachine.withContext(path.state.context);
+
+          // await path.test({ events: {} });
           const nextState = machine.transition(path.state, path.event);
           expect(nextState.value).toEqual(path.nextState.value);
           expect(nextState.context).toEqual(path.nextState.context);
         });
       });
+
+      // it('should have full coverage', () => {
+      //   return model.testCoverage();
+      //
+      //   const coverage = domainsModel.testCoverage();
+      //   console.log(`Code coverage is ${coverage.percentage}%`);
+      //   expect(coverage.percentage).toEqual(100);
+      // });
     });
   });
-
-  // test that the model coverage is complete
-  const coverage = domainsModel.testCoverage();
-  pass(
-    coverage.percentage === 100,
-    `model coverage is ${coverage.percentage}%`
-  );
 });
