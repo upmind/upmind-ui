@@ -13,6 +13,9 @@ hero:
     - theme: alt
       text: API Examples
       link: /api-examples
+    - theme: alt
+      text: lala
+      link: /upflow
 
 features:
   - title: Feature A

@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Upmind Docs",
+  title: "Upmind",
   description: "Upmind open-source libs documentation",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -13,16 +13,21 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Examples',
+        text: 'UpFlow',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          { text: 'Getting started', link: '/upflow' },
+        ]
+      },
+      {
+        text: 'UpFlow-Vue',
+        items: [
+          { text: 'Getting started', link: '/upflow-vue' },
         ]
       }
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'linkedin', link: 'https://www.linkedin.com/company/upmindautomation' }
     ]
   }
 })
