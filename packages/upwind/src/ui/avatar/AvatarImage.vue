@@ -33,7 +33,7 @@ export default defineComponent({
     alt: { type: String, required: true },
     as: {
       type: String as PropType<AvatarImageProps["as"]>,
-      default: "span",
+      default: "img",
     },
     asChild: {
       type: Boolean as PropType<AvatarImageProps["asChild"]>,
