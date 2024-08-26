@@ -15,39 +15,24 @@ export const badgeConfig = cva(
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
+        promotion: "bg-promotion text-promotion-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
         success: "bg-success text-success-foreground",
+        info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
         warning: "bg-warning text-warning-foreground",
-        info: "bg-info text-info-foreground",
-        promotion: "bg-promotion text-promotion-foreground",
       },
     },
     compoundVariants: [
-      {
-        color: "accent",
-        variant: "outlined",
-        class: "border-accent text-accent",
-      },
       {
         color: "base",
         variant: "outlined",
         class: "border-base-foreground text-base-foreground",
       },
       {
-        color: "error",
-        variant: "outlined",
-        class: "border-error text-error",
-      },
-      { color: "info", variant: "outlined", class: "border-info text-info" },
-      {
         color: "primary",
         variant: "outlined",
         class: "border-primary text-primary",
-      },
-      {
-        color: "promotion",
-        variant: "outlined",
-        class: "border-promotion text-promotion",
       },
       {
         color: "secondary",
@@ -55,37 +40,49 @@ export const badgeConfig = cva(
         class: "border-secondary text-secondary",
       },
       {
+        color: "accent",
+        variant: "outlined",
+        class: "border-accent text-accent",
+      },
+      {
+        color: "promotion",
+        variant: "outlined",
+        class: "border-promotion text-promotion",
+      },
+      {
+        color: "destructive",
+        variant: "outlined",
+        class: "border-destructive text-destructive",
+      },
+
+      {
         color: "success",
         variant: "outlined",
         class: "border-success text-success",
+      },
+      { color: "info", variant: "outlined", class: "border-info text-info" },
+      {
+        color: "error",
+        variant: "outlined",
+        class: "border-error text-error",
       },
       {
         color: "warning",
         variant: "outlined",
         class: "border-warning text-warning",
       },
+      // ---
 
-      {
-        color: "accent",
-        variant: "tonal",
-        class: "bg-accent-50 text-accent",
-      },
       {
         color: "base",
         variant: "tonal",
         class: "bg-base-200 text-base-foreground",
       },
-      { color: "error", variant: "tonal", class: "bg-error-50 text-error" },
-      { color: "info", variant: "tonal", class: "bg-info-50 text-info" },
+
       {
         color: "primary",
         variant: "tonal",
         class: "bg-primary-50 text-primary",
-      },
-      {
-        color: "promotion",
-        variant: "tonal",
-        class: "bg-promotion-50 text-promotion",
       },
       {
         color: "secondary",
@@ -93,10 +90,27 @@ export const badgeConfig = cva(
         class: "bg-secondary-50 text-secondary",
       },
       {
+        color: "accent",
+        variant: "tonal",
+        class: "bg-accent-50 text-accent",
+      },
+      {
+        color: "promotion",
+        variant: "tonal",
+        class: "bg-promotion-50 text-promotion",
+      },
+      {
+        color: "destructive",
+        variant: "tonal",
+        class: "bg-destructive-50 text-destructive",
+      },
+      {
         color: "success",
         variant: "tonal",
         class: "bg-success-50 text-success",
       },
+      { color: "info", variant: "tonal", class: "bg-info-50 text-info" },
+      { color: "error", variant: "tonal", class: "bg-error-50 text-error" },
       {
         color: "warning",
         variant: "tonal",
