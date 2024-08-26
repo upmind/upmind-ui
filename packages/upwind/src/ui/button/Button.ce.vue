@@ -1,8 +1,17 @@
 <template>
-  <primitive :as="as" :as-child="asChild" :class="styles.button.root">
-    <slot>
-      {{ label }}
-    </slot>
+  <!-- <link rel="preload" href="/styles.css" as="style" /> -->
+
+  <primitive
+    :as="as"
+    :as-child="asChild"
+    :class="styles.button.root"
+    :disabled="disabled"
+  >
+    <slot name="prepend"></slot>
+
+    <slot>{{ label }}</slot>
+
+    <slot name="append"></slot>
   </primitive>
 </template>
 
@@ -56,5 +65,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style src="@/assets/main.css" />
