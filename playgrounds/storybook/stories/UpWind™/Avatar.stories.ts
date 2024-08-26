@@ -67,7 +67,7 @@ export const Gravatar: Story = {
 
 export const SlotContent: Story = {
   parameters: {
-    controls: { exclude: ["avatar"] },
+    controls: { exclude: ["avatar", "caption"] },
   },
   args: {
     size: "md",
@@ -83,7 +83,7 @@ export const SlotContent: Story = {
       };
     },
     template: `
-        <uw-avatar v-bind="args" :avatar="null" v-html="svg" />
+        <uw-avatar v-bind="args" v-html="svg" />
     `,
   }),
 };
