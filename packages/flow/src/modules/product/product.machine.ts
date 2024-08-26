@@ -21,7 +21,7 @@ import {
 } from "./utils";
 
 import {
-  clone,
+  cloneDeep,
   forEach,
   get,
   has,
@@ -417,7 +417,7 @@ export default createMachine(
           return {
             currency_id,
             promotions,
-            baseModel: clone(model),
+            baseModel: cloneDeep(model),
             model: parseBasketProduct(basket_product),
             error: undefined,
           };
@@ -461,7 +461,7 @@ export default createMachine(
       }),
 
       setBaseModel: assign({
-        baseModel: ({ model }, _event) => parseModel(model),
+        baseModel: ({ model }, _event) => cloneDeep(model),
       }),
       setModel: assign({
         model: (_context, { data }) => parseModel(data?.product),
@@ -469,7 +469,7 @@ export default createMachine(
 
       // restroring the model + errors to its prev state
       resetModel: assign({
-        model: ({ baseModel }, _event) => clone(baseModel),
+        model: ({ baseModel }, _event) => cloneDeep(baseModel),
         error: ({ error, errorExternal }, _event) =>
           merge({}, error, errorExternal),
       }),

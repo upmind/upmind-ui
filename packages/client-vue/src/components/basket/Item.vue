@@ -4,7 +4,7 @@
     v-bind="$props"
     :class="'styles.basket.item'"
     :processing="meta.isProcessing"
-    :required="meta.isRequired || selected"
+    :required="selected"
     @reject="open = false"
     @resolve="doResolve"
     @update:attributes="updateAttributes"

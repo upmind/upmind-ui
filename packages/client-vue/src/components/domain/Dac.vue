@@ -47,7 +47,7 @@
         :loading="meta.isProcessing"
         :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
         @click="onResolve"
-        :label="$t('domain.dac.actions.continue')"
+        :label="$tc('domain.dac.actions.continue', values?.length)"
         prependIcon="plus-circle"
       />
     </template>
