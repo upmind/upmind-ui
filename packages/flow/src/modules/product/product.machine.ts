@@ -282,7 +282,7 @@ export default createMachine(
         },
         on: {
           REFRESH: {
-            target: "available.configuring",
+            target: "loading",
             actions: ["refreshContext"],
             cond: "hasChanged",
           },
@@ -414,13 +414,16 @@ export default createMachine(
         ({ model }: ProductConfigContext, { data }: ProductConfigEvent) => {
           const { basket_product, currency_id, promotions } = data;
 
-          return {
+          const newContext = {
             currency_id,
             promotions,
             baseModel: cloneDeep(model),
-            model: parseBasketProduct(basket_product),
+            model: basket_product ? parseBasketProduct(basket_product) : model,
             error: undefined,
+            prices: undefined, // they need to be recalculated
           };
+
+          return newContext;
         }
       ),
 
@@ -620,7 +623,16 @@ export default createMachine(
       isDirty: ({ model, baseModel, basket_product }: ProductConfigContext) => {
         const cleanModel = compactDeep(model);
         const cleanBaseModel = compactDeep(baseModel);
-        return isEmpty(basket_product) || !isEqual(cleanModel, cleanBaseModel);
+        const value =
+          isEmpty(basket_product) || !isEqual(cleanModel, cleanBaseModel);
+
+        console.log("isDirty", value, {
+          basket_product,
+          cleanModel,
+          cleanBaseModel,
+        });
+
+        return value;
       },
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
@@ -636,13 +648,14 @@ export default createMachine(
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
 
         const hasError = !isEmpty(data?.error);
-        return (
+        const value =
           hasError ||
           isDirty ||
           basket_id !== data?.id ||
           currency_id !== data?.currency_id ||
-          !isEqual(promotions, data?.promotions)
-        );
+          !isEqual(promotions, data?.promotions);
+
+        return value;
       },
 
       needsCalculating: (
