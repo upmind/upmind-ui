@@ -108,7 +108,7 @@ export default createMachine(
           },
 
           actors: {
-            entry: ["refreshItems", "spawnActors"],
+            entry: ["spawnItems", "spawnActors"],
             always: [
               {
                 target: "#shopping",
@@ -127,7 +127,7 @@ export default createMachine(
           src: "load",
           onDone: {
             target: "#shopping",
-            actions: ["setError", "updateBasket", "refreshItems"],
+            actions: ["setError", "updateBasket", "spawnItems"],
           },
           onError: {
             target: "#error",
@@ -143,12 +143,7 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: [
-              "setError",
-              "updateBasket",
-              "refreshItems",
-              "refreshActors",
-            ],
+            actions: ["setError", "updateBasket", "refreshActors"],
           },
           onError: { target: "#error" },
         },
@@ -175,12 +170,7 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
-                    actions: [
-                      "setError",
-                      "updateBasket",
-                      "refreshItems",
-                      "refreshActors",
-                    ],
+                    actions: ["setError", "updateBasket", "refreshActors"],
                   },
                   onError: {
                     target: "#error",
@@ -444,7 +434,7 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket", "refreshItems", "refreshActors"],
+          actions: ["updateBasket", "refreshActors"],
           cond: "hasNewBasket",
         },
         {
@@ -550,6 +540,20 @@ export default createMachine(
             actor.send({ type: "REFRESH", data: basket });
           }
         });
+        forEach(items, actor => {
+          if (actor?.send && !actor?.state?.done) {
+            actor.send({
+              type: "REFRESH",
+
+              data: {
+                // basket_product: product,
+                id: basket?.id,
+                currency_id: basket?.currency_id,
+                promotions: basket?.promotions || [],
+              },
+            });
+          }
+        });
       }),
 
       clearActors: assign({
@@ -577,7 +581,7 @@ export default createMachine(
 
       // --- Configuring Items Actions
 
-      refreshItems: assign({
+      spawnItems: assign({
         items: ({ items, error }, { data }) => {
           const basket = parseBasket(data);
           const products = basket?.products || [];
@@ -617,7 +621,7 @@ export default createMachine(
           // finally add any new items
           const missing = differenceBy(products, items, "id");
           forEach(missing, product => {
-            const index = findIndex(basket?.products, ["id", product?.id]);
+            const index = findIndex(products, ["id", product?.id]);
 
             const item = spawnProductConfiguration(product, basket);
 
@@ -629,6 +633,12 @@ export default createMachine(
           });
 
           // ---
+          console.log("spawnItems", {
+            items,
+            products,
+            newItems,
+          });
+
           return newItems;
         },
       }),
@@ -799,21 +809,12 @@ export default createMachine(
 
       // --- Item Guards
 
-      isNotLoading: ({ items, actors }) => {
-        return (
-          // every(
-          //   actors,
-          //   actor =>
-          //     !["loading", "available.loading"].some(actor?.state.matches)
-          // ) &&
-          every(
-            items,
-            actor => !["subscribing", "loading"].some(actor?.state.matches)
-          )
+      isNotLoading: ({ items }) => {
+        return every(
+          items,
+          actor => !["subscribing", "loading"].some(actor?.state.matches)
         );
       },
-
-      hasNoItem: (_context, { data }) => isEmpty(data) || !data?.itemId,
 
       hasNoItems: ({ items }) => isEmpty(items),
     },

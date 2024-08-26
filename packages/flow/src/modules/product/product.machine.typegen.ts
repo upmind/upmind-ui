@@ -143,7 +143,6 @@ export interface Typegen0 {
     checkAttributes:
       | "CANCEL"
       | "CHECK.ATTRIBUTES"
-      | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -155,7 +154,6 @@ export interface Typegen0 {
     checkOptions:
       | "CANCEL"
       | "CHECK.OPTIONS"
-      | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -166,7 +164,6 @@ export interface Typegen0 {
       | "done.invoke.load";
     checkProvisioning:
       | "CANCEL"
-      | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -178,7 +175,6 @@ export interface Typegen0 {
     checkQuantity:
       | "CANCEL"
       | "CHECK.QUANTITY"
-      | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -190,7 +186,6 @@ export interface Typegen0 {
     checkTerm:
       | "CANCEL"
       | "CHECK.TERM"
-      | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
@@ -199,7 +194,7 @@ export interface Typegen0 {
       | "SET.TERM"
       | "UPDATED"
       | "done.invoke.load";
-    load: "" | "RESET";
+    load: "" | "REFRESH" | "RESET";
   };
   matchesStates:
     | "available"
