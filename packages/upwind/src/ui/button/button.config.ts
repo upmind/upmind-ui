@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonConfig = cva(
-  "ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
@@ -26,11 +26,14 @@ export const buttonConfig = cva(
         warning: "bg-warning text-warning-foreground",
       },
       size: {
-        md: "h-10 px-4 ",
-        xs: "h-7 px-2",
-        sm: "h-9 px-3",
-        lg: "h-11 px-8",
-        icon: "h-10 w-10",
+        md: "h-10 gap-x-2 px-4 py-1",
+        xs: "h-7 gap-x-1 px-2 py-1",
+        sm: "h-9 gap-x-2 px-3 py-1",
+        lg: "h-11 gap-x-2 px-8 py-1",
+        icon: "h-10 w-10 gap-x-0 py-1",
+      },
+      block: {
+        true: "w-full basis-full",
       },
     },
 
