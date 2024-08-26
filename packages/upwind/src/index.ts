@@ -55,7 +55,6 @@ export function register() {
 // --- utility for registering custom elements and allowing for code splitting
 export function useCustomElement(constructor: CustomElementConstructor): void {
   const componentName = kebabCase(constructor.def.name);
-  debugger;
   if (!customElements.get(componentName)) {
     customElements.define(componentName, constructor);
   }
