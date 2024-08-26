@@ -1,8 +1,10 @@
 import vue from '@vitejs/plugin-vue'
+import { resolve } from "path";
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
-import { configDefaults } from "vitest/config.js";
+import { defineConfig } from "vite";
+import { configDefaults } from "vitest/config";
 
+// https://vitejs.dev/guide/build.html#library-mode
 export default defineConfig({
   resolve: {
     alias: {
@@ -14,9 +16,9 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "@upmind/headless-vue",
-      fileName: "headless-vue"
+      entry: resolve(__dirname, "src/index.ts"),
+      name: "@upmind/headless",
+      fileName: "headless"
     }
   },
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
@@ -31,4 +33,4 @@ export default defineConfig({
       enabled: true
     },
   },
-})
+});
