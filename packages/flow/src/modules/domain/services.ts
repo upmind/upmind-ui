@@ -2,7 +2,6 @@
 
 // --- internal
 import { useApi } from "../api";
-import { useSession } from "../session";
 
 // --- utils
 import { parseDomain, parseAvailable, parseSld } from "./utils";

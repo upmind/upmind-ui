@@ -149,6 +149,10 @@ export const useDomain = (
         "basket.loading",
       ].some(state.value.matches),
 
+      isSearchingMore:
+        ["dac.loading", "dac.processing"].some(state.value.matches) &&
+        state.value.context?.search?.offset > 0,
+
       hasMoreSearchResults:
         ["dac"].some(state.value.matches) &&
         state.value.context?.search?.offset +
@@ -178,6 +182,7 @@ export const useDomain = (
     choose,
     search,
     searchMore,
+    searchOffset: computed(() => state.value.context?.search?.offset),
     add,
     remove,
     toggle,

@@ -22,7 +22,7 @@
         <upm-empty key="empty" v-if="!meta.isLoading && meta.isEmpty" />
 
         <upw-checkbox-list
-          v-if="!meta.isEmpty"
+          v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
           :class="styles.domain.listings.items"
           :items="items"
           :model-value="safeValue"
@@ -283,6 +283,7 @@ export default defineComponent({
     modelValue: { type: [String, Array], default: () => [] },
     items: { type: Array, required: true },
     dialog: { type: Boolean, default: false },
+    offset: { type: Number, default: 0 },
     // ---
     loading: { type: Boolean, default: false },
     processing: { type: Boolean, default: false },
@@ -291,6 +292,7 @@ export default defineComponent({
   setup(props) {
     const meta = computed(() => ({
       isLoading: props.loading,
+      isLoadingMore: props.loading && props.offset > 0,
       isEmpty: !props.items?.length,
       isDisabled: props.disabled,
       isProcessing: props.processing,
