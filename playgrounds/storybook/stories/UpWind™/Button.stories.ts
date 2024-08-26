@@ -31,19 +31,19 @@ const meta: Meta<typeof UwButton> = {
 
     size: useSystemArgTypes.size,
     color: useSystemArgTypes.color,
-    prependAvatar: {
-      ...useSystemArgTypes.flag,
-      if: { arg: "iconOnly", truthy: false },
-    },
-    prependIcon: useSystemArgTypes.icon,
-    appendIcon: {
-      ...useSystemArgTypes.icon,
-      if: { arg: "iconOnly", truthy: false },
-    },
-    appendAvatar: {
-      ...useSystemArgTypes.flag,
-      if: { arg: "iconOnly", truthy: false },
-    },
+    // prependAvatar: {
+    //   ...useSystemArgTypes.flag,
+    //   if: { arg: "iconOnly", truthy: false },
+    // },
+    // prependIcon: useSystemArgTypes.icon,
+    // appendIcon: {
+    //   ...useSystemArgTypes.icon,
+    //   if: { arg: "iconOnly", truthy: false },
+    // },
+    // appendAvatar: {
+    //   ...useSystemArgTypes.flag,
+    //   if: { arg: "iconOnly", truthy: false },
+    // },
 
     iconOnly: { control: "boolean", if: { arg: "prependIcon" } },
   },
@@ -56,10 +56,10 @@ const meta: Meta<typeof UwButton> = {
     iconOnly: false,
     block: false,
     // ---
-    prependAvatar: undefined,
-    prependIcon: undefined,
-    appendIcon: undefined,
-    appendAvatar: undefined,
+    // prependAvatar: undefined,
+    // prependIcon: undefined,
+    // appendIcon: undefined,
+    // appendAvatar: undefined,
     // ---
     loading: false,
     disabled: false,
