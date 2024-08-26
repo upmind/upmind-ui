@@ -97,10 +97,12 @@ export function parseBasketItem(item) {
       item?.term;
     result.billing_cycle_years = Math.round(term?.billing_cycle_months / 12);
     result.is_discounted = !!term?.price_discounted_formatted;
-    result.price_formatted = removeTrailingZeroes(term?.price_formatted);
+    result.price_discounted = term?.price_discounted;
     result.price_discounted_formatted = removeTrailingZeroes(
       term?.price_discounted_formatted
     );
+    result.price = term?.price;
+    result.price_formatted = removeTrailingZeroes(term?.price_formatted);
     result.percentage_saving = !result?.is_discounted
       ? 0
       : Math.floor(

@@ -124,7 +124,7 @@ import {
 } from "@upmind/upwind";
 
 // --- utils
-import { some, has, reduce, map, get, filter, isArray } from "lodash-es";
+import { some, has, reduce, map, get, first, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -207,6 +207,14 @@ export default defineComponent({
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
 
+    safeValue(item, value) {
+      const shouldBeArray = item.multiple || this.items?.length == 1;
+      const safeArray = !isArray(value) ? [value] : value;
+      const safeString = isArray(value) ? first(value) : value;
+      const safeValue = shouldBeArray ? safeArray : safeString;
+      return safeValue;
+    },
+
     getValues(item) {
       const value = reduce(
         this.modelValue?.[item.id],
@@ -218,19 +226,19 @@ export default defineComponent({
         []
       );
 
-      return !item.multiple || item.values?.length == 1
-        ? value?.toString()
-        : isArray(value)
-          ? value
-          : [value];
+      return this.safeValue(item, value);
     },
+
     doUpdateQuantity(item, value, $event) {
       this.$emit("update:quantity", item, value, $event);
     },
 
-    doResolve(item, values) {
+    doResolve(item, value) {
       if (this.disabled || this.processing) return;
-      this.$emit("update:modelValue", item, values);
+
+      const safeValue = this.safeValue(item, value);
+
+      this.$emit("update:modelValue", item, safeValue);
     },
 
     safeValues(values) {

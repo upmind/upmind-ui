@@ -24,7 +24,7 @@
     "dac": {
       "search": "Search for your domain...",
       "actions": {
-        "continue": "Add domains to basket",
+        "continue": "Add domain to basket | Add domains to basket",
         "cancel": "Cancel",
         "more": "Load more"
       }
@@ -37,6 +37,7 @@
       "title": "Choose your domain from the list below "
     },
     "card": {
+      "promotion": "On promotion",
       "owned": {
         "label": "You own this domain",
         "instruction": "Select this domain from {newline}{ownership} section above.",

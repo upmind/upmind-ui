@@ -76,11 +76,15 @@ export default defineComponent({
   methods: {
     isSelected(index) {
       const firstForcedIndex = findIndex(this.items, item => {
-        const selected = ["available.configuring", "available.configured"].some(
-          item.state.value.matches
-        );
+        const needsConfiguring = [
+          "available.configuring",
+          "available.configured",
+        ].some(item.state.value.matches);
 
-        return selected;
+        const isNew = !item.state.value.context?.basket_product;
+        const hasErrors = !!item.state.value.context?.errors;
+
+        return needsConfiguring && (isNew || hasErrors);
       });
 
       return index === firstForcedIndex;

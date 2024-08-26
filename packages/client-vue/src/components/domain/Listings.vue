@@ -29,40 +29,51 @@
           no-input
           key="items"
         >
-          <template #prepend="{ item }"> </template>
+          <template #prepend="{ item }"></template>
 
           <template #label="{ item }">
             <p :class="styles.domain.card.label">
-              <span :class="styles.domain.card.text" v-if="item.is_owned">
-                <span :class="styles.domain.card.owned.icon">
-                  <upw-icon icon="lock" size="full" />
-                </span>
-                {{ $t("domain.card.owned.label") }}
-              </span>
-
-              <span :class="styles.domain.card.text" v-else-if="item.in_basket">
-                <span :class="styles.domain.card.basket.icon">
-                  <upw-icon icon="basket" size="full" />
-                </span>
-                {{ $t("domain.card.basket.label") }}
-              </span>
-
-              <span
-                v-else-if="item.is_available"
-                :class="styles.domain.card.text"
-              >
-                <span :class="styles.domain.card.available.icon">
-                  <upw-icon icon="check" size="full" />
-                </span>
-                {{ $t("domain.card.available.label") }}
-              </span>
-
-              <span :class="styles.domain.card.text" v-else>
-                <span :class="styles.domain.card.transfer.icon">
-                  <upw-icon icon="transfer" size="full" />
+              <span :class="styles.domain.card.badges">
+                <span :class="styles.domain.card.text" v-if="item.is_owned">
+                  <span :class="styles.domain.card.owned.icon">
+                    <upw-icon icon="lock" size="full" />
+                  </span>
+                  {{ $t("domain.card.owned.label") }}
                 </span>
 
-                {{ $t("domain.card.transfer.label") }}
+                <span
+                  :class="styles.domain.card.text"
+                  v-else-if="item.in_basket"
+                >
+                  <span :class="styles.domain.card.basket.icon">
+                    <upw-icon icon="basket" size="full" />
+                  </span>
+                  {{ $t("domain.card.basket.label") }}
+                </span>
+
+                <span
+                  v-else-if="item.is_available"
+                  :class="styles.domain.card.text"
+                >
+                  <span :class="styles.domain.card.available.icon">
+                    <upw-icon icon="check" size="full" />
+                  </span>
+                  {{ $t("domain.card.available.label") }}
+                </span>
+
+                <span :class="styles.domain.card.text" v-else>
+                  <span :class="styles.domain.card.transfer.icon">
+                    <upw-icon icon="transfer" size="full" />
+                  </span>
+
+                  {{ $t("domain.card.transfer.label") }}
+                </span>
+
+                <upw-badge
+                  v-if="item?.is_discounted"
+                  color="promotion"
+                  :label="$t('domain.card.promotion')"
+                />
               </span>
 
               <span :class="styles.domain.card.title">
@@ -141,9 +152,23 @@
                 </template>
 
                 <template #[`price`]>
-                  <em :class="styles.domain.card.available.price">{{
-                    item.price_formatted
-                  }}</em>
+                  <span :class="styles.domain.card.available.prices">
+                    <span
+                      :class="styles.domain.card.available.discount"
+                      v-if="item?.price_discounted"
+                    >
+                      {{ item.price_formatted }}
+                    </span>
+                    <em :class="styles.domain.card.available.price">
+                      {{
+                        item?.price_discounted
+                          ? item.price_discounted_formatted
+                          : item?.price
+                            ? item.price_formatted
+                            : $t("product.free")
+                      }}
+                    </em>
+                  </span>
                 </template>
 
                 <template #[`tld`]>
@@ -168,9 +193,23 @@
                 </template>
 
                 <template #[`price`]>
-                  <em :class="styles.domain.card.transfer.price">{{
-                    item.price_formatted
-                  }}</em>
+                  <span :class="styles.domain.card.transfer.prices">
+                    <span
+                      :class="styles.domain.card.transfer.discount"
+                      v-if="item?.price_discounted"
+                    >
+                      {{ item.price_formatted }}
+                    </span>
+                    <em :class="styles.domain.card.transfer.price">
+                      {{
+                        item?.price_discounted
+                          ? item.price_discounted_formatted
+                          : item?.price
+                            ? item.price_formatted
+                            : $t("product.free")
+                      }}
+                    </em>
+                  </span>
                 </template>
 
                 <template #[`tld`]>
@@ -251,6 +290,7 @@ import UpmEmpty from "./Empty.vue";
 import {
   UpwTextbox,
   UpwButton,
+  UpwBadge,
   UpwSkeletonList,
   UpwDialog,
   UpwCheckboxList,
@@ -269,6 +309,7 @@ export default defineComponent({
   components: {
     UpwTextbox,
     UpwButton,
+    UpwBadge,
     UpwIcon,
     UpwCheckboxList,
     UpwRadioList,
