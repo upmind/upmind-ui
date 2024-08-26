@@ -94,6 +94,23 @@ const colors = {
     background: "#5E36E8",
   },
 
+  destructive: {
+    DEFAULT: "#fd293d",
+    50: "#fff1f2",
+    100: "#ffe0e3",
+    200: "#ffc6cb",
+    300: "#ff9ea7",
+    400: "#ff6674",
+    500: "#fd293d",
+    600: "#eb172b",
+    700: "#c60f20",
+    800: "#a3111f",
+    900: "#871520",
+    950: "#4a050c",
+    bckground: "#fd293d",
+    foreground: "#fff1f2",
+  },
+
   info: {
     DEFAULT: "#3b82f6",
     50: "#eff5ff",
@@ -160,11 +177,6 @@ const colors = {
     950: "#450a0a",
     foreground: "#ffebee",
     background: "#ef4444",
-  },
-
-  destructive: {
-    DEFAULT: "#ff0000",
-    foreground: "#f8fafc",
   },
 
   disabled: {
