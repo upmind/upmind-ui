@@ -9,6 +9,12 @@ export default {
 
     search: cva(""),
 
+    listings: {
+      root: cva(""),
+      header: cva(""),
+      items: cva(""),
+      loading: cva(""),
+    },
     card: {
       root: cva(""),
       underline: cva("underline underline-offset-8"),

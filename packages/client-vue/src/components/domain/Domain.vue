@@ -23,6 +23,7 @@
           :has-more="meta.hasMoreSearchResults"
           :key="type"
           :loading="meta.isSearching"
+          :offset="searchOffset"
           :model-value="selected"
           :processing="meta.isSyncing"
           :values="model"
@@ -128,6 +129,7 @@ export default defineComponent({
       // ---
       meta,
       state,
+      searchOffset,
       // ---
       choose,
       search,
@@ -164,8 +166,9 @@ export default defineComponent({
       // ---
       choose,
       search: debounce(search, 500),
-      searchMore: debounce(searchMore, 500),
-      update: debounce(update, 500),
+      searchMore,
+      searchOffset,
+      update,
       toggle,
       reset,
       syncBasket,

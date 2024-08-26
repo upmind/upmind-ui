@@ -78,7 +78,7 @@ export interface Typegen0 {
       | "UPDATE"
       | "xstate.init";
     fetchBasket: "" | "AUTHENTICATED" | "CHOOSE" | "UNAUTHENTICATED";
-    newController: "" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
+    newController: "";
     persistModel:
       | "AUTHENTICATED"
       | "CHOOSE"
@@ -129,7 +129,7 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     getClientDomains: "" | "AUTHENTICATED" | "UNAUTHENTICATED";
-    search: "" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
+    search: "";
   };
   matchesStates:
     | "basket"

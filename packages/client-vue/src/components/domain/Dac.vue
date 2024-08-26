@@ -21,6 +21,7 @@
         v-if="meta.showDialog"
         :model-value="values"
         :items="items"
+        :offset="offset"
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
         @update:modelValue="onUpdate"
@@ -83,6 +84,7 @@ export default defineComponent({
   props: {
     modelValue: { type: String },
     query: { type: String, default: "" },
+    offset: { type: Number, default: 0 },
     values: { type: Array, default: () => [] },
     items: { type: Array, default: () => [] },
     dialog: { type: Boolean, default: true },

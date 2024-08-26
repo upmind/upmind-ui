@@ -211,7 +211,7 @@ export default createMachine(
           },
           SEARCH: [
             {
-              target: ".processing",
+              target: ".loading",
               actions: ["setSearchQuery"],
               cond: "validSearchQuery",
             },
@@ -220,13 +220,13 @@ export default createMachine(
             },
           ],
           "SEARCH.OFFSET": {
-            target: ".processing",
+            target: ".loading",
             actions: ["setSearchOffset"],
             cond: "validSearchOffset",
           },
 
           REFRESH: {
-            target: ".processing",
+            target: ".loading",
             actions: ["setCurrency", "setPromotions"],
           },
           RESET: {
@@ -419,7 +419,7 @@ export default createMachine(
           // ---
           search: {
             query: undefined,
-            limit: 10,
+            limit: 3,
             offset: 0,
             total: 0,
           },
