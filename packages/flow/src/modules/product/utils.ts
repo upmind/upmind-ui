@@ -37,6 +37,7 @@ import type { IProductModel, ProductConfigContext } from "./types.d";
 export const checkPriceOverride = (values, lookups) => {
   return some(values, (value, key) => {
     const { price_override = false } = find(lookups, ["id", key]);
+
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
     return !isEmpty(value) && !!price_override;
   });

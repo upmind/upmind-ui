@@ -380,7 +380,7 @@ const calculateSummary = (
     concat(
       checkPriceOverride(model.options, lookups.options)
         ? []
-        : prices?.term || 0,
+        : prices?.term || [],
       prices?.attributes,
       prices?.options
     ),
