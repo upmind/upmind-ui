@@ -35,6 +35,23 @@ export {
 export { UwToaster, toast } from "./components/ui/sonner";
 export { AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export { TooltipConsolidated as Tooltip } from "./components/ui/tooltip";
+export { UwCombobox, UwComboboxItem } from "./components/ui/combobox";
+export {
+  UwPopover,
+  UwPopoverContent,
+  UwPopoverTrigger,
+} from "./components/ui/popover";
+export {
+  UwCommand,
+  UwCommandDialog,
+  UwCommandEmpty,
+  UwCommandGroup,
+  UwCommandInput,
+  UwCommandItem,
+  UwCommandList,
+  UwCommandSeparator,
+  UwCommandShortcut,
+} from "./components/ui/command";
 export { UwDialogConsolidated, UwDialogClose } from "./components/ui/dialog";
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";

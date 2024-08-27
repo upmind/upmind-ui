@@ -229,6 +229,14 @@ export default {
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
   },
+  width: {
+    "dropdown-xs": "10rem",
+    "dropdown-sm": "12rem",
+    "dropdown-md": "14rem",
+    "dropdown-lg": "16rem",
+    "dropdown-xl": "18rem",
+    "dropdown-2xl": "20rem",
+  },
   leading: {
     none: 1,
     tight: 1.25,
