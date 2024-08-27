@@ -75,7 +75,7 @@ export default {
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
-        discount: cva("text-base-500 text-md block font-normal line-through"),
+        discount: cva("text-base-500 block text-xs font-normal line-through"),
         action: cva(""),
       },
     },

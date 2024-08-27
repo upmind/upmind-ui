@@ -161,11 +161,10 @@
         type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
-        :disabled="meta.isProcessing"
+        :disabled="meta.isProcessing || required"
         @click="doReject"
         color="current"
         variant="link"
-        v-if="!required"
       />
 
       <span :class="styles.product.config.itemtotal" v-if="summary?.total">

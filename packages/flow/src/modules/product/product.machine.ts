@@ -667,7 +667,7 @@ export default createMachine(
       },
 
       needsCalculating: (
-        { prices }: ProductConfigContext,
+        { id, prices, summary }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
         // work out which property we need to compare
@@ -676,7 +676,15 @@ export default createMachine(
         prop ??= has(data, "options") ? "options" : null;
         prop ??= has(data, "attributes") ? "attributes" : null;
 
-        return !!prop && data?.price && !isEqual(data?.price, prices[prop]);
+        const newPrice = get(data, "price", []);
+        const oldPrice = get(prices, prop, []);
+
+        const value =
+          !summary ||
+          !prop ||
+          (!isEmpty(newPrice) && !isEqual(oldPrice, newPrice));
+
+        return value;
       },
       hasSummaryData: (
         _context: ProductConfigContext,
