@@ -96,20 +96,20 @@ const colors = {
   },
 
   destructive: {
-    DEFAULT: "#fd293d",
-    50: "#fff1f2",
-    100: "#ffe0e3",
-    200: "#ffc6cb",
-    300: "#ff9ea7",
-    400: "#ff6674",
-    500: "#fd293d",
-    600: "#eb172b",
-    700: "#c60f20",
-    800: "#a3111f",
-    900: "#871520",
-    950: "#4a050c",
-    bckground: "#fd293d",
-    foreground: "#fff1f2",
+    DEFAULT: "#ff6b6b",
+    50: "#4d0000",
+    100: "#660000",
+    200: "#990000",
+    300: "#cc0000",
+    400: "#ff0000",
+    500: "#ff3333",
+    600: "#ff6666",
+    700: "#ff9999",
+    800: "#ffcccc",
+    900: "#ffe5e5",
+    950: "#fff2f2",
+    foreground: "#ffffff",
+    background: "#ff4d6d",
   },
 
   // ---
@@ -231,6 +231,14 @@ export default {
     "3xl": "1.875rem", // 30px
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
+  },
+  width: {
+    "dropdown-xs": "10rem",
+    "dropdown-sm": "12rem",
+    "dropdown-md": "14rem",
+    "dropdown-lg": "16rem",
+    "dropdown-xl": "18rem",
+    "dropdown-2xl": "20rem",
   },
   leading: {
     none: 1,
