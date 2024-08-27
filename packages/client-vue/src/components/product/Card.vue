@@ -137,6 +137,7 @@
           <upw-button
             :disabled="
               meta.isLoading ||
+              meta.isCalculating ||
               meta.isProcessing ||
               (!meta.isConfigurable && !product?.canChangeQuantity)
             "
@@ -152,7 +153,9 @@
           />
 
           <upw-button
-            :disabled="meta.isLoading"
+            :disabled="
+              meta.isLoading || meta.isCalculating || meta.isProcessing
+            "
             :label="$t('product.actions.remove')"
             :loading="meta.isProcessing"
             @click="doReject"

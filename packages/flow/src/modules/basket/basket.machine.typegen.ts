@@ -97,6 +97,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.generating:invocation[0]";
+    refreshItems: "done.invoke.generating:invocation[0]";
     setError:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
@@ -118,6 +119,7 @@ export interface Typegen0 {
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
     spawnItems:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.claiming:invocation[0]";
     trackPayment: "done.invoke.payment";
     updateBasket:

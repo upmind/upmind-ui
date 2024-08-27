@@ -7,6 +7,9 @@ import {
   filter,
   reduce,
   forEach,
+  isUndefined,
+  isObjectLike,
+  compact,
 } from "lodash-es";
 
 // a custom isEmpty that can handle deeply nested objects
@@ -33,53 +36,30 @@ export function isDeepEmpty(value: any): boolean {
   return isEmpty(value);
 }
 
-// export function compactDeep(value: any): any {
-//   if (isObject(value)) {
-//     return reduce(
-//       value,
-//       (acc, item, key) => {
-//         const val = compactDeep(item);
-//         if (!isNil(val)) acc[key] = val;
-//         return acc;
-//       },
-//       {}
-//     );
-//   }
+export function compactDeep(value?: any): any {
+  let cleaned = undefined;
 
-//   if (isArray(value)) {
-//     return filter(value, compactDeep);
-//   }
-
-//   return value;
-// }
-
-export function compactDeep(value) {
   if (isObject(value)) {
-    for (const propName in value) {
-      if (isObject(value[propName])) {
-        compactDeep(value[propName]);
-      }
-      if (
-        isNil(value[propName]) ||
-        ((isObject(value[propName]) || isArray(value[propName])) &&
-          isEmpty(value[propName]))
-      ) {
-        delete value[propName];
-      }
-    }
+    cleaned = reduce(
+      value,
+      (acc, val, key) => {
+        const cleanedValue = compactDeep(val);
+        if (!isNil(cleanedValue)) {
+          // Check if the object itself is empty, even if it has properties
+          if (!isEmpty(cleanedValue) || !isObjectLike(cleanedValue)) {
+            acc[key] = cleanedValue;
+          }
+        }
+        return acc;
+      },
+      {}
+    );
   } else if (isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      if (isObject(value[i])) compactDeep(value[i]);
-
-      if (
-        isNil(value[i]) ||
-        ((isObject(value[i]) || isArray(value[i])) && isEmpty(value[i]))
-      ) {
-        value.splice(i, 1);
-        i--;
-      }
-    }
+    cleaned = compact(value.map(compactDeep));
+  } else {
+    cleaned = value;
   }
 
-  return value;
+  // console.debug("compactDeep", value, "cleaned", cleaned);
+  return cleaned;
 }

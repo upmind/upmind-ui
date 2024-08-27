@@ -27,6 +27,7 @@ import {
   has,
   isEmpty,
   isEqual,
+  differenceBy,
   isNil,
   merge,
   set,
@@ -281,11 +282,18 @@ export default createMachine(
           error: {},
         },
         on: {
-          REFRESH: {
-            target: "loading",
-            actions: ["refreshContext"],
-            cond: "hasChanged",
-          },
+          REFRESH: [
+            {
+              target: "loading",
+              actions: ["refreshContext"],
+              cond: "hasBasketChanged",
+            },
+            {
+              target: "available.configuring",
+              actions: ["refreshContext"],
+              cond: "hasChanged",
+            },
+          ],
           REMOVE: {
             actions: sendTo(
               ({ basketHelper }, _event) => basketHelper,
@@ -412,15 +420,15 @@ export default createMachine(
       ),
       refreshContext: assign(
         ({ model }: ProductConfigContext, { data }: ProductConfigEvent) => {
-          const { basket_product, currency_id, promotions } = data;
+          const { basket_product, currency_id, promotions, error } = data;
 
           const newContext = {
             currency_id,
             promotions,
             baseModel: cloneDeep(model),
             model: basket_product ? parseBasketProduct(basket_product) : model,
-            error: undefined,
-            prices: undefined, // they need to be recalculated
+            // error,
+            // prices: undefined, // they need to be recalculated
           };
 
           return newContext;
@@ -626,12 +634,6 @@ export default createMachine(
         const value =
           isEmpty(basket_product) || !isEqual(cleanModel, cleanBaseModel);
 
-        console.log("isDirty", value, {
-          basket_product,
-          cleanModel,
-          cleanBaseModel,
-        });
-
         return value;
       },
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
@@ -647,13 +649,19 @@ export default createMachine(
         const isDirty =
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
 
-        const hasError = !isEmpty(data?.error);
-        const value =
-          hasError ||
-          isDirty ||
-          basket_id !== data?.id ||
-          currency_id !== data?.currency_id ||
-          !isEqual(promotions, data?.promotions);
+        return isDirty;
+      },
+      hasBasketChanged: (
+        { basket_id, currency_id, promotions }: ProductConfigContext,
+        { data }: ProductConfigEvent
+      ) => {
+        const basketChanged = basket_id !== data?.id;
+        const currencyChanged = currency_id !== data?.currency_id;
+        const promotionsChanged = !isEmpty(
+          differenceBy(promotions, data?.promotions, "promotion_id")
+        );
+
+        const value = basketChanged || currencyChanged || promotionsChanged;
 
         return value;
       },
