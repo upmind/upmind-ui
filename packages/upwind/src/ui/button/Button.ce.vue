@@ -9,7 +9,9 @@
   >
     <slot name="prepend"></slot>
 
-    <slot>{{ label }}</slot>
+    <slot>
+      <span :class="styles.button.label">{{ label }}</span></slot
+    >
 
     <slot name="append"></slot>
   </primitive>
