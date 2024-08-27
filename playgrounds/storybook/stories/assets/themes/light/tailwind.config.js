@@ -94,6 +94,23 @@ const colors = {
     background: "#5E36E8",
   },
 
+  destructive: {
+    DEFAULT: "#e11d48",
+    50: "#fff1f2",
+    100: "#ffe4e6",
+    200: "#fecdd3",
+    300: "#fda4af",
+    400: "#fb7185",
+    500: "#f43f5e",
+    600: "#e11d48",
+    700: "#be123c",
+    800: "#9f1239",
+    900: "#881337",
+    950: "#4c0519",
+    foreground: "#ffffff",
+    background: "#ff4d6d",
+  },
+
   info: {
     DEFAULT: "#3b82f6",
     50: "#eff5ff",
@@ -160,23 +177,6 @@ const colors = {
     950: "#450a0a",
     foreground: "#ffebee",
     background: "#ef4444",
-  },
-
-  destructive: {
-    DEFAULT: "#e11d48",
-    50: "#fff1f2",
-    100: "#ffe4e6",
-    200: "#fecdd3",
-    300: "#fda4af",
-    400: "#fb7185",
-    500: "#f43f5e",
-    600: "#e11d48",
-    700: "#be123c",
-    800: "#9f1239",
-    900: "#881337",
-    950: "#4c0519",
-    foreground: "#ffffff",
-    background: "#ff4d6d",
   },
 
   disabled: {

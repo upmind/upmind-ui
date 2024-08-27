@@ -1,24 +1,35 @@
 import { fileURLToPath, URL } from 'node:url'
-import { resolve } from "path";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+// import Terminal from "vite-plugin-terminal";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
+    // Terminal({
+    //   console: 'terminal'
+    // }),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.includes('.ce.')
+        }
+      }
+    }),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     }
   },
-    build: {
+  build: {
+    cssCodeSplit: true,
     lib: {
-      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "upmind-upwind",
-      fileName: "upmind-upwind"
+      entry: './src/index.ts',
+      name: "upwind",
+      fileName: "upwind"
     }
   },
+
 })
