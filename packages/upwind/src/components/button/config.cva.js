@@ -25,12 +25,12 @@ export default {
             link: "!bg-transparent !p-0 underline",
           },
           color: {
-            current: "border-transparent bg-transparent text-foreground",
+            current: "text-foreground border-transparent bg-transparent",
             base: "bg-base-200 text-base-foreground border-transparent",
-            primary: "border-transparent bg-primary text-primary-foreground",
+            primary: "bg-primary text-primary-foreground border-transparent",
             secondary:
-              "border-transparent bg-secondary text-secondary-foreground",
-            accent: "border-transparent bg-accent text-accent-foreground",
+              "bg-secondary text-secondary-foreground border-transparent",
+            accent: "bg-accent text-accent-foreground border-transparent",
             success: "bg-success text-success-foreground border-transparent",
             error: "bg-error text-error-foreground border-transparent",
             warning: "bg-warning text-warning-foreground border-transparent",

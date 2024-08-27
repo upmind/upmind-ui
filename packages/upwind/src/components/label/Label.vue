@@ -54,7 +54,7 @@ import config from "./config.cva";
 
 // --- components
 import UpwIcon from "../icon/Icon.vue";
-import UpwBadge from "../ui/badge/Badge.vue";
+import UpwBadge from "../ui/badge/Badge.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";

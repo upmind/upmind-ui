@@ -1,12 +1,14 @@
 // --- external
+import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwAvatar, AvatarImage } from "@upmind/upwind";
+import { UwAvatar, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAvatar);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+import { keys, isFunction, find, findIndex } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 enum shapes {
@@ -14,8 +16,7 @@ enum shapes {
   square = "Square",
 }
 
-const meta: Meta<typeof UpwAvatar> = {
-  component: UpwAvatar,
+const meta: Meta<typeof UwAvatar> = {
   argTypes: {
     avatar: useSystemArgTypes.flag,
     size: useSystemArgTypes.baseSizes,
@@ -28,64 +29,70 @@ const meta: Meta<typeof UpwAvatar> = {
     },
   },
   args: {
-    avatar: { caption: "DC" },
-    size: "base",
+    avatar: "",
+    caption: "DC",
+    size: "md",
     shape: "circle",
   },
+  render: args => ({
+    setup() {
+      return { args };
+    },
+    template: `<uw-avatar v-bind="args" :avatar="{src: args.avatar, caption:args.caption }"/>`,
+  }),
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwAvatar>;
+type Story = StoryObj<typeof UwAvatar>;
 
 export const Base: Story = {};
 
 export const Flag: Story = {
   args: {
-    avatar: { name: "gb", path: "flags" },
-    size: "base",
+    avatar: useSystemArgTypes.flag.options.find((flag, key) =>
+      flag.includes("gb")
+    ),
+    caption: "GB",
+    size: "md",
   },
 };
 
 export const Gravatar: Story = {
   args: {
-    avatar: {
-      src: "https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200",
-    },
-    size: "base",
+    avatar:
+      "https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200",
+    size: "md",
   },
 };
 
 export const SlotContent: Story = {
   parameters: {
-    controls: { exclude: ["avatar"] },
+    controls: { exclude: ["avatar", "caption"] },
+  },
+  args: {
+    size: "md",
   },
   render: args => ({
-    components: { UpwAvatar, AvatarImage },
     setup() {
+      const svg = ref();
+      const avatar = useSystemArgTypes.icon.options[16];
+      if (isFunction(avatar)) avatar().then(value => (svg.value = value));
       return {
         args,
+        svg,
       };
     },
     template: `
-      <div class="flex space-x-4">
-        <UpwAvatar v-bind="args" :avatar="null">
-          Slot
-        </UpwAvatar>
-
-        <UpwAvatar v-bind="args" :avatar="null">
-          <AvatarImage src="https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200" />
-        </UpwAvatar>
-      </div>
+        <uw-avatar v-bind="args" v-html="svg" />
     `,
   }),
 };
 
 export const GravatarWithText: Story = {
   args: {
-    avatar: {
-      caption: "DC",
-      src: "https://www.gravatar.com/avatar/98302662b1abcc4cfe17b1205cb53255?d=blank&s=200",
-    },
-    size: "base",
+    caption: "DC",
+    avatar:
+      "https://www.gravatar.com/avatar/98302662b1abcc4cfe17b1205cb53255?d=blank&s=200",
+    size: "md",
   },
 };

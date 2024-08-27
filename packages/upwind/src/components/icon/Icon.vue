@@ -48,8 +48,9 @@ export default defineComponent({
     const styles = useStyles("icon", toRefs(props), config, props.upwindConfig);
 
     const icons = import.meta.glob("@icons/**/*.svg", {
-      as: "raw",
+      query: "?raw",
       eager: false,
+      import: "default",
     });
 
     const svg = ref();
