@@ -143,7 +143,12 @@ export default createMachine(
           src: "generate",
           onDone: {
             target: "shopping",
-            actions: ["setError", "updateBasket", "refreshActors"],
+            actions: [
+              "setError",
+              "updateBasket",
+              "refreshItems",
+              "refreshActors",
+            ],
           },
           onError: { target: "#error" },
         },
@@ -170,7 +175,12 @@ export default createMachine(
                   src: "refresh",
                   onDone: {
                     target: ["complete", "#shopping.items"],
-                    actions: ["setError", "updateBasket", "refreshActors"],
+                    actions: [
+                      "setError",
+                      "updateBasket",
+                      "spawnItems",
+                      "refreshActors",
+                    ],
                   },
                   onError: {
                     target: "#error",
@@ -540,6 +550,9 @@ export default createMachine(
             actor.send({ type: "REFRESH", data: basket });
           }
         });
+      }),
+
+      refreshItems: pure(({ basket, actors, items, error }) => {
         forEach(items, actor => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({
@@ -630,13 +643,6 @@ export default createMachine(
             }
 
             newItems.push(item);
-          });
-
-          // ---
-          console.log("spawnItems", {
-            items,
-            products,
-            newItems,
           });
 
           return newItems;
