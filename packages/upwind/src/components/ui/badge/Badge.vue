@@ -20,7 +20,7 @@ import { toRefs } from "vue";
 
 // --- types
 import { type BadgeVariants } from ".";
-import type { IconProps } from "./types";
+import type { IconProps } from "../../icon/types";
 
 // --- config
 import config from "./badge.config";
