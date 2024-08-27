@@ -20,7 +20,6 @@ export { default as UpwSkeletonForm } from "./components/skeleton/SkeletonForm.v
 export { default as UpwSkeletonList } from "./components/skeleton/SkeletonList.vue";
 export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
 export { default as UpwSteps } from "./components/steps/Steps.vue";
-export { default as UpwTabs } from "./components/tabs/Tabs.vue";
 export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
 export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
@@ -28,6 +27,12 @@ export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 // --- uw
 export { default as UwButton } from "./components/ui/button/Button.vue";
+export {
+  UwTabs,
+  UwTabsTrigger,
+  UwTabsList,
+  UwTabsContent,
+} from "./components/ui/tabs";
 export { UwToaster, toast } from "./components/ui/sonner";
 export { AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export { TooltipConsolidated as Tooltip } from "./components/ui/tooltip";
