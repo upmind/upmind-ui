@@ -7,8 +7,9 @@
         :sideOffset="sideOffset"
         :class="styles.tooltip.content"
       >
-        <div v-if="label">{{ label }}</div>
-        <slot v-else name="content" />
+        <slot name="content">
+          <div>{{ label }}</div>
+        </slot>
         <tooltip-arrow fill="currentColor" :class="styles.tooltip.arrow" />
       </tooltip-content>
     </tooltip>

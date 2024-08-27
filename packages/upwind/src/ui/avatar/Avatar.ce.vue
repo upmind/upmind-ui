@@ -1,7 +1,12 @@
 <template>
   <avatar-root :class="styles.avatar.root">
     <slot>
-      <avatar-image v-if="meta.hasImage" :src="avatar.src" alt="avatar" />
+      <avatar-image
+        v-if="meta.hasImage"
+        :src="avatar.src"
+        alt="avatar"
+        :class="styles.avatar.image"
+      />
       <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
         {{ avatar.caption }}
       </avatar-fallback>
@@ -14,7 +19,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
-import { AvatarFallback, AvatarImage } from "./index";
+import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
 // --- internal
