@@ -19,6 +19,7 @@ enum colors {
   warning = "Warning",
   info = "Info",
   current = "Current",
+  destructive = "Destructive",
 }
 enum baseSizes {
   sm = "Small",
