@@ -176,7 +176,7 @@ export default defineComponent({
   },
   computed: {
     hasItems() {
-      return !isNil(this.modelValue) && this.items?.length > 1;
+      return !isNil(this.modelValue) && !!this.items?.length;
     },
   },
   methods: {
