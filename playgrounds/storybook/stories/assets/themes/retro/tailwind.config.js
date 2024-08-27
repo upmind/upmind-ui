@@ -147,8 +147,20 @@ const colors = {
   },
 
   destructive: {
-    DEFAULT: "#ff0000",
-    foreground: "#f8fafc",
+    DEFAULT: "#ff6b6b",
+    50: "#4d0000",
+    100: "#660000",
+    200: "#990000",
+    300: "#cc0000",
+    400: "#ff0000",
+    500: "#ff3333",
+    600: "#ff6666",
+    700: "#ff9999",
+    800: "#ffcccc",
+    900: "#ffe5e5",
+    950: "#fff2f2",
+    foreground: "#ffffff",
+    background: "#ff4d6d",
   },
 
   disabled: {
