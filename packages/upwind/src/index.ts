@@ -28,6 +28,7 @@ export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 // --- uw
 export { default as UwButton } from "./components/ui/button/Button.vue";
+export { UwToaster, toast } from "./components/ui/sonner";
 export { AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export { TooltipConsolidated as Tooltip } from "./components/ui/tooltip";
 export { UwDialogConsolidated, UwDialogClose } from "./components/ui/dialog";

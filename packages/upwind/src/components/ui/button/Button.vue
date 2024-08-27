@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ---external
 import { Primitive } from "radix-vue";
-import { toRefs } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import config from "./button.config";
@@ -12,9 +12,11 @@ import { useStyles } from "../../../utils";
 // --- types
 import type { PrimitiveProps } from "radix-vue";
 import type { ButtonConfig } from ".";
+import type { HTMLAttributes } from "vue";
 
 interface Props extends PrimitiveProps {
   label: string;
+  class: HTMLAttributes["class"];
   color: ButtonConfig["color"];
   variant?: ButtonConfig["variant"];
   size?: ButtonConfig["size"];
@@ -29,11 +31,15 @@ const props = withDefaults(defineProps<Props>(), {
   upwindConfig: {},
 });
 
-const styles = useStyles("button", toRefs(props), config, props.upwindConfig);
+const styles = useStyles("button", props, config, props.upwindConfig);
+
+const mergedClasses = computed(() => {
+  return [styles.value.button.root, props.class];
+});
 </script>
 
 <template>
-  <primitive :as="as" :as-child="asChild" :class="styles.button.root">
+  <primitive :as="as" :as-child="asChild" :class="mergedClasses">
     <slot>
       {{ label }}
     </slot>
