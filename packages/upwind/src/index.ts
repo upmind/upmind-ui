@@ -1,6 +1,4 @@
 // --- upw
-export { default as UpwAlert } from "./components/alert/Alert.vue";
-export { default as UpwAvatar } from "./components/ui/avatar/AvatarConsolidated.vue";
 export { default as UpwBadge } from "./components/ui/badge/Badge.vue";
 export { default as UpwButton } from "./components/button/Button.vue";
 export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
@@ -27,6 +25,7 @@ export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 // --- uw
 export { default as UwButton } from "./components/ui/button/Button.vue";
+export { UwAlert } from "./components/ui/alert";
 export {
   UwTabs,
   UwTabsTrigger,
