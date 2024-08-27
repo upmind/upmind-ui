@@ -34,7 +34,7 @@ export const Base: Story = {
           <uw-button>Open Drawer</uw-button>
         </template>
 
-        <template v-slot:footer>
+        <template v-slot:close>
           <uw-button label="Close" />
         </template>
       </uw-drawer>
