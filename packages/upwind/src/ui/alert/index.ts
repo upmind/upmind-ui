@@ -1,9 +1,6 @@
 import { type VariantProps } from "class-variance-authority";
 
-export { default as Alert } from "./Alert.vue";
-export { default as AlertTitle } from "./AlertTitle.vue";
-export { default as AlertDescription } from "./AlertDescription.vue";
-export { default as UwAlert } from "./AlertConsolidated.vue";
+export { default as UwAlert } from "./Alert.ce.vue";
 
 export { alertConfig } from "./alert.config";
 export type AlertVariants = VariantProps<typeof alertConfig>;

@@ -1,12 +1,13 @@
 // --- external
 import type { Meta, StoryObj } from "@storybook/vue3";
+import { ref } from "vue";
 
 // -- components
 import { UwAlert } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+import { keys, isFunction } from "lodash-es";
 
 // --- types
 enum variants {
@@ -25,7 +26,6 @@ const meta: Meta<typeof UwAlert> = {
       },
     },
     color: useSystemArgTypes.color,
-    icon: useSystemArgTypes.icon,
   },
   args: {
     title: "Alert",
@@ -40,20 +40,27 @@ export default meta;
 type Story = StoryObj<typeof UwAlert>;
 
 export const Base: Story = {
-  render: (args, { updateArgs }) => ({
+  render: args => ({
     components: { UwAlert },
     setup() {
+      const icon = ref();
+      const iconSvg = useSystemArgTypes.icon.options[9];
+      if (isFunction(iconSvg))
+        iconSvg().then(value => {
+          icon.value = value;
+        });
+
       return {
         args,
+        icon,
       };
     },
-    methods: {
-      doUpdate(value: boolean) {
-        updateArgs({ modelValue: value });
-      },
-    },
     template: `
-        <uw-alert v-bind="args" />
+      <uw-alert v-bind="args">
+        <template v-slot:prepend>
+          <span v-html="icon"/>
+        </template>
+      </uw-alert>
     `,
   }),
 };
@@ -72,14 +79,18 @@ export const Colors: Story = {
       };
     },
     template: `
-      <div 
-        v-for="color in colors.options" 
-        :key="color" 
+      <div
+        v-for="color in colors.options"
+        :key="color"
         class="my-6"
       >
         <uw-alert
-          v-bind="args" 
-          :color="color" 
+          v-bind="args"
+          :color="color"
+        >
+          <template v-slot:prepend>
+            <span v-html="icon"/>
+          </template>
         />
       </div>
     `,
