@@ -198,9 +198,10 @@
                       :class="styles.domain.card.transfer.discount"
                       v-if="item?.price_discounted"
                     >
-                      {{ item.price_formatted }}
+                      ({{ item.price_formatted }})
                     </span>
-                    <em :class="styles.domain.card.transfer.price">
+
+                    <strong :class="styles.domain.card.transfer.price">
                       {{
                         item?.price_discounted
                           ? item.price_discounted_formatted
@@ -208,7 +209,7 @@
                             ? item.price_formatted
                             : $t("product.free")
                       }}
-                    </em>
+                    </strong>
                   </span>
                 </template>
 

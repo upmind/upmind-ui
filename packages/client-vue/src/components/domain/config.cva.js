@@ -62,8 +62,8 @@ export default {
           "bg-primary text-primary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
-        price: cva("m-0 text-xl font-semibold not-italic tracking-wide"),
-        discount: cva("text-base-500 text-md block font-normal line-through"),
+        price: cva("m-0 text-lg font-semibold not-italic tracking-wide"),
+        discount: cva("text-base-500 block text-xs font-normal line-through"),
         action: cva(""),
       },
       transfer: {
@@ -75,7 +75,7 @@ export default {
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
-        discount: cva("text-base-500 block text-xs font-normal line-through"),
+        discount: cva("text-base-500 text-xs font-normal line-through"),
         action: cva(""),
       },
     },

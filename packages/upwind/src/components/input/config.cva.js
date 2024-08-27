@@ -7,7 +7,7 @@ export default {
       variants: {
         size: {
           sm: "text-sm",
-          md: "",
+          md: "text-md",
           lg: "text-lg",
         },
       },
@@ -42,7 +42,7 @@ export default {
           {
             layout: "inline",
             variant: "outlined",
-            size: "md",
+            size: "sm",
             class: "px-3 py-2 text-sm leading-5",
           },
           {
