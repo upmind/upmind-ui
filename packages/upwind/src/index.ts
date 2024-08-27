@@ -31,5 +31,6 @@ export { default as UwButton } from "./components/ui/button/Button.vue";
 export { AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export { TooltipConsolidated as Tooltip } from "./components/ui/tooltip";
 export { UwDialogConsolidated, UwDialogClose } from "./components/ui/dialog";
+export { UwDrawer } from "./components/ui/drawer";
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
