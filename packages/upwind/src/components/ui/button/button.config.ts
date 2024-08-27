@@ -10,8 +10,7 @@ export const buttonConfig = {
         variant: {
           default: "bg-[var(--bg-color)] hover:bg-opacity-90",
           flat: "bg-[var(--bg-color)] hover:bg-opacity-90",
-          outline:
-            "border bg-opacity-0 hover:border-opacity-80 hover:text-opacity-80",
+          outline: "border bg-opacity-0 hover:bg-opacity-5",
           ghost: "",
           link: "underline-offset-4 hover:underline",
           tonal: "border border-transparent",
@@ -46,7 +45,8 @@ export const buttonConfig = {
         {
           color: "base",
           variant: "outline",
-          class: "border-base-foreground text-base-foreground",
+          class:
+            "border-base-foreground text-base-foreground border-opacity-10 hover:border-opacity-10",
         },
         {
           color: "error",
