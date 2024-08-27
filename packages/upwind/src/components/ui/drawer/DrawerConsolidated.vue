@@ -4,19 +4,25 @@
       <slot name="trigger" />
     </DrawerTrigger>
     <DrawerContent>
-      <DrawerHeader>
-        <DrawerTitle v-if="hasTitle">{{ title }}</DrawerTitle>
-        <DrawerDescription v-if="hasDescription">
-          {{ description }}
-        </DrawerDescription>
-      </DrawerHeader>
+      <div class="mx-auto w-full" :class="maxWidth">
+        <DrawerHeader>
+          <DrawerTitle v-if="hasTitle">{{ title }}</DrawerTitle>
+          <DrawerDescription v-if="hasDescription">
+            {{ description }}
+          </DrawerDescription>
+        </DrawerHeader>
 
-      <slot name="content" />
-      <slot />
+        <slot name="content" />
+        <slot />
 
-      <DrawerFooter>
-        <slot name="footer" />
-      </DrawerFooter>
+        <DrawerFooter>
+          <slot name="footer" />
+
+          <DrawerClose>
+            <slot name="close" />
+          </DrawerClose>
+        </DrawerFooter>
+      </div>
     </DrawerContent>
   </Drawer>
 </template>
@@ -57,6 +63,10 @@ export default defineComponent({
     description: {
       type: String,
     },
+    maxWidth: {
+      type: String,
+      default: "max-w-sm",
+    },
     upwindConfig: {
       type: Object,
       default: null,
@@ -64,13 +74,6 @@ export default defineComponent({
   },
 
   setup(props) {
-    // const styles = useStyles(
-    //   "dialog",
-    //   toRefs(props),
-    //   config,
-    //   props.upwindConfig
-    // );
-
     const hasTitle = computed(() => {
       return !isEmpty(props.title);
     });
