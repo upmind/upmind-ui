@@ -34,14 +34,14 @@ import { UwAvatar } from "./ui/avatar";
 import { UwBadge } from "./ui/badge";
 import { UwDialog } from "./ui/dialog";
 import { UwTooltip } from "./ui/tooltip";
-
+import { UwAlert } from "./ui/alert";
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
 import { kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
-export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip };
+export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip, UwAlert };
 
 // --- utility for registering all custom elements
 export function register() {
@@ -50,6 +50,7 @@ export function register() {
   customElements.define("uw-button", UwButton);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-tooltip", UwTooltip);
+  customElements.define("uw-alert", UwAlert);
 }
 
 // --- utility for registering custom elements and allowing for code splitting

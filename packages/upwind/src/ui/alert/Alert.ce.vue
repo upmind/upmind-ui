@@ -1,13 +1,17 @@
 <template>
-  <alert :color="color" :variant="variant">
-    <upw-icon :icon="icon" :class="styles.alert.icon" />
-    <alert-title>
-      {{ title }}
-    </alert-title>
-    <alert-description>
-      {{ description }}
-    </alert-description>
-  </alert>
+  <div :class="styles.alert.root" role="alert">
+    <div :class="styles.alert.icon">
+      <slot name="prepend"></slot>
+    </div>
+    <div :class="styles.alert.content">
+      <h5 v-if="title" :class="styles.alert.title">
+        {{ title }}
+      </h5>
+      <div v-if="description" :class="styles.alert.description">
+        {{ description }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -17,12 +21,8 @@ import { defineComponent, toRefs } from "vue";
 // --- internal
 import config from "./alert.config";
 
-// --- components
-import { Alert, AlertDescription, AlertTitle } from ".";
-import UpwIcon from "../../icon/Icon.vue";
-
 // --- utils
-import { useStyles } from "../../../utils";
+import { useStyles } from "../../utils";
 
 // --- types
 import { type AlertVariants } from ".";
@@ -30,13 +30,6 @@ import type { IconProps } from "../../icon/types";
 import type { PropType } from "vue";
 
 export default defineComponent({
-  components: {
-    Alert,
-    AlertTitle,
-    AlertDescription,
-    UpwIcon,
-  },
-
   props: {
     variant: {
       type: String as PropType<AlertVariants["variant"]>,
@@ -74,3 +67,5 @@ export default defineComponent({
   },
 });
 </script>
+
+<style src="@/assets/main.css" />

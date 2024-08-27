@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 
 export const alertConfig = {
   root: cva(
-    "relative w-full rounded-lg border p-4 [&>i+div]:translate-y-[-3px] [&>i]:absolute [&>i]:left-4 [&>i]:top-4 [&>i~*]:pl-7",
+    "group relative w-full rounded-lg border py-4 has-[i]:pl-10 has-[svg]:pl-10",
     {
       variants: {
         // Compunds variants do not work without this defined
@@ -117,7 +117,7 @@ export const alertConfig = {
   ),
   title: cva("mb-1 font-medium leading-none tracking-tight"),
   description: cva("text-sm opacity-75 [&_p]:leading-relaxed"),
-  icon: cva("size-[1em]"),
+  icon: cva("absolute left-4 top-4 size-[1em]"),
 };
 
 export default {
