@@ -30,7 +30,7 @@ export const buttonConfig = cva(
         xs: "h-7 gap-x-1 px-2 py-1",
         sm: "h-9 gap-x-2 px-3 py-1",
         lg: "h-11 gap-x-2 px-8 py-1",
-        icon: "h-10 w-10 gap-x-0 py-1",
+        icon: "h-10 w-10 gap-x-2 px-2 py-1 ",
       },
       block: {
         true: "w-full basis-full",
@@ -240,5 +240,15 @@ export const buttonConfig = cva(
 export default {
   button: {
     root: buttonConfig,
+    label: cva(
+      "truncate"
+      // {
+      // variants: {
+      //   size: {
+      //     icon: "sr-only",
+      //   },
+      // },
+      // }
+    ),
   },
 };
