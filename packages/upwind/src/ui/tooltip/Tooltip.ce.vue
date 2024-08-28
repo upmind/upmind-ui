@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts">
+// --- external
 import { defineComponent, toRefs } from "vue";
 import {
   TooltipRoot,
