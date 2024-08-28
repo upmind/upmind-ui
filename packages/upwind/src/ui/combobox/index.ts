@@ -1,10 +1,10 @@
 // --- external
-import { type VariantProps } from "class-variance-authority";
+import { defineCustomElement } from "vue";
 
-// --- components
-export { default as UwCombobox } from "./Combobox.vue";
-export { default as UwComboboxItem } from "./ComboboxItem.vue";
+// --- custom elements
+import ComboboxCE from "./Combobox.ce.vue";
+export const UwCombobox = defineCustomElement(ComboboxCE);
 
-// --- types
-import type { comboboxConfig } from "./combobox.config";
-export type ComboboxConfig = VariantProps<typeof comboboxConfig>;
+// --- custom elements
+import ComboboxItemCE from "./ComboboxItem.ce.vue";
+export const UwComboboxItem = defineCustomElement(ComboboxItemCE);

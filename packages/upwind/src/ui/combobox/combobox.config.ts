@@ -55,6 +55,30 @@ export const comboboxConfig = {
     checkItem: cva("ml-auto h-4 w-4"),
     arrowUpDown: cva("ml-2 h-3 w-3 shrink-0 opacity-50"),
   },
+  root: cva(
+    "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md"
+  ),
+  commmandInput: {
+    root: cva(
+      "placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
+    ),
+    icon: cva("mr-1 h-3 w-3"),
+    wrapper: cva("flex items-center border-b px-3"),
+  },
+  list: cva("max-h-[18rem] overflow-y-auto overflow-x-hidden"),
+  empty: cva("py-6 text-center text-sm"),
+  group: cva(
+    "text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium"
+  ),
+  label: cva("text-muted-foreground px-2 py-1.5 text-xs font-medium"),
+  commandItem: cva(
+    "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+  ),
+  separator: cva("bg-border -mx-1 h-px"),
+  shortcut: cva("text-muted-foreground ml-auto text-xs tracking-widest"),
+  popoverContent: cva(
+    "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 rounded-md border shadow-md outline-none"
+  ),
 };
 
 export default {
