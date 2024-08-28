@@ -139,11 +139,11 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 [data-sonner-toast] [data-icon] {
   height: auto !important;
   width: auto !important;
 }
 </style>
 
-<style src="@/assets/main.css" />
+<styl scoped src="@/assets/main.css" />
