@@ -396,12 +396,16 @@ export default createMachine(
             model,
             basket_product,
             currency_id,
+            basket_id,
+            client_id,
             promotions,
           }: ProductConfigContext,
           _event: ProductConfigEvent
         ) => {
           return {
             // ---
+            basket_id,
+            client_id,
             currency_id,
             promotions,
             // ---
@@ -420,15 +424,17 @@ export default createMachine(
       ),
       refreshContext: assign(
         ({ model }: ProductConfigContext, { data }: ProductConfigEvent) => {
-          const { basket_product, currency_id, promotions, error } = data;
+          const { basket_product, client_id, currency_id, promotions, error } =
+            data;
 
           const newContext = {
+            client_id,
             currency_id,
             promotions,
             baseModel: cloneDeep(model),
             model: basket_product ? parseBasketProduct(basket_product) : model,
-            // error,
-            // prices: undefined, // they need to be recalculated
+            errorExternal: error,
+            prices: undefined, // they need to be recalculated
           };
 
           return newContext;
@@ -639,7 +645,7 @@ export default createMachine(
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
       hasChanged: (
-        { model, basket_id, currency_id, promotions }: ProductConfigContext,
+        { model }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
         const cleanModel = compactDeep(model);
@@ -652,16 +658,21 @@ export default createMachine(
         return isDirty;
       },
       hasBasketChanged: (
-        { basket_id, currency_id, promotions }: ProductConfigContext,
+        { basket_id, client_id, currency_id, promotions }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
+        const clientChanged = data?.client_id !== client_id;
         const basketChanged = basket_id !== data?.id;
         const currencyChanged = currency_id !== data?.currency_id;
         const promotionsChanged = !isEmpty(
           differenceBy(promotions, data?.promotions, "promotion_id")
         );
 
-        const value = basketChanged || currencyChanged || promotionsChanged;
+        const value =
+          basketChanged ||
+          clientChanged ||
+          currencyChanged ||
+          promotionsChanged;
 
         return value;
       },

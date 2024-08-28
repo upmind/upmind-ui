@@ -71,8 +71,10 @@ export const useBasket = () => {
             "generating",
             "claiming",
             "shopping.refreshing.processing",
-            "shopping.items.processing",
           ]) ||
+          some(contextValue(state, "items"), item =>
+            machineMatches(item, ["processing"])
+          ) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
           machineMatches(actors.value.billingDetails, ["processing"]) ||
@@ -130,6 +132,7 @@ export const useBasket = () => {
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
         hasAccount: stateMatches(state, [
+          "shopping.account.claiming",
           "shopping.account.complete",
           "checkout",
         ]),

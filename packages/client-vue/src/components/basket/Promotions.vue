@@ -1,5 +1,5 @@
 <template>
-  <section :class="styles.basket.promotions.root">
+  <section :class="styles.basket.promotions.root" v-auto-animate>
     <header :class="styles.basket.promotions.header">
       <upw-button
         variant="link"
@@ -20,7 +20,7 @@
     </header>
 
     <upw-form
-      v-show="toggle"
+      v-if="toggle"
       size="sm"
       :class="styles.basket.promotions.content"
       :additional-errors="errors?.data"
@@ -36,7 +36,11 @@
       :upwind-config="{ form: config.basket.promotions.form }"
     />
 
-    <footer :class="styles.basket.promotions.footer" v-if="meta.hasPromotions">
+    <footer
+      :class="styles.basket.promotions.footer"
+      v-if="meta.hasPromotions"
+      v-auto-animate
+    >
       <h4 :class="styles.basket.promotions.title">
         {{ $t("basket.promotions.active.title") }}
       </h4>
@@ -60,6 +64,7 @@
 <script>
 // --- external
 import { defineComponent, ref } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
 import { UpwButton, UpwIcon, UpwForm } from "@upmind/upwind";
@@ -77,7 +82,7 @@ import { set } from "lodash-es";
 export default defineComponent({
   name: "UpmBasketPromotions",
   components: { UpwButton, UpwIcon, UpwForm },
-
+  directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {},
   setup() {

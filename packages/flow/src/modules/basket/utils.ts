@@ -128,6 +128,7 @@ export const parseSummary = (data?: any) => {
       return {
         id: product?.id,
         name: product?.product_name,
+        service_identifier: product?.service_identifier,
         quantity: product?.quantity,
         discount: product?.configuration_total_discount_amount_converted
           ? product?.configuration_total_discount_amount_formatted

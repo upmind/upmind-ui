@@ -14,13 +14,13 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]": {
-      type: "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
+    "done.invoke.basketManager.shopping.account.claiming:invocation[0]": {
+      type: "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.claiming:invocation[0]": {
-      type: "done.invoke.claiming:invocation[0]";
+    "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]": {
+      type: "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -47,12 +47,12 @@ export interface Typegen0 {
       type: "error.platform.basketManager.loading.basket:invocation[0]";
       data: unknown;
     };
-    "error.platform.basketManager.shopping.refreshing.processing:invocation[0]": {
-      type: "error.platform.basketManager.shopping.refreshing.processing:invocation[0]";
+    "error.platform.basketManager.shopping.account.claiming:invocation[0]": {
+      type: "error.platform.basketManager.shopping.account.claiming:invocation[0]";
       data: unknown;
     };
-    "error.platform.claiming:invocation[0]": {
-      type: "error.platform.claiming:invocation[0]";
+    "error.platform.basketManager.shopping.refreshing.processing:invocation[0]": {
+      type: "error.platform.basketManager.shopping.refreshing.processing:invocation[0]";
       data: unknown;
     };
     "error.platform.converting:invocation[0]": {
@@ -69,7 +69,7 @@ export interface Typegen0 {
     isAuthenticated: "done.invoke.basketManager.shopping.account.checking:invocation[0]";
     load:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
-      | "done.invoke.claiming:invocation[0]";
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
     refresh: "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
   };
   missingImplementations: {
@@ -100,17 +100,17 @@ export interface Typegen0 {
     refreshItems: "done.invoke.generating:invocation[0]";
     setError:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
-      | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]"
       | "error.platform.basketManager.loading.basket:invocation[0]"
+      | "error.platform.basketManager.shopping.account.claiming:invocation[0]"
       | "error.platform.basketManager.shopping.refreshing.processing:invocation[0]"
-      | "error.platform.claiming:invocation[0]"
       | "error.platform.converting:invocation[0]"
       | "error.platform.payment";
     setFeedbackError:
       | "error.platform.basketManager.loading.basket:invocation[0]"
-      | "error.platform.claiming:invocation[0]"
+      | "error.platform.basketManager.shopping.account.claiming:invocation[0]"
       | "error.platform.converting:invocation[0]"
       | "error.platform.payment";
     setInvoice: "done.invoke.converting:invocation[0]";
@@ -119,14 +119,14 @@ export interface Typegen0 {
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
     spawnItems:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
-      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
-      | "done.invoke.claiming:invocation[0]";
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
+      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
     trackPayment: "done.invoke.payment";
     updateBasket:
       | "REFRESH"
       | "done.invoke.basketManager.loading.basket:invocation[0]"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
-      | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
   };
   eventsCausingDelays: {};
@@ -162,9 +162,9 @@ export interface Typegen0 {
     generate: "ADD";
     isAuthenticated:
       | ""
+      | "AUTHENTICATED"
       | "CLEAR"
       | "REFRESH"
-      | "done.invoke.claiming:invocation[0]"
       | "done.invoke.generating:invocation[0]";
     load: "AUTHENTICATED" | "SESSION";
     payment: "done.invoke.converting:invocation[0]";
@@ -175,7 +175,6 @@ export interface Typegen0 {
     | "checkout.available"
     | "checkout.configuring"
     | "checkout.processing"
-    | "claiming"
     | "complete"
     | "converting"
     | "error"
@@ -188,6 +187,7 @@ export interface Typegen0 {
     | "shopping"
     | "shopping.account"
     | "shopping.account.checking"
+    | "shopping.account.claiming"
     | "shopping.account.complete"
     | "shopping.account.configuring"
     | "shopping.billing_details"
@@ -222,7 +222,7 @@ export interface Typegen0 {
           | "promotions"
           | "refreshing"
           | {
-              account?: "checking" | "complete" | "configuring";
+              account?: "checking" | "claiming" | "complete" | "configuring";
               billing_details?: "complete" | "configuring";
               currency?: "complete" | "configuring";
               custom_fields?: "complete" | "configuring";

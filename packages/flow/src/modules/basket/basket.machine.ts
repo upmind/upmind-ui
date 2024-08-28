@@ -119,23 +119,6 @@ export default createMachine(
         },
       },
 
-      // if we have a session, we can now claim any existing basket
-      claiming: {
-        id: "claiming",
-        entry: ["cancelController", "newController"],
-        invoke: {
-          src: "load",
-          onDone: {
-            target: "#shopping",
-            actions: ["setError", "updateBasket", "spawnItems"],
-          },
-          onError: {
-            target: "#error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
-      },
-
       // if we dont have a basket, we can now generate one
       generating: {
         id: "generating",
@@ -206,12 +189,26 @@ export default createMachine(
                 },
               },
               configuring: {},
+              claiming: {
+                entry: ["cancelController", "newController"],
+                invoke: {
+                  src: "load",
+                  onDone: {
+                    target: "complete",
+                    actions: ["setError", "updateBasket", "spawnItems"],
+                  },
+                  onError: {
+                    target: "#error",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
               complete: {
                 type: "final",
               },
             },
             on: {
-              AUTHENTICATED: { target: "#claiming" },
+              AUTHENTICATED: { target: "account.claiming" },
             },
           },
 

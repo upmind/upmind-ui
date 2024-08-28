@@ -147,16 +147,14 @@ export const useBasket = () => {
 
     updateItem: async itemId => {
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
-        return waitFor(item, state =>
-          ["available.complete", "available.error", "complete", "error"].some(
-            state.matches
-          )
-        ).then(state => {
-          if (["error", "available.error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
+        return waitFor(item, state => !state.matches("processing")).then(
+          state => {
+            if (["error", "available.error"].some(state.matches)) {
+              return Promise.reject(state.context.error);
+            }
+            return Promise.resolve(item);
           }
-          return Promise.resolve(item);
-        });
+        );
         // .finally(() => service.send({ type: "REFRESH" }));
       });
     },

@@ -114,7 +114,7 @@
             <upm-payment-details
               id="payment"
               ref="payment"
-              v-if="meta.hasAccount && meta.hasProducts"
+              v-if="meta.hasAccount"
               v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
               :aria-disabled="!meta.hasProducts || !meta.hasAccount"
               :aria-active="activeSection === 'payment'"
@@ -122,6 +122,8 @@
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
+            <pre>{{ { state, meta } }}</pre>
+
             <upm-basket-summary no-actions />
           </aside>
         </div>
