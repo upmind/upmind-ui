@@ -1,48 +1,46 @@
 <template>
-  <tooltip-provider :delay-duration="delayDuration">
-    <tooltip :open="open">
-      <tooltip-trigger><slot /></tooltip-trigger>
-      <tooltip-content
-        :side="direction"
-        :sideOffset="sideOffset"
-        :class="styles.tooltip.content"
-      >
-        <slot name="content">
-          <div>{{ label }}</div>
-        </slot>
-        <tooltip-arrow fill="currentColor" :class="styles.tooltip.arrow" />
-      </tooltip-content>
-    </tooltip>
-  </tooltip-provider>
+  <tooltip-root
+    :open="open"
+    :default-open="open"
+    :delay-duration="delayDuration"
+  >
+    <tooltip-trigger><slot /></tooltip-trigger>
+    <tooltip-content
+      :side="direction"
+      :side-offset="sideOffset"
+      :class="styles.tooltip.content"
+    >
+      <slot name="content">
+        <div>{{ label }}</div>
+      </slot>
+      <tooltip-arrow fill="currentColor" :class="styles.tooltip.arrow" />
+    </tooltip-content>
+  </tooltip-root>
 </template>
 
 <script lang="ts">
-// --- external
-
 import { defineComponent, toRefs } from "vue";
-import { TooltipArrow } from "radix-vue";
-
-// --- components
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from ".";
+import {
+  TooltipRoot,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipArrow,
+} from "radix-vue";
 
 // --- local
 import config from "./tooltip.config";
 import { useStyles } from "../../utils";
 
-// --- utils
-
 // --- types
 import type { TooltipConfig, TooltipProps } from "./types";
 import type { PropType } from "vue";
 
-// ----------------------------------------------------------------------------
 export default defineComponent({
   name: "UwTooltip",
   components: {
-    Tooltip,
+    TooltipRoot,
     TooltipContent,
     TooltipTrigger,
-    TooltipProvider,
     TooltipArrow,
   },
   props: {

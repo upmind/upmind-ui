@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { TooltipProvider, type TooltipProviderProps } from "radix-vue";
-
-const props = defineProps<TooltipProviderProps>();
+import { TooltipProvider } from "radix-vue";
 </script>
 
 <template>
-  <tooltip-provider v-bind="props">
+  <tooltip-provider>
     <slot />
   </tooltip-provider>
 </template>
