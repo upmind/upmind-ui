@@ -1,21 +1,19 @@
 <template>
-  <tooltip-root
-    :open="open"
-    :default-open="open"
-    :delay-duration="delayDuration"
-  >
-    <tooltip-trigger><slot /></tooltip-trigger>
-    <tooltip-content
-      :side="direction"
-      :side-offset="sideOffset"
-      :class="styles.tooltip.content"
-    >
-      <slot name="content">
-        <div>{{ label }}</div>
-      </slot>
-      <tooltip-arrow fill="currentColor" :class="styles.tooltip.arrow" />
-    </tooltip-content>
-  </tooltip-root>
+  <tooltip-provider :delay-duration="delayDuration">
+    <tooltip-root :open="open">
+      <tooltip-trigger><slot /></tooltip-trigger>
+      <tooltip-content
+        :side="direction"
+        :side-offset="sideOffset"
+        :class="styles.tooltip.content"
+      >
+        <slot name="content">
+          <div>{{ label }}</div>
+        </slot>
+        <tooltip-arrow fill="currentColor" :class="styles.tooltip.arrow" />
+      </tooltip-content>
+    </tooltip-root>
+  </tooltip-provider>
 </template>
 
 <script lang="ts">
@@ -26,6 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger,
   TooltipArrow,
+  TooltipProvider,
 } from "radix-vue";
 
 // --- local
@@ -43,10 +42,12 @@ export default defineComponent({
     TooltipContent,
     TooltipTrigger,
     TooltipArrow,
+    TooltipProvider,
   },
   props: {
     label: { type: String },
-    open: { type: Boolean },
+    // Tooltip doesn't open correctly if not defined, radix-vue think we are handling the state ourselves
+    open: { type: Boolean, default: undefined },
     direction: {
       type: String as PropType<TooltipProps["direction"]>,
       default: "bottom",
@@ -77,5 +78,4 @@ export default defineComponent({
 });
 </script>
 
-<!-- This breaks storybook when included -->
-<!-- <style src="@/assets/main.css" /> -->
+<style src="@/assets/main.css" />
