@@ -11,7 +11,6 @@ useCustomElement(UwButton);
 import { useSystemArgTypes } from "../../utils";
 
 const meta: Meta<typeof UwTooltip> = {
-  component: UwTooltip,
   argTypes: {
     label: {
       control: "text",
@@ -46,7 +45,6 @@ type Story = StoryObj<typeof UwTooltip>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwTooltip },
     setup() {
       return { args };
     },
@@ -62,7 +60,6 @@ export const Base: Story = {
 
 export const OpenClose: Story = {
   render: args => ({
-    components: { UwTooltip, UwButton },
     setup() {
       const open = ref(true);
       return { args, open };
@@ -82,7 +79,6 @@ export const AllDirections: Story = {
     controls: { exclude: ["direction"] },
   },
   render: args => ({
-    components: { UwTooltip },
     setup() {
       const directions = ["Top", "Right", "Bottom", "Left"];
       return {
@@ -113,7 +109,6 @@ export const SlotContent: Story = {
     controls: { exclude: ["label"] },
   },
   render: args => ({
-    components: { UwTooltip },
     setup() {
       args.label = null;
       return {
@@ -123,14 +118,17 @@ export const SlotContent: Story = {
     template: `
       <div class="p-8">
         <uw-tooltip v-bind="args">
-          <template v-slot:content>
-            <div class="p-2 px-3 font-bold">
-              <div>You can do whatever you'd like in here</div>
-            </div>
-          </template>
+          <uw-button label="Trigger" />
         </uw-tooltip>
       </div>
     `,
+    slots: {
+      content: `
+        <div class="p-2 px-3 font-bold">
+          <div>You can do whatever you'd like in here</div>
+        </div>
+      `,
+    },
   }),
 };
 
@@ -139,7 +137,6 @@ export const Colors: Story = {
     controls: { exclude: ["color", "direction", "delayDuration"] },
   },
   render: args => ({
-    components: { UwTooltip },
     setup() {
       const colors = useSystemArgTypes.color;
       return {
