@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 
 export const alertConfig = {
   root: cva(
-    "group relative w-full rounded-lg border py-4 has-[i]:pl-10 has-[svg]:pl-10",
+    "group relative w-full rounded-lg border p-4 has-[i]:pl-10 has-[svg]:pl-10",
     {
       variants: {
         // Compunds variants do not work without this defined
