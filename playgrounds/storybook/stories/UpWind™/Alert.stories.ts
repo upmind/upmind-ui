@@ -3,7 +3,8 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { UwAlert } from "@upmind/upwind";
+import { UwAlert, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAlert);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -16,7 +17,6 @@ enum variants {
 }
 
 const meta: Meta<typeof UwAlert> = {
-  component: UwAlert,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -32,8 +32,15 @@ const meta: Meta<typeof UwAlert> = {
     description:
       "This is an example alert. Use the controls to change the apperance.",
     variant: "outlined",
-    icon: "check-circle",
   },
+  render: args => ({
+    setup() {
+      return { args };
+    },
+    template: `
+      <uw-alert v-bind="args" />
+    `,
+  }),
 };
 
 export default meta;
@@ -41,7 +48,6 @@ type Story = StoryObj<typeof UwAlert>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwAlert },
     setup() {
       const icon = ref();
       const iconSvg = useSystemArgTypes.icon.options[9];
@@ -57,9 +63,10 @@ export const Base: Story = {
     },
     template: `
       <uw-alert v-bind="args">
-        <template v-slot:prepend>
-          <span v-html="icon"/>
-        </template>
+        <span
+          v-html="icon"
+          slot="prepend"
+        />
       </uw-alert>
     `,
   }),
@@ -87,10 +94,6 @@ export const Colors: Story = {
         <uw-alert
           v-bind="args"
           :color="color"
-        >
-          <template v-slot:prepend>
-            <span v-html="icon"/>
-          </template>
         />
       </div>
     `,

@@ -28,12 +28,12 @@
 // export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 
 // --- uw
+import { UwAlert } from "./ui/alert";
 import { UwButton } from "./ui/button";
 import { UwAvatar } from "./ui/avatar";
 import { UwBadge } from "./ui/badge";
 import { UwDialog } from "./ui/dialog";
 import { UwTooltip } from "./ui/tooltip";
-import { UwAlert } from "./ui/alert";
 import { UwSonner } from "./ui/sonner";
 
 // --- utils
@@ -47,12 +47,12 @@ export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip, UwAlert, UwSonner };
 
 // --- utility for registering all custom elements
 export function register() {
+  customElements.define("uw-alert", UwAlert);
   customElements.define("uw-avatar", UwAvatar);
   customElements.define("uw-badge", UwBadge);
   customElements.define("uw-button", UwButton);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-tooltip", UwTooltip);
-  customElements.define("uw-alert", UwAlert);
   customElements.define("uw-sonner", UwSonner);
 }
 
@@ -69,11 +69,11 @@ export function useCustomElement(constructor: CustomElementConstructor): void {
 declare module "vue" {
   export interface GlobalComponents {
     // UwAvatar: typeof UwAvatar;
+    UwAlert: typeof UwAlert;
     UwBadge: typeof UwBadge;
     UwButton: typeof UwButton;
     UwDialog: typeof UwDialog;
     UwTooltip: typeof UwTooltip;
     UwSonner: typeof UwSonner;
-    UwAlert: typeof UwAlert;
   }
 }

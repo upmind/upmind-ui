@@ -25,17 +25,17 @@ import config from "./alert.config";
 import { useStyles } from "../../utils";
 
 // --- types
-import { type AlertVariants } from ".";
-import type { IconProps } from "../../icon/types";
 import type { PropType } from "vue";
+import type { AlertConfig } from "./types";
 
 export default defineComponent({
+  name: "UwAlert",
   props: {
     variant: {
-      type: String as PropType<AlertVariants["variant"]>,
+      type: String as PropType<AlertConfig["variant"]>,
     },
     color: {
-      type: String as PropType<AlertVariants["color"]>,
+      type: String as PropType<AlertConfig["color"]>,
       default: "base",
     },
     title: {
@@ -43,9 +43,6 @@ export default defineComponent({
     },
     description: {
       type: String,
-    },
-    icon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
     },
     upwindConfig: {
       type: Object,
@@ -68,4 +65,4 @@ export default defineComponent({
 });
 </script>
 
-<style src="@/assets/main.css" />
+<style scoped src="@/assets/main.css" />
