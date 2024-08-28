@@ -77,4 +77,5 @@ export default defineComponent({
 });
 </script>
 
-<style src="@/assets/main.css" />
+<!-- This breaks storybook when included -->
+<!-- <style src="@/assets/main.css" /> -->
