@@ -803,7 +803,7 @@ export default createMachine(
 
       itemsConfigured: ({ items }) => {
         const itemsConfigured = every(items, ({ state }) =>
-          state?.matches("complete")
+          state?.matches("available.complete")
         );
         return items?.length && itemsConfigured;
       },
