@@ -28,20 +28,22 @@
 // export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 
 // --- uw
-
 import { UwButton } from "./ui/button";
 import { UwAvatar } from "./ui/avatar";
 import { UwBadge } from "./ui/badge";
 import { UwDialog } from "./ui/dialog";
 import { UwTooltip } from "./ui/tooltip";
 import { UwAlert } from "./ui/alert";
+import { UwSonner } from "./ui/sonner";
+
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
+export { toast } from "./ui/sonner";
 import { kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
-export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip, UwAlert };
+export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip, UwAlert, UwSonner };
 
 // --- utility for registering all custom elements
 export function register() {
@@ -51,6 +53,7 @@ export function register() {
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-tooltip", UwTooltip);
   customElements.define("uw-alert", UwAlert);
+  customElements.define("uw-sonner", UwSonner);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
@@ -70,5 +73,7 @@ declare module "vue" {
     UwButton: typeof UwButton;
     UwDialog: typeof UwDialog;
     UwTooltip: typeof UwTooltip;
+    UwSonner: typeof UwSonner;
+    UwAlert: typeof UwAlert;
   }
 }

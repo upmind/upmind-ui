@@ -1,9 +1,10 @@
 // --- external
-import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwToaster, toast, UpwButton } from "@upmind/upwind";
+import { UwSonner, toast, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwSonner);
+useCustomElement(UwButton);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -15,8 +16,8 @@ enum variants {
   solid = "Solid",
 }
 
-const meta: Meta<typeof UwToaster> = {
-  component: UwToaster,
+const meta: Meta<typeof UwSonner> = {
+  component: UwSonner,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -72,11 +73,11 @@ const meta: Meta<typeof UwToaster> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwToaster>;
+type Story = StoryObj<typeof UwSonner>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwToaster, UpwButton },
+    components: { UwSonner, UwButton },
     setup() {
       const showToast = () => {
         toast(args.title, {
@@ -85,7 +86,7 @@ export const Base: Story = {
             label: "Undo",
             onClick: () => console.log("Undo"),
           },
-          type: color,
+          type: args.color, // Changed from 'color' to 'args.color'
         });
       };
 
@@ -93,8 +94,8 @@ export const Base: Story = {
     },
     template: `
       <div class="p-8">
-        <UwToaster v-bind="args" />
-        <upw-button
+        <uw-sonner v-bind="args" />
+        <uw-button
           :color="args.color"
           label="Click here for a Toast"
           @click="showToast"
@@ -109,7 +110,7 @@ export const Colors: Story = {
     controls: { exclude: ["color"] },
   },
   render: args => ({
-    components: { UwToaster, UpwButton },
+    components: { UwSonner, UwButton },
     setup() {
       const colors = useSystemArgTypes.color;
 
@@ -140,12 +141,12 @@ export const Colors: Story = {
             :key="'toast' + color"
             class="w-1/3 my-20 flex justify-center"
           >
-            <upw-button :color="color" :label="color"
+            <uw-button :color="color" :label="color"
               @click="showToast(color)"
             />
           </div>
         </div>
-        <UwToaster v-bind="args" />
+        <uw-sonner v-bind="args" />
       </div>
     `,
   }),
