@@ -51,7 +51,7 @@ export const Base: Story = {
     template: `
       <div class="p-8">
         <uw-tooltip v-bind="args">
-          <uw-button label="Test" />
+          <uw-button label="Trigger" />
         </uw-tooltip>
       </div>
     `,
@@ -119,16 +119,15 @@ export const SlotContent: Story = {
       <div class="p-8">
         <uw-tooltip v-bind="args">
           <uw-button label="Trigger" />
+          <div
+            slot="content"
+            class="p-2 px-3 font-bold"
+          >
+            <div>You can do whatever you'd like in this slot</div>
+          </div>
         </uw-tooltip>
       </div>
     `,
-    slots: {
-      content: `
-        <div class="p-2 px-3 font-bold">
-          <div>You can do whatever you'd like in here</div>
-        </div>
-      `,
-    },
   }),
 };
 
