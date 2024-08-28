@@ -122,8 +122,6 @@
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
-            <pre>{{ { state, meta } }}</pre>
-
             <upm-basket-summary no-actions />
           </aside>
         </div>
