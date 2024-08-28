@@ -13,7 +13,11 @@
     </header>
 
     <!-- items -->
-    <div :class="styles.basket.items.content" v-if="!meta.isLoading">
+    <div
+      :class="styles.basket.items.content"
+      v-if="!meta.isLoading"
+      v-auto-animate
+    >
       <upm-basket-item
         v-for="(item, index) in items"
         :key="`item-${item.id}-${index}`"
@@ -32,6 +36,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
@@ -48,6 +53,7 @@ import { findIndex } from "lodash-es";
 export default defineComponent({
   name: "UpmBaskeItemListings",
   components: { UpmBasketItem },
+  directives: { autoAnimate: vAutoAnimate },
   props: {},
   setup() {
     const { meta, items, itemsPending, itemsInvalid, itemsConfigured } =

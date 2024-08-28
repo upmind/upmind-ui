@@ -28,6 +28,7 @@
           :model-value="safeValue"
           no-input
           key="items"
+          v-auto-animate
         >
           <template #prepend="{ item }"></template>
 
@@ -281,7 +282,7 @@
 <script>
 // --- external
 import { computed, defineComponent } from "vue";
-
+import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
@@ -307,6 +308,7 @@ import { get, includes, isArray, isNil } from "lodash-es";
 
 export default defineComponent({
   name: "UpmDomainListings",
+  directives: { autoAnimate: vAutoAnimate },
   components: {
     UpwTextbox,
     UpwButton,
