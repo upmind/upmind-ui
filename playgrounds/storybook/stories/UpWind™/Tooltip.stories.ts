@@ -3,13 +3,15 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Tooltip, UwButton, UpwIcon } from "@upmind/upwind";
+import { UwTooltip, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwTooltip);
+useCustomElement(UwButton);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
 
-const meta: Meta<typeof Tooltip> = {
-  component: Tooltip,
+const meta: Meta<typeof UwTooltip> = {
+  component: UwTooltip,
   argTypes: {
     label: {
       control: "text",
@@ -40,19 +42,19 @@ const meta: Meta<typeof Tooltip> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof Tooltip>;
+type Story = StoryObj<typeof UwTooltip>;
 
 export const Base: Story = {
   render: args => ({
-    components: { Tooltip, UpwIcon },
+    components: { UwTooltip },
     setup() {
       return { args };
     },
     template: `
       <div class="p-8">
-        <Tooltip v-bind="args">
-          <UpwIcon icon="devices" size="md" />
-        </Tooltip>
+        <uw-tooltip v-bind="args">
+          <uw-button label="Test" />
+        </uw-tooltip>
       </div>
     `,
   }),
@@ -60,16 +62,16 @@ export const Base: Story = {
 
 export const OpenClose: Story = {
   render: args => ({
-    components: { Tooltip, UpwIcon, UwButton },
+    components: { UwTooltip, UwButton },
     setup() {
       const open = ref(true);
       return { args, open };
     },
     template: `
         <div class="p-8">
-          <Tooltip v-bind="args" :open="open">
-            <UwButton :label="open ? 'Close' : 'Open'" @click="open = !open" :color="args.color" />
-          </Tooltip>          
+          <uw-tooltip v-bind="args" :open="open">
+            <uw-button :label="open ? 'Close' : 'Open'" @click="open = !open" :color="args.color" />
+          </uw-tooltip>
         </div>
       `,
   }),
@@ -80,7 +82,7 @@ export const AllDirections: Story = {
     controls: { exclude: ["direction"] },
   },
   render: args => ({
-    components: { Tooltip, UpwIcon },
+    components: { UwTooltip },
     setup() {
       const directions = ["Top", "Right", "Bottom", "Left"];
       return {
@@ -90,17 +92,16 @@ export const AllDirections: Story = {
     },
     template: `
       <div class="flex flex-wrap mx-16">
-        <div 
-          v-for="direction in directions" 
-          :key="direction" 
+        <div
+          v-for="direction in directions"
+          :key="direction"
           class="w-1/4 my-20 flex justify-center"
         >
-          <Tooltip v-bind="args" :direction="direction.toLowerCase()">
+          <uw-tooltip v-bind="args" :direction="direction.toLowerCase()">
             <div class="flex flex-col items-center">
-              <UpwIcon icon="devices" size="md" />
               <div class="text-sm font-bold mt-2">{{ direction }}</div>
             </div>
-          </Tooltip>
+          </uw-tooltip>
         </div>
       </div>
     `,
@@ -112,7 +113,7 @@ export const SlotContent: Story = {
     controls: { exclude: ["label"] },
   },
   render: args => ({
-    components: { Tooltip, UpwIcon },
+    components: { UwTooltip },
     setup() {
       args.label = null;
       return {
@@ -121,19 +122,13 @@ export const SlotContent: Story = {
     },
     template: `
       <div class="p-8">
-        <Tooltip v-bind="args">
-          <UpwIcon icon="devices" size="md" />
-
+        <uw-tooltip v-bind="args">
           <template v-slot:content>
             <div class="p-2 px-3 font-bold">
-              <div class="flex items-center justify-center py-4">
-                <UpwIcon icon="check" size="sm" />
-              </div>
-              
               <div>You can do whatever you'd like in here</div>
             </div>
           </template>
-        </Tooltip>
+        </uw-tooltip>
       </div>
     `,
   }),
@@ -144,7 +139,7 @@ export const Colors: Story = {
     controls: { exclude: ["color", "direction", "delayDuration"] },
   },
   render: args => ({
-    components: { Tooltip, UpwIcon },
+    components: { UwTooltip },
     setup() {
       const colors = useSystemArgTypes.color;
       return {
@@ -154,22 +149,21 @@ export const Colors: Story = {
     },
     template: `
       <div class="flex flex-wrap mx-16">
-        <div 
-          v-for="color in colors.options" 
-          :key="color.value" 
+        <div
+          v-for="color in colors.options"
+          :key="color.value"
           class="w-1/3 my-20 flex justify-center"
         >
-          <Tooltip
-            v-bind="args" 
-            direction="bottom" 
-            :color="color" 
+          <uw-tooltip
+            v-bind="args"
+            direction="bottom"
+            :color="color"
             :open="true"
           >
             <div class="flex flex-col items-center">
-              <UpwIcon icon="devices" size="md" />
               <div class="text-sm font-bold mt-2">{{ color }}</div>
             </div>
-          </Tooltip>
+          </uw-tooltip>
         </div>
       </div>
     `,
