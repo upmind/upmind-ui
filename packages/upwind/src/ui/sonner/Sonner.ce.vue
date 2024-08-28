@@ -145,3 +145,5 @@ export default defineComponent({
   width: auto !important;
 }
 </style>
+
+<style src="@/assets/main.css" />
