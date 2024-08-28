@@ -1,6 +1,6 @@
-import { type VariantProps } from "class-variance-authority";
+// --- external
+import { defineCustomElement } from "vue";
 
-export { default as UwAlert } from "./Alert.ce.vue";
-
-export { alertConfig } from "./alert.config";
-export type AlertVariants = VariantProps<typeof alertConfig>;
+// --- custom elements
+import AlertCE from "./Alert.ce.vue";
+export const UwAlert = defineCustomElement(AlertCE);
