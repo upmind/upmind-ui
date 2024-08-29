@@ -65,11 +65,11 @@ export default {
       },
     }),
     items: cva(
-      "[&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 m-0 mt-2 max-h-72 w-full min-w-60 space-y-0.5 overflow-hidden overflow-y-auto rounded-lg p-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2",
+      "z-50 m-0 mt-2 max-h-72 w-full min-w-60 space-y-0.5 overflow-hidden overflow-y-auto rounded-lg p-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 [&::-webkit-scrollbar]:w-2",
       {
         variants: {
           isProcessing: {
-            false: " bg-base border shadow-md",
+            false: " border bg-base shadow-md",
             true: "border-none bg-transparent shadow-none",
           },
         },
@@ -77,13 +77,13 @@ export default {
     ),
     item: {
       root: cva(
-        "text-base-800 focus:bg-base-100 flex w-full cursor-pointer items-center justify-between gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none"
+        "flex w-full cursor-pointer items-center justify-between gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm text-base-800 no-underline focus:bg-base-100 focus:outline-none"
       ),
       separator: cva(
-        "text-base-500  mb-2 flex w-full items-center justify-between gap-x-4 text-nowrap border-b px-4 py-2 text-left text-xs font-medium no-underline"
+        "mb-2  flex w-full items-center justify-between gap-x-4 text-nowrap border-b px-4 py-2 text-left text-xs font-medium text-base-500 no-underline"
       ),
       active: cva("bg-base-100 hover:bg-base-100"),
-      selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
+      selected: cva("cursor-default select-none bg-base-100 hover:bg-base-100"),
       label: cva("flex-1 truncate"),
       icon: cva("size-[1em]"),
       avatar: cva("size-[1.25em] overflow-hidden rounded-full"),

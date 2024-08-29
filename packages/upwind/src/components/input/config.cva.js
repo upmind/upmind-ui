@@ -68,14 +68,14 @@ export default {
             isInvalid: false,
             isDisabled: false,
             class:
-              " focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-active focus-within:ring-4 focus-within:ring-control-active focus-within:ring-opacity-20",
           },
           {
             variant: "outlined",
             isInvalid: true,
             isDisabled: false,
             class:
-              " focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-error focus-within:ring-4 focus-within:ring-control-error focus-within:ring-opacity-20",
           },
           // DEprecated the success variant
           // {
@@ -180,7 +180,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100  border-r ",
+          outlined: "border-r  bg-base-100 ",
           flat: "text-base-500",
         },
         layout: {
@@ -217,7 +217,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100  border-l",
+          outlined: "border-l  bg-base-100",
           flat: "text-base-500",
         },
         layout: {
@@ -248,7 +248,7 @@ export default {
 
     feedback: {
       root: cva(
-        "text-base-500 flex items-center gap-x-2 overflow-hidden text-xs transition-opacity duration-300",
+        "flex items-center gap-x-2 overflow-hidden text-xs text-base-500 transition-opacity duration-300",
         {
           variants: {
             hasFeedback: {

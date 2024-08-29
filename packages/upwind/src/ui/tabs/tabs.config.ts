@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 
 const tabStyles = {
   list: cva(
-    "text-muted-foreground inline-flex h-10 items-center rounded-lg p-1",
+    "inline-flex h-10 items-center rounded-lg p-1 text-muted-foreground",
     {
       variants: {
         alignment: {
@@ -75,7 +75,7 @@ const tabStyles = {
         {
           variant: "outlined",
           color: "base",
-          class: "border-base-300 text-base-content",
+          class: "text-base-content border-base-300",
         },
         {
           variant: "outlined",
@@ -124,7 +124,7 @@ const tabStyles = {
         {
           variant: "tonal",
           color: "base",
-          class: "bg-base-400 text-base-content",
+          class: "text-base-content bg-base-400",
         },
         {
           variant: "tonal",
@@ -144,27 +144,27 @@ const tabStyles = {
         {
           variant: "tonal",
           color: "success",
-          class: "bg-success text-success-content",
+          class: "text-success-content bg-success",
         },
         {
           variant: "tonal",
           color: "error",
-          class: "bg-error text-error-content",
+          class: "text-error-content bg-error",
         },
         {
           variant: "tonal",
           color: "warning",
-          class: "bg-warning text-warning-content",
+          class: "text-warning-content bg-warning",
         },
         {
           variant: "tonal",
           color: "info",
-          class: "bg-info text-info-content",
+          class: "text-info-content bg-info",
         },
         {
           variant: "tonal",
           color: "promotion",
-          class: "bg-promotion text-promotion-content",
+          class: "text-promotion-content bg-promotion",
         },
       ],
       defaultVariants: {
@@ -177,7 +177,7 @@ const tabStyles = {
   ),
 
   trigger: cva(
-    "ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+    "focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
     {
       variants: {
         // Compound variants do not work without this defined
@@ -185,7 +185,7 @@ const tabStyles = {
       compoundVariants: [
         {
           variant: "flat",
-          class: "data-[state=active]:bg-background mx-1 w-full",
+          class: "mx-1 w-full data-[state=active]:bg-background",
         },
         {
           variant: "flat",
@@ -341,7 +341,7 @@ const tabStyles = {
   ),
 
   content: cva(
-    "ring-offset-background focus-visible:ring-ring mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+    "focus-visible:ring-ring mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
   ),
 };
 

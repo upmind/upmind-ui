@@ -1,6 +1,4 @@
 <template>
-  <!-- <link rel="preload" href="/styles.css" as="style" /> -->
-
   <primitive
     :as="as"
     :as-child="asChild"
@@ -67,5 +65,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

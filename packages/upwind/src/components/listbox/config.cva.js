@@ -5,10 +5,10 @@ export default {
   listbox: {
     root: cva("relative inline-flex"),
     items: cva(
-      "bg-base  [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 z-50 !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border !p-0 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-2"
+      "z-50  !m-0 max-h-72 min-w-full min-w-full gap-0 overflow-hidden overflow-y-auto rounded-lg border bg-base !p-0 shadow-md [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-base-300 [&::-webkit-scrollbar-track]:bg-base-100 [&::-webkit-scrollbar]:w-2"
     ),
     item: cva(
-      "text-base-800 !m-0 flex  min-w-full cursor-pointer items-center justify-start gap-3 text-nowrap px-2 text-left text-sm no-underline focus:outline-none",
+      "!m-0 flex min-w-full  cursor-pointer items-center justify-start gap-3 text-nowrap px-2 text-left text-sm text-base-800 no-underline focus:outline-none",
       {
         variants: {
           size: {
@@ -17,7 +17,7 @@ export default {
             lg: "py-4 text-lg leading-7",
           },
           group: {
-            true: "text-base-500 cursor-default text-xs font-medium",
+            true: "cursor-default text-xs font-medium text-base-500",
           },
           disabled: {
             true: "cursor-not-allowed",
@@ -40,10 +40,10 @@ export default {
       },
     }),
     selectedItem: cva(
-      "bg-base-100 hover:bg-base-100 cursor-default select-none"
+      "cursor-default select-none bg-base-100 hover:bg-base-100"
     ),
     trigger: cva(
-      "hover:bg-base-50 bg-base text-base-700 relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border px-2 text-start before:absolute before:inset-0 before:z-[1]",
+      "relative inline-flex w-full cursor-pointer items-center gap-3 text-nowrap rounded-lg border bg-base px-2 text-start text-base-700 before:absolute before:inset-0 before:z-[1] hover:bg-base-50",
       {
         variants: {
           size: {
@@ -84,7 +84,7 @@ export default {
       },
     }),
     active: cva(
-      "!border-control-active ring-control-active ring-4 ring-opacity-20",
+      "!border-control-active ring-4 ring-control-active ring-opacity-20",
       {}
     ),
     label: cva("flex-1 truncate leading-none", {
@@ -179,10 +179,10 @@ export default {
 
   listboxSearch: {
     input: cva(
-      " focus-within:border-control-active focus-within:ring-control-active group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:ring-4 focus-within:ring-opacity-20"
+      " group inline-flex w-full flex-1 items-center gap-x-3 rounded-lg border bg-transparent px-3 py-2 leading-normal outline-none ring-0 focus-within:border-control-active focus-within:ring-4 focus-within:ring-control-active focus-within:ring-opacity-20"
     ),
     root: cva(
-      "bg-base sticky top-[-0.25rem] z-10 mb-2 px-2 py-2 text-sm shadow-sm"
+      "sticky top-[-0.25rem] z-10 mb-2 bg-base px-2 py-2 text-sm shadow-sm"
     ),
   },
   listboxTransitionEnter: {

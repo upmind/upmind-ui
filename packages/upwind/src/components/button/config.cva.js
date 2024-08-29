@@ -25,18 +25,18 @@ export default {
             link: "!bg-transparent !p-0 underline",
           },
           color: {
-            current: "text-foreground border-transparent bg-transparent",
-            base: "bg-base-200 text-base-foreground border-transparent",
-            primary: "bg-primary text-primary-foreground border-transparent",
+            current: "border-transparent bg-transparent text-foreground",
+            base: "border-transparent bg-base-200 text-base-foreground",
+            primary: "border-transparent bg-primary text-primary-foreground",
             secondary:
-              "bg-secondary text-secondary-foreground border-transparent",
-            accent: "bg-accent text-accent-foreground border-transparent",
-            success: "bg-success text-success-foreground border-transparent",
-            error: "bg-error text-error-foreground border-transparent",
-            warning: "bg-warning text-warning-foreground border-transparent",
-            info: "bg-info text-info-foreground border-transparent",
+              "border-transparent bg-secondary text-secondary-foreground",
+            accent: "border-transparent bg-accent text-accent-foreground",
+            success: "border-transparent bg-success text-success-foreground",
+            error: "border-transparent bg-error text-error-foreground",
+            warning: "border-transparent bg-warning text-warning-foreground",
+            info: "border-transparent bg-info text-info-foreground",
             promotion:
-              "bg-promotion text-promotion-foreground border-transparent",
+              "border-transparent bg-promotion text-promotion-foreground",
           },
           disabled: {
             true: "!cursor-default opacity-50",

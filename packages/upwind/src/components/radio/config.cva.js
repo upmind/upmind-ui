@@ -34,7 +34,7 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "bg-base-100 cursor-not-allowed ",
+            true: "cursor-not-allowed bg-base-100 ",
           },
           isProcessing: {
             true: "cursor-wait",
@@ -56,7 +56,7 @@ export default {
             isDisabled: false,
             isProcessing: false,
             class:
-              "focus-within:border-control-active focus-within:ring-control-active cursor-pointer focus-within:ring-4 focus-within:ring-opacity-20",
+              "cursor-pointer focus-within:border-control-active focus-within:ring-4 focus-within:ring-control-active focus-within:ring-opacity-20",
           },
 
           {
@@ -65,7 +65,7 @@ export default {
             isDisabled: false,
             isProcessing: false,
             class:
-              "focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
+              "focus-within:border-control-error focus-within:ring-4 focus-within:ring-control-error focus-within:ring-opacity-20",
           },
           // deprecated success variant
           // {
@@ -138,7 +138,7 @@ export default {
           isInvalid: true,
           isDisabled: false,
           class:
-            "border-control-error focus-within:ring-control-error border focus-within:ring-4 focus-within:ring-opacity-20",
+            "border border-control-error focus-within:ring-4 focus-within:ring-control-error focus-within:ring-opacity-20",
         },
         {
           layout: "inline",

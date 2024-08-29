@@ -51,5 +51,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style src="@/assets/main.css" />
