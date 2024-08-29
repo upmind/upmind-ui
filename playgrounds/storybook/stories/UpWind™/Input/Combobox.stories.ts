@@ -2,21 +2,14 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import {
-  UwButton,
-  UwCombobox,
-  UwComboboxItem,
-  useCustomElement,
-} from "@upmind/upwind";
+import { UwButton, UwCombobox, useCustomElement } from "@upmind/upwind";
 
 useCustomElement(UwButton);
 useCustomElement(UwCombobox);
-useCustomElement(UwComboboxItem);
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
 import countries from "../../../utils/countries";
-import { count } from "console";
 
 const meta: Meta<typeof UwCombobox> = {
   parameters: {
@@ -54,7 +47,10 @@ export const Base: Story = {
       };
     },
     template: `
-      <uw-combobox v-bind="args" />
+      <uw-combobox
+        v-bind="args"
+        v-model="args.selectedValue"
+      />
     `,
   }),
 };
@@ -67,15 +63,7 @@ export const Countries: Story = {
       };
     },
     template: `
-      <uw-combobox v-bind="args" v-model="args.selectedValue">
-        <uw-combobox-item
-          v-for="item in args.items"
-          :key="item.value"
-          :value="item.value"
-          :label="item.label"
-          :icon="item.icon"
-        />
-      </uw-combobox>
+      <uw-combobox v-bind="args" v-model="args.selectedValue" />
     `,
   }),
   args: {

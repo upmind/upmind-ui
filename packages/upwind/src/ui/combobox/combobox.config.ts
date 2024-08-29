@@ -29,7 +29,7 @@ export const comboboxConfig = {
       },
     }
   ),
-  item: cva("", {
+  item: cva("p-1 px-2 text-sm", {
     variants: {
       color: {
         base: "data-[highlighted]:bg-base-foreground data-[highlighted]:text-base-foreground data-[highlighted]:bg-opacity-5",
