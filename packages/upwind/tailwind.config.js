@@ -15,7 +15,7 @@ const defaultTheme = omit(find(themes, ["name", "Light"]), [
 
 export default {
   darkMode: "media", // Honour the OS preference
-  content: ["./src/**/*.{html,vue,js,tsx}"],
+  content: ["./src/**/*.{html,vue,js,tsx,ts}"],
   plugins: [
     typography,
     themer({

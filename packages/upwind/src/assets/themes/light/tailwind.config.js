@@ -1,6 +1,8 @@
 import defaultTheme from "tailwindcss/defaultTheme";
 
 // -----------------------------------------------------------------------------
+// Light theme
+// -----------------------------------------------------------------------------
 
 const colors = {
   background: "#ffffff",
@@ -25,6 +27,7 @@ const colors = {
     background: "#ffffff",
   },
 
+  // ---
   primary: {
     DEFAULT: "#018ffd",
     50: "#edfbff",
@@ -214,14 +217,16 @@ const colors = {
 export default {
   colors,
   fontFamily: {
-    sans: ["Inter", "sans-serif", ...defaultTheme.fontFamily.sans],
-    serif: ["Inter", "sans-serif", ...defaultTheme.fontFamily.serif],
-    mono: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.mono],
+    sans: ["Inter", ...defaultTheme.fontFamily.sans].toString(","),
+    serif: ["Inter", ...defaultTheme.fontFamily.serif].toString(","),
+    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(","),
   },
-  textSizes: {
+
+  fontSize: {
     xs: ".75rem", // 12px
     sm: ".875rem", // 14px
     base: "1rem", // 16px
+    md: "1rem", // 16px
     lg: "1.125rem", // 18px
     xl: "1.25rem", // 20px
     "2xl": "1.5rem", // 24px
@@ -229,6 +234,7 @@ export default {
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
   },
+
   width: {
     "dropdown-xs": "10rem",
     "dropdown-sm": "12rem",
@@ -276,4 +282,32 @@ export default {
   ringColor: {
     DEFAULT: colors.control.active,
   },
+  typography: ({ theme }) => ({
+    DEFAULT: {
+      css: {
+        fontFamily: theme("fontFamily.body"),
+
+        h1: {
+          fontFamily: theme("fontFamily.display"),
+          fontWeight: theme("fontWeight.light"),
+          fontSize: theme("fontSize.5xl"),
+        },
+        h2: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h3: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h4: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h5: {
+          fontFamily: theme("fontFamily.display"),
+        },
+        h6: {
+          fontFamily: theme("fontFamily.display"),
+        },
+      },
+    },
+  }),
 };

@@ -1,5 +1,5 @@
 // --- styles
-import "./assets/main.css";
+import "./assets/upwind.css";
 
 import { UwButton } from "./ui/button";
 import { UwAvatar } from "./ui/avatar";
