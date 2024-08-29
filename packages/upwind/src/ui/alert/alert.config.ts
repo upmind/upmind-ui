@@ -9,52 +9,52 @@ export const alertConfig = {
       },
       compoundVariants: [
         {
-          variant: "outlined",
+          variant: "outline",
           color: "base",
           class: "border bg-base-background text-base-foreground",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "primary",
           class: "border-primary bg-primary-50 text-primary",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "secondary",
           class: "border-secondary bg-secondary-50 text-secondary",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "accent",
           class: "test border-accent bg-accent-50 text-accent",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "success",
           class: "border-success bg-success-50 text-success",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "error",
           class: "border-error bg-error-50 text-error",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "warning",
           class: "border-warning bg-warning-50 text-warning",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "info",
           class: "border-info bg-info-50 text-info",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "promotion",
           class: "border-promotion bg-promotion-50 text-promotion",
         },
         {
-          variant: "outlined",
+          variant: "outline",
           color: "destructive",
           class: "border-destructive bg-destructive-50 text-destructive",
         },
@@ -110,7 +110,7 @@ export const alertConfig = {
         },
       ],
       defaultVariants: {
-        variant: "outlined",
+        variant: "outline",
         color: "base",
       },
     }

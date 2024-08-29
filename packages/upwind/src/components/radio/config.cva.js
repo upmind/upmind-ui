@@ -51,7 +51,7 @@ export default {
             class: "border-control-error-300 cursor-pointer",
           },
           {
-            variant: "outlined",
+            variant: "outline",
             isInvalid: false,
             isDisabled: false,
             isProcessing: false,
@@ -60,7 +60,7 @@ export default {
           },
 
           {
-            variant: "outlined",
+            variant: "outline",
             isInvalid: true,
             isDisabled: false,
             isProcessing: false,
@@ -69,7 +69,7 @@ export default {
           },
           // deprecated success variant
           // {
-          //   variant: "outlined",
+          //   variant: "outline",
           //   isValid: true,
           //   isDisabled: false,
           //   isProcessing: false,

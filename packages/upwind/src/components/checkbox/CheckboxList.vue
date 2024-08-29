@@ -32,7 +32,7 @@
       >
         <upw-checkbox
           v-bind="{ ...safeAttrs, ...item }"
-          variant="outlined"
+          variant="outline"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
