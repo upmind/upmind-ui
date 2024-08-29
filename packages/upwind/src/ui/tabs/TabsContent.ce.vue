@@ -5,28 +5,29 @@
 </template>
 
 <script lang="ts">
-// --- external
+import { defineComponent, h } from "vue";
+import { defineCustomElement } from "vue";
 import { TabsContent } from "radix-vue";
-
-// --- internal
 import config from "./tabs.config";
-
-// --- utils
 import { useStyles } from "../../utils";
 
-export default {
+const UwTabsContent = defineComponent({
   name: "UwTabsContent",
   components: {
     TabsContent,
   },
-
   setup() {
     const styles = useStyles("tabs", {}, config);
-
-    return {
-      styles,
-    };
+    return { styles };
   },
   inheritAttrs: false,
-};
+});
+
+export default defineCustomElement({
+  props: UwTabsContent.props,
+  setup: UwTabsContent.setup,
+  render: () => h(UwTabsContent),
+  styles: [],
+  shadowRoot: null,
+});
 </script>

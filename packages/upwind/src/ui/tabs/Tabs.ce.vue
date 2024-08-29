@@ -13,11 +13,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent, PropType, h } from "vue";
+import { defineCustomElement } from "vue";
 import { TabsRoot } from "radix-vue";
 import type { TabsRootProps } from "radix-vue";
 
-export default defineComponent({
+const UwTabs = defineComponent({
   name: "UwTabs",
   components: {
     TabsRoot,
@@ -37,5 +38,13 @@ export default defineComponent({
   },
   emits: ["update:modelValue"],
   inheritAttrs: false,
+});
+
+export default defineCustomElement({
+  props: UwTabs.props,
+  emits: UwTabs.emits,
+  render: () => h(UwTabs),
+  styles: [],
+  shadowRoot: null,
 });
 </script>
