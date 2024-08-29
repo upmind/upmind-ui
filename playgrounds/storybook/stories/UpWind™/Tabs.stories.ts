@@ -2,18 +2,9 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import {
-  UwTabs,
-  UwTabsTrigger,
-  UwTabsList,
-  UwTabsContent,
-  useCustomElement,
-} from "@upmind/upwind";
+import { UwTabs, useCustomElement } from "@upmind/upwind";
 
 useCustomElement(UwTabs);
-useCustomElement(UwTabsTrigger);
-useCustomElement(UwTabsList);
-useCustomElement(UwTabsContent);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -92,13 +83,23 @@ export const Base: Story = {
     },
     template: `
       <div class="max-w-md">
-        <uw-tabs default-value="Tab 1" class="w-full">
-          <uw-tabs-list class="w-full">
-            <uw-tabs-trigger key="tab1" value="tab1">
-              tab1
-            </uw-tabs-trigger>
-          </uw-tabs-list>
-        </uw-tabs>
+        <uw-tabs default-value="Tab 1" class="w-full" .tabs="['tab1','tab2','tab3']">
+          <span slot="trigger.tab1">In ipsum deserunt</span>
+          <div slot="content.tab1">
+            <p>Incididunt non ullamco nisi quis amet adipisicing commodo ex ea anim. Do proident ipsum aute ut veniam amet nisi Lorem quis incididunt non irure. Nisi ex ullamco eu quis. Fugiat eiusmod excepteur tempor id esse ex minim dolor do voluptate voluptate occaecat sit. Lorem nisi anim officia velit ad cillum nostrud est. Fugiat commodo Lorem officia commodo culpa ut consectetur sit qui laborum culpa est sit exercitation.</p>
+          </div>
+
+          <span slot="trigger.tab2">Id quis ad non</span>
+          <div slot="content.tab2">
+          <p>Lorem do ea non ea cillum dolor eiusmod. Voluptate quis magna dolore eu non cillum ullamco incididunt exercitation dolor. Aliquip incididunt aliqua commodo ullamco amet.</p>
+          </div>
+
+          <span slot="trigger.tab3">Pariatur consequat</span>
+           <div slot="content.tab3">
+            <p>Ullamco amet cillum esse sint minim ea. Veniam dolore proident veniam consequat est sint dolor eu ex ullamco esse dolore. Deserunt enim incididunt labore voluptate.</p>
+          </div>
+
+         </uw-tabs>
       </div>
     `,
   }),
