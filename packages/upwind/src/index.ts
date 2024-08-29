@@ -32,7 +32,7 @@ import { UwAlert } from "./ui/alert";
 import { UwButton } from "./ui/button";
 import { UwAvatar } from "./ui/avatar";
 import { UwBadge } from "./ui/badge";
-import { UwDialog } from "./ui/dialog";
+import { UwDialog, UwDialogClose } from "./ui/dialog";
 import { UwTooltip } from "./ui/tooltip";
 import { UwSonner } from "./ui/sonner";
 import { UwCombobox } from "./ui/combobox";
@@ -53,6 +53,7 @@ export {
   UwBadge,
   UwCombobox,
   UwDialog,
+  UwDialogClose,
   UwTooltip,
   UwAlert,
   UwSonner,
@@ -67,6 +68,7 @@ export function register() {
   customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-button", UwButton);
   customElements.define("uw-dialog", UwDialog);
+  customElements.define("uw-dialog-close", UwDialogClose);
   customElements.define("uw-tooltip", UwTooltip);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-tabs", UwTabs);
@@ -90,6 +92,7 @@ declare module "vue" {
     UwCombobox: typeof UwCombobox;
     UwButton: typeof UwButton;
     UwDialog: typeof UwDialog;
+    UwDialogClose: typeof UwDialogClose;
     UwTooltip: typeof UwTooltip;
     UwSonner: typeof UwSonner;
     UwTabs: typeof UwTabs;

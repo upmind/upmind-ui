@@ -4,11 +4,15 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
-  UwDialogConsolidated,
+  UwDialog,
   UwDialogClose,
   UwButton,
-  UpwForm,
+  useCustomElement,
 } from "@upmind/upwind";
+
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
+useCustomElement(UwDialogClose);
 
 // --- utils
 import { keys } from "lodash-es";
@@ -108,8 +112,7 @@ const combinedSchema = {
 };
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UwDialogConsolidated> = {
-  component: UwDialogConsolidated,
+const meta: Meta<typeof UwDialog> = {
   argTypes: {
     size: {
       options: keys(sizes),
@@ -128,42 +131,38 @@ const meta: Meta<typeof UwDialogConsolidated> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwDialogConsolidated>;
+type Story = StoryObj<typeof UwDialog>;
 
 export const Base: Story = {
-  render: (args, { updateArgs }) => ({
-    components: { UwDialogConsolidated, UwDialogClose, UwButton },
+  render: args => ({
+    components: { UwDialog, UwDialogClose, UwButton },
     setup() {
       return {
         args,
       };
     },
     template: `
-      <UwDialogConsolidated v-bind="args">
-        <template v-slot:trigger>
-          <uw-button>Open Dialog</up-button>
-        </template>
+      <uw-dialog v-bind="args">
+          <uw-button slot="trigger">Open Dialog</uw-button>
 
-        <template v-slot:footer>
-          <uw-dialog-close>
-            <uw-button size="sm">Close</up-button>
+          <uw-dialog-close slot="footer">
+            <uw-button size="sm">Close</uw-button>
           </uw-dialog-close>
-        </template>
-      </UwDialogConsolidated>
+      </uw-dialog>
     `,
   }),
 };
 
 export const Hero: Story = {
   render: args => ({
-    components: { UwDialogConsolidated, UwDialogClose, UwButton },
+    components: { UwDialog, UwDialogClose, UwButton },
     setup() {
       return {
         args,
       };
     },
     template: `
-      <UwDialogConsolidated v-bind="args" overflow="hidden">
+      <uw-dialog v-bind="args" overflow="hidden">
         <template v-slot:trigger>
           <uw-button>Open Dialog</uw-button>
         </template>
@@ -181,7 +180,7 @@ export const Hero: Story = {
             </div>
           </section>
         </template>
-      </UwDialogConsolidated>
+      </uw-dialog>
     `,
   }),
   args: {
@@ -191,108 +190,108 @@ export const Hero: Story = {
   },
 };
 
-export const Form: Story = {
-  render: args => ({
-    components: { UwDialogConsolidated, UwButton, UpwForm },
-    setup() {
-      const model = ref({});
-      const open = ref(false);
+// export const Form: Story = {
+//   render: args => ({
+//     components: { UwDialogConsolidated, UwButton, UpwForm },
+//     setup() {
+//       const model = ref({});
+//       const open = ref(false);
 
-      const doUpdate = (value: boolean) => {
-        open.value = value;
-      };
+//       const doUpdate = (value: boolean) => {
+//         open.value = value;
+//       };
 
-      return {
-        args,
-        model,
-        schema,
-        open,
-        doUpdate,
-      };
-    },
-    methods: {},
-    template: `
-      <UwDialogConsolidated v-bind="args" v-model:open="open">
-        <template v-slot:trigger>
-          <uw-button>Open Dialog</uw-button>
-        </template>
+//       return {
+//         args,
+//         model,
+//         schema,
+//         open,
+//         doUpdate,
+//       };
+//     },
+//     methods: {},
+//     template: `
+//       <UwDialogConsolidated v-bind="args" v-model:open="open">
+//         <template v-slot:trigger>
+//           <uw-button>Open Dialog</uw-button>
+//         </template>
 
-        <template v-slot:content>
-          <upw-form
-            :schema="schema"
-            v-model="model"
-            @resolve="doUpdate(false)"
-            @reject="doUpdate(false)"
-          />
-        </template>
-      </UwDialogConsolidated>
-    `,
-  }),
-  args: {
-    title: "Nearly there",
-    description: "We just need some details",
-  },
-};
+//         <template v-slot:content>
+//           <upw-form
+//             :schema="schema"
+//             v-model="model"
+//             @resolve="doUpdate(false)"
+//             @reject="doUpdate(false)"
+//           />
+//         </template>
+//       </UwDialogConsolidated>
+//     `,
+//   }),
+//   args: {
+//     title: "Nearly there",
+//     description: "We just need some details",
+//   },
+// };
 
-export const ScrollableDialog: Story = {
-  render: args => ({
-    components: { UwDialogConsolidated, UwDialogClose, UwButton, UpwForm },
-    setup() {
-      const model = ref({});
-      const open = ref(false);
+// export const ScrollableDialog: Story = {
+//   render: args => ({
+//     components: { UwDialogConsolidated, UwDialogClose, UwButton, UpwForm },
+//     setup() {
+//       const model = ref({});
+//       const open = ref(false);
 
-      const doUpdate = (value: boolean) => {
-        open.value = value;
-      };
+//       const doUpdate = (value: boolean) => {
+//         open.value = value;
+//       };
 
-      return {
-        args,
-        model,
-        combinedSchema,
-        open,
-        doUpdate,
-      };
-    },
-    template: `
-      <UwDialogConsolidated
-        v-model:open="open"
-        v-bind="args"
-      >
-        <template v-slot:trigger>
-          <uw-button>Open Dialog</uw-button>
-        </template>
+//       return {
+//         args,
+//         model,
+//         combinedSchema,
+//         open,
+//         doUpdate,
+//       };
+//     },
+//     template: `
+//       <UwDialogConsolidated
+//         v-model:open="open"
+//         v-bind="args"
+//       >
+//         <template v-slot:trigger>
+//           <uw-button>Open Dialog</uw-button>
+//         </template>
 
-        <template v-slot:content>
-          <div class="py-4">
-            <upw-form
-              :schema="combinedSchema"
-              :noActions="true"
-              v-model="model"
-            />
+//         <template v-slot:content>
+//           <div class="py-4">
+//             <upw-form
+//               :schema="combinedSchema"
+//               :noActions="true"
+//               v-model="model"
+//             />
 
-            <div class="bg-gray-50 border cursor-pointer text-gray-600 mt-6 flex items-center justify-center select-none h-64 rounded-lg">
-              Upload a profile picture
-            </div>
-          </div>
-        </template>
+//             <div class="bg-gray-50 border cursor-pointer text-gray-600 mt-6 flex items-center justify-center select-none h-64 rounded-lg">
+//               Upload a profile picture
+//             </div>
+//           </div>
+//         </template>
 
-        <template v-slot:footer>
-          <uw-dialog-close>
-            <uw-button label="Close":block="true"/>
-          </uw-dialog-close>
-        </template>
-      </UwDialogConsolidated>
-    `,
-  }),
-  args: {
-    title: "Nearly there",
-    description: "We just need some details",
-  },
-};
+//         <template v-slot:footer>
+//           <uw-dialog-close>
+//             <uw-button label="Close":block="true"/>
+//           </uw-dialog-close>
+//         </template>
+//       </UwDialogConsolidated>
+//     `,
+//   }),
+//   args: {
+//     title: "Nearly there",
+//     description: "We just need some details",
+//   },
+// };
 
 export const MockedAsyncAction: Story = {
   render: args => ({
-    components: { UwDialogConsolidated, UwDialogClose, UwButton },
+    components: { UwDialog, UwDialogClose, UwButton },
     setup() {
       const open = ref(false);
       const loading = ref(false);
@@ -321,7 +320,7 @@ export const MockedAsyncAction: Story = {
       };
     },
     template: `
-      <UwDialogConsolidated v-model:open="open" title="Mocked asynchronous action" :description="seconds + ' seconds remaining'">
+      <uw-dialog v-model:open="open" title="Mocked asynchronous action" :description="seconds + ' seconds remaining'">
         <template v-slot:trigger>
           <uw-button>Open Dialog</uw-button>
         </template>
@@ -329,7 +328,7 @@ export const MockedAsyncAction: Story = {
         <template v-slot:footer>
             <uw-button size="sm" @click="start" :loading="loading">Begin</uw-button>
         </template>
-      </UwDialogConsolidated>
+      </uw-dialog>
     `,
   }),
 };
