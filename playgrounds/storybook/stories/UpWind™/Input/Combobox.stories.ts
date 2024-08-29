@@ -54,7 +54,7 @@ export const Base: Story = {
       };
     },
     template: `
-      <uw-combobox />
+      <uw-combobox v-bind="args" />
     `,
   }),
 };

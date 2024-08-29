@@ -14,18 +14,21 @@ export const comboboxConfig = {
       },
     },
   }),
-  content: cva("mt-1 p-0", {
-    variants: {
-      width: {
-        xs: "w-dropdown-xs",
-        sm: "w-dropdown-sm",
-        md: "w-dropdown-md",
-        lg: "w-dropdown-lg",
-        xl: "w-dropdown-xl",
-        "2xl": "w-dropdown-2xl",
+  content: cva(
+    "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 mt-1 w-72 rounded-md border p-0 shadow-md outline-none",
+    {
+      variants: {
+        width: {
+          xs: "w-dropdown-xs",
+          sm: "w-dropdown-sm",
+          md: "w-dropdown-md",
+          lg: "w-dropdown-lg",
+          xl: "w-dropdown-xl",
+          "2xl": "w-dropdown-2xl",
+        },
       },
-    },
-  }),
+    }
+  ),
   item: cva("", {
     variants: {
       color: {
@@ -48,7 +51,6 @@ export const comboboxConfig = {
       },
     },
   }),
-  input: cva("h-9"),
   icons: {
     buttonItem: cva("mr-2 size-[1.2em] overflow-hidden rounded-full"),
     listItem: cva("mr-2 size-[1em] overflow-hidden rounded-full"),
@@ -58,12 +60,12 @@ export const comboboxConfig = {
   root: cva(
     "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md"
   ),
-  commmandInput: {
+  command: {
     root: cva(
       "placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
     ),
     icon: cva("mr-1 h-3 w-3"),
-    wrapper: cva("flex items-center border-b px-3"),
+    wrapper: cva("flex h-9 items-center border-b px-3"),
   },
   list: cva("max-h-[18rem] overflow-y-auto overflow-x-hidden"),
   empty: cva("py-6 text-center text-sm"),
@@ -76,9 +78,6 @@ export const comboboxConfig = {
   ),
   separator: cva("bg-border -mx-1 h-px"),
   shortcut: cva("text-muted-foreground ml-auto text-xs tracking-widest"),
-  popoverContent: cva(
-    "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 rounded-md border shadow-md outline-none"
-  ),
 };
 
 export default {

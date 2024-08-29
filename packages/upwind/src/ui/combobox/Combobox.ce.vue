@@ -1,6 +1,6 @@
 <template>
   <popover-root v-model:open="open">
-    <popover-trigger as-child>
+    <popover-trigger>
       <uw-button
         variant="outline"
         color="base"
@@ -14,33 +14,34 @@
       </uw-button>
     </popover-trigger>
     <popover-portal>
-      <div :class="styles.combobox.content">
-        <popover-content :class="styles.combobox.popoverContent">
-          <combobox-root
-            :open="open"
-            :model-value="modelValue"
-            :class="styles.combobox.root"
-          >
+      <popover-content :class="styles.combobox.content">
+        <combobox-root
+          :open="open"
+          :model-value="modelValue"
+          :class="styles.combobox.root"
+        >
+          <div :class="styles.combobox.command.wrapper" cmdk-input-wrapper>
             <combobox-input
-              :class="styles.combobox.input"
+              auto-focus
+              :class="styles.combobox.command.root"
               :placeholder="searchPlaceholder"
             />
-            <combobox-empty :class="styles.combobox.empty">
-              {{ emptyMessage }}
-            </combobox-empty>
-            <combobox-content :class="styles.combobox.list">
-              <div role="presentation">
-                <combobox-group :class="styles.combobox.group">
-                  <combobox-label v-if="heading" :class="styles.combobox.label">
-                    {{ heading }}
-                  </combobox-label>
-                  <slot></slot>
-                </combobox-group>
-              </div>
-            </combobox-content>
-          </combobox-root>
-        </popover-content>
-      </div>
+          </div>
+          <combobox-empty :class="styles.combobox.empty">
+            {{ emptyMessage }}
+          </combobox-empty>
+          <combobox-content :class="styles.combobox.list">
+            <div role="presentation">
+              <combobox-group :class="styles.combobox.group">
+                <combobox-label v-if="heading" :class="styles.combobox.label">
+                  {{ heading }}
+                </combobox-label>
+                <slot></slot>
+              </combobox-group>
+            </div>
+          </combobox-content>
+        </combobox-root>
+      </popover-content>
     </popover-portal>
   </popover-root>
 </template>
@@ -130,7 +131,7 @@ export default defineComponent({
     const selectedItem = ref(null);
 
     const styles = useStyles(
-      ["combobox", "combobox.icons"],
+      ["combobox", "combobox.icons", "combobox.command"],
       toRefs(props),
       config,
       props.upwindConfig
