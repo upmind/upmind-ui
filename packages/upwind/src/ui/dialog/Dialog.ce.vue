@@ -1,62 +1,74 @@
 <template>
-  <dialog-root>
+  <dialog-root @update:open="$emit('update:open', $event)">
     <dialog-trigger>
       <slot name="trigger" />
     </dialog-trigger>
-    <dialog-scroll-content :size="size" :overflow="overflow">
-      <dialog-header v-if="title || description">
-        <dialog-title v-if="title">{{ title }}</dialog-title>
-        <dialog-description v-if="description">
-          {{ description }}
-        </dialog-description>
-      </dialog-header>
+    <dialog-portal>
+      <dialog-overlay :class="styles.dialog.overlay">
+        <dialog-content
+          :class="styles.dialog.content"
+          @pointer-down-outside="handlePointerDownOutside"
+        >
+          <dialog-header v-if="title || description">
+            <dialog-title v-if="title" :class="styles.dialog.title">{{
+              title
+            }}</dialog-title>
+            <dialog-description
+              v-if="description"
+              :class="styles.dialog.description"
+            >
+              {{ description }}
+            </dialog-description>
+          </dialog-header>
 
-      <slot name="content" />
-      <slot />
+          <slot name="content" />
+          <slot />
 
-      <dialog-footer v-if="$slots.footer">
-        <slot name="footer" />
-      </dialog-footer>
-    </dialog-scroll-content>
+          <dialog-footer v-if="$slots.footer" :class="styles.dialog.footer">
+            <slot name="footer" />
+          </dialog-footer>
+
+          <dialog-close :class="styles.dialog.close">
+            <upw-icon icon="close" :class="styles.dialog.closeIcon" />
+            <span class="sr-only">Close</span>
+          </dialog-close>
+        </dialog-content>
+      </dialog-overlay>
+    </dialog-portal>
   </dialog-root>
 </template>
 
 <script lang="ts">
-// --- external
 import { defineComponent, toRefs } from "vue";
-
-// --- internal
-import config from "./dialog.config";
-
-// --- components
 import {
-  Dialog as DialogRoot,
-  DialogScrollContent,
+  DialogRoot,
+  DialogClose,
+  DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
   DialogTitle,
   DialogTrigger,
-} from ".";
-
-// --- utils
+} from "radix-vue";
+import config from "./dialog.config";
+import UpwIcon from "../../components/icon/Icon.vue";
 import { useStyles } from "../../utils";
-
-// --- types
 import type { PropType } from "vue";
 import type { DialogConfig } from "./types";
 
 export default defineComponent({
+  name: "UwDialog",
   components: {
     DialogRoot,
-    DialogScrollContent,
+    DialogClose,
+    DialogContent,
     DialogDescription,
-    DialogFooter,
-    DialogHeader,
+    DialogOverlay,
+    DialogPortal,
     DialogTitle,
     DialogTrigger,
+    UpwIcon,
   },
-
   props: {
     title: { type: String },
     description: { type: String },
@@ -70,7 +82,7 @@ export default defineComponent({
     },
     upwindConfig: { type: Object, default: () => ({}) },
   },
-
+  emits: ["update:open"],
   setup(props) {
     const styles = useStyles(
       "dialog",
@@ -79,10 +91,25 @@ export default defineComponent({
       props.upwindConfig
     );
 
+    const handlePointerDownOutside = (event: PointerEvent) => {
+      const originalEvent = event as unknown as {
+        detail: { originalEvent: PointerEvent };
+      };
+      const target = originalEvent.detail.originalEvent.target as HTMLElement;
+      if (
+        originalEvent.detail.originalEvent.offsetX > target.clientWidth ||
+        originalEvent.detail.originalEvent.offsetY > target.clientHeight
+      ) {
+        event.preventDefault();
+      }
+    };
+
     return {
-      props,
       styles,
+      handlePointerDownOutside,
     };
   },
 });
 </script>
+
+<style src="@/assets/main.css" />
