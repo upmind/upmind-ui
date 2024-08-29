@@ -1,6 +1,5 @@
 <template>
   <tabs-root
-    v-bind="$attrs"
     :modelValue="modelValue"
     :defaultValue="defaultValue"
     :orientation="orientation"
