@@ -7,7 +7,13 @@ import {
   UwTabsTrigger,
   UwTabsList,
   UwTabsContent,
+  useCustomElement,
 } from "@upmind/upwind";
+
+useCustomElement(UwTabs);
+useCustomElement(UwTabsTrigger);
+useCustomElement(UwTabsList);
+useCustomElement(UwTabsContent);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -36,7 +42,6 @@ enum widths {
 }
 
 const meta: Meta<typeof UwTabs> = {
-  component: UwTabs,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -76,7 +81,6 @@ type Story = StoryObj<typeof UwTabs>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwTabs, UwTabsTrigger, UwTabsList, UwTabsContent },
     setup() {
       const tabs = ["Tab 1", "Tab 2", "Tab 3", "Tab 4", "Tab 5"];
       const colors = useSystemArgTypes.color;
@@ -88,17 +92,12 @@ export const Base: Story = {
     },
     template: `
       <div class="max-w-md">
-        <uw-tabs default-value="Tab 3" class="w-full">
-          <uw-tabs-list v-bind="args" class="w-full">
-            <uw-tabs-trigger v-bind="args" v-for="(tab, index) in tabs" :key="'tab' + index" :value="tab">
-              {{ tab }}
+        <uw-tabs default-value="Tab 1" class="w-full">
+          <uw-tabs-list class="w-full">
+            <uw-tabs-trigger key="tab1" value="tab1">
+              tab1
             </uw-tabs-trigger>
           </uw-tabs-list>
-          <uw-tabs-content v-for="(tab, index) in tabs" :key="'tab' + index" :value="tab" class="w-full">
-            <div class="bg-gray-100 rounded-lg h-44 flex items-center justify-center text-base-500">
-              {{ tab }} Content
-            </div>
-          </uw-tabs-content>
         </uw-tabs>
       </div>
     `,
@@ -110,7 +109,6 @@ export const Colors: Story = {
     controls: { exclude: ["color"] },
   },
   render: args => ({
-    components: { UwTabs, UwTabsTrigger, UwTabsList, UwTabsContent },
     setup() {
       const tabs = ["Tab 1", "Tab 2", "Tab 3", "Tab 4"];
       const colors = useSystemArgTypes.color;

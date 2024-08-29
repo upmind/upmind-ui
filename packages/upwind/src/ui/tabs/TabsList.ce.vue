@@ -1,16 +1,16 @@
 <template>
-  <TabsTrigger :class="styles.tabs.trigger">
+  <TabsList :class="styles.tabs.list">
     <slot />
-  </TabsTrigger>
+  </TabsList>
 </template>
 
 <script lang="ts">
 // --- external
 import { defineComponent, toRefs } from "vue";
-import { TabsTrigger } from "radix-vue";
+import { TabsList } from "radix-vue";
 
 // --- utils
-import { useStyles } from "../../../utils";
+import { useStyles } from "../../utils";
 
 // --- local
 import config from "./tabs.config";
@@ -19,8 +19,9 @@ import config from "./tabs.config";
 import type { TabsConfig } from ".";
 
 export default defineComponent({
+  name: "UwTabsList",
   components: {
-    TabsTrigger,
+    TabsList,
   },
 
   props: {
@@ -29,6 +30,12 @@ export default defineComponent({
       default: "base",
     },
     variant: String as TabsConfig["variant"],
+    alignment: String as TabsConfig["alignment"],
+    width: String as TabsConfig["width"],
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
   },
 
   setup(props) {
@@ -39,5 +46,6 @@ export default defineComponent({
       styles,
     };
   },
+  inheritAttrs: false,
 });
 </script>
