@@ -5,13 +5,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs } from "vue";
+import { defineComponent, toRefs, h } from "vue";
+import { defineCustomElement } from "vue";
 import { TabsTrigger } from "radix-vue";
 import { useStyles } from "../../utils";
 import config from "./tabs.config";
 import type { TabsConfig } from ".";
 
-export default defineComponent({
+const UwTabsTrigger = defineComponent({
   name: "UwTabsTrigger",
   components: {
     TabsTrigger,
@@ -32,5 +33,13 @@ export default defineComponent({
     return { props, styles };
   },
   inheritAttrs: false,
+});
+
+export default defineCustomElement({
+  props: UwTabsTrigger.props,
+  setup: UwTabsTrigger.setup,
+  render: () => h(UwTabsTrigger),
+  styles: [],
+  shadowRoot: null,
 });
 </script>
