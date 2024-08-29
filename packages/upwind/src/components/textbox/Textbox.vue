@@ -23,7 +23,7 @@
     :no-label="noLabel"
     :persist-feedback="persistFeedback"
     layout="stacked"
-    variant="outlined"
+    variant="outline"
   >
     <template #prepend>
       <slot name="prepend" v-bind="{ styles: styles.textbox }"></slot>

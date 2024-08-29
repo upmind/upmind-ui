@@ -23,7 +23,7 @@
     :no-label="noLabel"
     :persist-feedback="persistFeedback"
     layout="stacked"
-    variant="outlined"
+    variant="outline"
   >
     <textarea
       ref="input"

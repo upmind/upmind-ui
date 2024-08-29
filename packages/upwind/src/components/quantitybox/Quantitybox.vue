@@ -33,7 +33,7 @@
         size="square"
         :disabled="!!min && modelValue <= min"
         color="current"
-        variant="outlined"
+        variant="outline"
         @click.prevent="doDecrement"
       />
     </slot>
@@ -56,7 +56,7 @@
         size="square"
         :disabled="!!max && modelValue >= max"
         color="current"
-        variant="outlined"
+        variant="outline"
         @click.prevent="doIncrement"
       />
     </slot>

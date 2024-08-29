@@ -23,7 +23,7 @@ import { defineComponent, toRefs } from "vue";
 import { Primitive } from "radix-vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+import globalStyles from "../../assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
 import config from "./button.config";
 

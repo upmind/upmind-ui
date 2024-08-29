@@ -9,7 +9,7 @@ export default {
         variants: {
           size: {
             sm: "px-3 py-2 text-sm leading-5 placeholder:text-sm",
-            md: "text-md placeholder:text-md px-3 py-3 leading-6",
+            md: "px-3 py-3 text-md leading-6 placeholder:text-md",
             lg: "px-3 py-4 text-lg leading-7 placeholder:text-lg",
           },
           isDisabled: {

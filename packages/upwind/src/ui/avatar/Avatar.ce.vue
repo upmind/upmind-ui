@@ -3,14 +3,15 @@
 
   <avatar-root :class="styles.avatar.root">
     <slot>
+      <upw-icon v-if="meta.hasIcon" :icon="icon" :class="styles.avatar.image" />
       <avatar-image
-        v-if="meta.hasImage"
-        :src="avatar.src"
+        v-else-if="meta.hasImage"
+        :src="src"
         alt="avatar"
         :class="styles.avatar.image"
       />
       <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
-        {{ avatar.caption }}
+        {{ caption }}
       </avatar-fallback>
     </slot>
   </avatar-root>
@@ -21,6 +22,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
+import UpwIcon from "../../components/icon/Icon.vue";
 import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
@@ -30,12 +32,12 @@ import { useStyles } from "../../utils";
 import config from "./avatar.config";
 
 // --- utils
-import { isEmpty, isString } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
 import type { AvatarConfig } from "./types";
-
+import type { IconProps } from "../../components/icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
@@ -44,6 +46,7 @@ export default defineComponent({
     AvatarFallback,
     AvatarImage,
     AvatarRoot,
+    UpwIcon,
   },
   props: {
     shape: {
@@ -54,8 +57,12 @@ export default defineComponent({
       type: String as PropType<AvatarConfig["size"]>,
       default: "md",
     },
-    avatar: { type: Object, default: () => ({}) },
-    loading: { type: Boolean },
+    icon: {
+      type: [String, Object] as PropType<IconProps["icon"]>,
+      required: true,
+    },
+    src: { type: String },
+    caption: { type: String },
     upwindConfig: { type: Object, default: () => ({}) },
   },
 
@@ -76,10 +83,9 @@ export default defineComponent({
   computed: {
     meta() {
       return {
-        isLoading: this.loading,
-        hasIcon: isString(this.avatar) || !isEmpty(this.avatar?.name),
-        hasImage: !isEmpty(this.avatar?.src),
-        hasCaption: this.avatar?.forceCaption || !isEmpty(this.avatar?.caption),
+        hasIcon: !isEmpty(this.icon),
+        hasImage: !isEmpty(this.src),
+        hasCaption: !isEmpty(this.caption),
       };
     },
   },
