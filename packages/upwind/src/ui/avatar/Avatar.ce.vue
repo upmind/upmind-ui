@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <avatar-root :class="styles.avatar.root">
     <slot>
       <avatar-image
@@ -23,6 +25,7 @@ import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
 import config from "./avatar.config";
 
@@ -66,6 +69,7 @@ export default defineComponent({
 
     return {
       styles,
+      globalStyles,
     };
   },
 

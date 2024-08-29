@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <span :class="styles.badge.root">
     <slot name="prepend"></slot>
     <span :class="styles.badge.label">
@@ -13,6 +15,7 @@
 import { toRefs, defineComponent } from "vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import config from "./badge.config";
 import { useStyles } from "../../utils";
 
@@ -47,6 +50,7 @@ export default defineComponent({
 
     return {
       styles,
+      globalStyles,
     };
   },
 });

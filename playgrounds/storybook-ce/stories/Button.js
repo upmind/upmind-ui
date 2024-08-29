@@ -5,9 +5,7 @@ import { html } from "lit";
  */
 export const Button = ({ variant, color, size, label, onClick }) => {
   return html`
-    <h1>Button</h1>
     <uw-button
-      type="button"
       variant=${variant}
       color=${color}
       size=${size}

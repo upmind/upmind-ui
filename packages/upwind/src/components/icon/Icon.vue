@@ -89,13 +89,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss">
-.icon {
-  > svg {
-    width: apply(w-full);
-    height: apply(h-full);
-  }
-}
-</style>
-./config.cva

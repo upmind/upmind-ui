@@ -8,7 +8,7 @@ import { cva } from "class-variance-authority";
 export default {
   lineclamp: {
     root: cva(""),
-    wrapper: cva("[&_p]:mb-0", {
+    wrapper: cva("[&_p]:mb-0 [&_pre]:!whitespace-pre-wrap", {
       variants: {
         lines: {},
         isOpen: {

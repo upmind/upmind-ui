@@ -139,9 +139,9 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<!-- <style>
 [data-sonner-toast] [data-icon] {
   height: auto !important;
   width: auto !important;
 }
-</style>
+</style> -->
