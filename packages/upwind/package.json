@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "description": "",
   "type": "module",
-  "main": "./src/upmind-upwind.umd.cjs",
-  "module": "./dist/upmind-upwind.js",
+  "main": "./dist/upwind.umd.cjs",
+  "module": "./dist/upwind.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "require": "./dist/upmind-upwind.umd.cjs"
+      "import": "./dist/upwind.js",
+      "require": "./dist/upwind.umd.cjs"
     }
   },
   "files": [

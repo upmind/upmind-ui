@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   tabs: {
     root: cva(
-      "bg-base-100 hover:bg-base-200 inline-flex space-x-1 rounded-lg p-1 p-1 transition",
+      "inline-flex space-x-1 rounded-lg bg-base-100 p-1 p-1 transition hover:bg-base-200",
       {
         variants: {
           align: {
@@ -32,7 +32,7 @@ export default {
   },
   tab: {
     root: cva(
-      "text-base-foreground hover:bg-base-100 flex items-center gap-x-2 rounded-lg bg-transparent leading-none transition duration-300",
+      "flex items-center gap-x-2 rounded-lg bg-transparent leading-none text-base-foreground transition duration-300 hover:bg-base-100",
       {
         variants: {
           size: {
@@ -41,7 +41,7 @@ export default {
             lg: "px-12 py-3 text-lg",
           },
           isActive: {
-            true: "bg-base hover:text-base-foreground hover:bg-base shadow",
+            true: "bg-base shadow hover:bg-base hover:text-base-foreground",
           },
           isStretched: {
             true: "flex-1",

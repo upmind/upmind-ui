@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const avatarConfig = cva(
-  "bg-base-200 text-base-foreground relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden font-normal",
+  "relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden bg-base-200 font-normal text-base-foreground",
   {
     variants: {
       size: {

@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonConfig = cva(
-  "ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
+  "focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
@@ -14,7 +14,7 @@ export const buttonConfig = cva(
         tonal: "border border-transparent",
       },
       color: {
-        base: "text-base-background bg-base-foreground",
+        base: "bg-base-foreground text-base-background",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
@@ -187,44 +187,44 @@ export const buttonConfig = cva(
       {
         color: "base",
         variant: "link",
-        class: "text-base-foreground bg-transparent",
+        class: "bg-transparent text-base-foreground",
       },
       {
         color: "primary",
         variant: "link",
-        class: "text-primary bg-transparent",
+        class: "bg-transparent text-primary",
       },
       {
         color: "secondary",
         variant: "link",
-        class: "text-secondary bg-transparent",
+        class: "bg-transparent text-secondary",
       },
       {
         color: "accent",
         variant: "link",
-        class: "text-accent bg-transparent",
+        class: "bg-transparent text-accent",
       },
       {
         color: "promotion",
         variant: "link",
-        class: "text-promotion bg-transparent",
+        class: "bg-transparent text-promotion",
       },
       {
         color: "destructive",
         variant: "link",
-        class: "text-error bg-transparent",
+        class: "bg-transparent text-error",
       },
       {
         color: "success",
         variant: "link",
-        class: "text-success bg-transparent",
+        class: "bg-transparent text-success",
       },
-      { color: "info", variant: "link", class: "text-info bg-transparent" },
-      { color: "error", variant: "link", class: "text-error bg-transparent" },
+      { color: "info", variant: "link", class: "bg-transparent text-info" },
+      { color: "error", variant: "link", class: "bg-transparent text-error" },
       {
         color: "warning",
         variant: "link",
-        class: "text-warning bg-transparent",
+        class: "bg-transparent text-warning",
       },
     ],
 

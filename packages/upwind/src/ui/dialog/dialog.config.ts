@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const dialogConfig = cva(
-  "border-border bg-background relative z-50 my-8 grid w-full gap-4 border p-6 shadow-lg duration-200 sm:rounded-lg md:w-full",
+  "border-border relative z-50 my-8 grid w-full gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full",
   {
     variants: {
       size: {
@@ -34,7 +34,7 @@ export default {
     content: dialogConfig,
     header: cva("flex flex-col gap-y-2 text-center sm:text-left"),
     title: cva("text-lg font-semibold leading-none tracking-tight"),
-    description: cva("text-muted-foreground text-sm"),
+    description: cva("text-sm text-muted-foreground"),
     footer: cva("flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-x-2"),
     close: cva("absolute right-3 top-3 rounded-md p-0.5 transition-colors"),
     closeIcon: cva("h-3 w-3"),

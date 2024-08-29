@@ -29,7 +29,7 @@ export const comboboxConfig = {
   item: cva("", {
     variants: {
       color: {
-        base: "data-[highlighted]:bg-base-foreground data-[highlighted]:text-base-foreground data-[highlighted]:bg-opacity-5",
+        base: "data-[highlighted]:bg-base-foreground data-[highlighted]:bg-opacity-5 data-[highlighted]:text-base-foreground",
         primary:
           "data-[highlighted]:bg-primary-background data-[highlighted]:text-primary-foreground",
         secondary:

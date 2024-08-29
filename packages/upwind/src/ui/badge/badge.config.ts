@@ -11,7 +11,7 @@ export const badgeConfig = cva(
         tonal: "border border-transparent",
       },
       color: {
-        base: "text-base-background bg-base-foreground",
+        base: "bg-base-foreground text-base-background",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",

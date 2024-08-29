@@ -1,3 +1,6 @@
+// --- styles
+import "./assets/main.css";
+
 // --- eternal
 
 // --- upw
@@ -44,7 +47,7 @@ import { kebabCase } from "lodash-es";
 export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip };
 
 // --- utility for registering all custom elements
-export function register() {
+export function registerUpwindComponents() {
   customElements.define("uw-avatar", UwAvatar);
   customElements.define("uw-badge", UwBadge);
   customElements.define("uw-button", UwButton);
