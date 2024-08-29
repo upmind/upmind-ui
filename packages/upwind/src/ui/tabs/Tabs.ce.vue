@@ -18,6 +18,7 @@ import { TabsRoot } from "radix-vue";
 import type { TabsRootProps } from "radix-vue";
 
 export default defineComponent({
+  name: "UwTabs",
   components: {
     TabsRoot,
   },

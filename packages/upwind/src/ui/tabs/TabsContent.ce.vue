@@ -12,9 +12,10 @@ import { TabsContent } from "radix-vue";
 import config from "./tabs.config";
 
 // --- utils
-import { useStyles } from "../../../utils";
+import { useStyles } from "../../utils";
 
 export default {
+  name: "UwTabsContent",
   components: {
     TabsContent,
   },
@@ -26,5 +27,6 @@ export default {
       styles,
     };
   },
+  inheritAttrs: false,
 };
 </script>
