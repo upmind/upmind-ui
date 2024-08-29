@@ -36,7 +36,7 @@ import { UwDialog } from "./ui/dialog";
 import { UwTooltip } from "./ui/tooltip";
 import { UwSonner } from "./ui/sonner";
 import { UwCombobox } from "./ui/combobox";
-import { UwTabs, UwTabsTrigger, UwTabsList, UwTabsContent } from "./ui/tabs";
+import { UwTabs } from "./ui/tabs";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -57,9 +57,6 @@ export {
   UwAlert,
   UwSonner,
   UwTabs,
-  UwTabsTrigger,
-  UwTabsList,
-  UwTabsContent,
 };
 
 // --- utility for registering all custom elements
@@ -73,9 +70,6 @@ export function register() {
   customElements.define("uw-tooltip", UwTooltip);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-tabs", UwTabs);
-  customElements.define("uw-tabs-trigger", UwTabsTrigger);
-  customElements.define("uw-tabs-list", UwTabsList);
-  customElements.define("uw-tabs-content", UwTabsContent);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
@@ -99,8 +93,5 @@ declare module "vue" {
     UwTooltip: typeof UwTooltip;
     UwSonner: typeof UwSonner;
     UwTabs: typeof UwTabs;
-    UwTabsTrigger: typeof UwTabsTrigger;
-    UwTabsList: typeof UwTabsList;
-    UwTabsContent: typeof UwTabsContent;
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <TabsRoot
+  <tabs-root
     v-bind="$attrs"
     :modelValue="modelValue"
     :defaultValue="defaultValue"
@@ -8,22 +8,51 @@
     :activationMode="activationMode"
     @update:modelValue="$emit('update:modelValue', $event)"
   >
-    <slot />
-  </TabsRoot>
+    <tabs-list :class="styles.tabs.list">
+      <template v-for="value in tabs" :key="value">
+        <tabs-trigger :value="value" :class="styles.tabs.trigger">
+          <slot :name="`trigger.${value}`"></slot>
+        </tabs-trigger>
+      </template>
+
+      <template v-for="value in tabs" :key="value">
+        <tabs-content :value="value" :class="styles.tabs.content">
+          <slot :name="`content.${value}`"></slot>
+        </tabs-content>
+      </template>
+    </tabs-list>
+  </tabs-root>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, h } from "vue";
-import { defineCustomElement } from "vue";
-import { TabsRoot } from "radix-vue";
-import type { TabsRootProps } from "radix-vue";
+// --- external
+import { defineComponent, toRefs } from "vue";
 
-const UwTabs = defineComponent({
+// ---components
+import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "radix-vue";
+
+// --- internal
+import { useStyles } from "../../utils";
+import config from "./tabs.config";
+
+// --- types
+import type { PropType } from "vue";
+import type { TabsRootProps } from "radix-vue";
+import type { TabsConfig } from ".";
+// ---------
+export default defineComponent({
   name: "UwTabs",
   components: {
     TabsRoot,
+    TabsList,
+    TabsTrigger,
+    TabsContent,
   },
   props: {
+    tabs: {
+      type: Array,
+      required: true,
+    },
     modelValue: {
       type: [String, Number] as PropType<TabsRootProps["modelValue"]>,
     },
@@ -35,16 +64,24 @@ const UwTabs = defineComponent({
     activationMode: {
       type: String as PropType<TabsRootProps["activationMode"]>,
     },
+    color: {
+      type: String as TabsConfig["color"],
+      default: "base",
+    },
+    variant: String as TabsConfig["variant"],
+    alignment: String as TabsConfig["alignment"],
+    width: String as TabsConfig["width"],
+    upwindConfig: {
+      type: Object,
+      default: null,
+    },
   },
   emits: ["update:modelValue"],
-  inheritAttrs: false,
-});
-
-export default defineCustomElement({
-  props: UwTabs.props,
-  emits: UwTabs.emits,
-  render: () => h(UwTabs),
-  styles: [],
-  shadowRoot: null,
+  setup(props) {
+    const styles = useStyles("tabs", toRefs(props), config, props.upwindConfig);
+    return { styles };
+  },
 });
 </script>
+
+<style src="@/assets/main.css" />
