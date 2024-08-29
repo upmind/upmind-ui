@@ -1,5 +1,5 @@
 <template>
-  <ComboboxItem
+  <combobox-item
     :value="label"
     @select="handleSelect"
     :class="styles.combobox.item"
@@ -17,7 +17,7 @@
       icon="check"
       aria-hidden="true"
     /> -->
-  </ComboboxItem>
+  </combobox-item>
 </template>
 
 <script lang="ts">
@@ -63,7 +63,7 @@ export default defineComponent({
 
     const styles = useStyles(
       ["combobox", "combobox.icons"],
-      toRefs({ color: color }),
+      color,
       config,
       props.upwindConfig
     );
