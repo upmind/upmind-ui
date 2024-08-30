@@ -61,7 +61,7 @@ const meta: Meta<typeof UwTabs> = {
     variant: "flat",
     color: "base",
     alignment: "evenly",
-    width: "full",
+    width: "auto",
   },
 };
 
@@ -82,25 +82,22 @@ export const Base: Story = {
       };
     },
     template: `
-      <div class="max-w-md">
-        <uw-tabs default-value="tab1" class="w-full" .tabs="['tab1','tab2','tab3']">
-          <span slot="trigger.tab1">In ipsum deserunt</span>
-          <div slot="content.tab1" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
-            <p>Incididunt non ullamco nisi quis amet adipisicing commodo ex ea anim. Do proident ipsum aute ut veniam amet nisi Lorem quis incididunt non irure. Nisi ex ullamco eu quis. Fugiat eiusmod excepteur tempor id esse ex minim dolor do voluptate voluptate occaecat sit. Lorem nisi anim officia velit ad cillum nostrud est. Fugiat commodo Lorem officia commodo culpa ut consectetur sit qui laborum culpa est sit exercitation.</p>
-          </div>
+      <uw-tabs default-value="tab1".tabs="['tab1','tab2','tab3']" :color="args.color" :variant="args.variant" :width="args.width" :alignment="args.alignment">
+        <span slot="trigger.tab1">In ipsum deserunt</span>
+        <div slot="content.tab1" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
+          <p>Incididunt non ullamco nisi quis amet adipisicing commodo ex ea anim. Do proident ipsum aute ut veniam amet nisi Lorem quis incididunt non irure. Nisi ex ullamco eu quis. Fugiat eiusmod excepteur tempor id esse ex minim dolor do voluptate voluptate occaecat sit. Lorem nisi anim officia velit ad cillum nostrud est. Fugiat commodo Lorem officia commodo culpa ut consectetur sit qui laborum culpa est sit exercitation.</p>
+        </div>
 
-          <span slot="trigger.tab2">Id quis ad non</span>
-          <div slot="content.tab2" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
-          <p>Lorem do ea non ea cillum dolor eiusmod. Voluptate quis magna dolore eu non cillum ullamco incididunt exercitation dolor. Aliquip incididunt aliqua commodo ullamco amet.</p>
-          </div>
+        <span slot="trigger.tab2">Id quis ad non</span>
+        <div slot="content.tab2" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
+        <p>Lorem do ea non ea cillum dolor eiusmod. Voluptate quis magna dolore eu non cillum ullamco incididunt exercitation dolor. Aliquip incididunt aliqua commodo ullamco amet.</p>
+        </div>
 
-          <span slot="trigger.tab3">Pariatur consequat</span>
-           <div slot="content.tab3" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
-            <p>Ullamco amet cillum esse sint minim ea. Veniam dolore proident veniam consequat est sint dolor eu ex ullamco esse dolore. Deserunt enim incididunt labore voluptate.</p>
-          </div>
-
-         </uw-tabs>
-      </div>
+        <span slot="trigger.tab3">Pariatur consequat</span>
+          <div slot="content.tab3" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
+          <p>Ullamco amet cillum esse sint minim ea. Veniam dolore proident veniam consequat est sint dolor eu ex ullamco esse dolore. Deserunt enim incididunt labore voluptate.</p>
+        </div>
+      </uw-tabs>
     `,
   }),
 };
@@ -125,14 +122,20 @@ export const Colors: Story = {
         :key="color"
         class="my-12"
       >
-        <uw-tabs :default-value="color + '2'">
-          <uw-tabs-list v-bind="args" :color="color">
-            <uw-tabs-trigger v-bind="args" :color="color" v-for="(tab, index) in 5" :key="color + index" :value="color + index" class="capitalize">
-              {{ color }} {{ index + 1 }}
-            </uw-tabs-trigger>
-          </uw-tabs-list>
+        <uw-tabs default-value="tab1" .tabs="['tab1','tab2','tab3']" :color="color" :variant="args.variant" :width="args.width" :alignment="args.alignment">
+          <span slot="trigger.tab1">In ipsum deserunt</span>
+          <span slot="trigger.tab2">Id quis ad non</span>
+          <span slot="trigger.tab3">Pariatur consequat</span>
         </uw-tabs>
       </div>
     `,
   }),
 };
+
+// <uw-tabs :default-value="color + '2'">
+// <uw-tabs-list v-bind="args" :color="color">
+//   <uw-tabs-trigger v-bind="args" :color="color" v-for="(tab, index) in 5" :key="color + index" :value="color + index" class="capitalize">
+//     {{ color }} {{ index + 1 }}
+//   </uw-tabs-trigger>
+// </uw-tabs-list>
+// </uw-tabs>

@@ -7,9 +7,14 @@
     :activationMode="activationMode"
     @update:modelValue="$emit('update:modelValue', $event)"
   >
-    <tabs-list :class="styles.tabs.list">
+    <tabs-list :class="styles.tabs.list" :color="color" :variant="variant">
       <template v-for="value in tabs" :key="value">
-        <tabs-trigger :value="value" :class="styles.tabs.trigger">
+        <tabs-trigger
+          :value="value"
+          :class="styles.tabs.trigger"
+          :color="color"
+          :variant="variant"
+        >
           <slot :name="`trigger.${value}`"></slot>
         </tabs-trigger>
       </template>
@@ -65,10 +70,7 @@ export default defineComponent({
     activationMode: {
       type: String as PropType<TabsRootProps["activationMode"]>,
     },
-    color: {
-      type: String as TabsConfig["color"],
-      default: "base",
-    },
+    color: { type: String as TabsConfig["color"] },
     variant: String as TabsConfig["variant"],
     alignment: String as TabsConfig["alignment"],
     width: String as TabsConfig["width"],
