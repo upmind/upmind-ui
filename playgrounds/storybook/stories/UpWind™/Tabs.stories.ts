@@ -14,7 +14,7 @@ import { keys } from "lodash-es";
 // --- types
 enum variants {
   flat = "Flat",
-  outlined = "Outlined",
+  outline = "Outline",
   tonal = "Tonal",
 }
 

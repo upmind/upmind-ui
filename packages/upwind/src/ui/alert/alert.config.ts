@@ -6,7 +6,7 @@ export const alertConfig = cva(
     // Alert props doesn't see that the variants exist without these
     variants: {
       variant: {
-        outlined: "",
+        outline: "",
         solid: "",
       },
       color: {
@@ -24,52 +24,52 @@ export const alertConfig = cva(
     },
     compoundVariants: [
       {
-        variant: "outlined",
+        variant: "outline",
         color: "base",
         class: "text-base-foreground bg-base-background border",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "primary",
         class: "bg-primary-50 border-primary text-primary",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "secondary",
         class: "bg-secondary-50 border-secondary text-secondary",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "accent",
         class: "bg-accent-50 test border-accent text-accent",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "promotion",
         class: "text-promotion bg-promotion-50 border-promotion",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "destructive",
         class: "bg-destructive-50 border-destructive text-destructive",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "success",
         class: "text-success bg-success-50 border-success",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "info",
         class: "text-info bg-info-50 border-info",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "error",
         class: "text-error bg-error-50 border-error",
       },
       {
-        variant: "outlined",
+        variant: "outline",
         color: "warning",
         class: "text-warning bg-warning-50 border-warning",
       },
@@ -125,7 +125,7 @@ export const alertConfig = cva(
       },
     ],
     defaultVariants: {
-      variant: "outlined",
+      variant: "outline",
       color: "base",
     },
   }

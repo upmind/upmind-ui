@@ -12,7 +12,7 @@ import { keys, isFunction } from "lodash-es";
 
 // --- types
 enum variants {
-  outlined = "Outlined",
+  outline = "Outline",
   solid = "Solid",
 }
 
@@ -31,7 +31,7 @@ const meta: Meta<typeof UwAlert> = {
     title: "Alert",
     description:
       "This is an example alert. Use the controls to change the apperance.",
-    variant: "outlined",
+    variant: "outline",
   },
   render: args => ({
     setup() {
