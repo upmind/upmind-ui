@@ -1,5 +1,5 @@
 <template>
-  <popover-root v-model:open="open" :default-open="false">
+  <popover-root v-model:open="open">
     <popover-trigger>
       <uw-button
         variant="outline"
