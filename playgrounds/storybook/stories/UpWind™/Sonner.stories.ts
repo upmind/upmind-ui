@@ -10,22 +10,9 @@ useCustomElement(UwButton);
 import { useSystemArgTypes } from "../../utils";
 import { keys } from "lodash-es";
 
-// --- types
-enum variants {
-  outline = "Outline",
-  solid = "Solid",
-}
-
 const meta: Meta<typeof UwSonner> = {
   component: UwSonner,
   argTypes: {
-    variant: {
-      options: keys(variants),
-      control: {
-        type: "radio",
-        labels: variants,
-      },
-    },
     title: {
       control: "text",
       description: "The title to display in the toast",
