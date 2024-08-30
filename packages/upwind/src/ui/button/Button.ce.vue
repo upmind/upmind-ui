@@ -1,6 +1,5 @@
 <template>
   <!-- <link rel="preload" href="/styles.css" as="style" /> -->
-
   <primitive
     :as="as"
     :as-child="asChild"
