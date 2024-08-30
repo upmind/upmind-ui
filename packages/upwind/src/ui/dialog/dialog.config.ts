@@ -35,7 +35,7 @@ export default {
     content: dialogConfig,
     header: cva("flex flex-col gap-y-2 text-center sm:text-left"),
     title: cva("text-lg font-semibold leading-none tracking-tight"),
-    description: cva("text-muted-foreground text-sm"),
+    description: cva("text-muted-foreground mt-2 text-sm"),
     footer: cva("flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-x-2"),
     close: cva("absolute right-3 top-3 rounded-md p-0.5 transition-colors"),
     closeIcon: cva("h-3 w-3"),
