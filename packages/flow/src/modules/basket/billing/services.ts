@@ -10,7 +10,6 @@ import {
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { omitBy, isNil } from "lodash-es";
 // --- types
 import type { BillingDetailsEvent, BillingDetailsContext } from "./types.d";
 
@@ -98,5 +97,14 @@ export default {
   // ---
   authSubscription: (context, event) =>
     useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
+  isAuthenticated: async ({ basket_id, client_id }) => {
+    const client = useSession().isAuthenticated();
+
+    return new Promise((resolve, reject) => {
+      if (client?.id !== client_id) {
+        reject({ error: "Unauthorized" });
+      }
+      resolve({ basket_id, client_id });
+    });
+  },
 };

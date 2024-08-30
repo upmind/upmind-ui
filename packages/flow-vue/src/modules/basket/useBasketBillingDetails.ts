@@ -58,7 +58,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
           "subscribing",
           "loading",
           "generating",
-          "claiming",
+          "shopping.account.claiming",
         ]),
       hasErrors: stateMatches(billing_details.value?.state, ["error"]),
       isProcessing: stateMatches(billing_details.value?.state, [
@@ -92,7 +92,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
       // if it has not then bail
       if (
         model?.address_id == selected?.address_id &&
-        model.company_id == selected?.company_id
+        model?.company_id == selected?.company_id
       ) {
         return;
       }

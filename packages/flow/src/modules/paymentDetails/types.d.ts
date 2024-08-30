@@ -38,6 +38,7 @@ export interface IPaymentDetail {
 export interface PaymentDetailsContext {
   // ---
   basket_id?: string;
+  client_id?: string;
   currency?: iCurrency;
   // ---
   gateways?: Array<IGateway>;
