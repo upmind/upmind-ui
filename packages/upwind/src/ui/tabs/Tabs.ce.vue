@@ -13,13 +13,13 @@
           <slot :name="`trigger.${value}`"></slot>
         </tabs-trigger>
       </template>
-
-      <template v-for="value in tabs" :key="value">
-        <tabs-content :value="value" :class="styles.tabs.content">
-          <slot :name="`content.${value}`"></slot>
-        </tabs-content>
-      </template>
     </tabs-list>
+
+    <template v-for="value in tabs" :key="value">
+      <tabs-content :value="value" :class="styles.tabs.content">
+        <slot :name="`content.${value}`"></slot>
+      </tabs-content>
+    </template>
   </tabs-root>
 </template>
 

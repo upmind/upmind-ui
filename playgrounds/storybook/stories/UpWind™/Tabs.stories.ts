@@ -83,19 +83,19 @@ export const Base: Story = {
     },
     template: `
       <div class="max-w-md">
-        <uw-tabs default-value="Tab 1" class="w-full" .tabs="['tab1','tab2','tab3']">
+        <uw-tabs default-value="tab1" class="w-full" .tabs="['tab1','tab2','tab3']">
           <span slot="trigger.tab1">In ipsum deserunt</span>
-          <div slot="content.tab1">
+          <div slot="content.tab1" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
             <p>Incididunt non ullamco nisi quis amet adipisicing commodo ex ea anim. Do proident ipsum aute ut veniam amet nisi Lorem quis incididunt non irure. Nisi ex ullamco eu quis. Fugiat eiusmod excepteur tempor id esse ex minim dolor do voluptate voluptate occaecat sit. Lorem nisi anim officia velit ad cillum nostrud est. Fugiat commodo Lorem officia commodo culpa ut consectetur sit qui laborum culpa est sit exercitation.</p>
           </div>
 
           <span slot="trigger.tab2">Id quis ad non</span>
-          <div slot="content.tab2">
+          <div slot="content.tab2" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
           <p>Lorem do ea non ea cillum dolor eiusmod. Voluptate quis magna dolore eu non cillum ullamco incididunt exercitation dolor. Aliquip incididunt aliqua commodo ullamco amet.</p>
           </div>
 
           <span slot="trigger.tab3">Pariatur consequat</span>
-           <div slot="content.tab3">
+           <div slot="content.tab3" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
             <p>Ullamco amet cillum esse sint minim ea. Veniam dolore proident veniam consequat est sint dolor eu ex ullamco esse dolore. Deserunt enim incididunt labore voluptate.</p>
           </div>
 
