@@ -14,12 +14,12 @@ export const alertConfig = cva(
         primary: "",
         secondary: "",
         accent: "",
-        success: "",
-        error: "",
-        warning: "",
-        info: "",
         promotion: "",
         destructive: "",
+        success: "",
+        info: "",
+        error: "",
+        warning: "",
       },
     },
     compoundVariants: [
@@ -45,8 +45,23 @@ export const alertConfig = cva(
       },
       {
         variant: "outlined",
+        color: "promotion",
+        class: "text-promotion bg-promotion-50 border-promotion",
+      },
+      {
+        variant: "outlined",
+        color: "destructive",
+        class: "bg-destructive-50 border-destructive text-destructive",
+      },
+      {
+        variant: "outlined",
         color: "success",
         class: "text-success bg-success-50 border-success",
+      },
+      {
+        variant: "outlined",
+        color: "info",
+        class: "text-info bg-info-50 border-info",
       },
       {
         variant: "outlined",
@@ -57,21 +72,6 @@ export const alertConfig = cva(
         variant: "outlined",
         color: "warning",
         class: "text-warning bg-warning-50 border-warning",
-      },
-      {
-        variant: "outlined",
-        color: "info",
-        class: "text-info bg-info-50 border-info",
-      },
-      {
-        variant: "outlined",
-        color: "promotion",
-        class: "text-promotion bg-promotion-50 border-promotion",
-      },
-      {
-        variant: "outlined",
-        color: "destructive",
-        class: "bg-destructive-50 border-destructive text-destructive",
       },
       {
         variant: "solid",
@@ -95,8 +95,23 @@ export const alertConfig = cva(
       },
       {
         variant: "solid",
+        color: "promotion",
+        class: "text-promotion-50 bg-promotion border-promotion",
+      },
+      {
+        variant: "solid",
+        color: "destructive",
+        class: "text-destructive-50 border-destructive bg-destructive",
+      },
+      {
+        variant: "solid",
         color: "success",
         class: "text-success-50 bg-success border-success",
+      },
+      {
+        variant: "solid",
+        color: "info",
+        class: "text-info-50 bg-info border-info",
       },
       {
         variant: "solid",
@@ -107,21 +122,6 @@ export const alertConfig = cva(
         variant: "solid",
         color: "warning",
         class: "text-warning-50 bg-warning border-warning",
-      },
-      {
-        variant: "solid",
-        color: "info",
-        class: "text-info-50 bg-info border-info",
-      },
-      {
-        variant: "solid",
-        color: "promotion",
-        class: "text-promotion-50 bg-promotion border-promotion",
-      },
-      {
-        variant: "solid",
-        color: "destructive",
-        class: "text-destructive-50 border-destructive bg-destructive",
       },
     ],
     defaultVariants: {
