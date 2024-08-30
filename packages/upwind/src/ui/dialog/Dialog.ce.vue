@@ -7,7 +7,7 @@
       <dialog-overlay :class="styles.dialog.overlay">
         <dialog-content
           :class="styles.dialog.content"
-          @pointer-down-outside="handlePointerDownOutside"
+          @pointerdown-outside="handlePointerDownOutside"
         >
           <div v-if="title || description">
             <dialog-title v-if="title" :class="styles.dialog.title">{{
@@ -118,11 +118,13 @@ export default defineComponent({
         detail: { originalEvent: PointerEvent };
       };
       const target = originalEvent.detail.originalEvent.target as HTMLElement;
+
+      // Check if the click is outside the dialog content
       if (
         originalEvent.detail.originalEvent.offsetX > target.clientWidth ||
         originalEvent.detail.originalEvent.offsetY > target.clientHeight
       ) {
-        event.preventDefault();
+        handleOpenChange(false);
       }
     };
 
