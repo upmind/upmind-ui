@@ -11,7 +11,6 @@ import { useSystemArgTypes } from "../../utils";
 import { keys } from "lodash-es";
 
 const meta: Meta<typeof UwSonner> = {
-  component: UwSonner,
   argTypes: {
     title: {
       control: "text",
@@ -64,7 +63,6 @@ type Story = StoryObj<typeof UwSonner>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwSonner, UwButton },
     setup() {
       const showToast = () => {
         toast(args.title, {
@@ -97,7 +95,6 @@ export const Colors: Story = {
     controls: { exclude: ["color"] },
   },
   render: args => ({
-    components: { UwSonner, UwButton },
     setup() {
       const colors = useSystemArgTypes.color;
 
