@@ -1,9 +1,9 @@
 <template>
-  <dialog-root @update:open="$emit('update:open', $event)">
+  <dialog-root :open="controlledOpen" @update:open="handleOpenChange">
     <dialog-trigger>
       <slot name="trigger" />
     </dialog-trigger>
-    <dialog-portal>
+    <dialog-portal :disabled="true">
       <dialog-overlay :class="styles.dialog.overlay">
         <dialog-content
           :class="styles.dialog.content"
@@ -24,12 +24,12 @@
           <slot name="content" />
           <slot />
 
-          <div v-if="$slots.footer" :class="styles.dialog.footer">
-            <slot name="footer" />
+          <div :class="styles.dialog.footer">
+            <slot name="footer"></slot>
 
-            <template>
-              <slot name="close">Not appearing</slot>
-            </template>
+            <dialog-close>
+              <slot name="close"></slot>
+            </dialog-close>
           </div>
         </dialog-content>
       </dialog-overlay>
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs } from "vue";
+import { defineComponent, toRefs, ref, watch } from "vue";
 import {
   DialogRoot,
   DialogClose,
@@ -80,9 +80,32 @@ export default defineComponent({
       default: "visible",
     },
     upwindConfig: { type: Object, default: () => ({}) },
+    open: {
+      type: Boolean,
+      default: undefined,
+    },
   },
   emits: ["update:open"],
-  setup(props) {
+  setup(props, { emit }) {
+    const internalOpen = ref(false);
+    const controlledOpen = ref(props.open ?? false);
+
+    watch(
+      () => props.open,
+      newValue => {
+        if (newValue !== undefined) {
+          controlledOpen.value = newValue;
+        }
+      }
+    );
+
+    const handleOpenChange = (isOpen: boolean) => {
+      if (props.open === undefined) {
+        controlledOpen.value = isOpen;
+      }
+      emit("update:open", isOpen);
+    };
+
     const styles = useStyles(
       "dialog",
       toRefs(props),
@@ -106,6 +129,8 @@ export default defineComponent({
     return {
       styles,
       handlePointerDownOutside,
+      controlledOpen,
+      handleOpenChange,
     };
   },
 });

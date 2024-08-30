@@ -136,45 +136,44 @@ export const Base: Story = {
     },
     template: `
       <uw-dialog v-bind="args">
-        <div slot="close">Close</div>
         <uw-button slot="trigger">Open Dialog</uw-button>
+        <uw-button slot="close">Close</uw-button>
       </uw-dialog>
     `,
   }),
 };
 
-// export const Hero: Story = {
-//   render: args => ({
-//     components: { UwDialog, UwDialogClose, UwButton },
-//     setup() {
-//       return {
-//         args,
-//       };
-//     },
-//     template: `
-//       <uw-dialog v-bind="args" overflow="hidden">
-//         <uw-button slot="trigger">Open Dialog</uw-button>
+export const Hero: Story = {
+  render: args => ({
+    setup() {
+      return {
+        args,
+      };
+    },
+    template: `
+      <uw-dialog v-bind="args" overflow="hidden">
+        <uw-button slot="trigger">Open Dialog</uw-button>
 
-//         <section slot="content" class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
-//           <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
-//             <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
-//               <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
-//               <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
-//               <uw-dialog-close>
-//                 <uw-button label="Get Started for free" appendIcon="arrow-right" :block="true"/>
-//               </uw-dialog-close>
-//             </div>
-//           </div>
-//         </section>
-//       </uw-dialog>
-//     `,
-//   }),
-//   args: {
-//     title: null,
-//     description: null,
-//     size: "4xl",
-//   },
-// };
+        <section slot="content" class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
+          <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
+            <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
+              <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
+              <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
+              <uw-dialog-close>
+                <uw-button label="Get Started for free" appendIcon="arrow-right" :block="true"/>
+              </uw-dialog-close>
+            </div>
+          </div>
+        </section>
+      </uw-dialog>
+    `,
+  }),
+  args: {
+    title: null,
+    description: null,
+    size: "4xl",
+  },
+};
 
 // export const Form: Story = {
 //   render: args => ({
@@ -275,42 +274,52 @@ export const Base: Story = {
 //   },
 // };
 
-// export const MockedAsyncAction: Story = {
-//   render: args => ({
-//     components: { UwDialog, UwDialogClose, UwButton },
-//     setup() {
-//       const open = ref(false);
-//       const loading = ref(false);
-//       let seconds = ref(3);
+export const MockedAsyncAction: Story = {
+  render: args => ({
+    setup() {
+      const open = ref(false);
+      const loading = ref(false);
+      let seconds = ref(3);
 
-//       const start = () => {
-//         loading.value = true;
-//         if (seconds.value === 1) {
-//           open.value = false;
-//           loading.value = false;
-//           seconds.value = 3;
-//         } else {
-//           seconds.value--;
-//           setTimeout(() => {
-//             start();
-//           }, 1000);
-//         }
-//       };
+      const start = () => {
+        loading.value = true;
+        if (seconds.value === 1) {
+          open.value = false;
+          loading.value = false;
+          seconds.value = 3;
+        } else {
+          seconds.value--;
+          setTimeout(() => {
+            start();
+          }, 1000);
+        }
+      };
 
-//       return {
-//         seconds,
-//         loading,
-//         open,
-//         args,
-//         start,
-//       };
-//     },
-//     template: `
-//       <uw-dialog v-model:open="open" title="Mocked asynchronous action" :description="seconds + ' seconds remaining'">
-//         <uw-button slot="trigger">Open Dialog</uw-button>
+      const handleOpenChange = (isOpen: boolean) => {
+        open.value = isOpen;
+      };
 
-//         <uw-button slot="footer" size="sm" @click="start" :loading="loading">Begin</uw-button>
-//       </uw-dialog>
-//     `,
-//   }),
-// };
+      return {
+        seconds,
+        loading,
+        open,
+        args,
+        start,
+        handleOpenChange,
+      };
+    },
+    template: `
+      <div>
+        <uw-button @click="open = true">Open Dialog</uw-button>
+        <uw-dialog
+          :open.prop="open"
+          @update:open="handleOpenChange"
+          title="Mocked asynchronous action"
+          :description="seconds + ' seconds remaining'"
+        >
+          <uw-button slot="footer" size="sm" @click="start" :loading="loading">Begin</uw-button>
+        </uw-dialog>
+      </div>
+    `,
+  }),
+};
