@@ -1,8 +1,6 @@
 <template>
   <div :class="styles.alert.root" role="alert">
-    <div :class="styles.alert.icon">
-      <slot name="prepend"></slot>
-    </div>
+    <!-- <upw-icon :icon="icon" :class="styles.alert.icon" /> -->
     <div :class="styles.alert.content">
       <h5 v-if="title" :class="styles.alert.title">
         {{ title }}
@@ -21,6 +19,9 @@ import { defineComponent, toRefs } from "vue";
 // --- internal
 import config from "./alert.config";
 
+// --- components
+import UpwIcon from "../../icon/Icon.vue";
+
 // --- utils
 import { useStyles } from "../../utils";
 
@@ -30,6 +31,11 @@ import type { AlertConfig } from "./types";
 
 export default defineComponent({
   name: "UwAlert",
+
+  // components: {
+  //   UpwIcon,
+  // },
+
   props: {
     variant: {
       type: String as PropType<AlertConfig["variant"]>,
