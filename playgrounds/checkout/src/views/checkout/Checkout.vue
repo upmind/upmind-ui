@@ -75,12 +75,12 @@
         </header>
 
         <div :class="styles.checkout.section.wrapper">
-          <div :class="styles.checkout.section.content">
+          <div :class="styles.checkout.section.content" v-auto-animate>
             <!-- account -->
             <upm-session
               id="account"
               ref="account"
-              v-if="!meta.hasAccount"
+              v-if="!meta.hasAccount && !meta.isClaiming"
               no-header
               v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
               :aria-disabled="meta.hasAccount"
@@ -88,37 +88,36 @@
             >
             </upm-session>
 
-            <!-- billing details -->
-            <upm-billing-details
-              v-if="meta.hasAccount"
-              :model-value="billingDetailsModel"
-              @update:modelValue="billingDetailsUpdate"
-            />
+            <template v-if="meta.hasAccount">
+              <!-- billing details -->
+              <upm-billing-details
+                :model-value="billingDetailsModel"
+                @update:modelValue="billingDetailsUpdate"
+              />
 
-            <!-- custom fields  -->
-            <upw-form
-              v-if="meta.hasAccount"
-              :additional-errors="fieldsErrors?.data"
-              :model-value="fieldsModel"
-              :processing="fieldsMeta.isProcessing"
-              :schema="fieldsSchema"
-              :uischema="fieldsUischema"
-              @reject="fieldsClear"
-              @resolve="fieldsUpdate"
-              @update:modelValue="fieldsUpdate"
-              no-actions
-              autosave
-            />
+              <!-- custom fields  -->
+              <upw-form
+                :additional-errors="fieldsErrors?.data"
+                :model-value="fieldsModel"
+                :processing="fieldsMeta.isProcessing"
+                :schema="fieldsSchema"
+                :uischema="fieldsUischema"
+                @reject="fieldsClear"
+                @resolve="fieldsUpdate"
+                @update:modelValue="fieldsUpdate"
+                no-actions
+                autosave
+              />
 
-            <!-- payment details -->
-            <upm-payment-details
-              id="payment"
-              ref="payment"
-              v-if="meta.hasAccount"
-              v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-              :aria-disabled="!meta.hasProducts || !meta.hasAccount"
-              :aria-active="activeSection === 'payment'"
-            />
+              <!-- payment details -->
+              <upm-payment-details
+                id="payment"
+                ref="payment"
+                v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+                :aria-disabled="!meta.hasProducts || !meta.hasAccount"
+                :aria-active="activeSection === 'payment'"
+              />
+            </template>
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
@@ -146,6 +145,7 @@
 // --- external
 import { defineComponent, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -170,7 +170,6 @@ import {
   useBasketFields,
   UpmSession,
   UpwForm,
-
   // ---
   UpwSteps,
 } from "@upmind/client-vue";
@@ -200,7 +199,10 @@ export default defineComponent({
     // ---
     UpwSteps,
   },
-  directives: { "intersection-observer": vIntersectionObserver },
+  directives: {
+    "intersection-observer": vIntersectionObserver,
+    autoAnimate: vAutoAnimate,
+  },
   setup() {
     const { meta: account, user } = useSession();
     const { state, meta, summary, addItem, invoice, isReady } = useBasket();

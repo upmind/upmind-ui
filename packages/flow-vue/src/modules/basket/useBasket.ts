@@ -136,6 +136,7 @@ export const useBasket = () => {
           "shopping.account.complete",
           "checkout",
         ]),
+        isClaiming: stateMatches(state, ["shopping.account.claiming"]),
 
         // ---
         isReadyForCheckout: stateMatches(state, ["checkout.available"]),

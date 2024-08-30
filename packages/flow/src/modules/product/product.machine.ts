@@ -122,7 +122,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "term"),
+                    entry: ({ error }) => unset(error, "term"),
                     invoke: {
                       src: "checkTerm",
                       onDone: [
@@ -174,7 +174,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "attributes"),
+                    entry: ({ error }) => unset(error, "attributes"),
                     invoke: {
                       src: "checkAttributes",
                       onDone: {
@@ -201,7 +201,7 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "options"),
+                    entry: ({ error }) => unset(error, "options"),
                     invoke: {
                       src: "checkOptions",
                       onDone: [
@@ -624,6 +624,32 @@ export default createMachine(
           return merge({}, error, err);
         },
       }),
+
+      // setProvisioningErrors: assign({
+      //   error: ({ error, errorExternal }, { data }) => {
+      //     const cleanedError = merge({}, error, errorExternal);
+
+      //     // lets parse/override our error message and data, specifically external errors.
+      //     // For any dirty/hydrated field, remove any external error to allow for normal validation
+      //     // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
+      //     const provision_fields = get(data, "provision_fields");
+
+      //     if (!cleanedError?.provision_fields?.data?.length)
+      //       return cleanedError;
+
+      //     forEach(provision_fields, (field, key) => {
+      //       if (!isNil(field)) {
+      //         remove(cleanedError.provision_fields.data, ["schemaPath", key]);
+      //       }
+      //     });
+
+      //     // housekeeping, if we have no cleanedErrors, remove the provision_fields key
+      //     if (isEmpty(cleanedError?.provision_fields?.data))
+      //       unset(cleanedError, "provision_fields");
+
+      //     return cleanedError;
+      //   },
+      // }),
 
       clearError: assign({
         error: {},

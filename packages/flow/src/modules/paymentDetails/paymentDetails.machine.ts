@@ -28,6 +28,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket_id: undefined,
+      client_id: undefined,
       currency: undefined,
       // ---
       fields: undefined,
@@ -57,6 +58,7 @@ export default createMachine(
         },
         on: {
           AUTHENTICATED: { target: "checking" },
+          REFRESH: { actions: "refreshBasket" },
         },
       },
 
@@ -308,6 +310,8 @@ export default createMachine(
 
       refreshBasket: assign({
         basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
+        client_id: (_context, { data: basket }: RefreshEvent) =>
+          basket?.client_id,
         currency: (_context, { data: basket }: RefreshEvent) =>
           basket?.currency,
         model: ({ model }, { data: basket }: RefreshEvent) => {
@@ -407,7 +411,18 @@ export default createMachine(
       isFree: ({ model }, _event) => !model?.amount,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
-      hasChanged: ({ currency }, { data }) => currency?.id != data?.currency_id,
+
+      hasChanged: ({ basket_id, currency, client_id, model }, { data }) => {
+        const basketChanged = basket_id != data?.id;
+        const currencyChanged = currency?.id != data?.currency_id;
+        const clientChanged = client_id != data?.client_id;
+        const amountChanged =
+          model.amount == (data?.unpaid_amount_converted || 0.0);
+
+        return (
+          basketChanged || currencyChanged || clientChanged || amountChanged
+        );
+      },
     },
 
     delays: {
