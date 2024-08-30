@@ -86,8 +86,10 @@
 import { defineComponent, toRefs, type PropType } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./sonner.config";
+
+// --- utils
+import { useStyles, mergeStyles } from "../../utils";
 
 // --- components
 import { Toaster as Sonner, type ToasterProps } from "vue-sonner";

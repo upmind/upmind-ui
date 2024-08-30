@@ -31,13 +31,15 @@ import { defineComponent, toRefs } from "vue";
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "radix-vue";
 
 // --- internal
-import { useStyles } from "../../utils";
 import config from "./tabs.config";
+
+// --- utils
+import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
 import type { TabsRootProps } from "radix-vue";
-import type { TabsConfig } from ".";
+import type { TabsConfig } from "./types";
 // ---------
 export default defineComponent({
   name: "UwTabs",
