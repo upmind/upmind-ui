@@ -171,7 +171,7 @@ const tabStyles = {
         variant: "flat",
         color: "base",
         alignment: "evenly",
-        width: "full",
+        width: "auto",
       },
     }
   ),
