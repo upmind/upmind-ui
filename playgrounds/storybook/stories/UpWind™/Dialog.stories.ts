@@ -146,22 +146,32 @@ export const Base: Story = {
 export const Hero: Story = {
   render: args => ({
     setup() {
+      const open = ref(false);
+
+      const handleOpenChange = (isOpen: boolean) => {
+        open.value = isOpen;
+      };
       return {
+        open,
+        handleOpenChange,
         args,
       };
     },
     template: `
-      <uw-dialog v-bind="args" overflow="hidden">
-        <uw-button slot="trigger">Open Dialog</uw-button>
-
+      <uw-button @click="open = true">Open Dialog</uw-button>
+      <uw-dialog
+        :open.prop="open"
+        @update:open="handleOpenChange"
+        v-bind="args"
+        overflow="hidden"
+      >
         <section slot="content" class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
           <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
             <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
               <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
               <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
-              <uw-dialog-close>
-                <uw-button label="Get Started for free" appendIcon="arrow-right" :block="true"/>
-              </uw-dialog-close>
+
+              <uw-button @click="handleOpenChange(false)" label="Get Started for free" appendIcon="arrow-right" :block="true"/>
             </div>
           </div>
         </section>
