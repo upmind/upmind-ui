@@ -9,7 +9,7 @@
           :class="styles.dialog.content"
           @pointer-down-outside="handlePointerDownOutside"
         >
-          <dialog-header v-if="title || description">
+          <div v-if="title || description">
             <dialog-title v-if="title" :class="styles.dialog.title">{{
               title
             }}</dialog-title>
@@ -19,19 +19,18 @@
             >
               {{ description }}
             </dialog-description>
-          </dialog-header>
+          </div>
 
           <slot name="content" />
           <slot />
 
-          <dialog-footer v-if="$slots.footer" :class="styles.dialog.footer">
+          <div v-if="$slots.footer" :class="styles.dialog.footer">
             <slot name="footer" />
-          </dialog-footer>
 
-          <dialog-close :class="styles.dialog.close">
-            <upw-icon icon="close" :class="styles.dialog.closeIcon" />
-            <span class="sr-only">Close</span>
-          </dialog-close>
+            <template>
+              <slot name="close">Not appearing</slot>
+            </template>
+          </div>
         </dialog-content>
       </dialog-overlay>
     </dialog-portal>
