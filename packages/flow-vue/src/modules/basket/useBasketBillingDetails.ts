@@ -53,18 +53,10 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
     meta: computed(() => ({
       isLoading:
         !billing_details.value?.state ||
-        stateMatches(billing_details.value?.state, ["loading"]) ||
-        stateMatches(getSnapshot(), [
-          "subscribing",
-          "loading",
-          "generating",
-          "shopping.account.claiming",
-        ]),
+        stateMatches(billing_details.value?.state, ["available"]),
+
       hasErrors: stateMatches(billing_details.value?.state, ["error"]),
-      isProcessing: stateMatches(billing_details.value?.state, [
-        "checking",
-        "processing",
-      ]),
+      isProcessing: stateMatches(billing_details.value?.state, ["processing"]),
       isValid: stateMatches(billing_details.value?.state, ["valid"]),
       isDirty: contextMatches(billing_details.value?.state, ["dirty"]),
       isComplete:
@@ -97,7 +89,11 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
         return;
       }
       // if it has then send the new model to the machine
-      billing_details.value?.send({ type: "SET", data: model, update: true });
+      billing_details.value?.send({
+        type: "SET",
+        data: model,
+        update: true,
+      });
     },
   };
 };

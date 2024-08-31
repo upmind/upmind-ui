@@ -44,7 +44,7 @@ export default createMachine(
           src: "authSubscription",
         },
         on: {
-          SESSION: { target: "checking" },
+          AUTHENTICATED: { target: "checking" },
         },
       },
 
@@ -188,7 +188,6 @@ export default createMachine(
       },
     },
     on: {
-      AUTHENTICATED: { target: "checking", actions: ["clearError"] },
       UNAUTHENTICATED: {
         target: "subscribing",
         actions: ["clearError", "clearModel", "clearSchemas"],
