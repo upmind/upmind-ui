@@ -343,9 +343,12 @@ async function checkProvisioning(
   model.provision_fields ??= {};
   const { validate } = useValidation();
   const errors = validate(lookups.provision_fields, model.provision_fields);
+
   return new Promise((resolve, reject) => {
     if (errors.length) {
-      reject({
+      // TODO: reject with the errors , but need to allow skipping validation for sync
+      // for now we will resolve with errors
+      resolve({
         provision_fields: model.provision_fields,
         error: { ...error, provision_fields: errors },
       });
