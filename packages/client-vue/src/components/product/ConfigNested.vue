@@ -208,7 +208,7 @@ export default defineComponent({
     },
 
     safeValue(item, value) {
-      const shouldBeArray = item.multiple || this.items?.length == 1;
+      const shouldBeArray = item.multiple || item.values?.length == 1;
       const safeArray = !isArray(value) ? [value] : value;
       const safeString = isArray(value) ? first(value) : value;
       const safeValue = shouldBeArray ? safeArray : safeString;
