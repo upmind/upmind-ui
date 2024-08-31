@@ -44,6 +44,7 @@ async function update(
   _event: BillingDetailsEvent
 ) {
   const { put, useUrl } = useApi();
+
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basket_id}`),
@@ -70,13 +71,12 @@ async function validate(
   { schema, model }: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  // ---
-
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
+
     if (errors?.length) {
       reject({ error: errors });
     } else {
@@ -93,16 +93,4 @@ export default {
   parse,
   validate,
   update,
-  // ---
-  authSubscription: (context, event) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: async ({ basket_id, client_id }) => {
-    debugger;
-    return useSession()
-      .isAuthenticated()
-      .then(client => {
-        debugger;
-        return client;
-      });
-  },
 };

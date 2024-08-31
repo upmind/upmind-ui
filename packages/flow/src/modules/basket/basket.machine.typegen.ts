@@ -85,7 +85,11 @@ export interface Typegen0 {
       | "refresh";
   };
   eventsCausingActions: {
-    abortController: "AUTHENTICATED" | "REFRESH" | "SESSION";
+    abortController:
+      | "AUTHENTICATED"
+      | "REFRESH"
+      | "SESSION"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
     addItem: "ADD";
     checkoutActors: "CHECKOUT";
     clearActors: "UNAUTHENTICATED";
@@ -166,7 +170,9 @@ export interface Typegen0 {
       | "done.invoke.generating:invocation[0]";
     load: "AUTHENTICATED" | "SESSION";
     payment: "done.invoke.converting:invocation[0]";
-    refresh: "REFRESH";
+    refresh:
+      | "REFRESH"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
   };
   matchesStates:
     | "checkout"
