@@ -245,7 +245,7 @@ export default defineComponent({
     "meta.hasErrors": {
       immediate: true,
       handler(value) {
-        this.toggle = (value && !this.meta.isNew) || this.toggle;
+        this.toggle = value && !this.meta.isNew;
       },
     },
   },

@@ -45,13 +45,17 @@ export default createMachine(
         },
         on: {
           AUTHENTICATED: { target: "checking" },
+          REFRESH: {
+            actions: ["refreshContext"],
+            cond: "hasChanged",
+          },
         },
       },
 
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: { target: "available" },
+          onDone: { target: "available", actions: ["setClient"] },
           onError: { target: "unavailable" },
         },
       },
@@ -194,17 +198,19 @@ export default createMachine(
       },
       REFRESH: {
         target: "available.checking",
-        actions: ["refreshBasket", "setSchemas"],
+        actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
   {
     actions: {
-      refreshBasket: assign(
+      refreshContext: assign(
         (
           _context: BillingDetailsContext,
           { data: basket }: BillingDetailsEvent
         ) => {
+          debugger;
           return {
             basket_id: basket?.id,
             client_id: basket?.client_id,
@@ -215,6 +221,13 @@ export default createMachine(
           };
         }
       ),
+
+      setClient: assign({
+        client_id: (_context, { data }) => {
+          debugger;
+          return data?.id;
+        },
+      }),
 
       setParsed: assign({
         model: (_context, { data }) => data.model,
@@ -256,6 +269,7 @@ export default createMachine(
       setAutoUpdate: assign({
         autoupdate: (_context, { update }) => !!update,
       }),
+
       clearAutoUpdate: assign({
         autoupdate: false,
       }),
@@ -304,8 +318,10 @@ export default createMachine(
       hasChanged: ({ client_id, basket_id }, { data }) => {
         return basket_id !== data?.id || client_id !== data?.client_id;
       },
-      shouldUpdate: ({ autoupdate, basket_id, model }, _event) => {
-        return !!autoupdate && !!basket_id && !!model?.address_id;
+      shouldUpdate: ({ autoupdate, client_id, basket_id, model }, _event) => {
+        return (
+          !!autoupdate && !!basket_id && !!client_id && !!model?.address_id
+        );
       },
     },
 

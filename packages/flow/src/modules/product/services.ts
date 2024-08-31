@@ -387,6 +387,9 @@ const calculateSummary = (
     isNil
   );
   // ---
+
+  if (!currency_id || !values?.length) return Promise.reject();
+
   return post({
     url: useUrl("cart/calculate", {}),
     init: { signal: controller?.signal },
