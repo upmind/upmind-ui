@@ -5,7 +5,7 @@ import { inspect } from "@xstate/inspect";
 
 // --------------------------------------------------------
 
-const debugging = import.meta.env.DEV;
+const debugging = import.meta.env.DEV || true;
 
 // --------------------------------------------------------
 

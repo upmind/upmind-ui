@@ -87,8 +87,9 @@ export interface Typegen0 {
       | "done.invoke.loading:invocation[0]";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
-    refreshBasket: "REFRESH";
+    refreshContext: "REFRESH";
     setAutoUpdate: "SET";
+    setClient: "done.invoke.billingDetailsManager.checking:invocation[0]";
     setDirty: "CLEAR" | "SET";
     setError:
       | "error.platform.billingDetailsManager.available.checking.validating:invocation[0]"
@@ -110,6 +111,7 @@ export interface Typegen0 {
   };
   eventsCausingGuards: {
     hasBasket: "UPDATE";
+    hasChanged: "REFRESH";
     isDirty: "done.invoke.billingDetailsManager.available.checking.validating:invocation[0]";
     shouldUpdate: "";
   };

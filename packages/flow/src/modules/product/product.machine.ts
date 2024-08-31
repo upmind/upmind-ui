@@ -431,7 +431,9 @@ export default createMachine(
             client_id,
             currency_id,
             promotions,
-            baseModel: cloneDeep(model),
+            baseModel: basket_product
+              ? parseBasketProduct(basket_product)
+              : cloneDeep(model),
             model: basket_product ? parseBasketProduct(basket_product) : model,
             errorExternal: error,
             prices: undefined, // they need to be recalculated

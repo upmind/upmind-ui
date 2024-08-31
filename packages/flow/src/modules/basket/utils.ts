@@ -57,7 +57,7 @@ export function spawnBillingDetails(basket: IBasket) {
   return spawn(
     billingDetailsMachine.withContext({
       basket_id: basket?.id,
-      account_id: basket?.account_id,
+      client_id: basket?.client_id,
       model: {
         address_id: basket?.address_id,
         company_id: basket?.company_id,
