@@ -193,7 +193,7 @@ export default createMachine(
                 invoke: {
                   src: "load",
                   onDone: {
-                    target: "complete",
+                    target: ["complete", "#refreshing.processing"],
                     actions: ["setError", "updateBasket", "spawnItems"],
                   },
                   onError: {

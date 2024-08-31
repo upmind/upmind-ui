@@ -10,6 +10,7 @@ const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { set } from "lodash-es";
 
 // --- types
 import type { BillingDetailsContext, BillingDetailsEvent } from "./types.d";
@@ -36,31 +37,22 @@ export default createMachine(
       autoupdate: false,
     } as BillingDetailsContext,
     states: {
-      // Subscribe to changes in auth and listen for a valid Authenticated client,
-      // we will also wait for a session before we can continue
+      // Subscribe to basket changes and listen for a valid basket client,
       subscribing: {
-        invoke: {
-          id: "authCallback",
-          src: "authSubscription",
-        },
+        always: { target: "available", cond: "hasClient" },
         on: {
-          AUTHENTICATED: { target: "checking" },
           REFRESH: {
             actions: ["refreshContext"],
             cond: "hasChanged",
           },
+          SET: {
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
+          },
+          CLEAR: {
+            actions: ["clearModel", "clearDirty"],
+          },
         },
       },
-
-      checking: {
-        invoke: {
-          src: "isAuthenticated",
-          onDone: { target: "available", actions: ["setClient"] },
-          onError: { target: "unavailable" },
-        },
-      },
-
-      unavailable: {},
 
       available: {
         initial: "loading",
@@ -139,7 +131,7 @@ export default createMachine(
             invoke: {
               src: "update",
               onDone: {
-                target: "processed",
+                target: "#complete",
                 actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
@@ -148,53 +140,24 @@ export default createMachine(
               },
             },
           },
-
-          processed: {
-            id: "processed",
-            entry: sendParent((_context, { data }) => ({
-              type: "REFRESH",
-              data,
-            })),
-            after: {
-              wait: {
-                target: "#complete",
-              },
-            },
-          },
-        },
-        on: {
-          CLEAR: {
-            target: "available.checking",
-            actions: ["clearModel", "setDirty"],
-          },
-          SET: {
-            target: "available.checking",
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
-          },
         },
       },
 
       // ---
       error: { id: "error" },
+
       complete: {
         id: "complete",
-        on: {
-          CLEAR: {
-            target: "available.checking",
-            actions: ["clearModel", "setDirty"],
-          },
-          SET: {
-            target: "available.checking",
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
-          },
-        },
-        // type: "final"
       },
     },
     on: {
-      UNAUTHENTICATED: {
-        target: "subscribing",
-        actions: ["clearError", "clearModel", "clearSchemas"],
+      CLEAR: {
+        target: "available.checking",
+        actions: ["clearModel", "setDirty"],
+      },
+      SET: {
+        target: "available.checking",
+        actions: ["setModel", "setDirty", "setAutoUpdate"],
       },
       REFRESH: {
         target: "available.checking",
@@ -206,28 +169,13 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (
-          _context: BillingDetailsContext,
-          { data: basket }: BillingDetailsEvent
-        ) => {
-          debugger;
+        (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => {
           return {
-            basket_id: basket?.id,
-            client_id: basket?.client_id,
-            model: {
-              address_id: basket?.address_id,
-              company_id: basket?.company_id,
-            },
+            basket_id: data?.id,
+            client_id: data?.client_id,
           };
         }
       ),
-
-      setClient: assign({
-        client_id: (_context, { data }) => {
-          debugger;
-          return data?.id;
-        },
-      }),
 
       setParsed: assign({
         model: (_context, { data }) => data.model,
@@ -242,11 +190,6 @@ export default createMachine(
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
         model: ({ schema, model }) => useModelParser(schema, model),
-      }),
-
-      clearSchemas: assign({
-        schema: undefined,
-        uischema: undefined,
       }),
 
       setModel: assign({
@@ -315,6 +258,7 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasClient: ({ client_id }, _event) => !!client_id,
       hasChanged: ({ client_id, basket_id }, { data }) => {
         return basket_id !== data?.id || client_id !== data?.client_id;
       },
