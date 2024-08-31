@@ -286,7 +286,7 @@ async function checkSubproducts(
             product
           );
 
-          value.billing_cycle_months = activePrice?.billing_cycle_months;
+          value.billing_cycle_months = activePrice?.billing_cycle_months || 0;
           // set price values, taking into account the quantity and unit quantity
           // NB: we NEVER add, we always push into an array for the backend to handle
           times(value.unit_quantity * model.quantity, () => {
