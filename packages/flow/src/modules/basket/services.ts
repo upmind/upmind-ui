@@ -45,7 +45,7 @@ export enum InvoiceStatus {
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function load({ controller }?: BasketContext, _event?: BasketEvent) {
+async function load({ controller }: BasketContext, _event: BasketEvent) {
   const { get, patch, useUrl } = useApi();
 
   // check if we are logged in as a client
@@ -181,6 +181,7 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   })
     .then(({ data }) => data)
     .catch(({ error }) => error);
+
   provisioningPromises.push(checkPromise);
 
   // then get each products provisioning fields

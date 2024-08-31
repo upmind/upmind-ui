@@ -78,7 +78,6 @@ export interface Typegen0 {
     clearDirty: "done.invoke.processing:invocation[0]";
     clearError:
       | ""
-      | "AUTHENTICATED"
       | "CLEAR"
       | "REFRESH"
       | "SET"
@@ -115,12 +114,8 @@ export interface Typegen0 {
     shouldUpdate: "";
   };
   eventsCausingServices: {
-    authSubscription:
-      | "AUTHENTICATED"
-      | "REFRESH"
-      | "UNAUTHENTICATED"
-      | "xstate.init";
-    isAuthenticated: "AUTHENTICATED" | "SESSION";
+    authSubscription: "REFRESH" | "UNAUTHENTICATED" | "xstate.init";
+    isAuthenticated: "AUTHENTICATED";
     load:
       | "CLEAR"
       | "REFRESH"

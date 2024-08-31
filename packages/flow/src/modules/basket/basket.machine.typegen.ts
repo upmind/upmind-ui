@@ -85,14 +85,13 @@ export interface Typegen0 {
       | "refresh";
   };
   eventsCausingActions: {
+    abortController: "AUTHENTICATED" | "REFRESH" | "SESSION";
     addItem: "ADD";
-    cancelController: "AUTHENTICATED" | "REFRESH" | "SESSION";
     checkoutActors: "CHECKOUT";
     clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
     clearError: "SESSION";
     clearItems: "CLEAR" | "UNAUTHENTICATED";
-    newController: "AUTHENTICATED" | "REFRESH" | "SESSION";
     refreshActors:
       | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
@@ -140,7 +139,6 @@ export interface Typegen0 {
     hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
     hasNoItems: "";
-    isNotCancelled: "error.platform.basketManager.shopping.refreshing.processing:invocation[0]";
     isNotLoading: "";
     itemsConfigured: "";
     needsPayment: "done.invoke.converting:invocation[0]";

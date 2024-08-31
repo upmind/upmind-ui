@@ -93,7 +93,7 @@ export default createMachine(
         initial: "basket",
         states: {
           basket: {
-            entry: ["clearError", "cancelController", "newController"],
+            entry: ["clearError", "abortController"],
             invoke: {
               src: "load",
               onDone: {
@@ -153,11 +153,11 @@ export default createMachine(
             initial: "complete",
             states: {
               processing: {
-                entry: ["cancelController", "newController"],
+                entry: ["abortController"],
                 invoke: {
                   src: "refresh",
                   onDone: {
-                    target: ["complete", "#shopping.items"],
+                    target: "complete",
                     actions: [
                       "setError",
                       "updateBasket",
@@ -166,9 +166,8 @@ export default createMachine(
                     ],
                   },
                   onError: {
-                    target: "#error",
+                    target: "complete",
                     actions: ["setError"],
-                    cond: "isNotCancelled",
                   },
                 },
               },
@@ -190,7 +189,7 @@ export default createMachine(
               },
               configuring: {},
               claiming: {
-                entry: ["cancelController", "newController"],
+                entry: ["abortController"],
                 invoke: {
                   src: "load",
                   onDone: {
@@ -668,17 +667,11 @@ export default createMachine(
 
       // ---
 
-      cancelController: assign({
+      abortController: assign({
         controller: ({ controller }) => {
           if (controller?.signal && !controller.signal?.aborted) {
             controller?.abort();
           }
-          return undefined;
-        },
-      }),
-
-      newController: assign({
-        controller: () => {
           return new AbortController();
         },
       }),
