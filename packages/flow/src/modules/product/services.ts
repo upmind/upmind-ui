@@ -342,7 +342,7 @@ async function checkProvisioning(
 
   model.provision_fields ??= {};
   const { validate } = useValidation();
-  const errors = validate(model.provision_fields, lookups.provision_fields);
+  const errors = validate(lookups.provision_fields, model.provision_fields);
   return new Promise((resolve, reject) => {
     if (errors.length) {
       reject({
