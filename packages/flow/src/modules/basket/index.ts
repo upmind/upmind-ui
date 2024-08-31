@@ -139,7 +139,9 @@ export const useBasket = () => {
         .then(actor => {
           return waitFor(actor, actorState =>
             actorState.matches("available.configured")
-          ).then(() => actor);
+          )
+            .then(() => actor)
+            .catch(() => actor); // even though the actor may not be configured we still want to return it
         });
     },
 
