@@ -9,6 +9,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.sessionGuest.login.verifying:invocation[0]": {
+      type: "done.invoke.sessionGuest.login.verifying:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "done.invoke.sessionGuest.register.checking:invocation[0]": {
       type: "done.invoke.sessionGuest.register.checking:invocation[0]";
       data: unknown;
@@ -113,7 +118,9 @@ export interface Typegen0 {
     setLoginSchemas: "";
     setModel: "AUTHENTICATE" | "REGISTER";
     setRegisterSchemas: "done.invoke.sessionGuest.register.loading:invocation[0]";
-    trackLogin: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
+    trackLogin:
+      | "done.invoke.sessionGuest.login.authenticating:invocation[0]"
+      | "done.invoke.sessionGuest.login.verifying:invocation[0]";
     trackRegister: "done.invoke.sessionGuest.register.registering:invocation[0]";
   };
   eventsCausingDelays: {};

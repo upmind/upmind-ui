@@ -1,7 +1,7 @@
 // --- internal
 import { useApi } from "../../api";
 import { useSystemRecaptcha } from "../../system/recaptcha";
-import { GrantTypes } from "../types.d";
+import { GrantTypes, TwofaProviders } from "../types.d";
 
 // --- utils
 import { useCookies, useTracking } from "../../../utils";
@@ -48,7 +48,7 @@ async function authenticate({ model }: GuestContext) {
     },
   }).then(data => {
     // we record the history of the token to be able to referejce the originating guest token
-    persistTokenToStorage(data, true);
+    if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
     return data;
   });
 }
@@ -59,10 +59,13 @@ async function verify2fa({ token }: GuestContext, { data }: any) {
     url: useUrl("access_token", {}, { context: "oauth" }),
     withAccessToken: token.access_token,
     data: {
-      twofa_provider: "google",
-      twofa_code: data,
       grant_type: GrantTypes.TWOFA,
+      twofa_provider: TwofaProviders.GOOGLE,
+      twofa_code: data,
     },
+  }).then(data => {
+    persistTokenToStorage(data);
+    return data;
   });
 }
 
