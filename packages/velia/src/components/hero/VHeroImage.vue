@@ -1,5 +1,5 @@
 <template>
-  <div :style="backgroundImage" class="pb-16 md:pb-64">
+  <div :style="backgroundImage" class="bg-cover bg-center pb-16 md:pb-64">
     <slot />
   </div>
 </template>
@@ -15,8 +15,6 @@ export default defineComponent({
   setup() {
     const backgroundImage = ref({
       backgroundImage: `linear-gradient(rgba(20, 46, 77, 0.75), rgba(20, 46, 77, 1)), url(${coverImage})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
     });
 
     return {
