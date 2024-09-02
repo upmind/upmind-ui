@@ -1,8 +1,8 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
+import type { Meta } from "@storybook/vue3";
 
 // --- components
-import { VApp } from "@velia/velia";
+import { VApp, VHero } from "@velia/velia";
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof VApp> = {
@@ -10,13 +10,21 @@ const meta: Meta<typeof VApp> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof VApp>;
-
 export const Base = () => ({
-  components: { VApp },
+  components: { VApp, VHero },
   template: `
-    <v-app>
-      <div>Content</div>
-    </v-app>
+    <div class="-m-4">
+      <v-app>
+        <!-- Hero -->
+        <template #hero>
+          <v-hero />
+        </template>
+
+        <!-- Content -->
+        <div>
+          <div class="bg-white rounded-lg w-full h-96 border" />
+        </div>
+      </v-app>
+    </div>
   `,
 });
