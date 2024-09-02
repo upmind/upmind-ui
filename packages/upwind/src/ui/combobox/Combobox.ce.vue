@@ -114,13 +114,12 @@ import {
   ComboboxContent,
 } from "radix-vue";
 
-import ComboboxItem from "./ComboboxItem.vue";
-
 // --- internal
 import config from "./combobox.config";
 
 // --- components
 import { UwButton } from "../button";
+import ComboboxItem from "./ComboboxItem.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
