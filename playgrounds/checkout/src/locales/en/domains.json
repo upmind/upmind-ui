@@ -58,9 +58,9 @@
       },
       "transfer": {
         "label": "Transferable",
-        "instruction": "{ownership} Transfer it to us and we'll take care of the rest.{newline}Our {tld} renewal prices start from only {price} /yr.",
-        "ownership": "Own this domain?",
-        "action": "Transfer | Added"
+        "instruction": "{ownership} Transfer it to us {action}.{newline}Our {tld} renewal prices start from only {price} /yr.",
+        "ownership": "Do you own this domain?",
+        "action": "by clicking here | Added"
       }
     }
   }

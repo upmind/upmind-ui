@@ -188,9 +188,20 @@
                 <template #[`newline`]><br /></template>
 
                 <template #[`ownership`]>
-                  <strong :class="styles.domain.card.transfer.ownership">{{
+                  <span :class="styles.domain.card.transfer.ownership">{{
                     $t("domain.card.transfer.ownership")
-                  }}</strong>
+                  }}</span>
+                </template>
+
+                <template #[`action`]>
+                  <upw-button
+                    :class="styles.domain.card.transfer.action"
+                    :disabled="meta.isDisabled || isSelected(item.domain)"
+                    :label="$t('domain.card.transfer.action')"
+                    variant="link"
+                    @click.prevent="onUpdate(item.domain)"
+                    size="sm"
+                  />
                 </template>
 
                 <template #[`price`]>
@@ -202,7 +213,7 @@
                       ({{ item.price_formatted }})
                     </span>
 
-                    <strong :class="styles.domain.card.transfer.price">
+                    <span :class="styles.domain.card.transfer.price">
                       {{
                         item?.price_discounted
                           ? item.price_discounted_formatted
@@ -210,7 +221,7 @@
                             ? item.price_formatted
                             : $t("product.free")
                       }}
-                    </strong>
+                    </span>
                   </span>
                 </template>
 
@@ -244,7 +255,7 @@
                   />
 
                   <upw-button
-                    v-else
+                    v-else-if="isSelected(item.domain)"
                     :class="styles.domain.card.transfer.action"
                     :disabled="meta.isDisabled"
                     :label="

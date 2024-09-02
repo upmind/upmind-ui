@@ -27,7 +27,7 @@ export default {
 
       // ---
       footer: cva(
-        "text-base-700 m-0 flex w-full w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
+        "text-base-700 m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
       actions: cva("min-w-48 empty:hidden"),
       owned: {
@@ -68,14 +68,14 @@ export default {
       },
       transfer: {
         root: cva("m-0 items-end"),
-        ownership: cva("font-medium"),
+        ownership: cva("font-normal"),
         tld: cva("uppercase not-italic"),
         icon: cva(
           "bg-secondary text-secondary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
-        discount: cva("text-base-500 text-xs font-normal line-through"),
+        discount: cva("text-xs font-normal line-through"),
         action: cva(""),
       },
     },
