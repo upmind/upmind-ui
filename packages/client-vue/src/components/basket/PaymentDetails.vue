@@ -13,7 +13,7 @@
       no-actions
     />
 
-    <upm-payment-gateway v-if="gateway" :id="gateway?.id" />
+    <upm-payment-gateway v-if="gateway" :key="gateway?.id" :id="gateway?.id" />
   </section>
 </template>
 
