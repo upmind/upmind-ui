@@ -137,7 +137,7 @@ export default {
     loading: {
       // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
       root: cva(
-        "relative flex w-full flex-col flex-wrap flex-wrap items-start items-center justify-start justify-center gap-6 py-16"
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
       ),
       title: cva("m-0 text-center text-3xl font-light text-inherit"),
       text: cva(

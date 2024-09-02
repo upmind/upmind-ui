@@ -145,10 +145,10 @@ export interface Typegen0 {
     hasNoItems: "";
     isNotLoading: "";
     itemsConfigured: "";
-    needsPayment: "done.invoke.converting:invocation[0]";
-    paymentConfiguring: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";
+    paymentDetailsConfiguring: "";
     paymentDetailsValid: "";
+    paymentNeeded: "done.invoke.converting:invocation[0]";
     promotionsComplete: "";
     promotionsConfiguring: "";
     someConfiguring: "";

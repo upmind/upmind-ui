@@ -37,7 +37,7 @@
               <span :class="styles.domain.card.badges">
                 <span :class="styles.domain.card.text" v-if="item.is_owned">
                   <span :class="styles.domain.card.owned.icon">
-                    <upw-icon icon="lock" />
+                    <upw-icon icon="lock" size="full" />
                   </span>
                   {{ $t("domain.card.owned.label") }}
                 </span>
@@ -47,7 +47,7 @@
                   v-else-if="item.in_basket"
                 >
                   <span :class="styles.domain.card.basket.icon">
-                    <upw-icon icon="basket" />
+                    <upw-icon icon="basket" size="full" />
                   </span>
                   {{ $t("domain.card.basket.label") }}
                 </span>
@@ -57,14 +57,14 @@
                   :class="styles.domain.card.text"
                 >
                   <span :class="styles.domain.card.available.icon">
-                    <upw-icon icon="check" />
+                    <upw-icon icon="check" size="full" />
                   </span>
                   {{ $t("domain.card.available.label") }}
                 </span>
 
                 <span :class="styles.domain.card.text" v-else>
                   <span :class="styles.domain.card.transfer.icon">
-                    <upw-icon icon="transfer" />
+                    <upw-icon icon="transfer" size="full" />
                   </span>
 
                   {{ $t("domain.card.transfer.label") }}

@@ -125,7 +125,7 @@ export const useUischema = ({
         options: {
           format: "radio",
           stretch: true,
-          layout: gateways?.length >= 3 ? "grid" : "inline",
+          layout: "grid",
         },
         rule: {
           effect: "SHOW",
