@@ -328,7 +328,9 @@ export default createMachine(
 
           // items are 'complete' only when they have been successfully added to the basket
           available: {
-            always: [{ target: "configuring", cond: "paymentConfiguring" }],
+            always: [
+              { target: "configuring", cond: "paymentDetailsConfiguring" },
+            ],
             // ---
             // NB: Checkout is a chained sequence of events:
             // First, it will forward the event to the payment_details machine
@@ -365,7 +367,7 @@ export default createMachine(
             {
               target: "#paying",
               actions: ["setInvoice"],
-              cond: "needsPayment",
+              cond: "paymentNeeded",
             },
             {
               target: "#complete",
@@ -709,30 +711,6 @@ export default createMachine(
       hasNewBasket: ({ basket }, { data }) =>
         !isEmpty(data) && !isEqual(basket, data),
 
-      needsPayment: ({ paymentDetails }) => {
-        const hasOustandingBalance = paymentDetails?.amount > 0;
-
-        const payingNow =
-          paymentDetails?.payment_type != PaymentTypes.PAY_LATER;
-
-        const manualPayment = includes(
-          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
-          paymentDetails?.gateway?.type
-        );
-
-        const valid = hasOustandingBalance && payingNow && !manualPayment;
-
-        // console.debug("needsPayment", valid, {
-        //   hasOustandingBalance,
-        //   payingNow,
-        //   manualPayment,
-        // });
-
-        return valid;
-      },
-
-      isNotCancelled: (_context, { data }) => data?.name !== "AbortError",
-
       // --- Actor Guards
       currencyComplete: ({ actors }) => {
         return actors.currency?.state?.matches("complete");
@@ -773,7 +751,15 @@ export default createMachine(
         );
       },
 
-      paymentConfiguring: ({ actors }) => {
+      paymentDetailsComplete: ({ actors }, { data }) => {
+        return (
+          (actors.payment_details?.state?.done ||
+            actors.payment_details?.state?.matches("complete")) &&
+          !isEmpty(data)
+        );
+      },
+
+      paymentDetailsConfiguring: ({ actors }) => {
         return [
           "available.invalid",
           "available.checking",
@@ -781,12 +767,26 @@ export default createMachine(
         ].some(actors.payment_details?.state?.matches);
       },
 
-      paymentDetailsComplete: ({ actors }, { data }) => {
-        return (
-          (actors.payment_details?.state?.done ||
-            actors.payment_details?.state?.matches("complete")) &&
-          !isEmpty(data)
+      paymentNeeded: ({ paymentDetails }) => {
+        const hasOustandingBalance = paymentDetails?.amount > 0;
+
+        const payingNow = paymentDetails?.type != PaymentTypes.PAY_LATER;
+
+        const manualPayment = includes(
+          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+          paymentDetails?.gateway?.type
         );
+
+        const value = hasOustandingBalance && payingNow && !manualPayment;
+
+        // console.debug("paymentNeeded", value, {
+        //   hasOustandingBalance,
+        //   payingNow,
+        //   manualPayment,
+        //   paymentDetails,
+        // });
+
+        return value;
       },
 
       // --- Configuration Guards

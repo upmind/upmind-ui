@@ -212,6 +212,7 @@ export default createMachine(
       REFRESH: {
         target: "checking",
         actions: ["setContext", "updateStripe"],
+        cond: "hasChanged",
       },
       UNAUTHENTICATED: {
         target: "loading",
@@ -338,9 +339,19 @@ export default createMachine(
     },
 
     guards: {
-      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) => {
-        return !elements;
+      hasChanged: (
+        { basket_id, currency, amount }: StripeContext,
+        { data }: StripeEvent
+      ) => {
+        const value =
+          basket_id !== data.basket_id ||
+          currency !== data.currency ||
+          amount !== data.amount;
+        return value;
       },
+
+      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) =>
+        !elements,
 
       hasNoOutstandingBalance: (
         _context: StripeContext,

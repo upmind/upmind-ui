@@ -187,7 +187,6 @@ async function parse(
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
   safeModel.type ??= PaymentTypes.PAY_IN_FULL;
-
   // ---
   // Gateway vs Stored Payment Methods Logic...
 
