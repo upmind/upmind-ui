@@ -92,15 +92,7 @@
 
 <script lang="ts">
 // --- external
-import {
-  defineComponent,
-  toRefs,
-  ref,
-  provide,
-  toRef,
-  useSlots,
-  computed,
-} from "vue";
+import { defineComponent, toRefs, ref, provide, toRef } from "vue";
 import {
   PopoverTrigger,
   PopoverRoot,
