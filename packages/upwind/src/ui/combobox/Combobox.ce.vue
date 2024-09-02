@@ -114,7 +114,7 @@ import {
   ComboboxContent,
 } from "radix-vue";
 
-import ComboboxItem from "./ComboboxItem.ce.vue";
+import ComboboxItem from "./ComboboxItem.vue";
 
 // --- internal
 import config from "./combobox.config";
