@@ -343,10 +343,13 @@ export const contentConfig = cva(
   "focus-visible:ring-ring ring-offset-background mt-2 w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
 );
 
+export const iconConfig = cva("mr-2 h-4 w-4");
+
 export default {
   tabs: {
     list: listConfig,
     trigger: triggerConfig,
     content: contentConfig,
+    icon: iconConfig,
   },
 };

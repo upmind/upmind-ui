@@ -8,13 +8,20 @@
     @update:modelValue="$emit('update:modelValue', $event)"
   >
     <tabs-list :class="styles.tabs.list" :color="color" :variant="variant">
-      <template v-for="value in tabs" :key="value">
+      <template v-for="(value, index) in tabs" :key="value">
         <tabs-trigger
           :value="value"
           :class="styles.tabs.trigger"
           :color="color"
           :variant="variant"
         >
+          <!-- <span v-if="icons" >
+            <upw-icon
+              :class="styles.tabs.icon"
+              :icon="icon[index]"
+              aria-hidden="true"
+            />
+          </span> -->
           <slot :name="`trigger.${value}`"></slot>
         </tabs-trigger>
       </template>
@@ -58,6 +65,10 @@ export default defineComponent({
     tabs: {
       type: Array,
       required: true,
+    },
+    icons: {
+      type: Array,
+      required: false,
     },
     modelValue: {
       type: [String, Number] as PropType<TabsRootProps["modelValue"]>,
