@@ -1,10 +1,10 @@
 <template>
-  <div :style="backgroundImage" class="pb-16">
+  <v-hero-image>
     <v-header />
     <v-hero>
       <v-hero-content />
     </v-hero>
-  </div>
+  </v-hero-image>
   <v-content>
     <slot />
   </v-content>
@@ -13,27 +13,19 @@
 
 <script>
 // --- external
-import { defineComponent, ref } from "vue";
-
-// --- internal
-import coverImage from "../assets/cover.jpeg";
+import { defineComponent } from "vue";
 
 // --- components
-import { VHeader, VFooter, VContent, VHero, VHeroContent } from "@velia/velia";
+import {
+  VHeader,
+  VFooter,
+  VContent,
+  VHero,
+  VHeroContent,
+  VHeroImage,
+} from "@velia/velia";
 
 export default defineComponent({
-  components: { VHeader, VFooter, VContent, VHero, VHeroContent },
-
-  setup() {
-    const backgroundImage = ref({
-      backgroundImage: `linear-gradient(rgba(20, 46, 77, 0.5), rgba(20, 46, 77, 1)), url(${coverImage})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    });
-
-    return {
-      backgroundImage,
-    };
-  },
+  components: { VHeader, VFooter, VContent, VHero, VHeroContent, VHeroImage },
 });
 </script>
