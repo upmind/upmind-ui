@@ -2,15 +2,15 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { VHeader } from "@velia/velia";
+import { VFooter } from "@velia/velia";
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof VHeader> = {
-  component: VHeader,
+const meta: Meta<typeof VFooter> = {
+  component: VFooter,
 };
 
 export default meta;
-type Story = StoryObj<typeof VHeader>;
+type Story = StoryObj<typeof VFooter>;
 
 // -----------------------------------------------------------------------------
 
