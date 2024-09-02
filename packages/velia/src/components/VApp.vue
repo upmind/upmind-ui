@@ -5,7 +5,7 @@
       <slot name="hero" />
     </div>
   </div>
-  <v-content class="-mt-16 px-6 pb-8">
+  <v-content>
     <slot />
   </v-content>
   <v-footer />
