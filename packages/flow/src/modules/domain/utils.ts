@@ -51,7 +51,7 @@ export function parseSld(data: string) {
 
 export function parseAvailable(sld: string, results = [] as IDomainProduct[]) {
   // parse the results
-  const available = map(results, item => parseBasketItem({ ...item, sld }));
+  const available = map(results, item => parseProduct({ ...item, sld }));
 
   // and ensure we don't have any duplicates or falsy
   return compact(uniqBy(available, "domain"));
@@ -73,7 +73,7 @@ export function parseValue(data: Object | string, values = [], available = []) {
   return domain;
 }
 
-export function parseBasketItem(item) {
+export function parseProduct(item) {
   const { removeTrailingZeroes } = useMoney();
   const tld = item?.tld || item?.name;
   const sld = item?.sld || item?.provision_fields?.sld;
@@ -87,6 +87,54 @@ export function parseBasketItem(item) {
     tld,
     sld,
     domain,
+  };
+  const term =
+    item.term || first(orderBy(item.prices, "billing_cycle_months", "asc"));
+  if (term) {
+    result.billing_cycle_months =
+      item?.billing_cycle_months ||
+      item?.term?.billing_cycle_months ||
+      item?.term;
+    result.billing_cycle_years = Math.round(term?.billing_cycle_months / 12);
+    result.is_discounted = !!term?.price_discounted_formatted;
+    result.price_discounted = term?.price_discounted;
+    result.price_discounted_formatted = removeTrailingZeroes(
+      term?.price_discounted_formatted
+    );
+    result.price = term?.price;
+    result.price_formatted = removeTrailingZeroes(term?.price_formatted);
+    result.percentage_saving = !result?.is_discounted
+      ? 0
+      : Math.floor(
+          ((term?.price - (term?.price_discounted || 0)) / term?.price) * 100
+        );
+
+    //   result.billing_summary = $tc(
+    //   //   result.is_discounted ? "billing_summary_discounted" : "billing_summary",
+    //   //   result.billing_cycle_years,
+    //   //   {
+    //   //     oldPrice: result.price_formatted,
+    //   //     newPrice: result.price_discounted_formatted
+    //   //   }
+    //   // ),
+  }
+
+  return result;
+}
+
+export function parseBasketItem(item) {
+  const { removeTrailingZeroes } = useMoney();
+  const parsed = parseDomain(item?.service_identifier);
+
+  const result = {
+    product_id: item.product_id,
+    quantity: item.quantity,
+    options: !item?.domain_available ? parseOptions(item?.options) : {},
+    is_available: item?.domain_available,
+    // ---
+    tld: parsed?.tld,
+    sld: parsed?.sld,
+    domain: parsed?.domain,
   };
   const term =
     item.term || first(orderBy(item.prices, "billing_cycle_months", "asc"));
