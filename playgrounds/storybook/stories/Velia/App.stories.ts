@@ -22,7 +22,7 @@ export const Base = () => ({
 
         <!-- Content -->
         <div>
-          <div class="bg-white rounded-lg w-full h-96 border" />
+          <div class="bg-white rounded-lg w-full h-96 shadow-lg border border-gray-100" />
         </div>
       </v-app>
     </div>
