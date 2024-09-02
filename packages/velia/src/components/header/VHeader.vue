@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-primary flex items-center justify-between">
-    <img class="h-6" src="../../assets/logo-white.svg" alt="logo" />
+  <div class="flex items-center justify-center">
+    <img class="my-6 h-5" src="../../assets/logo-white.svg" alt="logo" />
   </div>
 </template>
