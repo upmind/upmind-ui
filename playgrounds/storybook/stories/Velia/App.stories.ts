@@ -33,7 +33,7 @@ export const Base = args => ({
 
         <!-- Content -->
         <div class="flex flex-wrap justify-center">
-          <div v-for="i in args.items" :key="i" class="w-1/3 px-3 pb-8">
+          <div v-for="i in args.items" :key="i" class="w-full sm:w-1/2 lg:w-1/3 px-3 pb-8">
             <div class="bg-white rounded-lg h-96 shadow-lg border border-gray-100 w-full" />
           </div>
         </div>
