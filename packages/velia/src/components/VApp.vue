@@ -1,9 +1,11 @@
 <template>
   <v-hero-image>
-    <v-header />
-    <v-hero>
-      <v-hero-content />
-    </v-hero>
+    <v-hero-container>
+      <v-header />
+      <v-hero-content-container>
+        <slot name="hero" />
+      </v-hero-content-container>
+    </v-hero-container>
   </v-hero-image>
   <v-content>
     <slot />
@@ -20,12 +22,19 @@ import {
   VHeader,
   VFooter,
   VContent,
-  VHero,
-  VHeroContent,
   VHeroImage,
+  VHeroContentContainer,
+  VHeroContainer,
 } from "@velia/velia";
 
 export default defineComponent({
-  components: { VHeader, VFooter, VContent, VHero, VHeroContent, VHeroImage },
+  components: {
+    VHeader,
+    VFooter,
+    VContent,
+    VHeroImage,
+    VHeroContentContainer,
+    VHeroContainer,
+  },
 });
 </script>
