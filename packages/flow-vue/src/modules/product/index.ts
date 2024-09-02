@@ -12,7 +12,6 @@ import {
   isEmpty,
   isObject,
   isEqual,
-  omitBy,
   set,
   some,
   subtract,
@@ -238,26 +237,6 @@ export const useProductConfig = actor => {
   }
 
   // --- PROVISIONING
-  function getProvisioningFields(showOptional = true, showHidden = false) {
-    const schema = fields.value || {
-      type: "object",
-    };
-
-    // weere showing all fields, so return the schema
-    if (showHidden && showOptional) return schema;
-
-    set(
-      schema,
-      "properties",
-      omitBy(
-        schema?.properties,
-        property =>
-          (!showHidden && property?.defer == "hidden") ||
-          (!showOptional && property?.defer == "optional")
-      )
-    );
-    return schema;
-  }
 
   function setProvisioningFields(value) {
     set(model.value, "provision_fields", value);
@@ -313,7 +292,6 @@ export const useProductConfig = actor => {
     incrementOption,
     decrementOption,
     // ---
-    getProvisioningFields,
     setProvisioningFields,
     updateProvisioning,
     getProvisioningField,

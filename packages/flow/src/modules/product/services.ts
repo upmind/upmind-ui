@@ -59,7 +59,13 @@ export enum PromotionDisplayTypes {
 // this will process the request and return a promise
 
 async function load(
-  { model, currency_id, promotions }: ProductConfigContext,
+  {
+    model,
+    currency_id,
+    promotions,
+    basket_id,
+    basket_product,
+  }: ProductConfigContext,
   _event: any
 ) {
   const { product_id } = model;
@@ -73,6 +79,8 @@ async function load(
   const productPromise = getRequest({
     url: useUrl(`basket/products/${product_id}`, {
       currency_id,
+      basket_id,
+      basket_product_id: basket_product?.id,
       promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
       with_staged_imports: true,
       with: [

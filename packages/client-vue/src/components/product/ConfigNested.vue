@@ -1,106 +1,109 @@
 <template>
-  <upw-input
-    v-for="item in items"
-    :key="item.id"
-    :class="styles.product.config.list.root"
-    :label="item.name"
-    :text="safeText(item)"
-    :required="item.required"
-    :errors="safeErrors(item.id)"
-    variant="flat"
-    layout="stacked"
-    :dirty="isDirty(item.id)"
-    @blur="blurred[item.id] = true"
-    tabindex="-1"
-  >
-    <component
-      :is="
-        item.multiple || item.values?.length == 1
-          ? 'upw-checkbox-list'
-          : 'upw-radio-list'
-      "
-      :items="safeValues(item.values)"
-      :model-value="getValues(item)"
-      :errors="errors?.[item.id]"
-      no-feedback
-      @update:modelValue="doResolve(item, $event)"
+  <template v-for="item in items" :key="item.id">
+    <upw-input
+      v-if="item.values?.length"
+      :class="styles.product.config.list.root"
+      :label="item.name"
+      :text="safeText(item)"
+      :required="item.required"
+      :errors="safeErrors(item.id)"
+      variant="flat"
+      layout="stacked"
+      :dirty="isDirty(item.id)"
+      @blur="blurred[item.id] = true"
+      tabindex="-1"
     >
-      <template #prepend="{ item: value }"> </template>
+      <component
+        :is="
+          item.multiple || item.values?.length == 1
+            ? 'upw-checkbox-list'
+            : 'upw-radio-list'
+        "
+        :items="parsedValues(item.values)"
+        :model-value="getValues(item)"
+        :errors="errors?.[item.id]"
+        no-feedback
+        @update:modelValue="doResolve(item, $event)"
+      >
+        <template #prepend="{ item: value }"> </template>
 
-      <template #label="{ item: value }">
-        <div :class="styles.product.config.list.item.header">
-          <!-- title -->
-          <span :class="styles.product.config.list.item.title">
-            {{ value.name }}
-          </span>
-          <!-- badges -->
-          <span :class="styles.product.config.list.item.badges">
-            <template
-              v-for="promotion in value?.price?.promotions"
-              :key="promotion.id"
-            >
-              <upw-badge
-                color="promotion"
-                :label="
-                  $tc(
-                    'product.promo_save',
-                    promotion.mixed || !promotion.amount ? 1 : 0,
-                    {
-                      value: promotion.amount_formatted,
-                    }
-                  )
-                "
-              />
-            </template>
-          </span>
-        </div>
-      </template>
-
-      <template #append="{ item: value }">
-        <div :class="styles.product.config.list.item.footer">
-          <upw-spinner v-if="loading" size="xs" />
-
-          <upw-quantitybox
-            v-if="value.canChangeQuantity && modelValue?.[item.id]?.[value.id]"
-            :disabled="processing"
-            :min="value?.min_order_quantity"
-            :max="value?.max_order_quantity"
-            :step="value?.unit_quantity"
-            :model-value="
-              modelValue[item.id][value.id]?.unit_quantity ||
-              value?.unit_quantity
-            "
-            @update:modelValue="doUpdateQuantity(item, value, $event)"
-            size="sm"
-          />
-
-          <span :class="styles.product.config.list.item.price">
-            <strong
-              :class="styles.product.config.list.item.total"
-              v-if="value.price"
-            >
-              <span v-if="!item.price_override && value.price?.price">+</span>
-
-              {{
-                value.price?.price_discounted
-                  ? value.price?.price_discounted_formatted
-                  : value.price.price
-                    ? value.price?.price_formatted
-                    : $t("product.free")
-              }}
-            </strong>
-
-            <span
-              :class="styles.product.config.list.item.discount"
-              v-if="value.price?.price_discounted"
-            >
-              {{ value.price?.price_formatted }}
+        <template #label="{ item: value }">
+          <div :class="styles.product.config.list.item.header">
+            <!-- title -->
+            <span :class="styles.product.config.list.item.title">
+              {{ value.name }}
             </span>
-          </span>
-        </div>
-      </template>
-    </component>
-  </upw-input>
+            <!-- badges -->
+            <span :class="styles.product.config.list.item.badges">
+              <template
+                v-for="promotion in value?.price?.promotions"
+                :key="promotion.id"
+              >
+                <upw-badge
+                  color="promotion"
+                  :label="
+                    $tc(
+                      'product.promo_save',
+                      promotion.mixed || !promotion.amount ? 1 : 0,
+                      {
+                        value: promotion.amount_formatted,
+                      }
+                    )
+                  "
+                />
+              </template>
+            </span>
+          </div>
+        </template>
+
+        <template #append="{ item: value }">
+          <div :class="styles.product.config.list.item.footer">
+            <upw-spinner v-if="loading" size="xs" />
+
+            <upw-quantitybox
+              v-if="
+                value.canChangeQuantity && modelValue?.[item.id]?.[value.id]
+              "
+              :disabled="processing"
+              :min="value?.min_order_quantity"
+              :max="value?.max_order_quantity"
+              :step="value?.unit_quantity"
+              :model-value="
+                modelValue[item.id][value.id]?.unit_quantity ||
+                value?.unit_quantity
+              "
+              @update:modelValue="doUpdateQuantity(item, value, $event)"
+              size="sm"
+            />
+
+            <span :class="styles.product.config.list.item.price">
+              <strong
+                :class="styles.product.config.list.item.total"
+                v-if="value.price"
+              >
+                <span v-if="!item.price_override && value.price?.price">+</span>
+
+                {{
+                  value.price?.price_discounted
+                    ? value.price?.price_discounted_formatted
+                    : value.price.price
+                      ? value.price?.price_formatted
+                      : $t("product.free")
+                }}
+              </strong>
+
+              <span
+                :class="styles.product.config.list.item.discount"
+                v-if="value.price?.price_discounted"
+              >
+                {{ value.price?.price_formatted }}
+              </span>
+            </span>
+          </div>
+        </template>
+      </component>
+    </upw-input>
+  </template>
 </template>
 
 <script>
@@ -241,7 +244,7 @@ export default defineComponent({
       this.$emit("update:modelValue", item, safeValue);
     },
 
-    safeValues(values) {
+    parsedValues(values) {
       return map(values, value => ({
         ...value,
         value: value.id,

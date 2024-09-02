@@ -131,6 +131,7 @@ export const parseTerms = (
     const term = pick(rawTerm, [
       "billing_cycle_months",
       "mixed_promotions",
+      "monthly_price_from_discounted",
       "monthly_price_from_discounted_formatted",
       "monthly_price_from",
       "monthly_price_from_formatted",
@@ -357,26 +358,26 @@ export const parseProvisioningSchema = (data: any) => {
       type.push("null");
     }
 
-    const schema = {
-      type,
-      format,
-      title: field.field_label,
-      description: field.description,
-      default: field.default,
-      enum: !some(field.options, isString) ? undefined : field.options,
-      oneOf: !some(field.options, isObject)
-        ? undefined
-        : map(field.options, item => {
-            return {
-              const: item.value,
-              title: item.label,
-            };
-          }),
-      // ---
-      defer: field?.deferrable ? field?.defer_mode : undefined,
-    };
+    if (!field.deferrable || field.defer_mode != "hidden") {
+      const schema = {
+        type,
+        format,
+        title: field.field_label,
+        description: field.description,
+        default: field.default,
+        enum: !some(field.options, isString) ? undefined : field.options,
+        oneOf: !some(field.options, isObject)
+          ? undefined
+          : map(field.options, item => {
+              return {
+                const: item.value,
+                title: item.label,
+              };
+            }),
+      };
 
-    set(properties, field.name, omitBy(schema, isNil));
+      set(properties, field.name, omitBy(schema, isNil));
+    }
   });
 
   // return a fully formed json schema
@@ -440,6 +441,9 @@ export const parseSummary = ({ summary, model, lookups, error }) => {
   reduce(
     model.provision_fields,
     (result, name, field) => {
+      debugger;
+      // todo only show prov fields that are not deferrred or meant or mean tot be visible
+
       result.push({
         key: `provision_field.${field}`,
         category: get(
@@ -450,6 +454,7 @@ export const parseSummary = ({ summary, model, lookups, error }) => {
         name,
         invalid: some(error?.provision_fields?.data, ["schemaPath", field]),
       });
+
       return result;
     },
     details
