@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="ml-auto mr-auto flex max-w-6xl items-center justify-center py-6 sm:justify-between sm:px-9 sm:py-8"
-  >
+  <div class="flex items-center justify-center py-6 sm:justify-between sm:py-8">
     <img class="m-0 h-5" src="../../assets/logo-white.svg" alt="logo" />
 
     <div class="hidden space-x-12 text-sm sm:flex">
