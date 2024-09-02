@@ -1,9 +1,9 @@
 <template>
   <div :style="backgroundImage" class="pb-16">
     <v-header />
-    <div class="px-6 py-16">
-      <slot name="hero" />
-    </div>
+    <v-hero>
+      <v-hero-content />
+    </v-hero>
   </div>
   <v-content>
     <slot />
@@ -19,10 +19,10 @@ import { defineComponent, ref } from "vue";
 import coverImage from "../assets/cover.jpeg";
 
 // --- components
-import { VHeader, VFooter, VContent } from "@velia/velia";
+import { VHeader, VFooter, VContent, VHero, VHeroContent } from "@velia/velia";
 
 export default defineComponent({
-  components: { VHeader, VFooter, VContent },
+  components: { VHeader, VFooter, VContent, VHero, VHeroContent },
 
   setup() {
     const backgroundImage = ref({

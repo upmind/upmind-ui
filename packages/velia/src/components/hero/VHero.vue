@@ -1,11 +1,5 @@
 <template>
-  <div class="text-center text-white">
-    <div class="mb-4 text-base font-bold sm:text-2xl md:text-3xl">
-      Dedicated Servers with exceptional 24/7/365 Support
-    </div>
-    <div class="text-xs sm:text-sm">
-      Over 5000 companies worldwide trust velia.net's global network. Configure
-      your server now!
-    </div>
+  <div class="px-6 py-16">
+    <slot />
   </div>
 </template>
