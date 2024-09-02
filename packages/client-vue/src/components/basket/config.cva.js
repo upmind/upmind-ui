@@ -42,7 +42,7 @@ export default {
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       title: cva("sr-only"),
       content: cva(),
-      footer: cva("flex items-center gap-1"),
+      footer: cva("flex flex-wrap items-center gap-1"),
 
       form: {
         root: cva("flex-row gap-1"),

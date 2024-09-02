@@ -135,12 +135,23 @@ export const parseSummary = (data?: any) => {
           : null,
         subtotal: product?.configuration_net_amount_formatted,
         total: product?.configuration_net_amount_discounted_formatted,
+        products: [
+          // todo  add non quantifiable otions here
+          // id: product?.id,
+          // name: product?.product_name,
+          // service_identifier: product?.service_identifier,
+          // quantity: product?.quantity,
+          // discount: product?.configuration_total_discount_amount_converted
+          //   ? product?.configuration_total_discount_amount_formatted
+          //   : null,
+          // subtotal: product?.configuration_net_amount_formatted,
+          // total: product?.configuration_net_amount_discounted_formatted,
+        ],
       };
     }),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
-
     subtotal: data?.net_amount_formatted || "",
     taxes: parseTaxes(data?.taxes),
     total: data?.total_amount_formatted || "",

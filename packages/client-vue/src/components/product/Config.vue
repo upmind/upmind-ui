@@ -147,7 +147,7 @@
             v-if="meta.hasProvisioning"
             :processing="meta.isProcessing || meta.isLoading"
             :additional-errors="errors?.provision_fields?.data"
-            :fields="getProvisioningFields()"
+            :fields="fields"
             :model-value="model.provision_fields"
             @update:modelValue="setProvisioningFields"
           />
@@ -269,7 +269,6 @@ export default defineComponent({
       setOptions,
       updateOptionQuantity,
       // ---
-      getProvisioningFields,
       setProvisioningFields,
       updateProvisioning,
       getProvisioningField,
@@ -304,7 +303,6 @@ export default defineComponent({
       setOptions,
       updateOptionQuantity,
       // ---
-      getProvisioningFields,
       setProvisioningFields,
       updateProvisioning,
       getProvisioningField,
