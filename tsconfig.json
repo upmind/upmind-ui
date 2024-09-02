@@ -17,7 +17,8 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "composite": true
   },
   "include": [
     "packages/*/src",
@@ -33,7 +34,8 @@
     { "path": "packages/flow" },
     { "path": "packages/flow-vue" },
     { "path": "packages/client-vue" },
-    { "path": "packages/upwind" }
+    { "path": "packages/upwind" },
+    { "path": "packages/velia" }
   ],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }

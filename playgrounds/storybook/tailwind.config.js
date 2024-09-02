@@ -19,6 +19,7 @@ export default {
     "./.storybook/**/*.{js,jsx,ts,tsx}",
     "./stories/**/*.{js,jsx,ts,tsx}",
     "../../packages/upwind/src/**/*.{html,vue,js,tsx,ts}",
+    "../../packages/velia/src/**/*.{html,vue,js,tsx,ts}",
   ],
   plugins: [
     typography,
