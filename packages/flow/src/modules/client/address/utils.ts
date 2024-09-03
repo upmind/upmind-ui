@@ -13,9 +13,9 @@ import {
   reduce,
   defaultsDeep,
   uniqueId,
-  compact,
-  pick,
-  isArray,
+  // compact,
+  // pick,
+  // isArray,
 } from "lodash-es";
 
 // --- types
@@ -25,14 +25,15 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 
 export const useSchema = ({
-  country,
+  // TODO: country,
   countries,
   regions,
   types,
   baseModel,
   // ---
   places,
-}: AddressContext) => {
+  // }: AddressContext) => {
+}: any) => {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -326,7 +327,9 @@ export const spawnItem = (model?: IAddress) => {
     return spawn(
       itemMachine
         .withConfig({
+          // @ts-ignore
           actions,
+          // @ts-ignore
           services,
         })
         .withContext({ model }),

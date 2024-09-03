@@ -9,4 +9,5 @@ export const useTranslateField = (item: Object, field: string) => {
 };
 
 // check for a translated name, if it exists, use it, otherwise use the default
-export const useTranslateName = item => item?.name_translated || item.name;
+export const useTranslateName = (item: any) =>
+  item?.name_translated || item.name;

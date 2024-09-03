@@ -219,12 +219,12 @@ export default createMachine(
   {
     actions: {
       setParsed: assign({
-        model: (_context, { data }) => data.model,
-        gateway: (_context, { data }) => data.gateway,
+        model: (_context, { data }: any) => data.model,
+        gateway: (_context, { data }: any) => data.gateway,
       }),
 
       setLookups: assign({
-        stored_payment_methods: (_context, { data }) =>
+        stored_payment_methods: (_context, { data }: any) =>
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
@@ -241,8 +241,9 @@ export default createMachine(
         uischema: undefined,
       }),
 
+      // @ts-ignore
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
+        model: ({ schema, model }: any, { data }: any) =>
           useModelParser(schema, data || model),
       }),
 
@@ -251,6 +252,7 @@ export default createMachine(
       }),
 
       setDirty: assign({
+        // @ts-ignore
         dirty: true,
       }),
 
@@ -259,14 +261,16 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }) => !!update,
+        autoupdate: (_context: any, { update }: any) => !!update,
       }),
       clearAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: false,
       }),
 
       setGateway: assign({
         // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
+        // @ts-ignore
         actors: (
           {
             basket_id,
@@ -281,8 +285,11 @@ export default createMachine(
           actors ??= {}; //sanity check
 
           // stop any existing gateways if they are different and not done/complete
+          // @ts-ignore
           if (actors?.gateway?.id != gateway?.id) {
+            // @ts-ignore
             if (actors?.gateway && !actors.gateway?.state?.done)
+              // @ts-ignore
               actors.gateway?.stop();
             unset(actors, "gateway");
           }
@@ -315,8 +322,8 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        actors: ({ actors }, { data: basket }) => {
-          forEach(actors, actor => {
+        actors: ({ actors }, { data: basket }: any) => {
+          forEach(actors, (actor: any) => {
             if (actor?.send && !actor?.state?.done) {
               actor.send({
                 type: "REFRESH",
@@ -335,7 +342,7 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: ({ model, basket_id, currency }, { data }) => {
+        paymentDetails: ({ model, basket_id, currency }, { data }: any) => {
           const amount = model.amount;
           return parsePaymentDetails({
             ...model,
@@ -357,14 +364,15 @@ export default createMachine(
         type: "CANCEL",
       })),
 
-      trackPaymentDetails: (_context, _event) => {
+      trackPaymentDetails: (_context: any, _event: any) => {
         trackEvent({ ecommerce: null });
         trackEvent({ event: "add_payment_info" });
       },
       // ---
 
+      // @ts-ignore
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
-        forEach(actors, actor => {
+        forEach(actors, (actor: any) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }
@@ -392,7 +400,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -408,7 +416,8 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty,
+      // @ts-ignore
+      isDirty: ({ dirty }: any, _event: any) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       hasLookups: (
         { stored_payment_methods, gateways, payment_types },
@@ -418,7 +427,7 @@ export default createMachine(
       shouldUpdate: ({ autoupdate, basket_id, model }, _event) =>
         !!autoupdate && !!basket_id && model?.amount !== 0,
 
-      hasChanged: ({ basket_id, currency, client_id, model }, { data }) => {
+      hasChanged: ({ basket_id, currency, client_id, model }, { data }: any) => {
         const basketChanged = basket_id != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = client_id != data?.client_id;
@@ -436,6 +445,7 @@ export default createMachine(
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );

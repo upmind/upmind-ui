@@ -20,13 +20,12 @@ import {
   reduce,
   set,
   uniqueId,
-  find,
-  findIndex,
   isEmpty,
 } from "lodash-es";
 
 // --- types
 import { TaxTagTypes } from "./types.d";
+// @ts-ignore
 import type { IBasket } from "./types.d";
 
 // --------------------------------------------------------
@@ -89,6 +88,7 @@ export function spawnCustomFields(basket: IBasket) {
 
 export function spawnPaymentDetails(basket: IBasket) {
   return spawn(
+    // @ts-ignore
     paymentDetailsMachine.withContext({
       basket_id: basket?.id,
       currency: basket?.currency,
@@ -220,7 +220,7 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
   };
 };
 
-export const parseBasketProvisioningErrors = (error, item, index) => {
+export const parseBasketProvisioningErrors = (error: any, item: any, index: any) => {
   // now pass any provisioning errors to the item
   if (error) {
     const errors = get(

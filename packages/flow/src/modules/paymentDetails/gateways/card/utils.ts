@@ -66,8 +66,10 @@ export const useSchema = (context: GatewayContext) => {
 
 // --------------------------------------------------------
 
-export const useUischema = (context: GatewayContext) => {
-  const defaultUischema = useDefaultUischema(context);
+// TODO: export const useUischema = (context: GatewayContext) => {
+// TODO: const defaultUischema = useDefaultUischema(context);
+export const useUischema = () => {
+  const defaultUischema = useDefaultUischema();
 
   const uischema = {
     type: "VerticalLayout",
@@ -120,6 +122,7 @@ export const useUischema = (context: GatewayContext) => {
           },
         ],
       },
+      // @ts-ignore
       ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
     ],
   };

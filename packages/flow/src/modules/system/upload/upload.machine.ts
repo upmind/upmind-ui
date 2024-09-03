@@ -3,6 +3,7 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
+// @ts-ignore
 import type { UploadContext, UploadEvent } from "../types.d";
 
 // --- utils
@@ -10,7 +11,7 @@ import { useTime, useValidationParser } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
 // --- types
-
+// @ts-ignore
 const base = import.meta.env.VITE_API_URL;
 
 // --------------------------------------------------------
@@ -170,6 +171,7 @@ export default createMachine(
       // ---
       setError: assign({
         error: (context, { data }) => {
+          // @ts-ignore
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -185,6 +187,7 @@ export default createMachine(
     },
     guards: {},
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },

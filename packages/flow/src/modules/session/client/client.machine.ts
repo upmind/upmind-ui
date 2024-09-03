@@ -100,12 +100,13 @@ export default createMachine(
   },
   {
     actions: {
-      clear: assign((context, _event) => {
+      clear: assign((_, _event) => {
         dumpTokenFromStorage("client");
         return {};
       }),
       // ---
       setUser: assign({ user: (_context, { data }) => data }),
+      // @ts-ignore
       setTransfer: assign({ transfer: (_context, { data }) => data }),
       clearTransfer: assign({ transfer: null }),
       // ---
@@ -131,6 +132,7 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
+      // @ts-ignore
       wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5,
     },

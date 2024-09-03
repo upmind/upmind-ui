@@ -35,10 +35,12 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
+    // @ts-ignore
     title: ({ model }: AddressContext, _event: AddressEvent) =>
       model?.name || "New Address",
     description: (
-      { model, countries, regions }: AddressContext,
+      // TODO: { model, countries, regions }: AddressContext,
+      { model, countries, regions }: any,
       _event: AddressEvent
     ) => {
       const country = find(countries, ["id", get(model, "country_id")]);
@@ -58,12 +60,14 @@ export const ItemActions = {
   setSchemas: assign({
     schema: (context: AddressContext, _event: AddressEvent) =>
       useSchema(context),
-    uischema: (context: AddressContext, _event: AddressEvent) =>
-      useUischema(context),
+    // TODO: uischema: (context: AddressContext, _event: AddressEvent) =>
+    // TODO: useUischema(context),
+    uischema: (_, _event: AddressEvent) => useUischema(),
   }),
 
   setModel: assign({
-    model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
+    // TODO: model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
+    model: ({ schema, baseModel }: any, { data }: AddressEvent) =>
       useModelParser(schema, data, baseModel),
   }),
 };

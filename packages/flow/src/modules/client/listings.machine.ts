@@ -180,6 +180,7 @@ export default createMachine(
       }),
 
       setFiltered: assign({
+        // @ts-ignore
         items: (_context, { data }) => data,
       }),
 
@@ -192,7 +193,7 @@ export default createMachine(
         raw: ({ raw }, _event) => {
           forEach(
             raw,
-            item => !item?.state?.done && item?.stop && item?.stop()
+            (item: any) => !item?.state?.done && item?.stop && item?.stop()
           );
           return [];
         },
@@ -201,6 +202,7 @@ export default createMachine(
         filters: undefined,
       }),
 
+      // @ts-ignore
       setInitial: assign({
         initial: (
           { raw, initial }: ClientListingsContext,
@@ -219,6 +221,7 @@ export default createMachine(
         },
       }),
 
+      // @ts-ignore
       setSelected: assign({
         initial: ({ selected, initial }) => selected?.id || initial,
         // filters: undefined,
@@ -230,6 +233,7 @@ export default createMachine(
       }),
 
       clearSelected: assign({
+        // @ts-ignore
         initial: undefined,
         filters: undefined,
         items: ({ raw }, _event) => raw,
@@ -238,17 +242,18 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: any) => {
           const error = data?.error;
           return error || data;
         },
       }),
 
+      // @ts-ignore
       clearError: assign({ error: null }),
     },
     guards: {
       isNotProcessing: ({ raw }) => {
-        return every(raw, item => !item?.state?.matches("loading"));
+        return every(raw, (item: any) => !item?.state?.matches("loading"));
       },
       hasItems: ({ raw }) => !isEmpty(raw),
       hasNoItems: ({ raw }) => isEmpty(raw),

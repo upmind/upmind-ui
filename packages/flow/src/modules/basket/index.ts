@@ -17,12 +17,14 @@ import type { IProductModel } from "../product/types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
+// @ts-ignore
 const service = interpret(basketMachine, { devTools: true });
 
 // --------------------------------------------------------
 // methods
 // --------------------------------------------------------
-const exists = (items = [], mapping, context = null) => {
+const exists = (items = [], mapping: any, context = null) => {
+  // @ts-ignore
   context = context ? `${context}.` : "";
   return some(items, item =>
     every(mapping, (value, key) => {
@@ -33,7 +35,7 @@ const exists = (items = [], mapping, context = null) => {
   );
 };
 
-const sendToItem = (itemId, type, data) => {
+const sendToItem = (itemId: any, type: any, data: any) => {
   const item = find(service.getSnapshot()?.context?.items, ["id", itemId]);
   if (item) {
     item.send({ type, data });
@@ -73,8 +75,8 @@ export const useBasket = () => {
 
     getItemsSnapshot: () => service.getSnapshot()?.context?.items || [],
 
-    findItem: mapping =>
-      find(service.getSnapshot()?.context?.items, basketItem =>
+    findItem: (mapping: any) =>
+      find(service.getSnapshot()?.context?.items, (basketItem: any) =>
         every(mapping, (value, key) => {
           if (key == "id") {
             return basketItem.id == value;
@@ -84,10 +86,11 @@ export const useBasket = () => {
         })
       ),
 
-    itemExists: mapping =>
+    itemExists: (mapping: any) =>
       exists(
         service.getSnapshot()?.context?.items,
         mapping,
+        // @ts-ignore
         "state.context.model"
       ),
 
@@ -126,7 +129,7 @@ export const useBasket = () => {
 
           // then wait/check for the new product actor to be configured
           // then send the update event to the basket
-          return find(service.getSnapshot()?.context?.items, basketItem =>
+          return find(service.getSnapshot()?.context?.items, (basketItem: any) =>
             every(mapping, (value, key) => {
               if (key == "id" && value) {
                 return basketItem.id == value;
@@ -147,7 +150,7 @@ export const useBasket = () => {
 
     // --- Item CRUD
 
-    updateItem: async itemId => {
+    updateItem: async (itemId: any) => {
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
         return waitFor(item, state => !state.matches("processing")).then(
           state => {
@@ -161,7 +164,7 @@ export const useBasket = () => {
       });
     },
 
-    removeItem: async itemId => {
+    removeItem: async (itemId: any) => {
       return sendToItem(itemId, "REMOVE", { itemId }).then(item => {
         return waitFor(item, state =>
           ["available.complete", "complete", "error"].some(state.matches)

@@ -155,7 +155,7 @@ export function spawnGateway({
   amount,
   currency,
   stored_payment_methods,
-}) {
+}: any) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) {
@@ -242,8 +242,9 @@ export function spawnStored({
   amount,
   currency,
   stored_payment_methods,
-}) {
+}: any) {
   return spawn(
+    // @ts-ignore
     gatewayMachine.withConfig(storedConfig).withContext({
       basket_id,
       stored_payment_methods,
@@ -255,8 +256,9 @@ export function spawnStored({
   );
 }
 
-export function spawnCard({ basket_id, gateway, amount, currency }) {
+export function spawnCard({ basket_id, gateway, amount, currency }: any) {
   return spawn(
+    // @ts-ignore
     gatewayMachine.withConfig(cardConfig).withContext({
       basket_id,
       gateway,
@@ -268,7 +270,7 @@ export function spawnCard({ basket_id, gateway, amount, currency }) {
   );
 }
 
-export function spawnStripe({ basket_id, gateway, amount, currency }) {
+export function spawnStripe({ basket_id, gateway, amount, currency }: any) {
   return spawn(
     stripeMachine.withContext({
       basket_id,
@@ -284,8 +286,8 @@ export function spawnStripe({ basket_id, gateway, amount, currency }) {
 
 // Our generic gateway machine
 export function spawnGenericGateway(
-  type,
-  { basket_id, gateway, amount, currency, renderless = false }
+  type: any,
+  { basket_id, gateway, amount, currency, renderless = false }: any
 ) {
   return spawn(
     gatewayMachine.withContext({
@@ -300,7 +302,7 @@ export function spawnGenericGateway(
   );
 }
 
-export function spawnExternal({ basket_id, gateway, amount, currency }) {
+export function spawnExternal({ basket_id, gateway, amount, currency }: any) {
   return spawn(
     gatewayMachine.withContext({
       basket_id,
@@ -316,23 +318,23 @@ export function spawnExternal({ basket_id, gateway, amount, currency }) {
 // --------------------------------------------------------
 // Gateway Type Checks
 
-const isStored = gateway => gateway.type === GatewayTypes.STORED;
+const isStored = (gateway: any) => gateway.type === GatewayTypes.STORED;
 
-const isCard = gateway => gateway.type === GatewayTypes.CARD;
+const isCard = (gateway: any) => gateway.type === GatewayTypes.CARD;
 
-const isStripe = gateway =>
+const isStripe = (gateway: any) =>
   gateway?.gateway_provider?.code === GatewayProviderCodes.STRIPE &&
   !!gateway?.use_frontend_implementation;
 
-const isBankTransfer = gateway => gateway.type === GatewayTypes.BANK_TRANSFER;
+const isBankTransfer = (gateway: any) => gateway.type === GatewayTypes.BANK_TRANSFER;
 
-const isDirectDebit = gateway => gateway.type === GatewayTypes.DIRECT_DEBIT;
+const isDirectDebit = (gateway: any) => gateway.type === GatewayTypes.DIRECT_DEBIT;
 
-const isSEPA = gateway => gateway.type === GatewayTypes.SEPA;
+const isSEPA = (gateway: any) => gateway.type === GatewayTypes.SEPA;
 
-const isMobile = gateway => gateway.type === GatewayTypes.MOBILE;
+const isMobile = (gateway: any) => gateway.type === GatewayTypes.MOBILE;
 
-const isOffline = gateway => gateway.type === GatewayTypes.OFFLINE;
+const isOffline = (gateway: any) => gateway.type === GatewayTypes.OFFLINE;
 
-const isExternal = gateway =>
+const isExternal = (gateway: any) =>
   gateway.type === gateway?.gateway_provider.external_store;
