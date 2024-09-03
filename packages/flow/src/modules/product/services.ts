@@ -76,36 +76,39 @@ async function load(
   // ---
 
   const { get: getRequest, useUrl } = useApi();
+  const params = {
+    currency_id,
+    promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
+    with_staged_imports: true,
+    with: [
+      "image",
+      "images",
+      "prices",
+      "products_attributes",
+      "products_options",
+      "products_options.prices",
+      "provision_field_values",
+      // "provision_blueprint"
+      // "allowed_migrations",
+      // "allowed_migrations.migration_product",
+      // "category.top_category.top_category.top_category.top_category",
+      // "import.credentials",
+      // "import.source",
+      // "set_products"
+      // "sets",
+      // "trial_migration_rule",
+      // "trial_migration_rule.new_product",
+      // "trial_migration_rule.new_product.prices"
+    ].join(),
+  };
+
+  // conditionally add the basket_id / basket_product_id if we have them,
+  // this is important to get the correct prices once added to the basket
+  if (basket_id) set(params, "basket_id", basket_id);
+  if (basket_product?.id) set(params, "basket_product_id", basket_product.id);
+
   const productPromise = getRequest({
-    url: useUrl(`basket/products/${product_id}`, {
-      currency_id,
-      basket_id,
-      basket_product_id: basket_product?.id,
-      promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
-      with_staged_imports: true,
-      with: [
-        "image",
-        "images",
-        "prices",
-        "products_attributes",
-        "products_options",
-        "products_options.prices",
-        "provision_field_values",
-
-        // "provision_blueprint"
-
-        // "allowed_migrations",
-        // "allowed_migrations.migration_product",
-        // "category.top_category.top_category.top_category.top_category",
-        // "import.credentials",
-        // "import.source",
-        // "set_products"
-        // "sets",
-        // "trial_migration_rule",
-        // "trial_migration_rule.new_product",
-        // "trial_migration_rule.new_product.prices"
-      ].join(),
-    }),
+    url: useUrl(`basket/products/${product_id}`, params),
     useCache: true,
     maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
