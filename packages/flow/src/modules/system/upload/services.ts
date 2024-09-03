@@ -80,7 +80,7 @@ async function getImage({ field }: any, { data }: UploadEvent) {
 
 async function check(_context: any, { data }: any) {
   let isValid = true;
-  let error = null;
+  let error: any = null;
 
   const { getConfig } = useBrand();
 

@@ -1,17 +1,13 @@
 {
-  "files": [],
   "compilerOptions": {
-    "composite": true
+    "allowJs": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "dist",
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "strict": true
   },
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "src/**/__tests__/*", "**/*.d.ts"]
 }
