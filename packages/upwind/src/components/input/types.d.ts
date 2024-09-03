@@ -19,8 +19,8 @@ export interface InputProps {
   // ---
   size?: "sm" | "md" | "lg";
   layout?: "stacked" | "inline";
-  variant?: "flat" | "outlined";
-  outlined;
+  variant?: "flat" | "outline";
+  outline;
   // ---
   required?: boolean;
   visible?: boolean;

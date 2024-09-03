@@ -85,11 +85,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.upw-lineclamp {
-  :deep(pre) {
-    white-space: pre-wrap !important;
-  }
-}
-</style>

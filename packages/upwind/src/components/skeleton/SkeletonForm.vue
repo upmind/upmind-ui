@@ -3,10 +3,10 @@
     <span class="sr-only">Loading Form...</span>
 
     <ul class="m-0 w-full list-none space-y-4 p-0">
-      <li class="bg-base-200 m-0 h-12 w-1/2 rounded-lg p-0"></li>
-      <li class="bg-base-200 m-0 h-12 w-2/3 rounded-lg p-0"></li>
-      <li class="bg-base-200 m-0 h-12 w-1/2 rounded-lg p-0"></li>
-      <li class="bg-base-200 m-0 h-24 w-full rounded-lg p-0"></li>
+      <li class="m-0 h-12 w-1/2 rounded-lg bg-base-200 p-0"></li>
+      <li class="m-0 h-12 w-2/3 rounded-lg bg-base-200 p-0"></li>
+      <li class="m-0 h-12 w-1/2 rounded-lg bg-base-200 p-0"></li>
+      <li class="m-0 h-24 w-full rounded-lg bg-base-200 p-0"></li>
     </ul>
   </div>
 </template>

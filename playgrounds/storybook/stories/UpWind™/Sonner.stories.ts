@@ -10,22 +10,8 @@ useCustomElement(UwButton);
 import { useSystemArgTypes } from "../../utils";
 import { keys } from "lodash-es";
 
-// --- types
-enum variants {
-  outlined = "Outlined",
-  solid = "Solid",
-}
-
 const meta: Meta<typeof UwSonner> = {
-  component: UwSonner,
   argTypes: {
-    variant: {
-      options: keys(variants),
-      control: {
-        type: "radio",
-        labels: variants,
-      },
-    },
     title: {
       control: "text",
       description: "The title to display in the toast",
@@ -77,7 +63,6 @@ type Story = StoryObj<typeof UwSonner>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwSonner, UwButton },
     setup() {
       const showToast = () => {
         toast(args.title, {
@@ -110,7 +95,6 @@ export const Colors: Story = {
     controls: { exclude: ["color"] },
   },
   render: args => ({
-    components: { UwSonner, UwButton },
     setup() {
       const colors = useSystemArgTypes.color;
 

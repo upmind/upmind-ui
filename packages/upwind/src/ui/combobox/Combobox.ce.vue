@@ -1,5 +1,5 @@
 <template>
-  <popover-root v-model:open="open" :default-open="false">
+  <popover-root v-model:open="open">
     <popover-trigger>
       <uw-button
         variant="outline"
@@ -92,15 +92,7 @@
 
 <script lang="ts">
 // --- external
-import {
-  defineComponent,
-  toRefs,
-  ref,
-  provide,
-  toRef,
-  useSlots,
-  computed,
-} from "vue";
+import { defineComponent, toRefs, ref, provide, toRef } from "vue";
 import {
   PopoverTrigger,
   PopoverRoot,
@@ -114,13 +106,12 @@ import {
   ComboboxContent,
 } from "radix-vue";
 
-import ComboboxItem from "./ComboboxItem.ce.vue";
-
 // --- internal
 import config from "./combobox.config";
 
 // --- components
 import { UwButton } from "../button";
+import ComboboxItem from "./ComboboxItem.vue";
 
 // --- utils
 import { useStyles } from "../../utils";

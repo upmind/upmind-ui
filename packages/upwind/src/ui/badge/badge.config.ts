@@ -7,11 +7,11 @@ export const badgeConfig = cva(
     variants: {
       variant: {
         flat: "border border-transparent",
-        outlined: "border bg-opacity-0",
+        outline: "border bg-opacity-0",
         tonal: "border border-transparent",
       },
       color: {
-        base: "text-base-background bg-base-foreground",
+        base: "bg-base-foreground text-base-background",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
@@ -26,49 +26,48 @@ export const badgeConfig = cva(
     compoundVariants: [
       {
         color: "base",
-        variant: "outlined",
+        variant: "outline",
         class: "border-base-foreground text-base-foreground",
       },
       {
         color: "primary",
-        variant: "outlined",
+        variant: "outline",
         class: "border-primary text-primary",
       },
       {
         color: "secondary",
-        variant: "outlined",
+        variant: "outline",
         class: "border-secondary text-secondary",
       },
       {
         color: "accent",
-        variant: "outlined",
+        variant: "outline",
         class: "border-accent text-accent",
       },
       {
         color: "promotion",
-        variant: "outlined",
+        variant: "outline",
         class: "border-promotion text-promotion",
       },
       {
         color: "destructive",
-        variant: "outlined",
+        variant: "outline",
         class: "border-destructive text-destructive",
       },
-
       {
         color: "success",
-        variant: "outlined",
+        variant: "outline",
         class: "border-success text-success",
       },
-      { color: "info", variant: "outlined", class: "border-info text-info" },
+      { color: "info", variant: "outline", class: "border-info text-info" },
       {
         color: "error",
-        variant: "outlined",
+        variant: "outline",
         class: "border-error text-error",
       },
       {
         color: "warning",
-        variant: "outlined",
+        variant: "outline",
         class: "border-warning text-warning",
       },
       // ---

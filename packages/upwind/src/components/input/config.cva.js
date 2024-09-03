@@ -21,7 +21,7 @@ export default {
       {
         variants: {
           variant: {
-            outlined: " border",
+            outline: " border",
             flat: "",
           },
           layout: {
@@ -41,19 +41,19 @@ export default {
           },
           {
             layout: "inline",
-            variant: "outlined",
+            variant: "outline",
             size: "md",
             class: "px-3 py-2 text-sm leading-5",
           },
           {
             layout: "inline",
-            variant: "outlined",
+            variant: "outline",
             size: "md",
             class: "px-3 py-3 leading-6",
           },
           {
             layout: "inline",
-            variant: "outlined",
+            variant: "outline",
             size: "lg",
             class: "px-3 py-4 text-lg leading-7",
           },
@@ -64,22 +64,22 @@ export default {
             class: "border-control-error",
           },
           {
-            variant: "outlined",
+            variant: "outline",
             isInvalid: false,
             isDisabled: false,
             class:
-              " focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-active focus-within:ring-4 focus-within:ring-control-active focus-within:ring-opacity-20",
           },
           {
-            variant: "outlined",
+            variant: "outline",
             isInvalid: true,
             isDisabled: false,
             class:
-              " focus-within:border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
+              " focus-within:border-control-error focus-within:ring-4 focus-within:ring-control-error focus-within:ring-opacity-20",
           },
           // DEprecated the success variant
           // {
-          //   variant: "outlined",
+          //   variant: "outline",
           //   isValid: true,
           //   isDisabled: false,
           //   class:
@@ -87,7 +87,7 @@ export default {
           // },
         ],
         defaultVariants: {
-          variant: "outlined",
+          variant: "outline",
           layout: "stacked",
           size: "md",
         },
@@ -180,7 +180,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100  border-r ",
+          outline: "border-r  bg-base-100 ",
           flat: "text-base-500",
         },
         layout: {
@@ -217,7 +217,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100  border-l",
+          outline: "border-l  bg-base-100",
           flat: "text-base-500",
         },
         layout: {
@@ -248,7 +248,7 @@ export default {
 
     feedback: {
       root: cva(
-        "text-base-500 flex items-center gap-x-2 overflow-hidden text-xs transition-opacity duration-300",
+        "flex items-center gap-x-2 overflow-hidden text-xs text-base-500 transition-opacity duration-300",
         {
           variants: {
             hasFeedback: {

@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <span :class="styles.badge.root">
     <slot name="prepend"></slot>
     <span :class="styles.badge.label">
@@ -13,6 +15,7 @@
 import { toRefs, defineComponent } from "vue";
 
 // --- internal
+import globalStyles from "../../assets/upwind.css?url"; // ASSETS
 import config from "./badge.config";
 import { useStyles } from "../../utils";
 
@@ -33,7 +36,6 @@ export default defineComponent({
     },
     label: { type: String },
 
-    // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: Object, default: () => ({}) },
   },
 
@@ -47,9 +49,8 @@ export default defineComponent({
 
     return {
       styles,
+      globalStyles,
     };
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

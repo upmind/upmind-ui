@@ -20,23 +20,23 @@ export default {
           },
           variant: {
             flat: "border-transparent",
-            outlined: "border bg-opacity-0 ",
+            outline: "border bg-opacity-0 ",
             ghost: "border-transparent bg-opacity-0",
             link: "!bg-transparent !p-0 underline",
           },
           color: {
-            current: "text-foreground border-transparent bg-transparent",
-            base: "bg-base-200 text-base-foreground border-transparent",
-            primary: "bg-primary text-primary-foreground border-transparent",
+            current: "border-transparent bg-transparent text-foreground",
+            base: "border-transparent bg-base-200 text-base-foreground",
+            primary: "border-transparent bg-primary text-primary-foreground",
             secondary:
-              "bg-secondary text-secondary-foreground border-transparent",
-            accent: "bg-accent text-accent-foreground border-transparent",
-            success: "bg-success text-success-foreground border-transparent",
-            error: "bg-error text-error-foreground border-transparent",
-            warning: "bg-warning text-warning-foreground border-transparent",
-            info: "bg-info text-info-foreground border-transparent",
+              "border-transparent bg-secondary text-secondary-foreground",
+            accent: "border-transparent bg-accent text-accent-foreground",
+            success: "border-transparent bg-success text-success-foreground",
+            error: "border-transparent bg-error text-error-foreground",
+            warning: "border-transparent bg-warning text-warning-foreground",
+            info: "border-transparent bg-info text-info-foreground",
             promotion:
-              "bg-promotion text-promotion-foreground border-transparent",
+              "border-transparent bg-promotion text-promotion-foreground",
           },
           disabled: {
             true: "!cursor-default opacity-50",
@@ -48,7 +48,7 @@ export default {
         compoundVariants: [
           // disabled + variant
           {
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             disabled: false,
             class: "hover:bg-opacity-100",
           },
@@ -108,7 +108,7 @@ export default {
           // --- current + variant ---
           {
             color: "current",
-            variant: "outlined",
+            variant: "outline",
             class: "border-current text-current",
           },
           {
@@ -124,7 +124,7 @@ export default {
           {
             disabled: false,
             color: "current",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-base-100",
           },
           {
@@ -136,7 +136,7 @@ export default {
           // --- base + variant ---
           {
             color: "base",
-            variant: "outlined",
+            variant: "outline",
             class: " text-base-foreground",
           },
 
@@ -153,7 +153,7 @@ export default {
           {
             disabled: false,
             color: "base",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-base-200",
           },
           {
@@ -165,7 +165,7 @@ export default {
           // --- primary + variant ---
           {
             color: "primary",
-            variant: "outlined",
+            variant: "outline",
             class: "border-primary text-primary",
           },
           {
@@ -181,7 +181,7 @@ export default {
           {
             disabled: false,
             color: "primary",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-primary-50",
           },
           {
@@ -193,7 +193,7 @@ export default {
           // --- secondary + variant ---
           {
             color: "secondary",
-            variant: "outlined",
+            variant: "outline",
             class: "border-secondary text-secondary",
           },
           {
@@ -209,7 +209,7 @@ export default {
           {
             disabled: false,
             color: "secondary",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-secondary-50",
           },
           {
@@ -221,7 +221,7 @@ export default {
           // --- accent + variant ---
           {
             color: "accent",
-            variant: "outlined",
+            variant: "outline",
             class: "border-accent text-accent",
           },
           {
@@ -237,7 +237,7 @@ export default {
           {
             disabled: false,
             color: "accent",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-accent-50",
           },
           {
@@ -250,7 +250,7 @@ export default {
           // --- success + variant ---
           {
             color: "success",
-            variant: "outlined",
+            variant: "outline",
             class: "border-success text-success",
           },
           {
@@ -266,7 +266,7 @@ export default {
           {
             disabled: false,
             color: "success",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-success-50",
           },
           {
@@ -278,7 +278,7 @@ export default {
           // --- error + variant ---
           {
             color: "error",
-            variant: "outlined",
+            variant: "outline",
             class: "border-error text-error",
           },
           {
@@ -294,7 +294,7 @@ export default {
           {
             disabled: false,
             color: "error",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-error-50",
           },
           {
@@ -306,7 +306,7 @@ export default {
           // --- warning + variant ---
           {
             color: "warning",
-            variant: "outlined",
+            variant: "outline",
             class: "border-warning text-warning",
           },
           {
@@ -322,7 +322,7 @@ export default {
           {
             disabled: false,
             color: "warning",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-warning-50",
           },
           {
@@ -334,7 +334,7 @@ export default {
           // --- info + variant ---
           {
             color: "info",
-            variant: "outlined",
+            variant: "outline",
             class: "border-info text-info",
           },
           {
@@ -350,7 +350,7 @@ export default {
           {
             disabled: false,
             color: "info",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-info-50",
           },
           {
@@ -362,7 +362,7 @@ export default {
           // --- promotion + variant ---
           {
             color: "promotion",
-            variant: "outlined",
+            variant: "outline",
             class: "border-promotion text-promotion",
           },
           {
@@ -378,7 +378,7 @@ export default {
           {
             disabled: false,
             color: "promotion",
-            variant: ["outlined", "ghost"],
+            variant: ["outline", "ghost"],
             class: "hover:bg-promotion-50",
           },
           {
