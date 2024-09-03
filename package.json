@@ -65,6 +65,7 @@
     "playgrounds/labs",
     "playgrounds/checkout",
     "playgrounds/storybook",
-    "playgrounds/storybook-ce"
+    "playgrounds/storybook-ce",
+    "playgrounds/velia"
   ]
 }
