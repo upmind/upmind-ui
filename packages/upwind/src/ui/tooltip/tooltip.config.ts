@@ -11,34 +11,38 @@ export const tooltipConfig = cva(
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
+        promotion: "bg-promotion text-promotion-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
         success: "bg-success text-success-foreground",
+        info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
         warning: "bg-warning text-warning-foreground",
-        info: "bg-info text-info-foreground",
-        promotion: "bg-promotion text-promotion-foreground",
       },
     },
   }
 );
+
+export const arrowConfig = cva("text-base-800", {
+  variants: {
+    color: {
+      base: "text-base-800",
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      promotion: "text-promotion",
+      destructive: "text-destructive",
+      success: "text-success",
+      info: "text-info",
+      error: "text-error",
+      warning: "text-warning",
+    },
+  },
+});
 // -----------------------------------------------------------------------------
 
 export default {
   tooltip: {
     content: tooltipConfig,
-    arrow: cva("text-base-800", {
-      variants: {
-        color: {
-          base: "text-base-800",
-          primary: "text-primary",
-          secondary: "text-secondary",
-          accent: "text-accent",
-          success: "text-success",
-          error: "text-error",
-          warning: "text-warning",
-          info: "text-info",
-          promotion: "text-promotion",
-        },
-      },
-    }),
+    arrow: arrowConfig,
   },
 };

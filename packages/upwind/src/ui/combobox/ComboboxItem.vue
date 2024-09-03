@@ -1,23 +1,23 @@
 <template>
-  <UwCommandItem
+  <combobox-item
     :value="label"
     @select="handleSelect"
     :class="styles.combobox.item"
   >
-    <upw-icon
+    <!-- <upw-icon
       v-if="icon"
       :icon="icon"
       :class="styles.combobox.icons.listItem"
       aria-hidden="true"
-    />
+    /> -->
     {{ label }}
-    <upw-icon
+    <!-- <upw-icon
       v-if="isSelected"
       :class="styles.combobox.icons.checkItem"
       icon="check"
       aria-hidden="true"
-    />
-  </UwCommandItem>
+    /> -->
+  </combobox-item>
 </template>
 
 <script lang="ts">
@@ -28,19 +28,15 @@ import { computed, inject, toRefs, defineComponent } from "vue";
 import config from "./combobox.config";
 
 // --- components
-import { UwCommandItem } from "../command";
-import UpwIcon from "../../icon/Icon.vue";
+import { ComboboxItem } from "radix-vue";
 
 // --- utils
-import { useStyles } from "../../../utils";
-
-// --- types
-import type { IconProps } from "../input/types";
+import { useStyles } from "../../utils";
 
 export default defineComponent({
+  name: "UwComboboxItem",
   components: {
-    UwCommandItem,
-    UpwIcon,
+    ComboboxItem,
   },
 
   props: {
@@ -51,9 +47,6 @@ export default defineComponent({
     label: {
       type: String,
       required: true,
-    },
-    icon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
     },
     upwindConfig: {
       type: Object,
@@ -70,7 +63,7 @@ export default defineComponent({
 
     const styles = useStyles(
       ["combobox", "combobox.icons"],
-      toRefs({ color: color }),
+      color,
       config,
       props.upwindConfig
     );
@@ -89,3 +82,5 @@ export default defineComponent({
   },
 });
 </script>
+
+<style src="@/assets/main.css" />

@@ -1,21 +1,22 @@
 // --- external
 import type { Meta, StoryObj } from "@storybook/vue3";
+import { ref } from "vue";
 
 // -- components
-import { UwAlert } from "@upmind/upwind";
+import { UwAlert, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAlert);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+import { keys, isFunction } from "lodash-es";
 
 // --- types
 enum variants {
-  outlined = "Outlined",
+  outline = "Outline",
   solid = "Solid",
 }
 
 const meta: Meta<typeof UwAlert> = {
-  component: UwAlert,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -25,35 +26,48 @@ const meta: Meta<typeof UwAlert> = {
       },
     },
     color: useSystemArgTypes.color,
-    icon: useSystemArgTypes.icon,
   },
   args: {
     title: "Alert",
     description:
       "This is an example alert. Use the controls to change the apperance.",
-    variant: "outlined",
-    icon: "check-circle",
+    variant: "outline",
   },
+  render: args => ({
+    setup() {
+      return { args };
+    },
+    template: `
+      <uw-alert v-bind="args" />
+    `,
+  }),
 };
 
 export default meta;
 type Story = StoryObj<typeof UwAlert>;
 
 export const Base: Story = {
-  render: (args, { updateArgs }) => ({
-    components: { UwAlert },
+  render: args => ({
     setup() {
+      const icon = ref();
+      const iconSvg = useSystemArgTypes.icon.options[9];
+      if (isFunction(iconSvg))
+        iconSvg().then(value => {
+          icon.value = value;
+        });
+
       return {
         args,
+        icon,
       };
     },
-    methods: {
-      doUpdate(value: boolean) {
-        updateArgs({ modelValue: value });
-      },
-    },
     template: `
-        <uw-alert v-bind="args" />
+      <uw-alert v-bind="args">
+        <span
+          v-html="icon"
+          slot="prepend"
+        />
+      </uw-alert>
     `,
   }),
 };
@@ -72,14 +86,14 @@ export const Colors: Story = {
       };
     },
     template: `
-      <div 
-        v-for="color in colors.options" 
-        :key="color" 
+      <div
+        v-for="color in colors.options"
+        :key="color"
         class="my-6"
       >
         <uw-alert
-          v-bind="args" 
-          :color="color" 
+          v-bind="args"
+          :color="color"
         />
       </div>
     `,

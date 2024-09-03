@@ -2,12 +2,14 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UwCombobox, UwComboboxItem } from "@upmind/upwind";
+import { UwButton, UwCombobox, useCustomElement } from "@upmind/upwind";
+
+useCustomElement(UwButton);
+useCustomElement(UwCombobox);
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
 import countries from "../../../utils/countries";
-import { count } from "console";
 
 const meta: Meta<typeof UwCombobox> = {
   parameters: {
@@ -39,44 +41,29 @@ type Story = StoryObj<typeof UwCombobox>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwCombobox, UwComboboxItem },
     setup() {
       return {
         args,
       };
     },
     template: `
-      <uw-combobox v-bind="args" v-model="args.selectedValue">
-        <uw-combobox-item
-          v-for="item in args.items"
-          :key="item.value"
-          :value="item.value"
-          :label="item.label"
-          :icon="item.icon"
-        />
-      </uw-combobox>
+      <uw-combobox
+        v-bind="args"
+        v-model="args.selectedValue"
+      />
     `,
   }),
 };
 
 export const Countries: Story = {
   render: args => ({
-    components: { UwCombobox, UwComboboxItem },
     setup() {
       return {
         args,
       };
     },
     template: `
-      <uw-combobox v-bind="args" v-model="args.selectedValue">
-        <uw-combobox-item
-          v-for="item in args.items"
-          :key="item.value"
-          :value="item.value"
-          :label="item.label"
-          :icon="item.icon"
-        />
-      </uw-combobox>
+      <uw-combobox v-bind="args" v-model="args.selectedValue" />
     `,
   }),
   args: {
