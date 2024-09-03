@@ -29,7 +29,7 @@ async function load(_context: GuestContext, _event: any) {
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: { grant_type: GrantTypes.GUEST },
-  }).then(data => {
+  }).then((data: any) => {
     persistTokenToStorage(data);
     return data;
   });
@@ -46,7 +46,7 @@ async function authenticate({ model }: GuestContext) {
       password: model.password,
       grant_type: GrantTypes.PASSWORD,
     },
-  }).then(data => {
+  }).then((data: any) => {
     // we record the history of the token to be able to referejce the originating guest token
     if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
     return data;
@@ -63,7 +63,7 @@ async function verify2fa({ token }: GuestContext, { data }: any) {
       twofa_provider: TwofaProviders.GOOGLE,
       twofa_code: data,
     },
-  }).then(data => {
+  }).then((data: any) => {
     persistTokenToStorage(data);
     return data;
   });
@@ -76,7 +76,7 @@ async function getCustomFields(_context: GuestContext, _event: any) {
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function checkForReCaptcha(_context: GuestContext, { data }: any) {
@@ -95,7 +95,7 @@ async function register({ model }: GuestContext) {
   const { getCookie } = useCookies();
   const { getTracking } = useTracking();
 
-  const data = {
+  const data: any = {
     custom_fields: model?.custom_fields,
     email: model?.email,
     firstname: model?.firstname,
@@ -130,7 +130,7 @@ async function register({ model }: GuestContext) {
   return post({
     url: useUrl("clients/register"),
     data,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------

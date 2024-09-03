@@ -242,18 +242,21 @@ export default createMachine(
       setRegisterSchemas: assign({
         schema: ({ customFields }) => useRegisterSchemaParser(customFields),
         uischema: ({ customFields }) => useRegisterUischemaParser(customFields),
+        // @ts-ignore
         model: ({ customFields }) => useRegisterModelParser(customFields),
       }),
 
       setLoginSchemas: assign({
         schema: _context => useLoginSchemaParser(),
         uischema: _context => useLoginUischemaParser(),
+        // @ts-ignore
         model: _context => useLoginModelParser(),
       }),
 
       set2faSchemas: assign({
         schema: _context => use2faSchemaParser(),
         uischema: _context => use2faUischemaParser(),
+        // @ts-ignore
         model: _context => use2faModelParser(),
       }),
 
@@ -274,7 +277,7 @@ export default createMachine(
         });
       },
 
-      trackRegister: (_context, { data }) => {
+      trackRegister: (_context, { data }: any) => {
         trackEvent({
           event: "sign_up",
           upmind: {
@@ -282,7 +285,7 @@ export default createMachine(
           },
         });
       },
-      trackLogin: (_context, { data }) => {
+      trackLogin: (_context, { data }: any) => {
         trackEvent({
           event: "login",
           upmind: {
@@ -293,10 +296,10 @@ export default createMachine(
       // ---
 
       setError: assign({
-        error: (_context, event, state) => {
+        error: (_context, event: any, state) => {
           console.error("session", "client", "error", { event, state });
 
-          const data = event?.data;
+          const data: any = event?.data;
 
           if (data?.error?.code == responseCodes.Unauthorized) {
             // Usually because the refresh token has expired.
@@ -318,9 +321,9 @@ export default createMachine(
       clearError: assign({ error: null }),
     },
     guards: {
-      requires2fa: (_context, { data }) =>
+      requires2fa: (_context, { data }: any) =>
         data.actor_type == "twofa" && !!data?.second_factor_required,
-      requiresReCaptcha: (_context, { data }) => !!data?.recaptcha_required,
+      requiresReCaptcha: (_context, { data }: any) => !!data?.recaptcha_required,
     },
 
     delays: {},

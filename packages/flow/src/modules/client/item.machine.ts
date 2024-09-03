@@ -117,6 +117,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
+                  // @ts-ignore
                   pure((context, _event) => {
                     addSuccess(`Successfully added ${context.title}`);
                   }),
@@ -135,6 +136,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
+                  // @ts-ignore
                   pure((context, _event) => {
                     addSuccess(`Successfully updated ${context.title}`);
                   }),
@@ -153,6 +155,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "clearModel",
+                  // @ts-ignore
                   pure((context, _event) => {
                     addSuccess(`Successfully deleted ${context.title}`);
                   }),
@@ -171,6 +174,7 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
+                  // @ts-ignore
                   pure((context, _event) => {
                     addSuccess(`Successfully set ${context.title} as default`);
                   }),
@@ -234,6 +238,7 @@ export default createMachine(
   },
   {
     actions: {
+      // @ts-ignore
       setContext: assign(
         (_context: ClientItemContext, { data }: ClientItemEvent) => data
       ),
@@ -256,7 +261,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (context, { data }) => {
+        error: (_, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -292,6 +297,7 @@ export default createMachine(
         !!model?.id && !!model?.can_delete,
     },
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },

@@ -171,13 +171,16 @@ export default createMachine(
       refreshContext: assign(
         (_context: FieldsContext, { data: basket }: FieldsEvent) => {
           return {
+            // @ts-ignore
             basket_id: basket?.id,
             model: parseBasketFieldsModel(basket),
           };
         }
       ),
 
+      // @ts-ignore
       setContext: assign(
+        // @ts-ignore
         (_context: FieldsContext, { data }: FieldsEvent) => data
       ),
 
@@ -210,14 +213,16 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: (_context, { update }) => !!update,
       }),
       clearAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      setFeedbackSuccess: (_context, _event) => {
+      setFeedbackSuccess: (_context: any, _event: any) => {
         addSuccess("Successfully updated the basket fields");
       },
 
@@ -234,7 +239,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -252,7 +257,8 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model, basket_id }, { data }) => {
+      // @ts-ignore
+      hasChanged: ({ model, basket_id }, { data }: any) => {
         model?.notes !== data?.notes ||
           model?.custom_fields !== data?.custom_fields ||
           basket_id !== data?.id;
@@ -262,10 +268,12 @@ export default createMachine(
     },
 
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );

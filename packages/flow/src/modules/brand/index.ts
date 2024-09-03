@@ -16,8 +16,9 @@ import { pick, isArray, find, some, first } from "lodash-es";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
+let state: any = null;
 
+// @ts-ignore
 const service = interpret(brandMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
@@ -26,7 +27,7 @@ const service = interpret(brandMachine, { devTools: false }).onTransition(
 export const useBrand = () => {
   // --------------------------------------------------------
   // methods
-  const hasModuleEnabled = code =>
+  const hasModuleEnabled = (code: any) =>
     some(state?.context?.modules, ["code", code]);
   // --------------------------------------------------------
 
@@ -34,7 +35,8 @@ export const useBrand = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
 
-    isModuleReady: async module =>
+    isModuleReady: async (module: any) =>
+      // @ts-ignore
       waitFor(service, state => state.matches(`processing.${module}.complete`)),
     isReady: async () => waitFor(service, state => state.matches("complete")),
     // ---

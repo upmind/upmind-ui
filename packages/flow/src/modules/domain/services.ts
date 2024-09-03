@@ -15,8 +15,10 @@ import type { DomainContext } from "./types.d";
 function search({ promotions, currency, controller, search }: DomainContext) {
   const { get, useUrl } = useApi();
 
+  // @ts-ignore
   if (!search?.query?.length) return Promise.reject("No query provided");
 
+  // @ts-ignore
   const sld = parseSld(search.query);
 
   // --- Build the request, and Fetch the search results
@@ -37,7 +39,7 @@ function search({ promotions, currency, controller, search }: DomainContext) {
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
     useCache: true,
-  }).then(({ data, total }) => {
+  }).then(({ data, total }: any) => {
     return {
       available: parseAvailable(sld, data),
       total: total || 0,
@@ -53,7 +55,7 @@ function getClientDomains({ controller }: DomainContext) {
     init: { signal: controller?.signal },
     useCache: true,
     withAccessToken: true,
-  }).then(({ data }) =>
+  }).then(({ data }: any) =>
     map(data, ({ domain_name }) => parseDomain(domain_name))
   );
 }

@@ -68,16 +68,16 @@ export function useTokenParser(data: any) {
   };
 }
 
-export function useInitialsParser(user, chars: number = 1) {
+export function useInitialsParser(user: any, chars: number = 1) {
   if (!user) return "";
 
   return slice(user?.display?.split(" "), 0, chars)
-    ?.map(word => first(word))
+    ?.map((word: any) => first(word))
     ?.join("");
 }
 
 export async function useUserParser(data: any) {
-  const user = pick(data, [
+  const user: any = pick(data, [
     "id",
     "email",
     "username",

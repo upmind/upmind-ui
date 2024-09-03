@@ -442,12 +442,13 @@ export default createMachine(
       }),
 
       checkModel: assign({
-        model: ({ model }) => map(compact(model), parseDomain),
+        model: ({ model }: any) => map(compact(model), parseDomain),
       }),
 
       ensurePrimary: assign({
         model: ({ model }) => {
           if (!!model?.length && !some(model, "is_primary")) {
+            // @ts-ignore
             first(model).is_primary = true;
           }
           return model;
@@ -455,7 +456,7 @@ export default createMachine(
       }),
 
       checkChoices: assign({
-        choices: ({ basketItems }) => {
+        choices: ({ basketItems }: any) => {
           if (!basketItems?.length)
             return omit(DomainTypes, DomainTypes.basket);
 
@@ -481,33 +482,33 @@ export default createMachine(
       }),
 
       setCurrency: assign({
-        currency: (_context, { data }) => {
+        currency: (_context, { data }: any) => {
           return data?.currency;
         },
       }),
 
       setPromotions: assign({
-        promotions: (_context, { data }) => {
+        promotions: (_context, { data }: any) => {
           return data?.promotions;
         },
       }),
       // ---
 
-      setAuthHelper: assign(({ authHelper }) => {
+      setAuthHelper: assign(({ authHelper }: any) => {
         authHelper || spawn(authSubscription);
       }),
 
-      setBasketHelper: assign(({ basketHelper }) => {
+      setBasketHelper: assign(({ basketHelper }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: function (item) {
+          itemBuilder: function (item: any) {
             return parseBasketItem(item);
           },
-          itemMapper: item => ({
+          itemMapper: (item: any) => ({
             product_id: item.product_id,
             sld: item?.sld || item?.provision_fields?.sld,
           }),
-          basketItemBuilder: item => {
+          basketItemBuilder: (item: any) => {
             if (!item?.product_id) return null;
             return {
               product_id: item.product_id,
@@ -522,7 +523,7 @@ export default createMachine(
               },
             };
           },
-          basketItemMapper: item => ({
+          basketItemMapper: (item: any) => ({
             product_id: item.product_id,
             "provision_fields.sld": item?.sld || item?.provision_fields?.sld,
           }),
@@ -530,7 +531,7 @@ export default createMachine(
       }),
 
       setBasketItems: assign({
-        basketItems: (_context, { data }) => data,
+        basketItems: (_context: any, { data }: any) => data,
         lookups: ({ lookups }, { data }) => {
           const available = map(data, item => {
             item.value = item.domain;
@@ -543,7 +544,7 @@ export default createMachine(
       }),
 
       syncBasket: sendTo(
-        ({ basketHelper }, _event) => basketHelper,
+        ({ basketHelper }: any, _event) => basketHelper,
         (context, _event) => {
           // not all values might be products, eg an exiting domain value,
           // so we need to filter out any non product values
@@ -560,7 +561,7 @@ export default createMachine(
       ),
 
       fetchBasket: sendTo(
-        ({ basketHelper }, _event) => basketHelper,
+        ({ basketHelper }: any, _event) => basketHelper,
         (context, _event) => ({
           type: "FETCH",
           context,
@@ -570,11 +571,11 @@ export default createMachine(
       // ---
 
       synced: assign({
-        lookups: ({ lookups }, { data }) => {
+        lookups: ({ lookups }: any, { data }) => {
           lookups.basket = data;
           return lookups;
         },
-        type: ({ type }, { data }) => {
+        type: ({ type }, { data }: any) => {
           return data?.length ? DomainTypes.basket : type;
         },
       }),
@@ -583,7 +584,7 @@ export default createMachine(
 
       add: assign({
         model: (
-          { model, lookups, type }: DomainContext,
+          { model, lookups, type }: any,
           { data }: AddEvent
         ) => {
           let available = [];
@@ -615,7 +616,7 @@ export default createMachine(
       // ---
 
       setModel: assign({
-        model: ({ model, lookups, type }: DomainContext, { data }: AddEvent) =>
+        model: ({ model, lookups, type }: any, { data }: AddEvent) =>
           reduce(
             data,
             (result, item) => {
@@ -635,12 +636,13 @@ export default createMachine(
                   break;
               }
 
-              const domain = parseValue(item, model, available);
+              const domain: any = parseValue(item, model, available);
 
               // ensure we persist any prev selected/primary domain
               if (domain) {
                 const exists = find(model, ["domain", domain.domain]);
                 domain.is_primary = exists?.is_primary;
+                // @ts-ignore
                 result.push(domain);
               }
               return result;
@@ -660,6 +662,7 @@ export default createMachine(
       }),
 
       cancelController: assign({
+        // @ts-ignore
         controller: ({ controller }) => {
           if (controller?.signal && !controller.signal?.aborted) {
             controller?.abort();
@@ -675,6 +678,7 @@ export default createMachine(
       }),
 
       setSearchQuery: assign({
+        // @ts-ignore
         search: ({ search }, { data }) => {
           return {
             query: data,
@@ -686,14 +690,14 @@ export default createMachine(
       }),
 
       setSearchOffset: assign({
-        search: ({ search }, _event) => {
+        search: ({ search }: any, _event) => {
           search.offset += search?.limit;
           return search;
         },
       }),
 
       clearSearch: assign({
-        search: ({ search }, _event) => ({
+        search: ({ search }: any, _event) => ({
           query: "",
           offset: 0,
           limit: search.limit,
@@ -707,7 +711,7 @@ export default createMachine(
       }),
 
       setSearchResults: assign({
-        lookups: ({ lookups, model, search }, { data }) => {
+        lookups: ({ lookups, model, search }: any, { data }: any) => {
           const previous = search.offset > 0 ? lookups.searched : [];
 
           const available = map(data?.available, item => {
@@ -736,7 +740,6 @@ export default createMachine(
           );
 
           return lookups;
-          foffset;
         },
         search: ({ search }, { data }) => {
           search.total = data.total;
@@ -746,7 +749,7 @@ export default createMachine(
       }),
 
       setOwned: assign({
-        lookups: ({ lookups }, { data }) => {
+        lookups: ({ lookups }: any, { data }: any) => {
           const available = map(data, item => {
             item.value = item.domain;
             item.persist = true;
@@ -758,7 +761,7 @@ export default createMachine(
       }),
 
       clearLookups: assign({
-        lookups: (_context, _event) => {
+        lookups: (_context: any, _event: any) => {
           return {
             searched: [],
             history: [],
@@ -769,7 +772,7 @@ export default createMachine(
       }),
 
       resetLookups: assign({
-        lookups: ({ lookups }, _event) => {
+        lookups: ({ lookups }: any, _event: any) => {
           return {
             searched: [],
             history: [],
@@ -790,6 +793,7 @@ export default createMachine(
       }),
 
       // ---
+      // @ts-ignore
       setSuccess: (_context, _event) => {
         // addSuccess("Successfully set Domain");
       },
@@ -818,15 +822,17 @@ export default createMachine(
 
       isValidDomain: (_context, { data }) => !isEmpty(parseDomain(data)),
 
-      hasSearchQuery: ({ search }, _event) => {
+      hasSearchQuery: ({ search }: any, _event) => {
         const sld = parseSld(search.query);
+        // @ts-ignore
         return sld?.length > 2;
       },
       validSearchQuery: (_context, { data }) => {
         const sld = parseSld(data);
+        // @ts-ignore
         return sld?.length >= 2;
       },
-      validSearchOffset: ({ search }, _event) => {
+      validSearchOffset: ({ search }: any, _event) => {
         const offset = search.offset + search.limit;
         return offset < search.total;
       },
@@ -839,7 +845,8 @@ export default createMachine(
         return isEmpty(model);
       },
 
-      hasItems: (_context, { data }) => {
+      // @ts-ignore
+      hasItems: (_context, { data }: any) => {
         return !!data?.length;
       },
 
@@ -860,6 +867,7 @@ export default createMachine(
     },
 
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },

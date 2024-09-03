@@ -14,12 +14,13 @@ import uploadMachine from "./upload.machine";
 // this is because we need to be able to have multiple uploads happening at once
 // and we need to be able to start and stop them individually
 export const useSystemUpload = (field?: Object) => {
-  let state = null;
+  let state: any = null;
 
   const context = {
     field,
   };
 
+  // @ts-ignore
   const service = interpret(uploadMachine.withContext(context), {
     devTools: false,
   })

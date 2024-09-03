@@ -171,7 +171,8 @@ export default createMachine(
     actions: {
       refreshContext: assign(
         (
-          { basket_id, model }: CurrencyContext,
+          // TODO: { basket_id, model }: CurrencyContext,
+          _,
           { data: basket }: CurrencyEvent
         ) => {
           return {
@@ -181,6 +182,7 @@ export default createMachine(
         }
       ),
 
+      // @ts-ignore
       setContext: assign(
         (_context: CurrencyContext, { data }: CurrencyEvent) => data
       ),
@@ -216,14 +218,15 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }) => !!update,
+        autoupdate: (_context: any, { update }: any) => !!update,
       }),
       clearAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      setFeedbackSuccess: (_context, _event) => {
+      setFeedbackSuccess: (_context: any, _event: any) => {
         addSuccess("Successfully updated the basket currency");
       },
 
@@ -239,7 +242,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -257,17 +260,19 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model, basket_id }, { data }) =>
+      hasChanged: ({ model, basket_id }, { data }: any) =>
         model?.id !== data?.currency_id || basket_id !== data?.id,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
     },
 
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );

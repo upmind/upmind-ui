@@ -15,7 +15,7 @@ import { forEach, reduce, get, set, defaultsDeep, trimStart } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useValidation = (ajv?: Object) => {
+export const useValidation = (ajv?: any) => {
   // us JSON Forms version of AJV as it has formats and other keywords already
   ajv ??= createAjv({ useDefaults: true, allErrors: true });
   ajvErrors(ajv, { singleError: true });
@@ -36,13 +36,13 @@ export const useValidation = (ajv?: Object) => {
       return isValidPhoneNumber(value, country);
     },
     error: {
-      message: cxt => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
+      message: () => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
     },
   });
 
   return {
     ajv,
-    validate: (schema, data) => {
+    validate: (schema: any, data: any) => {
       const validate = ajv.compile(schema);
       const valid = validate(data);
       if (!valid) {
@@ -57,7 +57,7 @@ export const useValidationParser = (error: any) => {
   if (error?.data) {
     error.message = "Validation error";
 
-    const errors = [];
+    const errors: any[] = [];
     forEach(error.data, (value, key) => {
       // because we have a specific schema for provision_fields, we dont need the prefix of the path
       // we also need to handle any nested properties correctly, JSON schema would have them withing properties
@@ -84,7 +84,7 @@ export const useValidationParser = (error: any) => {
   return error;
 };
 
-export const useModelParser = (schema, values) => {
+export const useModelParser = (schema: any, values: any) => {
   const model = reduce(
     schema?.properties,
     (result, field, key) => {

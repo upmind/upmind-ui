@@ -15,7 +15,8 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ addresses, emails, phones, baseModel }) => {
+// TODO: export const useSchema = ({ addresses, emails, phones, baseModel }) => {
+export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
   const choices = {
     addresses: addresses.getItems(),
     emails: emails.getItems(),
@@ -193,7 +194,9 @@ export const spawnItem = (model?: ICompany) => {
     return spawn(
       itemMachine
         .withConfig({
+          // @ts-ignore
           actions,
+          // @ts-ignore
           services,
         })
         .withContext({ model }),

@@ -271,7 +271,7 @@ export default createMachine(
       ),
 
       setConfigKeys: assign({
-        keys: ({ keys }, { data }: { data: BrandConfigKeys[] }) => {
+        keys: ({ keys }: any, { data }: { data: BrandConfigKeys[] }) => {
           keys.config.push(...data);
           return keys;
         },
@@ -283,6 +283,7 @@ export default createMachine(
       ),
 
       setModules: assign({
+        // @ts-ignore
         modules: (_context: BrandContext, { data }: BrandEvent) => data,
       }),
 

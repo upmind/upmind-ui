@@ -113,7 +113,7 @@ async function load(
     useCache: true,
     maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 
   // lets get our provision_fields fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(product_id);
@@ -138,7 +138,7 @@ async function load(
   );
 }
 
-async function loadProvisioningFields(product_id) {
+async function loadProvisioningFields(product_id: any) {
   const { get, useUrl } = useApi();
   if (!product_id) return Promise.reject("No Product ID provided");
   // we dont cache provision_fields fields, as they can change with diferent options/attributes being selected
@@ -146,7 +146,7 @@ async function loadProvisioningFields(product_id) {
     url: useUrl(`basket/products/${product_id}/provision_fields`),
     useCache: false,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // ---
@@ -172,8 +172,8 @@ async function checkTerm(
 ) {
   const value = model?.term;
   let term = null;
-  const price = [];
-  const errors = [];
+  const price: any[] = [];
+  const errors: any[] = [];
   // ---
 
   if (!lookups?.terms?.length) {
@@ -232,6 +232,7 @@ async function checkAttributes(
   const value = model?.attributes;
 
   return checkSubproducts(
+    // @ts-ignore
     { error, lookups, model },
     { data: value, type: "attributes" }
   );
@@ -244,18 +245,19 @@ async function checkOptions(
   const value = model?.options;
 
   return checkSubproducts(
+    // @ts-ignore
     { error, lookups, model },
     { data: value, type: "options" }
   );
 }
 
 async function checkSubproducts(
-  { error, lookups, model }: ProductConfigContext,
+  { error, lookups, model }: any,
   { type, data }: any
 ) {
   let subproducts = null;
-  const price = [];
-  const errors = {};
+  const price: any[] = [];
+  const errors: any = {};
   // ---
   // safety check, resolve if we have no attributes to check
   if (!lookups?.[type]?.length) {
@@ -354,7 +356,7 @@ async function checkSubproducts(
 }
 
 async function checkProvisioning(
-  { error, lookups, model }: ProductConfigContext,
+  { error, lookups, model }: any,
   _event: any
 ) {
   // bail if we dont actually have any provision fields to check
@@ -368,7 +370,7 @@ async function checkProvisioning(
   const { validate } = useValidation();
   const errors = validate(lookups.provision_fields, value);
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     if (errors.length) {
       // TODO: reject with the errors , but need to allow skipping validation for sync
       // for now we will resolve with errors
@@ -427,7 +429,7 @@ const calculateSummary = (
       currency_id,
       prices: values,
     },
-  }).then(({ data }) => pick(data, ["total", "total_formatted"]));
+  }).then(({ data }: any) => pick(data, ["total", "total_formatted"]));
 };
 
 const calculateBillingTerm: IProductModel["term"] = async (
@@ -476,7 +478,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
   let controller: AbortController | null;
 
-  onReceive(event => {
+  onReceive((event: any) => {
     if (event.type === "CALCULATE") {
       // Firstly, we need to check if we have a controller already doing calculation requests.
       // If we do, we need to abort the current request and start a new one.
@@ -492,7 +494,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
           // send the summary back to the machine
           callback({ type: "CALCULATED", data: summary });
         })
-        .catch(error => {
+        .catch(() => {
           // still notify the machine, but with an no value, so we can move out of the state
           callback({ type: "CALCULATED", data: null });
         });

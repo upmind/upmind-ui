@@ -34,13 +34,15 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
+    // @ts-ignore
     title: ({ model }: PhoneContext, _event: PhoneEvent) => {
       const phone = get(model, "phone");
       if (isObject(phone)) return get(model, "phone.number");
       return get(model, "international_phone");
     },
     description: (
-      { model, country, types }: PhoneContext,
+      // TODO: { model, country, types }: PhoneContext,
+      { model, country, types }: any,
       _event: PhoneEvent
     ) => {
       let type = get(model, "type");
@@ -50,12 +52,13 @@ export const ItemActions = {
   }),
   setSchemas: assign({
     schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
-    uischema: (context: PhoneContext, _event: PhoneEvent) =>
-      useUischema(context),
+    // TODO: uischema: (context: PhoneContext, _event: PhoneEvent) =>
+    // TODO: useUischema(context),
+    uischema: (_, _event: PhoneEvent) => useUischema(),
   }),
 
   setModel: assign({
-    model: ({ schema, model }, { data }) =>
+    model: ({ schema, model }: any, { data }: any) =>
       useModelParser(schema, data || model),
   }),
 };

@@ -152,13 +152,15 @@ export default createMachine(
   {
     actions: {
       setContext: assign(
-        (_context: CurrencyContext, { data }: CurrencyEvent) => data
+        // TODO: (_context: CurrencyContext, { data }: CurrencyEvent) => data
+        (_context: any, { data }: any) => data
       ),
 
       // ---
       setSchemas: assign({
         schema: context => useSchema(context),
-        uischema: context => useUischema(context),
+        // TODO: uischema: context => useUischema(context),
+        uischema: () => useUischema(),
       }),
 
       clearSchemas: assign({
@@ -197,6 +199,7 @@ export default createMachine(
 
       // ---
 
+      // @ts-ignore
       setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
@@ -207,6 +210,7 @@ export default createMachine(
         });
       },
 
+      // @ts-ignore
       setError: assign({
         error: (_context: GatewayContext, { data }: GatewayEvent) => {
           let error = data?.error;
@@ -224,6 +228,7 @@ export default createMachine(
     },
 
     guards: {
+      // @ts-ignore
       hasNoOutstandingBalance: (
         _context: GatewayContext,
         _event: GatewayEvent
@@ -234,10 +239,12 @@ export default createMachine(
     },
 
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );

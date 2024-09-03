@@ -35,7 +35,7 @@ async function load(_context: ClientContext, _event: any) {
       ].join(),
     }),
     withAccessToken: true,
-  }).then(({ data }) => useUserParser(data?.actor));
+  }).then(({ data }: any) => useUserParser(data?.actor));
 }
 
 // --------------------------------------------------------
@@ -43,5 +43,6 @@ async function load(_context: ClientContext, _event: any) {
 
 export default <Object>{
   load,
+  // @ts-ignore
   transfer: services.transfer,
 };
