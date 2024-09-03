@@ -25,7 +25,7 @@
           {{ prependText }}
         </span>
 
-        <upw-avatar
+        <uw-avatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           :avatar="prependAvatar"
@@ -67,7 +67,7 @@
           :icon="appendIcon"
         />
 
-        <upw-avatar
+        <uw-avatar
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
@@ -144,7 +144,7 @@ import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 // --- components
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
-import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import UwAvatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
@@ -165,7 +165,7 @@ export default defineComponent({
     HMenuButton: MenuButton,
     HMenuItems: MenuItems,
     UpwIcon,
-    UpwAvatar,
+    UwAvatar,
     UpwSpinner,
     UpwDropdownItem,
   },

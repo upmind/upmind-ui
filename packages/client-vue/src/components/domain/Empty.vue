@@ -8,7 +8,7 @@
     skrim="light"
   >
     <section :class="styles.domain.empty.root">
-      <upw-avatar :avatar="avatar" :class="styles.domain.empty.avatar" />
+      <uw-avatar :avatar="avatar" :class="styles.domain.empty.avatar" />
 
       <h3 :class="styles.domain.empty.title">
         {{ title }}
@@ -28,7 +28,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
 
 // --- utils
 import { get } from "lodash-es";
@@ -38,7 +38,7 @@ export default defineComponent({
   name: "UpmDomainEmpty",
   components: {
     UpwDialog,
-    UpwAvatar,
+    UwAvatar,
     UpwButton,
   },
   props: {

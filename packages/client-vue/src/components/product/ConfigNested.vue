@@ -73,7 +73,7 @@
                 v-for="promotion in value?.price?.promotions"
                 :key="promotion.id"
               >
-                <upw-badge
+                <uw-badge
                   color="promotion"
                   :label="
                     $tc(
@@ -87,7 +87,7 @@
                 />
               </template>
 
-              <!-- <upw-badge
+              <!-- <uw-badge
                 v-if="!item.price_override"
                 variant="tonal"
                 color="base"
@@ -158,7 +158,7 @@ import config from "./config.cva";
 import {
   UpwRadio,
   UpwCheckbox,
-  UpwBadge,
+  UwBadge,
   UpwInput,
   UpwQuantitybox,
   UpwSpinner,
@@ -174,7 +174,7 @@ export default defineComponent({
     UpwInput,
     UpwRadio,
     UpwCheckbox,
-    UpwBadge,
+    UwBadge,
     UpwQuantitybox,
     UpwSpinner,
   },

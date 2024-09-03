@@ -13,7 +13,7 @@
         <h4 :class="styles.clientCard.title">
           {{ title }}
 
-          <upw-badge
+          <uw-badge
             v-for="(badge, index) in badges"
             :key="`badge-${index}`"
             v-bind="badge"
@@ -55,7 +55,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwIcon, UpwRadio, UpwDropdown, UpwBadge } from "@upmind/upwind";
+import { UpwIcon, UpwRadio, UpwDropdown, UwBadge } from "@upmind/upwind";
 
 // --- utils
 import { useClipboard } from "@vueuse/core";
@@ -64,7 +64,7 @@ import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmClientCard",
-  components: { UpwIcon, UpwRadio, UpwDropdown, UpwBadge },
+  components: { UpwIcon, UpwRadio, UpwDropdown, UwBadge },
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {

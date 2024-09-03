@@ -7,7 +7,7 @@
     skrim="light"
   >
     <section :class="styles.order.confirmation.root">
-      <upw-avatar :avatar="avatar" :class="styles.order.confirmation.avatar" />
+      <uw-avatar :avatar="avatar" :class="styles.order.confirmation.avatar" />
 
       <h3 :class="styles.order.confirmation.title">
         {{ title }}
@@ -45,7 +45,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
 
 // --- types
 
@@ -54,7 +54,7 @@ export default defineComponent({
   name: "UpmOrderConfirmation",
   components: {
     UpwDialog,
-    UpwAvatar,
+    UwAvatar,
     UpwButton,
   },
   props: {

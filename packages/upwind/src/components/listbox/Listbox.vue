@@ -26,7 +26,7 @@
             {{ selectedPrependText }}
           </span>
 
-          <upw-avatar
+          <uw-avatar
             v-if="selectedPrependAvatar"
             :class="styles.listbox.avatar"
             :avatar="selectedPrependAvatar"
@@ -68,7 +68,7 @@
             :icon="selectedAppendIcon"
           />
 
-          <upw-avatar
+          <uw-avatar
             v-if="selectedAppendAvatar"
             class="avatar"
             :class="styles.listbox.avatar"
@@ -152,7 +152,7 @@
                   {{ item.prependText }}
                 </span>
 
-                <upw-avatar
+                <uw-avatar
                   v-if="item.prependAvatar"
                   :class="styles.listbox.avatar"
                   :avatar="item.prependAvatar"
@@ -188,7 +188,7 @@
                   :icon="item.appendIcon"
                 />
 
-                <upw-avatar
+                <uw-avatar
                   v-if="item.appendAvatar"
                   class="avatar"
                   :class="styles.listbox.avatar"
@@ -241,7 +241,7 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import UpwIcon from "../icon/Icon.vue";
-import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import UwAvatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
@@ -266,7 +266,7 @@ export default defineComponent({
     HListboxOptions: ListboxOptions,
     HListboxOption: ListboxOption,
     UpwIcon,
-    UpwAvatar,
+    UwAvatar,
     UpwSpinner,
   },
   emits: ["update:modelValue"],

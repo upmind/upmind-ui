@@ -21,28 +21,7 @@
       </transition-group>
     </aside>
 
-    <!-- <aside class="toasts" :class="styles.feedback.toasts">
-      <transition-group
-        :enter-active-class="styles.toastTransitionEnter.active"
-        :enter-from-class="styles.toastTransitionEnter.from"
-        :enter-to-class="styles.toastTransitionEnter.to"
-        :leave-active-class="styles.toastTransitionLeave.active"
-        :leave-from-class="styles.toastTransitionLeave.from"
-        :leave-to-class="styles.toastTransitionLeave.to"
-        appear
-      >
-        <upm-message
-          v-for="toast in toasts"
-          :key="toast.id"
-          :item="toast"
-          :scheduled="scheduled"
-          variant="stacked"
-          anchor="bottom"
-        />
-      </transition-group>
-    </aside> -->
-
-    <uw-toaster
+    <uw-sonner
       position="bottom-right"
       close-button
       rich-colors
@@ -59,11 +38,12 @@ import { defineComponent, watch, ref } from "vue";
 
 // --- internal
 import { useFeedback, useMessage } from "@upmind/flow-vue";
-import { useStyles, toast, UpwSpinner, UpwIcon } from "@upmind/upwind";
+import { useStyles, toast } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UwToaster } from "@upmind/upwind";
+import { UwSonner, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwSonner);
 import UpmMessage from "./Message.vue";
 import UpmTrackEvent from "./TrackEvent.vue";
 
@@ -77,9 +57,6 @@ export default defineComponent({
   components: {
     UpmMessage,
     UpmTrackEvent,
-    UwToaster,
-    UpwSpinner,
-    UpwIcon,
   },
   props: {
     scheduled: {
