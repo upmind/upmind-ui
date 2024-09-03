@@ -18,18 +18,22 @@ export enum DomainTypes {
 // --- Interfaces
 
 export interface IDomainProduct {
-  type: DomainTypes.New | DomainTypes.Internal;
+  type?: DomainTypes.New | DomainTypes.Internal;
   domain: string;
   sld: string;
   tld: string;
   // --- Options for New/Internal domains
   product_id: string;
-  billing_cycle_years: number;
-  is_available: boolean;
-  is_discounted: boolean;
-  percentage_saving: nymber;
-  price_discounted_formatted: string;
-  price_formatted: string;
+  quantity?: number;
+  billing_cycle_months?: number;
+  options?: Object;
+  attributes?: Object;
+  is_available?: boolean;
+  is_discounted?: boolean;
+  price_discounted?: number;
+  price_discounted_formatted?: string;
+  price?: number;
+  price_formatted?: string;
   // ---
   is_primary: boolean;
 }

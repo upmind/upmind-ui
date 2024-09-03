@@ -1,7 +1,7 @@
 // --- externals
 
 // --- utils
-import { useMoney } from "../../utils";
+import { parseQuantity } from "../product/utils";
 import {
   compact,
   find,
@@ -12,7 +12,6 @@ import {
   orderBy,
   reduce,
   set,
-  some,
   uniqBy,
 } from "lodash-es";
 
@@ -30,7 +29,7 @@ export function parseDomain(data: Object | string) {
   const value = {
     domain: parsed,
     tld: parsed?.match(/(?:^[^.]+)(\..{2,})/i)?.[1] || "",
-    sld: first(parsed?.split(".")) || "",
+    sld: (first(parsed?.split(".")) as string) || "",
   };
 
   if (value.domain && value.tld && value.sld) return value;
@@ -73,118 +72,74 @@ export function parseValue(data: Object | string, values = [], available = []) {
   return domain;
 }
 
-export function parseProduct(item) {
-  const { removeTrailingZeroes } = useMoney();
-  const tld = item?.tld || item?.name;
-  const sld = item?.sld || item?.provision_fields?.sld;
-  const domain = [sld, tld].join("").toLowerCase();
-  const result = {
-    product_id: item.product_id,
-    quantity: item.quantity,
-    options: !item?.domain_available ? parseOptions(item?.options) : {},
-    is_available: item?.domain_available,
-    // ---
-    tld,
-    sld,
-    domain,
-  };
-  const term =
-    item.term || first(orderBy(item.prices, "billing_cycle_months", "asc"));
-  if (term) {
-    result.billing_cycle_months =
-      item?.billing_cycle_months ||
-      item?.term?.billing_cycle_months ||
-      item?.term;
-    result.billing_cycle_years = Math.round(term?.billing_cycle_months / 12);
-    result.is_discounted = !!term?.price_discounted_formatted;
-    result.price_discounted = term?.price_discounted;
-    result.price_discounted_formatted = removeTrailingZeroes(
-      term?.price_discounted_formatted
-    );
-    result.price = term?.price;
-    result.price_formatted = removeTrailingZeroes(term?.price_formatted);
-    result.percentage_saving = !result?.is_discounted
-      ? 0
-      : Math.floor(
-          ((term?.price - (term?.price_discounted || 0)) / term?.price) * 100
-        );
+export function parseProduct(data) {
+  // This is where we map our domain search result data to a format that we can use in our basket
+  // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
+  // The CRITICAL part is actually the  subproduct choices:
+  // We only include the sub_product_id given to us by the API, and we only include the choices that match that sub_product_id
+  // This is how the TRANSFER domain works, we have a sub_product_id for the domain transfer option.
+  // To be 100% safe we check for the sub_product_id in our OPTIONS and ATTRIBUTES, and only include the choices that match that sub_product_id
+  // ---
+  // we may not have a service identifier ( if the domain is not in the basket yet)
+  const name = [data.sld, data.tld].join("");
+  const parsed = parseDomain(name);
 
-    //   result.billing_summary = $tc(
-    //   //   result.is_discounted ? "billing_summary_discounted" : "billing_summary",
-    //   //   result.billing_cycle_years,
-    //   //   {
-    //   //     oldPrice: result.price_formatted,
-    //   //     newPrice: result.price_discounted_formatted
-    //   //   }
-    //   // ),
-  }
+  const result: IDomainProduct = {
+    product_id: data.product_id,
+    quantity: data.quantity,
+    options: mapSubproductChoices(data?.options, data?.sub_product_id),
+    attributes: mapSubproductChoices(data?.attributes, data?.sub_product_id),
+    is_available: data?.domain_available,
+    // ---
+    tld: parsed?.tld || "",
+    sld: parsed?.sld || "",
+    domain: parsed?.domain || "",
+  };
+  // TODO: Not This! we should use a util from the product module for consistency
+  // also we may need to calculate the correct term and not just use the first one
+  const term = first(orderBy(data.prices, "billing_cycle_months", "asc"));
+  result.billing_cycle_months =
+    data?.billing_cycle_months || term?.billing_cycle_months;
+  result.is_discounted = !!term?.price_discounted;
+  result.price_discounted = term?.price_discounted;
+  result.price_discounted_formatted = term?.price_discounted_formatted;
+  result.price = term?.price;
+  result.price_formatted = term?.price_formatted;
 
   return result;
 }
 
-export function parseBasketItem(item) {
-  const { removeTrailingZeroes } = useMoney();
-  const parsed = parseDomain(item?.service_identifier);
+export function parseBasketItem(data) {
+  // we may not have a service identifier ( if the domain is not in the basket yet)
+  const name =
+    data?.service_identifier ||
+    [data?.provision_fields?.sld, data?.name].join("");
+
+  const parsed = parseDomain(name);
 
   const result = {
-    product_id: item.product_id,
-    quantity: item.quantity,
-    options: !item?.domain_available ? parseOptions(item?.options) : {},
-    is_available: item?.domain_available,
-    // ---
+    product_id: data.product_id,
     tld: parsed?.tld,
     sld: parsed?.sld,
     domain: parsed?.domain,
   };
-  const term =
-    item.term || first(orderBy(item.prices, "billing_cycle_months", "asc"));
-  if (term) {
-    result.billing_cycle_months =
-      item?.billing_cycle_months ||
-      item?.term?.billing_cycle_months ||
-      item?.term;
-    result.billing_cycle_years = Math.round(term?.billing_cycle_months / 12);
-    result.is_discounted = !!term?.price_discounted_formatted;
-    result.price_discounted = term?.price_discounted;
-    result.price_discounted_formatted = removeTrailingZeroes(
-      term?.price_discounted_formatted
-    );
-    result.price = term?.price;
-    result.price_formatted = removeTrailingZeroes(term?.price_formatted);
-    result.percentage_saving = !result?.is_discounted
-      ? 0
-      : Math.floor(
-          ((term?.price - (term?.price_discounted || 0)) / term?.price) * 100
-        );
-
-    //   result.billing_summary = $tc(
-    //   //   result.is_discounted ? "billing_summary_discounted" : "billing_summary",
-    //   //   result.billing_cycle_years,
-    //   //   {
-    //   //     oldPrice: result.price_formatted,
-    //   //     newPrice: result.price_discounted_formatted
-    //   //   }
-    //   // ),
-  }
 
   return result;
 }
 
-// ---
-
-export const parseOptions = (data: any) => {
-  const options = reduce(
-    data,
-    (result, option) => {
-      set(result, [option.category_id, option.id], {
-        product_id: option.id,
-        unit_quantity: option.unit_quantity || 1,
-        billing_cycle_months: option.billing_cycle_months,
-        order_type: option.order_type,
-      });
+export const mapSubproductChoices = (values: any, required_id: string) => {
+  return reduce(
+    values,
+    (result, value) => {
+      if (required_id == value.id)
+        set(result, [value.category_id, value.id], {
+          product_id: value.id,
+          unit_quantity: parseQuantity(value.unit_quantity, value),
+          billing_cycle_months: value.billing_cycle_months,
+        });
       return result;
     },
     {}
   );
-  return options;
 };
+// ---
