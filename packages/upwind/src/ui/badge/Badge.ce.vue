@@ -15,7 +15,7 @@
 import { toRefs, defineComponent } from "vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+import globalStyles from "../../assets/upwind.css?url"; // ASSETS
 import config from "./badge.config";
 import { useStyles } from "../../utils";
 
