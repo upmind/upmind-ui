@@ -1,5 +1,5 @@
 <template>
-  <!-- <link rel="preload" href="/styles.css" as="style" /> -->
+  <link rel="stylesheet" :href="globalStyles" />
 
   <primitive
     :as="as"
@@ -10,8 +10,8 @@
     <slot name="prepend"></slot>
 
     <slot>
-      <span :class="styles.button.label">{{ label }}</span>
-    </slot>
+      <span :class="styles.button.label">{{ label }}</span></slot
+    >
 
     <slot name="append"></slot>
   </primitive>
@@ -23,10 +23,11 @@ import { defineComponent, toRefs } from "vue";
 import { Primitive } from "radix-vue";
 
 // --- internal
+import globalStyles from "../../assets/upwind.css?url"; // ASSETS
+import { useStyles } from "../../utils";
 import config from "./button.config";
 
 // --- utils
-import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
@@ -63,9 +64,7 @@ export default defineComponent({
       config,
       props.upwindConfig
     );
-    return { styles };
+    return { styles, globalStyles };
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

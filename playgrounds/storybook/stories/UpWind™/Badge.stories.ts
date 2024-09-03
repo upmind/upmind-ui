@@ -12,7 +12,7 @@ import { keys } from "lodash-es";
 // --- types
 enum variants {
   flat = "Flat",
-  outlined = "Outlined",
+  outline = "Outline",
   tonal = "Tonal",
 }
 // -----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ export const Variants: Story = {
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
         <uw-badge v-bind="args" variant="flat" label="Flat" />
-        <uw-badge v-bind="args" variant="outlined" label="Outlined" />
+        <uw-badge v-bind="args" variant="outline" label="Outline" />
         <uw-badge v-bind="args" variant="tonal" label="Tonal" />
       </section>
     `,
@@ -100,7 +100,7 @@ export const SolidColorVariants: Story = {
   }),
 };
 
-export const OutlinedColorVariants: Story = {
+export const OutlineColorVariants: Story = {
   parameters: {
     controls: { exclude: ["label", "variant", "color"] },
   },
@@ -113,17 +113,17 @@ export const OutlinedColorVariants: Story = {
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Outlined Color Variants</h1>
-        <uw-badge v-bind="args" variant="outlined" color="base" label="Base" />
-        <uw-badge v-bind="args" variant="outlined" color="primary" label="Primary" />
-        <uw-badge v-bind="args" variant="outlined" color="secondary" label="Secondary" />
-        <uw-badge v-bind="args" variant="outlined" color="accent" label="Accent" />
-        <uw-badge v-bind="args" variant="outlined" color="promotion" label="Promotion" />
-        <uw-badge v-bind="args" variant="outlined" color="destructive" label="Destructive" />
-        <uw-badge v-bind="args" variant="outlined" color="success" label="Success" />
-        <uw-badge v-bind="args" variant="outlined" color="info" label="Info" />
-        <uw-badge v-bind="args" variant="outlined" color="error" label="Error" />
-        <uw-badge v-bind="args" variant="outlined" color="warning" label="Warning" />
+        <h1 class="w-full mt-0">Outline Color Variants</h1>
+        <uw-badge v-bind="args" variant="outline" color="base" label="Base" />
+        <uw-badge v-bind="args" variant="outline" color="primary" label="Primary" />
+        <uw-badge v-bind="args" variant="outline" color="secondary" label="Secondary" />
+        <uw-badge v-bind="args" variant="outline" color="accent" label="Accent" />
+        <uw-badge v-bind="args" variant="outline" color="promotion" label="Promotion" />
+        <uw-badge v-bind="args" variant="outline" color="destructive" label="Destructive" />
+        <uw-badge v-bind="args" variant="outline" color="success" label="Success" />
+        <uw-badge v-bind="args" variant="outline" color="info" label="Info" />
+        <uw-badge v-bind="args" variant="outline" color="error" label="Error" />
+        <uw-badge v-bind="args" variant="outline" color="warning" label="Warning" />
       </section>
     `,
   }),

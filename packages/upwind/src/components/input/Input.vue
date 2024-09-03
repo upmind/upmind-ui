@@ -236,7 +236,7 @@ export default defineComponent({
     },
     variant: {
       type: String as PropType<InputProps["variant"]>,
-      default: "outlined",
+      default: "outline",
     },
     // ---
     autofocus: { type: Boolean },

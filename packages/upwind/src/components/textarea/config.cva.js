@@ -13,7 +13,7 @@ export default {
             lg: "px-3 py-4 text-lg leading-7",
           },
           isDisabled: {
-            true: "bg-base-100 cursor-not-allowed",
+            true: "cursor-not-allowed bg-base-100",
           },
           isProcessing: {
             true: "cursor-wait",

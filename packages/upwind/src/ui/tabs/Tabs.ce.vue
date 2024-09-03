@@ -7,19 +7,31 @@
     :activationMode="activationMode"
     @update:modelValue="$emit('update:modelValue', $event)"
   >
-    <tabs-list :class="styles.tabs.list">
-      <template v-for="value in tabs" :key="value">
-        <tabs-trigger :value="value" :class="styles.tabs.trigger">
+    <tabs-list :class="styles.tabs.list" :color="color" :variant="variant">
+      <template v-for="(value, index) in tabs" :key="value">
+        <tabs-trigger
+          :value="value"
+          :class="styles.tabs.trigger"
+          :color="color"
+          :variant="variant"
+        >
+          <!-- <span v-if="icons" >
+            <upw-icon
+              :class="styles.tabs.icon"
+              :icon="icon[index]"
+              aria-hidden="true"
+            />
+          </span> -->
           <slot :name="`trigger.${value}`"></slot>
         </tabs-trigger>
       </template>
-
-      <template v-for="value in tabs" :key="value">
-        <tabs-content :value="value" :class="styles.tabs.content">
-          <slot :name="`content.${value}`"></slot>
-        </tabs-content>
-      </template>
     </tabs-list>
+
+    <template v-for="value in tabs" :key="value">
+      <tabs-content :value="value" :class="styles.tabs.content">
+        <slot :name="`content.${value}`"></slot>
+      </tabs-content>
+    </template>
   </tabs-root>
 </template>
 
@@ -31,13 +43,15 @@ import { defineComponent, toRefs } from "vue";
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "radix-vue";
 
 // --- internal
-import { useStyles } from "../../utils";
 import config from "./tabs.config";
+
+// --- utils
+import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
 import type { TabsRootProps } from "radix-vue";
-import type { TabsConfig } from ".";
+import type { TabsConfig } from "./types";
 // ---------
 export default defineComponent({
   name: "UwTabs",
@@ -52,6 +66,10 @@ export default defineComponent({
       type: Array,
       required: true,
     },
+    icons: {
+      type: Array,
+      required: false,
+    },
     modelValue: {
       type: [String, Number] as PropType<TabsRootProps["modelValue"]>,
     },
@@ -63,10 +81,7 @@ export default defineComponent({
     activationMode: {
       type: String as PropType<TabsRootProps["activationMode"]>,
     },
-    color: {
-      type: String as TabsConfig["color"],
-      default: "base",
-    },
+    color: { type: String as TabsConfig["color"] },
     variant: String as TabsConfig["variant"],
     alignment: String as TabsConfig["alignment"],
     width: String as TabsConfig["width"],

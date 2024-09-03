@@ -3,8 +3,8 @@ import { cva } from "class-variance-authority";
 
 export default {
   group: {
-    root: cva("border-base-100 flex flex-col gap-4 border-t pt-4"),
-    label: cva("text-base-500 w-full text-xs font-medium"),
+    root: cva("flex flex-col gap-4 border-t border-base-100 pt-4"),
+    label: cva("w-full text-xs font-medium text-base-500"),
     item: cva(""),
   },
   layout: {

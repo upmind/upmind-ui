@@ -1,62 +1,73 @@
 <template>
-  <dialog-root>
+  <dialog-root :open="controlledOpen" @update:open="handleOpenChange">
     <dialog-trigger>
       <slot name="trigger" />
     </dialog-trigger>
-    <dialog-scroll-content :size="size" :overflow="overflow">
-      <dialog-header v-if="title || description">
-        <dialog-title v-if="title">{{ title }}</dialog-title>
-        <dialog-description v-if="description">
-          {{ description }}
-        </dialog-description>
-      </dialog-header>
+    <dialog-portal :disabled="true">
+      <dialog-overlay :class="styles.dialog.overlay">
+        <dialog-content
+          :class="styles.dialog.content"
+          @pointerdown-outside="handlePointerDownOutside"
+        >
+          <div v-if="title || description">
+            <dialog-title v-if="title" :class="styles.dialog.title">{{
+              title
+            }}</dialog-title>
+            <dialog-description
+              v-if="description"
+              :class="styles.dialog.description"
+            >
+              {{ description }}
+            </dialog-description>
+          </div>
 
-      <slot name="content" />
-      <slot />
+          <slot name="content" />
+          <slot />
 
-      <dialog-footer v-if="$slots.footer">
-        <slot name="footer" />
-      </dialog-footer>
-    </dialog-scroll-content>
+          <div :class="styles.dialog.footer">
+            <slot name="footer"></slot>
+
+            <dialog-close>
+              <slot name="close"></slot>
+            </dialog-close>
+          </div>
+        </dialog-content>
+      </dialog-overlay>
+    </dialog-portal>
   </dialog-root>
 </template>
 
 <script lang="ts">
-// --- external
-import { defineComponent, toRefs } from "vue";
-
-// --- internal
-import config from "./dialog.config";
-
-// --- components
+import { defineComponent, toRefs, ref, watch } from "vue";
 import {
-  Dialog as DialogRoot,
-  DialogScrollContent,
+  DialogRoot,
+  DialogClose,
+  DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
   DialogTitle,
   DialogTrigger,
-} from ".";
-
-// --- utils
+} from "radix-vue";
+import config from "./dialog.config";
+import UpwIcon from "../../components/icon/Icon.vue";
 import { useStyles } from "../../utils";
-
-// --- types
 import type { PropType } from "vue";
 import type { DialogConfig } from "./types";
 
 export default defineComponent({
+  name: "UwDialog",
   components: {
     DialogRoot,
-    DialogScrollContent,
+    DialogClose,
+    DialogContent,
     DialogDescription,
-    DialogFooter,
-    DialogHeader,
+    DialogOverlay,
+    DialogPortal,
     DialogTitle,
     DialogTrigger,
+    UpwIcon,
   },
-
   props: {
     title: { type: String },
     description: { type: String },
@@ -69,9 +80,32 @@ export default defineComponent({
       default: "visible",
     },
     upwindConfig: { type: Object, default: () => ({}) },
+    open: {
+      type: Boolean,
+      default: undefined,
+    },
   },
+  emits: ["update:open"],
+  setup(props, { emit }) {
+    const internalOpen = ref(false);
+    const controlledOpen = ref(props.open ?? false);
 
-  setup(props) {
+    watch(
+      () => props.open,
+      newValue => {
+        if (newValue !== undefined) {
+          controlledOpen.value = newValue;
+        }
+      }
+    );
+
+    const handleOpenChange = (isOpen: boolean) => {
+      if (props.open === undefined) {
+        controlledOpen.value = isOpen;
+      }
+      emit("update:open", isOpen);
+    };
+
     const styles = useStyles(
       "dialog",
       toRefs(props),
@@ -79,10 +113,29 @@ export default defineComponent({
       props.upwindConfig
     );
 
+    const handlePointerDownOutside = (event: PointerEvent) => {
+      const originalEvent = event as unknown as {
+        detail: { originalEvent: PointerEvent };
+      };
+      const target = originalEvent.detail.originalEvent.target as HTMLElement;
+
+      // Check if the click is outside the dialog content
+      if (
+        originalEvent.detail.originalEvent.offsetX > target.clientWidth ||
+        originalEvent.detail.originalEvent.offsetY > target.clientHeight
+      ) {
+        handleOpenChange(false);
+      }
+    };
+
     return {
-      props,
       styles,
+      handlePointerDownOutside,
+      controlledOpen,
+      handleOpenChange,
     };
   },
 });
 </script>
+
+<style src="@/assets/main.css" />

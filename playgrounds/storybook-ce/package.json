@@ -2,8 +2,16 @@
   "name": "@upmind/storybook-ce",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "npm run dev",
+    "build": "storybook build",
+    "dev": "storybook dev -p 6006"
+  },
   "dependencies": {
+    "lit": "^3.2.0",
     "@upmind/upwind": "^0.0.0",
     "lodash-es": "^4.17.21"
   },
@@ -15,15 +23,8 @@
     "@storybook/test": "^8.2.9",
     "@storybook/web-components": "^8.2.9",
     "@storybook/web-components-vite": "^8.2.9",
-    "lit": "^3.2.0",
-    "storybook": "^8.2.9"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "UNLICENSED"
+    "storybook": "^8.2.9",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1"
+  }
 }
