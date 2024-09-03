@@ -46,13 +46,13 @@
           v-if="!isBasketView"
         >
           <template #append-avatar>
-            <upw-avatar
+            <uw-avatar
               :key="items?.length"
               v-if="items?.length"
               class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-foreground"
             >
               {{ items.length }}
-            </upw-avatar>
+            </uw-avatar>
           </template>
         </upw-button>
 
@@ -69,14 +69,14 @@ import {
   UpwListbox,
   UpmProfile,
   UpmCurrency,
-  UpwAvatar,
+  UwAvatar,
   UpwButton,
 } from "@upmind/client-vue";
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
-    UpwAvatar,
+    UwAvatar,
     UpwListbox,
     UpwButton,
     UpmProfile,

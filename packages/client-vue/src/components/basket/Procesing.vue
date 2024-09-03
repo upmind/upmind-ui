@@ -7,7 +7,7 @@
     skrim="light"
   >
     <section :class="styles.basket.processing.root">
-      <upw-avatar
+      <uw-avatar
         :avatar="avatar"
         :class="styles.basket.processing.avatar"
         :loading="true"
@@ -43,7 +43,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
 
 // --- types
 
@@ -52,7 +52,7 @@ export default defineComponent({
   name: "UpmBasketProcessing",
   components: {
     UpwDialog,
-    UpwAvatar,
+    UwAvatar,
     UpwButton,
   },
   props: {

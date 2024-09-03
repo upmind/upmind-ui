@@ -12,13 +12,13 @@
       <!-- header -->
       <header :class="styles.product.config.header">
         <div :class="styles.product.config.headerContent">
-          <upw-badge
+          <uw-badge
             color="secondary"
             v-if="product?.hasFreeTrial"
             :label="$t('product.trail')"
           />
 
-          <upw-badge
+          <uw-badge
             color="promotion"
             v-if="product?.isOnPromotion"
             :label="$t('product.promotion')"
@@ -183,7 +183,7 @@ import config from "./config.cva";
 
 // --- components
 import {
-  UpwBadge,
+  UwBadge,
   UpwButton,
   UpwQuantitybox,
   UpwSpinner,
@@ -202,7 +202,7 @@ export default defineComponent({
   name: "UpmProductConfig",
   inheritAttrs: false,
   components: {
-    UpwBadge,
+    UwBadge,
     UpwButton,
     UpwQuantitybox,
     UpwSpinner,

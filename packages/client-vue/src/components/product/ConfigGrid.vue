@@ -48,7 +48,7 @@
             </span>
 
             <template v-for="promotion in item?.promotions" :key="promotion.id">
-              <upw-badge
+              <uw-badge
                 color="promotion"
                 :label="
                   $tc(
@@ -113,7 +113,7 @@ import config from "./config.cva";
 
 // --- components
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { UpwRadio, UpwBadge, UpwInput } from "@upmind/upwind";
+import { UpwRadio, UwBadge, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -124,7 +124,7 @@ export default defineComponent({
   components: {
     UpwInput,
     UpwRadio,
-    UpwBadge,
+    UwBadge,
     HRadioGroup: RadioGroup,
     HRadioGroupOption: RadioGroupOption,
   },

@@ -8,7 +8,7 @@
     skrim="light"
   >
     <section :class="styles.basket.loading.root">
-      <upw-avatar
+      <uw-avatar
         :avatar="avatar"
         :class="styles.basket.loading.avatar"
         loading
@@ -33,7 +33,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwAvatar } from "@upmind/upwind";
+import { UwAvatar } from "@upmind/upwind";
 
 // --- types
 
@@ -41,7 +41,7 @@ import { UpwAvatar } from "@upmind/upwind";
 export default defineComponent({
   name: "UpmBasketloading",
   components: {
-    UpwAvatar,
+    UwAvatar,
   },
   props: {
     modal: {

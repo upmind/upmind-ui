@@ -10,7 +10,7 @@
   >
     <upw-spinner v-if="loading" size="xs" :class="styles.step.loading" />
 
-    <upw-avatar
+    <uw-avatar
       v-else
       :avatar="complete ? 'check-circle' : { caption }"
       size="xs"
@@ -26,7 +26,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // -- components
-import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import UwAvatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwButton from "../button/Button.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
@@ -39,7 +39,7 @@ import { useStyles } from "../../utils";
 // ----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpwStep",
-  components: { UpwAvatar, UpwButton, UpwSpinner },
+  components: { UwAvatar, UpwButton, UpwSpinner },
   emits: ["update:modelValue"],
   props: {
     modelValue: { type: Boolean },

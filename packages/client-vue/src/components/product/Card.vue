@@ -12,13 +12,13 @@
     <div :class="styles.product.card.wrapper">
       <!-- header -->
       <header :class="styles.product.card.header">
-        <upw-badge
+        <uw-badge
           color="secondary"
           v-if="product?.hasFreeTrial"
           :label="$t('product.trail')"
         />
 
-        <upw-badge
+        <uw-badge
           color="promotion"
           v-if="product?.isOnPromotion"
           :label="$t('product.promotion')"
@@ -146,7 +146,7 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwBadge, UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
+import { UwBadge, UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -155,7 +155,7 @@ import { isNil, find, reject } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwBadge, UpwButton, UpwIcon, UpwSpinner },
+  components: { UwBadge, UpwButton, UpwIcon, UpwSpinner },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
