@@ -36,10 +36,10 @@ import type { IProductModel, ProductConfigContext } from "./types.d";
 // --------------------------------------------------------
 export const checkPriceOverride = (values, lookups) => {
   return some(values, (value, key) => {
-    const { price_override = false } = find(lookups, ["id", key]);
+    const item = find(lookups, ["id", key]);
 
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
-    return !isEmpty(value) && !!price_override;
+    return !isEmpty(value) && !!item?.price_override;
   });
 };
 
@@ -441,7 +441,6 @@ export const parseSummary = ({ summary, model, lookups, error }) => {
   reduce(
     model.provision_fields,
     (result, name, field) => {
-      debugger;
       // todo only show prov fields that are not deferrred or meant or mean tot be visible
 
       result.push({
