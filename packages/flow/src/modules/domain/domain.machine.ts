@@ -516,6 +516,7 @@ export default createMachine(
                 billing_cycle_months: item.billing_cycle_months,
               },
               options: item.options,
+              attributes: item.attributes,
               provision_fields: {
                 sld: item.sld,
               },
