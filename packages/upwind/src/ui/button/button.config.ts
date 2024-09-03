@@ -240,15 +240,6 @@ export const buttonConfig = cva(
 export default {
   button: {
     root: buttonConfig,
-    label: cva(
-      "truncate"
-      // {
-      // variants: {
-      //   size: {
-      //     icon: "sr-only",
-      //   },
-      // },
-      // }
-    ),
+    label: cva("truncate"),
   },
 };

@@ -1,10 +1,10 @@
 <template>
   <tooltip-provider :delay-duration="delayDuration">
-    <tooltip :open="open">
+    <tooltip-root :open="open">
       <tooltip-trigger><slot /></tooltip-trigger>
       <tooltip-content
         :side="direction"
-        :sideOffset="sideOffset"
+        :side-offset="sideOffset"
         :class="styles.tooltip.content"
       >
         <slot name="content">
@@ -12,42 +12,42 @@
         </slot>
         <tooltip-arrow fill="currentColor" :class="styles.tooltip.arrow" />
       </tooltip-content>
-    </tooltip>
+    </tooltip-root>
   </tooltip-provider>
 </template>
 
 <script lang="ts">
 // --- external
-
 import { defineComponent, toRefs } from "vue";
-import { TooltipArrow } from "radix-vue";
-
-// --- components
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from ".";
+import {
+  TooltipRoot,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipArrow,
+  TooltipProvider,
+} from "radix-vue";
 
 // --- local
 import config from "./tooltip.config";
 import { useStyles } from "../../utils";
 
-// --- utils
-
 // --- types
 import type { TooltipConfig, TooltipProps } from "./types";
 import type { PropType } from "vue";
 
-// ----------------------------------------------------------------------------
 export default defineComponent({
   name: "UwTooltip",
   components: {
-    Tooltip,
+    TooltipRoot,
     TooltipContent,
     TooltipTrigger,
-    TooltipProvider,
     TooltipArrow,
+    TooltipProvider,
   },
   props: {
     label: { type: String },
-    open: { type: Boolean },
+    // Tooltip doesn't open correctly if not defined, radix-vue think we are handling the state ourselves
+    open: { type: Boolean, default: undefined },
     direction: {
       type: String as PropType<TooltipProps["direction"]>,
       default: "bottom",
@@ -77,3 +77,5 @@ export default defineComponent({
   },
 });
 </script>
+
+<style src="@/assets/main.css" />

@@ -1,13 +1,15 @@
 <template>
-  <alert :color="color" :variant="variant">
-    <upw-icon :icon="icon" :class="styles.alert.icon" />
-    <alert-title>
-      {{ title }}
-    </alert-title>
-    <alert-description>
-      {{ description }}
-    </alert-description>
-  </alert>
+  <div :class="styles.alert.root" role="alert">
+    <!-- <upw-icon :icon="icon" :class="styles.alert.icon" /> -->
+    <div :class="styles.alert.content">
+      <h5 v-if="title" :class="styles.alert.title">
+        {{ title }}
+      </h5>
+      <div v-if="description" :class="styles.alert.description">
+        {{ description }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -18,31 +20,28 @@ import { defineComponent, toRefs } from "vue";
 import config from "./alert.config";
 
 // --- components
-import { Alert, AlertDescription, AlertTitle } from ".";
 import UpwIcon from "../../icon/Icon.vue";
 
 // --- utils
-import { useStyles } from "../../../utils";
+import { useStyles } from "../../utils";
 
 // --- types
-import { type AlertVariants } from ".";
-import type { IconProps } from "../../icon/types";
 import type { PropType } from "vue";
+import type { AlertConfig } from "./types";
 
 export default defineComponent({
-  components: {
-    Alert,
-    AlertTitle,
-    AlertDescription,
-    UpwIcon,
-  },
+  name: "UwAlert",
+
+  // components: {
+  //   UpwIcon,
+  // },
 
   props: {
     variant: {
-      type: String as PropType<AlertVariants["variant"]>,
+      type: String as PropType<AlertConfig["variant"]>,
     },
     color: {
-      type: String as PropType<AlertVariants["color"]>,
+      type: String as PropType<AlertConfig["color"]>,
       default: "base",
     },
     title: {
@@ -50,9 +49,6 @@ export default defineComponent({
     },
     description: {
       type: String,
-    },
-    icon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
     },
     upwindConfig: {
       type: Object,
@@ -74,3 +70,5 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped src="@/assets/main.css" />

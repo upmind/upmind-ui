@@ -54,7 +54,6 @@ export const badgeConfig = cva(
         variant: "outline",
         class: "border-destructive text-destructive",
       },
-
       {
         color: "success",
         variant: "outline",

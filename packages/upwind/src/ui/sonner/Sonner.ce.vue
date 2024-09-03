@@ -86,8 +86,10 @@
 import { defineComponent, toRefs, type PropType } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./sonner.config";
+
+// --- utils
+import { useStyles, mergeStyles } from "../../utils";
 
 // --- components
 import { Toaster as Sonner, type ToasterProps } from "vue-sonner";
@@ -139,9 +141,5 @@ export default defineComponent({
 });
 </script>
 
-<!-- <style>
-[data-sonner-toast] [data-icon] {
-  height: auto !important;
-  width: auto !important;
-}
-</style> -->
+<style src="@/assets/main.css"></style>
+<style src="./sonner.css"></style>

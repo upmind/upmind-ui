@@ -1,40 +1,45 @@
 // --- eternal
 
 // --- upw
-// import UpwAlert from "./components/alert/Alert.vue";
-// import UpwButton from "./components/button/Button.vue";
-// import UpwCheckbox from "./components/checkbox/Checkbox.vue";
-// import UpwCheckboxList from "./components/checkbox/CheckboxList.vue";
-// import UpwCombobox from "./components/combobox/Combobox.vue";
-// import UpwDialog from "./components/dialog/Dialog.vue";
-// import UpwDropdown from "./components/dropdown/Dropdown.vue";
-// import UpwForm from "./components/form/Form.vue";
-// import UpwIcon from "./components/icon/Icon.vue";
-// import UpwInput from "./components/input/Input.vue";
-// import UpwListbox from "./components/listbox/Listbox.vue";
-// import UpwQuantitybox from "./components/quantitybox/Quantitybox.vue";
-// import UpwRadio from "./components/radio/Radio.vue";
-// import UpwRadioList from "./components/radio/RadioList.vue";
-// import UpwSelect from "./components/select/Select.vue";
-// import UpwSkeletonForm from "./components/skeleton/SkeletonForm.vue";
-// import UpwSkeletonList from "./components/skeleton/SkeletonList.vue";
-// import UpwSpinner from "./components/spinner/Spinner.vue";
-// import UpwSteps from "./components/steps/Steps.vue";
-// import UpwTabs from "./components/tabs/Tabs.vue";
-// import UpwTextarea from "./components/textarea/Textarea.vue";
-// import UpwTextbox from "./components/textbox/Textbox.vue";
-// import UpwThemeSwitcher from "./components/theme/ThemeSwitcher.vue";
-// import UpwMarkdown from "./components/markdown/Markdown.vue";
-// import UpwLineclamp from "./components/lineclamp/Lineclamp.vue";
+// export { default as UpwAlert } from "./components/alert/Alert.vue";
+// export { default as UpwButton } from "./components/button/Button.vue";
+// export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
+// export { default as UpwCheckboxList } from "./components/checkbox/CheckboxList.vue";
+// export { default as UpwCombobox } from "./components/combobox/Combobox.vue";
+// export { default as UpwDialog } from "./components/dialog/Dialog.vue";
+// export { default as UpwDropdown } from "./components/dropdown/Dropdown.vue";
+// export { default as UpwForm } from "./components/form/Form.vue";
+// export { default as UpwIcon } from "./components/icon/Icon.vue";
+// export { default as UpwInput } from "./components/input/Input.vue";
+// export { default as UpwListbox } from "./components/listbox/Listbox.vue";
+// export { default as UpwQuantitybox } from "./components/quantitybox/Quantitybox.vue";
+// export { default as UpwRadio } from "./components/radio/Radio.vue";
+// export { default as UpwRadioList } from "./components/radio/RadioList.vue";
+// export { default as UpwSelect } from "./components/select/Select.vue";
+// export { default as UpwSkeletonForm } from "./components/skeleton/SkeletonForm.vue";
+// export { default as UpwSkeletonList } from "./components/skeleton/SkeletonList.vue";
+// export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
+// export { default as UpwSteps } from "./components/steps/Steps.vue";
+// export { default as UpwTabs } from "./components/tabs/Tabs.vue";
+// export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
+// export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
+// export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
+// export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
+// export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 
 // --- uw
-import "./assets/upwind.css";
-
+import { UwAlert } from "./ui/alert";
 import { UwButton } from "./ui/button";
 import { UwAvatar } from "./ui/avatar";
 import { UwBadge } from "./ui/badge";
 import { UwDialog } from "./ui/dialog";
 import { UwTooltip } from "./ui/tooltip";
+import { UwSonner } from "./ui/sonner";
+import { UwCombobox } from "./ui/combobox";
+import { UwTabs } from "./ui/tabs";
+
+// --- uw component utils
+export { toast } from "./ui/sonner";
 
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
@@ -42,15 +47,29 @@ import { kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
-export { UwAvatar, UwButton, UwBadge, UwDialog, UwTooltip };
+export {
+  UwAvatar,
+  UwButton,
+  UwBadge,
+  UwCombobox,
+  UwDialog,
+  UwTooltip,
+  UwAlert,
+  UwSonner,
+  UwTabs,
+};
 
 // --- utility for registering all custom elements
-export function registerUpwindComponents() {
+export function register() {
+  customElements.define("uw-alert", UwAlert);
   customElements.define("uw-avatar", UwAvatar);
   customElements.define("uw-badge", UwBadge);
+  customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-button", UwButton);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-tooltip", UwTooltip);
+  customElements.define("uw-sonner", UwSonner);
+  customElements.define("uw-tabs", UwTabs);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
@@ -66,9 +85,13 @@ export function useCustomElement(constructor: CustomElementConstructor): void {
 declare module "vue" {
   export interface GlobalComponents {
     // UwAvatar: typeof UwAvatar;
+    UwAlert: typeof UwAlert;
     UwBadge: typeof UwBadge;
+    UwCombobox: typeof UwCombobox;
     UwButton: typeof UwButton;
     UwDialog: typeof UwDialog;
     UwTooltip: typeof UwTooltip;
+    UwSonner: typeof UwSonner;
+    UwTabs: typeof UwTabs;
   }
 }
