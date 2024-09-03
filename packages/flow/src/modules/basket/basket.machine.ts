@@ -625,6 +625,15 @@ export default createMachine(
               item.stop();
             } else {
               newItems.push(item);
+              item.send({
+                type: "REFRESH",
+                data: {
+                  basket_product: product,
+                  id: basket?.id,
+                  currency_id: basket?.currency_id,
+                  promotions: basket?.promotions || [],
+                },
+              });
             }
           });
 
