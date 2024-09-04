@@ -1,9 +1,9 @@
 <template>
   <component
-    v-if="modal || (!modal && open)"
+    v-if="modal || (!modal && expired)"
     :is="modal ? 'upw-dialog' : 'div'"
     size="xl"
-    :model-value="open"
+    :model-value="expired"
     no-actions
     persistent
     skrim="light"
@@ -32,7 +32,7 @@
 
 <script>
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, watch } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
@@ -46,7 +46,7 @@ import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBasketEmpty",
+  name: "UpmSessionExpired",
   components: {
     UpwDialog,
     UpwAvatar,
@@ -57,19 +57,30 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    auto: {
+      type: Boolean,
+      default: false,
+    },
   },
-  setup() {
+  setup(props) {
     const { meta } = useSession();
 
     const styles = useStyles(["session.expired"], meta, config);
 
+    if (props.auto) {
+      watch(meta, () => {
+        if (meta.value.hasExpired) {
+          window.location.reload();
+        }
+      });
+    }
     // ---
 
     return {
       meta,
-      open: computed(() => {
+      expired: computed(() => {
         const value = meta.value.hasExpired;
-        return value;
+        return value && !props.auto;
       }),
 
       // ---
