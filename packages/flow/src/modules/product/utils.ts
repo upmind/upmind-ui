@@ -374,7 +374,6 @@ export const parseProvisioningSchema = (data: any) => {
                 title: item.label,
               };
             }),
-        defer: field?.defer_mode,
       };
 
       set(properties, field.name, omitBy(schema, isNil));
@@ -442,14 +441,13 @@ export const parseSummary = ({ summary, model, lookups, error }) => {
   reduce(
     model.provision_fields,
     (result, name, field) => {
+      // NB only show prov fields that are in our schema
       const provisionField = get(
         lookups.provision_fields,
         ["properties", field],
         {}
       );
-
-      // todo only show prov fields that are not deferrred or meant or mean tot be visible
-      if (!isEmpty(provisionField) && provisionField?.defer != "hidden") {
+      if (!isEmpty(provisionField)) {
         result.push({
           key: `provision_field.${field}`,
           category: get(provisionField, "title", field),
