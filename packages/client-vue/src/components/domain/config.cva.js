@@ -6,7 +6,6 @@ export default {
     root: cva("flex w-full flex-col gap-6"),
     choices: cva(""),
     // ---
-
     search: cva(""),
 
     listings: {
@@ -106,8 +105,11 @@ export default {
         content: cva(
           "mx-auto !min-h-min max-w-screen-2xl px-10  transition-all"
         ),
-        actions: cva("-mx-4 w-auto sm:-mx-6 lg:-mx-20 "),
+        actions: cva("-mx-4 w-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"),
       },
+      container: cva(
+        "mx-auto flex w-full max-w-screen-2xl items-center justify-between gap-2 px-10 "
+      ),
     },
     transitions: {
       fade: {

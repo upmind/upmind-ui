@@ -37,19 +37,21 @@
         variant="ghost"
       />
     </div>
-    <template #actions="">
-      <upw-button
-        @click="onReject"
-        :label="$t('domain.dac.actions.cancel')"
-        variant="link"
-      />
-      <upw-button
-        :loading="meta.isProcessing"
-        :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
-        @click="onResolve"
-        :label="$tc('domain.dac.actions.continue', values?.length)"
-        prependIcon="plus-circle"
-      />
+    <template #actions>
+      <div :class="styles.domain.dialog.container">
+        <upw-button
+          @click="onReject"
+          :label="$t('domain.dac.actions.cancel')"
+          variant="link"
+        />
+        <upw-button
+          :loading="meta.isProcessing"
+          :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
+          @click="onResolve"
+          :label="$tc('domain.dac.actions.continue', values?.length)"
+          prependIcon="plus-circle"
+        />
+      </div>
     </template>
   </component>
 </template>
@@ -115,7 +117,7 @@ export default defineComponent({
         !props.complete &&
         (props.loading || props.processing || !!props.items?.length),
     }));
-    const styles = useStyles(["domain"], meta, config);
+    const styles = useStyles(["domain", "domain.dialog"], meta, config);
 
     return {
       styles,
