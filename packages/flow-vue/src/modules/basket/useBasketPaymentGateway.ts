@@ -11,7 +11,6 @@ import {
   stateMatches,
   stateValue,
   contextValue,
-  contextActor,
 } from "../../utils";
 
 // --- types
@@ -84,8 +83,9 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
 
     // ---
     clear: () => payment_gateway.value?.send({ type: "CLEAR" }),
-    input: model => payment_gateway.value?.send({ type: "SET", data: model }),
-    update(model) {
+    input: (model: any) =>
+      payment_gateway.value?.send({ type: "SET", data: model }),
+    update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
@@ -100,6 +100,7 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
 
       // then wait for the payment_gateway actor to be valid
       // then send the update event to the payment_gateway actor
+      // @ts-ignore
       waitFor(service.state.context.actors.payment_gateway, newstate =>
         newstate.matches("valid")
       ).then(() => payment_gateway.value?.send({ type: "UPDATE" }));

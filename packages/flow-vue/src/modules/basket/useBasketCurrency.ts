@@ -75,8 +75,9 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
     ),
     // ---
     clear: () => currency.value?.send({ type: "CLEAR" }),
-    input: model => currency.value?.send({ type: "SET", data: model }),
-    update(model) {
+    // @ts-ignore
+    input: (model: any) => currency.value?.send({ type: "SET", data: model }),
+    update(model: any) {
       // first check if our currency has change, ie: model.code has changed
 
       const { code } = contextValue(currency.value?.state, "model");
@@ -85,6 +86,7 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
       if (model?.code == code) return;
 
       // if it has then send the new model to the machine
+      // @ts-ignore
       currency.value?.send({ type: "SET", data: model, update: true });
     },
   };
