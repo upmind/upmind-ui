@@ -155,9 +155,9 @@ async function checkQuantity(
   { data }: any
 ) {
   const { product } = lookups;
-  let quantity = data?.quantity || model?.quantity;
+  const value = data?.quantity || model?.quantity;
+  const quantity = parseQuantity(value, product);
   // ---
-  quantity = parseQuantity(quantity, product);
 
   return new Promise((resolve, reject) => {
     if (isNumber(quantity)) resolve({ quantity });
@@ -169,6 +169,7 @@ async function checkTerm(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
+  const value = model?.term;
   let term = null;
   const price = [];
   const errors = [];
@@ -187,7 +188,7 @@ async function checkTerm(
 
   term = find(lookups.terms, [
     "billing_cycle_months",
-    model?.term?.billing_cycle_months || model?.term,
+    value?.billing_cycle_months || value,
   ]);
 
   if (!term) {
@@ -227,19 +228,29 @@ async function checkAttributes(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  return checkSubproducts({ error, lookups, model }, { type: "attributes" });
+  const value = model?.attributes;
+
+  return checkSubproducts(
+    { error, lookups, model },
+    { data: value, type: "attributes" }
+  );
 }
 
 async function checkOptions(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  return checkSubproducts({ error, lookups, model }, { type: "options" });
+  const value = model?.options;
+
+  return checkSubproducts(
+    { error, lookups, model },
+    { data: value, type: "options" }
+  );
 }
 
 async function checkSubproducts(
   { error, lookups, model }: ProductConfigContext,
-  { type }: any
+  { type, data }: any
 ) {
   let subproducts = null;
   const price = [];
@@ -257,7 +268,7 @@ async function checkSubproducts(
     lookups[type],
     (result, subproduct) => {
       // try get any selected values for this subproduct,
-      let selected = get(model, `${type}.${subproduct.id}`, {});
+      let selected = get(data, subproduct.id, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
@@ -350,21 +361,21 @@ async function checkProvisioning(
     return Promise.resolve({ provision_fields: {} });
 
   // ---
+  const value = model?.provision_fields || {};
 
-  model.provision_fields ??= {};
   const { validate } = useValidation();
-  const errors = validate(lookups.provision_fields, model.provision_fields);
+  const errors = validate(lookups.provision_fields, value);
 
   return new Promise((resolve, reject) => {
     if (errors.length) {
       // TODO: reject with the errors , but need to allow skipping validation for sync
       // for now we will resolve with errors
       resolve({
-        provision_fields: model.provision_fields,
+        provision_fields: value,
         error: { ...error, provision_fields: errors },
       });
     } else {
-      resolve({ provision_fields: model.provision_fields });
+      resolve({ provision_fields: value });
     }
   });
 }
