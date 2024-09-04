@@ -8,6 +8,8 @@
       :tabs="tabs"
       v-model="active"
       @update:modelValue="toggleForm"
+      :block="blockTabs"
+      :stretch="stretchTabs"
       size="sm"
       v-if="
         !noTabs &&
@@ -61,6 +63,8 @@ export default defineComponent({
       default: "login",
     },
     noTabs: { type: Boolean, default: false },
+    blockTabs: { type: Boolean, default: false },
+    stretchTabs: { type: Boolean, default: false },
   },
   setup(props) {
     const session = useSession();

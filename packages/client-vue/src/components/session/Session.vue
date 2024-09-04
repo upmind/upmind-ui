@@ -55,6 +55,8 @@
     <upm-auth
       v-if="!meta.isAuthenticated"
       :class="styles.session.content"
+      :block-tabs="blockTabs"
+      :stretch-tabs="stretchTabs"
       :model-value="show"
     >
     </upm-auth>
@@ -103,7 +105,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    blockTabs: { type: Boolean, default: false },
+    stretchTabs: { type: Boolean, default: false },
   },
+
   setup(props, { slots }) {
     const styles = useStyles(["session"], props, config);
 
