@@ -22,18 +22,20 @@ import {
 
 import {
   cloneDeep,
+  compact,
+  differenceBy,
   forEach,
   get,
   has,
   isEmpty,
   isEqual,
-  differenceBy,
   isNil,
   merge,
+  pick,
+  remove,
   set,
   toNumber,
   unset,
-  remove,
 } from "lodash-es";
 
 import { calculateSubscription } from "./services";
@@ -423,20 +425,29 @@ export default createMachine(
         }
       ),
       refreshContext: assign(
-        ({ model }: ProductConfigContext, { data }: ProductConfigEvent) => {
+        (
+          { model, lookups, raw }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           const { basket_product, client_id, currency_id, promotions, error } =
             data;
+
+          lookups.product = parseProduct(raw, basket_product);
 
           const newContext = {
             client_id,
             currency_id,
             promotions,
+            basket_product,
             baseModel: basket_product
               ? parseBasketProduct(basket_product)
               : cloneDeep(model),
-            model: basket_product ? parseBasketProduct(basket_product) : model,
+            model: basket_product
+              ? parseBasketProduct(basket_product)
+              : cloneDeep(model),
             errorExternal: error,
             prices: undefined, // they need to be recalculated
+            lookups,
           };
 
           return newContext;
@@ -686,7 +697,13 @@ export default createMachine(
         return isDirty;
       },
       hasBasketChanged: (
-        { basket_id, client_id, currency_id, promotions }: ProductConfigContext,
+        {
+          basket_id,
+          client_id,
+          currency_id,
+          promotions,
+          basket_product,
+        }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
         const clientChanged = data?.client_id !== client_id;
@@ -696,11 +713,20 @@ export default createMachine(
           differenceBy(promotions, data?.promotions, "promotion_id")
         );
 
+        // lets see if any important value have changed within the basket_product
+        // dont compare the entire object, just the keys that are important to this machine
+        const keys = ["id", "product_id", "service_identifier"];
+        const basketPoductChanged = !isEqual(
+          pick(data?.basket_product, keys),
+          pick(basket_product, keys)
+        );
+
         const value =
           basketChanged ||
           clientChanged ||
           currencyChanged ||
-          promotionsChanged;
+          promotionsChanged ||
+          basketPoductChanged;
 
         return value;
       },
@@ -715,13 +741,18 @@ export default createMachine(
         prop ??= has(data, "options") ? "options" : null;
         prop ??= has(data, "attributes") ? "attributes" : null;
 
-        const newPrice = get(data, "price", []);
-        const oldPrice = get(prices, prop, []);
+        if (!prop) return false;
 
-        const value =
-          !summary ||
-          !prop ||
-          (!isEmpty(newPrice) && !isEqual(oldPrice, newPrice));
+        const newPrice = compact(get(data, "price", []));
+        const oldPrice = compact(get(prices, prop, []));
+
+        const value = !summary || !prop || !isEqual(oldPrice, newPrice);
+
+        // console.debug("productConfig", "needsCalculating", value, {
+        //   prop,
+        //   newPrice,
+        //   oldPrice,
+        // });
 
         return value;
       },
