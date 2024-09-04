@@ -57,6 +57,7 @@
       :class="styles.session.content"
       :block-tabs="blockTabs"
       :stretch-tabs="stretchTabs"
+      :no-tabs="noTabs"
       :model-value="show"
     >
     </upm-auth>
@@ -107,6 +108,7 @@ export default defineComponent({
     },
     blockTabs: { type: Boolean, default: false },
     stretchTabs: { type: Boolean, default: false },
+    noTabs: { type: Boolean, default: false },
   },
 
   setup(props, { slots }) {
