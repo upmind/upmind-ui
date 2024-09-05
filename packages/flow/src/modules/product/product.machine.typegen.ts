@@ -85,6 +85,7 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
     clearError: "PROCESSING" | "REMOVE" | "UPDATE";
+    clearSummaryCalculating: "CALCULATED";
     refreshContext: "REFRESH";
     resetModel: "RESET";
     setAttributes:

@@ -318,10 +318,15 @@ export default createMachine(
             ),
             target: "processing",
           },
-          CALCULATED: {
-            actions: ["setSummary"],
-            cond: "hasSummaryData",
-          },
+          CALCULATED: [
+            {
+              actions: ["clearSummaryCalculating", "setSummary"],
+              cond: "hasSummaryData",
+            },
+            {
+              actions: ["clearSummaryCalculating"],
+            },
+          ],
           // ---
           SET: {
             target: "available.configuring",
@@ -507,20 +512,24 @@ export default createMachine(
       // ---
 
       setSummary: assign({
-        summary: ({ model, lookups, error }, { data }) => {
-          debugger;
-          return parseSummary({
+        summary: ({ model, lookups, error }, { data }) =>
+          parseSummary({
             summary: data,
             model,
             lookups,
             error,
-          });
-        },
+          }),
       }),
 
       setSummaryCalculating: assign({
         summary: ({ summary }, _event) => {
           set(summary, "isCalculating", true);
+          return summary;
+        },
+      }),
+      clearSummaryCalculating: assign({
+        summary: ({ summary }, _event) => {
+          set(summary, "isCalculating", false);
           return summary;
         },
       }),

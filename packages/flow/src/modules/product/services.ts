@@ -415,7 +415,9 @@ const calculateSummary = (
   );
   // ---
 
-  if (!currency_id || !values?.length) return Promise.reject({});
+  if (!currency_id || !values?.length) {
+    return Promise.reject({});
+  }
 
   return post({
     url: useUrl("cart/calculate", {}),
