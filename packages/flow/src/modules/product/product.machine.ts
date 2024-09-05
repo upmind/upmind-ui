@@ -508,6 +508,7 @@ export default createMachine(
 
       setSummary: assign({
         summary: ({ model, lookups, error }, { data }) => {
+          debugger;
           return parseSummary({
             summary: data,
             model,
