@@ -1,7 +1,7 @@
-import { fileURLToPath, URL } from 'node:url'
-
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite'
+import { configDefaults } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,11 +13,22 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-    build: {
+  build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
       name: "upmind-vue",
       fileName: "upmind-vue"
     }
+  },
+  // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  test: {
+    environment: "jsdom",
+    exclude: [...configDefaults.exclude, "e2e/*"],
+    root: fileURLToPath(new URL("./", import.meta.url)),
+    // https://vitest.dev/guide/coverage.html
+    coverage: {
+      provider: 'istanbul',
+      enabled: true
+    },
   },
 })
