@@ -437,29 +437,20 @@ export const parseSummary = ({ summary, model, lookups, error }) => {
   details.push(...options);
 
   // provision fields
-
   reduce(
-    model.provision_fields,
-    (result, name, field) => {
-      // NB only show prov fields that are in our schema
-      const provisionField = get(
-        lookups.provision_fields,
-        ["properties", field],
-        {}
-      );
-      if (!isEmpty(provisionField)) {
-        result.push({
-          key: `provision_field.${field}`,
-          category: get(provisionField, "title", field),
-          name,
-          invalid: some(error?.provision_fields?.data, ["schemaPath", field]),
-          cycle: undefined,
-          quantity: undefined,
-          discount: undefined,
-          total: undefined,
-          formatted: undefined,
-        });
-      }
+    lookups.provision_fields?.properties,
+    (result, provisionField, key) => {
+      result.push({
+        key: `provision_field.${key}`,
+        category: get(provisionField, "title", key),
+        name: get(model.provision_fields, key),
+        invalid: some(error?.provision_fields?.data, ["schemaPath", key]),
+        cycle: undefined,
+        quantity: undefined,
+        discount: undefined,
+        total: undefined,
+        formatted: undefined,
+      });
 
       return result;
     },
