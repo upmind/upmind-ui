@@ -12,13 +12,11 @@ export default {
       header: cva("w-full"),
       title: cva("m-0 text-lg text-xl font-normal tracking-tight"),
       content: cva(
-        "border-base-300 bg-base text-base-content grid w-full space-y-4 rounded-lg border p-6 shadow-md"
+        " bg-base text-base-content grid w-full space-y-4 rounded-lg border p-6 shadow-md"
       ),
-      form: cva(
-        "border-base-300 m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"
-      ),
+      form: cva(" m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
-        "border-base-300 m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+        " m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
       ),
       heading: cva("group m-0 flex flex-1 items-center gap-2 font-light"),
       text: cva(
@@ -44,7 +42,7 @@ export default {
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       title: cva("sr-only"),
       content: cva(),
-      footer: cva("flex items-center gap-1"),
+      footer: cva("flex flex-wrap items-center gap-1"),
 
       form: {
         root: cva("flex-row gap-1"),
@@ -94,19 +92,10 @@ export default {
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
       text: cva("text-base-700 m-0 text-lg font-light leading-7"),
+    },
 
-      // ---
-      pending: {
-        root: cva(
-          "bg-accent text-accent-content border-accent gap-0 rounded-lg border"
-        ),
-        header: cva(
-          "flex items-center justify-center gap-2 px-6 py-1 text-center text-sm"
-        ),
-        content: cva("flex flex-col rounded-lg"),
-        item: cva("rounded-none border-b-0 last:rounded-b-lg"),
-        footer: cva("flex justify-end gap-2 p-4 empty:hidden"),
-      },
+    item: {
+      root: cva("", {}),
     },
 
     paymentDetails: {
@@ -116,11 +105,20 @@ export default {
 
     paymentGateway: {
       root: cva("flex flex-col gap-6 py-6 "),
-      wrapper: cva(
-        "border-base-300 flex flex-col items-center justify-center gap-6 rounded-lg border p-6 empty:hidden"
-      ),
+      wrapper: cva("flex flex-col items-center justify-center gap-6", {
+        variants: {
+          variant: {
+            outlined: "rounded-lg border p-6 ",
+            flat: "",
+          },
+        },
+        defaultVariants: {
+          variant: "flat",
+        },
+      }),
       render: cva("w-full empty:hidden"),
       form: cva("w-full"),
+      instructions: cva("m-0 w-full p-0"),
       transition: {
         enter: {
           active: cva("m-0 transition duration-300 ease-out"),
@@ -139,7 +137,7 @@ export default {
     loading: {
       // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
       root: cva(
-        "relative flex w-full flex-col flex-wrap flex-wrap items-start items-center justify-start justify-center gap-6 py-16"
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
       ),
       title: cva("m-0 text-center text-3xl font-light text-inherit"),
       text: cva(

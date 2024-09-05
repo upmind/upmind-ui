@@ -212,6 +212,7 @@ export default createMachine(
       REFRESH: {
         target: "checking",
         actions: ["setContext", "updateStripe"],
+        cond: "hasChanged",
       },
       UNAUTHENTICATED: {
         target: "loading",
@@ -324,7 +325,7 @@ export default createMachine(
       setError: assign({
         error: (_context: StripeContext, { data }: StripeEvent) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -338,9 +339,19 @@ export default createMachine(
     },
 
     guards: {
-      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) => {
-        return !elements;
+      hasChanged: (
+        { basket_id, currency, amount }: StripeContext,
+        { data }: StripeEvent
+      ) => {
+        const value =
+          basket_id !== data.basket_id ||
+          currency !== data.currency ||
+          amount !== data.amount;
+        return value;
       },
+
+      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) =>
+        !elements,
 
       hasNoOutstandingBalance: (
         _context: StripeContext,

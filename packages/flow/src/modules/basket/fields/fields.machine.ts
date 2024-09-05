@@ -10,7 +10,7 @@ const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { useBasketFieldsModelParser } from "../utils";
+import { parseBasketFieldsModel } from "../utils";
 
 // --- types
 import type { FieldsContext, FieldsEvent } from "./types.d";
@@ -172,7 +172,7 @@ export default createMachine(
         (_context: FieldsContext, { data: basket }: FieldsEvent) => {
           return {
             basket_id: basket?.id,
-            model: useBasketFieldsModelParser(basket),
+            model: parseBasketFieldsModel(basket),
           };
         }
       ),
@@ -236,7 +236,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);

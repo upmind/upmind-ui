@@ -1,9 +1,5 @@
 <template>
-  <div
-    ref="form"
-    :class="styles.basket.paymentGateway.root"
-    v-if="!meta.isRenderless"
-  >
+  <div ref="form" :class="styles.basket.paymentGateway.root">
     <transition-group
       tag="div"
       :class="styles.basket.paymentGateway.wrapper"
@@ -16,6 +12,13 @@
       appear
     >
       <upw-spinner size="xs" v-if="meta.isLoading" key="spinner" />
+
+      <!-- Instructions -->
+      <upw-markdown
+        v-if="instructions"
+        :class="styles.basket.paymentGateway.instructions"
+        :model-value="instructions"
+      />
 
       <!-- gateway Render Content (* IF Provided) -->
       <div
@@ -47,22 +50,41 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, onMounted, watch, ref } from "vue";
+import {
+  defineComponent,
+  onMounted,
+  watch,
+  ref,
+  computed,
+  onUnmounted,
+} from "vue";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind/flow-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles, UpwMarkdown } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
 import { UpwForm, UpwSpinner } from "@upmind/upwind";
 
+// --- utils
+
+// --- types
+
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmBasketPaymentGateway",
-  components: { UpwForm, UpwSpinner },
-  props: {},
+  components: { UpwForm, UpwSpinner, UpwMarkdown },
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+    variant: {
+      type: String,
+    },
+  },
   setup(props) {
     const {
       meta,
@@ -75,6 +97,7 @@ export default defineComponent({
       input,
       update,
       render,
+      instructions,
     } = useBasketPaymentGateway();
 
     const styles = useStyles(
@@ -83,7 +106,14 @@ export default defineComponent({
         "basket.paymentGateway.transition.enter",
         "basket.paymentGateway.transition.leave",
       ],
-      meta,
+      computed(() => ({
+        variant:
+          props.variant ||
+          meta.value?.hasRenderer ||
+          meta.value?.hasInstructions
+            ? "outlined"
+            : "",
+      })),
       config
     );
 
@@ -91,8 +121,14 @@ export default defineComponent({
     // wait till we mount then try to render the gateway if it's provided
     // otherwise watch in case it's provided later
     onMounted(() => {
-      render(container.value);
-      watch(renderer, () => render(container.value));
+      watch(renderer, () => {
+        // only render if we have a renderer and weve not already rendered
+        if (container.value?.innerHTML) return;
+
+        render(container.value).catch(err => {
+          if (err) console.error(err);
+        });
+      });
     });
 
     return {
@@ -108,6 +144,7 @@ export default defineComponent({
       input,
       update,
       render,
+      instructions,
       // ---
       styles,
       mergeStyles,

@@ -12,6 +12,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
+    :autofocus="autofocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -66,7 +67,7 @@
 // --- external
 import { defineComponent, computed } from "vue";
 
-// --- local
+// --- internal
 import config from "./config.cva";
 
 // --- components
@@ -98,7 +99,7 @@ export default defineComponent({
     },
     label: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     // ---
@@ -129,6 +130,7 @@ export default defineComponent({
       default: 1,
     },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },

@@ -4,11 +4,9 @@
 import { useApi } from "../api";
 import { useBrand, BrandConfigKeys } from "../brand";
 
-import type { ProductConfigContext } from "./types.d";
-
 // --- utils
 import { useTime, useValidation } from "../../utils";
-import { useQuantityParser, useHasPriceOverride } from "./utils";
+import { parseQuantity, checkPriceOverride } from "./utils";
 
 import {
   concat,
@@ -24,6 +22,7 @@ import {
   mapValues,
   maxBy,
   minBy,
+  omitBy,
   pick,
   reduce,
   reject,
@@ -31,6 +30,8 @@ import {
   times,
 } from "lodash-es";
 
+// --- types
+import type { ProductConfigContext, IProductModel } from "./types.d";
 // --------------------------------------------------------
 // ENUMS
 
@@ -54,89 +55,61 @@ export enum PromotionDisplayTypes {
 }
 
 // --------------------------------------------------------
-// HELPERS
-
-async function calculateBillingTerm(
-  period: DefaultPaymentPeriod,
-  availableTerms: any
-) {
-  // because we have multiple options, we need to select one base don the following strategy:
-
-  const { getConfig } = useBrand();
-
-  let term;
-
-  switch (period) {
-    case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(availableTerms, "price");
-      break;
-    case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(availableTerms, "price");
-      break;
-    case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(availableTerms, "monthly_price_from");
-      break;
-    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = await getConfig(
-        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-      ).then(config => {
-        const period = get(
-          config,
-          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-        );
-        return calculateBillingTerm(period, availableTerms);
-      });
-
-      break;
-
-    default:
-      term = first(availableTerms);
-      break;
-  }
-  return term;
-}
-
-// --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
 async function load(
-  { model, currency_id, promotions }: ProductConfigContext,
+  {
+    model,
+    currency_id,
+    promotions,
+    basket_id,
+    basket_product,
+  }: ProductConfigContext,
   _event: any
 ) {
   const { product_id } = model;
   if (!product_id) return Promise.reject("No Product ID provided");
 
+  // lets ensure we have a valid currency > fallback to default
+  currency_id = await useBrand().validateCurrency(currency_id);
+  // ---
+
   const { get: getRequest, useUrl } = useApi();
+  const params = {
+    currency_id,
+    promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
+    with_staged_imports: true,
+    with: [
+      "image",
+      "images",
+      "prices",
+      "products_attributes",
+      "products_options",
+      "products_options.prices",
+      "provision_field_values",
+      // "provision_blueprint"
+      // "allowed_migrations",
+      // "allowed_migrations.migration_product",
+      // "category.top_category.top_category.top_category.top_category",
+      // "import.credentials",
+      // "import.source",
+      // "set_products"
+      // "sets",
+      // "trial_migration_rule",
+      // "trial_migration_rule.new_product",
+      // "trial_migration_rule.new_product.prices"
+    ].join(),
+  };
+
+  // conditionally add the basket_id / basket_product_id if we have them,
+  // this is important to get the correct prices once added to the basket
+  if (basket_id) set(params, "basket_id", basket_id);
+  if (basket_product?.id) set(params, "basket_product_id", basket_product.id);
+
   const productPromise = getRequest({
-    url: useUrl(`basket/products/${product_id}`, {
-      currency_id,
-      promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
-      with_staged_imports: true,
-      with: [
-        "image",
-        "images",
-        "prices",
-        "products_attributes",
-        "products_options",
-        "products_options.prices",
-        "provision_field_values",
-
-        // "provision_blueprint"
-
-        // "allowed_migrations",
-        // "allowed_migrations.migration_product",
-        // "category.top_category.top_category.top_category.top_category",
-        // "import.credentials",
-        // "import.source",
-        // "set_products"
-        // "sets",
-        // "trial_migration_rule",
-        // "trial_migration_rule.new_product",
-        // "trial_migration_rule.new_product.prices"
-      ].join(),
-    }),
+    url: useUrl(`basket/products/${product_id}`, params),
     useCache: true,
     maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
@@ -158,10 +131,9 @@ async function load(
   );
 
   return Promise.all([productPromise, provisioningPromise, configPromise]).then(
-    ([product, provision_fields, promotion_display_type]) => {
-      set(product, "products_provisioning", provision_fields);
-      set(product, "promotion_display_type", promotion_display_type);
-      return product;
+    ([product, products_provisioning, promotion_display_type]) => {
+      set(product, "products_provisioning", products_provisioning);
+      return { product, promotion_display_type };
     }
   );
 }
@@ -176,6 +148,7 @@ async function loadProvisioningFields(product_id) {
     withAccessToken: true,
   }).then(({ data }) => data);
 }
+
 // ---
 
 async function checkQuantity(
@@ -183,9 +156,9 @@ async function checkQuantity(
   { data }: any
 ) {
   const { product } = lookups;
-  let quantity = data?.quantity || model?.quantity;
+  const value = data?.quantity || model?.quantity;
+  const quantity = parseQuantity(value, product);
   // ---
-  quantity = useQuantityParser(quantity, product);
 
   return new Promise((resolve, reject) => {
     if (isNumber(quantity)) resolve({ quantity });
@@ -197,6 +170,7 @@ async function checkTerm(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
+  const value = model?.term;
   let term = null;
   const price = [];
   const errors = [];
@@ -215,7 +189,7 @@ async function checkTerm(
 
   term = find(lookups.terms, [
     "billing_cycle_months",
-    model?.term?.billing_cycle_months || model?.term,
+    value?.billing_cycle_months || value,
   ]);
 
   if (!term) {
@@ -255,19 +229,29 @@ async function checkAttributes(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  return checkSubproducts({ error, lookups, model }, { type: "attributes" });
+  const value = model?.attributes;
+
+  return checkSubproducts(
+    { error, lookups, model },
+    { data: value, type: "attributes" }
+  );
 }
 
 async function checkOptions(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  return checkSubproducts({ error, lookups, model }, { type: "options" });
+  const value = model?.options;
+
+  return checkSubproducts(
+    { error, lookups, model },
+    { data: value, type: "options" }
+  );
 }
 
 async function checkSubproducts(
   { error, lookups, model }: ProductConfigContext,
-  { type }: any
+  { type, data }: any
 ) {
   let subproducts = null;
   const price = [];
@@ -285,7 +269,7 @@ async function checkSubproducts(
     lookups[type],
     (result, subproduct) => {
       // try get any selected values for this subproduct,
-      let selected = get(model, `${type}.${subproduct.id}`, {});
+      let selected = get(data, subproduct.id, {});
 
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
@@ -320,12 +304,12 @@ async function checkSubproducts(
           }
 
           // ensure we have a valid unit_quantity
-          value.unit_quantity = useQuantityParser(
+          value.unit_quantity = parseQuantity(
             value?.unit_quantity || 1,
             product
           );
 
-          value.billing_cycle_months = activePrice?.billing_cycle_months;
+          value.billing_cycle_months = activePrice?.billing_cycle_months || 0;
           // set price values, taking into account the quantity and unit quantity
           // NB: we NEVER add, we always push into an array for the backend to handle
           times(value.unit_quantity * model.quantity, () => {
@@ -378,18 +362,22 @@ async function checkProvisioning(
     return Promise.resolve({ provision_fields: {} });
 
   // ---
+  // NB, ensure we strip out any falsy values as the API does not like them
+  const value = omitBy(model?.provision_fields, isNil) || {};
 
-  model.provision_fields ??= {};
   const { validate } = useValidation();
-  const errors = validate(model.provision_fields, lookups.provision_fields);
+  const errors = validate(lookups.provision_fields, value);
+
   return new Promise((resolve, reject) => {
     if (errors.length) {
-      reject({
-        provision_fields: model.provision_fields,
+      // TODO: reject with the errors , but need to allow skipping validation for sync
+      // for now we will resolve with errors
+      resolve({
+        provision_fields: value,
         error: { ...error, provision_fields: errors },
       });
     } else {
-      resolve({ provision_fields: model.provision_fields });
+      resolve({ provision_fields: value });
     }
   });
 }
@@ -413,19 +401,24 @@ const calculateSummary = (
 ) => {
   const { post, useUrl } = useApi();
 
-  // remove the term price if we have any price overrides
-  const hasPriceOverride = useHasPriceOverride(model.options, lookups.options);
-
   // clean the prices object, removing any nil values. we dont use compact because that also removes 0 values
+  // NB: remove the term price if we have any price overrides
   const values = reject(
     concat(
-      hasPriceOverride ? [] : prices?.term || 0,
+      checkPriceOverride(model.options, lookups.options)
+        ? []
+        : prices?.term || [],
       prices?.attributes,
       prices?.options
     ),
     isNil
   );
   // ---
+
+  if (!currency_id || !values?.length) {
+    return Promise.reject({});
+  }
+
   return post({
     url: useUrl("cart/calculate", {}),
     init: { signal: controller?.signal },
@@ -437,10 +430,49 @@ const calculateSummary = (
   }).then(({ data }) => pick(data, ["total", "total_formatted"]));
 };
 
+const calculateBillingTerm: IProductModel["term"] = async (
+  period: DefaultPaymentPeriod,
+  availableTerms: any
+) => {
+  // because we have multiple options, we need to select one base don the following strategy:
+
+  const { getConfig } = useBrand();
+
+  let term;
+
+  switch (period) {
+    case DefaultPaymentPeriod.HIGHEST_PRICE:
+      term = maxBy(availableTerms, "price");
+      break;
+    case DefaultPaymentPeriod.LOWEST_PRICE:
+      term = minBy(availableTerms, "price");
+      break;
+    case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
+      term = minBy(availableTerms, "monthly_price_from");
+      break;
+    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
+      term = await getConfig(
+        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+      ).then(config => {
+        const period = get(
+          config,
+          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
+        );
+        return calculateBillingTerm(period, availableTerms);
+      });
+
+      break;
+
+    default:
+      term = first(availableTerms);
+      break;
+  }
+  return term;
+};
 // --------------------------------------------------------
 // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
-export function calculateSubscription(callback, onReceive) {
+export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
   let controller: AbortController | null;
 

@@ -7,7 +7,7 @@ export default {
       variants: {
         size: {
           sm: "text-sm",
-          md: "",
+          md: "text-md",
           lg: "text-lg",
         },
       },
@@ -21,7 +21,7 @@ export default {
       {
         variants: {
           variant: {
-            outlined: "border-base-300 border",
+            outlined: " border",
             flat: "",
           },
           layout: {
@@ -42,7 +42,7 @@ export default {
           {
             layout: "inline",
             variant: "outlined",
-            size: "md",
+            size: "sm",
             class: "px-3 py-2 text-sm leading-5",
           },
           {
@@ -101,6 +101,9 @@ export default {
         },
       },
     }),
+
+    control: cva("flex w-full flex-1 items-start"),
+
     appendWrapper: cva("flex items-start gap-3 px-2 empty:hidden", {
       variants: {
         isDisabled: {
@@ -177,7 +180,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100 border-base-300 border-r ",
+          outlined: "bg-base-100  border-r ",
           flat: "text-base-500",
         },
         layout: {
@@ -214,7 +217,7 @@ export default {
           lg: "leading-7",
         },
         variant: {
-          outlined: "bg-base-100 border-base-300 border-l",
+          outlined: "bg-base-100  border-l",
           flat: "text-base-500",
         },
         layout: {

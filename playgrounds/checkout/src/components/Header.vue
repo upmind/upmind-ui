@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex w-full flex-wrap border-b border-base-300 bg-base px-4 py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
+    class="flex w-full flex-wrap border-b bg-base px-4 py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
   >
     <nav
       class="relative mx-auto flex w-full max-w-screen-2xl flex-row flex-wrap items-center justify-start gap-4 sm:flex sm:items-center sm:justify-between"

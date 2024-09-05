@@ -26,6 +26,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
     "@upmind/flow-vue": "^0.0.0",
     "@upmind/upwind": "^0.0.0",
     "@vueuse/components": "^10.7.2",

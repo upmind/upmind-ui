@@ -4,11 +4,6 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.authCallback": {
-      type: "done.invoke.authCallback";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]": {
       type: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
       data: unknown;
@@ -16,11 +11,6 @@ export interface Typegen0 {
     };
     "done.invoke.billingDetailsManager.available.checking.validating:invocation[0]": {
       type: "done.invoke.billingDetailsManager.available.checking.validating:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "done.invoke.billingDetailsManager.checking:invocation[0]": {
-      type: "done.invoke.billingDetailsManager.checking:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -34,10 +24,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.authCallback": {
-      type: "error.platform.authCallback";
-      data: unknown;
-    };
     "error.platform.billingDetailsManager.available.checking.validating:invocation[0]": {
       type: "error.platform.billingDetailsManager.available.checking.validating:invocation[0]";
       data: unknown;
@@ -50,12 +36,9 @@ export interface Typegen0 {
       type: "error.platform.processing:invocation[0]";
       data: unknown;
     };
-    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    authSubscription: "done.invoke.authCallback";
-    isAuthenticated: "done.invoke.billingDetailsManager.checking:invocation[0]";
     load: "done.invoke.loading:invocation[0]";
     parse: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
     update: "done.invoke.processing:invocation[0]";
@@ -65,30 +48,20 @@ export interface Typegen0 {
     actions: never;
     delays: never;
     guards: never;
-    services:
-      | "authSubscription"
-      | "isAuthenticated"
-      | "load"
-      | "parse"
-      | "update"
-      | "validate";
+    services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
     clearAutoUpdate: "done.invoke.processing:invocation[0]";
-    clearDirty: "done.invoke.processing:invocation[0]";
+    clearDirty: "CLEAR" | "done.invoke.processing:invocation[0]";
     clearError:
       | ""
-      | "AUTHENTICATED"
       | "CLEAR"
       | "REFRESH"
       | "SET"
-      | "UNAUTHENTICATED"
       | "UPDATE"
-      | "done.invoke.billingDetailsManager.checking:invocation[0]"
       | "done.invoke.loading:invocation[0]";
-    clearModel: "CLEAR" | "UNAUTHENTICATED";
-    clearSchemas: "UNAUTHENTICATED";
-    refreshBasket: "REFRESH";
+    clearModel: "CLEAR";
+    refreshContext: "REFRESH";
     setAutoUpdate: "SET";
     setDirty: "CLEAR" | "SET";
     setError:
@@ -106,26 +79,16 @@ export interface Typegen0 {
       | "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]"
       | "done.invoke.loading:invocation[0]";
   };
-  eventsCausingDelays: {
-    wait: "done.invoke.processing:invocation[0]";
-  };
+  eventsCausingDelays: {};
   eventsCausingGuards: {
     hasBasket: "UPDATE";
+    hasChanged: "REFRESH";
+    hasClient: "";
     isDirty: "done.invoke.billingDetailsManager.available.checking.validating:invocation[0]";
     shouldUpdate: "";
   };
   eventsCausingServices: {
-    authSubscription:
-      | "AUTHENTICATED"
-      | "REFRESH"
-      | "UNAUTHENTICATED"
-      | "xstate.init";
-    isAuthenticated: "AUTHENTICATED" | "SESSION";
-    load:
-      | "CLEAR"
-      | "REFRESH"
-      | "SET"
-      | "done.invoke.billingDetailsManager.checking:invocation[0]";
+    load: "" | "CLEAR" | "REFRESH" | "SET";
     parse: "CLEAR" | "REFRESH" | "SET" | "done.invoke.loading:invocation[0]";
     update: "" | "UPDATE";
     validate: "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]";
@@ -137,20 +100,16 @@ export interface Typegen0 {
     | "available.checking.validating"
     | "available.invalid"
     | "available.loading"
-    | "available.processed"
     | "available.processing"
     | "available.valid"
-    | "checking"
     | "complete"
     | "error"
     | "subscribing"
-    | "unavailable"
     | {
         available?:
           | "checking"
           | "invalid"
           | "loading"
-          | "processed"
           | "processing"
           | "valid"
           | { checking?: "parsing" | "validating" };

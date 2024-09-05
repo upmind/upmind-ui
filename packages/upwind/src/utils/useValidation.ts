@@ -14,10 +14,16 @@ import ajvErrors from "ajv-errors";
 
 // --------------------------------------------------------
 
-export const useValidation = () => {
+export const useValidation = (ajv?: Object) => {
   // us JSON Forms version of AJV as it has formats and other keywords already
-  const ajv = createAjv({ useDefaults: true, allErrors: true });
+  ajv ??= createAjv({ useDefaults: true, allErrors: true });
   ajvErrors(ajv, { singleError: true });
+
+  ajv.addFormat(
+    "domain_name",
+    // /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/
+    /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
+  );
 
   ajv.addKeyword({
     keyword: "isPhoneNumber",
@@ -29,7 +35,7 @@ export const useValidation = () => {
       return isValidPhoneNumber(value, country);
     },
     error: {
-      message: cxt => "invalid phone number format",
+      message: cxt => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
     },
   });
 

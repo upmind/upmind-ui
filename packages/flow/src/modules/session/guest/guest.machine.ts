@@ -8,7 +8,6 @@ import { useFeedback } from "../../feedback";
 const { trackEvent, addError } = useFeedback();
 
 // --- utils
-import { dumpTokensFromStorage } from "../utils";
 import {
   useValidationParser,
   useRegisterSchemaParser,
@@ -120,6 +119,7 @@ export default createMachine(
               src: "verify2fa",
               onDone: {
                 target: "#complete",
+                actions: ["trackLogin"],
               },
               onError: {
                 target: "challenging",
@@ -235,12 +235,6 @@ export default createMachine(
   },
   {
     actions: {
-      clear: assign({
-        token: (_context, _event) => {
-          dumpTokensFromStorage();
-          return null;
-        },
-      }),
       setCustomFields: assign({
         customFields: (_context, { data }) => data,
       }),
@@ -271,6 +265,8 @@ export default createMachine(
       }),
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+
         addError({
           title: error?.title,
           copy: error?.message,
@@ -309,7 +305,6 @@ export default createMachine(
               message: data.error.message || "Unauthorized",
             };
           }
-
           if (data?.error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors

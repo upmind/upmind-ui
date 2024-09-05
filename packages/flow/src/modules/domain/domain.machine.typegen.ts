@@ -4,53 +4,29 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
-    "done.invoke.domainManager.existing.loading:invocation[0]": {
-      type: "done.invoke.domainManager.existing.loading:invocation[0]";
+    "done.invoke.domainManager.loading.existing.processing:invocation[0]": {
+      type: "done.invoke.domainManager.loading.existing.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.domainManager.register.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.register.processing.searching:invocation[0]";
+    "done.invoke.processing:invocation[0]": {
+      type: "done.invoke.processing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.domainManager.transfer.processing.searching:invocation[0]": {
-      type: "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
-    "error.platform.domainManager.existing.loading:invocation[0]": {
-      type: "error.platform.domainManager.existing.loading:invocation[0]";
+    "error.platform.processing:invocation[0]": {
+      type: "error.platform.processing:invocation[0]";
       data: unknown;
     };
-    "error.platform.domainManager.register.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.register.processing.searching:invocation[0]";
-      data: unknown;
-    };
-    "error.platform.domainManager.transfer.processing.searching:invocation[0]": {
-      type: "error.platform.domainManager.transfer.processing.searching:invocation[0]";
-      data: unknown;
-    };
-    "xstate.after(error)#error": { type: "xstate.after(error)#error" };
-    "xstate.after(wait)#domainManager.basket.updating": {
-      type: "xstate.after(wait)#domainManager.basket.updating";
-    };
-    "xstate.after(wait)#domainManager.existing.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.existing.processing.cancelling";
-    };
-    "xstate.after(wait)#domainManager.register.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.register.processing.cancelling";
-    };
-    "xstate.after(wait)#domainManager.transfer.processing.cancelling": {
-      type: "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+    "xstate.after(wait)#domainManager.basket.processing": {
+      type: "xstate.after(wait)#domainManager.basket.processing";
     };
     "xstate.init": { type: "xstate.init" };
+    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
-    getClientDomains: "done.invoke.domainManager.existing.loading:invocation[0]";
-    search:
-      | "done.invoke.domainManager.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
+    getClientDomains: "done.invoke.domainManager.loading.existing.processing:invocation[0]";
+    search: "done.invoke.processing:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -60,149 +36,157 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     add: "ADD";
-    addExisting: "ADD";
-    cancelController:
-      | ""
-      | "ADD"
+    cancelController: "" | "CHOOSE" | "REFRESH" | "SEARCH" | "SEARCH.OFFSET";
+    checkChoices: "FETCHED" | "done.state.domainManager.loading";
+    checkModel:
+      | "AUTHENTICATED"
       | "CHOOSE"
-      | "REFRESH"
-      | "REMOVE"
-      | "SEARCH"
-      | "SYNC";
-    checkChoices: "CHOOSE" | "STOP" | "xstate.init";
-    clearAvailable:
-      | ""
-      | "ADD"
-      | "CHOOSE"
-      | "REFRESH"
-      | "REMOVE"
-      | "SYNC"
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
     clearError:
       | ""
       | "ADD"
       | "CHOOSE"
       | "REFRESH"
       | "REMOVE"
-      | "SYNC"
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
-    newController:
-      | ""
-      | "ADD"
+      | "SEARCH"
+      | "SEARCH.OFFSET"
+      | "UPDATE";
+    clearLookups:
+      | "AUTHENTICATED"
       | "CHOOSE"
-      | "REFRESH"
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
+    clearModel:
+      | "AUTHENTICATED"
+      | "CHOOSE"
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "UPDATE"
+      | "xstate.stop";
+    clearSearch: "RESET";
+    ensurePrimary:
+      | "ADD"
+      | "AUTHENTICATED"
+      | "CHOOSE"
+      | "FETCHED"
       | "REMOVE"
-      | "SYNC"
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "UPDATE"
+      | "xstate.init";
+    fetchBasket: "" | "AUTHENTICATED" | "CHOOSE" | "UNAUTHENTICATED";
+    newController: "";
+    persistModel:
+      | "AUTHENTICATED"
+      | "CHOOSE"
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
     remove: "REMOVE";
-    setAvailable:
-      | "done.invoke.domainManager.existing.loading:invocation[0]"
-      | "done.invoke.domainManager.register.processing.searching:invocation[0]"
-      | "done.invoke.domainManager.transfer.processing.searching:invocation[0]";
-    setError:
-      | "error.platform.domainManager.existing.loading:invocation[0]"
-      | "error.platform.domainManager.register.processing.searching:invocation[0]"
-      | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
+    resetLookups: "RESET";
+    resetModel: "RESET";
+    setAuthHelper: "";
+    setBasketHelper: "";
+    setBasketItems: "FETCHED";
+    setContext:
+      | "AUTHENTICATED"
+      | "CHOOSE"
+      | "STOP"
+      | "UNAUTHENTICATED"
+      | "xstate.init";
+    setCurrency: "REFRESH";
+    setError: "ERROR" | "error.platform.processing:invocation[0]";
+    setModel: "FETCHED" | "UPDATE";
+    setOwned: "done.invoke.domainManager.loading.existing.processing:invocation[0]";
     setPrimary: "SELECT";
-    setSearch: "SEARCH";
+    setPromotions: "REFRESH";
+    setSearchOffset: "SEARCH.OFFSET";
+    setSearchQuery: "SEARCH";
+    setSearchResults: "done.invoke.processing:invocation[0]";
     setType: "CHOOSE";
-    sync: "SYNC";
+    syncBasket: "SYNC";
+    synced: "SYNCED";
   };
   eventsCausingDelays: {
-    error: "CHOOSE";
-    wait: "SEARCH" | "SELECT";
+    wait: "SELECT";
   };
   eventsCausingGuards: {
-    hasAvailable: "ADD";
-    hasNoValues: "";
-    hasValues: "" | "REMOVE" | "SELECT";
+    hasModel: "" | "REMOVE" | "SELECT";
+    hasNoModel: "";
+    hasSearchQuery: "";
     isBasket: "CHOOSE";
     isDomainRegister: "CHOOSE";
     isDomainTransfer: "CHOOSE";
     isExistingDomain: "CHOOSE";
-    isExistingPrimaryDomain: "";
-    isForced: "CHOOSE";
     isInvalidType: "CHOOSE";
-    isNotCancelled:
-      | "error.platform.domainManager.existing.loading:invocation[0]"
-      | "error.platform.domainManager.register.processing.searching:invocation[0]"
-      | "error.platform.domainManager.transfer.processing.searching:invocation[0]";
+    isNotCancelled: "error.platform.processing:invocation[0]";
     isValidDomain: "ADD";
-    isValidSearch: "SEARCH";
+    validSearchOffset: "SEARCH.OFFSET";
+    validSearchQuery: "SEARCH";
   };
   eventsCausingServices: {
-    getClientDomains: "" | "ADD" | "CHOOSE" | "REFRESH" | "REMOVE" | "SYNC";
-    search:
-      | "xstate.after(wait)#domainManager.register.processing.cancelling"
-      | "xstate.after(wait)#domainManager.transfer.processing.cancelling";
+    getClientDomains: "" | "AUTHENTICATED" | "UNAUTHENTICATED";
+    search: "";
   };
   matchesStates:
     | "basket"
+    | "basket.complete"
+    | "basket.error"
+    | "basket.invalid"
     | "basket.loading"
+    | "basket.processing"
     | "basket.syncing"
-    | "basket.updating"
     | "basket.valid"
     | "complete"
-    | "error"
+    | "dac"
+    | "dac.complete"
+    | "dac.error"
+    | "dac.invalid"
+    | "dac.loading"
+    | "dac.processing"
+    | "dac.syncing"
+    | "dac.valid"
     | "existing"
-    | "existing.available"
     | "existing.error"
-    | "existing.idle"
-    | "existing.loading"
-    | "existing.processing"
-    | "existing.processing.cancelling"
-    | "existing.syncing"
+    | "existing.invalid"
     | "existing.valid"
     | "idle"
     | "loading"
-    | "register"
-    | "register.available"
-    | "register.error"
-    | "register.idle"
-    | "register.processing"
-    | "register.processing.cancelling"
-    | "register.processing.searching"
-    | "register.syncing"
-    | "register.valid"
-    | "transfer"
-    | "transfer.available"
-    | "transfer.error"
-    | "transfer.idle"
-    | "transfer.processing"
-    | "transfer.processing.cancelling"
-    | "transfer.processing.searching"
-    | "transfer.syncing"
-    | "transfer.valid"
+    | "loading.basket"
+    | "loading.basket.complete"
+    | "loading.basket.processing"
+    | "loading.existing"
+    | "loading.existing.complete"
+    | "loading.existing.processing"
+    | "subscribing"
     | {
-        basket?: "loading" | "syncing" | "updating" | "valid";
-        existing?:
-          | "available"
+        basket?:
+          | "complete"
           | "error"
-          | "idle"
+          | "invalid"
           | "loading"
           | "processing"
           | "syncing"
-          | "valid"
-          | { processing?: "cancelling" };
-        register?:
-          | "available"
+          | "valid";
+        dac?:
+          | "complete"
           | "error"
-          | "idle"
+          | "invalid"
+          | "loading"
           | "processing"
           | "syncing"
-          | "valid"
-          | { processing?: "cancelling" | "searching" };
-        transfer?:
-          | "available"
-          | "error"
-          | "idle"
-          | "processing"
-          | "syncing"
-          | "valid"
-          | { processing?: "cancelling" | "searching" };
+          | "valid";
+        existing?: "error" | "invalid" | "valid";
+        loading?:
+          | "basket"
+          | "existing"
+          | {
+              basket?: "complete" | "processing";
+              existing?: "complete" | "processing";
+            };
       };
   tags: never;
 }

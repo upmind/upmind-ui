@@ -3,9 +3,10 @@ import { cva } from "class-variance-authority";
 
 export default {
   icon: {
-    root: cva("flex flex-shrink-0", {
+    root: cva("inline-flex flex-shrink-0 align-middle", {
       variants: {
         size: {
+          full: "h-full w-full",
           xs: "size-6",
           sm: "size-8",
           md: "size-10",

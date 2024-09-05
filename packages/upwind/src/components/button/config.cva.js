@@ -19,17 +19,17 @@ export default {
             lg: "px-3 py-4 text-lg leading-7",
           },
           variant: {
-            flat: "border-transparent",
+            flat: "border border-transparent",
             outlined: "border bg-opacity-0 ",
-            ghost: "border-transparent bg-opacity-0",
+            ghost: "border border-transparent bg-opacity-0",
             link: "!bg-transparent !p-0 underline",
           },
           color: {
             current: "text-content border-transparent bg-transparent",
             base: "bg-base-200 text-base-content border-transparent",
-            primary: "bg-primary text-primary-content border-transparent",
-            secondary: "bg-secondary text-secondary-content border-transparent",
-            accent: "bg-accent text-accent-content border-transparent",
+            primary: "text-primary-content bg-primary border-transparent",
+            secondary: "text-secondary-content bg-secondary border-transparent",
+            accent: "text-accent-content bg-accent border-transparent",
             success: "bg-success text-success-content border-transparent",
             error: "bg-error text-error-content border-transparent",
             warning: "bg-warning text-warning-content border-transparent",
@@ -135,7 +135,7 @@ export default {
           {
             color: "base",
             variant: "outlined",
-            class: "border-base-300 text-base-content",
+            class: " text-base-content",
           },
 
           {
@@ -396,19 +396,19 @@ export default {
     spinner: cva("absolute bottom-0 left-0 right-0 top-0 m-auto ", {
       variants: {
         size: {
+          square: "size-[1em]",
           badge: "size-4",
-          auto: "size-[1.5em]",
-          xs: "size-4",
-          sm: "size-5",
-          md: "size-6",
-          lg: "size-7",
+          xs: "size-3",
+          sm: "size-4",
+          md: "size-5",
+          lg: "size-6",
         },
       },
       defaultVariants: {
         size: "md",
       },
     }),
-    avatar: cva("size-[1.5em] overflow-hidden rounded-full", {
+    avatar: cva("overflow-hidden rounded-full", {
       variants: {
         loading: {
           true: "invisible opacity-0",

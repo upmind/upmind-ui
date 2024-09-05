@@ -188,7 +188,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);

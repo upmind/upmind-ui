@@ -4,7 +4,7 @@
 import { useApi } from "../api";
 
 // --- utils
-import { parseDomain, parseAvailable } from "./utils";
+import { parseDomain, parseAvailable, parseSld } from "./utils";
 import { isEmpty, omitBy, map } from "lodash-es";
 
 // --- types
@@ -12,28 +12,20 @@ import type { DomainContext } from "./types.d";
 
 // --------------------------------------------------------
 
-function search({
-  promotions,
-  currency,
-  limit,
-  controller,
-  available,
-  search,
-  offset,
-}: DomainContext) {
+function search({ promotions, currency, controller, search }: DomainContext) {
   const { get, useUrl } = useApi();
 
-  if (!search?.length) return Promise.reject("No domain provided");
+  if (!search?.query?.length) return Promise.reject("No query provided");
 
-  const { sld } = parseDomain(search);
+  const sld = parseSld(search.query);
 
   // --- Build the request, and Fetch the search results
   const params = omitBy(
     {
       sld,
       with: ["prices", "options", "options.prices", "attributes"].join(),
-      limit: limit?.toString(),
-      offset: offset?.toString(),
+      limit: search?.limit?.toString(),
+      offset: search.offset?.toString(),
       currency_code: currency,
       // tld,
       promotions: promotions?.join(),
@@ -47,7 +39,7 @@ function search({
     useCache: true,
   }).then(({ data, total }) => {
     return {
-      available: parseAvailable(sld, data, available),
+      available: parseAvailable(sld, data),
       total: total || 0,
     };
   });
@@ -61,13 +53,31 @@ function getClientDomains({ controller }: DomainContext) {
     init: { signal: controller?.signal },
     useCache: true,
     withAccessToken: true,
-  }).then(({ data, total }) => {
-    return {
-      available: map(data, ({ domain_name }) => parseDomain(domain_name)),
-      total: total || 0,
-    };
-  });
+  }).then(({ data }) =>
+    map(data, ({ domain_name }) => parseDomain(domain_name))
+  );
 }
+// --------------------------------------------------------
+
+// async function parse(_context, _event) {
+//   // TODO: Implement the parse function
+//   // ---
+//   return Promise.resolve({});
+// }
+
+// async function validate(_context, _event) {
+//   // TODO: Implement the validate function
+//   // ---
+//   return new Promise((resolve, reject) => {
+//     const errors = null;
+//     if (errors?.length) {
+//       reject({ error: errors });
+//     } else {
+//       resolve(model);
+//     }
+//   });
+// }
+
 // --------------------------------------------------------
 // EXPORTS
 

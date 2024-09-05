@@ -9,7 +9,10 @@ const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../../utils";
-import { dumpTokensFromStorage } from "../utils";
+import { dumpTokenFromStorage } from "../utils";
+
+// --- types
+import { responseCodes } from "../../api/types.d";
 
 // --------------------------------------------------------
 
@@ -98,7 +101,7 @@ export default createMachine(
   {
     actions: {
       clear: assign((context, _event) => {
-        dumpTokensFromStorage();
+        dumpTokenFromStorage("client");
         return {};
       }),
       // ---
@@ -111,6 +114,8 @@ export default createMachine(
       }),
 
       setFeedbackError: ({ error }, _event) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+
         addError({
           title: error?.title,
           copy: error?.message,

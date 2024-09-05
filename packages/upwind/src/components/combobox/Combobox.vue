@@ -1,6 +1,6 @@
 <template>
   <h-combobox v-model="value" v-slot="{ open }">
-    <div class="combobox" :class="styles.combobox.root">
+    <div :class="styles.combobox.root">
       <upw-input
         :id="id"
         :label="label"
@@ -14,6 +14,7 @@
         :prepend-icon="displayIcon"
         :prepend-text="prependText"
         :feedback-icon="feedbackIcon"
+        :autofocus="autofocus"
         :dirty="meta.isDirty"
         :disabled="meta.isDisabled"
         :visible="meta.isVisible"
@@ -38,7 +39,7 @@
 
         <h-combobox-button :class="styles.combobox.button">
           <upw-spinner
-            :class="styles.comboboxItem.avatar"
+            :class="styles.combobox.item.avatar"
             v-if="meta.isProcessing"
           />
 
@@ -53,120 +54,162 @@
       </upw-input>
 
       <transition
-        :enter-active-class="styles.comboboxTransitionEnter.active"
-        :enter-from-class="styles.comboboxTransitionEnter.from"
-        :enter-to-class="styles.comboboxTransitionEnter.to"
-        :leave-active-class="styles.comboboxTransitionLeave.active"
-        :leave-from-class="styles.comboboxTransitionLeave.from"
-        :leave-to-class="styles.comboboxTransitionLeave.to"
+        :enter-active-class="styles.combobox.transition.enter.active"
+        :enter-from-class="styles.combobox.transition.enter.from"
+        :enter-to-class="styles.combobox.transition.enter.to"
+        :leave-active-class="styles.combobox.transition.leave.active"
+        :leave-from-class="styles.combobox.transition.leave.from"
+        :leave-to-class="styles.combobox.transition.leave.to"
       >
-        <h-combobox-options
-          class="combobox-options"
-          :class="styles.combobox.items"
-        >
-          <li :class="styles.comboboxItem.root" v-if="meta.isProcessing">
+        <!-- <div v-show="open && results?.length"> -->
+        <h-combobox-options :class="styles.combobox.items">
+          <li :class="styles.combobox.item.root" v-if="meta.isProcessing">
             <!-- empty when processing -->
           </li>
 
           <li
-            :class="styles.comboboxItem.root"
+            :class="styles.combobox.item.root"
             v-else-if="!input?.length && !results?.length"
           >
             {{ emptySearchText }}
           </li>
 
-          <li :class="styles.comboboxItem.root" v-else-if="!results?.length">
+          <li
+            :class="styles.combobox.item.root"
+            v-else-if="!results?.length && !queryResult"
+          >
             {{ emptyText }}
           </li>
 
-          <template v-else v-for="(item, key) in results" :key="key">
-            <li
-              v-if="item?.as == 'separator'"
-              :class="styles.comboboxItem.separator"
-            >
-              <upw-icon
-                v-if="item.avatar"
-                :icon="item.avatar"
-                class="avatar"
-                :class="styles.comboboxItem.avatar"
-                aria-hidden="true"
-              />
-
-              <upw-icon
-                v-if="item.icon"
-                :icon="item.icon"
-                :class="styles.comboboxItem.icon"
-                aria-hidden="true"
-              />
-
-              <span :class="styles.comboboxItem.label" v-if="item[itemLabel]">{{
-                item[itemLabel]
-              }}</span>
-            </li>
-
+          <template v-else>
             <h-combobox-option
-              v-else-if="item?.as == 'button'"
+              v-if="queryResult"
+              :value="queryResult"
               as="template"
               v-slot="{ active, selected }"
-              :value="item[itemValue]"
-              :disabled="item?.disabled"
             >
-              <li :class="styles.comboboxItem.root">
-                <upw-button
-                  v-bind="item"
-                  :prepend-avatar="item.avatar"
-                  :prepend-icon="item.icon"
-                  :disabled="selected"
+              <li
+                :class="[
+                  styles.combobox.item.root,
+                  active ? styles.combobox.item.active : '',
+                  selected ? styles.combobox.item.selected : '',
+                ]"
+              >
+                <em :class="styles.combobox.item.label">
+                  {{ itemCustomPrepend }}{{ queryResult[itemLabel]
+                  }}{{ itemCustomAppend }}
+                </em>
+
+                <upw-icon
+                  v-if="selectedIcon"
+                  :icon="selectedIcon"
+                  :class="[
+                    styles.combobox.item.icon,
+                    {
+                      invisible: !selected,
+                      'pointer-events-none': !selected,
+                    },
+                  ]"
+                  aria-hidden="true"
                 />
               </li>
             </h-combobox-option>
 
-            <h-combobox-option
-              v-else
-              as="template"
-              v-slot="{ active, selected }"
-              :value="item[itemValue]"
-              :disabled="item?.disabled"
-            >
+            <template v-for="(item, key) in results" :key="key">
               <li
-                :class="[
-                  styles.comboboxItem.root,
-                  active ? styles.comboboxItem.active : '',
-                  selected ? styles.comboboxItem.selected : '',
-                ]"
+                v-if="item?.as == 'separator'"
+                :class="styles.combobox.item.separator"
               >
                 <upw-icon
                   v-if="item.avatar"
                   :icon="item.avatar"
                   class="avatar"
-                  :class="styles.comboboxItem.avatar"
+                  :class="styles.combobox.item.avatar"
                   aria-hidden="true"
                 />
 
                 <upw-icon
                   v-if="item.icon"
                   :icon="item.icon"
-                  :class="styles.comboboxItem.icon"
+                  :class="styles.combobox.item.icon"
                   aria-hidden="true"
                 />
 
-                <span :class="styles.comboboxItem.label">{{
-                  item[itemLabel]
-                }}</span>
-
-                <upw-icon
-                  v-if="selectedIcon"
-                  :icon="selectedIcon"
-                  :class="[
-                    styles.comboboxItem.icon,
-                    { invisible: !selected, 'pointer-events-none': !selected },
-                  ]"
-                  aria-hidden="true"
-                />
+                <span
+                  :class="styles.combobox.item.label"
+                  v-if="item[itemLabel]"
+                  >{{ item[itemLabel] }}</span
+                >
               </li>
-            </h-combobox-option>
+
+              <h-combobox-option
+                v-else-if="item?.as == 'button'"
+                as="template"
+                v-slot="{ active, selected }"
+                :value="item"
+                :disabled="item?.disabled"
+              >
+                <li :class="styles.combobox.item.root">
+                  <upw-button
+                    v-bind="item"
+                    :prepend-avatar="item.avatar"
+                    :prepend-icon="item.icon"
+                    :disabled="selected"
+                  />
+                </li>
+              </h-combobox-option>
+
+              <h-combobox-option
+                v-else
+                as="template"
+                v-slot="{ active, selected }"
+                :value="item"
+                :disabled="item?.disabled"
+              >
+                <li
+                  :class="[
+                    styles.combobox.item.root,
+                    active ? styles.combobox.item.active : '',
+                    selected ? styles.combobox.item.selected : '',
+                  ]"
+                >
+                  <upw-icon
+                    v-if="item.avatar"
+                    :icon="item.avatar"
+                    class="avatar"
+                    :class="styles.combobox.item.avatar"
+                    aria-hidden="true"
+                  />
+
+                  <upw-icon
+                    v-if="item.icon"
+                    :icon="item.icon"
+                    :class="styles.combobox.item.icon"
+                    aria-hidden="true"
+                  />
+
+                  <span :class="styles.combobox.item.label">{{
+                    item[itemLabel]
+                  }}</span>
+
+                  <upw-icon
+                    v-if="selectedIcon"
+                    :icon="selectedIcon"
+                    :class="[
+                      styles.combobox.item.icon,
+                      {
+                        invisible: !selected,
+                        'pointer-events-none': !selected,
+                      },
+                    ]"
+                    aria-hidden="true"
+                  />
+                </li>
+              </h-combobox-option>
+            </template>
           </template>
         </h-combobox-options>
+        <!-- </div> -->
       </transition>
     </div>
   </h-combobox>
@@ -195,21 +238,23 @@ import UpwSpinner from "../spinner/Spinner.vue";
 // --- utils
 import { useStyles } from "../../utils";
 import {
+  debounce,
   filter,
   find,
-  isEmpty,
-  isNil,
-  debounce,
+  get,
   includes,
+  isEmpty,
   isFunction,
+  isNil,
+  isString,
   pick,
   reject,
-  get,
+  some,
 } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { ComboboxItems, ComboboxPosition } from "./types";
+import type { ComboboxPosition } from "./types";
 import type { InputProps, IconProps } from "../input/types";
 
 // ----------------------------------------------
@@ -236,7 +281,7 @@ export default defineComponent({
     },
     label: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     placement: {
@@ -271,7 +316,7 @@ export default defineComponent({
     modelValue: { type: String },
 
     items: {
-      type: Object as PropType<ComboboxItems>,
+      type: Object as PropType<Combobox.items>,
       default: () => {},
     },
     itemLabel: {
@@ -282,11 +327,20 @@ export default defineComponent({
       type: String,
       default: "value",
     },
+    itemCustomPrepend: {
+      type: String,
+      default: "'",
+    },
+    itemCustomAppend: {
+      type: String,
+      default: "'",
+    },
 
     search: {
       type: [Function, Promise],
     },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
@@ -306,7 +360,6 @@ export default defineComponent({
     const input = ref(null);
     const processing = ref(false);
     const results = ref(props.items || []);
-
     // ---
     const meta = computed(() => ({
       size: props.size,
@@ -315,18 +368,18 @@ export default defineComponent({
       isDisabled: props.disabled,
       isVisible: props.visible,
       isRequired: props.required,
-      isDirty: !isNil(props.modelValue),
+      isDirty: !isNil(value.value),
       isInvalid: !isEmpty(props.errors),
-      isValid: isEmpty(props.errors) && !isNil(props.modelValue),
+      isValid: isEmpty(props.errors) && !isNil(value.value),
       isProcessing: processing.value,
     }));
 
     const styles = useStyles(
       [
         "combobox",
-        "comboboxItem",
-        "comboboxTransitionEnter",
-        "comboboxTransitionLeave",
+        "combobox.item",
+        "combobox.transition.enter",
+        "combobox.transition.leave",
       ],
       meta,
       config,
@@ -347,11 +400,15 @@ export default defineComponent({
         results.value = filter(
           props.items,
           item =>
-            includes(
-              item[itemLabel].toLowerCase(),
+            !item.persist &&
+            (includes(
+              item?.[props.itemLabel]?.toLowerCase(),
               input.value.toLowerCase()
             ) ||
-            includes(item[itemValue].toLowerCase(), input.value.toLowerCase())
+              includes(
+                item?.[props.itemValue]?.toLowerCase(),
+                input.value.toLowerCase()
+              ))
         );
       }
 
@@ -389,7 +446,6 @@ export default defineComponent({
         "class",
         "value",
         "readonly",
-        "autofocus",
         "placeholder",
         "tabindex",
         "maxlength",
@@ -399,26 +455,43 @@ export default defineComponent({
         "onBlur",
       ]);
     },
+
+    queryResult() {
+      return this.input &&
+        !this.meta.isProcessing &&
+        !some(this.results, [this.itemValue, this.input])
+        ? { [this.itemValue]: this.input, [this.itemLabel]: this.input }
+        : null;
+    },
+
     displayValue() {
-      const selected = find(this.results, [this.itemValue, this.value]);
-      const value = get(selected, this.itemLabel, "");
+      // const selected = find(this.results, [this.itemValue, this.value]);
+      const value = isString(this.value)
+        ? this.value
+        : get(this.value, this.itemLabel, "");
       return value;
     },
     displayIcon() {
-      const selected = find(this.items, ["value", this.value]);
+      const selected = find(this.items, [this.itemValue, this.value]);
       return this.prependIcon || selected?.icon;
     },
     displayAvatar() {
-      const selected = find(this.items, ["value", this.value]);
+      const selected = find(this.items, [this.itemValue, this.value]);
       return this.prependAvatar || selected?.avatar;
     },
   },
 
   watch: {
-    modelValue(value) {
-      this.value = value;
+    items: {
+      immediate: true,
+      handler() {
+        this.results = this.items;
+      },
     },
+
     value(value) {
+      value = get(value, this.itemValue, value); // safetycheck in case we get an object
+
       this.$emit("update:modelValue", value);
 
       // forward the event to our form renderer that will trigger the update

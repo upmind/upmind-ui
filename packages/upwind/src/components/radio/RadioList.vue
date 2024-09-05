@@ -2,6 +2,7 @@
   <upw-input
     :id="id"
     :label="label"
+    :text="text"
     :description="description"
     :errors="errors"
     :size="size"
@@ -12,6 +13,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
+    :autofocus="autofocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -21,6 +23,7 @@
     :no-status="noStatus"
     :persist-feedback="persistFeedback"
     variant="flat"
+    :upwind-config="{ input: config.radiolist.input }"
   >
     <h-radio-group v-model="selected" as="ul" :class="styles.radiolist.root">
       <h-radio-group-option
@@ -31,20 +34,33 @@
         :value="item.value"
       >
         <upw-radio
-          v-bind="safeAttrs"
+          v-bind="{ ...safeAttrs, ...item }"
           variant="outlined"
           :id="`${id}-option-${index}`"
           :errors="meta.errors"
           :size="size"
           :disabled="meta.isDisabled"
           :processing="meta.isProcessing"
-          :label="item.label"
-          :value="item.value"
           :model-value="isSelected(item.value)"
+          :value="item.value"
           :upwind-config="{ input: config.radiolist.radio }"
+          :no-input="noInput"
           no-status
           no-feedback
-        />
+        >
+          <!-- expose our core input slots -->
+          <template #label="slotProps">
+            <slot name="label" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+
+          <template #prepend="slotProps">
+            <slot name="prepend" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+
+          <template #append="slotProps">
+            <slot name="append" v-bind="{ item, ...slotProps }"></slot>
+          </template>
+        </upw-radio>
       </h-radio-group-option>
     </h-radio-group>
   </upw-input>
@@ -63,7 +79,7 @@ import UpwRadio from "../radio/Radio.vue";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isEmpty, isNil, pick } from "lodash-es";
+import { isEmpty, isEqual, isNil, pick } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -91,8 +107,9 @@ export default defineComponent({
       default: () => "radiolist-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     layout: {
@@ -124,11 +141,13 @@ export default defineComponent({
     // ---
     modelValue: { type: String },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // ---
+    noInput: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
@@ -137,13 +156,11 @@ export default defineComponent({
     upwindConfig: { type: [Array, Object], default: null },
   },
 
-  setup(props, { emit }) {
+  setup(props) {
     const meta = computed(() => ({
       size: props.size,
       layout: props.layout,
-      align: props.align,
       // ---
-      isBlock: props.block,
       isStretched: props.stretch,
       // ---
       isDisabled: props.disabled,
@@ -195,9 +212,8 @@ export default defineComponent({
       },
     },
     selected: {
-      immediate: true,
-      handler(value) {
-        if (this.disabled || this.processing) return;
+      handler(value, prevValue) {
+        if (this.disabled || this.processing || value == prevValue) return;
 
         this.$emit("update:modelValue", value);
         // forward the event to the input control that will trigger the update

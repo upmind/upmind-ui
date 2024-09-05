@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   avatar: {
     root: cva(
-      "bg-base-200 relative m-0 flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full transition",
+      "bg-base-200 relative m-0 inline-flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full align-middle transition",
       {
         variants: {
           size: {

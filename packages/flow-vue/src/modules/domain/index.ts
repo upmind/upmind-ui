@@ -5,23 +5,36 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
+import type { DomainTypes } from "@upmind/flow";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find } from "lodash-es";
+import { map, some, find, isArray, get, first } from "lodash-es";
 
 // --- types
-
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
 export const useDomain = (
-  syncBasket?: boolean,
-  forceType?: string,
-  parent: Object // machine representing the parent context
+  {
+    model,
+    sync,
+    type,
+    parentId,
+  }: {
+    model?: Array<string> | string;
+    sync?: boolean;
+    type?: DomainTypes;
+    parentId?: string; // id of basket item machine representing the parent context
+  } = {
+    model: [],
+    sync: false,
+    type: undefined,
+    parentId: undefined,
+  }
 ) => {
-  const domain = useUpmindDomain(syncBasket, forceType, parent);
+  const domain = useUpmindDomain({ model, sync, type, parentId });
   const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------
@@ -32,22 +45,35 @@ export const useDomain = (
       data: value,
     });
 
-  const search = (value: string) =>
-    send({
-      type: "SEARCH",
-      data: {
-        domain: value,
-      },
-    });
+  const search = (query: string) => {
+    send({ type: "SEARCH", data: query });
+  };
+
+  const searchMore = () => {
+    send({ type: "SEARCH.OFFSET" });
+  };
 
   const toggle = (value: string) => {
-    const type = some(state.value.context.values, ["domain", value])
+    const type = some(state.value.context.model, ["domain", value])
       ? "REMOVE"
       : "ADD";
-
     send({
       type,
       data: value,
+    });
+  };
+
+  const update = (model: string | Array<string>) => {
+    // NB: nsure we have an array of strings
+    send({
+      type: "UPDATE",
+      data: isArray(model) ? model : [model],
+    });
+  };
+
+  const reset = () => {
+    send({
+      type: "RESET",
     });
   };
 
@@ -72,81 +98,98 @@ export const useDomain = (
     });
   };
 
+  const syncBasket = () => {
+    send({
+      type: "SYNC",
+    });
+  };
+
   // --------------------------------------------------------
 
   return {
     state: computed(() => state.value.value),
     // ---
-    choices: computed(() => state.value.context.choices),
-    values: computed(() => state.value.context.values),
-    selected: computed(() => map(state.value.context.values, "domain")),
-    selectedType: computed(() => state.value.context.type),
-    available: computed(() => state.value.context.available),
-    errors: computed(() => state.value.context?.error),
-    primaryDomain: computed(() =>
-      find(state.value.context?.values, "is_primary")
+    choices: computed(() =>
+      map(state.value.context.choices, (value, key) => {
+        return {
+          value: key,
+          label: value,
+        };
+      })
     ),
+    query: computed(() => state.value.context.search?.query),
+    model: computed(() => map(state.value.context.model, "domain")),
+    type: computed(() => state.value.context.type),
+    // ---
+    owned: computed(() => state.value.context.lookups?.owned),
+    basket: computed(() => state.value.context.lookups?.basket),
+    available: computed(() => state.value.context.lookups?.searched),
+
+    // ---
+    errors: computed(() => state.value.context?.error),
+    selected: computed(() => {
+      const selected =
+        find(state.value.context?.model, "is_primary") ||
+        first(state.value.context?.model);
+      return get(selected, "domain");
+    }),
+
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: state.value.matches("loading"),
+      isLoading: ["subscribing", "loading"].some(state.value.matches),
 
-      isProcessing: [
-        "register.processing",
-        "transfer.processing",
-        "existing.processing",
-      ].some(state.value.matches),
-
-      isSyncing: [
-        "register.syncing",
-        "transfer.syncing",
-        "existing.syncing",
-        "basket.syncing",
-      ].some(state.value.matches),
+      isSyncing: ["dac.syncing", "basket.processing"].some(state.value.matches),
 
       isSearching: [
-        "register.processing.searching",
-        "transfer.processing.searching",
-        "existing.processing.idle",
+        "dac.loading",
+        "dac.processing",
+        "existing.loading",
+        "existing.processing",
+        "basket.loading",
       ].some(state.value.matches),
 
-      hasErrors: [
-        "error",
-        "register.error",
-        "transfer.error",
-        "existing.error",
-      ].some(state.value.matches),
+      isSearchingMore:
+        ["dac.loading", "dac.processing"].some(state.value.matches) &&
+        state.value.context?.search?.offset > 0,
+
+      hasMoreSearchResults:
+        ["dac"].some(state.value.matches) &&
+        state.value.context?.search?.offset +
+          state.value.context?.search?.limit <
+          state.value.context?.search?.total,
+
+      hasErrors: ["error", "dac.error", "existing.error", "basket.error"].some(
+        state.value.matches
+      ),
 
       // ---
-      showChoices:
-        !state.value.matches("loading") && !!state.value.context.choices,
-      showRegister: state.value.matches("register"),
-      showTransfer: state.value.matches("transfer"),
+      showChoices: !!state.value.context.choices,
+      showDac: state.value.matches("dac"),
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),
+
       showContinue:
-        [
-          "register.valid",
-          "transfer.valid",
-          "existing.valid",
-          "basket.valid",
-        ].some(state.value.matches) &&
-        some(state.value.context?.values, "is_primary"),
-      // ---
-      hasValues: !!state.value.context?.values?.length,
-      hasPrimary: some(state.value.context?.values, "is_primary"),
-      hasAdditional: state.value.context?.values?.length > 1,
-      hasMore:
-        !!state.value.context.available.length &&
-        state.value.context.available.length < state.value.context.total,
+        ["dac.valid", "existing.valid", "basket.valid"].some(
+          state.value.matches
+        ) && !!state.value.context?.model?.length,
+      showPrimaryDomain:
+        ["dac.complete", "existing.complete", "basket.complete"].some(
+          state.value.matches
+        ) && !!state.value.context?.model?.length,
     })),
     // ---
     choose,
     search,
+    searchMore,
+    searchOffset: computed(() => state.value.context?.search?.offset),
     add,
     remove,
     toggle,
+    update,
+    reset,
     setPrimaryDomain,
+    syncBasket,
     isSelected: (value: string) => state.value.matches(value),
     destroy: domain.destroy,
   };
