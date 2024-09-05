@@ -30,14 +30,18 @@ const safeState = value => {
   return state;
 };
 // --- state matching
-export const stateMatches = (state, states: string[]) => {
+export const stateMatches = (
+  state: any,
+  states: string[],
+  matchAll: boolean = false
+) => {
   state = safeState(state);
 
   if (!state || !states?.length) return false;
 
   if (!isFunction(state.matches)) return false;
 
-  return states.some(state.matches);
+  return matchAll ? states.every(state.matches) : states.some(state.matches);
 };
 
 export const contextMatches = (state, props: string[]) => {

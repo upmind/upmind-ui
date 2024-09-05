@@ -137,12 +137,7 @@ export default createMachine(
         },
       },
 
-      // We are now ready to start accepting items into the basket
-      // items are effectively products that are not yet added to the basket OR products that are being changed
-      // regardles, these items require configuring
-      // once items are configured(complete), we can then add them (back) into the basket,
-      // NB: this allows us to have multiple products added at once and have a mixed basket
-      // once successfully added, they become products and can be updated/removed
+      // We are now ready to start ALL the shopping operations
       shopping: {
         id: "shopping",
         type: "parallel",
@@ -306,59 +301,64 @@ export default createMachine(
             },
           },
 
+          payment_details: {
+            initial: "configuring",
+            states: {
+              configuring: {
+                always: [{ target: "available", cond: "paymentDetailsValid" }],
+              },
+
+              // items are 'complete' only when they have been successfully added to the basket
+              available: {
+                always: [
+                  { target: "configuring", cond: "paymentDetailsConfiguring" },
+                ],
+                // ---
+                // NB: Checkout is a chained sequence of events, that can only start once ALL the shopping details are complete
+                // We must wait for the event to be triggered before we can proceed, othwerwise we may trigger checkout prematurely
+                on: {
+                  CHECKOUT: {
+                    target: "complete",
+                  },
+                },
+              },
+
+              complete: {
+                always: [
+                  { target: "configuring", cond: "paymentDetailsConfiguring" },
+                ],
+                type: "final",
+              },
+            },
+          },
+
           // ---
         },
         onDone: "checkout",
       },
 
-      // We are now ready to accept payment as all the shopping items are complete
-      // We will accept the checkout event and forward it to the payment_details machine
+      // We are now ready to accept payment as all the shopping details are complete
+      // We will trigger checkout event to the payment_details machine
       // Which in turn will forward it to the payment_gateway machine
       // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
-      // The payment_details machine will then Parse and return that to the processing state
+      // The payment_details machine will then Parse and return the response back to the basket machine
       // This will trigger the Convert service, which will then process the order
-      // The processing state will then run its process and when complete will return the completed order
       checkout: {
         id: "checkout",
-        initial: "configuring",
-        states: {
-          configuring: {
-            always: [{ target: "available", cond: "paymentDetailsValid" }],
-          },
-
-          // items are 'complete' only when they have been successfully added to the basket
-          available: {
-            always: [
-              { target: "configuring", cond: "paymentDetailsConfiguring" },
-            ],
-            // ---
-            // NB: Checkout is a chained sequence of events:
-            // First, it will forward the event to the payment_details machine
-            // The payment_details machine will then forward that to the payment_gateway sub machine
-            // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
-            // The payment_details machine will then Parse and return that to the processing state
-            // The processing state will then run its process and when complete will return the completed order
-            on: {
-              CHECKOUT: {
-                target: "processing",
-                actions: "checkoutActors",
-              },
-            },
-          },
-
-          processing: {
-            on: {
-              // response from the payment_details machine = we are ready to convert
-              PAYMENT_DETAILS: {
-                target: "#converting",
-                actions: "setPaymentDetails",
-                cond: "paymentDetailsComplete",
-              },
-            },
+        entry: ["checkoutActors"],
+        on: {
+          // response from the payment_details machine = we are ready to convert
+          PAYMENT_DETAILS: {
+            target: "#converting",
+            actions: "setPaymentDetails",
+            cond: "paymentDetailsComplete",
           },
         },
       },
 
+      // We are now ready to convert the basket into an invoice and effectively end the basket AND the shopping process
+      // at this stage we will also check if we need to pay for the order, if so we will trigger the payment machine
+      // if not we will go straight to the complete state
       converting: {
         id: "converting",
         invoke: {
@@ -381,8 +381,7 @@ export default createMachine(
         },
       },
 
-      // Payment machine is invoked directly as we are serializing the payment process
-      // we wont leave this node until the payment is complete, or we cancel
+      // We are now ready to actually process the payment for the order, based on the payment details provided
       paying: {
         id: "paying",
         invoke: {

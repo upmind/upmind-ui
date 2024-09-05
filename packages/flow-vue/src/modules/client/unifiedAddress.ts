@@ -14,7 +14,6 @@ export const useClientUnifiedAddress = (item, context?: Object) => {
   const { service } = useUpmindClientUnifiedAddresses();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
-
   // --------------------------------------------------------
 
   return {
@@ -58,8 +57,8 @@ export const useClientUnifiedAddress = (item, context?: Object) => {
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
-        waitFor(service.getSnapshot()?.context?.selected, newstate =>
-          newstate.matches("valid")
+        waitFor(service, newState =>
+          newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
         });

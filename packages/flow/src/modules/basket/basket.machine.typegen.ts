@@ -91,7 +91,10 @@ export interface Typegen0 {
       | "SESSION"
       | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
     addItem: "ADD";
-    checkoutActors: "CHECKOUT";
+    checkoutActors:
+      | "CANCEL"
+      | "done.state.shopping"
+      | "error.platform.converting:invocation[0]";
     clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
     clearError: "SESSION";
@@ -176,9 +179,6 @@ export interface Typegen0 {
   };
   matchesStates:
     | "checkout"
-    | "checkout.available"
-    | "checkout.configuring"
-    | "checkout.processing"
     | "complete"
     | "converting"
     | "error"
@@ -207,6 +207,10 @@ export interface Typegen0 {
     | "shopping.items.complete"
     | "shopping.items.configuring"
     | "shopping.items.empty"
+    | "shopping.payment_details"
+    | "shopping.payment_details.available"
+    | "shopping.payment_details.complete"
+    | "shopping.payment_details.configuring"
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
@@ -215,7 +219,6 @@ export interface Typegen0 {
     | "shopping.refreshing.processing"
     | "subscribing"
     | {
-        checkout?: "available" | "configuring" | "processing";
         loading?: "actors" | "basket";
         shopping?:
           | "account"
@@ -223,6 +226,7 @@ export interface Typegen0 {
           | "currency"
           | "custom_fields"
           | "items"
+          | "payment_details"
           | "promotions"
           | "refreshing"
           | {
@@ -231,6 +235,7 @@ export interface Typegen0 {
               currency?: "complete" | "configuring";
               custom_fields?: "complete" | "configuring";
               items?: "complete" | "configuring" | "empty";
+              payment_details?: "available" | "complete" | "configuring";
               promotions?: "complete" | "configuring";
               refreshing?: "complete" | "processing";
             };
