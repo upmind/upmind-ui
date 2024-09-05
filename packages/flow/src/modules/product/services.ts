@@ -22,6 +22,7 @@ import {
   mapValues,
   maxBy,
   minBy,
+  omitBy,
   pick,
   reduce,
   reject,
@@ -361,7 +362,8 @@ async function checkProvisioning(
     return Promise.resolve({ provision_fields: {} });
 
   // ---
-  const value = model?.provision_fields || {};
+  // NB, ensure we strip out any falsy values as the API does not like them
+  const value = omitBy(model?.provision_fields, isNil) || {};
 
   const { validate } = useValidation();
   const errors = validate(lookups.provision_fields, value);
@@ -413,7 +415,7 @@ const calculateSummary = (
   );
   // ---
 
-  if (!currency_id || !values?.length) return Promise.reject();
+  if (!currency_id || !values?.length) return Promise.reject({});
 
   return post({
     url: useUrl("cart/calculate", {}),

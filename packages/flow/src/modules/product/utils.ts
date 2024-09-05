@@ -466,6 +466,7 @@ export const parseSummary = ({ summary, model, lookups, error }) => {
     details
   );
 
+  debugger;
   return { ...summary, details };
 };
 
