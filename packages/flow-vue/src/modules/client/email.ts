@@ -54,8 +54,8 @@ export const useClientEmail = (item, context?: Object) => {
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
-        waitFor(service.getSnapshot()?.context?.selected, newstate =>
-          newstate.matches("valid")
+        waitFor(service, newState =>
+          newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
         });
