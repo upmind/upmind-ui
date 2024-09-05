@@ -23,7 +23,8 @@
       "remove": "Remove",
       "configure": "Configure",
       "resolve": "Confirm and proceed",
-      "reject": "Cancel"
+      "reject": "Cancel",
+      "invalid": "Add missing details"
     }
   }
 }

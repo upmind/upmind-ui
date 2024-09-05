@@ -12,6 +12,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
+    :autofocus="autofocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -24,7 +25,9 @@
     layout="stacked"
     variant="outlined"
   >
-    <slot name="prepend" v-bind="{ styles: styles.textbox }"></slot>
+    <template #prepend>
+      <slot name="prepend" v-bind="{ styles: styles.textbox }"></slot>
+    </template>
 
     <input
       :id="id"
@@ -35,13 +38,16 @@
       @input="onChange"
       :aria-invalid="meta.isInvalid"
     />
-    <slot name="append" v-bind="{ styles: styles.textbox }"></slot>
+
+    <template #append>
+      <slot name="append" v-bind="{ styles: styles.textbox }"></slot>
+    </template>
   </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref, onMounted, nextTick } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -73,7 +79,7 @@ export default defineComponent({
     },
     label: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     // ---
@@ -96,6 +102,7 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     processing: { type: Boolean },
+    autofocus: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
@@ -139,7 +146,7 @@ export default defineComponent({
         "value",
         "readonly",
         "placeholder",
-        "autofocus",
+        "focus",
         "tabindex",
         "maxlength",
         "name",

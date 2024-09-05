@@ -1,7 +1,6 @@
 export * from "./basket";
 export * from "./brand";
 export * from "./client";
-export * from "./dac";
 export * from "./domain";
 export * from "./feedback";
 export * from "./lookup";

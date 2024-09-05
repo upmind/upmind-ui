@@ -10,6 +10,9 @@ export default {
           md: "size-6",
           lg: "size-7",
         },
+        noInput: {
+          true: "visibility-hidden h-0 w-0 opacity-0",
+        },
         isDisabled: {
           true: "cursor-not-allowed",
         },
@@ -22,7 +25,7 @@ export default {
       },
     }),
     input: cva(
-      "border-base-300 cursor-inherit appearance-none rounded border text-inherit outline-none ring-0",
+      "cursor-inherit appearance-none rounded border text-inherit outline-none ring-0",
       {
         variants: {
           size: {
@@ -47,7 +50,6 @@ export default {
             isProcessing: false,
             class: "border-control-error-300 cursor-pointer",
           },
-
           {
             variant: "outlined",
             isInvalid: false,
@@ -90,10 +92,7 @@ export default {
             lg: "size-6",
           },
           isDisabled: {
-            true: "text-base-content cursor-not-allowed",
-          },
-          isProcessing: {
-            true: "cursor-wait",
+            true: "text-base-content",
           },
           isChecked: {
             true: `text-base`,
@@ -107,10 +106,73 @@ export default {
   },
   label: {
     root: cva("cursor-pointer"),
+    text: cva("", {
+      variants: {
+        size: {
+          sm: "text-sm",
+          md: "text-md",
+          lg: "text-lg",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    }),
   },
   // ---------------------------------------------------------------------------
   checkboxlist: {
-    root: cva("m-0 flex w-full list-none flex-col gap-2 p-0"),
-    item: cva("m-0 p-0"),
+    root: cva("m-0 grid w-full list-none p-0", {
+      variants: {
+        layout: {
+          stacked: " grid-flow-row grid-cols-1 rounded-lg  border p-0",
+          grid: " !auto-cols-fr grid-cols-3 gap-x-2   ",
+          inline: "grid-flow-col grid-rows-1 gap-x-2 ",
+        },
+      },
+      defaultVariants: {
+        layout: "vertical",
+        isStretched: false,
+      },
+      compoundVariants: [
+        {
+          isInvalid: true,
+          isDisabled: false,
+          class:
+            "border-control-error focus-within:ring-control-error border focus-within:ring-4 focus-within:ring-opacity-20",
+        },
+        {
+          layout: "inline",
+          isStretched: true,
+          class: "",
+        },
+        {
+          layout: "inline",
+          isStretched: false,
+          class: "auto-cols-max",
+        },
+      ],
+    }),
+    item: cva("m-0 cursor-pointer p-0", {
+      variants: {
+        layout: {
+          stacked: "border-b last-of-type:border-b-0",
+          grid: " rounded-lg border",
+          inline: "",
+        },
+      },
+    }),
+    checkbox: {
+      wrapper: cva("border-transparent", {
+        variants: {
+          layout: {
+            grid: "py-6",
+          },
+        },
+      }),
+      input: cva("", {}),
+    },
+    input: {
+      root: cva("w-full "),
+    },
   },
 };

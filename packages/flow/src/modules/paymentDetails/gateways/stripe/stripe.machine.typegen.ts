@@ -127,6 +127,7 @@ export interface Typegen0 {
       | "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
   };
   eventsCausingGuards: {
+    hasChanged: "REFRESH";
     hasNoElements: "error.platform.stripePaymentManager.checking.validating:invocation[0]";
     hasNoOutstandingBalance: "xstate.after(wait)#processed";
     isAdding: "done.invoke.stripePaymentManager.loading.stripe:invocation[0]";

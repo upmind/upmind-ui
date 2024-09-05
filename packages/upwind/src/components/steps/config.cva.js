@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   steps: {
     root: cva(
-      "border-base-300 bg-base text-base-content sticky top-0 z-10 -mx-4 -mt-8  border-b px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"
+      " bg-base text-base-content sticky top-0 z-10 -mx-4 -mt-8  border-b px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"
     ),
     wrapper: cva(
       "mx-auto flex flex max-w-screen-2xl flex-row items-center justify-start gap-8"

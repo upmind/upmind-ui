@@ -1,4 +1,16 @@
-import { isEmpty, isObject, isArray } from "lodash-es";
+import {
+  isEmpty,
+  isObject,
+  isArray,
+  keys,
+  isNil,
+  filter,
+  reduce,
+  forEach,
+  isUndefined,
+  isObjectLike,
+  compact,
+} from "lodash-es";
 
 // a custom isEmpty that can handle deeply nested objects
 export function isDeepEmpty(value: any): boolean {
@@ -22,4 +34,32 @@ export function isDeepEmpty(value: any): boolean {
     return value.every(item => isDeepEmpty(item));
   }
   return isEmpty(value);
+}
+
+export function compactDeep(value?: any): any {
+  let cleaned = undefined;
+
+  if (isObject(value)) {
+    cleaned = reduce(
+      value,
+      (acc, val, key) => {
+        const cleanedValue = compactDeep(val);
+        if (!isNil(cleanedValue)) {
+          // Check if the object itself is empty, even if it has properties
+          if (!isEmpty(cleanedValue) || !isObjectLike(cleanedValue)) {
+            acc[key] = cleanedValue;
+          }
+        }
+        return acc;
+      },
+      {}
+    );
+  } else if (isArray(value)) {
+    cleaned = compact(value.map(compactDeep));
+  } else {
+    cleaned = value;
+  }
+
+  // console.debug("compactDeep", value, "cleaned", cleaned);
+  return cleaned;
 }

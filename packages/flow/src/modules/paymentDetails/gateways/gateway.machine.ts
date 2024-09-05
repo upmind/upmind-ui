@@ -169,7 +169,7 @@ export default createMachine(
       // ---
       setPaymentDetails: assign({
         paymentDetails: ({ gateway }, { data }) => {
-          return { gateway, data };
+          return { gateway, ...data };
         },
       }),
 
@@ -193,7 +193,7 @@ export default createMachine(
       setError: assign({
         error: (_context: GatewayContext, { data }: GatewayEvent) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);

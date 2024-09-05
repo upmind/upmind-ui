@@ -4,7 +4,7 @@
     :id="control.id + '-input'"
     :disabled="!control.enabled"
     :model-value="control.data"
-    :items="control.options"
+    :items="appliedOptions?.items || control.options"
     @change="onChange"
   >
   </upw-select>
@@ -45,6 +45,7 @@ export default defineComponent({
           ({ value }) => value == target.value
         )?.value
     );
+
     return {
       ...renderer,
     };

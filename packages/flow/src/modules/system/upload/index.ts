@@ -30,6 +30,6 @@ export const useSystemUpload = (field?: Object) => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => state,
-    destroy: () => service.stop(),
+    destroy: service.stop,
   };
 };

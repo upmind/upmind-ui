@@ -17,127 +17,172 @@
       :disabled="meta.isDisabled"
       :size="size"
       :upwindConfig="[config, upwindConfig]"
-    />
+    >
+      <template #default="slotProps">
+        <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+      </template>
+    </upw-label>
 
     <!-- input wrapper -->
     <div :class="styles.input.wrapper">
       <!-- prepend slot-->
-      <slot
-        name="prepend"
-        v-bind="{
-          meta,
-          styles: styles.input,
-          prependIcon,
-          prependAvatar,
-          prependText,
-          size,
-        }"
+
+      <span :class="styles.input.prependWrapper">
+        <slot
+          name="prepend"
+          v-bind="{
+            meta,
+            styles: styles.input,
+            icon: prependIcon,
+            avatar: prependAvatar,
+            tetx: prependText,
+            size,
+          }"
+        >
+          <slot
+            name="prepend.text"
+            v-bind="{ meta, styles: styles.input, text: prependText }"
+          >
+            <span :class="styles.input.prepend" v-if="prependText">
+              {{ prependText }}
+            </span>
+          </slot>
+
+          <slot
+            name="prepend.avatar"
+            v-bind="{ meta, styles: styles.input, avatar: prependAvatar }"
+          >
+            <upw-icon
+              v-if="prependAvatar"
+              class="avatar"
+              :class="styles.input.avatar"
+              :icon="prependAvatar"
+            />
+          </slot>
+
+          <slot
+            name="prepend.icon"
+            v-bind="{ meta, styles: styles.input, icon: prependIcon }"
+          >
+            <upw-icon
+              v-if="prependIcon"
+              :class="styles.input.icon"
+              :icon="prependIcon"
+            />
+          </slot>
+        </slot>
+      </span>
+
+      <span
+        :class="styles.input.control"
+        v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
       >
-        <span :class="styles.input.prependWrapper">
-          <span :class="styles.input.prepend" v-if="prependText">
-            {{ prependText }}
-          </span>
+        <!-- main slot where actual input gets injected -->
+        <slot v-bind="{ meta, styles: styles.input, size }"></slot>
 
-          <upw-icon
-            v-if="prependAvatar"
-            class="avatar"
-            :class="styles.input.avatar"
-            :icon="prependAvatar"
-          />
-
-          <upw-icon
-            v-if="prependIcon"
-            :class="styles.input.icon"
-            :icon="prependIcon"
-          />
-        </span>
-      </slot>
-
-      <!-- main slot where actual input gets injected -->
-      <slot v-bind="{ meta, styles: styles.input, size }"></slot>
-
-      <!-- conditionally add our label for inline inputs -->
-      <upw-label
-        v-if="meta.isInline"
-        :id="id"
-        :text="label"
-        :alt-text="text"
-        :requiredText="requiredText"
-        :optionalText="optionalText"
-        :noRequired="noRequired"
-        :noStatus="noStatus"
-        :required="meta.isRequired"
-        :dirty="meta.isDirty"
-        :invalid="meta.isInvalid"
-        :disabled="meta.isDisabled"
-        :size="size"
-        :noLabel="noLabel"
-        :upwindConfig="[config, upwindConfig]"
-      />
+        <!-- conditionally add our label for inline inputs -->
+        <upw-label
+          v-if="meta.isInline"
+          :id="id"
+          :text="label"
+          :alt-text="text"
+          :requiredText="requiredText"
+          :optionalText="optionalText"
+          :noRequired="noRequired"
+          :noStatus="noStatus"
+          :required="meta.isRequired"
+          :dirty="meta.isDirty"
+          :invalid="meta.isInvalid"
+          :disabled="meta.isDisabled"
+          :size="size"
+          :noLabel="noLabel"
+          :upwindConfig="[config, upwindConfig]"
+        >
+          <template #default="slotProps">
+            <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+          </template>
+        </upw-label>
+      </span>
 
       <!-- append slot -->
-      <slot
-        name="append"
-        v-bind="{
-          meta,
-          styles: styles.input,
-          appendIcon,
-          appendAvatar,
-          appendText,
-          size,
-        }"
-      >
-        <span :class="styles.input.appendWrapper">
-          <upw-icon
-            v-if="appendIcon"
-            :class="styles.input.icon"
-            :icon="appendIcon"
-          />
+      <span :class="styles.input.appendWrapper">
+        <slot
+          name="append"
+          v-bind="{
+            meta,
+            styles: styles.input,
+            appendIcon,
+            appendAvatar,
+            appendText,
+            size,
+          }"
+        >
+          <slot
+            name="append.icon"
+            v-bind="{ meta, styles: styles.input, icon: appendIcon }"
+          >
+            <upw-icon
+              v-if="appendIcon"
+              :class="styles.input.icon"
+              :icon="appendIcon"
+            />
+          </slot>
 
-          <upw-icon
-            v-if="appendAvatar"
-            class="avatar"
-            :class="styles.input.avatar"
-            :icon="appendAvatar"
-          />
+          <slot
+            name="append.avatar"
+            v-bind="{ meta, styles: styles.input, avatar: appendAvatar }"
+          >
+            <upw-icon
+              v-if="appendAvatar"
+              class="avatar"
+              :class="styles.input.avatar"
+              :icon="appendAvatar"
+            />
+          </slot>
 
-          <span class="appendText" v-if="appendText">
-            {{ appendText }}
-          </span>
-        </span>
-      </slot>
+          <slot
+            name="append.text"
+            v-bind="{ meta, styles: styles.input, text: appendText }"
+          >
+            <span class="appendText" v-if="appendText">
+              {{ appendText }}
+            </span>
+          </slot>
+        </slot>
+      </span>
     </div>
 
     <!-- feedback -->
-    <slot
-      name="feedback"
-      v-bind="{
-        meta,
-        noFeedback,
-        errors,
-        description,
-        styles: styles.input,
-      }"
+    <div
+      class="feedback"
+      :class="styles.input.feedback.root"
+      v-if="!noFeedback"
     >
-      <div
-        class="feedback"
-        :class="styles.input.feedback.root"
-        v-if="!noFeedback"
+      <slot
+        name="feedback"
+        v-bind="{
+          meta,
+          noFeedback,
+          errors,
+          description,
+          styles: styles.input,
+        }"
       >
         <upw-icon
           :class="styles.input.feedback.icon"
           :icon="feedbackIcon"
           v-if="meta.hasFeedback"
         />
-        <span v-if="meta.hasFeedback">{{ errors || description }}</span>
-      </div>
-    </slot>
+        <span v-if="meta.hasFeedback">{{ safeErrors || description }}</span>
+      </slot>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref, watch } from "vue";
+import { vIntersectionObserver } from "@vueuse/components";
 
 // --- components
 import UpwIcon from "../icon/Icon.vue";
@@ -148,7 +193,7 @@ import config from "./config.cva";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { isNil, isEmpty } from "lodash-es";
+import { has, isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
@@ -160,12 +205,13 @@ export default defineComponent({
     UpwIcon,
     UpwLabel,
   },
+  directives: { "intersection-observer": vIntersectionObserver },
   props: {
     id: { type: String },
     label: { type: String },
     text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     requiredText: { type: String, default: "Required" },
     optionalText: { type: String, default: "" },
@@ -193,6 +239,7 @@ export default defineComponent({
       default: "outlined",
     },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
@@ -207,6 +254,8 @@ export default defineComponent({
     upwindConfig: { type: Object },
   },
   setup(props) {
+    const target = ref();
+
     const meta = computed(() => ({
       layout: props.layout,
       variant: props.variant,
@@ -223,21 +272,46 @@ export default defineComponent({
       isDisabled: props.disabled,
       hasFeedback:
         (isEmpty(props.errors) && !isEmpty(props.description)) ||
-        (!isEmpty(props.errors) && props.dirty),
+        !isEmpty(props.errors),
     }));
 
     const styles = useStyles(
       ["input", "input.feedback"],
       meta,
       config,
+      target,
       props.upwindConfig
     );
+
+    function maybeFocus([section]) {
+      if (props.autofocus && section.isIntersecting) {
+        let el = section.target;
+        if (
+          !["input", "textarea", "select", "button"].includes(
+            el.tagName.toLowerCase()
+          )
+        ) {
+          el = el.querySelector("input");
+        }
+        if (el.getAttribute("tabindex")) {
+          el.setAttribute("tabindex", -1);
+        }
+        el.focus();
+      }
+    }
 
     return {
       meta,
       config,
       styles,
+      target,
+      maybeFocus,
     };
+  },
+  computed: {
+    safeErrors() {
+      return Array.isArray(this.errors) ? this.errors.join() : this.errors;
+    },
   },
 });
 </script>

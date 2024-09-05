@@ -8,12 +8,14 @@ import {
   find,
   forEach,
   get,
+  has,
   isEmpty,
   isNil,
   isObject,
   isString,
   map,
   mapValues,
+  merge,
   omit,
   omitBy,
   orderBy,
@@ -27,19 +29,21 @@ import {
 
 // --- types
 import { PromotionDisplayTypes } from "./services";
+import type { IProductModel, ProductConfigContext } from "./types.d";
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
 // --------------------------------------------------------
-export const useHasPriceOverride = (values, lookups) => {
+export const checkPriceOverride = (values, lookups) => {
   return some(values, (value, key) => {
-    const { price_override = false } = find(lookups, ["id", key]);
+    const item = find(lookups, ["id", key]);
+
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
-    return !isEmpty(value) && !!price_override;
+    return !isEmpty(value) && !!item?.price_override;
   });
 };
 
-export const useQuantityParser = (quantity: number, data: any) => {
+export const parseQuantity = (quantity: number, data: any) => {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
   // Check the data is available
   // Check the quantity is valid,
@@ -64,11 +68,15 @@ export const useQuantityParser = (quantity: number, data: any) => {
   return quantity;
 };
 
-export const useProductParser = (data: any) => {
+export const parseProduct = (
+  data: any,
+  basket_product?: ProductConfigContext["basket_product"]
+) => {
   // Pick only the properties we need
-  const product = pick(data, [
+  const product = pick(merge({}, data, basket_product), [
     "id",
     "name",
+    "service_identifier",
     "description",
     "short_description",
     // ---
@@ -109,7 +117,7 @@ export const useProductParser = (data: any) => {
   return product;
 };
 
-export const useTermsParser = (
+export const parseTerms = (
   data: any,
   promotion_display_type: PromotionDisplayTypes
 ) => {
@@ -123,6 +131,7 @@ export const useTermsParser = (
     const term = pick(rawTerm, [
       "billing_cycle_months",
       "mixed_promotions",
+      "monthly_price_from_discounted",
       "monthly_price_from_discounted_formatted",
       "monthly_price_from",
       "monthly_price_from_formatted",
@@ -138,13 +147,13 @@ export const useTermsParser = (
     const cycle = getBillingCycle(rawTerm.billing_cycle_months);
     term.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
-    term.promotions = usePromotionParser(rawTerm, promotion_display_type);
+    term.promotions = parsePromotion(rawTerm, promotion_display_type);
 
     return term;
   });
 };
 
-export const useSubproductParser = (
+export const parseSubproduct = (
   data: any,
   promotion_display_type: PromotionDisplayTypes,
   billing_cycle_months?: number
@@ -210,7 +219,7 @@ export const useSubproductParser = (
         const cycle = getBillingCycle(price.billing_cycle_months);
         price.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
 
-        price.promotions = usePromotionParser(rawPrice, promotion_display_type);
+        price.promotions = parsePromotion(rawPrice, promotion_display_type);
 
         return price;
       });
@@ -248,7 +257,7 @@ export const useSubproductParser = (
   return values(options);
 };
 
-export const usePromotionParser = (
+export const parsePromotion = (
   data: any,
   promotion_display_type: PromotionDisplayTypes
 ) => {
@@ -294,77 +303,81 @@ export const usePromotionParser = (
   }
 };
 
-export const useProvisioningParser = (data: any) => {
+export const parseProvisioningSchema = (data: any) => {
   const required: string[] = [];
   const properties = {};
   forEach(data, field => {
-    if (field.required) required.push(field.name);
-
-    let type = "string";
+    let type = ["string"];
     let format = field?.semantic_type;
 
     // lets map our field types...
     switch (field.type) {
       case "input_number":
-        type = "number";
+        type = ["number"];
         break;
       case "input-checkbox":
-        type = "boolean";
+        type = ["boolean"];
         break;
       case "input_date":
-        type = "string";
+        type = ["string"];
         format = "date";
         break;
       case "input_datetime":
-        type = "string";
+        type = ["string"];
         format = "date-time";
         break;
       case "input_email":
-        type = "string";
+        type = ["string"];
         format = "email";
         break;
       case "input_url":
-        type = "string";
+        type = ["string"];
         format = "uri";
         break;
       case "input_phone":
-        type = "string";
+        type = ["string"];
         format = "phone";
         break;
       case "input_ip":
-        type = "string";
+        type = ["string"];
         format = "ipv4";
         break;
       case "input_ipv6":
-        type = "string";
+        type = ["string"];
         format = "ipv6";
         break;
 
       default:
-        type = "string";
+        type = ["string"];
         break;
     }
 
-    const schema = {
-      type,
-      format,
-      title: field.field_label,
-      description: field.description,
-      default: field.default,
-      enum: !some(field.options, isString) ? undefined : field.options,
-      oneOf: !some(field.options, isObject)
-        ? undefined
-        : map(field.options, item => {
-            return {
-              const: item.value,
-              title: item.label,
-            };
-          }),
-      // ---
-      defer: field?.deferrable ? field?.defer_mode : undefined,
-    };
+    if (field.required) {
+      required.push(field.name);
+    } else {
+      type.push("null");
+    }
 
-    set(properties, field.name, omitBy(schema, isNil));
+    if (!field.deferrable || field.defer_mode != "hidden") {
+      const schema = {
+        type,
+        format,
+        title: field.field_label,
+        description: field.description,
+        default: field.default,
+        enum: !some(field.options, isString) ? undefined : field.options,
+        oneOf: !some(field.options, isObject)
+          ? undefined
+          : map(field.options, item => {
+              return {
+                const: item.value,
+                title: item.label,
+              };
+            }),
+      };
+
+      set(properties, field.name, omitBy(schema, isNil));
+    }
   });
 
   // return a fully formed json schema
@@ -377,7 +390,7 @@ export const useProvisioningParser = (data: any) => {
 
 // ---
 
-export const useSummaryParser = ({ summary, model, lookups }) => {
+export const parseSummary = ({ summary, model, lookups, error }) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -389,6 +402,7 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
     "billing_cycle_months",
     model?.term?.billing_cycle_months,
   ]);
+
   if (term) {
     // NB: only show term pricing if recurring!
     details.push({
@@ -400,38 +414,44 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
       discount: term.price_discounted,
       total: term.price,
       formatted: term.price_formatted,
+      invalid: !isEmpty(error?.term),
     });
   }
 
   // attributes
-  const attributes = useSummarySubproductParser(
+  const attributes = parseSummarySubproduct(
     "attribute",
     model.attributes,
-    lookups.attributes
+    lookups.attributes,
+    error?.attributes
   );
   details.push(...attributes);
 
   // options
-  const options = useSummarySubproductParser(
+  const options = parseSummarySubproduct(
     "option",
     model.options,
-    lookups.options
+    lookups.options,
+    error?.options
   );
   details.push(...options);
 
   // provision fields
   reduce(
-    model.provision_fields,
-    (result, name, field) => {
+    lookups.provision_fields?.properties,
+    (result, provisionField, key) => {
       result.push({
-        key: `provision_field.${field}`,
-        category: get(
-          lookups.provision_fields,
-          ["properties", field, "title"],
-          field
-        ),
-        name,
+        key: `provision_field.${key}`,
+        category: get(provisionField, "title", key),
+        name: get(model.provision_fields, key),
+        invalid: some(error?.provision_fields?.data, ["schemaPath", key]),
+        cycle: undefined,
+        quantity: undefined,
+        discount: undefined,
+        total: undefined,
+        formatted: undefined,
       });
+
       return result;
     },
     details
@@ -440,10 +460,11 @@ export const useSummaryParser = ({ summary, model, lookups }) => {
   return { ...summary, details };
 };
 
-export const useSummarySubproductParser = (
+export const parseSummarySubproduct = (
   key: string,
   data: any,
-  lookup: Array<any>
+  lookup: Array<any>,
+  error?: any
 ) => {
   return reduce(
     data,
@@ -465,18 +486,19 @@ export const useSummarySubproductParser = (
                 discount: subproduct?.price?.price_discounted,
                 total: subproduct?.price?.price,
                 formatted: subproduct?.price?.price_formatted,
+                invalid: has(error, `${key}.${id}`),
               });
             }
 
             return result;
           },
-          []
+          [] as any[] // Provide initial value as an empty array
         );
         result.push(...selected);
       }
       return result;
     },
-    []
+    [] as any[] // Provide initial value as an empty array
   );
 };
 
@@ -484,28 +506,30 @@ export const useSummarySubproductParser = (
 //  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
-export const useModelParser = (data: any) => {
+export const parseModel = (data: any): IProductModel => {
+  // handle  product model
+  return pick(data, [
+    "id",
+    "quantity",
+    "product_id",
+    "term",
+    "attributes",
+    "options",
+    "provision_fields",
+  ]);
+};
+
+export const parseBasketProduct = (data: IBasketProduct): IProductModel => {
   // map basket product data
-  if (data?.id) {
-    return {
-      quantity: data.quantity,
-      product_id: data.product_id,
-      term: { billing_cycle_months: data.billing_cycle_months },
-      options: mapSubproductChoices(data.options),
-      attributes: mapSubproductChoices(data.attributes),
-      provision_fields: data.provision_fields,
-    };
-  } else {
-    // handle new product model
-    return pick(data, [
-      "quantity",
-      "product_id",
-      "term",
-      "attributes",
-      "options",
-      "provision_fields",
-    ]);
-  }
+  return {
+    id: data.id,
+    quantity: data.quantity,
+    product_id: data.product_id,
+    term: { billing_cycle_months: data.billing_cycle_months },
+    options: mapSubproductChoices(data.options),
+    attributes: mapSubproductChoices(data.attributes),
+    provision_fields: data.provision_fields,
+  };
 };
 
 // ---
@@ -515,7 +539,7 @@ const mapSubproductChoices = (values: any) => {
     (result, value) => {
       set(result, [value.product.category_id, value.product_id], {
         product_id: value.product_id,
-        unit_quantity: value.unit_quantity,
+        unit_quantity: parseQuantity(value.unit_quantity, value.product),
         billing_cycle_months: value.billing_cycle_months,
       });
       return result;
@@ -526,7 +550,7 @@ const mapSubproductChoices = (values: any) => {
 
 // --------------------------------------------------------
 
-export const useBasketConfigParser = (data: any) => {
+export const buildBasketItem = (data: any) => {
   // strip out any falsy values
   const config = {
     product_id: data?.product_id,
@@ -565,37 +589,5 @@ export const useBasketConfigParser = (data: any) => {
     start_trial: !!data?.start_trial,
   };
 
-  // only add the id if it exists
-  if (data?.id) set(config, "id", data.id);
-
   return config;
-};
-
-export const useValidationParser = (error: any) => {
-  if (error?.data) {
-    error.message = "Validation error";
-
-    const errors = [];
-
-    forEach(error.data, (value, key) => {
-      // because we have a specific schema for provision_fields, we dont need the prefix of the path
-      const instancePath = key.replace("provision_field_values.", "");
-      // handle any nested properties correctly, JSON schema would have them withing properties
-      instancePath.replace(".", "/properties/");
-
-      const newError = {
-        instancePath: `/${instancePath}`, // AJV style path to the property in the schema
-        message: value.toString(), // in case the message is an array
-        // --- optional
-        schemaPath: "",
-        keyword: "",
-        params: {},
-      };
-      errors.push(newError);
-    });
-
-    error.data = errors;
-  }
-
-  return error;
 };

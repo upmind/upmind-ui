@@ -69,36 +69,36 @@ export default {
       {
         variants: {
           isProcessing: {
-            false: "border-base-300 bg-base border shadow-md",
+            false: " bg-base border shadow-md",
             true: "border-none bg-transparent shadow-none",
           },
         },
       }
     ),
-  },
-
-  comboboxItem: {
-    root: cva(
-      "text-base-800 focus:bg-base-100 flex w-full cursor-pointer items-center justify-between gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none"
-    ),
-    separator: cva(
-      "text-base-500 border-base-300 mb-2 flex w-full items-center justify-between gap-x-4 text-nowrap border-b px-4 py-2 text-left text-xs font-medium no-underline"
-    ),
-    active: cva("bg-base-100 hover:bg-base-100"),
-    selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
-    label: cva("flex-1 truncate"),
-    icon: cva("size-[1em]"),
-    avatar: cva("size-[1.25em] overflow-hidden rounded-full"),
-  },
-
-  comboboxTransitionEnter: {
-    active: cva("transition duration-200 ease-out"),
-    from: cva("-translate-y-5 transform opacity-0"),
-    to: cva("translate-y-0 transform opacity-100"),
-  },
-  comboboxTransitionLeave: {
-    active: cva("transition duration-75 ease-in"),
-    from: cva("translate-y-0 transform opacity-100"),
-    to: cva("-translate-y-5 transform opacity-0"),
+    item: {
+      root: cva(
+        "text-base-800 focus:bg-base-100 flex w-full cursor-pointer items-center justify-between gap-x-4 text-nowrap rounded-lg px-4 py-2 text-left text-sm no-underline focus:outline-none"
+      ),
+      separator: cva(
+        "text-base-500  mb-2 flex w-full items-center justify-between gap-x-4 text-nowrap border-b px-4 py-2 text-left text-xs font-medium no-underline"
+      ),
+      active: cva("bg-base-100 hover:bg-base-100"),
+      selected: cva("bg-base-100 hover:bg-base-100 cursor-default select-none"),
+      label: cva("flex-1 truncate"),
+      icon: cva("size-[1em]"),
+      avatar: cva("size-[1.25em] overflow-hidden rounded-full"),
+    },
+    transition: {
+      enter: {
+        active: cva("transition duration-200 ease-out"),
+        from: cva("-translate-y-5 transform opacity-0"),
+        to: cva("translate-y-0 transform opacity-100"),
+      },
+      leave: {
+        active: cva("transition duration-75 ease-in"),
+        from: cva("translate-y-0 transform opacity-100"),
+        to: cva("-translate-y-5 transform opacity-0"),
+      },
+    },
   },
 };

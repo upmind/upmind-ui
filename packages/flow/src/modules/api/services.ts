@@ -11,7 +11,7 @@ import { includes, get, set } from "lodash-es";
 import {
   getTokenfromStorage,
   persistTokenToStorage,
-  dumpTokensFromStorage,
+  dumpTokenFromStorage,
 } from "../session/utils";
 
 // --- types
@@ -107,7 +107,7 @@ async function refreshToken(_context: RequestContext, _event: any) {
 
       // we need to notify the session machine that the token is invalid
       // so it can handle the error and decide what to do next
-      dumpTokensFromStorage();
+      if (token) dumpTokenFromStorage(token.actor_type);
       reauth();
 
       return Promise.reject(error);

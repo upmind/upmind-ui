@@ -3,6 +3,7 @@
 // --- internal
 
 // --- utils
+import { pick, omit, unset, set, has } from "lodash-es";
 
 // --- types
 import type { PaymentContext } from "./types";
@@ -11,15 +12,17 @@ import type { PaymentContext } from "./types";
 
 export const usePaymentParser = ({ paymentDetails, order }: PaymentContext) => {
   // TODO pick only the fields that are allowed by the endpoint
-  const value = {
-    ...paymentDetails,
-    //  --- Converted Basket / Order / Invoice
-    invoice_id: order.id,
-    client_id: order.client_id,
-    account_id: order.account_id,
-  };
+  const safeValues = omit(paymentDetails, ["type", "gateway"]);
 
-  return value;
+  // --- Check for paymentDetails, if so we dont need the gateway_id
+  if (has(paymentDetails, "payment_details_id"))
+    unset(safeValues, "gateway_id");
+  //  --- Converted Basket / Order / Invoice
+  set(safeValues, "invoice_id", order.id);
+  set(safeValues, "client_id", order.client_id);
+  set(safeValues, "account_id", order.account_id);
+
+  return safeValues;
 };
 
 export const useApprovalParser = ({ payment }: PaymentContext) => {

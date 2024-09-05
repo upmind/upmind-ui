@@ -28,6 +28,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket_id: undefined,
+      client_id: undefined,
       currency: undefined,
       // ---
       fields: undefined,
@@ -35,7 +36,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      stored_payment_details: undefined,
+      stored_payment_methods: undefined,
       gateways: undefined,
       payment_types: undefined,
       // ---
@@ -57,6 +58,7 @@ export default createMachine(
         },
         on: {
           AUTHENTICATED: { target: "checking" },
+          REFRESH: { actions: "refreshBasket" },
         },
       },
 
@@ -187,7 +189,7 @@ export default createMachine(
           },
           SET: {
             target: "available.checking",
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
+            actions: ["setDirty", "setAutoUpdate"],
           },
 
           REFRESH: [
@@ -227,8 +229,8 @@ export default createMachine(
       }),
 
       setLookups: assign({
-        stored_payment_details: (_context, { data }) =>
-          data.stored_payment_details,
+        stored_payment_methods: (_context, { data }) =>
+          data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
       }),
@@ -270,7 +272,17 @@ export default createMachine(
 
       setGateway: assign({
         // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
-        actors: ({ basket_id, currency, model, gateway, actors }, _event) => {
+        actors: (
+          {
+            basket_id,
+            currency,
+            model,
+            gateway,
+            actors,
+            stored_payment_methods,
+          },
+          _event
+        ) => {
           actors ??= {}; //sanity check
 
           // stop any existing gateways if they are different and not done/complete
@@ -287,6 +299,7 @@ export default createMachine(
               currency,
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
+              stored_payment_methods,
             });
             set(actors, "gateway", actor);
           }
@@ -297,6 +310,8 @@ export default createMachine(
 
       refreshBasket: assign({
         basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
+        client_id: (_context, { data: basket }: RefreshEvent) =>
+          basket?.client_id,
         currency: (_context, { data: basket }: RefreshEvent) =>
           basket?.currency,
         model: ({ model }, { data: basket }: RefreshEvent) => {
@@ -373,7 +388,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -390,13 +405,24 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       hasLookups: (
-        { stored_payment_details, gateways, payment_types },
+        { stored_payment_methods, gateways, payment_types },
         _event
-      ) => !!stored_payment_details && !!gateways && !!payment_types,
+      ) => !!stored_payment_methods && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
-      hasChanged: ({ currency }, { data }) => currency?.id != data?.currency_id,
+
+      hasChanged: ({ basket_id, currency, client_id, model }, { data }) => {
+        const basketChanged = basket_id != data?.id;
+        const currencyChanged = currency?.id != data?.currency_id;
+        const clientChanged = client_id != data?.client_id;
+        const amountChanged =
+          model.amount == (data?.unpaid_amount_converted || 0.0);
+
+        return (
+          basketChanged || currencyChanged || clientChanged || amountChanged
+        );
+      },
     },
 
     delays: {

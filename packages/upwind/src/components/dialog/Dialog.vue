@@ -10,14 +10,14 @@
       <!-- skrim -->
       <h-transition-child
         as="template"
-        :enter="styles.skrimTransitionEnter.active"
-        :enter-from="styles.skrimTransitionEnter.from"
-        :enter-to="styles.skrimTransitionEnter.to"
-        :leave="styles.skrimTransitionLeave.active"
-        :leave-from="styles.skrimTransitionLeave.from"
-        :leave-to="styles.skrimTransitionLeave.to"
+        :enter="styles.dialog.skrim.transition.enter.active"
+        :enter-from="styles.dialog.skrim.transition.enter.from"
+        :enter-to="styles.dialog.skrim.transition.enter.to"
+        :leave="styles.dialog.skrim.transition.leave.active"
+        :leave-from="styles.dialog.skrim.transition.leave.from"
+        :leave-to="styles.dialog.skrim.transition.leave.to"
       >
-        <div :class="styles.dialog.skrim" />
+        <div :class="styles.dialog.skrim.root" />
       </h-transition-child>
 
       <!-- content -->
@@ -25,16 +25,19 @@
         <div :class="styles.dialog.content">
           <h-transition-child
             as="template"
-            :enter="styles.dialogTransitionEnter.active"
-            :enter-from="styles.dialogTransitionEnter.from"
-            :enter-to="styles.dialogTransitionEnter.to"
-            :leave="styles.dialogTransitionLeave.active"
-            :leave-from="styles.dialogTransitionLeave.from"
-            :leave-to="styles.dialogTransitionLeave.to"
+            :enter="styles.dialog.transition.enter.active"
+            :enter-from="styles.dialog.transition.enter.from"
+            :enter-to="styles.dialog.transition.enter.to"
+            :leave="styles.dialog.transition.leave.active"
+            :leave-from="styles.dialog.transition.leave.from"
+            :leave-to="styles.dialog.transition.leave.to"
           >
-            <h-dialog-panel :class="styles.dialog.panelWrapper">
+            <h-dialog-panel :class="styles.dialog.panel.wrapper">
               <aside :class="styles.dialog.panel">
-                <header :class="styles.dialog.panelHeader" v-if="meta.hasTitle">
+                <header
+                  :class="styles.dialog.panel.header"
+                  v-if="meta.hasTitle"
+                >
                   <h-dialog-title
                     v-if="title"
                     as="h4"
@@ -56,7 +59,7 @@
                   />
                 </header>
 
-                <div :class="styles.dialog.panelContent">
+                <div :class="styles.dialog.panel.content">
                   <slot>
                     <h-dialog-description
                       :class="styles.dialog.text"
@@ -72,7 +75,7 @@
                 </div>
 
                 <footer
-                  :class="styles.dialog.panelActions"
+                  :class="styles.dialog.panel.actions"
                   v-if="meta.hasActions"
                 >
                   <slot name="actions" v-bind="{ meta, doReject, doResolve }">
@@ -208,10 +211,12 @@ export default defineComponent({
     const styles = useStyles(
       [
         "dialog",
-        "dialogTransitionEnter",
-        "dialogTransitionLeave",
-        "skrimTransitionEnter",
-        "skrimTransitionLeave",
+        "dialog.transition.enter",
+        "dialog.transition.leave",
+        "dialog.panel",
+        "dialog.skrim",
+        "dialog.skrim.transition.enter",
+        "dialog.skrim.transition.leave",
       ],
       meta,
       config,

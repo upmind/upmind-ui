@@ -49,14 +49,16 @@ export default defineComponent({
     },
   },
   setup() {
-    const session = useSession();
+    const { meta, user, logout } = useSession();
 
-    const styles = useStyles(["session.profile"], session.meta, config);
+    const styles = useStyles(["session.profile"], meta, config);
 
     return {
-      ...session,
+      meta,
+      user,
       styles,
       config,
+      logout,
     };
   },
   computed: {

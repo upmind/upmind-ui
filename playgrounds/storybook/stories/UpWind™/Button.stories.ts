@@ -124,6 +124,8 @@ export const SlotAndSizes: Story = {
 
         <div class="flex w-full flex-wrap items-center gap-2">
           <h4 class="w-full">Icon only</h4>
+          <upw-button v-bind="args" icon-only prepend-icon="cog" size="badge" label="Badge" />
+          <upw-button v-bind="args" icon-only prepend-icon="cog" size="xs" label="XSmall" />
           <upw-button v-bind="args" icon-only prepend-icon="cog" size="sm" label="Small" />
           <upw-button v-bind="args" icon-only prepend-icon="cog" size="md" label="Medium" />
           <upw-button v-bind="args" icon-only prepend-icon="cog" size="lg" label="Large" />
@@ -131,6 +133,9 @@ export const SlotAndSizes: Story = {
 
         <div class="flex w-full flex-wrap items-center gap-2">
           <h4 class="w-full">Label Only</h4>
+
+          <upw-button v-bind="args" size="badge" label="Badge" />
+          <upw-button v-bind="args" size="xs" label="XSmall" />
 
           <upw-button v-bind="args" size="sm" label="Small" />
           <upw-button v-bind="args" size="md" label="Medium" />

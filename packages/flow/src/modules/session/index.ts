@@ -20,100 +20,99 @@ const service = interpret(sessionMachine, { devTools: true });
 
 // --------------------------------------------------------
 
+// We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
+// this will fire every time we transition to a new state
+const authCallback = callback => {
+  const state = service.getSnapshot();
+
+  // callback({ type: "TRANSITIONED", data: state.value });
+
+  // Valid session
+  const clientMachine = state?.children?.clientMachine;
+  const guestMachine = state?.children?.guestMachine;
+
+  if (
+    (state.matches("guest") &&
+      guestMachine?.state?.matches &&
+      guestMachine?.state?.matches("idle")) ||
+    (state.matches("client") &&
+      clientMachine?.state?.matches &&
+      clientMachine?.state?.matches("idle"))
+  ) {
+    hasSession = true;
+    callback({ type: "SESSION" });
+  }
+
+  // Authenticated if client ( eventually +admin +actor)
+  if (
+    hasSession &&
+    state.matches("client") &&
+    clientMachine?.state?.matches &&
+    clientMachine?.state?.matches("idle")
+  ) {
+    callback({ type: "AUTHENTICATED" });
+  }
+
+  // Unauthenticated if guest
+  else if (
+    hasSession &&
+    state.matches("guest") &&
+    guestMachine?.state?.matches &&
+    guestMachine?.state?.matches("loading")
+  ) {
+    hasSession = false;
+    callback({ type: "UNAUTHENTICATED" });
+  }
+
+  return () => {
+    // Any code inside here will be called when
+    // you leave this state, or the machine is stopped
+  };
+};
+
+// --------------------------------------------------------
+// Subscriptions - these are used by the other machines to listen for changes/messages from this machine
+
+export const authSubscription = async (callback, onReceive) => {
+  // firstly, send service's current state upon subscription
+
+  authCallback(callback);
+
+  onReceive(event => {
+    // do nothing for now
+    // console.debug("authSubscription", "receivedEvent", { event });
+  });
+
+  // then listen for any changes to the client service
+  // if we get a change to either authenticated or unauthenticated
+  // then we need to send the callback to the subscriber
+  service.onTransition(state => {
+    const currentMachine =
+      state?.children?.clientMachine || state?.children?.guestMachine;
+
+    // watch for our child machines to transition to a non-loading state
+    // and then send the callback to the subscriber
+    currentMachine?.onTransition(() => {
+      authCallback(callback);
+    });
+
+    // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
+    authCallback(callback);
+  });
+
+  return () => {
+    // The subscriber has unsubscribed from this service
+    // typically when the transitioning out of the state node
+    // we dont need to do anything here as we are consuming a global service
+    // console.debug('clientStore', 'checkClient', 'unsubscribed');
+  };
+};
+
 export const useSession = () => {
   // only create the service once
 
   // --------------------------------------------------------
   // methods
-
-  // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
-  // this will fire every time we transition to a new state
-  const authCallback = callback => {
-    const state = service.getSnapshot();
-
-    // callback({ type: "TRANSITIONED", data: state.value });
-
-    // Valid session
-    const clientMachine = state?.children?.clientMachine;
-    const guestMachine = state?.children?.guestMachine;
-
-    if (
-      (state.matches("guest") &&
-        guestMachine?.state?.matches &&
-        guestMachine?.state?.matches("idle")) ||
-      (state.matches("client") &&
-        clientMachine?.state?.matches &&
-        clientMachine?.state?.matches("idle"))
-    ) {
-      hasSession = true;
-      callback({ type: "SESSION" });
-    }
-
-    // Authenticated if client ( eventually +admin +actor)
-    if (
-      hasSession &&
-      state.matches("client") &&
-      clientMachine?.state?.matches &&
-      clientMachine?.state?.matches("idle")
-    ) {
-      callback({ type: "AUTHENTICATED" });
-    }
-
-    // Unauthenticated if guest
-    else if (
-      hasSession &&
-      state.matches("guest") &&
-      guestMachine?.state?.matches &&
-      guestMachine?.state?.matches("loading")
-    ) {
-      hasSession = false;
-      callback({ type: "UNAUTHENTICATED" });
-    }
-
-    return () => {
-      // Any code inside here will be called when
-      // you leave this state, or the machine is stopped
-    };
-  };
-
-  // --------------------------------------------------------
-  // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
-
-  const authSubscription =
-    (_context, _event) => async (callback, onReceive) => {
-      // firstly, send service's current state upon subscription
-
-      authCallback(callback);
-
-      onReceive(event => {
-        // do nothing for now
-        // console.debug("authSubscription", "receivedEvent", { event });
-      });
-
-      // then listen for any changes to the client service
-      // if we get a change to either authenticated or unauthenticated
-      // then we need to send the callback to the subscriber
-      service.onTransition(state => {
-        const currentMachine =
-          state?.children?.clientMachine || state?.children?.guestMachine;
-
-        // watch for our child machines to transition to a non-loading state
-        // and then send the callback to the subscriber
-        currentMachine?.onTransition(() => {
-          authCallback(callback);
-        });
-
-        // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
-        authCallback(callback);
-      });
-
-      return () => {
-        // The subscriber has unsubscribed from this service
-        // typically when the transitioning out of the state node
-        // we dont need to do anything here as we are consuming a global service
-        // console.debug('clientStore', 'checkClient', 'unsubscribed');
-      };
-    };
 
   async function getUser() {
     const clientMachine = service.getSnapshot()?.children?.clientMachine;
@@ -156,7 +155,7 @@ export const useSession = () => {
     getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,
-    authSubscription,
+    authSubscription: (_context, _event) => authSubscription,
     isAuthenticated: async () => {
       const clientMachine = service.getSnapshot()?.children?.clientMachine;
       if (!clientMachine)
@@ -167,6 +166,6 @@ export const useSession = () => {
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
     transfer,
-    reauth: () => service.send("EXPIRED"),
+    reauth: () => service.send({ type: "EXPIRED" }),
   };
 };

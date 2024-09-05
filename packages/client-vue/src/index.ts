@@ -24,3 +24,5 @@ export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
 export { default as UpmPaymentDetails } from "./components/basket/PaymentDetails.vue";
 // ---
 export { default as UpmOrderConfirmation } from "./components/order/Confirmation.vue";
+// ---
+export { default as UpmDomain } from "./components/domain/Domain.vue";

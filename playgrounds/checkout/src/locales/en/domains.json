@@ -1,0 +1,67 @@
+{
+  "domains": {
+    "header": {
+      "title": "Please choose your domain... | Congratulations on choosing your domain | Congratulations on choosing your domains!",
+      "text": "Register, transfer or use your existing domains with us | Your domain has been added to the basket. | Your domains have been added to the basket."
+    }
+  },
+  "domain": {
+    "empty": {},
+    "choices": {
+      "register": {
+        "label": "Register a new domain."
+      },
+      "transfer": {
+        "label": "Transfer a domain from another registrar."
+      },
+      "existing": {
+        "label": "Use an existing domain and update nameservers."
+      },
+      "basket": {
+        "label": "Use a domain from my basket"
+      }
+    },
+    "dac": {
+      "search": "Search for your domain...",
+      "actions": {
+        "continue": "Add domain to basket | Add domains to basket",
+        "cancel": "Cancel",
+        "more": "Load more"
+      }
+    },
+    "existing": {
+      "search": "Enter your domain...",
+      "owned": "Domains that you currently own"
+    },
+    "listings": {
+      "title": "Choose your domain from the list below "
+    },
+    "card": {
+      "promotion": "On promotion",
+      "owned": {
+        "label": "You own this domain",
+        "instruction": "Select this domain from {newline}{ownership} section above.",
+        "ownership": "Use an existing domain and update nameservers",
+        "action": "Owned"
+      },
+      "basket": {
+        "label": "In Basket",
+        "instruction": "Select this domain from {newline}{ownership} section above.",
+        "ownership": "Use a domain from my basket",
+        "action": "Added"
+      },
+      "available": {
+        "label": "Available",
+        "instruction": "{price} /yr",
+        "ownership": "",
+        "action": "Register | Added"
+      },
+      "transfer": {
+        "label": "Transferable",
+        "instruction": "{ownership} Transfer it to us {action}.{newline}Our {tld} renewal prices start from only {price} /yr.",
+        "ownership": "Do you own this domain?",
+        "action": "by clicking here | Added"
+      }
+    }
+  }
+}

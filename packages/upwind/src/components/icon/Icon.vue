@@ -32,7 +32,7 @@ export default defineComponent({
       type: String,
       default: "auto",
       validator: (value: string) =>
-        ["auto", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
+        ["full", "auto", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
     },
     icon: {
       type: [String, Object] as PropType<IconProps["icon"]>,

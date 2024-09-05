@@ -1,13 +1,6 @@
 // --------------------------------------------------------
 // ENUMS
 
-export enum AccessRoleTypes {
-  GUEST = "guest",
-  CLIENT = "client",
-  RESELLER = "reseller",
-  USER = "user",
-}
-
 export enum GrantTypes {
   ADMIN = "admin",
   ADMIN_PASSWORD_RESET = "admin_password_reset",
@@ -45,7 +38,7 @@ export interface Token {
   // ---
   redirect?: Location["origin"] | null;
   actor_id?: string | null;
-  actor_type?: AccessRoleTypes | null;
+  actor_type?: "guest" | "client" | "reseller" | "user" | null;
   // ---
   guest_token?: string | null;
 }

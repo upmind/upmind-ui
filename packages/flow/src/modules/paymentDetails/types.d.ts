@@ -38,12 +38,13 @@ export interface IPaymentDetail {
 export interface PaymentDetailsContext {
   // ---
   basket_id?: string;
+  client_id?: string;
   currency?: iCurrency;
   // ---
   gateways?: Array<IGateway>;
   payment_types?: PaymentTypes;
   // ---
-  stored_payment_details?: Array<IPaymentDetail>;
+  stored_payment_methods?: Array<IPaymentDetail>;
   balance?: IWalletBalance;
   gateway?: IGateway;
   // ---

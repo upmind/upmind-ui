@@ -1,5 +1,19 @@
 {
   "projects": {
     "default": "upm-checkout-doteasy"
-  }
+  },
+  "targets": {
+    "upm-checkout-doteasy": {
+      "hosting": {
+        "staging": [
+          "stg-upm-checkout"
+        ],
+        "production": [
+          "upm-checkout-doteasy"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

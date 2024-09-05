@@ -1,8 +1,10 @@
 <template>
   <upm-product-config
-    v-if="open"
+    v-if="open || selected"
     v-bind="$props"
+    :class="'styles.basket.item'"
     :processing="meta.isProcessing"
+    :required="selected"
     @reject="open = false"
     @resolve="doResolve"
     @update:attributes="updateAttributes"
@@ -10,23 +12,50 @@
     @update:provisioning="updateProvisioning"
     @update:quantity="updateQuantity"
     @update:term="updateTerm"
-  />
+  >
+    <template #header>
+      <span v-if="meta.isNew">{{ $t("basket.items.pending.title") }}</span>
+      <span v-else-if="meta.hasErrors">{{
+        $t("basket.items.invalid.title")
+      }}</span>
+    </template>
+  </upm-product-config>
   <upm-product-card
     v-else
     v-bind="$props"
-    @reject="removeItem(modelValue)"
+    :class="'styles.basket.item'"
+    @reject="removeItem"
     @resolve="open = true"
-  />
+  >
+    <template #badges v-if="!meta.isLoading">
+      <upw-badge
+        v-if="meta.isNew"
+        color="accent"
+        variant="flat"
+        :class="styles.basket.item.ping.root"
+      >
+        {{ $t("basket.items.pending.badge") }}
+      </upw-badge>
+      <upw-badge
+        v-else-if="meta.hasErrors"
+        color="error"
+        variant="flat"
+        :class="styles.basket.item.ping.root"
+      >
+        {{ $t("basket.items.invalid.badge") }}
+      </upw-badge>
+    </template>
+  </upm-product-card>
 </template>
 
 <script>
 // --- external
-import { defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
-import { useBasket, utils } from "@upmind/flow-vue";
+import { useProductConfig, useBasket, utils } from "@upmind/flow-vue";
 const { stateMatches } = utils;
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles, UpwBadge } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -38,7 +67,7 @@ import UpmProductConfig from "../product/Config.vue";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketItem",
-  components: { UpmProductCard, UpmProductConfig },
+  components: { UpmProductCard, UpmProductConfig, UpwBadge },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
@@ -55,32 +84,22 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { removeItem, updateItem } = useBasket();
+
     const {
       meta,
-      removeItem,
-      updateItem,
       updateAttributes,
       updateOptions,
       updateProvisioning,
       updateQuantity,
       updateTerm,
-    } = useBasket();
+    } = useProductConfig(props.item);
 
-    const styles = useStyles(
-      ["basket.item", "basket.item.details"],
-      meta,
-      config
-    );
+    const styles = useStyles(["basket.item", "basket.item.ping"], meta, config);
     // ---
 
     const open = ref(props.selected);
-    // make props reactive to open
-    watch(
-      () => props.selected,
-      value => {
-        open.value = value;
-      }
-    );
+
     // ---
 
     return {
@@ -102,10 +121,8 @@ export default defineComponent({
   computed: {},
   methods: {
     async doResolve() {
-      this.updateItem(this.modelValue).then(() => {
-        this.open =
-          stateMatches(this.item.state, ["configured"]) &&
-          !stateMatches(this.item.state, ["error"]);
+      this.updateItem(this.modelValue).then(item => {
+        this.open = !stateMatches(item.state, ["available.complete"]);
       });
     },
   },

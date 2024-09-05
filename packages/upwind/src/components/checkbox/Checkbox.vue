@@ -2,6 +2,7 @@
   <upw-input
     :id="id"
     :label="label"
+    :text="text"
     :description="description"
     :errors="errors"
     :size="size"
@@ -12,6 +13,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
+    :autofocus="autofocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -41,12 +43,24 @@
         v-if="computedIcon"
       />
     </span>
+    <!-- expose our core input slots -->
+    <template #label="slotProps">
+      <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
+    </template>
+
+    <template #prepend="slotProps">
+      <slot name="prepend" v-bind="{ meta, ...slotProps }"></slot>
+    </template>
+
+    <template #append="slotProps">
+      <slot name="append" v-bind="{ meta, ...slotProps }"></slot>
+    </template>
   </upw-input>
 </template>
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed } from "vue";
 
 // --- local
 import config from "./config.cva";
@@ -80,8 +94,9 @@ export default defineComponent({
       default: () => "checkbox-" + Math.random().toString(36).substr(2, 9),
     },
     label: { type: String },
+    text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     variant: {
@@ -116,11 +131,13 @@ export default defineComponent({
     // ---
     modelValue: { type: Boolean },
     // ---
+    autofocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // ---
+    noInput: { type: Boolean },
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },
     noFeedback: { type: Boolean },
@@ -132,6 +149,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const meta = computed(() => ({
       size: props.size,
+      noInput: props.noInput,
       // ---
       isDisabled: props.disabled,
       isProcessing: props.processing,
