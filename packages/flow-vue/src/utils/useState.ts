@@ -66,7 +66,11 @@ export const machineMatches = (machine: any, states: string[]) => {
 };
 
 // --- value helpers
-export const stateValue = (state: any, prop?: string | string[], fallback?: any) => {
+export const stateValue = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => {
   state = safeState(state);
 
   if (!state) return fallback;
@@ -132,11 +136,17 @@ const createActor = (context: any) => {
 };
 // --- computed helpers
 
-export const useState = (state: any, prop?: string | string[], fallback?: any) =>
-  computed(() => stateValue(state, prop, fallback));
+export const useState = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => computed(() => stateValue(state, prop, fallback));
 
-export const useContext = (state: any, prop?: string | string[], fallback?: any) =>
-  computed(() => contextValue(state, prop, fallback));
+export const useContext = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => computed(() => contextValue(state, prop, fallback));
 
 export const useChildActor = (
   state: any,

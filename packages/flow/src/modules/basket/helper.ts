@@ -19,7 +19,7 @@ import {
 } from "lodash-es";
 
 // --------------------------------------------------------
-async function fetch(context, basket) {
+async function fetch(context: any, basket: any) {
   const basketItems = basket.getItemsSnapshot();
 
   // we need to ensure ALL our items are loaded before we can proceed
@@ -49,6 +49,7 @@ async function fetch(context, basket) {
             ...model,
             ...product,
           });
+          // @ts-ignore
           result.push(data);
         }
 
@@ -67,7 +68,7 @@ async function fetch(context, basket) {
  * @param basket
  * @returns {ActorRef<any, any>} XState Actor representing the new item
  */
-async function add(item, context, basket) {
+async function add(item: any, context: any, basket: any) {
   if (isEmpty(item)) return Promise.resolve();
 
   const mapping = context.basketItemMapper(item);
@@ -80,7 +81,7 @@ async function add(item, context, basket) {
   return basket.addItem(product);
 }
 
-async function remove(item, context, basket) {
+async function remove(item: any, context: any, basket: any) {
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
   const basket_id = basket.getBasketId();
@@ -89,7 +90,7 @@ async function remove(item, context, basket) {
   return productServices.remove({ basket_id, id });
 }
 
-async function update(item, context, basket) {
+async function update(item: any, context: any, basket: any) {
   if (isEmpty(item)) return Promise.resolve();
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
   const mapping = context.basketItemMapper(item);
@@ -112,7 +113,7 @@ async function update(item, context, basket) {
   );
 }
 
-async function sync(items, context, basket) {
+async function sync(items: any, context: any, basket: any) {
   items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
   // First ensure all our items are added to the basket...
   // Then sync all our items with the basket
@@ -144,9 +145,9 @@ async function sync(items, context, basket) {
 
 // --------------------------------------------------------
 
-export function basketSubscription(callback, onReceive) {
+export function basketSubscription(callback: any, onReceive: any) {
   const basket = useBasket();
-  onReceive(event => {
+  onReceive((event: any) => {
     switch (event.type) {
       case "FETCH":
         fetch(event.context, basket)
@@ -170,7 +171,7 @@ export function basketSubscription(callback, onReceive) {
       case "REMOVE":
         callback({ type: "PROCESSING" });
         remove(event.target, event.context, basket)
-          .then(data => {
+          .then(() => {
             callback({ type: "REMOVED" });
             basket.refresh();
           })

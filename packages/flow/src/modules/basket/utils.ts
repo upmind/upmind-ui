@@ -220,7 +220,11 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
   };
 };
 
-export const parseBasketProvisioningErrors = (error: any, item: any, index: any) => {
+export const parseBasketProvisioningErrors = (
+  error: any,
+  item: any,
+  index: any
+) => {
   // now pass any provisioning errors to the item
   if (error) {
     const errors = get(

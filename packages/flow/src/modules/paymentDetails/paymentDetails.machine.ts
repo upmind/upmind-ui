@@ -231,7 +231,9 @@ export default createMachine(
       }),
 
       setSchemas: assign({
+        // @ts-ignore
         schema: context => useSchema(context),
+        // @ts-ignore
         uischema: context => useUischema(context),
         model: ({ schema, model }) => useModelParser(schema, model),
       }),
@@ -427,7 +429,10 @@ export default createMachine(
       shouldUpdate: ({ autoupdate, basket_id, model }, _event) =>
         !!autoupdate && !!basket_id && model?.amount !== 0,
 
-      hasChanged: ({ basket_id, currency, client_id, model }, { data }: any) => {
+      hasChanged: (
+        { basket_id, currency, client_id, model },
+        { data }: any
+      ) => {
         const basketChanged = basket_id != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = client_id != data?.client_id;

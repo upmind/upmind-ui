@@ -129,14 +129,16 @@ export const useBasket = () => {
 
           // then wait/check for the new product actor to be configured
           // then send the update event to the basket
-          return find(service.getSnapshot()?.context?.items, (basketItem: any) =>
-            every(mapping, (value, key) => {
-              if (key == "id" && value) {
-                return basketItem.id == value;
-              } else {
-                return get(basketItem, `state.context.model.${key}`) == value;
-              }
-            })
+          return find(
+            service.getSnapshot()?.context?.items,
+            (basketItem: any) =>
+              every(mapping, (value, key) => {
+                if (key == "id" && value) {
+                  return basketItem.id == value;
+                } else {
+                  return get(basketItem, `state.context.model.${key}`) == value;
+                }
+              })
           );
         })
         .then(actor => {

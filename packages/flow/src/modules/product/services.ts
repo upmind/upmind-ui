@@ -355,10 +355,7 @@ async function checkSubproducts(
   });
 }
 
-async function checkProvisioning(
-  { error, lookups, model }: any,
-  _event: any
-) {
+async function checkProvisioning({ error, lookups, model }: any, _event: any) {
   // bail if we dont actually have any provision fields to check
   if (isEmpty(lookups.provision_fields?.properties))
     return Promise.resolve({ provision_fields: {} });

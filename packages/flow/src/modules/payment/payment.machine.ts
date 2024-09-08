@@ -20,6 +20,7 @@ import { responseCodes } from "../api";
 
 export default createMachine(
   {
+    // @ts-ignore
     tsTypes: {} as import("./payment.machine.typegen").Typegen0,
     id: "paymentManager",
     predictableActionArguments: true,

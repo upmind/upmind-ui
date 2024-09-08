@@ -583,10 +583,7 @@ export default createMachine(
       // ---
 
       add: assign({
-        model: (
-          { model, lookups, type }: any,
-          { data }: AddEvent
-        ) => {
+        model: ({ model, lookups, type }: any, { data }: AddEvent) => {
           let available = [];
           switch (type) {
             case DomainTypes.register:
@@ -761,6 +758,7 @@ export default createMachine(
       }),
 
       clearLookups: assign({
+        // @ts-ignore
         lookups: (_context: any, _event: any) => {
           return {
             searched: [],
@@ -850,7 +848,7 @@ export default createMachine(
         return !!data?.length;
       },
 
-      isNotCancelled: (_context, { data }) => data?.name !== "AbortError",
+      isNotCancelled: (_context, { data }: any) => data?.name !== "AbortError",
 
       // ---
       isDomainTransfer: ({ choices }, { data }: { data: string }) =>
