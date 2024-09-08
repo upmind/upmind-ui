@@ -19,7 +19,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IAddress, AddressContext } from "./types.d";
+import type { IAddress } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -326,10 +326,9 @@ export const spawnItem = (model?: IAddress) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
+        // @ts-ignore
         .withConfig({
-          // @ts-ignore
           actions,
-          // @ts-ignore
           services,
         })
         .withContext({ model }),

@@ -590,10 +590,9 @@ export const spawnItem = (model?: IAddress) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
+        // @ts-ignore
         .withConfig({
-          // @ts-ignore
           actions,
-          // @ts-ignore
           services,
         })
         .withContext({ model }),

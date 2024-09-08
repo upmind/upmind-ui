@@ -20,6 +20,7 @@ import { responseCodes } from "../../api";
 
 export default createMachine(
   {
+    // @ts-ignore
     tsTypes: {} as import("./fields.machine.typegen").Typegen0,
     id: "basketFieldsManager",
     predictableActionArguments: true,
@@ -120,7 +121,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent((_context, { data }) => ({
+        entry: sendParent((_context, { data }: any) => ({
           type: "REFRESH",
           data,
         })),

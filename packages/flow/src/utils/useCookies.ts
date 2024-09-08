@@ -1,5 +1,5 @@
 export function useCookies() {
-  function getCookie(name) {
+  function getCookie(name: string) {
     return new Promise((resolve, reject) => {
       const nameEQ = `${name}=`;
       const ca = document.cookie.split(";");
@@ -15,14 +15,14 @@ export function useCookies() {
     });
   }
 
-  function setCookie(name, value, maxAge) {
+  function setCookie(name: string, value: any, maxAge: number) {
     if (!name || !value) return;
     let expires = "";
     if (maxAge) expires = "; max-age=" + `${maxAge}`;
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
   }
 
-  function deleteCookie(name) {
+  function deleteCookie(name: string) {
     document.cookie = `${name}=; expires=${new Date()}; path=/`;
   }
 

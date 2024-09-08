@@ -18,6 +18,7 @@ import { isString } from "xstate/lib/utils";
 
 export default createMachine(
   {
+    // @ts-ignore
     tsTypes: {} as import("./item.machine.typegen").Typegen0,
     id: "clientItemManager",
     predictableActionArguments: true,

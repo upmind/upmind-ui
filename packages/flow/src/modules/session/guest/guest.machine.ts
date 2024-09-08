@@ -323,7 +323,8 @@ export default createMachine(
     guards: {
       requires2fa: (_context, { data }: any) =>
         data.actor_type == "twofa" && !!data?.second_factor_required,
-      requiresReCaptcha: (_context, { data }: any) => !!data?.recaptcha_required,
+      requiresReCaptcha: (_context, { data }: any) =>
+        !!data?.recaptcha_required,
     },
 
     delays: {},

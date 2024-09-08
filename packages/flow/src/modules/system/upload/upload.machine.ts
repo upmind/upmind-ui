@@ -18,6 +18,7 @@ const base = import.meta.env.VITE_API_URL;
 
 export default createMachine(
   {
+    // @ts-ignore
     tsTypes: {} as import("./upload.machine.typegen").Typegen0,
     id: "uploadManager",
     predictableActionArguments: true,
@@ -170,10 +171,11 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (context, { data }) => {
+        error: (_, { data }: any) => {
           // @ts-ignore
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          // @ts-ignore
+          if (errore.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);

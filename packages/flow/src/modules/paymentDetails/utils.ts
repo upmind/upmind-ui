@@ -24,7 +24,7 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const parsePaymentDetails = payment_details => {
+export const parsePaymentDetails = (payment_details: any) => {
   // TODO: map the actual allowed params fr the endpoint
   return omit(payment_details, ["can_store"]);
 };
@@ -87,10 +87,7 @@ export const useSchema = ({
 
 // --------------------------------------------------------
 
-export const useUischema = ({
-  payment_types,
-  gateways,
-}: PaymentDetailsContext) => {
+export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
     elements: [
@@ -326,9 +323,11 @@ const isStripe = (gateway: any) =>
   gateway?.gateway_provider?.code === GatewayProviderCodes.STRIPE &&
   !!gateway?.use_frontend_implementation;
 
-const isBankTransfer = (gateway: any) => gateway.type === GatewayTypes.BANK_TRANSFER;
+const isBankTransfer = (gateway: any) =>
+  gateway.type === GatewayTypes.BANK_TRANSFER;
 
-const isDirectDebit = (gateway: any) => gateway.type === GatewayTypes.DIRECT_DEBIT;
+const isDirectDebit = (gateway: any) =>
+  gateway.type === GatewayTypes.DIRECT_DEBIT;
 
 const isSEPA = (gateway: any) => gateway.type === GatewayTypes.SEPA;
 

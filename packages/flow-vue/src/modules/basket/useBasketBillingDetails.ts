@@ -77,7 +77,9 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
     // ---
     clear: () => billing_details.value?.send({ type: "CLEAR" }),
     // @ts-ignore
-    input: (model: any) => billing_details.value?.send({ type: "SET", data: model }),
+    input: (model: any) =>
+      // @ts-ignore
+      billing_details.value?.send({ type: "SET", data: model }),
     update(model: any) {
       if (!model) return;
 
