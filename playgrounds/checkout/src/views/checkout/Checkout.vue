@@ -129,7 +129,7 @@
       </section>
 
       <!-- Basket procesing -->
-      <upm-basket-processing :model-value="meta.isProcessingOrder" />
+      <upm-basket-processing :model-value="meta.isCheckout" />
 
       <!-- Order confirmation -->
       <upm-order-confirmation

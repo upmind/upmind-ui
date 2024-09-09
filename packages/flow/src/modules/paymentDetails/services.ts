@@ -148,26 +148,6 @@ async function load(
 // --------------------------------------------------------
 // PAYMENT METHODS
 
-/**
- * @name getPaymentData
- * @desc Here we create a new payment detail if we have a free basket, ie Amount = 0, and NO gateway provided
- *       Otherwise we reject this update and defer to the payment gateway
- */
-async function update({ model, basket_id, currency }: PaymentDetailsContext) {
-  // if we have a free basket, Or a gateway is provided, then we should not create a payment detail
-  return new Promise((resolve, reject) => {
-    if (model?.amount == 0) {
-      resolve({
-        basket_id,
-        currency,
-        amount: model.amount,
-      });
-    } else {
-      reject();
-    }
-  });
-}
-
 // --------------------------------------------------------
 
 async function parse(
@@ -263,7 +243,6 @@ export default {
   load,
   parse,
   validate,
-  update,
   // ---
   authSubscription: (context, event) =>
     useSession().authSubscription(context, event),

@@ -91,11 +91,11 @@ export interface Typegen0 {
       | "SESSION"
       | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
     addItem: "ADD";
-    checkoutActors: "CHECKOUT";
     clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
     clearError: "SESSION";
     clearItems: "CLEAR" | "UNAUTHENTICATED";
+    forwardCheckout: "CHECKOUT";
     refreshActors:
       | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
@@ -143,6 +143,7 @@ export interface Typegen0 {
     hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
     hasNoItems: "";
+    hasPaymentDetails: "";
     isNotLoading: "";
     itemsConfigured: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";
@@ -160,7 +161,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "UNAUTHENTICATED"
       | "xstate.init";
-    convert: "PAYMENT_DETAILS";
+    convert: "";
     generate: "ADD";
     isAuthenticated:
       | ""
@@ -176,9 +177,6 @@ export interface Typegen0 {
   };
   matchesStates:
     | "checkout"
-    | "checkout.available"
-    | "checkout.configuring"
-    | "checkout.processing"
     | "complete"
     | "converting"
     | "error"
@@ -207,6 +205,11 @@ export interface Typegen0 {
     | "shopping.items.complete"
     | "shopping.items.configuring"
     | "shopping.items.empty"
+    | "shopping.payment_details"
+    | "shopping.payment_details.available"
+    | "shopping.payment_details.complete"
+    | "shopping.payment_details.configuring"
+    | "shopping.payment_details.processing"
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
@@ -215,7 +218,6 @@ export interface Typegen0 {
     | "shopping.refreshing.processing"
     | "subscribing"
     | {
-        checkout?: "available" | "configuring" | "processing";
         loading?: "actors" | "basket";
         shopping?:
           | "account"
@@ -223,6 +225,7 @@ export interface Typegen0 {
           | "currency"
           | "custom_fields"
           | "items"
+          | "payment_details"
           | "promotions"
           | "refreshing"
           | {
@@ -231,6 +234,11 @@ export interface Typegen0 {
               currency?: "complete" | "configuring";
               custom_fields?: "complete" | "configuring";
               items?: "complete" | "configuring" | "empty";
+              payment_details?:
+                | "available"
+                | "complete"
+                | "configuring"
+                | "processing";
               promotions?: "complete" | "configuring";
               refreshing?: "complete" | "processing";
             };
