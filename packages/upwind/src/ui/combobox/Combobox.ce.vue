@@ -117,7 +117,7 @@ import ComboboxItem from "./ComboboxItem.vue";
 import { useStyles } from "../../utils";
 
 // --- types
-import { type ComboboxConfig } from "./types";
+import { type ComboboxConfig } from "./types.d";
 
 export default defineComponent({
   name: "UwCombobox",
