@@ -46,6 +46,7 @@ export interface Typegen0 {
     services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
+    cancelPaymentDetails: "error.platform.gatewayPaymentManager.processing:invocation[0]";
     clearError:
       | "CHECKOUT"
       | "CLEAR"

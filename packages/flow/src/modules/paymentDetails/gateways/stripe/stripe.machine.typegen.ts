@@ -83,6 +83,7 @@ export interface Typegen0 {
       | "validate";
   };
   eventsCausingActions: {
+    cancelPaymentDetails: "error.platform.stripePaymentManager.processing.payment:invocation[0]";
     clearError:
       | "ADD"
       | "CHECKOUT"
