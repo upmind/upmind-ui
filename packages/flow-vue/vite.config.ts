@@ -20,6 +20,7 @@ export default defineConfig({
     }
   },
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  // @ts-ignore
   test: {
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "e2e/*"],
