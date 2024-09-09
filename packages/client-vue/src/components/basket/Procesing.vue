@@ -21,7 +21,7 @@
 
       <footer :class="styles.basket.processing.actions">
         <upw-button
-          v-if="action"
+          v-if="hasAction"
           v-bind="action"
           block
           variant="ghost"
@@ -45,6 +45,8 @@ import config from "./config.cva";
 // --- components
 import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
 
+// ---utils
+import { isEmpty } from "lodash-es";
 // --- types
 
 // -----------------------------------------------------------------------------
@@ -138,23 +140,11 @@ export default defineComponent({
     },
 
     action() {
-      // if (this.meta.needsApproval) {
-      //   return this.$tm("basket.processing.approval.actions.continue");
-      // }
-
-      // if (this.meta.isConverting) {
-      //   return this.$tm("basket.processing.converting.actions.continue");
-      // }
-
-      // if (this.meta.isPaying) {
-      //   return this.$tm("basket.processing.paying.actions.continue");
-      // }
-
-      // if (this.meta.isCheckout) {
-      //   return this.$tm("basket.processing.default.actions.continue");
-      // }
-
       return this.$tm("basket.processing.invalid.actions.complete");
+    },
+
+    hasAction() {
+      return !isEmpty(this.action);
     },
 
     storefrontUrl() {

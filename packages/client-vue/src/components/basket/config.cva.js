@@ -112,12 +112,26 @@ export default {
             flat: "",
           },
         },
+        compoundVariants: [
+          // {
+          //   variant: "outlined",
+          //   hasErrors: false,
+          //   class:
+          //     "focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20",
+          // },
+          {
+            variant: "outlined",
+            hasErrors: true,
+            class:
+              "border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
+          },
+        ],
         defaultVariants: {
           variant: "flat",
         },
       }),
-      render: cva("w-full empty:hidden"),
-      form: cva("w-full"),
+      render: cva("w-full empty:hidden", {}),
+      form: cva("w-full", {}),
       instructions: cva("m-0 w-full p-0"),
       transition: {
         enter: {

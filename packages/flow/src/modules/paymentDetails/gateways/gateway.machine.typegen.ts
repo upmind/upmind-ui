@@ -26,6 +26,10 @@ export interface Typegen0 {
       type: "error.platform.gatewayPaymentManager.loading:invocation[0]";
       data: unknown;
     };
+    "error.platform.gatewayPaymentManager.processing:invocation[0]": {
+      type: "error.platform.gatewayPaymentManager.processing:invocation[0]";
+      data: unknown;
+    };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
@@ -42,6 +46,7 @@ export interface Typegen0 {
     services: "load" | "parse" | "update" | "validate";
   };
   eventsCausingActions: {
+    cancelPaymentDetails: "error.platform.gatewayPaymentManager.processing:invocation[0]";
     clearError:
       | "CHECKOUT"
       | "CLEAR"
@@ -53,14 +58,18 @@ export interface Typegen0 {
       | "done.invoke.gatewayPaymentManager.loading:invocation[0]";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
+    escalateError: "error.platform.gatewayPaymentManager.processing:invocation[0]";
     providePaymentDetails: "done.invoke.gatewayPaymentManager.processing:invocation[0]";
     setContext:
       | "REFRESH"
       | "done.invoke.gatewayPaymentManager.loading:invocation[0]";
     setError:
       | "error.platform.gatewayPaymentManager.checking.validating:invocation[0]"
-      | "error.platform.gatewayPaymentManager.loading:invocation[0]";
-    setFeedbackError: "error.platform.gatewayPaymentManager.loading:invocation[0]";
+      | "error.platform.gatewayPaymentManager.loading:invocation[0]"
+      | "error.platform.gatewayPaymentManager.processing:invocation[0]";
+    setFeedbackError:
+      | "error.platform.gatewayPaymentManager.loading:invocation[0]"
+      | "error.platform.gatewayPaymentManager.processing:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.gatewayPaymentManager.checking.parsing:invocation[0]";
