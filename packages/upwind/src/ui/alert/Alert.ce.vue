@@ -20,7 +20,7 @@ import { defineComponent, toRefs } from "vue";
 import config from "./alert.config";
 
 // --- components
-import UpwIcon from "../../icon/Icon.vue";
+// import UpwIcon from "../../icon/Icon.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
