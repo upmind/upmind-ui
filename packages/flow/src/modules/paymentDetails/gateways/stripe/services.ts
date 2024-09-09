@@ -153,24 +153,40 @@ async function createPaymentElement(
 async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
-  // return Promise.reject($t("_sentence.payments.gateway_elements_not_found"));
 
   // Submit form to validate fields
-  const { error: submitError } = await elements.submit();
+  const { error: submitError } = await elements
+    .submit()
+    .catch(error => Promise.reject(error));
+
   if (submitError) return Promise.reject(submitError);
 
   // Create PaymentMethod using details collected via Payment Element
-  return elements.submit().then(({ paymentMethod }) => {
-    // add the payment details to the model
-    set(model, "payment_method_addition.payment_method_id", paymentMethod?.id);
-    set(
-      model,
-      "payment_method_addition.payment_method_type",
-      paymentMethod?.type
-    );
+  const { error, paymentMethod } = await stripe
+    .createPaymentMethod({
+      elements,
+    })
+    .catch(error => Promise.reject(error));
 
-    /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
-    return model;
+  return new Promise((resolve, reject) => {
+    if (error) {
+      reject(error);
+    } else {
+      // add the payment details to the model
+      set(
+        model,
+        "payment_method_addition.payment_method_id",
+        paymentMethod?.id
+      );
+      set(
+        model,
+        "payment_method_addition.payment_method_type",
+        paymentMethod?.type
+      );
+
+      /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+      resolve(model);
+    }
   });
 }
 

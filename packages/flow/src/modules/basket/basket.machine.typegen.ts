@@ -143,9 +143,10 @@ export interface Typegen0 {
     hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
     hasNoItems: "";
+    hasPaymentDetails: "";
     isNotLoading: "";
     itemsConfigured: "";
-    paymentDetailsComplete: "" | "PAYMENT_DETAILS";
+    paymentDetailsComplete: "PAYMENT_DETAILS";
     paymentDetailsConfiguring: "";
     paymentDetailsValid: "";
     paymentNeeded: "done.invoke.converting:invocation[0]";

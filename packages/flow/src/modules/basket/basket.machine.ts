@@ -31,6 +31,7 @@ import {
   includes,
   isEmpty,
   isEqual,
+  isNil,
   map,
   some,
 } from "lodash-es";
@@ -305,10 +306,7 @@ export default createMachine(
             initial: "configuring",
             states: {
               configuring: {
-                always: [
-                  { target: "complete", cond: "paymentDetailsComplete" },
-                  { target: "available", cond: "paymentDetailsValid" },
-                ],
+                always: [{ target: "available", cond: "paymentDetailsValid" }],
               },
 
               // items are 'complete' only when they have been successfully added to the basket
@@ -365,7 +363,7 @@ export default createMachine(
         id: "checkout",
         always: {
           target: "converting",
-          cond: "paymentDetailsComplete",
+          cond: "hasPaymentDetails",
         },
       },
 
@@ -772,12 +770,18 @@ export default createMachine(
       },
 
       paymentDetailsComplete: ({ actors, paymentDetails }, { data }) => {
-        return (
-          !isEmpty(paymentDetails) ||
-          ((actors.payment_details?.state?.done ||
+        const value =
+          (actors.payment_details?.state?.done ||
             actors.payment_details?.state?.matches("complete")) &&
-            !isEmpty(data))
-        );
+          !isEmpty(data);
+
+        return value;
+      },
+
+      hasPaymentDetails: ({ paymentDetails }) => {
+        const value = !isNil(paymentDetails) && !isEmpty(paymentDetails);
+
+        return value;
       },
 
       paymentDetailsConfiguring: ({ actors, paymentDetails }) => {

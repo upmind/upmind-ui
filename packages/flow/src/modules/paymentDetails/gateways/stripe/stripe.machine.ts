@@ -158,7 +158,12 @@ export default createMachine(
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError", "escalateError"],
+                actions: [
+                  "setError",
+                  "setFeedbackError",
+                  "escalateError",
+                  "cancelPaymentDetails",
+                ],
               },
             },
           },
@@ -313,6 +318,10 @@ export default createMachine(
       escalateError: pure((_context, { data }) => {
         escalate({ data });
       }),
+
+      cancelPaymentDetails: sendParent(() => ({
+        type: "CANCEL",
+      })),
 
       // ---
 

@@ -19,11 +19,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.paymentDetailsManager.available.processing:invocation[0]": {
-      type: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
-      data: unknown;
-      __tip: "See the XState TS docs to learn how to strongly type this.";
-    };
     "done.invoke.paymentDetailsManager.checking:invocation[0]": {
       type: "done.invoke.paymentDetailsManager.checking:invocation[0]";
       data: unknown;
@@ -41,10 +36,6 @@ export interface Typegen0 {
       type: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
       data: unknown;
     };
-    "error.platform.paymentDetailsManager.available.processing:invocation[0]": {
-      type: "error.platform.paymentDetailsManager.available.processing:invocation[0]";
-      data: unknown;
-    };
     "xstate.init": { type: "xstate.init" };
     "xstate.update": { type: "xstate.update" };
   };
@@ -53,7 +44,6 @@ export interface Typegen0 {
     isAuthenticated: "done.invoke.paymentDetailsManager.checking:invocation[0]";
     load: "done.invoke.loading:invocation[0]";
     parse: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
-    update: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     validate: "done.invoke.paymentDetailsManager.available.checking.validating:invocation[0]";
   };
   missingImplementations: {
@@ -65,12 +55,10 @@ export interface Typegen0 {
       | "isAuthenticated"
       | "load"
       | "parse"
-      | "update"
       | "validate";
   };
   eventsCausingActions: {
-    cancelPaymentDetails: "error.platform.paymentDetailsManager.available.processing:invocation[0]";
-    clearAutoUpdate: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
+    cancelPaymentDetails: "CANCEL";
     clearError:
       | "CLEAR"
       | "REFRESH"
@@ -82,9 +70,7 @@ export interface Typegen0 {
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
     forwardCheckout: "" | "CHECKOUT";
-    providePaymentDetails:
-      | "PAYMENT_DETAILS"
-      | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
+    providePaymentDetails: "CHECKOUT" | "PAYMENT_DETAILS";
     refreshBasket: "REFRESH";
     setAutoUpdate: "SET";
     setDirty: "CLEAR" | "SET";
@@ -95,18 +81,17 @@ export interface Typegen0 {
     setGateway: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
     setLookups: "done.invoke.loading:invocation[0]";
     setParsed: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
-    setPaymentDetails:
-      | "PAYMENT_DETAILS"
-      | "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
+    setPaymentDetails: "CHECKOUT" | "PAYMENT_DETAILS";
     setSchemas: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
-    trackPaymentDetails: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasBasket: "CHECKOUT";
     hasChanged: "REFRESH";
     hasLookups: "done.invoke.paymentDetailsManager.checking:invocation[0]";
-    isFree: "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
+    isFree:
+      | "CHECKOUT"
+      | "error.platform.paymentDetailsManager.available.checking.validating:invocation[0]";
     shouldUpdate: "";
   };
   eventsCausingServices: {
@@ -124,7 +109,6 @@ export interface Typegen0 {
       | "done.invoke.loading:invocation[0]"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]"
       | "xstate.update";
-    update: "" | "CHECKOUT";
     validate: "done.invoke.paymentDetailsManager.available.checking.parsing:invocation[0]";
   };
   matchesStates:

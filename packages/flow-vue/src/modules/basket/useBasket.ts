@@ -154,17 +154,17 @@ export const useBasket = () => {
           true
         ),
 
-        isCheckout: stateMatches(state, ["checkout.processing"]),
+        isCheckout:
+          machineMatches(payment, ["approving"]) ||
+          stateMatches(state, [
+            "shopping.payment_details.processing",
+            "checkout",
+            "converting",
+            "paying",
+          ]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
-
-        isProcessingOrder:
-          machineMatches(payment, ["approving"]) ||
-          stateMatches(state, ["converting"]) ||
-          stateMatches(state, ["paying"]) ||
-          stateMatches(state, ["checkout.processing"]),
-
         isComplete: stateMatches(state, ["complete", "failed"]),
         hasPaid: stateMatches(state, ["complete"]),
         hasFailed: stateMatches(state, ["failed"]),
