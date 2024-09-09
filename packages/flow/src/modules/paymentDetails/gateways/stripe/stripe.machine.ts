@@ -1,6 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent, spawn } from "xstate";
-
+import { createMachine, assign, actions, spawn } from "xstate";
+const { pure, sendParent, escalate } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../../feedback";
@@ -156,6 +156,10 @@ export default createMachine(
                 target: "#processed",
                 actions: ["setPaymentDetails", "providePaymentDetails"],
               },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError", "escalateError"],
+              },
             },
           },
           adding: {
@@ -189,11 +193,6 @@ export default createMachine(
 
       error: {
         id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
       },
     },
     on: {
@@ -311,16 +310,24 @@ export default createMachine(
         data: paymentDetails,
       })),
 
+      escalateError: pure((_context, { data }) => {
+        escalate({ data });
+      }),
+
       // ---
-      setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
+
+      setFeedbackError: pure(({ error }, _event) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
-            error?.title || "We experienced an error processing your payment",
+            error?.title ||
+            "We experienced an error processing your payment details",
           copy: error?.message,
           data: error?.data,
         });
-      },
+
+        // escalate({ data: error });
+      }),
 
       setError: assign({
         error: (_context: StripeContext, { data }: StripeEvent) => {

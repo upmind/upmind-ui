@@ -305,7 +305,10 @@ export default createMachine(
             initial: "configuring",
             states: {
               configuring: {
-                always: [{ target: "available", cond: "paymentDetailsValid" }],
+                always: [
+                  { target: "complete", cond: "paymentDetailsComplete" },
+                  { target: "available", cond: "paymentDetailsValid" },
+                ],
               },
 
               // items are 'complete' only when they have been successfully added to the basket
@@ -318,7 +321,22 @@ export default createMachine(
                 // We must wait for the event to be triggered before we can proceed, othwerwise we may trigger checkout prematurely
                 on: {
                   CHECKOUT: {
+                    target: "processing",
+                    actions: "forwardCheckout",
+                  },
+                },
+              },
+
+              processing: {
+                on: {
+                  CANCEL: {
+                    target: "configuring",
+                  },
+                  // response from the payment_details machine = we are ready to convert
+                  PAYMENT_DETAILS: {
                     target: "complete",
+                    actions: "setPaymentDetails",
+                    cond: "paymentDetailsComplete",
                   },
                 },
               },
@@ -345,14 +363,9 @@ export default createMachine(
       // This will trigger the Convert service, which will then process the order
       checkout: {
         id: "checkout",
-        entry: ["checkoutActors"],
-        on: {
-          // response from the payment_details machine = we are ready to convert
-          PAYMENT_DETAILS: {
-            target: "#converting",
-            actions: "setPaymentDetails",
-            cond: "paymentDetailsComplete",
-          },
+        always: {
+          target: "converting",
+          cond: "paymentDetailsComplete",
         },
       },
 
@@ -584,7 +597,7 @@ export default createMachine(
         },
       }),
 
-      checkoutActors: pure(({ actors }) => {
+      forwardCheckout: pure(({ actors }) => {
         // for Now  only the payment details is affected by checkout
         actors?.payment_details?.send({ type: "CHECKOUT" });
       }),
@@ -758,20 +771,22 @@ export default createMachine(
         );
       },
 
-      paymentDetailsComplete: ({ actors }, { data }) => {
+      paymentDetailsComplete: ({ actors, paymentDetails }, { data }) => {
         return (
-          (actors.payment_details?.state?.done ||
+          !isEmpty(paymentDetails) ||
+          ((actors.payment_details?.state?.done ||
             actors.payment_details?.state?.matches("complete")) &&
-          !isEmpty(data)
+            !isEmpty(data))
         );
       },
 
-      paymentDetailsConfiguring: ({ actors }) => {
-        return [
-          "available.invalid",
-          "available.checking",
-          "available.loading",
-        ].some(actors.payment_details?.state?.matches);
+      paymentDetailsConfiguring: ({ actors, paymentDetails }) => {
+        return (
+          isEmpty(paymentDetails) &&
+          ["available.invalid", "available.checking", "available.loading"].some(
+            actors.payment_details?.state?.matches
+          )
+        );
       },
 
       paymentNeeded: ({ paymentDetails }) => {

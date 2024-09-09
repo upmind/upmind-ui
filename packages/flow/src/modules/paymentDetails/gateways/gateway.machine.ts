@@ -1,6 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
-
+import { createMachine, assign, actions } from "xstate";
+const { pure, sendParent, escalate } = actions;
 // --- internal
 import services from "./card/services";
 import { useFeedback } from "../../feedback";
@@ -92,6 +92,10 @@ export default createMachine(
             target: "#processed",
             actions: ["setPaymentDetails", "providePaymentDetails"],
           },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError", "escalateError"],
+          },
         },
       },
 
@@ -177,6 +181,10 @@ export default createMachine(
         type: "PAYMENT_DETAILS",
         data: paymentDetails,
       })),
+
+      escalateError: pure((_context, { data }) => {
+        escalate({ data });
+      }),
 
       // ---
 

@@ -160,30 +160,17 @@ async function update({ elements, stripe, model }: StripeContext) {
   if (submitError) return Promise.reject(submitError);
 
   // Create PaymentMethod using details collected via Payment Element
-  const { error, paymentMethod } = await stripe
-    .createPaymentMethod({
-      elements,
-    })
-    .catch(error => Promise.reject(error));
+  return elements.submit().then(({ paymentMethod }) => {
+    // add the payment details to the model
+    set(model, "payment_method_addition.payment_method_id", paymentMethod?.id);
+    set(
+      model,
+      "payment_method_addition.payment_method_type",
+      paymentMethod?.type
+    );
 
-  return new Promise((resolve, reject) => {
-    if (error) {
-      reject(error);
-    } else {
-      // add the payment details to the model
-      set(
-        model,
-        "payment_method_addition.payment_method_id",
-        paymentMethod?.id
-      );
-      set(
-        model,
-        "payment_method_addition.payment_method_type",
-        paymentMethod?.type
-      );
-      /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
-      resolve(model);
-    }
+    /* Here we don't pass 'store_on_payment_auto_payment' flag as 'store_on_payment_auto_payment' is injected from parent gatewayComponent */
+    return model;
   });
 }
 
