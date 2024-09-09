@@ -69,6 +69,7 @@ export interface Typegen0 {
       | "validate";
   };
   eventsCausingActions: {
+    cancelPaymentDetails: "error.platform.paymentDetailsManager.available.processing:invocation[0]";
     clearAutoUpdate: "done.invoke.paymentDetailsManager.available.processing:invocation[0]";
     clearError:
       | "CLEAR"
@@ -77,7 +78,6 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "done.invoke.loading:invocation[0]"
       | "done.invoke.paymentDetailsManager.checking:invocation[0]"
-      | "error.platform.paymentDetailsManager.available.processing:invocation[0]"
       | "xstate.update";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";

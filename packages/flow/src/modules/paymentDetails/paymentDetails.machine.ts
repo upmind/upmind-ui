@@ -170,7 +170,8 @@ export default createMachine(
                 ],
               },
               onError: {
-                actions: "clearError", // this is handled by the gateway
+                target: "#invalid", // no need to set the error, it will be set by the gateway
+                actions: "cancelPaymentDetails",
               },
             },
             on: {
@@ -349,7 +350,9 @@ export default createMachine(
         data: paymentDetails,
       })),
 
-      // ---
+      cancelPaymentDetails: sendParent(() => ({
+        type: "CANCEL",
+      })),
 
       trackPaymentDetails: (_context, _event) => {
         trackEvent({ ecommerce: null });

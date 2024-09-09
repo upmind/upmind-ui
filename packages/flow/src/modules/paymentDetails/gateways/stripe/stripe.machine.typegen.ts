@@ -53,6 +53,10 @@ export interface Typegen0 {
       type: "error.platform.stripePaymentManager.loading.stripe:invocation[0]";
       data: unknown;
     };
+    "error.platform.stripePaymentManager.processing.payment:invocation[0]": {
+      type: "error.platform.stripePaymentManager.processing.payment:invocation[0]";
+      data: unknown;
+    };
     "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
@@ -85,7 +89,6 @@ export interface Typegen0 {
       | "CLEAR"
       | "PAY"
       | "REFRESH"
-      | "RETRY"
       | "SET"
       | "UNAUTHENTICATED"
       | "VALIDATE"
@@ -93,6 +96,7 @@ export interface Typegen0 {
       | "done.invoke.stripePaymentManager.loading.paymentElement:invocation[0]";
     clearModel: "CLEAR" | "UNAUTHENTICATED";
     clearSchemas: "UNAUTHENTICATED";
+    escalateError: "error.platform.stripePaymentManager.processing.payment:invocation[0]";
     providePaymentDetails: "done.invoke.stripePaymentManager.processing.payment:invocation[0]";
     set: "done.invoke.stripePaymentManager.processing.adding:invocation[0]";
     setClientDetails: "done.invoke.stripePaymentManager.loading.addElement:invocation[0]";
@@ -109,11 +113,13 @@ export interface Typegen0 {
       | "error.platform.stripePaymentManager.checking.validating:invocation[0]"
       | "error.platform.stripePaymentManager.loading.addElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.paymentElement:invocation[0]"
-      | "error.platform.stripePaymentManager.loading.stripe:invocation[0]";
+      | "error.platform.stripePaymentManager.loading.stripe:invocation[0]"
+      | "error.platform.stripePaymentManager.processing.payment:invocation[0]";
     setFeedbackError:
       | "error.platform.stripePaymentManager.loading.addElement:invocation[0]"
       | "error.platform.stripePaymentManager.loading.paymentElement:invocation[0]"
-      | "error.platform.stripePaymentManager.loading.stripe:invocation[0]";
+      | "error.platform.stripePaymentManager.loading.stripe:invocation[0]"
+      | "error.platform.stripePaymentManager.processing.payment:invocation[0]";
     setModel:
       | "SET"
       | "done.invoke.stripePaymentManager.checking.parsing:invocation[0]";

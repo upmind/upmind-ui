@@ -50,14 +50,7 @@
 
 <script lang="ts">
 // --- external
-import {
-  defineComponent,
-  onMounted,
-  watch,
-  ref,
-  computed,
-  onUnmounted,
-} from "vue";
+import { defineComponent, onMounted, watch, ref, computed } from "vue";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind/flow-vue";
@@ -107,6 +100,7 @@ export default defineComponent({
         "basket.paymentGateway.transition.leave",
       ],
       computed(() => ({
+        hasErrors: meta.value?.hasErrors,
         variant:
           props.variant ||
           meta.value?.hasRenderer ||

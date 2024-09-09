@@ -91,14 +91,11 @@ export interface Typegen0 {
       | "SESSION"
       | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
     addItem: "ADD";
-    checkoutActors:
-      | "CANCEL"
-      | "done.state.shopping"
-      | "error.platform.converting:invocation[0]";
     clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
     clearError: "SESSION";
     clearItems: "CLEAR" | "UNAUTHENTICATED";
+    forwardCheckout: "CHECKOUT";
     refreshActors:
       | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
@@ -148,7 +145,7 @@ export interface Typegen0 {
     hasNoItems: "";
     isNotLoading: "";
     itemsConfigured: "";
-    paymentDetailsComplete: "PAYMENT_DETAILS";
+    paymentDetailsComplete: "" | "PAYMENT_DETAILS";
     paymentDetailsConfiguring: "";
     paymentDetailsValid: "";
     paymentNeeded: "done.invoke.converting:invocation[0]";
@@ -163,7 +160,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "UNAUTHENTICATED"
       | "xstate.init";
-    convert: "PAYMENT_DETAILS";
+    convert: "";
     generate: "ADD";
     isAuthenticated:
       | ""
@@ -211,6 +208,7 @@ export interface Typegen0 {
     | "shopping.payment_details.available"
     | "shopping.payment_details.complete"
     | "shopping.payment_details.configuring"
+    | "shopping.payment_details.processing"
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
@@ -235,7 +233,11 @@ export interface Typegen0 {
               currency?: "complete" | "configuring";
               custom_fields?: "complete" | "configuring";
               items?: "complete" | "configuring" | "empty";
-              payment_details?: "available" | "complete" | "configuring";
+              payment_details?:
+                | "available"
+                | "complete"
+                | "configuring"
+                | "processing";
               promotions?: "complete" | "configuring";
               refreshing?: "complete" | "processing";
             };
