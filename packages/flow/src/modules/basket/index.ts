@@ -94,15 +94,20 @@ export const useBasket = () => {
         "state.context.model"
       ),
 
-    addItem: async ({
-      id,
-      product_id,
-      quantity,
-      term,
-      attributes,
-      options,
-      provision_fields,
-    }: IProductModel) => {
+    addItem: async (
+      {
+        id,
+        product_id,
+        quantity,
+        term,
+        attributes,
+        options,
+        provision_fields,
+      }: IProductModel,
+      {
+        awaitStates = ["available.configured"],
+      }: { awaitStates?: Array<string> } = {}
+    ) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state =>
         ["shopping", "checkout"].some(state.matches)
@@ -142,8 +147,10 @@ export const useBasket = () => {
           );
         })
         .then(actor => {
+          if (isEmpty(awaitStates)) return actor;
+          debugger;
           return waitFor(actor, actorState =>
-            actorState.matches("available.configured")
+            awaitStates.some(actorState.matches)
           )
             .then(() => actor)
             .catch(() => actor); // even though the actor may not be configured we still want to return it
