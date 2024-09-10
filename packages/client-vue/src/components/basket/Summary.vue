@@ -170,6 +170,7 @@
         <uw-button
           :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           @click.prevent="checkout"
+          class="w-full"
           color="primary"
           block
           :label="$t('basket.summary.actions.submit')"

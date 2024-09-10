@@ -31,7 +31,7 @@
     <!-- actions -->
     <div v-if="safeActions && !noActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
-        <upw-button
+        <uw-button
           v-for="(action, key) in safeActions"
           :key="key"
           v-bind="action"
@@ -41,6 +41,8 @@
             action?.disabled ||
             (action.needsValid && !meta.isValid)
           "
+          block
+          class="w-full"
           @click="doAction(action, $event)"
         />
       </slot>
@@ -58,7 +60,10 @@ import type { ErrorObject } from "ajv";
 // --- components
 import { iterateSchema } from "@jsonforms/core";
 import { JsonForms } from "@jsonforms/vue";
-import UpwButton from "../button/Button.vue";
+
+// --- custom elements
+import { UwButton, useCustomElement } from "@upmind/upwind";
+
 import UpwSkeletonForm from "../skeleton/SkeletonForm.vue";
 
 // --- local
@@ -104,7 +109,6 @@ export default defineComponent({
   name: "UpwForm",
   components: {
     JsonForms,
-    UpwButton,
     UpwSkeletonForm,
   },
 
@@ -202,6 +206,8 @@ export default defineComponent({
   emits: ["reject", "resolve", "update:modelValue", "valid", "click"],
 
   setup(props) {
+    useCustomElement(UwButton);
+
     const { ajv } = useValidation(props.ajv);
 
     // ---

@@ -34,6 +34,7 @@ export default {
       900: "#1e1e1e",
       950: "#000000",
       foreground: "#000000",
+      background: "#ffffff",
     },
 
     control: {
