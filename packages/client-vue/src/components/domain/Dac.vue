@@ -1,12 +1,12 @@
 <template>
   <component
-    :is="meta.showDialog ? 'upw-dialog' : 'div'"
+    :is="meta.showDialog ? 'uw-dialog' : 'div'"
     size="full"
     :model-value="true"
     persistent
     :upwind-config="config.domain"
   >
-    <div :class="styles.domain.root">
+    <div slot="content" :class="styles.domain.root">
       <upw-textbox
         :class="styles.domain.search"
         @update:modelValue="onSearch"
@@ -28,7 +28,7 @@
         @toggle="onUpdate"
       />
 
-      <upw-button
+      <uw-button
         v-if="meta.showDialog && meta.hasItems && meta.hasMore"
         :label="$t('domain.dac.actions.more')"
         :loading="meta.isLoading"
@@ -39,12 +39,12 @@
     </div>
     <template #actions>
       <div :class="styles.domain.dialog.container">
-        <upw-button
+        <uw-button
           @click="onReject"
           :label="$t('domain.dac.actions.cancel')"
           variant="link"
         />
-        <upw-button
+        <uw-button
           :loading="meta.isProcessing"
           :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
           @click="onResolve"
@@ -65,20 +65,20 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwTextbox, UpwButton, UpwDialog } from "@upmind/upwind";
+import { UpwTextbox } from "@upmind/upwind";
 import UpmDomainListings from "./Listings.vue";
 
-// --- utils
+// --- custom elements
+import { UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
 
-// --- types
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmDac",
   components: {
     UpwTextbox,
-    UpwButton,
-    UpwDialog,
     // ---
     UpmDomainListings,
   },

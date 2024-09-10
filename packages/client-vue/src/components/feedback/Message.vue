@@ -4,12 +4,11 @@
     :model-value="meta.isActive || (scheduled && meta.isScheduled)"
     :icon="message.icon"
     :title="message.title"
-    :text="message.copy"
+    :description="message.copy"
     :data="message.data"
     :color="message.type"
     :anchor="safeAnchor"
     :variant="variant"
-    :block="block"
     @reject="dismiss(message.hash)"
   />
 </template>
@@ -20,7 +19,10 @@ import { defineComponent } from "vue";
 
 // --- internal
 import { useMessage } from "@upmind/flow-vue";
-import { UpwAlert } from "@upmind/upwind";
+
+// custom elements
+import { UwAlert, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAlert);
 
 // --- utils
 import { useTimestamp } from "@vueuse/core";
@@ -31,9 +33,6 @@ import { endsWith, startsWith } from "lodash-es";
 
 export default defineComponent({
   name: "UpmMessage",
-  components: {
-    UpwAlert,
-  },
   props: {
     item: {
       type: Object, // xstate actor

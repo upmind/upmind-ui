@@ -1,13 +1,13 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
+    :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
     :model-value="open"
     no-actions
     persistent
     skrim="light"
   >
-    <section :class="styles.basket.loading.root">
+    <section slot="content" :class="styles.basket.loading.root">
       <uw-avatar
         :avatar="avatar"
         :class="styles.basket.loading.avatar"
@@ -33,8 +33,9 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwAvatar, useCustomElement } from "@upmind/upwind";
+import { UwAvatar, UwDialog, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwAvatar);
+useCustomElement(UwDialog);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({

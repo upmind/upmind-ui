@@ -1,12 +1,12 @@
 <template>
   <component
-    :is="dialog ? 'upw-dialog' : 'div'"
+    :is="dialog ? 'uw-dialog' : 'div'"
     size="2xl"
     :title="title"
     :model-value="!!items.length || meta.isLoading"
     v-show="!!items.length || meta.isLoading"
   >
-    <section :class="styles.domain.listings.root">
+    <section slot="content" :class="styles.domain.listings.root">
       <header :class="styles.domain.listings.header">
         <slot name="header" v-bind="{ meta }"></slot>
       </header>
@@ -194,7 +194,7 @@
                 </template>
 
                 <template #[`action`]>
-                  <upw-button
+                  <uw-button
                     :class="styles.domain.card.transfer.action"
                     :disabled="meta.isDisabled || isSelected(item.domain)"
                     :label="$t('domain.card.transfer.action')"
@@ -234,7 +234,7 @@
 
               <div :class="styles.domain.card.actions">
                 <template v-if="!item.is_owned && !item.in_basket">
-                  <upw-button
+                  <uw-button
                     v-if="item.is_available"
                     :class="styles.domain.card.available.action"
                     :disabled="meta.isDisabled"
@@ -254,7 +254,7 @@
                     size="sm"
                   />
 
-                  <upw-button
+                  <uw-button
                     v-else-if="isSelected(item.domain)"
                     :class="styles.domain.card.transfer.action"
                     :disabled="meta.isDisabled"
@@ -302,18 +302,17 @@ import config from "./config.cva";
 import UpmEmpty from "./Empty.vue";
 import {
   UpwTextbox,
-  UpwButton,
   UpwSkeletonList,
-  UpwDialog,
   UpwCheckboxList,
   UpwRadioList,
   UpwIcon,
 } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, useCustomElement } from "@upmind/upwind";
+import { UwBadge, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwBadge);
-
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
 
@@ -325,12 +324,10 @@ export default defineComponent({
   directives: { autoAnimate: vAutoAnimate },
   components: {
     UpwTextbox,
-    UpwButton,
     UpwIcon,
     UpwCheckboxList,
     UpwRadioList,
     UpwSkeletonList,
-    UpwDialog,
     // ---
     UpmEmpty,
   },

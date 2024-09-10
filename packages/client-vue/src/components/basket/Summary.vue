@@ -51,7 +51,7 @@
               </strong>
 
               <template v-else>
-                <upw-button
+                <uw-button
                   type="button"
                   size="sm"
                   class="!p-0"
@@ -62,7 +62,7 @@
                   @click="$emit('edit', product.id)"
                   disabled
                 />
-                <upw-button
+                <uw-button
                   type="button"
                   size="sm"
                   class="!p-0"
@@ -167,7 +167,7 @@
 
     <footer :class="styles.basket.summary.footer" v-auto-animate>
       <div :class="styles.basket.summary.actions">
-        <upw-button
+        <uw-button
           :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           @click.prevent="checkout"
           color="primary"
@@ -198,22 +198,23 @@ import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwButton, UpwIcon } from "@upmind/upwind";
+import { UpwIcon } from "@upmind/upwind";
 import UpmPromotions from "./Promotions.vue";
+
+// --- custom elements
+import { UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
+
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- utils
-
-// --- types
-
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmBasketSummary",
-  components: { UpwButton, UpwIcon, UpmPromotions },
+  components: { UpwIcon, UpmPromotions },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {

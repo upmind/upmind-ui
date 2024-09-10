@@ -1,13 +1,13 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
+    :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
     :model-value="true"
     no-actions
     persistent
     skrim="light"
   >
-    <section :class="styles.domain.empty.root">
+    <section slot="content" :class="styles.domain.empty.root">
       <uw-avatar :avatar="avatar" :class="styles.domain.empty.avatar" />
 
       <h3 :class="styles.domain.empty.title">
@@ -27,8 +27,10 @@ import { defineComponent } from "vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
+// --- custom elements
+import { UwDialog, UwAvatar, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwDialog);
+useCustomElement(UwAvatar);
 
 // --- utils
 import { get } from "lodash-es";
@@ -36,11 +38,6 @@ import { get } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmDomainEmpty",
-  components: {
-    UpwDialog,
-    UwAvatar,
-    UpwButton,
-  },
   props: {
     i18nKey: { type: String, default: "domain.empty" },
     modal: { type: Boolean },
