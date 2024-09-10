@@ -66,14 +66,14 @@ async function load(
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => parseAddress(data));
+  }).then(({ data }: any) => parseAddress(data));
 
   const companies = get({
     url: useUrl(`clients/${client.id}/companies`, { limit: 0 }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => parseAddress(data));
+  }).then(({ data }: any) => parseAddress(data));
 
   return Promise.all([addresses, companies]).then(
     ([addresses, companies]) => [...companies, ...addresses] // we prioritise/return the companies first so they are at the top of the list
@@ -81,8 +81,10 @@ async function load(
 }
 
 async function filterItems(
-  { raw }: ClientListingsContext,
-  { data }: ClientListingsEvents
+  // TODO: { raw }: ClientListingsContext,
+  // TODO: { data }: ClientListingsEvents
+  { raw }: any,
+  { data }: any
 ) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
@@ -101,7 +103,8 @@ async function filterItems(
 }
 
 async function findItem(
-  { raw }: ClientListingsContext,
+  // TODO: { raw }: ClientListingsContext,
+  { raw }: any,
   { data }: { data: IAddressData }
 ) {
   if (isEmpty(data))
@@ -139,7 +142,8 @@ async function findItem(
 // --------------------------------------------------------
 
 async function add(
-  { model, addresses, phones, emails }: UnifiedAddressContext,
+  // TODO: { model, addresses, phones, emails }: UnifiedAddressContext,
+  { model, addresses, phones, emails }: any,
   _event?: UnifiedAddressEvent
 ) {
   const { post, useUrl } = useApi();
@@ -154,13 +158,14 @@ async function add(
       url: useUrl(`clients/${clientId}/addresses`),
       data: model,
       withAccessToken: true,
-    }).then(({ data }) => data);
+    }).then(({ data }: any) => data);
   } else {
     // if we do then we need to :
     // check if the address provided already exists in our addresses or if we need to create a new one
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // thhen create the address, email and phone as necessary and use the ids to create the company
+    // @ts-ignore
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
@@ -182,12 +187,12 @@ async function add(
         // vat_percent: model.vat_percent,
       },
       withAccessToken: true,
-    }).then(({ data }) => data);
+    }).then(({ data }: any) => data);
   }
 }
 
 async function update(
-  { model, addresses, phones, emails }: c,
+  { model, addresses, phones, emails }: any,
   _event: UnifiedAddressEvent
 ) {
   const { post, put, useUrl } = useApi();
@@ -203,13 +208,14 @@ async function update(
       url: useUrl(`clients/${clientId}/addresses/${model.id}`),
       data: model,
       withAccessToken: true,
-    }).then(({ data }) => data);
+    }).then(({ data }: any) => data);
   } else {
     // if we do then we need to :
     // check if the address provided already exists in our addresses or if we need to create a new one
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // thhen create the address, email and phone as necessary and use the ids to the company
+    // @ts-ignore
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
@@ -233,7 +239,7 @@ async function update(
           // vat_percent: model.vat_percent,
         },
         withAccessToken: true,
-      }).then(({ data }) => data);
+      }).then(({ data }: any) => data);
     } else {
       // if we dont have a company_id then we are creating a new company with the ensureDependencies
       return post({
@@ -248,13 +254,14 @@ async function update(
           // vat_percent: model.vat_percent,
         },
         withAccessToken: true,
-      }).then(({ data }) => data);
+      }).then(({ data }: any) => data);
     }
   }
 }
 
 async function remove(
-  { model }: UnifiedAddressContext,
+  // TODO: { model }: UnifiedAddressContext,
+  { model }: any,
   _event: UnifiedAddressEvent
 ) {
   const { del, useUrl } = useApi();
@@ -266,17 +273,18 @@ async function remove(
     return del({
       url: useUrl(`clients/${clientId}/addresses/${model.id}`),
       withAccessToken: true,
-    }).then(({ data }) => data);
+    }).then(({ data }: any) => data);
   } else {
     return del({
       url: useUrl(`clients/${clientId}/companies/${model.id}`),
       withAccessToken: true,
-    }).then(({ data }) => data);
+    }).then(({ data }: any) => data);
   }
 }
 
 async function setDefault(
-  { model }: UnifiedAddressContext,
+  // TODO: { model }: UnifiedAddressContext,
+  { model }: any,
   _event: UnifiedAddressEvent
 ) {
   const { put, useUrl } = useApi();
@@ -288,7 +296,7 @@ async function setDefault(
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 // --------------------------------------------------------
 
@@ -297,7 +305,8 @@ async function ensureDependencies({
   addresses,
   emails,
   phones,
-}: UnifiedAddressContext) {
+  // TODO: }: UnifiedAddressContext) {
+}: any) {
   const address = pick(model, [
     "address_1",
     "address_2",
@@ -314,7 +323,7 @@ async function ensureDependencies({
   const dependencies = [
     addresses
       .find(address)
-      .then(item => item?.state?.context?.model)
+      .then((item: any) => item?.state?.context?.model)
       .catch(() => {
         return addresses.add({
           model: { ...address, type: 4, name: model.name },
@@ -325,7 +334,7 @@ async function ensureDependencies({
       ? Promise.resolve(null)
       : emails
           .find(model.email)
-          .then(item => item?.state?.context?.model)
+          .then((item: any) => item?.state?.context?.model)
           .catch(() => {
             return emails.add({ model: { email: model.email, type: 4 } });
           }),
@@ -334,7 +343,7 @@ async function ensureDependencies({
       ? Promise.resolve(null)
       : phones
           .find(model.phone)
-          .then(item => item?.state?.context?.model)
+          .then((item: any) => item?.state?.context?.model)
           .catch(() => {
             return phones.add({ model: { phone: model.phone, type: 4 } });
           }),
@@ -408,7 +417,8 @@ async function loadLookups(
 }
 
 async function parse(
-  { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
+  // TODO: { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
+  { addresses, schema, model, regions, country, places }: any,
   event: UnifiedAddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -475,6 +485,7 @@ async function parse(
     }
 
     // finally lets force a manual place if we are invalid:
+    // @ts-ignore
     const isValid = await validate({ schema, model }, event)
       .then(() => true)
       .catch(() => false);
@@ -530,7 +541,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

@@ -14,7 +14,7 @@ import { keys } from "lodash-es";
 
 export const useApi = () => {
   const api = useUpmindApi();
-  const { state, send } = useActor(api.service);
+  const { state, send }: any = useActor(api.service);
 
   // --------------------------------------------------------
 

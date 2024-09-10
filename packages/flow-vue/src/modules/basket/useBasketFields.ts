@@ -74,8 +74,10 @@ export const useBasketFields = (actor?: TActor<any>) => {
 
     // ---
     clear: () => custom_fields.value?.send({ type: "CLEAR" }),
-    input: model => custom_fields.value?.send({ type: "SET", data: model }),
-    update(model) {
+    input: (model: any) =>
+      // @ts-ignore
+      custom_fields.value?.send({ type: "SET", data: model }),
+    update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
@@ -85,6 +87,7 @@ export const useBasketFields = (actor?: TActor<any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
+        // @ts-ignore
         custom_fields.value?.send({ type: "SET", data: model, update: true });
       }
     },

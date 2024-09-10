@@ -62,12 +62,14 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function filterItems(
-  { raw }: ClientListingsContext,
-  { data }: ClientListingsEvents
+  // TODO: { raw }: ClientListingsContext,
+  // TODO: { data }: ClientListingsEvents
+  { raw }: any,
+  { data }: any
 ) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
@@ -86,7 +88,8 @@ async function filterItems(
 }
 
 async function findItem(
-  { raw }: ClientListingsContext,
+  // TODO: { raw }: ClientListingsContext,
+  { raw }: any,
   { data }: { data: IAddressData }
 ) {
   if (isEmpty(data))
@@ -136,7 +139,7 @@ async function add({ model }: AddressContext, _event: AddressEvent) {
     url: useUrl(`clients/${clientId}/addresses`),
     data: model,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function update({ model }: AddressContext, _event: AddressEvent) {
@@ -146,10 +149,10 @@ async function update({ model }: AddressContext, _event: AddressEvent) {
   const clientId = await getUserId();
 
   return put({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
     data: model,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function remove({ model }: AddressContext, _event: AddressEvent) {
@@ -159,9 +162,9 @@ async function remove({ model }: AddressContext, _event: AddressEvent) {
   const clientId = await getUserId();
 
   return del({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: AddressContext, _event: AddressEvent) {
@@ -171,13 +174,14 @@ async function setDefault({ model }: AddressContext, _event: AddressEvent) {
   const clientId = await getUserId();
 
   return put({
-    url: useUrl(`clients/${clientId}/addresses/${model.id}`),
+    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 // --------------------------------------------------------
 
+// @ts-ignore
 async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -194,7 +198,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
 
   // ---
   // lets start up/use our dependencies
-  const addresses = useClientAddresses();
+  const addresses: any = useClientAddresses();
   const places = usePlaces();
 
   return Promise.all([addresses.isReady(), places.isReady()])
@@ -223,7 +227,8 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
 }
 
 async function parse(
-  { addresses, schema, model, regions, country, places }: AddressContext,
+  // { addresses, schema, model, regions, country, places }: AddressContext,
+  { addresses, schema, model, regions, country, places }: any,
   _event: AddressEvent
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -322,7 +327,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

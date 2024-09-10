@@ -237,12 +237,13 @@ export default createMachine(
           }
           return renderer;
         },
+        // @ts-ignore
         validationObserver: (
           _context: StripeContext,
           { data }: StripeEvent
         ) => {
-          const stripeChangeEvent = callback => {
-            data.element.on("change", event =>
+          const stripeChangeEvent = (callback: any) => {
+            data.element.on("change", (event: any) =>
               callback({ type: "VALIDATE", data: event })
             );
 
@@ -254,10 +255,12 @@ export default createMachine(
       }),
 
       setElementStatus: assign({
+        // @ts-ignore
         elementStatus: (_context: StripeContext, { data }: StripeEvent) => data,
       }),
 
       setClientDetails: assign({
+        // @ts-ignore
         clientPaymentDetailsId: (
           _context: StripeContext,
           { data }: StripeEvent
@@ -266,6 +269,7 @@ export default createMachine(
           data?.clientSecret,
       }),
 
+      // @ts-ignore
       setContext: assign(
         (_context: StripeContext, { data }: StripeEvent) => data
       ),
@@ -305,7 +309,7 @@ export default createMachine(
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: ({ gateway }, { data }) => {
+        paymentDetails: ({ gateway }, { data }: any) => {
           return { gateway, ...data };
         },
       }),
@@ -315,6 +319,7 @@ export default createMachine(
         data: paymentDetails,
       })),
 
+      // @ts-ignore
       escalateError: pure((_context, { data }) => {
         escalate({ data });
       }),
@@ -324,8 +329,8 @@ export default createMachine(
       })),
 
       // ---
-
-      setFeedbackError: pure(({ error }, _event) => {
+      // @ts-ignore
+      setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
@@ -336,8 +341,9 @@ export default createMachine(
         });
 
         // escalate({ data: error });
-      }),
+      },
 
+      // @ts-ignore
       setError: assign({
         error: (_context: StripeContext, { data }: StripeEvent) => {
           let error = data?.error;
@@ -366,9 +372,11 @@ export default createMachine(
         return value;
       },
 
+      // @ts-ignore
       hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) =>
         !elements,
 
+      // @ts-ignore
       hasNoOutstandingBalance: (
         _context: StripeContext,
         _event: StripeEvent
@@ -377,6 +385,7 @@ export default createMachine(
         return true;
       },
 
+      // @ts-ignore
       isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
         return ctx === GatewayCtx.ADD;
       },
@@ -386,10 +395,12 @@ export default createMachine(
     },
 
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );

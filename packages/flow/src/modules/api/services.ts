@@ -33,7 +33,8 @@ export enum FetchMethods {
 // Invoked by machines, providing context and event data
 
 // this will process the request and return a promise, this WONT allow the request to be cancelled
-async function doFetch({ url, init }: RequestContext) {
+// TODO: async function doFetch({ url, init }: RequestContext) {
+async function doFetch({ url, init }: any) {
   // safety check, not sure we need this as our machine implementation is pretty strict
 
   if (!includes(FetchMethods, init?.method)) {
@@ -60,7 +61,8 @@ async function doFetch({ url, init }: RequestContext) {
 
       return data;
     })
-    .catch(error => {
+    // .catch(error => {
+    .catch(() => {
       // console.warn("doFetch response.json error", error);
       return {
         data: null,
@@ -97,7 +99,7 @@ async function refreshToken(_context: RequestContext, _event: any) {
       refresh_token,
     },
   })
-    .then(data => {
+    .then((data: any) => {
       // console.debug("refreshToken", "success");
       persistTokenToStorage(data);
       return data;

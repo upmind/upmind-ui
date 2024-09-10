@@ -46,15 +46,19 @@ export default createMachine(
   {
     actions: {
       setGrecaptcha: assign({
+        // @ts-ignore
         grecaptcha: (_context, { data }) => data,
       }),
 
       setError: assign({
-        error: (context, { data }) => data,
+        // @ts-ignore
+        error: (_, { data }) => data,
       }),
 
+      // @ts-ignore
       clearError: assign({ error: null }),
     },
+    // @ts-ignore
     services,
     guards: {},
     delays: {},

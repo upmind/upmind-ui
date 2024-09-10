@@ -78,7 +78,7 @@ export default createMachine(
     actions: {},
 
     guards: {
-      isClientToken: (_context, { data }) => data?.actor_type === "client",
+      isClientToken: (_context, { data }: any) => data?.actor_type === "client",
     },
 
     delays: {

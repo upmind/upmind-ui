@@ -35,10 +35,12 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
-    title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
+    // TODO: title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
+    title: ({ model }: any, _event: UnifiedAddressEvent) =>
       model?.company_name || model?.name || "New Address",
     description: (
-      { model, countries, regions }: UnifiedAddressContext,
+      // TODO: { model, countries, regions }: UnifiedAddressContext,
+      { model, countries, regions }: any,
       _event: UnifiedAddressEvent
     ) => {
       const country = find(countries, ["id", get(model, "country_id")]);
@@ -72,7 +74,8 @@ export const ItemActions = {
 
   setModel: assign({
     model: (
-      { schema, baseModel }: UnifiedAddressContext,
+      // TODO: { schema, baseModel }: UnifiedAddressContext,
+      { schema, baseModel }: any,
       { data }: UnifiedAddressEvent
     ) => useModelParser(schema, data, baseModel),
   }),

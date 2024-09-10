@@ -3,7 +3,6 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { configDefaults } from "vitest/config";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
@@ -16,11 +15,12 @@ export default defineConfig({
   build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "upmind-vue",
-      fileName: "upmind-vue"
+      name: "@upmind/upflow-vue",
+      fileName: "upflow-vue"
     }
   },
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  // @ts-ignore
   test: {
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "e2e/*"],

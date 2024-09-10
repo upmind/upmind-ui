@@ -35,7 +35,7 @@ export function generateHash(
   useCache?: boolean | null,
   queue?: Array<string> // this is to prevent duplicate requests
 ) {
-  const values = omit(init, ["signal"]);
+  const values: any = omit(init, ["signal"]);
   // handle form data
   if (values.body instanceof FormData) {
     values.body = values.body.toString();
@@ -52,7 +52,7 @@ export function generateHash(
   return `${hash}-${existing.length}`;
 }
 
-export function ensureCamelCaseKeys(response) {
+export function ensureCamelCaseKeys(response: any): any {
   if (isArray(response)) return map(response, ensureCamelCaseKeys);
 
   if (!isObject(response)) return response;
@@ -60,7 +60,7 @@ export function ensureCamelCaseKeys(response) {
   // now we know we definitely have an object
   return reduce(
     response,
-    (result, value, key) => {
+    (result, value: any, key) => {
       value = ensureCamelCaseKeys(value);
       set(result, camelCase(key), value);
       return result;

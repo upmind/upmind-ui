@@ -19,7 +19,7 @@ import {
 import type { IDomainProduct } from "./types.d";
 // ----------------------------------------------------------------------------
 
-export function parseDomain(data: Object | string) {
+export function parseDomain(data: any) {
   if (isObject(data)) data = get(data, "domain");
 
   const parsed = data
@@ -38,7 +38,7 @@ export function parseDomain(data: Object | string) {
 }
 
 export function parseSld(data: string) {
-  if (!data?.length) return;
+  if (!data?.length) return "";
 
   const parsed = data
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
@@ -56,12 +56,13 @@ export function parseAvailable(sld: string, results = [] as IDomainProduct[]) {
   return compact(uniqBy(available, "domain"));
 }
 
-export function parseValue(data: Object | string, values = [], available = []) {
+export function parseValue(data: any, values = [], available = []) {
   // parse the domain name provided
+  // @ts-ignore
   const value = (isObject(data) ? data?.domain : data)?.toLowerCase();
 
   // check if we already have the domain
-  let domain = find(values, ["domain", value]);
+  let domain: any = find(values, ["domain", value]);
 
   // if we dont then add it to our list of values, if it exists in available
   domain ??= find(available, ["domain", value]);
@@ -72,7 +73,7 @@ export function parseValue(data: Object | string, values = [], available = []) {
   return domain;
 }
 
-export function parseProduct(data) {
+export function parseProduct(data: any) {
   // This is where we map our domain search result data to a format that we can use in our basket
   // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
   // The CRITICAL part is actually the  subproduct choices:
@@ -109,7 +110,7 @@ export function parseProduct(data) {
   return result;
 }
 
-export function parseBasketItem(data) {
+export function parseBasketItem(data: any) {
   // we may not have a service identifier ( if the domain is not in the basket yet)
   const name =
     data?.service_identifier ||

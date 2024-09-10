@@ -514,6 +514,7 @@ export default createMachine(
       // ---
     },
     guards: {
+      // @ts-ignore
       allRegionsLoaded: (
         { countries, regions }: SystemContext,
         _event: SystemEvent
@@ -526,9 +527,11 @@ export default createMachine(
       },
     },
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
+    // @ts-ignore
     services,
   }
 );

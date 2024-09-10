@@ -23,8 +23,9 @@ import { isArray } from "xstate/lib/utils";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
+let state: any = null;
 
+// @ts-ignore
 const service = interpret(systemMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
@@ -97,7 +98,7 @@ export const useSystem = () => {
   // ---
 
   const getBillingCycles = () => state.context.billingCycles;
-  const getBillingCycle = value =>
+  const getBillingCycle = (value: any) =>
     find(state.context.billingCycles, ["months", value]);
   // ---
 
@@ -157,15 +158,17 @@ export const useSystem = () => {
   // ---
 
   const getLanguages = () => state.context.languages;
-  const getLanguage = value => find(state.context.languages, ["code", value]);
+  const getLanguage = (value: any) =>
+    find(state.context.languages, ["code", value]);
   // ---
 
   const getStatuses = () => state.context.statuses;
-  const getStatus = value => find(state.context.statuses, ["code", value]);
+  const getStatus = (value: any) =>
+    find(state.context.statuses, ["code", value]);
   // ---
 
   const getDepartments = () => state.context.departments;
-  const getDepartment = value =>
+  const getDepartment = (value: any) =>
     find(state.context.departments, ["code", value]);
   // --------------------------------------------------------
 
