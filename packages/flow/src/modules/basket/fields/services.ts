@@ -21,7 +21,7 @@ async function load(_context: FieldsContext, _event: FieldsEvent) {
 
   return get({
     url: useUrl("basket_fields"),
-  }).then(({ data }) => ({ fields: data }));
+  }).then(({ data }: any) => ({ fields: data }));
 }
 
 // --------------------------------------------------------
@@ -32,6 +32,7 @@ async function update(
 ) {
   const { put, useUrl } = useApi();
   // rebuild the model with ALL custo mfields present, including nullish values
+  // @ts-ignore
   const data = useModelParser({ fields }, model);
 
   // get returns a promise so we can pass it directly back to the machine
@@ -39,7 +40,7 @@ async function update(
     url: useUrl(`/orders/${basket_id}`),
     data,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------

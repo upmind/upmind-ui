@@ -52,7 +52,7 @@ async function update(
       currency_code: model?.code,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------

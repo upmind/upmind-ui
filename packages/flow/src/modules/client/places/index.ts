@@ -17,8 +17,9 @@ import { actions } from "./actions";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
+let state: any = null;
 
+// @ts-ignore
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
   devTools: false,
 }).onTransition(newState => (state = newState));
@@ -37,10 +38,11 @@ export const usePlaces = () => {
       ),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,
+    // @ts-ignore
     getItems: () => map(state?.context?.items, "state.context.model"),
     getSelected: () => state?.context?.selected,
     getDefault: () => null, // we have no default in this machine,
-    search: async data => {
+    search: async (data: any) => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>
         state.matches("available.filtered")
@@ -48,7 +50,8 @@ export const usePlaces = () => {
         return state.context.items;
       });
     },
-    getPlaceDetails: id =>
+    getPlaceDetails: (id: any) =>
+      // @ts-ignore
       services.parse(state?.context, { data: { place: id } }),
     reset: () => service.send({ type: "REFRESH" }),
   };

@@ -11,13 +11,13 @@ import { map, get, pick, debounce } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 
-const maybeActor = item =>
+const maybeActor = (item: any) =>
   item?.state ? { id: item.id, ...item.state.context } : item;
 // --------------------------------------------------------
 
 export function useLookup(lookup: Function) {
   const { service } = lookup();
-  const { state, send } = useActor(service);
+  const { state, send }: any = useActor(service);
 
   // --------------------------------------------------------
 
@@ -64,14 +64,14 @@ export function useLookup(lookup: Function) {
     }),
 
     // ---
-    select: async id => {
+    select: async (id: any) => {
       if (state.value.matches("loading")) {
         await waitFor(service, newstate => !newstate.matches("loading"));
       }
       send({ type: "SELECT", data: id });
     },
 
-    edit: id => send({ type: "EDIT", data: id }),
+    edit: (id: any) => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
     refresh: () => send({ type: "REFRESH" }),
 
@@ -80,7 +80,7 @@ export function useLookup(lookup: Function) {
   };
 }
 
-export function useLookupItem({ item }, { emit }) {
+export function useLookupItem({ item }: any, { emit }: any) {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
 
   const { state, send } = item;
@@ -113,7 +113,7 @@ export function useLookupItem({ item }, { emit }) {
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear: () => send({ type: "CLEAR" }),
-    input: model => send({ type: "SET", data: model }),
+    input: (model: any) => send({ type: "SET", data: model }),
     update: () => send({ type: "UPDATE" }),
     remove: () => send({ type: "REMOVE" }),
     setDefault: () => send({ type: "DEFAULT" }),

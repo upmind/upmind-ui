@@ -50,6 +50,7 @@ export default createMachine(
     id: "productConfigurator",
     predictableActionArguments: true,
     initial: "subscribing",
+    // @ts-ignore
     context: {},
     states: {
       // this is our initial state where we are conditionally waiting for the basket helper to be created
@@ -298,6 +299,7 @@ export default createMachine(
           ],
           REMOVE: {
             actions: sendTo(
+              // @ts-ignore
               ({ basketHelper }, _event) => basketHelper,
               (context, _event) => ({
                 type: "REMOVE",
@@ -309,6 +311,7 @@ export default createMachine(
           },
           UPDATE: {
             actions: sendTo(
+              // @ts-ignore
               ({ basketHelper }, _event) => basketHelper,
               (context, _event) => ({
                 type: "UPDATE",
@@ -459,13 +462,13 @@ export default createMachine(
         }
       ),
 
-      setBasketHelper: assign(({ basketHelper }) => {
+      setBasketHelper: assign(({ basketHelper }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: item => parseModel(item),
-          itemMapper: item => ({ id: item.id }),
-          basketItemBuilder: item => buildBasketItem(item),
-          basketItemMapper: item => ({
+          itemBuilder: (item: any) => parseModel(item),
+          itemMapper: (item: any) => ({ id: item.id }),
+          basketItemBuilder: (item: any) => buildBasketItem(item),
+          basketItemMapper: (item: any) => ({
             id: item.id,
           }),
         };
@@ -473,9 +476,9 @@ export default createMachine(
       // ---
 
       setLookups: assign({
-        raw: (_context, { data }) => data.product,
+        raw: (_context, { data }: any) => data.product,
 
-        lookups: ({ model, basket_product }, { data }) => {
+        lookups: ({ model, basket_product }: any, { data }) => {
           return {
             product: parseProduct(data.product, basket_product),
             terms: parseTerms(data.product.prices, data.promotion_display_type),
@@ -496,15 +499,15 @@ export default createMachine(
       }),
 
       setBaseModel: assign({
-        baseModel: ({ model }, _event) => cloneDeep(model),
+        baseModel: ({ model }: any, _event) => cloneDeep(model),
       }),
       setModel: assign({
-        model: (_context, { data }) => parseModel(data?.product),
+        model: (_context, { data }: any) => parseModel(data?.product),
       }),
 
       // restroring the model + errors to its prev state
       resetModel: assign({
-        model: ({ baseModel }, _event) => cloneDeep(baseModel),
+        model: ({ baseModel }: any, _event) => cloneDeep(baseModel),
         error: ({ error, errorExternal }, _event) =>
           merge({}, error, errorExternal),
       }),
@@ -512,7 +515,7 @@ export default createMachine(
       // ---
 
       setSummary: assign({
-        summary: ({ model, lookups, error }, { data }) =>
+        summary: ({ model, lookups, error }: any, { data }) =>
           parseSummary({
             summary: data,
             model,
@@ -522,13 +525,13 @@ export default createMachine(
       }),
 
       setSummaryCalculating: assign({
-        summary: ({ summary }, _event) => {
+        summary: ({ summary }: any, _event) => {
           set(summary, "isCalculating", true);
           return summary;
         },
       }),
       clearSummaryCalculating: assign({
-        summary: ({ summary }, _event) => {
+        summary: ({ summary }: any, _event) => {
           set(summary, "isCalculating", false);
           return summary;
         },
@@ -536,7 +539,7 @@ export default createMachine(
 
       calculate: sendTo(
         ({ calculateCallback }, _event) => calculateCallback,
-        ({ currency_id, prices, model, lookups }, _event) => ({
+        ({ currency_id, prices, model, lookups }: any, _event) => ({
           type: "CALCULATE",
           data: { currency_id, prices, model, lookups },
         })
@@ -544,7 +547,7 @@ export default createMachine(
 
       //  ---
       setQuantity: assign({
-        model: ({ model }, { data }) => {
+        model: ({ model }: any, { data }) => {
           const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
           set(model, "quantity", Math.max(1, quantity)); //TODO: min check? step check
           return model;
@@ -552,7 +555,7 @@ export default createMachine(
       }),
 
       setTerm: assign({
-        model: ({ model }, { data }) => {
+        model: ({ model }: any, { data }) => {
           const term = get(data, "term");
           set(model, "term", term);
           return model;
@@ -569,43 +572,43 @@ export default createMachine(
           );
           return lookups;
         },
-        prices: ({ prices }, { data }) => {
+        prices: ({ prices }, { data }: any) => {
           if (!data?.price) return prices;
           return { ...prices, term: data.price };
         },
       }),
 
       setAttributes: assign({
-        model: ({ model }, { data }) => {
+        model: ({ model }: any, { data }) => {
           const attributes = get(data, "attributes");
           set(model, "attributes", attributes);
           return model;
         },
-        prices: ({ prices }, { data }) => {
+        prices: ({ prices }: any, { data }: any) => {
           if (!data?.price) return prices;
           return { ...prices, attributes: data.price };
         },
       }),
 
       setOptions: assign({
-        model: ({ model }, { data }) => {
+        model: ({ model }: any, { data }) => {
           const options = get(data, "options");
           set(model, "options", options);
           return model;
         },
-        prices: ({ prices }, { data }) => {
+        prices: ({ prices }, { data }: any) => {
           if (!data?.price) return prices;
           return { ...prices, options: data.price };
         },
       }),
 
       setProvisioning: assign({
-        model: ({ model }, { data }) => {
+        model: ({ model }: any, { data }) => {
           const provision_fields = get(data, "provision_fields");
           set(model, "provision_fields", provision_fields);
           return model;
         },
-        error: ({ error, errorExternal }, { data }) => {
+        error: ({ error }: any, { data }) => {
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
@@ -630,8 +633,8 @@ export default createMachine(
       // ---
 
       setError: assign({
-        errorExternal: (_context, { data }) => data?.error,
-        error: ({ error }, { data }) => {
+        errorExternal: (_context, { data }: any) => data?.error,
+        error: ({ error }: any, { data }) => {
           let err = data?.error;
 
           if (!err) return error;
@@ -742,7 +745,7 @@ export default createMachine(
       },
 
       needsCalculating: (
-        { id, prices, summary }: ProductConfigContext,
+        { prices, summary }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
         // work out which property we need to compare

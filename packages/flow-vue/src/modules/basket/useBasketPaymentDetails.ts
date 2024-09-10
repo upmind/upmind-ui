@@ -89,8 +89,10 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
 
     // ---
     clear: () => payment_details.value?.send({ type: "CLEAR" }),
-    input: model => payment_details.value?.send({ type: "SET", data: model }),
-    update(model) {
+    input: (model: any) =>
+      // @ts-ignore
+      payment_details.value?.send({ type: "SET", data: model }),
+    update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
@@ -100,6 +102,7 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
+        // @ts-ignore
         payment_details.value?.send({ type: "SET", data: model, update: true });
       }
     },

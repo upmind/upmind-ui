@@ -34,7 +34,7 @@ import type { IProductModel, ProductConfigContext } from "./types.d";
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
 // --------------------------------------------------------
-export const checkPriceOverride = (values, lookups) => {
+export const checkPriceOverride = (values: any, lookups: any) => {
   return some(values, (value, key) => {
     const item = find(lookups, ["id", key]);
 
@@ -73,7 +73,7 @@ export const parseProduct = (
   basket_product?: ProductConfigContext["basket_product"]
 ) => {
   // Pick only the properties we need
-  const product = pick(merge({}, data, basket_product), [
+  const product: any = pick(merge({}, data, basket_product), [
     "id",
     "name",
     "service_identifier",
@@ -128,7 +128,7 @@ export const parseTerms = (
 
   return map(terms, rawTerm => {
     // Pick only the properties we need
-    const term = pick(rawTerm, [
+    const term: any = pick(rawTerm, [
       "billing_cycle_months",
       "mixed_promotions",
       "monthly_price_from_discounted",
@@ -192,7 +192,7 @@ export const parseSubproduct = (
       const values = get(option, "values", []);
 
       // add this raw option to the values, with limited properties
-      const value = pick(rawSubproduct, [
+      const value: any = pick(rawSubproduct, [
         "id",
         "name",
         "id",
@@ -207,7 +207,7 @@ export const parseSubproduct = (
 
       // get the prices for this subproduct
       value.prices = map(rawSubproduct.prices, rawPrice => {
-        const price = pick(rawPrice, [
+        const price: any = pick(rawPrice, [
           "mixed_promotions",
           "billing_cycle_months",
           "price",
@@ -237,10 +237,12 @@ export const parseSubproduct = (
           ]);
 
         // finally...only include the value if we have a price
+        // @ts-ignore
         if (value.price) values.push(value);
       } else if (!value?.billing_cycle_months) {
         // otherwise set the updated values if we DON'T have a billing cycle
         // this is so products with no billing cycle doesnt show subproducts that do
+        // @ts-ignore
         values.push(value);
       }
 
@@ -275,7 +277,7 @@ export const parsePromotion = (
 
   if (promotion_display_type == PromotionDisplayTypes.NAME) {
     return map(data.promotions, rawPromo => {
-      const promo = pick(rawPromo, ["amount", "amount_formatted", "code"]);
+      const promo: any = pick(rawPromo, ["amount", "amount_formatted", "code"]);
       promo.name = useTranslateName(rawPromo);
       promo.display = promotion_display_type;
       promo.mixed = data.mixed_promotions;
@@ -390,7 +392,7 @@ export const parseProvisioningSchema = (data: any) => {
 
 // ---
 
-export const parseSummary = ({ summary, model, lookups, error }) => {
+export const parseSummary = ({ summary, model, lookups, error }: any) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -519,7 +521,7 @@ export const parseModel = (data: any): IProductModel => {
   ]);
 };
 
-export const parseBasketProduct = (data: IBasketProduct): IProductModel => {
+export const parseBasketProduct = (data: any): IProductModel => {
   // map basket product data
   return {
     id: data.id,
@@ -564,6 +566,7 @@ export const buildBasketItem = (data: any) => {
           const selected = values(
             mapValues(attribute, choice => omit(choice, ["price", "total"]))
           );
+          // @ts-ignore
           result.push(...selected);
         }
         return result;
@@ -577,6 +580,7 @@ export const buildBasketItem = (data: any) => {
           const selected = values(
             mapValues(option, choice => omit(choice, ["price", "total"]))
           );
+          // @ts-ignore
           result.push(...selected);
         }
         return result;

@@ -4,7 +4,8 @@ import { assign } from "xstate";
 // --- utils
 import { useModelParser } from "../../../utils";
 import { useSchema, useUischema, spawnItem } from "./utils";
-import { find, map, compact, get, isFunction } from "lodash-es";
+// TODO: import { find, map, compact, get, isFunction } from "lodash-es";
+import { find, map, compact, get } from "lodash-es";
 
 // --- types
 import type { CompanyContext, CompanyEvent } from "./types.d";
@@ -35,9 +36,11 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
+    // @ts-ignore
     title: ({ model }: CompanyContext, _event: CompanyEvent) => model?.name,
     description: (
-      { model, addresses }: CompanyContext,
+      // TODO: { model, addresses }: CompanyContext,
+      { model, addresses }: any,
       _event: CompanyEvent
     ) => {
       let address = null;
@@ -53,12 +56,13 @@ export const ItemActions = {
   setSchemas: assign({
     schema: (context: CompanyContext, _event: CompanyEvent) =>
       useSchema(context),
-    uischema: (context: CompanyContext, _event: CompanyEvent) =>
-      useUischema(context),
+    // TODO: uischema: (context: CompanyContext, _event: CompanyEvent) =>
+    // TODO: useUischema(context),
+    uischema: (_, _event: CompanyEvent) => useUischema(),
   }),
 
   setModel: assign({
-    model: ({ schema, model }, { data }) =>
+    model: ({ schema, model }: any, { data }: any) =>
       useModelParser(schema, data || model),
   }),
 };

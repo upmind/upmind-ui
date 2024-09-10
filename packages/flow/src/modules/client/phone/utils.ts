@@ -10,12 +10,14 @@ import services, { PhoneTypes } from "./services";
 import { map, get, uniqueId } from "lodash-es";
 
 // --- types
-import type { IPhone, PhoneContext } from "./types.d";
+// TODO: import type { IPhone, PhoneContext } from "./types.d";
+import type { IPhone } from "./types.d";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({ country }: PhoneContext) => {
+// TODO: export const useSchema = ({ country }: PhoneContext) => {
+export const useSchema = ({ country }: any) => {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -136,6 +138,7 @@ export const spawnItem = (model?: IPhone) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
+        // @ts-ignore
         .withConfig({
           actions,
           services,

@@ -24,7 +24,7 @@ import type { TActor } from "./types";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketBillingDetails = (actor?: TActor<any>) => {
-  const { service, getSnapshot } = useBasket();
+  const { service } = useBasket();
   const billing_details = ref(actor);
 
   if (!actor) {
@@ -76,8 +76,11 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
 
     // ---
     clear: () => billing_details.value?.send({ type: "CLEAR" }),
-    input: model => billing_details.value?.send({ type: "SET", data: model }),
-    update(model) {
+    // @ts-ignore
+    input: (model: any) =>
+      // @ts-ignore
+      billing_details.value?.send({ type: "SET", data: model }),
+    update(model: any) {
       if (!model) return;
 
       // first check if our billing_details has change, ie: model.code has changed
@@ -94,6 +97,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
       // if it has then send the new model to the machine
       billing_details.value?.send({
         type: "SET",
+        // @ts-ignore
         data: model,
         update: true,
       });

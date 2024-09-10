@@ -77,6 +77,7 @@ async function load({ gateway }: StripeContext, _event: StripeEvent) {
 // --------------------------------------------------------
 
 async function validate(
+  // @ts-ignore
   { schema, model, element, elementStatus }: StripeContext,
   { data }: StripeEvent
 ) {
@@ -94,6 +95,7 @@ async function validate(
     // NB: we are invalid if the stripe element status is NOT complete!
     if (!elementStatus?.complete) {
       errors.push({
+        // @ts-ignore
         title: "Stripe element is incomplete.",
         data,
       });
@@ -117,7 +119,7 @@ async function createPaymentElement(
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
   const elements = stripe.elements({
     amount: Math.round((amount || 0) * 100), // NB: Stripe expects amount in cents
-    currency: currency.code.toLowerCase(), // NB: MUST be lowercase
+    currency: currency?.code.toLowerCase(), // NB: MUST be lowercase
     locale: "auto", // TODO: add i18n local
     mode: "payment",
     paymentMethodCreation: "manual",
@@ -157,7 +159,7 @@ async function update({ elements, stripe, model }: StripeContext) {
   // Submit form to validate fields
   const { error: submitError } = await elements
     .submit()
-    .catch(error => Promise.reject(error));
+    .catch((error: any) => Promise.reject(error));
 
   if (submitError) return Promise.reject(submitError);
 
@@ -166,7 +168,7 @@ async function update({ elements, stripe, model }: StripeContext) {
     .createPaymentMethod({
       elements,
     })
-    .catch(error => Promise.reject(error));
+    .catch((error: any) => Promise.reject(error));
 
   return new Promise((resolve, reject) => {
     if (error) {
@@ -212,7 +214,7 @@ async function createAddElement(
     data: {
       client_id,
     },
-  }).then(({ data }) => {
+  }).then(({ data }: any) => {
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
     const clientPaymentDetailsId = data?.client_payment_details?.id;
     const clientSecret = data?.gateway_specific?.client_secret;
@@ -249,7 +251,7 @@ async function confirmSetup() {}
  * ID from Stripe. To finish up, we need to save detail as a payment
  * method within the Upmind ecosystem.
  */
-async function endSetup(paymentDetailId?: string) {}
+async function endSetup() {}
 
 // --------------------------------------------------------
 // EXPORTS

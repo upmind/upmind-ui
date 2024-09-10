@@ -20,7 +20,7 @@ export const useFeedback = () => {
   // --------------------------------------------------------
 
   const messages = computed(() =>
-    map(state.value.context.messages, item => ({
+    map(state.value.context.messages, (item: any) => ({
       id: item.id,
       ...useActor(item),
     }))
@@ -30,8 +30,9 @@ export const useFeedback = () => {
     sortBy(
       reduce(
         state.value.context.messages,
-        (result, item) => {
+        (result, item: any) => {
           if (item.state.context.display === "notification") {
+            // @ts-ignore
             result.push({
               id: item.id,
               ...useActor(item),
@@ -49,8 +50,9 @@ export const useFeedback = () => {
     sortBy(
       reduce(
         state.value.context.messages,
-        (result, item) => {
+        (result, item: any) => {
           if (item.state.context.display === "toast") {
+            // @ts-ignore
             result.push({
               id: item.id,
               ...useActor(item),
@@ -68,8 +70,9 @@ export const useFeedback = () => {
     sortBy(
       reduce(
         state.value.context.messages,
-        (result, item) => {
+        (result, item: any) => {
           if (item.state.context.type === "event") {
+            // @ts-ignore
             result.push({
               id: item.id,
               ...useActor(item),
@@ -103,7 +106,7 @@ export const useFeedback = () => {
     // ---
     meta,
     // ---
-    add: data => add(unref(data)),
+    add: (data: any) => add(unref(data)),
     addError,
     addSuccess,
     trackEvent,
@@ -113,7 +116,7 @@ export const useFeedback = () => {
   };
 };
 
-export const useMessage = item => {
+export const useMessage = (item: any) => {
   const { state, send } = item;
 
   const message = toRef(state.value, "context");

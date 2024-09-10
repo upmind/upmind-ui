@@ -101,7 +101,7 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
     withAccessToken: true,
     useCache: false,
   })
-    .then(({ data }) => data)
+    .then(({ data }: any) => data)
     .then(getProvisioningFieldsValues);
 }
 
@@ -113,7 +113,7 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
   const { post, useUrl } = useApi();
   const { getTracking } = useTracking();
 
-  const data = {
+  const data: any = {
     category_slug: "new_contract",
     // currency_code: "GBP", // from brand
     // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
@@ -132,7 +132,7 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
     url: useUrl("orders"),
     withAccessToken: true,
     data,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function convert({ basket }: BasketContext, { data }: BasketEvent) {
@@ -157,21 +157,22 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   // but the response basket does not contain the products, so we need to
   // request the basket by id to get the products?
   return patch({
-    url: useUrl(`/orders/${basket.id}/convert`),
+    url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
     data,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function getProvisioningFieldsValues(basket: BasketEvent) {
   const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
+  // @ts-ignore
   if (!basket || !basket?.products?.length) return Promise.resolve(basket);
 
-  const { id: basket_id, products } = basket;
+  const { id: basket_id, products }: any = basket;
 
-  const provisioningPromises = [];
+  const provisioningPromises: any[] = [];
 
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
@@ -179,7 +180,7 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
     useCache: false,
     withAccessToken: true,
   })
-    .then(({ data }) => data)
+    .then(({ data }: any) => data)
     .catch(({ error }) => error);
 
   provisioningPromises.push(checkPromise);
@@ -203,7 +204,7 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
       ),
       useCache: false,
       withAccessToken: true,
-    }).then(({ data }) => {
+    }).then(({ data }: any) => {
       // update the product with the provisioning fields
       set(product, "provision_fields", data);
       return data;
@@ -241,7 +242,7 @@ export default {
   refresh: load,
   convert,
   // ---
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

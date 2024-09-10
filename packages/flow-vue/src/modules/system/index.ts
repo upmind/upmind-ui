@@ -31,7 +31,10 @@ export const useSystem = () => {
 
     if (unique) {
       // lets only return countries that have NOT yet got regions
-      countries = filter(countries, country => !has(regions, country.code));
+      countries = filter(
+        countries,
+        (country: any) => !has(regions, country.code)
+      );
     }
 
     if (isEmpty(countries)) return;

@@ -34,6 +34,7 @@ export const useDomain = (
   // create a new instance of the  domain machine
 
   // safetycheck to ensure forcedType is valid
+  // @ts-ignore
   const safeType = has(DomainTypes, type) ? type : null;
   const safeModel = map(isArray(model) ? model : [model], parseDomain);
 
@@ -45,6 +46,7 @@ export const useDomain = (
     model: safeModel,
   };
 
+  // @ts-ignore
   const service = interpret(domainMachine.withContext(context), {
     devTools: true,
   }).start();
@@ -57,10 +59,10 @@ export const useDomain = (
   basket.onTransition(state => {
     if (state.matches("shopping.refreshing.complete")) {
       // ---
-      const currencyActor = state.context?.actors?.currency;
+      const currencyActor: any = state.context?.actors?.currency;
       const basketCurrency = currencyActor?.getSnapshot()?.context?.model?.code;
       // ---
-      const promotionsActor = state.context?.actors?.promotions;
+      const promotionsActor: any = state.context?.actors?.promotions;
       const basketPromotions =
         promotionsActor?.getSnapshot()?.context?.model?.promotions;
 

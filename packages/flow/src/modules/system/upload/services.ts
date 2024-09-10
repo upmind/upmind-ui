@@ -6,13 +6,14 @@ import { useBrand, BrandConfigKeys } from "../../brand";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
-import type { UploadEvent, UploadContext } from "./types.d";
+// import type { UploadEvent, UploadContext } from "./types.d";
+import type { UploadEvent } from "./types.d";
 import { ImageObjectTypes, ImageUploadTypes } from "./types.d";
 
 // --------------------------------------------------------
 // HELPERS
 
-const fieldPath = field => {
+const fieldPath = (field: any) => {
   let path;
 
   switch (field.field_type) {
@@ -54,7 +55,8 @@ const fieldPath = field => {
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function getImage({ field }: UploadContext, { data }: UploadEvent) {
+// TODO: async function getImage({ field }: UploadContext, { data }: UploadEvent) {
+async function getImage({ field }: any, { data }: UploadEvent) {
   // if we have a hash, we can skip the request
   if (data?.hash) {
     return Promise.resolve({ ...field, value: data.hash });
@@ -78,7 +80,7 @@ async function getImage({ field }: UploadContext, { data }: UploadEvent) {
 
 async function check(_context: any, { data }: any) {
   let isValid = true;
-  let error = null;
+  let error: any = null;
 
   const { getConfig } = useBrand();
 

@@ -23,7 +23,7 @@ import {
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useProductConfig = actor => {
+export const useProductConfig = (actor: any) => {
   const { state, send } = actor;
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
@@ -119,7 +119,7 @@ export const useProductConfig = actor => {
 
   // --- TERMS
 
-  function isSelectedTerm(term) {
+  function isSelectedTerm(term: any) {
     const value = isEqual(
       term.billing_cycle_months,
       model.value?.term?.billing_cycle_months
@@ -127,10 +127,11 @@ export const useProductConfig = actor => {
     return value;
   }
 
-  const updateTerm = term =>
+  const updateTerm = (term: any) =>
     send({
       type: "SET.TERM",
       data: {
+        // @ts-ignore
         term: isObject(term) ? term.billing_cycle_months : term,
       },
     });
@@ -146,11 +147,11 @@ export const useProductConfig = actor => {
       },
     });
 
-  function isSelectedAttribute(attributeId, value) {
+  function isSelectedAttribute(attributeId: any, value: any) {
     return some(model.value.attributes[attributeId], ["product_id", value]);
   }
 
-  function setAttributes(attribute, values) {
+  function setAttributes(attribute: any, values: any) {
     const safeValues = isArray(values) ? values : [values];
     set(model.value.attributes, attribute.id, {}); // reset all previous attributes
 
@@ -174,11 +175,11 @@ export const useProductConfig = actor => {
       },
     });
 
-  function isSelectedOption(optionId, value) {
+  function isSelectedOption(optionId: any, value: any) {
     return some(model.value.options[optionId], ["product_id", value]);
   }
 
-  function setOptions(option, values) {
+  function setOptions(option: any, values: any) {
     const safeValues = isArray(values) ? values : [values];
     set(model.value.options, option.id, {}); // reset all previous options
     forEach(safeValues, value => {
@@ -191,7 +192,7 @@ export const useProductConfig = actor => {
     updateOptions();
   }
 
-  function updateOptionQuantity(option, value, qty) {
+  function updateOptionQuantity(option: any, value: any, qty: any) {
     // sanity check
     if (!value?.canChangeQuantity) return;
 
@@ -201,7 +202,7 @@ export const useProductConfig = actor => {
     updateOptions();
   }
 
-  function incrementOption(option, value) {
+  function incrementOption(option: any, value: any) {
     // sanity check
     if (!value?.canChangeQuantity) return;
 
@@ -219,7 +220,7 @@ export const useProductConfig = actor => {
     updateOptions();
   }
 
-  function decrementOption(option, value) {
+  function decrementOption(option: any, value: any) {
     // sanity check
     if (!value?.canChangeQuantity) return;
     const qty = get(
@@ -238,13 +239,13 @@ export const useProductConfig = actor => {
 
   // --- PROVISIONING
 
-  function setProvisioningFields(value) {
+  function setProvisioningFields(value: any) {
     set(model.value, "provision_fields", value);
     // emit the event
     updateProvisioning();
   }
 
-  function getProvisioningField(field) {
+  function getProvisioningField(field: any) {
     const value = get(model.value, ["provision_fields", field], null);
     return value;
   }

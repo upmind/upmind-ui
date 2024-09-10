@@ -1,0 +1,85 @@
+variables:
+  GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+
+(docs) build:
+  stage: build
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^docs-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_DOCS == "true"
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "1 day"
+    paths:
+      - docs/.vitepress
+  script:
+    - cd ./docs
+    - npm run docs:build
+
+(docs) deploy preview:
+  stage: deploy
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+    - (docs) build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+  environment:
+    name: docs/preview/${CI_COMMIT_REF_SLUG}
+    action: start
+    auto_stop_in: 7 days
+    on_stop: (docs) stop preview
+    url: "${FIREBASE_PREVIEW_URL}"
+  artifacts:
+    reports:
+      dotenv: "${CI_PROJECT_DIR}/deploy.env"
+  before_script:
+    - apk add jq
+    - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+  script:
+    - cd ./docs
+    - npx firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
+    - url=$(npx firebase hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
+    - echo "FIREBASE_PREVIEW_URL=${url}" > "${CI_PROJECT_DIR}/deploy.env"
+
+(docs) stop preview:
+  stage: stop
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+  environment:
+    name: docs/preview/${CI_COMMIT_REF_SLUG}
+    action: stop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      when: manual
+  before_script:
+    - apk add jq
+    - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+  script:
+    - cd ./docs
+    - npx firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
+
+(docs) deploy production:
+  stage: deploy
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+    - (docs) build
+  environment:
+    name: docs/production
+    action: start
+    url: https://docs.upmind.dev/
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^docs-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_DOCS == "true"
+  before_script:
+    - apk add jq
+    - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+  script:
+    - cd ./docs
+    - npx firebase deploy

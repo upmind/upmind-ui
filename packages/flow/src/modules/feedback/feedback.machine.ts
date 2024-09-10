@@ -56,7 +56,8 @@ export default createMachine(
   {
     actions: {
       add: assign({
-        messages: ({ messages }: MessagesContext, { data }: MessagesEvents) => {
+        // TODO: messages: ({ messages }: MessagesContext, { data }: MessagesEvents) => {
+        messages: ({ messages }: MessagesContext, { data }: any) => {
           const id = data?.id || generateHash(data);
 
           // ensure we set the hash based on the id provided or generated
@@ -81,7 +82,8 @@ export default createMachine(
       remove: assign({
         messages: (
           { messages }: MessagesContext,
-          { data: { id } }: MessagesEvents
+          // TODO: { data: { id } }: MessagesEvents
+          { data: { id } }: any
         ) => {
           // try find any messages with the same id
           const message = find(messages, ["id", id]);
@@ -98,7 +100,8 @@ export default createMachine(
       dismiss: assign({
         messages: (
           { messages }: MessagesContext,
-          { data: { id } }: MessagesEvents
+          // TODO: { data: { id } }: MessagesEvents
+          { data: { id } }: any
         ) => {
           // try find any messages with the same id
           const message = find(messages, ["id", id]);

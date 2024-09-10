@@ -16,7 +16,7 @@ import { map, some, find, isArray, get, first } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useDomain = (
+export const useDomain: any = (
   {
     model,
     sync,
@@ -35,7 +35,7 @@ export const useDomain = (
   }
 ) => {
   const domain = useUpmindDomain({ model, sync, type, parentId });
-  const { state, send } = useActor(domain.service);
+  const { state, send }: any = useActor(domain.service);
 
   // --------------------------------------------------------
 
