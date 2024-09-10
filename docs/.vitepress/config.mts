@@ -1,14 +1,12 @@
 import { defineConfig } from 'vitepress'
 import typedocSidebar from '../@upmind/typedoc-sidebar.json'
 
-console.log(typedocSidebar[0])
-
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Upmind",
   description: "Upmind open-source libs documentation",
   srcDir: './',
-  outDir: '../dist',
+  outDir: './dist',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [

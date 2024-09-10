@@ -53,7 +53,7 @@
 import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
-import { useProductConfig, useBasket, utils } from "@upmind/flow-vue";
+import { useProductConfig, useBasket, utils } from "@upmind/upflow-vue";
 const { stateMatches } = utils;
 import { useStyles, mergeStyles, UpwBadge } from "@upmind/upwind";
 import config from "./config.cva";

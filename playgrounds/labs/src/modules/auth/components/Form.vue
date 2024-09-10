@@ -38,7 +38,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { useSession } from "@upmind/flow-vue";
+import { useSession } from "@upmind/upflow-vue";
 
 import { UpwForm } from "@upmind/upwind";
 

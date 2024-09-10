@@ -105,7 +105,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { useSession } from "@upmind/flow-vue";
+import { useSession } from "@upmind/upflow-vue";
 
 export default defineComponent({
   name: "Auth",

@@ -27,7 +27,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useBasketPaymentDetails } from "@upmind/flow-vue";
+import { useBasketPaymentDetails } from "@upmind/upflow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

@@ -20,7 +20,7 @@ import { defineComponent, computed } from "vue";
 import { UpwDropdown } from "@upmind/upwind";
 
 // --- internal
-import { useBasketCurrency } from "@upmind/flow-vue";
+import { useBasketCurrency } from "@upmind/upflow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 import currencyMap from "./currencies";
