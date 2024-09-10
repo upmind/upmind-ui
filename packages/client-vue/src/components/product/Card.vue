@@ -181,7 +181,11 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UwBadge, UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
+import { UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
+
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -190,7 +194,7 @@ import { isNil, find, reject } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UwBadge, UpwButton, UpwIcon, UpwSpinner },
+  components: { UpwButton, UpwIcon, UpwSpinner },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

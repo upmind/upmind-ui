@@ -112,7 +112,11 @@ import config from "./config.cva";
 
 // --- components
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { UpwRadio, UwBadge, UpwInput } from "@upmind/upwind";
+import { UpwRadio, UpwInput } from "@upmind/upwind";
+
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -123,7 +127,6 @@ export default defineComponent({
   components: {
     UpwInput,
     UpwRadio,
-    UwBadge,
     HRadioGroup: RadioGroup,
     HRadioGroupOption: RadioGroupOption,
   },
