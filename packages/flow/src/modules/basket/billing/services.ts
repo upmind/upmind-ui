@@ -10,7 +10,6 @@ import {
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { omitBy, isNil } from "lodash-es";
 // --- types
 import type { BillingDetailsEvent, BillingDetailsContext } from "./types.d";
 
@@ -72,13 +71,12 @@ async function validate(
   { schema, model }: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
-  // ---
-
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
+
     if (errors?.length) {
       reject({ error: errors });
     } else {
@@ -95,8 +93,4 @@ export default {
   parse,
   validate,
   update,
-  // ---
-  authSubscription: (context, event) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
 };

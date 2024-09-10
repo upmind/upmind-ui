@@ -106,7 +106,7 @@ export default createMachine(
           // if it exists, stop the referenced machine
           // and remove it from our list of message
           if (message && !message?.state?.done) {
-            message.send("DISMISS");
+            message.send({ type: "DISMISS" });
           } else {
             remove(messages, ["id", id]);
           }

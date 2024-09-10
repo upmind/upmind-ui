@@ -17,6 +17,7 @@ export interface IBillingDetail {
 
 export interface BillingDetailsContext {
   basket_id?: string;
+  client_id?: string;
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
@@ -25,7 +26,8 @@ export interface BillingDetailsContext {
   addresses?: any[];
   companies?: any[];
   // ---
-  dirty?: Boolean;
+  autoupdate?: boolean;
+  dirty?: boolean;
   error?: RequestError;
 }
 

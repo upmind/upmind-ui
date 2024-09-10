@@ -78,6 +78,12 @@
           </div>
 
           <div :class="styles.product.config.grid.item.footer">
+            <span
+              :class="styles.product.config.grid.item.discount"
+              v-if="item?.price_discounted"
+            >
+              {{ item.price_formatted }}
+            </span>
             <strong :class="styles.product.config.grid.item.total">
               {{
                 item?.price_discounted
@@ -87,13 +93,6 @@
                     : $t("product.free")
               }}
             </strong>
-
-            <span
-              :class="styles.product.config.grid.item.discount"
-              v-if="item?.price_discounted"
-            >
-              {{ item.price_formatted }}
-            </span>
           </div>
         </li>
       </h-radio-group-option>
@@ -176,13 +175,12 @@ export default defineComponent({
   },
   computed: {
     hasItems() {
-      return !isNil(this.modelValue) && this.items?.length > 1;
+      return !isNil(this.modelValue) && !!this.items?.length;
     },
   },
   methods: {
     doResolve(item) {
       if (this.disabled) return;
-
       this.$emit("update:modelValue", item);
     },
   },

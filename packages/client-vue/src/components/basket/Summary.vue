@@ -8,7 +8,11 @@
       </header>
 
       <!-- products -->
-      <dl :class="styles.basket.summary.list" v-if="summary?.products?.length">
+      <dl
+        :class="styles.basket.summary.list"
+        v-if="summary?.products?.length"
+        v-auto-animate
+      >
         <template v-for="product in summary.products" :key="product.id">
           <dt
             :class="
@@ -18,7 +22,10 @@
               )
             "
           >
-            {{ product?.name }}
+            <span>{{ product?.name }}</span>
+            <span v-if="product?.service_identifier">
+              ({{ product?.service_identifier }})
+            </span>
           </dt>
 
           <dd
@@ -78,6 +85,7 @@
       <dl
         :class="styles.basket.summary.list"
         v-if="!!summary?.discount || !!summary?.taxes"
+        v-auto-animate
       >
         <template v-if="summary?.discount">
           <dt :class="styles.basket.summary.heading">
@@ -157,7 +165,7 @@
       </dl>
     </div>
 
-    <footer :class="styles.basket.summary.footer">
+    <footer :class="styles.basket.summary.footer" v-auto-animate>
       <div :class="styles.basket.summary.actions">
         <upw-button
           :disabled="!meta.isReadyForCheckout || meta.isProcessing"
@@ -187,6 +195,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
 import { UpwButton, UpwIcon } from "@upmind/upwind";
@@ -205,7 +214,7 @@ import config from "./config.cva";
 export default defineComponent({
   name: "UpmBasketSummary",
   components: { UpwButton, UpwIcon, UpmPromotions },
-
+  directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {
     noActions: {

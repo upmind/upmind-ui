@@ -29,17 +29,12 @@ export const useBasket = () => {
   const {
     service,
     isReady,
-    update,
     clear,
     checkout,
+    // ---
     addItem,
     updateItem,
     removeItem,
-    updateTerm,
-    updateQuantity,
-    updateAttributes,
-    updateOptions,
-    updateProvisioning,
   } = useUpmindBasket();
   // --------------------------------------------------------
   // we need this for reactive state
@@ -70,20 +65,16 @@ export const useBasket = () => {
     meta: computed(() => {
       return {
         isLoading: stateMatches(state, ["subscribing", "loading"]), //
-        // || machineMatches(actors.value.currency, ["loading"])
-        // || machineMatches(actors.value.customFields, ["loading"])
-        // || machineMatches(actors.value.promotions, ["loading"]),
-        // || some(contextValue(state, "items"), item =>
-        //   machineMatches(item, ["loading"])
-        // ),
 
         isProcessing:
           stateMatches(state, [
             "generating",
             "claiming",
             "shopping.refreshing.processing",
-            "shopping.items.processing",
           ]) ||
+          some(contextValue(state, "items"), item =>
+            machineMatches(item, ["processing"])
+          ) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
           machineMatches(actors.value.billingDetails, ["processing"]) ||
@@ -95,11 +86,8 @@ export const useBasket = () => {
           machineMatches(actors.value.billingDetails, ["valid"]) ||
           machineMatches(actors.value.promotions, ["valid"]) ||
           (stateMatches(state, ["shopping.items.configuring"]) &&
-            some(
-              contextValue(state, "items"),
-              item =>
-                machineMatches(item, ["configured"]) &&
-                contextMatches(item?.state, ["isNew", "isDirty"])
+            some(contextValue(state, "items"), item =>
+              machineMatches(item, ["available.configured"])
             )),
 
         // ---
@@ -144,23 +132,39 @@ export const useBasket = () => {
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
         hasAccount: stateMatches(state, [
+          "shopping.account.claiming",
           "shopping.account.complete",
           "checkout",
         ]),
+        isClaiming: stateMatches(state, ["shopping.account.claiming"]),
 
         // ---
-        isReadyForCheckout: stateMatches(state, ["checkout.available"]),
-        isCheckout: stateMatches(state, ["checkout.processing"]),
+        // this state means ALL the data is ready for checkout for each parallel machine
+        isReadyForCheckout: stateMatches(
+          state,
+          [
+            "shopping.items.complete",
+            "shopping.promotions.complete",
+            "shopping.account.complete",
+            "shopping.currency.complete",
+            "shopping.billing_details.complete",
+            "shopping.custom_fields.complete",
+            "shopping.payment_details.available",
+          ],
+          true
+        ),
+
+        isCheckout:
+          machineMatches(payment, ["approving"]) ||
+          stateMatches(state, [
+            "shopping.payment_details.processing",
+            "checkout",
+            "converting",
+            "paying",
+          ]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
-
-        isProcessingOrder:
-          machineMatches(payment, ["approving"]) ||
-          stateMatches(state, ["converting"]) ||
-          stateMatches(state, ["paying"]) ||
-          stateMatches(state, ["checkout.processing"]),
-
         isComplete: stateMatches(state, ["complete", "failed"]),
         hasPaid: stateMatches(state, ["complete"]),
         hasFailed: stateMatches(state, ["failed"]),
@@ -182,11 +186,28 @@ export const useBasket = () => {
     items: useContextActor(state, "items", []),
     itemsPending: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(items, item => contextMatches(item?.state, ["isNew"]));
+      return filter(
+        items,
+        item => !contextMatches(item?.state, ["basket_product"])
+      );
+    }),
+    itemsInvalid: computed(() => {
+      const items = contextActor(state, "items", []);
+      return filter(
+        items,
+        item =>
+          contextMatches(item?.state, ["basket_product"]) &&
+          machineMatches(item, ["available.error"])
+      );
     }),
     itemsConfigured: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(items, item => !contextMatches(item?.state, ["isNew"]));
+      return filter(
+        items,
+        item =>
+          contextMatches(item?.state, ["basket_product"]) &&
+          !machineMatches(item, ["available.error"])
+      );
     }),
     products: useContext(state, "basket.products", []),
     promotions: useContext(state, "basket.promotions", []),
@@ -199,7 +220,6 @@ export const useBasket = () => {
     // ---
     // Basket Methods
     isReady,
-    update,
     clear,
     checkout,
     // ---
@@ -207,10 +227,5 @@ export const useBasket = () => {
     addItem,
     updateItem,
     removeItem,
-    updateTerm,
-    updateQuantity,
-    updateAttributes,
-    updateOptions,
-    updateProvisioning,
   };
 };

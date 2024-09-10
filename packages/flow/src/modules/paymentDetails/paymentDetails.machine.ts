@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendParent, pure } = actions;
+const { pure, sendParent } = actions;
 
 // --- internal
 import services from "./services";
@@ -28,6 +28,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket_id: undefined,
+      client_id: undefined,
       currency: undefined,
       // ---
       fields: undefined,
@@ -57,6 +58,7 @@ export default createMachine(
         },
         on: {
           AUTHENTICATED: { target: "checking" },
+          REFRESH: { actions: "refreshBasket" },
         },
       },
 
@@ -135,9 +137,15 @@ export default createMachine(
           valid: {
             id: "valid",
             always: { target: "processing", cond: "shouldUpdate" },
-
             on: {
-              CHECKOUT: { target: "processing", cond: "hasBasket" },
+              CHECKOUT: [
+                {
+                  target: "#complete",
+                  actions: ["setPaymentDetails"],
+                  cond: "isFree",
+                },
+                { target: "processing", cond: "hasBasket" },
+              ],
               "xstate.update": {
                 target: "checking",
               },
@@ -155,27 +163,15 @@ export default createMachine(
 
           processing: {
             entry: ["forwardCheckout"],
-
-            invoke: {
-              src: "update",
-              onDone: {
-                target: "#complete",
-                actions: [
-                  "setPaymentDetails",
-                  "providePaymentDetails",
-                  "clearAutoUpdate",
-                  "trackPaymentDetails",
-                ],
-              },
-              onError: {
-                actions: "clearError", // this is handled by the gateway
-              },
-            },
             on: {
+              CANCEL: {
+                target: "#invalid", // no need to set the error, it will be set by the gateway
+                actions: "cancelPaymentDetails",
+              },
               // ths is the response from the gateway
               PAYMENT_DETAILS: {
                 target: "#complete",
-                actions: ["setPaymentDetails", "providePaymentDetails"],
+                actions: ["setPaymentDetails"],
               },
             },
           },
@@ -207,6 +203,7 @@ export default createMachine(
       // ---
       error: { id: "error" },
       complete: {
+        entry: ["providePaymentDetails"],
         id: "complete",
         type: "final",
         data: ({ paymentDetails }, _event) => paymentDetails,
@@ -308,6 +305,8 @@ export default createMachine(
 
       refreshBasket: assign({
         basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
+        client_id: (_context, { data: basket }: RefreshEvent) =>
+          basket?.client_id,
         currency: (_context, { data: basket }: RefreshEvent) =>
           basket?.currency,
         model: ({ model }, { data: basket }: RefreshEvent) => {
@@ -336,8 +335,17 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: ({ model }, { data }) =>
-          parsePaymentDetails({ ...model, ...data }),
+        paymentDetails: ({ model, basket_id, currency }, { data }) => {
+          const amount = model.amount;
+          return parsePaymentDetails({
+            ...model,
+            ...data,
+            // ensure OUR values are used
+            basket_id,
+            currency,
+            amount,
+          });
+        },
       }),
 
       providePaymentDetails: sendParent(({ paymentDetails }) => ({
@@ -345,7 +353,9 @@ export default createMachine(
         data: paymentDetails,
       })),
 
-      // ---
+      cancelPaymentDetails: sendParent(() => ({
+        type: "CANCEL",
+      })),
 
       trackPaymentDetails: (_context, _event) => {
         trackEvent({ ecommerce: null });
@@ -384,7 +394,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -405,9 +415,20 @@ export default createMachine(
         _event
       ) => !!stored_payment_methods && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
-      hasChanged: ({ currency }, { data }) => currency?.id != data?.currency_id,
+      shouldUpdate: ({ autoupdate, basket_id, model }, _event) =>
+        !!autoupdate && !!basket_id && model?.amount !== 0,
+
+      hasChanged: ({ basket_id, currency, client_id, model }, { data }) => {
+        const basketChanged = basket_id != data?.id;
+        const currencyChanged = currency?.id != data?.currency_id;
+        const clientChanged = client_id != data?.client_id;
+        const amountChanged =
+          model.amount == (data?.unpaid_amount_converted || 0.0);
+
+        return (
+          basketChanged || currencyChanged || clientChanged || amountChanged
+        );
+      },
     },
 
     delays: {

@@ -67,14 +67,36 @@ export default defineComponent({
     stretchTabs: { type: Boolean, default: false },
   },
   setup(props) {
-    const session = useSession();
+    const {
+      meta,
+      errors,
+      showLogin,
+      showRegister,
+      verify2fa,
+      model,
+      schema,
+      uischema,
+      resolve,
+      reject,
+    } = useSession();
 
-    const styles = useStyles(["session.auth"], session.meta, config);
+    const styles = useStyles(["session.auth"], meta, config);
 
     return {
-      ...session,
+      meta,
+      errors,
       styles,
       active: ref(props.modelValue),
+      // ---
+      model,
+      schema,
+      uischema,
+      // ---
+      resolve,
+      reject,
+      showLogin,
+      showRegister,
+      verify2fa,
     };
   },
   computed: {
@@ -126,9 +148,6 @@ export default defineComponent({
           break;
         case "register":
           if (!this.meta.showRegisterForm) this.showRegister();
-          break;
-        case "2fa":
-          if (!this.meta.show2fa) this.show2fa();
           break;
       }
 

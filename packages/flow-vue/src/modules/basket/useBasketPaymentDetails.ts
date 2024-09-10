@@ -60,11 +60,9 @@ export const useBasketPaymentDetails = (actor?: TActor<any>) => {
           "generating",
           "claiming",
         ]),
-      isAvailable: stateMatches(
-        payment_details.value?.state,
-        ["available"] &&
-          !stateMatches(payment_details.value?.state, ["available.loading"])
-      ),
+      isAvailable:
+        stateMatches(payment_details.value?.state, ["available"]) &&
+        !stateMatches(payment_details.value?.state, ["available.loading"]),
       hasErrors: stateMatches(payment_details.value?.state, ["error"]),
       isProcessing: stateMatches(payment_details.value?.state, [
         "checking",

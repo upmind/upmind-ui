@@ -2,10 +2,8 @@
   <div :class="styles.domain.root">
     <!-- loader -->
 
-    <upw-skeleton-list
-      :class="styles.domain.listings.loading"
-      v-if="meta.isLoading"
-    />
+    <upw-skeleton-list v-if="meta.isLoading" :rows="3" />
+
     <template v-else>
       <!-- type -->
       <upw-radio-list
@@ -22,12 +20,15 @@
           :complete="meta.showPrimaryDomain"
           :continue="meta.showContinue"
           :items="available"
+          :has-more="meta.hasMoreSearchResults"
           :key="type"
           :loading="meta.isSearching"
+          :offset="searchOffset"
           :model-value="selected"
           :processing="meta.isSyncing"
-          :values="values"
+          :values="model"
           @search="search"
+          @search:more="searchMore"
           @toggle="toggle"
           @resolve="syncBasket"
           @reject="reset"
@@ -55,13 +56,12 @@
       <upm-domain-values
         v-if="meta.showBasket"
         :model-value="selected"
-        :items="available"
+        :items="basket"
         :loading="meta.isSearching"
         :processing="meta.isSyncing"
         @update:modelValue="setPrimaryDomain"
       />
     </template>
-    <!-- <pre>{{ { state, meta, selected, values,  } }}</pre> -->
   </div>
 </template>
 
@@ -85,7 +85,7 @@ import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
 
 // --- utils
-import { debounce, first, map, reduce } from "lodash-es";
+import { debounce, map } from "lodash-es";
 
 // --- types
 
@@ -99,9 +99,9 @@ export default defineComponent({
     UpmDomainValues,
     UpwSkeletonList,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change"],
   props: {
-    sync: { type: Boolean, default: false },
+    sync: { type: Boolean, default: true },
     type: {
       type: String,
       validator: value =>
@@ -119,24 +119,29 @@ export default defineComponent({
       // ---
       choices,
       selected,
-      values,
+      model,
       type,
       query,
       available,
+      owned,
+      basket,
       errors,
       // ---
       meta,
       state,
+      searchOffset,
       // ---
       choose,
       search,
+      searchMore,
       update,
       toggle,
       reset,
+      destroy,
       syncBasket,
       setPrimaryDomain,
     } = useDomain({
-      values: props.modelValue,
+      model: props.modelValue,
       sync: props.sync,
       type: props.type,
       parentId: props.parentId,
@@ -150,8 +155,10 @@ export default defineComponent({
       meta,
       choices,
       selected,
-      values,
+      model,
       available,
+      owned,
+      basket,
       errors,
       // ---
       choice: type,
@@ -159,11 +166,14 @@ export default defineComponent({
       // ---
       choose,
       search: debounce(search, 500),
-      update: debounce(update, 500),
+      searchMore,
+      searchOffset,
+      update,
       toggle,
       reset,
       syncBasket,
       setPrimaryDomain,
+      destroy,
       // ---
       styles,
       mergeStyles,
@@ -181,22 +191,15 @@ export default defineComponent({
     },
 
     ownedDomains() {
-      const owned = [];
-      if (this.available) {
-        owned.push({
+      if (!this.owned?.length) return [];
+      return [
+        {
           as: "separator",
           persist: true,
           domain: this.$t("domain.existing.owned"),
-        });
-      }
-      return reduce(
-        this.available,
-        (result, item) => {
-          result.push({ ...item, persist: true });
-          return result;
         },
-        owned
-      );
+        ...this.owned,
+      ];
     },
   },
   methods: {},
@@ -204,8 +207,14 @@ export default defineComponent({
     selected: {
       handler: function (value) {
         this.$emit("update:modelValue", value);
+        // forward the event to our form renderers that will trigger the update
+        // NB: this is not a DOM event so we need to fake one for the renderer
+        this.$emit("change", { currentTarget: { value } });
       },
     },
+  },
+  beforeUnmount() {
+    this.destroy();
   },
 });
 </script>

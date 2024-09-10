@@ -8,6 +8,7 @@ export default {
       {
         variants: {
           size: {
+            full: "h-full w-full",
             xs: "size-6",
             sm: "size-8",
             md: "size-10",
@@ -15,9 +16,9 @@ export default {
             xl: "size-14",
             "2xl": "size-16",
           },
-        },
-        defaultVariants: {
-          size: "none",
+          defaultVariants: {
+            size: "none",
+          },
         },
       }
     ),

@@ -13,7 +13,12 @@
       no-actions
     />
 
-    <upm-payment-gateway v-if="gateway" :key="gateway?.id" />
+    <upm-payment-gateway
+      v-if="gateway"
+      :key="gateway?.id"
+      :id="gateway?.id"
+      :class="styles.basket.paymentDetails.render"
+    />
   </section>
 </template>
 
@@ -50,6 +55,10 @@ export default defineComponent({
     } = useBasketPaymentDetails();
 
     const styles = useStyles(["basket.paymentDetails"], meta, config);
+
+    // wait till we mount then try to render the gateway if it's provided
+    // otherwise watch in case it's provided later
+
     return {
       meta,
       errors,

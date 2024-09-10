@@ -25,7 +25,12 @@
         />
 
         <h3 :class="styles.product.card.title">
-          {{ product?.name }}
+          <span>{{ product?.name }}</span>
+          <span v-if="product?.service_identifier">
+            ({{ product?.service_identifier }})
+          </span>
+
+          <slot name="badges"></slot>
         </h3>
 
         <div :class="styles.product.card.meta">
@@ -76,12 +81,29 @@
               :class="styles.product.card.details.item"
               v-if="detail.key != 'term'"
             >
-              <strong :class="styles.product.card.details.title">
+              <strong
+                :class="
+                  mergeStyles(
+                    styles.product.card.details.title,
+                    detail.invalid ? styles.product.card.details.invalid : ''
+                  )
+                "
+              >
                 {{ detail.category }}
               </strong>
-              <span :class="styles.product.card.details.text">
+              <span
+                :class="styles.product.card.details.text"
+                v-if="detail.name"
+              >
                 {{ detail.name }}
               </span>
+              <upw-button
+                v-else-if="detail.invalid"
+                size="xs"
+                variant="link"
+                :label="$t('product.actions.invalid')"
+                @click="doResolve"
+              />
             </li>
           </template>
         </ul>
@@ -113,22 +135,35 @@
         <!-- actions -->
         <div :class="styles.product.card.actions">
           <upw-button
-            :disabled="!meta.isConfigurable && !product?.canChangeQuantity"
+            :disabled="
+              meta.isLoading ||
+              meta.isCalculating ||
+              meta.isProcessing ||
+              (!meta.isConfigurable && !product?.canChangeQuantity)
+            "
+            :color="
+              meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'
+            "
             :label="$t('product.actions.configure')"
             @click="doResolve"
-            color="current"
             icon-only
             prependIcon="edit"
             type="button"
+            :variant="meta.hasErrors || meta.isNew ? 'flat' : 'ghost'"
           />
+
           <upw-button
+            :disabled="
+              meta.isLoading || meta.isCalculating || meta.isProcessing
+            "
             :label="$t('product.actions.remove')"
+            :loading="meta.isProcessing"
             @click="doReject"
             color="current"
             icon-only
             prependIcon="remove"
             type="button"
-            :loading="meta.isUnavailable"
+            variant="ghost"
           />
         </div>
       </footer>
@@ -168,7 +203,9 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const { product, model, meta, summary } = useProductConfig(props.item);
+    const { state, product, model, meta, summary } = useProductConfig(
+      props.item
+    );
 
     const styles = useStyles(
       ["product.card", "product.card.details"],
@@ -179,14 +216,15 @@ export default defineComponent({
     // ---
 
     return {
+      state,
       product,
       model,
       meta,
       summary,
       // ---
-      doReject: () => emit("reject", { id: props.modelValue }),
-      doResolve: () => emit("resolve", { id: props.modelValue }),
-      toggle: ref(false),
+      doReject: () => emit("reject", props.modelValue),
+      doResolve: () => emit("resolve", props.modelValue),
+      toggle: ref(meta.value.hasErrors && !meta.value.isNew),
       // ---
       styles,
       mergeStyles,
@@ -200,6 +238,15 @@ export default defineComponent({
     },
     hasSummaryDetails() {
       return reject(this?.summary?.details, ["key", "term"])?.length;
+    },
+  },
+
+  watch: {
+    "meta.hasErrors": {
+      immediate: true,
+      handler(value) {
+        this.toggle = value && !this.meta.isNew;
+      },
     },
   },
 });

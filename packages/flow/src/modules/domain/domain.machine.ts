@@ -5,7 +5,8 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
-import { syncSubscription } from "../basket/helper";
+import { basketSubscription } from "../basket/helper";
+import { authSubscription } from "../session";
 
 const { addError, addSuccess } = useFeedback();
 
@@ -15,8 +16,10 @@ import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
   compact,
   concat,
+  defaultsDeep,
   filter,
   find,
+  first,
   get,
   has,
   includes,
@@ -25,8 +28,8 @@ import {
   omit,
   reduce,
   reject,
-  some,
   set,
+  some,
   uniqBy,
 } from "lodash-es";
 
@@ -43,68 +46,61 @@ export default createMachine(
     id: "domainManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      choices: DomainTypes,
-      type: undefined,
-      sync: undefined,
-      values: [],
-      available: [],
-      history: [],
-      total: 0,
-      // ---
-      currency: undefined,
-      promotions: [],
-      // ---
-      search: undefined,
-      limit: 10,
-      offset: 0,
-      controller: undefined,
-      // ---
-      error: undefined,
-      basketHelper: undefined,
-      itemBuilder: undefined,
-      itemMapper: undefined,
-      basketItemBuilder: undefined,
-      basketItemMapper: undefined,
-
-      // ---
-    } as DomainContext,
-
+    context: {} as DomainContext,
     states: {
       subscribing: {
-        always: [
-          {
-            target: "loading",
-            actions: "setBasketHelper",
-            cond: "needsBasketHelper",
-          },
-          {
-            target: "loading",
-          },
+        entry: [
+          "setContext",
+          "checkModel",
+          "ensurePrimary",
+          "persistModel",
+          "clearLookups",
         ],
+        always: {
+          target: "loading",
+          actions: ["setBasketHelper", "setAuthHelper"],
+        },
       },
 
       loading: {
-        entry: ["fetchBasket"],
-        on: {
-          SYNCED: {
-            target: "idle",
-            actions: ["setBasketItems"],
+        type: "parallel",
+        states: {
+          existing: {
+            initial: "processing",
+            states: {
+              processing: {
+                invoke: {
+                  src: "getClientDomains",
+                  onDone: {
+                    target: "complete",
+                    actions: ["setOwned"],
+                  },
+                  onError: { target: "complete" },
+                },
+              },
+              complete: { type: "final" },
+            },
           },
-          ERROR: {
-            target: "idle",
+          basket: {
+            initial: "processing",
+            states: {
+              processing: {
+                entry: ["fetchBasket"],
+                on: {
+                  FETCHED: {
+                    target: "complete",
+                    actions: ["setBasketItems"],
+                  },
+                  ERROR: {
+                    target: "complete",
+                  },
+                },
+              },
+              complete: { type: "final" },
+            },
           },
         },
-
-        // invoke: {
-        //   src: "load",
-        //   onDone: {
-        //     target: "idle",
-        //     actions: ["setValues"],
-        //   },
-        //   onError: {
-        //     target: "idle",
-        //   },
+        onDone: "idle",
       },
 
       // our initial state depends on if the machine has been forced to a type,
@@ -136,24 +132,19 @@ export default createMachine(
           loading: {
             entry: ["cancelController", "clearError"],
             always: [
-              { target: "processing", cond: "hasValidSearch" },
+              { target: "processing", cond: "hasSearchQuery" },
               { target: "invalid" },
             ],
           },
           // cancel any existing search via the controller then wait before starting a new search & controller
           processing: {
             id: "processing",
-            entry: [
-              "clearAvailable",
-              "clearError",
-              "cancelController",
-              "newController",
-            ],
+            entry: ["clearError", "cancelController", "newController"],
             invoke: {
               src: "search",
               onDone: {
                 target: "invalid",
-                actions: ["setAvailable"],
+                actions: ["setSearchResults"],
               },
               onError: [
                 {
@@ -172,7 +163,7 @@ export default createMachine(
             always: [
               {
                 target: "invalid",
-                cond: "hasNoValues",
+                cond: "hasNoModel",
                 actions: assign({
                   error: "Invalid domain",
                 }),
@@ -186,7 +177,7 @@ export default createMachine(
             },
           },
           invalid: {
-            always: [{ target: "valid", cond: "hasValues" }],
+            always: [{ target: "valid", cond: "hasModel" }],
           },
           // ---
           syncing: {
@@ -194,14 +185,8 @@ export default createMachine(
               REFRESH: {
                 // do nothing
               },
-              SYNCED: {
-                target: "complete",
-                actions: ["synced"],
-              },
-              ERROR: {
-                target: "error",
-                actions: ["setError"],
-              },
+              SYNCED: [{ target: "complete", actions: ["synced"] }],
+              ERROR: { actions: ["setError"] },
             },
           },
           error: {},
@@ -211,79 +196,55 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["add"],
+              actions: ["add", "ensurePrimary"],
               cond: "isValidDomain",
             },
           ],
           REMOVE: {
             target: ".valid",
-            actions: ["remove"],
-            cond: "hasValues",
+            actions: ["remove", "ensurePrimary"],
+            cond: "hasModel",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["setValues"],
+            actions: ["setModel", "ensurePrimary"],
           },
           SEARCH: [
             {
-              target: ".processing",
-              actions: ["setSearch"],
-              cond: "isValidSearch",
+              target: ".loading",
+              actions: ["setSearchQuery"],
+              cond: "validSearchQuery",
             },
             {
-              actions: ["setSearch"],
+              actions: ["setSearchQuery"],
             },
           ],
+          "SEARCH.OFFSET": {
+            target: ".loading",
+            actions: ["setSearchOffset"],
+            cond: "validSearchOffset",
+          },
+
           REFRESH: {
-            target: ".processing",
+            target: ".loading",
             actions: ["setCurrency", "setPromotions"],
           },
           RESET: {
             target: ".invalid",
-            actions: ["clearValues", "clearAvailable", "clearSearch"],
+            actions: ["resetModel", "resetLookups", "clearSearch"],
           },
         },
       },
 
       existing: {
-        entry: ["clearValues", "clearAvailable"],
         id: "existing",
-        initial: "loading",
+        initial: "invalid",
         states: {
-          loading: {
-            entry: [
-              "cancelController",
-              "clearAvailable",
-              "clearError",
-              "newController",
-            ],
-            invoke: {
-              src: "getClientDomains",
-              onDone: {
-                target: "invalid",
-                actions: ["setAvailable"],
-              },
-              onError: [
-                {
-                  target: "error",
-                  actions: ["setError"],
-                  cond: "isNotCancelled",
-                },
-              ],
-            },
-          },
-
-          // cancel any existing search via the controller then wait before starting a new search & controller
-          processing: {
-            entry: "cancelController",
-            after: { wait: "invalid" },
-          },
-
           valid: {
             always: [
               {
                 target: "invalid",
-                cond: "hasNoValues",
+                cond: "hasNoModel",
                 actions: assign({
                   error: "Invalid domain",
                 }),
@@ -293,7 +254,7 @@ export default createMachine(
           invalid: {
             always: {
               target: "valid",
-              cond: "hasValues",
+              cond: "hasModel",
             },
           },
           error: {},
@@ -302,38 +263,37 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["clearError", "add"],
+              actions: ["clearError", "add", "ensurePrimary"],
               cond: "isValidDomain",
             },
             { target: ".valid" },
           ],
           REMOVE: {
-            target: ".valid",
-            actions: ["clearError", "remove"],
-            cond: "hasValues",
+            target: ".invalid",
+            actions: ["clearError", "remove", "ensurePrimary"],
+            cond: "hasModel",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["clearError", "clearValues", "setValues"],
+            actions: ["clearError", "clearModel", "setModel", "ensurePrimary"],
           },
         },
-        exit: ["clearValues", "clearAvailable"],
+        exit: ["clearModel"],
       },
 
       basket: {
-        entry: ["clearValues", "clearAvailable"],
         id: "basket",
         initial: "loading",
         states: {
           loading: {
             entry: ["fetchBasket"],
             on: {
-              SYNCED: {
+              FETCHED: {
                 target: "invalid",
                 actions: [
                   "setBasketItems",
-                  "setAvailable",
-                  "setValues",
+                  "setModel",
+                  "ensurePrimary",
                   "checkChoices",
                 ],
               },
@@ -351,7 +311,7 @@ export default createMachine(
           valid: {
             always: {
               target: "invalid",
-              cond: "hasNoValues",
+              cond: "hasNoModel",
             },
             on: {
               SYNC: {
@@ -363,7 +323,7 @@ export default createMachine(
           invalid: {
             always: {
               target: "valid",
-              cond: "hasValues",
+              cond: "hasModel",
             },
           },
           syncing: {
@@ -376,7 +336,6 @@ export default createMachine(
                 actions: ["synced"],
               },
               ERROR: {
-                target: "error",
                 actions: ["setError"],
               },
             },
@@ -389,11 +348,11 @@ export default createMachine(
             {
               target: ".processing",
               actions: ["setPrimary"],
-              cond: "hasValues",
+              cond: "hasModel",
             },
           ],
         },
-        exit: ["clearValues", "clearAvailable"],
+        exit: ["clearModel"],
       },
 
       // ---
@@ -436,10 +395,65 @@ export default createMachine(
       STOP: {
         target: "complete",
       },
+
+      AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
+      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
     },
   },
   {
     actions: {
+      setContext: assign((context, _event) =>
+        defaultsDeep(context, {
+          choices: DomainTypes,
+          type: undefined,
+          model: [],
+          lookups: {
+            searched: [],
+            history: [],
+            owned: [],
+            basket: [],
+          },
+          // ---
+          currency: undefined,
+          promotions: [],
+          // ---
+          search: {
+            query: undefined,
+            limit: 10,
+            offset: 0,
+            total: 0,
+          },
+
+          controller: undefined,
+          // ---
+          error: undefined,
+          // ---
+          authHelper: undefined,
+          basketHelper: undefined,
+          itemBuilder: undefined,
+          itemMapper: undefined,
+          basketItemBuilder: undefined,
+          basketItemMapper: undefined,
+        })
+      ),
+
+      persistModel: assign({
+        baseModel: ({ model }) => model,
+      }),
+
+      checkModel: assign({
+        model: ({ model }) => map(compact(model), parseDomain),
+      }),
+
+      ensurePrimary: assign({
+        model: ({ model }) => {
+          if (!!model?.length && !some(model, "is_primary")) {
+            first(model).is_primary = true;
+          }
+          return model;
+        },
+      }),
+
       checkChoices: assign({
         choices: ({ basketItems }) => {
           if (!basketItems?.length)
@@ -447,9 +461,18 @@ export default createMachine(
 
           return DomainTypes;
         },
-        type: ({ type, basketItems }) => {
-          if (!basketItems?.length) return type;
-          return type || DomainTypes.basket;
+        type: ({ type, basketItems, model }) => {
+          const selected = find(model, "is_primary") || first(model);
+          const domain = get(selected, "domain");
+
+          if (domain) {
+            const inBasket = some(basketItems, ["domain", domain]);
+            if (inBasket) return DomainTypes.basket;
+
+            return DomainTypes.existing;
+          }
+
+          return type;
         },
       }),
 
@@ -470,9 +493,13 @@ export default createMachine(
       }),
       // ---
 
-      setBasketHelper: assign(context => {
+      setAuthHelper: assign(({ authHelper }) => {
+        authHelper || spawn(authSubscription);
+      }),
+
+      setBasketHelper: assign(({ basketHelper }) => {
         return {
-          basketHelper: spawn(syncSubscription),
+          basketHelper: basketHelper || spawn(basketSubscription),
           itemBuilder: function (item) {
             return parseBasketItem(item);
           },
@@ -489,6 +516,7 @@ export default createMachine(
                 billing_cycle_months: item.billing_cycle_months,
               },
               options: item.options,
+              attributes: item.attributes,
               provision_fields: {
                 sld: item.sld,
               },
@@ -503,130 +531,132 @@ export default createMachine(
 
       setBasketItems: assign({
         basketItems: (_context, { data }) => data,
+        lookups: ({ lookups }, { data }) => {
+          const available = map(data, item => {
+            item.value = item.domain;
+            return item;
+          });
+
+          set(lookups, "basket", available);
+          return lookups;
+        },
       }),
 
       syncBasket: sendTo(
         ({ basketHelper }, _event) => basketHelper,
-        (context, _event) => ({
-          type: "SYNC",
-          data: context,
-          target: "values",
-        })
+        (context, _event) => {
+          // not all values might be products, eg an exiting domain value,
+          // so we need to filter out any non product values
+          const safeProducts = filter(
+            context.model,
+            item => !!item?.product_id
+          );
+          return {
+            type: "SYNC",
+            target: safeProducts,
+            context,
+          };
+        }
       ),
 
       fetchBasket: sendTo(
         ({ basketHelper }, _event) => basketHelper,
         (context, _event) => ({
           type: "FETCH",
-          data: context,
+          context,
         })
       ),
-
-      // addToBasket: sendTo(
-      //   ({ basketHelper }, _event) => basketHelper,
-      //   (context, _event) => ({
-      //     type: "ADD",
-      //     data: context,
-      //     target: "values",
-      //   })
-      // ),
-      // removeFromBasket: sendTo(
-      //   ({ basketHelper }, _event) => basketHelper,
-      //   (context, _event) => ({
-      //     type: "REMOVE",
-      //     data: context,
-      //     target: "values",
-      //   })
-      // ),
-
-      // updateBasket: sendTo(
-      //   ({ basketHelper }, _event) => basketHelper,
-      //   (context, _event) => ({
-      //     type: "UPDATE",
-      //     data: context,
-      //     target: "values",
-      //   })
-      // ),
 
       // ---
 
       synced: assign({
-        // values: ({ values }, { data }) => {
-        //   // merge the values and data, preserving any existing properties in values
-        //   debugger;
-        //   const domains = unionBy(
-        //     map(data, item => {
-        //       let domain = parseBasketItem(item);
-        //       // merge any existing values with the new data
-        //       const exists = find(values, ["domain", domain.domain]);
-        //       if (exists) {
-        //         domain = Object.assign({}, exists, domain);
-        //       }
-        //       return domain;
-        //     }),
-        //     values, // this will include any values NOT in data
-        //     "domain"
-        //   );
-        //   return domains;
-        // },
+        lookups: ({ lookups }, { data }) => {
+          lookups.basket = data;
+          return lookups;
+        },
         type: ({ type }, { data }) => {
-          return DomainTypes.basket;
-          // return data.length ? DomainTypes.basket : type;
+          return data?.length ? DomainTypes.basket : type;
         },
       }),
 
       // ---
 
       add: assign({
-        values: ({ values, available }: DomainContext, { data }: AddEvent) => {
-          const domain = parseValue(data, values, available);
-          // check in case...
-          // ensure we have at least one primary domain
-          if (domain) {
-            domain.is_primary = !some(values, "is_primary");
-            values.push(domain);
+        model: (
+          { model, lookups, type }: DomainContext,
+          { data }: AddEvent
+        ) => {
+          let available = [];
+          switch (type) {
+            case DomainTypes.register:
+              available = lookups?.searched;
+              break;
+            case DomainTypes.transfer:
+              available = lookups?.searched;
+              break;
+            case DomainTypes.existing:
+              available = lookups?.owned;
+              break;
+            case DomainTypes.basket:
+              available = lookups?.basket;
+              break;
           }
-
-          return values;
+          const domain = parseValue(data, model, available);
+          if (domain) model.push(domain);
+          return model;
         },
       }),
 
       remove: assign({
-        values: ({ values }: DomainContext, { data }: RemoveEvent) => {
-          const newValues = reject(values, ["domain", data]);
-          if (newValues?.length && !some(newValues, "is_primary")) {
-            newValues[0].is_primary = true;
-          }
-          return newValues;
-        },
+        model: ({ model }: DomainContext, { data }: RemoveEvent) =>
+          reject(model, ["domain", data]),
       }),
 
       // ---
 
-      setValues: assign({
-        values: ({ values, available }: DomainContext, { data }: AddEvent) => {
-          // check if we already have the domain
-          return reduce(
+      setModel: assign({
+        model: ({ model, lookups, type }: DomainContext, { data }: AddEvent) =>
+          reduce(
             data,
             (result, item) => {
-              const domain = parseValue(item, values, available);
+              let available = [];
+              switch (type) {
+                case DomainTypes.register:
+                  available = lookups?.searched;
+                  break;
+                case DomainTypes.transfer:
+                  available = lookups?.searched;
+                  break;
+                case DomainTypes.existing:
+                  available = lookups?.owned;
+                  break;
+                case DomainTypes.basket:
+                  available = lookups?.basket;
+                  break;
+              }
 
-              // ensure we have at least one primary domain
+              const domain = parseValue(item, model, available);
+
+              // ensure we persist any prev selected/primary domain
               if (domain) {
-                domain.is_primary = !some(values, "is_primary");
+                const exists = find(model, ["domain", domain.domain]);
+                domain.is_primary = exists?.is_primary;
                 result.push(domain);
               }
               return result;
             },
             []
-          );
+          ),
+      }),
+
+      resetModel: assign({
+        model: ({ baseModel }, _event) => {
+          return baseModel;
         },
       }),
 
-      clearValues: assign({
-        values: (_context, _event) => {
-          return [];
-        },
+      clearModel: assign({
+        model: [],
       }),
 
       cancelController: assign({
@@ -644,61 +674,119 @@ export default createMachine(
         },
       }),
 
-      setSearch: assign({
-        search: (_context, { data }) => data?.domain || "",
-        offset: (_context, { data }) => data?.offset || 0,
+      setSearchQuery: assign({
+        search: ({ search }, { data }) => {
+          return {
+            query: data,
+            offset: 0,
+            limit: search?.limit,
+            total: 0,
+          };
+        },
+      }),
+
+      setSearchOffset: assign({
+        search: ({ search }, _event) => {
+          search.offset += search?.limit;
+          return search;
+        },
       }),
 
       clearSearch: assign({
-        search: null,
-        offset: 0,
-        total: 0,
-        history: [],
+        search: ({ search }, _event) => ({
+          query: "",
+          offset: 0,
+          limit: search.limit,
+          total: 0,
+        }),
+        lookups: ({ lookups }) => {
+          // lookups.history = [];
+          lookups.search = [];
+          return lookups;
+        },
       }),
 
-      setAvailable: assign({
-        available: ({ history, values }, { data }) => {
-          const available = get(data, "available", data);
-          const persisted = filter(history, ({ domain }) =>
-            some(values, ["domain", domain])
+      setSearchResults: assign({
+        lookups: ({ lookups, model, search }, { data }) => {
+          const previous = search.offset > 0 ? lookups.searched : [];
+
+          const available = map(data?.available, item => {
+            item.value = item.domain;
+            item.is_owned = some(lookups.owned, ["domain", item.domain]);
+            item.in_basket = some(lookups.basket, ["domain", item.domain]);
+            item.disabled = item.is_owned || item.in_basket;
+            return item;
+          });
+
+          const persisted = filter(lookups.history, ({ domain }) =>
+            some(model, ["domain", domain])
           );
-          return uniqBy(compact(concat(persisted, available)), "domain");
+
+          set(
+            lookups,
+            "searched",
+            uniqBy(compact(concat(persisted, previous, available)), "domain")
+          );
+
+          // store all previous searches
+          set(
+            lookups,
+            "history",
+            uniqBy(compact(concat(lookups.history, available)), "domain")
+          );
+
+          return lookups;
+          foffset;
         },
-        history: ({ history }, { data }) =>
-          uniqBy(compact(concat(history, data.available)), "domain"),
-
-        total: (_context, { data }) => data.total,
-
+        search: ({ search }, { data }) => {
+          search.total = data.total;
+          return search;
+        },
         controller: null,
       }),
 
-      clearAvailable: assign({
-        available: (_context, _event) => {
-          return [];
+      setOwned: assign({
+        lookups: ({ lookups }, { data }) => {
+          const available = map(data, item => {
+            item.value = item.domain;
+            item.persist = true;
+            return item;
+          });
+          set(lookups, "owned", available);
+          return lookups;
+        },
+      }),
+
+      clearLookups: assign({
+        lookups: (_context, _event) => {
+          return {
+            searched: [],
+            history: [],
+            owned: [],
+            basket: [],
+          };
+        },
+      }),
+
+      resetLookups: assign({
+        lookups: ({ lookups }, _event) => {
+          return {
+            searched: [],
+            history: [],
+            owned: lookups.owned,
+            basket: lookups.basket,
+          };
         },
       }),
 
       setPrimary: assign({
-        values: ({ values }, { data }) => {
-          const primary = find(values, ["domain", data]);
-          return map(values, value => {
+        model: ({ model }, { data }) => {
+          const primary = find(model, ["domain", data]);
+          return map(model, value => {
             value.is_primary = value === primary;
             return value;
           });
         },
-      }),
-
-      import: assign({
-        values: ({ values }, { data }) => {
-          const domain = parseDomain(data);
-          values.push(domain);
-
-          return map(values, value => {
-            value.is_primary = value === domain;
-            return value;
-          });
-        },
-        type: () => DomainTypes.existing,
       }),
 
       // ---
@@ -722,41 +810,42 @@ export default createMachine(
     },
 
     guards: {
-      needsBasketHelper: ({ sync, basketHelper }) => sync && !basketHelper,
-
       // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
 
       isInvalidType: ({ choices }, { data }) => {
         return isEmpty(choices) || !has(DomainTypes, data);
       },
 
-      isValidDomain: (_context, { data }) => {
-        return !isEmpty(parseDomain(data));
-      },
+      isValidDomain: (_context, { data }) => !isEmpty(parseDomain(data)),
 
-      hasValidSearch: ({ search }, _event) => {
-        const sld = parseSld(search);
+      hasSearchQuery: ({ search }, _event) => {
+        const sld = parseSld(search.query);
         return sld?.length > 2;
       },
-      isValidSearch: (_context, { data }) => {
-        const sld = parseSld(data?.domain || data);
-        return sld?.length > 2;
+      validSearchQuery: (_context, { data }) => {
+        const sld = parseSld(data);
+        return sld?.length >= 2;
+      },
+      validSearchOffset: ({ search }, _event) => {
+        const offset = search.offset + search.limit;
+        return offset < search.total;
       },
 
-      hasAvailable: ({ available }) => {
-        return !isEmpty(available);
+      hasModel: ({ model }) => {
+        return !isEmpty(model);
       },
 
-      hasValues: ({ values }) => {
-        return !isEmpty(values);
+      hasNoModel: ({ model }) => {
+        return isEmpty(model);
       },
 
-      hasNoValues: ({ values }) => {
-        return isEmpty(values);
+      hasItems: (_context, { data }) => {
+        return !!data?.length;
       },
 
       isNotCancelled: (_context, { data }) => data?.name !== "AbortError",
 
+      // ---
       isDomainTransfer: ({ choices }, { data }: { data: string }) =>
         !isEmpty(choices) && data === DomainTypes.transfer,
 

@@ -24,8 +24,9 @@
     "dac": {
       "search": "Search for your domain...",
       "actions": {
-        "continue": "Add domains to basket",
-        "cancel": "Cancel"
+        "continue": "Add domain to basket | Add domains to basket",
+        "cancel": "Cancel",
+        "more": "Load more"
       }
     },
     "existing": {
@@ -36,6 +37,19 @@
       "title": "Choose your domain from the list below "
     },
     "card": {
+      "promotion": "On promotion",
+      "owned": {
+        "label": "You own this domain",
+        "instruction": "Select this domain from {newline}{ownership} section above.",
+        "ownership": "Use an existing domain and update nameservers",
+        "action": "Owned"
+      },
+      "basket": {
+        "label": "In Basket",
+        "instruction": "Select this domain from {newline}{ownership} section above.",
+        "ownership": "Use a domain from my basket",
+        "action": "Added"
+      },
       "available": {
         "label": "Available",
         "instruction": "{price} /yr",
@@ -44,9 +58,9 @@
       },
       "transfer": {
         "label": "Transferable",
-        "instruction": "{ownership} Transfer it to us and we'll take care of the rest.{newline}Our {tld} renewal prices start from only {price} /yr.",
-        "ownership": "Own this domain?",
-        "action": "Transfer | Added"
+        "instruction": "{ownership} Transfer it to us {action}.{newline}Our {tld} renewal prices start from only {price} /yr.",
+        "ownership": "Do you own this domain?",
+        "action": "by clicking here | Added"
       }
     }
   }

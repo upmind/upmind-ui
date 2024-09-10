@@ -14,7 +14,7 @@
           :key="route.fullPath"
         />
 
-        <upm-session-expired />
+        <upm-session-expired auto />
       </main>
 
       <upm-footer />

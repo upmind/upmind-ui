@@ -1,67 +1,33 @@
 <template>
-  <upw-input
-    v-for="item in items"
-    :key="item.id"
-    :class="styles.product.config.list.root"
-    :label="item.name"
-    :text="safeText(item)"
-    :required="item.required"
-    :errors="safeErrors(item.id)"
-    variant="flat"
-    layout="stacked"
-    :dirty="isDirty(item.id)"
-    @blur="blurred[item.id] = true"
-    tabindex="-1"
-  >
-    <ul
-      :class="styles.product.config.list.items"
-      :aria-invalid="isInvalid(item.id)"
+  <template v-for="item in items" :key="item.id">
+    <upw-input
+      v-if="item.values?.length"
+      :class="styles.product.config.list.root"
+      :label="item.name"
+      :text="safeText(item)"
+      :required="item.required"
+      :errors="safeErrors(item.id)"
+      variant="flat"
+      layout="stacked"
+      :dirty="isDirty(item.id)"
+      @blur="blurred[item.id] = true"
+      tabindex="-1"
     >
-      <li
-        v-for="value in item.values"
-        :key="value.id"
-        :aria-selected="
-          isSelected(
-            item.id,
-            value.id,
-            item.values?.length == 1 && item.required
-          )
+      <component
+        :is="
+          item.multiple || item.values?.length == 1
+            ? 'upw-checkbox-list'
+            : 'upw-radio-list'
         "
-        :class="styles.product.config.list.item.root"
+        :items="parsedValues(item.values)"
+        :model-value="getValues(item)"
+        :errors="errors?.[item.id]"
+        no-feedback
+        @update:modelValue="doResolve(item, $event)"
       >
-        <label
-          :for="`items[${item.id}][${value.id}]`"
-          :class="styles.product.config.list.item.wrapper"
-          :disabled="disabled"
-        >
-          <component
-            :is="
-              item.multiple || item.values?.length == 1
-                ? 'upw-checkbox'
-                : 'upw-radio'
-            "
-            :id="`items[${item.id}][${value.id}]`"
-            :name="`items[${item.id}]`"
-            :class="styles.product.config.list.item.input"
-            :model-value="
-              isSelected(
-                item.id,
-                value.id,
-                item.values?.length == 1 && item.required
-              )
-            "
-            :value="value.id"
-            :required="item.required"
-            :disabled="disabled"
-            :processing="processing"
-            @change="doResolve(item, value, $event)"
-            no-feedback
-            no-status
-            variant="flat"
-            size="md"
-          />
+        <template #prepend="{ item: value }"> </template>
 
-          <!-- content -->
+        <template #label="{ item: value }">
           <div :class="styles.product.config.list.item.header">
             <!-- title -->
             <span :class="styles.product.config.list.item.title">
@@ -73,7 +39,7 @@
                 v-for="promotion in value?.price?.promotions"
                 :key="promotion.id"
               >
-                <uw-badge
+                <upw-badge
                   color="promotion"
                   :label="
                     $tc(
@@ -86,17 +52,11 @@
                   "
                 />
               </template>
-
-              <!-- <uw-badge
-                v-if="!item.price_override"
-                variant="tonal"
-                color="base"
-                :label="value.price?.billing_cycle_name"
-              /> -->
             </span>
           </div>
+        </template>
 
-          <!-- footer -->
+        <template #append="{ item: value }">
           <div :class="styles.product.config.list.item.footer">
             <upw-spinner v-if="loading" size="xs" />
 
@@ -140,10 +100,10 @@
               </span>
             </span>
           </div>
-        </label>
-      </li>
-    </ul>
-  </upw-input>
+        </template>
+      </component>
+    </upw-input>
+  </template>
 </template>
 
 <script>
@@ -157,24 +117,28 @@ import config from "./config.cva";
 // --- components
 import {
   UpwRadio,
+  UpwRadioList,
   UpwCheckbox,
-  UwBadge,
+  UpwCheckboxList,
+  UpwBadge,
   UpwInput,
   UpwQuantitybox,
   UpwSpinner,
 } from "@upmind/upwind";
 
 // --- utils
-import { some, has } from "lodash-es";
+import { some, has, reduce, map, get, first, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigList",
+  name: "UpmProductConfigNested",
   components: {
     UpwInput,
     UpwRadio,
+    UpwRadioList,
     UpwCheckbox,
-    UwBadge,
+    UpwCheckboxList,
+    UpwBadge,
     UpwQuantitybox,
     UpwSpinner,
   },
@@ -246,14 +210,46 @@ export default defineComponent({
       return autoselect || some(this.modelValue?.[item], [this.itemKey, value]);
     },
 
+    safeValue(item, value) {
+      const shouldBeArray = item.multiple || item.values?.length == 1;
+      const safeArray = !isArray(value) ? [value] : value;
+      const safeString = isArray(value) ? first(value) : value;
+      const safeValue = shouldBeArray ? safeArray : safeString;
+      return safeValue;
+    },
+
+    getValues(item) {
+      const value = reduce(
+        this.modelValue?.[item.id],
+        (result, value) => {
+          const val = get(value, this.itemKey);
+          if (val) result.push(val);
+          return result;
+        },
+        []
+      );
+
+      return this.safeValue(item, value);
+    },
+
     doUpdateQuantity(item, value, $event) {
       this.$emit("update:quantity", item, value, $event);
     },
 
-    doResolve(item, value, $event) {
+    doResolve(item, value) {
       if (this.disabled || this.processing) return;
 
-      this.$emit("update:modelValue", item, value, $event);
+      const safeValue = this.safeValue(item, value);
+
+      this.$emit("update:modelValue", item, safeValue);
+    },
+
+    parsedValues(values) {
+      return map(values, value => ({
+        ...value,
+        value: value.id,
+        label: value.name,
+      }));
     },
   },
 });

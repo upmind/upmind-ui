@@ -40,7 +40,10 @@ export const useBasketPaymentGateway = (actor?: TActor<any>) => {
       isLoading:
         !payment_gateway.value?.state ||
         stateMatches(payment_gateway.value?.state, ["loading"]),
-      hasErrors: stateMatches(payment_gateway.value?.state, ["error"]),
+      hasErrors: stateMatches(payment_gateway.value?.state, [
+        "error",
+        // "invalid",
+      ]),
       isProcessing: stateMatches(payment_gateway.value?.state, [
         "checking",
         "processing",

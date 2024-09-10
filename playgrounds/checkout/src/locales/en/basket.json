@@ -4,7 +4,12 @@
       "title": "Now lets personalise your order",
       "text": " Great | Great choice | Great Choices",
       "pending": {
-        "title": "Before we continue, we require additional details from you."
+        "title": "Before we continue, we require additional details from you.",
+        "badge": "Needs details"
+      },
+      "invalid": {
+        "title": "Before we continue, we require missing details from you.",
+        "badge": "Missing details"
       }
     },
     "details": {

@@ -59,7 +59,7 @@ export default defineComponent({
     return {
       meta,
       open: computed(() => {
-        const value = meta.value.isProcessingOrder || meta.value.isComplete;
+        const value = meta.value.isCheckout || meta.value.isComplete;
         return value;
       }),
 
