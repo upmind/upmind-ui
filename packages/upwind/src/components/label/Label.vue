@@ -53,8 +53,11 @@ import { defineComponent, computed } from "vue";
 import config from "./config.cva";
 
 // --- components
-import UpwIcon from "../icon/Icon.vue";
-import UwBadge from "../../ui/badge/Badge.ce.vue";
+
+// --- custom elements
+import { useCustomElement } from "../../";
+import { UwBadge } from "../../ui/badge";
+useCustomElement(UwBadge);
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -70,10 +73,7 @@ export default defineComponent({
   name: "UpwLabel",
   inheritAttrs: false,
   emits: ["update:modelValue", "change"],
-  components: {
-    UpwIcon,
-    UwBadge,
-  },
+  components: {},
 
   props: {
     id: { type: String },

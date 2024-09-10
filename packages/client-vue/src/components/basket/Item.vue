@@ -28,46 +28,51 @@
     @resolve="open = true"
   >
     <template #badges v-if="!meta.isLoading">
-      <upw-badge
+      <uw-badge
         v-if="meta.isNew"
         color="accent"
         variant="flat"
         :class="styles.basket.item.ping.root"
       >
         {{ $t("basket.items.pending.badge") }}
-      </upw-badge>
-      <upw-badge
+      </uw-badge>
+      <uw-badge
         v-else-if="meta.hasErrors"
         color="error"
         variant="flat"
         :class="styles.basket.item.ping.root"
       >
         {{ $t("basket.items.invalid.badge") }}
-      </upw-badge>
+      </uw-badge>
     </template>
   </upm-product-card>
 </template>
 
 <script>
 // --- external
-import { computed, defineComponent, ref, watch } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useProductConfig, useBasket, utils } from "@upmind/flow-vue";
 const { stateMatches } = utils;
-import { useStyles, mergeStyles, UpwBadge } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind/upwind";
+
 import config from "./config.cva";
 
 // --- components
 import UpmProductCard from "../product/Card.vue";
 import UpmProductConfig from "../product/Config.vue";
 
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
+
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketItem",
-  components: { UpmProductCard, UpmProductConfig, UpwBadge },
+  components: { UpmProductCard, UpmProductConfig },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

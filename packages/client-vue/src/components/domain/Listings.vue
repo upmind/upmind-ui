@@ -70,7 +70,7 @@
                   {{ $t("domain.card.transfer.label") }}
                 </span>
 
-                <upw-badge
+                <uw-badge
                   v-if="item?.is_discounted"
                   color="promotion"
                   :label="$t('domain.card.promotion')"
@@ -303,13 +303,16 @@ import UpmEmpty from "./Empty.vue";
 import {
   UpwTextbox,
   UpwButton,
-  UpwBadge,
   UpwSkeletonList,
   UpwDialog,
   UpwCheckboxList,
   UpwRadioList,
   UpwIcon,
 } from "@upmind/upwind";
+
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
 
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
@@ -323,7 +326,6 @@ export default defineComponent({
   components: {
     UpwTextbox,
     UpwButton,
-    UpwBadge,
     UpwIcon,
     UpwCheckboxList,
     UpwRadioList,

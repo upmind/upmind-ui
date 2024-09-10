@@ -39,7 +39,7 @@
                 v-for="promotion in value?.price?.promotions"
                 :key="promotion.id"
               >
-                <upw-badge
+                <uw-badge
                   color="promotion"
                   :label="
                     $tc(
@@ -120,11 +120,14 @@ import {
   UpwRadioList,
   UpwCheckbox,
   UpwCheckboxList,
-  UpwBadge,
   UpwInput,
   UpwQuantitybox,
   UpwSpinner,
 } from "@upmind/upwind";
+
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
 
 // --- utils
 import { some, has, reduce, map, get, first, isArray } from "lodash-es";
@@ -138,7 +141,6 @@ export default defineComponent({
     UpwRadioList,
     UpwCheckbox,
     UpwCheckboxList,
-    UpwBadge,
     UpwQuantitybox,
     UpwSpinner,
   },

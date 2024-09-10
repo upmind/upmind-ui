@@ -21,15 +21,15 @@
         <!-- heading -->
         <div :class="styles.product.config.heading">
           <div :class="styles.product.config.headingContent">
-            <upw-badge
-              color="secondary"
+            <uw-badge
               v-if="product?.hasFreeTrial"
+              color="secondary"
               :label="$t('product.trail')"
             />
 
-            <upw-badge
-              color="promotion"
+            <uw-badge
               v-if="product?.isOnPromotion"
+              color="promotion"
               :label="$t('product.promotion')"
             />
 
@@ -196,7 +196,6 @@ import config from "./config.cva";
 
 // --- components
 import {
-  UpwBadge,
   UpwButton,
   UpwQuantitybox,
   UpwSpinner,
@@ -207,6 +206,10 @@ import UpmConfigGrid from "./ConfigGrid.vue";
 import UpmConfigNested from "./ConfigNested.vue";
 import UpmConfigForm from "./ConfigForm.vue";
 
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
+
 // --- utils
 import { isNil } from "lodash-es";
 
@@ -215,7 +218,6 @@ export default defineComponent({
   name: "UpmProductConfig",
   inheritAttrs: false,
   components: {
-    UpwBadge,
     UpwButton,
     UpwQuantitybox,
     UpwSpinner,

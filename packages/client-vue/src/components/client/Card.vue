@@ -55,7 +55,11 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwIcon, UpwRadio, UpwDropdown, UwBadge } from "@upmind/upwind";
+import { UpwRadio, UpwDropdown } from "@upmind/upwind";
+
+// --- custom elements
+import { UwBadge, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge);
 
 // --- utils
 import { useClipboard } from "@vueuse/core";
@@ -64,7 +68,7 @@ import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmClientCard",
-  components: { UpwIcon, UpwRadio, UpwDropdown, UwBadge },
+  components: { UpwRadio, UpwDropdown },
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {
