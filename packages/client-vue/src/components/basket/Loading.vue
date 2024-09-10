@@ -32,17 +32,13 @@ import { useBasket } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UwAvatar } from "@upmind/upwind";
-
-// --- types
+// --- custom elements
+import { UwAvatar, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAvatar);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketloading",
-  components: {
-    UwAvatar,
-  },
   props: {
     modal: {
       type: Boolean,

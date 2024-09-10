@@ -1,32 +1,34 @@
 <template>
   <component
     v-if="modal || (!modal && expired)"
-    :is="modal ? 'upw-dialog' : 'div'"
+    :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
     :model-value="expired"
     no-actions
     persistent
     skrim="light"
   >
-    <section :class="styles.session.expired.root">
-      <uw-avatar :avatar="avatar" :class="styles.session.expired.avatar" />
+    <slot name="content">
+      <section :class="styles.session.expired.root">
+        <!-- <uw-avatar :avatar="avatar" :class="styles.session.expired.avatar" /> -->
 
-      <h3 :class="styles.session.expired.title">
-        {{ title }}
-      </h3>
+        <h3 :class="styles.session.expired.title">
+          {{ title }}
+        </h3>
 
-      <p :class="styles.session.expired.text">{{ text }}</p>
+        <p :class="styles.session.expired.text">{{ text }}</p>
 
-      <footer>
-        <upw-button
-          v-if="action"
-          v-bind="action"
-          block
-          variant="ghost"
-          :href="$route.fullPath"
-        />
-      </footer>
-    </section>
+        <footer>
+          <uw-button
+            v-if="action"
+            v-bind="action"
+            block
+            variant="ghost"
+            :href="$route.fullPath"
+          />
+        </footer>
+      </section>
+    </slot>
   </component>
 </template>
 
@@ -39,18 +41,17 @@ import { useSession } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
-
-// --- types
+// --- custom elements
+import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAvatar);
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmSessionExpired",
   components: {
-    UpwDialog,
     UwAvatar,
-    UpwButton,
   },
   props: {
     modal: {

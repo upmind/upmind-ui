@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
+    :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
     :model-value="open"
     no-actions
@@ -17,7 +17,7 @@
       <p :class="styles.basket.empty.text">{{ text }}</p>
 
       <footer>
-        <upw-button
+        <uw-button
           v-if="action"
           v-bind="action"
           block
@@ -38,19 +38,15 @@ import { useBasket } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
-
-// --- types
+// --- custom elements
+import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAvatar);
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketEmpty",
-  components: {
-    UpwDialog,
-    UwAvatar,
-    UpwButton,
-  },
   props: {
     modal: {
       type: Boolean,

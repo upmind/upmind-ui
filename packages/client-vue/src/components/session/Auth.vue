@@ -4,18 +4,22 @@
     :class="styles.session.auth.root"
     v-if="!meta.isAuthenticated"
   >
-    <upw-tabs
-      :tabs="tabs"
-      v-model="active"
-      @update:modelValue="toggleForm"
-      :block="blockTabs"
-      :stretch="stretchTabs"
-      size="sm"
+    <uw-tabs
+      :default-value="modelValue"
+      :tabs="['register', 'login']"
+      :width="stretchTabs ? 'full' : 'auto'"
       v-if="
         !noTabs &&
         (meta.canShowForms || meta.showLoginForm || meta.showRegisterForm)
       "
-    />
+    >
+      <span slot="trigger.register" @click="toggleForm('register')">{{
+        $t("auth.register")
+      }}</span>
+      <span slot="trigger.login" @click="toggleForm('login')">{{
+        $t("auth.login")
+      }}</span>
+    </uw-tabs>
 
     <upw-form
       :key="active"
@@ -32,9 +36,9 @@
     >
     </upw-form>
   </div>
-  <upw-button variant="ghost" block type="reset" @click.prevent="logout" v-else>
+  <uw-button variant="ghost" block type="reset" @click.prevent="logout" v-else>
     logout
-  </upw-button>
+  </uw-button>
 </template>
 
 <script lang="ts">
@@ -43,9 +47,14 @@ import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
-import { UpwForm, UpwTabs, UpwButton } from "@upmind/upwind";
+import { UpwForm } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
+
+// --- custom elements
+import { UwButton, UwTabs, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
+useCustomElement(UwTabs);
 
 // --- types
 import type { PropType } from "vue";
@@ -54,7 +63,7 @@ import type { AuthProps } from "./types";
 
 export default defineComponent({
   name: "UpmAuth",
-  components: { UpwForm, UpwTabs, UpwButton },
+  components: { UpwForm },
 
   emits: ["update:modelValue"],
   props: {
