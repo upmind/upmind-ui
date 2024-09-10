@@ -193,7 +193,7 @@ export default createMachine(
         type: "CANCEL",
       })),
 
-      escalateError: pure((_context, { data }) => {
+      escalateError: pure((_context, { data }): any => {
         escalate({ data });
       }),
 
