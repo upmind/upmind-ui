@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="dialog ? 'upw-dialog' : 'section'"
+    :is="dialog ? 'uw-dialog' : 'section'"
     @reject="onClose"
     size="xl"
     :actions="actions"
@@ -8,7 +8,7 @@
     :model-value="modelValue"
     @update:modelValue="onClose"
   >
-    <section :class="styles.clientListings.root">
+    <section slot="content" :class="styles.clientListings.root">
       <header :class="styles.clientListings.header">
         <slot name="header" v-bind="{ meta }"></slot>
       </header>
@@ -61,7 +61,7 @@
           :class="styles.clientListings.actions"
           v-if="!meta.isAdding && !meta.isEditing && !meta.isLoading && !dialog"
         >
-          <upw-button
+          <uw-button
             :label="$t(`client.${type}.actions.add`)"
             variant="ghost"
             @click="add"
@@ -102,26 +102,20 @@ import UpmAuth from "../session/Auth.vue";
 import UpmEmpty from "./Empty.vue";
 import UpmCard from "./Card.vue";
 import UpmItem from "./Item.vue";
-import {
-  UpwTextbox,
-  UpwButton,
-  UpwSkeletonList,
-  UpwDialog,
-} from "@upmind/upwind";
+import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 
-// --- utils
+// --- custom elements
+import { UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
 
-// --- types
-// import type { PropType } from "vue";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmClientListings",
   components: {
     UpwTextbox,
-    UpwButton,
     UpwSkeletonList,
-    UpwDialog,
     // ---
     UpmAuth,
     // ---

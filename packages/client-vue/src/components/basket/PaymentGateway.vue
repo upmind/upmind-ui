@@ -60,10 +60,6 @@ import config from "./config.cva";
 // --- components
 import { UpwForm, UpwSpinner } from "@upmind/upwind";
 
-// --- utils
-
-// --- types
-
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
