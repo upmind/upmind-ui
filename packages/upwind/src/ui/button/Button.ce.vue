@@ -4,6 +4,7 @@
   <primitive
     :as="as"
     :as-child="asChild"
+    :type="type"
     :class="styles.button.root"
     :disabled="disabled"
   >
@@ -56,6 +57,7 @@ export default defineComponent({
     block: { type: Boolean },
     disabled: { type: Boolean },
     loading: { type: Boolean },
+    type: { type: String },
   },
   setup(props) {
     const styles = useStyles(
