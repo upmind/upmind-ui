@@ -11,6 +11,7 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
+// @ts-ignore
 import type { IAddressData, IAddress } from "./types";
 
 // --------------------------------------------------------
@@ -19,8 +20,9 @@ import type { IAddressData, IAddress } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
+let state: any = null;
 
+// @ts-ignore
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
   devTools: false,
 }).onTransition(newState => (state = newState));
@@ -40,8 +42,8 @@ export const useClientUnifiedAddresses = () => {
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,
     getItems: () => compact(map(state?.context?.items, "state.context.model")),
-    getItemSnapshot: id => find(state?.context?.items, ["id", id]),
-    getItem: id =>
+    getItemSnapshot: (id: any) => find(state?.context?.items, ["id", id]),
+    getItem: (id: any) =>
       find(state?.context?.items, ["id", id])?.state?.context?.model,
     getSelected: () => {
       return waitFor(
@@ -68,7 +70,7 @@ export const useClientUnifiedAddresses = () => {
     getDefault: () =>
       find(state?.context?.items, "state.context.model.default"),
 
-    search: async data => {
+    search: async (data: any) => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>
         state.matches("available.filtered")

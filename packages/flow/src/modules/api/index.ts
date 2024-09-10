@@ -21,7 +21,7 @@ import { set, get, unset, keys, isString } from "lodash-es";
 // create a global instance of the requests machine
 // and a global object to store state
 
-let state = null;
+let state: any = null;
 const service = interpret(requestsMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
@@ -120,8 +120,7 @@ export const useApi = () => {
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
-   * @async
-   * @function
+   *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    */
@@ -147,8 +146,7 @@ export const useApi = () => {
 
   /**
    * Syntax sugar for sending a POST request to the server with the given URL and options.
-   * @async
-   * @function
+   *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    */
@@ -170,8 +168,7 @@ export const useApi = () => {
 
   /**
    * Syntax sugar for sending a PUT request to the server with the given URL and options.
-   * @async
-   * @function
+   *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    */
@@ -193,8 +190,7 @@ export const useApi = () => {
 
   /**
    * Syntax sugar for sending a PATCH request to the server with the given URL and options.
-   * @async
-   * @function
+   *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    */
@@ -216,8 +212,7 @@ export const useApi = () => {
 
   /**
    * Syntax sugar for sending a DELETE request to the server with the given URL and options.
-   * @async
-   * @function
+   *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    */
@@ -239,8 +234,7 @@ export const useApi = () => {
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
-   * @async
-   * @function
+   *
    * @param {RequestParams} params - The request parameters.
    * @returns {Promise<Object>} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    */

@@ -35,7 +35,7 @@ export interface IDomainProduct {
   price?: number;
   price_formatted?: string;
   // ---
-  is_primary: boolean;
+  is_primary?: boolean;
 }
 
 interface IDomain {

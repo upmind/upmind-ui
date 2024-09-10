@@ -1,0 +1,21 @@
+{
+  "$schema": "https://typedoc-plugin-markdown.org/schema.json",
+  "name": "Upmind",
+  "entryPoints": ["../packages/flow", "../packages/flow-vue"],
+  "entryPointStrategy": "packages",
+  "outputFileStrategy": "members",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "readme": "./index.md",
+  "indexFormat": "table",
+  "packageOptions": { "gitRevision": "main" },
+  "githubPages": false,
+  "useCodeBlocks": true,
+  "disableSources": true,
+  "excludeScopesInPaths": true,
+  "textContentMappings": {
+    "title.indexPage": "API Reference",
+    "title.memberPage": "{name}"
+  },
+  "cleanOutputDir": false,
+  "out": "./@upmind"
+}

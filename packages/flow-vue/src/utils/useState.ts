@@ -22,7 +22,7 @@ import {
 // safe state allows us to pass reactive objects and get the state object
 // as well as objects that could contain the state object, eg an actor/machine
 // This is useful when we want to pass in a ref or reactive object that could be an actor, machine or a state object
-const safeState = value => {
+const safeState = (value: any) => {
   let state = unref(value);
   state = get(state, "state", state);
   state = unref(state);
@@ -44,7 +44,7 @@ export const stateMatches = (
   return matchAll ? states.every(state.matches) : states.some(state.matches);
 };
 
-export const contextMatches = (state, props: string[]) => {
+export const contextMatches = (state: any, props: string[]) => {
   const context = stateValue(state, "context");
 
   if (!context || !props?.length) return false;
@@ -55,7 +55,7 @@ export const contextMatches = (state, props: string[]) => {
   });
 };
 
-export const machineMatches = (machine, states: string[]) => {
+export const machineMatches = (machine: any, states: string[]) => {
   machine = unref(machine);
 
   if (!machine || !states?.length) return false;
@@ -66,7 +66,11 @@ export const machineMatches = (machine, states: string[]) => {
 };
 
 // --- value helpers
-export const stateValue = (state, prop?: string | string[], fallback?: any) => {
+export const stateValue = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => {
   state = safeState(state);
 
   if (!state) return fallback;
@@ -77,7 +81,7 @@ export const stateValue = (state, prop?: string | string[], fallback?: any) => {
 };
 
 export const contextValue = (
-  state,
+  state: any,
   prop?: string | string[],
   fallback?: any
 ) => {
@@ -88,7 +92,7 @@ export const contextValue = (
   return get(context, prop, fallback);
 };
 
-export const childActor = (state, prop?: string | string[], fallback?: any) => {
+export const childActor = (state: any, prop?: any, fallback?: any) => {
   state = safeState(state);
 
   if (!state || !prop?.length) return fallback;
@@ -104,7 +108,7 @@ export const childActor = (state, prop?: string | string[], fallback?: any) => {
 };
 
 export const contextActor = (
-  state,
+  state: any,
   prop?: string | string[],
   fallback?: any
 ) => {
@@ -123,7 +127,7 @@ export const contextActor = (
   return createActor(context);
 };
 
-const createActor = context => {
+const createActor = (context: any) => {
   const actor = useActor(context);
   return {
     id: context.id,
@@ -132,20 +136,26 @@ const createActor = context => {
 };
 // --- computed helpers
 
-export const useState = (state, prop?: string | string[], fallback?: any) =>
-  computed(() => stateValue(state, prop, fallback));
+export const useState = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => computed(() => stateValue(state, prop, fallback));
 
-export const useContext = (state, prop?: string | string[], fallback?: any) =>
-  computed(() => contextValue(state, prop, fallback));
+export const useContext = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => computed(() => contextValue(state, prop, fallback));
 
 export const useChildActor = (
-  state,
+  state: any,
   prop?: string | string[],
   fallback?: any
 ) => computed(() => childActor(state, prop, fallback));
 
 export const useContextActor = (
-  state,
+  state: any,
   prop?: string | string[],
   fallback?: any
 ) => computed(() => contextActor(state, prop, fallback));

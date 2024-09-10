@@ -45,7 +45,7 @@ async function load(
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
@@ -111,7 +111,7 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
       // vat_percent: model.vat_percent,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function update({ model }: CompanyContext, _event: CompanyEvent) {
@@ -132,7 +132,7 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
       // vat_percent: model.vat_percent,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: CompanyContext, _event: CompanyEvent) {
@@ -145,7 +145,7 @@ async function setDefault({ model }: CompanyContext, _event: CompanyEvent) {
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function remove({ model }: CompanyContext, _event: CompanyEvent) {
@@ -157,12 +157,13 @@ async function remove({ model }: CompanyContext, _event: CompanyEvent) {
   return del({
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------
 
-async function parse({ model }: PhoneContext, _event: PhoneEvent) {
+// TODO: async function parse({ model }: PhoneContext, _event: PhoneEvent) {
+async function parse({ model }: any, _event: any) {
   // ---
   return Promise.resolve({ model });
 }
@@ -199,7 +200,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

@@ -33,18 +33,21 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
+    // @ts-ignore
     title: ({ model }: EmailContext, _event: EmailEvent) => model?.email,
     description: ({ model }: EmailContext, _event: EmailEvent) =>
       model?.verified ? "Verified" : "Unverified",
   }),
   setSchemas: assign({
-    schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
-    uischema: (context: EmailContext, _event: EmailEvent) =>
-      useUischema(context),
+    // TODO: schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
+    schema: (_, _event: EmailEvent) => useSchema(),
+    // TODO: uischema: (context: EmailContext, _event: EmailEvent) =>
+    // TODO: useUischema(context),
+    uischema: (_, _event: EmailEvent) => useUischema(),
   }),
 
   setModel: assign({
-    model: ({ schema, model }, { data }) =>
+    model: ({ schema, model }: any, { data }: any) =>
       useModelParser(schema, data || model),
   }),
 };

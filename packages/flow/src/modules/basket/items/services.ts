@@ -24,7 +24,7 @@ import {
 // Invoked by machines, providing context and event data
 
 // --------------------------------------------------------
-async function loadProvisioningValues({ basket_id, model }) {
+async function loadProvisioningValues({ basket_id, model }: any) {
   const { get, useUrl } = useApi();
   const { product_id } = model;
 
@@ -46,14 +46,14 @@ async function loadProvisioningValues({ basket_id, model }) {
     ),
     useCache: false,
     withAccessToken: true,
-  }).then(({ data }) => {
+  }).then(({ data }: any) => {
     // update the product with the provisioning fields
     set(model, "provision_fields", data);
     return model;
   });
 }
 
-async function update({ basket_id, basket_products, id }, { data }) {
+async function update({ basket_id, id }: any, { data }: any) {
   const { put, post, useUrl } = useApi();
   if (!basket_id) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided : ${id}`);
@@ -66,10 +66,10 @@ async function update({ basket_id, basket_products, id }, { data }) {
     url: useUrl(`/orders/${basket_id}/products${suffix}`),
     data,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
-async function remove({ basket_id, id }) {
+async function remove({ basket_id, id }: any) {
   const { del, useUrl } = useApi();
   if (!basket_id) return Promise.reject("No basket provided/available");
   if (!id) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
@@ -77,10 +77,10 @@ async function remove({ basket_id, id }) {
   return del({
     url: useUrl(`/orders/${basket_id}/products/${id}`),
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
-async function sync({ basket_id, basket_products }, { data }) {
+async function sync({ basket_id, basket_products }: any, { data }: any) {
   if (!basket_id) return Promise.reject("No basket provided/available");
 
   // When updating the basket we need to provide all products that are being updated
@@ -123,6 +123,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     basket_products,
     (result, item) => {
       if (get(item, "state.context.basket_product.id")) {
+        // @ts-ignore
         result.push({
           product_id: item.state.context.basket_product.product_id,
           order_product_id: item.state.context.basket_product.id,
@@ -141,7 +142,7 @@ async function sync({ basket_id, basket_products }, { data }) {
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   })
-    .then(({ data }) => {
+    .then(({ data }: any) => {
       forEach(dirty, item => item.send({ type: "UPDATED" }));
       return data;
     })

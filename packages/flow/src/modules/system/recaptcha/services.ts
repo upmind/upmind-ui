@@ -8,6 +8,7 @@ import type { RecaptchaEvent, RecaptchaContext } from "./types.d";
 // --------------------------------------------------------
 // HELPERS
 
+// @ts-ignore
 const siteKey = import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY;
 
 // --------------------------------------------------------
@@ -30,7 +31,9 @@ async function load(_context: RecaptchaContext, _event: RecaptchaEvent) {
     });
 
     script.addEventListener("load", async () => {
+      // @ts-ignore
       window["grecaptcha"].ready(() => {
+        // @ts-ignore
         const grecaptcha = window["grecaptcha"];
         return resolve(grecaptcha);
       });

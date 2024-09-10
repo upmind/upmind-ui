@@ -468,6 +468,7 @@ export default createMachine(
   },
   {
     actions: {
+      // @ts-ignore
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
           parseBasket(data),
@@ -486,6 +487,7 @@ export default createMachine(
           data,
       }),
 
+      // @ts-ignore
       setInvoice: assign({
         invoice: (_context: BasketContext, { data }: BasketEvent) => data,
         basket: undefined,
@@ -497,7 +499,7 @@ export default createMachine(
           return [];
         },
         actors: ({ actors }) => {
-          forEach(actors, actor => {
+          forEach(actors, (actor: any) => {
             if (!actor?.state?.done && actor?.stop) actor.stop();
           });
           return {
@@ -511,11 +513,12 @@ export default createMachine(
         // error: undefined,
       }),
 
+      // @ts-ignore
       setPayment: assign({
         payment: (_context: BasketContext, { data }: BasketEvent) => data,
       }),
 
-      trackPayment: ({ invoice }, { data }) => {
+      trackPayment: ({ invoice }: any, { data }: any) => {
         trackEvent({
           event: "payment",
           upmind: {
@@ -552,15 +555,17 @@ export default createMachine(
         },
       }),
 
-      refreshActors: pure(({ basket, actors, items, error }) => {
-        forEach(actors, actor => {
+      // @ts-ignore
+      refreshActors: pure(({ basket, actors }) => {
+        forEach(actors, (actor: any) => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
         });
       }),
 
-      refreshItems: pure(({ basket, actors, items, error }) => {
+      // @ts-ignore
+      refreshItems: pure(({ basket, items }) => {
         forEach(items, actor => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({
@@ -578,7 +583,7 @@ export default createMachine(
       }),
 
       clearActors: assign({
-        actors: ({ actors }) => {
+        actors: ({ actors }: any) => {
           forEach(actors, actor => {
             if (!actor?.state?.done && actor?.stop) {
               actor?.stop();
@@ -595,7 +600,7 @@ export default createMachine(
         },
       }),
 
-      forwardCheckout: pure(({ actors }) => {
+      forwardCheckout: pure(({ actors }): any => {
         // for Now  only the payment details is affected by checkout
         actors?.payment_details?.send({ type: "CHECKOUT" });
       }),
@@ -603,10 +608,10 @@ export default createMachine(
       // --- Configuring Items Actions
 
       spawnItems: assign({
-        items: ({ items, error }, { data }) => {
+        items: ({ items, error }: BasketContext, { data }) => {
           const basket = parseBasket(data);
           const products = basket?.products || [];
-          const newItems = [];
+          const newItems: any[] = [];
 
           // First Refresh any existing items ...
           // Refresh and that are still in active state
@@ -649,7 +654,7 @@ export default createMachine(
           // ---
           // finally add any new items
           const missing = differenceBy(products, items, "id");
-          forEach(missing, product => {
+          forEach(missing, (product: any) => {
             const index = findIndex(products, ["id", product?.id]);
 
             const item = spawnProductConfiguration(product, basket);
@@ -697,7 +702,7 @@ export default createMachine(
       }),
 
       // ---
-      setFeedbackSuccess: (_context, _event) => {
+      setFeedbackSuccess: (_context: BasketContext, _event: BasketEvent) => {
         addSuccess("Successfully updated the basket");
       },
 
@@ -716,8 +721,9 @@ export default createMachine(
         });
       },
 
+      // @ts-ignore
       setError: assign({
-        error: (context, { data }) => data?.error,
+        error: (context, { data }: BasketEvent) => data?.error,
       }),
 
       clearError: assign({ error: undefined }),
@@ -769,7 +775,7 @@ export default createMachine(
         );
       },
 
-      paymentDetailsComplete: ({ actors, paymentDetails }, { data }) => {
+      paymentDetailsComplete: ({ actors }, { data }) => {
         const value =
           (actors.payment_details?.state?.done ||
             actors.payment_details?.state?.matches("complete")) &&
@@ -847,6 +853,7 @@ export default createMachine(
       poll: () => useTime().POLL,
     },
 
+    // @ts-ignore
     services,
   }
 );

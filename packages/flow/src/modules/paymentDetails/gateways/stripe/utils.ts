@@ -39,11 +39,13 @@ export const useSchema = (context: StripeContext) => {
 // --------------------------------------------------------
 
 export const useUischema = (context: StripeContext) => {
+  // @ts-ignore
   const defaultUischema = useDefaultUischema(context);
 
   const uischema = {
     type: "VerticalLayout",
     elements: [
+      // @ts-ignore
       ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
     ],
   };

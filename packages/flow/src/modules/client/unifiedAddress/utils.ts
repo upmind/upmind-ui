@@ -19,6 +19,7 @@ import {
 } from "lodash-es";
 
 // --- types
+// @ts-ignore
 import type { IAddress, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
@@ -242,13 +243,14 @@ export const useSchema = ({
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ addresses, emails, phones }) => {
+export const useUischema = ({ addresses, emails, phones }: any) => {
   const lookups = {
     addresses: reduce(
       addresses.getItems(),
       (result, item) => {
         // Only return actual addresses, NOT companies
         if (!item?.company_details) {
+          // @ts-ignore
           result.push({
             value: item.id,
             label: [
@@ -588,6 +590,7 @@ export const spawnItem = (model?: IAddress) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
+        // @ts-ignore
         .withConfig({
           actions,
           services,
@@ -646,7 +649,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
       };
       return mappedItem;
     } else {
-      const mappedItem = pick(item, [
+      const mappedItem: any = pick(item, [
         "id",
         "client_id",
         "name",

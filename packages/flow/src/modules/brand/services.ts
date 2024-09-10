@@ -118,6 +118,7 @@ async function fetchBrandConfig(context: any, _event: any) {
     const template = reduce(
       missingKeys,
       (acc, key) => {
+        // @ts-ignore
         acc[key] = null;
         return acc;
       },

@@ -10,7 +10,7 @@ import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
-export const useClientUnifiedAddress = (item, context?: Object) => {
+export const useClientUnifiedAddress = (item: any, context?: any) => {
   const { service } = useUpmindClientUnifiedAddresses();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
@@ -53,11 +53,12 @@ export const useClientUnifiedAddress = (item, context?: Object) => {
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear: () => send({ type: "CLEAR" }),
-    input: model => send({ type: "SET", data: model }),
+    input: (model: any) => send({ type: "SET", data: model }),
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
         waitFor(service, newState =>
+          // @ts-ignore
           newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
@@ -83,7 +84,7 @@ export const useClientUnifiedAddresses = () => {
 
   // --------------------------------------------------------
   const items = computed(() =>
-    map(state.value.context.items, item => ({
+    map(state.value.context.items, (item: any) => ({
       id: item.id,
       ...useActor(item),
     }))
@@ -108,9 +109,11 @@ export const useClientUnifiedAddresses = () => {
       hasErrors: ["error"].some(state.value.matches),
       isAdding:
         ["available.editing"].some(state.value.matches) &&
+        // @ts-ignore
         !state.value.context.selected?.state.context?.model?.id,
       isEditing:
         ["available.editing"].some(state.value.matches) &&
+        // @ts-ignore
         !!state.value.context.selected?.state.context?.model?.id,
       isEmpty:
         state.value.matches("available") && isEmpty(state.value.context?.items),
@@ -124,17 +127,19 @@ export const useClientUnifiedAddresses = () => {
     selected: computed(() =>
       state.value.context?.selected
         ? {
+            // @ts-ignore
             id: state.value.context.selected?.id,
             ...useActor(state.value.context.selected),
           }
         : null
     ),
+    // @ts-ignore
     initial: computed(() => state.value.context?.initial),
 
     // ---
     isReady,
     getSelected,
-    select: async id => {
+    select: async (id: any) => {
       if (state.value.matches("available.loading")) {
         await waitFor(
           service,
@@ -145,7 +150,7 @@ export const useClientUnifiedAddresses = () => {
       send({ type: "SELECT", data: id });
     },
     filter: debounce(data => send({ type: "FILTER", data }), 300),
-    edit: id => send({ type: "EDIT", data: id }),
+    edit: (id: any) => send({ type: "EDIT", data: id }),
     add: () => send({ type: "ADD" }),
   };
 };

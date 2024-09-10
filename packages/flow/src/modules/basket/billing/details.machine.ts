@@ -169,7 +169,7 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => {
+        (_context: BillingDetailsContext, { data }: any) => {
           return {
             basket_id: data?.id,
             client_id: data?.client_id,
@@ -178,12 +178,12 @@ export default createMachine(
       ),
 
       setParsed: assign({
-        model: (_context, { data }) => data.model,
+        model: (_context, { data }: any) => data.model,
       }),
 
       setLookups: assign({
-        addresses: (_context, { data }) => data.addresses,
-        companies: (_context, { data }) => data.companies,
+        addresses: (_context, { data }: any) => data.addresses,
+        companies: (_context, { data }: any) => data.companies,
       }),
 
       setSchemas: assign({
@@ -210,15 +210,17 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }) => !!update,
+        autoupdate: (_context: any, { update }: any) => !!update,
       }),
 
       clearAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      setFeedbackSuccess: (_context, _event) => {
+      // @ts-ignore
+      setFeedbackSuccess: (_context: any, _event: any) => {
         addSuccess("Successfully updated billing details");
       },
 
@@ -240,7 +242,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -259,7 +261,7 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       hasClient: ({ client_id }, _event) => !!client_id,
-      hasChanged: ({ client_id, basket_id }, { data }) => {
+      hasChanged: ({ client_id, basket_id }, { data }: any) => {
         return basket_id !== data?.id || client_id !== data?.client_id;
       },
       shouldUpdate: ({ autoupdate, client_id, basket_id, model }, _event) => {
@@ -270,10 +272,12 @@ export default createMachine(
     },
 
     delays: {
+      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );
