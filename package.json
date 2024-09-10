@@ -65,7 +65,9 @@
     "packages/client-vue",
     "playgrounds/labs",
     "playgrounds/checkout",
+    "playgrounds/velia",
     "playgrounds/storybook",
+    "playgrounds/stoybook-ce",
     "docs"
   ]
 }
