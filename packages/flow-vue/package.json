@@ -26,7 +26,7 @@
     "type-check": "tsc --noEmit -p tsconfig.vitest.json --composite false"
   },
   "dependencies": {
-    "@upmind/flow": "^0.0.0",
+    "@upmind/upflow": "^0.0.0",
     "@xstate/vue": "^2.0.0",
     "lodash-es": "^4.17.21",
     "vue": "^3.5.1"
