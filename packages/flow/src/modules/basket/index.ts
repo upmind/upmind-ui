@@ -148,7 +148,6 @@ export const useBasket = () => {
         })
         .then(actor => {
           if (isEmpty(awaitStates)) return actor;
-          debugger;
           return waitFor(actor, actorState =>
             awaitStates.some(actorState.matches)
           )
