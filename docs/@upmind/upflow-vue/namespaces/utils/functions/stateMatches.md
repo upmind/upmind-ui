@@ -3,7 +3,10 @@
 # stateMatches()
 
 ```ts
-function stateMatches(state, states): boolean
+function stateMatches(
+   state, 
+   states, 
+   matchAll): boolean
 ```
 
 ## Parameters
@@ -11,6 +14,8 @@ function stateMatches(state, states): boolean
 • **state**: `any`
 
 • **states**: `string`[]
+
+• **matchAll**: `boolean` = `false`
 
 ## Returns
 

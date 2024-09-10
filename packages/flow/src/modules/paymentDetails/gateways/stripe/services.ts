@@ -159,7 +159,7 @@ async function update({ elements, stripe, model }: StripeContext) {
   // Submit form to validate fields
   const { error: submitError } = await elements
     .submit()
-    .catch(error => Promise.reject(error));
+    .catch((error: any) => Promise.reject(error));
 
   if (submitError) return Promise.reject(submitError);
 
@@ -251,7 +251,7 @@ async function confirmSetup() {}
  * ID from Stripe. To finish up, we need to save detail as a payment
  * method within the Upmind ecosystem.
  */
-async function endSetup(paymentDetailId?: string) {}
+async function endSetup() {}
 
 // --------------------------------------------------------
 // EXPORTS
