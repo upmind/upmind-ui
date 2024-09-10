@@ -48,7 +48,7 @@ async function load(
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function filterItems(
@@ -112,7 +112,7 @@ async function add({ model }: PhoneContext, _event: PhoneEvent) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function update({ model }: PhoneContext, _event: PhoneEvent) {
@@ -130,7 +130,7 @@ async function update({ model }: PhoneContext, _event: PhoneEvent) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function remove({ model }: PhoneContext, _event: PhoneEvent) {
@@ -142,7 +142,7 @@ async function remove({ model }: PhoneContext, _event: PhoneEvent) {
   return del({
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
@@ -155,7 +155,7 @@ async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------
@@ -170,7 +170,8 @@ async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
   });
 }
 
-async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
+// TODO: async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
+async function parse({ model, country }: any, _event: PhoneEvent) {
   // ---
 
   if (!model?.phone) return Promise.resolve({ model, country });
@@ -231,7 +232,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

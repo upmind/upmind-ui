@@ -92,28 +92,28 @@ export const useSession = (inspector?: Function) => {
   }
 
   // ---
-  function login(model) {
+  function login(model: any) {
     send({
       type: "AUTHENTICATE",
       data: unref(model),
     });
   }
 
-  function verify2fa({ token }) {
+  function verify2fa({ token }: any) {
     send({
       type: "VERIFY",
       data: unref(token),
     });
   }
 
-  function register(model) {
+  function register(model: any) {
     send({
       type: "REGISTER",
       data: unref(model),
     });
   }
 
-  function verifyReCaptcha(token) {
+  function verifyReCaptcha(token: any) {
     send({
       type: "VERIFY",
       data: unref(token),
@@ -128,7 +128,7 @@ export const useSession = (inspector?: Function) => {
 
   // ---
 
-  function resolve(model) {
+  function resolve(model: any) {
     if (meta.value.showLoginForm && !meta.value.show2fa) login(model);
     if (meta.value.show2fa) verify2fa(model);
     if (meta.value.showRegisterForm) register(model);

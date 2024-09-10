@@ -5,7 +5,7 @@ import { isArray } from "xstate/lib/utils";
 // ----------------------------------------------------------------------------
 /**
  * Constructs a URL with the given path and query parameters.
- * @function
+ *
  * @param {string} path - The path to append to the base URL.
  * @param {Object} params - The query parameters to include in the URL.
  * @param {string} [prepend="api"] - The string to prepend to the path.
@@ -18,18 +18,20 @@ export function useUrl(
 ) {
   // ensure our instance has the correct defaults
   instance = defaultsDeep(instance, {
+    // @ts-ignore
     base: import.meta.env.VITE_API_URL,
     context: "api",
   });
 
   // clean up path
-  path = [instance.context, trimStart(path, "/")].join("/");
+  path = [instance?.context, trimStart(path, "/")].join("/");
   // now we can create the url
-  const url = new URL(path, instance.base);
+  const url = new URL(path, instance?.base);
   // and add any params
   forIn(params, (value, key) => {
     if (isArray(value))
       value.forEach(v => url.searchParams.append(`${key}[]`, v));
+    // @ts-ignore
     else url.searchParams.set(key, value);
   });
 
@@ -38,10 +40,8 @@ export function useUrl(
 
 export function useUrlParams() {
   /**
-   * @name getParamFromUrl
-   * @desc Here we retrieve a search param from the URL
+   * Here we retrieve a search param from the URL
    */
-
   function getParamFromUrl(name: string) {
     if (!name) return null;
     const params = new URLSearchParams(window.location.search);
@@ -49,10 +49,8 @@ export function useUrlParams() {
   }
 
   /**
-   * @name syncParamToUrl
-   * @desc Here we sync a search param to the URL
+   * Here we sync a search param to the URL
    */
-
   function syncParamToUrl(name: string, value?: string) {
     const url = new URL(window.location.toString());
     if (!value) url.searchParams.delete(name);

@@ -16,20 +16,21 @@ import { getTokenfromStorage } from "./utils";
 
 let hasSession = false;
 
+// @ts-ignore
 const service = interpret(sessionMachine, { devTools: true });
 
 // --------------------------------------------------------
 
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
-const authCallback = callback => {
+const authCallback = (callback: any) => {
   const state = service.getSnapshot();
 
   // callback({ type: "TRANSITIONED", data: state.value });
 
   // Valid session
-  const clientMachine = state?.children?.clientMachine;
-  const guestMachine = state?.children?.guestMachine;
+  const clientMachine: any = state?.children?.clientMachine;
+  const guestMachine: any = state?.children?.guestMachine;
 
   if (
     (state.matches("guest") &&
@@ -73,12 +74,12 @@ const authCallback = callback => {
 // --------------------------------------------------------
 // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
-export const authSubscription = async (callback, onReceive) => {
+export const authSubscription = async (callback: any, onReceive: any) => {
   // firstly, send service's current state upon subscription
 
   authCallback(callback);
 
-  onReceive(event => {
+  onReceive(() => {
     // do nothing for now
     // console.debug("authSubscription", "receivedEvent", { event });
   });
@@ -92,6 +93,7 @@ export const authSubscription = async (callback, onReceive) => {
 
     // watch for our child machines to transition to a non-loading state
     // and then send the callback to the subscriber
+    // @ts-ignore
     currentMachine?.onTransition(() => {
       authCallback(callback);
     });
@@ -115,7 +117,7 @@ export const useSession = () => {
   // methods
 
   async function getUser() {
-    const clientMachine = service.getSnapshot()?.children?.clientMachine;
+    const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
     await waitFor(clientMachine, state => !state.matches("loading"));
     return clientMachine.state.context.user;
   }
@@ -152,12 +154,13 @@ export const useSession = () => {
     // ---
     getSnapshot: () => service.getSnapshot(),
     getToken: () => getTokenfromStorage()?.access_token,
+    // @ts-ignore
     getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,
-    authSubscription: (_context, _event) => authSubscription,
+    authSubscription: (_context: any, _event: any) => authSubscription,
     isAuthenticated: async () => {
-      const clientMachine = service.getSnapshot()?.children?.clientMachine;
+      const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
       if (!clientMachine)
         return Promise.reject({ title: "Unauthorized", code: 401 });
 

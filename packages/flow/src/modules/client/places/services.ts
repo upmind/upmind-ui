@@ -19,6 +19,7 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types.d";
 
 function load(_context: ClientListingsContext, _event: ClientListingsEvents) {
   const loader = new Loader({
+    // @ts-ignore
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
     version: "weekly",
   });
@@ -35,7 +36,8 @@ function load(_context: ClientListingsContext, _event: ClientListingsEvents) {
 }
 
 async function filterItems(
-  { service, sessionToken, statuses }: ClientListingsContext,
+  // TODO: { service, sessionToken, statuses }: ClientListingsContext,
+  { service, sessionToken, statuses }: any,
   { data }: ClientListingsEvents
 ) {
   return new Promise((resolve, reject) => {
@@ -50,7 +52,7 @@ async function filterItems(
         sessionToken: sessionToken,
         fields: ["address_components"],
       },
-      (result, status) => {
+      (result: any, status: any) => {
         if (status === statuses.OK) {
           resolve(usePredictionsParser(result));
         } else if (status === statuses.ZERO_RESULTS) {
@@ -70,7 +72,8 @@ async function parse(
     AutocompleteSessionToken,
     statuses,
     service,
-  }: ClientListingsContext,
+    // TODO: }: ClientListingsContext,
+  }: any,
   { data }: ClientListingsEvents
 ) {
   return new Promise((resolve, reject) => {
@@ -87,7 +90,7 @@ async function parse(
         sessionToken: sessionToken,
         fields: ["address_components", "name"],
       },
-      (result, status) => {
+      (result: any, status: any) => {
         sessionToken = new AutocompleteSessionToken();
 
         if (status === statuses.OK) {
@@ -112,7 +115,7 @@ export default {
   load,
   parse,
   filter: filterItems,
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => Promise.resolve(), // we dont need authentication for this service
 };

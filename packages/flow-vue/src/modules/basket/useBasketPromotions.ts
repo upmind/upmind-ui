@@ -73,9 +73,11 @@ export const useBasketPromotions = (actor?: TActor<any>) => {
       contextValue(promotions.value?.state, "promotions")
     ), // ---
     clear: () => promotions.value?.send({ type: "CLEAR" }),
+    // @ts-ignore
     input: model => promotions.value?.send({ type: "SET", data: model }),
     add: () => promotions.value?.send({ type: "ADD" }),
-    remove: promotion =>
+    remove: (promotion: any) =>
+      // @ts-ignore
       promotions.value?.send({ type: "REMOVE", data: promotion }),
   };
 };

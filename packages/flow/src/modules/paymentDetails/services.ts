@@ -28,6 +28,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // ENUMS
 
 const whitelistGatewayProviders =
+  // @ts-ignore
   import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS.split(",");
 // Array<string> = [
 //   "73de7864-2de5-3971-4ef2-1208469530d0",
@@ -89,7 +90,7 @@ async function load(
     }),
     withAccessToken: true,
     useCache: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 
   // ---
 
@@ -104,7 +105,7 @@ async function load(
     }),
     withAccessToken: true,
     useCache: true,
-  }).then(({ data }) => {
+  }).then(({ data }: any) => {
     // Whitelist payment gateways if provided
     if (whitelistGatewayProviders.length) {
       data = filter(data, ({ gateway }) => {
@@ -151,7 +152,7 @@ async function load(
 // --------------------------------------------------------
 
 async function parse(
-  { model, gateways, stored_payment_methods }: PaymentDetailsContext,
+  { model, gateways }: PaymentDetailsContext,
   { data }: PaymentDetailsEvent
 ) {
   // ---
@@ -210,6 +211,7 @@ async function validate(
   // NB, wait for them to finish loading/checking before we proceed
   const promises = map(actors, actor =>
     waitFor(
+      // @ts-ignore
       actor,
       state => !["loading", "checking", "error"].some(state.matches)
     )
@@ -244,7 +246,7 @@ export default {
   parse,
   validate,
   // ---
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

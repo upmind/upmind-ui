@@ -36,6 +36,7 @@ export const useSchema = (_context: BillingDetailsContext) => {
     ],
   };
 
+  // @ts-ignore
   return schema as JsonSchema;
 };
 

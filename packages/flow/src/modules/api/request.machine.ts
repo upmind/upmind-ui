@@ -10,7 +10,7 @@ import { useTime } from "../../utils";
 // --utils
 import { toNumber, set, includes } from "lodash-es";
 import { getTokenfromStorage } from "../session/utils";
-import { stateValuesEqual } from "xstate/lib/State";
+// TODO: import { stateValuesEqual } from "xstate/lib/State";
 // --------------------------------------------------------
 
 // as this is a sub machine, we need to be initialised with a request
@@ -204,7 +204,9 @@ export default (request: RequestParams) =>
     {
       actions: {
         setResponse: assign({
+          // @ts-ignore
           response: (context, { data }) => data,
+          // @ts-ignore
           completed: () => Date.now(),
         }),
 
@@ -216,6 +218,7 @@ export default (request: RequestParams) =>
         })),
 
         setError: assign({
+          // @ts-ignore
           error: (context, { data }) => data,
         }),
 
@@ -228,7 +231,7 @@ export default (request: RequestParams) =>
         }),
 
         setAuthHeader: assign({
-          init: ({ init }) => {
+          init: ({ init }: any) => {
             const token = getTokenfromStorage();
             set(init, "headers.Authorization", `Bearer ${token?.access_token}`);
             return init;
@@ -241,7 +244,7 @@ export default (request: RequestParams) =>
         hasRetried: ({ attempts }) => toNumber(attempts) > 1,
         // ---
         // NB: we cannot authorise oauth requests and we can only try once
-        canAuthorize: (context, { data }) => {
+        canAuthorize: (context, { data }: any) => {
           const isAuth = includes(context.url.pathname, "oauth");
           const isUnauthorized = data?.status === responseCodes.Unauthorized;
           const value =
@@ -256,7 +259,7 @@ export default (request: RequestParams) =>
           return value;
         },
         // ---
-        isUnauthorized: context =>
+        isUnauthorized: (context: any) =>
           context?.error?.status === responseCodes.Unauthorized,
         isForbidden: context =>
           context?.error?.status === responseCodes.Forbidden,
@@ -267,6 +270,7 @@ export default (request: RequestParams) =>
         hasTooManyRequests: context =>
           context?.error?.status === responseCodes.Too_Many_Requests,
         // ---
+        // @ts-ignore
         hasNoContent: ({ response }) =>
           response?.status === responseCodes.No_Content,
         // ---
@@ -274,6 +278,7 @@ export default (request: RequestParams) =>
           init?.method === FetchMethods.GET && !!useCache,
       },
       delays: {
+        // @ts-ignore
         maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
         error: () => useTime().ERROR,
         wait: () => useTime().WAIT,

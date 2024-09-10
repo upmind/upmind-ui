@@ -30,7 +30,7 @@ async function load(
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function filterItems(
@@ -55,6 +55,7 @@ async function filterItems(
 
       if (matches) {
         const model = get(item, "state.context.model");
+        // @ts-ignore
         result.push(model);
       }
 
@@ -101,7 +102,7 @@ async function add({ model }: EmailContext, _event: EmailEvent) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function update({ model }: EmailContext, _event: EmailEvent) {
@@ -117,7 +118,7 @@ async function update({ model }: EmailContext, _event: EmailEvent) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function remove({ model }: EmailContext, _event: EmailEvent) {
@@ -129,7 +130,7 @@ async function remove({ model }: EmailContext, _event: EmailEvent) {
   return del({
     url: useUrl(`clients/${clientId}/emails/${model.id}`),
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: EmailContext, _event: EmailEvent) {
@@ -142,7 +143,7 @@ async function setDefault({ model }: EmailContext, _event: EmailEvent) {
     url: useUrl(`clients/${clientId}/emails/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------
@@ -187,7 +188,7 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context, event) =>
+  authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

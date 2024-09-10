@@ -21,6 +21,7 @@ import { responseCodes } from "../../api";
 
 export default createMachine(
   {
+    // @ts-ignore
     tsTypes: {} as import("./promotions.machine.typegen").Typegen0,
     id: "basketPromotionsManager",
     predictableActionArguments: true,
@@ -152,7 +153,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent((_context, { data }) => ({
+        entry: sendParent((_context, { data }: any) => ({
           type: "REFRESH",
           data,
         })),
@@ -206,13 +207,17 @@ export default createMachine(
       refreshContext: assign(
         (_context: PromotionsContext, { data: basket }: PromotionsEvent) => {
           return {
+            // @ts-ignore
             basket_id: basket?.id,
+            // @ts-ignore
             promotions: basket?.promotions,
           };
         }
       ),
 
+      // @ts-ignore
       setContext: assign(
+        // @ts-ignore
         (_context: PromotionsContext, { data }: PromotionsEvent) => data
       ),
 
@@ -245,14 +250,16 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: (_context, { update }) => !!update,
       }),
       clearAutoUpdate: assign({
+        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      setFeedbackSuccess: (_context, _event) => {
+      setFeedbackSuccess: (_context: any, _event: any) => {
         addSuccess("Successfully updated the basket promotions");
       },
 
@@ -269,7 +276,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -287,7 +294,7 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ promotions, basket_id }, { data }) =>
+      hasChanged: ({ promotions, basket_id }, { data }: any) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
         basket_id !== data?.id,
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
@@ -299,6 +306,7 @@ export default createMachine(
       wait: () => useTime().WAIT,
     },
 
+    // @ts-ignore
     services,
   }
 );

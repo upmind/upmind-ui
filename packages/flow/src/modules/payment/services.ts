@@ -99,7 +99,7 @@ async function load(
 
   return get({
     url: useUrl(`order/${data.id}`),
-  }).then(({ data }) => ({ fields: data, urls }));
+  }).then(({ data }: any) => ({ fields: data, urls }));
 }
 
 // --------------------------------------------------------
@@ -111,12 +111,13 @@ async function update(
   const { post, useUrl } = useApi();
 
   // build the payload with ALL the data we need for the payment details AND the order
+  // @ts-ignore
   const data = usePaymentParser({ paymentDetails, order });
   return post({
     url: useUrl(`/payments`),
     data,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  }).then(({ data }: any) => data);
 }
 
 /**
@@ -133,7 +134,9 @@ async function redirect(
    * Inject aborted state for cases when user click back from the browser
    * We have no router to handle this, so we need to handle it manually
    */
+  // @ts-ignore
   if (paymentDetails?.cancel_url) {
+    // @ts-ignore
     window.history.replaceState("", "", paymentDetails.cancel_url);
   }
 

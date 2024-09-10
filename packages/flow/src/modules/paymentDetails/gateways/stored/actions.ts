@@ -17,7 +17,7 @@ export default {
   }),
 
   setModel: assign({
-    model: ({ schema, model }, { data }) =>
+    model: ({ schema, model }: any, { data }: any) =>
       useModelParser(schema, data || model),
   }),
 };

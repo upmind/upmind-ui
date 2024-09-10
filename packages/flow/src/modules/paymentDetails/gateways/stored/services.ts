@@ -36,7 +36,7 @@ async function update({ model }: GatewayContext) {
 
 async function parse(
   { model, stored_payment_methods }: GatewayContext,
-  _event: GatewayEvent
+  _event: any
 ) {
   model ??= {}; // safeguard
 

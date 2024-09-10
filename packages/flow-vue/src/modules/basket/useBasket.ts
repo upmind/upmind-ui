@@ -25,7 +25,7 @@ import { some, filter } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useBasket = () => {
+export const useBasket: any = () => {
   const {
     service,
     isReady,

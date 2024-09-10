@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 import { useBrand as useUpmindBrand } from "@upmind/flow";
 
 // --- utils
-import { isArray, isObject, reduce, set, get } from "lodash-es";
+import { isArray, isObject, reduce, set } from "lodash-es";
 
 // ---
 import { BrandConfigKeys } from "@upmind/flow";
@@ -80,7 +80,7 @@ export const useBrand = () => {
               BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
               BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
             ])
-            .then(data => data?.analytics)
+            .then((data: any) => data?.analytics)
         ),
   };
 };

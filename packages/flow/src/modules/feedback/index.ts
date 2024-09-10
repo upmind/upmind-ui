@@ -18,7 +18,7 @@ import { messageDisplays, type Message } from "./types.d";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state = null;
+let state: any = null;
 
 const service = interpret(feedbackMachine, { devTools: true }).onTransition(
   newState => (state = newState)
@@ -40,10 +40,13 @@ export const useFeedback = () => {
   // --- syntactic sugar
 
   function addError(
-    message: string | Object,
-    display?: messageDisplays = messageDisplays.TOAST,
-    delay?: number = 0,
-    maxAge?: number = useTime().SECOND * 6
+    message: string | Object | any,
+    // TODO: display?: messageDisplays = messageDisplays.TOAST,
+    // TODO: delay?: number = 0,
+    // TODO: maxAge?: number = useTime().SECOND * 6
+    display: messageDisplays = messageDisplays.TOAST,
+    delay: number = 0,
+    maxAge: number = useTime().SECOND * 6
   ) {
     if (!message) return; // bail if no message
 
@@ -60,7 +63,7 @@ export const useFeedback = () => {
   }
 
   function addSuccess(
-    message: string | Object,
+    message: string | Object | any,
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
     maxAge: number = useTime().SECOND * 2
@@ -111,7 +114,7 @@ export const useFeedback = () => {
 
     // ---
     getMessages: () => state.context.messages,
-    getMessage: id => get(state.context.messages, id),
+    getMessage: (id: any) => get(state.context.messages, id),
     // ---
     add,
     addError,
