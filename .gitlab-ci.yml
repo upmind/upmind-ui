@@ -52,4 +52,4 @@ dependencies:
       - node_modules
 
   script:
-    - npm install --include dev
+    - npm clean-install --include dev

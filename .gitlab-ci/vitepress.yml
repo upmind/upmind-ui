@@ -10,15 +10,21 @@ variables:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^docs-v\d+(\.\d+)*$/
     - if: $CI_FORCE_DOCS == "true"
+  cache:
+    - key:
+        files:
+          - docs/package.json
+          - docs/package-lock.json
+      paths:
+        - docs/node_modules
   artifacts:
     when: on_success
     access: all
     expire_in: "1 day"
     paths:
-      - docs/.vitepress
+      - docs/dist
   script:
-    - cd ./docs
-    - npm run docs:build
+    - npm --workspace docs run docs:build
 
 (docs) deploy preview:
   stage: deploy
