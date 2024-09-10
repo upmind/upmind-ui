@@ -50,6 +50,6 @@ export const usePlaces = () => {
     },
     getPlaceDetails: id =>
       services.parse(state?.context, { data: { place: id } }),
-    reset: () => service.send("REFRESH"),
+    reset: () => service.send({ type: "REFRESH" }),
   };
 };

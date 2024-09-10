@@ -16,7 +16,6 @@
       <upw-steps
         :model-value="activeSection"
         :steps="steps"
-        :loading="meta.isLoading"
         @update:model-value="scrollTo"
       />
 
@@ -76,12 +75,12 @@
         </header>
 
         <div :class="styles.checkout.section.wrapper">
-          <div :class="styles.checkout.section.content">
+          <div :class="styles.checkout.section.content" v-auto-animate>
             <!-- account -->
             <upm-session
               id="account"
               ref="account"
-              v-if="!meta.hasAccount"
+              v-if="!meta.hasAccount && !meta.isClaiming"
               no-header
               v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
               :aria-disabled="meta.hasAccount"
@@ -89,37 +88,36 @@
             >
             </upm-session>
 
-            <!-- billing details -->
-            <upm-billing-details
-              v-if="meta.hasAccount"
-              :model-value="billingDetailsModel"
-              @update:modelValue="billingDetailsUpdate"
-            />
+            <template v-if="meta.hasAccount">
+              <!-- billing details -->
+              <upm-billing-details
+                :model-value="billingDetailsModel"
+                @update:modelValue="billingDetailsUpdate"
+              />
 
-            <!-- custom fields  -->
-            <upw-form
-              v-if="meta.hasAccount"
-              :additional-errors="fieldsErrors?.data"
-              :model-value="fieldsModel"
-              :processing="fieldsMeta.isProcessing"
-              :schema="fieldsSchema"
-              :uischema="fieldsUischema"
-              @reject="fieldsClear"
-              @resolve="fieldsUpdate"
-              @update:modelValue="fieldsUpdate"
-              no-actions
-              autosave
-            />
+              <!-- custom fields  -->
+              <upw-form
+                :additional-errors="fieldsErrors?.data"
+                :model-value="fieldsModel"
+                :processing="fieldsMeta.isProcessing"
+                :schema="fieldsSchema"
+                :uischema="fieldsUischema"
+                @reject="fieldsClear"
+                @resolve="fieldsUpdate"
+                @update:modelValue="fieldsUpdate"
+                no-actions
+                autosave
+              />
 
-            <!-- payment details -->
-            <upm-payment-details
-              id="payment"
-              ref="payment"
-              v-if="meta.hasAccount && meta.hasProducts"
-              v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
-              :aria-disabled="!meta.hasProducts || !meta.hasAccount"
-              :aria-active="activeSection === 'payment'"
-            />
+              <!-- payment details -->
+              <upm-payment-details
+                id="payment"
+                ref="payment"
+                v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
+                :aria-disabled="!meta.hasProducts || !meta.hasAccount"
+                :aria-active="activeSection === 'payment'"
+              />
+            </template>
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
@@ -131,7 +129,7 @@
       </section>
 
       <!-- Basket procesing -->
-      <upm-basket-processing :model-value="meta.isProcessingOrder" />
+      <upm-basket-processing :model-value="meta.isCheckout" />
 
       <!-- Order confirmation -->
       <upm-order-confirmation
@@ -147,6 +145,7 @@
 // --- external
 import { defineComponent, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useStyles, mergeStyles } from "@upmind/upwind";
@@ -171,7 +170,6 @@ import {
   useBasketFields,
   UpmSession,
   UpwForm,
-
   // ---
   UpwSteps,
 } from "@upmind/client-vue";
@@ -201,10 +199,13 @@ export default defineComponent({
     // ---
     UpwSteps,
   },
-  directives: { "intersection-observer": vIntersectionObserver },
+  directives: {
+    "intersection-observer": vIntersectionObserver,
+    autoAnimate: vAutoAnimate,
+  },
   setup() {
     const { meta: account, user } = useSession();
-    const { meta, summary, addItem, invoice, isReady } = useBasket();
+    const { state, meta, summary, addItem, invoice, isReady } = useBasket();
     const { update } = useBasketCurrency();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
@@ -260,18 +261,23 @@ export default defineComponent({
 
     // ---------------------------------------------------
     // Create a min Animation time for the Loading Screen to prevent fout/jank
+    // but only 'complete' the animation once our basket is available, ie the products have been added
     const animationComplete = ref(false);
-    const animationDuration = 2_000;
+    const animationDuration = 1_000;
+    const interval = setInterval(() => {
+      if (meta.value.isAvailable || !product) {
+        animationComplete.value = true;
+        clearInterval(interval);
+      }
+    }, animationDuration);
 
-    new Promise(resolve => setTimeout(resolve, animationDuration)).then(() => {
-      animationComplete.value = true;
-    });
     // ---------------------------------------------------
 
     return {
       mergeStyles,
       styles,
       // ---
+      state,
       meta,
       summary,
       // ---

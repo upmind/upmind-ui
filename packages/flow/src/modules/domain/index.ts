@@ -7,7 +7,7 @@ import { DomainTypes } from "./types.d";
 export * from "./types.d";
 // --- utils
 import { useBasket } from "..";
-import { has, find, map } from "lodash-es";
+import { has, map } from "lodash-es";
 import { isArray } from "xstate/lib/utils";
 import { parseDomain } from "./utils";
 
@@ -15,17 +15,16 @@ import { parseDomain } from "./utils";
 
 export const useDomain = (
   {
-    values,
+    model,
     sync,
     type,
-    parentId,
   }: {
-    values?: Array<string> | string;
+    model?: Array<string> | string;
     sync?: boolean;
     type?: DomainTypes;
     parentId?: Object; // id of basket item machine representing the parent context
   } = {
-    values: [],
+    model: [],
     sync: false,
     type: undefined,
     parentId: undefined,
@@ -36,26 +35,14 @@ export const useDomain = (
 
   // safetycheck to ensure forcedType is valid
   const safeType = has(DomainTypes, type) ? type : null;
-  const safeValues = map(isArray(values) ? values : [values], parseDomain);
+  const safeModel = map(isArray(model) ? model : [model], parseDomain);
 
   // ---
   const context = {
     type: safeType,
     sync,
-    // ---
     choices: safeType ? null : DomainTypes,
-    values: safeValues,
-    available: [],
-    total: 0,
-    // ---
-    search: null,
-    currency: null,
-    promotions: [],
-    limit: 10,
-    offset: 0,
-    controller: null,
-    // ---
-    error: null,
+    model: safeModel,
   };
 
   const service = interpret(domainMachine.withContext(context), {
@@ -111,6 +98,6 @@ export const useDomain = (
     service, // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: service.getSnapshot,
-    destroy: service.stop,
+    destroy: () => service.stop(),
   };
 };

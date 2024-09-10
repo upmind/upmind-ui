@@ -1,7 +1,6 @@
 {
-  "tailwindCSS.includeLanguages": {
-    "javascript": "javascript"
-  },
+  "editor.quickSuggestions": { "strings": "on" },
+  "editor.inlineSuggest.enabled": true,
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]

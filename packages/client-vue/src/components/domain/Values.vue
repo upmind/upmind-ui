@@ -7,6 +7,7 @@
     <upw-skeleton-list
       :class="styles.domain.listings.loading"
       v-if="meta.isLoading"
+      :rows="items?.length || 3"
     />
 
     <template v-else>

@@ -18,18 +18,22 @@ export enum DomainTypes {
 // --- Interfaces
 
 export interface IDomainProduct {
-  type: DomainTypes.New | DomainTypes.Internal;
+  type?: DomainTypes.New | DomainTypes.Internal;
   domain: string;
   sld: string;
   tld: string;
   // --- Options for New/Internal domains
   product_id: string;
-  billing_cycle_years: number;
-  is_available: boolean;
-  is_discounted: boolean;
-  percentage_saving: nymber;
-  price_discounted_formatted: string;
-  price_formatted: string;
+  quantity?: number;
+  billing_cycle_months?: number;
+  options?: Object;
+  attributes?: Object;
+  is_available?: boolean;
+  is_discounted?: boolean;
+  price_discounted?: number;
+  price_discounted_formatted?: string;
+  price?: number;
+  price_formatted?: string;
   // ---
   is_primary: boolean;
 }
@@ -53,22 +57,35 @@ interface IDomainSearch {
 export interface DomainContext {
   choices: Object<DomainTypes>;
   type?: DomainTypes;
-  values?: Array<IDomainProduct | IDomain>;
-  available?: Array<IDomainProduct>;
+  model?: Array<IDomainProduct | IDomain>;
+  baseModel?: Array<IDomainProduct | IDomain>;
+  listings?: {
+    searched: Array<IDomainProduct>;
+    history: Array<IDomainProduct>;
+    owned: Array<IDomainProduct>;
+    basket: Array<IDomainProduct>;
+  };
   total?: number;
   // ---
-  search?: string;
+  search?: {
+    value: string;
+    limit: number;
+    offset: number;
+    total: number;
+  };
   currency?: string;
   promotions?: Array<string>;
-  limit?: number;
-  offset?: number;
   controller?: AbortController;
   tlds?: Array<string>;
   // ---
   error?: any;
   // ---
-  sync?: boolean;
+  authHelper?: Function;
   basketHelper?: Function;
+  itemBuilder?: Function;
+  itemMapper?: Function;
+  basketItemBuilder?: Function;
+  basketItemMapper?: Function;
   //
 }
 

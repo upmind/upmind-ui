@@ -5,7 +5,8 @@ import { inspect } from "@xstate/inspect";
 
 // --------------------------------------------------------
 
-const debugging = import.meta.env.DEV;
+const queryParams = new URLSearchParams(window.location.search);
+const debugging = import.meta.env.DEV || queryParams.has("debug");
 
 // --------------------------------------------------------
 

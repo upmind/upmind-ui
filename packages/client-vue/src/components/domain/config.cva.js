@@ -6,16 +6,19 @@ export default {
     root: cva("flex w-full flex-col gap-6"),
     choices: cva(""),
     // ---
-
     search: cva(""),
 
     listings: {
       root: cva(""),
+      header: cva(""),
+      items: cva(""),
+      loading: cva(""),
     },
     card: {
       root: cva(""),
       underline: cva("underline underline-offset-8"),
       label: cva("m-0 flex w-full flex-col gap-1 pr-4"),
+      badges: cva("flex items-center gap-2"),
       title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(
         "items-cnter text-base-700 m-0 inline inline-flex gap-2 text-xs font-normal leading-5"
@@ -23,25 +26,55 @@ export default {
 
       // ---
       footer: cva(
-        "text-base-700 m-0 flex w-full w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
+        "text-base-700 m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
-      actions: cva("min-w-48"),
-      transfer: {
+      actions: cva("min-w-48 empty:hidden"),
+      owned: {
         root: cva("m-0 items-end"),
-        ownership: cva("font-medium"),
+        ownership: cva("font-semibold"),
+        icon: cva(
+          "bg-accent text-accent-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
+        prices: cva("inline-block"),
         price: cva("not-italic"),
+        discount: cva("text-base-500 text-md block font-normal line-through"),
         tld: cva("uppercase not-italic"),
-        label: cva("text-secondary size-5"),
+        action: cva(""),
+      },
+      basket: {
+        root: cva("m-0 items-end"),
+        ownership: cva("font-semibold"),
+        tld: cva("uppercase not-italic"),
+        icon: cva(
+          "bg-accent text-accent-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
+        prices: cva("inline-block"),
+        price: cva("not-italic"),
         discount: cva("text-base-500 text-md block font-normal line-through"),
         action: cva(""),
       },
       available: {
         root: cva("m-0 items-end"),
         ownership: cva("font-medium"),
-        price: cva("m-0 text-xl font-semibold not-italic tracking-wide"),
         tld: cva("uppercase not-italic"),
-        label: cva("text-primary size-5 "),
-        discount: cva("text-base-500 text-md block font-normal line-through"),
+        icon: cva(
+          "bg-primary text-primary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
+        prices: cva("inline-block"),
+        price: cva("m-0 text-lg font-semibold not-italic tracking-wide"),
+        discount: cva("text-base-500 block text-xs font-normal line-through"),
+        action: cva(""),
+      },
+      transfer: {
+        root: cva("m-0 items-end"),
+        ownership: cva("font-normal"),
+        tld: cva("uppercase not-italic"),
+        icon: cva(
+          "bg-secondary text-secondary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+        ),
+        prices: cva("inline-block"),
+        price: cva("not-italic"),
+        discount: cva("text-xs font-normal line-through"),
         action: cva(""),
       },
     },
@@ -68,10 +101,28 @@ export default {
         },
       },
       panel: {
-        wrapper: cva("shadow-inner"),
+        wrapper: cva("px-4 shadow-inner sm:px-6 lg:px-20"),
         content: cva(
-          "!min-h-min max-w-screen-2xl px-4 py-8 transition-all sm:px-6 lg:px-20"
+          "mx-auto !min-h-min max-w-screen-2xl px-10  transition-all"
         ),
+        actions: cva("-mx-4 w-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"),
+      },
+      container: cva(
+        "mx-auto flex w-full max-w-screen-2xl items-center justify-between gap-2 px-10 "
+      ),
+    },
+    transitions: {
+      fade: {
+        enter: {
+          active: cva("duration-300 ease-out"),
+          from: cva("transform opacity-0"),
+          to: cva("opacity-100"),
+        },
+        leave: {
+          active: cva("hidden duration-200 ease-in"),
+          from: cva("opacity-100"),
+          to: cva("transform opacity-0"),
+        },
       },
     },
   },

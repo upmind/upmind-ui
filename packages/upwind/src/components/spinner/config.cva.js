@@ -10,9 +10,10 @@ export default {
         variants: {
           size: {
             auto: "",
-            badge: "",
-            xs: "size-6",
-            sm: "size-8",
+            square: "size-4 border-[0.2em]",
+            badge: "size-3 border-[0.2em]",
+            xs: "size-4 border-[0.2em]",
+            sm: "size-6 border-[0.2em]",
             md: "size-10 border-[0.2em]",
             lg: "size-12 border-[0.2em]",
             xl: "size-14 border-[0.4em]",

@@ -5,29 +5,41 @@
 // Contexts
 
 export interface ProductConfigContext {
+  id: string;
+  basket_id: string; //IBasket["id"];
+  client_id: string; //IClient["id"];
   currency_id: IProductPrice["currency_id"];
   promotions: IProductPromotion[];
-
-  raw: Object;
-
-  lookups: {
-    product: IProduct;
-    terms: array;
-    options: array;
-    attributes: array;
-  };
   baseModel: IProductModel;
   model: IProductModel;
   // ---
-  config: IProductConfig;
-  summary: IProductSummary;
-  prices: {
+  raw?: Object;
+  lookups: {
+    product?: IProduct;
+    terms?: array;
+    options?: array;
+    attributes?: array;
+  };
+  // ---
+  config?: IProductConfig;
+  summary?: IProductSummary;
+  prices?: {
     term: { subtotal: number; total: number; discount: number };
     attributes: { subtotal: number; total: number; discount: number };
     options: { subtotal: number; total: number; discount: number };
   };
   // ---
+  calculateCallback?: ActorRef<any, any>;
   error?: RequestError;
+  errorExternal: RequestError;
+  // ---
+  basket_id?: string;
+  basket_product?: IBasketProduct;
+  basketHelper?: Function;
+  itemBuilder?: Function;
+  itemMapper?: Function;
+  basketItemBuilder?: Function;
+  basketItemMapper?: Function;
 }
 
 export interface IProductModel {
@@ -36,15 +48,16 @@ export interface IProductModel {
   product_id: IProduct["id"];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
   // ---
-  term: IProductTerm;
-  attributes: array;
-  options: array;
+  term?: IProductTerm;
+  attributes?: array;
+  options?: array;
+  provision_fields?: array;
   start_trial?: boolean;
   // ---
-  currency_id: IProductPrice["currency_id"];
-  promotions: IProductPromotion[];
+  currency_id?: IProductPrice["currency_id"];
+  promotions?: IProductPromotion[];
   // ---
-  prices: {
+  prices?: {
     term: { subtotal: number; total: number; discount: number };
     attributes: { subtotal: number; total: number; discount: number };
     options: { subtotal: number; total: number; discount: number };
@@ -86,3 +99,9 @@ export interface BasketContext {
 
 // --------------------------------------------------------
 // Events
+
+export interface ProductConfigEvent {
+  type: "CHECK" | "REFRESH";
+  data?: IBasket;
+  error?: RequestError;
+}

@@ -3,6 +3,8 @@ import { computed, toRef, watch } from "vue";
 
 // --- internal
 
+import { stateMatches, contextMatches } from "../../utils";
+
 // --- utils
 import {
   add,
@@ -10,11 +12,11 @@ import {
   isEmpty,
   isObject,
   isEqual,
-  omitBy,
   set,
   some,
   subtract,
-  unset,
+  isArray,
+  forEach,
 } from "lodash-es";
 
 // --------------------------------------------------------
@@ -26,41 +28,42 @@ export const useProductConfig = actor => {
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
   // syntactic sugar
-  const product = computed(() => state.value.context.lookups.product);
-  const terms = computed(() => state.value.context.lookups.terms);
-  const attributes = computed(() => state.value.context.lookups.attributes);
-  const options = computed(() => state.value.context.lookups.options);
-  const fields = computed(() => state.value.context.lookups.provision_fields);
+  const product = computed(() => state.value.context?.lookups?.product);
+  const terms = computed(() => state.value.context?.lookups?.terms);
+  const attributes = computed(() => state.value.context?.lookups?.attributes);
+  const options = computed(() => state.value.context?.lookups?.options);
+  const fields = computed(() => state.value.context?.lookups?.provision_fields);
   // ---
-  const errors = computed(() => state.value.context.error);
+  const errors = computed(() => state.value.context?.error);
+
   const meta = computed(() => ({
-    isLoading: state.value.matches("loading"),
-    isNew: state.value.context.isNew,
-    isDirty: state.value.context.isDirty,
-    hasErrors: state.value.matches("error") || !isEmpty(errors.value),
-    isConfigurable:
-      // !isEmpty(state.value?.context?.lookups?.terms) ||
-      !isEmpty(state.value?.context?.lookups?.attributes) ||
-      !isEmpty(state.value?.context?.lookups?.options) ||
-      !isEmpty(state.value?.context?.lookups?.provision_fields?.properties),
-
-    isConfigured: state.value.matches("configured"),
-    isCalculating: state.value.context?.summary?.isCalculating,
-
-    isProcessing: state.value.matches("configured.processing"),
-    isUnavailable: state.value.matches("unavailable"),
+    isLoading: stateMatches(state, ["subscribing", "loading"]),
+    isNew: !contextMatches(state, ["basket_product"]),
+    isDirty: stateMatches(state, ["available.configured"]),
+    hasErrors:
+      stateMatches(state, ["available.error", "error"]) ||
+      contextMatches(state, ["error"]),
+    isConfigurable: contextMatches(state, [
+      "lookups.attributes",
+      "lookups.options",
+      "lookups.provision_fields.properties",
+    ]),
+    isConfigured: stateMatches(state, ["available.configured"]),
+    isCalculating: contextMatches(state, ["summary.isCalculating"]),
+    isProcessing: stateMatches(state, ["processing", "complete"]),
     // ---
+
     hasProvisioning:
-      !isEmpty(state.value.context.lookups.provision_fields?.properties) &&
+      !isEmpty(state.value.context?.lookups?.provision_fields?.properties) &&
       !!state.value?.context?.model?.provision_fields,
     hasAttributes:
-      !isEmpty(state.value.context.lookups.attributes) &&
+      !isEmpty(state.value.context?.lookups?.attributes) &&
       !!state.value?.context?.model?.attributes,
     hasOptions:
-      !isEmpty(state.value.context.lookups.options) &&
+      !isEmpty(state.value.context?.lookups?.options) &&
       !!state.value?.context?.model?.options,
     hasTerms:
-      !isEmpty(state.value.context.lookups.terms) &&
+      !isEmpty(state.value.context?.lookups?.terms) &&
       !!state.value?.context?.model?.term,
   }));
 
@@ -79,7 +82,7 @@ export const useProductConfig = actor => {
   // --- QUANTITY
   const updateQuantity = (value?: number) => {
     send({
-      type: "UPDATE.QUANTITY",
+      type: "SET.QUANTITY",
       data: {
         quantity: value || model.value.quantity,
       },
@@ -126,7 +129,7 @@ export const useProductConfig = actor => {
 
   const updateTerm = term =>
     send({
-      type: "UPDATE.TERM",
+      type: "SET.TERM",
       data: {
         term: isObject(term) ? term.billing_cycle_months : term,
       },
@@ -137,30 +140,25 @@ export const useProductConfig = actor => {
 
   const updateAttributes = () =>
     send({
-      type: "UPDATE.ATTRIBUTES",
+      type: "SET.ATTRIBUTES",
       data: {
         attributes: model.value.attributes,
       },
     });
-  //emit("update:attributes",{itemId: props.id,...);
 
   function isSelectedAttribute(attributeId, value) {
     return some(model.value.attributes[attributeId], ["product_id", value]);
   }
 
-  function selectAttribute(attribute, value, { target }) {
-    // TODO: handle non multiple attributes
+  function setAttributes(attribute, values) {
+    const safeValues = isArray(values) ? values : [values];
+    set(model.value.attributes, attribute.id, {}); // reset all previous attributes
 
-    if (!attribute.multiple && target.checked)
-      set(model.value.attributes, attribute.id, {}); // reset all previous attributes
-
-    if (target.checked) {
-      set(model.value.attributes, [attribute.id, value.id], {
-        product_id: value.id,
+    forEach(safeValues, value => {
+      set(model.value.attributes, [attribute.id, value], {
+        product_id: value,
       });
-    } else {
-      unset(model.value.attributes, [attribute.id, value.id]);
-    }
+    });
 
     // emit the event
     updateAttributes();
@@ -170,28 +168,24 @@ export const useProductConfig = actor => {
 
   const updateOptions = () =>
     send({
-      type: "UPDATE.OPTIONS",
+      type: "SET.OPTIONS",
       data: {
         options: model.value.options,
       },
     });
-  //emit("update:options",{itemId: props.id,...);
 
   function isSelectedOption(optionId, value) {
     return some(model.value.options[optionId], ["product_id", value]);
   }
 
-  function selectOption(option, value, { target }) {
-    if (!option.multiple && target.checked)
-      set(model.value.options, option.id, {}); // reset all previous options
-
-    if (target.checked) {
-      set(model.value.options, [option.id, value.id], {
-        product_id: value.id,
+  function setOptions(option, values) {
+    const safeValues = isArray(values) ? values : [values];
+    set(model.value.options, option.id, {}); // reset all previous options
+    forEach(safeValues, value => {
+      set(model.value.options, [option.id, value], {
+        product_id: value,
       });
-    } else {
-      unset(model.value.options, [option.id, value.id]);
-    }
+    });
 
     // emit the event
     updateOptions();
@@ -243,26 +237,6 @@ export const useProductConfig = actor => {
   }
 
   // --- PROVISIONING
-  function getProvisioningFields(showOptional = true, showHidden = false) {
-    const schema = fields.value || {
-      type: "object",
-    };
-
-    // weere showing all fields, so return the schema
-    if (showHidden && showOptional) return schema;
-
-    set(
-      schema,
-      "properties",
-      omitBy(
-        schema?.properties,
-        property =>
-          (!showHidden && property?.defer == "hidden") ||
-          (!showOptional && property?.defer == "optional")
-      )
-    );
-    return schema;
-  }
 
   function setProvisioningFields(value) {
     set(model.value, "provision_fields", value);
@@ -277,7 +251,7 @@ export const useProductConfig = actor => {
 
   const updateProvisioning = () => {
     send({
-      type: "UPDATE.PROVISIONING",
+      type: "SET.PROVISIONING",
       data: { provision_fields: model.value.provision_fields },
     });
   };
@@ -309,16 +283,15 @@ export const useProductConfig = actor => {
     // ---
     updateAttributes,
     isSelectedAttribute,
-    selectAttribute,
+    setAttributes,
     // ---
     updateOptions,
     isSelectedOption,
-    selectOption,
+    setOptions,
     updateOptionQuantity,
     incrementOption,
     decrementOption,
     // ---
-    getProvisioningFields,
     setProvisioningFields,
     updateProvisioning,
     getProvisioningField,

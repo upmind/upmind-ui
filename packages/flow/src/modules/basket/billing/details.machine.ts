@@ -10,6 +10,7 @@ const { addError, addSuccess } = useFeedback();
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
+import { set } from "lodash-es";
 
 // --- types
 import type { BillingDetailsContext, BillingDetailsEvent } from "./types.d";
@@ -25,7 +26,7 @@ export default createMachine(
     initial: "subscribing",
     context: {
       basket_id: undefined,
-      account_id: undefined,
+      client_id: undefined,
       // ---
       schema: undefined,
       uischema: undefined,
@@ -36,27 +37,22 @@ export default createMachine(
       autoupdate: false,
     } as BillingDetailsContext,
     states: {
-      // Subscribe to changes in auth and listen for a valid Authenticated client,
-      // we will also wait for a session before we can continue
+      // Subscribe to basket changes and listen for a valid basket client,
       subscribing: {
-        invoke: {
-          id: "authCallback",
-          src: "authSubscription",
-        },
+        always: { target: "available", cond: "hasClient" },
         on: {
-          SESSION: { target: "checking" },
+          REFRESH: {
+            actions: ["refreshContext"],
+            cond: "hasChanged",
+          },
+          SET: {
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
+          },
+          CLEAR: {
+            actions: ["clearModel", "clearDirty"],
+          },
         },
       },
-
-      checking: {
-        invoke: {
-          src: "isAuthenticated",
-          onDone: { target: "available" },
-          onError: { target: "unavailable" },
-        },
-      },
-
-      unavailable: {},
 
       available: {
         initial: "loading",
@@ -135,7 +131,7 @@ export default createMachine(
             invoke: {
               src: "update",
               onDone: {
-                target: "processed",
+                target: "#complete",
                 actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
@@ -144,75 +140,39 @@ export default createMachine(
               },
             },
           },
-
-          processed: {
-            id: "processed",
-            entry: sendParent((_context, { data }) => ({
-              type: "REFRESH",
-              data,
-            })),
-            after: {
-              wait: {
-                target: "#complete",
-              },
-            },
-          },
-        },
-        on: {
-          CLEAR: {
-            target: "available.checking",
-            actions: ["clearModel", "setDirty"],
-          },
-          SET: {
-            target: "available.checking",
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
-          },
         },
       },
 
       // ---
       error: { id: "error" },
+
       complete: {
         id: "complete",
-        on: {
-          CLEAR: {
-            target: "available.checking",
-            actions: ["clearModel", "setDirty"],
-          },
-          SET: {
-            target: "available.checking",
-            actions: ["setModel", "setDirty", "setAutoUpdate"],
-          },
-        },
-        // type: "final"
       },
     },
     on: {
-      AUTHENTICATED: { target: "checking", actions: ["clearError"] },
-      UNAUTHENTICATED: {
-        target: "subscribing",
-        actions: ["clearError", "clearModel", "clearSchemas"],
+      CLEAR: {
+        target: "available.checking",
+        actions: ["clearModel", "setDirty"],
+      },
+      SET: {
+        target: "available.checking",
+        actions: ["setModel", "setDirty", "setAutoUpdate"],
       },
       REFRESH: {
         target: "available.checking",
-        actions: ["refreshBasket", "setSchemas"],
+        actions: ["refreshContext", "setSchemas"],
+        cond: "hasChanged",
       },
     },
   },
   {
     actions: {
-      refreshBasket: assign(
-        (
-          _context: BillingDetailsContext,
-          { data: basket }: BillingDetailsEvent
-        ) => {
+      refreshContext: assign(
+        (_context: BillingDetailsContext, { data }: BillingDetailsEvent) => {
           return {
-            basket_id: basket?.id,
-            account_id: basket?.account_id,
-            model: {
-              address_id: basket?.address_id,
-              company_id: basket?.company_id,
-            },
+            basket_id: data?.id,
+            client_id: data?.client_id,
           };
         }
       ),
@@ -230,11 +190,6 @@ export default createMachine(
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
         model: ({ schema, model }) => useModelParser(schema, model),
-      }),
-
-      clearSchemas: assign({
-        schema: undefined,
-        uischema: undefined,
       }),
 
       setModel: assign({
@@ -257,6 +212,7 @@ export default createMachine(
       setAutoUpdate: assign({
         autoupdate: (_context, { update }) => !!update,
       }),
+
       clearAutoUpdate: assign({
         autoupdate: false,
       }),
@@ -286,7 +242,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -302,11 +258,14 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ account_id, basket_id }, { data }) => {
-        return basket_id !== data?.id || account_id !== data?.account_id;
+      hasClient: ({ client_id }, _event) => !!client_id,
+      hasChanged: ({ client_id, basket_id }, { data }) => {
+        return basket_id !== data?.id || client_id !== data?.client_id;
       },
-      shouldUpdate: ({ autoupdate, basket_id, model }, _event) => {
-        return !!autoupdate && !!basket_id && !!model?.address_id;
+      shouldUpdate: ({ autoupdate, client_id, basket_id, model }, _event) => {
+        return (
+          !!autoupdate && !!basket_id && !!client_id && !!model?.address_id
+        );
       },
     },
 

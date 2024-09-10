@@ -60,9 +60,9 @@ import config from "./config.cva";
 // --- components
 import { UpwForm, UpwSpinner } from "@upmind/upwind";
 
-// --- tyupes
-import type { PropType } from "vue";
-import type { InputProps } from "@upmind/upwind";
+// --- utils
+
+// --- types
 
 // -----------------------------------------------------------------------------
 
@@ -70,8 +70,12 @@ export default defineComponent({
   name: "UpmBasketPaymentGateway",
   components: { UpwForm, UpwSpinner, UpwMarkdown },
   props: {
+    id: {
+      type: String,
+      required: true,
+    },
     variant: {
-      type: String as PropType<InputProps["variant"]>,
+      type: String,
     },
   },
   setup(props) {
@@ -96,6 +100,7 @@ export default defineComponent({
         "basket.paymentGateway.transition.leave",
       ],
       computed(() => ({
+        hasErrors: meta.value?.hasErrors,
         variant:
           props.variant ||
           meta.value?.hasRenderer ||
@@ -110,12 +115,14 @@ export default defineComponent({
     // wait till we mount then try to render the gateway if it's provided
     // otherwise watch in case it's provided later
     onMounted(() => {
-      // render(container.value).then().catch();
-      watch(renderer, () =>
+      watch(renderer, () => {
+        // only render if we have a renderer and weve not already rendered
+        if (container.value?.innerHTML) return;
+
         render(container.value).catch(err => {
           if (err) console.error(err);
-        })
-      );
+        });
+      });
     });
 
     return {

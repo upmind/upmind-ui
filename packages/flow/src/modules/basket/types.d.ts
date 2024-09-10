@@ -93,6 +93,7 @@ export interface BasketContext {
   bin?: Array;
   queue?: Array;
   error?: RequestError;
+  controller?: AbortController;
   summary?: Object;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
@@ -111,7 +112,7 @@ export interface BasketContext {
 // Events
 
 export interface BasketEvent {
-  type: "CHECK" | "REFRESH";
+  type: "CHECK" | "REFRESH" | "AUTHENTICATED";
   data?: IBasket;
   error?: RequestError;
 }

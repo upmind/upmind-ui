@@ -12,42 +12,19 @@
       </slot>
     </header>
 
-    <!-- pending items -->
-    <aside
-      :class="
-        mergeStyles(
-          styles.basket.items.content,
-          styles.basket.items.pending.root
-        )
-      "
-      v-if="!meta.isLoading && itemsPending?.length"
+    <!-- items -->
+    <div
+      :class="styles.basket.items.content"
+      v-if="!meta.isLoading"
+      v-auto-animate
     >
-      <header :class="styles.basket.items.pending.header">
-        {{ $t("basket.items.pending.title") }}
-      </header>
-
-      <div :class="styles.basket.items.pending.content">
-        <upm-basket-item
-          v-for="(item, index) in itemsPending"
-          :selected="index === 0"
-          :key="item.id"
-          :model-value="item.id"
-          :item="item"
-          :class="styles.basket.items.pending.item"
-        />
-      </div>
-    </aside>
-
-    <!-- configured items -->
-    <div :class="styles.basket.items.content">
-      <template v-if="!meta.isLoading && itemsConfigured?.length">
-        <upm-basket-item
-          v-for="item in itemsConfigured"
-          :key="item.id"
-          :model-value="item.id"
-          :item="item"
-        />
-      </template>
+      <upm-basket-item
+        v-for="(item, index) in items"
+        :key="`item-${item.id}-${index}`"
+        :model-value="item.id"
+        :item="item"
+        :selected="isSelected(index)"
+      />
     </div>
 
     <footer :class="styles.basket.items.footer">
@@ -59,6 +36,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
@@ -67,6 +45,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmBasketItem from "./Item.vue";
+import { findIndex } from "lodash-es";
 
 // --- types
 
@@ -74,12 +53,14 @@ import UpmBasketItem from "./Item.vue";
 export default defineComponent({
   name: "UpmBaskeItemListings",
   components: { UpmBasketItem },
+  directives: { autoAnimate: vAutoAnimate },
   props: {},
   setup() {
-    const { meta, items, itemsPending, itemsConfigured } = useBasket();
+    const { meta, items, itemsPending, itemsInvalid, itemsConfigured } =
+      useBasket();
 
     const styles = useStyles(
-      ["basket.items", "basket.items.pending"],
+      ["basket.items", "basket.items.pending", "basket.items.invalid"],
       meta,
       config
     );
@@ -90,6 +71,7 @@ export default defineComponent({
       meta,
       items,
       itemsPending,
+      itemsInvalid,
       itemsConfigured,
       // ---
       styles,
@@ -97,6 +79,22 @@ export default defineComponent({
     };
   },
   computed: {},
+  methods: {
+    isSelected(index) {
+      const firstForcedIndex = findIndex(this.items, item => {
+        const isNew = !item.state.value.context?.basket_product;
+        // const hasErrors = !!item.state.value.context?.errors;
+        // const needsConfiguring = [
+        //   "available.configuring",
+        //   "available.configured",
+        // ].some(item.state.value.matches);
+
+        return isNew;
+      });
+
+      return index === firstForcedIndex;
+    },
+  },
 });
 </script>
 .

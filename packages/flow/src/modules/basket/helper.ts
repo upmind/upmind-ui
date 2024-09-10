@@ -1,24 +1,49 @@
 // --- external
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket } from "./";
+// import type { ActorRef } from "xstate";
+import { useBasket } from ".";
+import productServices from "./items/services";
 
 // --- utils
-import { forEach, get, reduce, isEmpty, pickBy } from "lodash-es";
+import {
+  every,
+  filter,
+  get,
+  isArray,
+  isEmpty,
+  map,
+  pickBy,
+  reduce,
+} from "lodash-es";
 
 // --------------------------------------------------------
 async function fetch(context, basket) {
   const basketItems = basket.getItemsSnapshot();
 
-  return basket.isReady().then(() => {
+  // we need to ensure ALL our items are loaded before we can proceed
+  return waitFor(
+    basket.service,
+    state => {
+      return every(
+        state.context.items,
+        actor => !actor?.state.matches("loading")
+      );
+    },
+    {
+      timeout: Infinity, // infinity = no timeout
+    }
+  ).then(() => {
     return reduce(
       basketItems,
       (result, basketItem) => {
         const model = get(basketItem, "state.context.model");
-        const product = get(basketItem, "state.context.lookups.product");
         const mapping = context.basketItemMapper(model);
         // check all our mapping values are set, if not then its not a valid mapping and we can skip it
         const isValid = isEmpty(pickBy(mapping, isEmpty));
+
+        const product = get(basketItem, "state.context.lookups.product");
         if (isValid) {
           const data = context.itemBuilder({
             ...model,
@@ -34,122 +59,156 @@ async function fetch(context, basket) {
   });
 }
 
-async function add(context, basket, target = "items") {
-  const items = get(context, target, []);
+/**
+ * Add a new item to the basket
+ *
+ * @param item
+ * @param context
+ * @param basket
+ * @returns {ActorRef<any, any>} XState Actor representing the new item
+ */
+async function add(item, context, basket) {
+  if (isEmpty(item)) return Promise.resolve();
 
-  const promises = [];
+  const mapping = context.basketItemMapper(item);
+  const basketItem = basket.findItem(mapping);
+  if (basketItem) return Promise.resolve(basketItem); // its allready added, so we can skip it
 
-  forEach(items, item => {
-    const product = context.basketItemBuilder(item);
-    const mapping = context.basketItemMapper(item);
-    const basketItem = basket.findItem(mapping);
-    if (product && !basketItem) {
-      promises.push(basket.addItem(product));
-    }
-  });
+  const product = context.basketItemBuilder(item);
+  if (!product) return Promise.reject("No product found");
 
-  return Promise.all(promises);
+  return basket.addItem(product);
 }
 
-async function remove(context, basket, target = "items") {
-  // todo;
-  return Promise.resolve();
-
-  // const items = get(context, target, []);
-  // const promises = [];
-
-  // forEach(basket.getItemsSnapshot(), basketItem => {
-  //   const model = get(basketItem.getSnapshot(), "context.model");
-  //   const mapping = context.itemMapper(model);
-  //   if (!basket.itemExists(items, mapping)) {
-  //     // send the command and set the item to be processed
-  //     promises.push(basket.removeItem(basketItem.id));
-  //   }
-  // });
-
-  // return Promise.all(promises);
+async function remove(item, context, basket) {
+  const mapping = context.basketItemMapper(item);
+  const basketItem = basket.findItem(mapping);
+  const basket_id = basket.getBasketId();
+  const id = get(basketItem, "state.context.basket_product.id");
+  // ---
+  return productServices.remove({ basket_id, id });
 }
 
-async function update(context, basket, target = "items") {
-  return basket.update().then(() => {
-    // // finally cleanup and refresh any items that have been updated
-    // // once the basket has been processed
-    // const basketItems = basket.getItemsSnapshot();
-    // // find any items that are in the basket but not in the actor
-    // const missingItems = [];
-    // forEach(basketItems, basketItem => {
-    //   const model = get(basketItem, "state.context.model");
-    //   const product = get(basketItem, "state.context.lookups.product");
-    //   const mapping = context.basketItemMapper(model);
-    //   // check all our mapping values are set, if not then its not a valid mapping and we can skip it
-    //   const isValid = isEmpty(pickBy(mapping, isEmpty));
-    //   if (isValid && !basket.exists(items, mapping)) {
-    //     const data = context.itemBuilder({
-    //       ...model,
-    //       ...product,
-    //     });
-    //     missingItems.push(data);
-    //   }
-    // });
-    // return missingItems;
-  });
-}
+async function update(item, context, basket) {
+  if (isEmpty(item)) return Promise.resolve();
+  const basketSnapshot = get(basket.getSnapshot(), "context.basket");
+  const mapping = context.basketItemMapper(item);
+  const basketItem = basket.findItem(mapping);
+  const id = get(basketItem, "state.context.basket_product.id");
+  // ---
+  if (!basketItem) return Promise.reject("No item found");
 
-async function sync(context, basket, target = "items") {
-  return (
-    add(context, basket, target)
-      // .then(() => remove(context, basket, target))
-      .then(() => update(context, basket, target))
+  const config = context.basketItemBuilder(item);
+  if (!config) return Promise.reject("No product config provided");
+
+  // ---
+  return productServices.update(
+    {
+      basket_id: basketSnapshot?.id,
+      basket_products: basketSnapshot?.products,
+      id,
+    },
+    { data: config }
   );
+}
 
-  // 3) sync the parent item's config with the context
-  // if (parentMapper && parentBuilder) {
-  //   const product = parentBuilder(items);
-  //   const mapping = parentMapper();
-  //   const basketItem = findItem(mapping);
-  //   if (basketItem) {
-  //     const model = get(basketItem, "state.context.model");
-  //     const isDirty = !isEmpty(product) && !some([model], matches(product));
-  //     if (isDirty && !includes(dirtyItems, mapping)) {
-  //       // update the basket item  with the new parent model
-  //       basketItem.send({ type: "PUT", data: product });
-  //       dirtyItems.push(mapping);
-  //     }
-  //   }
-  // }
+async function sync(items, context, basket) {
+  items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
+  // First ensure all our items are added to the basket...
+  // Then sync all our items with the basket
+  const promises = isEmpty(items)
+    ? [Promise.resolve([])]
+    : map(items, item => add(item, context, basket));
+
+  // then update the basket
+  return Promise.all(promises).then(dirtyItems => {
+    // we should only try save items that are configured
+    // and have a valid basket_product
+    const validItems = filter(dirtyItems, item =>
+      item?.state.matches("available.configured")
+    );
+
+    if (!validItems.length) {
+      return;
+    }
+
+    return productServices.sync(
+      {
+        basket_id: basket.getBasketId(),
+        basket_products: basket.getItemsSnapshot(),
+      },
+      { data: validItems }
+    );
+  });
 }
 
 // --------------------------------------------------------
 
-export function syncSubscription(callback, onReceive) {
+export function basketSubscription(callback, onReceive) {
   const basket = useBasket();
   onReceive(event => {
     switch (event.type) {
       case "FETCH":
-        fetch(event.data, basket)
-          .then(data => callback({ type: "SYNCED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+        fetch(event.context, basket)
+          .then(data => callback({ type: "FETCHED", data }))
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", data: error });
+          });
         break;
 
       case "ADD":
-        add(event.data, basket, event.target)
-          .then(data => callback({ type: "SYNCED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+        add(event.target, event.context, basket)
+          .then(data => callback({ type: "ADDED", data }))
+          .catch(error => {
+            console.error("basketHelper", "ADD", error);
+            callback({ type: "ERROR", data: error });
+            callback({ type: "ADDED" });
+          });
         break;
+
       case "REMOVE":
-        remove(event.data, basket, event.target)
-          .then(data => callback({ type: "SYNCED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+        callback({ type: "PROCESSING" });
+        remove(event.target, event.context, basket)
+          .then(data => {
+            callback({ type: "REMOVED" });
+            basket.refresh();
+          })
+          .catch(error => {
+            console.error("basketHelper", "REMOVE", error);
+            callback({ type: "ERROR", data: error });
+            callback({ type: "CANCEL" });
+          });
+
         break;
+
       case "UPDATE":
-        update(event.data, basket, event.target)
-          .then(data => callback({ type: "SYNCED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+        callback({ type: "PROCESSING" });
+        update(event.target, event.context, basket)
+          .then(data => {
+            callback({ type: "UPDATED", data });
+            basket.refresh();
+          })
+          .catch(error => {
+            console.error("basketHelper", "UPDATE", error);
+            callback({ type: "ERROR", data: error });
+            callback({ type: "CANCEL" });
+          });
+
         break;
+
       case "SYNC":
-        sync(event.data, basket, event.target)
-          .then(data => callback({ type: "SYNCED", data }))
-          .catch(error => callback({ type: "ERROR", error }));
+        sync(event.target, event.context, basket)
+          .catch(error => {
+            console.error("basketHelper", "SYNC", error);
+            callback({ type: "ERROR", data: error });
+          })
+          .finally(() => {
+            const items = basket.getItemsSnapshot();
+            basket
+              .refresh()
+              .then(() => callback({ type: "SYNCED", data: items }));
+          });
         break;
     }
   });

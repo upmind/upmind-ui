@@ -23,6 +23,7 @@
     :no-status="noStatus"
     :persist-feedback="persistFeedback"
     variant="flat"
+    :upwind-config="{ input: config.checkboxlist.input }"
   >
     <ul :class="styles.checkboxlist.root">
       <li
@@ -39,6 +40,7 @@
           :disabled="meta.isDisabled"
           :processing="meta.isProcessing"
           :model-value="isSelected(item.value)"
+          :value="item.value"
           :upwind-config="{ input: config.checkboxlist.checkbox }"
           :no-input="noInput"
           no-status
@@ -96,7 +98,7 @@ import type { CheckboxListProps } from "./types";
 export default defineComponent({
   name: "UpwCheckboxList",
   inheritAttrs: false,
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change"],
   components: {
     UpwInput,
     UpwCheckbox,
@@ -112,7 +114,7 @@ export default defineComponent({
     label: { type: String },
     text: { type: String },
     description: { type: String },
-    errors: { type: String },
+    errors: { type: [String, Array] },
     // ---
     size: { type: String as PropType<InputProps["size"]> },
     layout: {
@@ -184,14 +186,19 @@ export default defineComponent({
       config,
       onChange: event => {
         if (props.disabled || props.processing) return;
-        const selected = props.modelValue || [];
+        let selected = props.modelValue || [];
         const checked = event.target.checked;
         const value = event.target.value;
         remove(selected, item => item == value);
         if (checked) selected.push(value);
 
+        selected = uniq(compact(selected));
         // ensure we return a nice clean array
-        emit("update:modelValue", uniq(compact(selected)));
+        emit("update:modelValue", selected);
+
+        emit("change", {
+          currentTarget: { value: selected },
+        });
       },
       isSelected: value => {
         return includes(props.modelValue, value);

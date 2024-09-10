@@ -9,7 +9,7 @@ import type { DomainTypes } from "@upmind/flow";
 import { useDomain as useUpmindDomain } from "@upmind/flow";
 
 // --- utils
-import { map, some, find, isArray, get } from "lodash-es";
+import { map, some, find, isArray, get, first } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -18,23 +18,23 @@ import { map, some, find, isArray, get } from "lodash-es";
 
 export const useDomain = (
   {
-    values,
+    model,
     sync,
     type,
     parentId,
   }: {
-    values?: Array<string> | string;
+    model?: Array<string> | string;
     sync?: boolean;
     type?: DomainTypes;
     parentId?: string; // id of basket item machine representing the parent context
   } = {
-    values: [],
+    model: [],
     sync: false,
     type: undefined,
     parentId: undefined,
   }
 ) => {
-  const domain = useUpmindDomain({ values, sync, type, parentId });
+  const domain = useUpmindDomain({ model, sync, type, parentId });
   const { state, send } = useActor(domain.service);
 
   // --------------------------------------------------------
@@ -45,30 +45,29 @@ export const useDomain = (
       data: value,
     });
 
-  const search = (value: string) =>
-    send({
-      type: "SEARCH",
-      data: {
-        domain: value,
-      },
-    });
+  const search = (query: string) => {
+    send({ type: "SEARCH", data: query });
+  };
+
+  const searchMore = () => {
+    send({ type: "SEARCH.OFFSET" });
+  };
 
   const toggle = (value: string) => {
-    const type = some(state.value.context.values, ["domain", value])
+    const type = some(state.value.context.model, ["domain", value])
       ? "REMOVE"
       : "ADD";
-
     send({
       type,
       data: value,
     });
   };
 
-  const update = (values: string | Array<string>) => {
+  const update = (model: string | Array<string>) => {
     // NB: nsure we have an array of strings
     send({
       type: "UPDATE",
-      data: isArray(values) ? values : [values],
+      data: isArray(model) ? model : [model],
     });
   };
 
@@ -118,18 +117,20 @@ export const useDomain = (
         };
       })
     ),
-    query: computed(() => state.value.context.search),
-    values: computed(() => map(state.value.context.values, "domain")),
+    query: computed(() => state.value.context.search?.query),
+    model: computed(() => map(state.value.context.model, "domain")),
     type: computed(() => state.value.context.type),
-    available: computed(() =>
-      map(state.value.context.available, item => {
-        item.value = item.domain;
-        return item;
-      })
-    ),
+    // ---
+    owned: computed(() => state.value.context.lookups?.owned),
+    basket: computed(() => state.value.context.lookups?.basket),
+    available: computed(() => state.value.context.lookups?.searched),
+
+    // ---
     errors: computed(() => state.value.context?.error),
     selected: computed(() => {
-      const selected = find(state.value.context?.values, "is_primary");
+      const selected =
+        find(state.value.context?.model, "is_primary") ||
+        first(state.value.context?.model);
       return get(selected, "domain");
     }),
 
@@ -148,6 +149,16 @@ export const useDomain = (
         "basket.loading",
       ].some(state.value.matches),
 
+      isSearchingMore:
+        ["dac.loading", "dac.processing"].some(state.value.matches) &&
+        state.value.context?.search?.offset > 0,
+
+      hasMoreSearchResults:
+        ["dac"].some(state.value.matches) &&
+        state.value.context?.search?.offset +
+          state.value.context?.search?.limit <
+          state.value.context?.search?.total,
+
       hasErrors: ["error", "dac.error", "existing.error", "basket.error"].some(
         state.value.matches
       ),
@@ -157,25 +168,21 @@ export const useDomain = (
       showDac: state.value.matches("dac"),
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),
+
       showContinue:
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
-        ) && some(state.value.context?.values, "is_primary"),
+        ) && !!state.value.context?.model?.length,
       showPrimaryDomain:
         ["dac.complete", "existing.complete", "basket.complete"].some(
           state.value.matches
-        ) && some(state.value.context?.values, "is_primary"),
-      // ---
-      hasValues: !!state.value.context?.values?.length,
-      hasPrimary: some(state.value.context?.values, "is_primary"),
-      hasAdditional: state.value.context?.values?.length > 1,
-      hasMore:
-        !!state.value.context.available.length &&
-        state.value.context.available.length < state.value.context.total,
+        ) && !!state.value.context?.model?.length,
     })),
     // ---
     choose,
     search,
+    searchMore,
+    searchOffset: computed(() => state.value.context?.search?.offset),
     add,
     remove,
     toggle,

@@ -1,6 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
-
+import { createMachine, assign, actions } from "xstate";
+const { pure, sendParent, escalate } = actions;
 // --- internal
 import services from "./card/services";
 import { useFeedback } from "../../feedback";
@@ -92,6 +92,15 @@ export default createMachine(
             target: "#processed",
             actions: ["setPaymentDetails", "providePaymentDetails"],
           },
+          onError: {
+            target: "#error",
+            actions: [
+              "setError",
+              "setFeedbackError",
+              "escalateError",
+              "cancelPaymentDetails",
+            ],
+          },
         },
       },
 
@@ -178,6 +187,14 @@ export default createMachine(
         data: paymentDetails,
       })),
 
+      cancelPaymentDetails: sendParent(() => ({
+        type: "CANCEL",
+      })),
+
+      escalateError: pure((_context, { data }) => {
+        escalate({ data });
+      }),
+
       // ---
 
       setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
@@ -193,7 +210,7 @@ export default createMachine(
       setError: assign({
         error: (_context: GatewayContext, { data }: GatewayEvent) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);

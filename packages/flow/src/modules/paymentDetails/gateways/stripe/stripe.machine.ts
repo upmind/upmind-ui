@@ -1,6 +1,6 @@
 // --- external
-import { createMachine, assign, sendParent, spawn } from "xstate";
-
+import { createMachine, assign, actions, spawn } from "xstate";
+const { pure, sendParent, escalate } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../../feedback";
@@ -156,6 +156,15 @@ export default createMachine(
                 target: "#processed",
                 actions: ["setPaymentDetails", "providePaymentDetails"],
               },
+              onError: {
+                target: "#error",
+                actions: [
+                  "setError",
+                  "setFeedbackError",
+                  "escalateError",
+                  "cancelPaymentDetails",
+                ],
+              },
             },
           },
           adding: {
@@ -189,11 +198,6 @@ export default createMachine(
 
       error: {
         id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
       },
     },
     on: {
@@ -212,6 +216,7 @@ export default createMachine(
       REFRESH: {
         target: "checking",
         actions: ["setContext", "updateStripe"],
+        cond: "hasChanged",
       },
       UNAUTHENTICATED: {
         target: "loading",
@@ -310,21 +315,33 @@ export default createMachine(
         data: paymentDetails,
       })),
 
+      escalateError: pure((_context, { data }) => {
+        escalate({ data });
+      }),
+
+      cancelPaymentDetails: sendParent(() => ({
+        type: "CANCEL",
+      })),
+
       // ---
-      setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
+
+      setFeedbackError: pure(({ error }, _event) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
-            error?.title || "We experienced an error processing your payment",
+            error?.title ||
+            "We experienced an error processing your payment details",
           copy: error?.message,
           data: error?.data,
         });
-      },
+
+        // escalate({ data: error });
+      }),
 
       setError: assign({
         error: (_context: StripeContext, { data }: StripeEvent) => {
           let error = data?.error;
-          if (error?.code == 422) {
+          if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -338,9 +355,19 @@ export default createMachine(
     },
 
     guards: {
-      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) => {
-        return !elements;
+      hasChanged: (
+        { basket_id, currency, amount }: StripeContext,
+        { data }: StripeEvent
+      ) => {
+        const value =
+          basket_id !== data.basket_id ||
+          currency !== data.currency ||
+          amount !== data.amount;
+        return value;
       },
+
+      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) =>
+        !elements,
 
       hasNoOutstandingBalance: (
         _context: StripeContext,
