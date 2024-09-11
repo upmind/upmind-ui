@@ -136,7 +136,8 @@ export const Slots: Story = {
         <uw-avatar
           slot="prepend"
           class="w-full h-full"
-          :avatar="{src: avatar, caption: 'GB' }"></uw-avatar>
+          :src="avatar"
+          caption="GB"></uw-avatar>
       </uw-button>
 
      <uw-button
@@ -145,7 +146,8 @@ export const Slots: Story = {
         <uw-avatar
           slot="prepend"
           class="w-full h-full"
-          :avatar="{src: avatar, caption: 'GB' }"></uw-avatar>
+          :src="avatar"
+          caption="GB"></uw-avatar>
       </uw-button>
 
       <uw-button
@@ -169,7 +171,8 @@ export const Slots: Story = {
         <uw-avatar
           slot="append"
           class="w-full h-full"
-          :avatar="{src: avatar, caption: 'GB' }" />
+          :src="avatar"
+          caption="GB" />
         </uw-button>
     </section>
 

@@ -37,6 +37,7 @@ import { UwButton } from "./ui/button";
 import { UwCombobox } from "./ui/combobox";
 import { UwDialog } from "./ui/dialog";
 import { UwIcon } from "./ui/icon";
+import { UwIndicator } from "./ui/indicator";
 import { UwSonner } from "./ui/sonner";
 import { UwTabs } from "./ui/tabs";
 import { UwTooltip } from "./ui/tooltip";
@@ -46,7 +47,7 @@ export { toast } from "./ui/sonner";
 
 // --- utils
 export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
-import { kebabCase } from "lodash-es";
+import { forEach, kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
@@ -58,6 +59,7 @@ export {
   UwCombobox,
   UwDialog,
   UwIcon,
+  UwIndicator,
   UwSonner,
   UwTabs,
   UwTooltip,
@@ -72,6 +74,7 @@ export function register() {
   customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-icon", UwIcon);
+  customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-tabs", UwTabs);
   customElements.define("uw-tooltip", UwTooltip);
@@ -85,6 +88,17 @@ export function useCustomElement(constructor: CustomElementConstructor): void {
   }
 }
 
+export function useCustomElements(
+  ...constructors: Array<CustomElementConstructor>
+): void {
+  forEach(constructors, constructor => {
+    const componentName = kebabCase(constructor.def.name);
+    if (!customElements.get(componentName)) {
+      customElements.define(componentName, constructor);
+    }
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 declare module "vue" {
@@ -96,6 +110,7 @@ declare module "vue" {
     UwCombobox: typeof UwCombobox;
     UwDialog: typeof UwDialog;
     UwIcon: typeof UwIcon;
+    UwIndicator: typeof UwIndicator;
     UwSonner: typeof UwSonner;
     UwTabs: typeof UwTabs;
     UwTooltip: typeof UwTooltip;
