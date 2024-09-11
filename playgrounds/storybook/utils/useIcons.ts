@@ -1,41 +1,49 @@
 // --- utils
 import { keys, last, reduce, includes, startCase, set } from "lodash-es";
 
-const iconsImport = import.meta.glob(`@icons/**/*.svg`, {
-  as: "raw",
-  eager: false,
-  import: "default",
-});
+// const iconsRaw = import.meta.glob(`@icons/**/*.svg`, {
+//   as: "raw",
+//   eager: true,
+//   import: "default",
+// });
 
-const iconsUrls = import.meta.glob(`@icons/**/*.svg`, {
+const iconsImport = import.meta.glob(`@icons/**/*.svg`, {
   eager: true,
   import: "default",
 });
 // -----------------------------------------------------------------------------
 
-export const useIcons = (filter?: string) => {
+export enum iconOutput {
+  URL = "url",
+  NAME = "name",
+  // SVG = "svg",
+}
+
+export const useIcons = (
+  output: iconOutput = iconOutput.NAME,
+  filter?: string
+) => {
   const icons = reduce(
     keys(iconsImport),
     (result, key) => {
       if (filter && !includes(key, filter)) return result;
-      const icon = last(key.split("/"))?.replace(".svg", "");
-      const svg = iconsImport[key];
-      if (icon) set(result, startCase(icon), svg);
-      return result;
-    },
-    {}
-  );
+      let value: any = null;
+      switch (output) {
+        case iconOutput.URL:
+          value = last(key.split("/"))?.replace(".svg", "").toUpperCase();
+          if (value) set(result, value, key);
 
-  return icons;
-};
+        // case iconOutput.SVG:
+        //   value = last(key.split("/"))?.replace(".svg", "");
+        //   const svg = iconsRaw[key];
+        //   if (value) set(result, startCase(value), svg);
 
-export const useIconUrls = (filter?: string) => {
-  const icons = reduce(
-    keys(iconsUrls),
-    (result, key) => {
-      if (filter && !includes(key, filter)) return result;
-      const icon = last(key.split("/"))?.replace(".svg", "").toUpperCase();
-      set(result, icon, key);
+        case iconOutput.NAME:
+        default:
+          value = last(key.split("/"))?.replace(".svg", "");
+          if (value) set(result, startCase(value), value);
+      }
+
       return result;
     },
     {}

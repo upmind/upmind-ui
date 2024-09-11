@@ -23,20 +23,16 @@ export const avatarConfig = cva(
   }
 );
 
-export const iconConfig = cva("m-1 h-full w-full object-cover");
-
-export const captionConfig = cva(
-  "absolute bottom-0 left-0 right-0 top-0 z-0 inline-flex items-center justify-center text-center"
-);
-
-export const imageConfig = cva("relative z-10 h-full w-full object-cover");
-
 // -----------------------------------------------------------------------------
 export default {
   avatar: {
     root: avatarConfig,
-    icon: iconConfig,
-    caption: captionConfig,
-    image: imageConfig,
+    icon: {
+      root: cva("h-full w-full object-cover p-[0.5em]"),
+    },
+    caption: cva(
+      "absolute bottom-0 left-0 right-0 top-0 z-0 inline-flex items-center justify-center text-center"
+    ),
+    image: cva("relative z-10 h-full w-full object-cover"),
   },
 };

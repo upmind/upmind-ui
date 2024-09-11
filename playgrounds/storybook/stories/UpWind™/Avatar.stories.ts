@@ -18,7 +18,7 @@ enum shapes {
 
 const meta: Meta<typeof UwAvatar> = {
   argTypes: {
-    avatar: useSystemArgTypes.flag,
+    icon: useSystemArgTypes.icon,
     size: useSystemArgTypes.baseSizes,
     shape: {
       options: keys(shapes),
@@ -29,16 +29,17 @@ const meta: Meta<typeof UwAvatar> = {
     },
   },
   args: {
-    avatar: "",
+    src: "",
     caption: "DC",
     size: "md",
     shape: "circle",
+    icon: "",
   },
   render: args => ({
     setup() {
       return { args };
     },
-    template: `<uw-avatar v-bind="args" :avatar="{src: args.avatar, caption:args.caption }"/>`,
+    template: `<uw-avatar v-bind="args" />`,
   }),
 };
 
@@ -59,8 +60,7 @@ export const Flag: Story = {
 
 export const Gravatar: Story = {
   args: {
-    avatar:
-      "https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200",
+    src: "https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200",
     size: "md",
   },
 };
@@ -68,22 +68,27 @@ export const Gravatar: Story = {
 export const SlotContent: Story = {
   parameters: {
     controls: { exclude: ["avatar", "caption"] },
+    icon: useSystemArgTypes.icon,
   },
   args: {
     size: "md",
   },
   render: args => ({
     setup() {
-      const svg = ref();
-      const avatar = useSystemArgTypes.icon.options[16];
-      if (isFunction(avatar)) avatar().then(value => (svg.value = value));
       return {
         args,
-        svg,
       };
     },
     template: `
-        <uw-avatar v-bind="args" v-html="svg" />
+        <uw-avatar v-bind="args">
+        <svg class="w-full h-full p-[0.5em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Monitor--Streamline-Ultimate.svg">
+          <path d="M9 22.5a6.979 6.979 0 0 0 1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+          <path d="M15 22.5a6.979 6.979 0 0 1 -1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+          <path d="m7.499 22.5 9 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+          <path d="m0.5 15.5 23 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+          <path d="M1.5 1.5h21s1 0 1 1v15s0 1 -1 1h-21s-1 0 -1 -1v-15s0 -1 1 -1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+        </svg>
+        </uw-avatar>
     `,
   }),
 };
@@ -91,8 +96,7 @@ export const SlotContent: Story = {
 export const GravatarWithText: Story = {
   args: {
     caption: "DC",
-    avatar:
-      "https://www.gravatar.com/avatar/98302662b1abcc4cfe17b1205cb53255?d=blank&s=200",
+    src: "https://www.gravatar.com/avatar/98302662b1abcc4cfe17b1205cb53255?d=blank&s=200",
     size: "md",
   },
 };

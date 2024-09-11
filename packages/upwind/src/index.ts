@@ -31,14 +31,15 @@ export * from "./components/form/renderers/utils";
 
 // --- uw
 import { UwAlert } from "./ui/alert";
-import { UwButton } from "./ui/button";
 import { UwAvatar } from "./ui/avatar";
 import { UwBadge } from "./ui/badge";
-import { UwDialog } from "./ui/dialog";
-import { UwTooltip } from "./ui/tooltip";
-import { UwSonner } from "./ui/sonner";
+import { UwButton } from "./ui/button";
 import { UwCombobox } from "./ui/combobox";
+import { UwDialog } from "./ui/dialog";
+import { UwIcon } from "./ui/icon";
+import { UwSonner } from "./ui/sonner";
 import { UwTabs } from "./ui/tabs";
+import { UwTooltip } from "./ui/tooltip";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -50,15 +51,16 @@ import { kebabCase } from "lodash-es";
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
 export {
+  UwAlert,
   UwAvatar,
-  UwButton,
   UwBadge,
+  UwButton,
   UwCombobox,
   UwDialog,
-  UwTooltip,
-  UwAlert,
+  UwIcon,
   UwSonner,
   UwTabs,
+  UwTooltip,
 };
 
 // --- utility for registering all custom elements
@@ -66,12 +68,13 @@ export function register() {
   customElements.define("uw-alert", UwAlert);
   customElements.define("uw-avatar", UwAvatar);
   customElements.define("uw-badge", UwBadge);
-  customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-button", UwButton);
+  customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-dialog", UwDialog);
-  customElements.define("uw-tooltip", UwTooltip);
+  customElements.define("uw-icon", UwIcon);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-tabs", UwTabs);
+  customElements.define("uw-tooltip", UwTooltip);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
@@ -86,14 +89,15 @@ export function useCustomElement(constructor: CustomElementConstructor): void {
 
 declare module "vue" {
   export interface GlobalComponents {
-    // UwAvatar: typeof UwAvatar;
     UwAlert: typeof UwAlert;
+    UwAvatar: typeof UwAvatar;
     UwBadge: typeof UwBadge;
-    UwCombobox: typeof UwCombobox;
     UwButton: typeof UwButton;
+    UwCombobox: typeof UwCombobox;
     UwDialog: typeof UwDialog;
-    UwTooltip: typeof UwTooltip;
+    UwIcon: typeof UwIcon;
     UwSonner: typeof UwSonner;
     UwTabs: typeof UwTabs;
+    UwTooltip: typeof UwTooltip;
   }
 }
