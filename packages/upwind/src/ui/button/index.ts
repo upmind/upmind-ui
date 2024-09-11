@@ -5,8 +5,8 @@ import { defineCustomElement } from "vue";
 import Button from "./Button.ce.vue";
 const ButtonCE = defineCustomElement(Button);
 
-// Buttons need to be form associated to be focusable
-// and to be able to submit forms
+// Buttons need to be associated with forms to be able to submit forms
+// This is a special case where we need to add an event listener to the button and trigger the form submission
 export class UwButton extends ButtonCE {
   static formAssociated = true;
   _internals: ElementInternals;
@@ -15,8 +15,8 @@ export class UwButton extends ButtonCE {
     this._internals = this.attachInternals();
   }
   connectedCallback() {
-    // So this is a special case where we need to add an event listener
-    // to the button to handle form submission and reset
+    // Lets only add the event listener if the button is associated with a form
+    // and has a type attribute
     const form = this._internals.form;
     if (!!form && this.getAttribute("type")) {
       this.addEventListener("click", () => this.handleClick());
