@@ -1,27 +1,20 @@
 <template>
   <link rel="stylesheet" :href="globalStyles" />
 
-  <avatar-root :class="styles.avatar.root">
+  <span :class="styles.indicator.root">
     <slot>
       <upw-icon
         v-if="meta.hasIcon"
         :icon="icon"
-        :class="styles.avatar.icon"
-        :upwindConfig="{ icon: config.avatar.icon }"
+        :class="styles.indicator.icon"
+        :upwindConfig="{ icon: config.indicator.icon }"
       />
-      <avatar-image v-else-if="meta.hasImage" :src="src" alt="avatar" />
-      <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
-        {{ caption }}
-      </avatar-fallback>
 
-      <span
-        v-if="meta.hasImage && meta.hasCaption"
-        :class="styles.avatar.caption"
-      >
-        {{ caption }}
+      <span v-else-if="meta.hasValue" :class="styles.indicator.value">
+        {{ modelValue }}
       </span>
     </slot>
-  </avatar-root>
+  </span>
 </template>
 
 <script lang="ts">
@@ -30,53 +23,45 @@ import { defineComponent, toRefs } from "vue";
 
 // --- components
 import UpwIcon from "../icon/Icon.ce.vue";
-import { AvatarFallback, AvatarImage } from "radix-vue";
-import { AvatarRoot } from "radix-vue";
 
 // --- internal
 import globalStyles from "../../assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
-import config from "./avatar.config";
+import config from "./indicator.config";
 
 // --- utils
 import { isEmpty } from "lodash-es";
 
 // --- types
 import type { PropType } from "vue";
-import type { AvatarConfig } from "./types";
+import type { IndicatorConfig } from "./types";
 import type { IconProps } from "../../components/icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UwAvatar",
+  name: "UwIndicator",
   inheritAttrs: false,
   components: {
-    AvatarFallback,
-    AvatarImage,
-    AvatarRoot,
     UpwIcon,
   },
   props: {
-    shape: {
-      type: String as PropType<AvatarConfig["shape"]>,
-      default: "circle",
-    },
+    color: { type: String as PropType<IndicatorConfig["color"]> },
+
     size: {
-      type: String as PropType<AvatarConfig["size"]>,
-      default: "md",
+      type: String as PropType<IndicatorConfig["size"]>,
+      default: "full",
     },
     icon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
       required: true,
     },
-    src: { type: String },
-    caption: { type: String },
+    modelValue: { type: String },
     upwindConfig: { type: Object, default: () => ({}) },
   },
 
   setup(props) {
     const styles = useStyles(
-      "avatar",
+      "indicator",
       toRefs(props),
       config,
       props.upwindConfig
@@ -93,8 +78,7 @@ export default defineComponent({
     meta() {
       return {
         hasIcon: !isEmpty(this.icon),
-        hasImage: !isEmpty(this.src),
-        hasCaption: !isEmpty(this.caption) || true,
+        hasValue: !isEmpty(this.modelValue) || true,
       };
     },
   },
