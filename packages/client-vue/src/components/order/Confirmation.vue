@@ -1,12 +1,12 @@
 <template>
-  <upw-dialog
+  <uw-dialog
     size="xl"
     :model-value="modelValue"
     no-actions
     persistent
     skrim="light"
   >
-    <section :class="styles.order.confirmation.root">
+    <section slot="content" :class="styles.order.confirmation.root">
       <uw-avatar :avatar="avatar" :class="styles.order.confirmation.avatar" />
 
       <h3 :class="styles.order.confirmation.title">
@@ -16,14 +16,14 @@
       <p :class="styles.order.confirmation.text">{{ text }}</p>
 
       <footer :class="styles.order.confirmation.actions">
-        <upw-button
+        <uw-button
           v-if="!meta.isAuthenticated && action"
           v-bind="action"
           variant="ghost"
           :loading="processing"
           :href="storefrontUrl"
         />
-        <upw-button
+        <uw-button
           v-else-if="action"
           v-bind="action"
           variant="ghost"
@@ -32,7 +32,7 @@
         />
       </footer>
     </section>
-  </upw-dialog>
+  </uw-dialog>
 </template>
 
 <script>
@@ -44,19 +44,15 @@ import { useSession, utils } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
-
-// --- types
+// --- custom elements
+import { UwDialog, UwAvatar, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwDialog);
+useCustomElement(UwAvatar);
+useCustomElement(UwButton);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmOrderConfirmation",
-  components: {
-    UpwDialog,
-    UwAvatar,
-    UpwButton,
-  },
   props: {
     modelValue: {
       type: Boolean,

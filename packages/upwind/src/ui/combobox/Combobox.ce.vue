@@ -143,7 +143,6 @@ export default defineComponent({
     label: { type: String, default: "Select an item" },
     searchPlaceholder: { type: String, default: "Search" },
     emptyMessage: { type: String, default: "No results" },
-    upwindConfig: { type: Object, default: null },
     heading: { type: String, default: "" },
     align: { type: String, default: "left" },
     sideOffset: { type: Number, default: 4 },
@@ -161,6 +160,7 @@ export default defineComponent({
     dismissable: { type: Boolean, default: false },
     position: { type: String },
     asChild: { type: Boolean, default: false },
+    upwindConfig: {},
   },
   emits: [
     "update:open",

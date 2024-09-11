@@ -42,12 +42,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmEmpty from "./Empty.vue";
-import {
-  UpwButton,
-  UpwSkeletonList,
-  UpwRadioList,
-  UpwIcon,
-} from "@upmind/upwind";
+import { UpwSkeletonList, UpwRadioList } from "@upmind/upwind";
 
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
@@ -58,8 +53,6 @@ import { get, includes, isArray, isNil } from "lodash-es";
 export default defineComponent({
   name: "UpmDomainValues",
   components: {
-    UpwButton,
-    UpwIcon,
     UpwRadioList,
     UpwSkeletonList,
     // ---

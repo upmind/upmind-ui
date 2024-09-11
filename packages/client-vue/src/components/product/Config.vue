@@ -157,7 +157,7 @@
 
     <!-- footer -->
     <footer :class="styles.product.config.footer" v-if="!meta.isLoading">
-      <upw-button
+      <uw-button
         type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
@@ -174,7 +174,7 @@
         </strong>
       </span>
 
-      <upw-button
+      <uw-button
         type="submit"
         tabindex="0"
         :label="$t('product.actions.resolve')"
@@ -196,7 +196,6 @@ import config from "./config.cva";
 
 // --- components
 import {
-  UpwButton,
   UpwQuantitybox,
   UpwSpinner,
   UpwMarkdown,
@@ -207,8 +206,9 @@ import UpmConfigNested from "./ConfigNested.vue";
 import UpmConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
-import { UwBadge, useCustomElement } from "@upmind/upwind";
+import { UwBadge, UwButton, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwBadge);
+useCustomElement(UwButton);
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -218,7 +218,6 @@ export default defineComponent({
   name: "UpmProductConfig",
   inheritAttrs: false,
   components: {
-    UpwButton,
     UpwQuantitybox,
     UpwSpinner,
     UpmConfigGrid,

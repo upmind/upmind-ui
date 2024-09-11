@@ -29,7 +29,7 @@
             tag="p"
           >
             <template #[`action`]>
-              <upw-button
+              <uw-button
                 variant="link"
                 @click.prevent="logout"
                 :label="$t('session.authenticated.footer.action')"
@@ -79,7 +79,10 @@ import config from "./config.cva";
 
 // --- components
 import UpmAuth from "./Auth.vue";
-import { UpwButton } from "@upmind/upwind";
+
+// --- custom elements
+import { UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
 
 // --- types
 import type { PropType } from "vue";
@@ -91,7 +94,6 @@ export default defineComponent({
   name: "UpmSession",
   components: {
     UpmAuth,
-    UpwButton,
   },
   props: {
     show: {

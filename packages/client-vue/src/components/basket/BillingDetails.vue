@@ -26,7 +26,7 @@
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
         {{ $t("client.title") }}
-        <upw-button
+        <uw-button
           variant="link"
           :label="$t('client.actions.change')"
           size="sm"
@@ -44,7 +44,7 @@
       />
 
       <div :class="styles.client.actions">
-        <upw-button
+        <uw-button
           :key="selected?.id"
           variant="link"
           :label="$t('client.actions.convert')"
@@ -86,7 +86,11 @@ import config from "../client/config.cva";
 import UpmItem from "../Client/Item.vue";
 import UpmCard from "../Client/Card.vue";
 import UpmListings from "../Client/Listings.vue";
-import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
+import { UpwSkeletonList } from "@upmind/upwind";
+
+// --- custom elements
+import { UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
@@ -96,7 +100,6 @@ export default defineComponent({
   name: "UpmClient",
   components: {
     UpwSkeletonList,
-    UpwButton,
     // ---
     UpmItem,
     UpmCard,

@@ -1,22 +1,21 @@
 <template>
   <section :class="styles.basket.promotions.root" v-auto-animate>
     <header :class="styles.basket.promotions.header">
-      <upw-button
+      <uw-button
         variant="link"
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
         :label="$t('basket.promotions.title')"
       >
-        <template #append-icon>
-          <upw-icon
-            icon="arrow-down"
-            :class="styles.basket.promotions.toggle"
-            :aria-checked="toggle"
-            aria-hidden="true"
-          />
-        </template>
-      </upw-button>
+        <upw-icon
+          slot="append"
+          icon="arrow-down"
+          :class="styles.basket.promotions.toggle"
+          :aria-checked="toggle"
+          aria-hidden="true"
+        />
+      </uw-button>
     </header>
 
     <upw-form
@@ -45,7 +44,7 @@
         {{ $t("basket.promotions.active.title") }}
       </h4>
 
-      <upw-button
+      <uw-button
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
         variant="flat"
@@ -67,7 +66,11 @@ import { defineComponent, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwButton, UpwIcon, UpwForm } from "@upmind/upwind";
+import { UpwIcon, UpwForm } from "@upmind/upwind";
+
+// --- custom elements
+import { UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
 
 // --- internal
 import { useBasketPromotions } from "@upmind/flow-vue";
@@ -81,7 +84,7 @@ import { set } from "lodash-es";
 
 export default defineComponent({
   name: "UpmBasketPromotions",
-  components: { UpwButton, UpwIcon, UpwForm },
+  components: { UpwIcon, UpwForm },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {},
