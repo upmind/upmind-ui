@@ -38,7 +38,7 @@
             {{ $t(`product.${termSummary.key}`, termSummary) }}
           </span>
 
-          <upw-button
+          <uw-button
             variant="link"
             @click="toggle = !toggle"
             size="sm"
@@ -47,16 +47,15 @@
             :class="styles.product.card.more"
             v-if="hasSummaryDetails"
           >
-            <template #append-icon>
-              <upw-icon
-                icon="arrow-down"
-                :class="styles.product.card.toggle"
-                :aria-checked="toggle"
-                :aria-controls="`product-${product?.id}-toggle`"
-                aria-hidden="true"
-              />
-            </template>
-          </upw-button>
+            <upw-icon
+              slot="append"
+              icon="arrow-down"
+              :class="styles.product.card.toggle"
+              :aria-checked="toggle"
+              :aria-controls="`product-${product?.id}-toggle`"
+              aria-hidden="true"
+            />
+          </uw-button>
         </div>
       </header>
 
@@ -97,7 +96,7 @@
               >
                 {{ detail.name }}
               </span>
-              <upw-button
+              <uw-button
                 v-else-if="detail.invalid"
                 size="xs"
                 variant="link"
@@ -134,7 +133,7 @@
 
         <!-- actions -->
         <div :class="styles.product.card.actions">
-          <upw-button
+          <uw-button
             :disabled="
               meta.isLoading ||
               meta.isCalculating ||
@@ -152,7 +151,7 @@
             :variant="meta.hasErrors || meta.isNew ? 'flat' : 'ghost'"
           />
 
-          <upw-button
+          <uw-button
             :disabled="
               meta.isLoading || meta.isCalculating || meta.isProcessing
             "
@@ -181,11 +180,12 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
+import { UpwIcon, UpwSpinner } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, useCustomElement } from "@upmind/upwind";
+import { UwBadge, UwButton, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwBadge);
+useCustomElement(UwButton);
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -194,7 +194,7 @@ import { isNil, find, reject } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwButton, UpwIcon, UpwSpinner },
+  components: { UpwIcon, UpwSpinner },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

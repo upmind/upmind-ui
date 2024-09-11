@@ -1,12 +1,12 @@
 <template>
-  <upw-dialog
+  <uw-dialog
     size="xl"
     :model-value="modelValue"
     no-actions
     persistent
     skrim="light"
   >
-    <section :class="styles.basket.processing.root">
+    <section slot="content" :class="styles.basket.processing.root">
       <uw-avatar
         :avatar="avatar"
         :class="styles.basket.processing.avatar"
@@ -20,7 +20,7 @@
       <p :class="styles.basket.processing.text">{{ text }}</p>
 
       <footer :class="styles.basket.processing.actions">
-        <upw-button
+        <uw-button
           v-if="hasAction"
           v-bind="action"
           block
@@ -30,7 +30,7 @@
         />
       </footer>
     </section>
-  </upw-dialog>
+  </uw-dialog>
 </template>
 
 <script>
@@ -42,8 +42,11 @@ import { useBasket } from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UpwDialog, UwAvatar, UpwButton } from "@upmind/upwind";
+// --- custom elements
+import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAvatar);
+useCustomElement(UwButton);
+useCustomElement(UwDialog);
 
 // ---utils
 import { isEmpty } from "lodash-es";
@@ -52,11 +55,6 @@ import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketProcessing",
-  components: {
-    UpwDialog,
-    UwAvatar,
-    UpwButton,
-  },
   props: {
     modelValue: {
       type: Boolean,
