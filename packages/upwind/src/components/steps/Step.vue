@@ -12,7 +12,8 @@
 
     <uw-avatar
       v-else
-      :avatar="complete ? 'check-circle' : { caption }"
+      :icon="complete ? 'check-circle' : null"
+      :caption="caption"
       size="xs"
       :class="styles.step.avatar"
     />
