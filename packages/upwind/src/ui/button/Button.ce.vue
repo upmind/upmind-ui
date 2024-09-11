@@ -56,6 +56,7 @@ export default defineComponent({
     block: { type: Boolean },
     disabled: { type: Boolean },
     loading: { type: Boolean },
+    class: { type: String },
   },
   setup(props) {
     const styles = useStyles(
