@@ -111,7 +111,6 @@ export const Slots: Story = {
       const iconSvg = useSystemArgTypes.icon.options[16];
       if (isFunction(iconSvg))
         iconSvg().then(value => {
-          debugger;
           icon.value = value;
         });
 

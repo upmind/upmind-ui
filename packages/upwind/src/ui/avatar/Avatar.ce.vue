@@ -3,13 +3,13 @@
 
   <avatar-root :class="styles.avatar.root">
     <slot>
-      <upw-icon v-if="meta.hasIcon" :icon="icon" :class="styles.avatar.image" />
-      <avatar-image
-        v-else-if="meta.hasImage"
-        :src="src"
-        alt="avatar"
-        :class="styles.avatar.image"
+      <upw-icon
+        v-if="meta.hasIcon"
+        :icon="icon"
+        :class="styles.avatar.icon"
+        :upwindConfig="{ icon: config.avatar.icon }"
       />
+      <avatar-image v-else-if="meta.hasImage" :src="src" alt="avatar" />
       <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
         {{ caption }}
       </avatar-fallback>
@@ -22,7 +22,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
-import UpwIcon from "../../components/icon/Icon.vue";
+import UpwIcon from "../icon/Icon.ce.vue";
 import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
@@ -75,6 +75,7 @@ export default defineComponent({
     );
 
     return {
+      config,
       styles,
       globalStyles,
     };

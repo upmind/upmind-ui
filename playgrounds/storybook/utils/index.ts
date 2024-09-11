@@ -2,12 +2,14 @@
 export * from "./useIcons";
 
 // --- utils
-import { useIcons, useIconUrls } from "./useIcons";
+import { useIcons, iconOutput } from "./useIcons";
 import { keys, values, invert } from "lodash-es";
+
 // ----------------------------------------------------------------------------
 
-const flags = useIconUrls("flags");
-const icons = useIcons();
+const iconUrls = useIcons(iconOutput.URL);
+const icons = useIcons(iconOutput.NAME);
+// const iconSvgs = useIcons();
 
 enum colors {
   base = "Base",
@@ -102,11 +104,18 @@ export const useSystemArgTypes = {
       labels: invert(icons),
     },
   },
+  // iconSvgs: {
+  //   options: values(iconSvgs),
+  //   control: {
+  //     type: "select",
+  //     labels: invert(iconSvgs),
+  //   },
+  // },
   flag: {
-    options: values(flags),
+    options: values(iconUrls),
     control: {
       type: "select",
-      labels: invert(flags),
+      labels: invert(iconUrls),
     },
   },
 };
