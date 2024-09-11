@@ -7,6 +7,7 @@ export const avatarConfig = cva(
   {
     variants: {
       size: {
+        full: "h-full w-full text-inherit",
         sm: "h-10 w-10 text-xs",
         md: "h-16 w-16 text-2xl",
         lg: "h-32 w-32 text-5xl",

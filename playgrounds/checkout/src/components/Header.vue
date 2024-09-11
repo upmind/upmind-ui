@@ -15,11 +15,9 @@
         <picture class="h-full w-full">
           <source srcset="/logo.png" type="image/png" />
           <img src="/logo.svg" class="h-full w-auto" />
-          <caption class="sr-only text-nowrap tracking-widest">
-            {{
-              $t("header.title")
-            }}
-          </caption>
+          <span class="sr-only text-nowrap tracking-widest">
+            {{ $t("header.title") }}
+          </span>
         </picture>
       </component>
 
@@ -46,13 +44,13 @@
           v-if="!isBasketView"
         >
           <template #append-avatar>
-            <uw-avatar
-              :key="items?.length"
+            <uw-indicator
               v-if="items?.length"
-              class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-foreground"
+              :key="items?.length"
+              :modelValue="items.length"
+              color="primary"
             >
-              {{ items.length }}
-            </uw-avatar>
+            </uw-indicator>
           </template>
         </upw-button>
 
@@ -69,14 +67,20 @@ import {
   UpwListbox,
   UpmProfile,
   UpmCurrency,
-  UwAvatar,
-  UpwButton,
 } from "@upmind/client-vue";
+
+import {
+  UpwButton,
+  UwAvatar,
+  UwIndicator,
+  UwButton,
+  useCustomElements,
+} from "@upmind/upwind";
+useCustomElements(UwAvatar, UwIndicator, UwButton);
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
-    UwAvatar,
     UpwListbox,
     UpwButton,
     UpmProfile,
