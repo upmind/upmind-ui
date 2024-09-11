@@ -37,18 +37,18 @@
       </template>
 
       <!-- existing -->
-      <upw-combobox
+      <uw-combobox
         v-else-if="meta.showExisting"
         :class="styles.domain.existing"
         :errors="errors"
         :items="ownedDomains"
-        :model-value="selected"
+        v-model="selected"
         @update:modelValue="update"
         autocomplete="url"
         autofocus
         item-label="domain"
         item-value="value"
-        :placeholder="$t('domain.existing.search')"
+        :searchPlaceholder="$t('domain.existing.search')"
       />
 
       <!-- basket -->
@@ -71,18 +71,21 @@ import { defineComponent } from "vue";
 
 // --- internal
 import { useDomain } from "@upmind/flow-vue";
-import {
-  useStyles,
-  mergeStyles,
-  UpwRadioList,
-  UpwCombobox,
-  UpwSkeletonList,
-} from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
 import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
+import {
+  useStyles,
+  mergeStyles,
+  UpwRadioList,
+  UpwSkeletonList,
+} from "@upmind/upwind";
+
+// --- custom elements
+import { UwAlert, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAlert);
 
 // --- utils
 import { debounce, map } from "lodash-es";
@@ -94,7 +97,6 @@ export default defineComponent({
   name: "UpmDomain",
   components: {
     UpwRadioList,
-    UpwCombobox,
     UpmDac,
     UpmDomainValues,
     UpwSkeletonList,

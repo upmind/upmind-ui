@@ -1,5 +1,5 @@
 <template>
-  <upw-alert
+  <uw-alert
     v-bind="message"
     :model-value="meta.isActive || (scheduled && meta.isScheduled)"
     :icon="message.icon"
