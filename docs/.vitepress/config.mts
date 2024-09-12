@@ -10,16 +10,16 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'UpFlow', link: '/@upmind/upflow' },
-      { text: 'UpFlow-Vue', link: '/@upmind/upflow-vue' }
+      { text: 'Headless', link: '/@upmind/headless' },
+      { text: 'Headless-vue', link: '/@upmind/headless-vue' }
     ],
     sidebar: {
-      '/@upmind/upflow/': [
+      '/@upmind/headless/': [
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/upflow/' },
-            { text: 'Getting Started', link: '/@upmind/upflow/getting-started' },
+            { text: 'Introduction', link: '/@upmind/headless/' },
+            { text: 'Getting Started', link: '/@upmind/headless/getting-started' },
             // { text: 'Feature 1', link: '/upflow/feature1' }
           ]
         },
@@ -28,13 +28,13 @@ export default defineConfig({
           items: typedocSidebar[0].items
         }
       ],
-      '/@upmind/upflow-vue/': [
+      '/@upmind/headless-vue/': [
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/upflow-vue/' },
-            { text: 'Getting Started', link: '/@upmind/upflow-vue/getting-started' },
-            // { text: 'Feature 1', link: '/upflow-vue/feature1' }
+            { text: 'Introduction', link: '/@upmind/headless-vue/' },
+            { text: 'Getting Started', link: '/@upmind/headless-vue/getting-started' },
+            // { text: 'Feature 1', link: '/headless-vue/feature1' }
           ]
         },
         {

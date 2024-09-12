@@ -4,5 +4,5 @@
 
 | Name | Version | Description |
 | ------ | ------ | ------ |
-| [@upmind/upflow](@upmind/upflow/index.md) | 0.0.0 | - |
-| [@upmind/upflow-vue](@upmind/upflow-vue/index.md) | 0.0.0 | - |
+| [@upmind/headless](@upmind/headless/index.md) | 0.0.0 | - |
+| [@upmind/headless-vue](@upmind/headless-vue/index.md) | 0.0.0 | - |
