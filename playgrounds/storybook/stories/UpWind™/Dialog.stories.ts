@@ -118,6 +118,7 @@ const meta: Meta<typeof UwDialog> = {
   },
   args: {
     modelValue: false,
+    persistent: false,
     title: "Proident id magna in velit",
     description:
       "Proident id proident ullamco veniam. Dolor duis anim sunt cillum exercitation occaecat aliqua consectetur proident incididunt amet. Laboris velit nostrud irure pariatur Lorem ad tempor aute laboris cillum ad sint.",
@@ -144,7 +145,7 @@ export const Base: Story = {
     },
     template: `
       <pre>{{args}}</pre>
-      <uw-dialog v-bind="args" @input="onOpen" persistent>
+      <uw-dialog v-bind="args" @input="onOpen">
         <uw-button slot="trigger">Open Dialog</uw-button>
         <uw-button slot="close">Close</uw-button>
       </uw-dialog>
