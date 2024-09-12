@@ -1,5 +1,5 @@
 // --- external
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
@@ -291,6 +291,11 @@ export const MockedAsyncAction: Story = {
       const loading = ref(false);
       let seconds = ref(3);
 
+      // Add watch effect to log when open changes
+      watch(open, newValue => {
+        console.log("open value changed:", newValue);
+      });
+
       const start = () => {
         loading.value = true;
         if (seconds.value === 1) {
@@ -306,6 +311,7 @@ export const MockedAsyncAction: Story = {
       };
 
       const handleOpenChange = (isOpen: boolean) => {
+        console.log("Handler hit");
         open.value = isOpen;
       };
 
@@ -322,13 +328,12 @@ export const MockedAsyncAction: Story = {
       <div>
         <uw-button @click="open = true">Open Dialog</uw-button>
         <uw-dialog
-          :open.prop="open"
-          @update:open="handleOpenChange"
+          :modelValue="open"
           title="Mocked asynchronous action"
           :description="seconds + ' seconds remaining'"
         >
           <uw-button slot="footer" size="sm" @click="start" :loading="loading">Begin</uw-button>
-        </uw-dialog>
+        </uw-dialog> {{ open }}
       </div>
     `,
   }),
