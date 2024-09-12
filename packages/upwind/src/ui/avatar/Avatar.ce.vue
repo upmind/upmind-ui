@@ -7,13 +7,19 @@
         v-if="meta.hasIcon"
         :icon="icon"
         :class="styles.avatar.icon"
-        :upwindConfig="{ icon: config.avatar.icon }"
+        :upwind-config="{ icon: config.avatar.icon }"
       />
-      <avatar-image v-else-if="meta.hasImage" :src="src" alt="avatar" />
+      <avatar-image
+        v-else-if="meta.hasImage"
+        :src="src"
+        alt="avatar"
+        :class="styles.avatar.image"
+      />
       <avatar-fallback v-if="meta.hasCaption" :class="styles.avatar.caption">
         {{ caption }}
       </avatar-fallback>
 
+      <!-- forced caption for caption shinethrough -->
       <span
         v-if="meta.hasImage && meta.hasCaption"
         :class="styles.avatar.caption"
@@ -57,6 +63,11 @@ export default defineComponent({
     UpwIcon,
   },
   props: {
+    color: { type: String as PropType<AvatarConfig["color"]>, default: "base" },
+    fit: {
+      type: String as PropType<AvatarConfig["fit"]>,
+      default: "cover",
+    },
     shape: {
       type: String as PropType<AvatarConfig["shape"]>,
       default: "circle",
@@ -67,7 +78,6 @@ export default defineComponent({
     },
     icon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
-      required: true,
     },
     src: { type: String },
     caption: { type: String },

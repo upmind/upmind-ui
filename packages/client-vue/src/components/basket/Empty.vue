@@ -2,13 +2,13 @@
   <component
     :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
-    :model-value="open"
+    :model-value="meta.isEmpty"
     no-actions
     persistent
     skrim="light"
   >
     <section :class="styles.basket.empty.root">
-      <uw-avatar :avatar="avatar" :class="styles.basket.empty.avatar" />
+      <uw-avatar v-bind="avatar" />
 
       <h3 :class="styles.basket.empty.title">
         {{ title }}
@@ -31,26 +31,36 @@
 
 <script>
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
 import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwDialog);
 useCustomElement(UwAvatar);
 useCustomElement(UwButton);
-useCustomElement(UwDialog);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketEmpty",
   props: {
-    modal: {
-      type: Boolean,
-      default: false,
+    modal: { type: Boolean, default: true },
+    title: { type: String },
+    text: { type: String },
+    action: { type: Object, default: () => null },
+    avatar: {
+      type: Object,
+      default: () => ({
+        size: "lg",
+        shape: "circle",
+        color: "primary",
+        icon: "basket",
+        fit: "contain",
+      }),
     },
   },
   setup() {
@@ -62,31 +72,10 @@ export default defineComponent({
 
     return {
       meta,
-      open: computed(() => {
-        const value = meta.value.isEmpty;
-        return value;
-      }),
-
-      // ---
       styles,
-      mergeStyles,
     };
   },
   computed: {
-    title() {
-      return this.$t("basket.empty.title");
-    },
-
-    text() {
-      return this.$t("basket.empty.text");
-    },
-
-    avatar() {
-      return this.$tm("basket.empty.avatar");
-    },
-    action() {
-      return this.$tm("basket.empty.actions.continue");
-    },
     storefrontUrl() {
       return import.meta.env.VITE_APP_STOREFRONT;
     },

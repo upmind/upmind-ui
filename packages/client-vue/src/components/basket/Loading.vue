@@ -7,16 +7,12 @@
     persistent
     skrim="light"
   >
-    <section slot="content" :class="styles.basket.loading.root">
-      <uw-avatar
-        :avatar="avatar"
-        :class="styles.basket.loading.avatar"
-        loading
-      />
+    <section :class="styles.basket.loading.root">
+      <uw-avatar v-bind="avatar" />
 
-      <h1 :class="styles.basket.loading.title">
+      <h3 :class="styles.basket.loading.title">
         {{ title }}
-      </h1>
+      </h3>
 
       <p :class="styles.basket.loading.text">{{ text }}</p>
     </section>
@@ -33,17 +29,28 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwAvatar, UwDialog, useCustomElement } from "@upmind/upwind";
+import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwAvatar);
+useCustomElement(UwButton);
 useCustomElement(UwDialog);
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketloading",
   props: {
-    modal: {
-      type: Boolean,
-      default: false,
+    modal: { type: Boolean },
+    title: { type: String },
+    text: { type: String },
+    action: { type: Object, default: () => null },
+    avatar: {
+      type: Object,
+      default: () => ({
+        size: "lg",
+        shape: "circle",
+        color: "primary",
+        icon: "basket",
+        fit: "contain",
+      }),
     },
   },
   setup() {
@@ -64,22 +71,6 @@ export default defineComponent({
       styles,
       mergeStyles,
     };
-  },
-  computed: {
-    title() {
-      return this.$t("basket.loading.title");
-    },
-
-    text() {
-      return this.$t("basket.loading.text");
-    },
-
-    avatar() {
-      return this.$tm("basket.loading.avatar");
-    },
-    action() {
-      return this.$tm("basket.loading.actions.continue");
-    },
   },
 });
 </script>

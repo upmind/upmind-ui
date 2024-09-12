@@ -165,7 +165,7 @@ export const Hero: Story = {
         v-bind="args"
         overflow="hidden"
       >
-        <section slot="content" class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
+        <section  class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
           <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
             <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
               <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
@@ -179,8 +179,8 @@ export const Hero: Story = {
     `,
   }),
   args: {
-    title: null,
-    description: null,
+    title: "",
+    description: "",
     size: "4xl",
   },
 };

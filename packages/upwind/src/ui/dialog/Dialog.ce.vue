@@ -3,37 +3,38 @@
     <dialog-trigger>
       <slot name="trigger" />
     </dialog-trigger>
-    <dialog-portal :disabled="true">
-      <dialog-overlay :class="styles.dialog.overlay">
-        <dialog-content
-          :class="styles.dialog.content"
-          @pointerdown-outside="handlePointerDownOutside"
-        >
-          <div v-if="title || description">
-            <dialog-title v-if="title" :class="styles.dialog.title">{{
-              title
-            }}</dialog-title>
-            <dialog-description
-              v-if="description"
-              :class="styles.dialog.description"
-            >
-              {{ description }}
-            </dialog-description>
-          </div>
+    <dialog-overlay :class="styles.dialog.overlay">
+      <dialog-content
+        :class="styles.dialog.content"
+        @pointerdown-outside="handlePointerDownOutside"
+      >
+        <div v-if="title || $slots.title || description || $slots.description">
+          <dialog-title
+            v-if="title || $slots.title"
+            :class="styles.dialog.title"
+          >
+            <slot name="title">{{ title }}</slot>
+          </dialog-title>
 
-          <slot name="content" />
-          <slot />
+          <dialog-description
+            v-if="description || $slots.description"
+            :class="styles.dialog.description"
+          >
+            <slot name="description">{{ description }}</slot>
+          </dialog-description>
+        </div>
 
-          <div :class="styles.dialog.footer">
-            <slot name="footer"></slot>
+        <slot />
 
-            <dialog-close>
-              <slot name="close"></slot>
-            </dialog-close>
-          </div>
-        </dialog-content>
-      </dialog-overlay>
-    </dialog-portal>
+        <div :class="styles.dialog.footer">
+          <slot name="footer" />
+
+          <dialog-close>
+            <slot name="close" />
+          </dialog-close>
+        </div>
+      </dialog-content>
+    </dialog-overlay>
   </dialog-root>
 </template>
 
@@ -80,10 +81,7 @@ export default defineComponent({
       default: "visible",
     },
     upwindConfig: { type: Object, default: () => ({}) },
-    open: {
-      type: Boolean,
-      default: undefined,
-    },
+    open: { type: Boolean, default: undefined },
   },
   emits: ["update:open"],
   setup(props, { emit }) {
@@ -113,6 +111,8 @@ export default defineComponent({
       props.upwindConfig
     );
 
+    // TODO: @rhodi refactor with https://vueuse.org/core/onClickOutside/
+    // AND  https://vueuse.org/shared/toRefs/#destructuring-a-props-object
     const handlePointerDownOutside = (event: PointerEvent) => {
       const originalEvent = event as unknown as {
         detail: { originalEvent: PointerEvent };

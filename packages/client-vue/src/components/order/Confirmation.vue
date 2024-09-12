@@ -6,7 +6,7 @@
     persistent
     skrim="light"
   >
-    <section slot="content" :class="styles.order.confirmation.root">
+    <section :class="styles.order.confirmation.root">
       <uw-avatar :avatar="avatar" :class="styles.order.confirmation.avatar" />
 
       <h3 :class="styles.order.confirmation.title">

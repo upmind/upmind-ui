@@ -7,8 +7,8 @@
     persistent
     skrim="light"
   >
-    <section slot="content" :class="styles.domain.empty.root">
-      <uw-avatar :avatar="avatar" :class="styles.domain.empty.avatar" />
+    <section :class="styles.domain.empty.root">
+      <uw-avatar v-bind="avatar" />
 
       <h3 :class="styles.domain.empty.title">
         {{ title }}
@@ -28,19 +28,30 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwDialog, UwAvatar, useCustomElement } from "@upmind/upwind";
+import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwDialog);
 useCustomElement(UwAvatar);
+useCustomElement(UwButton);
 
 // --- utils
-import { get } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmDomainEmpty",
   props: {
-    i18nKey: { type: String, default: "domain.empty" },
     modal: { type: Boolean },
+    title: { type: String },
+    text: { type: String },
+    action: { type: Object, default: () => null },
+    avatar: {
+      type: Object,
+      default: () => ({
+        size: "lg",
+        shape: "circle",
+        color: "primary",
+        icon: "basket",
+      }),
+    },
   },
   setup() {
     const styles = useStyles(["domain.empty"], {}, config);
@@ -48,22 +59,6 @@ export default defineComponent({
     return {
       styles,
     };
-  },
-  computed: {
-    translations() {
-      return this.$tm(this.i18nKey);
-    },
-    title() {
-      return get(this.translations, "title", "No domains found");
-    },
-
-    text() {
-      return get(this.translations, "text", "Please try searching again");
-    },
-
-    avatar() {
-      return get(this.translations, "avatar");
-    },
   },
 });
 </script>

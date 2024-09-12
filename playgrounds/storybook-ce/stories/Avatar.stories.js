@@ -65,7 +65,7 @@ export default {
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Base = {};
-export const Icon = { args: { icon: "za" } };
+export const Icon = { args: { icon: "za", size: "contain" } };
 export const Gravatar = {
   args: {
     image:

@@ -120,7 +120,7 @@ export const SlotContent: Story = {
         <uw-tooltip v-bind="args">
           <uw-button label="Trigger" />
           <div
-            slot="content"
+
             class="p-2 px-3 font-bold"
           >
             <div>You can do whatever you'd like in this slot</div>

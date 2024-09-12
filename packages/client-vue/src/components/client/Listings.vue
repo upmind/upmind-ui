@@ -8,7 +8,7 @@
     :model-value="modelValue"
     @update:modelValue="onClose"
   >
-    <section slot="content" :class="styles.clientListings.root">
+    <section :class="styles.clientListings.root">
       <header :class="styles.clientListings.header">
         <slot name="header" v-bind="{ meta }"></slot>
       </header>
