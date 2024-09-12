@@ -10,15 +10,11 @@ import svgLoader from 'vite-svg-loader';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [// basicSsl(),
-  vue(), vueJsx(), svgLoader(), sentryVitePlugin({
-    org: "upmind",
-    project: "upm-checkout-v2"
-  })],
-
-  server: {
-    cors: true,
-    // https: true,
-  },
+    vue(), vueJsx(), svgLoader(),
+    sentryVitePlugin({
+      org: "upmind",
+      project: "checkout-doteasy"
+    })],
 
   resolve: {
     alias: {
