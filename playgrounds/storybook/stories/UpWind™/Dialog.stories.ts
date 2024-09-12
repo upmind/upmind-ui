@@ -144,7 +144,6 @@ export const Base: Story = {
       };
     },
     template: `
-      <pre>{{args}}</pre>
       <uw-dialog v-bind="args" @input="onOpen">
         <uw-button slot="trigger">Open Dialog</uw-button>
         <uw-button slot="close">Close</uw-button>
@@ -169,11 +168,11 @@ export const Hero: Story = {
     },
 
     template: `
-    <pre>{{args}}</pre>
+      <uw-button @click="toggleOpen">Open Dialog</uw-button>
       <uw-dialog
-      v-bind="args"
-      @input="onOpen"
-      overflow="hidden"
+        v-bind="args"
+        @input="onOpen"
+        overflow="hidden"
       >
         <section  class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
           <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
@@ -296,16 +295,23 @@ export const Hero: Story = {
 // };
 
 export const MockedAsyncAction: Story = {
-  render: args => ({
+  render: (args, { updateArgs }) => ({
     setup() {
-      const open = ref(false);
       const loading = ref(false);
       let seconds = ref(3);
+
+      const toggleOpen = () => {
+        updateArgs({ modelValue: !args.modelValue });
+      };
+      const onOpen = ({ detail }) => {
+        const { isOpen = false } = first(detail);
+        updateArgs({ modelValue: isOpen });
+      };
 
       const start = () => {
         loading.value = true;
         if (seconds.value === 1) {
-          open.value = false;
+          toggleOpen();
           loading.value = false;
           seconds.value = 3;
         } else {
@@ -316,29 +322,27 @@ export const MockedAsyncAction: Story = {
         }
       };
 
-      const handleOpenChange = (isOpen: boolean) => {
-        open.value = isOpen;
-      };
-
       return {
         seconds,
         loading,
         open,
         args,
         start,
-        handleOpenChange,
+        toggleOpen,
+        onOpen,
       };
     },
     template: `
       <div>
-        <uw-button @click="open = true">Open Dialog</uw-button>
+        <uw-button @click="toggleOpen">Open Dialog</uw-button>
         <uw-dialog
-          :modelValue="open"
+          v-bind="args"
+          @input="onOpen"
           title="Mocked asynchronous action"
           :description="seconds + ' seconds remaining'"
         >
           <uw-button slot="footer" size="sm" @click="start" :loading="loading">Begin</uw-button>
-        </uw-dialog> {{ open }}
+        </uw-dialog>
       </div>
     `,
   }),
