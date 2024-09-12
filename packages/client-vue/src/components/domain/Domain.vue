@@ -70,7 +70,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useDomain } from "@upmind/upflow-vue";
+import { useDomain } from "@upmind/headless-vue";
 import {
   useStyles,
   mergeStyles,

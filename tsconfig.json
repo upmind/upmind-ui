@@ -24,9 +24,8 @@
   "references": [
     { "path": "playgrounds/labs" },
     { "path": "playgrounds/checkout" },
-    { "path": "packages/flow" },
-    { "path": "packages/flow" },
-    { "path": "packages/flow-vue" },
+    { "path": "packages/headless" },
+    { "path": "packages/headless-vue" },
     { "path": "packages/client-vue" },
     { "path": "packages/upwind" }
   ],

@@ -38,7 +38,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/upflow-vue";
+import { useBasket } from "@upmind/headless-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
