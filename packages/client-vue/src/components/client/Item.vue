@@ -9,7 +9,6 @@
     @update:modelValue="onClose"
   >
     <upw-form
-      slot="content"
       :class="styles.clientForm.root"
       :processing="meta.isProcessing"
       :model-value="model"

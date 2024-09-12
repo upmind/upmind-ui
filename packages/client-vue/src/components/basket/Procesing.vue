@@ -6,7 +6,7 @@
     persistent
     skrim="light"
   >
-    <section slot="content" :class="styles.basket.processing.root">
+    <section :class="styles.basket.processing.root">
       <uw-avatar
         :avatar="avatar"
         :class="styles.basket.processing.avatar"

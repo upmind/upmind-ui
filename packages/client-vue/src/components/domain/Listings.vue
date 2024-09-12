@@ -6,7 +6,7 @@
     :model-value="!!items.length || meta.isLoading"
     v-show="!!items.length || meta.isLoading"
   >
-    <section slot="content" :class="styles.domain.listings.root">
+    <section :class="styles.domain.listings.root">
       <header :class="styles.domain.listings.header">
         <slot name="header" v-bind="{ meta }"></slot>
       </header>
@@ -19,7 +19,11 @@
         :leave-from-class="styles.domain.transitions.fade.leave.from"
         :leave-to-class="styles.domain.transitions.fade.leave.to"
       >
-        <upm-empty key="empty" v-if="!meta.isLoading && meta.isEmpty" />
+        <upm-empty
+          :title="$t('domain.empty.title')"
+          :text="$t('domain.empty.text')"
+          v-if="!meta.isLoading && meta.isEmpty"
+        />
 
         <upw-checkbox-list
           v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"

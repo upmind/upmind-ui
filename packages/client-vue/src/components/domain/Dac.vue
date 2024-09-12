@@ -6,7 +6,7 @@
     persistent
     :upwind-config="config.domain"
   >
-    <div slot="content" :class="styles.domain.root">
+    <div :class="styles.domain.root">
       <upw-textbox
         :class="styles.domain.search"
         @update:modelValue="onSearch"

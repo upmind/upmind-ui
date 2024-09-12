@@ -1,15 +1,21 @@
 <template>
   <article :class="styles.checkout.root">
     <upm-basket-loading
-      id="loading"
       v-if="meta.isLoading || !animationComplete"
+      id="loading"
       :class="styles.checkout.section.root"
+      :title="$t('basket.loading.title')"
+      :text="$t('basket.loading.text')"
+      :action="$tm('basket.loading.actions.continue')"
     />
 
     <upm-basket-empty
-      id="empty"
       v-else-if="meta.isEmpty"
+      id="empty"
       :class="styles.checkout.section.root"
+      :title="$t('basket.empty.title')"
+      :text="$t('basket.empty.text')"
+      :action="$tm('basket.empty.actions.continue')"
     />
 
     <template v-else>

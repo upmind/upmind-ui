@@ -28,7 +28,8 @@
         <uw-avatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
-          :avatar="prependAvatar"
+          v-bind="prependAvatar"
+          size="full"
         />
 
         <upw-icon
@@ -71,7 +72,8 @@
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
-          :avatar="appendAvatar"
+          v-bind="appendAvatar"
+          size="full"
         />
 
         <span :class="styles.dropdown.append" v-if="appendText">

@@ -15,6 +15,10 @@ enum shapes {
   circle = "Circle",
   square = "Square",
 }
+enum fits {
+  cover = "Cover",
+  contain = "Contain",
+}
 
 const meta: Meta<typeof UwAvatar> = {
   argTypes: {
@@ -27,6 +31,13 @@ const meta: Meta<typeof UwAvatar> = {
         labels: shapes,
       },
     },
+    fit: {
+      options: keys(fits),
+      control: {
+        type: "radio",
+        labels: fits,
+      },
+    },
   },
   args: {
     src: "",
@@ -34,6 +45,7 @@ const meta: Meta<typeof UwAvatar> = {
     size: "md",
     shape: "circle",
     icon: "",
+    fit: "cover",
   },
   render: args => ({
     setup() {
@@ -81,7 +93,7 @@ export const SlotContent: Story = {
     },
     template: `
         <uw-avatar v-bind="args">
-        <svg class="w-full h-full p-[0.5em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Monitor--Streamline-Ultimate.svg">
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Monitor--Streamline-Ultimate.svg">
           <path d="M9 22.5a6.979 6.979 0 0 0 1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
           <path d="M15 22.5a6.979 6.979 0 0 1 -1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
           <path d="m7.499 22.5 9 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
