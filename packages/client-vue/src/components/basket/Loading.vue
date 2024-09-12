@@ -80,7 +80,7 @@ export default defineComponent({
   },
   computed: {
     isOpen() {
-      const value = this.meta.isCheckout || this.meta.isComplete;
+      const value = true;
       return value || this.modelValue;
     },
     hasAction() {
