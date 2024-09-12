@@ -258,7 +258,6 @@ export const ScrollableDialog: Story = {
       };
 
       const toggleOpen = () => {
-        console.log("toggleOpen");
         updateArgs({ modelValue: !args.modelValue });
       };
       const onOpen = ({ detail }) => {
