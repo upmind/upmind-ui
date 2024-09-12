@@ -144,7 +144,7 @@ export const Base: Story = {
     },
     template: `
       <pre>{{args}}</pre>
-      <uw-dialog v-bind="args" @input="onOpen">
+      <uw-dialog v-bind="args" @input="onOpen" persistent>
         <uw-button slot="trigger">Open Dialog</uw-button>
         <uw-button slot="close">Close</uw-button>
       </uw-dialog>

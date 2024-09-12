@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const dialogConfig = cva(
-  "border-border relative z-50 my-8 grid w-full gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full",
+  "border-border relative z-50 my-8 grid w-full gap-4 border bg-background shadow-lg duration-200 sm:rounded-lg md:w-full",
   {
     variants: {
       size: {
@@ -21,10 +21,15 @@ export const dialogConfig = cva(
         visible: "overflow-visible",
         scroll: "overflow-scroll",
       },
+      fit: {
+        cover: "p-0",
+        contain: "p-6",
+      },
     },
     defaultVariants: {
       size: "lg",
       overflow: "visible",
+      fit: "contain",
     },
   }
 );
@@ -50,7 +55,19 @@ export const closeConfig = cva(
 export const closeIconConfig = cva("h-3 w-3");
 
 export const overlayConfig = cva(
-  "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/80"
+  "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 grid place-items-center overflow-y-auto ",
+  {
+    variants: {
+      skrim: {
+        dark: "bg-black/80",
+        light: "bg-white/80",
+        none: "bg-transparent",
+      },
+    },
+    defaultVariants: {
+      skrim: "dark",
+    },
+  }
 );
 
 export default {
