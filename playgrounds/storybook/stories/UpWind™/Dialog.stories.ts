@@ -9,7 +9,7 @@ useCustomElement(UwButton);
 useCustomElement(UwDialog);
 
 // --- utils
-import { keys } from "lodash-es";
+import { keys, first } from "lodash-es";
 
 // --- types
 // useArgTypes doesn't go above 2xl
@@ -117,6 +117,7 @@ const meta: Meta<typeof UwDialog> = {
     },
   },
   args: {
+    modelValue: false,
     title: "Proident id magna in velit",
     description:
       "Proident id proident ullamco veniam. Dolor duis anim sunt cillum exercitation occaecat aliqua consectetur proident incididunt amet. Laboris velit nostrud irure pariatur Lorem ad tempor aute laboris cillum ad sint.",
@@ -128,14 +129,22 @@ export default meta;
 type Story = StoryObj<typeof UwDialog>;
 
 export const Base: Story = {
-  render: args => ({
+  render: (args, { updateArgs }) => ({
     setup() {
       return {
+        toggleOpen: () => {
+          updateArgs({ modelValue: !args.modelValue });
+        },
+        onOpen: ({ detail }) => {
+          const { isOpen = false } = first(detail);
+          updateArgs({ modelValue: isOpen });
+        },
         args,
       };
     },
     template: `
-      <uw-dialog v-bind="args">
+      <pre>{{args}}</pre>
+      <uw-dialog v-bind="args" @input="onOpen">
         <uw-button slot="trigger">Open Dialog</uw-button>
         <uw-button slot="close">Close</uw-button>
       </uw-dialog>
@@ -144,26 +153,26 @@ export const Base: Story = {
 };
 
 export const Hero: Story = {
-  render: args => ({
+  render: (args, { updateArgs }) => ({
     setup() {
-      const open = ref(false);
-
-      const handleOpenChange = (isOpen: boolean) => {
-        open.value = isOpen;
-      };
       return {
-        open,
-        handleOpenChange,
+        toggleOpen: () => {
+          updateArgs({ modelValue: !args.modelValue });
+        },
+        onOpen: ({ detail }) => {
+          const { isOpen = false } = first(detail);
+          updateArgs({ modelValue: isOpen });
+        },
         args,
       };
     },
+
     template: `
-      <uw-button @click="open = true">Open Dialog</uw-button>
+    <pre>{{args}}</pre>
       <uw-dialog
-        :open.prop="open"
-        @update:open="handleOpenChange"
-        v-bind="args"
-        overflow="hidden"
+      v-bind="args"
+      @input="onOpen"
+      overflow="hidden"
       >
         <section  class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
           <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
@@ -171,7 +180,7 @@ export const Hero: Story = {
               <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
               <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
 
-              <uw-button @click="handleOpenChange(false)" label="Get Started for free" appendIcon="arrow-right" :block="true"/>
+              <uw-button @click="toggleOpen" label="Get Started for free" appendIcon="arrow-right" :block="true"/>
             </div>
           </div>
         </section>
@@ -179,6 +188,7 @@ export const Hero: Story = {
     `,
   }),
   args: {
+    modelValue: true,
     title: "",
     description: "",
     size: "4xl",
@@ -291,11 +301,6 @@ export const MockedAsyncAction: Story = {
       const loading = ref(false);
       let seconds = ref(3);
 
-      // Add watch effect to log when open changes
-      watch(open, newValue => {
-        console.log("open value changed:", newValue);
-      });
-
       const start = () => {
         loading.value = true;
         if (seconds.value === 1) {
@@ -311,7 +316,6 @@ export const MockedAsyncAction: Story = {
       };
 
       const handleOpenChange = (isOpen: boolean) => {
-        console.log("Handler hit");
         open.value = isOpen;
       };
 

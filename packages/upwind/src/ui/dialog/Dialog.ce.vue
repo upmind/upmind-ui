@@ -1,5 +1,5 @@
 <template>
-  <dialog-root :open="open" @update:open="open = $event">
+  <dialog-root :open="open" @update:open="onOpen">
     <dialog-trigger>
       <slot name="trigger" />
     </dialog-trigger>
@@ -41,8 +41,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, toRefs } from "vue";
-import { useVModel } from "@vueuse/core";
+import { defineComponent, toRefs, ref } from "vue";
 import {
   DialogRoot,
   DialogClose,
@@ -72,7 +71,7 @@ export default defineComponent({
     DialogTitle,
     DialogTrigger,
   },
-  emits: ["update:open"],
+  emits: ["update:modelValue", "input"],
   props: {
     title: { type: String },
     description: { type: String },
@@ -85,7 +84,7 @@ export default defineComponent({
       default: "visible",
     },
     upwindConfig: { type: Object, default: () => ({}) },
-    modelValue: { type: Boolean, default: undefined },
+    modelValue: { type: Boolean },
   },
   setup(props, { emit }) {
     const styles = useStyles(
@@ -95,12 +94,25 @@ export default defineComponent({
       props.upwindConfig
     );
 
-    const open = useVModel(props, "modelValue", emit);
+    const open = ref(props.modelValue);
 
     return {
       styles,
       open,
     };
+  },
+  methods: {
+    onOpen(value: boolean) {
+      this.open = value;
+      this.$emit("update:modelValue", value);
+      this.$emit("input", { isOpen: value });
+    },
+  },
+  watch: {
+    modelValue(value, oldValue) {
+      if (value === oldValue) return;
+      this.open = value;
+    },
   },
 });
 </script>
