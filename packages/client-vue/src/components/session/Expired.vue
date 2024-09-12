@@ -1,66 +1,69 @@
 <template>
   <component
-    v-if="modal || (!modal && expired)"
+    v-if="modal || (!modal && isOpen)"
     :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
-    :model-value="expired"
+    :model-value="isOpen"
     no-actions
     persistent
     skrim="light"
   >
-    <slot name="content">
-      <section :class="styles.session.expired.root">
-        <!-- <uw-avatar :avatar="avatar" :class="styles.session.expired.avatar" /> -->
+    <section :class="styles.session.expired.root">
+      <uw-avatar v-bind="avatar" />
 
-        <h3 :class="styles.session.expired.title">
-          {{ title }}
-        </h3>
+      <h3 :class="styles.session.expired.title">{{ title }}</h3>
 
-        <p :class="styles.session.expired.text">{{ text }}</p>
+      <p :class="styles.session.expired.text">{{ text }}</p>
 
-        <footer>
-          <uw-button
-            v-if="action"
-            v-bind="action"
-            block
-            variant="ghost"
-            :href="$route.fullPath"
-          />
-        </footer>
-      </section>
-    </slot>
+      <footer>
+        <uw-button
+          v-if="hasAction"
+          v-bind="action"
+          @click.stop="doAction"
+          :loading="processing"
+        />
+      </footer>
+    </section>
   </component>
 </template>
 
 <script>
 // --- external
-import { defineComponent, computed, watch } from "vue";
+import { defineComponent, computed, ref } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/flow-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
 import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwDialog);
 useCustomElement(UwAvatar);
 useCustomElement(UwButton);
-useCustomElement(UwDialog);
+
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmSessionExpired",
-  components: {
-    UwAvatar,
-  },
   props: {
-    modal: {
-      type: Boolean,
-      default: true,
-    },
-    auto: {
-      type: Boolean,
-      default: false,
+    modal: { type: Boolean },
+    auto: { type: Boolean },
+    title: { type: String },
+    text: { type: String },
+    action: { type: Object, default: () => null },
+    modelValue: { type: Boolean, default: true },
+    avatar: {
+      type: Object,
+      default: () => ({
+        size: "lg",
+        shape: "circle",
+        color: "primary",
+        icon: "basket",
+        fit: "contain",
+      }),
     },
   },
   setup(props) {
@@ -68,41 +71,36 @@ export default defineComponent({
 
     const styles = useStyles(["session.expired"], meta, config);
 
-    if (props.auto) {
-      watch(meta, () => {
-        if (meta.value.hasExpired) {
-          window.location.reload();
-        }
-      });
-    }
     // ---
 
     return {
       meta,
-      expired: computed(() => {
-        const value = meta.value.hasExpired;
-        return value && !props.auto;
-      }),
-
-      // ---
+      processing: ref(false),
       styles,
-      mergeStyles,
     };
   },
   computed: {
-    title() {
-      return this.$t("session.expired.title");
+    isOpen() {
+      const value = this.meta.hasExpired;
+      return (value || this.modelValue) && !this.auto;
     },
-
-    text() {
-      return this.$t("session.expired.text");
+    hasAction() {
+      return !isEmpty(this.action);
     },
-
-    avatar() {
-      return this.$tm("session.expired.avatar");
+  },
+  methods: {
+    doAction() {
+      if (isFunction(this.action?.handler)) {
+        this.processing = true;
+        this.action.handler().finally(() => {
+          this.processing = false;
+        });
+      }
     },
-    action() {
-      return this.$tm("session.expired.actions.continue");
+  },
+  watch: {
+    meta({ hasExpired }) {
+      if (this.auto && hasExpired) window.location.reload();
     },
   },
 });
