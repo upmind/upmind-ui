@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+// const { sendParent } = actions; DEPRECATED
 
 // --- internal
 import services from "./services";
@@ -121,10 +121,11 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent((_context, { data }: any) => ({
-          type: "REFRESH",
-          data,
-        })),
+        // DEPRECATED: No need to refresh parent basket
+        // entry: sendParent((_context, { data }: any) => ({
+        //   type: "REFRESH",
+        //   data,
+        // })),
         after: {
           wait: {
             target: "complete",
