@@ -3,7 +3,7 @@
     :is="dialog ? 'uw-dialog' : 'div'"
     size="2xl"
     :title="title"
-    :model-value="!!items.length || meta.isLoading"
+    :modelValue="!!items.length || meta.isLoading"
     v-show="!!items.length || meta.isLoading"
   >
     <section :class="styles.domain.listings.root">

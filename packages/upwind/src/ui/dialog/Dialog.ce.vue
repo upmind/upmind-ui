@@ -27,11 +27,11 @@
           <slot />
 
           <div :class="styles.dialog.footer">
-            <slot name="footer" />
-
-            <dialog-close @click="forceClose">
-              <slot name="close" />
-            </dialog-close>
+            <slot name="footer">
+              <dialog-close @click="forceClose">
+                <slot name="close" />
+              </dialog-close>
+            </slot>
           </div>
         </div>
       </dialog-content>

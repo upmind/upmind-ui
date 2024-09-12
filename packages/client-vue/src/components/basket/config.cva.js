@@ -150,7 +150,7 @@ export default {
 
     loading: {
       root: cva(
-        "bg-base-background relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
+        "bg-base relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
       ),
       title: cva("m-0 text-center text-3xl font-light text-inherit"),
       text: cva(

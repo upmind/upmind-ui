@@ -3,10 +3,10 @@
     :is="dialog ? 'uw-dialog' : 'section'"
     @reject="onClose"
     size="xl"
-    :actions="actions"
     title="Change address"
-    :model-value="modelValue"
+    :modelValue="modelValue"
     @update:modelValue="onClose"
+    skrim="light"
   >
     <section :class="styles.clientListings.root">
       <header :class="styles.clientListings.header">
@@ -73,6 +73,17 @@
       <footer :class="styles.clientListings.footer">
         <slot name="footer" v-bind="{ meta }"></slot>
       </footer>
+
+      <div slot="footer">
+        <uw-button
+          v-for="(action, key) in actions"
+          :key="key"
+          v-bind="action"
+          :loading="action.loading"
+          :disabled="action?.disabled"
+          @click="doAction(action)"
+        />
+      </div>
     </section>
   </component>
 </template>
@@ -108,6 +119,9 @@ import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 import { UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwButton);
 useCustomElement(UwDialog);
+
+// --- utils
+import { isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -186,10 +200,11 @@ export default defineComponent({
     actions() {
       return {
         add: {
-          label: this?.$t(`client.addresses.actions.add`),
+          label: this?.$t(`client.${this.type}.actions.add`),
           variant: "flat",
           block: true,
-          action: () => {
+          handler: () => {
+            debugger;
             this.$emit("update:modelValue", false);
             this.add();
           },
@@ -213,6 +228,11 @@ export default defineComponent({
     onSelect(item) {
       this.select(item.id);
       this.$emit("update:modelValue", true);
+    },
+    doAction(item) {
+      if (isFunction(item?.handler)) {
+        item.handler();
+      }
     },
   },
 });
