@@ -5,8 +5,9 @@
     size="xl"
     :actions="actions"
     :title="safeTitle"
-    :model-value="dialog"
+    :modelValue="dialog"
     @update:modelValue="onClose"
+    skrim="light"
   >
     <upw-form
       :class="styles.clientForm.root"

@@ -12,7 +12,7 @@ export default {
     actions: cva(""),
   },
   clientListings: {
-    root: cva("w-full", {
+    root: cva("bg-base w-full ", {
       variants: {
         dialog: {
           false: "flex flex-col gap-4",
@@ -43,7 +43,7 @@ export default {
     actions: cva(""),
   },
   clientForm: {
-    root: cva("w-full max-w-xl", {
+    root: cva("bg-base w-full max-w-xl", {
       variants: {
         hasErrors: {
           true: "border-error",

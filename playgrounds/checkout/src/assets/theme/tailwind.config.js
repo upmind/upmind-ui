@@ -14,9 +14,8 @@ For a full list of options, see the official Tailwind CSS documentation: https:/
 
 export default {
   colors: {
-    transparent: "transparent",
-    black: "#000000",
-    white: "#ffffff",
+    background: "#ffffff",
+    foreground: "#000000",
 
     // ---
 

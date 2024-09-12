@@ -1,7 +1,8 @@
 <template>
   <component
+    v-if="modal || (!modal && isOpen)"
     :is="modal ? 'uw-dialog' : 'div'"
-    :modelValue="true"
+    :modelValue="isOpen"
     size="xl"
     persistent
     fit="cover"

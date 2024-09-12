@@ -2,10 +2,10 @@
   <component
     v-if="modal || (!modal && isOpen)"
     :is="modal ? 'uw-dialog' : 'div'"
+    :modelValue="isOpen"
     size="xl"
-    :model-value="isOpen"
-    no-actions
     persistent
+    fit="cover"
     skrim="light"
   >
     <section :class="styles.basket.loading.root">

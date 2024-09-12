@@ -2,9 +2,11 @@
   <component
     :is="meta.showDialog ? 'uw-dialog' : 'div'"
     size="full"
-    :model-value="true"
+    :modelValue="true"
     persistent
     :upwind-config="config.domain"
+    fit="cover"
+    skrim="light"
   >
     <div :class="styles.domain.root">
       <upw-textbox
