@@ -1,8 +1,9 @@
 <template>
   <component
+    v-if="modal || (!modal && isOpen)"
     :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
-    :model-value="meta.isEmpty"
+    :model-value="isOpen"
     no-actions
     persistent
     skrim="light"
@@ -10,19 +11,16 @@
     <section :class="styles.basket.empty.root">
       <uw-avatar v-bind="avatar" />
 
-      <h3 :class="styles.basket.empty.title">
-        {{ title }}
-      </h3>
+      <h3 :class="styles.basket.empty.title">{{ title }}</h3>
 
       <p :class="styles.basket.empty.text">{{ text }}</p>
 
-      <footer>
+      <footer :class="styles.basket.empty.actions">
         <uw-button
-          v-if="action"
+          v-if="hasAction"
           v-bind="action"
-          block
-          variant="ghost"
-          :href="storefrontUrl"
+          @click.stop="doAction"
+          :loading="processing"
         />
       </footer>
     </section>
@@ -31,7 +29,7 @@
 
 <script>
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
@@ -44,14 +42,18 @@ useCustomElement(UwDialog);
 useCustomElement(UwAvatar);
 useCustomElement(UwButton);
 
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
+
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmBasketEmpty",
   props: {
-    modal: { type: Boolean, default: true },
+    modal: { type: Boolean },
     title: { type: String },
     text: { type: String },
     action: { type: Object, default: () => null },
+    modelValue: { type: Boolean, default: true },
     avatar: {
       type: Object,
       default: () => ({
@@ -72,12 +74,27 @@ export default defineComponent({
 
     return {
       meta,
+      processing: ref(false),
       styles,
     };
   },
   computed: {
-    storefrontUrl() {
-      return import.meta.env.VITE_APP_STOREFRONT;
+    isOpen() {
+      const value = this.meta.isEmpty;
+      return value || this.modelValue;
+    },
+    hasAction() {
+      return !isEmpty(this.action);
+    },
+  },
+  methods: {
+    doAction() {
+      if (isFunction(this.action?.handler)) {
+        this.processing = true;
+        this.action.handler().finally(() => {
+          this.processing = false;
+        });
+      }
     },
   },
 });

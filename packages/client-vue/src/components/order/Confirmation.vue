@@ -1,5 +1,7 @@
 <template>
-  <uw-dialog
+  <component
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
     :model-value="modelValue"
     no-actions
@@ -7,32 +9,22 @@
     skrim="light"
   >
     <section :class="styles.order.confirmation.root">
-      <uw-avatar :avatar="avatar" :class="styles.order.confirmation.avatar" />
+      <uw-avatar v-bind="avatar" />
 
-      <h3 :class="styles.order.confirmation.title">
-        {{ title }}
-      </h3>
+      <h3 :class="styles.order.confirmation.title">{{ title }}</h3>
 
       <p :class="styles.order.confirmation.text">{{ text }}</p>
 
-      <footer :class="styles.order.confirmation.actions">
+      <footer :class="styles.basket.processing.actions">
         <uw-button
-          v-if="!meta.isAuthenticated && action"
+          v-if="hasAction"
           v-bind="action"
-          variant="ghost"
-          :loading="processing"
-          :href="storefrontUrl"
-        />
-        <uw-button
-          v-else-if="action"
-          v-bind="action"
-          variant="ghost"
-          @click.prevent="doAction"
+          @click.stop="doAction"
           :loading="processing"
         />
       </footer>
     </section>
-  </uw-dialog>
+  </component>
 </template>
 
 <script>
@@ -41,32 +33,41 @@ import { defineComponent, ref, toRefs } from "vue";
 
 // --- internal
 import { useSession, utils } from "@upmind/flow-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwDialog, UwAvatar, UwButton, useCustomElement } from "@upmind/upwind";
+import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwDialog);
 useCustomElement(UwAvatar);
 useCustomElement(UwButton);
+
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmOrderConfirmation",
   props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
+    modal: { type: Boolean },
+    title: { type: String },
+    text: { type: String },
+    action: { type: Object, default: () => null },
+    modelValue: { type: Boolean, default: true },
+    avatar: {
+      type: Object,
+      default: () => ({
+        size: "lg",
+        shape: "circle",
+        color: "primary",
+        icon: "paying",
+        fit: "contain",
+      }),
     },
-    orderId: {
-      type: String,
-    },
-    success: {
-      type: Boolean,
-      default: false,
-    },
+    orderId: { type: String },
+    success: { type: Boolean },
   },
-  setup(props) {
+  setup() {
     const { transfer, meta } = useSession();
     const styles = useStyles(["order.confirmation"], toRefs(props), config);
 
@@ -76,60 +77,28 @@ export default defineComponent({
       meta,
       transferSession: transfer,
       processing: ref(false),
-      // ---
       styles,
-      mergeStyles,
     };
   },
   computed: {
-    title() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.title");
-
-      if (this.success) return this.$t("order.confirmation.success.title");
-
-      return this.$t("order.confirmation.failed.title");
+    isOpen() {
+      const value = this.meta.isProcessing;
+      return value || this.modelValue;
     },
-
-    text() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.text");
-
-      if (this.success) return this.$t("order.confirmation.success.text");
-
-      return this.$t("order.confirmation.failed.text");
-    },
-
-    avatar() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.avatar");
-
-      if (this.success) {
-        return this.$tm("order.confirmation.success.avatar");
-      }
-
-      return this.$tm("order.confirmation.failed.avatar");
-    },
-
-    action() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.actions.continue");
-
-      if (!this.orderId) return null;
-
-      if (this.success)
-        return this.$tm("order.confirmation.success.actions.continue");
-
-      return this.$tm("order.confirmation.failed.actions.continue");
-    },
-
-    storefrontUrl() {
-      return import.meta.env.VITE_APP_STOREFRONT;
+    hasAction() {
+      return !isEmpty(this.action);
     },
   },
-
   methods: {
     doAction() {
+      if (isFunction(this.action?.handler)) {
+        this.processing = true;
+        this.action.handler().finally(() => {
+          this.processing = false;
+        });
+      }
+    },
+    doTransfer() {
       if (!this.meta.isAuthenticated) {
         this.processing = false;
         return;

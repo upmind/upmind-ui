@@ -131,12 +131,25 @@ export default createMachine(
             invoke: {
               src: "update",
               onDone: {
-                target: "#complete",
+                target: "processed",
                 actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
                 target: "#error",
                 actions: ["setError", "setFeedbackError"],
+              },
+            },
+          },
+
+          processed: {
+            id: "processed",
+            entry: sendParent((_context, { data }: any) => ({
+              type: "REFRESH",
+              data,
+            })),
+            after: {
+              wait: {
+                target: "#complete",
               },
             },
           },

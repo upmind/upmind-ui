@@ -1,8 +1,9 @@
 <template>
   <component
+    v-if="modal || (!modal && isOpen)"
     :is="modal ? 'uw-dialog' : 'div'"
     size="xl"
-    :model-value="open"
+    :model-value="isOpen"
     no-actions
     persistent
     skrim="light"
@@ -10,29 +11,39 @@
     <section :class="styles.basket.loading.root">
       <uw-avatar v-bind="avatar" />
 
-      <h3 :class="styles.basket.loading.title">
-        {{ title }}
-      </h3>
+      <h3 :class="styles.basket.loading.title">{{ title }}</h3>
 
       <p :class="styles.basket.loading.text">{{ text }}</p>
+
+      <footer :class="styles.basket.loading.actions">
+        <uw-button
+          v-if="hasAction"
+          v-bind="action"
+          @click.stop="doAction"
+          :loading="processing"
+        />
+      </footer>
     </section>
   </component>
 </template>
 
 <script>
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/flow-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
 import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwDialog);
 useCustomElement(UwAvatar);
 useCustomElement(UwButton);
-useCustomElement(UwDialog);
+
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -42,6 +53,7 @@ export default defineComponent({
     title: { type: String },
     text: { type: String },
     action: { type: Object, default: () => null },
+    modelValue: { type: Boolean, default: true },
     avatar: {
       type: Object,
       default: () => ({
@@ -62,15 +74,28 @@ export default defineComponent({
 
     return {
       meta,
-      open: computed(() => {
-        const value = meta.value.isCheckout || meta.value.isComplete;
-        return value;
-      }),
-
-      // ---
+      processing: ref(false),
       styles,
-      mergeStyles,
     };
+  },
+  computed: {
+    isOpen() {
+      const value = this.meta.isCheckout || this.meta.isComplete;
+      return value || this.modelValue;
+    },
+    hasAction() {
+      return !isEmpty(this.action);
+    },
+  },
+  methods: {
+    doAction() {
+      if (isFunction(this.action?.handler)) {
+        this.processing = true;
+        this.action.handler().finally(() => {
+          this.processing = false;
+        });
+      }
+    },
   },
 });
 </script>
