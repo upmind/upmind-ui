@@ -2,20 +2,22 @@
   <article :class="styles.checkout.root">
     <upm-basket-loading
       v-if="meta.isLoading || !animationComplete"
-      id="loading"
       :class="styles.checkout.section.root"
       :title="$t('basket.loading.title')"
       :text="$t('basket.loading.text')"
-      :action="$tm('basket.loading.actions.continue')"
     />
 
     <upm-basket-empty
       v-else-if="meta.isEmpty"
-      id="empty"
       :class="styles.checkout.section.root"
       :title="$t('basket.empty.title')"
       :text="$t('basket.empty.text')"
-      :action="$tm('basket.empty.actions.continue')"
+      :action="{
+        variant: 'ghost',
+        href: storefrontUrl,
+        prependIcon: 'arrow-left',
+        label: $t('basket.empty.actions.continue'),
+      }"
     />
 
     <template v-else>
@@ -135,13 +137,27 @@
       </section>
 
       <!-- Basket procesing -->
-      <upm-basket-processing :model-value="meta.isCheckout" />
+      <upm-basket-processing
+        :model-value="meta.isCheckout"
+        :class="styles.checkout.section.root"
+        :title="processingTitle"
+        :text="processingText"
+      />
 
       <!-- Order confirmation -->
       <upm-order-confirmation
         :model-value="meta.isComplete"
         :order-id="invoice?.id"
         :success="meta.hasPaid"
+        :class="styles.checkout.section.root"
+        :title="$t('basket.empty.title', meta)"
+        :text="$t('basket.empty.text', meta)"
+        :action="{
+          variant: 'ghost',
+          href: storefrontUrl,
+          prependIcon: 'arrow-left',
+          label: $t('basket.empty.actions.continue'),
+        }"
       />
     </template>
   </article>
@@ -368,6 +384,86 @@ export default defineComponent({
       // }
 
       this.scrollTo(this.$route.hash);
+    },
+  },
+  computed: {
+    storefrontUrl() {
+      return import.meta.env.VITE_APP_STOREFRONT;
+    },
+    processingTitle() {
+      if (this.meta.needsApproval) {
+        return this.$t("basket.processing.approval.title");
+      }
+
+      if (this.meta.isConverting) {
+        return this.$t("basket.processing.converting.title");
+      }
+
+      if (this.meta.isPaying) {
+        return this.$t("basket.processing.paying.title");
+      }
+
+      if (this.meta.isCheckout) {
+        return this.$t("basket.processing.default.title");
+      }
+
+      return this.$t("basket.processing.invalid.title");
+    },
+
+    processingText() {
+      if (this.meta.needsApproval) {
+        return this.$t("basket.processing.approval.text");
+      }
+
+      if (this.meta.isConverting) {
+        return this.$t("basket.processing.converting.text");
+      }
+
+      if (this.meta.isPaying) {
+        return this.$t("basket.processing.paying.text");
+      }
+
+      if (this.meta.isCheckout) {
+        return this.$t("basket.processing.default.text");
+      }
+
+      return this.$t("basket.processing.invalid.text");
+    },
+
+    orderTitle() {
+      if (!this.meta.isAuthenticated)
+        return this.$tm("order.confirmation.invalid.title");
+
+      if (this.success) return this.$t("order.confirmation.success.title");
+
+      return this.$t("order.confirmation.failed.title");
+    },
+
+    orderText() {
+      if (!this.meta.isAuthenticated)
+        return this.$tm("order.confirmation.invalid.text");
+
+      if (this.success) return this.$t("order.confirmation.success.text");
+
+      return this.$t("order.confirmation.failed.text");
+    },
+
+    orderAction() {
+      if (!this.meta.isAuthenticated)
+        return {
+          label: this.$tm("order.confirmation.invalid.actions.continue"),
+        };
+
+      if (!this.orderId) return null;
+
+      if (this.meta.hasPaid)
+        return {
+          label: this.$tm("order.confirmation.success.actions.continue"),
+        };
+
+      return {
+        label: this.$tm("order.confirmation.failed.actions.continue"),
+      };
     },
   },
   methods: {
