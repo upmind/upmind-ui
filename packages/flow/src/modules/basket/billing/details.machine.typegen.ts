@@ -36,6 +36,7 @@ export interface Typegen0 {
       type: "error.platform.processing:invocation[0]";
       data: unknown;
     };
+    "xstate.after(wait)#processed": { type: "xstate.after(wait)#processed" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -79,7 +80,9 @@ export interface Typegen0 {
       | "done.invoke.billingDetailsManager.available.checking.parsing:invocation[0]"
       | "done.invoke.loading:invocation[0]";
   };
-  eventsCausingDelays: {};
+  eventsCausingDelays: {
+    wait: "done.invoke.processing:invocation[0]";
+  };
   eventsCausingGuards: {
     hasBasket: "UPDATE";
     hasChanged: "REFRESH";
@@ -100,6 +103,7 @@ export interface Typegen0 {
     | "available.checking.validating"
     | "available.invalid"
     | "available.loading"
+    | "available.processed"
     | "available.processing"
     | "available.valid"
     | "complete"
@@ -110,6 +114,7 @@ export interface Typegen0 {
           | "checking"
           | "invalid"
           | "loading"
+          | "processed"
           | "processing"
           | "valid"
           | { checking?: "parsing" | "validating" };
