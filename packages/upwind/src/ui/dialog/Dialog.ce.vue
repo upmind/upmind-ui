@@ -29,7 +29,7 @@
           <div :class="styles.dialog.footer">
             <slot name="footer" />
 
-            <dialog-close>
+            <dialog-close @click="forceClose">
               <slot name="close" />
             </dialog-close>
           </div>
@@ -85,6 +85,9 @@ export default defineComponent({
     },
     upwindConfig: { type: Object, default: () => ({}) },
     modelValue: { type: Boolean },
+    persistent: { type: Boolean },
+    fit: { type: String as PropType<DialogConfig["fit"]>, default: "contain" },
+    skrim: { type: String as PropType<DialogConfig["skrim"]>, default: "dark" },
   },
   setup(props, { emit }) {
     const styles = useStyles(
@@ -102,10 +105,14 @@ export default defineComponent({
     };
   },
   methods: {
-    onOpen(value: boolean) {
+    onOpen(value: boolean, force: boolean = false) {
+      if (this.persistent && !value && !force) return;
       this.open = value;
       this.$emit("update:modelValue", value);
       this.$emit("input", { isOpen: value });
+    },
+    forceClose() {
+      this.onOpen(false, true);
     },
   },
   watch: {

@@ -1,7 +1,7 @@
 <template>
   <article :class="styles.checkout.root">
     <upm-basket-loading
-      v-if="meta.isLoading || !animationComplete"
+      v-if="true || meta.isLoading || !animationComplete"
       :class="styles.checkout.section.root"
       :title="$t('basket.loading.title')"
       :text="$t('basket.loading.text')"
@@ -18,6 +18,7 @@
         prependIcon: 'arrow-left',
         label: $t('basket.empty.actions.continue'),
       }"
+      modal
     />
 
     <template v-else>
