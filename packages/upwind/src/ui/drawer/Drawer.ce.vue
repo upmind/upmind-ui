@@ -3,35 +3,32 @@
     <drawer-trigger>
       <slot name="trigger" />
     </drawer-trigger>
-    <drawer-portal>
-      <drawer-overlay :class="styles.drawer.overlay" />
-      <drawer-content :class="styles.drawer.content">
-        <div :class="styles.drawer.handle" />
-        <div :class="styles.drawer.container">
-          <div :class="styles.drawer.header">
-            <drawer-title v-if="hasTitle" :class="styles.drawer.title">
-              {{ title }}
-            </drawer-title>
-            <drawer-description
-              v-if="hasDescription"
-              :class="styles.drawer.description"
-            >
-              {{ description }}
-            </drawer-description>
-          </div>
-
-          <slot />
-
-          <div :class="styles.drawer.footer">
-            <slot name="footer" />
-
-            <drawer-close>
-              <slot name="close" />
-            </drawer-close>
-          </div>
+    <drawer-overlay :class="styles.drawer.overlay" />
+    <drawer-content :class="styles.drawer.content">
+      <div :class="styles.drawer.handle" />
+      <div :class="styles.drawer.container">
+        <div :class="styles.drawer.header">
+          <drawer-title v-if="hasTitle" :class="styles.drawer.title">
+            {{ title }}
+          </drawer-title>
+          <drawer-description
+            v-if="hasDescription"
+            :class="styles.drawer.description"
+          >
+            {{ description }}
+          </drawer-description>
         </div>
-      </drawer-content>
-    </drawer-portal>
+
+        <slot />
+
+        <div :class="styles.drawer.footer">
+          <slot name="footer" />
+          <drawer-close>
+            <slot name="close" />
+          </drawer-close>
+        </div>
+      </div>
+    </drawer-content>
   </drawer-root>
 </template>
 
@@ -59,6 +56,7 @@ import { useStyles } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 export default defineComponent({
+  name: "UwDrawer",
   components: {
     DrawerRoot,
     DrawerContent,
@@ -108,3 +106,5 @@ export default defineComponent({
   },
 });
 </script>
+
+<style src="@/assets/main.css" />
