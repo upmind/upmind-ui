@@ -1,6 +1,6 @@
 <template>
   <combobox-item
-    :value="label"
+    :value="value"
     @select="handleSelect"
     :class="styles.combobox.item"
   >
@@ -14,18 +14,15 @@
       aria-hidden="true"
     />
     {{ label }}
-    <upw-avatar
-      v-if="isSelected"
-      :class="styles.combobox.icons.checkItem"
-      icon="check"
-      aria-hidden="true"
-    />
+    <div :class="styles.combobox.icons.checkItem">
+      <upw-icon v-if="isSelected" icon="check" size="xxs" aria-hidden="true" />
+    </div>
   </combobox-item>
 </template>
 
 <script lang="ts">
 // --- external
-import { computed, inject, defineComponent } from "vue";
+import { defineComponent, toRefs } from "vue";
 
 // --- internal
 import config from "./combobox.config";
@@ -33,6 +30,7 @@ import config from "./combobox.config";
 // --- components
 import { ComboboxItem } from "radix-vue";
 import UpwAvatar from "../avatar/Avatar.ce.vue";
+import UpwIcon from "../icon/Icon.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -42,6 +40,7 @@ export default defineComponent({
   components: {
     ComboboxItem,
     UpwAvatar,
+    UpwIcon,
   },
 
   props: {
@@ -57,35 +56,36 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    color: {
+      type: String,
+      default: "base",
+    },
+    isSelected: {
+      type: Boolean,
+      required: true,
+    },
     upwindConfig: {
       type: Object,
       default: null,
     },
   },
 
-  setup(props) {
-    const { onSelect, modelValue, color } = inject("comboboxContext") as {
-      onSelect: (value: string, label: string, icon: string) => void;
-      modelValue: Ref<string>;
-      color: Ref<string>;
-    };
+  emits: ["select"],
 
+  setup(props, { emit }) {
     const styles = useStyles(
       ["combobox", "combobox.icons"],
-      color,
+      toRefs(props),
       config,
       props.upwindConfig
     );
 
-    const isSelected = computed(() => modelValue.value === props.value);
-
     const handleSelect = () => {
-      onSelect(props.value, props.label, props.icon);
+      emit("select", props.value, props.label, props.icon);
     };
 
     return {
       styles,
-      isSelected,
       handleSelect,
     };
   },

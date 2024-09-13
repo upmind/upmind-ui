@@ -95,12 +95,13 @@
                 </combobox-label>
                 <combobox-item
                   v-for="(item, index) in items"
-                  @select="handleSelect"
-                  :class="styles.combobox.item"
                   :key="index"
                   :value="item.value"
                   :label="item.label"
                   :icon="item.icon"
+                  :color="color"
+                  :is-selected="item.value === selected?.value"
+                  @select="handleSelect"
                 />
               </combobox-group>
             </div>
@@ -164,7 +165,6 @@ export default defineComponent({
     ComboboxItem,
   },
   props: {
-    modelValue: { type: String, default: "" },
     defaultItem: { type: Object },
     items: { type: Array, default: () => [] },
     width: { type: String as ComboboxConfig["width"], default: "md" },
@@ -234,22 +234,16 @@ export default defineComponent({
       { immediate: true }
     );
 
-    const onSelect = (value: string, label: string, icon: string) => {
+    const handleSelect = (value: string, label: string, icon: string) => {
       emit("update:modelValue", value);
       selected.value = { label, value, icon };
       open.value = false;
     };
 
-    provide("comboboxContext", {
-      onSelect,
-      modelValue: toRef(props, "modelValue"),
-      color: toRef(props, "color"),
-    });
-
     return {
       open,
       styles,
-      onSelect,
+      handleSelect,
       selected,
     };
   },
