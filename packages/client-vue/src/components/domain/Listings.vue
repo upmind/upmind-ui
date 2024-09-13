@@ -1,10 +1,10 @@
 <template>
   <component
-    :is="dialog ? 'uw-dialog' : 'div'"
+    :is="drawer ? 'uw-drawer' : 'div'"
     size="2xl"
     :title="title"
-    :modelValue="!!items.length || meta.isLoading"
-    v-show="!!items.length || meta.isLoading"
+    :modelValue="isOpen"
+    @update:modelValue="onClose"
   >
     <section :class="styles.domain.listings.root">
       <header :class="styles.domain.listings.header">
@@ -340,7 +340,7 @@ export default defineComponent({
     i18nKey: { type: String, default: "domain.listings" },
     modelValue: { type: [String, Array], default: () => [] },
     items: { type: Array, required: true },
-    dialog: { type: Boolean, default: false },
+    drawer: { type: Boolean, default: false },
     offset: { type: Number, default: 0 },
     // ---
     loading: { type: Boolean, default: false },
@@ -379,6 +379,10 @@ export default defineComponent({
   },
 
   computed: {
+    isOpen() {
+      const value = this.meta.isEmpty;
+      return value || this.modelValue;
+    },
     translations() {
       return this.$tm(this.i18nKey);
     },
@@ -394,6 +398,10 @@ export default defineComponent({
     },
   },
   methods: {
+    onClose() {
+      this.$emit("update:modelValue", false);
+    },
+
     isSelected(value) {
       return includes(this.modelValue, value);
     },
