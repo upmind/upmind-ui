@@ -116,9 +116,10 @@ import UpmItem from "./Item.vue";
 import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
-import { UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
+import { UwButton, UwDialog, UwDrawer, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwButton);
 useCustomElement(UwDialog);
+useCustomElement(UwDrawer);
 
 // --- utils
 import { isFunction } from "lodash-es";
