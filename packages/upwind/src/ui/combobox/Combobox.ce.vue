@@ -9,6 +9,16 @@
         :class="styles.combobox.button"
       >
         <span class="flex items-center truncate">
+          <upw-avatar
+            v-if="selectedItem?.icon"
+            :icon="selectedItem?.icon"
+            size="sm"
+            shape="circle"
+            fit="cover"
+            :class="styles.combobox.icons.listItem"
+            aria-hidden="true"
+          />
+
           {{ selectedItem?.label || label }}
         </span>
       </uw-button>
@@ -80,6 +90,7 @@
                   :key="index"
                   :value="item.value"
                   :label="item.label"
+                  :icon="item.icon"
                 />
               </combobox-group>
             </div>
@@ -111,10 +122,12 @@ import config from "./combobox.config";
 
 // --- components
 import { UwButton } from "../button";
+import UpwAvatar from "../avatar/Avatar.ce.vue";
 import ComboboxItem from "./ComboboxItem.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
+import { first } from "lodash";
 
 // --- types
 import { type ComboboxConfig } from "./types.d";
@@ -123,6 +136,7 @@ export default defineComponent({
   name: "UwCombobox",
   components: {
     UwButton,
+    UpwAvatar,
     ComboboxRoot,
     ComboboxInput,
     ComboboxGroup,
@@ -137,6 +151,7 @@ export default defineComponent({
   },
   props: {
     modelValue: { type: String, default: "" },
+    selectedItem: { type: String },
     items: { type: Array, default: () => [] },
     width: { type: String as ComboboxConfig["width"], default: "md" },
     color: { type: String as ComboboxConfig["color"], default: "base" },
@@ -173,7 +188,7 @@ export default defineComponent({
   ],
   setup(props, { emit, slots }) {
     const open = ref(false);
-    const selectedItem = ref(null);
+    const selectedItem = ref(first(props.items, props.selectedItem));
 
     const styles = useStyles(
       ["combobox", "combobox.icons", "combobox.command"],

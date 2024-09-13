@@ -4,31 +4,35 @@
     @select="handleSelect"
     :class="styles.combobox.item"
   >
-    <!-- <upw-icon
+    <upw-avatar
       v-if="icon"
       :icon="icon"
+      size="sm"
+      shape="circle"
+      fit="cover"
       :class="styles.combobox.icons.listItem"
       aria-hidden="true"
-    /> -->
+    />
     {{ label }}
-    <!-- <upw-icon
+    <upw-avatar
       v-if="isSelected"
       :class="styles.combobox.icons.checkItem"
       icon="check"
       aria-hidden="true"
-    /> -->
+    />
   </combobox-item>
 </template>
 
 <script lang="ts">
 // --- external
-import { computed, inject, toRefs, defineComponent } from "vue";
+import { computed, inject, defineComponent } from "vue";
 
 // --- internal
 import config from "./combobox.config";
 
 // --- components
 import { ComboboxItem } from "radix-vue";
+import UpwAvatar from "../avatar/Avatar.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -37,6 +41,7 @@ export default defineComponent({
   name: "UwComboboxItem",
   components: {
     ComboboxItem,
+    UpwAvatar,
   },
 
   props: {
@@ -45,6 +50,10 @@ export default defineComponent({
       required: true,
     },
     label: {
+      type: String,
+      required: true,
+    },
+    icon: {
       type: String,
       required: true,
     },
