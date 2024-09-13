@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const button = cva("justify-between", {
+export const button = cva("flex items-center justify-between", {
   variants: {
     color: {
       base: "border-opacity-10 hover:border-opacity-10",
@@ -33,7 +33,7 @@ export const content = cva(
   }
 );
 
-export const item = cva("p-1 px-2 text-sm", {
+export const item = cva("flex items-center p-2 px-3 text-sm", {
   variants: {
     color: {
       base: "data-[highlighted]:bg-base-foreground data-[highlighted]:bg-opacity-5 data-[highlighted]:text-base-foreground",
@@ -60,9 +60,19 @@ export const item = cva("p-1 px-2 text-sm", {
 
 export const icons = {
   buttonItem: cva("mr-2 size-[1.2em] overflow-hidden rounded-full"),
-  listItem: cva("mr-2 size-[1em] overflow-hidden rounded-full"),
+  listItem: cva("mr-3 size-[1.25em] overflow-hidden rounded-full"),
   checkItem: cva("ml-auto h-4 w-4"),
-  arrowUpDown: cva("ml-2 h-3 w-3 shrink-0 opacity-50"),
+  arrowUpDown: cva(
+    "-mr-2 ml-2 shrink-0 rotate-180 opacity-50 transition-all duration-200",
+    {
+      variants: {
+        open: {
+          true: "rotate-180",
+          false: "rotate-0",
+        },
+      },
+    }
+  ),
 };
 
 export const root = cva(
@@ -82,7 +92,7 @@ export const list = cva("max-h-[18rem] overflow-y-auto overflow-x-hidden");
 export const empty = cva("py-6 text-center text-sm");
 
 export const group = cva(
-  "overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
+  "overflow-hidden text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
 );
 
 export const label = cva(
