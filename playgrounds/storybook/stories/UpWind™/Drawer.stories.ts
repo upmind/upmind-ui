@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import { UwDrawer, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwDrawer);
 useCustomElement(UwButton);
 
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UwDrawer> = {
-  component: UwDrawer,
   args: {
     title: "Are you absolutely sure?",
     description: "This action cannot be undone.",
@@ -20,7 +20,6 @@ type Story = StoryObj<typeof UwDrawer>;
 
 export const Base: Story = {
   render: args => ({
-    components: { UwDrawer, UwButton },
     setup() {
       return {
         args,
@@ -28,13 +27,10 @@ export const Base: Story = {
     },
     template: `
       <uw-drawer v-bind="args">
-        <template v-slot:trigger>
-          <uw-button>Open Drawer</uw-button>
-        </template>
-
-        <template v-slot:close>
-          <uw-button label="Close" block />
-        </template>
+        <uw-button slot="trigger">Open Dialog</uw-button>
+        <div slot="close">
+        <uw-button block>Close</uw-button>
+        </div>
       </uw-drawer>
     `,
   }),

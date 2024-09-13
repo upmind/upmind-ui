@@ -25,7 +25,6 @@ export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
 export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
-export { default as UwDrawer } from "./ui/drawer/Drawer.vue";
 export * from "./components/form/renderers/utils";
 
 // --- uw
@@ -35,6 +34,7 @@ import { UwBadge } from "./ui/badge";
 import { UwButton } from "./ui/button";
 import { UwCombobox } from "./ui/combobox";
 import { UwDialog } from "./ui/dialog";
+import { UwDrawer } from "./ui/drawer";
 import { UwIcon } from "./ui/icon";
 import { UwIndicator } from "./ui/indicator";
 import { UwSonner } from "./ui/sonner";
@@ -57,6 +57,7 @@ export {
   UwButton,
   UwCombobox,
   UwDialog,
+  UwDrawer,
   UwIcon,
   UwIndicator,
   UwSonner,
@@ -72,6 +73,7 @@ export function register() {
   customElements.define("uw-button", UwButton);
   customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-dialog", UwDialog);
+  customElements.define("uw-drawer", UwDrawer);
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-sonner", UwSonner);
@@ -107,6 +109,7 @@ declare module "vue" {
     UwBadge: typeof UwBadge;
     UwButton: typeof UwButton;
     UwCombobox: typeof UwCombobox;
+    UwDrawer: typeof UwDrawer;
     UwDialog: typeof UwDialog;
     UwIcon: typeof UwIcon;
     UwIndicator: typeof UwIndicator;
