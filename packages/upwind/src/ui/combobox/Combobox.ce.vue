@@ -7,11 +7,12 @@
         role="combobox"
         :aria-expanded="open"
         :class="[styles.combobox.button, buttonClass]"
+        :disabled="loading"
       >
         <span class="flex items-center truncate">
           <upw-avatar
-            v-if="selectedItem?.icon"
-            :icon="selectedItem?.icon"
+            v-if="selected?.icon"
+            :icon="selected?.icon"
             size="sm"
             shape="circle"
             fit="cover"
@@ -19,11 +20,16 @@
             aria-hidden="true"
           />
 
-          {{ selectedItem?.label || label }}
+          <span v-if="!loading || selected">{{
+            selected?.label || label
+          }}</span>
         </span>
 
-        <div :class="styles.combobox.icons.arrowUpDown">
+        <div v-if="!loading" :class="styles.combobox.icons.arrowUpDown">
           <upw-icon icon="arrow-down" size="xs" aria-hidden="true" />
+        </div>
+        <div v-else :class="styles.combobox.icons.loading">
+          <upw-spinner size="xs" />
         </div>
       </uw-button>
     </popover-trigger>
@@ -107,7 +113,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, toRefs, ref, provide, toRef } from "vue";
+import { defineComponent, toRefs, ref, provide, toRef, watch } from "vue";
 import {
   PopoverTrigger,
   PopoverRoot,
@@ -129,10 +135,11 @@ import { UwButton } from "../button";
 import UpwAvatar from "../avatar/Avatar.ce.vue";
 import UpwIcon from "../icon/Icon.ce.vue";
 import ComboboxItem from "./ComboboxItem.vue";
+import UpwSpinner from "../../components/spinner/Spinner.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
-import { first } from "lodash";
+import { first } from "lodash-es";
 
 // --- types
 import { type ComboboxConfig } from "./types.d";
@@ -143,6 +150,7 @@ export default defineComponent({
     UwButton,
     UpwAvatar,
     UpwIcon,
+    UpwSpinner,
     ComboboxRoot,
     ComboboxInput,
     ComboboxGroup,
@@ -157,7 +165,7 @@ export default defineComponent({
   },
   props: {
     modelValue: { type: String, default: "" },
-    selectedItem: { type: String },
+    defaultItem: { type: Object },
     items: { type: Array, default: () => [] },
     width: { type: String as ComboboxConfig["width"], default: "md" },
     color: { type: String as ComboboxConfig["color"], default: "base" },
@@ -184,6 +192,7 @@ export default defineComponent({
     upwindConfig: {},
     // Question to DC: Can we do this through upwindConfig?
     buttonClass: { type: String },
+    loading: { type: Boolean, default: false },
   },
   emits: [
     "update:open",
@@ -194,11 +203,9 @@ export default defineComponent({
     "interactOutside",
     "dismiss",
   ],
-  setup(props, { emit, slots }) {
+  setup(props, { emit }) {
     const open = ref(false);
-    const selectedItem = ref(
-      first(props.items.filter(item => item.value === props.selectedItem))
-    );
+    const selected = ref(null);
 
     const styles = useStyles(
       ["combobox", "combobox.icons", "combobox.command"],
@@ -207,9 +214,29 @@ export default defineComponent({
       props.upwindConfig
     );
 
+    const updateSelected = () => {
+      selected.value = first(
+        props.items.filter(item => item.value === props.defaultItem?.value)
+      );
+    };
+
+    updateSelected();
+
+    watch(
+      () => props.defaultItem,
+      (newDefaultItem: any) => {
+        if (newDefaultItem && !selected.value) {
+          selected.value =
+            props.items.find(item => item.value === newDefaultItem.value) ||
+            null;
+        }
+      },
+      { immediate: true }
+    );
+
     const onSelect = (value: string, label: string, icon: string) => {
       emit("update:modelValue", value);
-      selectedItem.value = { label, value, icon };
+      selected.value = { label, value, icon };
       open.value = false;
     };
 
@@ -223,7 +250,7 @@ export default defineComponent({
       open,
       styles,
       onSelect,
-      selectedItem,
+      selected,
     };
   },
 });

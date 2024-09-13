@@ -73,6 +73,7 @@ export const icons = {
       },
     }
   ),
+  loading: cva("-mr-1 ml-2 mt-1 shrink-0 opacity-50"),
 };
 
 export const root = cva(
