@@ -12,7 +12,6 @@
           </DrawerDescription>
         </DrawerHeader>
 
-        <slot name="content" />
         <slot />
 
         <DrawerFooter>
@@ -41,7 +40,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from ".";
-import { Button } from "../button";
 
 export default defineComponent({
   components: {
@@ -53,7 +51,6 @@ export default defineComponent({
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
-    Button,
   },
 
   props: {
