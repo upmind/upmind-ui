@@ -6,7 +6,7 @@
         color="base"
         role="combobox"
         :aria-expanded="open"
-        :class="styles.combobox.button"
+        :class="[styles.combobox.button, buttonClass]"
       >
         <span class="flex items-center truncate">
           <upw-avatar
@@ -21,6 +21,10 @@
 
           {{ selectedItem?.label || label }}
         </span>
+
+        <div :class="styles.combobox.icons.arrowUpDown">
+          <upw-icon icon="arrow-down" size="xs" aria-hidden="true" />
+        </div>
       </uw-button>
     </popover-trigger>
     <popover-portal>
@@ -123,6 +127,7 @@ import config from "./combobox.config";
 // --- components
 import { UwButton } from "../button";
 import UpwAvatar from "../avatar/Avatar.ce.vue";
+import UpwIcon from "../icon/Icon.ce.vue";
 import ComboboxItem from "./ComboboxItem.vue";
 
 // --- utils
@@ -137,6 +142,7 @@ export default defineComponent({
   components: {
     UwButton,
     UpwAvatar,
+    UpwIcon,
     ComboboxRoot,
     ComboboxInput,
     ComboboxGroup,
@@ -176,6 +182,8 @@ export default defineComponent({
     position: { type: String },
     asChild: { type: Boolean, default: false },
     upwindConfig: {},
+    // Question to DC: Can we do this through upwindConfig?
+    buttonClass: { type: String },
   },
   emits: [
     "update:open",
@@ -188,11 +196,13 @@ export default defineComponent({
   ],
   setup(props, { emit, slots }) {
     const open = ref(false);
-    const selectedItem = ref(first(props.items, props.selectedItem));
+    const selectedItem = ref(
+      first(props.items.filter(item => item.value === props.selectedItem))
+    );
 
     const styles = useStyles(
       ["combobox", "combobox.icons", "combobox.command"],
-      toRefs(props),
+      toRefs({ ...props, open }),
       config,
       props.upwindConfig
     );
