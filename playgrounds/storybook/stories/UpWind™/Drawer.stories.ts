@@ -2,11 +2,9 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwDrawer, UwButton } from "@upmind/upwind";
+import { UwDrawer, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
 
-// --- utils
-import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof UwDrawer> = {
