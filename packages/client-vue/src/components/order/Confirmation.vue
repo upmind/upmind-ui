@@ -67,7 +67,7 @@ export default defineComponent({
     orderId: { type: String },
     success: { type: Boolean },
   },
-  setup() {
+  setup(props) {
     const { transfer, meta } = useSession();
     const styles = useStyles(["order.confirmation"], toRefs(props), config);
 
