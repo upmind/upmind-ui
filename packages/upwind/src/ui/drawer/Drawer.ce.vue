@@ -1,5 +1,5 @@
 <template>
-  <drawer-root v-bind="$attrs">
+  <drawer-root v-bind="$attrs" :open="open" @update:open="onOpen">
     <drawer-trigger>
       <slot name="trigger" />
     </drawer-trigger>
@@ -23,7 +23,7 @@
 
         <div :class="styles.drawer.footer">
           <slot name="footer" />
-          <drawer-close>
+          <drawer-close @click="forceClose">
             <slot name="close" />
           </drawer-close>
         </div>
@@ -34,7 +34,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, toRefs } from "vue";
+import { defineComponent, computed, toRefs, ref } from "vue";
 
 // --- internal
 import config from "./drawer.config";
@@ -43,7 +43,6 @@ import config from "./drawer.config";
 import {
   DrawerRoot,
   DrawerContent,
-  DrawerPortal,
   DrawerDescription,
   DrawerTitle,
   DrawerOverlay,
@@ -60,7 +59,6 @@ export default defineComponent({
   components: {
     DrawerRoot,
     DrawerContent,
-    DrawerPortal,
     DrawerDescription,
     DrawerTitle,
     DrawerOverlay,
@@ -75,7 +73,7 @@ export default defineComponent({
     upwindConfig: { type: Object, default: null },
     shouldScaleBackground: { type: Boolean, default: true },
     direction: { type: String },
-    open: { type: Boolean },
+    modelValue: { type: Boolean },
     modal: { type: Boolean },
     nested: { type: Boolean },
     dismissible: { type: Boolean },
@@ -86,8 +84,9 @@ export default defineComponent({
     onOpenChange: { type: Function },
     onSnapPointChange: { type: Function },
   },
+  emits: ["update:modelValue", "input"],
 
-  setup(props) {
+  setup(props, { emit }) {
     const styles = useStyles(
       "drawer",
       toRefs(props),
@@ -95,14 +94,35 @@ export default defineComponent({
       props.upwindConfig
     );
 
+    const open = ref(props.modelValue);
     const hasTitle = computed(() => !isEmpty(props.title));
     const hasDescription = computed(() => !isEmpty(props.description));
 
     return {
       styles,
+      open,
       hasTitle,
       hasDescription,
     };
+  },
+
+  methods: {
+    onOpen(value: boolean, force: boolean = false) {
+      if (!value && !force) return;
+      this.open = value;
+      this.$emit("update:modelValue", value);
+      this.$emit("input", { isOpen: value });
+    },
+    forceClose() {
+      this.onOpen(false, true);
+    },
+  },
+
+  watch: {
+    modelValue(value, oldValue) {
+      if (value === oldValue) return;
+      this.open = value;
+    },
   },
 });
 </script>

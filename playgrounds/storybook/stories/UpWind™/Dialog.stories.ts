@@ -1,5 +1,5 @@
 // --- external
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
