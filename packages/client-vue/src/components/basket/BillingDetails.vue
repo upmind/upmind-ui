@@ -59,7 +59,7 @@
       v-model="activeDialog"
       type="unified"
       i18nKey="unified"
-      dialog
+      drawer
       no-filter
       @update:modelValue="onClose"
     />

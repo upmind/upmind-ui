@@ -1,11 +1,10 @@
 <template>
   <component
-    :is="dialog ? 'uw-dialog' : 'section'"
-    @reject="onClose"
+    :is="drawer ? 'uw-drawer' : 'section'"
+    :modelValue="isOpen"
+    @update:modelValue="onClose"
     size="xl"
     title="Change address"
-    :modelValue="modelValue"
-    @update:modelValue="onClose"
     skrim="light"
   >
     <section :class="styles.clientListings.root">
@@ -70,11 +69,9 @@
         </div>
       </template>
 
-      <footer :class="styles.clientListings.footer">
-        <slot name="footer" v-bind="{ meta }"></slot>
-      </footer>
+      <footer name="footer" :class="styles.clientListings.footer">
+        <template v-bind="{ meta }"></template>
 
-      <div slot="footer">
         <uw-button
           v-for="(action, key) in actions"
           :key="key"
@@ -83,7 +80,7 @@
           :disabled="action?.disabled"
           @click="doAction(action)"
         />
-      </div>
+      </footer>
     </section>
   </component>
 </template>
@@ -146,7 +143,7 @@ export default defineComponent({
     },
     i18nKey: { type: String, required: true },
     modelValue: { type: Boolean },
-    dialog: { type: Boolean, default: false },
+    drawer: { type: Boolean, default: false },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
@@ -198,6 +195,10 @@ export default defineComponent({
   },
 
   computed: {
+    isOpen() {
+      const value = this.meta.isEmpty;
+      return value || this.modelValue;
+    },
     actions() {
       return {
         add: {
