@@ -33,7 +33,7 @@ export const content = cva(
   }
 );
 
-export const item = cva("flex items-center p-2 px-3 text-sm", {
+export const item = cva("flex w-full items-center p-2 px-3 text-sm", {
   variants: {
     color: {
       base: "data-[highlighted]:bg-base-foreground data-[highlighted]:bg-opacity-5 data-[highlighted]:text-base-foreground",
@@ -61,7 +61,7 @@ export const item = cva("flex items-center p-2 px-3 text-sm", {
 export const icons = {
   buttonItem: cva("mr-2 size-[1.2em] overflow-hidden rounded-full"),
   listItem: cva("mr-3 size-[1.25em] overflow-hidden rounded-full"),
-  checkItem: cva("ml-auto h-4 w-4"),
+  checkItem: cva("ml-auto"),
   arrowUpDown: cva(
     "-mr-2 ml-2 shrink-0 rotate-180 opacity-50 transition-all duration-200",
     {
