@@ -33,7 +33,7 @@ export const Base: Story = {
         </template>
 
         <template v-slot:close>
-          <uw-button label="Close" />
+          <uw-button label="Close" block />
         </template>
       </uw-drawer>
     `,

@@ -25,7 +25,7 @@ export { default as UpwTextbox } from "./components/textbox/Textbox.vue";
 export { default as UpwThemeSwitcher } from "./components/theme/ThemeSwitcher.vue";
 export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
-export { default as UwDrawer } from "./ui/drawer/DrawerConsolidated.vue";
+export { default as UwDrawer } from "./ui/drawer/Drawer.vue";
 export * from "./components/form/renderers/utils";
 
 // --- uw

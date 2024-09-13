@@ -4,22 +4,17 @@
       <slot name="trigger" />
     </drawer-trigger>
     <drawer-portal>
-      <drawer-overlay class="fixed inset-0 z-50 bg-black/80" />
-      <drawer-content
-        :class="'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background'"
-      >
-        <div class="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
-        <div class="mx-auto w-full" :class="maxWidth">
-          <div class="grid gap-1.5 p-4 text-center sm:text-left">
-            <drawer-title
-              v-if="hasTitle"
-              class="text-lg font-semibold leading-none tracking-tight"
-            >
+      <drawer-overlay :class="styles.drawer.overlay" />
+      <drawer-content :class="styles.drawer.content">
+        <div :class="styles.drawer.handle" />
+        <div :class="styles.drawer.container">
+          <div :class="styles.drawer.header">
+            <drawer-title v-if="hasTitle" :class="styles.drawer.title">
               {{ title }}
             </drawer-title>
             <drawer-description
               v-if="hasDescription"
-              class="text-sm text-muted-foreground"
+              :class="styles.drawer.description"
             >
               {{ description }}
             </drawer-description>
@@ -27,7 +22,7 @@
 
           <slot />
 
-          <div class="mt-auto flex flex-col gap-2 p-4">
+          <div :class="styles.drawer.footer">
             <slot name="footer" />
 
             <drawer-close>
@@ -42,7 +37,10 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, toRefs } from "vue";
+
+// --- internal
+import config from "./drawer.config";
 
 // --- components
 import {
@@ -57,6 +55,7 @@ import {
 } from "vaul-vue";
 
 // --- utils
+import { useStyles } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 export default defineComponent({
@@ -74,7 +73,7 @@ export default defineComponent({
   props: {
     title: { type: String },
     description: { type: String },
-    maxWidth: { type: String, default: "max-w-sm" },
+    maxWidth: { type: String, default: "md" },
     upwindConfig: { type: Object, default: null },
     shouldScaleBackground: { type: Boolean, default: true },
     direction: { type: String },
@@ -91,10 +90,18 @@ export default defineComponent({
   },
 
   setup(props) {
+    const styles = useStyles(
+      "drawer",
+      toRefs(props),
+      config,
+      props.upwindConfig
+    );
+
     const hasTitle = computed(() => !isEmpty(props.title));
     const hasDescription = computed(() => !isEmpty(props.description));
 
     return {
+      styles,
       hasTitle,
       hasDescription,
     };
