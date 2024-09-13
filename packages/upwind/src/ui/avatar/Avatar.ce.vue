@@ -63,6 +63,7 @@ export default defineComponent({
     UpwIcon,
   },
   props: {
+    class: { type: String },
     color: { type: String as PropType<AvatarConfig["color"]>, default: "base" },
     fit: {
       type: String as PropType<AvatarConfig["fit"]>,

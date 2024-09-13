@@ -3,6 +3,9 @@ import { cva } from "class-variance-authority";
 
 export const button = cva("justify-between", {
   variants: {
+    color: {
+      base: "border-opacity-10 hover:border-opacity-10",
+    },
     width: {
       xs: "w-dropdown-xs",
       sm: "w-dropdown-sm",
