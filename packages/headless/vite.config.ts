@@ -6,6 +6,11 @@ import dts from "vite-plugin-dts";
 
 // https://vitejs.dev/guide/build.html#library-mode
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
   plugins: [dts()],
   build: {
     lib: {
@@ -13,5 +18,17 @@ export default defineConfig({
       name: "@upmind/headless",
       fileName: "headless"
     }
+  },
+  // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  // @ts-ignore
+  test: {
+    environment: "jsdom",
+    exclude: [...configDefaults.exclude, "e2e/*"],
+    root: fileURLToPath(new URL("./", import.meta.url)),
+    // https://vitest.dev/guide/coverage.html
+    coverage: {
+      provider: 'istanbul',
+      enabled: true
+    },
   },
 });

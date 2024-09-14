@@ -111,14 +111,14 @@ describe("useValidation.ts", () => {
         {
           instancePath: "/field1",
           message: "Field 1 Error",
-          schemaPath: "",
+          schemaPath: "field1",
           keyword: "",
           params: {},
         },
         {
           instancePath: "/field2",
           message: "Field 2 Error",
-          schemaPath: "",
+          schemaPath: "field2",
           keyword: "",
           params: {},
         },
