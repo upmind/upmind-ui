@@ -4,14 +4,14 @@ import { defineConfig } from 'vite'
 import { configDefaults } from "vitest/config.js";
 
 export default defineConfig({
-  plugins: [
-    vue(),
-  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  plugins: [
+    vue(),
+  ],
   build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),

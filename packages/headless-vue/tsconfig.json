@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "allowJs": false,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -9,5 +12,5 @@
     "strict": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["dist", "src/**/__tests__/*", "**/*.d.ts"]
+  "exclude": ["dist", "**/*.d.ts"]
 }
