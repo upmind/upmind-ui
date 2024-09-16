@@ -10,7 +10,7 @@ import services, { PhoneTypes } from "./services";
 import { map, get, uniqueId } from "lodash-es";
 
 // --- types
-// TODO: import type { IPhone, PhoneContext } from "./types.d";
+// TODO: import type { IPhone, PhoneContext } from "./types";
 import type { IPhone } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 

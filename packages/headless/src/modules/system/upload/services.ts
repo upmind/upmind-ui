@@ -6,7 +6,7 @@ import { useBrand, BrandConfigKeys } from "../../brand";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
-// import type { UploadEvent, UploadContext } from "./types.d";
+// import type { UploadEvent, UploadContext } from "./types";
 import type { UploadEvent } from "./types";
 import { ImageObjectTypes, ImageUploadTypes } from "./types";
 
