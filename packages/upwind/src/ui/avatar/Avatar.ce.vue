@@ -40,7 +40,7 @@ import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
 // --- internal
-import globalStyles from "../../assets/upwind.css?url"; // ASSETS
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
 import config from "./avatar.config";
 
@@ -54,7 +54,7 @@ import type { IconProps } from "../../components/icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UwAvatar",
+  name: "UpwAvatar",
   inheritAttrs: false,
   components: {
     AvatarFallback,

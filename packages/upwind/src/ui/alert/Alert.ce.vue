@@ -1,6 +1,8 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <div :class="styles.alert.root" role="alert">
-    <!-- <upw-icon :icon="icon" :class="styles.alert.icon" /> -->
+    <upw-icon :icon="icon" :class="styles.alert.icon" />
     <div :class="styles.alert.content">
       <h5 v-if="title" :class="styles.alert.title">
         {{ title }}
@@ -17,24 +19,25 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import config from "./alert.config";
+import { useStyles } from "../../utils";
 
 // --- components
-// import UpwIcon from "../../icon/Icon.vue";
+import UpwIcon from "../../ui/icon/Icon.ce.vue";
 
 // --- utils
-import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
 import type { AlertConfig } from "./types";
 
 export default defineComponent({
-  name: "UwAlert",
+  name: "UpwAlert",
 
-  // components: {
-  //   UpwIcon,
-  // },
+  components: {
+    UpwIcon,
+  },
 
   props: {
     variant: {
@@ -65,10 +68,9 @@ export default defineComponent({
     );
 
     return {
+      globalStyles,
       styles,
     };
   },
 });
 </script>
-
-<style scoped src="@/assets/main.css" />

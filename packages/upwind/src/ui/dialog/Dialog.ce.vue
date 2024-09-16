@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <dialog-root :open="open" @update:open="onOpen">
     <dialog-trigger>
       <slot name="trigger" />
@@ -53,15 +55,16 @@ import {
 } from "radix-vue";
 
 // --- internal
-import config from "./dialog.config";
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
+import config from "./dialog.config";
 
 // --- types
 import type { PropType } from "vue";
 import type { DialogConfig } from "./types";
 
 export default defineComponent({
-  name: "UwDialog",
+  name: "UpwDialog",
   components: {
     DialogRoot,
     DialogClose,
@@ -100,6 +103,7 @@ export default defineComponent({
     const open = ref(props.modelValue);
 
     return {
+      globalStyles,
       styles,
       open,
     };
@@ -123,5 +127,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <tooltip-provider :delay-duration="delayDuration">
     <tooltip-root :open="open">
       <tooltip-trigger><slot /></tooltip-trigger>
@@ -27,16 +29,17 @@ import {
   TooltipProvider,
 } from "radix-vue";
 
-// --- local
-import config from "./tooltip.config";
+// --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
+import config from "./tooltip.config";
 
 // --- types
 import type { TooltipConfig, TooltipProps } from "./types";
 import type { PropType } from "vue";
 
 export default defineComponent({
-  name: "UwTooltip",
+  name: "UpwTooltip",
   components: {
     TooltipRoot,
     TooltipContent,
@@ -72,10 +75,9 @@ export default defineComponent({
     );
 
     return {
+      globalStyles,
       styles,
     };
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

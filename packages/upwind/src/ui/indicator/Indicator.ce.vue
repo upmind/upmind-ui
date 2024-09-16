@@ -25,7 +25,7 @@ import { defineComponent, toRefs } from "vue";
 import UpwIcon from "../icon/Icon.ce.vue";
 
 // --- internal
-import globalStyles from "../../assets/upwind.css?url"; // ASSETS
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
 import config from "./indicator.config";
 
@@ -39,7 +39,7 @@ import type { IconProps } from "../../components/icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UwIndicator",
+  name: "UpwIndicator",
   inheritAttrs: false,
   components: {
     UpwIcon,

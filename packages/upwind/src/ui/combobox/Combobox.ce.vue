@@ -1,7 +1,9 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <popover-root v-model:open="open">
     <popover-trigger>
-      <uw-button
+      <upw-button
         variant="outline"
         color="base"
         role="combobox"
@@ -31,7 +33,7 @@
         <div v-else :class="styles.combobox.icons.loading">
           <upw-spinner size="xs" />
         </div>
-      </uw-button>
+      </upw-button>
     </popover-trigger>
     <popover-portal>
       <popover-content
@@ -114,7 +116,7 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, toRefs, ref, provide, toRef, watch } from "vue";
+import { defineComponent, toRefs, ref, watch } from "vue";
 import {
   PopoverTrigger,
   PopoverRoot,
@@ -129,26 +131,27 @@ import {
 } from "radix-vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+import { useStyles } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
-import { UwButton } from "../button";
+import UpwButton from "../button/Button.ce.vue";
 import UpwAvatar from "../avatar/Avatar.ce.vue";
 import UpwIcon from "../icon/Icon.ce.vue";
 import ComboboxItem from "./ComboboxItem.vue";
 import UpwSpinner from "../../components/spinner/Spinner.vue";
 
 // --- utils
-import { useStyles } from "../../utils";
 import { first } from "lodash-es";
 
 // --- types
 import { type ComboboxConfig } from "./types.d";
 
 export default defineComponent({
-  name: "UwCombobox",
+  name: "UpwCombobox",
   components: {
-    UwButton,
+    UpwButton,
     UpwAvatar,
     UpwIcon,
     UpwSpinner,
@@ -241,6 +244,7 @@ export default defineComponent({
     };
 
     return {
+      globalStyles,
       open,
       styles,
       handleSelect,
@@ -249,5 +253,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

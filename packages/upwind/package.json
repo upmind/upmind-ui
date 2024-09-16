@@ -8,7 +8,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
+      "import": "./dist/upwind.js",
       "require": "./dist/upwind.umd.cjs"
     }
   },

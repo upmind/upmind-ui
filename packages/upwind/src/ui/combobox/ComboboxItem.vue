@@ -1,4 +1,5 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
   <combobox-item
     :value="value"
     @select="handleSelect"
@@ -25,6 +26,8 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+import { useStyles } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
@@ -33,10 +36,9 @@ import UpwAvatar from "../avatar/Avatar.ce.vue";
 import UpwIcon from "../icon/Icon.ce.vue";
 
 // --- utils
-import { useStyles } from "../../utils";
 
 export default defineComponent({
-  name: "UwComboboxItem",
+  name: "UpwComboboxItem",
   components: {
     ComboboxItem,
     UpwAvatar,
@@ -85,11 +87,10 @@ export default defineComponent({
     };
 
     return {
+      globalStyles,
       styles,
       handleSelect,
     };
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

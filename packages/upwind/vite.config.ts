@@ -24,7 +24,8 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: './src/auto.ts',
+      // entry: ['./src/index.ts','./src/auto.ts'],
+      entry: './src/index.ts',
       name: "upwind",
       fileName: "upwind",
     },
