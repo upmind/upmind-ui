@@ -230,9 +230,9 @@ import {
   ComboboxOption,
   ComboboxInput,
 } from "@headlessui/vue";
-import UpwButton from "../button/Button.vue";
+import UpwButton from "../../ui/button/Button.ce.vue";
+import UpwIcon from "../../ui/icon/Icon.ce.vue";
 import UpwInput from "../input/Input.vue";
-import UpwIcon from "../icon/Icon.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- utils
@@ -269,9 +269,10 @@ export default defineComponent({
     HComboboxOptions: ComboboxOptions,
     HComboboxOption: ComboboxOption,
     HComboboxInput: ComboboxInput,
-    UpwIcon,
     UpwInput,
     UpwSpinner,
+    // ---
+    UpwIcon,
     UpwButton,
   },
   props: {

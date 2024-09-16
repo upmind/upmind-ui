@@ -185,7 +185,7 @@ import { defineComponent, computed, ref, watch } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- components
-import UpwIcon from "../icon/Icon.vue";
+import UpwIcon from "../../ui/icon/Icon.ce.vue";
 import UpwLabel from "../label/Label.vue";
 
 // --- local

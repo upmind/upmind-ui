@@ -15,7 +15,7 @@
 import { toRefs, defineComponent } from "vue";
 
 // --- internal
-import globalStyles from "../../assets/upwind.css?url"; // ASSETS
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import config from "./badge.config";
 import { useStyles } from "../../utils";
 
@@ -25,7 +25,7 @@ import type { BadgeConfig } from "./types";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UwBadge",
+  name: "UpwBadge",
   props: {
     variant: {
       type: String as PropType<BadgeConfig["variant"]>,

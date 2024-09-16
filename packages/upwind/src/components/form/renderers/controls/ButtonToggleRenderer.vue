@@ -19,7 +19,7 @@ import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import UpwButton from "../../../button/Button.vue";
+import UpwButton from "../../../../ui/button/Button.ce.vue";
 import UpwInput from "../../../input/Input.vue";
 
 // --- utils

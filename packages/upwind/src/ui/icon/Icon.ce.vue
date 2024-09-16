@@ -16,7 +16,7 @@
 import { defineComponent, ref, watchEffect, toRefs } from "vue";
 
 // --- internal
-import globalStyles from "../../assets/upwind.css?url"; // ASSETS
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
 import { useStyles } from "../../utils";
 import config from "./icon.config";
 
@@ -30,7 +30,7 @@ import type { IconProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UwIcon",
+  name: "UpwIcon",
   props: {
     size: {
       type: String as PropType<IconConfig["size"]>,

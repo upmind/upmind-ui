@@ -72,7 +72,7 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwButton from "../button/Button.vue";
+import UpwButton from "../../ui/button/Button.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";

@@ -23,7 +23,7 @@
 import { defineComponent, ref, computed } from "vue";
 
 // --- internal
-import UpwButton from "../button/Button.vue";
+import UpwButton from "../../ui/button/Button.ce.vue";
 import config from "./config.cva";
 
 // --- utils

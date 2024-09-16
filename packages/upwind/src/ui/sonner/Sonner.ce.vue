@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <sonner
     class="toaster group"
     v-bind="$props"
@@ -86,17 +88,18 @@
 import { defineComponent, toRefs, type PropType } from "vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+import { useStyles, mergeStyles } from "../../utils";
 import config from "./sonner.config";
 
 // --- utils
-import { useStyles, mergeStyles } from "../../utils";
 
 // --- components
 import { Toaster as Sonner, type ToasterProps } from "vue-sonner";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UwSonner",
+  name: "UpwSonner",
   components: { Sonner },
   props: {
     invert: { type: Boolean },
@@ -136,10 +139,9 @@ export default defineComponent({
       toRefs(props),
       config
     );
-    return { styles, mergeStyles };
+    return { globalStyles, styles, mergeStyles };
   },
 });
 </script>
 
-<style src="@/assets/main.css"></style>
 <style src="./sonner.css"></style>

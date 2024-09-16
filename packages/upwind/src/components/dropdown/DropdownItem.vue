@@ -33,7 +33,7 @@
           {{ prependText }}
         </span>
 
-        <uw-avatar
+        <upw-avatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           :avatar="prependAvatar"
@@ -72,7 +72,7 @@
           :icon="appendIcon"
         />
 
-        <uw-avatar
+        <upw-avatar
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
@@ -105,8 +105,8 @@ import { defineComponent, toRefs } from "vue";
 // --- components
 import { RouterLink } from "vue-router";
 import { MenuItem } from "@headlessui/vue";
-import UpwIcon from "../icon/Icon.vue";
-import UwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import UpwIcon from "../../ui/icon/Icon.ce.vue";
+import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
@@ -129,7 +129,7 @@ export default defineComponent({
     RouterLink,
     HMenuItem: MenuItem,
     UpwIcon,
-    UwAvatar,
+    UpwAvatar,
     UpwSpinner,
   },
   props: {

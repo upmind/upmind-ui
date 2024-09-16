@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" :href="globalStyles" />
+
   <tabs-root
     :modelValue="modelValue"
     :defaultValue="defaultValue"
@@ -43,10 +45,11 @@ import { defineComponent, toRefs } from "vue";
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "radix-vue";
 
 // --- internal
+import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+import { useStyles } from "../../utils";
 import config from "./tabs.config";
 
 // --- utils
-import { useStyles } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
@@ -54,7 +57,7 @@ import type { TabsRootProps } from "radix-vue";
 import type { TabsConfig } from "./types";
 // ---------
 export default defineComponent({
-  name: "UwTabs",
+  name: "UpwTabs",
   components: {
     TabsRoot,
     TabsList,
@@ -93,9 +96,7 @@ export default defineComponent({
   emits: ["update:modelValue"],
   setup(props) {
     const styles = useStyles("tabs", toRefs(props), config, props.upwindConfig);
-    return { styles };
+    return { globalStyles, styles };
   },
 });
 </script>
-
-<style src="@/assets/main.css" />

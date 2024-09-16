@@ -67,7 +67,7 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwIcon from "../icon/Icon.vue";
+import UpwIcon from "../../ui/icon/Icon.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
