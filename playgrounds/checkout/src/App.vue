@@ -9,10 +9,7 @@
       <main class="prose flex w-full max-w-none flex-1 flex-col">
         <upm-feedback />
 
-        <router-view
-          class="view flex-1 gap-4 px-4 py-8 sm:px-6 lg:px-20"
-          :key="route.fullPath"
-        />
+        <router-view class="view flex-1 gap-4 px-4 py-8 sm:px-6 lg:px-20" />
 
         <upm-session-expired auto />
       </main>

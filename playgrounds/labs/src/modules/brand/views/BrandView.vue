@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBrand } from "@upmind/flow-vue";
+import { useBrand } from "@upmind/headless-vue";
 import { startCase, isArray, isObject } from "lodash-es";
 import { UpwSpinner } from "@upmind/upwind";
 

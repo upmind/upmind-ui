@@ -53,7 +53,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { useProductConfig, useBasket, utils } from "@upmind/flow-vue";
+import { useProductConfig, useBasket, utils } from "@upmind/headless-vue";
 const { stateMatches } = utils;
 import { useStyles, mergeStyles } from "@upmind/upwind";
 

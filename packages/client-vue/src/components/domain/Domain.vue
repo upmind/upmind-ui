@@ -70,18 +70,14 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useDomain } from "@upmind/flow-vue";
+import { useDomain } from "@upmind/headless-vue";
+import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
 import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
-import {
-  useStyles,
-  mergeStyles,
-  UpwRadioList,
-  UpwSkeletonList,
-} from "@upmind/upwind";
+import { UpwRadioList, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
 import { UwAlert, useCustomElement } from "@upmind/upwind";
@@ -178,7 +174,6 @@ export default defineComponent({
       destroy,
       // ---
       styles,
-      mergeStyles,
     };
   },
   computed: {

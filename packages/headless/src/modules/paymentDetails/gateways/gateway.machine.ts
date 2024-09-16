@@ -1,0 +1,250 @@
+// --- external
+import { createMachine, assign, actions } from "xstate";
+const { pure, sendParent, escalate } = actions;
+// --- internal
+import services from "./card/services";
+import { useFeedback } from "../../feedback";
+const { addError } = useFeedback();
+
+// --- utils
+import { useTime, useValidationParser, useModelParser } from "../../../utils";
+import { useSchema, useUischema } from "./utils";
+
+// --- types
+import type { GatewayContext, GatewayEvent } from "./types";
+import { responseCodes } from "../../api";
+
+// --------------------------------------------------------
+
+export default createMachine(
+  {
+    tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
+    id: "gatewayPaymentManager",
+    predictableActionArguments: true,
+    initial: "loading",
+    context: {
+      basket_id: undefined,
+      currency: undefined,
+      gateway: undefined,
+      amount: undefined,
+      renderless: undefined,
+      // ---
+      schema: undefined,
+      uischema: undefined,
+      model: undefined,
+      // ---
+      error: null,
+    } as GatewayContext,
+    states: {
+      loading: {
+        invoke: {
+          src: "load",
+          onDone: { target: "checking", actions: ["setContext"] },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
+      },
+
+      // ---
+      checking: {
+        entry: ["clearError"],
+        initial: "parsing",
+        states: {
+          parsing: {
+            invoke: {
+              src: "parse",
+              onDone: {
+                target: "validating",
+                actions: ["setSchemas", "setModel"],
+              },
+            },
+          },
+          validating: {
+            invoke: {
+              src: "validate",
+              onDone: { target: "#valid" },
+              onError: {
+                target: "#invalid",
+                actions: ["setError"],
+              },
+            },
+          },
+        },
+      },
+
+      invalid: { id: "invalid" },
+
+      valid: {
+        id: "valid",
+        on: {
+          CHECKOUT: "processing",
+          PAY: "processing",
+        },
+      },
+
+      processing: {
+        entry: ["clearError"],
+        invoke: {
+          src: "update",
+          onDone: {
+            target: "#processed",
+            actions: ["setPaymentDetails", "providePaymentDetails"],
+          },
+          onError: {
+            target: "#error",
+            actions: [
+              "setError",
+              "setFeedbackError",
+              "escalateError",
+              "cancelPaymentDetails",
+            ],
+          },
+        },
+      },
+
+      processed: {
+        id: "processed",
+        after: {
+          wait: {
+            target: "complete",
+            cond: "hasNoOutstandingBalance",
+          },
+        },
+      },
+
+      complete: {
+        id: "complete",
+        type: "final",
+        data: ({ paymentDetails }: GatewayContext, _event: GatewayEvent) =>
+          paymentDetails,
+      },
+
+      error: {
+        id: "error",
+        on: {
+          RETRY: {
+            target: "processing",
+          },
+        },
+      },
+    },
+    on: {
+      CLEAR: {
+        target: "checking",
+        actions: ["clearModel"],
+      },
+      SET: {
+        target: "checking",
+        actions: ["setModel"],
+      },
+      REFRESH: {
+        target: "checking",
+        actions: ["setContext"],
+      },
+      UNAUTHENTICATED: {
+        target: "loading",
+        actions: ["clearError", "clearModel", "clearSchemas"],
+      },
+    },
+  },
+  {
+    actions: {
+      setContext: assign(
+        // TODO: (_context: CurrencyContext, { data }: CurrencyEvent) => data
+        (_context: any, { data }: any) => data
+      ),
+
+      // ---
+      setSchemas: assign({
+        schema: context => useSchema(context),
+        // TODO: uischema: context => useUischema(context),
+        uischema: () => useUischema(),
+      }),
+
+      clearSchemas: assign({
+        schema: undefined,
+        uischema: undefined,
+      }),
+
+      setModel: assign({
+        model: ({ schema, model }, { data }) =>
+          useModelParser(schema, data || model),
+      }),
+
+      clearModel: assign({
+        model: undefined,
+      }),
+
+      // ---
+      setPaymentDetails: assign({
+        paymentDetails: ({ gateway }, { data }: any) => {
+          return { gateway, ...data };
+        },
+      }),
+
+      providePaymentDetails: sendParent(({ paymentDetails }) => ({
+        type: "PAYMENT_DETAILS",
+        data: paymentDetails,
+      })),
+
+      cancelPaymentDetails: sendParent(() => ({
+        type: "CANCEL",
+      })),
+
+      escalateError: pure((_context, { data }): any => {
+        escalate({ data });
+      }),
+
+      // ---
+
+      // @ts-ignore
+      setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
+        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        addError({
+          title:
+            error?.title || "We experienced an error processing your payment",
+          copy: error?.message,
+          data: error?.data,
+        });
+      },
+
+      // @ts-ignore
+      setError: assign({
+        error: (_context: GatewayContext, { data }: GatewayEvent) => {
+          let error = data?.error;
+          if (error?.code == responseCodes.Unprocessable_Entity) {
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            error = useValidationParser(error);
+          }
+
+          return error || data;
+        },
+      }),
+
+      clearError: assign({ error: null }),
+    },
+
+    guards: {
+      // @ts-ignore
+      hasNoOutstandingBalance: (
+        _context: GatewayContext,
+        _event: GatewayEvent
+      ) => {
+        // TODO: check if there is an outstanding balance
+        return true;
+      },
+    },
+
+    delays: {
+      // @ts-ignore
+      error: () => useTime().ERROR,
+      wait: () => useTime().WAIT,
+    },
+
+    // @ts-ignore
+    services,
+  }
+);

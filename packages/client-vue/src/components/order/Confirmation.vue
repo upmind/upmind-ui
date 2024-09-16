@@ -32,7 +32,7 @@
 import { defineComponent, ref, toRefs } from "vue";
 
 // --- internal
-import { useSession, utils } from "@upmind/flow-vue";
+import { useSession, utils } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

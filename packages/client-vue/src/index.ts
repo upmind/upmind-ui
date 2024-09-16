@@ -1,6 +1,6 @@
 // --- expose our package exports
 
-export * from "@upmind/flow-vue";
+export * from "@upmind/headless-vue";
 export * from "@upmind/upwind";
 
 // --- expose our modules & components

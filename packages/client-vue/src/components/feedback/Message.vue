@@ -18,7 +18,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useMessage } from "@upmind/flow-vue";
+import { useMessage } from "@upmind/headless-vue";
 
 // custom elements
 import { UwAlert, useCustomElement } from "@upmind/upwind";
@@ -26,7 +26,7 @@ useCustomElement(UwAlert);
 
 // --- utils
 import { useTimestamp } from "@vueuse/core";
-import { utils } from "@upmind/flow";
+import { utils } from "@upmind/headless";
 import { endsWith, startsWith } from "lodash-es";
 
 // -----------------------------------------------------------------------------

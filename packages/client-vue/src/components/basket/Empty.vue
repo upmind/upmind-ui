@@ -32,7 +32,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/flow-vue";
+import { useBasket } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

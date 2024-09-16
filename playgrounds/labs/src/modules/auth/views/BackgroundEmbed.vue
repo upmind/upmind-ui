@@ -3,7 +3,7 @@
     <figure class="z-index-0 absolute h-full w-full bg-neutral">
       <img
         class="m-0 h-full w-full object-cover opacity-40"
-        src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/background.jpg"
+        src="https://headlessbite.s3.amazonaws.com/blocks/marketing-ui/authentication/background.jpg"
         alt="Illustration of a person entering a password"
       />
     </figure>
@@ -66,7 +66,7 @@
 <script setup>
 import { watch } from "vue";
 
-import { useSession } from "@upmind/flow-vue";
+import { useSession } from "@upmind/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
 import { UpwSpinner } from "@upmind/upwind";
