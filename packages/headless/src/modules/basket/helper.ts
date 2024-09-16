@@ -17,6 +17,7 @@ import {
   pickBy,
   reduce,
 } from "lodash-es";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 async function fetch(context: any, basket: any) {
@@ -68,7 +69,11 @@ async function fetch(context: any, basket: any) {
  * @param basket
  * @returns {ActorRef<any, any>} XState Actor representing the new item
  */
-async function add(item: any, context: any, basket: any) {
+async function add(
+  item: any,
+  context: any,
+  basket: any
+): Promise<ActorRef<any, any>> {
   if (isEmpty(item)) return Promise.resolve();
 
   const mapping = context.basketItemMapper(item);
@@ -119,26 +124,23 @@ async function sync(items: any, context: any, basket: any) {
   // Then sync all our items with the basket
   const promises = isEmpty(items)
     ? [Promise.resolve([])]
-    : map(items, item => add(item, context, basket));
+    : map(items, item =>
+        add(item, context, basket).then(async actor => {
+          await waitFor(actor, actorState =>
+            actorState.matches("available.configured")
+          );
+          return actor;
+        })
+      );
 
   // then update the basket
-  return Promise.all(promises).then(dirtyItems => {
-    // we should only try save items that are configured
-    // and have a valid basket_product
-    const validItems = filter(dirtyItems, item =>
-      item?.state.matches("available.configured")
-    );
-
-    if (!validItems.length) {
-      return;
-    }
-
+  return Promise.all(promises).then(data => {
     return productServices.sync(
       {
         basket_id: basket.getBasketId(),
         basket_products: basket.getItemsSnapshot(),
       },
-      { data: validItems }
+      { data }
     );
   });
 }
