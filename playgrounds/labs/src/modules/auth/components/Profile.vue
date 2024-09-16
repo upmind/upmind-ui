@@ -30,7 +30,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { useSession } from "@upmind/upflow-vue";
+import { useSession } from "@upmind/flow-vue";
 
 export default defineComponent({
   name: "Profile",

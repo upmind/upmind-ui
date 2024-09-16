@@ -78,7 +78,7 @@ import { defineComponent, provide, ref } from "vue";
 import {
   useClientUnifiedAddress,
   useClientUnifiedAddresses,
-} from "@upmind/upflow-vue";
+} from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "../client/config.cva";
 

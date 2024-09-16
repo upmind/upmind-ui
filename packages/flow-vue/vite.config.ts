@@ -15,7 +15,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "@upmind/upflow-vue",
+      name: "@upmind/flow-vue",
       fileName: "upflow-vue"
     }
   },
