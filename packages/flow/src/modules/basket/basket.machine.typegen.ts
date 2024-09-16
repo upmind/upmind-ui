@@ -93,7 +93,10 @@ export interface Typegen0 {
     addItem: "ADD";
     clearActors: "UNAUTHENTICATED";
     clearBasket: "UNAUTHENTICATED";
-    clearError: "SESSION";
+    clearError:
+      | "REFRESH"
+      | "SESSION"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]";
     clearItems: "CLEAR" | "UNAUTHENTICATED";
     forwardCheckout: "CHECKOUT";
     refreshActors:
