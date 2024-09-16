@@ -51,7 +51,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useFeedback } from "@upmind/flow-vue";
+import { useFeedback } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 import UpmMessage from "./Message.vue";

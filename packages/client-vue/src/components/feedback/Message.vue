@@ -19,12 +19,12 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useMessage } from "@upmind/flow-vue";
+import { useMessage } from "@upmind/headless-vue";
 import { UpwAlert } from "@upmind/upwind";
 
 // --- utils
 import { useTimestamp } from "@vueuse/core";
-import { utils } from "@upmind/flow";
+import { utils } from "@upmind/headless";
 import { endsWith, startsWith } from "lodash-es";
 
 // -----------------------------------------------------------------------------

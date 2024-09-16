@@ -70,7 +70,7 @@
 <script setup>
 import { inject, watch } from "vue";
 
-import { useSession } from "@upmind/flow-vue";
+import { useSession } from "@upmind/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
 import { UpwSpinner } from "@upmind/upwind";

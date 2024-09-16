@@ -70,7 +70,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { UpwButton, UpwIcon, UpwForm } from "@upmind/upwind";
 
 // --- internal
-import { useBasketPromotions } from "@upmind/flow-vue";
+import { useBasketPromotions } from "@upmind/headless-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 import { set } from "lodash-es";
