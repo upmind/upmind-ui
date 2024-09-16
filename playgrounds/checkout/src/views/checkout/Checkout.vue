@@ -179,7 +179,7 @@ import { vIntersectionObserver } from "@vueuse/components";
 import { trimStart, get, forEach, isArray, reject, reduce } from "lodash-es";
 
 // ---types
-import { QUERY_PARAMS } from "./types.d";
+import { QUERY_PARAMS } from "./types";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "Checkout",

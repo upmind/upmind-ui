@@ -16,9 +16,9 @@ npm init -y --scope @upmind -w packages/XXX
 
 Upmind consists of several reusable packages located in the `packages` directory, all named using camelCase.
 
-- **Flow:** A library of core functions built with vanilla JavaScript and XState state machines to manage Upmind's business logic. It does not include any UI components.
-- **Vue:** A Vue.js implementation of Flow. It provides a collection of composables that consume Flow and make it reactive for easier use within Vue.js projects.
-- **UI (to be named):** A component library built with Vue.js and Tailwind CSS. It will eventually house the entire Upmind component library, consisting of atomic components that consume the Flow logic through the Vue implementation. This library will not include pages or views.
+- **Upmind Headless:** A library of core functions built with vanilla JavaScript and XState state machines to manage Upmind's business logic. It does not include any UI components.
+- **Vue:** A Vue.js implementation of Upmind Headless. It provides a collection of composables that consume Upmind Headless and make it reactive for easier use within Vue.js projects.
+- **UI (to be named):** A component library built with Vue.js and Tailwind CSS. It will eventually house the entire Upmind component library, consisting of atomic components that consume the Upmind Headless logic through the Vue implementation. This library will not include pages or views.
 
 **Planned Packages:**
 

@@ -190,7 +190,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind/flow-vue";
+import { useProductConfig } from "@upmind/headless-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
