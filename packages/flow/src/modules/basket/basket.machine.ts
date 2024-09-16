@@ -149,7 +149,7 @@ export default createMachine(
             initial: "complete",
             states: {
               processing: {
-                entry: ["abortController"],
+                entry: ["clearError", "abortController"],
                 invoke: {
                   src: "refresh",
                   onDone: {
