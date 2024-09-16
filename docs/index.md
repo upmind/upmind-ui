@@ -8,11 +8,11 @@ hero:
   # tagline: My great project tagline
   actions:
     - theme: brand
-      text: UpFlow
-      link: /@upmind/upflow
+      text: Headless
+      link: /@upmind/headless
     - theme: alt
-      text: UpFlow-Vue
-      link: /@upmind/upflow-vue
+      text: Headless-vue
+      link: /@upmind/headless-vue
 
 features:
   - title: Feature A

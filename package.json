@@ -1,7 +1,7 @@
 {
   "name": "upmind",
   "version": "0.0.0",
-  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Flow) and Vue.js implementations (Vue), along with playgrounds demonstrating UI integration using",
+  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Headless) and Vue.js implementations (Headless-vue), along with playgrounds demonstrating UI integration using",
   "private": true,
   "keywords": [
     "upmind",
@@ -59,8 +59,8 @@
     "vite-plugin-dts": "^3.5.3"
   },
   "workspaces": [
-    "packages/flow",
-    "packages/flow-vue",
+    "packages/headless",
+    "packages/headless-vue",
     "packages/upwind",
     "packages/client-vue",
     "playgrounds/labs",

@@ -35,7 +35,7 @@
 import { defineComponent, computed, watch } from "vue";
 
 // --- internal
-import { useSession } from "@upmind/upflow-vue";
+import { useSession } from "@upmind/headless-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

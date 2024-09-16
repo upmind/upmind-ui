@@ -22,7 +22,7 @@ import { defineComponent } from "vue";
 import { UpwDropdown } from "@upmind/upwind";
 
 // --- internal
-import { useSession } from "@upmind/upflow-vue";
+import { useSession } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
