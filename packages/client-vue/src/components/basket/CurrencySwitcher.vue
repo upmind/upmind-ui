@@ -21,7 +21,7 @@ import { UwCombobox, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwCombobox);
 
 // --- internal
-import { useBasketCurrency } from "@upmind/flow-vue";
+import { useBasketCurrency } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 import currencyMap from "./currencies";

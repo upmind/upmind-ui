@@ -37,7 +37,7 @@
 import { defineComponent, watch, ref } from "vue";
 
 // --- internal
-import { useFeedback, useMessage } from "@upmind/flow-vue";
+import { useFeedback, useMessage } from "@upmind/headless-vue";
 import { useStyles, toast } from "@upmind/upwind";
 import config from "./config.cva";
 

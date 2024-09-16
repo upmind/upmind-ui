@@ -104,7 +104,7 @@ import {
   useClientCompany,
   useClientUnifiedAddresses,
   useClientUnifiedAddress,
-} from "@upmind/flow-vue";
+} from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

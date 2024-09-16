@@ -53,7 +53,7 @@
 import { defineComponent, onMounted, watch, ref, computed } from "vue";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind/flow-vue";
+import { useBasketPaymentGateway } from "@upmind/headless-vue";
 import { useStyles, mergeStyles, UpwMarkdown } from "@upmind/upwind";
 import config from "./config.cva";
 

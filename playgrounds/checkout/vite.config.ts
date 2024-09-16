@@ -18,7 +18,7 @@ export default defineConfig({
     }
   }), vueJsx(), svgLoader(), sentryVitePlugin({
     org: "upmind",
-    project: "upm-checkout-v2"
+      project: "checkout-doteasy"
   })],
 
   server: {

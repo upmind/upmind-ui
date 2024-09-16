@@ -207,7 +207,7 @@ import { UwButton, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwButton);
 
 // --- internal
-import { useBasket } from "@upmind/flow-vue";
+import { useBasket } from "@upmind/headless-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

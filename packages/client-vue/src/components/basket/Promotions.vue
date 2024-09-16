@@ -73,7 +73,7 @@ import { UwButton, useCustomElement } from "@upmind/upwind";
 useCustomElement(UwButton);
 
 // --- internal
-import { useBasketPromotions } from "@upmind/flow-vue";
+import { useBasketPromotions } from "@upmind/headless-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 import { set } from "lodash-es";

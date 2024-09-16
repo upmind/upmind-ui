@@ -46,7 +46,7 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { useSession } from "@upmind/flow-vue";
+import { useSession } from "@upmind/headless-vue";
 import { UpwForm } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";

@@ -4,8 +4,8 @@
     "composite": true
   },
   "references": [
-    { "path": "../flow" },
-    { "path": "../flow-vue" },
+    { "path": "../headless" },
+    { "path": "../headless-vue" },
 
     {
       "path": "./tsconfig.node.json"
