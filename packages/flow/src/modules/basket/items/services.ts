@@ -10,6 +10,7 @@ import {
   forEach,
   get,
   isEmpty,
+  isFunction,
   map,
   reduce,
   set,
@@ -121,22 +122,19 @@ async function sync({ basket_id, basket_products }: any, { data }: any) {
 
   const existingProducts = reduce(
     basket_products,
-    (result, item) => {
+    (result: any[], item: any) => {
       if (get(item, "state.context.basket_product.id")) {
         const model = get(item, "state.context.model");
         const id = get(item, "state.context.basket_product.id");
-        if (!model) return Promise.reject("No model found");
-        // ---
         const basketItemBuilder = get(item, "state.context.basketItemBuilder");
-        if (!basketItemBuilder)
-          return Promise.reject("No basketItemBuilder provided");
+        // ---
+        if (isEmpty(model) || !isFunction(basketItemBuilder)) return result;
         // ---
         const product = basketItemBuilder(model);
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
-
-        if (id) set(product, "order_product_id", id);
+        set(product, "order_product_id", id);
 
         // @ts-ignore
         result.push(product);
