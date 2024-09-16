@@ -93,7 +93,7 @@ import {
   useClientCompany,
   useClientUnifiedAddresses,
   useClientUnifiedAddress,
-} from "@upmind/upflow-vue";
+} from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
