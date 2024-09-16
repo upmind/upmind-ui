@@ -8,7 +8,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useMessage } from "@upmind/upflow-vue";
+import { useMessage } from "@upmind/flow-vue";
 
 // --- utils
 import { isEmpty } from "lodash-es";

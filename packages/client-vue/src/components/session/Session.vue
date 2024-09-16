@@ -70,7 +70,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useSession } from "@upmind/upflow-vue";
+import { useSession } from "@upmind/flow-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 

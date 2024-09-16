@@ -19,7 +19,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useMessage } from "@upmind/upflow-vue";
+import { useMessage } from "@upmind/flow-vue";
 import { UpwAlert } from "@upmind/upwind";
 
 // --- utils

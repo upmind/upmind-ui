@@ -58,7 +58,7 @@ import {
   useBasketBillingDetails,
   // useBasketPaymentDetails,
   useBasketFields,
-} from "@upmind/upflow-vue";
+} from "@upmind/flow-vue";
 import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
