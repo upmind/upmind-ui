@@ -56,7 +56,7 @@ export const useBasket = () => {
 
     // --- basket functions
     isReady: async () =>
-      waitFor(service, state => ["shopping", "checkout"].some(state.matches), {
+      waitFor(service, state => ["shopping"].some(state.matches), {
         timeout: Infinity, // infinity = no timeout
       }),
 
@@ -104,34 +104,34 @@ export const useBasket = () => {
       provision_fields,
     }: IProductModel) => {
       // lets wait for our basket  to be ready for shopping
-      return waitFor(service, state =>
-        ["shopping", "checkout"].some(state.matches)
-      )
-        .then(async () => {
-          // lets add the new product base don the provided config to the basket
-          const mapping = omitBy(
-            {
-              id,
-              product_id,
-              quantity,
-              term,
-              attributes,
-              options,
-              provision_fields,
-            },
-            isEmpty
-          );
+      return waitFor(service, state => state.matches("shopping")).then(() => {
+        // lets add the new product base don the provided config to the basket
+        const mapping = omitBy(
+          {
+            id,
+            product_id,
+            quantity,
+            term,
+            attributes,
+            options,
+            provision_fields,
+          },
+          isEmpty
+        );
 
-          service.send({
-            type: "ADD",
-            data: mapping,
-          });
+        service.send({
+          type: "ADD",
+          data: mapping,
+        });
 
-          // then wait/check for the new product actor to be configured
-          // then send the update event to the basket
-          return find(
-            service.getSnapshot()?.context?.items,
-            (basketItem: any) =>
+        // then wait/check for the new product actor to be configured
+        // then send the update event to the basket
+        return find(
+          service.getSnapshot()?.context?.items,
+          (basketItem: any) => {
+            const isNew = isEmpty(basketItem.state.context?.basket_product);
+            return (
+              isNew &&
               every(mapping, (value, key) => {
                 if (key == "id" && value) {
                   return basketItem.id == value;
@@ -139,15 +139,10 @@ export const useBasket = () => {
                   return get(basketItem, `state.context.model.${key}`) == value;
                 }
               })
-          );
-        })
-        .then(actor => {
-          return waitFor(actor, actorState =>
-            actorState.matches("available.configured")
-          )
-            .then(() => actor)
-            .catch(() => actor); // even though the actor may not be configured we still want to return it
-        });
+            );
+          }
+        );
+      });
     },
 
     // --- Item CRUD

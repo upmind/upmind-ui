@@ -32,7 +32,7 @@
       <!-- Account + Payment -->
       <section :class="styles.checkout.section.root">
         <header :class="styles.checkout.section.header">
-          <template v-if="!account.isAuthenticated && account.showRegisterForm">
+          <template v-if="!session.isAuthenticated && session.showRegisterForm">
             <span :class="styles.checkout.section.text">
               {{ $t("session.unauthenticated.header.register.text") }}
             </span>
@@ -43,7 +43,7 @@
           </template>
 
           <template
-            v-else-if="!account.isAuthenticated && account.showLoginForm"
+            v-else-if="!session.isAuthenticated && session.showLoginForm"
           >
             <span :class="styles.checkout.section.text">
               {{ $t("session.unauthenticated.header.login.text") }}
@@ -54,7 +54,7 @@
             </h1>
           </template>
 
-          <template v-else-if="account.isAuthenticated">
+          <template v-else-if="session.isAuthenticated">
             <i18n-t
               :class="styles.checkout.section.text"
               keypath="basket.details.text"
@@ -148,7 +148,7 @@ import { useRoute, useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // -- components
@@ -176,15 +176,13 @@ import {
 
 // -- utils
 import { vIntersectionObserver } from "@vueuse/components";
-import { getLocalMessages } from "@/utils";
-import { trimStart, get, forEach, isArray, reject } from "lodash-es";
+import { trimStart, get, forEach, isArray, reject, reduce } from "lodash-es";
 
 // ---types
 import { QUERY_PARAMS } from "./types";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "Checkout",
-  i18n: { messages: getLocalMessages("checkout") },
   components: {
     UpmBasketEmpty,
     UpmBasketItems,
@@ -204,7 +202,7 @@ export default defineComponent({
     autoAnimate: vAutoAnimate,
   },
   setup() {
-    const { meta: account, user } = useSession();
+    const { meta: session, user } = useSession();
     const { state, meta, summary, addItem, invoice, isReady } = useBasket();
     const { update } = useBasketCurrency();
     const billingDetails = useBasketBillingDetails();
@@ -213,7 +211,7 @@ export default defineComponent({
     // ---------------------------------------------------
     // --- basket setup
     const { query } = useRoute();
-    // const router = useRouter();
+    const router = useRouter();
     // ---
     // parse our query params that may be passed in
     const product = get(
@@ -229,20 +227,35 @@ export default defineComponent({
     );
 
     isReady().then(() => {
-      // first add our product(s) to the basket if the basket is ready & empty
-      if (meta.value.isEmpty && product) {
-        forEach(isArray(product) ? product : [product], product_id => {
-          addItem({ product_id, quantity: 1 });
-        });
-      }
-
-      // then set the currency if provided
+      // first set the currency if provided
       if (currency) {
         update({ code: currency.toUpperCase() });
       }
 
-      // finally clean up our query params
-      // router.replace({ query: {} });
+      // then add our product(s) to the basket
+      if (product) {
+        forEach(isArray(product) ? product : [product], product_id => {
+          addItem({ product_id, quantity: 1 }).then(basketItem => {
+            // finally clean up our query params for our successfully added product
+            basketItem.onDone(() => {
+              const newQuery = reduce(
+                query,
+                (acc, value, key) => {
+                  const matches =
+                    [QUERY_PARAMS.PRODUCT, QUERY_PARAMS.PRODUCT_ID].includes(
+                      key
+                    ) && value == product_id;
+
+                  if (!matches) acc[key] = value;
+                  return acc;
+                },
+                {}
+              );
+              router.replace({ query: newQuery });
+            });
+          });
+        });
+      }
     });
     // ---------------------------------------------------
 
@@ -274,14 +287,13 @@ export default defineComponent({
     // ---------------------------------------------------
 
     return {
-      mergeStyles,
       styles,
       // ---
       state,
       meta,
       summary,
       // ---
-      account,
+      session,
       user,
       // ---
       billingDetailsModel: billingDetails.model,
