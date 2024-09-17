@@ -1,8 +1,7 @@
 import { resolve } from "path";
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from "vite";
-import { configDefaults } from "vitest/config.js";
-import dts from "vite-plugin-dts";
+import { configDefaults } from "vitest/config";
 
 // https://vitejs.dev/guide/build.html#library-mode
 export default defineConfig({
@@ -11,7 +10,6 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  plugins: [dts()],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
