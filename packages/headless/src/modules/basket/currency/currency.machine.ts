@@ -51,6 +51,11 @@ export default createMachine(
             actions: ["setError", "setFeedbackError"],
           },
         },
+        on: {
+          SET: {
+            actions: ["setModel", "setDirty", "setAutoUpdate"],
+          },
+        },
       },
       // ---
 

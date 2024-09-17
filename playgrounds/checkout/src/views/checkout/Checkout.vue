@@ -226,13 +226,13 @@ export default defineComponent({
   setup() {
     const { meta: session, user } = useSession();
     const { state, meta, summary, addItem, invoice, isReady } = useBasket();
-    const { update } = useBasketCurrency();
+    const { update: updateCurrency } = useBasketCurrency();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
 
     // ---------------------------------------------------
     // --- basket setup
-    const { query } = useRoute();
+    let { query } = useRoute();
     const router = useRouter();
     // ---
     // parse our query params that may be passed in
@@ -251,7 +251,19 @@ export default defineComponent({
     isReady().then(() => {
       // first set the currency if provided
       if (currency) {
-        update({ code: currency.toUpperCase() });
+        updateCurrency({ code: currency.toUpperCase() }).then(() => {
+          const newQuery = reduce(
+            query,
+            (acc, value, key) => {
+              const matches = [QUERY_PARAMS.CURRENCY_CODE].includes(key);
+              if (!matches) acc[key] = value;
+              return acc;
+            },
+            {}
+          );
+          query = newQuery;
+          router.replace({ query: newQuery });
+        });
       }
 
       // then add our product(s) to the basket
@@ -273,6 +285,7 @@ export default defineComponent({
                 },
                 {}
               );
+              query = newQuery;
               router.replace({ query: newQuery });
             });
           });

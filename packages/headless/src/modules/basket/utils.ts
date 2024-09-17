@@ -70,7 +70,7 @@ export function spawnCurrency(basket: IBasket) {
   return spawn(
     currencyMachine.withContext({
       basket_id: basket?.id,
-      model: { id: basket?.currency_id },
+      model: basket?.currency,
     }),
     { name: "currency", sync: true }
   );
