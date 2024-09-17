@@ -10,7 +10,5 @@
     "noImplicitThis": true,
     "skipLibCheck": true,
     "strict": true
-  },
-  "include": ["**/*.ts"],
-  "exclude": ["dist", "**/*.d.ts"]
+  }
 }
