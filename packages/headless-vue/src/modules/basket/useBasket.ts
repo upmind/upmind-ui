@@ -186,17 +186,14 @@ export const useBasket: any = () => {
     items: useContextActor(state, "items", []),
     itemsPending: computed(() => {
       const items = contextActor(state, "items", []);
-      return filter(
-        items,
-        item => !contextMatches(item?.state, ["basket_product"])
-      );
+      return filter(items, item => !contextMatches(item, ["basket_product"]));
     }),
     itemsInvalid: computed(() => {
       const items = contextActor(state, "items", []);
       return filter(
         items,
         item =>
-          contextMatches(item?.state, ["basket_product"]) &&
+          contextMatches(item, ["basket_product"]) &&
           machineMatches(item, ["available.error"])
       );
     }),
@@ -205,7 +202,7 @@ export const useBasket: any = () => {
       return filter(
         items,
         item =>
-          contextMatches(item?.state, ["basket_product"]) &&
+          contextMatches(item, ["basket_product"]) &&
           !machineMatches(item, ["available.error"])
       );
     }),
