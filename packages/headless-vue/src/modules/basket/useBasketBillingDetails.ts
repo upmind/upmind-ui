@@ -15,7 +15,7 @@ import {
 } from "../../utils";
 
 // --- types
-import type { TActor } from "./types";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 
@@ -23,14 +23,14 @@ import type { TActor } from "./types";
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketBillingDetails = (actor?: TActor<any>) => {
+export const useBasketBillingDetails = (actor?: ActorRef<any, any>) => {
   const { service } = useBasket();
   const billing_details = ref(actor);
 
   if (!actor) {
     waitFor(
       service,
-      newstate => ["checkout", "shopping"].some(newstate.matches),
+      newstate => contextMatches(newstate, ["actors.billing_details"]),
       { timeout: Infinity }
     ).then(validState => {
       billing_details.value = contextActor(
@@ -43,36 +43,27 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(billing_details.value?.state, "value")),
-    context: computed(() =>
-      stateValue(billing_details.value?.state, "context")
-    ),
-    errors: computed(() => contextValue(billing_details.value?.state, "error")),
-    //messages: computed(()=> contextValue(billing_details.value?.state, 'messages')),
+    state: computed(() => stateValue(billing_details, "value")),
+    context: computed(() => stateValue(billing_details, "context")),
+    errors: computed(() => contextValue(billing_details, "error")),
+    //messages: computed(()=> contextValue(billing_details, 'messages')),
     // ---
     meta: computed(() => ({
       isLoading:
-        !billing_details.value?.state ||
-        stateMatches(billing_details.value?.state, ["available"]),
+        !billing_details.value || stateMatches(billing_details, ["available"]),
 
-      hasErrors: stateMatches(billing_details.value?.state, ["error"]),
-      isProcessing: stateMatches(billing_details.value?.state, [
-        "available.processing",
-      ]),
-      isValid: stateMatches(billing_details.value?.state, ["available.valid"]),
-      isDirty: contextMatches(billing_details.value?.state, ["dirty"]),
+      hasErrors: stateMatches(billing_details, ["error"]),
+      isProcessing: stateMatches(billing_details, ["available.processing"]),
+      isValid: stateMatches(billing_details, ["available.valid"]),
+      isDirty: contextMatches(billing_details, ["dirty"]),
       isComplete:
-        stateValue(billing_details.value?.state, "done", false) ||
-        stateMatches(billing_details.value?.state, [".complete"]),
+        stateValue(billing_details, "done", false) ||
+        stateMatches(billing_details, [".complete"]),
     })),
     // ---
-    model: computed(() => contextValue(billing_details.value?.state, "model")),
-    schema: computed(() =>
-      contextValue(billing_details.value?.state, "schema")
-    ),
-    uischema: computed(() =>
-      contextValue(billing_details.value?.state, "uischema")
-    ),
+    model: computed(() => contextValue(billing_details, "model")),
+    schema: computed(() => contextValue(billing_details, "schema")),
+    uischema: computed(() => contextValue(billing_details, "uischema")),
 
     // ---
     clear: () => billing_details.value?.send({ type: "CLEAR" }),
@@ -84,7 +75,7 @@ export const useBasketBillingDetails = (actor?: TActor<any>) => {
       if (!model) return;
 
       // first check if our billing_details has change, ie: model.code has changed
-      const selected = contextValue(billing_details.value?.state, "model");
+      const selected = contextValue(billing_details, "model");
 
       // if it has not then bail
       if (

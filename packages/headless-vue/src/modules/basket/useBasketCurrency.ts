@@ -15,7 +15,7 @@ import {
 } from "../../utils";
 
 // ---types
-import type { TActor } from "./types";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 
@@ -23,14 +23,16 @@ import type { TActor } from "./types";
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketCurrency = (actor?: TActor<any>) => {
+export const useBasketCurrency = (actor?: ActorRef<any, any>) => {
   const { service, getSnapshot } = useBasket();
   const currency = ref(actor);
 
   if (!actor) {
-    waitFor(service, newstate => ["shopping"].some(newstate.matches), {
-      timeout: Infinity,
-    }).then(validState => {
+    waitFor(
+      service,
+      newState => contextMatches(newState, ["actors.currency"]),
+      { timeout: Infinity }
+    ).then(validState => {
       currency.value = contextActor(validState, "actors.currency");
     });
   }
@@ -38,54 +40,52 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(currency.value?.state, "value")),
-    context: computed(() => stateValue(currency.value?.state, "context")),
-    errors: computed(() => contextValue(currency.value?.state, "error")),
-    //messages: computed(()=> contextValue(currency.value?.state, 'messages')),
+    state: computed(() => stateValue(currency, "value")),
+    context: computed(() => stateValue(currency, "context")),
+    errors: computed(() => contextValue(currency, "error")),
+    //messages: computed(()=> contextValue(currency, 'messages')),
     // ---
     meta: computed(() => ({
-      isLoading:
-        !currency.value?.state ||
-        stateMatches(currency.value?.state, ["loading"]) ||
-        stateMatches(getSnapshot(), [
-          "subscribing",
-          "loading",
-          "generating",
-          "claiming",
-        ]),
-      hasErrors: stateMatches(currency.value?.state, ["error"]),
-      isProcessing: stateMatches(currency.value?.state, [
-        "checking",
-        "processing",
-      ]),
-      isValid: stateMatches(currency.value?.state, ["valid"]),
-      isDirty: contextMatches(currency.value?.state, ["dirty"]),
+      isLoading: !currency.value || stateMatches(currency, ["loading"]),
+      hasErrors: stateMatches(currency, ["error"]),
+      isProcessing: stateMatches(currency, ["checking", "processing"]),
+      isValid: stateMatches(currency, ["valid"]),
+      isDirty: contextMatches(currency, ["dirty"]),
       isComplete:
-        stateValue(currency.value?.state, "done", false) ||
-        stateMatches(currency.value?.state, ["processed", "complete"]),
+        stateValue(currency, "done", false) ||
+        stateMatches(currency, ["processed", "complete"]),
     })),
     // ---
-    model: computed(() => contextValue(currency.value?.state, "model")),
-    schema: computed(() => contextValue(currency.value?.state, "schema")),
-    uischema: computed(() => contextValue(currency.value?.state, "uischema")),
-    currencies: computed(() =>
-      contextValue(currency.value?.state, "currencies")
-    ),
+    model: computed(() => contextValue(currency, "model")),
+    schema: computed(() => contextValue(currency, "schema")),
+    uischema: computed(() => contextValue(currency, "uischema")),
+    currencies: computed(() => contextValue(currency, "currencies")),
     // ---
     clear: () => currency.value?.send({ type: "CLEAR" }),
     // @ts-ignore
     input: (model: any) => currency.value?.send({ type: "SET", data: model }),
-    update(model: any) {
+    async update(model: any) {
       // first check if our currency has change, ie: model.code has changed
 
-      const { code } = contextValue(currency, "model");
+      const value = contextValue(currency, "model");
 
       // if it has not then bail
-      if (model?.code == code) return;
-
-      // if it has then send the new model to the machine
-      // @ts-ignore
+      if (!model?.code || model?.code == value?.code) return;
       currency.value?.send({ type: "SET", data: model, update: true });
+
+      // then wait for the payment_gateway actor to be updated
+      // @ts-ignore
+      const currencyActor: ActorRef<any, any> =
+        service.getSnapshot().context.actors.currency;
+
+      if (currencyActor) {
+        return waitFor(
+          currencyActor,
+          newState => !["loading"].some(newState.matches)
+        );
+      } else {
+        return Promise.reject("Currency not available");
+      }
     },
   };
 };

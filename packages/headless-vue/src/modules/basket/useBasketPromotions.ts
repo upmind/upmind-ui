@@ -15,20 +15,20 @@ import {
 } from "../../utils";
 
 // --- types
-import type { TActor } from "./types";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine with some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketPromotions = (actor?: TActor<any>) => {
+export const useBasketPromotions = (actor?: ActorRef<any, any>) => {
   const { service, getSnapshot } = useBasket();
   const promotions = ref(actor);
 
   if (!actor) {
     waitFor(
       service,
-      newstate => ["checkout", "shopping"].some(newstate.matches),
+      newstate => contextMatches(newstate, ["actors.promotions"]),
       { timeout: Infinity }
     ).then(validState => {
       promotions.value = contextActor(validState, "actors.promotions");
@@ -38,40 +38,27 @@ export const useBasketPromotions = (actor?: TActor<any>) => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(promotions.value?.state, "value")),
-    context: computed(() => stateValue(promotions.value?.state, "context")),
-    errors: computed(() => contextValue(promotions.value?.state, "error")),
+    state: computed(() => stateValue(promotions, "value")),
+    context: computed(() => stateValue(promotions, "context")),
+    errors: computed(() => contextValue(promotions, "error")),
 
     // ---
     meta: computed(() => ({
-      isLoading:
-        !promotions.value?.state ||
-        stateMatches(promotions.value?.state, ["loading"]) ||
-        stateMatches(getSnapshot(), [
-          "subscribing",
-          "loading",
-          "generating",
-          "claiming",
-        ]),
-      hasErrors: stateMatches(promotions.value?.state, ["error"]),
-      isProcessing: stateMatches(promotions.value?.state, [
-        "checking",
-        "processing",
-      ]),
-      isValid: stateMatches(promotions.value?.state, ["valid"]),
-      isDirty: contextMatches(promotions.value?.state, ["dirty"]),
+      isLoading: !promotions.value || stateMatches(promotions, ["loading"]),
+      hasErrors: stateMatches(promotions, ["error"]),
+      isProcessing: stateMatches(promotions, ["checking", "processing"]),
+      isValid: stateMatches(promotions, ["valid"]),
+      isDirty: contextMatches(promotions, ["dirty"]),
       isComplete:
-        stateValue(promotions.value?.state, "done", false) ||
-        stateMatches(promotions.value?.state, ["processed", "complete"]),
-      hasPromotions: contextMatches(promotions.value?.state, ["promotions"]),
+        stateValue(promotions, "done", false) ||
+        stateMatches(promotions, ["processed", "complete"]),
+      hasPromotions: contextMatches(promotions, ["promotions"]),
     })),
     // ---
-    model: computed(() => contextValue(promotions.value?.state, "model")),
-    schema: computed(() => contextValue(promotions.value?.state, "schema")),
-    uischema: computed(() => contextValue(promotions.value?.state, "uischema")),
-    promotions: computed(() =>
-      contextValue(promotions.value?.state, "promotions")
-    ), // ---
+    model: computed(() => contextValue(promotions, "model")),
+    schema: computed(() => contextValue(promotions, "schema")),
+    uischema: computed(() => contextValue(promotions, "uischema")),
+    promotions: computed(() => contextValue(promotions, "promotions")), // ---
     clear: () => promotions.value?.send({ type: "CLEAR" }),
     // @ts-ignore
     input: model => promotions.value?.send({ type: "SET", data: model }),

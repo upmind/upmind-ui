@@ -73,12 +73,12 @@ async function load(
   if (!product_id) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
-  currency_id = await useBrand().validateCurrency(currency_id);
+  const currency = await useBrand().validateCurrency({ id: currency_id });
   // ---
 
   const { get: getRequest, useUrl } = useApi();
   const params = {
-    currency_id,
+    currency_id: currency.id,
     promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
     with_staged_imports: true,
     with: [

@@ -14,22 +14,23 @@ import {
   contextActor,
 } from "../../utils";
 
-// --- types
-import type { TActor } from "./types";
 import { isEqual } from "lodash-es";
+
+// --- types
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketFields = (actor?: TActor<any>) => {
+export const useBasketFields = (actor?: ActorRef<any, any>) => {
   const { service, getSnapshot } = useBasket();
   const custom_fields = ref(actor);
 
   if (!actor) {
     waitFor(
       service,
-      newstate => ["checkout", "shopping"].some(newstate.matches),
+      newstate => contextMatches(newstate, ["actors.custom_fields"]),
       { timeout: Infinity }
     ).then(validState => {
       custom_fields.value = contextActor(validState, "actors.custom_fields");
@@ -39,38 +40,26 @@ export const useBasketFields = (actor?: TActor<any>) => {
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(custom_fields.value?.state, "value")),
-    context: computed(() => stateValue(custom_fields.value?.state, "context")),
-    errors: computed(() => contextValue(custom_fields.value?.state, "error")),
-    //messages: computed(()=> contextValue(custom_fields.value?.state, 'messages')),
+    state: computed(() => stateValue(custom_fields, "value")),
+    context: computed(() => stateValue(custom_fields, "context")),
+    errors: computed(() => contextValue(custom_fields, "error")),
+    //messages: computed(()=> contextValue(custom_fields, 'messages')),
     // ---
     meta: computed(() => ({
       isLoading:
-        !custom_fields.value?.state ||
-        stateMatches(custom_fields.value?.state, ["loading"]) ||
-        stateMatches(getSnapshot(), [
-          "subscribing",
-          "loading",
-          "generating",
-          "claiming",
-        ]),
-      hasErrors: stateMatches(custom_fields.value?.state, ["error"]),
-      isProcessing: stateMatches(custom_fields.value?.state, [
-        "checking",
-        "processing",
-      ]),
-      isValid: stateMatches(custom_fields.value?.state, ["valid"]),
-      isDirty: contextMatches(custom_fields.value?.state, ["dirty"]),
+        !custom_fields.value || stateMatches(custom_fields, ["loading"]),
+      hasErrors: stateMatches(custom_fields, ["error"]),
+      isProcessing: stateMatches(custom_fields, ["checking", "processing"]),
+      isValid: stateMatches(custom_fields, ["valid"]),
+      isDirty: contextMatches(custom_fields, ["dirty"]),
       isComplete:
-        stateValue(custom_fields.value?.state, "done", false) ||
-        stateMatches(custom_fields.value?.state, ["processed", "complete"]),
+        stateValue(custom_fields, "done", false) ||
+        stateMatches(custom_fields, ["processed", "complete"]),
     })),
     // ---
-    model: computed(() => contextValue(custom_fields.value?.state, "model")),
-    schema: computed(() => contextValue(custom_fields.value?.state, "schema")),
-    uischema: computed(() =>
-      contextValue(custom_fields.value?.state, "uischema")
-    ),
+    model: computed(() => contextValue(custom_fields, "model")),
+    schema: computed(() => contextValue(custom_fields, "schema")),
+    uischema: computed(() => contextValue(custom_fields, "uischema")),
 
     // ---
     clear: () => custom_fields.value?.send({ type: "CLEAR" }),
@@ -82,7 +71,7 @@ export const useBasketFields = (actor?: TActor<any>) => {
       if (!model) return;
 
       // first check if our custom_fields has change, ie: model.code has changed
-      const selected = contextValue(custom_fields.value?.state, "model");
+      const selected = contextValue(custom_fields, "model");
 
       // if it has not then bail
       if (!isEqual(selected, model)) {

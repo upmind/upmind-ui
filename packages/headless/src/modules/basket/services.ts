@@ -2,6 +2,7 @@
 
 // --- internal
 import { useApi } from "../api";
+import { useBrand } from "../brand";
 
 import type { BasketContext, BasketEvent } from "./types";
 import { useSession } from "../session";
@@ -68,6 +69,10 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
     });
   }
 
+  // We depend on the brand being ready, so we need to wait for it
+  const { isReady } = useBrand();
+  await isReady();
+
   // finally return a the basket with all the relevant data, include the provisioning fields
   return get({
     url: useUrl("orders/current", {
@@ -124,7 +129,11 @@ async function generate(
   // ---
   // Conditional data
   // add currency if available
-  const currency = actors?.currency?.state?.context?.model;
+  const { validateCurrency } = useBrand();
+  const currency = await validateCurrency(
+    actors?.currency?.state?.context?.model
+  );
+
   if (currency?.code) data.currency_code = currency.code;
 
   // add tracking if available
