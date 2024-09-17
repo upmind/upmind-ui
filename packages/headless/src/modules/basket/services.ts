@@ -2,6 +2,7 @@
 
 // --- internal
 import { useApi } from "../api";
+import { useBrand } from "../brand";
 
 import type { BasketContext, BasketEvent } from "./types";
 import { useSession } from "../session";
@@ -68,6 +69,10 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
     });
   }
 
+  // We depend on the brand being ready, so we need to wait for it
+  const { isReady } = useBrand();
+  await isReady();
+
   // finally return a the basket with all the relevant data, include the provisioning fields
   return get({
     url: useUrl("orders/current", {
@@ -106,7 +111,10 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
 }
 
 // this generates an empty basket!
-async function generate({ basket }: BasketContext, _event: BasketEvent) {
+async function generate(
+  { basket, actors }: BasketContext,
+  _event: BasketEvent
+) {
   // safety check, if we have a basket, we dont need to generate one
   if (!isEmpty(basket)) return Promise.resolve(basket);
 
@@ -120,6 +128,13 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
   };
   // ---
   // Conditional data
+  // add currency if available
+  const { validateCurrency } = useBrand();
+  const currency = await validateCurrency(
+    actors?.currency?.state?.context?.model
+  );
+
+  if (currency?.code) data.currency_code = currency.code;
 
   // add tracking if available
   await getTracking()

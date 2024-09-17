@@ -5,7 +5,6 @@ import { useApi, useBrand } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { find } from "lodash-es";
 
 // --- types
 import type { CurrencyEvent, CurrencyContext } from "./types";
@@ -16,7 +15,7 @@ import type { CurrencyEvent, CurrencyContext } from "./types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load({ model }: CurrencyContext, _event: CurrencyEvent) {
+async function load(_context: CurrencyContext, _event: CurrencyEvent) {
   const { getCurrencies, getCurrency, isReady } = useBrand();
 
   await isReady();
@@ -25,15 +24,8 @@ async function load({ model }: CurrencyContext, _event: CurrencyEvent) {
   // set our base model to match the default brand currency
   const baseModel = getCurrency();
 
-  // check if weve been given a currency, and ensure its a valid & fully hydrated
-  if (model?.id) {
-    model = find(currencies, ["id", model.id]);
-  } else {
-    model = baseModel;
-  }
-
   return new Promise(resolve => {
-    resolve({ currencies, baseModel, model });
+    resolve({ currencies, baseModel });
   });
 }
 
@@ -57,13 +49,11 @@ async function update(
 
 // --------------------------------------------------------
 
-async function parse(
-  { model, currencies }: CurrencyContext,
-  _event: CurrencyEvent
-) {
+async function parse({ model }: CurrencyContext, _event: CurrencyEvent) {
   // ---
   // if we have a valid currency, lets hydrate it base don the code.
-  const currency = find(currencies, ["code", model?.code]);
+  const { validateCurrency } = useBrand();
+  const currency = await validateCurrency(model);
   return Promise.resolve({ model: currency });
 }
 

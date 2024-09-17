@@ -50,13 +50,12 @@ Sentry.init({
   tracePropagationTargets: [
     "localhost",
     /^http:\/\/*.local/,
-    /^https:\/\/upm-checkout-doteasy\.web\.app\.io/,
-    /^https:\/\/checkout\.sprighost\.com/,
+    /^https:\/\/checkout\.doteasy\.com/,
   ],
 
   // Capture Replay for 10% of all sessions,
   // plus for 100% of sessions with an error
-  replaysSessionSampleRate: 0.1,
+  replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0,
 });
 
