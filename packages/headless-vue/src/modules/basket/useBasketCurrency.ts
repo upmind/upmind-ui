@@ -28,11 +28,9 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
   const currency = ref(actor);
 
   if (!actor) {
-    waitFor(
-      service,
-      newstate => ["checkout", "shopping"].some(newstate.matches),
-      { timeout: Infinity }
-    ).then(validState => {
+    waitFor(service, newstate => ["shopping"].some(newstate.matches), {
+      timeout: Infinity,
+    }).then(validState => {
       currency.value = contextActor(validState, "actors.currency");
     });
   }
@@ -80,7 +78,7 @@ export const useBasketCurrency = (actor?: TActor<any>) => {
     update(model: any) {
       // first check if our currency has change, ie: model.code has changed
 
-      const { code } = contextValue(currency.value?.state, "model");
+      const { code } = contextValue(currency, "model");
 
       // if it has not then bail
       if (model?.code == code) return;

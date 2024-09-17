@@ -106,7 +106,10 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
 }
 
 // this generates an empty basket!
-async function generate({ basket }: BasketContext, _event: BasketEvent) {
+async function generate(
+  { basket, actors }: BasketContext,
+  _event: BasketEvent
+) {
   // safety check, if we have a basket, we dont need to generate one
   if (!isEmpty(basket)) return Promise.resolve(basket);
 
@@ -120,6 +123,9 @@ async function generate({ basket }: BasketContext, _event: BasketEvent) {
   };
   // ---
   // Conditional data
+  // add currency if available
+  const currency = actors?.currency?.state?.context?.model;
+  if (currency?.code) data.currency_code = currency.code;
 
   // add tracking if available
   await getTracking()
