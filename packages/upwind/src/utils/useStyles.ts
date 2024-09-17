@@ -3,7 +3,7 @@ import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
-import defaultStylesheet from "@/assets/upwind.css?url";
+import defaultStylesheet from "../assets/upwind.css?url";
 
 // --- utils
 import {

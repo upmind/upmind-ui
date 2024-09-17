@@ -204,7 +204,6 @@ export default defineComponent({
           variant: "flat",
           block: true,
           handler: () => {
-            debugger;
             this.$emit("update:modelValue", false);
             this.add();
           },
