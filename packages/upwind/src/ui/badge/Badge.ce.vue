@@ -1,5 +1,5 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <span :class="styles.badge.root">
     <slot name="prepend"></slot>
@@ -15,9 +15,9 @@
 import { toRefs, defineComponent } from "vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
+
 import config from "./badge.config";
-import { useStyles } from "../../utils";
+import { useStyles, stylesheet } from "../../utils";
 
 // --- types
 import type { PropType } from "vue";
@@ -25,7 +25,7 @@ import type { BadgeConfig } from "./types";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpwBadge",
+  name: "UwBadge",
   props: {
     variant: {
       type: String as PropType<BadgeConfig["variant"]>,
@@ -49,7 +49,7 @@ export default defineComponent({
 
     return {
       styles,
-      globalStyles,
+      stylesheet,
     };
   },
 });

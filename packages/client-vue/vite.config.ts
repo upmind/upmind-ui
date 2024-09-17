@@ -9,7 +9,7 @@ export default defineConfig({
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: (tag) => tag.includes('uw-')
+          isCustomElement: (tag) => tag.startsWith('uw-')
         }
       }
     }),

@@ -1,9 +1,9 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <popover-root v-model:open="open">
     <popover-trigger>
-      <upw-button
+      <uw-button
         variant="outline"
         color="base"
         role="combobox"
@@ -12,7 +12,7 @@
         :disabled="loading"
       >
         <span class="flex items-center truncate">
-          <upw-avatar
+          <uw-avatar
             v-if="selected?.icon"
             :icon="selected?.icon"
             size="sm"
@@ -28,12 +28,12 @@
         </span>
 
         <div v-if="!loading" :class="styles.combobox.icons.arrowUpDown">
-          <upw-icon icon="arrow-down" size="xs" aria-hidden="true" />
+          <uw-icon icon="arrow-down" size="xs" aria-hidden="true" />
         </div>
         <div v-else :class="styles.combobox.icons.loading">
           <upw-spinner size="xs" />
         </div>
-      </upw-button>
+      </uw-button>
     </popover-trigger>
     <popover-portal>
       <popover-content
@@ -131,14 +131,14 @@ import {
 } from "radix-vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
-import UpwButton from "../button/Button.ce.vue";
-import UpwAvatar from "../avatar/Avatar.ce.vue";
-import UpwIcon from "../icon/Icon.ce.vue";
+import UwButton from "../button/Button.ce.vue";
+import UwAvatar from "../avatar/Avatar.ce.vue";
+import UwIcon from "../icon/Icon.ce.vue";
 import ComboboxItem from "./ComboboxItem.vue";
 import UpwSpinner from "../../components/spinner/Spinner.vue";
 
@@ -149,11 +149,11 @@ import { first } from "lodash-es";
 import { type ComboboxConfig } from "./types.d";
 
 export default defineComponent({
-  name: "UpwCombobox",
+  name: "UwCombobox",
   components: {
-    UpwButton,
-    UpwAvatar,
-    UpwIcon,
+    UwButton,
+    UwAvatar,
+    UwIcon,
     UpwSpinner,
     ComboboxRoot,
     ComboboxInput,
@@ -244,7 +244,7 @@ export default defineComponent({
     };
 
     return {
-      globalStyles,
+      stylesheet,
       open,
       styles,
       handleSelect,

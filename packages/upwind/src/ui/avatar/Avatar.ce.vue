@@ -1,9 +1,9 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <avatar-root :class="styles.avatar.root">
     <slot>
-      <upw-icon
+      <uw-icon
         v-if="meta.hasIcon"
         :icon="icon"
         :class="styles.avatar.icon"
@@ -35,13 +35,12 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
-import UpwIcon from "../icon/Icon.ce.vue";
+import UwIcon from "../icon/Icon.ce.vue";
 import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+import { useStyles, stylesheet } from "../../utils";
 import config from "./avatar.config";
 
 // --- utils
@@ -54,13 +53,13 @@ import type { IconProps } from "../../components/icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpwAvatar",
+  name: "UwAvatar",
   inheritAttrs: false,
   components: {
     AvatarFallback,
     AvatarImage,
     AvatarRoot,
-    UpwIcon,
+    UwIcon,
   },
   props: {
     class: { type: String },
@@ -96,7 +95,7 @@ export default defineComponent({
     return {
       config,
       styles,
-      globalStyles,
+      stylesheet,
     };
   },
 

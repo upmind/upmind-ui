@@ -3,28 +3,30 @@ import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
+import defaultStylesheet from "@/assets/upwind.css?url";
 
 // --- utils
 import {
+  flattenDeep,
   forEach,
   get,
-  mapValues,
   isArray,
   isEmpty,
   isFunction,
   isNil,
   isObject,
   map,
+  mapValues,
   omitBy,
   reduce,
   set,
-  flattenDeep,
 } from "lodash-es";
 
 // --- types
 import { type ClassValue } from "clsx";
 import { type ClassNameValue } from "tailwind-merge";
 
+let customStyleSheet: string = "";
 // -----------------------------------------------------------------------------
 
 function applyVariants(configs: ClassValue[], context: Object = {}) {
@@ -100,4 +102,12 @@ export function useStyles(
 
 export function mergeStyles(...styles: ClassNameValue[]) {
   return twMerge(clsx(...styles));
+}
+
+export const stylesheet = computed((): string => {
+  return isEmpty(customStyleSheet) ? defaultStylesheet : customStyleSheet;
+});
+
+export function useStyleSheet(url: string) {
+  customStyleSheet = url;
 }

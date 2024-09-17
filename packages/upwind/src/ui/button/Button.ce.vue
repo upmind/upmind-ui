@@ -1,5 +1,5 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
   <primitive
     v-bind="$attrs"
     :as="as"
@@ -23,8 +23,7 @@ import { defineComponent, toRefs } from "vue";
 import { Primitive } from "radix-vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+import { useStyles, stylesheet } from "../../utils";
 import config from "./button.config";
 
 // --- utils
@@ -36,7 +35,7 @@ import type { ButtonConfig } from "./types";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpwButton",
+  name: "UwButton",
   components: {
     Primitive,
   },
@@ -65,7 +64,7 @@ export default defineComponent({
       config,
       props.upwindConfig
     );
-    return { styles, globalStyles };
+    return { styles, stylesheet };
   },
 });
 </script>

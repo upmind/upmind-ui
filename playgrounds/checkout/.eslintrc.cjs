@@ -70,6 +70,7 @@ module.exports = {
       "error",
       ["script-setup", "composition", "options"],
     ], // "script-setup", "composition", "composition-vue2", or "options"
+    "vue/no-deprecated-slot-attribute": "off", // because we use web components that rely on the "slot" attribute
 
     // general
     "no-unsafe-optional-chaining": "off",

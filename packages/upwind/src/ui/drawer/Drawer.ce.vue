@@ -1,5 +1,5 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <drawer-root v-bind="$attrs" :open="open" @update:open="onOpen">
     <drawer-trigger>
@@ -39,8 +39,8 @@
 import { defineComponent, computed, toRefs, ref } from "vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./drawer.config";
 
 // --- components
@@ -58,7 +58,7 @@ import {
 import { isEmpty } from "lodash-es";
 
 export default defineComponent({
-  name: "UpwDrawer",
+  name: "UwDrawer",
   components: {
     DrawerRoot,
     DrawerContent,
@@ -102,7 +102,7 @@ export default defineComponent({
     const hasDescription = computed(() => !isEmpty(props.description));
 
     return {
-      globalStyles,
+      stylesheet,
       styles,
       open,
       hasTitle,

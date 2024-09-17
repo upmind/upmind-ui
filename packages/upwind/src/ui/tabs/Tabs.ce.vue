@@ -1,5 +1,5 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <tabs-root
     :modelValue="modelValue"
@@ -18,7 +18,7 @@
           :variant="variant"
         >
           <!-- <span v-if="icons" >
-            <upw-icon
+            <uw-icon
               :class="styles.tabs.icon"
               :icon="icon[index]"
               aria-hidden="true"
@@ -45,8 +45,8 @@ import { defineComponent, toRefs } from "vue";
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "radix-vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./tabs.config";
 
 // --- utils
@@ -57,7 +57,7 @@ import type { TabsRootProps } from "radix-vue";
 import type { TabsConfig } from "./types";
 // ---------
 export default defineComponent({
-  name: "UpwTabs",
+  name: "UwTabs",
   components: {
     TabsRoot,
     TabsList,
@@ -96,7 +96,7 @@ export default defineComponent({
   emits: ["update:modelValue"],
   setup(props) {
     const styles = useStyles("tabs", toRefs(props), config, props.upwindConfig);
-    return { globalStyles, styles };
+    return { stylesheet, styles };
   },
 });
 </script>

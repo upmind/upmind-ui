@@ -47,7 +47,7 @@
             :class="styles.product.card.more"
             v-if="hasSummaryDetails"
           >
-            <upw-icon
+            <uw-icon
               slot="append"
               icon="arrow-down"
               :class="styles.product.card.toggle"
@@ -180,12 +180,11 @@ import { useStyles, mergeStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwIcon, UpwSpinner } from "@upmind/upwind";
+import { UpwSpinner } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge);
-useCustomElement(UwButton);
+import { UwIcon, UwBadge, UwButton, useCustomElements } from "@upmind/upwind";
+useCustomElements(UwBadge, UwButton, UwIcon);
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -194,7 +193,7 @@ import { isNil, find, reject } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwIcon, UpwSpinner },
+  components: { UpwSpinner },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

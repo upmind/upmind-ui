@@ -93,7 +93,7 @@
               $tc("basket.summary.discount.title", products.length)
             }}</span>
             <!-- TODO -->
-            <!-- <upw-icon
+            <!-- <uw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
@@ -111,7 +111,7 @@
               $tc("basket.summary.subtotal.title", products.length)
             }}</span>
             <!-- TODO -->
-            <!-- <upw-icon
+            <!-- <uw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
@@ -127,7 +127,7 @@
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{ key }}</span>
             <!-- TODO -->
-            <!-- <upw-icon
+            <!-- <uw-icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
@@ -182,7 +182,7 @@
         :key="`footer-foreground-${index}`"
         :class="styles.basket.summary.text"
       >
-        <upw-icon
+        <uw-icon
           v-if="$rt(content?.icon)"
           :class="styles.basket.summary.icon"
           :icon="$rt(content?.icon)"
@@ -199,12 +199,11 @@ import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwIcon } from "@upmind/upwind";
 import UpmPromotions from "./Promotions.vue";
 
 // --- custom elements
-import { UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
+import { UwIcon, UwButton, useCustomElements } from "@upmind/upwind";
+useCustomElements(UwIcon, UwButton);
 
 // --- internal
 import { useBasket } from "@upmind/headless-vue";
@@ -215,7 +214,7 @@ import config from "./config.cva";
 
 export default defineComponent({
   name: "UpmBasketSummary",
-  components: { UpwIcon, UpmPromotions },
+  components: { UpmPromotions },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {
