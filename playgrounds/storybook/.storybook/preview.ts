@@ -59,6 +59,7 @@ const preview: Preview = {
       fullscreen: { hidden: true },
     },
   },
+
   globalTypes: {
     locale: {
       description: "Internationalization locale",
@@ -79,6 +80,7 @@ const preview: Preview = {
       },
     },
   },
+
   decorators: [
     withUpwindTheme({
       themes,
@@ -92,6 +94,8 @@ const preview: Preview = {
       return story({ ...context, updateArgs });
     },
   ],
+
+  tags: ["autodocs", "autodocs", "autodocs"],
 };
 
 export default preview;

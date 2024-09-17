@@ -1,5 +1,5 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <tooltip-provider :delay-duration="delayDuration">
     <tooltip-root :open="open">
@@ -30,8 +30,8 @@ import {
 } from "radix-vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./tooltip.config";
 
 // --- types
@@ -39,7 +39,7 @@ import type { TooltipConfig, TooltipProps } from "./types";
 import type { PropType } from "vue";
 
 export default defineComponent({
-  name: "UpwTooltip",
+  name: "UwTooltip",
   components: {
     TooltipRoot,
     TooltipContent,
@@ -75,7 +75,7 @@ export default defineComponent({
     );
 
     return {
-      globalStyles,
+      stylesheet,
       styles,
     };
   },

@@ -1,9 +1,9 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <span :class="styles.indicator.root">
     <slot>
-      <upw-icon
+      <uw-icon
         v-if="meta.hasIcon"
         :icon="icon"
         :class="styles.indicator.icon"
@@ -22,11 +22,11 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
-import UpwIcon from "../icon/Icon.ce.vue";
+import UwIcon from "../icon/Icon.ce.vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./indicator.config";
 
 // --- utils
@@ -39,10 +39,10 @@ import type { IconProps } from "../../components/icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpwIndicator",
+  name: "UwIndicator",
   inheritAttrs: false,
   components: {
-    UpwIcon,
+    UwIcon,
   },
   props: {
     color: { type: String as PropType<IndicatorConfig["color"]> },
@@ -70,7 +70,7 @@ export default defineComponent({
     return {
       config,
       styles,
-      globalStyles,
+      stylesheet,
     };
   },
 

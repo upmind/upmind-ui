@@ -3,9 +3,8 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { UwAvatar, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
-useCustomElement(UwAvatar);
+import { UwAvatar, UwButton, useCustomElements } from "@upmind/upwind";
+useCustomElements(UwButton, UwAvatar);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -225,7 +224,7 @@ export const outlineColorVariants: Story = {
         <uw-button v-bind="args" variant="outline" color="primary" label="Primary" />
         <uw-button v-bind="args" variant="outline" color="secondary" label="Secondary" />
         <uw-button v-bind="args" variant="outline" color="accent" label="Accent" />
-         <uw-button v-bind="args" variant="outline" color="promotion" label="Promotion" />
+        <uw-button v-bind="args" variant="outline" color="promotion" label="Promotion" />
         <uw-button v-bind="args" variant="outline" color="destructive" label="Destructive" />
         <uw-button v-bind="args" variant="outline" color="success" label="Success" />
         <uw-button v-bind="args" variant="outline" color="info" label="Info" />

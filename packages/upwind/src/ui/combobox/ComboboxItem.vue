@@ -1,11 +1,11 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
   <combobox-item
     :value="value"
     @select="handleSelect"
     :class="styles.combobox.item"
   >
-    <upw-avatar
+    <uw-avatar
       v-if="icon"
       :icon="icon"
       size="sm"
@@ -16,7 +16,7 @@
     />
     {{ label }}
     <div :class="styles.combobox.icons.checkItem">
-      <upw-icon v-if="isSelected" icon="check" size="xxs" aria-hidden="true" />
+      <uw-icon v-if="isSelected" icon="check" size="xxs" aria-hidden="true" />
     </div>
   </combobox-item>
 </template>
@@ -26,23 +26,23 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
 import { ComboboxItem } from "radix-vue";
-import UpwAvatar from "../avatar/Avatar.ce.vue";
-import UpwIcon from "../icon/Icon.ce.vue";
+import UwAvatar from "../avatar/Avatar.ce.vue";
+import UwIcon from "../icon/Icon.ce.vue";
 
 // --- utils
 
 export default defineComponent({
-  name: "UpwComboboxItem",
+  name: "UwComboboxItem",
   components: {
     ComboboxItem,
-    UpwAvatar,
-    UpwIcon,
+    UwAvatar,
+    UwIcon,
   },
 
   props: {
@@ -87,7 +87,7 @@ export default defineComponent({
     };
 
     return {
-      globalStyles,
+      stylesheet,
       styles,
       handleSelect,
     };

@@ -10,7 +10,7 @@ import { defineComponent } from "vue";
 import { DialogClose } from "radix-vue";
 
 export default defineComponent({
-  name: "UpwDialogClose",
+  name: "UwDialogClose",
   components: {
     DialogClose,
   },

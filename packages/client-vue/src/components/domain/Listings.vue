@@ -41,7 +41,7 @@
               <span :class="styles.domain.card.badges">
                 <span :class="styles.domain.card.text" v-if="item.is_owned">
                   <span :class="styles.domain.card.owned.icon">
-                    <upw-icon icon="lock" size="full" />
+                    <uw-icon icon="lock" size="full" />
                   </span>
                   {{ $t("domain.card.owned.label") }}
                 </span>
@@ -51,7 +51,7 @@
                   v-else-if="item.in_basket"
                 >
                   <span :class="styles.domain.card.basket.icon">
-                    <upw-icon icon="basket" size="full" />
+                    <uw-icon icon="basket" size="full" />
                   </span>
                   {{ $t("domain.card.basket.label") }}
                 </span>
@@ -61,14 +61,14 @@
                   :class="styles.domain.card.text"
                 >
                   <span :class="styles.domain.card.available.icon">
-                    <upw-icon icon="check" size="full" />
+                    <uw-icon icon="check" size="full" />
                   </span>
                   {{ $t("domain.card.available.label") }}
                 </span>
 
                 <span :class="styles.domain.card.text" v-else>
                   <span :class="styles.domain.card.transfer.icon">
-                    <upw-icon icon="transfer" size="full" />
+                    <uw-icon icon="transfer" size="full" />
                   </span>
 
                   {{ $t("domain.card.transfer.label") }}
@@ -309,14 +309,17 @@ import {
   UpwSkeletonList,
   UpwCheckboxList,
   UpwRadioList,
-  UpwIcon,
 } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge);
-useCustomElement(UwButton);
-useCustomElement(UwDialog);
+import {
+  UwIcon,
+  UwBadge,
+  UwButton,
+  UwDialog,
+  useCustomElements,
+} from "@upmind/upwind";
+useCustomElements(UwBadge, UwButton, UwDialog, UwIcon);
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
 
@@ -328,7 +331,6 @@ export default defineComponent({
   directives: { autoAnimate: vAutoAnimate },
   components: {
     UpwTextbox,
-    UpwIcon,
     UpwCheckboxList,
     UpwRadioList,
     UpwSkeletonList,

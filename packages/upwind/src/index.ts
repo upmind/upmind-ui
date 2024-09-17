@@ -42,7 +42,13 @@ import { UwTooltip } from "./ui/tooltip";
 export { toast } from "./ui/sonner";
 
 // --- utils
-export { useStyles, mergeStyles, useThemes, useScrollSpy } from "./utils";
+export {
+  useStyles,
+  mergeStyles,
+  useThemes,
+  useStyleSheet,
+  useScrollSpy,
+} from "./utils";
 import { forEach, kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------

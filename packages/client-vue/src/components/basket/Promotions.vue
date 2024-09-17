@@ -8,7 +8,7 @@
         size="sm"
         :label="$t('basket.promotions.title')"
       >
-        <upw-icon
+        <uw-icon
           slot="append"
           icon="arrow-down"
           :class="styles.basket.promotions.toggle"
@@ -66,11 +66,11 @@ import { defineComponent, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwIcon, UpwForm } from "@upmind/upwind";
+import { UpwForm } from "@upmind/upwind";
 
 // --- custom elements
-import { UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
+import { UwButton, UwIcon, useCustomElements } from "@upmind/upwind";
+useCustomElements(UwButton, UwIcon);
 
 // --- internal
 import { useBasketPromotions } from "@upmind/headless-vue";
@@ -84,7 +84,7 @@ import { set } from "lodash-es";
 
 export default defineComponent({
   name: "UpmBasketPromotions",
-  components: { UpwIcon, UpwForm },
+  components: { UpwForm },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {},

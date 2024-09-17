@@ -1,10 +1,10 @@
 <template>
-  <link rel="stylesheet" :href="globalStyles" />
+  <link rel="stylesheet" :href="stylesheet" />
 
   <i
     v-if="svg"
     class="icon"
-    :class="styles.icon.root"
+    :class="[styles.icon.root, $attrs?.class]"
     v-html="svg"
     role="img"
     :aria-label="`${icon?.name || icon} icon`"
@@ -16,8 +16,8 @@
 import { defineComponent, ref, watchEffect, toRefs } from "vue";
 
 // --- internal
-import globalStyles from "@/assets/upwind.css?url"; // ASSETS
-import { useStyles } from "../../utils";
+
+import { useStyles, stylesheet } from "../../utils";
 import config from "./icon.config";
 
 // --- utils
@@ -30,7 +30,8 @@ import type { IconProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwIcon",
+  name: "UwIcon",
+  inheritAttrs: false,
   props: {
     size: {
       type: String as PropType<IconConfig["size"]>,
@@ -84,7 +85,7 @@ export default defineComponent({
     return {
       styles,
       svg,
-      globalStyles,
+      stylesheet,
     };
   },
 });

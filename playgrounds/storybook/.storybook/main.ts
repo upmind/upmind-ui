@@ -13,7 +13,9 @@ const config: StorybookConfig = {
     "../stories/**/*.mdx",
     "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
+
   staticDirs: ["../public"],
+
   addons: [
     getAbsolutePath("@storybook/addon-links"),
     {
@@ -28,11 +30,14 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-interactions"),
     getAbsolutePath("@storybook/addon-themes"),
   ],
+
   framework: {
     name: getAbsolutePath("@storybook/vue3-vite"),
     options: {
       docgen: "vue-component-meta",
     },
   },
+
+  docs: {},
 };
 export default config;
