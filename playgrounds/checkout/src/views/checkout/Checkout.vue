@@ -204,7 +204,7 @@ export default defineComponent({
   setup() {
     const { meta: session, user } = useSession();
     const { state, meta, summary, addItem, invoice, isReady } = useBasket();
-    const { update } = useBasketCurrency();
+    const { update: updateCurrency } = useBasketCurrency();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
 
@@ -229,7 +229,7 @@ export default defineComponent({
     isReady().then(() => {
       // first set the currency if provided
       if (currency) {
-        update({ code: currency.toUpperCase() });
+        updateCurrency({ code: currency.toUpperCase() });
       }
 
       // then add our product(s) to the basket

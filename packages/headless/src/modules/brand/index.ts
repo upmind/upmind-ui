@@ -86,6 +86,29 @@ export const useBrand = () => {
       // othrwise we clearly have a valid currency and we return it
       return currency_id;
     },
+    validateCurrencyCode: async (code: string) => {
+      // lets wait for the brand to be ready
+      await waitFor(service, state => state.matches("complete"));
+
+      // if we dont have any currencies, then just return the given currency
+      if (!state?.context?.currencies?.length) return code;
+
+      // otherwise we need to validate the given currency
+      // and possibly fallback to the default/first available currency
+      const defaultCurrency =
+        find(state?.context?.currencies, ["id", state?.context?.currency_id]) ||
+        first(state?.context?.currencies);
+
+      // if we dont have a given currency, then we return the default currency
+      if (!code) return defaultCurrency?.code;
+
+      // if the given currency is not one of the available currencies, then we return the default currency
+      if (!some(state?.context?.currencies, ["code", code]))
+        return defaultCurrency?.code;
+
+      // othrwise we clearly have a valid currency and we return it
+      return code;
+    },
     getBrandId: () => state?.context?.id,
     getCurrencyId: () => state?.context?.currency_id,
     getCurrency: () =>
