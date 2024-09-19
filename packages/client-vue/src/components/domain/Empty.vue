@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'uw-dialog' : 'div'"
+    :is="modal ? 'uw-drawer' : 'div'"
     :modelValue="isOpen"
     size="xl"
     persistent
@@ -29,17 +29,15 @@
 
 <script>
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwDialog);
-useCustomElement(UwAvatar);
-useCustomElement(UwButton);
+import { UwAvatar, UwButton, UwDrawer, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwAvatar, UwButton, UwDrawer);
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";

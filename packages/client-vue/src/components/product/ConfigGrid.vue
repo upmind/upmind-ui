@@ -26,7 +26,7 @@
       >
         <li
           :class="
-            mergeStyles(
+            cn(
               styles.product.config.grid.item.root,
               disabled ? styles.product.config.grid.item.disabled : null,
               checked ? styles.product.config.grid.item.selected : null
@@ -107,7 +107,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -173,7 +173,7 @@ export default defineComponent({
 
     return {
       styles,
-      mergeStyles,
+      cn,
     };
   },
   computed: {

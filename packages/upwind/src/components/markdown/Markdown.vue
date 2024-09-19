@@ -8,7 +8,7 @@ import { marked } from "marked";
 import UpwSanitized from "../sanitized/Sanitized.vue";
 
 export default defineComponent({
-  name: "Upw-Markdown",
+  name: "Uwpw-Markdown",
   emits: ["mounted"],
   components: { UpwSanitized },
   props: {

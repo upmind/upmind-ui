@@ -48,9 +48,7 @@ export const avatarConfig = cva(
 export default {
   avatar: {
     root: avatarConfig,
-    icon: {
-      root: cva("relative z-10 h-full w-full object-cover"),
-    },
+    icon: "relative z-10 h-full w-full object-cover",
     caption: cva(
       "absolute bottom-0 left-0 right-0 top-0 z-0 inline-flex items-center justify-center text-center"
     ),

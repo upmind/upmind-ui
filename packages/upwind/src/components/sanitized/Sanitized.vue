@@ -7,7 +7,7 @@ import { defineComponent } from "vue";
 import dompurify from "dompurify";
 
 export default defineComponent({
-  name: "Upw-Sanitized",
+  name: "Uwpw-Sanitized",
   props: {
     tag: { type: String, default: "span" },
     modelValue: { type: String, required: true },

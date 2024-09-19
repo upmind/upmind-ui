@@ -1,14 +1,9 @@
 <template>
   <link rel="stylesheet" :href="stylesheet" />
 
-  <avatar-root :class="styles.avatar.root">
+  <avatar-root :class="cn(styles.avatar.root, $attrs.class)">
     <slot>
-      <uw-icon
-        v-if="meta.hasIcon"
-        :icon="icon"
-        :class="styles.avatar.icon"
-        :upwind-config="{ icon: config.avatar.icon }"
-      />
+      <u-icon v-if="meta.hasIcon" :icon="icon" :class="styles.avatar.icon" />
       <avatar-image
         v-else-if="meta.hasImage"
         :src="src"
@@ -35,12 +30,12 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
-import UwIcon from "../icon/Icon.ce.vue";
+import UIcon from "../icon/Icon.ce.vue";
 import { AvatarFallback, AvatarImage } from "radix-vue";
 import { AvatarRoot } from "radix-vue";
 
 // --- internal
-import { useStyles, stylesheet } from "../../utils";
+import { useStyles, cn, stylesheet } from "../../utils";
 import config from "./avatar.config";
 
 // --- utils
@@ -49,7 +44,7 @@ import { isEmpty } from "lodash-es";
 // --- types
 import type { PropType } from "vue";
 import type { AvatarConfig } from "./types";
-import type { IconProps } from "../../components/icon/types";
+import type { IconProps } from "../icon/types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
@@ -59,10 +54,9 @@ export default defineComponent({
     AvatarFallback,
     AvatarImage,
     AvatarRoot,
-    UwIcon,
+    UIcon,
   },
   props: {
-    class: { type: String },
     color: { type: String as PropType<AvatarConfig["color"]>, default: "base" },
     fit: {
       type: String as PropType<AvatarConfig["fit"]>,
@@ -79,9 +73,10 @@ export default defineComponent({
     icon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
     },
-    src: { type: String },
+    src: { type: String, default: "" },
     caption: { type: String },
-    upwindConfig: { type: Object, default: () => ({}) },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props) {
@@ -93,8 +88,8 @@ export default defineComponent({
     );
 
     return {
-      config,
       styles,
+      cn,
       stylesheet,
     };
   },

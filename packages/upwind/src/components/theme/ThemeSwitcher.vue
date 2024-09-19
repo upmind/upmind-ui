@@ -15,7 +15,7 @@ import UpwDropdown from "../dropdown/Dropdown.vue";
 import { startCase, keys } from "lodash-es";
 
 export default defineComponent({
-  name: "UpwThemeSwitcher",
+  name: "UwpwThemeSwitcher",
   components: {
     UpwDropdown,
   },

@@ -42,13 +42,7 @@ import { UwTooltip } from "./ui/tooltip";
 export { toast } from "./ui/sonner";
 
 // --- utils
-export {
-  useStyles,
-  mergeStyles,
-  useThemes,
-  useStyleSheet,
-  useScrollSpy,
-} from "./utils";
+export { useStyles, cn, useThemes, useStyleSheet, useScrollSpy } from "./utils";
 import { forEach, kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -85,15 +79,8 @@ export function register() {
 }
 
 // --- utility for registering custom elements and allowing for code splitting
-export function useCustomElement(constructor: CustomElementConstructor): void {
-  const componentName = kebabCase(constructor.def.name);
-  if (!customElements.get(componentName)) {
-    customElements.define(componentName, constructor);
-  }
-}
-
-export function useCustomElements(
-  ...constructors: Array<CustomElementConstructor>
+export function useCustomElement(
+  ...constructors: CustomElementConstructor[]
 ): void {
   forEach(constructors, constructor => {
     const componentName = kebabCase(constructor.def.name);

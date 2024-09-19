@@ -34,7 +34,7 @@ import { first } from "lodash-es";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwLabel",
+  name: "UwpwLabel",
   inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {
@@ -54,7 +54,7 @@ export default defineComponent({
     block: { type: Boolean },
     stretch: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Array, Object] },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props) {

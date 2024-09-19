@@ -16,10 +16,7 @@
         <template v-for="product in summary.products" :key="product.id">
           <dt
             :class="
-              mergeStyles(
-                styles.basket.summary.heading,
-                styles.basket.summary.text
-              )
+              cn(styles.basket.summary.heading, styles.basket.summary.text)
             "
           >
             <span>{{ product?.name }}</span>
@@ -30,10 +27,7 @@
 
           <dd
             :class="
-              mergeStyles(
-                styles.basket.summary.value,
-                styles.basket.summary.actions
-              )
+              cn(styles.basket.summary.value, styles.basket.summary.actions)
             "
           >
             <slot name="actions" v-bind="{ ...$props, product }">
@@ -144,21 +138,13 @@
       <dl :class="styles.basket.summary.list">
         <dt
           :class="
-            mergeStyles(
-              styles.basket.summary.heading,
-              styles.basket.summary.total
-            )
+            cn(styles.basket.summary.heading, styles.basket.summary.total)
           "
         >
           {{ $t("basket.summary.total") }}
         </dt>
         <dd
-          :class="
-            mergeStyles(
-              styles.basket.summary.value,
-              styles.basket.summary.total
-            )
-          "
+          :class="cn(styles.basket.summary.value, styles.basket.summary.total)"
         >
           {{ summary?.total }}
         </dd>
@@ -202,12 +188,12 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import UpmPromotions from "./Promotions.vue";
 
 // --- custom elements
-import { UwIcon, UwButton, useCustomElements } from "@upmind/upwind";
-useCustomElements(UwIcon, UwButton);
+import { UwIcon, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwIcon, UwButton);
 
 // --- internal
 import { useBasket } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // -----------------------------------------------------------------------------
@@ -236,7 +222,7 @@ export default defineComponent({
       removeItem,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
   methods: {},

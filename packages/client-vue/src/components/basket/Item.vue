@@ -55,7 +55,7 @@ import { defineComponent, ref } from "vue";
 // --- internal
 import { useProductConfig, useBasket, utils } from "@upmind/headless-vue";
 const { stateMatches } = utils;
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 
 import config from "./config.cva";
 
@@ -120,7 +120,7 @@ export default defineComponent({
       open,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
   computed: {},

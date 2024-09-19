@@ -150,7 +150,7 @@
                 :disabled="item?.disabled"
               >
                 <li :class="styles.combobox.item.root">
-                  <uw-button
+                  <u-button
                     v-bind="item"
                     :prepend-avatar="item.avatar"
                     :prepend-icon="item.icon"
@@ -230,7 +230,7 @@ import {
   ComboboxOption,
   ComboboxInput,
 } from "@headlessui/vue";
-import UwButton from "../../ui/button/Button.ce.vue";
+import UButton from "../../ui/button/Button.ce.vue";
 import UpwIcon from "../../ui/icon/Icon.ce.vue";
 import UpwInput from "../input/Input.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
@@ -260,7 +260,7 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwCombobox",
+  name: "UwpwCombobox",
   inheritAttrs: false,
   emits: ["update:modelValue", "change"],
   components: {
@@ -273,7 +273,7 @@ export default defineComponent({
     UpwSpinner,
     // ---
     UpwIcon,
-    UwButton,
+    UButton,
   },
   props: {
     id: {
@@ -354,7 +354,7 @@ export default defineComponent({
     toggleRotate: { type: Boolean, default: false },
 
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Array, Object], default: null },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const value = ref(props.modelValue || "");

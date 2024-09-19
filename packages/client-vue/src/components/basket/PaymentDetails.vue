@@ -28,7 +28,7 @@ import { defineComponent } from "vue";
 
 // --- internal
 import { useBasketPaymentDetails } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -71,7 +71,7 @@ export default defineComponent({
       update,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
 });

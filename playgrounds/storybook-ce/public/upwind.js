@@ -20019,7 +20019,7 @@ For more information, see https://www.radix-vue.com/components/${r}`,
       const { it: S } = y,
         { gen: I, compositeRule: A, allErrors: O } = S,
         L = f(y, g, _);
-      E ?? (A || O) ? l(I, L) : c(S, (0, t._)`[${L}]`);
+      (E ?? (A || O)) ? l(I, L) : c(S, (0, t._)`[${L}]`);
     }
     e.reportError = n;
     function o(y, g = e.keywordError, _) {
@@ -27361,7 +27361,8 @@ For more information, see https://www.radix-vue.com/components/${r}`,
         },
         src: { type: String },
         caption: { type: String },
-        upwindConfig: { type: Object, default: () => ({}) },
+        // --- Provide a way to add custom styles for a specific instance of the component
+        upwindConfig: { type: [Object, Array], default: () => ({}) },
       },
       setup(e) {
         return {
@@ -27604,7 +27605,8 @@ For more information, see https://www.radix-vue.com/components/${r}`,
         },
         label: { type: String },
         // --- Provide a way to add custom styles for a specific instance of the component
-        upwindConfig: { type: Object, default: () => ({}) },
+        // --- Provide a way to add custom styles for a specific instance of the component
+        upwindConfig: { type: [Object, Array], default: () => ({}) },
       },
       setup(e) {
         return {
@@ -27973,7 +27975,8 @@ For more information, see https://www.radix-vue.com/components/${r}`,
           type: String,
           default: "visible",
         },
-        upwindConfig: { type: Object, default: () => ({}) },
+        // --- Provide a way to add custom styles for a specific instance of the component
+        upwindConfig: { type: [Object, Array], default: () => ({}) },
       },
       setup(e) {
         const t = fr("dialog", Mt(e), Ws, e.upwindConfig);
@@ -28260,7 +28263,8 @@ For more information, see https://www.radix-vue.com/components/${r}`,
           type: Number,
           default: 7,
         },
-        upwindConfig: { type: Object, default: () => ({}) },
+        // --- Provide a way to add custom styles for a specific instance of the component
+        upwindConfig: { type: [Object, Array], default: () => ({}) },
       },
       setup(e) {
         return {

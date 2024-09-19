@@ -69,12 +69,12 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { UpwForm } from "@upmind/upwind";
 
 // --- custom elements
-import { UwButton, UwIcon, useCustomElements } from "@upmind/upwind";
-useCustomElements(UwButton, UwIcon);
+import { UwButton, UwIcon, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton, UwIcon);
 
 // --- internal
 import { useBasketPromotions } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 import { set } from "lodash-es";
 
@@ -118,7 +118,7 @@ export default defineComponent({
       // ---
       config,
       styles,
-      mergeStyles,
+      cn,
       // ---
       toggle: ref(false),
       processing: ref({}),

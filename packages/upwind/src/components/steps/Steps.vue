@@ -35,7 +35,7 @@ import { trimStart } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpwSteps",
+  name: "UwpwSteps",
   components: { UpwStep },
   emits: ["update:modelValue"],
   props: {
@@ -52,10 +52,7 @@ export default defineComponent({
       default: false,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const styles = useStyles(

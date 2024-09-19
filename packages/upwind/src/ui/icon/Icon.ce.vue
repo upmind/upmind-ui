@@ -4,7 +4,7 @@
   <i
     v-if="svg"
     class="icon"
-    :class="[styles.icon.root, $attrs?.class]"
+    :class="cn(styles.icon.root, $attrs.class)"
     v-html="svg"
     role="img"
     :aria-label="`${icon?.name || icon} icon`"
@@ -17,7 +17,7 @@ import { defineComponent, ref, watchEffect, toRefs } from "vue";
 
 // --- internal
 
-import { useStyles, stylesheet } from "../../utils";
+import { useStyles, cn, stylesheet } from "../../utils";
 import config from "./icon.config";
 
 // --- utils
@@ -42,7 +42,7 @@ export default defineComponent({
       required: true,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: Object, default: () => ({}) },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const styles = useStyles("icon", toRefs(props), config, props.upwindConfig);
@@ -84,6 +84,7 @@ export default defineComponent({
 
     return {
       styles,
+      cn,
       svg,
       stylesheet,
     };

@@ -73,7 +73,6 @@ export default defineComponent({
     title: { type: String },
     description: { type: String },
     maxWidth: { type: String, default: "md" },
-    upwindConfig: { type: Object, default: null },
     shouldScaleBackground: { type: Boolean, default: true },
     direction: { type: String },
     modelValue: { type: Boolean },
@@ -86,6 +85,8 @@ export default defineComponent({
     fadeFromIndex: { type: Number },
     onOpenChange: { type: Function },
     onSnapPointChange: { type: Function },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   emits: ["update:modelValue", "input"],
 

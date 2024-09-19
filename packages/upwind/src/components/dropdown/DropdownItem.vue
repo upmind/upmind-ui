@@ -123,7 +123,7 @@ import type { DropdownProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpwDropdownItem",
+  name: "UwpwDropdownItem",
   inheritAttrs: false,
   components: {
     RouterLink,
@@ -192,10 +192,7 @@ export default defineComponent({
     },
 
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const styles = useStyles(

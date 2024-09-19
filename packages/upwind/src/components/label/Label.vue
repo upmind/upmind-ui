@@ -68,7 +68,7 @@ import type { LabelProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwLabel",
+  name: "UwpwLabel",
   inheritAttrs: false,
   emits: ["update:modelValue", "change"],
   components: { UpwBadge },
@@ -91,7 +91,7 @@ export default defineComponent({
     // ---
     size: { type: String as PropType<LabelProps["size"]> },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Array, Object] },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props) {

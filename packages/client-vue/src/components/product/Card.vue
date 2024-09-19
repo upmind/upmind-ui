@@ -62,10 +62,7 @@
       <!-- content -->
       <div
         :class="
-          mergeStyles(
-            styles.product.card.content,
-            styles.product.card.collapsible
-          )
+          cn(styles.product.card.content, styles.product.card.collapsible)
         "
         :id="`product-${product?.id}-toggle`"
         :aria-expanded="toggle"
@@ -82,7 +79,7 @@
             >
               <strong
                 :class="
-                  mergeStyles(
+                  cn(
                     styles.product.card.details.title,
                     detail.invalid ? styles.product.card.details.invalid : ''
                   )
@@ -176,15 +173,15 @@ import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useProductConfig } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
 import { UpwSpinner } from "@upmind/upwind";
 
 // --- custom elements
-import { UwIcon, UwBadge, UwButton, useCustomElements } from "@upmind/upwind";
-useCustomElements(UwBadge, UwButton, UwIcon);
+import { UwIcon, UwBadge, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwBadge, UwButton, UwIcon);
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -230,7 +227,7 @@ export default defineComponent({
       toggle: ref(meta.value.hasErrors && !meta.value.isNew),
       // ---
       styles,
-      mergeStyles,
+      cn,
       // ---
       isNil,
     };

@@ -18,7 +18,7 @@
           :variant="variant"
         >
           <!-- <span v-if="icons" >
-            <uw-icon
+            <u-icon
               :class="styles.tabs.icon"
               :icon="icon[index]"
               aria-hidden="true"
@@ -88,10 +88,8 @@ export default defineComponent({
     variant: String as TabsConfig["variant"],
     alignment: String as TabsConfig["alignment"],
     width: String as TabsConfig["width"],
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   emits: ["update:modelValue"],
   setup(props) {

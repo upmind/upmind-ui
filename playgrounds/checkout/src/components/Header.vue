@@ -37,7 +37,7 @@
         <upm-currency />
 
         <router-link
-          to="/cart"
+          to="/"
           custom
           v-slot="{ href, navigate }"
           v-if="!isBasketView"
@@ -81,9 +81,9 @@ import {
   UwIcon,
   UwIndicator,
   UwButton,
-  useCustomElements,
+  useCustomElement,
 } from "@upmind/upwind";
-useCustomElements(UwAvatar, UwIcon, UwIndicator, UwButton);
+useCustomElement(UwAvatar, UwIcon, UwIndicator, UwButton);
 
 export default defineComponent({
   name: "UpmHeader",
