@@ -1,6 +1,6 @@
 <template>
   <upw-input variant="flat">
-    <upw-button
+    <uw-button
       v-bind="{ ...control, ...appliedOptions }"
       :id="control.id + '-input'"
       :disabled="!control.enabled"
@@ -19,7 +19,7 @@ import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import UpwButton from "../../../../ui/button/Button.ce.vue";
+import UwButton from "../../../../ui/button/Button.ce.vue";
 import UpwInput from "../../../input/Input.vue";
 
 // --- utils
@@ -34,7 +34,7 @@ import type { RendererProps } from "@jsonforms/vue";
 export default defineComponent({
   name: "BooleanRenderer",
   components: {
-    UpwButton,
+    UwButton,
     UpwInput,
   },
   props: {

@@ -53,7 +53,6 @@ export default defineComponent({
     },
     icon: {
       type: [String, Object] as PropType<IconProps["icon"]>,
-      required: true,
     },
     modelValue: { type: String },
     upwindConfig: { type: Object, default: () => ({}) },

@@ -105,7 +105,10 @@ export function mergeStyles(...styles: ClassNameValue[]) {
 }
 
 export const stylesheet = computed((): string => {
-  return isEmpty(customStyleSheet) ? defaultStylesheet : customStyleSheet;
+  const isDev = import.meta.env.DEV;
+  return isDev || isEmpty(customStyleSheet)
+    ? defaultStylesheet
+    : customStyleSheet;
 });
 
 export function useStyleSheet(url: string) {

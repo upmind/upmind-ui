@@ -31,7 +31,7 @@
     <!-- actions -->
     <div v-if="safeActions && !noActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
-        <upw-button
+        <uw-button
           v-for="(action, key) in safeActions"
           :key="key"
           v-bind="action"
@@ -62,7 +62,7 @@ import { iterateSchema } from "@jsonforms/core";
 import { JsonForms } from "@jsonforms/vue";
 
 // --- custom elements
-import UpwButton from "../../ui/button/Button.ce.vue";
+import UwButton from "../../ui/button/Button.ce.vue";
 
 import UpwSkeletonForm from "../skeleton/SkeletonForm.vue";
 
@@ -108,7 +108,7 @@ import type {
 export default defineComponent({
   name: "UpwForm",
   components: {
-    UpwButton,
+    UwButton,
     JsonForms,
     UpwSkeletonForm,
   },

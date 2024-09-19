@@ -150,7 +150,7 @@
                 :disabled="item?.disabled"
               >
                 <li :class="styles.combobox.item.root">
-                  <upw-button
+                  <uw-button
                     v-bind="item"
                     :prepend-avatar="item.avatar"
                     :prepend-icon="item.icon"
@@ -230,7 +230,7 @@ import {
   ComboboxOption,
   ComboboxInput,
 } from "@headlessui/vue";
-import UpwButton from "../../ui/button/Button.ce.vue";
+import UwButton from "../../ui/button/Button.ce.vue";
 import UpwIcon from "../../ui/icon/Icon.ce.vue";
 import UpwInput from "../input/Input.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
@@ -273,7 +273,7 @@ export default defineComponent({
     UpwSpinner,
     // ---
     UpwIcon,
-    UpwButton,
+    UwButton,
   },
   props: {
     id: {
