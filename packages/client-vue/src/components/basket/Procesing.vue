@@ -8,7 +8,7 @@
     fit="cover"
     skrim="light"
   >
-    <section :class="styles.basket.loading.root">
+    <section :class="styles.basket.processing.root">
       <uw-avatar v-bind="avatar" />
 
       <h3 :class="styles.basket.processing.title">{{ title }}</h3>
