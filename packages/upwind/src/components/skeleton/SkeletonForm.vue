@@ -24,13 +24,10 @@ import { useStyles } from "../../utils";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwSkeletonForm",
+  name: "UwpwSkeletonForm",
   props: {
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const styles = useStyles("skeleton", props, config, props.upwindConfig);

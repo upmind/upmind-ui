@@ -36,7 +36,8 @@ export default defineComponent({
     },
     label: { type: String },
 
-    upwindConfig: { type: Object, default: () => ({}) },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props) {

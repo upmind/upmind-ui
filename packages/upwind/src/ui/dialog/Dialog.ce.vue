@@ -86,11 +86,12 @@ export default defineComponent({
       type: String as PropType<DialogConfig["overflow"]>,
       default: "visible",
     },
-    upwindConfig: { type: Object, default: () => ({}) },
     modelValue: { type: Boolean },
     persistent: { type: Boolean },
     fit: { type: String as PropType<DialogConfig["fit"]>, default: "contain" },
     skrim: { type: String as PropType<DialogConfig["skrim"]>, default: "dark" },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props, { emit }) {
     const styles = useStyles(

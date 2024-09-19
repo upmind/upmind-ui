@@ -111,7 +111,7 @@
 import { defineComponent, toRefs, ref } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -176,7 +176,7 @@ export default defineComponent({
 
     return {
       styles,
-      mergeStyles,
+      cn,
       blurred: ref({}),
     };
   },

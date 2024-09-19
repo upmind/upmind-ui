@@ -26,7 +26,7 @@
     no-feedback
   >
     <slot name="prepend" v-bind="{ styles: styles.quantitybox }">
-      <uw-button
+      <u-button
         icon-only
         :label="`Decrement value by ${step}`"
         prependIcon="minus"
@@ -49,7 +49,7 @@
     <span :class="styles.quantitybox.root">{{ modelValue }}</span>
 
     <slot name="append" v-bind="{ styles: styles.quantitybox }">
-      <uw-button
+      <u-button
         icon-only
         :label="`Increment value by ${step}`"
         prependIcon="plus"
@@ -72,7 +72,7 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UwButton from "../../ui/button/Button.ce.vue";
+import UButton from "../../ui/button/Button.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -85,12 +85,12 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwQuantitybox",
+  name: "UwpwQuantitybox",
   inheritAttrs: false,
   emits: ["update:modelValue", "update:increment", "update:decrement"],
   components: {
     UpwInput,
-    UwButton,
+    UButton,
   },
   props: {
     id: {
@@ -138,7 +138,7 @@ export default defineComponent({
     // ---
     persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Array, Object], default: null },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props, { emit }) {

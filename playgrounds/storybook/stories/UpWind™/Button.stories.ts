@@ -3,8 +3,8 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { UwAvatar, UwButton, useCustomElements } from "@upmind/upwind";
-useCustomElements(UwButton, UwAvatar);
+import { UwAvatar, UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton, UwAvatar);
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";

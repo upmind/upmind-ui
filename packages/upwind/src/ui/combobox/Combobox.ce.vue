@@ -3,7 +3,7 @@
 
   <popover-root v-model:open="open">
     <popover-trigger>
-      <uw-button
+      <u-button
         variant="outline"
         color="base"
         role="combobox"
@@ -12,7 +12,7 @@
         :disabled="loading"
       >
         <span class="flex items-center truncate">
-          <uw-avatar
+          <u-avatar
             v-if="selected?.icon"
             :icon="selected?.icon"
             size="sm"
@@ -28,12 +28,12 @@
         </span>
 
         <div v-if="!loading" :class="styles.combobox.icons.arrowUpDown">
-          <uw-icon icon="arrow-down" size="xs" aria-hidden="true" />
+          <u-icon icon="arrow-down" size="xs" aria-hidden="true" />
         </div>
         <div v-else :class="styles.combobox.icons.loading">
           <upw-spinner size="xs" />
         </div>
-      </uw-button>
+      </u-button>
     </popover-trigger>
     <popover-portal>
       <popover-content
@@ -136,9 +136,9 @@ import { useStyles, stylesheet } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
-import UwButton from "../button/Button.ce.vue";
-import UwAvatar from "../avatar/Avatar.ce.vue";
-import UwIcon from "../icon/Icon.ce.vue";
+import UButton from "../button/Button.ce.vue";
+import UAvatar from "../avatar/Avatar.ce.vue";
+import UIcon from "../icon/Icon.ce.vue";
 import ComboboxItem from "./ComboboxItem.vue";
 import UpwSpinner from "../../components/spinner/Spinner.vue";
 
@@ -151,9 +151,9 @@ import { type ComboboxConfig } from "./types.d";
 export default defineComponent({
   name: "UwCombobox",
   components: {
-    UwButton,
-    UwAvatar,
-    UwIcon,
+    UButton,
+    UAvatar,
+    UIcon,
     UpwSpinner,
     ComboboxRoot,
     ComboboxInput,
@@ -192,10 +192,11 @@ export default defineComponent({
     dismissable: { type: Boolean, default: false },
     position: { type: String },
     asChild: { type: Boolean, default: false },
-    upwindConfig: {},
     // Question to DC: Can we do this through upwindConfig?
     buttonClass: { type: String },
     loading: { type: Boolean, default: false },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   emits: [
     "update:open",

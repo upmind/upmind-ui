@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="drawer ? 'uw-drawer' : 'div'"
+    :is="dialog ? 'uw-drawer' : 'div'"
     size="2xl"
     :title="title"
     :modelValue="isOpen"
@@ -299,7 +299,7 @@
 import { computed, defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -317,9 +317,9 @@ import {
   UwBadge,
   UwButton,
   UwDialog,
-  useCustomElements,
+  useCustomElement,
 } from "@upmind/upwind";
-useCustomElements(UwBadge, UwButton, UwDialog, UwIcon);
+useCustomElement(UwBadge, UwButton, UwDialog, UwIcon);
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
 
@@ -342,7 +342,7 @@ export default defineComponent({
     i18nKey: { type: String, default: "domain.listings" },
     modelValue: { type: [String, Array], default: () => [] },
     items: { type: Array, required: true },
-    drawer: { type: Boolean, default: false },
+    dialog: { type: Boolean, default: false },
     offset: { type: Number, default: 0 },
     // ---
     loading: { type: Boolean, default: false },
@@ -374,7 +374,7 @@ export default defineComponent({
 
     return {
       styles,
-      mergeStyles,
+      cn,
       meta,
       config,
     };

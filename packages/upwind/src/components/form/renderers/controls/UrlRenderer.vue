@@ -27,7 +27,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UrlRenderer",
+  name: "UwrlRenderer",
   components: {
     UpwTextbox,
   },

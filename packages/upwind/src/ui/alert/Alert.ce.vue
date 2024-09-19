@@ -2,7 +2,7 @@
   <link rel="stylesheet" :href="stylesheet" />
 
   <div :class="styles.alert.root" role="alert">
-    <uw-icon :icon="icon" :class="styles.alert.icon" />
+    <u-icon :icon="icon" :class="styles.alert.icon" />
     <div :class="styles.alert.content">
       <h5 v-if="title" :class="styles.alert.title">
         {{ title }}
@@ -23,7 +23,7 @@ import config from "./alert.config";
 import { useStyles, stylesheet } from "../../utils";
 
 // --- components
-import UwIcon from "../../ui/icon/Icon.ce.vue";
+import UIcon from "../../ui/icon/Icon.ce.vue";
 
 // --- utils
 
@@ -35,7 +35,7 @@ export default defineComponent({
   name: "UwAlert",
 
   components: {
-    UwIcon,
+    UIcon,
   },
 
   props: {
@@ -52,10 +52,8 @@ export default defineComponent({
     description: {
       type: String,
     },
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props) {

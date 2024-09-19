@@ -6,7 +6,7 @@
     v-bind="$props"
     :toast-options="{
       classes: {
-        toast: mergeStyles(
+        toast: cn(
           styles.sonner.base.toast,
           styles.sonner.primary.toast,
           styles.sonner.secondary.toast,
@@ -18,7 +18,7 @@
           styles.sonner.promotion.toast,
           styles.sonner.destructive.toast
         ),
-        title: mergeStyles(
+        title: cn(
           styles.sonner.base.title,
           styles.sonner.primary.title,
           styles.sonner.secondary.title,
@@ -30,7 +30,7 @@
           styles.sonner.promotion.title,
           styles.sonner.destructive.title
         ),
-        description: mergeStyles(
+        description: cn(
           styles.sonner.base.description,
           styles.sonner.primary.description,
           styles.sonner.secondary.description,
@@ -42,7 +42,7 @@
           styles.sonner.promotion.description,
           styles.sonner.destructive.description
         ),
-        actionButton: mergeStyles(
+        actionButton: cn(
           styles.sonner.base.actionButton,
           styles.sonner.primary.actionButton,
           styles.sonner.secondary.actionButton,
@@ -54,7 +54,7 @@
           styles.sonner.promotion.actionButton,
           styles.sonner.destructive.actionButton
         ),
-        cancelButton: mergeStyles(
+        cancelButton: cn(
           styles.sonner.base.cancelButton,
           styles.sonner.primary.cancelButton,
           styles.sonner.secondary.cancelButton,
@@ -66,7 +66,7 @@
           styles.sonner.promotion.cancelButton,
           styles.sonner.destructive.cancelButton
         ),
-        closeButton: mergeStyles(
+        closeButton: cn(
           styles.sonner.base.closeButton,
           styles.sonner.primary.closeButton,
           styles.sonner.secondary.closeButton,
@@ -89,7 +89,7 @@ import { defineComponent, toRefs, type PropType } from "vue";
 
 // --- internal
 
-import { useStyles, mergeStyles, stylesheet } from "../../utils";
+import { useStyles, cn, stylesheet } from "../../utils";
 import config from "./sonner.config";
 
 // --- utils
@@ -112,7 +112,6 @@ export default defineComponent({
     visibleToasts: { type: Number },
     closeButton: { type: Boolean },
     toastOptions: { type: Object as PropType<ToasterProps["toastOptions"]> },
-    class: { type: String },
     style: { type: Object as PropType<CSSStyleDeclaration> },
     offset: { type: [String, Number] },
     dir: { type: String as PropType<ToasterProps["dir"]> },
@@ -139,7 +138,7 @@ export default defineComponent({
       toRefs(props),
       config
     );
-    return { stylesheet, styles, mergeStyles };
+    return { stylesheet, styles, cn };
   },
 });
 </script>

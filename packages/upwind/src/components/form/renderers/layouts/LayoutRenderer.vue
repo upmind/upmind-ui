@@ -54,10 +54,7 @@ export default defineComponent({
       default: null,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props: RendererProps<Layout>) {
     const meta = computed(() => ({

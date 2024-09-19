@@ -1,5 +1,5 @@
 <template>
-  <uw-button
+  <u-button
     type="button"
     :disabled="disabled"
     :aria-disabled="disabled"
@@ -19,7 +19,7 @@
     />
 
     <span :class="styles.step.label">{{ label }}</span>
-  </uw-button>
+  </u-button>
 </template>
 
 <script>
@@ -28,7 +28,7 @@ import { defineComponent, toRefs } from "vue";
 
 // -- components
 import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
-import UwButton from "../../ui/button/Button.ce.vue";
+import UButton from "../../ui/button/Button.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
@@ -39,8 +39,8 @@ import { useStyles } from "../../utils";
 
 // ----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpwStep",
-  components: { UpwAvatar, UwButton, UpwSpinner },
+  name: "UwpwStep",
+  components: { UpwAvatar, UButton, UpwSpinner },
   emits: ["update:modelValue"],
   props: {
     modelValue: { type: Boolean },
@@ -74,10 +74,7 @@ export default defineComponent({
       default: false,
     },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const styles = useStyles("step", toRefs(props), config, props.upwindConfig);

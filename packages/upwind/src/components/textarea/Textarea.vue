@@ -61,7 +61,7 @@ import type { InputProps, IconProps } from "../input/types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwCheckbox",
+  name: "UwpwCheckbox",
   inheritAttrs: false,
   emits: ["update:modelValue"],
   components: {
@@ -106,7 +106,7 @@ export default defineComponent({
     noFeedback: { type: Boolean },
     persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Array, Object], default: null },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props, { emit }) {

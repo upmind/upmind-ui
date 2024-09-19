@@ -106,7 +106,7 @@
         </div>
 
         <!-- fields -->
-        <div :class="mergeStyles(styles.product.config.fields)">
+        <div :class="cn(styles.product.config.fields)">
           <!-- terms -->
           <upm-config-grid
             v-if="meta.hasTerms"
@@ -191,7 +191,7 @@ import { defineComponent } from "vue";
 
 // --- internal
 import { useProductConfig } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -314,7 +314,7 @@ export default defineComponent({
       },
       doResolve: () => emit("resolve", props.modelValue), // ---
       styles,
-      mergeStyles,
+      cn,
       // ---
       isNil,
     };

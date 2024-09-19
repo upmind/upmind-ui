@@ -200,7 +200,7 @@ import type { PropType } from "vue";
 import type { InputProps, IconProps } from "./types";
 
 export default defineComponent({
-  name: "UpwInput",
+  name: "UwpwInput",
   components: {
     UpwIcon,
     UpwLabel,
@@ -251,7 +251,7 @@ export default defineComponent({
     noFeedback: { type: Boolean },
     persistFeedback: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: Object },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const target = ref();

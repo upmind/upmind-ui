@@ -100,7 +100,7 @@ export function useStyles(
   });
 }
 
-export function mergeStyles(...styles: ClassNameValue[]) {
+export function cn(...styles: ClassNameValue[]) {
   return twMerge(clsx(...styles));
 }
 

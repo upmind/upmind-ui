@@ -259,7 +259,7 @@ import type { ListboxPosition } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwListbox",
+  name: "UwpwListbox",
   components: {
     HListbox: Listbox,
     HListboxButton: ListboxButton,
@@ -326,7 +326,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: Object },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props, { emit }) {
     // --- initial value with correct type and value

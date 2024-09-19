@@ -3,7 +3,7 @@
 
   <span :class="styles.indicator.root">
     <slot>
-      <uw-icon
+      <u-icon
         v-if="meta.hasIcon"
         :icon="icon"
         :class="styles.indicator.icon"
@@ -22,7 +22,7 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- components
-import UwIcon from "../icon/Icon.ce.vue";
+import UIcon from "../icon/Icon.ce.vue";
 
 // --- internal
 
@@ -42,7 +42,7 @@ export default defineComponent({
   name: "UwIndicator",
   inheritAttrs: false,
   components: {
-    UwIcon,
+    UIcon,
   },
   props: {
     color: { type: String as PropType<IndicatorConfig["color"]> },
@@ -55,7 +55,8 @@ export default defineComponent({
       type: [String, Object] as PropType<IconProps["icon"]>,
     },
     modelValue: { type: String },
-    upwindConfig: { type: Object, default: () => ({}) },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   setup(props) {

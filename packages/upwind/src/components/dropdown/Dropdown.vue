@@ -161,7 +161,7 @@ import type { DropdownProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwDropdown",
+  name: "UwpwDropdown",
   components: {
     HMenu: Menu,
     HMenuButton: MenuButton,
@@ -219,7 +219,7 @@ export default defineComponent({
     disabled: { type: Boolean },
     processing: { type: Boolean },
     // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: Object },
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
   setup(props) {
     const reference = ref(null);

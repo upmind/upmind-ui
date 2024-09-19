@@ -5,7 +5,7 @@
     @select="handleSelect"
     :class="styles.combobox.item"
   >
-    <uw-avatar
+    <u-avatar
       v-if="icon"
       :icon="icon"
       size="sm"
@@ -16,7 +16,7 @@
     />
     {{ label }}
     <div :class="styles.combobox.icons.checkItem">
-      <uw-icon v-if="isSelected" icon="check" size="xxs" aria-hidden="true" />
+      <u-icon v-if="isSelected" icon="check" size="xxs" aria-hidden="true" />
     </div>
   </combobox-item>
 </template>
@@ -32,8 +32,8 @@ import config from "./combobox.config";
 
 // --- components
 import { ComboboxItem } from "radix-vue";
-import UwAvatar from "../avatar/Avatar.ce.vue";
-import UwIcon from "../icon/Icon.ce.vue";
+import UAvatar from "../avatar/Avatar.ce.vue";
+import UIcon from "../icon/Icon.ce.vue";
 
 // --- utils
 
@@ -41,8 +41,8 @@ export default defineComponent({
   name: "UwComboboxItem",
   components: {
     ComboboxItem,
-    UwAvatar,
-    UwIcon,
+    UAvatar,
+    UIcon,
   },
 
   props: {
@@ -66,10 +66,8 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    upwindConfig: {
-      type: Object,
-      default: null,
-    },
+    // --- Provide a way to add custom styles for a specific instance of the component
+    upwindConfig: { type: [Object, Array], default: () => ({}) },
   },
 
   emits: ["select"],
