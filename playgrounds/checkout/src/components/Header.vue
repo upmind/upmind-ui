@@ -36,23 +36,30 @@
 
         <upm-currency />
 
-        <upw-button
-          to="/"
-          append-icon="basket"
-          color="base"
-          variant="ghost"
+        <router-link
+          to="/cart"
+          custom
+          v-slot="{ href, navigate }"
           v-if="!isBasketView"
         >
-          <template #append-avatar>
+          <uw-button
+            :href="meta.isAvailable ? href : null"
+            @click="meta.isAvailable && navigate"
+            :as="meta.isAvailable ? (href ? 'a' : 'button') : 'button'"
+            :disabled="!meta.isAvailable"
+            variant="ghost"
+          >
+            <uw-icon icon="basket" slot="prepend" size="xs" />
             <uw-indicator
-              v-if="items?.length"
+              slot="append"
               :key="items?.length"
               :modelValue="items.length"
               color="primary"
+              class="absolute right-0 top-0"
             >
             </uw-indicator>
-          </template>
-        </upw-button>
+          </uw-button>
+        </router-link>
 
         <upm-profile />
       </div>
@@ -70,19 +77,18 @@ import {
 } from "@upmind/client-vue";
 
 import {
-  UpwButton,
   UwAvatar,
+  UwIcon,
   UwIndicator,
   UwButton,
   useCustomElements,
 } from "@upmind/upwind";
-useCustomElements(UwAvatar, UwIndicator, UwButton);
+useCustomElements(UwAvatar, UwIcon, UwIndicator, UwButton);
 
 export default defineComponent({
   name: "UpmHeader",
   components: {
     UpwListbox,
-    UpwButton,
     UpmProfile,
     UpmCurrency,
   },
@@ -93,9 +99,10 @@ export default defineComponent({
     },
   },
   setup() {
-    const { items } = useBasket();
+    const { meta, items } = useBasket();
 
     return {
+      meta,
       items,
     };
   },

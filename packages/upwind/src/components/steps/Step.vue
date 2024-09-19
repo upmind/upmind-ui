@@ -1,5 +1,5 @@
 <template>
-  <upw-button
+  <uw-button
     type="button"
     :disabled="disabled"
     :aria-disabled="disabled"
@@ -19,7 +19,7 @@
     />
 
     <span :class="styles.step.label">{{ label }}</span>
-  </upw-button>
+  </uw-button>
 </template>
 
 <script>
@@ -28,7 +28,7 @@ import { defineComponent, toRefs } from "vue";
 
 // -- components
 import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
-import UpwButton from "../../ui/button/Button.ce.vue";
+import UwButton from "../../ui/button/Button.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
@@ -40,7 +40,7 @@ import { useStyles } from "../../utils";
 // ----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpwStep",
-  components: { UpwAvatar, UpwButton, UpwSpinner },
+  components: { UpwAvatar, UwButton, UpwSpinner },
   emits: ["update:modelValue"],
   props: {
     modelValue: { type: Boolean },

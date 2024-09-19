@@ -36,7 +36,7 @@ import type { TabProps } from "./types";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "UpwButton",
+  name: "UwButton",
   components: {
     UpwIcon,
   },

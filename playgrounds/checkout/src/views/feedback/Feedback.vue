@@ -23,7 +23,7 @@
         </span>
       </h2>
 
-      <upw-button
+      <uw-button
         variant="outlined"
         size="sm"
         @click="processMessages()"
@@ -31,7 +31,7 @@
         label="Add Mixed"
       />
 
-      <upw-button
+      <uw-button
         variant="outlined"
         size="sm"
         @click="processMessages('toast')"
@@ -39,7 +39,7 @@
         label="Add Toasts"
       />
 
-      <upw-button
+      <uw-button
         variant="outlined"
         size="sm"
         @click="processMessages('notification')"
@@ -60,7 +60,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useFeedback, UpwButton } from "@upmind/client-vue";
+import { useFeedback } from "@upmind/client-vue";
+import { UwButton, useCustomElement } from "@upmind/upwind";
+useCustomElement(UwButton);
 import UpmMessage from "./MessageLog.vue";
 import { useTimestamp } from "@vueuse/core";
 import { forEach, random, nth, some, filter } from "lodash-es";

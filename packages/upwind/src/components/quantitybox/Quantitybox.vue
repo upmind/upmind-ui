@@ -26,7 +26,7 @@
     no-feedback
   >
     <slot name="prepend" v-bind="{ styles: styles.quantitybox }">
-      <upw-button
+      <uw-button
         icon-only
         :label="`Decrement value by ${step}`"
         prependIcon="minus"
@@ -49,7 +49,7 @@
     <span :class="styles.quantitybox.root">{{ modelValue }}</span>
 
     <slot name="append" v-bind="{ styles: styles.quantitybox }">
-      <upw-button
+      <uw-button
         icon-only
         :label="`Increment value by ${step}`"
         prependIcon="plus"
@@ -72,7 +72,7 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwButton from "../../ui/button/Button.ce.vue";
+import UwButton from "../../ui/button/Button.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -90,7 +90,7 @@ export default defineComponent({
   emits: ["update:modelValue", "update:increment", "update:decrement"],
   components: {
     UpwInput,
-    UpwButton,
+    UwButton,
   },
   props: {
     id: {
