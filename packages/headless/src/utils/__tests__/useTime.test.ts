@@ -50,13 +50,16 @@ describe("useTime.ts", () => {
     const time = useTime();
 
     it("should return null if timestamp argument is null", () => {
+      // @ts-ignore
       expect(useRelativeTime(null, now)).toBeNull();
     });
 
     it("should return null if currentTime argument is null", () => {
+      // @ts-ignore
       expect(useRelativeTime(now, null)).toBeNull();
     });
     it("should return null if currentTime argument is undefined", () => {
+      // @ts-ignore
       expect(useRelativeTime(now, undefined)).toBeNull();
     });
 

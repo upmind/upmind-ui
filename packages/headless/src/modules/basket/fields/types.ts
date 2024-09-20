@@ -18,13 +18,17 @@ export interface IField {
 export interface FieldsContext {
   basket_id?: String;
   // ---
-  fields?: Array;
+  // TODO:
+  // fields?: Array;
+  fields?: any[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IField;
   // ---
   dirty?: Boolean;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -33,5 +37,7 @@ export interface FieldsContext {
 export interface FieldsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IField;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

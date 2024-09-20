@@ -118,16 +118,8 @@
             "link": "/@upmind/headless/interfaces/DomainContext.md"
           },
           {
-            "text": "IDomain",
-            "link": "/@upmind/headless/interfaces/IDomain.md"
-          },
-          {
             "text": "IDomainProduct",
             "link": "/@upmind/headless/interfaces/IDomainProduct.md"
-          },
-          {
-            "text": "IDomainSearch",
-            "link": "/@upmind/headless/interfaces/IDomainSearch.md"
           }
         ]
       },

@@ -71,12 +71,12 @@ getBasketId: () => undefined | string;
 ### getItemsSnapshot()
 
 ```ts
-getItemsSnapshot: () => any;
+getItemsSnapshot: () => any[];
 ```
 
 #### Returns
 
-`any`
+`any`[]
 
 ### getSnapshot()
 

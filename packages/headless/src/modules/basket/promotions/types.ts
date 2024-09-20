@@ -23,7 +23,9 @@ export interface PromotionsContext {
   model?: IPromotion;
   // ---
   dirty?: Boolean;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -32,5 +34,7 @@ export interface PromotionsContext {
 export interface PromotionsEvent {
   type: "ADD" | "REMOVE" | "CLEAR" | "SET" | "RETRY";
   data?: IPromotion;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

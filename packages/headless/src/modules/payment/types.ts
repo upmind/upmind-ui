@@ -11,15 +11,21 @@
 
 export interface PaymentContext {
   id?: string;
-  order?: IBasket;
+  // TODO:
+  // order?: IBasket;
+  order?: any;
   paymentDetails?: Object;
-  payment?: IPayment;
+  // TODO:
+  // payment?: IPayment;
+  payment?: any;
   urls: {
     return?: URL;
     cancel?: URL;
   };
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -27,6 +33,9 @@ export interface PaymentContext {
 
 export interface PaymentEvent {
   type: "PROCESS" | "CANCEL" | "RETRY";
-  data?: IPayment;
-  error?: RequestError;
+  // TODO:
+  // data?: IPayment;
+  // error?: RequestError;
+  data?: any;
+  error?: any;
 }

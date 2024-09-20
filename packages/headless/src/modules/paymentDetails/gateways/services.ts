@@ -35,6 +35,7 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
   ]).then(data => {
     return {
+      // @ts-ignore
       can_store: canBeStored(gateway),
       must_store: get(
         data,
