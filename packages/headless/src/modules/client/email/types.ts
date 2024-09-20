@@ -7,7 +7,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 // private
 
-interface IEmail {
+export interface IEmail {
   id: string;
   // ---
   bounced: boolean;
@@ -18,11 +18,15 @@ interface IEmail {
   default: boolean;
   // --- readonly/system data
   can_delete: boolean;
-  client_id: IClient["id"];
+  // TODO:
+  // client_id: IClient["id"];
+  client_id: any;
   created_at: string | null;
   deleted_at: null;
   updated_at: Date | string | null;
-  user_id: IUser["id"];
+  // TODO:
+  // user_id: IUser["id"];
+  user_id: any;
   verified: number | null;
 }
 
@@ -32,9 +36,13 @@ interface IEmail {
 export interface EmailContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IAddress;
+  // TODO:
+  // model?: IAddress;
+  model?: any;
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -43,5 +51,7 @@ export interface EmailContext {
 export interface EmailEvent {
   type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

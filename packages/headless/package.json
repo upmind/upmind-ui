@@ -17,10 +17,10 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "dev:test": "vitest",
+    "test:dev": "vitest",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix ",
     "format": "prettier --write src/",
     "type-check": "tsc --noEmit -p tsconfig.vitest.json --composite false"
@@ -45,7 +45,7 @@
     "@types/object-hash": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.3.0",
-    "@vitest/coverage-istanbul": "^2.0.1",
+    "@vitest/coverage-istanbul": "^2.1.1",
     "@xstate/test": "^0.5.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
@@ -57,10 +57,9 @@
     "prettier": "^3.0.3",
     "sass": "^1.67.0",
     "ts-node": "^10.9.1",
-    "typescript": "~5.1.6",
+    "typescript": "^5.6.2",
     "vite": "^4.4.5",
-    "vite-plugin-dts": "^3.5.3",
-    "vitest": "^2.0.3"
+    "vitest": "^2.1.1"
   },
   "keywords": [],
   "author": "",

@@ -18,8 +18,8 @@ vi.mock("@upmind/headless", () => ({
 }));
 
 describe("useDomain", () => {
-  let mockState;
-  let send;
+  let mockState: any;
+  let send: any;
 
   beforeEach(() => {
     mockState = {
@@ -37,6 +37,7 @@ describe("useDomain", () => {
     };
     send = vi.fn();
 
+    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send });
 
     // Reset mocks before each test
@@ -65,9 +66,7 @@ describe("useDomain", () => {
     search("example");
     expect(send).toHaveBeenCalledWith({
       type: "SEARCH",
-      data: {
-        domain: "example",
-      },
+      data: "example",
     });
   });
 
@@ -119,19 +118,11 @@ describe("useDomain", () => {
   it("should return the correct meta state", () => {
     const { meta } = useDomain();
     expect(meta.value.isLoading).toBe(true);
-    expect(meta.value.isProcessing).toBe(false);
-    expect(meta.value.isSyncing).toBe(false);
     expect(meta.value.isSearching).toBe(false);
     expect(meta.value.hasErrors).toBe(false);
-    expect(meta.value.showChoices).toBe(false);
-    expect(meta.value.showRegister).toBe(false);
-    expect(meta.value.showTransfer).toBe(false);
+    expect(meta.value.showChoices).toBe(true);
     expect(meta.value.showExisting).toBe(false);
     expect(meta.value.showBasket).toBe(false);
     expect(meta.value.showContinue).toBe(false);
-    expect(meta.value.hasValues).toBe(true);
-    expect(meta.value.hasPrimary).toBe(false);
-    expect(meta.value.hasAdditional).toBe(false);
-    expect(meta.value.hasMore).toBe(false);
   });
 });

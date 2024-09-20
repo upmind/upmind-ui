@@ -2,10 +2,10 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- types
-import type { IGateway } from "@/modules/payment/types";
-import type { ICurrency } from "@/modules/system/types";
-import type { GatewayTypes } from "../services";
-import type { GatewayContext } from "./types";
+// TODO:
+// import type { IGateway } from "@/modules/payment/types";
+// import type { GatewayTypes } from "../types";
+import type { ICurrency } from "../../../modules/system/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -99,33 +99,42 @@ export enum GatewayProviderCodes {
 // --------------------------------------------------------
 // private
 
+// TODO:
 export interface IGateway {
   allow_manual_store: boolean;
-  card_types: ICardType[];
-  client?: IClient;
-  countries?: ICountry[];
+  // card_types: ICardType[];
+  card_types: any[];
+  // client?: IClient;
+  client?: any;
+  // countries?: ICountry[];
+  countries?: any[];
   created_at: string;
-  currencies: IGatewayCurrency[];
+  // currencies: IGatewayCurrency[];
+  currencies: any[];
   deleted_at: null | string;
   gateway_provider: IGatewayProvider;
   gateway_provider_id: IGatewayProvider["id"];
-  gateway_settings: IGatewaySetting[];
+  // gateway_settings: IGatewaySetting[];
+  gateway_settings: any[];
   id: string;
   is_stored: string;
   name: string;
   name_translated: string;
   next_action: { url: string; method: string; fields: { [key: string]: any } };
   oauth_application_access_token_id: number;
-  org_id: IOrg["id"];
+  // org_id: IOrg["id"];
+  org_id: any["id"];
   payment_instructions: string;
   payment_instructions_translated: string;
-  payment_type: IPaymentType;
+  // payment_type: IPaymentType;
+  payment_type: any;
   provider: string;
   sca_verified: boolean;
   store_on_payment: boolean;
   store_on_payment_force: boolean;
   store_outside_payment: boolean;
-  translations: ITranslation[];
+  // translations: ITranslation[];
+  translations: any[];
   type: GatewayTypes;
   updated_at: string;
   use_frontend_implementation?: boolean;
@@ -138,10 +147,12 @@ export interface IGatewayProvider {
   display_fields: null;
   external_payment: boolean;
   external_store: boolean;
-  fields: IGatewayProviderField[];
+  // fields: IGatewayProviderField[];
+  fields: any[];
   id: string;
   instructions: string;
-  logos?: ILogo[];
+  // logos?: ILogo[];
+  logos?: any[];
   name: string;
   name_translated: null | string;
   needs_address: boolean;
@@ -158,6 +169,7 @@ export interface IGatewayProvider {
 // --------------------------------------------------------
 // Contexts
 
+// TODO:
 export interface GatewayContext {
   card?: any;
   elements?: any;
@@ -168,7 +180,6 @@ export interface GatewayContext {
   currency?: ICurrency;
   amount?: number;
   gateway?: IGateway;
-  renderless?: boolean;
   // ---
   type?: GatewayTypes;
   ctx?: GatewayContext;
@@ -183,11 +194,13 @@ export interface GatewayContext {
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IBillingDetail;
+  // model?: IBillingDetail;
+  model?: any;
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---
-  error?: RequestError;
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -196,5 +209,7 @@ export interface GatewayContext {
 export interface GatewayEvent {
   type: "CHECKOUT";
   data?: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

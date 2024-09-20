@@ -7,16 +7,7 @@ import { useBasket } from ".";
 import productServices from "./items/services";
 
 // --- utils
-import {
-  every,
-  filter,
-  get,
-  isArray,
-  isEmpty,
-  map,
-  pickBy,
-  reduce,
-} from "lodash-es";
+import { every, get, isArray, isEmpty, map, pickBy, reduce } from "lodash-es";
 import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
@@ -74,6 +65,7 @@ async function add(
   context: any,
   basket: any
 ): Promise<ActorRef<any, any>> {
+  // @ts-ignore
   if (isEmpty(item)) return Promise.resolve();
 
   const mapping = context.basketItemMapper(item);

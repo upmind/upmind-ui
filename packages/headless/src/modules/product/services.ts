@@ -171,7 +171,7 @@ async function checkTerm(
   _event: any
 ) {
   const value = model?.term;
-  let term = null;
+  let term: any = null;
   const price: any[] = [];
   const errors: any[] = [];
   // ---
@@ -255,7 +255,7 @@ async function checkSubproducts(
   { error, lookups, model }: any,
   { type, data }: any
 ) {
-  let subproducts = null;
+  let subproducts: any = null;
   const price: any[] = [];
   const errors: any = {};
   // ---

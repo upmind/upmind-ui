@@ -6,35 +6,50 @@
 
 export interface ProductConfigContext {
   id: string;
-  basket_id: string; //IBasket["id"];
+  // basket_id: string; //IBasket["id"];
   client_id: string; //IClient["id"];
-  currency_id: IProductPrice["currency_id"];
+  // TODO:
+  // currency_id: IProductPrice["currency_id"];
+  currency_id: any["currency_id"];
   promotions: IProductPromotion[];
   baseModel: IProductModel;
   model: IProductModel;
   // ---
   raw?: Object;
   lookups: {
-    product?: IProduct;
-    terms?: array;
-    options?: array;
-    attributes?: array;
+    // TODO:
+    // product?: IProduct;
+    // terms?: array;
+    // options?: array;
+    // attributes?: array;
+    product?: any;
+    terms?: any[];
+    options?: any[];
+    attributes?: any[];
   };
   // ---
   config?: IProductConfig;
-  summary?: IProductSummary;
+  // TODO:
+  // summary?: IProductSummary;
+  summary?: any;
   prices?: {
     term: { subtotal: number; total: number; discount: number };
     attributes: { subtotal: number; total: number; discount: number };
     options: { subtotal: number; total: number; discount: number };
   };
   // ---
-  calculateCallback?: ActorRef<any, any>;
-  error?: RequestError;
-  errorExternal: RequestError;
+  // TODO:
+  // calculateCallback?: ActorRef<any, any>;
+  // error?: RequestError;
+  // errorExternal: RequestError;
+  calculateCallback?: any;
+  error?: any;
+  errorExternal: any;
   // ---
   basket_id?: string;
-  basket_product?: IBasketProduct;
+  // TODO:
+  // basket_product?: IBasketProduct;
+  basket_product?: any;
   basketHelper?: Function;
   itemBuilder?: Function;
   itemMapper?: Function;
@@ -45,16 +60,26 @@ export interface ProductConfigContext {
 export interface IProductModel {
   id?: string; // this is only when it exists in the basket
   // ---
-  product_id: IProduct["id"];
-  quantity: IProduct["unit_quantity"]; // Configuration quantity
+  // TODO:
+  // product_id: IProduct["id"];
+  // quantity: IProduct["unit_quantity"];
+  product_id: any["id"];
+  quantity: any["unit_quantity"]; // Configuration quantity
   // ---
-  term?: IProductTerm;
-  attributes?: array;
-  options?: array;
-  provision_fields?: array;
+  // TODO:
+  // term?: IProductTerm;
+  // attributes?: array;
+  // options?: array;
+  // provision_fields?: array;
+  term?: any;
+  attributes?: any[];
+  options?: any[];
+  provision_fields?: any[];
   start_trial?: boolean;
   // ---
-  currency_id?: IProductPrice["currency_id"];
+  // TODO:
+  // currency_id?: IProductPrice["currency_id"];
+  currency_id?: any["currency_id"];
   promotions?: IProductPromotion[];
   // ---
   prices?: {
@@ -68,22 +93,37 @@ export interface IProductConfig {
   id?: string; // this is only when it exists in the basket
   // ---
   attributes: {
-    product_id: IProductAttribute["id"];
+    // TODO:
+    // product_id: IProductAttribute["id"];
+    product_id: any["id"];
   }[];
-  billing_cycle_months: IProductPrice["billing_cycle_months"];
+  // TODO:
+  // billing_cycle_months: IProductPrice["billing_cycle_months"];
+  billing_cycle_months: any["billing_cycle_months"];
   options: {
-    billing_cycle_months: IProductOption["billing_cycle_months"];
-    order_type?: IProductOption["order_type"];
-    product_id: IProductOption["id"];
+    // TODO:
+    // billing_cycle_months: IProductOption["billing_cycle_months"];
+    // order_type?: IProductOption["order_type"];
+    // product_id: IProductOption["id"];
+    billing_cycle_months: any["billing_cycle_months"];
+    order_type?: any["order_type"];
+    product_id: any["id"];
     selling_price?: number;
     total?: number;
-    unit_quantity: IProductOption["unit_quantity"];
+    // TODO:
+    // unit_quantity: IProductOption["unit_quantity"];
+    unit_quantity: any["unit_quantity"];
     unit_total?: number;
   }[];
-  product_id: IProduct["id"];
+  // TODO:
+  // product_id: IProduct["id"];
+  product_id: any["id"];
   promotions?: { promocode: string }[];
-  currency_id: IProductPrice["currency_id"];
-  quantity: IProduct["unit_quantity"]; // Configuration quantity
+  // TODO:
+  // currency_id: IProductPrice["currency_id"];
+  // quantity: IProduct["unit_quantity"];
+  currency_id: any["currency_id"];
+  quantity: any["unit_quantity"]; // Configuration quantity
   start_trial?: boolean;
 }
 
@@ -92,9 +132,13 @@ export interface IProductPromotion {
 }
 
 export interface BasketContext {
-  basket: Basket | null;
-  items: Array;
-  error?: RequestError;
+  // TODO:
+  // basket: Basket | null;
+  // items: Array;
+  // error?: RequestError;
+  basket: any;
+  items: any[];
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -102,6 +146,9 @@ export interface BasketContext {
 
 export interface ProductConfigEvent {
   type: "CHECK" | "REFRESH";
-  data?: IBasket;
-  error?: RequestError;
+  // TODO:
+  // data?: IBasket;
+  // error?: RequestError;
+  data?: any;
+  error?: any;
 }
