@@ -101,7 +101,7 @@ hasModuleEnabled: (code) => boolean;
 ### isModuleReady()
 
 ```ts
-isModuleReady: (module) => Promise<State<BrandContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+isModuleReady: (module) => Promise<State<BrandContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 #### Parameters
@@ -110,33 +110,37 @@ isModuleReady: (module) => Promise<State<BrandContext, AnyEventObject, any, obje
 
 #### Returns
 
-`Promise`\<`State`\<`BrandContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`Promise`\<`State`\<`BrandContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
 
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<BrandContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+isReady: () => Promise<State<BrandContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 #### Returns
 
-`Promise`\<`State`\<`BrandContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`Promise`\<`State`\<`BrandContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
 
 ### service
 
 ```ts
-service: Interpreter<BrandContext, any, AnyEventObject, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<BrandContext, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 ### validateCurrency()
 
 ```ts
-validateCurrency: (currency_id) => Promise<any>;
+validateCurrency: (model) => Promise<any>;
 ```
 
 #### Parameters
 
-• **currency\_id**: `string`
+• **model**
+
+• **model.code?**: `string`
+
+• **model.id?**: `string`
 
 #### Returns
 

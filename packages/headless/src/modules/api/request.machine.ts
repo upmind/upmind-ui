@@ -18,7 +18,7 @@ import { getTokenfromStorage } from "../session/utils";
 export default (request: RequestParams) =>
   createMachine(
     {
-      tsTypes: {} as import("./request.machine.typegen").Typegen0,
+      // tsTypes: {} as import("./request.machine.typegen").Typegen0,
       id: "request",
       predictableActionArguments: true,
       initial: "available",
@@ -238,6 +238,7 @@ export default (request: RequestParams) =>
           },
         }),
       },
+      // @ts-ignore
       services: machineServices,
       guards: {
         hasRequest: ({ hash, url, init }) => !!hash && !!url && !!init,

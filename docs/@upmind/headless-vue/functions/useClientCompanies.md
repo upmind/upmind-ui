@@ -13,12 +13,12 @@ function useClientCompanies(): object
 ### add()
 
 ```ts
-add: () => State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+add: () => State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ##### error
 
@@ -91,7 +91,7 @@ selected: undefined = undefined;
 ### edit()
 
 ```ts
-edit: (id) => State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+edit: (id) => State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Parameters
@@ -100,7 +100,7 @@ edit: (id) => State<object, AnyEventObject, any, object, MarkAllImplementationsA
 
 #### Returns
 
-`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ##### error
 
@@ -141,7 +141,7 @@ errors: ComputedRef<undefined>;
 ### filter
 
 ```ts
-filter: DebouncedFunc<(data) => State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>>;
+filter: DebouncedFunc<(data) => State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 ### getSelected()
@@ -163,12 +163,12 @@ initial: ComputedRef<any>;
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>>;
+isReady: () => Promise<State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 #### Returns
 
-`Promise`\<`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>\>
+`Promise`\<`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
 
 ### items
 

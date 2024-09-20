@@ -22,7 +22,7 @@ import { responseCodes } from "../api";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",

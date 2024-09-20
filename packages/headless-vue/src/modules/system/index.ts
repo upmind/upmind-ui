@@ -16,7 +16,7 @@ import { omit, sample, get, isEmpty, filter, has } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useSystem = () => {
+export const useSystem = (): any => {
   const system = useUpmindSystem();
   const { state, send } = useActor(system.service);
 

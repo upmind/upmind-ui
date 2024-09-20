@@ -8,7 +8,7 @@ function useBasketCurrency(actor?): object
 
 ## Parameters
 
-• **actor?**: `TActor`\<`any`\>
+• **actor?**: `ActorRef`\<`any`, `any`\>
 
 ## Returns
 
@@ -132,4 +132,4 @@ uischema: ComputedRef<any>;
 
 #### Returns
 
-`void`
+`Promise`\<`any`\>

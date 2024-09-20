@@ -24,7 +24,7 @@ import { responseCodes } from "../../../api";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
     id: "stripePaymentManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -361,6 +361,7 @@ export default createMachine(
     },
 
     guards: {
+      // @ts-ignore
       hasChanged: (
         { basket_id, currency, amount }: StripeContext,
         { data }: StripeEvent
@@ -390,6 +391,7 @@ export default createMachine(
         // @ts-ignore
         return ctx === GatewayCtx.ADD;
       },
+      // @ts-ignore
       isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
         // @ts-ignore
         return ctx === GatewayCtx.PAY;

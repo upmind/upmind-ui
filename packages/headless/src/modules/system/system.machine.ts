@@ -13,7 +13,7 @@ import { set, unset, keys, includes, every } from "lodash-es";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./system.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./system.machine.typegen").Typegen0,
     id: "systemManager",
     predictableActionArguments: true,
     initial: "processing",

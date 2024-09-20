@@ -63,7 +63,7 @@ file: ComputedRef<any>;
 ### getImage()
 
 ```ts
-getImage: (type, typeId, isDefault) => State<any, AnyEventObject, any, object, ResolveTypegenMeta<any, AnyEventObject, BaseActionObject, ServiceMap>>;
+getImage: (type, typeId, isDefault) => State<any, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Parameters
@@ -76,7 +76,7 @@ getImage: (type, typeId, isDefault) => State<any, AnyEventObject, any, object, R
 
 #### Returns
 
-`State`\<`any`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`any`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`State`\<`any`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### getImageByHash()
 

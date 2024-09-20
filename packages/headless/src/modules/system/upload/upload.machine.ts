@@ -19,7 +19,7 @@ const base = import.meta.env.VITE_API_URL;
 export default createMachine(
   {
     // @ts-ignore
-    tsTypes: {} as import("./upload.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./upload.machine.typegen").Typegen0,
     id: "uploadManager",
     predictableActionArguments: true,
     initial: "idle",
@@ -193,6 +193,7 @@ export default createMachine(
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
+    // @ts-ignore
     services,
   }
 );

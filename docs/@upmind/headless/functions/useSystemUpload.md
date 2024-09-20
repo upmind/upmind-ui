@@ -41,5 +41,5 @@ getSnapshot: () => any;
 ### service
 
 ```ts
-service: Interpreter<any, any, AnyEventObject, object, ResolveTypegenMeta<any, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<any, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```

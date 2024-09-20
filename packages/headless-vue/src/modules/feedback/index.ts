@@ -12,7 +12,7 @@ import { map, reduce, isEmpty, sortBy } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useFeedback = () => {
+export const useFeedback = (): any => {
   const { service, dismiss, add, addError, addSuccess, trackEvent } =
     useUpmindFeedback();
   const { state } = useActor(service);
