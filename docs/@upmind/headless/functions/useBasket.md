@@ -27,22 +27,22 @@ addItem: (__namedParameters) => Promise<any>;
 ### checkout()
 
 ```ts
-checkout: () => State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+checkout: () => State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### clear()
 
 ```ts
-clear: () => State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+clear: () => State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### findItem()
 
@@ -81,22 +81,22 @@ getItemsSnapshot: () => any[];
 ### getSnapshot()
 
 ```ts
-getSnapshot: () => State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+getSnapshot: () => State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+isReady: () => Promise<State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 #### Returns
 
-`Promise`\<`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`Promise`\<`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
 
 ### itemExists()
 
@@ -115,7 +115,7 @@ itemExists: (mapping) => boolean;
 ### refresh()
 
 ```ts
-refresh: (data?) => Promise<State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+refresh: (data?) => Promise<State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 #### Parameters
@@ -124,7 +124,7 @@ refresh: (data?) => Promise<State<BasketContext, AnyEventObject, any, object, Re
 
 #### Returns
 
-`Promise`\<`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`Promise`\<`State`\<`BasketContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
 
 ### removeItem()
 
@@ -143,7 +143,7 @@ removeItem: (itemId) => Promise<any>;
 ### service
 
 ```ts
-service: Interpreter<BasketContext, any, AnyEventObject, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<BasketContext, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 ### updateItem()

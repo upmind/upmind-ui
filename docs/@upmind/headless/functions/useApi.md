@@ -163,7 +163,7 @@ A promise that resolves to the response data if the request was successful, or r
 ### service
 
 ```ts
-service: Interpreter<object, any, AnyEventObject, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<object, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Type declaration

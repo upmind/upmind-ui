@@ -11,7 +11,7 @@ import { isFunction } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useSession = (inspector?: Function) => {
+export const useSession = (inspector?: Function): any => {
   const { service, transfer } = useUpmindSession();
   const { state, send } = useActor(service);
 
