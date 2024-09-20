@@ -1,0 +1,65 @@
+(upflow) test:
+  stage: test
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^upflow-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_UPFLOW == "true"
+  script:
+    - npm --workspace packages/flow test
+
+(upflow) check version:
+  extends: .check version
+  variables:
+    ROOT_DIR: packages/flow
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^upflow-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_UPFLOW == "true"
+
+(upflow) build:
+  stage: build
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+    - (upflow) test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^upflow-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_UPFLOW == "true"
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "1 day"
+    paths:
+      - dist/
+  script:
+    - npm --workspace packages/flow run build
+
+(upflow) publish internal:
+  stage: publish internal
+  image: ${NODE_IMAGE}
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^upflow-v\d+(\.\d+)*$/
+  needs:
+    - dependencies
+    - (upflow) build
+  script:
+    - cd packages/flow
+    - export NPM_TOKEN="${CI_JOB_TOKEN}"
+    - echo "${INTERNAL_NPMRC}" > .npmrc
+    - npm publish
+
+(upflow) publish to npm:
+  stage: publish external
+  image: ${NODE_IMAGE}
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^upflow-v\d+(\.\d+)*$/
+      when: manual
+  needs:
+    - dependencies
+    - (upflow) build
+  script:
+    - cd packages/flow
+    - npm publish

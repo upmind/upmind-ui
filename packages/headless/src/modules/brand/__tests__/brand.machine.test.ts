@@ -20,7 +20,7 @@ const mockActions = {
 
 describe("Brand Machine", async () => {
   let mockbrandMachine = null;
-  let brandService = null;
+  let brandService: any = null;
 
   beforeEach(() => {
     mockbrandMachine = brandMachine.withConfig({
@@ -36,8 +36,8 @@ describe("Brand Machine", async () => {
   });
 
   it("should init correctly", () =>
-    new Promise(done => {
-      brandService.onTransition(state => {
+    new Promise((done: any) => {
+      brandService.onTransition((state: any) => {
         expect(
           state.matches({
             processing: {
@@ -99,7 +99,7 @@ describe("Brand Machine", async () => {
     brandService.start();
     await waitFor(brandService, state => state.matches(expectedState));
 
-    brandService.onTransition(state => {
+    brandService.onTransition((state: any) => {
       brandService.stop();
 
       expect(mockServices.fetchOrganisationConfig).toHaveBeenCalled();

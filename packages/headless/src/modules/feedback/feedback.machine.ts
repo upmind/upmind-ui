@@ -3,7 +3,7 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import messageMachine from "./message.machine";
-import type { MessagesContext, MessagesEvents } from "./types";
+import type { MessagesContext } from "./types";
 
 // --- utils
 import { generateHash, useMessageParser } from "./utils";
@@ -55,6 +55,7 @@ export default createMachine(
   },
   {
     actions: {
+      // @ts-ignore
       add: assign({
         // TODO: messages: ({ messages }: MessagesContext, { data }: MessagesEvents) => {
         messages: ({ messages }: MessagesContext, { data }: any) => {
@@ -79,6 +80,7 @@ export default createMachine(
         },
       }),
 
+      // @ts-ignore
       remove: assign({
         messages: (
           { messages }: MessagesContext,
@@ -97,6 +99,7 @@ export default createMachine(
         },
       }),
 
+      // @ts-ignore
       dismiss: assign({
         messages: (
           { messages }: MessagesContext,

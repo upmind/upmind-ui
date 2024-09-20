@@ -39,14 +39,21 @@ export interface PaymentDetailsContext {
   // ---
   basket_id?: string;
   client_id?: string;
-  currency?: iCurrency;
+  // TODO:
+  // currency?: iCurrency;
+  currency?: any;
   // ---
-  gateways?: Array<IGateway>;
+  // TODO:
+  // gateways?: Array<IGateway>;
+  gateways?: any[];
   payment_types?: PaymentTypes;
   // ---
   stored_payment_methods?: Array<IPaymentDetail>;
-  balance?: IWalletBalance;
-  gateway?: IGateway;
+  // TODO:
+  // balance?: IWalletBalance;
+  // gateway?: IGateway;
+  balance?: any;
+  gateway?: any;
   // ---
 
   schema?: JsonSchema;
@@ -61,7 +68,9 @@ export interface PaymentDetailsContext {
   };
 
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -70,11 +79,16 @@ export interface PaymentDetailsContext {
 export interface PaymentDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IPaymentDetail;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 export interface RefreshEvent {
   type: "REFRESH";
-  data?: IBasket;
-  error?: RequestError;
+  // TODO:
+  // data?: IBasket;
+  // error?: RequestError;
+  data?: any;
+  error?: any;
 }

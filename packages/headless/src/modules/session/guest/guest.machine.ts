@@ -236,6 +236,7 @@ export default createMachine(
   {
     actions: {
       setCustomFields: assign({
+        // @ts-ignore
         customFields: (_context, { data }) => data,
       }),
 

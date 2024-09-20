@@ -18,7 +18,9 @@ export enum DomainTypes {
 // --- Interfaces
 
 export interface IDomainProduct {
-  type?: DomainTypes.New | DomainTypes.Internal;
+  // TODO:
+  // type?: DomainTypes.New | DomainTypes.Internal;
+  type?: any;
   domain: string;
   sld: string;
   tld: string;
@@ -39,7 +41,9 @@ export interface IDomainProduct {
 }
 
 interface IDomain {
-  type: DomainTypes.External;
+  // TODO:
+  // type: DomainTypes.External;
+  type: any;
   domain: string;
   // --- Should these not rather be computed?
   sld: string;
@@ -55,7 +59,9 @@ interface IDomainSearch {
 // --- Contexts
 
 export interface DomainContext {
-  choices: Object<DomainTypes>;
+  // TODO:
+  // choices: Object<DomainTypes>;
+  choices: any;
   type?: DomainTypes;
   model?: Array<IDomainProduct | IDomain>;
   baseModel?: Array<IDomainProduct | IDomain>;
