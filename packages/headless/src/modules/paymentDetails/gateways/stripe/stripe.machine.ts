@@ -387,9 +387,11 @@ export default createMachine(
 
       // @ts-ignore
       isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
+        // @ts-ignore
         return ctx === GatewayCtx.ADD;
       },
       isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
+        // @ts-ignore
         return ctx === GatewayCtx.PAY;
       },
     },

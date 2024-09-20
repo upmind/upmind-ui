@@ -88,6 +88,7 @@ export const useBasket = () => {
 
     itemExists: (mapping: any) =>
       exists(
+        // @ts-ignore
         service.getSnapshot()?.context?.items,
         mapping,
         // @ts-ignore

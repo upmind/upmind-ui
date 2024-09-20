@@ -7,7 +7,9 @@
 export interface BrandContext {
   // TODO: add all the other types
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -16,5 +18,7 @@ export interface BrandContext {
 export interface BrandEvent {
   type: string;
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

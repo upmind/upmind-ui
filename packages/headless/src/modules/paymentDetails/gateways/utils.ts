@@ -54,6 +54,7 @@ export function generateResponseUrls(
     )
   );
 
+  // @ts-ignore
   cancelUrl.searchParams.append(QUERY_PARAMS.PAYMENT_METHOD_TYPE, type);
 
   // --------------------------------------------------------
@@ -79,6 +80,7 @@ export const useSchema = (context: GatewayContext) => {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
+        // @ts-ignore
         const: context.gateway.id,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing

@@ -1,5 +1,3 @@
-import type { StateMachine } from "xstate";
-
 // --------------------------------------------------------
 // ENUMS
 export enum responseCodes {
@@ -21,7 +19,9 @@ export type FetchResponse = {
   status: number;
   statusText: string;
   headers: Headers;
-  data: T;
+  // TODO:
+  // data: T;
+  data: any;
 };
 
 export interface RequestResponse {
@@ -63,11 +63,15 @@ export interface RequestContext {
 
   response: null | RequestResponse["data"];
   error: null | RequestError;
-  parent: null | StateMachine;
+  // TODO:
+  // parent: null | StateMachine;
+  parent: any;
 }
 
 export interface RequestsContext {
-  requests: Record<string, StateMachine>;
+  // TODO:
+  // requests: Record<string, StateMachine>;
+  requests: any;
 }
 
 // --------------------------------------------------------
@@ -76,12 +80,14 @@ export interface RequestsContext {
 export interface RequestEvent {
   type: string;
   data: {
-    url: Url;
+    url: URL;
     init: RequestInit;
     useCache: boolean;
     hash: string;
   };
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 export type RequestEvents = {
