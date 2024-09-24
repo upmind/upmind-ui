@@ -2,8 +2,8 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const tooltipConfig = cva(
-  "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded bg-base-800 px-3 py-1.5 text-sm text-white",
+export const tooltipVariants = cva(
+  "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded border-transparent bg-base-800 px-3 py-1.5 text-sm text-white",
   {
     variants: {
       color: {
@@ -22,7 +22,7 @@ export const tooltipConfig = cva(
   }
 );
 
-export const arrowConfig = cva("text-base-800", {
+export const arrowVariants = cva("text-base-800", {
   variants: {
     color: {
       base: "text-base-800",
@@ -38,11 +38,10 @@ export const arrowConfig = cva("text-base-800", {
     },
   },
 });
+
 // -----------------------------------------------------------------------------
 
 export default {
-  tooltip: {
-    content: tooltipConfig,
-    arrow: arrowConfig,
-  },
+  tooltip: tooltipVariants,
+  arrow: arrowVariants,
 };

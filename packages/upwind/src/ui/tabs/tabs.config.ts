@@ -1,9 +1,25 @@
 import { cva } from "class-variance-authority";
 
-export const listConfig = cva(
+export const tabsListVariants = cva(
   "inline-flex h-10 items-center rounded-lg p-1 text-muted-foreground",
   {
     variants: {
+      variant: {
+        flat: "px-0",
+        outline: "border-2 bg-transparent",
+        tonal: "bg-opacity-10",
+      },
+      color: {
+        base: "",
+        primary: "",
+        secondary: "",
+        accent: "",
+        success: "",
+        error: "",
+        warning: "",
+        info: "",
+        promotion: "",
+      },
       alignment: {
         start: "justify-start",
         center: "justify-center",
@@ -18,10 +34,6 @@ export const listConfig = cva(
       },
     },
     compoundVariants: [
-      {
-        variant: "flat",
-        class: "px-0",
-      },
       {
         variant: "flat",
         color: "base",
@@ -67,10 +79,7 @@ export const listConfig = cva(
         color: "promotion",
         class: "text-promotion-content bg-promotion",
       },
-      {
-        variant: "outline",
-        class: "border-2 bg-transparent",
-      },
+
       {
         variant: "outline",
         color: "base",
@@ -116,10 +125,7 @@ export const listConfig = cva(
         color: "promotion",
         class: "border-promotion text-promotion",
       },
-      {
-        variant: "tonal",
-        class: "bg-opacity-10",
-      },
+
       {
         variant: "tonal",
         color: "base",
@@ -175,17 +181,29 @@ export const listConfig = cva(
   }
 );
 
-export const triggerConfig = cva(
+export const tabsTriggerVariants = cva(
   "focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
-      // Compound variants do not work without this defined
+      variant: {
+        flat: "mx-1 w-full data-[state=active]:bg-background",
+        outline:
+          "text-opacity-50 hover:text-opacity-100 data-[state=active]:text-opacity-100",
+        tonal: "",
+      },
+      color: {
+        base: "",
+        primary: "",
+        secondary: "",
+        accent: "",
+        success: "",
+        error: "",
+        warning: "",
+        info: "",
+        promotion: "",
+      },
     },
     compoundVariants: [
-      {
-        variant: "flat",
-        class: "mx-1 w-full data-[state=active]:bg-background",
-      },
       {
         variant: "flat",
         color: "base",
@@ -231,11 +249,7 @@ export const triggerConfig = cva(
         color: "promotion",
         class: "text-promotion-content data-[state=active]:text-promotion",
       },
-      {
-        variant: "outline",
-        class:
-          "text-opacity-50 hover:text-opacity-100 data-[state=active]:text-opacity-100",
-      },
+
       {
         variant: "outline",
         color: "base",
@@ -339,17 +353,9 @@ export const triggerConfig = cva(
   }
 );
 
-export const contentConfig = cva(
-  "focus-visible:ring-ring mt-2 w-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-);
-
-export const iconConfig = cva("mr-2 h-4 w-4");
-
 export default {
   tabs: {
-    list: listConfig,
-    trigger: triggerConfig,
-    content: contentConfig,
-    icon: iconConfig,
+    list: tabsListVariants,
+    trigger: tabsTriggerVariants,
   },
 };

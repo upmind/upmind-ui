@@ -1,5 +1,5 @@
 <template>
-  <upw-radio-list
+  <UpwRadioList
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"
@@ -7,7 +7,7 @@
     :items="appliedOptions?.items || control.options"
     @change="onChange"
   >
-  </upw-radio-list>
+  </UpwRadioList>
 </template>
 
 <script lang="ts">

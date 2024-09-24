@@ -3,13 +3,7 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwForm } from "@upmind/upwind";
-
-// -- custom elements
-import { UwDialog, UwButton, useCustomElement } from "@upmind/upwind";
-
-useCustomElement(UwButton);
-useCustomElement(UwDialog);
+import { Dialog, DialogClose, Button, UpwForm } from "@upmind/upwind";
 
 // --- utils
 import { keys, first } from "lodash-es";
@@ -109,7 +103,8 @@ const combinedSchema = {
 };
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UwDialog> = {
+const meta: Meta<typeof Dialog> = {
+  component: Dialog,
   argTypes: {
     size: {
       options: keys(sizes),
@@ -130,33 +125,36 @@ const meta: Meta<typeof UwDialog> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwDialog>;
+type Story = StoryObj<typeof Dialog>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
+    components: { Button, Dialog },
     setup() {
       return {
         toggleOpen: () => {
           updateArgs({ modelValue: !args.modelValue });
         },
-        onOpen: ({ detail }) => {
-          const { isOpen = false } = first(detail);
-          updateArgs({ modelValue: isOpen });
-        },
         args,
       };
     },
     template: `
-      <uw-dialog v-bind="args" @input="onOpen">
-        <uw-button slot="trigger">Open Dialog</uw-button>
-        <uw-button slot="close">Close</uw-button>
-      </uw-dialog>
+      <Dialog v-bind="args">
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+        <template v-slot:close>
+          <Button @click="toggleOpen">Close</Button>
+        </template>
+      </Dialog>
     `,
   }),
 };
 
 export const Hero: Story = {
   render: (args, { updateArgs }) => ({
+    components: { Button, Dialog, DialogClose },
+
     setup() {
       return {
         toggleOpen: () => {
@@ -171,23 +169,28 @@ export const Hero: Story = {
     },
 
     template: `
-      <uw-button @click="toggleOpen">Open Dialog</uw-button>
-      <uw-dialog
+      <Dialog
         v-bind="args"
-        @input="onOpen"
+        v-model="open"
         overflow="hidden"
       >
+        <template v-slot:trigger>
+          <Button size="md">Open Dialog</Button>
+        </template>
+
         <section  class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
           <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
             <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
               <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
               <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
 
-              <uw-button @click="toggleOpen" label="Get Started for free" appendIcon="arrow-right" :block="true"/>
+              <DialogClose>
+                <Button label="Get Started for free" appendIcon="arrow-right" :block="true"/>
+              <DialogClose />
             </div>
           </div>
         </section>
-      </uw-dialog>
+      </Dialog>
     `,
   }),
   args: {
@@ -200,44 +203,31 @@ export const Hero: Story = {
 
 export const Form: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwForm },
+    components: { Dialog, UpwForm, Button },
     setup() {
       const model = ref({});
       const open = ref(false);
-
-      const doUpdate = (value: boolean) => {
-        open.value = value;
-      };
-
-      const toggleOpen = () => {
-        updateArgs({ modelValue: !args.modelValue });
-      };
-      const onOpen = ({ detail }) => {
-        const { isOpen = false } = first(detail);
-        updateArgs({ modelValue: isOpen });
-      };
-
       return {
         args,
         model,
         schema,
         open,
-        doUpdate,
-        toggleOpen,
-        onOpen,
       };
     },
     methods: {},
     template: `
-      <uw-button @click="toggleOpen">Open Dialog</uw-button>
-      <uw-dialog v-bind="args" @input="onOpen">
+      <Dialog v-bind="args" v-model:open="open">
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+
         <upw-form
           :schema="schema"
           v-model="model"
-          @resolve="doUpdate(false)"
-          @reject="toggleOpen"
+          @resolve="open = false"
+          @reject="open = false"
         />
-      </uw-dialog>
+      </Dialog>
     `,
   }),
   args: {
@@ -247,40 +237,23 @@ export const Form: Story = {
 };
 
 export const ScrollableDialog: Story = {
-  render: (args, { updateArgs }) => ({
-    components: { UpwForm },
-    setup() {
+  render: () => ({
+    components: { Dialog, Button, UpwForm },
+    setup(args) {
       const model = ref({});
-      const open = ref(false);
-
-      const doUpdate = (value: boolean) => {
-        open.value = value;
-      };
-
-      const toggleOpen = () => {
-        updateArgs({ modelValue: !args.modelValue });
-      };
-      const onOpen = ({ detail }) => {
-        const { isOpen = false } = first(detail);
-        updateArgs({ modelValue: isOpen });
-      };
 
       return {
         args,
         model,
         combinedSchema,
-        open,
-        doUpdate,
-        toggleOpen,
-        onOpen,
       };
     },
     template: `
-      <uw-button @click="toggleOpen">Open Dialog</uw-button>
-      <uw-dialog
-        v-bind="args"
-        @input="onOpen"
-      >
+      <Dialog v-bind="args">
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+
         <upw-form
           v-model="model"
           :schema="combinedSchema"
@@ -292,9 +265,15 @@ export const ScrollableDialog: Story = {
         <div class="bg-gray-50 border cursor-pointer text-gray-600 mt-6 flex items-center justify-center select-none h-64 rounded-lg">
           Upload a profile picture
         </div>
-        <uw-button class="mt-6" @click="toggleOpen" block>Save</uw-button>
-        <uw-button class="mt-2" variant="ghost" @click="toggleOpen" block>Close</uw-button>
-      </uw-dialog>
+
+        <template v-slot:footer>
+          <Button class="mt-6" @click="toggleOpen" block>Save</Button>
+        </template>
+
+        <template v-slot:close>
+          <Button class="mt-2" variant="ghost" block>Close</Button>
+        </template>
+      </Dialog>
     `,
   }),
   args: {
@@ -304,23 +283,17 @@ export const ScrollableDialog: Story = {
 };
 
 export const MockedAsyncAction: Story = {
-  render: (args, { updateArgs }) => ({
+  render: args => ({
+    components: { Dialog, Button },
     setup() {
+      const open = ref(false);
       const loading = ref(false);
       let seconds = ref(3);
-
-      const toggleOpen = () => {
-        updateArgs({ modelValue: !args.modelValue });
-      };
-      const onOpen = ({ detail }) => {
-        const { isOpen = false } = first(detail);
-        updateArgs({ modelValue: isOpen });
-      };
 
       const start = () => {
         loading.value = true;
         if (seconds.value === 1) {
-          toggleOpen();
+          open.value = false;
           loading.value = false;
           seconds.value = 3;
         } else {
@@ -334,23 +307,23 @@ export const MockedAsyncAction: Story = {
       return {
         seconds,
         loading,
-        open,
         args,
         start,
-        toggleOpen,
-        onOpen,
+        open,
       };
     },
     template: `
-      <uw-button @click="toggleOpen">Open Dialog</uw-button>
-      <uw-dialog
+      <Dialog
         v-bind="args"
-        @input="onOpen"
+        v-model:open="open"
         title="Mocked asynchronous action"
         :description="seconds + ' seconds remaining'"
       >
-        <uw-button slot="footer" size="sm" @click="start" :loading="loading">Begin</uw-button>
-      </uw-dialog>
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+        <Button slot="footer" size="sm" @click="start" :loading="loading">Begin</Button>
+      </Dialog>
     `,
   }),
 };

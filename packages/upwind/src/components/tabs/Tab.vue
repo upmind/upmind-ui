@@ -10,7 +10,7 @@
         {{ label }}
       </span>
       <slot name="icon" v-bind="{ meta, icon: icon }">
-        <upw-icon v-if="icon" :class="styles.tab.icon" :icon="icon" />
+        <UpwIcon v-if="icon" :class="styles.tab.icon" :icon="icon" />
       </slot>
     </slot>
   </button>

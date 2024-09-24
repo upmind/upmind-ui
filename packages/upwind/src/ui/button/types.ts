@@ -1,0 +1,23 @@
+// --- external
+import { type HTMLAttributes } from "vue";
+import { type VariantProps } from "class-variance-authority";
+
+// --- internal
+import type { buttonVariants } from "./button.config";
+type ButtonVariantProps = VariantProps<typeof buttonVariants>;
+
+export interface ButtonProps {
+  label?: string;
+  as?: string;
+  // ---
+  disabled?: boolean;
+  loading?: boolean;
+  // ---
+  variant?: ButtonVariantProps["variant"];
+  color?: ButtonVariantProps["color"];
+  size?: ButtonVariantProps["size"];
+  block?: ButtonVariantProps["block"];
+  // ---
+  upwindConfig?: { button: Partial<ButtonProps> };
+  class?: HTMLAttributes["class"];
+}

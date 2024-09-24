@@ -1,73 +1,63 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
+  <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <div :class="styles.alert.root" role="alert">
-    <u-icon :icon="icon" :class="styles.alert.icon" />
-    <div :class="styles.alert.content">
-      <h5 v-if="title" :class="styles.alert.title">
-        {{ title }}
-      </h5>
-      <div v-if="description" :class="styles.alert.description">
-        {{ description }}
-      </div>
-    </div>
-  </div>
+  <Alert :class="cn(variants.alert, props.class)">
+    <Icon v-if="icon" :icon="icon" size="xxs" />
+    <AlertTitle
+      class="mb-1 flex items-center gap-2 font-medium leading-none tracking-tight"
+    >
+      <span>{{ title }}</span>
+    </AlertTitle>
+    <AlertDescription class="text-sm opacity-75 [&_p]:leading-relaxed">
+      {{ description }}
+    </AlertDescription>
+  </Alert>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { defineComponent, toRefs } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import config from "./alert.config";
-import { useStyles, stylesheet } from "../../utils";
+import {
+  useStyles,
+  cn,
+  //stylesheet
+} from "../../utils";
 
 // --- components
-import UIcon from "../../ui/icon/Icon.ce.vue";
-
-// --- utils
+import Alert from "./Alert.vue";
+import AlertTitle from "./AlertTitle.vue";
+import AlertDescription from "./AlertDescription.vue";
+import { Icon } from "../icon";
 
 // --- types
-import type { PropType } from "vue";
-import type { AlertConfig } from "./types";
+import type { ComputedRef } from "vue";
+import type { AlertProps } from "./types";
 
-export default defineComponent({
-  name: "UwAlert",
-
-  components: {
-    UIcon,
-  },
-
-  props: {
-    variant: {
-      type: String as PropType<AlertConfig["variant"]>,
-    },
-    color: {
-      type: String as PropType<AlertConfig["color"]>,
-      default: "base",
-    },
-    title: {
-      type: String,
-    },
-    description: {
-      type: String,
-    },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-
-  setup(props) {
-    const styles = useStyles(
-      "alert",
-      toRefs(props),
-      config,
-      props.upwindConfig
-    );
-
-    return {
-      stylesheet,
-      styles,
-    };
-  },
+// -----------------------------------------------------------------------------
+const props = withDefaults(defineProps<AlertProps>(), {
+  // --- props
+  title: "",
+  description: "",
+  // --- variants
+  variant: "outline",
+  color: "base",
+  // --- styles
+  upwindConfig: () => ({ alert: {} }),
+  class: "",
 });
+
+const meta = computed(() => ({
+  variant: props.variant,
+  color: props.color,
+}));
+
+const variants = useStyles(
+  "alert",
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ alert: string }>;
 </script>

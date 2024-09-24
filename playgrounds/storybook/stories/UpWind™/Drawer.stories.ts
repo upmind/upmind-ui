@@ -3,69 +3,52 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { UwDrawer, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwDrawer);
-useCustomElement(UwButton);
+import { Drawer, Button } from "@upmind/upwind";
 
-// --- utils
-import { first } from "lodash-es";
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UwDrawer> = {
+const meta: Meta<typeof Drawer> = {
   args: {
-    modelValue: false,
     title: "Are you absolutely sure?",
     description: "This action cannot be undone.",
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UwDrawer>;
+type Story = StoryObj<typeof Drawer>;
 
 export const Base: Story = {
-  render: (args, { updateArgs }) => ({
+  render: args => ({
+    components: { Drawer, Button },
     setup() {
-      const toggleOpen = () => {
-        updateArgs({ modelValue: !args.modelValue });
-      };
-      const onOpen = ({ detail }) => {
-        const { isOpen = false } = first(detail);
-        updateArgs({ modelValue: isOpen });
-      };
-
       return {
         args,
-        toggleOpen,
-        onOpen,
       };
     },
     template: `
-      <uw-drawer v-bind="args" @input="onOpen">
-        <uw-button slot="trigger">Open Drawer</uw-button>
-        <uw-button slot="close" block>Close</uw-button>
-      </uw-drawer>
+      <Drawer
+        v-bind="args"
+      >
+        <template v-slot:trigger>
+          <Button size="md">Open Dialog</Button>
+        </template>
+      </Drawer>
     `,
   }),
 };
 
 export const MockedAsyncAction: Story = {
-  render: (args, { updateArgs }) => ({
+  render: args => ({
+    components: { Drawer, Button },
     setup() {
+      const open = ref(false);
       const loading = ref(false);
       let seconds = ref(3);
-
-      const toggleOpen = () => {
-        updateArgs({ modelValue: !args.modelValue });
-      };
-      const onOpen = ({ detail }) => {
-        const { isOpen = false } = first(detail);
-        updateArgs({ modelValue: isOpen });
-      };
 
       const start = () => {
         loading.value = true;
         if (seconds.value === 1) {
-          toggleOpen();
+          open.value = false;
           loading.value = false;
           seconds.value = 3;
         } else {
@@ -82,20 +65,19 @@ export const MockedAsyncAction: Story = {
         open,
         args,
         start,
-        toggleOpen,
-        onOpen,
       };
     },
     template: `
-      <uw-button @click="toggleOpen">Open Drawer</uw-button>
-      <uw-drawer
+      <Button @click="open = true">Open Drawer</Button>
+      <Drawer
         v-bind="args"
-        @input="onOpen"
+        v-bind:open="open"
         title="Mocked asynchronous action"
         :description="seconds + ' seconds remaining'"
+        :showClose="false"
       >
-        <uw-button slot="footer" size="sm" @click="start" :loading="loading" block>Begin</uw-button>
-      </uw-drawer>
+        <Button @click="start" :loading="loading" block="true">Begin</Button>
+      </Drawer>
     `,
   }),
 };

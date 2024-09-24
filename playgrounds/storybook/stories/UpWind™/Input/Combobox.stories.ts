@@ -2,25 +2,29 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UwButton, UwCombobox, useCustomElement } from "@upmind/upwind";
-
-useCustomElement(UwButton);
-useCustomElement(UwCombobox);
-
+import { Button, Combobox } from "@upmind/upwind";
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
-import countries from "../../../utils/countries";
+import countries from "../../../utils/countries.json";
 
-const meta: Meta<typeof UwCombobox> = {
-  parameters: {
-    controls: { exclude: ["selectedValue"] },
-  },
+const meta: Meta<typeof Combobox> = {
+  render: args => ({
+    components: { Combobox },
+    setup() {
+      return {
+        args,
+      };
+    },
+    template: `
+      <combobox v-bind="args" />
+    `,
+  }),
   argTypes: {
     color: useSystemArgTypes.color,
     width: useSystemArgTypes.allSizes,
   },
   args: {
-    selectedValue: "",
+    modelValue: "nuxt",
     label: "Select a framework",
     color: "base",
     width: "md",
@@ -35,37 +39,13 @@ const meta: Meta<typeof UwCombobox> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwCombobox>;
+type Story = StoryObj<typeof Combobox>;
 
 // -----------------------------------------------------------------------------
 
-export const Base: Story = {
-  render: args => ({
-    setup() {
-      return {
-        args,
-      };
-    },
-    template: `
-      <uw-combobox
-        v-bind="args"
-        v-model="args.selectedValue"
-      />
-    `,
-  }),
-};
+export const Base: Story = {};
 
 export const Countries: Story = {
-  render: args => ({
-    setup() {
-      return {
-        args,
-      };
-    },
-    template: `
-      <uw-combobox v-bind="args" v-model="args.selectedValue" />
-    `,
-  }),
   args: {
     label: "Select a country",
     items: Object.values(countries).map(c => ({

@@ -1,5 +1,5 @@
 <template>
-  <upw-textarea
+  <UpwTextarea
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"

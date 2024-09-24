@@ -1,5 +1,5 @@
 <template>
-  <upw-sanitized :key="compiledMarkdown" :modelValue="compiledMarkdown" />
+  <UpwSanitized :key="compiledMarkdown" :modelValue="compiledMarkdown" />
 </template>
 
 <script>

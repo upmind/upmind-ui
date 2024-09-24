@@ -3,7 +3,7 @@
     <div :class="styles.steps.wrapper">
       <slot name="prepend"> </slot>
 
-      <upw-step
+      <UpwStep
         v-for="(step, index) in steps"
         :key="step.hash"
         v-bind="step"
@@ -12,7 +12,7 @@
         :caption="`${index + 1}`"
         @update:modelValue="$emit('update:modelValue', $event)"
       >
-      </upw-step>
+      </UpwStep>
 
       <slot name="append"></slot>
     </div>

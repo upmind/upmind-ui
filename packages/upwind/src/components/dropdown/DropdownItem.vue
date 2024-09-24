@@ -1,5 +1,5 @@
 <template>
-  <h-menu-item as="template" v-slot="{ active }">
+  <HMenuItem as="template" v-slot="{ active }">
     <component
       :is="safeComponent"
       v-bind="safeAttrs"
@@ -33,13 +33,13 @@
           {{ prependText }}
         </span>
 
-        <upw-avatar
+        <UpwAvatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           :avatar="prependAvatar"
         />
 
-        <upw-icon
+        <UpwIcon
           v-if="prependIcon"
           :class="styles.dropdown.icon"
           :icon="prependIcon"
@@ -66,13 +66,13 @@
           loading,
         }"
       >
-        <upw-icon
+        <UpwIcon
           v-if="appendIcon"
           :class="styles.dropdown.icon"
           :icon="appendIcon"
         />
 
-        <upw-avatar
+        <UpwAvatar
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
@@ -88,14 +88,14 @@
         </span>
 
         <!-- loading  -->
-        <upw-spinner
+        <UpwSpinner
           :class="styles.dropdown.loading"
           v-if="loading"
           :size="size"
         />
       </slot>
     </component>
-  </h-menu-item>
+  </HMenuItem>
 </template>
 
 <script lang="ts">

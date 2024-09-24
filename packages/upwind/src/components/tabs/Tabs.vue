@@ -1,6 +1,6 @@
 <template>
   <nav :class="styles.tabs.root" role="tablist">
-    <upw-tab
+    <UpwTab
       v-for="tab in tabs"
       v-bind="tab"
       :key="tab.value"

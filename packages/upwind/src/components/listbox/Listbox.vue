@@ -1,7 +1,7 @@
 <template>
-  <h-listbox :multiple="multiple" v-model="value" v-slot="{ open }">
+  <HListbox :multiple="multiple" v-model="value" v-slot="{ open }">
     <div class="listbox" :class="styles.listbox.root">
-      <h-listbox-button
+      <HListboxButton
         :class="[styles.listbox.trigger, open ? styles.listbox.active : '']"
         ref="reference"
         :disabled="disabled || loading || processing"
@@ -26,13 +26,13 @@
             {{ selectedPrependText }}
           </span>
 
-          <upw-avatar
+          <UpwAvatar
             v-if="selectedPrependAvatar"
             :class="styles.listbox.avatar"
             :avatar="selectedPrependAvatar"
           />
 
-          <upw-icon
+          <UpwIcon
             v-if="selectedPrependIcon"
             :class="styles.listbox.icon"
             :icon="selectedPrependIcon"
@@ -62,13 +62,13 @@
             loading,
           }"
         >
-          <upw-icon
+          <UpwIcon
             v-if="selectedAppendIcon"
             :class="styles.listbox.icon"
             :icon="selectedAppendIcon"
           />
 
-          <upw-avatar
+          <UpwAvatar
             v-if="selectedAppendAvatar"
             class="avatar"
             :class="styles.listbox.avatar"
@@ -80,13 +80,13 @@
           </span>
 
           <!-- loading / toggle -->
-          <upw-spinner
+          <UpwSpinner
             :class="styles.listbox.loading"
             v-if="loading"
             aria-hidden="true"
           />
 
-          <upw-icon
+          <UpwIcon
             v-else-if="toggle"
             :icon="toggle"
             :class="styles.listbox.toggle"
@@ -94,7 +94,7 @@
             aria-hidden="true"
           />
         </slot>
-      </h-listbox-button>
+      </HListboxButton>
 
       <transition
         :enter-active-class="styles.listboxTransitionEnter.active"
@@ -104,7 +104,7 @@
         :leave-from-class="styles.listboxTransitionLeave.from"
         :leave-to-class="styles.listboxTransitionLeave.to"
       >
-        <h-listbox-options
+        <HListboxOptions
           class="listbox-options"
           :class="styles.listbox.items"
           ref="floating"
@@ -121,7 +121,7 @@
             />
           </div>
 
-          <h-listbox-option
+          <HListboxOption
             v-for="(item, key) in filteredItems"
             :key="key"
             as="template"
@@ -152,13 +152,13 @@
                   {{ item.prependText }}
                 </span>
 
-                <upw-avatar
+                <UpwAvatar
                   v-if="item.prependAvatar"
                   :class="styles.listbox.avatar"
                   :avatar="item.prependAvatar"
                 />
 
-                <upw-icon
+                <UpwIcon
                   v-if="item.prependIcon"
                   :class="styles.listbox.icon"
                   :icon="item.prependIcon"
@@ -182,13 +182,13 @@
                   ...item,
                 }"
               >
-                <upw-icon
+                <UpwIcon
                   v-if="item.appendIcon"
                   :class="styles.listbox.icon"
                   :icon="item.appendIcon"
                 />
 
-                <upw-avatar
+                <UpwAvatar
                   v-if="item.appendAvatar"
                   class="avatar"
                   :class="styles.listbox.avatar"
@@ -204,13 +204,13 @@
                 </span>
 
                 <!-- loading  -->
-                <upw-spinner
+                <UpwSpinner
                   :class="styles.listbox.loading"
                   v-if="item.loading"
                   :size="size"
                 />
 
-                <upw-icon
+                <UpwIcon
                   v-if="iconSelected"
                   :icon="iconSelected"
                   :class="[
@@ -221,11 +221,11 @@
                 />
               </slot>
             </li>
-          </h-listbox-option>
-        </h-listbox-options>
+          </HListboxOption>
+        </HListboxOptions>
       </transition>
     </div>
-  </h-listbox>
+  </HListbox>
 </template>
 
 <script lang="ts">
