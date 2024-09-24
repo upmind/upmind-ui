@@ -8,7 +8,7 @@ function useBasketPaymentDetails(actor?): object
 
 ## Parameters
 
-• **actor?**: `TActor`\<`any`\>
+• **actor?**: `ActorRef`\<`any`, `any`\>
 
 ## Returns
 
@@ -91,7 +91,7 @@ isDirty: boolean;
 ##### isFree
 
 ```ts
-isFree: boolean = !contextValue(payment_details.value?.state, "model.amount");
+isFree: boolean = !contextValue(payment_details, "model.amount");
 ```
 
 ##### isLoading

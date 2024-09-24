@@ -8,7 +8,7 @@ function useBasketPromotions(actor?): object
 
 ## Parameters
 
-• **actor?**: `TActor`\<`any`\>
+• **actor?**: `ActorRef`\<`any`, `any`\>
 
 ## Returns
 

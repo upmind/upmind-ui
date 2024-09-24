@@ -19,15 +19,9 @@
     "noUnusedLocals": true,
     "resolveJsonModule": true
   },
-  "include": ["packages/*/src", "playgrounds/*/src"],
-
   "references": [
-    { "path": "playgrounds/labs" },
-    { "path": "playgrounds/checkout" },
-    { "path": "packages/headless" },
-    { "path": "packages/headless-vue" },
-    { "path": "packages/client-vue" },
-    { "path": "packages/upwind" }
+    { "path": "packages/headless/tsconfig.build.json" },
+    { "path": "packages/headless-vue/tsconfig.build.json" }
   ],
-  "exclude": ["node_modules", "dist", "*.d.ts"]
+  "exclude": ["node_modules", "coverage", "dist", "*.d.ts"]
 }

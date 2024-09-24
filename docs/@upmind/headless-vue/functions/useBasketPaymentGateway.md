@@ -8,7 +8,7 @@ function useBasketPaymentGateway(actor?): object
 
 ## Parameters
 
-• **actor?**: `TActor`\<`any`\>
+• **actor?**: `ActorRef`\<`any`, `any`\>
 
 ## Returns
 
@@ -74,7 +74,7 @@ hasErrors: boolean;
 
 ```ts
 hasInstructions: boolean = !!contextValue(
-        payment_gateway.value?.state,
+        payment_gateway,
         "gateway.payment_instructions"
       );
 ```
@@ -82,7 +82,7 @@ hasInstructions: boolean = !!contextValue(
 ##### hasRenderer
 
 ```ts
-hasRenderer: boolean = !!contextValue(payment_gateway.value?.state, "renderer");
+hasRenderer: boolean = !!contextValue(payment_gateway, "renderer");
 ```
 
 ##### isComplete

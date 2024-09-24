@@ -19,12 +19,12 @@ function useClientPhone(item, context?): object
 ### cancel()
 
 ```ts
-cancel: () => State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+cancel: () => State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ##### error
 
@@ -81,12 +81,12 @@ description: ComputedRef<any>;
 ### edit()
 
 ```ts
-edit: () => State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+edit: () => State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ##### error
 
@@ -255,12 +255,12 @@ schema: ComputedRef<any>;
 ### select()
 
 ```ts
-select: () => State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+select: () => State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
+`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ##### error
 
