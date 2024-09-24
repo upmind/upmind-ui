@@ -8,7 +8,7 @@
       :key="`${layout.path}-${index}`"
       :class="styles.group.item"
     >
-      <dispatch-renderer
+      <DispatchRenderer
         :schema="layout.schema"
         :uischema="element"
         :path="layout.path"

@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :description="description"
@@ -26,7 +26,7 @@
     no-feedback
   >
     <slot name="prepend" v-bind="{ styles: styles.quantitybox }">
-      <u-button
+      <UButton
         icon-only
         :label="`Decrement value by ${step}`"
         prependIcon="minus"
@@ -49,7 +49,7 @@
     <span :class="styles.quantitybox.root">{{ modelValue }}</span>
 
     <slot name="append" v-bind="{ styles: styles.quantitybox }">
-      <u-button
+      <UButton
         icon-only
         :label="`Increment value by ${step}`"
         prependIcon="plus"
@@ -60,7 +60,7 @@
         @click.prevent="doIncrement"
       />
     </slot>
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :text="text"
@@ -31,7 +31,7 @@
         :key="item.value"
         :class="styles.checkboxlist.item"
       >
-        <upw-checkbox
+        <UpwCheckbox
           v-bind="{ ...safeAttrs, ...item }"
           variant="outline"
           :id="`${id}-option-${index}`"
@@ -59,10 +59,10 @@
           <template #append="slotProps">
             <slot name="append" v-bind="{ item, ...slotProps }"></slot>
           </template>
-        </upw-checkbox>
+        </UpwCheckbox>
       </li>
     </ul>
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

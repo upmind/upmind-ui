@@ -2,9 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UwTabs, useCustomElement } from "@upmind/upwind";
-
-useCustomElement(UwTabs);
+import { Tabs } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -32,7 +30,7 @@ enum widths {
   auto = "auto",
 }
 
-const meta: Meta<typeof UwTabs> = {
+const meta: Meta<typeof Tabs> = {
   argTypes: {
     variant: {
       options: keys(variants),
@@ -66,14 +64,19 @@ const meta: Meta<typeof UwTabs> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwTabs>;
+type Story = StoryObj<typeof Tabs>;
 
 // -----------------------------------------------------------------------------
 
 export const Base: Story = {
   render: args => ({
+    components: { Tabs },
     setup() {
-      const tabs = ["Tab 1", "Tab 2", "Tab 3", "Tab 4", "Tab 5"];
+      const tabs = [
+        { label: "Tab 1", value: "tab1" },
+        { label: "Tab 2", value: "tab2" },
+        { label: "Tab 3", value: "tab3" },
+      ];
       const colors = useSystemArgTypes.color;
       return {
         colors,
@@ -82,22 +85,25 @@ export const Base: Story = {
       };
     },
     template: `
-      <uw-tabs default-value="tab1".tabs="['tab1','tab2','tab3']" :color="args.color" :variant="args.variant" :width="args.width" :alignment="args.alignment">
-        <span slot="trigger.tab1">In ipsum deserunt</span>
-        <div slot="content.tab1" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
-          <p>Incididunt non ullamco nisi quis amet adipisicing commodo ex ea anim. Do proident ipsum aute ut veniam amet nisi Lorem quis incididunt non irure. Nisi ex ullamco eu quis. Fugiat eiusmod excepteur tempor id esse ex minim dolor do voluptate voluptate occaecat sit. Lorem nisi anim officia velit ad cillum nostrud est. Fugiat commodo Lorem officia commodo culpa ut consectetur sit qui laborum culpa est sit exercitation.</p>
-        </div>
+      <Tabs default-value="tab1" :tabs="tabs" :color="args.color" :variant="args.variant" :width="args.width" :alignment="args.alignment">
+        <template v-slot:content.tab1>
+          <div class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
+            <p>Incididunt non ullamco nisi quis amet adipisicing commodo ex ea anim. Do proident ipsum aute ut veniam amet nisi Lorem quis incididunt non irure. Nisi ex ullamco eu quis. Fugiat eiusmod excepteur tempor id esse ex minim dolor do voluptate voluptate occaecat sit. Lorem nisi anim officia velit ad cillum nostrud est. Fugiat commodo Lorem officia commodo culpa ut consectetur sit qui laborum culpa est sit exercitation.</p>
+          </div>
+        </template>
 
-        <span slot="trigger.tab2">Id quis ad non</span>
-        <div slot="content.tab2" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
-        <p>Lorem do ea non ea cillum dolor eiusmod. Voluptate quis magna dolore eu non cillum ullamco incididunt exercitation dolor. Aliquip incididunt aliqua commodo ullamco amet.</p>
-        </div>
+        <template v-slot:content.tab2>
+          <div slot="content.tab2" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
+            <p>Lorem do ea non ea cillum dolor eiusmod. Voluptate quis magna dolore eu non cillum ullamco incididunt exercitation dolor. Aliquip incididunt aliqua commodo ullamco amet.</p>
+          </div>
+        </template>
 
-        <span slot="trigger.tab3">Pariatur consequat</span>
+        <template v-slot:content.tab3>
           <div slot="content.tab3" class="bg-gray-50 rounded-lg p-3 px-6 text-sm text-gray-500">
-          <p>Ullamco amet cillum esse sint minim ea. Veniam dolore proident veniam consequat est sint dolor eu ex ullamco esse dolore. Deserunt enim incididunt labore voluptate.</p>
-        </div>
-      </uw-tabs>
+            <p>Ullamco amet cillum esse sint minim ea. Veniam dolore proident veniam consequat est sint dolor eu ex ullamco esse dolore. Deserunt enim incididunt labore voluptate.</p>
+          </div>
+        </template>
+      </Tabs>
     `,
   }),
 };
@@ -107,8 +113,15 @@ export const Colors: Story = {
     controls: { exclude: ["color"] },
   },
   render: args => ({
+    components: { Tabs },
     setup() {
-      const tabs = ["Tab 1", "Tab 2", "Tab 3", "Tab 4"];
+      const tabs = [
+        { label: "Tab 1", value: "tab1" },
+        { label: "Tab 2", value: "tab2" },
+        { label: "Tab 3", value: "tab3" },
+        { label: "Tab 4", value: "tab4" },
+        { label: "Tab 5", value: "tab5" },
+      ];
       const colors = useSystemArgTypes.color;
       return {
         colors,
@@ -122,11 +135,7 @@ export const Colors: Story = {
         :key="color"
         class="my-12"
       >
-        <uw-tabs default-value="tab1" .tabs="['tab1','tab2','tab3']" :color="color" :variant="args.variant" :width="args.width" :alignment="args.alignment">
-          <span slot="trigger.tab1">In ipsum deserunt</span>
-          <span slot="trigger.tab2">Id quis ad non</span>
-          <span slot="trigger.tab3">Pariatur consequat</span>
-        </uw-tabs>
+        <Tabs default-value="tab1" :tabs="tabs" :color="color" :variant="args.variant" :width="args.width" :alignment="args.alignment" />
       </div>
     `,
   }),

@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :description="description"
@@ -42,7 +42,7 @@
         :class="styles.select.option"
       />
     </select>
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

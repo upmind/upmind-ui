@@ -1,5 +1,5 @@
 <template>
-  <upw-select
+  <UpwSelect
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"
@@ -7,7 +7,7 @@
     :items="control.options"
     @change="onChange"
   >
-  </upw-select>
+  </UpwSelect>
 </template>
 
 <script lang="ts">

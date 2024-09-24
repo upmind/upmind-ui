@@ -1,7 +1,7 @@
 <template>
-  <h-combobox v-model="value" v-slot="{ open }">
+  <HCombobox v-model="value" v-slot="{ open }">
     <div :class="styles.combobox.root">
-      <upw-input
+      <UpwInput
         :id="id"
         :label="label"
         :description="description"
@@ -27,7 +27,7 @@
         layout="stacked"
         variant="outline"
       >
-        <h-combobox-input
+        <HComboboxInput
           v-bind="safeAttrs"
           :class="styles.combobox.input"
           :displayValue="value => displayValue || value?.label"
@@ -37,21 +37,21 @@
           autocomplete="off"
         />
 
-        <h-combobox-button :class="styles.combobox.button">
-          <upw-spinner
+        <HComboboxButton :class="styles.combobox.button">
+          <UpwSpinner
             :class="styles.combobox.item.avatar"
             v-if="meta.isProcessing"
           />
 
-          <upw-icon
+          <UpwIcon
             v-else-if="toggleIcon && items?.length"
             :icon="toggleIcon"
             :class="styles.combobox.toggle"
             :aria-checked="open && toggleRotate"
             aria-hidden="true"
           />
-        </h-combobox-button>
-      </upw-input>
+        </HComboboxButton>
+      </UpwInput>
 
       <transition
         :enter-active-class="styles.combobox.transition.enter.active"
@@ -62,7 +62,7 @@
         :leave-to-class="styles.combobox.transition.leave.to"
       >
         <!-- <div v-show="open && results?.length"> -->
-        <h-combobox-options :class="styles.combobox.items">
+        <HComboboxOptions :class="styles.combobox.items">
           <li :class="styles.combobox.item.root" v-if="meta.isProcessing">
             <!-- empty when processing -->
           </li>
@@ -82,7 +82,7 @@
           </li>
 
           <template v-else>
-            <h-combobox-option
+            <HComboboxOption
               v-if="queryResult"
               :value="queryResult"
               as="template"
@@ -100,7 +100,7 @@
                   }}{{ itemCustomAppend }}
                 </em>
 
-                <upw-icon
+                <UpwIcon
                   v-if="selectedIcon"
                   :icon="selectedIcon"
                   :class="[
@@ -113,14 +113,14 @@
                   aria-hidden="true"
                 />
               </li>
-            </h-combobox-option>
+            </HComboboxOption>
 
             <template v-for="(item, key) in results" :key="key">
               <li
                 v-if="item?.as == 'separator'"
                 :class="styles.combobox.item.separator"
               >
-                <upw-icon
+                <UpwIcon
                   v-if="item.avatar"
                   :icon="item.avatar"
                   class="avatar"
@@ -128,7 +128,7 @@
                   aria-hidden="true"
                 />
 
-                <upw-icon
+                <UpwIcon
                   v-if="item.icon"
                   :icon="item.icon"
                   :class="styles.combobox.item.icon"
@@ -142,7 +142,7 @@
                 >
               </li>
 
-              <h-combobox-option
+              <HComboboxOption
                 v-else-if="item?.as == 'button'"
                 as="template"
                 v-slot="{ active, selected }"
@@ -150,16 +150,16 @@
                 :disabled="item?.disabled"
               >
                 <li :class="styles.combobox.item.root">
-                  <u-button
+                  <UButton
                     v-bind="item"
                     :prepend-avatar="item.avatar"
                     :prepend-icon="item.icon"
                     :disabled="selected"
                   />
                 </li>
-              </h-combobox-option>
+              </HComboboxOption>
 
-              <h-combobox-option
+              <HComboboxOption
                 v-else
                 as="template"
                 v-slot="{ active, selected }"
@@ -173,7 +173,7 @@
                     selected ? styles.combobox.item.selected : '',
                   ]"
                 >
-                  <upw-icon
+                  <UpwIcon
                     v-if="item.avatar"
                     :icon="item.avatar"
                     class="avatar"
@@ -181,7 +181,7 @@
                     aria-hidden="true"
                   />
 
-                  <upw-icon
+                  <UpwIcon
                     v-if="item.icon"
                     :icon="item.icon"
                     :class="styles.combobox.item.icon"
@@ -192,7 +192,7 @@
                     item[itemLabel]
                   }}</span>
 
-                  <upw-icon
+                  <UpwIcon
                     v-if="selectedIcon"
                     :icon="selectedIcon"
                     :class="[
@@ -205,14 +205,14 @@
                     aria-hidden="true"
                   />
                 </li>
-              </h-combobox-option>
+              </HComboboxOption>
             </template>
           </template>
-        </h-combobox-options>
+        </HComboboxOptions>
         <!-- </div> -->
       </transition>
     </div>
-  </h-combobox>
+  </HCombobox>
 </template>
 
 <script lang="ts">

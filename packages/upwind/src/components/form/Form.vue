@@ -13,7 +13,7 @@
       <!-- <upw-skeleton-form :class="styles.form.loading" /> -->
     </slot>
 
-    <json-forms
+    <JsonForms
       :i18n="safeI18n"
       :ajv="safeAjv"
       :data="model"
@@ -31,7 +31,7 @@
     <!-- actions -->
     <div v-if="safeActions && !noActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
-        <u-button
+        <UButton
           v-for="(action, key) in safeActions"
           :key="key"
           v-bind="action"

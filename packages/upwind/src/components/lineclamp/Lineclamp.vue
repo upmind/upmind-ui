@@ -6,7 +6,7 @@
 
     <transition name="fade">
       <p v-if="truncated" :class="styles.lineclamp.actions">
-        <u-button
+        <UButton
           variant="link"
           size="xs"
           @click="open = !open"

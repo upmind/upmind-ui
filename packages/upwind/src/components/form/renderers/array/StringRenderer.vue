@@ -1,5 +1,5 @@
 <template>
-  <upw-checkbox-list
+  <UpwCheckboxList
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"
@@ -7,7 +7,7 @@
     :items="control.options"
     @change="onChange"
   >
-  </upw-checkbox-list>
+  </UpwCheckboxList>
 </template>
 
 <script lang="ts">

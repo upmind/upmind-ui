@@ -1,5 +1,5 @@
 <template>
-  <upw-textbox
+  <UpwTextbox
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"
@@ -8,7 +8,7 @@
     type="phone"
   >
     <template #prepend="{}">
-      <upw-listbox
+      <UpwListbox
         class="self-center"
         :disabled="!control.enabled"
         :model-value="control.data?.country || defaultCountryCode"
@@ -20,7 +20,7 @@
         size="sm"
       />
     </template>
-  </upw-textbox>
+  </UpwTextbox>
 </template>
 
 <script lang="ts">

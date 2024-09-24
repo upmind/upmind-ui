@@ -1,5 +1,5 @@
 <template>
-  <upw-label
+  <UpwLabel
     v-bind="{ ...label, ...appliedOptions }"
     :disabled="!label.enabled"
   />

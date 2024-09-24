@@ -1,7 +1,7 @@
 <template>
   <div v-if="meta.isVisible" :class="styles.input.root">
     <!-- conditionally add our label for non inline inputs -->
-    <upw-label
+    <UpwLabel
       v-if="!meta.isInline"
       :id="id"
       :text="label"
@@ -21,7 +21,7 @@
       <template #default="slotProps">
         <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
       </template>
-    </upw-label>
+    </UpwLabel>
 
     <!-- input wrapper -->
     <div :class="styles.input.wrapper">
@@ -52,7 +52,7 @@
             name="prepend.avatar"
             v-bind="{ meta, styles: styles.input, avatar: prependAvatar }"
           >
-            <upw-icon
+            <UpwIcon
               v-if="prependAvatar"
               class="avatar"
               :class="styles.input.avatar"
@@ -64,7 +64,7 @@
             name="prepend.icon"
             v-bind="{ meta, styles: styles.input, icon: prependIcon }"
           >
-            <upw-icon
+            <UpwIcon
               v-if="prependIcon"
               :class="styles.input.icon"
               :icon="prependIcon"
@@ -81,7 +81,7 @@
         <slot v-bind="{ meta, styles: styles.input, size }"></slot>
 
         <!-- conditionally add our label for inline inputs -->
-        <upw-label
+        <UpwLabel
           v-if="meta.isInline"
           :id="id"
           :text="label"
@@ -101,7 +101,7 @@
           <template #default="slotProps">
             <slot name="label" v-bind="{ meta, ...slotProps }"></slot>
           </template>
-        </upw-label>
+        </UpwLabel>
       </span>
 
       <!-- append slot -->
@@ -121,7 +121,7 @@
             name="append.icon"
             v-bind="{ meta, styles: styles.input, icon: appendIcon }"
           >
-            <upw-icon
+            <UpwIcon
               v-if="appendIcon"
               :class="styles.input.icon"
               :icon="appendIcon"
@@ -132,7 +132,7 @@
             name="append.avatar"
             v-bind="{ meta, styles: styles.input, avatar: appendAvatar }"
           >
-            <upw-icon
+            <UpwIcon
               v-if="appendAvatar"
               class="avatar"
               :class="styles.input.avatar"
@@ -168,7 +168,7 @@
           styles: styles.input,
         }"
       >
-        <upw-icon
+        <UpwIcon
           :class="styles.input.feedback.icon"
           :icon="feedbackIcon"
           v-if="meta.hasFeedback"

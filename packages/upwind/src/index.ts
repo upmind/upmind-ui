@@ -1,3 +1,5 @@
+import "./assets/main.css";
+
 // --- eternal
 
 // --- upw
@@ -24,19 +26,19 @@ export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 export * from "./components/form/renderers/utils";
 
-// --- uw
-import { UwAlert } from "./ui/alert";
-import { UwAvatar } from "./ui/avatar";
-import { UwBadge } from "./ui/badge";
-import { UwButton } from "./ui/button";
-import { UwCombobox } from "./ui/combobox";
-import { UwDialog } from "./ui/dialog";
-import { UwDrawer } from "./ui/drawer";
-import { UwIcon } from "./ui/icon";
-import { UwIndicator } from "./ui/indicator";
-import { UwSonner } from "./ui/sonner";
-import { UwTabs } from "./ui/tabs";
-import { UwTooltip } from "./ui/tooltip";
+// --- Web Components
+import { UwAlert, Alert } from "./ui/alert";
+import { UwAvatar, Avatar } from "./ui/avatar";
+import { UwBadge, Badge } from "./ui/badge";
+import { UwButton, Button } from "./ui/button";
+import { UwCombobox, Combobox } from "./ui/combobox";
+import { UwDialog, Dialog, DialogClose } from "./ui/dialog";
+import { UwDrawer, Drawer } from "./ui/drawer";
+import { UwIcon, Icon } from "./ui/icon";
+import { UwIndicator, Indicator } from "./ui/indicator";
+import { UwSonner, Sonner } from "./ui/sonner";
+import { UwTabs, Tabs } from "./ui/tabs";
+import { UwTooltip, Tooltip } from "./ui/tooltip";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -48,6 +50,21 @@ import { forEach, kebabCase } from "lodash-es";
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
 export {
+  // --- Components
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  Combobox,
+  Dialog,
+  DialogClose,
+  Drawer,
+  Icon,
+  Indicator,
+  Sonner,
+  Tabs,
+  Tooltip,
+  // --- Custom Elements
   UwAlert,
   UwAvatar,
   UwBadge,
@@ -83,7 +100,8 @@ export function useCustomElement(
   ...constructors: CustomElementConstructor[]
 ): void {
   forEach(constructors, constructor => {
-    const componentName = kebabCase(constructor.def.name);
+    // debugger;
+    const componentName = kebabCase(constructor.name); // no more name in definition as we use setup scripts
     if (!customElements.get(componentName)) {
       customElements.define(componentName, constructor);
     }

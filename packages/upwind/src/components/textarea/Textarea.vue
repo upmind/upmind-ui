@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :description="description"
@@ -37,7 +37,7 @@
       @focus="onFocus"
       :aria-invalid="meta.isInvalid"
     ></textarea>
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

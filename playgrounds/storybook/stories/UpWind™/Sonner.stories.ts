@@ -2,15 +2,13 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwSonner, toast, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwSonner);
-useCustomElement(UwButton);
+import { Sonner, toast, Button, useCustomElement } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
 import { keys } from "lodash-es";
 
-const meta: Meta<typeof UwSonner> = {
+const meta: Meta<typeof Sonner> = {
   argTypes: {
     title: {
       control: "text",
@@ -59,10 +57,11 @@ const meta: Meta<typeof UwSonner> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwSonner>;
+type Story = StoryObj<typeof Sonner>;
 
 export const Base: Story = {
   render: args => ({
+    components: { Sonner, Button },
     setup() {
       const showToast = () => {
         toast(args.title, {
@@ -79,8 +78,8 @@ export const Base: Story = {
     },
     template: `
       <div class="p-8">
-        <uw-sonner v-bind="args" />
-        <uw-button
+        <Sonner v-bind="args" />
+        <Button
           :color="args.color"
           label="Click here for a Toast"
           @click="showToast"
@@ -95,6 +94,7 @@ export const Colors: Story = {
     controls: { exclude: ["color"] },
   },
   render: args => ({
+    components: { Sonner, Button },
     setup() {
       const colors = useSystemArgTypes.color;
 
@@ -125,12 +125,12 @@ export const Colors: Story = {
             :key="'toast' + color"
             class="w-1/3 my-20 flex justify-center"
           >
-            <uw-button :color="color" :label="color"
+            <Button :color="color" :label="color"
               @click="showToast(color)"
             />
           </div>
         </div>
-        <uw-sonner v-bind="args" />
+        <Sonner v-bind="args" />
       </div>
     `,
   }),

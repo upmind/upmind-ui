@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :description="description"
@@ -42,7 +42,7 @@
     <template #append>
       <slot name="append" v-bind="{ styles: styles.textbox }"></slot>
     </template>
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">
