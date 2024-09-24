@@ -16,7 +16,7 @@
     >
       <span :class="styles.label.text" v-if="text">
         {{ text }}
-        <upw-badge
+        <UpwBadge
           v-if="altText"
           :class="styles.label.alt"
           :label="altText"

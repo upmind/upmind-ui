@@ -1,10 +1,8 @@
 // --- external
-import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwAvatar, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwAvatar);
+import { Avatar } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -20,7 +18,8 @@ enum fits {
   contain = "Contain",
 }
 
-const meta: Meta<typeof UwAvatar> = {
+const meta: Meta<typeof Avatar> = {
+  component: Avatar,
   argTypes: {
     icon: useSystemArgTypes.icon,
     size: useSystemArgTypes.baseSizes,
@@ -47,30 +46,28 @@ const meta: Meta<typeof UwAvatar> = {
     icon: "",
     fit: "cover",
   },
-  render: args => ({
-    setup() {
-      return { args };
-    },
-    template: `<uw-avatar v-bind="args" />`,
-  }),
 };
 
 export default meta;
-type Story = StoryObj<typeof UwAvatar>;
+type Story = StoryObj<typeof Avatar>;
 
 export const Base: Story = {};
 
 export const Flag: Story = {
+  parameters: {
+    controls: { exclude: ["src", "icon", "avatar", "caption"] },
+  },
   args: {
-    avatar: useSystemArgTypes.flag.options.find((flag, key) =>
-      flag.includes("gb")
-    ),
+    icon: "gb",
     caption: "GB",
     size: "md",
   },
 };
 
 export const Gravatar: Story = {
+  parameters: {
+    controls: { exclude: ["src", "icon", "avatar", "caption"] },
+  },
   args: {
     src: "https://www.gravatar.com/avatar/4289a4e6163b9adc987168444774435b?d=404&s=200",
     size: "md",
@@ -79,20 +76,21 @@ export const Gravatar: Story = {
 
 export const SlotContent: Story = {
   parameters: {
-    controls: { exclude: ["avatar", "caption"] },
-    icon: useSystemArgTypes.icon,
+    controls: { exclude: ["src", "icon", "avatar", "caption"] },
   },
   args: {
     size: "md",
+    fit: "contain",
   },
   render: args => ({
+    components: { Avatar },
     setup() {
       return {
         args,
       };
     },
     template: `
-        <uw-avatar v-bind="args">
+        <Avatar v-bind="args">
         <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Monitor--Streamline-Ultimate.svg">
           <path d="M9 22.5a6.979 6.979 0 0 0 1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
           <path d="M15 22.5a6.979 6.979 0 0 1 -1.5 -4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
@@ -100,7 +98,7 @@ export const SlotContent: Story = {
           <path d="m0.5 15.5 23 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
           <path d="M1.5 1.5h21s1 0 1 1v15s0 1 -1 1h-21s-1 0 -1 -1v-15s0 -1 1 -1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
         </svg>
-        </uw-avatar>
+        </Avatar>
     `,
   }),
 };

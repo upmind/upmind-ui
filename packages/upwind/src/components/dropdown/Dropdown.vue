@@ -1,6 +1,6 @@
 <template>
-  <h-menu as="div" :class="styles.dropdown.root" v-slot="{ open }">
-    <h-menu-button
+  <HMenu as="div" :class="styles.dropdown.root" v-slot="{ open }">
+    <HMenuButton
       :class="[styles.dropdown.trigger, open ? styles.dropdown.active : '']"
       ref="reference"
       :disabled="disabled || loading || processing"
@@ -25,14 +25,14 @@
           {{ prependText }}
         </span>
 
-        <upw-avatar
+        <UpwAvatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           v-bind="prependAvatar"
           size="full"
         />
 
-        <upw-icon
+        <UpwIcon
           v-if="prependIcon"
           :class="styles.dropdown.icon"
           :icon="prependIcon"
@@ -62,13 +62,13 @@
           loading,
         }"
       >
-        <upw-icon
+        <UpwIcon
           v-if="appendIcon"
           :class="styles.dropdown.icon"
           :icon="appendIcon"
         />
 
-        <upw-avatar
+        <UpwAvatar
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
@@ -81,13 +81,13 @@
         </span>
 
         <!-- loading / toggle -->
-        <upw-spinner
+        <UpwSpinner
           v-if="loading"
           :class="styles.dropdown.loading"
           aria-hidden="true"
         />
 
-        <upw-icon
+        <UpwIcon
           v-else-if="toggle"
           :icon="toggle"
           :class="styles.dropdown.toggle"
@@ -95,7 +95,7 @@
           aria-hidden="true"
         />
       </slot>
-    </h-menu-button>
+    </HMenuButton>
 
     <transition
       :enter-active-class="styles.dropdownTransitionEnter.active"
@@ -105,7 +105,7 @@
       :leave-from-class="styles.dropdownTransitionLeave.from"
       :leave-to-class="styles.dropdownTransitionLeave.to"
     >
-      <h-menu-items
+      <HMenuItems
         :class="styles.dropdown.items"
         ref="floating"
         :style="floatingStyles"
@@ -114,7 +114,7 @@
           <!-- grouped items -->
           <div v-if="item?.children">
             <!-- group title -->
-            <upw-dropdown-item
+            <UpwDropdownItem
               v-if="item?.label || item?.icon"
               v-bind="item"
               group
@@ -122,7 +122,7 @@
             />
 
             <!-- group items -->
-            <upw-dropdown-item
+            <UpwDropdownItem
               v-for="(child, childKey) in item.children"
               :key="childKey"
               v-bind="child"
@@ -131,11 +131,11 @@
           </div>
 
           <!-- items -->
-          <upw-dropdown-item v-else v-bind="item" :size="size" />
+          <UpwDropdownItem v-else v-bind="item" :size="size" />
         </template>
-      </h-menu-items>
+      </HMenuItems>
     </transition>
-  </h-menu>
+  </HMenu>
 </template>
 
 <script lang="ts">

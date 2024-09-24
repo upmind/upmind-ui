@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :text="text"
@@ -25,15 +25,15 @@
     variant="flat"
     :upwind-config="{ input: config.radiolist.input }"
   >
-    <h-radio-group v-model="selected" as="ul" :class="styles.radiolist.root">
-      <h-radio-group-option
+    <HRadioGroup v-model="selected" as="ul" :class="styles.radiolist.root">
+      <HRadioGroupOption
         as="li"
         v-for="(item, index) in items"
         :key="item.value"
         :class="styles.radiolist.item"
         :value="item.value"
       >
-        <upw-radio
+        <UpwRadio
           v-bind="{ ...safeAttrs, ...item }"
           variant="outline"
           :id="`${id}-option-${index}`"
@@ -60,10 +60,10 @@
           <template #append="slotProps">
             <slot name="append" v-bind="{ item, ...slotProps }"></slot>
           </template>
-        </upw-radio>
-      </h-radio-group-option>
-    </h-radio-group>
-  </upw-input>
+        </UpwRadio>
+      </HRadioGroupOption>
+    </HRadioGroup>
+  </UpwInput>
 </template>
 
 <script lang="ts">

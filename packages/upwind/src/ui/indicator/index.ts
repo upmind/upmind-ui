@@ -1,6 +1,10 @@
 // --- external
 import { defineCustomElement } from "vue";
 
+// --- vue elements
+export { default as Indicator } from "./Indicator.ce.vue";
+export { type IndicatorProps } from "./types";
+
 // --- custom elements
-import IndicatorCE from "./Indicator.ce.vue";
-export const UwIndicator = defineCustomElement(IndicatorCE);
+import Indicator from "./Indicator.ce.vue";
+export const UwIndicator = defineCustomElement(Indicator);

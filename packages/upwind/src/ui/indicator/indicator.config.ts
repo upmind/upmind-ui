@@ -2,7 +2,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const indicatorConfig = cva(
+export const indicatorVariants = cva(
   "absolute right-0 top-0 inline-flex shrink-0 select-none items-center justify-center overflow-hidden p-1 text-xs font-normal",
 
   {
@@ -38,11 +38,5 @@ export const indicatorConfig = cva(
 
 // -----------------------------------------------------------------------------
 export default {
-  indicator: {
-    root: indicatorConfig,
-    icon: {
-      root: cva("h-full w-full object-cover p-[0.5em]"),
-    },
-    value: cva("text-center"),
-  },
+  indicator: indicatorVariants,
 };

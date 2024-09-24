@@ -1,57 +1,55 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
-
-  <span :class="styles.badge.root">
+  <!--<link rel="stylesheet" :href="stylesheet" />-->
+  <Badge :class="cn(variants.badge, props.class)">
     <slot name="prepend"></slot>
-    <span :class="styles.badge.label">
+    <span>
       <slot> {{ label }}</slot>
     </span>
     <slot name="append"> </slot>
-  </span>
+  </Badge>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { toRefs, defineComponent } from "vue";
+import { computed } from "vue";
 
 // --- internal
-
 import config from "./badge.config";
-import { useStyles, stylesheet } from "../../utils";
+
+import {
+  useStyles,
+  cn,
+  //stylesheet
+} from "../../utils";
+
+// --- components
+import Badge from "./Badge.vue";
 
 // --- types
-import type { PropType } from "vue";
-import type { BadgeConfig } from "./types";
+import type { ComputedRef } from "vue";
+import type { BadgeProps } from "./types";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UwBadge",
-  props: {
-    variant: {
-      type: String as PropType<BadgeConfig["variant"]>,
-    },
-    color: {
-      type: String as PropType<BadgeConfig["color"]>,
-      default: "base",
-    },
-    label: { type: String },
-
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-
-  setup(props) {
-    const styles = useStyles(
-      "badge",
-      toRefs(props),
-      config,
-      props.upwindConfig
-    );
-
-    return {
-      styles,
-      stylesheet,
-    };
-  },
+const props = withDefaults(defineProps<BadgeProps>(), {
+  // --- props
+  label: "",
+  // --- variants
+  variant: "outline",
+  color: "base",
+  // --- styles
+  upwindConfig: () => ({ badge: {} }),
+  class: "",
 });
+
+const meta = computed(() => ({
+  variant: props.variant,
+  color: props.color,
+}));
+
+const variants = useStyles(
+  "badge",
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ badge: string }>;
 </script>

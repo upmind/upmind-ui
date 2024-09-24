@@ -1,5 +1,5 @@
 <template>
-  <u-button
+  <UButton
     type="button"
     :disabled="disabled"
     :aria-disabled="disabled"
@@ -8,9 +8,9 @@
     :class="styles.step.root"
     replace
   >
-    <upw-spinner v-if="loading" size="xs" :class="styles.step.loading" />
+    <UpwSpinner v-if="loading" size="xs" :class="styles.step.loading" />
 
-    <upw-avatar
+    <UpwAvatar
       v-else
       :icon="complete ? 'check-circle' : null"
       :caption="caption"
@@ -19,7 +19,7 @@
     />
 
     <span :class="styles.step.label">{{ label }}</span>
-  </u-button>
+  </UButton>
 </template>
 
 <script>

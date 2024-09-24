@@ -1,70 +1,68 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
-  <primitive
-    v-bind="$attrs"
-    :as="as"
-    :as-child="asChild"
-    :class="styles.button.root"
-    :disabled="disabled"
-  >
+  <!--<link rel="stylesheet" :href="stylesheet" />-->
+
+  <ButtonRoot v-bind="forwarded" :class="cn(variants.button, props.class)">
     <slot name="prepend"></slot>
 
     <slot>
-      <span :class="styles.button.label">{{ label }}</span></slot
-    >
+      <span class="truncate">{{ label }}</span>
+    </slot>
 
     <slot name="append"></slot>
-  </primitive>
+  </ButtonRoot>
 </template>
 
-<script lang="ts">
-// ---external
-import { defineComponent, toRefs } from "vue";
-import { Primitive } from "radix-vue";
+<script setup lang="ts">
+// --- external
+import { computed } from "vue";
+import { useForwardProps } from "radix-vue";
 
 // --- internal
-import { useStyles, stylesheet } from "../../utils";
 import config from "./button.config";
+import {
+  useStyles,
+  cn,
+  //stylesheet
+} from "../../utils";
 
-// --- utils
+// --- components
+import ButtonRoot from "./Button.vue";
 
 // --- types
-import type { PropType } from "vue";
-import type { PrimitiveProps } from "radix-vue";
-import type { ButtonConfig } from "./types";
+import type { ComputedRef } from "vue";
+import type { ButtonProps } from "./types";
+import { size } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UwButton",
-  components: {
-    Primitive,
-  },
-  props: {
-    as: {
-      type: String as PropType<PrimitiveProps["as"]>,
-      default: "button",
-    },
-    asChild: {
-      type: Boolean as PropType<PrimitiveProps["asChild"]>,
-    },
-    label: { type: String },
-    color: { type: String as PropType<ButtonConfig["color"]> },
-    variant: { type: String as PropType<ButtonConfig["variant"]> },
-    size: { type: String as PropType<ButtonConfig["size"]> },
-    block: { type: Boolean },
-    disabled: { type: Boolean },
-    loading: { type: Boolean },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-  setup(props) {
-    const styles = useStyles(
-      "button",
-      toRefs(props),
-      config,
-      props.upwindConfig
-    );
-    return { styles, stylesheet };
-  },
+const props = withDefaults(defineProps<ButtonProps>(), {
+  // --- props
+  disabled: false,
+  loading: false,
+  // --- variants
+  size: "md",
+  color: "base",
+  variant: "outline",
+  block: false,
+  // --- styles
+  upwindConfig: () => ({ button: {} }),
+  class: "",
 });
+
+const forwarded = useForwardProps(props);
+
+const meta = computed(() => ({
+  size: props.size,
+  variant: props.variant,
+  color: props.color,
+  block: props.block,
+  disabled: props.disabled,
+  loading: props.loading,
+}));
+
+const variants = useStyles(
+  "button",
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ button: string }>;
 </script>

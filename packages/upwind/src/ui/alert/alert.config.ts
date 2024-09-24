@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 
-export const alertConfig = cva(
+export const alertVariants = cva(
   "group relative w-full rounded-lg border p-4 [&>i+div]:translate-y-[-3px] [&>i]:absolute [&>i]:left-4 [&>i]:top-4 [&>i~*]:pl-7",
   {
     // Alert props doesn't see that the variants exist without these
@@ -131,11 +131,7 @@ export const alertConfig = cva(
   }
 );
 
+// -----------------------------------------------------------------------------
 export default {
-  alert: {
-    root: alertConfig,
-    title: cva("mb-1 font-medium leading-none tracking-tight"),
-    description: cva("text-sm opacity-75 [&_p]:leading-relaxed"),
-    icon: cva("absolute left-4 top-4 size-[1em]"),
-  },
+  alert: alertVariants,
 };

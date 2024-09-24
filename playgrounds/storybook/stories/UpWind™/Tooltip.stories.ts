@@ -3,20 +3,18 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwTooltip, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwTooltip);
-useCustomElement(UwButton);
+import { Tooltip, Button } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
 
-const meta: Meta<typeof UwTooltip> = {
+const meta: Meta<typeof Tooltip> = {
   argTypes: {
     label: {
       control: "text",
       description: "The text to display in the tooltip",
     },
-    direction: {
+    side: {
       control: "select",
       options: ["top", "right", "bottom", "left"],
       description: "The direction in which the tooltip should appear",
@@ -33,7 +31,7 @@ const meta: Meta<typeof UwTooltip> = {
   },
   args: {
     label: "This is a tooltip",
-    direction: "right",
+    side: "right",
     color: "base",
     delayDuration: 300,
     sideOffset: 7,
@@ -41,18 +39,19 @@ const meta: Meta<typeof UwTooltip> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UwTooltip>;
+type Story = StoryObj<typeof Tooltip>;
 
 export const Base: Story = {
   render: args => ({
+    components: { Tooltip, Button },
     setup() {
       return { args };
     },
     template: `
       <div class="p-8">
-        <uw-tooltip v-bind="args">
-          <uw-button label="Trigger" />
-        </uw-tooltip>
+        <Tooltip v-bind="args">
+          <Button label="Trigger" />
+        </Tooltip>
       </div>
     `,
   }),
@@ -60,44 +59,46 @@ export const Base: Story = {
 
 export const OpenClose: Story = {
   render: args => ({
+    components: { Tooltip, Button },
     setup() {
       const open = ref(true);
       return { args, open };
     },
     template: `
-        <div class="p-8">
-          <uw-tooltip v-bind="args" :open="open">
-            <uw-button :label="open ? 'Close' : 'Open'" @click="open = !open" :color="args.color" />
-          </uw-tooltip>
-        </div>
-      `,
+      <div class="p-8">
+        <Tooltip v-bind="args" :open="open">
+          <Button :label="open ? 'Close' : 'Open'" @click="open = !open" :color="args.color" />
+        </Tooltip>
+      </div>
+    `,
   }),
 };
 
 export const AllDirections: Story = {
   parameters: {
-    controls: { exclude: ["direction"] },
+    controls: { exclude: ["side"] },
   },
   render: args => ({
+    components: { Tooltip },
     setup() {
-      const directions = ["Top", "Right", "Bottom", "Left"];
+      const sides = ["Top", "Right", "Bottom", "Left"];
       return {
-        directions,
+        sides,
         args,
       };
     },
     template: `
       <div class="flex flex-wrap mx-16">
         <div
-          v-for="direction in directions"
-          :key="direction"
+          v-for="side in sides"
+          :key="side"
           class="w-1/4 my-20 flex justify-center"
         >
-          <uw-tooltip v-bind="args" :direction="direction.toLowerCase()">
+          <Tooltip v-bind="args" :side="side.toLowerCase()">
             <div class="flex flex-col items-center">
-              <div class="text-sm font-bold mt-2">{{ direction }}</div>
+              <div class="text-sm font-bold mt-2">{{ side }}</div>
             </div>
-          </uw-tooltip>
+          </Tooltip>
         </div>
       </div>
     `,
@@ -109,23 +110,25 @@ export const SlotContent: Story = {
     controls: { exclude: ["label"] },
   },
   render: args => ({
+    components: { Tooltip, Button },
     setup() {
-      args.label = null;
       return {
         args,
       };
     },
     template: `
       <div class="p-8">
-        <uw-tooltip v-bind="args">
-          <uw-button label="Trigger" />
-          <div
+        <Tooltip v-bind="args">
+          <Button label="Trigger" />
 
-            class="p-2 px-3 font-bold"
-          >
-            <div>You can do whatever you'd like in this slot</div>
-          </div>
-        </uw-tooltip>
+          <template v-slot:content>
+            <div
+              class="p-2 px-3 font-bold"
+            >
+              <div>You can do whatever you'd like in this slot</div>
+            </div>
+          </template>
+        </Tooltip>
       </div>
     `,
   }),
@@ -133,9 +136,10 @@ export const SlotContent: Story = {
 
 export const Colors: Story = {
   parameters: {
-    controls: { exclude: ["color", "direction", "delayDuration"] },
+    controls: { exclude: ["color", "side", "delayDuration"] },
   },
   render: args => ({
+    components: { Tooltip },
     setup() {
       const colors = useSystemArgTypes.color;
       return {
@@ -150,16 +154,16 @@ export const Colors: Story = {
           :key="color.value"
           class="w-1/3 my-20 flex justify-center"
         >
-          <uw-tooltip
+          <Tooltip
             v-bind="args"
-            direction="bottom"
+            side="bottom"
             :color="color"
             :open="true"
           >
             <div class="flex flex-col items-center">
               <div class="text-sm font-bold mt-2">{{ color }}</div>
             </div>
-          </uw-tooltip>
+          </Tooltip>
         </div>
       </div>
     `,

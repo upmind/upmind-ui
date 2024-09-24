@@ -1,5 +1,5 @@
 <template>
-  <upw-dropdown
+  <UpwDropdown
     v-if="hasThemes"
     :label="`${activeThemeName} Theme`"
     icon="palette"

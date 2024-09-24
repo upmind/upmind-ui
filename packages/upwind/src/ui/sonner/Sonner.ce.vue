@@ -1,146 +1,179 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
+  <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <sonner
+  <Sonner
     class="toaster group"
-    v-bind="$props"
+    v-bind="props"
     :toast-options="{
       classes: {
         toast: cn(
-          styles.sonner.base.toast,
-          styles.sonner.primary.toast,
-          styles.sonner.secondary.toast,
-          styles.sonner.accent.toast,
-          styles.sonner.success.toast,
-          styles.sonner.error.toast,
-          styles.sonner.warning.toast,
-          styles.sonner.info.toast,
-          styles.sonner.promotion.toast,
-          styles.sonner.destructive.toast
-        ),
-        title: cn(
-          styles.sonner.base.title,
-          styles.sonner.primary.title,
-          styles.sonner.secondary.title,
-          styles.sonner.accent.title,
-          styles.sonner.success.title,
-          styles.sonner.error.title,
-          styles.sonner.warning.title,
-          styles.sonner.info.title,
-          styles.sonner.promotion.title,
-          styles.sonner.destructive.title
-        ),
-        description: cn(
-          styles.sonner.base.description,
-          styles.sonner.primary.description,
-          styles.sonner.secondary.description,
-          styles.sonner.accent.description,
-          styles.sonner.success.description,
-          styles.sonner.error.description,
-          styles.sonner.warning.description,
-          styles.sonner.info.description,
-          styles.sonner.promotion.description,
-          styles.sonner.destructive.description
+          variants.sonner.base.toast,
+          variants.sonner.primary.toast,
+          variants.sonner.secondary.toast,
+          variants.sonner.accent.toast,
+          variants.sonner.success.toast,
+          variants.sonner.error.toast,
+          variants.sonner.warning.toast,
+          variants.sonner.info.toast,
+          variants.sonner.promotion.toast,
+          variants.sonner.destructive.toast
         ),
         actionButton: cn(
-          styles.sonner.base.actionButton,
-          styles.sonner.primary.actionButton,
-          styles.sonner.secondary.actionButton,
-          styles.sonner.accent.actionButton,
-          styles.sonner.success.actionButton,
-          styles.sonner.error.actionButton,
-          styles.sonner.warning.actionButton,
-          styles.sonner.info.actionButton,
-          styles.sonner.promotion.actionButton,
-          styles.sonner.destructive.actionButton
-        ),
-        cancelButton: cn(
-          styles.sonner.base.cancelButton,
-          styles.sonner.primary.cancelButton,
-          styles.sonner.secondary.cancelButton,
-          styles.sonner.accent.cancelButton,
-          styles.sonner.success.cancelButton,
-          styles.sonner.error.cancelButton,
-          styles.sonner.warning.cancelButton,
-          styles.sonner.info.cancelButton,
-          styles.sonner.promotion.cancelButton,
-          styles.sonner.destructive.cancelButton
+          variants.sonner.base.actionButton,
+          variants.sonner.primary.actionButton,
+          variants.sonner.secondary.actionButton,
+          variants.sonner.accent.actionButton,
+          variants.sonner.success.actionButton,
+          variants.sonner.error.actionButton,
+          variants.sonner.warning.actionButton,
+          variants.sonner.info.actionButton,
+          variants.sonner.promotion.actionButton,
+          variants.sonner.destructive.actionButton
         ),
         closeButton: cn(
-          styles.sonner.base.closeButton,
-          styles.sonner.primary.closeButton,
-          styles.sonner.secondary.closeButton,
-          styles.sonner.accent.closeButton,
-          styles.sonner.success.closeButton,
-          styles.sonner.error.closeButton,
-          styles.sonner.warning.closeButton,
-          styles.sonner.info.closeButton,
-          styles.sonner.promotion.closeButton,
-          styles.sonner.destructive.closeButton
+          variants.sonner.base.closeButton,
+          variants.sonner.primary.closeButton,
+          variants.sonner.secondary.closeButton,
+          variants.sonner.accent.closeButton,
+          variants.sonner.success.closeButton,
+          variants.sonner.error.closeButton,
+          variants.sonner.warning.closeButton,
+          variants.sonner.info.closeButton,
+          variants.sonner.promotion.closeButton,
+          variants.sonner.destructive.closeButton
         ),
+        // title: cn(
+        //   variants.sonner.base.title,
+        //   variants.sonner.primary.title,
+        //   variants.sonner.secondary.title,
+        //   variants.sonner.accent.title,
+        //   variants.sonner.success.title,
+        //   variants.sonner.error.title,
+        //   variants.sonner.warning.title,
+        //   variants.sonner.info.title,
+        //   variants.sonner.promotion.title,
+        //   variants.sonner.destructive.title
+        // ),
+        // description: cn(
+        //   variants.sonner.base.description,
+        //   variants.sonner.primary.description,
+        //   variants.sonner.secondary.description,
+        //   variants.sonner.accent.description,
+        //   variants.sonner.success.description,
+        //   variants.sonner.error.description,
+        //   variants.sonner.warning.description,
+        //   variants.sonner.info.description,
+        //   variants.sonner.promotion.description,
+        //   variants.sonner.destructive.description
+        // ),
+        // cancelButton: cn(
+        //   variants.sonner.base.cancelButton,
+        //   variants.sonner.primary.cancelButton,
+        //   variants.sonner.secondary.cancelButton,
+        //   variants.sonner.accent.cancelButton,
+        //   variants.sonner.success.cancelButton,
+        //   variants.sonner.error.cancelButton,
+        //   variants.sonner.warning.cancelButton,
+        //   variants.sonner.info.cancelButton,
+        //   variants.sonner.promotion.cancelButton,
+        //   variants.sonner.destructive.cancelButton
+        // ),
       },
     }"
   />
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent, toRefs, type PropType } from "vue";
+import { Toaster as Sonner } from "vue-sonner";
 
 // --- internal
-
-import { useStyles, cn, stylesheet } from "../../utils";
+import {
+  useStyles,
+  cn,
+  //stylesheet
+} from "../../utils";
 import config from "./sonner.config";
 
-// --- utils
-
-// --- components
-import { Toaster as Sonner, type ToasterProps } from "vue-sonner";
+// --- types
+import type { ComputedRef } from "vue";
+import { type SonnerProps } from ".";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UwSonner",
-  components: { Sonner },
-  props: {
-    invert: { type: Boolean },
-    position: { type: String as PropType<ToasterProps["position"]> },
-    hotkey: { type: Array as PropType<ToasterProps["hotkey"]> },
-    richColors: { type: Boolean },
-    expand: { type: Boolean },
-    duration: { type: Number },
-    gap: { type: Number },
-    visibleToasts: { type: Number },
-    closeButton: { type: Boolean },
-    toastOptions: { type: Object as PropType<ToasterProps["toastOptions"]> },
-    style: { type: Object as PropType<CSSStyleDeclaration> },
-    offset: { type: [String, Number] },
-    dir: { type: String as PropType<ToasterProps["dir"]> },
-    icons: { type: Object as PropType<ToasterProps["icons"]> },
-    containerAriaLabel: { type: String },
-    pauseWhenPageIsHidden: { type: Boolean },
-    cn: { type: Function as PropType<ToasterProps["cn"]> },
-  },
-  setup(props) {
-    const styles = useStyles(
-      [
-        "sonner",
-        "sonner.base",
-        "sonner.primary",
-        "sonner.secondary",
-        "sonner.accent",
-        "sonner.success",
-        "sonner.error",
-        "sonner.info",
-        "sonner.promotion",
-        "sonner.destructive",
-        "sonner.warning",
-      ],
-      toRefs(props),
-      config
-    );
-    return { stylesheet, styles, cn };
-  },
-});
+
+const props = defineProps<SonnerProps>();
+
+const variants = useStyles(
+  [
+    "sonner",
+    "sonner.base",
+    "sonner.primary",
+    "sonner.secondary",
+    "sonner.accent",
+    "sonner.success",
+    "sonner.error",
+    "sonner.info",
+    "sonner.promotion",
+    "sonner.destructive",
+    "sonner.warning",
+  ],
+  {},
+  config,
+  props.upwindConfig ?? {} ?? {}
+) as ComputedRef<{
+  sonner: {
+    base: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    primary: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    secondary: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    accent: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    success: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    error: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    warning: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    info: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    promotion: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+    destructive: {
+      toast: string;
+      actionButton: string;
+      closeButton: string;
+    };
+  };
+}>;
 </script>
 
 <style src="./sonner.css"></style>

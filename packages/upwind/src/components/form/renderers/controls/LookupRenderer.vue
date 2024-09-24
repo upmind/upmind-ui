@@ -1,5 +1,5 @@
 <template>
-  <upw-combobox
+  <UpwCombobox
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-lookup'"
     :disabled="!control.enabled"
@@ -8,7 +8,7 @@
     :search="search"
     @change="onChange"
   >
-  </upw-combobox>
+  </UpwCombobox>
 </template>
 
 <script lang="ts">
