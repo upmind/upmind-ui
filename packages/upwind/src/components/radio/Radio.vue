@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     :id="id"
     :label="label"
     :text="text"
@@ -37,7 +37,7 @@
         @input="onChange"
         :aria-invalid="meta.isInvalid"
       />
-      <upw-icon
+      <UpwIcon
         :class="styles.radio.icon"
         :icon="computedIcon"
         v-if="computedIcon"
@@ -55,7 +55,7 @@
     <template #append="slotProps">
       <slot name="append" v-bind="{ meta, ...slotProps }"></slot>
     </template>
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

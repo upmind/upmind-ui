@@ -1,86 +1,70 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
+  <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <span :class="styles.indicator.root">
+  <span :class="cn(variants.indicator, props.class)">
     <slot>
-      <u-icon
+      <Icon
         v-if="meta.hasIcon"
         :icon="icon"
-        :class="styles.indicator.icon"
-        :upwindConfig="{ icon: config.indicator.icon }"
+        class="h-full w-full object-cover p-[0.5em]"
       />
 
-      <span v-else-if="meta.hasValue" :class="styles.indicator.value">
+      <span v-else-if="meta.hasValue" class="text-center">
         {{ modelValue }}
       </span>
     </slot>
   </span>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { defineComponent, toRefs } from "vue";
-
-// --- components
-import UIcon from "../icon/Icon.ce.vue";
+import { computed } from "vue";
 
 // --- internal
-
-import { useStyles, stylesheet } from "../../utils";
+import {
+  useStyles,
+  cn,
+  //stylesheet
+} from "../../utils";
 import config from "./indicator.config";
+
+// --- components
+import { Icon } from "../icon";
 
 // --- utils
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { PropType } from "vue";
-import type { IndicatorConfig } from "./types";
-import type { IconProps } from "../../components/icon/types";
+import type { ComputedRef } from "vue";
+import type { IndicatorProps } from ".";
+
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "UwIndicator",
-  inheritAttrs: false,
-  components: {
-    UIcon,
-  },
-  props: {
-    color: { type: String as PropType<IndicatorConfig["color"]> },
-
-    size: {
-      type: String as PropType<IndicatorConfig["size"]>,
-      default: "full",
-    },
-    icon: {
-      type: [String, Object] as PropType<IconProps["icon"]>,
-    },
-    modelValue: { type: String },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-
-  setup(props) {
-    const styles = useStyles(
-      "indicator",
-      toRefs(props),
-      config,
-      props.upwindConfig
-    );
-
-    return {
-      config,
-      styles,
-      stylesheet,
-    };
-  },
-
-  computed: {
-    meta() {
-      return {
-        hasIcon: !isEmpty(this.icon),
-        hasValue: !isEmpty(this.modelValue) || true,
-      };
-    },
-  },
+const props = withDefaults(defineProps<IndicatorProps>(), {
+  // --- props
+  icon: undefined,
+  //  --- variants
+  color: "base",
+  shape: "circle",
+  size: "full",
+  // --- styles
+  upwindConfig: () => ({ indicator: {} }),
+  class: "",
 });
+
+const meta = computed(() => ({
+  color: props.color,
+  shape: props.shape,
+  size: props.size,
+  // ---
+  hasIcon: !isEmpty(props.icon),
+  hasValue: !isEmpty(props.modelValue),
+}));
+
+const variants = useStyles(
+  "indicator",
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ indicator: string }>;
 </script>

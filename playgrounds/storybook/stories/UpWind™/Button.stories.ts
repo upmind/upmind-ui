@@ -3,8 +3,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { UwAvatar, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton, UwAvatar);
+import { Button } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -20,7 +19,8 @@ enum variants {
 }
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UwButton> = {
+const meta: Meta<typeof Button> = {
+  component: Button,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -60,16 +60,10 @@ const meta: Meta<typeof UwButton> = {
     // loading: false,
     disabled: false,
   },
-  render: args => ({
-    setup() {
-      return { args };
-    },
-    template: `<uw-button v-bind="args"/>`,
-  }),
 };
 
 export default meta;
-type Story = StoryObj<typeof UwButton>;
+type Story = StoryObj<typeof Button>;
 
 export const Base: Story = {};
 
@@ -78,6 +72,7 @@ export const Variants: Story = {
     controls: { exclude: ["label", "variant"] },
   },
   render: args => ({
+    components: { Button },
     setup() {
       return {
         args,
@@ -86,10 +81,10 @@ export const Variants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
-        <uw-button v-bind="args" variant="flat" label="Flat" />
-        <uw-button v-bind="args" variant="outline" label="Outline" />
-        <uw-button v-bind="args" variant="ghost" label="Ghost" />
-        <uw-button v-bind="args" variant="link" label="Link" />
+        <Button v-bind="args" variant="flat" label="Flat" />
+        <Button v-bind="args" variant="outline" label="Outline" />
+        <Button v-bind="args" variant="ghost" label="Ghost" />
+        <Button v-bind="args" variant="link" label="Link" />
       </section>
     `,
   }),
@@ -102,6 +97,7 @@ export const Slots: Story = {
     },
   },
   render: args => ({
+    components: { Button },
     setup() {
       const avatar = useSystemArgTypes.flag.options.find(flag =>
         flag.includes("gb")
@@ -124,11 +120,11 @@ export const Slots: Story = {
       <h1 class="w-full mt-0">Slots</h1>
       <p class="w-full mt-0">Buttons with all slots activated in ALL sizes<br /></p>
 
-      <uw-button
+      <Button
         v-bind="args"
         label="Label Only" />
 
-      <uw-button
+      <Button
         v-bind="args"
         icon-only
         label="Icon Only">
@@ -137,9 +133,9 @@ export const Slots: Story = {
           class="w-full h-full"
           :src="avatar"
           caption="GB"></uw-avatar>
-      </uw-button>
+      </Button>
 
-     <uw-button
+     <Button
         v-bind="args"
         label="Prepend Avatar">
         <uw-avatar
@@ -147,23 +143,23 @@ export const Slots: Story = {
           class="w-full h-full"
           :src="avatar"
           caption="GB"></uw-avatar>
-      </uw-button>
+      </Button>
 
-      <uw-button
+      <Button
         v-bind="args"
         label="Prepend icon">
         <span slot="prepend"></span>
-      </uw-button>
+      </Button>
 
-      <uw-button
+      <Button
         v-bind="args"
         label="Append icon"
         ><span
           v-html="icon"
           slot="append"
-      /></uw-button>
+      /></Button>
 
-      <uw-button
+      <Button
         v-bind="args"
         label="Append Avatar"
         >
@@ -172,7 +168,7 @@ export const Slots: Story = {
           class="w-full h-full"
           :src="avatar"
           caption="GB" />
-        </uw-button>
+        </Button>
     </section>
 
     `,
@@ -184,6 +180,8 @@ export const SolidColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -192,16 +190,16 @@ export const SolidColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Solid Color Variants</h1>
-        <uw-button v-bind="args" variant="flat" color="base" label="Base" />
-        <uw-button v-bind="args" variant="flat" color="primary" label="Primary" />
-        <uw-button v-bind="args" variant="flat" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" variant="flat" color="accent" label="Accent" />
-        <uw-button v-bind="args" variant="flat" color="promotion" label="Promotion" />
-        <uw-button v-bind="args" variant="flat" color="destructive" label="Destructive" />
-        <uw-button v-bind="args" variant="flat" color="success" label="Success" />
-        <uw-button v-bind="args" variant="flat" color="info" label="Info" />
-        <uw-button v-bind="args" variant="flat" color="error" label="Error" />
-        <uw-button v-bind="args" variant="flat" color="warning" label="Warning" />
+        <Button v-bind="args" variant="flat" color="base" label="Base" />
+        <Button v-bind="args" variant="flat" color="primary" label="Primary" />
+        <Button v-bind="args" variant="flat" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="flat" color="accent" label="Accent" />
+        <Button v-bind="args" variant="flat" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="flat" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="flat" color="success" label="Success" />
+        <Button v-bind="args" variant="flat" color="info" label="Info" />
+        <Button v-bind="args" variant="flat" color="error" label="Error" />
+        <Button v-bind="args" variant="flat" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -212,6 +210,8 @@ export const outlineColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -220,16 +220,16 @@ export const outlineColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">outline Color Variants</h1>
-        <uw-button v-bind="args" variant="outline" color="base" label="Base" />
-        <uw-button v-bind="args" variant="outline" color="primary" label="Primary" />
-        <uw-button v-bind="args" variant="outline" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" variant="outline" color="accent" label="Accent" />
-        <uw-button v-bind="args" variant="outline" color="promotion" label="Promotion" />
-        <uw-button v-bind="args" variant="outline" color="destructive" label="Destructive" />
-        <uw-button v-bind="args" variant="outline" color="success" label="Success" />
-        <uw-button v-bind="args" variant="outline" color="info" label="Info" />
-        <uw-button v-bind="args" variant="outline" color="error" label="Error" />
-        <uw-button v-bind="args" variant="outline" color="warning" label="Warning" />
+        <Button v-bind="args" variant="outline" color="base" label="Base" />
+        <Button v-bind="args" variant="outline" color="primary" label="Primary" />
+        <Button v-bind="args" variant="outline" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="outline" color="accent" label="Accent" />
+        <Button v-bind="args" variant="outline" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="outline" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="outline" color="success" label="Success" />
+        <Button v-bind="args" variant="outline" color="info" label="Info" />
+        <Button v-bind="args" variant="outline" color="error" label="Error" />
+        <Button v-bind="args" variant="outline" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -240,6 +240,8 @@ export const GhostColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -248,16 +250,16 @@ export const GhostColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Ghost Color Variants</h1>
-        <uw-button v-bind="args" variant="ghost" color="base" label="Base" />
-        <uw-button v-bind="args" variant="ghost" color="primary" label="Primary" />
-        <uw-button v-bind="args" variant="ghost" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" variant="ghost" color="accent" label="Accent" />
-        <uw-button v-bind="args" variant="ghost" color="promotion" label="Promotion" />
-        <uw-button v-bind="args" variant="ghost" color="destructive" label="Destructive" />
-        <uw-button v-bind="args" variant="ghost" color="success" label="Success" />
-        <uw-button v-bind="args" variant="ghost" color="info" label="Info" />
-        <uw-button v-bind="args" variant="ghost" color="error" label="Error" />
-        <uw-button v-bind="args" variant="ghost" color="warning" label="Warning" />
+        <Button v-bind="args" variant="ghost" color="base" label="Base" />
+        <Button v-bind="args" variant="ghost" color="primary" label="Primary" />
+        <Button v-bind="args" variant="ghost" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="ghost" color="accent" label="Accent" />
+        <Button v-bind="args" variant="ghost" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="ghost" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="ghost" color="success" label="Success" />
+        <Button v-bind="args" variant="ghost" color="info" label="Info" />
+        <Button v-bind="args" variant="ghost" color="error" label="Error" />
+        <Button v-bind="args" variant="ghost" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -268,6 +270,8 @@ export const LinkColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -276,16 +280,16 @@ export const LinkColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Link Color Variants</h1>
-        <uw-button v-bind="args" variant="link" color="base" label="Base" />
-        <uw-button v-bind="args" variant="link" color="primary" label="Primary" />
-        <uw-button v-bind="args" variant="link" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" variant="link" color="accent" label="Accent" />
-        <uw-button v-bind="args" variant="link" color="promotion" label="Promotion" />
-        <uw-button v-bind="args" variant="link" color="destructive" label="Destructive" />
-        <uw-button v-bind="args" variant="link" color="success" label="Success" />
-        <uw-button v-bind="args" variant="link" color="info" label="Info" />
-        <uw-button v-bind="args" variant="link" color="error" label="Error" />
-        <uw-button v-bind="args" variant="link" color="warning" label="Warning" />
+        <Button v-bind="args" variant="link" color="base" label="Base" />
+        <Button v-bind="args" variant="link" color="primary" label="Primary" />
+        <Button v-bind="args" variant="link" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="link" color="accent" label="Accent" />
+        <Button v-bind="args" variant="link" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="link" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="link" color="success" label="Success" />
+        <Button v-bind="args" variant="link" color="info" label="Info" />
+        <Button v-bind="args" variant="link" color="error" label="Error" />
+        <Button v-bind="args" variant="link" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -296,6 +300,8 @@ export const TonalColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -304,16 +310,16 @@ export const TonalColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Tonal Color Variants</h1>
-        <uw-button v-bind="args" variant="tonal" color="base" label="Base" />
-        <uw-button v-bind="args" variant="tonal" color="primary" label="Primary" />
-        <uw-button v-bind="args" variant="tonal" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" variant="tonal" color="accent" label="Accent" />
-        <uw-button v-bind="args" variant="tonal" color="promotion" label="Promotion" />
-        <uw-button v-bind="args" variant="tonal" color="destructive" label="Destructive" />
-        <uw-button v-bind="args" variant="tonal" color="success" label="Success" />
-        <uw-button v-bind="args" variant="tonal" color="info" label="Info" />
-        <uw-button v-bind="args" variant="tonal" color="error" label="Error" />
-        <uw-button v-bind="args" variant="tonal" color="warning" label="Warning" />
+        <Button v-bind="args" variant="tonal" color="base" label="Base" />
+        <Button v-bind="args" variant="tonal" color="primary" label="Primary" />
+        <Button v-bind="args" variant="tonal" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="tonal" color="accent" label="Accent" />
+        <Button v-bind="args" variant="tonal" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="tonal" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="tonal" color="success" label="Success" />
+        <Button v-bind="args" variant="tonal" color="info" label="Info" />
+        <Button v-bind="args" variant="tonal" color="error" label="Error" />
+        <Button v-bind="args" variant="tonal" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -331,16 +337,16 @@ export const TonalColorVariants: Story = {
 //     template: `
 //     <section class="flex w-full flex-wrap items-center gap-2">
 //     <h1 class="w-full mt-0">Loading Color Variants</h1>
-//         <uw-button v-bind="args" color="base" label="Base" />
-//         <uw-button v-bind="args" color="primary" label="Primary" />
-//         <uw-button v-bind="args" color="secondary" label="Secondary" />
-//         <uw-button v-bind="args" color="accent" label="Accent" />
-//         <uw-button v-bind="args" color="promotion" label="Promotion" />
-//         <uw-button v-bind="args" color="destructive" label="Destructive" />
-//         <uw-button v-bind="args" color="success" label="Success" />
-//         <uw-button v-bind="args" color="info" label="Info" />
-//         <uw-button v-bind="args" color="error" label="Error" />
-//         <uw-button v-bind="args" color="warning" label="Warning" />
+//         <Button v-bind="args" color="base" label="Base" />
+//         <Button v-bind="args" color="primary" label="Primary" />
+//         <Button v-bind="args" color="secondary" label="Secondary" />
+//         <Button v-bind="args" color="accent" label="Accent" />
+//         <Button v-bind="args" color="promotion" label="Promotion" />
+//         <Button v-bind="args" color="destructive" label="Destructive" />
+//         <Button v-bind="args" color="success" label="Success" />
+//         <Button v-bind="args" color="info" label="Info" />
+//         <Button v-bind="args" color="error" label="Error" />
+//         <Button v-bind="args" color="warning" label="Warning" />
 //       </section>
 //     `,
 //   }),
@@ -354,22 +360,24 @@ export const DisabledColorVariants: Story = {
     controls: { exclude: ["label", "color"] },
   },
   render: args => ({
+    components: { Button },
+
     setup() {
       return { args };
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Disabled Color Variants</h1>
-        <uw-button v-bind="args" color="base" label="Base" />
-        <uw-button v-bind="args" color="primary" label="Primary" />
-        <uw-button v-bind="args" color="secondary" label="Secondary" />
-        <uw-button v-bind="args" color="accent" label="Accent" />
-        <uw-button v-bind="args" color="promotion" label="Promotion" />
-        <uw-button v-bind="args" color="destructive" label="Destructive" />
-        <uw-button v-bind="args" color="success" label="Success" />
-        <uw-button v-bind="args" color="info" label="Info" />
-        <uw-button v-bind="args" color="error" label="Error" />
-        <uw-button v-bind="args" color="warning" label="Warning" />
+        <Button v-bind="args" color="base" label="Base" />
+        <Button v-bind="args" color="primary" label="Primary" />
+        <Button v-bind="args" color="secondary" label="Secondary" />
+        <Button v-bind="args" color="accent" label="Accent" />
+        <Button v-bind="args" color="promotion" label="Promotion" />
+        <Button v-bind="args" color="destructive" label="Destructive" />
+        <Button v-bind="args" color="success" label="Success" />
+        <Button v-bind="args" color="info" label="Info" />
+        <Button v-bind="args" color="error" label="Error" />
+        <Button v-bind="args" color="warning" label="Warning" />
       </section>
     `,
   }),

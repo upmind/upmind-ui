@@ -2,7 +2,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const buttonConfig = cva(
+export const buttonVariants = cva(
   "focus-visible:ring-ring relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
@@ -229,17 +229,15 @@ export const buttonConfig = cva(
     ],
 
     defaultVariants: {
+      block: false,
       variant: "flat",
       color: "base",
       size: "md",
     },
   }
 );
-// -----------------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
 export default {
-  button: {
-    root: buttonConfig,
-    label: cva("truncate"),
-  },
+  button: buttonVariants,
 };

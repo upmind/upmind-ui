@@ -2,7 +2,8 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const avatarConfig = cva(
+// --- for out Typescript type
+export const avatarVariants = cva(
   "relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden font-normal",
   {
     variants: {
@@ -24,6 +25,7 @@ export const avatarConfig = cva(
       },
       size: {
         full: "h-full w-full text-inherit",
+        xxxs: "h-4 w-4 text-xs",
         xxs: "h-6 w-6 text-xs",
         xs: "h-8 w-8 text-xs",
         sm: "h-12 w-12 text-sm",
@@ -45,13 +47,7 @@ export const avatarConfig = cva(
 );
 
 // -----------------------------------------------------------------------------
+// --- for our useStyles helper
 export default {
-  avatar: {
-    root: avatarConfig,
-    icon: "relative z-10 h-full w-full object-cover",
-    caption: cva(
-      "absolute bottom-0 left-0 right-0 top-0 z-0 inline-flex items-center justify-center text-center"
-    ),
-    image: cva("relative z-10 h-full w-full object-cover"),
-  },
+  avatar: avatarVariants,
 };

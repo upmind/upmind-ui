@@ -1,6 +1,6 @@
 <template>
-  <upw-input variant="flat">
-    <u-button
+  <UpwInput variant="flat">
+    <UButton
       v-bind="{ ...control, ...appliedOptions }"
       :id="control.id + '-input'"
       :disabled="!control.enabled"
@@ -9,7 +9,7 @@
       v-show="control.visible"
       class="flex-nowrap"
     />
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

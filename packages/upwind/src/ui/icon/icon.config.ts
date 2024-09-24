@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const iconConfig = cva(
+export const iconVariants = cva(
   "inline-flex flex-shrink-0 align-middle [&>svg]:h-full [&>svg]:w-full",
   {
     variants: {
@@ -23,7 +23,5 @@ export const iconConfig = cva(
 );
 
 export default {
-  icon: {
-    root: iconConfig,
-  },
+  icon: iconVariants,
 };

@@ -1,100 +1,89 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
+  <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <tabs-root
-    :modelValue="modelValue"
-    :defaultValue="defaultValue"
-    :orientation="orientation"
-    :dir="dir"
-    :activationMode="activationMode"
-    @update:modelValue="$emit('update:modelValue', $event)"
-  >
-    <tabs-list :class="styles.tabs.list" :color="color" :variant="variant">
-      <template v-for="(value, index) in tabs" :key="value">
-        <tabs-trigger
-          :value="value"
-          :class="styles.tabs.trigger"
-          :color="color"
-          :variant="variant"
+  <Tabs v-bind="forwarded">
+    <TabsList :class="variants.tabs.list" :color="color" :variant="variant">
+      <template v-for="item in tabs" :key="item.value">
+        <TabsTrigger
+          :value="item.value"
+          :class="variants.tabs.trigger"
+          :color="props.color"
+          :variant="props.variant"
         >
-          <!-- <span v-if="icons" >
-            <u-icon
-              :class="styles.tabs.icon"
-              :icon="icon[index]"
-              aria-hidden="true"
-            />
-          </span> -->
-          <slot :name="`trigger.${value}`"></slot>
-        </tabs-trigger>
+          <slot :name="`trigger.${item.value}`">{{ item.label }}</slot>
+        </TabsTrigger>
       </template>
-    </tabs-list>
+    </TabsList>
 
-    <template v-for="value in tabs" :key="value">
-      <tabs-content :value="value" :class="styles.tabs.content">
-        <slot :name="`content.${value}`"></slot>
-      </tabs-content>
+    <template v-for="item in tabs" :key="item.value">
+      <TabsContent :value="item.value">
+        <slot :name="`content.${item.value}`"></slot>
+      </TabsContent>
     </template>
-  </tabs-root>
+  </Tabs>
 </template>
 
-<script lang="ts">
-// --- external
-import { defineComponent, toRefs } from "vue";
+<script setup lang="ts">
+// ---external
+import { computed } from "vue";
+import { useForwardPropsEmits } from "radix-vue";
 
-// ---components
-import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "radix-vue";
-
-// --- internal
-
-import { useStyles, stylesheet } from "../../utils";
+// ---internal
+import {
+  useStyles,
+  //stylesheet
+} from "../../utils";
 import config from "./tabs.config";
 
-// --- utils
+// --- components
+import Tabs from "./Tabs.vue";
+import TabsContent from "./TabsContent.vue";
+import TabsList from "./TabsList.vue";
+import TabsTrigger from "./TabsTrigger.vue";
 
 // --- types
-import type { PropType } from "vue";
-import type { TabsRootProps } from "radix-vue";
-import type { TabsConfig } from "./types";
-// ---------
-export default defineComponent({
-  name: "UwTabs",
-  components: {
-    TabsRoot,
-    TabsList,
-    TabsTrigger,
-    TabsContent,
-  },
-  props: {
+import type { ComputedRef } from "vue";
+import type { TabsProps, TabItems } from ".";
+import type { TabsRootEmits } from "radix-vue";
+
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(defineProps<TabsProps>(), {
+  // --- props
+  tabs: (): TabItems[] => [],
+  defaultValue: "",
+  // -- variants
+  color: "base",
+  variant: "flat",
+  // --- styles
+  upwindConfig: () => ({
     tabs: {
-      type: Array,
-      required: true,
+      list: {},
+      trigger: {},
     },
-    icons: {
-      type: Array,
-      required: false,
-    },
-    modelValue: {
-      type: [String, Number] as PropType<TabsRootProps["modelValue"]>,
-    },
-    defaultValue: {
-      type: [String, Number] as PropType<TabsRootProps["defaultValue"]>,
-    },
-    orientation: { type: String as PropType<TabsRootProps["orientation"]> },
-    dir: { type: String as PropType<TabsRootProps["dir"]> },
-    activationMode: {
-      type: String as PropType<TabsRootProps["activationMode"]>,
-    },
-    color: { type: String as TabsConfig["color"] },
-    variant: String as TabsConfig["variant"],
-    alignment: String as TabsConfig["alignment"],
-    width: String as TabsConfig["width"],
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-  emits: ["update:modelValue"],
-  setup(props) {
-    const styles = useStyles("tabs", toRefs(props), config, props.upwindConfig);
-    return { stylesheet, styles };
-  },
+  }),
+  class: "",
 });
+
+const emits = defineEmits<TabsRootEmits>();
+const forwarded = useForwardPropsEmits(props, emits);
+
+const meta = computed(() => ({
+  color: props.color,
+  variant: props.variant,
+  alignment: props.alignment,
+  width: props.width,
+}));
+
+const variants = useStyles(
+  "tabs",
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{
+  tabs: {
+    list: string;
+    trigger: string;
+  };
+}>;
 </script>

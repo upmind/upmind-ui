@@ -1,5 +1,5 @@
 <template>
-  <upw-checkbox
+  <UpwCheckbox
     v-bind="{ ...control, ...appliedOptions }"
     :id="control.id + '-input'"
     :disabled="!control.enabled"

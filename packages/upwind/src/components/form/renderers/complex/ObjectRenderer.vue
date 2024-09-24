@@ -1,5 +1,5 @@
 <template>
-  <dispatch-renderer
+  <DispatchRenderer
     v-if="control.visible"
     :visible="control.visible"
     :enabled="control.enabled"

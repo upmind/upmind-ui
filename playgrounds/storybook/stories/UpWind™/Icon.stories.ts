@@ -2,8 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UwIcon, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwIcon);
+import { Icon } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -11,7 +10,7 @@ import { useSystemArgTypes } from "../../utils";
 // --- types
 
 // -----------------------------------------------------------------------------
-const meta: Meta<typeof UwIcon> = {
+const meta: Meta<typeof Icon> = {
   argTypes: {
     icon: useSystemArgTypes.icon,
     size: useSystemArgTypes.size,
@@ -21,14 +20,15 @@ const meta: Meta<typeof UwIcon> = {
     size: "md",
   },
   render: args => ({
+    components: { Icon },
     setup() {
       return { args };
     },
-    template: `<uw-icon v-bind="args"/>`,
+    template: `<icon v-bind="args"/>`,
   }),
 };
 
 export default meta;
-type Story = StoryObj<typeof UwIcon>;
+type Story = StoryObj<typeof Icon>;
 
 export const Base: Story = {};

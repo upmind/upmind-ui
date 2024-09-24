@@ -1,5 +1,5 @@
 <template>
-  <upw-textbox
+  <UpwTextbox
     v-bind="{
       ...control,
       ...appliedOptions,
@@ -23,7 +23,7 @@
         {{ !unmask ? "Show" : "Hide" }}
       </button>
     </template>
-  </upw-textbox>
+  </UpwTextbox>
 </template>
 
 <script lang="ts">

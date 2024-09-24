@@ -1,256 +1,166 @@
 <template>
-  <link rel="stylesheet" :href="stylesheet" />
-
-  <popover-root v-model:open="open">
-    <popover-trigger>
-      <u-button
+  <Popover v-model:open="open">
+    <PopoverTrigger as-child>
+      <Button
         variant="outline"
-        color="base"
         role="combobox"
+        color="base"
         :aria-expanded="open"
-        :class="[styles.combobox.button, buttonClass]"
+        class="w-[200px] justify-between"
         :disabled="loading"
+        :class="cn(variants.button, props.class)"
       >
         <span class="flex items-center truncate">
-          <u-avatar
-            v-if="selected?.icon"
-            :icon="selected?.icon"
-            size="sm"
+          <Avatar
+            v-if="value?.icon"
+            :icon="value.icon"
+            size="xxxs"
             shape="circle"
             fit="cover"
-            :class="styles.combobox.icons.listItem"
+            class="mr-2 shrink-0"
             aria-hidden="true"
           />
-
-          <span v-if="!loading || selected">{{
-            selected?.label || label
-          }}</span>
+          <span>{{ value?.label || label }}</span>
         </span>
 
-        <div v-if="!loading" :class="styles.combobox.icons.arrowUpDown">
-          <u-icon icon="arrow-down" size="xs" aria-hidden="true" />
-        </div>
-        <div v-else :class="styles.combobox.icons.loading">
-          <upw-spinner size="xs" />
-        </div>
-      </u-button>
-    </popover-trigger>
-    <popover-portal>
-      <popover-content
-        :class="styles.combobox.content"
-        :side="side"
-        :side-offset="sideOffset"
-        :align="align"
-        :align-offset="alignOffset"
-        :avoid-collisions="avoidCollisions"
-        :collision-boundary="collisionBoundary"
-        :collision-padding="collisionPadding"
-        :arrow-padding="arrowPadding"
-        :sticky="sticky"
-        :hide-when-detached="hideWhenDetached"
-        :update-position-strategy="updatePositionStrategy"
-        :on-placed="onPlaced"
-        :prioritize-position="prioritizePosition"
-      >
-        <combobox-root
-          :open="open"
-          :model-value="modelValue"
-          :class="styles.combobox.root"
-          :dismissable="dismissable"
-          :position="position"
-          :side="side"
-          :side-offset="sideOffset"
-          :align="align"
-          :align-offset="alignOffset"
-          :avoid-collisions="avoidCollisions"
-          :collision-boundary="collisionBoundary"
-          :collision-padding="collisionPadding"
-          :arrow-padding="arrowPadding"
-          :sticky="sticky"
-          :hide-when-detached="hideWhenDetached"
-          :update-position-strategy="updatePositionStrategy"
-          :on-placed="onPlaced"
-          :prioritize-position="prioritizePosition"
-        >
-          <div :class="styles.combobox.command.wrapper" cmdk-input-wrapper>
-            <combobox-input
-              auto-focus
-              :class="styles.combobox.command.root"
-              :placeholder="searchPlaceholder"
-            />
-          </div>
+        <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
 
-          <combobox-empty :class="styles.combobox.empty">
-            <slot name="combobox-empty">
-              {{ emptyMessage }}
-            </slot>
-          </combobox-empty>
-          <combobox-content :class="styles.combobox.list">
-            <div role="presentation">
-              <combobox-group
-                :class="styles.combobox.group"
-                :as-child="asChild"
-                :heading="heading"
-              >
-                <combobox-label v-if="heading" :class="styles.combobox.label">
-                  {{ heading }}
-                </combobox-label>
-                <combobox-item
-                  v-for="(item, index) in items"
-                  :key="index"
-                  :value="item.value"
-                  :label="item.label"
+        <Icon
+          v-if="!loading"
+          class="ml-2 h-3 w-3 shrink-0 rotate-180 opacity-50 transition-all duration-200"
+          icon="arrow-up"
+        />
+
+        <UpwSpinner
+          size="xs"
+          v-else
+          class="-mr-1 ml-2 mt-1 shrink-0 opacity-50"
+        />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent :class="cn(variants.content, props.class)">
+      <Command>
+        <CommandInput auto-focus :placeholder="searchMessage" />
+        <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+        <CommandList>
+          <CommandGroup>
+            <CommandItem
+              v-for="item in items"
+              :key="item.value"
+              :value="item"
+              @select="handleSelect(item)"
+              class="group flex items-center justify-between"
+              :class="variants.item"
+            >
+              <div class="flex">
+                <Avatar
+                  v-if="item.icon"
                   :icon="item.icon"
-                  :color="color"
-                  :is-selected="item.value === selected?.value"
-                  @select="handleSelect"
+                  size="xxxs"
+                  class="mr-2"
                 />
-              </combobox-group>
-            </div>
-          </combobox-content>
-        </combobox-root>
-      </popover-content>
-    </popover-portal>
-  </popover-root>
+
+                {{ item.label }}
+              </div>
+
+              <Icon
+                icon="check"
+                :class="
+                  cn(
+                    'h-3 w-3',
+                    value?.value === item.value ? 'opacity-100' : 'opacity-0'
+                  )
+                "
+              />
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </PopoverContent>
+  </Popover>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { defineComponent, toRefs, ref, watch } from "vue";
-import {
-  PopoverTrigger,
-  PopoverRoot,
-  PopoverContent,
-  PopoverPortal,
-  ComboboxRoot,
-  ComboboxInput,
-  ComboboxGroup,
-  ComboboxLabel,
-  ComboboxEmpty,
-  ComboboxContent,
-} from "radix-vue";
+import { ref, watch, computed } from "vue";
 
 // --- internal
-
-import { useStyles, stylesheet } from "../../utils";
+import { cn, useStyles } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
-import UButton from "../button/Button.ce.vue";
-import UAvatar from "../avatar/Avatar.ce.vue";
-import UIcon from "../icon/Icon.ce.vue";
-import ComboboxItem from "./ComboboxItem.vue";
+import Button from "../button/Button.ce.vue";
+import Avatar from "../avatar/Avatar.ce.vue";
+import Icon from "../icon/Icon.ce.vue";
 import UpwSpinner from "../../components/spinner/Spinner.vue";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../command";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 // --- utils
-import { first } from "lodash-es";
+import { find, isString } from "lodash-es";
 
 // --- types
-import { type ComboboxConfig } from "./types.d";
+import type { ComboboxProps } from "./types";
+import type { ComputedRef } from "vue";
 
-export default defineComponent({
-  name: "UwCombobox",
-  components: {
-    UButton,
-    UAvatar,
-    UIcon,
-    UpwSpinner,
-    ComboboxRoot,
-    ComboboxInput,
-    ComboboxGroup,
-    ComboboxLabel,
-    ComboboxEmpty,
-    ComboboxContent,
-    PopoverRoot,
-    PopoverContent,
-    PopoverTrigger,
-    PopoverPortal,
-    ComboboxItem,
-  },
-  props: {
-    defaultItem: { type: Object },
-    items: { type: Array, default: () => [] },
-    width: { type: String as ComboboxConfig["width"], default: "md" },
-    color: { type: String as ComboboxConfig["color"], default: "base" },
-    label: { type: String, default: "Select an item" },
-    searchPlaceholder: { type: String, default: "Search" },
-    emptyMessage: { type: String, default: "No results" },
-    heading: { type: String, default: "" },
-    align: { type: String, default: "left" },
-    sideOffset: { type: Number, default: 4 },
-    side: { type: String },
-    alignOffset: { type: Number },
-    avoidCollisions: { type: Boolean },
-    collisionBoundary: { type: [Object, Array] },
-    collisionPadding: { type: [Number, Object] },
-    arrowPadding: { type: Number },
-    sticky: { type: String },
-    hideWhenDetached: { type: Boolean },
-    updatePositionStrategy: { type: String },
-    onPlaced: { type: Function },
-    prioritizePosition: { type: Boolean },
-    dismissable: { type: Boolean, default: false },
-    position: { type: String },
-    asChild: { type: Boolean, default: false },
-    // Question to DC: Can we do this through upwindConfig?
-    buttonClass: { type: String },
-    loading: { type: Boolean, default: false },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-  emits: [
-    "update:open",
-    "update:modelValue",
-    "escapeKeyDown",
-    "pointerDownOutside",
-    "focusOutside",
-    "interactOutside",
-    "dismiss",
-  ],
-  setup(props, { emit }) {
-    const open = ref(false);
-    const selected = ref(null);
-
-    const styles = useStyles(
-      ["combobox", "combobox.icons", "combobox.command"],
-      toRefs({ ...props, open }),
-      config,
-      props.upwindConfig
-    );
-
-    const updateSelected = () => {
-      selected.value = first(
-        props.items.filter(item => item.value === props.defaultItem?.value)
-      );
-    };
-
-    updateSelected();
-
-    watch(
-      () => props.defaultItem,
-      (newDefaultItem: any) => {
-        if (newDefaultItem && !selected.value) {
-          selected.value =
-            props.items.find(item => item.value === newDefaultItem.value) ||
-            null;
-        }
-      },
-      { immediate: true }
-    );
-
-    const handleSelect = (value: string, label: string, icon: string) => {
-      emit("update:modelValue", value);
-      selected.value = { label, value, icon };
-      open.value = false;
-    };
-
-    return {
-      stylesheet,
-      open,
-      styles,
-      handleSelect,
-      selected,
-    };
-  },
+const props = withDefaults(defineProps<ComboboxProps>(), {
+  // --- props
+  label: "",
+  items: () => [],
+  modelValue: "",
+  loading: false,
+  emptyMessage: "No Results",
+  searchMessage: "Search...",
+  // -- variants
+  color: "base",
+  width: "md",
+  // --- styles
+  upwindConfig: () => ({ alert: {} }),
+  class: "",
 });
+
+const emit = defineEmits(["update:modelValue", "input"]);
+
+const meta = computed(() => ({
+  color: props.color,
+  width: props.width,
+}));
+
+const variants = useStyles(
+  ["button", "content", "item"],
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ content: string; button: string; item: string }>;
+
+const open = ref(false);
+const selected = isString(props.modelValue)
+  ? find(props.items, { value: props.modelValue })
+  : props.modelValue;
+const value = ref(selected);
+
+watch(
+  () => props.modelValue,
+  newValue => {
+    const selected = isString(newValue)
+      ? find(props.items, { value: newValue })
+      : newValue;
+    value.value = selected;
+  },
+  { immediate: true }
+);
+
+const handleSelect = (item: any) => {
+  value.value = item; // Use the ref value
+  open.value = false; // Use the ref value
+  emit("update:modelValue", item); // Use the emit function directly
+  emit("input", item); // Use the emit function directly
+};
 </script>
