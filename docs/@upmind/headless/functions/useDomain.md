@@ -25,25 +25,25 @@ function useDomain(__namedParameters): object
 ### destroy()
 
 ```ts
-destroy: () => Interpreter<DomainContext, any, AnyEventObject, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+destroy: () => Interpreter<DomainContext, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Returns
 
-`Interpreter`\<[`DomainContext`](../interfaces/DomainContext.md), `any`, `AnyEventObject`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`Interpreter`\<[`DomainContext`](../interfaces/DomainContext.md), `any`, `AnyEventObject`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### getSnapshot()
 
 ```ts
-getSnapshot: () => State<DomainContext, AnyEventObject, any, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>> = service.getSnapshot;
+getSnapshot: () => State<DomainContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>> = service.getSnapshot;
 ```
 
 #### Returns
 
-`State`\<[`DomainContext`](../interfaces/DomainContext.md), `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`State`\<[`DomainContext`](../interfaces/DomainContext.md), `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### service
 
 ```ts
-service: Interpreter<DomainContext, any, AnyEventObject, object, ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<DomainContext, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```

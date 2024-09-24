@@ -77,12 +77,12 @@ getSnapshot: () => any;
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<object, AnyEventObject, any, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>>;
+isReady: () => Promise<State<object, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
 ```
 
 #### Returns
 
-`Promise`\<`State`\<`object`, `AnyEventObject`, `any`, `object`, `MarkAllImplementationsAsProvided`\<`ResolveTypegenMeta`\<`Typegen0`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>\>
+`Promise`\<`State`\<`object`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>\>
 
 ### search()
 
@@ -101,7 +101,7 @@ search: (data) => Promise<any>;
 ### service
 
 ```ts
-service: Interpreter<object, any, AnyEventObject, object, MarkAllImplementationsAsProvided<ResolveTypegenMeta<Typegen0, AnyEventObject, BaseActionObject, ServiceMap>>>;
+service: Interpreter<object, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
 ```
 
 #### Type declaration

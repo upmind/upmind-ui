@@ -14,7 +14,7 @@ import { set, unset } from "lodash-es";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./brand.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
     initial: "processing",
@@ -294,6 +294,7 @@ export default createMachine(
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
+    // @ts-ignore
     services,
   }
 );

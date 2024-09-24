@@ -8,7 +8,7 @@ function useBasketFields(actor?): object
 
 ## Parameters
 
-• **actor?**: `TActor`\<`any`\>
+• **actor?**: `ActorRef`\<`any`, `any`\>
 
 ## Returns
 

@@ -18,7 +18,7 @@ import { responseCodes } from "../../api/types";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./client.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./client.machine.typegen").Typegen0,
     id: "sessionClient",
     predictableActionArguments: true,
     initial: "loading",
@@ -136,6 +136,7 @@ export default createMachine(
       wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5,
     },
+    // @ts-ignore
     services,
   }
 );

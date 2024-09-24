@@ -12,7 +12,7 @@ import { keys } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useApi = () => {
+export const useApi = (): any => {
   const api = useUpmindApi();
   const { state, send }: any = useActor(api.service);
 

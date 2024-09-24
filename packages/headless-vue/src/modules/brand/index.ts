@@ -14,7 +14,7 @@ import { BrandConfigKeys } from "@upmind/headless";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useBrand = () => {
+export const useBrand = (): any => {
   const brand = useUpmindBrand();
   const { state, send } = useActor(brand.service);
 
