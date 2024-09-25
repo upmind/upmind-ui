@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   // --- variants
   size: "md",
   color: "base",
-  variant: "outline",
+  variant: "flat",
   block: false,
   // --- styles
   upwindConfig: () => ({ button: {} }),
