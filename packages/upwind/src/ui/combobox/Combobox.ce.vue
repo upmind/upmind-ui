@@ -27,7 +27,7 @@
 
         <Icon
           v-if="!loading"
-          class="ml-2 h-3 w-3 shrink-0 rotate-180 opacity-50 transition-all duration-200"
+          class="ml-2 h-4 w-4 shrink-0 rotate-180 opacity-50 transition-all duration-200"
           icon="arrow-up"
         />
 
