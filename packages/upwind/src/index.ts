@@ -37,7 +37,7 @@ import { UwDrawer, Drawer } from "./ui/drawer";
 import { UwIcon, Icon } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
-import { UwTabs, Tabs } from "./ui/tabs";
+import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
 
 // --- uw component utils
@@ -63,6 +63,7 @@ export {
   Indicator,
   Sonner,
   Tabs,
+  type TabItems,
   Tooltip,
   // --- Custom Elements
   UwAlert,
