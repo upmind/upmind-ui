@@ -10,7 +10,7 @@ export const buttonVariants = cva(
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-opacity-0 hover:border-opacity-80 hover:text-opacity-80",
         ghost: "border-transparent bg-opacity-0 hover:bg-opacity-90",
-        link: "border-transparent bg-transparent underline-offset-4 hover:underline",
+        link: "border-none border-transparent bg-transparent !px-0 underline-offset-4 hover:underline",
         tonal: "border border-transparent",
       },
       color: {
@@ -31,6 +31,7 @@ export const buttonVariants = cva(
         sm: "h-9 gap-x-2 px-3 py-1",
         lg: "h-11 gap-x-2 px-8 py-1",
         icon: "h-10 w-10 gap-x-2 px-2 py-1 ",
+        badge: "px-1 py-0",
       },
       block: {
         true: "w-full basis-full",
