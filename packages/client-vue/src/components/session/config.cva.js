@@ -13,7 +13,7 @@ export default {
     footer: cva(
       "flex flex-col gap-2 text-sm font-light leading-tight tracking-tight"
     ),
-    content: cva("rounded-box w-full max-w-3xl items-start"),
+    content: cva("rounded-box w-full max-w-5xl items-start"),
 
     transition: {
       enter: {
