@@ -22,6 +22,7 @@
       :schema="schema"
       :uischema="uischema"
       :additional-errors="errors?.data"
+      :color="color"
       @reject="reject"
       @resolve="resolve"
       :class="styles.session.auth.form"
@@ -65,6 +66,7 @@ export default defineComponent({
     noTabs: { type: Boolean, default: false },
     blockTabs: { type: Boolean, default: false },
     stretchTabs: { type: Boolean, default: false },
+    color: { type: String },
   },
   setup(props) {
     const {

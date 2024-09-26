@@ -43,6 +43,7 @@
           "
           block
           class="w-full"
+          :color="color"
           @click="doAction(action, $event)"
         />
       </slot>
@@ -158,6 +159,7 @@ export default defineComponent({
     },
     autosave: { type: Boolean },
     // ---
+    color: { type: String },
     size: { type: String },
     // ---
 
