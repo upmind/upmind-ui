@@ -49,7 +49,7 @@
               :key="item.value"
               :value="item"
               @select="handleSelect(item)"
-              class="group flex items-center justify-between"
+              class="group flex cursor-pointer items-center justify-between"
               :class="variants.item"
             >
               <div class="flex">
@@ -60,7 +60,7 @@
                   class="mr-2"
                 />
 
-                {{ item.label }}
+                <span class="leading-none">{{ item.label }}</span>
               </div>
 
               <Icon
