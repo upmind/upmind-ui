@@ -58,6 +58,7 @@
       :block-tabs="blockTabs"
       :stretch-tabs="stretchTabs"
       :no-tabs="noTabs"
+      :color="color"
       :model-value="show"
     >
     </upm-auth>
@@ -108,6 +109,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    color: { type: String },
     blockTabs: { type: Boolean, default: false },
     stretchTabs: { type: Boolean, default: false },
     noTabs: { type: Boolean, default: false },
