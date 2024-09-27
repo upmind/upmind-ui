@@ -35,7 +35,7 @@ export const contentVariants = cva(
 export const itemVariants = cva("flex w-full items-center p-2 px-3 text-sm", {
   variants: {
     color: {
-      base: "data-[highlighted]:bg-base-foreground data-[highlighted]:bg-opacity-5 data-[highlighted]:text-base-foreground",
+      base: "text-primary data-[highlighted]:bg-base data-[highlighted]:bg-opacity-5 data-[highlighted]:text-primary",
       primary:
         "data-[highlighted]:bg-primary-background data-[highlighted]:text-primary-foreground",
       secondary:

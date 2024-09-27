@@ -4,7 +4,7 @@
       <Button
         variant="outline"
         role="combobox"
-        color="base"
+        color="primary"
         :aria-expanded="open"
         class="w-[200px] justify-between"
         :disabled="loading"
@@ -60,7 +60,7 @@
                   class="mr-2"
                 />
 
-                <span class="leading-none">{{ item.label }}</span>
+                <span class="mt-[1px] leading-none">{{ item.label }}</span>
               </div>
 
               <Icon
