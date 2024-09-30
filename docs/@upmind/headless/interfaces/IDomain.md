@@ -39,5 +39,5 @@ tld: string;
 ### type
 
 ```ts
-type: External;
+type: any;
 ```

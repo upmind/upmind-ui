@@ -40,7 +40,7 @@ export interface IDomainProduct {
   is_primary?: boolean;
 }
 
-interface IDomain {
+export interface IDomain {
   // TODO:
   // type: DomainTypes.External;
   type: any;
@@ -51,7 +51,7 @@ interface IDomain {
   is_primary: boolean;
 }
 
-interface IDomainSearch {
+export interface IDomainSearch {
   domain: string;
   offset: number;
 }
