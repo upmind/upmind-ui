@@ -57,7 +57,7 @@ module.exports = {
     ],
 
     // vue
-    "vue/component-name-in-template-casing": ["error", "kebab-case"],
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
     "vue/multi-word-component-names": "off",
     "vue/no-v-html": "off",
     "vue/no-v-text-v-html-on-component": "off",
