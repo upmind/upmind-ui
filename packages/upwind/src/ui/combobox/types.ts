@@ -15,7 +15,7 @@ export interface ComboboxItem {
 }
 
 export interface ComboboxProps {
-  modelValue?: string;
+  modelValue?: string | ComboboxItem;
   items: ComboboxItem[];
   label?: string;
   loading?: boolean;
