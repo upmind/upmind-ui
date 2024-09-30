@@ -13,10 +13,10 @@ export interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   // ---
+  block?: boolean;
   variant?: ButtonVariantProps["variant"];
   color?: ButtonVariantProps["color"];
   size?: ButtonVariantProps["size"];
-  block?: ButtonVariantProps["block"];
   // ---
   upwindConfig?: { button: Partial<ButtonProps> };
   class?: HTMLAttributes["class"];
