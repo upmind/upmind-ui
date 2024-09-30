@@ -31,7 +31,6 @@ import ButtonRoot from "./Button.vue";
 // --- types
 import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
-import { size } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<ButtonProps>(), {
