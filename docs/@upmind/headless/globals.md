@@ -21,7 +21,9 @@
 | Interface | Description |
 | ------ | ------ |
 | [DomainContext](interfaces/DomainContext.md) | - |
+| [IDomain](interfaces/IDomain.md) | - |
 | [IDomainProduct](interfaces/IDomainProduct.md) | - |
+| [IDomainSearch](interfaces/IDomainSearch.md) | - |
 
 ## Type Aliases
 
